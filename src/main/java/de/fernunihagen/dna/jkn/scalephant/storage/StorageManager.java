@@ -29,4 +29,8 @@ public class StorageManager implements Lifecycle {
 		return null;
 	}
 	
+	public void clear() {
+		
+	}
+	
 }

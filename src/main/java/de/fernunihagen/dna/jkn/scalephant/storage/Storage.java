@@ -10,7 +10,7 @@ public class Storage {
 	 * 
 	 * @return
 	 */
-	public synchronized StorageManager getStorageManager() {
+	public static synchronized StorageManager getStorageManager() {
 		
 		if(storageManager == null) {
 			final StorageConfiguration storageConfiguration = new StorageConfiguration();

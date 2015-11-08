@@ -3,6 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.storage;
 public class Tuple {
 	
 	protected byte[] data;
+	protected BoundingBox boundingBox;
 	
 
 	/**
@@ -14,6 +15,10 @@ public class Tuple {
 		int totalSize = 0;
 		
 		totalSize += data.length;
+		
+		if(boundingBox != null) {
+			totalSize += boundingBox.getSize();
+		}
 		
 		return totalSize;
 	}
