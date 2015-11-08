@@ -2,9 +2,15 @@ package de.fernunihagen.dna.jkn.scalephant.storage;
 
 public class Tuple {
 	
-	protected byte[] data;
+	protected byte[] bytes;
+	protected short seen;
 	protected BoundingBox boundingBox;
 	
+	public Tuple(final byte[] bytes, final BoundingBox boundingBox) {
+		super();
+		this.bytes = bytes;
+		this.boundingBox = boundingBox;
+	}
 
 	/**
 	 * Returns the size of the tuple in byte
@@ -14,7 +20,7 @@ public class Tuple {
 	public int getSize() {
 		int totalSize = 0;
 		
-		totalSize += data.length;
+		totalSize += bytes.length;
 		
 		if(boundingBox != null) {
 			totalSize += boundingBox.getSize();
@@ -22,5 +28,9 @@ public class Tuple {
 		
 		return totalSize;
 	}
+
+	public byte[] getBytes() {
+		return bytes;
+	}	
 
 }
