@@ -28,12 +28,21 @@ public class StorageManager implements Lifecycle, Storage {
 	}
 	
 	@Override
-	public void put(final Tuple tuple) {
+	public void put(final Tuple tuple) throws StorageManagerException {
+		if(! ready) {
+			throw new StorageManagerException("Storage manager is not ready");
+		}
+		
 		memtable.put(tuple);
 	}
 
 	@Override
-	public Tuple get(final int key) {
+	public Tuple get(final int key) throws StorageManagerException {
+		
+		if(! ready) {
+			throw new StorageManagerException("Storage manager is not ready");
+		}
+		
 		final Tuple tuple = memtable.get(key);
 		
 		if(tuple != null) {

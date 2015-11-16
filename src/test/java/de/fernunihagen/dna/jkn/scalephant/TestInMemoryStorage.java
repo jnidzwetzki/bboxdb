@@ -49,7 +49,7 @@ public class TestInMemoryStorage {
 	}
 	
 	@Test
-	public void getNonExisting() {
+	public void getNonExisting() throws Exception {
 		storageManager.clear();
 		Assert.assertEquals(null, storageManager.get(1));
 		Assert.assertEquals(null, storageManager.get(1000));
