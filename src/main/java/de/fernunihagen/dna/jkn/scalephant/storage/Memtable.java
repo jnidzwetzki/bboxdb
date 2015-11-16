@@ -23,4 +23,6 @@ public class Memtable {
 		freePos = 0;
 	}
 	
+	
+	
 }

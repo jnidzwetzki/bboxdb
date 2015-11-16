@@ -1,6 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
-public class Storage {
+public class StorageInterface {
 
 	private static StorageManager storageManager;
 	

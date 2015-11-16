@@ -6,7 +6,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.Storage;
+import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
@@ -17,7 +17,7 @@ public class TestInMemoryStorage {
 	
 	@BeforeClass
 	public static void init() {
-		storageManager = Storage.getStorageManager();
+		storageManager = StorageInterface.getStorageManager();
 	}
 	
 	@AfterClass
