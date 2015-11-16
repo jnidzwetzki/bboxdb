@@ -68,12 +68,30 @@ public class Memtable implements Lifecycle, Storage {
 		freePos++;
 	}
 
+	/**
+	 * Get the most recent version of the tuple for key
+	 * 
+	 */
 	@Override
-	public Tuple get(String key) {
+	public Tuple get(final String key) {
+		
+		Tuple tuple = null;
+		
 		for(int i = 0; i < freePos; i++) {
-			
+			final Tuple possibleTuple = data[i];
+			if(possibleTuple != null && possibleTuple.getKey().equals(key)) {
+				
+				if(tuple == null) {
+					tuple = possibleTuple;
+				} else {
+					if(tuple.getTimestamp() < possibleTuple.getTimestamp()) {
+						tuple = possibleTuple;
+					}
+				}
+			}
 		}
-		return null;
+		
+		return tuple;
 	}
 
 	@Override
