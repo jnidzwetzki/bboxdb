@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
 
-public class Memtable implements Lifecycle {
+public class Memtable implements Lifecycle, Storage {
 	
 	protected final Tuple[] data;
 	protected int freePos;
@@ -44,6 +44,16 @@ public class Memtable implements Lifecycle {
 	@Override
 	public void shutdown() {
 		
+	}
+
+	@Override
+	public void put(int key, final Tuple value) {
+		
+	}
+
+	@Override
+	public Tuple get(int key) {
+		return null;
 	}
 	
 }

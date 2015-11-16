@@ -50,7 +50,6 @@ public class TestInMemoryStorage {
 	
 	@Test
 	public void getNonExisting() {
-		storageManager.clear();
 		Assert.assertEquals(null, storageManager.get(1));
 		Assert.assertEquals(null, storageManager.get(1000));
 	}

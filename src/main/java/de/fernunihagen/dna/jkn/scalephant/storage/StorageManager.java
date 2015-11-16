@@ -2,7 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.storage;
 
 import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
 
-public class StorageManager implements Lifecycle {
+public class StorageManager implements Lifecycle, Storage {
 	
 	protected final StorageConfiguration configuration;
 	protected final Memtable memtable;
@@ -25,16 +25,15 @@ public class StorageManager implements Lifecycle {
 		ready = false;
 	}
 	
+	@Override
 	public void put(final int key, final Tuple value) {
 		
 	}
-	
+
+	@Override
 	public Tuple get(final int key) {
 		return null;
 	}
-	
-	public void clear() {
-		
-	}
+
 	
 }
