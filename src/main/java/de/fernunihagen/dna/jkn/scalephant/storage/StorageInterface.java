@@ -15,6 +15,7 @@ public class StorageInterface {
 		if(storageManager == null) {
 			final StorageConfiguration storageConfiguration = new StorageConfiguration();
 			storageManager = new StorageManager(storageConfiguration);
+			storageManager.init();
 		}
 		
 		return storageManager;

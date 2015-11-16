@@ -18,11 +18,13 @@ public class StorageManager implements Lifecycle, Storage {
 	}
 
 	public void init() {
+		memtable.init();
 		ready = true;
 	}
 
 	public void shutdown() {
 		ready = false;
+		memtable.shutdown();
 	}
 	
 	@Override
