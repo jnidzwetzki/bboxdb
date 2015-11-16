@@ -14,10 +14,11 @@ import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 public class TestInMemoryStorage {
 	
 	protected static StorageManager storageManager;
+	protected final static String TEST_RELATION = "testrelation";
 	
 	@BeforeClass
 	public static void init() {
-		storageManager = StorageInterface.getStorageManager();
+		storageManager = StorageInterface.getStorageManager(TEST_RELATION);
 	}
 	
 	@AfterClass

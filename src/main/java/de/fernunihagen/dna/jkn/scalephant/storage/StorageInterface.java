@@ -1,22 +1,33 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class StorageInterface {
 
-	private static StorageManager storageManager;
+	private static Map<String, StorageManager> instances;
 	
 	/**
-	 * Initializes the storage manager if necessary and retuns the 
-	 * instance.
+	 * Get the storage manager for a given table. If the storage manager does not 
+	 * exist, it will be created
 	 * 
 	 * @return
 	 */
-	public static synchronized StorageManager getStorageManager() {
+	public static synchronized StorageManager getStorageManager(final String table) {
 		
-		if(storageManager == null) {
-			final StorageConfiguration storageConfiguration = new StorageConfiguration();
-			storageManager = new StorageManager(storageConfiguration);
-			storageManager.init();
+		if(instances == null) {
+			instances = new HashMap<String, StorageManager>();
 		}
+		
+		if(instances.containsKey(table)) {
+			return instances.get(table);
+		}
+		
+		final StorageConfiguration storageConfiguration = new StorageConfiguration();
+		final StorageManager storageManager = new StorageManager(table, storageConfiguration);
+		storageManager.init();
+		
+		instances.put(table, storageManager);
 		
 		return storageManager;
 	}
@@ -25,10 +36,11 @@ public class StorageInterface {
 	protected void finalize() throws Throwable {
 		super.finalize();
 		
-		if(storageManager != null) {
-			storageManager.shutdown();
+		if(instances != null) {
+			for(final String table : instances.keySet()) {
+				final StorageManager storageManager = instances.get(table);
+				storageManager.shutdown();
+			}
 		}
-		
 	}
-	
 }

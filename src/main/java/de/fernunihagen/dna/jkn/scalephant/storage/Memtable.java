@@ -7,10 +7,20 @@ import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
 
 public class Memtable implements Lifecycle, Storage {
 	
-	protected final Tuple[] data;
-	protected int freePos;
+	/**
+	 * The name of the coresponding table
+	 */
+	protected final String table;
 	
-	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
+	/**
+	 * The memtable
+	 */
+	protected final Tuple[] data;
+	
+	/**
+	 * The next free position in the data array
+	 */
+	protected int freePos;
 	
 	/**
 	 * Maximal number of entries keept in memory
@@ -22,7 +32,13 @@ public class Memtable implements Lifecycle, Storage {
 	 */
 	protected final int size;
 
-	public Memtable(int entries, int size) {
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
+	
+	public Memtable(final String table, int entries, int size) {
+		this.table = table;
 		this.entries = entries;
 		this.size = size;
 		
