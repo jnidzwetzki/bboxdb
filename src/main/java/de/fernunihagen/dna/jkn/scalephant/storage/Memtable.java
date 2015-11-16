@@ -79,6 +79,7 @@ public class Memtable implements Lifecycle, Storage {
 		
 		for(int i = 0; i < freePos; i++) {
 			final Tuple possibleTuple = data[i];
+			
 			if(possibleTuple != null && possibleTuple.getKey().equals(key)) {
 				
 				if(tuple == null) {
@@ -91,8 +92,20 @@ public class Memtable implements Lifecycle, Storage {
 			}
 		}
 		
+		// The most recent tuple is the delete marker
+		if(tuple instanceof DeletedTuple) {
+			return null;
+		}
+		
 		return tuple;
 	}
+	
+	@Override
+	public void delete(final String key) throws StorageManagerException {
+		final Tuple deleteTuple = new DeletedTuple(key);
+		put(deleteTuple);
+	}
+	
 
 	@Override
 	public void clear() {
@@ -104,5 +117,4 @@ public class Memtable implements Lifecycle, Storage {
 		
 		freePos = 0;
 	}
-	
 }

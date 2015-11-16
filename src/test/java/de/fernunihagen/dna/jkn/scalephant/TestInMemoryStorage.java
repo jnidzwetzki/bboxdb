@@ -55,4 +55,27 @@ public class TestInMemoryStorage {
 		Assert.assertEquals(null, storageManager.get("1"));
 		Assert.assertEquals(null, storageManager.get("1000"));
 	}
+	
+	@Test
+	public void testStoreNullTuple() throws Exception {
+		storageManager.clear();
+		
+		final Tuple createdTuple = new Tuple("1", null, null);
+		storageManager.put(createdTuple);
+		
+		Assert.assertEquals(createdTuple, storageManager.get("1"));
+	}
+	
+	@Test
+	public void testTupleDelete() throws Exception {
+		storageManager.clear();
+		
+		final Tuple createdTuple = new Tuple("1", null, "abc".getBytes());
+		storageManager.put(createdTuple);
+		
+		Assert.assertEquals(createdTuple, storageManager.get("1"));
+		
+		storageManager.delete("1");
+		Assert.assertEquals(null, storageManager.get("1"));
+	}
 }

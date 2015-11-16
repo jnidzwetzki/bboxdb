@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
+import java.util.Arrays;
+
 public class Tuple {
 	
 	protected String key;
@@ -14,7 +16,7 @@ public class Tuple {
 		this.boundingBox = boundingBox;
 		this.bytes = bytes;
 		
-		this.timestamp = System.currentTimeMillis();
+		this.timestamp = System.nanoTime();
 	}
 
 	/**
@@ -60,4 +62,12 @@ public class Tuple {
 	public String getKey() {
 		return key;
 	}
+
+	@Override
+	public String toString() {
+		return "Tuple [key=" + key + ", boundingBox=" + boundingBox
+				+ ", bytes=" + Arrays.toString(bytes) + ", seen=" + seen
+				+ ", timestamp=" + timestamp + "]";
+	}
+	
 }

@@ -63,8 +63,12 @@ public class StorageManager implements Lifecycle, Storage {
 	}
 
 	@Override
+	public void delete(final String key) throws StorageManagerException {
+		memtable.delete(key);
+	}
+	
+	@Override
 	public void clear() {
 		memtable.clear();
 	}
-	
 }

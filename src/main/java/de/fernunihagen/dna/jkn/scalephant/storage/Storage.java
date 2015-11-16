@@ -2,10 +2,12 @@ package de.fernunihagen.dna.jkn.scalephant.storage;
 
 public interface Storage {
 
-	public abstract void put(final Tuple tuple) throws StorageManagerException;
+	public void put(final Tuple tuple) throws StorageManagerException;
 
-	public abstract Tuple get(final String key) throws StorageManagerException;
+	public Tuple get(final String key) throws StorageManagerException;
 	
-	public abstract void clear() throws StorageManagerException;
+	public void delete(final String key) throws StorageManagerException;
+	
+	public void clear() throws StorageManagerException;
 
 }
