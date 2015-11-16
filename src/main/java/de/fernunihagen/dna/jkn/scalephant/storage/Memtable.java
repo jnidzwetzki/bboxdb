@@ -47,13 +47,19 @@ public class Memtable implements Lifecycle, Storage {
 	}
 
 	@Override
-	public void put(int key, final Tuple value) {
-		
+	public void put(final Tuple value) {
+		data[freePos] = value;
+		freePos++;
 	}
 
 	@Override
 	public Tuple get(int key) {
 		return null;
+	}
+
+	@Override
+	public void clear() {
+		// TODO: Implement
 	}
 	
 }

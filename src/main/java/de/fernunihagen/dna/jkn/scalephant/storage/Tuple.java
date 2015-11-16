@@ -2,14 +2,16 @@ package de.fernunihagen.dna.jkn.scalephant.storage;
 
 public class Tuple {
 	
+	protected int key;
+	protected BoundingBox boundingBox;
 	protected byte[] bytes;
 	protected short seen;
-	protected BoundingBox boundingBox;
 	
-	public Tuple(final byte[] bytes, final BoundingBox boundingBox) {
+	public Tuple(final int key, final BoundingBox boundingBox, final byte[] bytes) {
 		super();
-		this.bytes = bytes;
+		this.key = key;
 		this.boundingBox = boundingBox;
+		this.bytes = bytes;
 	}
 
 	/**

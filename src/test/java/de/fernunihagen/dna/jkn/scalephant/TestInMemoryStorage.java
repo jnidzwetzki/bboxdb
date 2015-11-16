@@ -27,9 +27,9 @@ public class TestInMemoryStorage {
 	
 	@Test
 	public void testInsertElements() throws Exception {
-		final Tuple tuple = new Tuple("abc".getBytes(), null);
+		final Tuple tuple = new Tuple(1, null, "abc".getBytes());
 
-		storageManager.put(1, tuple);
+		storageManager.put(tuple);
 		
 		Assert.assertEquals(tuple, storageManager.get(1));
 	}
@@ -38,9 +38,9 @@ public class TestInMemoryStorage {
 	public void testInsertAndReadPerson() throws Exception {
 		final PersonEntity person1 = new PersonEntity("Jan", "Jansen", 30);
 		final ObjectSerializer<PersonEntity> serializer = new ObjectSerializer<PersonEntity>();
-		final Tuple createdTuple = new Tuple(serializer.serialize(person1), null);
+		final Tuple createdTuple = new Tuple(1, null, serializer.serialize(person1));
 		
-		storageManager.put(1, createdTuple);
+		storageManager.put(createdTuple);
 		final Tuple readTuple = storageManager.get(1);
 		
 		final PersonEntity readPerson1 = serializer.deserialize(readTuple.getBytes());
@@ -50,6 +50,7 @@ public class TestInMemoryStorage {
 	
 	@Test
 	public void getNonExisting() {
+		storageManager.clear();
 		Assert.assertEquals(null, storageManager.get(1));
 		Assert.assertEquals(null, storageManager.get(1000));
 	}

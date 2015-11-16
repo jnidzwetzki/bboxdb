@@ -26,14 +26,25 @@ public class StorageManager implements Lifecycle, Storage {
 	}
 	
 	@Override
-	public void put(final int key, final Tuple value) {
-		
+	public void put(final Tuple tuple) {
+		memtable.put(tuple);
 	}
 
 	@Override
 	public Tuple get(final int key) {
+		final Tuple tuple = memtable.get(key);
+		
+		if(tuple != null) {
+			return tuple;
+		}
+		
+		// Read data from the persistent SSTables
 		return null;
 	}
 
+	@Override
+	public void clear() {
+		memtable.clear();
+	}
 	
 }
