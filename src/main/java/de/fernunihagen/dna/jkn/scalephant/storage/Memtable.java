@@ -53,7 +53,7 @@ public class Memtable implements Lifecycle, Storage {
 			return;
 		}
 		
-		logger.info("Initializing a new memtable");
+		logger.info("Initializing a new memtable for table: " + table);
 		freePos = 0;
 	}
 
@@ -69,13 +69,22 @@ public class Memtable implements Lifecycle, Storage {
 	}
 
 	@Override
-	public Tuple get(int key) {
+	public Tuple get(String key) {
+		for(int i = 0; i < freePos; i++) {
+			
+		}
 		return null;
 	}
 
 	@Override
 	public void clear() {
-		// TODO: Implement
+		logger.info("Clear on memtable " + table + " called");
+		
+		for(int i = 0; i < data.length; i++) {
+			data[i] = null;
+		}
+		
+		freePos = 0;
 	}
 	
 }

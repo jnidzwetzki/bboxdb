@@ -46,7 +46,7 @@ public class StorageManager implements Lifecycle, Storage {
 	}
 
 	@Override
-	public Tuple get(final int key) throws StorageManagerException {
+	public Tuple get(final String key) throws StorageManagerException {
 		
 		if(! ready) {
 			throw new StorageManagerException("Storage manager is not ready");

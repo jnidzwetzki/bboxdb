@@ -2,12 +2,12 @@ package de.fernunihagen.dna.jkn.scalephant.storage;
 
 public class Tuple {
 	
-	protected int key;
+	protected String key;
 	protected BoundingBox boundingBox;
 	protected byte[] bytes;
 	protected short seen;
 	
-	public Tuple(final int key, final BoundingBox boundingBox, final byte[] bytes) {
+	public Tuple(final String key, final BoundingBox boundingBox, final byte[] bytes) {
 		super();
 		this.key = key;
 		this.boundingBox = boundingBox;
