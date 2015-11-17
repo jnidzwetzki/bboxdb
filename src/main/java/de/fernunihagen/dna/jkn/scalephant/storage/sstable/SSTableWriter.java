@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
 public class SSTableWriter implements AutoCloseable {
 	
@@ -82,11 +84,31 @@ public class SSTableWriter implements AutoCloseable {
 		}
 	}
 	
-	public void addData(final Memtable memtable) throws StorageManagerException {
+	public void addData(final List<Tuple> tuples) throws StorageManagerException {
 		if(fileOutputStream == null) {
 			final String error = "Trying to add a memtable to a non ready SSTable writer";
 			logger.error(error);
 			throw new StorageManagerException(error);
+		}
+		
+		try {
+			for(final Tuple tuple : tuples) {
+				byte[] keyBytes = tuple.getKey().getBytes();
+				byte[] data = tuple.getDataBytes();
+				
+			    final ByteBuffer buffer = ByteBuffer.allocate(Long.SIZE / Byte.SIZE);
+			    buffer.putLong(tuple.getTimestamp());
+				byte[] timestampBytes = buffer.array();
+				
+				int length = keyBytes.length + data.length + timestampBytes.length;
+				fileOutputStream.write(length);
+				
+				fileOutputStream.write(keyBytes);
+				fileOutputStream.write(data);
+				fileOutputStream.write(timestampBytes);
+			}
+		} catch (IOException e) {
+			throw new StorageManagerException("Untable to write memtable to SSTable", e);
 		}
 	}
 

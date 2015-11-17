@@ -1,7 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -132,13 +131,13 @@ public class SSTableManager implements Lifecycle {
 			
 			logger.info("Memtable flush thread has stopped: " + name);
 		}
-		
+			
 		protected void writeMemtable(final Memtable memtable) {
 			logger.info("Writing new memtable");
 			
 			try(final SSTableWriter ssTableWriter = new SSTableWriter(directory, name, tableNumber)) {
 				ssTableWriter.open();
-				ssTableWriter.addData(memtable);
+				ssTableWriter.addData(memtable.getSortedTupleList());
 			} catch (Exception e) {
 				logger.info("Exception while write memtable: " + name + " / " + tableNumber, e);
 			} finally {
