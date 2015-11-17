@@ -35,20 +35,27 @@ public class Memtable implements Lifecycle, Storage {
 	/**
 	 * Maximal size of memtable in kb
 	 */
-	protected final int size;
+	protected final int maxsize;
+	
+	/**
+	 * Current size in kb
+	 */
+	protected int currentSize;
+	
 
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
 	
-	public Memtable(final String table, int entries, int size) {
+	public Memtable(final String table, int entries, int maxsize) {
 		this.table = table;
 		this.entries = entries;
-		this.size = size;
+		this.maxsize = maxsize;
 		
 		this.data = new Tuple[entries];
 		freePos = -1;
+		currentSize = 0;
 	}
 
 	@Override
@@ -71,6 +78,7 @@ public class Memtable implements Lifecycle, Storage {
 	public void put(final Tuple value) {
 		data[freePos] = value;
 		freePos++;
+		currentSize = currentSize + value.getSize();
 	}
 
 	/**
@@ -169,8 +177,12 @@ public class Memtable implements Lifecycle, Storage {
 	 */
 	public boolean isFull() {
 		
-		//TODO: Add memory size check
+		// Check size of the table
+		if(currentSize >= maxsize) {
+			return true;
+		}
 		
+		// Check number of entries
 		if(freePos + 1 >= entries) {
 			return true;
 		}
