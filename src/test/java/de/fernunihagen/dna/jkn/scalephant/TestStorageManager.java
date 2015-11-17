@@ -11,7 +11,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 
-public class TestStorage {
+public class TestStorageManager {
 	
 	protected static StorageManager storageManager;
 	protected final static String TEST_RELATION = "testrelation";
