@@ -49,7 +49,7 @@ public class TestInMemoryStorage {
 		memtable.put(createdTuple);
 		final Tuple readTuple = memtable.get("1");
 		
-		final PersonEntity readPerson1 = serializer.deserialize(readTuple.getBytes());
+		final PersonEntity readPerson1 = serializer.deserialize(readTuple.getDataBytes());
 		
 		Assert.assertEquals(person1, readPerson1);
 	}
@@ -90,7 +90,7 @@ public class TestInMemoryStorage {
 		
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final Tuple tuple = memtable.get(Integer.toString(i));
-			Integer integer = Integer.parseInt(new String(tuple.getBytes()));
+			Integer integer = Integer.parseInt(new String(tuple.getDataBytes()));
 			Assert.assertEquals(Integer.toString(i), Integer.toString(integer));
 		}
 	}

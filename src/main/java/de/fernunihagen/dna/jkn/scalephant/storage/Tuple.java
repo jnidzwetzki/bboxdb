@@ -6,15 +6,15 @@ public class Tuple {
 	
 	protected String key;
 	protected BoundingBox boundingBox;
-	protected byte[] bytes;
+	protected byte[] dataBytes;
 	protected short seen;
 	protected long timestamp;
 	
-	public Tuple(final String key, final BoundingBox boundingBox, final byte[] bytes) {
+	public Tuple(final String key, final BoundingBox boundingBox, final byte[] dataBytes) {
 		super();
 		this.key = key;
 		this.boundingBox = boundingBox;
-		this.bytes = bytes;
+		this.dataBytes = dataBytes;
 		
 		this.timestamp = System.nanoTime();
 	}
@@ -27,8 +27,8 @@ public class Tuple {
 	public int getSize() {
 		int totalSize = 0;
 		
-		if(bytes != null) {
-			totalSize += bytes.length;
+		if(dataBytes != null) {
+			totalSize += dataBytes.length;
 		}
 		
 		if(boundingBox != null) {
@@ -43,8 +43,8 @@ public class Tuple {
 	 * 
 	 * @return
 	 */
-	public byte[] getBytes() {
-		return bytes;
+	public byte[] getDataBytes() {
+		return dataBytes;
 	}
 	
 	/**
@@ -68,7 +68,7 @@ public class Tuple {
 	@Override
 	public String toString() {
 		return "Tuple [key=" + key + ", boundingBox=" + boundingBox
-				+ ", bytes=" + Arrays.toString(bytes) + ", seen=" + seen
+				+ ", dataBytes=" + Arrays.toString(dataBytes) + ", seen=" + seen
 				+ ", timestamp=" + timestamp + "]";
 	}
 	

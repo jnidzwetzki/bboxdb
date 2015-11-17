@@ -44,7 +44,7 @@ public class TestStorageManager {
 		storageManager.put(createdTuple);
 		final Tuple readTuple = storageManager.get("1");
 		
-		final PersonEntity readPerson1 = serializer.deserialize(readTuple.getBytes());
+		final PersonEntity readPerson1 = serializer.deserialize(readTuple.getDataBytes());
 		
 		Assert.assertEquals(person1, readPerson1);
 	}
@@ -92,7 +92,7 @@ public class TestStorageManager {
 		
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final Tuple tuple = storageManager.get(Integer.toString(i));			
-			Assert.assertEquals(Integer.toString(i), new String(tuple.getBytes()));
+			Assert.assertEquals(Integer.toString(i), new String(tuple.getDataBytes()));
 		}
 		
 	}
