@@ -100,24 +100,46 @@ public class SSTableManager implements Lifecycle {
 			if(filename.startsWith(SSTableConst.FILE_PREFIX) && filename.endsWith(SSTableConst.FILE_SUFFIX)) {
 				logger.info("Found sstable: " + filename);
 				
-				final String sequence = filename
-						.replace(SSTableConst.FILE_PREFIX + name + "_", "")
-						.replace(SSTableConst.FILE_SUFFIX, "");
-				
 				try {
-					int sequenceNumber = Integer.parseInt(sequence);
+					final int sequenceNumber = extractSequenceFromFilename(filename);
 					
 					if(sequenceNumber >= tableNumber) {
 						tableNumber = sequenceNumber + 1;
 					}
 					
-				} catch(NumberFormatException e) {
-					logger.warn("Unable to parse sequence number: " + sequence);
+				} catch(StorageManagerException e) {
+					logger.warn("Unable to parse sequence number, ignoring file: " + filename, e);
 				}
 			}
 		}
 	}
+
+	/**
+	 * Extract the sequence Number from a given filename
+	 * @param filename
+	 * @return the sequence number
+	 * @throws StorageManagerException 
+	 */
+	protected int extractSequenceFromFilename(final String filename) throws StorageManagerException {
+		try {
+			final String sequence = filename
+				.replace(SSTableConst.FILE_PREFIX + name + "_", "")
+				.replace(SSTableConst.FILE_SUFFIX, "");
+		
+			return Integer.parseInt(sequence);
+		
+		} catch (NumberFormatException e) {
+			String error = "Unable to parse sequence number: " + filename;
+			logger.warn(error);
+			throw new StorageManagerException(error, e);
+		}
+	}
 	
+	/**
+	 * Schedule a memtable for flush
+	 * @param memtable
+	 * @throws StorageManagerException
+	 */
 	public void flushMemtable(final Memtable memtable) throws StorageManagerException {
 		synchronized (unflushedMemtables) {
 			unflushedMemtables.add(memtable);
