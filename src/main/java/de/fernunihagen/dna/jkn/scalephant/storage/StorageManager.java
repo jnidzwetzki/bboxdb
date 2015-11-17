@@ -5,15 +5,16 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
+import de.fernunihagen.dna.jkn.scalephant.util.State;
 
 public class StorageManager implements Lifecycle, Storage {
 	
 	protected final String table;
 	protected final StorageConfiguration configuration;
 	protected final SSTableManager sstableManager;
+	protected final State state;
 
 	protected Memtable memtable;
-	protected boolean ready;
 	
 	private final static Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
@@ -21,11 +22,8 @@ public class StorageManager implements Lifecycle, Storage {
 		super();
 		this.table = table;
 		this.configuration = configuration;
-
-		this.sstableManager = new SSTableManager(table, 
-				configuration.getDataDir());
-		
-		ready = false;
+		this.state = new State(false);
+		this.sstableManager = new SSTableManager(state, table, configuration.getDataDir());
 	}
 
 	public void init() {
@@ -36,11 +34,11 @@ public class StorageManager implements Lifecycle, Storage {
 		initNewMemtable();
 		sstableManager.init();
 		
-		ready = true;
+		state.setReady(true);
 	}
 
 	public void shutdown() {
-		ready = false;
+		state.setReady(false);
 		memtable.shutdown();
 		sstableManager.shutdown();
 	}
@@ -55,7 +53,7 @@ public class StorageManager implements Lifecycle, Storage {
 	
 	@Override
 	public void put(final Tuple tuple) throws StorageManagerException {
-		if(! ready) {
+		if(! state.isReady()) {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
 		
@@ -70,7 +68,7 @@ public class StorageManager implements Lifecycle, Storage {
 	@Override
 	public Tuple get(final String key) throws StorageManagerException {
 		
-		if(! ready) {
+		if(! state.isReady()) {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
 		

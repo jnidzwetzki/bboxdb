@@ -11,6 +11,7 @@ import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.util.State;
 
 public class SSTableManager implements Lifecycle {
 	
@@ -45,12 +46,19 @@ public class SSTableManager implements Lifecycle {
 	protected Thread flushThread;
 	
 	/**
+	 * The coresponding storage manager state
+	 */
+	protected State storageState;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final String name, final String directory) {
+	public SSTableManager(final State storageState, final String name, final String directory) {
 		super();
+		
+		this.storageState = storageState;
 		this.name = name;
 		this.directory = directory;
 		
@@ -140,6 +148,7 @@ public class SSTableManager implements Lifecycle {
 				ssTableWriter.addData(memtable.getSortedTupleList());
 			} catch (Exception e) {
 				logger.info("Exception while write memtable: " + name + " / " + tableNumber, e);
+				storageState.setReady(false);
 			} finally {
 				tableNumber++;
 			}
