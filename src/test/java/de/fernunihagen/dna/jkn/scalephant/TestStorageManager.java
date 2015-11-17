@@ -91,9 +91,8 @@ public class TestStorageManager {
 		}
 		
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple tuple = storageManager.get(Integer.toString(i));
-			Integer integer = Integer.parseInt(new String(tuple.getBytes()));
-			Assert.assertEquals(Integer.toString(i), Integer.toString(integer));
+			final Tuple tuple = storageManager.get(Integer.toString(i));			
+			Assert.assertEquals(Integer.toString(i), new String(tuple.getBytes()));
 		}
 		
 	}

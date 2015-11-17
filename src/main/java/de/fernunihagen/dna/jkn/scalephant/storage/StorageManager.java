@@ -1,5 +1,8 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,8 +13,10 @@ public class StorageManager implements Lifecycle, Storage {
 	
 	protected final String table;
 	protected final StorageConfiguration configuration;
-	protected final Memtable memtable;
 	protected final SSTableManager sstableManager;
+
+	protected Memtable memtable;
+	protected List<Memtable> unflushedMemtables;
 	protected boolean ready;
 	
 	private final static Logger logger = LoggerFactory.getLogger(StorageManager.class);
@@ -21,9 +26,7 @@ public class StorageManager implements Lifecycle, Storage {
 		this.table = table;
 		this.configuration = configuration;
 		
-		this.memtable = new Memtable(table, 
-				configuration.getMemtableEntries(), 
-				configuration.getMemtableSize());
+		unflushedMemtables = new ArrayList<Memtable>();
 		
 		this.sstableManager = new SSTableManager(table, 
 				configuration.getDataDir());
@@ -36,7 +39,7 @@ public class StorageManager implements Lifecycle, Storage {
 		
 		// Init the memtable before the sstablemanager. This ensures, that the
 		// sstable recovery can put entries into the memtable
-		memtable.init();
+		initNewMemtable();
 		sstableManager.init();
 		
 		ready = true;
@@ -48,10 +51,23 @@ public class StorageManager implements Lifecycle, Storage {
 		sstableManager.shutdown();
 	}
 	
+	private void initNewMemtable() {
+		memtable = new Memtable(table, 
+				configuration.getMemtableEntries(), 
+				configuration.getMemtableSize());
+		
+		memtable.init();
+	}
+	
 	@Override
 	public void put(final Tuple tuple) throws StorageManagerException {
 		if(! ready) {
 			throw new StorageManagerException("Storage manager is not ready");
+		}
+		
+		if(memtable.isFull()) {
+			unflushedMemtables.add(memtable);
+			initNewMemtable();
 		}
 		
 		memtable.put(tuple);
@@ -64,13 +80,22 @@ public class StorageManager implements Lifecycle, Storage {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
 		
-		final Tuple tuple = memtable.get(key);
+		Tuple tuple = memtable.get(key);
 		
 		if(tuple != null) {
 			return tuple;
 		}
 		
-		// Read data from the persistent SSTables
+		// Read tuple from unflushed memtables
+		for(final Memtable unflushedMemtable : unflushedMemtables) {
+			tuple = unflushedMemtable.get(key);
+
+			if(tuple != null) {
+				return tuple;
+			}
+		}
+		
+		// TODO: Read data from the persistent SSTables
 		return null;
 	}
 
@@ -82,5 +107,6 @@ public class StorageManager implements Lifecycle, Storage {
 	@Override
 	public void clear() {
 		memtable.clear();
+		unflushedMemtables.clear();
 	}
 }
