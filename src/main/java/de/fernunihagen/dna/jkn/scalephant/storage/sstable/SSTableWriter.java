@@ -50,10 +50,11 @@ public class SSTableWriter implements AutoCloseable {
 	}
 	
 	public void open() throws StorageManagerException {
-		final File directoryHandle = new File(directory);
+		final String directoryName = SSTableManager.getSSTableDir(directory, name);
+		final File directoryHandle = new File(directoryName);
 		
 		if(! directoryHandle.isDirectory()) {
-			final String error = "Directory for SSTables does not exist: " + directory;
+			final String error = "Directory for SSTable " + name + " does not exist: " + directoryName;
 			logger.error(error);
 			throw new StorageManagerException(error);
 		}
@@ -63,7 +64,7 @@ public class SSTableWriter implements AutoCloseable {
 
 		// Dont overwrite old data
 		if(outputFile.exists()) {
-			throw new StorageManagerException("Output file alredy exsits: " + outputFileName);
+			throw new StorageManagerException("Output file already exists: " + outputFileName);
 		}
 		
 		try {

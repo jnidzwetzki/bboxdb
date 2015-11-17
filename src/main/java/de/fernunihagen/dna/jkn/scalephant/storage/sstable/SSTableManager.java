@@ -61,14 +61,16 @@ public class SSTableManager implements Lifecycle {
 		this.storageState = storageState;
 		this.name = name;
 		this.directory = directory;
+		this.tableNumber = 0;
 		
-		tableNumber = 0;
 		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
 	}
 
 	@Override
 	public void init() {
 		logger.info("Init a new instance for the table: " + name);
+		scanForExistingTables();
+		
 		ready = true;
 		flushThread = new Thread(new SSTableFlusher());
 		flushThread.start();
@@ -80,6 +82,40 @@ public class SSTableManager implements Lifecycle {
 		logger.info("Shuting down the instance for table: " + name);
 		ready = false;
 		flushThread.interrupt();
+	}
+	
+	protected void scanForExistingTables() {
+		logger.info("Scan for existing SSTables: " + name);
+		final File directoryHandle = new File(getSSTableDir(directory, name));
+		
+		if(! directoryHandle.isDirectory()) {
+			logger.error("Storage directory is not an directory: " + directory);
+			storageState.setReady(false);
+		}
+		
+		final File[] entries = directoryHandle.listFiles();
+				
+		for(final File file : entries) {
+			final String filename = file.getName();
+			if(filename.startsWith(SSTableConst.FILE_PREFIX) && filename.endsWith(SSTableConst.FILE_SUFFIX)) {
+				logger.info("Found sstable: " + filename);
+				
+				final String sequence = filename
+						.replace(SSTableConst.FILE_PREFIX + name + "_", "")
+						.replace(SSTableConst.FILE_SUFFIX, "");
+				
+				try {
+					int sequenceNumber = Integer.parseInt(sequence);
+					
+					if(sequenceNumber >= tableNumber) {
+						tableNumber = sequenceNumber + 1;
+					}
+					
+				} catch(NumberFormatException e) {
+					logger.warn("Unable to parse sequence number: " + sequence);
+				}
+			}
+		}
 	}
 	
 	public void flushMemtable(final Memtable memtable) throws StorageManagerException {
@@ -107,8 +143,30 @@ public class SSTableManager implements Lifecycle {
 		return null;
 	}
 	
-	protected static String getSSTableFilename(final String directoy, final String name, int tablebumber) {
-		return directoy 
+	/**
+	 * The full name of the SSTable directoy for a given relation
+	 * 
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/scalephant/data/relation1 
+	 */
+	protected static String getSSTableDir(final String directory, final String name) {
+		return directory 
+				+ File.separator 
+				+ name;
+	}
+	
+	/**
+	 * The full name of the SSTable file for a given relation
+	 * 
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.sst
+	 */
+	protected static String getSSTableFilename(final String directory, final String name, int tablebumber) {
+		return getSSTableDir(directory, name)
 				+ File.separator 
 				+ SSTableConst.FILE_PREFIX 
 				+ name 
