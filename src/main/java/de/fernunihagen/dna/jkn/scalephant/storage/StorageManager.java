@@ -1,8 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +13,6 @@ public class StorageManager implements Lifecycle, Storage {
 	protected final SSTableManager sstableManager;
 
 	protected Memtable memtable;
-	protected List<Memtable> unflushedMemtables;
 	protected boolean ready;
 	
 	private final static Logger logger = LoggerFactory.getLogger(StorageManager.class);
@@ -25,9 +21,7 @@ public class StorageManager implements Lifecycle, Storage {
 		super();
 		this.table = table;
 		this.configuration = configuration;
-		
-		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
-		
+
 		this.sstableManager = new SSTableManager(table, 
 				configuration.getDataDir());
 		
@@ -66,7 +60,7 @@ public class StorageManager implements Lifecycle, Storage {
 		}
 		
 		if(memtable.isFull()) {
-			unflushedMemtables.add(memtable);
+			sstableManager.flushMemtable(memtable);
 			initNewMemtable();
 		}
 		
@@ -80,23 +74,13 @@ public class StorageManager implements Lifecycle, Storage {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
 		
-		Tuple tuple = memtable.get(key);
+		final Tuple tuple = memtable.get(key);
 		
 		if(tuple != null) {
 			return tuple;
 		}
 		
-		// Read tuple from unflushed memtables
-		for(final Memtable unflushedMemtable : unflushedMemtables) {
-			tuple = unflushedMemtable.get(key);
-
-			if(tuple != null) {
-				return tuple;
-			}
-		}
-		
-		// TODO: Read data from the persistent SSTables
-		return null;
+		return sstableManager.get(key);
 	}
 
 	@Override
@@ -107,6 +91,5 @@ public class StorageManager implements Lifecycle, Storage {
 	@Override
 	public void clear() {
 		memtable.clear();
-		unflushedMemtables.clear();
 	}
 }
