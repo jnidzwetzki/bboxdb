@@ -1,5 +1,10 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,6 +117,37 @@ public class Memtable implements Lifecycle, Storage {
 	
 
 	/**
+	 * Get a sorted list with all recent tuples
+	 * @return 
+	 * 
+	 */
+	public List<Tuple> getSortedTupleList() {
+		final SortedMap<String, Tuple> allTuples = new TreeMap<String, Tuple>();
+		
+		for(int i = 0; i < data.length; i++) {
+			final String key = data[i].getKey();
+			
+			if(! allTuples.containsKey(key)) {
+				allTuples.put(key, data[i]);
+			} else {
+				if(allTuples.get(key).getTimestamp() < data[i].getTimestamp()) {
+					
+					if(data[i] instanceof DeletedTuple) {
+						allTuples.remove(key);
+					} else {
+						allTuples.put(key, data[i]);
+					}
+				}
+			}
+		}
+		
+		final List<Tuple> resultList = new ArrayList<Tuple>(allTuples.size());
+		resultList.addAll(allTuples.values());
+		
+		return resultList;
+	}
+	
+	/**
 	 * Clean the whole memtable, useful for testing
 	 * 
 	 */
@@ -124,5 +160,21 @@ public class Memtable implements Lifecycle, Storage {
 		}
 		
 		freePos = 0;
+	}
+	
+	/**
+	 * Is this memtable full and needs to be flushed to disk
+	 * 
+	 * @return
+	 */
+	public boolean isFull() {
+		
+		//TODO: Add memory size check
+		
+		if(freePos + 1 >= entries) {
+			return true;
+		}
+		
+		return false;
 	}
 }
