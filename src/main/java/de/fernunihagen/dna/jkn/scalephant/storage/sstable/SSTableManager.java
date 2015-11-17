@@ -123,7 +123,9 @@ public class SSTableManager implements Lifecycle {
 				logger.info("Found sstable: " + filename);
 				
 				try {
-					final int sequenceNumber = extractSequenceFromFilename(filename);
+					final SSTableReader reader = new SSTableReader(name, directory, filename);
+					
+					final int sequenceNumber = reader.getTablebumber();
 					
 					if(sequenceNumber >= tableNumber) {
 						tableNumber = sequenceNumber + 1;
@@ -188,28 +190,6 @@ public class SSTableManager implements Lifecycle {
 	protected boolean isFileNameSSTable(final String filename) {
 		return filename.startsWith(SSTableConst.FILE_PREFIX) 
 				&& filename.endsWith(SSTableConst.FILE_SUFFIX);
-	}
-
-	/**
-	 * Extract the sequence Number from a given filename
-	 * 
-	 * @param filename
-	 * @return the sequence number
-	 * @throws StorageManagerException 
-	 */
-	protected int extractSequenceFromFilename(final String filename) throws StorageManagerException {
-		try {
-			final String sequence = filename
-				.replace(SSTableConst.FILE_PREFIX + name + "_", "")
-				.replace(SSTableConst.FILE_SUFFIX, "");
-		
-			return Integer.parseInt(sequence);
-		
-		} catch (NumberFormatException e) {
-			String error = "Unable to parse sequence number: " + filename;
-			logger.warn(error);
-			throw new StorageManagerException(error, e);
-		}
 	}
 	
 	/**
