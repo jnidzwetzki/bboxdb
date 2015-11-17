@@ -11,7 +11,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 
-public class TestInMemoryStorage {
+public class TestStorage {
 	
 	protected static StorageManager storageManager;
 	protected final static String TEST_RELATION = "testrelation";
@@ -77,5 +77,24 @@ public class TestInMemoryStorage {
 		
 		storageManager.delete("1");
 		Assert.assertEquals(null, storageManager.get("1"));
+	}
+	
+	@Test
+	public void testBigInsert() throws Exception {
+		storageManager.clear();
+		
+		int MAX_TUPLES = 1000000;
+
+		for(int i = 0; i < MAX_TUPLES; i++) {
+			final Tuple createdTuple = new Tuple(Integer.toString(i), null, Integer.toString(i).getBytes());
+			storageManager.put(createdTuple);
+		}
+		
+		for(int i = 0; i < MAX_TUPLES; i++) {
+			final Tuple tuple = storageManager.get(Integer.toString(i));
+			Integer integer = Integer.parseInt(new String(tuple.getBytes()));
+			Assert.assertEquals(Integer.toString(i), Integer.toString(integer));
+		}
+		
 	}
 }
