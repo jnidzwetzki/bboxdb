@@ -100,6 +100,10 @@ public class Memtable implements Lifecycle, Storage {
 		return tuple;
 	}
 	
+	/**
+	 * Delete a tuple, this is implemented by inserting a DeletedTuple object
+	 *
+	 */
 	@Override
 	public void delete(final String key) throws StorageManagerException {
 		final Tuple deleteTuple = new DeletedTuple(key);
@@ -107,6 +111,10 @@ public class Memtable implements Lifecycle, Storage {
 	}
 	
 
+	/**
+	 * Clean the whole memtable, useful for testing
+	 * 
+	 */
 	@Override
 	public void clear() {
 		logger.info("Clear on memtable " + table + " called");
