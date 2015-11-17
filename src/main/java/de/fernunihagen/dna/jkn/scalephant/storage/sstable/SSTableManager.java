@@ -69,6 +69,7 @@ public class SSTableManager implements Lifecycle {
 	@Override
 	public void init() {
 		logger.info("Init a new instance for the table: " + name);
+		createSSTableDirIfNeeded();
 		scanForExistingTables();
 		
 		ready = true;
@@ -98,12 +99,21 @@ public class SSTableManager implements Lifecycle {
 		return ! flushThread.isAlive();
 	}
 	
+	protected void createSSTableDirIfNeeded() {
+		final File rootDir = new File(directory);		
+		final File directoryHandle = new File(getSSTableDir(directory, name));
+		
+		if(rootDir.exists() && ! directoryHandle.exists()) {
+			logger.info("Create a new dir for table: " + name);
+			directoryHandle.mkdir();
+		}
+	}
 	
 	protected void scanForExistingTables() {
 		logger.info("Scan for existing SSTables: " + name);
 		final File directoryHandle = new File(getSSTableDir(directory, name));
 		
-		checkStorageDir(directoryHandle);
+		checkSSTableDir(directoryHandle);
 		
 		final File[] entries = directoryHandle.listFiles();
 				
@@ -131,9 +141,9 @@ public class SSTableManager implements Lifecycle {
 	 * 
 	 * @param directoryHandle
 	 */
-	protected void checkStorageDir(final File directoryHandle) {
+	protected void checkSSTableDir(final File directoryHandle) {
 		if(! directoryHandle.isDirectory()) {
-			logger.error("Storage directory is not an directory: " + directory);
+			logger.error("Storage directory is not an directory: " + directoryHandle);
 			storageState.setReady(false);
 		}
 	}
@@ -147,7 +157,7 @@ public class SSTableManager implements Lifecycle {
 		logger.info("Delete all existing SSTables for relation: " + name);
 		final File directoryHandle = new File(getSSTableDir(directory, name));
 	
-		checkStorageDir(directoryHandle);
+		checkSSTableDir(directoryHandle);
 		
 		final File[] entries = directoryHandle.listFiles();
 				
