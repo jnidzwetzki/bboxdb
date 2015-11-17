@@ -85,6 +85,17 @@ public class SSTableWriter implements AutoCloseable {
 		}
 	}
 	
+	/**
+	 * Format of a data record:
+	 * 
+	 * -----------------------------------------------------------
+	 * | Key-Length | Data-Length | Timestamp |   Key   |  Data  |
+	 * |   1 Byte   |    8 Byte   |   8 Byte  |         |        |
+	 * -----------------------------------------------------------
+	 * 
+	 * @param tuples
+	 * @throws StorageManagerException
+	 */
 	public void addData(final List<Tuple> tuples) throws StorageManagerException {
 		if(fileOutputStream == null) {
 			final String error = "Trying to add a memtable to a non ready SSTable writer";
@@ -101,12 +112,11 @@ public class SSTableWriter implements AutoCloseable {
 			    buffer.putLong(tuple.getTimestamp());
 				byte[] timestampBytes = buffer.array();
 				
-				int length = keyBytes.length + data.length + timestampBytes.length;
-				fileOutputStream.write(length);
-				
+				fileOutputStream.write(keyBytes.length);
+				fileOutputStream.write(data.length);
+				fileOutputStream.write(timestampBytes);
 				fileOutputStream.write(keyBytes);
 				fileOutputStream.write(data);
-				fileOutputStream.write(timestampBytes);
 			}
 		} catch (IOException e) {
 			throw new StorageManagerException("Untable to write memtable to SSTable", e);
