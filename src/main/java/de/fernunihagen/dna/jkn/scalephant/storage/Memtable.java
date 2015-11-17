@@ -75,7 +75,12 @@ public class Memtable implements Lifecycle, Storage {
 	}
 
 	@Override
-	public void put(final Tuple value) {
+	public void put(final Tuple value) throws StorageManagerException {
+		
+		if(freePos >= entries) {
+			throw new StorageManagerException("Unable to store a new tuple, all memtable slots are full");
+		}
+		
 		data[freePos] = value;
 		freePos++;
 		currentSize = currentSize + value.getSize();
