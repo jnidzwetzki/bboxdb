@@ -37,7 +37,7 @@ public class StorageConfiguration {
 	 * 
 	 * @return name of the data directory
 	 */
-	public static String getDataDir() {
+	public String getDataDir() {
 		return DATA_DIR;
 	}
 	
@@ -46,7 +46,7 @@ public class StorageConfiguration {
 	 * 
 	 * @return name of the commit log
 	 */
-	public static String getCommitlogDir() {
+	public String getCommitlogDir() {
 		return COMMITLOG_DIR;
 	}
 	
