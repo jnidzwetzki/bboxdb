@@ -137,7 +137,7 @@ public class Memtable implements Lifecycle, Storage {
 	public List<Tuple> getSortedTupleList() {
 		final SortedMap<String, Tuple> allTuples = new TreeMap<String, Tuple>();
 		
-		for(int i = 0; i < data.length; i++) {
+		for(int i = 0; i < freePos; i++) {
 			final String key = data[i].getKey();
 			
 			if(! allTuples.containsKey(key)) {
