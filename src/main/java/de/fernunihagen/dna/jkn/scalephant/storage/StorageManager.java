@@ -42,7 +42,7 @@ public class StorageManager implements Lifecycle, Storage {
 		memtable.shutdown();
 		sstableManager.shutdown();
 	}
-	
+
 	private void initNewMemtable() {
 		memtable = new Memtable(table, 
 				configuration.getMemtableEntries(), 
@@ -86,8 +86,34 @@ public class StorageManager implements Lifecycle, Storage {
 		memtable.delete(key);
 	}
 	
+	/**
+	 * Clear all entries in the table
+	 * 
+	 * 1) Reject new writes to this table 
+	 * 2) Clear the memtable
+	 * 3) Shutdown the sstable flush service
+	 * 4) Wait for shutdown complete
+	 * 5) Delete all persistent sstables
+	 * 6) Restart the service
+	 * 7) Accept new writes
+	 * 
+	 */
 	@Override
 	public void clear() {
+		shutdown();
+		
 		memtable.clear();
+		
+		while(! sstableManager.isShutdownComplete()) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				return;
+			}
+		}
+		
+		sstableManager.deleteExistingTables();
+		
+		init();
 	}
 }

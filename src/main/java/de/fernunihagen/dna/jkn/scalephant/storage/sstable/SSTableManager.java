@@ -84,20 +84,32 @@ public class SSTableManager implements Lifecycle {
 		flushThread.interrupt();
 	}
 	
+	
+	/**
+	 * Is the shutdown complete?
+	 * 
+	 * @return
+	 */
+	public boolean isShutdownComplete() {
+		if(flushThread == null) {
+			return true;
+		}
+		
+		return ! flushThread.isAlive();
+	}
+	
+	
 	protected void scanForExistingTables() {
 		logger.info("Scan for existing SSTables: " + name);
 		final File directoryHandle = new File(getSSTableDir(directory, name));
 		
-		if(! directoryHandle.isDirectory()) {
-			logger.error("Storage directory is not an directory: " + directory);
-			storageState.setReady(false);
-		}
+		checkStorageDir(directoryHandle);
 		
 		final File[] entries = directoryHandle.listFiles();
 				
 		for(final File file : entries) {
 			final String filename = file.getName();
-			if(filename.startsWith(SSTableConst.FILE_PREFIX) && filename.endsWith(SSTableConst.FILE_SUFFIX)) {
+			if(isFileNameSSTable(filename)) {
 				logger.info("Found sstable: " + filename);
 				
 				try {
@@ -115,7 +127,62 @@ public class SSTableManager implements Lifecycle {
 	}
 
 	/**
+	 * Ensure that the storage directory does exist
+	 * 
+	 * @param directoryHandle
+	 */
+	protected void checkStorageDir(final File directoryHandle) {
+		if(! directoryHandle.isDirectory()) {
+			logger.error("Storage directory is not an directory: " + directory);
+			storageState.setReady(false);
+		}
+	}
+	
+	/**
+	 * Delete all existing SSTables in the given directory
+	 * 
+	 * @return Directory was deleted or not
+	 */
+	public boolean deleteExistingTables() {
+		logger.info("Delete all existing SSTables for relation: " + name);
+		final File directoryHandle = new File(getSSTableDir(directory, name));
+	
+		checkStorageDir(directoryHandle);
+		
+		final File[] entries = directoryHandle.listFiles();
+				
+		for(final File file : entries) {
+			final String filename = file.getName();
+			if(isFileNameSSTable(filename)) {
+				logger.info("Deleting file: " + file);
+				file.delete();
+			}
+		}
+		
+		// Delete the directory if empty
+		if(directoryHandle.listFiles().length != 0) {
+			logger.info("SStable directory is not empty, skip directory delete");
+			return false;
+		} else {
+			directoryHandle.delete();
+			return true;
+		}
+	}
+
+	/**
+	 * Belongs the given filename to a SSTable?
+	 * 
+	 * @param filename
+	 * @return
+	 */
+	protected boolean isFileNameSSTable(final String filename) {
+		return filename.startsWith(SSTableConst.FILE_PREFIX) 
+				&& filename.endsWith(SSTableConst.FILE_SUFFIX);
+	}
+
+	/**
 	 * Extract the sequence Number from a given filename
+	 * 
 	 * @param filename
 	 * @return the sequence number
 	 * @throws StorageManagerException 
@@ -137,6 +204,7 @@ public class SSTableManager implements Lifecycle {
 	
 	/**
 	 * Schedule a memtable for flush
+	 * 
 	 * @param memtable
 	 * @throws StorageManagerException
 	 */
@@ -213,8 +281,11 @@ public class SSTableManager implements Lifecycle {
 					}
 				}
 				
-				final Memtable memtable = unflushedMemtables.remove(0);
-				writeMemtable(memtable);
+				// Flush all pending memtables to disk
+				while(! unflushedMemtables.isEmpty()) {
+					final Memtable memtable = unflushedMemtables.remove(0);
+					writeMemtable(memtable);
+				}
 			}
 			
 			logger.info("Memtable flush thread has stopped: " + name);
