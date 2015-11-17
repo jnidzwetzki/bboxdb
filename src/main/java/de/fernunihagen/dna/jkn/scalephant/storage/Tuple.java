@@ -27,7 +27,9 @@ public class Tuple {
 	public int getSize() {
 		int totalSize = 0;
 		
-		totalSize += bytes.length;
+		if(bytes != null) {
+			totalSize += bytes.length;
+		}
 		
 		if(boundingBox != null) {
 			totalSize += boundingBox.getSize();
