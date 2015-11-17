@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +44,10 @@ public class Memtable implements Lifecycle, Storage {
 	 */
 	protected int currentSize;
 	
+	/**
+	 * The lock for synchronisation
+	 */
+	protected final Lock lock = new ReentrantLock();
 
 	/**
 	 * The Logger
@@ -81,9 +87,15 @@ public class Memtable implements Lifecycle, Storage {
 			throw new StorageManagerException("Unable to store a new tuple, all memtable slots are full");
 		}
 		
-		data[freePos] = value;
-		freePos++;
-		currentSize = currentSize + value.getSize();
+		lock.lock();
+		
+		try {
+			data[freePos] = value;
+			freePos++;
+			currentSize = currentSize + value.getSize();
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	/**

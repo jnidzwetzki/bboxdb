@@ -1,7 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class StorageManager implements Lifecycle, Storage {
 		this.table = table;
 		this.configuration = configuration;
 		
-		unflushedMemtables = new ArrayList<Memtable>();
+		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
 		
 		this.sstableManager = new SSTableManager(table, 
 				configuration.getDataDir());
