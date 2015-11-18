@@ -91,7 +91,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * 
 	 * -----------------------------------------------------------
 	 * | Key-Length | Data-Length | Timestamp |   Key   |  Data  |
-	 * |   1 Byte   |    8 Byte   |   8 Byte  |         |        |
+	 * |   2 Byte   |    8 Byte   |   8 Byte  |         |        |
 	 * -----------------------------------------------------------
 	 * 
 	 * @param tuples
@@ -109,13 +109,13 @@ public class SSTableWriter implements AutoCloseable {
 				byte[] keyBytes = tuple.getKey().getBytes();
 				byte[] data = tuple.getDataBytes();
 				
-			    final ByteBuffer buffer = ByteBuffer.allocate(Long.SIZE / Byte.SIZE);
-			    buffer.putLong(tuple.getTimestamp());
-				byte[] timestampBytes = buffer.array();
-				
-				fileOutputStream.write(keyBytes.length);
-				fileOutputStream.write(data.length);
-				fileOutputStream.write(timestampBytes);
+				final ByteBuffer keyLengthBytes = SSTableHelper.shortToByteBuffer((short) keyBytes.length);
+				final ByteBuffer dataLengthBytes = SSTableHelper.longToByteBuffer(data.length);
+			    final ByteBuffer timestampBytes = SSTableHelper.longToByteBuffer(tuple.getTimestamp());
+			    
+			    fileOutputStream.write(keyLengthBytes.array());
+				fileOutputStream.write(dataLengthBytes.array());
+				fileOutputStream.write(timestampBytes.array());
 				fileOutputStream.write(keyBytes);
 				fileOutputStream.write(data);
 			}
@@ -123,5 +123,7 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException("Untable to write memtable to SSTable", e);
 		}
 	}
+
+
 
 }
