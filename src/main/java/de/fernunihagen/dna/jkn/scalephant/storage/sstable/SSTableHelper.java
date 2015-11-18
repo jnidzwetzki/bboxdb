@@ -43,7 +43,7 @@ public class SSTableHelper {
 	public static ByteBuffer intToByteBuffer(int intValue) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(INT_BYTES);
 		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
-		byteBuffer.putLong(intValue);
+		byteBuffer.putInt(intValue);
 		return byteBuffer;		
 	}
 	
@@ -55,7 +55,7 @@ public class SSTableHelper {
 	public static ByteBuffer shortToByteBuffer(short shortValue) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(SHORT_BYTES);
 		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
-		byteBuffer.putLong(shortValue);
+		byteBuffer.putShort(shortValue);
 		return byteBuffer;		
 	}
 	
