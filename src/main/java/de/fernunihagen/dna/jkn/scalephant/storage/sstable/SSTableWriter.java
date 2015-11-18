@@ -49,7 +49,7 @@ public class SSTableWriter implements AutoCloseable {
 		this.fileOutputStream = null;
 	}
 	
-	public void open() throws StorageManagerException {
+	public File open() throws StorageManagerException {
 		final String directoryName = SSTableManager.getSSTableDir(directory, name);
 		final File directoryHandle = new File(directoryName);
 		
@@ -71,6 +71,7 @@ public class SSTableWriter implements AutoCloseable {
 			logger.info("Opening new SSTable for relation: " + name + " file: " + outputFileName);
 			fileOutputStream = new FileOutputStream(outputFileName);
 			fileOutputStream.write(SSTableConst.MAGIC_BYTES);
+			return outputFile;
 		} catch (FileNotFoundException e) {
 			throw new StorageManagerException("Unable to open output file", e);
 		} catch (IOException e) {

@@ -1,7 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -70,12 +69,14 @@ public class SSTableManager implements Lifecycle {
 		this.tableNumber = 0;
 		
 		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
-		tableReader = new ArrayList<SSTableReader>();
+		tableReader = new CopyOnWriteArrayList<SSTableReader>();
 	}
 
 	@Override
 	public void init() {
 		logger.info("Init a new instance for the table: " + name);
+		unflushedMemtables.clear();
+		tableReader.clear();
 		createSSTableDirIfNeeded();
 		scanForExistingTables();
 		
@@ -131,7 +132,7 @@ public class SSTableManager implements Lifecycle {
 				logger.info("Found sstable: " + filename);
 				
 				try {
-					final SSTableReader reader = new SSTableReader(name, directory, filename);
+					final SSTableReader reader = new SSTableReader(name, directory, file);
 					tableReader.add(reader);
 				} catch(StorageManagerException e) {
 					logger.warn("Unable to parse sequence number, ignoring file: " + filename, e);
@@ -228,9 +229,15 @@ public class SSTableManager implements Lifecycle {
 		}
 	}
 	
+	/**
+	 * Search for the most recent version of the tuple
+	 * @param key
+	 * @return The tuple or null
+	 * @throws StorageManagerException
+	 */
 	public Tuple get(final String key) throws StorageManagerException {
 		
-		Tuple tuple;
+		Tuple tuple = null;
 		
 		// Read tuple from unflushed memtables
 		for(final Memtable unflushedMemtable : unflushedMemtables) {
@@ -241,9 +248,18 @@ public class SSTableManager implements Lifecycle {
 			}
 		}
 		
-		// TODO: Read data from the persistent SSTables
+		// Read data from the persistent SSTables
+		for(final SSTableReader reader : tableReader) {
+			final Tuple tableTuple = reader.getTuple(key);
+			
+			if(tuple == null) {
+				tuple = tableTuple;
+			} else if(tableTuple.getTimestamp() > tuple.getTimestamp()) {
+				tuple = tableTuple;
+			}
+		}
 		
-		return null;
+		return tuple;
 	}
 	
 	/**
@@ -296,26 +312,51 @@ public class SSTableManager implements Lifecycle {
 				
 				// Flush all pending memtables to disk
 				while(! unflushedMemtables.isEmpty()) {
-					final Memtable memtable = unflushedMemtables.remove(0);
-					writeMemtable(memtable);
+					final Memtable memtable = unflushedMemtables.get(0);
+					final File sstableFile = writeMemtable(memtable);
+					
+					if(sstableFile != null) {
+						try {
+							final SSTableReader reader = new SSTableReader(name, directory, sstableFile);
+							tableReader.add(reader);
+						} catch (StorageManagerException e) {
+							logger.error("Exception while creating SSTable reader", e);
+						}
+					}
+					
+					final Memtable removedTable = unflushedMemtables.remove(0);
+
+					if(memtable != removedTable) {
+						logger.error("Get other table than removed!");
+					}
+
 				}
 			}
 			
 			logger.info("Memtable flush thread has stopped: " + name);
 		}
 			
-		protected void writeMemtable(final Memtable memtable) {
-			logger.info("Writing new memtable");
+		/**
+		 * Write a memtable to disk and return the Filehandle of the table
+		 * 
+		 * @param memtable
+		 * @return
+		 */
+		protected File writeMemtable(final Memtable memtable) {
+			logger.info("Writing new memtable: " + tableNumber);
 			
 			try(final SSTableWriter ssTableWriter = new SSTableWriter(directory, name, tableNumber)) {
-				ssTableWriter.open();
+				final File filehandle = ssTableWriter.open();
 				ssTableWriter.addData(memtable.getSortedTupleList());
+				return filehandle;
 			} catch (Exception e) {
 				logger.info("Exception while write memtable: " + name + " / " + tableNumber, e);
 				storageState.setReady(false);
 			} finally {
 				tableNumber++;
 			}
+			
+			return null;
 		}
 	}
 
