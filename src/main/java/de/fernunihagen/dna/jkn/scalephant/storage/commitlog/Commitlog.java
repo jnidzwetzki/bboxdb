@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.storage;
+package de.fernunihagen.dna.jkn.scalephant.storage.commitlog;
 
 public class Commitlog {
 	
