@@ -64,7 +64,7 @@ public class SSTableHelper {
 	 * @param buffer
 	 * @return the long value
 	 */
-	public long readLongFromByteBuffer(byte[] buffer) {
+	public static long readLongFromByteBuffer(byte[] buffer) {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
 		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
 		return byteBuffer.getLong();
@@ -75,7 +75,7 @@ public class SSTableHelper {
 	 * @param buffer
 	 * @return the int value
 	 */
-	public long readIntFromByteBuffer(byte[] buffer) {
+	public static long readIntFromByteBuffer(byte[] buffer) {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
 		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
 		return byteBuffer.getInt();
@@ -86,7 +86,7 @@ public class SSTableHelper {
 	 * @param buffer
 	 * @return the short value
 	 */
-	public long readShortFromByteBuffer(byte[] buffer) {
+	public static long readShortFromByteBuffer(byte[] buffer) {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
 		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
 		return byteBuffer.getShort();
