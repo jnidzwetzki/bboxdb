@@ -1,6 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -29,6 +30,11 @@ public class SSTableManager implements Lifecycle {
 	 * The number of the table
 	 */
 	protected int tableNumber;
+	
+	/**
+	 * The Reader for existing SSTables
+	 */
+	protected final List<SSTableReader> tableReader;
 
 	/**
 	 * The unflushed memtables
@@ -64,6 +70,7 @@ public class SSTableManager implements Lifecycle {
 		this.tableNumber = 0;
 		
 		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
+		tableReader = new ArrayList<SSTableReader>();
 	}
 
 	@Override
@@ -72,6 +79,7 @@ public class SSTableManager implements Lifecycle {
 		createSSTableDirIfNeeded();
 		scanForExistingTables();
 		
+		tableNumber = getLastSequencenumberFromReader();
 		ready = true;
 		flushThread = new Thread(new SSTableFlusher());
 		flushThread.start();
@@ -124,18 +132,33 @@ public class SSTableManager implements Lifecycle {
 				
 				try {
 					final SSTableReader reader = new SSTableReader(name, directory, filename);
-					
-					final int sequenceNumber = reader.getTablebumber();
-					
-					if(sequenceNumber >= tableNumber) {
-						tableNumber = sequenceNumber + 1;
-					}
-					
+					tableReader.add(reader);
 				} catch(StorageManagerException e) {
 					logger.warn("Unable to parse sequence number, ignoring file: " + filename, e);
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Get the highest sequence number, based on the reader
+	 * instances
+	 * 
+	 * @return the sequence number
+	 */
+	protected int getLastSequencenumberFromReader() {
+		
+		int number = 0;
+		
+		for(SSTableReader reader : tableReader) {
+			final int sequenceNumber = reader.getTablebumber();
+			
+			if(sequenceNumber >= number) {
+				number = sequenceNumber + 1;
+			}
+		}
+		
+		return number;
 	}
 
 	/**
