@@ -11,6 +11,7 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
@@ -67,6 +68,7 @@ public class SSTableReader {
 		logger.info("Search in table: " + tablebumber + " for " + key);
 		
 		byte[] keyLengthBytes = new byte[SSTableHelper.SHORT_BYTES];
+		byte[] boxLengthBytes = new byte[SSTableHelper.INT_BYTES];
 		byte[] dataLengthBytes = new byte[SSTableHelper.INT_BYTES];
 		byte[] timestampBytes = new byte[SSTableHelper.LONG_BYTES];
 		
@@ -74,15 +76,20 @@ public class SSTableReader {
 			
 			while(reader.available() > 0) {
 				reader.read(keyLengthBytes, 0, keyLengthBytes.length);
+				reader.read(boxLengthBytes, 0, boxLengthBytes.length);
 				reader.read(dataLengthBytes, 0, dataLengthBytes.length);
 				reader.read(timestampBytes, 0, timestampBytes.length);
 				
 				final short keyLength = SSTableHelper.readShortFromByteBuffer(keyLengthBytes);
+				final int boxLength = SSTableHelper.readIntFromByteBuffer(boxLengthBytes);
 				final int dataLength = SSTableHelper.readIntFromByteBuffer(dataLengthBytes);
 				final long timestamp = SSTableHelper.readLongFromByteBuffer(timestampBytes);
 				
 				byte[] keyBytes = new byte[keyLength];
 				reader.read(keyBytes, 0, keyBytes.length);
+				
+				byte[] boxBytes = new byte[boxLength];
+				reader.read(boxBytes, 0, boxBytes.length);
 				
 				byte[] dataBytes = new byte[dataLength];
 				reader.read(dataBytes, 0, dataBytes.length);				
@@ -90,7 +97,9 @@ public class SSTableReader {
 				final String keyString = new String(keyBytes);
 				
 				if(keyString.equals(key)) {
-					return new Tuple(keyString, null, dataBytes, timestamp);
+					final long[] longArray = SSTableHelper.readLongArrayFromByteBuffer(boxBytes);
+					final BoundingBox boundingBox = new BoundingBox(longArray);
+					return new Tuple(keyString, boundingBox, dataBytes, timestamp);
 				}
 			}
 		

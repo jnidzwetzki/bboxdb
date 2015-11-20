@@ -34,7 +34,7 @@ public class BoundingBox {
 			boundingBox.add(values[i]);
 		}
 	}
-	
+
 	/**
 	 * Checks that the bounding box is valid
 	 * 

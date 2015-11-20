@@ -89,10 +89,10 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * Format of a data record:
 	 * 
-	 * -----------------------------------------------------------
-	 * | Key-Length | Data-Length | Timestamp |   Key   |  Data  |
-	 * |   2 Byte   |    4 Byte   |   8 Byte  |         |        |
-	 * -----------------------------------------------------------
+	 * ----------------------------------------------------------------------------------
+	 * | Key-Length | BBox-Length | Data-Length | Timestamp |   Key   |  BBox  |  Data  |
+	 * |   2 Byte   |    4 Byte   |    4 Byte   |   8 Byte  |         |        |        |
+	 * ----------------------------------------------------------------------------------
 	 * 
 	 * @param tuples
 	 * @throws StorageManagerException
@@ -107,16 +107,20 @@ public class SSTableWriter implements AutoCloseable {
 		try {
 			for(final Tuple tuple : tuples) {
 				byte[] keyBytes = tuple.getKey().getBytes();
+				byte[] boundingBoxBytes = tuple.getBoundingBox().toByteArray();
 				byte[] data = tuple.getDataBytes();
 				
 				final ByteBuffer keyLengthBytes = SSTableHelper.shortToByteBuffer((short) keyBytes.length);
 				final ByteBuffer dataLengthBytes = SSTableHelper.intToByteBuffer(data.length);
+				final ByteBuffer boxLengthBytes = SSTableHelper.intToByteBuffer(boundingBoxBytes.length);
 			    final ByteBuffer timestampBytes = SSTableHelper.longToByteBuffer(tuple.getTimestamp());
 			    
 			    fileOutputStream.write(keyLengthBytes.array());
+				fileOutputStream.write(boxLengthBytes.array());
 				fileOutputStream.write(dataLengthBytes.array());
 				fileOutputStream.write(timestampBytes.array());
 				fileOutputStream.write(keyBytes);
+				fileOutputStream.write(boundingBoxBytes);
 				fileOutputStream.write(data);
 			}
 		} catch (IOException e) {
