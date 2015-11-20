@@ -149,8 +149,8 @@ public class SSTableReader {
 	protected int extractSequenceFromFilename(final String filename) throws StorageManagerException {
 		try {
 			final String sequence = filename
-				.replace(SSTableConst.FILE_PREFIX + name + "_", "")
-				.replace(SSTableConst.FILE_SUFFIX, "");
+				.replace(SSTableConst.SST_FILE_PREFIX + name + "_", "")
+				.replace(SSTableConst.SST_FILE_SUFFIX, "");
 		
 			return Integer.parseInt(sequence);
 		

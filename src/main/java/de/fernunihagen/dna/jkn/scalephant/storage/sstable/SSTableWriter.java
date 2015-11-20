@@ -127,7 +127,4 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException("Untable to write memtable to SSTable", e);
 		}
 	}
-
-
-
 }

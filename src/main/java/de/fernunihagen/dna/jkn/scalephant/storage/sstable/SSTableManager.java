@@ -212,8 +212,8 @@ public class SSTableManager implements Lifecycle {
 	 * @return
 	 */
 	protected boolean isFileNameSSTable(final String filename) {
-		return filename.startsWith(SSTableConst.FILE_PREFIX) 
-				&& filename.endsWith(SSTableConst.FILE_SUFFIX);
+		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
+				&& filename.endsWith(SSTableConst.SST_FILE_SUFFIX);
 	}
 	
 	/**
@@ -290,11 +290,11 @@ public class SSTableManager implements Lifecycle {
 	protected static String getSSTableFilename(final String directory, final String name, int tablebumber) {
 		return getSSTableDir(directory, name)
 				+ File.separator 
-				+ SSTableConst.FILE_PREFIX 
+				+ SSTableConst.SST_FILE_PREFIX 
 				+ name 
 				+ "_" 
 				+ tablebumber 
-				+ SSTableConst.FILE_SUFFIX;
+				+ SSTableConst.SST_FILE_SUFFIX;
 	}
 	
 	class SSTableFlusher implements Runnable {

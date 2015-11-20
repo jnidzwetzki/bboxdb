@@ -12,12 +12,12 @@ public class SSTableConst {
 	/**
 	 * The prefix for every SSTable file
 	 */
-	public final static String FILE_PREFIX = "sstable_";
+	public final static String SST_FILE_PREFIX = "sstable_";
 	
 	/**
 	 * The suffix for every SSTable file
 	 */
-	public final static String FILE_SUFFIX = ".sst";
+	public final static String SST_FILE_SUFFIX = ".sst";
 	
 	/**
 	 * The Byte order for encoded values
