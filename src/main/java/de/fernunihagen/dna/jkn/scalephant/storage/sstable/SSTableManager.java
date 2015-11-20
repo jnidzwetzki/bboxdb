@@ -192,6 +192,9 @@ public class SSTableManager implements Lifecycle {
 			if(isFileNameSSTable(filename)) {
 				logger.info("Deleting file: " + file);
 				file.delete();
+			} else if(isFileNameSSTableIndex(filename)) {
+				logger.info("Deleting index file: " + file);
+				file.delete();
 			}
 		}
 		
@@ -214,6 +217,17 @@ public class SSTableManager implements Lifecycle {
 	protected boolean isFileNameSSTable(final String filename) {
 		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
 				&& filename.endsWith(SSTableConst.SST_FILE_SUFFIX);
+	}
+	
+	/**
+	 * Belongs the given filename to a SSTable index?
+	 * 
+	 * @param filename
+	 * @return
+	 */
+	protected boolean isFileNameSSTableIndex(final String filename) {
+		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
+				&& filename.endsWith(SSTableConst.SST_INDEX_SUFFIX);
 	}
 	
 	/**
