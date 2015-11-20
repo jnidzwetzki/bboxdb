@@ -294,6 +294,23 @@ public class SSTableManager implements Lifecycle {
 	}
 	
 	/**
+	 * The base name of the SSTable file for a given relation
+	 * 
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2
+	 */
+	protected static String getSSTableBase(final String directory, final String name, int tablebumber) {
+		return getSSTableDir(directory, name)
+				+ File.separator 
+				+ SSTableConst.SST_FILE_PREFIX 
+				+ name 
+				+ "_" 
+				+ tablebumber;
+	}
+	
+	/**
 	 * The full name of the SSTable file for a given relation
 	 * 
 	 * @param directory
@@ -302,13 +319,21 @@ public class SSTableManager implements Lifecycle {
 	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.sst
 	 */
 	protected static String getSSTableFilename(final String directory, final String name, int tablebumber) {
-		return getSSTableDir(directory, name)
-				+ File.separator 
-				+ SSTableConst.SST_FILE_PREFIX 
-				+ name 
-				+ "_" 
-				+ tablebumber 
+		return getSSTableBase(directory, name, tablebumber)
 				+ SSTableConst.SST_FILE_SUFFIX;
+	}
+	
+	/**
+	 * The full name of the SSTable index file for a given relation
+	 * 
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.idx
+	 */
+	protected static String getSSTableIndexFilename(final String directory, final String name, int tablebumber) {
+		return getSSTableBase(directory, name, tablebumber)
+				+ SSTableConst.SST_INDEX_SUFFIX;
 	}
 	
 	class SSTableFlusher implements Runnable {
