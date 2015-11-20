@@ -388,7 +388,8 @@ public class SSTableManager implements Lifecycle {
 			logger.info("Writing new memtable: " + tableNumber);
 			
 			try(final SSTableWriter ssTableWriter = new SSTableWriter(directory, name, tableNumber)) {
-				final File filehandle = ssTableWriter.open();
+				ssTableWriter.open();
+				final File filehandle = ssTableWriter.getSstableFile();
 				ssTableWriter.addData(memtable.getSortedTupleList());
 				return filehandle;
 			} catch (Exception e) {

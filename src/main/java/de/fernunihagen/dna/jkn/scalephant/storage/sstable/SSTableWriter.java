@@ -31,25 +31,41 @@ public class SSTableWriter implements AutoCloseable {
 	protected final String directory;
 	
 	/**
-	 * File output stream
+	 * SSTable output stream
 	 */
-	protected FileOutputStream fileOutputStream;
+	protected FileOutputStream sstableOutputStream;
+	
+	/**
+	 * SSTable index stream
+	 */
+	protected FileOutputStream sstableIndexOutputStream;
+	
+	/**
+	 * The SSTable file object
+	 */
+	protected File sstableFile;
+	
+	/**
+	 * The SSTable index file object
+	 */
+	protected File sstableIndexFile;
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableWriter.class);
-	
+
+
 	
 	public SSTableWriter(final String directory, final String name, final int tablenumber) {
 		this.directory = directory;
 		this.name = name;
 		this.tablebumber = tablenumber;
 		
-		this.fileOutputStream = null;
+		this.sstableOutputStream = null;
 	}
 	
-	public File open() throws StorageManagerException {
+	public void open() throws StorageManagerException {
 		final String directoryName = SSTableManager.getSSTableDir(directory, name);
 		final File directoryHandle = new File(directoryName);
 		
@@ -59,19 +75,23 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException(error);
 		}
 		
-		final String outputFileName = SSTableManager.getSSTableFilename(directory, name, tablebumber);
-		final File outputFile = new File(outputFileName);
-
-		// Dont overwrite old data
-		if(outputFile.exists()) {
-			throw new StorageManagerException("Output file already exists: " + outputFileName);
+		final String sstableOutputFileName = SSTableManager.getSSTableFilename(directory, name, tablebumber);
+		sstableFile = new File(sstableOutputFileName);
+		
+		final String outputIndexFileName = SSTableManager.getSSTableIndexFilename(directory, name, tablebumber);
+		sstableIndexFile = new File(outputIndexFileName);
+		
+		// Don't overwrite old data (table)
+		if(sstableFile.exists() || sstableIndexFile.exists()) {
+			throw new StorageManagerException("Table file already exists: " + sstableOutputFileName + " / " + sstableIndexFile);
 		}
 		
 		try {
-			logger.info("Opening new SSTable for relation: " + name + " file: " + outputFileName);
-			fileOutputStream = new FileOutputStream(outputFileName);
-			fileOutputStream.write(SSTableConst.MAGIC_BYTES);
-			return outputFile;
+			logger.info("Opening new SSTable for relation: " + name + " file: " + sstableOutputFileName);
+			sstableOutputStream = new FileOutputStream(sstableFile);
+			sstableOutputStream.write(SSTableConst.MAGIC_BYTES);
+			sstableIndexOutputStream = new FileOutputStream(sstableIndexFile);
+			sstableIndexOutputStream.write(SSTableConst.MAGIC_BYTES);
 		} catch (FileNotFoundException e) {
 			throw new StorageManagerException("Unable to open output file", e);
 		} catch (IOException e) {
@@ -80,9 +100,14 @@ public class SSTableWriter implements AutoCloseable {
 	}
 	
 	public void close() throws IOException {
-		if(fileOutputStream != null) {
-			fileOutputStream.close();
-			fileOutputStream = null;
+		if(sstableOutputStream != null) {
+			sstableOutputStream.close();
+			sstableOutputStream = null;
+		}
+		
+		if(sstableIndexOutputStream != null) {
+			sstableIndexOutputStream.close();
+			sstableIndexOutputStream = null;
 		}
 	}
 	
@@ -98,7 +123,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws StorageManagerException
 	 */
 	public void addData(final List<Tuple> tuples) throws StorageManagerException {
-		if(fileOutputStream == null) {
+		if(sstableOutputStream == null) {
 			final String error = "Trying to add a memtable to a non ready SSTable writer";
 			logger.error(error);
 			throw new StorageManagerException(error);
@@ -115,16 +140,58 @@ public class SSTableWriter implements AutoCloseable {
 				final ByteBuffer boxLengthBytes = SSTableHelper.intToByteBuffer(boundingBoxBytes.length);
 			    final ByteBuffer timestampBytes = SSTableHelper.longToByteBuffer(tuple.getTimestamp());
 			    
-			    fileOutputStream.write(keyLengthBytes.array());
-				fileOutputStream.write(boxLengthBytes.array());
-				fileOutputStream.write(dataLengthBytes.array());
-				fileOutputStream.write(timestampBytes.array());
-				fileOutputStream.write(keyBytes);
-				fileOutputStream.write(boundingBoxBytes);
-				fileOutputStream.write(data);
+			    sstableOutputStream.write(keyLengthBytes.array());
+				sstableOutputStream.write(boxLengthBytes.array());
+				sstableOutputStream.write(dataLengthBytes.array());
+				sstableOutputStream.write(timestampBytes.array());
+				long keyPosition = sstableIndexOutputStream.getChannel().position();
+				sstableOutputStream.write(keyBytes);
+				sstableOutputStream.write(boundingBoxBytes);
+				sstableOutputStream.write(data);
+				
+			    writeIndexEntry(keyLengthBytes, keyPosition);
 			}
 		} catch (IOException e) {
 			throw new StorageManagerException("Untable to write memtable to SSTable", e);
 		}
 	}
+
+	/** 
+	 * Append an entry to the index file.
+	 * 
+	 * Format of the index file:
+	 * 
+	 * -------------------------------------------
+	 * | Key-Position | Key-Length |  .........  |
+ 	 * |    8 Byte    |    2 Byte  |  .........  |
+	 * -------------------------------------------
+	 * 
+	 * @param keyLengthBytes
+	 * @param keyPosition
+	 * @throws IOException
+	 */
+	protected void writeIndexEntry(final ByteBuffer keyLengthBytes,
+			long keyPosition) throws IOException {
+		
+		final ByteBuffer indexPositionBytes = SSTableHelper.longToByteBuffer(keyPosition);
+		sstableIndexOutputStream.write(indexPositionBytes.array());
+		sstableIndexOutputStream.write(keyLengthBytes.array());
+	}
+
+	/**
+	 * Get the sstable output file
+	 * @return
+	 */
+	public File getSstableFile() {
+		return sstableFile;
+	}
+
+	/**
+	 * Get the sstable index output file
+	 * @return
+	 */
+	public File getSstableIndexFile() {
+		return sstableIndexFile;
+	}
+	
 }
