@@ -11,8 +11,8 @@ public class BoundingBox {
 	public final static BoundingBox EMPTY_BOX = new BoundingBox();
 	
 	/**
-	 * The variable boundingBox contains a bounding box for a tuple
-	 * the bunding box for n dimensions is structured as follows:
+	 * The boundingBox contains a bounding box for a tuple.
+	 * The boundingBox for n dimensions is structured as follows:
 	 * 
 	 * boundingBox[0] = x_1
 	 * boundingBox[1] = y_1
@@ -65,6 +65,49 @@ public class BoundingBox {
 		}
 		
 		return SSTableHelper.longArrayToByteBuffer(values).array();
+	}
+
+	/**
+	 * Convert to a readable string
+	 * 
+	 */
+	@Override
+	public String toString() {
+		return "BoundingBox [boundingBox=" + boundingBox + "]";
+	}
+
+	/**
+	 * Convert into a hashcode
+	 * 
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((boundingBox == null) ? 0 : boundingBox.hashCode());
+		return result;
+	}
+
+	/**
+	 * Compare to an other object
+	 * 
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BoundingBox other = (BoundingBox) obj;
+		if (boundingBox == null) {
+			if (other.boundingBox != null)
+				return false;
+		} else if (!boundingBox.equals(other.boundingBox))
+			return false;
+		return true;
 	}
 	
 }
