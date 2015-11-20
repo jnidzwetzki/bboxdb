@@ -6,6 +6,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
@@ -28,7 +29,7 @@ public class TestStorageManager {
 	
 	@Test
 	public void testInsertElements() throws Exception {
-		final Tuple tuple = new Tuple("1", null, "abc".getBytes());
+		final Tuple tuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
 
 		storageManager.put(tuple);
 		
@@ -39,7 +40,7 @@ public class TestStorageManager {
 	public void testInsertAndReadPerson() throws Exception {
 		final PersonEntity person1 = new PersonEntity("Jan", "Jansen", 30);
 		final ObjectSerializer<PersonEntity> serializer = new ObjectSerializer<PersonEntity>();
-		final Tuple createdTuple = new Tuple("1", null, serializer.serialize(person1));
+		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, serializer.serialize(person1));
 		
 		storageManager.put(createdTuple);
 		final Tuple readTuple = storageManager.get("1");
@@ -60,7 +61,7 @@ public class TestStorageManager {
 	public void testStoreNullTuple() throws Exception {
 		storageManager.clear();
 		
-		final Tuple createdTuple = new Tuple("1", null, null);
+		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, null);
 		storageManager.put(createdTuple);
 		
 		Assert.assertEquals(createdTuple, storageManager.get("1"));
@@ -70,7 +71,7 @@ public class TestStorageManager {
 	public void testTupleDelete() throws Exception {
 		storageManager.clear();
 		
-		final Tuple createdTuple = new Tuple("1", null, "abc".getBytes());
+		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
 		storageManager.put(createdTuple);
 		
 		Assert.assertEquals(createdTuple, storageManager.get("1"));
@@ -86,7 +87,7 @@ public class TestStorageManager {
 		int MAX_TUPLES = 1000000;
 
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), null, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
 		}
 		
