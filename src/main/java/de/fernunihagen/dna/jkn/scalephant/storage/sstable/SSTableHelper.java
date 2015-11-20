@@ -20,6 +20,21 @@ public class SSTableHelper {
 	public final static int SHORT_BYTES = Short.SIZE / Byte.SIZE;
 	
 	
+	/** 
+	 * Convert a array of long values into a byte buffer
+	 * @param longValues
+	 * @return
+	 */
+	public static ByteBuffer longArrayToByteBuffer(long longValues[]) {
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(LONG_BYTES * longValues.length);
+		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		
+		for(int i = 0; i < longValues.length; i++) {
+			byteBuffer.putLong(longValues[i]);
+		}
+		
+		return byteBuffer;
+	}
 	
 	/**
 	 * Encode a long into a byte buffer
@@ -57,6 +72,24 @@ public class SSTableHelper {
 		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
 		byteBuffer.putShort(shortValue);
 		return byteBuffer;		
+	}
+	
+	/**
+	 * Decode a long array from a byte buffer
+	 * @param buffer
+	 * @return the long value
+	 */
+	public static long[] readLongArrayFromByteBuffer(byte[] buffer) {
+		final int totalValues = buffer.length / LONG_BYTES;
+		long values[] = new long[totalValues];
+		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		
+		for(int i = 0; i < totalValues; i++) {
+			values[i] = byteBuffer.getLong(i * LONG_BYTES);
+		}
+		
+		return values;
 	}
 	
 	/**
