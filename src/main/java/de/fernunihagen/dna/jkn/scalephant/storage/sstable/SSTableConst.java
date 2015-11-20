@@ -20,6 +20,11 @@ public class SSTableConst {
 	public final static String SST_FILE_SUFFIX = ".sst";
 	
 	/**
+	 * The suffix for every SSTable index file
+	 */
+	public final static String SST_INDEX_SUFFIX = ".idx";
+	
+	/**
 	 * The Byte order for encoded values
 	 */
 	public final static ByteOrder SSTABLE_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
