@@ -91,7 +91,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * 
 	 * -----------------------------------------------------------
 	 * | Key-Length | Data-Length | Timestamp |   Key   |  Data  |
-	 * |   2 Byte   |    8 Byte   |   8 Byte  |         |        |
+	 * |   2 Byte   |    4 Byte   |   8 Byte  |         |        |
 	 * -----------------------------------------------------------
 	 * 
 	 * @param tuples
@@ -110,7 +110,7 @@ public class SSTableWriter implements AutoCloseable {
 				byte[] data = tuple.getDataBytes();
 				
 				final ByteBuffer keyLengthBytes = SSTableHelper.shortToByteBuffer((short) keyBytes.length);
-				final ByteBuffer dataLengthBytes = SSTableHelper.longToByteBuffer(data.length);
+				final ByteBuffer dataLengthBytes = SSTableHelper.intToByteBuffer(data.length);
 			    final ByteBuffer timestampBytes = SSTableHelper.longToByteBuffer(tuple.getTimestamp());
 			    
 			    fileOutputStream.write(keyLengthBytes.array());
