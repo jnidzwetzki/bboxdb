@@ -72,6 +72,15 @@ public class Tuple {
 		return key;
 	}
 
+	/**
+	 * Get the bounding box of the tuple
+	 * 
+	 * @return
+	 */
+	public BoundingBox getBoundingBox() {
+		return boundingBox;
+	}
+	
 	@Override
 	public String toString() {
 		return "Tuple [key=" + key + ", boundingBox=" + boundingBox
