@@ -66,8 +66,34 @@ public class SSTableReader {
 	public Tuple getTuple(final String key) throws StorageManagerException {
 		logger.info("Search in table: " + tablebumber + " for " + key);
 		
+		byte[] keyLengthBytes = new byte[SSTableHelper.SHORT_BYTES];
+		byte[] dataLengthBytes = new byte[SSTableHelper.INT_BYTES];
+		byte[] timestampBytes = new byte[SSTableHelper.LONG_BYTES];
+		
 		try (final InputStream reader = openAndValidateFile()) {
 			
+			while(reader.available() > 0) {
+				reader.read(keyLengthBytes, 0, keyLengthBytes.length);
+				reader.read(dataLengthBytes, 0, dataLengthBytes.length);
+				reader.read(timestampBytes, 0, timestampBytes.length);
+				
+				final short keyLength = SSTableHelper.readShortFromByteBuffer(keyLengthBytes);
+				final int dataLength = SSTableHelper.readIntFromByteBuffer(dataLengthBytes);
+				final long timestamp = SSTableHelper.readLongFromByteBuffer(timestampBytes);
+				
+				byte[] keyBytes = new byte[keyLength];
+				reader.read(keyBytes, 0, keyBytes.length);
+				
+				byte[] dataBytes = new byte[dataLength];
+				reader.read(dataBytes, 0, dataBytes.length);				
+				
+				final String keyString = new String(keyBytes);
+				
+				if(keyString.equals(key)) {
+					return new Tuple(keyString, null, dataBytes, timestamp);
+				}
+			}
+		
 		} catch (IOException e) {
 			throw new StorageManagerException(e);
 		}
@@ -93,8 +119,6 @@ public class SSTableReader {
 			if(! Arrays.equals(magicBytes, SSTableConst.MAGIC_BYTES)) {
 				throw new StorageManagerException("File " + file + " does not contain the magic bytes");
 			}
-			
-			System.out.println(magicBytes);
 			
 			return reader;
 		} catch (FileNotFoundException e) {

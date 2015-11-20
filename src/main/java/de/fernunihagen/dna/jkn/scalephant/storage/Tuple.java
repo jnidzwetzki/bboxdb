@@ -18,6 +18,13 @@ public class Tuple {
 		
 		this.timestamp = System.nanoTime();
 	}
+	
+	public Tuple(final String key, final BoundingBox boundingBox, final byte[] dataBytes, long timestamp) {
+		super();
+		this.key = key;
+		this.boundingBox = boundingBox;
+		this.dataBytes = dataBytes;
+	}
 
 	/**
 	 * Returns the size of the tuple in byte

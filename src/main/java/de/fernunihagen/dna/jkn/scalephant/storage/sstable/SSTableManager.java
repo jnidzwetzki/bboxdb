@@ -252,10 +252,13 @@ public class SSTableManager implements Lifecycle {
 		for(final SSTableReader reader : tableReader) {
 			final Tuple tableTuple = reader.getTuple(key);
 			
-			if(tuple == null) {
-				tuple = tableTuple;
-			} else if(tableTuple.getTimestamp() > tuple.getTimestamp()) {
-				tuple = tableTuple;
+			// Found a tuple
+			if(tableTuple != null) {
+				if(tuple == null) {
+					tuple = tableTuple;
+				} else if(tableTuple.getTimestamp() > tuple.getTimestamp()) {
+					tuple = tableTuple;
+				}
 			}
 		}
 		
