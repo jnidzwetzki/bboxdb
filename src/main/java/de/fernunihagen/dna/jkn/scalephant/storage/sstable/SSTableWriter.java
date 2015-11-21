@@ -140,16 +140,16 @@ public class SSTableWriter implements AutoCloseable {
 				final ByteBuffer boxLengthBytes = SSTableHelper.intToByteBuffer(boundingBoxBytes.length);
 			    final ByteBuffer timestampBytes = SSTableHelper.longToByteBuffer(tuple.getTimestamp());
 			    
+				long tuplePosition = sstableIndexOutputStream.getChannel().position();
 			    sstableOutputStream.write(keyLengthBytes.array());
 				sstableOutputStream.write(boxLengthBytes.array());
 				sstableOutputStream.write(dataLengthBytes.array());
 				sstableOutputStream.write(timestampBytes.array());
-				long keyPosition = sstableIndexOutputStream.getChannel().position();
 				sstableOutputStream.write(keyBytes);
 				sstableOutputStream.write(boundingBoxBytes);
 				sstableOutputStream.write(data);
 				
-			    writeIndexEntry(keyLengthBytes, keyPosition);
+			    writeIndexEntry(tuplePosition);
 			}
 		} catch (IOException e) {
 			throw new StorageManagerException("Untable to write memtable to SSTable", e);
@@ -161,21 +161,18 @@ public class SSTableWriter implements AutoCloseable {
 	 * 
 	 * Format of the index file:
 	 * 
-	 * -------------------------------------------
-	 * | Key-Position | Key-Length |  .........  |
- 	 * |    8 Byte    |    2 Byte  |  .........  |
-	 * -------------------------------------------
+	 * -------------------------------------------------
+	 * | Tuple-Position | Tuple-Position |  .........  |
+ 	 * |     8 Byte     |     8 Byte     |  .........  |
+	 * -------------------------------------------------
 	 * 
 	 * @param keyLengthBytes
 	 * @param keyPosition
 	 * @throws IOException
 	 */
-	protected void writeIndexEntry(final ByteBuffer keyLengthBytes,
-			long keyPosition) throws IOException {
-		
-		final ByteBuffer indexPositionBytes = SSTableHelper.longToByteBuffer(keyPosition);
-		sstableIndexOutputStream.write(indexPositionBytes.array());
-		sstableIndexOutputStream.write(keyLengthBytes.array());
+	protected void writeIndexEntry(long tuplePosition) throws IOException {
+		final ByteBuffer tuplePositionBytes = SSTableHelper.longToByteBuffer(tuplePosition);
+		sstableIndexOutputStream.write(tuplePositionBytes.array());
 	}
 
 	/**
