@@ -93,7 +93,7 @@ public class SSTableManager implements Lifecycle {
 		ready = false;
 		flushThread.interrupt();
 		
-		for(final SSTableReader reader :tableReader) {
+		for(final AbstractTableReader reader :tableReader) {
 			reader.shutdown();
 		}
 	}
@@ -155,7 +155,7 @@ public class SSTableManager implements Lifecycle {
 		
 		int number = 0;
 		
-		for(SSTableReader reader : tableReader) {
+		for(AbstractTableReader reader : tableReader) {
 			final int sequenceNumber = reader.getTablebumber();
 			
 			if(sequenceNumber >= number) {
