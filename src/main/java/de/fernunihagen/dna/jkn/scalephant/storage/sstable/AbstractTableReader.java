@@ -122,8 +122,9 @@ public abstract class AbstractTableReader implements Lifecycle {
 				try {
 					final String sequence = filename
 						.replace(SSTableConst.SST_FILE_PREFIX + name + "_", "")
-						.replace(SSTableConst.SST_FILE_SUFFIX, "");
-				
+						.replace(SSTableConst.SST_FILE_SUFFIX, "")
+						.replace(SSTableConst.SST_INDEX_SUFFIX, "");
+					
 					return Integer.parseInt(sequence);
 				
 				} catch (NumberFormatException e) {
