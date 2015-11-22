@@ -273,7 +273,7 @@ public class SSTableManager implements Lifecycle {
 				reader.init();
 			}
 			
-			final Tuple tableTuple = reader.getTuple(key);
+			final Tuple tableTuple = reader.scanForTuple(key);
 			
 			// Found a tuple
 			if(tableTuple != null) {

@@ -84,7 +84,7 @@ public class SSTableReader implements Lifecycle {
 	 * @return the tuple or null	
 	 * @throws StorageManagerException 
 	 */
-	public Tuple getTuple(final String key) throws StorageManagerException {
+	public Tuple scanForTuple(final String key) throws StorageManagerException {
 		logger.info("Search in table: " + tablebumber + " for " + key);
 
 		try {
@@ -92,6 +92,13 @@ public class SSTableReader implements Lifecycle {
 			
 			while(reader.available() > 0) {
 				final Tuple tuple = decodeTuple();
+
+				// The keys are stored in lexicographical order. If the
+				// next key of the sstable is greater then our search key,
+				// then the key is not contained in this table.
+				if(tuple.getKey().compareTo(key) > 0) {
+					return null;
+				}
 				
 				if(tuple.getKey().equals(key)) {
 					return tuple;
