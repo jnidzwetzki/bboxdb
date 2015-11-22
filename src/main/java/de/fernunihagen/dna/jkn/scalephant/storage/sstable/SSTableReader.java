@@ -67,39 +67,15 @@ public class SSTableReader {
 	public Tuple getTuple(final String key) throws StorageManagerException {
 		logger.info("Search in table: " + tablebumber + " for " + key);
 		
-		byte[] keyLengthBytes = new byte[SSTableHelper.SHORT_BYTES];
-		byte[] boxLengthBytes = new byte[SSTableHelper.INT_BYTES];
-		byte[] dataLengthBytes = new byte[SSTableHelper.INT_BYTES];
-		byte[] timestampBytes = new byte[SSTableHelper.LONG_BYTES];
-		
+
 		try (final InputStream reader = openAndValidateFile()) {
 			
 			while(reader.available() > 0) {
-				reader.read(keyLengthBytes, 0, keyLengthBytes.length);
-				reader.read(boxLengthBytes, 0, boxLengthBytes.length);
-				reader.read(dataLengthBytes, 0, dataLengthBytes.length);
-				reader.read(timestampBytes, 0, timestampBytes.length);
 				
-				final short keyLength = SSTableHelper.readShortFromByteBuffer(keyLengthBytes);
-				final int boxLength = SSTableHelper.readIntFromByteBuffer(boxLengthBytes);
-				final int dataLength = SSTableHelper.readIntFromByteBuffer(dataLengthBytes);
-				final long timestamp = SSTableHelper.readLongFromByteBuffer(timestampBytes);
+				final Tuple tuple = decodeTuple(reader);
 				
-				byte[] keyBytes = new byte[keyLength];
-				reader.read(keyBytes, 0, keyBytes.length);
-				
-				byte[] boxBytes = new byte[boxLength];
-				reader.read(boxBytes, 0, boxBytes.length);
-				
-				byte[] dataBytes = new byte[dataLength];
-				reader.read(dataBytes, 0, dataBytes.length);				
-				
-				final String keyString = new String(keyBytes);
-				
-				if(keyString.equals(key)) {
-					final long[] longArray = SSTableHelper.readLongArrayFromByteBuffer(boxBytes);
-					final BoundingBox boundingBox = new BoundingBox(longArray);
-					return new Tuple(keyString, boundingBox, dataBytes, timestamp);
+				if(tuple.getKey().equals(key)) {
+					return tuple;
 				}
 			}
 		
@@ -108,6 +84,46 @@ public class SSTableReader {
 		}
 		
 		return null;
+	}
+
+	/**
+	 * Decode the tuple at the current reader position
+	 * 
+	 * @param reader
+	 * @return
+	 * @throws IOException
+	 */
+	public Tuple decodeTuple(final InputStream reader) throws IOException {
+		byte[] keyLengthBytes = new byte[SSTableHelper.SHORT_BYTES];
+		byte[] boxLengthBytes = new byte[SSTableHelper.INT_BYTES];
+		byte[] dataLengthBytes = new byte[SSTableHelper.INT_BYTES];
+		byte[] timestampBytes = new byte[SSTableHelper.LONG_BYTES];
+		
+		reader.read(keyLengthBytes, 0, keyLengthBytes.length);
+		reader.read(boxLengthBytes, 0, boxLengthBytes.length);
+		reader.read(dataLengthBytes, 0, dataLengthBytes.length);
+		reader.read(timestampBytes, 0, timestampBytes.length);
+		
+		final short keyLength = SSTableHelper.readShortFromByteBuffer(keyLengthBytes);
+		final int boxLength = SSTableHelper.readIntFromByteBuffer(boxLengthBytes);
+		final int dataLength = SSTableHelper.readIntFromByteBuffer(dataLengthBytes);
+		final long timestamp = SSTableHelper.readLongFromByteBuffer(timestampBytes);
+		
+		byte[] keyBytes = new byte[keyLength];
+		reader.read(keyBytes, 0, keyBytes.length);
+		
+		byte[] boxBytes = new byte[boxLength];
+		reader.read(boxBytes, 0, boxBytes.length);
+		
+		byte[] dataBytes = new byte[dataLength];
+		reader.read(dataBytes, 0, dataBytes.length);				
+		
+		final long[] longArray = SSTableHelper.readLongArrayFromByteBuffer(boxBytes);
+		final BoundingBox boundingBox = new BoundingBox(longArray);
+		
+		final String keyString = new String(keyBytes);
+		
+		return new Tuple(keyString, boundingBox, dataBytes, timestamp);
 	}
 	
 	/**
