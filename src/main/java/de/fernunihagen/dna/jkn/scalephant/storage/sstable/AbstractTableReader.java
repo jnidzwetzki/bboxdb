@@ -166,4 +166,43 @@ public abstract class AbstractTableReader implements Lifecycle {
 		return reader != null;
 	}
 
+	/**
+	 * Get the name
+	 * @return the file handle
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * Get the file handle
+	 * @return
+	 */
+	public File getFile() {
+		return file;
+	}
+
+	/**
+	 * Get the directory
+	 * @return
+	 */
+	public String getDirectory() {
+		return directory;
+	}
+
+	/**
+	 * Get the reader
+	 * @return
+	 */
+	public InputStream getReader() {
+		return reader;
+	}
+	
+	/**
+	 * Get the file input stream
+	 * @return
+	 */
+	public FileInputStream getFileInputStream() {
+		return fileInputStream;
+	}
 }
