@@ -62,7 +62,7 @@ public class SSTableReader extends AbstractTableReader {
 	 * @return The tuple
 	 * @throws StorageManagerException
 	 */
-	public Tuple getTupleAtPosition(int position) throws StorageManagerException {
+	public Tuple getTupleAtPosition(long position) throws StorageManagerException {
 		try {
 			fileInputStream.getChannel().position(position);
 			createNewReaderBuffer();
