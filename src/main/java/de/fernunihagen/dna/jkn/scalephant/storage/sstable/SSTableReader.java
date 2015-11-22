@@ -80,12 +80,10 @@ public class SSTableReader implements Lifecycle {
 		logger.info("Search in table: " + tablebumber + " for " + key);
 
 		try {
-			fileInputStream.getChannel().position(SSTableConst.MAGIC_BYTES.length);
-			createNewReaderBuffer();
+			resetFileReaderPosition();
 			
 			while(reader.available() > 0) {
-				
-				final Tuple tuple = decodeTuple(reader);
+				final Tuple tuple = decodeTuple();
 				
 				if(tuple.getKey().equals(key)) {
 					return tuple;
@@ -98,6 +96,36 @@ public class SSTableReader implements Lifecycle {
 		
 		return null;
 	}
+	
+	/**
+	 * Get tuple at the given position
+	 * 
+	 * @param position
+	 * @return The tuple
+	 * @throws StorageManagerException
+	 */
+	public Tuple getTupleAtPosition(int position) throws StorageManagerException {
+		try {
+			fileInputStream.getChannel().position(position);
+			createNewReaderBuffer();
+			
+			final Tuple tuple = decodeTuple();
+			
+			return tuple;
+		} catch (IOException e) {
+			throw new StorageManagerException(e);
+		}
+	}
+
+	/**
+	 * Set the position of the reader at the position of the first tuple
+	 * 
+	 * @throws IOException
+	 */
+	protected void resetFileReaderPosition() throws IOException {
+		fileInputStream.getChannel().position(SSTableConst.MAGIC_BYTES.length);
+		createNewReaderBuffer();
+	}
 
 	/**
 	 * Decode the tuple at the current reader position
@@ -106,7 +134,7 @@ public class SSTableReader implements Lifecycle {
 	 * @return
 	 * @throws IOException
 	 */
-	public Tuple decodeTuple(final InputStream reader) throws IOException {
+	public Tuple decodeTuple() throws IOException {
 		byte[] keyLengthBytes = new byte[SSTableHelper.SHORT_BYTES];
 		byte[] boxLengthBytes = new byte[SSTableHelper.INT_BYTES];
 		byte[] dataLengthBytes = new byte[SSTableHelper.INT_BYTES];
