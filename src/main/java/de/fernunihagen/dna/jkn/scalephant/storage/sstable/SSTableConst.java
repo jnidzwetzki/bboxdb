@@ -28,4 +28,14 @@ public class SSTableConst {
 	 * The Byte order for encoded values
 	 */
 	public final static ByteOrder SSTABLE_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
+	
+	/**
+	 * Format of the index file:
+	 * 
+	 * -------------------------------------------------
+	 * | Tuple-Position | Tuple-Position |  .........  |
+	 * |     8 Byte     |     8 Byte     |  .........  |
+	 * -------------------------------------------------
+	 */
+	public final static int INDEX_ENTRY_BYTES = 8;
 }
