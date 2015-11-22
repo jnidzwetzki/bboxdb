@@ -111,6 +111,25 @@ public class SSTableReader extends AbstractTableReader {
 	}
 	
 	/**
+	 * Decode only the key of the tuple
+	 * @return
+	 * @throws IOException 
+	 */
+	public String decodeOnlyKeyFromTuple() throws IOException {
+		reader.read(keyLengthBytes, 0, keyLengthBytes.length);
+		reader.skip(boxLengthBytes.length);
+		reader.skip(dataLengthBytes.length);
+		reader.skip(timestampBytes.length);
+		
+		final short keyLength = SSTableHelper.readShortFromByteBuffer(keyLengthBytes);
+
+		byte[] keyBytes = new byte[keyLength];
+		reader.read(keyBytes, 0, keyBytes.length);
+		
+		return new String(keyBytes);
+	}
+	
+	/**
 	 * Convert to string
 	 */
 	@Override
