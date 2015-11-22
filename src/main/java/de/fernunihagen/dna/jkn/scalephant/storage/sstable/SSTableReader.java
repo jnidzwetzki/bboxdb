@@ -11,11 +11,12 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
-public class SSTableReader {
+public class SSTableReader implements Lifecycle {
 	
 	/**
 	 * The number of the table
@@ -38,6 +39,16 @@ public class SSTableReader {
 	protected final String directory;
 	
 	/**
+	 * The reader
+	 */
+	protected InputStream reader;
+	
+	/**
+	 * The to reader coresponsing fileInputStream
+	 */
+	protected FileInputStream fileInputStream;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableReader.class);
@@ -47,6 +58,7 @@ public class SSTableReader {
 		this.directory = directory;
 		this.file = file;
 		this.tablebumber = extractSequenceFromFilename(file.getName());
+		this.reader = null;
 	}
 	
 	/**
@@ -61,14 +73,15 @@ public class SSTableReader {
 	/**
 	 * Scan the whole SSTable for the Tuple
 	 * @param key
-	 * @return the tuple or null
+	 * @return the tuple or null	
 	 * @throws StorageManagerException 
 	 */
 	public Tuple getTuple(final String key) throws StorageManagerException {
 		logger.info("Search in table: " + tablebumber + " for " + key);
-		
 
-		try (final InputStream reader = openAndValidateFile()) {
+		try {
+			fileInputStream.getChannel().position(SSTableConst.MAGIC_BYTES.length);
+			createNewReaderBuffer();
 			
 			while(reader.available() > 0) {
 				
@@ -132,10 +145,12 @@ public class SSTableReader {
 	 * @return a InputStream or null
 	 * @throws StorageManagerException
 	 */
-	protected InputStream openAndValidateFile() throws StorageManagerException {
+	protected void openAndValidateFile() throws StorageManagerException {
 		
 		try {
-			final InputStream reader = new BufferedInputStream(new FileInputStream(file));
+			fileInputStream = new FileInputStream(file);
+			
+			createNewReaderBuffer();
 			
 			// Validate file - read the magic from the beginning
 			final byte[] magicBytes = new byte[SSTableConst.MAGIC_BYTES.length];
@@ -145,7 +160,6 @@ public class SSTableReader {
 				throw new StorageManagerException("File " + file + " does not contain the magic bytes");
 			}
 			
-			return reader;
 		} catch (FileNotFoundException e) {
 			final String error = "Unable to open SSTable: " + file;
 			logger.error(error);
@@ -153,6 +167,14 @@ public class SSTableReader {
 		} catch (IOException e) {
 			throw new StorageManagerException(e);
 		}
+	}
+
+	/**
+	 * Create a new reader buffer. This is needed after changing the position 
+	 * of the underlying stream
+	 */
+	protected void createNewReaderBuffer() {
+		reader = new BufferedInputStream(fileInputStream);
 	}
 	
 	/**
@@ -177,9 +199,45 @@ public class SSTableReader {
 		}
 	}
 
+	/**
+	 * Convert to string
+	 */
 	@Override
 	public String toString() {
 		return "SSTableReader [tablebumber=" + tablebumber + ", name=" + name
 				+ ", directory=" + directory + "]";
+	}
+
+	/**
+	 * Init the reader
+	 */
+	@Override
+	public void init() {
+		try {
+			openAndValidateFile();
+		} catch (StorageManagerException e) {
+			logger.error("Unable to init reader: ", e);
+		}
+	}
+
+	/** 
+	 * Shutdown the reader
+	 */
+	@Override
+	public void shutdown() {
+		if(reader != null) {
+			try {
+				reader.close();
+			} catch (IOException e) {
+				logger.error("Unable to close reader: ", e);
+			}
+		}
+	}
+	
+	/**
+	 * Is the reader ready?
+	 */
+	protected boolean isReady() {
+		return reader != null;
 	}
 }

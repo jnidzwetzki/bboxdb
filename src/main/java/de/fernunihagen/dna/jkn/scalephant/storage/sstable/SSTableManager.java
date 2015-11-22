@@ -92,6 +92,10 @@ public class SSTableManager implements Lifecycle {
 		logger.info("Shuting down the instance for table: " + name);
 		ready = false;
 		flushThread.interrupt();
+		
+		for(final SSTableReader reader :tableReader) {
+			reader.shutdown();
+		}
 	}
 	
 	
@@ -264,6 +268,11 @@ public class SSTableManager implements Lifecycle {
 		
 		// Read data from the persistent SSTables
 		for(final SSTableReader reader : tableReader) {
+			
+			if(! reader.isReady()) {
+				reader.init();
+			}
+			
 			final Tuple tableTuple = reader.getTuple(key);
 			
 			// Found a tuple
