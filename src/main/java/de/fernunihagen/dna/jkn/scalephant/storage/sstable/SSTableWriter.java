@@ -140,7 +140,9 @@ public class SSTableWriter implements AutoCloseable {
 				final ByteBuffer boxLengthBytes = SSTableHelper.intToByteBuffer(boundingBoxBytes.length);
 			    final ByteBuffer timestampBytes = SSTableHelper.longToByteBuffer(tuple.getTimestamp());
 			    
-				long tuplePosition = sstableIndexOutputStream.getChannel().position();
+				long tuplePosition = sstableOutputStream.getChannel().position();
+			    writeIndexEntry(tuplePosition);
+
 			    sstableOutputStream.write(keyLengthBytes.array());
 				sstableOutputStream.write(boxLengthBytes.array());
 				sstableOutputStream.write(dataLengthBytes.array());
@@ -149,7 +151,6 @@ public class SSTableWriter implements AutoCloseable {
 				sstableOutputStream.write(boundingBoxBytes);
 				sstableOutputStream.write(data);
 				
-			    writeIndexEntry(tuplePosition);
 			}
 		} catch (IOException e) {
 			throw new StorageManagerException("Untable to write memtable to SSTable", e);
