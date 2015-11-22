@@ -49,6 +49,14 @@ public class SSTableReader implements Lifecycle {
 	protected FileInputStream fileInputStream;
 	
 	/**
+	 * Buffer for the tuple decoder
+	 */
+	protected byte[] keyLengthBytes = new byte[SSTableHelper.SHORT_BYTES];
+	protected byte[] boxLengthBytes = new byte[SSTableHelper.INT_BYTES];
+	protected byte[] dataLengthBytes = new byte[SSTableHelper.INT_BYTES];
+	protected byte[] timestampBytes = new byte[SSTableHelper.LONG_BYTES];
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableReader.class);
@@ -135,11 +143,6 @@ public class SSTableReader implements Lifecycle {
 	 * @throws IOException
 	 */
 	public Tuple decodeTuple() throws IOException {
-		byte[] keyLengthBytes = new byte[SSTableHelper.SHORT_BYTES];
-		byte[] boxLengthBytes = new byte[SSTableHelper.INT_BYTES];
-		byte[] dataLengthBytes = new byte[SSTableHelper.INT_BYTES];
-		byte[] timestampBytes = new byte[SSTableHelper.LONG_BYTES];
-		
 		reader.read(keyLengthBytes, 0, keyLengthBytes.length);
 		reader.read(boxLengthBytes, 0, boxLengthBytes.length);
 		reader.read(dataLengthBytes, 0, dataLengthBytes.length);
