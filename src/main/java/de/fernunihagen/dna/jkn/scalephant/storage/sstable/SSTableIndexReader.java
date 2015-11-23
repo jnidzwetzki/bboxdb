@@ -50,7 +50,6 @@ public class SSTableIndexReader extends AbstractTableReader {
 			
 			long curEntry = (long) ((lastEntry - firstEntry) / 2.0);
 			*/
-			resetFileReaderPosition();
 			
 			while(reader.available() > 0) {
 				long position = decodeKeyPosition();
