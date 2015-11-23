@@ -273,16 +273,21 @@ public class SSTableManager implements Lifecycle {
 				reader.init();
 			}
 			
-			final Tuple tableTuple = reader.scanForTuple(key);
+			final SSTableIndexReader indexReader = new SSTableIndexReader(reader);
+			indexReader.init();
+			long position = indexReader.getPositionForTuple(key);
+			indexReader.shutdown();
 			
 			// Found a tuple
-			if(tableTuple != null) {
+			if(position != -1) {
+				final Tuple tableTuple = reader.getTupleAtPosition(position);
 				if(tuple == null) {
 					tuple = tableTuple;
 				} else if(tableTuple.getTimestamp() > tuple.getTimestamp()) {
 					tuple = tableTuple;
 				}
 			}
+
 		}
 		
 		return tuple;

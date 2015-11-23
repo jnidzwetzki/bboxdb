@@ -115,7 +115,11 @@ public class SSTableReader extends AbstractTableReader {
 	 * @return
 	 * @throws IOException 
 	 */
-	public String decodeOnlyKeyFromTuple() throws IOException {
+	public String decodeOnlyKeyFromTupleAtPosition(long position) throws IOException {
+		
+		fileInputStream.getChannel().position(position);
+		createNewReaderBuffer();
+		
 		reader.read(keyLengthBytes, 0, keyLengthBytes.length);
 		reader.skip(boxLengthBytes.length);
 		reader.skip(dataLengthBytes.length);
