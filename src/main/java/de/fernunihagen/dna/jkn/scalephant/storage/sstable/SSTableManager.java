@@ -1,7 +1,10 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
@@ -35,6 +38,11 @@ public class SSTableManager implements Lifecycle {
 	 */
 	protected final List<SSTableReader> tableReader;
 
+	/**
+	 * The Index Reader for the SSTables
+	 */
+	protected final Map<SSTableReader, SSTableIndexReader> indexReader;
+	
 	/**
 	 * The unflushed memtables
 	 */
@@ -70,12 +78,14 @@ public class SSTableManager implements Lifecycle {
 		
 		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
 		tableReader = new CopyOnWriteArrayList<SSTableReader>();
+		indexReader = Collections.synchronizedMap(new HashMap<SSTableReader, SSTableIndexReader>());
 	}
 
 	@Override
 	public void init() {
 		logger.info("Init a new instance for the table: " + name);
 		unflushedMemtables.clear();
+		indexReader.clear();
 		tableReader.clear();
 		createSSTableDirIfNeeded();
 		scanForExistingTables();
@@ -93,9 +103,15 @@ public class SSTableManager implements Lifecycle {
 		ready = false;
 		flushThread.interrupt();
 		
-		for(final AbstractTableReader reader :tableReader) {
+		for(final SSTableIndexReader reader : indexReader.values()) {
 			reader.shutdown();
 		}
+		indexReader.clear();
+		
+		for(final AbstractTableReader reader : tableReader) {
+			reader.shutdown();
+		}
+		tableReader.clear();
 	}
 	
 	
@@ -248,12 +264,36 @@ public class SSTableManager implements Lifecycle {
 	}
 	
 	/**
+	 * Get the index reader for a table reader
+	 * 
+	 * @param reader
+	 * @return The index reader
+	 * @throws StorageManagerException
+	 */
+	protected SSTableIndexReader getIndexReaderForTable(final SSTableReader reader) throws StorageManagerException {
+		
+		if(! indexReader.containsKey(reader)) {
+			if(! reader.isReady()) {
+				reader.init();
+			}
+			
+			final SSTableIndexReader tableIndexReader = new SSTableIndexReader(reader);
+			tableIndexReader.init();
+			indexReader.put(reader, tableIndexReader);
+		}
+		
+		return indexReader.get(reader);
+	}
+	
+	/**
 	 * Search for the most recent version of the tuple
 	 * @param key
 	 * @return The tuple or null
 	 * @throws StorageManagerException
 	 */
 	public Tuple get(final String key) throws StorageManagerException {
+		
+		logger.debug("Searching for: " + key);
 		
 		Tuple tuple = null;
 		
@@ -268,18 +308,13 @@ public class SSTableManager implements Lifecycle {
 		
 		// Read data from the persistent SSTables
 		for(final SSTableReader reader : tableReader) {
-			
-			if(! reader.isReady()) {
-				reader.init();
-			}
-			
-			final SSTableIndexReader indexReader = new SSTableIndexReader(reader);
-			indexReader.init();
+
+			final SSTableIndexReader indexReader = getIndexReaderForTable(reader);
 			long position = indexReader.getPositionForTuple(key);
-			indexReader.shutdown();
 			
 			// Found a tuple
 			if(position != -1) {
+	
 				final Tuple tableTuple = reader.getTupleAtPosition(position);
 				if(tuple == null) {
 					tuple = tableTuple;
