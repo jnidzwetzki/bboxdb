@@ -107,7 +107,10 @@ public class SSTableReader extends AbstractTableReader {
 		
 		final short keyLength = memory.getShort();
 
-		final int remainingTupleSize = SSTableHelper.INT_BYTES + SSTableHelper.INT_BYTES + SSTableHelper.LONG_BYTES;
+		final int remainingTupleSize = SSTableHelper.INT_BYTES  // BBOX-Length
+				+ SSTableHelper.INT_BYTES 						// Data-Length
+				+ SSTableHelper.LONG_BYTES;						// Timestamp
+		
 		memory.position(memory.position() + remainingTupleSize);
 		
 		byte[] keyBytes = new byte[keyLength];
