@@ -1,65 +1,19 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 
-public class SSTableIndexReader implements Lifecycle {
-	
-	/**
-	 * The number of the table
-	 */
-	protected final int tablebumber;
-	
-	/**
-	 * The name of the table
-	 */
-	protected final String name;
-	
-	/**
-	 * The filename of the table
-	 */
-	protected final File file;
-	
-	/**
-	 * The Directoy for the SSTables
-	 */
-	protected final String directory;
-	
-	/**
-	 * The Logger
-	 */
-	protected static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
+public class SSTableIndexReader extends AbstractTableReader {
 	
 	/**
 	 * The coresponding sstable reader
 	 */
 	protected final SSTableReader sstableReader;
-	
-	/**
-	 * The memory region
-	 */
-	private MappedByteBuffer memory;
-
-	/**
-	 * The coresponding fileChanel
-	 */
-	private FileChannel fileChannel;
 
 	public SSTableIndexReader(final SSTableReader sstableReader) throws StorageManagerException {
-		this.name = sstableReader.getName();
-		this.directory = sstableReader.getDirectory();
-		this.file = constructFileFromReader(sstableReader);
-		this.tablebumber = SSTableHelper.extractSequenceFromFilename(name, file.getName());
+		super(sstableReader.getName(), sstableReader.getDirectory(), constructFileFromReader(sstableReader));
 		this.sstableReader = sstableReader;
 	}
 
@@ -84,7 +38,7 @@ public class SSTableIndexReader implements Lifecycle {
 	 * @return
 	 * @throws StorageManagerException 
 	 */
-	public long getPositionForTuple(final String key) throws StorageManagerException {
+	public int getPositionForTuple(final String key) throws StorageManagerException {
 		
 		try {
 			
@@ -94,11 +48,10 @@ public class SSTableIndexReader implements Lifecycle {
 			long curEntry = (long) ((lastEntry - firstEntry) / 2.0);
 			*/
 			
-			memory.position(SSTableConst.MAGIC_BYTES.length);
+			resetPosition();
 			
 			while(memory.hasRemaining()) {
-				memory.order(SSTableConst.SSTABLE_BYTE_ORDER);
-				long position = memory.getLong();
+				int position = memory.getInt();
 
 				final String decodedKey = sstableReader.decodeOnlyKeyFromTupleAtPosition(position);
 				
@@ -117,32 +70,6 @@ public class SSTableIndexReader implements Lifecycle {
 		}
 		
 		return -1;
-	}
-
-	@Override
-	public void init() {
-		try {
-			fileChannel = new RandomAccessFile(file, "r").getChannel();
-			memory = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
-		} catch (FileNotFoundException e) {
-			logger.error("Error during an IO operation", e);
-		} catch (IOException e) {
-			logger.error("Error during an IO operation", e);
-		}
-		
-	}
-
-	@Override
-	public void shutdown() {
-		
-		if(fileChannel != null) {
-			try {
-				fileChannel.close();
-				fileChannel = null;
-			} catch (IOException e) {
-				logger.error("Error during an IO operation", e);
-			}
-		}
 	}
 
 }

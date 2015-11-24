@@ -1,11 +1,11 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -20,37 +20,43 @@ public abstract class AbstractTableReader implements Lifecycle {
 	 * The number of the table
 	 */
 	protected final int tablebumber;
+	
 	/**
 	 * The name of the table
 	 */
 	protected final String name;
+	
 	/**
 	 * The filename of the table
 	 */
 	protected final File file;
+	
 	/**
 	 * The Directoy for the SSTables
 	 */
 	protected final String directory;
+	
 	/**
-	 * The reader
+	 * The memory region
 	 */
-	protected InputStream reader;
+	protected MappedByteBuffer memory;
+
 	/**
-	 * The to reader coresponsing fileInputStream
+	 * The coresponding fileChanel
 	 */
-	protected FileInputStream fileInputStream;
+	protected FileChannel fileChannel;
+	
 	/**
 	 * The Logger
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
-
+	
+	
 	public AbstractTableReader(final String name, final String directory, final File file) throws StorageManagerException {
 		this.name = name;
 		this.directory = directory;
 		this.file = file;
 		this.tablebumber = SSTableHelper.extractSequenceFromFilename(name, file.getName());
-		this.reader = null;
 	}
 	
 	/**
@@ -62,15 +68,6 @@ public abstract class AbstractTableReader implements Lifecycle {
 		return tablebumber;
 	}
 
-	/**
-	 * Set the position of the reader at the position of the first tuple
-	 * 
-	 * @throws IOException
-	 */
-	protected void resetFileReaderPosition() throws IOException {
-		fileInputStream.getChannel().position(SSTableConst.MAGIC_BYTES.length);
-		createNewReaderBuffer();
-	}
 
 	/**
 	 * Open a stored SSTable and read the magic bytes
@@ -78,60 +75,53 @@ public abstract class AbstractTableReader implements Lifecycle {
 	 * @return a InputStream or null
 	 * @throws StorageManagerException
 	 */
-	protected void openAndValidateFile() throws StorageManagerException {
+	protected void validateFile() throws StorageManagerException {
 		
-		try {
-			fileInputStream = new FileInputStream(file);
-			
-			createNewReaderBuffer();
-			
-			// Validate file - read the magic from the beginning
-			final byte[] magicBytes = new byte[SSTableConst.MAGIC_BYTES.length];
-			reader.read(magicBytes, 0, SSTableConst.MAGIC_BYTES.length);
-	
-			if(! Arrays.equals(magicBytes, SSTableConst.MAGIC_BYTES)) {
-				throw new StorageManagerException("File " + file + " does not contain the magic bytes");
-			}
-			
-		} catch (FileNotFoundException e) {
-			final String error = "Unable to open SSTable: " + file;
-			logger.error(error);
-			throw new StorageManagerException(error, e);
-		} catch (IOException e) {
-			throw new StorageManagerException(e);
+		// Validate file - read the magic from the beginning
+		final byte[] magicBytes = new byte[SSTableConst.MAGIC_BYTES.length];
+		memory.get(magicBytes, 0, SSTableConst.MAGIC_BYTES.length);
+
+		if(! Arrays.equals(magicBytes, SSTableConst.MAGIC_BYTES)) {
+			throw new StorageManagerException("File " + file + " does not contain the magic bytes");
 		}
+
+	}
+	
+	/**
+	 * Reset the position to the first element
+	 */
+	protected void resetPosition() {
+		memory.position(SSTableConst.MAGIC_BYTES.length);
 	}
 
-	/**
-	 * Create a new reader buffer. This is needed after changing the position 
-	 * of the underlying stream
-	 */
-	protected void createNewReaderBuffer() {
-		reader = new BufferedInputStream(fileInputStream);
-	}
-
-	/**
-	 * Init the reader
-	 */
 	@Override
 	public void init() {
 		try {
-			openAndValidateFile();
+			fileChannel = new RandomAccessFile(file, "r").getChannel();
+			memory = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
+			memory.order(SSTableConst.SSTABLE_BYTE_ORDER);
+			validateFile();
+		} catch (FileNotFoundException e) {
+			logger.error("Error during an IO operation", e);
+		} catch (IOException e) {
+			logger.error("Error during an IO operation", e);
 		} catch (StorageManagerException e) {
-			logger.error("Unable to init reader: ", e);
+			logger.error("Error during an IO operation", e);
 		}
+		
 	}
 
-	/** 
-	 * Shutdown the reader
-	 */
 	@Override
 	public void shutdown() {
-		if(reader != null) {
+		
+		memory = null;
+		
+		if(fileChannel != null) {
 			try {
-				reader.close();
+				fileChannel.close();
+				fileChannel = null;
 			} catch (IOException e) {
-				logger.error("Unable to close reader: ", e);
+				logger.error("Error during an IO operation", e);
 			}
 		}
 	}
@@ -140,7 +130,7 @@ public abstract class AbstractTableReader implements Lifecycle {
 	 * Is the reader ready?
 	 */
 	protected boolean isReady() {
-		return reader != null;
+		return memory != null;
 	}
 
 	/**
@@ -167,19 +157,4 @@ public abstract class AbstractTableReader implements Lifecycle {
 		return directory;
 	}
 
-	/**
-	 * Get the reader
-	 * @return
-	 */
-	public InputStream getReader() {
-		return reader;
-	}
-	
-	/**
-	 * Get the file input stream
-	 * @return
-	 */
-	public FileInputStream getFileInputStream() {
-		return fileInputStream;
-	}
 }

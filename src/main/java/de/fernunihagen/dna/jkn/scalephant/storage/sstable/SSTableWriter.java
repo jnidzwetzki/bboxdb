@@ -141,7 +141,7 @@ public class SSTableWriter implements AutoCloseable {
 			    final ByteBuffer timestampBytes = SSTableHelper.longToByteBuffer(tuple.getTimestamp());
 			    
 				long tuplePosition = sstableOutputStream.getChannel().position();
-			    writeIndexEntry(tuplePosition);
+			    writeIndexEntry((int) tuplePosition);
 
 			    sstableOutputStream.write(keyLengthBytes.array());
 				sstableOutputStream.write(boxLengthBytes.array());
@@ -164,15 +164,15 @@ public class SSTableWriter implements AutoCloseable {
 	 * 
 	 * -------------------------------------------------
 	 * | Tuple-Position | Tuple-Position |  .........  |
- 	 * |     8 Byte     |     8 Byte     |  .........  |
+ 	 * |     4 Byte     |     4 Byte     |  .........  |
 	 * -------------------------------------------------
 	 * 
 	 * @param keyLengthBytes
 	 * @param keyPosition
 	 * @throws IOException
 	 */
-	protected void writeIndexEntry(long tuplePosition) throws IOException {
-		final ByteBuffer tuplePositionBytes = SSTableHelper.longToByteBuffer(tuplePosition);
+	protected void writeIndexEntry(int tuplePosition) throws IOException {
+		final ByteBuffer tuplePositionBytes = SSTableHelper.intToByteBuffer(tuplePosition);
 		sstableIndexOutputStream.write(tuplePositionBytes.array());
 	}
 

@@ -8,15 +8,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
 public class SSTableReader extends AbstractTableReader {
-	
-	/**
-	 * Buffer for the tuple decoder
-	 */
-	protected byte[] keyLengthBytes = new byte[SSTableHelper.SHORT_BYTES];
-	protected byte[] boxLengthBytes = new byte[SSTableHelper.INT_BYTES];
-	protected byte[] dataLengthBytes = new byte[SSTableHelper.INT_BYTES];
-	protected byte[] timestampBytes = new byte[SSTableHelper.LONG_BYTES];
-	
+
 	public SSTableReader(final String name, final String directory, final File file) throws StorageManagerException {
 		super(name, directory, file);
 	}
@@ -31,9 +23,9 @@ public class SSTableReader extends AbstractTableReader {
 		logger.info("Search in table: " + tablebumber + " for " + key);
 
 		try {
-			resetFileReaderPosition();
+			resetPosition();
 			
-			while(reader.available() > 0) {
+			while(memory.hasRemaining()) {
 				final Tuple tuple = decodeTuple();
 
 				// The keys are stored in lexicographical order. If the
@@ -62,10 +54,9 @@ public class SSTableReader extends AbstractTableReader {
 	 * @return The tuple
 	 * @throws StorageManagerException
 	 */
-	public Tuple getTupleAtPosition(long position) throws StorageManagerException {
+	public Tuple getTupleAtPosition(int position) throws StorageManagerException {
 		try {
-			fileInputStream.getChannel().position(position);
-			createNewReaderBuffer();
+			memory.position(position);
 			
 			final Tuple tuple = decodeTuple();
 			
@@ -83,24 +74,19 @@ public class SSTableReader extends AbstractTableReader {
 	 * @throws IOException
 	 */
 	public Tuple decodeTuple() throws IOException {
-		reader.read(keyLengthBytes, 0, keyLengthBytes.length);
-		reader.read(boxLengthBytes, 0, boxLengthBytes.length);
-		reader.read(dataLengthBytes, 0, dataLengthBytes.length);
-		reader.read(timestampBytes, 0, timestampBytes.length);
-		
-		final short keyLength = SSTableHelper.readShortFromByteBuffer(keyLengthBytes);
-		final int boxLength = SSTableHelper.readIntFromByteBuffer(boxLengthBytes);
-		final int dataLength = SSTableHelper.readIntFromByteBuffer(dataLengthBytes);
-		final long timestamp = SSTableHelper.readLongFromByteBuffer(timestampBytes);
-		
+		final short keyLength = memory.getShort();
+		final int boxLength = memory.getInt();
+		final int dataLength = memory.getInt();
+		final long timestamp = memory.getLong();
+
 		byte[] keyBytes = new byte[keyLength];
-		reader.read(keyBytes, 0, keyBytes.length);
+		memory.get(keyBytes, 0, keyBytes.length);
 		
 		byte[] boxBytes = new byte[boxLength];
-		reader.read(boxBytes, 0, boxBytes.length);
+		memory.get(boxBytes, 0, boxBytes.length);
 		
 		byte[] dataBytes = new byte[dataLength];
-		reader.read(dataBytes, 0, dataBytes.length);				
+		memory.get(dataBytes, 0, dataBytes.length);				
 		
 		final long[] longArray = SSTableHelper.readLongArrayFromByteBuffer(boxBytes);
 		final BoundingBox boundingBox = new BoundingBox(longArray);
@@ -115,20 +101,17 @@ public class SSTableReader extends AbstractTableReader {
 	 * @return
 	 * @throws IOException 
 	 */
-	public String decodeOnlyKeyFromTupleAtPosition(long position) throws IOException {
+	public String decodeOnlyKeyFromTupleAtPosition(int position) throws IOException {
 		
-		fileInputStream.getChannel().position(position);
-		createNewReaderBuffer();
+		memory.position(position);
 		
-		reader.read(keyLengthBytes, 0, keyLengthBytes.length);
-		reader.skip(boxLengthBytes.length);
-		reader.skip(dataLengthBytes.length);
-		reader.skip(timestampBytes.length);
-		
-		final short keyLength = SSTableHelper.readShortFromByteBuffer(keyLengthBytes);
+		final short keyLength = memory.getShort();
 
+		final int remainingTupleSize = SSTableHelper.INT_BYTES + SSTableHelper.INT_BYTES + SSTableHelper.LONG_BYTES;
+		memory.position(memory.position() + remainingTupleSize);
+		
 		byte[] keyBytes = new byte[keyLength];
-		reader.read(keyBytes, 0, keyBytes.length);
+		memory.get(keyBytes, 0, keyBytes.length);
 		
 		return new String(keyBytes);
 	}

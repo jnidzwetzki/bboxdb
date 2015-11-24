@@ -310,7 +310,7 @@ public class SSTableManager implements Lifecycle {
 		for(final SSTableReader reader : tableReader) {
 
 			final SSTableIndexReader indexReader = getIndexReaderForTable(reader);
-			long position = indexReader.getPositionForTuple(key);
+			int position = indexReader.getPositionForTuple(key);
 			
 			// Found a tuple
 			if(position != -1) {
