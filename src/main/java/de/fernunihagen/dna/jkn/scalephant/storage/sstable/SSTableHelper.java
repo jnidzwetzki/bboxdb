@@ -2,6 +2,8 @@ package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
 import java.nio.ByteBuffer;
 
+import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+
 public class SSTableHelper {
 	
 	/**
@@ -123,6 +125,29 @@ public class SSTableHelper {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
 		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
 		return byteBuffer.getShort();
+	}
+	
+	/**
+	 * Extract the sequence Number from a given filename
+	 * 
+	 * @param Tablename, the name of the Table. Filename, the name of the file
+	 * @return the sequence number
+	 * @throws StorageManagerException 
+	 */
+	public static int extractSequenceFromFilename(final String tablename, final String filename)
+			throws StorageManagerException {
+		try {
+			final String sequence = filename
+				.replace(SSTableConst.SST_FILE_PREFIX + tablename + "_", "")
+				.replace(SSTableConst.SST_FILE_SUFFIX, "")
+				.replace(SSTableConst.SST_INDEX_SUFFIX, "");
+			
+			return Integer.parseInt(sequence);
+		
+		} catch (NumberFormatException e) {
+			String error = "Unable to parse sequence number: " + filename;
+			throw new StorageManagerException(error, e);
+		}
 	}
 
 }

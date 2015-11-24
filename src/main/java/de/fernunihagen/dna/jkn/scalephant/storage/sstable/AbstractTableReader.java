@@ -49,7 +49,7 @@ public abstract class AbstractTableReader implements Lifecycle {
 		this.name = name;
 		this.directory = directory;
 		this.file = file;
-		this.tablebumber = extractSequenceFromFilename(file.getName());
+		this.tablebumber = SSTableHelper.extractSequenceFromFilename(name, file.getName());
 		this.reader = null;
 	}
 	
@@ -109,30 +109,6 @@ public abstract class AbstractTableReader implements Lifecycle {
 	protected void createNewReaderBuffer() {
 		reader = new BufferedInputStream(fileInputStream);
 	}
-
-	/**
-	 * Extract the sequence Number from a given filename
-	 * 
-	 * @param filename
-	 * @return the sequence number
-	 * @throws StorageManagerException 
-	 */
-	protected int extractSequenceFromFilename(final String filename)
-			throws StorageManagerException {
-				try {
-					final String sequence = filename
-						.replace(SSTableConst.SST_FILE_PREFIX + name + "_", "")
-						.replace(SSTableConst.SST_FILE_SUFFIX, "")
-						.replace(SSTableConst.SST_INDEX_SUFFIX, "");
-					
-					return Integer.parseInt(sequence);
-				
-				} catch (NumberFormatException e) {
-					String error = "Unable to parse sequence number: " + filename;
-					logger.warn(error);
-					throw new StorageManagerException(error, e);
-				}
-			}
 
 	/**
 	 * Init the reader
