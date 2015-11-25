@@ -34,8 +34,8 @@ public class SSTableConst {
 	 * 
 	 * -------------------------------------------------
 	 * | Tuple-Position | Tuple-Position |  .........  |
-	 * |     8 Byte     |     8 Byte     |  .........  |
+	 * |     4 Byte     |     4 Byte     |  .........  |
 	 * -------------------------------------------------
 	 */
-	public final static int INDEX_ENTRY_BYTES = 8;
+	public final static int INDEX_ENTRY_BYTES = 4;
 }
