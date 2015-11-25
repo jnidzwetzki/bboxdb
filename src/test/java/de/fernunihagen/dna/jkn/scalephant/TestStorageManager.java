@@ -9,6 +9,7 @@ import org.junit.Test;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
+import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 
@@ -78,6 +79,55 @@ public class TestStorageManager {
 		
 		storageManager.delete("1");
 		Assert.assertEquals(null, storageManager.get("1"));
+	}
+	
+	@Test
+	public void testDeleteTuple() throws StorageManagerException, InterruptedException {
+		storageManager.clear();
+
+		int MAX_TUPLES = 100000;
+		int SPECIAL_TUPLE = MAX_TUPLES / 2;
+		
+		for(int i = 0; i < MAX_TUPLES; i++) {
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
+			storageManager.put(createdTuple);
+			
+			if(i == SPECIAL_TUPLE) {
+				storageManager.delete(Integer.toString(SPECIAL_TUPLE));
+			}
+		}
+		
+		// Let the storage manager swap the memtables out
+		Thread.sleep(10000);
+		
+		final Tuple resultTuple = storageManager.get(Integer.toString(SPECIAL_TUPLE));
+		
+		Assert.assertEquals(null, resultTuple);
+	}
+	
+	@Test
+	public void testDeleteTuple2() throws StorageManagerException, InterruptedException {
+		storageManager.clear();
+
+		int MAX_TUPLES = 100000;
+		int SPECIAL_TUPLE = MAX_TUPLES / 2;
+		int DELETE_AFTER = (int) (MAX_TUPLES * 0.75);
+		
+		for(int i = 0; i < MAX_TUPLES; i++) {
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
+			storageManager.put(createdTuple);
+			
+			if(i == DELETE_AFTER) {
+				storageManager.delete(Integer.toString(SPECIAL_TUPLE));
+			}
+		}
+		
+		// Let the storage manager swap the memtables out
+		Thread.sleep(10000);
+		
+		final Tuple resultTuple = storageManager.get(Integer.toString(SPECIAL_TUPLE));
+		
+		Assert.assertEquals(null, resultTuple);
 	}
 	
 	@Test
