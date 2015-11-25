@@ -42,34 +42,84 @@ public class SSTableIndexReader extends AbstractTableReader {
 		
 		try {
 			
-		/*	long firstEntry = 0;
-			long lastEntry = fileInputStream.getChannel().size() - SSTableConst.MAGIC_BYTES.length / SSTableConst.INDEX_ENTRY_BYTES;
+			int firstEntry = 0;
+			int lastEntry = getNumberOfEntries() - 1;
 			
-			long curEntry = (long) ((lastEntry - firstEntry) / 2.0);
-			*/
-			
-			resetPosition();
-			
-			while(memory.hasRemaining()) {
-				int position = memory.getInt();
-
-				final String decodedKey = sstableReader.decodeOnlyKeyFromTupleAtPosition(position);
-				
-				if(decodedKey.equals(key)) {
-					return position;	
-				}
-				
-				if(decodedKey.compareTo(key) > 0) {
-					return -1;
-				}
-				
+			// Check key is > then first value
+			final String firstValue = getKeyForIndexEntry(firstEntry);
+			if(firstValue.equals(key)) {
+				return convertEntryToPosition(firstEntry);
 			}
 			
+			if(firstValue.compareTo(key) > 0) {
+				return -1;
+			}
+			
+			// Check if key is < then first value
+			final String lastValue = getKeyForIndexEntry(lastEntry);
+			if(lastValue.equals(key)) {
+				return convertEntryToPosition(lastEntry);
+			}
+			if(lastValue.compareTo(key) < 0) {
+				return -1;
+			}
+
+			// Binary search for key
+			do {
+				int curEntry = (int) ((lastEntry - firstEntry) / 2.0) + firstEntry;
+				
+				//System.out.println("Low: " + firstEntry + " Up: " + lastEntry + " Pos: " + curEntry);
+				
+				final String curEntryValue = getKeyForIndexEntry(curEntry);
+				
+				if(curEntryValue.equals(key)) {
+					return convertEntryToPosition(curEntry);
+				}
+				
+				if(key.compareTo(curEntryValue) > 0) {
+					firstEntry = curEntry + 1;
+				} else {
+					lastEntry = curEntry - 1;
+				}
+				
+			} while(firstEntry <= lastEntry);
+
 		} catch (IOException e) {
 			throw new StorageManagerException("Error while reading index file", e);
 		}
 		
 		return -1;
+	}
+
+	/**
+	 * Get the string key for index entry
+	 * @param entry
+	 * @return
+	 * @throws IOException
+	 */
+	protected String getKeyForIndexEntry(long entry) throws IOException {
+		int position = convertEntryToPosition(entry);
+		return sstableReader.decodeOnlyKeyFromTupleAtPosition(position);
+	}
+
+	/**
+	 * Convert the index entry to index file position
+	 * @param entry
+	 * @return
+	 */
+	protected int convertEntryToPosition(long entry) {
+		memory.position((int) ((entry * SSTableConst.INDEX_ENTRY_BYTES) + SSTableConst.MAGIC_BYTES.length));
+		int position = memory.getInt();
+		return position;
+	}
+
+	/**
+	 * Get the total number of entries
+	 * @return
+	 * @throws IOException
+	 */
+	protected int getNumberOfEntries() throws IOException {
+		return (int) ((fileChannel.size() - SSTableConst.MAGIC_BYTES.length) / SSTableConst.INDEX_ENTRY_BYTES);
 	}
 
 }
