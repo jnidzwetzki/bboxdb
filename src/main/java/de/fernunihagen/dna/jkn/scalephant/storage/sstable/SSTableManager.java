@@ -67,7 +67,7 @@ public class SSTableManager implements Lifecycle {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
+	final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
 	public SSTableManager(final State storageState, final String name, final String directory) {
 		super();
@@ -93,7 +93,7 @@ public class SSTableManager implements Lifecycle {
 		
 		tableNumber = getLastSequencenumberFromReader();
 		ready = true;
-		flushThread = new Thread(new SSTableFlusher());
+		flushThread = new Thread(new SSTableFlusher(this));
 		flushThread.start();
 		flushThread.setName("Memtable flush thread: " + name);
 	}
@@ -388,73 +388,6 @@ public class SSTableManager implements Lifecycle {
 	protected static String getSSTableIndexFilename(final String directory, final String name, int tablebumber) {
 		return getSSTableBase(directory, name, tablebumber)
 				+ SSTableConst.SST_INDEX_SUFFIX;
-	}
-	
-	class SSTableFlusher implements Runnable {
-
-		@Override
-		public void run() {
-			while(ready) {
-				while(unflushedMemtables.isEmpty()) {
-					try {					
-						synchronized (unflushedMemtables) {
-							unflushedMemtables.wait();
-						}
-					} catch (InterruptedException e) {
-						logger.info("Memtable flush thread has stopped: " + name);
-						return;
-					}
-				}
-				
-				// Flush all pending memtables to disk
-				while(! unflushedMemtables.isEmpty()) {
-					final Memtable memtable = unflushedMemtables.get(0);
-					final File sstableFile = writeMemtable(memtable);
-					
-					if(sstableFile != null) {
-						try {
-							final SSTableReader reader = new SSTableReader(name, directory, sstableFile);
-							tableReader.add(reader);
-						} catch (StorageManagerException e) {
-							logger.error("Exception while creating SSTable reader", e);
-						}
-					}
-					
-					final Memtable removedTable = unflushedMemtables.remove(0);
-
-					if(memtable != removedTable) {
-						logger.error("Get other table than removed!");
-					}
-
-				}
-			}
-			
-			logger.info("Memtable flush thread has stopped: " + name);
-		}
-			
-		/**
-		 * Write a memtable to disk and return the Filehandle of the table
-		 * 
-		 * @param memtable
-		 * @return
-		 */
-		protected File writeMemtable(final Memtable memtable) {
-			logger.info("Writing new memtable: " + tableNumber);
-			
-			try(final SSTableWriter ssTableWriter = new SSTableWriter(directory, name, tableNumber)) {
-				ssTableWriter.open();
-				final File filehandle = ssTableWriter.getSstableFile();
-				ssTableWriter.addData(memtable.getSortedTupleList());
-				return filehandle;
-			} catch (Exception e) {
-				logger.info("Exception while write memtable: " + name + " / " + tableNumber, e);
-				storageState.setReady(false);
-			} finally {
-				tableNumber++;
-			}
-			
-			return null;
-		}
 	}
 
 }
