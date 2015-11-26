@@ -317,7 +317,6 @@ public class SSTableManager implements Lifecycle {
 			if(position != -1) {
 	
 				final Tuple tableTuple = reader.getTupleAtPosition(position);
-				logger.info(tableTuple.toString());
 				
 				if(tuple == null) {
 					tuple = tableTuple;
