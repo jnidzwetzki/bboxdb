@@ -2,10 +2,12 @@ package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
-public class SSTableIndexReader extends AbstractTableReader {
+public class SSTableIndexReader extends AbstractTableReader implements Iterable<Tuple> {
 	
 	/**
 	 * The coresponding sstable reader
@@ -68,7 +70,9 @@ public class SSTableIndexReader extends AbstractTableReader {
 			do {
 				int curEntry = (int) ((lastEntry - firstEntry) / 2.0) + firstEntry;
 				
-				//System.out.println("Low: " + firstEntry + " Up: " + lastEntry + " Pos: " + curEntry);
+				if(logger.isDebugEnabled()) {
+					logger.debug("Low: " + firstEntry + " Up: " + lastEntry + " Pos: " + curEntry);
+				}
 				
 				final String curEntryValue = getKeyForIndexEntry(curEntry);
 				
@@ -116,10 +120,54 @@ public class SSTableIndexReader extends AbstractTableReader {
 	/**
 	 * Get the total number of entries
 	 * @return
-	 * @throws IOException
 	 */
-	protected int getNumberOfEntries() throws IOException {
-		return (int) ((fileChannel.size() - SSTableConst.MAGIC_BYTES.length) / SSTableConst.INDEX_ENTRY_BYTES);
+	protected int getNumberOfEntries() {
+		try {
+			return (int) ((fileChannel.size() - SSTableConst.MAGIC_BYTES.length) / SSTableConst.INDEX_ENTRY_BYTES);
+		} catch (IOException e) {
+			logger.error("IO Exception while reading from index", e);
+		}
+		
+		return 0;
 	}
 
+	/**
+	 * Iterate over the tuples in the sstable
+	 */
+	@Override
+	public Iterator<Tuple> iterator() {
+		
+		return new Iterator<Tuple>() {
+
+			protected int entry = 0;
+			protected int lastEntry = getNumberOfEntries() - 1;
+			
+			@Override
+			public boolean hasNext() {
+				return entry != lastEntry;
+			}
+
+			@Override
+			public Tuple next() {
+				entry++;
+				
+				if(entry > lastEntry) {
+					throw new IllegalStateException("Requesting wrong position: " + entry + " of " + lastEntry);
+				}
+				
+				try {
+					return sstableReader.getTupleAtPosition(convertEntryToPosition(entry));
+				} catch (StorageManagerException e) {
+					logger.error("Got exception while iterating");
+				}
+				
+				return null;
+			}
+
+			@Override
+			public void remove() {
+				throw new IllegalStateException("Remove is not supported");
+			}
+		};
+	}
 }
