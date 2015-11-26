@@ -27,6 +27,10 @@ class SSTableFlusher implements Runnable {
 		this.sstableManager = sstableManager;
 	}
 
+	/**
+	 * Watch the unflushedMemtables list for unflushed memtables and flush 
+	 * them onto disk
+	 */
 	@Override
 	public void run() {
 		while(sstableManager.ready) {
@@ -49,6 +53,7 @@ class SSTableFlusher implements Runnable {
 
 	/**
 	 * Flush all pending memtables to disk
+	 * 
 	 */
 	protected void flushAllMemtablesToDisk() {
 		while(! sstableManager.unflushedMemtables.isEmpty()) {
