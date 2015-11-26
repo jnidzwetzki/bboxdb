@@ -132,6 +132,14 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 	}
 
 	/**
+	 * Getter for sstable reader
+	 * @return
+	 */
+	public SSTableReader getSstableReader() {
+		return sstableReader;
+	}
+	
+	/**
 	 * Iterate over the tuples in the sstable
 	 */
 	@Override
