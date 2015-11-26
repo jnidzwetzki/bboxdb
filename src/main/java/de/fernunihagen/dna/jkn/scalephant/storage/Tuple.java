@@ -97,5 +97,46 @@ public class Tuple {
 				+ ", dataBytes=" + Arrays.toString(dataBytes) + ", seen=" + seen
 				+ ", timestamp=" + timestamp + "]";
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((boundingBox == null) ? 0 : boundingBox.hashCode());
+		result = prime * result + Arrays.hashCode(dataBytes);
+		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		result = prime * result + seen;
+		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Tuple other = (Tuple) obj;
+		if (boundingBox == null) {
+			if (other.boundingBox != null)
+				return false;
+		} else if (!boundingBox.equals(other.boundingBox))
+			return false;
+		if (!Arrays.equals(dataBytes, other.dataBytes))
+			return false;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		if (seen != other.seen)
+			return false;
+		if (timestamp != other.timestamp)
+			return false;
+		return true;
+	}
 	
 }
