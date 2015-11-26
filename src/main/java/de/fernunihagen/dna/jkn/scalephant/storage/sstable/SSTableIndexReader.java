@@ -144,23 +144,24 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 			
 			@Override
 			public boolean hasNext() {
-				return entry != lastEntry;
+				return entry <= lastEntry;
 			}
 
 			@Override
 			public Tuple next() {
-				entry++;
 				
 				if(entry > lastEntry) {
 					throw new IllegalStateException("Requesting wrong position: " + entry + " of " + lastEntry);
 				}
 				
 				try {
-					return sstableReader.getTupleAtPosition(convertEntryToPosition(entry));
+					final Tuple tuple = sstableReader.getTupleAtPosition(convertEntryToPosition(entry));
+					entry++;
+					return tuple;
 				} catch (StorageManagerException e) {
 					logger.error("Got exception while iterating");
 				}
-				
+								
 				return null;
 			}
 
