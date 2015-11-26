@@ -41,30 +41,36 @@ class SSTableFlusher implements Runnable {
 				}
 			}
 			
-			// Flush all pending memtables to disk
-			while(! sstableManager.unflushedMemtables.isEmpty()) {
-				final Memtable memtable = sstableManager.unflushedMemtables.get(0);
-				final File sstableFile = writeMemtable(memtable);
-				
-				if(sstableFile != null) {
-					try {
-						final SSTableReader reader = new SSTableReader(sstableManager.name, sstableManager.directory, sstableFile);
-						sstableManager.tableReader.add(reader);
-					} catch (StorageManagerException e) {
-						logger.error("Exception while creating SSTable reader", e);
-					}
-				}
-				
-				final Memtable removedTable = sstableManager.unflushedMemtables.remove(0);
-
-				if(memtable != removedTable) {
-					logger.error("Get other table than removed!");
-				}
-
-			}
+			flushAllMemtablesToDisk();
 		}
 		
 		logger.info("Memtable flush thread has stopped: " + sstableManager.name);
+	}
+
+	/**
+	 * Flush all pending memtables to disk
+	 */
+	protected void flushAllMemtablesToDisk() {
+		while(! sstableManager.unflushedMemtables.isEmpty()) {
+			final Memtable memtable = sstableManager.unflushedMemtables.get(0);
+			final File sstableFile = writeMemtable(memtable);
+			
+			if(sstableFile != null) {
+				try {
+					final SSTableReader reader = new SSTableReader(sstableManager.name, sstableManager.directory, sstableFile);
+					sstableManager.tableReader.add(reader);
+				} catch (StorageManagerException e) {
+					logger.error("Exception while creating SSTable reader", e);
+				}
+			}
+			
+			final Memtable removedTable = sstableManager.unflushedMemtables.remove(0);
+
+			if(memtable != removedTable) {
+				logger.error("Get other table than removed!");
+			}
+
+		}
 	}
 		
 	/**
