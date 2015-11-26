@@ -82,6 +82,10 @@ public class SSTableManager implements Lifecycle {
 		indexReader = Collections.synchronizedMap(new HashMap<SSTableReader, SSTableIndexReader>());
 	}
 
+	/**
+	 * Init the instance
+	 * 
+	 */
 	@Override
 	public void init() {
 		logger.info("Init a new instance for the table: " + name);
@@ -98,6 +102,10 @@ public class SSTableManager implements Lifecycle {
 		flushThread.setName("Memtable flush thread: " + name);
 	}
 
+	/**
+	 * Shutdown the instance
+	 * 
+	 */
 	@Override
 	public void shutdown() {
 		logger.info("Shuting down the instance for table: " + name);
@@ -129,6 +137,10 @@ public class SSTableManager implements Lifecycle {
 		return ! flushThread.isAlive();
 	}
 	
+	/**
+	 * Ensure that the directory for the given table exists
+	 * 
+	 */
 	protected void createSSTableDirIfNeeded() {
 		final File rootDir = new File(directory);		
 		final File directoryHandle = new File(getSSTableDir(directory, name));
@@ -139,6 +151,11 @@ public class SSTableManager implements Lifecycle {
 		}
 	}
 	
+	/**
+	 * Scan the database directory for all existing SSTables and
+	 * create reader objects
+	 * 
+	 */
 	protected void scanForExistingTables() {
 		logger.info("Scan for existing SSTables: " + name);
 		final File directoryHandle = new File(getSSTableDir(directory, name));
