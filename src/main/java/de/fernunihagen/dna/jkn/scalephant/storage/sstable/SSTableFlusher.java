@@ -20,12 +20,11 @@ class SSTableFlusher implements Runnable {
 	 */
 	final static Logger logger = LoggerFactory.getLogger(SSTableFlusher.class);
 
-	
 	/**
 	 * @param ssTableManager
 	 */
-	SSTableFlusher(SSTableManager ssTableManager) {
-		sstableManager = ssTableManager;
+	SSTableFlusher(SSTableManager sstableManager) {
+		this.sstableManager = sstableManager;
 	}
 
 	@Override
