@@ -2,8 +2,10 @@ package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
@@ -92,6 +94,10 @@ public class SSTableReader extends AbstractTableReader {
 		final BoundingBox boundingBox = new BoundingBox(longArray);
 		
 		final String keyString = new String(keyBytes);
+		
+		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
+			return new DeletedTuple(keyString);
+		}
 		
 		return new Tuple(keyString, boundingBox, dataBytes, timestamp);
 	}

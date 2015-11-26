@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
+import de.fernunihagen.dna.jkn.scalephant.storage.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
@@ -316,13 +317,18 @@ public class SSTableManager implements Lifecycle {
 			if(position != -1) {
 	
 				final Tuple tableTuple = reader.getTupleAtPosition(position);
+				logger.info(tableTuple.toString());
+				
 				if(tuple == null) {
 					tuple = tableTuple;
 				} else if(tableTuple.getTimestamp() > tuple.getTimestamp()) {
 					tuple = tableTuple;
 				}
 			}
-
+		}
+		
+		if(tuple instanceof DeletedTuple) {
+			return null;
 		}
 		
 		return tuple;
