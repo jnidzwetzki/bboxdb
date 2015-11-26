@@ -81,6 +81,14 @@ public class Tuple {
 		return boundingBox;
 	}
 	
+	/**
+	 * Get the byte array of the bounding box
+	 * @return
+	 */
+	public byte[] getBoundingBoxBytes() {
+		return boundingBox.toByteArray();
+	}
+	
 	@Override
 	public String toString() {
 		return "Tuple [key=" + key + ", boundingBox=" + boundingBox

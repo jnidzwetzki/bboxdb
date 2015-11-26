@@ -10,6 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.storage.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
@@ -131,30 +132,41 @@ public class SSTableWriter implements AutoCloseable {
 		
 		try {
 			for(final Tuple tuple : tuples) {
-				byte[] keyBytes = tuple.getKey().getBytes();
-				byte[] boundingBoxBytes = tuple.getBoundingBox().toByteArray();
-				byte[] data = tuple.getDataBytes();
-				
-				final ByteBuffer keyLengthBytes = SSTableHelper.shortToByteBuffer((short) keyBytes.length);
-				final ByteBuffer dataLengthBytes = SSTableHelper.intToByteBuffer(data.length);
-				final ByteBuffer boxLengthBytes = SSTableHelper.intToByteBuffer(boundingBoxBytes.length);
-			    final ByteBuffer timestampBytes = SSTableHelper.longToByteBuffer(tuple.getTimestamp());
-			    
+				// Add Tuple to the index
 				long tuplePosition = sstableOutputStream.getChannel().position();
 			    writeIndexEntry((int) tuplePosition);
-
-			    sstableOutputStream.write(keyLengthBytes.array());
-				sstableOutputStream.write(boxLengthBytes.array());
-				sstableOutputStream.write(dataLengthBytes.array());
-				sstableOutputStream.write(timestampBytes.array());
-				sstableOutputStream.write(keyBytes);
-				sstableOutputStream.write(boundingBoxBytes);
-				sstableOutputStream.write(data);
-				
+			    
+			    // Add Tuple to the SSTable file
+				writeTupleToFile(tuple);
 			}
 		} catch (IOException e) {
 			throw new StorageManagerException("Untable to write memtable to SSTable", e);
 		}
+	}
+
+	/**
+	 * Write the given tuple into the SSTable
+	 * @param tuple
+	 * @throws IOException
+	 */
+	protected void writeTupleToFile(final Tuple tuple) throws IOException {
+		final byte[] keyBytes = tuple.getKey().getBytes();
+		final ByteBuffer keyLengthBytes = SSTableHelper.shortToByteBuffer((short) keyBytes.length);
+
+		final byte[] boundingBoxBytes = tuple.getBoundingBoxBytes();
+		final byte[] data = tuple.getDataBytes();
+		
+		final ByteBuffer boxLengthBytes = SSTableHelper.intToByteBuffer(boundingBoxBytes.length);
+		final ByteBuffer dataLengthBytes = SSTableHelper.intToByteBuffer(data.length);
+	    final ByteBuffer timestampBytes = SSTableHelper.longToByteBuffer(tuple.getTimestamp());
+	    
+	    sstableOutputStream.write(keyLengthBytes.array());
+		sstableOutputStream.write(boxLengthBytes.array());
+		sstableOutputStream.write(dataLengthBytes.array());
+		sstableOutputStream.write(timestampBytes.array());
+		sstableOutputStream.write(keyBytes);
+		sstableOutputStream.write(boundingBoxBytes);
+		sstableOutputStream.write(data);
 	}
 
 	/** 

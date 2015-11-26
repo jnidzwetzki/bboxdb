@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
+
 public class DeletedTuple extends Tuple {
 
 	public DeletedTuple(String key) {
@@ -11,4 +13,13 @@ public class DeletedTuple extends Tuple {
 		return "DeletedTuple [key=" + key + ", timestamp=" + timestamp + "]";
 	}
 	
+	@Override
+	public byte[] getDataBytes() {
+		return SSTableConst.DELETED_MARKER;
+	}
+	
+	@Override
+	public byte[] getBoundingBoxBytes() {
+		return SSTableConst.DELETED_MARKER;
+	}
 }

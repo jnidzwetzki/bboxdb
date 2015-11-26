@@ -38,4 +38,9 @@ public class SSTableConst {
 	 * -------------------------------------------------
 	 */
 	public final static int INDEX_ENTRY_BYTES = 4;
+	
+	/**
+	 * Marker for deleted tuples
+	 */
+	public final static byte[] DELETED_MARKER = "DEL".getBytes();
 }
