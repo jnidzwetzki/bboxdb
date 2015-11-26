@@ -18,7 +18,7 @@ class SSTableFlusher implements Runnable {
 	/**
 	 * The logger
 	 */
-	final static Logger logger = LoggerFactory.getLogger(SSTableFlusher.class);
+	private final static Logger logger = LoggerFactory.getLogger(SSTableFlusher.class);
 
 	/**
 	 * @param ssTableManager

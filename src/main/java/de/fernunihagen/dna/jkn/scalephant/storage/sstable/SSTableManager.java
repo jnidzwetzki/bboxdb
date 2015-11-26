@@ -67,7 +67,7 @@ public class SSTableManager implements Lifecycle {
 	/**
 	 * The logger
 	 */
-	final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
+	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
 	public SSTableManager(final State storageState, final String name, final String directory) {
 		super();
