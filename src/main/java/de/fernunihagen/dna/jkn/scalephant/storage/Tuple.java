@@ -24,6 +24,8 @@ public class Tuple {
 		this.key = key;
 		this.boundingBox = boundingBox;
 		this.dataBytes = dataBytes;
+		
+		this.timestamp = timestamp;
 	}
 
 	/**
