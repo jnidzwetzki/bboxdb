@@ -95,8 +95,10 @@ public class SSTableCompactor implements Runnable {
 					if(tuple1.getTimestamp() > tuple2.getTimestamp()) {
 						sstableWriter.addNextTuple(tuple1);
 						tuple1 = null;
+						tuple2 = null;
 					} else {
 						sstableWriter.addNextTuple(tuple2);
+						tuple1 = null;
 						tuple2 = null;
 					}
 				} else if(result < 0) {
