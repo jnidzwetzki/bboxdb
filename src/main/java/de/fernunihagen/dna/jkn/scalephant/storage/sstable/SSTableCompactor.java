@@ -58,7 +58,7 @@ public class SSTableCompactor implements Runnable {
 			sstableWriter.open();
 			logger.info("Execute a new compactation into file " + sstableWriter.getSstableFile());
 
-			while(iterator1.hasNext() || iterator2.hasNext()) {
+			while(iterator1.hasNext() || iterator2.hasNext() || tuple1 != null || tuple2 != null) {
 				if(iterator1.hasNext() && tuple1 == null) {
 					tuple1 = iterator1.next();
 				}
@@ -69,9 +69,10 @@ public class SSTableCompactor implements Runnable {
 				
 				// Stream1 is exhausted
 				if(tuple1 == null) {
+					sstableWriter.addNextTuple(tuple2);
 					while(iterator2.hasNext()) {
-						sstableWriter.addNextTuple(tuple2);
 						tuple2 = iterator2.next();
+						sstableWriter.addNextTuple(tuple2);
 					}
 					
 					break;
@@ -79,9 +80,10 @@ public class SSTableCompactor implements Runnable {
 				
 				// Stream2 is exhausted
 				if(tuple2 == null) {
+					sstableWriter.addNextTuple(tuple1);
 					while(iterator1.hasNext()) {
-						sstableWriter.addNextTuple(tuple1);
 						tuple1 = iterator1.next();
+						sstableWriter.addNextTuple(tuple1);
 					}
 					
 					break;
