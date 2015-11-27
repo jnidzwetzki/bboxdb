@@ -46,8 +46,7 @@ public class SSTableCompactor implements Runnable {
 	 * @return success or failure
 	 */
 	public boolean executeCompactation() {
-		logger.info("Execute a new compactation into file " + sstableWriter.getSstableFile());
-		
+
 		// Open iterators for input sstables
 		final Iterator<Tuple> iterator1 = sstableIndexReader1.iterator();
 		final Iterator<Tuple> iterator2 = sstableIndexReader2.iterator();
@@ -57,6 +56,7 @@ public class SSTableCompactor implements Runnable {
 		
 		try {
 			sstableWriter.open();
+			logger.info("Execute a new compactation into file " + sstableWriter.getSstableFile());
 
 			while(iterator1.hasNext() || iterator2.hasNext()) {
 				if(iterator1.hasNext() && tuple1 == null) {
@@ -112,7 +112,7 @@ public class SSTableCompactor implements Runnable {
 			return false;
 		}
 		
-		return false;
+		return true;
 	}
 
 	@Override
