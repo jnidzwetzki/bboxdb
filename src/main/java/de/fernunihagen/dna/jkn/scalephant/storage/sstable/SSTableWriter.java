@@ -133,12 +133,9 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException(error);
 		}
 		
-		try {
-			for(final Tuple tuple : tuples) {
-				addNextTuple(tuple);
-			}
-		} catch (IOException e) {
-			throw new StorageManagerException("Untable to write memtable to SSTable", e);
+		
+		for(final Tuple tuple : tuples) {
+			addNextTuple(tuple);
 		}
 	}
 
@@ -146,14 +143,19 @@ public class SSTableWriter implements AutoCloseable {
 	 * Add the next tuple into the result sstable
 	 * @param tuple
 	 * @throws IOException
+	 * @throws StorageManagerException 
 	 */
-	public void addNextTuple(final Tuple tuple) throws IOException {
-		// Add Tuple to the index
-		long tuplePosition = sstableOutputStream.getChannel().position();
-		writeIndexEntry((int) tuplePosition);
-		
-		// Add Tuple to the SSTable file
-		writeTupleToFile(tuple);
+	public void addNextTuple(final Tuple tuple) throws StorageManagerException {
+		try {
+			// Add Tuple to the index
+			long tuplePosition = sstableOutputStream.getChannel().position();
+			writeIndexEntry((int) tuplePosition);
+			
+			// Add Tuple to the SSTable file
+			writeTupleToFile(tuple);
+		} catch (IOException e) {
+			throw new StorageManagerException("Untable to write memtable to SSTable", e);
+		}
 	}
 
 	/**
