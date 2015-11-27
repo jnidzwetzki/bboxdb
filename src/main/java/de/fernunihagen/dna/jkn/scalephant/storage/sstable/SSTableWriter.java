@@ -135,16 +135,25 @@ public class SSTableWriter implements AutoCloseable {
 		
 		try {
 			for(final Tuple tuple : tuples) {
-				// Add Tuple to the index
-				long tuplePosition = sstableOutputStream.getChannel().position();
-			    writeIndexEntry((int) tuplePosition);
-			    
-			    // Add Tuple to the SSTable file
-				writeTupleToFile(tuple);
+				addNextTuple(tuple);
 			}
 		} catch (IOException e) {
 			throw new StorageManagerException("Untable to write memtable to SSTable", e);
 		}
+	}
+
+	/**
+	 * Add the next tuple into the result sstable
+	 * @param tuple
+	 * @throws IOException
+	 */
+	public void addNextTuple(final Tuple tuple) throws IOException {
+		// Add Tuple to the index
+		long tuplePosition = sstableOutputStream.getChannel().position();
+		writeIndexEntry((int) tuplePosition);
+		
+		// Add Tuple to the SSTable file
+		writeTupleToFile(tuple);
 	}
 
 	/**
