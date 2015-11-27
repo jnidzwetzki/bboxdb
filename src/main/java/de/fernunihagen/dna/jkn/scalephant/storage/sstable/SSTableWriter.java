@@ -99,15 +99,19 @@ public class SSTableWriter implements AutoCloseable {
 		}
 	}
 	
-	public void close() throws IOException {
-		if(sstableOutputStream != null) {
-			sstableOutputStream.close();
-			sstableOutputStream = null;
-		}
-		
-		if(sstableIndexOutputStream != null) {
-			sstableIndexOutputStream.close();
-			sstableIndexOutputStream = null;
+	public void close() throws StorageManagerException {
+		try {
+			if(sstableOutputStream != null) {
+				sstableOutputStream.close();
+				sstableOutputStream = null;
+			}
+			
+			if(sstableIndexOutputStream != null) {
+				sstableIndexOutputStream.close();
+				sstableIndexOutputStream = null;
+			}
+		} catch (IOException e) {
+			throw new StorageManagerException("Exception while closing streams", e);
 		}
 	}
 	
