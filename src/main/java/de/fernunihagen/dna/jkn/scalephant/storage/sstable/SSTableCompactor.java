@@ -1,6 +1,8 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,15 +13,10 @@ import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 public class SSTableCompactor implements Runnable {
 
 	/**
-	 * The first sstables to compact
+	 * The list of sstables to compact
 	 */
-	protected final SSTableIndexReader sstableIndexReader1;
+	protected final List<SSTableIndexReader> sstableIndexReader;
 	
-	/**
-	 * The second sstables to compact
-	 */
-	protected final SSTableIndexReader sstableIndexReader2;
-
 	/**
 	 * Our output sstable writer
 	 */
@@ -30,13 +27,11 @@ public class SSTableCompactor implements Runnable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactor.class);
 
-	public SSTableCompactor(final SSTableIndexReader sstableIndexReader1, 
-			final SSTableIndexReader sstableIndexReader2, 
+	public SSTableCompactor(final List<SSTableIndexReader> sstableIndexReader, 
 			final SSTableWriter sstableWriter) {
 		
 		super();
-		this.sstableIndexReader1 = sstableIndexReader1;
-		this.sstableIndexReader2 = sstableIndexReader2;
+		this.sstableIndexReader = sstableIndexReader;
 		this.sstableWriter = sstableWriter;
 	}
 	
@@ -46,67 +41,32 @@ public class SSTableCompactor implements Runnable {
 	 * @return success or failure
 	 */
 	public boolean executeCompactation() {
-
+		final List<Iterator<Tuple>> iterators = new ArrayList<Iterator<Tuple>>(sstableIndexReader.size());
+		final List<Tuple> tuples = new ArrayList<Tuple>(sstableIndexReader.size());
+		
 		// Open iterators for input sstables
-		final Iterator<Tuple> iterator1 = sstableIndexReader1.iterator();
-		final Iterator<Tuple> iterator2 = sstableIndexReader2.iterator();
-
-		Tuple tuple1 = null;
-		Tuple tuple2 = null;
+		for(final SSTableIndexReader reader : sstableIndexReader) {
+			iterators.add(reader.iterator());
+			tuples.add(null);
+		}
 		
 		try {
 			sstableWriter.open();
 			logger.info("Execute a new compactation into file " + sstableWriter.getSstableFile());
 
-			while(iterator1.hasNext() || iterator2.hasNext() || tuple1 != null || tuple2 != null) {
-				if(iterator1.hasNext() && tuple1 == null) {
-					tuple1 = iterator1.next();
-				}
+			boolean done = false;
+			
+			while(done == false) {
 				
-				if(iterator2.hasNext() && tuple2 == null) {
-					tuple2 = iterator2.next();
-				}
+				done = refreshTuple(iterators, tuples);
 				
-				// Stream1 is exhausted
-				if(tuple1 == null) {
-					sstableWriter.addNextTuple(tuple2);
-					while(iterator2.hasNext()) {
-						tuple2 = iterator2.next();
-						sstableWriter.addNextTuple(tuple2);
-					}
-					
-					break;
-				}
+				final Tuple tuple = getTupleWithTheLowestKey(iterators, tuples);
 				
-				// Stream2 is exhausted
-				if(tuple2 == null) {
-					sstableWriter.addNextTuple(tuple1);
-					while(iterator1.hasNext()) {
-						tuple1 = iterator1.next();
-						sstableWriter.addNextTuple(tuple1);
-					}
-					
-					break;
-				}
+				consumeTuplesForKey(tuples, tuple.getKey());
 				
-				int result = tuple1.getKey().compareTo(tuple2.getKey());
-				
-				if(result == 0) {
-					if(tuple1.getTimestamp() > tuple2.getTimestamp()) {
-						sstableWriter.addNextTuple(tuple1);
-						tuple1 = null;
-						tuple2 = null;
-					} else {
-						sstableWriter.addNextTuple(tuple2);
-						tuple1 = null;
-						tuple2 = null;
-					}
-				} else if(result < 0) {
-					sstableWriter.addNextTuple(tuple1);
-					tuple1 = null;
-				} else {
-					sstableWriter.addNextTuple(tuple2);
-					tuple2 = null;
+				// Write the tuple
+				if(tuple != null) {
+					sstableWriter.addNextTuple(tuple);
 				}
 			}
 			
@@ -117,6 +77,92 @@ public class SSTableCompactor implements Runnable {
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Consume all tuples for key
+	 * @param tuples
+	 * @param key
+	 */
+	protected void consumeTuplesForKey(final List<Tuple> tuples, String key) {
+		// Consume the key
+		for(int i = 0; i < tuples.size(); i++) {
+			final Tuple nextTuple = tuples.get(i);
+			
+			if(nextTuple == null) {
+				continue;
+			}
+			
+			if(key.equals(nextTuple.getKey())) {
+				tuples.set(i, null);
+			}
+		}
+	}
+
+	/**
+	 * Determine the tuple with the lowest key
+	 * @param iterators
+	 * @param tuples
+	 * @return
+	 */
+	protected Tuple getTupleWithTheLowestKey(
+			final List<Iterator<Tuple>> iterators, final List<Tuple> tuples) {
+		// Get tuple with the lowest key
+		Tuple tuple = null;				
+
+		for(int i = 0; i < iterators.size(); i++) {
+			
+			final Tuple nextTuple = tuples.get(i);
+			
+			if(nextTuple == null) {
+				continue;
+			}
+			
+			if(tuple == null) {
+				tuple = nextTuple;
+				continue;
+			}
+			
+			int result = tuple.getKey().compareTo(nextTuple.getKey());
+
+			if(result == 0) {
+				if(tuple.getTimestamp() < nextTuple.getTimestamp()) {
+					tuple = nextTuple;
+				} 
+			} else if(result < 0) {
+				tuple = nextTuple;
+			} 
+		}
+		return tuple;
+	}
+
+	/**
+	 * Read a tuple from each iterator, if the coresponding position 
+	 * of out buffer
+	 * 
+	 * @param iterators
+	 * @param tuples
+	 * @return
+	 */
+	protected boolean refreshTuple(final List<Iterator<Tuple>> iterators,
+			final List<Tuple> tuples) {
+		
+		boolean done = true;
+		
+		// Refresh Tuples
+		for(int i = 0; i < iterators.size(); i++) {
+			if(tuples.get(i) == null) {
+				if(iterators.get(i).hasNext()) {
+					tuples.set(i, iterators.get(i).next());
+				}
+			}
+			
+			// We have tuple to process
+			if(done == true && tuples.get(i) != null) {
+				done = false;
+			}
+		}
+		return done;
 	}
 
 	@Override

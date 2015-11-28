@@ -2,6 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -45,7 +46,7 @@ public class TestTableCompactor {
 		
 		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
 		
-		final SSTableCompactor compactor = new SSTableCompactor(reader1, reader2, writer);
+		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		boolean compactResult = compactor.executeCompactation();
 		
 		Assert.assertTrue(compactResult);
@@ -67,7 +68,7 @@ public class TestTableCompactor {
 		
 		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
 		
-		final SSTableCompactor compactor = new SSTableCompactor(reader1, reader2, writer);
+		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		compactor.executeCompactation();
 		writer.close();
 		
@@ -98,7 +99,7 @@ public class TestTableCompactor {
 		
 		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
 		
-		final SSTableCompactor compactor = new SSTableCompactor(reader1, reader2, writer);
+		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		compactor.executeCompactation();
 		writer.close();
 		
@@ -128,7 +129,7 @@ public class TestTableCompactor {
 		
 		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
 		
-		final SSTableCompactor compactor = new SSTableCompactor(reader1, reader2, writer);
+		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		compactor.executeCompactation();
 		writer.close();
 		
@@ -148,7 +149,7 @@ public class TestTableCompactor {
 	}
 	
 	@Test
-	public void testCompactTestFileCreation5() throws StorageManagerException {
+	public void testCompactTestSameKey() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes()));
 		final SSTableIndexReader reader1 = addTuplesToFile(tupleList1, 1);
@@ -159,7 +160,7 @@ public class TestTableCompactor {
 		
 		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
 		
-		final SSTableCompactor compactor = new SSTableCompactor(reader1, reader2, writer);
+		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		compactor.executeCompactation();
 		writer.close();
 		
