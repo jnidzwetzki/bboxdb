@@ -170,11 +170,14 @@ public class TestTableCompactor {
 		final SSTableIndexReader ssTableIndexReader = new SSTableIndexReader(reader);
 		ssTableIndexReader.init();
 
+		int counter = 0;
 		for(final Tuple tuple : ssTableIndexReader) {
+			counter++;
 			System.out.println(new String(tuple.getDataBytes()));
 			Assert.assertEquals("def", new String(tuple.getDataBytes()));
 		}		
 		
+		Assert.assertEquals(1, counter);
 	}
 	
 	
