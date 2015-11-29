@@ -62,10 +62,9 @@ public class SSTableCompactor implements Runnable {
 				
 				final Tuple tuple = getTupleWithTheLowestKey(iterators, tuples);
 				
-				consumeTuplesForKey(tuples, tuple.getKey());
-				
 				// Write the tuple
 				if(tuple != null) {
+					consumeTuplesForKey(tuples, tuple.getKey());
 					sstableWriter.addNextTuple(tuple);
 				}
 			}
