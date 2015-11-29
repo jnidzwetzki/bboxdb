@@ -97,7 +97,7 @@ public class SSTableManager implements Lifecycle {
 		
 		tableNumber = getLastSequencenumberFromReader();
 		ready = true;
-		flushThread = new Thread(new SSTableFlusher(this));
+		flushThread = new Thread(new SSTableFlushThread(this));
 		flushThread.start();
 		flushThread.setName("Memtable flush thread: " + name);
 	}

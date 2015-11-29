@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 
-class SSTableFlusher implements Runnable {
+class SSTableFlushThread implements Runnable {
 
 	/**
 	 * The reference to the sstable Manager
@@ -18,12 +18,12 @@ class SSTableFlusher implements Runnable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableFlusher.class);
+	private final static Logger logger = LoggerFactory.getLogger(SSTableFlushThread.class);
 
 	/**
 	 * @param ssTableManager
 	 */
-	SSTableFlusher(SSTableManager sstableManager) {
+	SSTableFlushThread(SSTableManager sstableManager) {
 		this.sstableManager = sstableManager;
 	}
 
