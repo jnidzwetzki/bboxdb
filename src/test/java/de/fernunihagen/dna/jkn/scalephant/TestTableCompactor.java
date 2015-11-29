@@ -57,7 +57,7 @@ public class TestTableCompactor {
 	}
 	
 	@Test
-	public void testCompactTestFileCreation2() throws StorageManagerException {
+	public void testCompactTestMerge() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes()));
 		final SSTableIndexReader reader1 = addTuplesToFile(tupleList1, 1);
@@ -89,7 +89,7 @@ public class TestTableCompactor {
 	
 	
 	@Test
-	public void testCompactTestFileCreation3() throws StorageManagerException {
+	public void testCompactTestFileOneEmptyfile1() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes()));
 		final SSTableIndexReader reader1 = addTuplesToFile(tupleList1, 1);
@@ -119,7 +119,7 @@ public class TestTableCompactor {
 	}
 	
 	@Test
-	public void testCompactTestFileCreation4() throws StorageManagerException {
+	public void testCompactTestFileOneEmptyfile2() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		final SSTableIndexReader reader1 = addTuplesToFile(tupleList1, 1);
 		
