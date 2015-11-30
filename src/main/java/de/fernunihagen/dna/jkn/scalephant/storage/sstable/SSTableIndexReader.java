@@ -70,9 +70,9 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 			do {
 				int curEntry = (int) ((lastEntry - firstEntry) / 2.0) + firstEntry;
 				
-				if(logger.isDebugEnabled()) {
+/*				if(logger.isDebugEnabled()) {
 					logger.debug("Low: " + firstEntry + " Up: " + lastEntry + " Pos: " + curEntry);
-				}
+				}*/
 				
 				final String curEntryValue = getKeyForIndexEntry(curEntry);
 				
