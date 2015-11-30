@@ -68,6 +68,8 @@ public class SSTableCompactorThread implements Runnable {
 	 */
 	protected void mergeSSTables(final SSTableReader reader1,
 			final SSTableReader reader2) throws StorageManagerException {
+		
+		// Get the index reader for the file reader
 		final SSTableIndexReader indexReader1 = sstableManager.getIndexReaderForTable(reader1);
 		final SSTableIndexReader indexReader2 = sstableManager.getIndexReaderForTable(reader2);
 		
@@ -100,7 +102,11 @@ public class SSTableCompactorThread implements Runnable {
 		// Shutdown the old reader
 		reader1.shutdown();
 		reader2.shutdown();
+		
+		// Delete the files
+		indexReader1.delete();
+		indexReader2.delete();
+		reader1.delete();
+		reader2.delete();
 	}
-
-	
 }
