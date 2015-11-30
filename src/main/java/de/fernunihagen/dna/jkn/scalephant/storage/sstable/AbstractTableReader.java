@@ -131,6 +131,7 @@ public abstract class AbstractTableReader implements Lifecycle {
 	 */
 	public boolean delete() {
 		if(file != null) {
+			logger.info("Delete file: " + file);
 			file.delete();
 			return true;
 		}
