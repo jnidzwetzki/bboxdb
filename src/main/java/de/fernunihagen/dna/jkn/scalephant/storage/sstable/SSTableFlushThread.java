@@ -33,7 +33,7 @@ class SSTableFlushThread implements Runnable {
 	 */
 	@Override
 	public void run() {
-		while(sstableManager.ready) {
+		while(sstableManager.isReady()) {
 			while(sstableManager.unflushedMemtables.isEmpty()) {
 				try {					
 					synchronized (sstableManager.unflushedMemtables) {
