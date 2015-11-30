@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
-public class SSTableCompactor implements Runnable {
+public class SSTableCompactor {
 
 	/**
 	 * The list of sstables to compact
@@ -162,10 +162,5 @@ public class SSTableCompactor implements Runnable {
 			}
 		}
 		return done;
-	}
-
-	@Override
-	public void run() {
-		executeCompactation();
 	}
 }
