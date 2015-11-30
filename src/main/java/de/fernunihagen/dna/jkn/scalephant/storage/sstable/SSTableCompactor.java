@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -162,5 +163,21 @@ public class SSTableCompactor {
 			}
 		}
 		return done;
+	}
+	
+	/**
+	 * Return the SSTable file
+	 * @return
+	 */
+	public File getSstableFile() {
+		return sstableWriter.getSstableFile();
+	}
+	
+	/**
+	 * Return the SSTable index file
+	 * @return
+	 */
+	public File getSstableIndexFile() {
+		return sstableWriter.getSstableIndexFile();
 	}
 }
