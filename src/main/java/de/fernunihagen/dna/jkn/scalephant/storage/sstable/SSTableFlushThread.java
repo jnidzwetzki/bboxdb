@@ -40,7 +40,7 @@ class SSTableFlushThread implements Runnable {
 						sstableManager.unflushedMemtables.wait();
 					}
 				} catch (InterruptedException e) {
-					logger.info("Memtable flush thread has stopped: " + sstableManager.name);
+					logger.info("Memtable flush thread has stopped: " + sstableManager.getName());
 					return;
 				}
 			}
@@ -48,7 +48,7 @@ class SSTableFlushThread implements Runnable {
 			flushAllMemtablesToDisk();
 		}
 		
-		logger.info("Memtable flush thread has stopped: " + sstableManager.name);
+		logger.info("Memtable flush thread has stopped: " + sstableManager.getName());
 	}
 
 	/**
@@ -62,7 +62,7 @@ class SSTableFlushThread implements Runnable {
 			
 			if(sstableFile != null) {
 				try {
-					final SSTableReader reader = new SSTableReader(sstableManager.name, sstableManager.directory, sstableFile);
+					final SSTableReader reader = new SSTableReader(sstableManager.getName(), sstableManager.getDirectory(), sstableFile);
 					sstableManager.tableReader.add(reader);
 				} catch (StorageManagerException e) {
 					logger.error("Exception while creating SSTable reader", e);
@@ -85,18 +85,18 @@ class SSTableFlushThread implements Runnable {
 	 * @return
 	 */
 	protected File writeMemtable(final Memtable memtable) {
-		logger.info("Writing new memtable: " + sstableManager.tableNumber);
+		logger.info("Writing new memtable: " + sstableManager.getTableNumber());
 		
-		try(final SSTableWriter ssTableWriter = new SSTableWriter(sstableManager.directory, sstableManager.name, sstableManager.tableNumber)) {
+		try(final SSTableWriter ssTableWriter = new SSTableWriter(sstableManager.getDirectory(), sstableManager.getName(), sstableManager.getTableNumber())) {
 			ssTableWriter.open();
 			final File filehandle = ssTableWriter.getSstableFile();
 			ssTableWriter.addData(memtable.getSortedTupleList());
 			return filehandle;
 		} catch (Exception e) {
-			logger.info("Exception while write memtable: " + sstableManager.name + " / " + sstableManager.tableNumber, e);
+			logger.info("Exception while write memtable: " + sstableManager.getName() + " / " + sstableManager.getTableNumber(), e);
 			sstableManager.storageState.setReady(false);
 		} finally {
-			sstableManager.tableNumber++;
+			sstableManager.setTableNumber(sstableManager.getTableNumber() + 1);
 		}
 		
 		return null;

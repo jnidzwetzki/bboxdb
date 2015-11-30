@@ -22,17 +22,17 @@ public class SSTableManager implements Lifecycle {
 	/**
 	 * The name of the table
 	 */
-	protected final String name;
+	private final String name;
 	
 	/**
 	 * The Directoy for the SSTables
 	 */
-	protected final String directory;
+	private final String directory;
 	
 	/**
 	 * The number of the table
 	 */
-	protected int tableNumber;
+	private int tableNumber;
 	
 	/**
 	 * The Reader for existing SSTables
@@ -60,6 +60,11 @@ public class SSTableManager implements Lifecycle {
 	protected Thread flushThread;
 	
 	/**
+	 * The compactification thread
+	 */
+	protected Thread compactThread;
+	
+	/**
 	 * The coresponding storage manager state
 	 */
 	protected State storageState;
@@ -75,7 +80,7 @@ public class SSTableManager implements Lifecycle {
 		this.storageState = storageState;
 		this.name = name;
 		this.directory = directory;
-		this.tableNumber = 0;
+		this.setTableNumber(0);
 		
 		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
 		tableReader = new CopyOnWriteArrayList<SSTableReader>();
@@ -88,18 +93,22 @@ public class SSTableManager implements Lifecycle {
 	 */
 	@Override
 	public void init() {
-		logger.info("Init a new instance for the table: " + name);
+		logger.info("Init a new instance for the table: " + getName());
 		unflushedMemtables.clear();
 		indexReader.clear();
 		tableReader.clear();
 		createSSTableDirIfNeeded();
 		scanForExistingTables();
 		
-		tableNumber = getLastSequencenumberFromReader();
+		setTableNumber(getLastSequencenumberFromReader());
 		ready = true;
 		flushThread = new Thread(new SSTableFlushThread(this));
+		flushThread.setName("Memtable flush thread for: " + getName());
 		flushThread.start();
-		flushThread.setName("Memtable flush thread: " + name);
+		
+		compactThread = new Thread(new SSTableCompactThread(this));
+		compactThread.setName("Compact thread for: " + getName());
+		compactThread.start();
 	}
 
 	/**
@@ -108,9 +117,10 @@ public class SSTableManager implements Lifecycle {
 	 */
 	@Override
 	public void shutdown() {
-		logger.info("Shuting down the instance for table: " + name);
+		logger.info("Shuting down the instance for table: " + getName());
 		ready = false;
 		flushThread.interrupt();
+		compactThread.interrupt();
 		
 		for(final SSTableIndexReader reader : indexReader.values()) {
 			reader.shutdown();
@@ -130,11 +140,17 @@ public class SSTableManager implements Lifecycle {
 	 * @return
 	 */
 	public boolean isShutdownComplete() {
-		if(flushThread == null) {
-			return true;
+		boolean shutdownComplete = true;
+		
+		if(flushThread != null) {
+			shutdownComplete = shutdownComplete & ! flushThread.isAlive();
 		}
 		
-		return ! flushThread.isAlive();
+		if(compactThread != null) {
+			shutdownComplete = shutdownComplete & ! compactThread.isAlive();
+		}
+		
+		return shutdownComplete;
 	}
 	
 	/**
@@ -142,11 +158,11 @@ public class SSTableManager implements Lifecycle {
 	 * 
 	 */
 	protected void createSSTableDirIfNeeded() {
-		final File rootDir = new File(directory);		
-		final File directoryHandle = new File(getSSTableDir(directory, name));
+		final File rootDir = new File(getDirectory());		
+		final File directoryHandle = new File(getSSTableDir(getDirectory(), getName()));
 		
 		if(rootDir.exists() && ! directoryHandle.exists()) {
-			logger.info("Create a new dir for table: " + name);
+			logger.info("Create a new dir for table: " + getName());
 			directoryHandle.mkdir();
 		}
 	}
@@ -157,8 +173,8 @@ public class SSTableManager implements Lifecycle {
 	 * 
 	 */
 	protected void scanForExistingTables() {
-		logger.info("Scan for existing SSTables: " + name);
-		final File directoryHandle = new File(getSSTableDir(directory, name));
+		logger.info("Scan for existing SSTables: " + getName());
+		final File directoryHandle = new File(getSSTableDir(getDirectory(), getName()));
 		
 		checkSSTableDir(directoryHandle);
 		
@@ -170,7 +186,7 @@ public class SSTableManager implements Lifecycle {
 				logger.info("Found sstable: " + filename);
 				
 				try {
-					final SSTableReader reader = new SSTableReader(name, directory, file);
+					final SSTableReader reader = new SSTableReader(getName(), getDirectory(), file);
 					tableReader.add(reader);
 				} catch(StorageManagerException e) {
 					logger.warn("Unable to parse sequence number, ignoring file: " + filename, e);
@@ -218,8 +234,8 @@ public class SSTableManager implements Lifecycle {
 	 * @return Directory was deleted or not
 	 */
 	public boolean deleteExistingTables() {
-		logger.info("Delete all existing SSTables for relation: " + name);
-		final File directoryHandle = new File(getSSTableDir(directory, name));
+		logger.info("Delete all existing SSTables for relation: " + getName());
+		final File directoryHandle = new File(getSSTableDir(getDirectory(), getName()));
 	
 		checkSSTableDir(directoryHandle);
 		
@@ -405,6 +421,30 @@ public class SSTableManager implements Lifecycle {
 	protected static String getSSTableIndexFilename(final String directory, final String name, int tablebumber) {
 		return getSSTableBase(directory, name, tablebumber)
 				+ SSTableConst.SST_INDEX_SUFFIX;
+	}
+
+	public int getTableNumber() {
+		return tableNumber;
+	}
+
+	public void setTableNumber(int tableNumber) {
+		this.tableNumber = tableNumber;
+	}
+
+	public boolean isReady() {
+		return ready;
+	}
+
+	public void setReady(boolean ready) {
+		this.ready = ready;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	protected String getDirectory() {
+		return directory;
 	}
 
 }
