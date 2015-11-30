@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +33,12 @@ public class SSTableManager implements Lifecycle {
 	/**
 	 * The number of the table
 	 */
-	private int tableNumber;
+	private AtomicInteger tableNumber;
 	
 	/**
 	 * The Reader for existing SSTables
 	 */
-	protected final List<SSTableReader> tableReader;
+	protected final List<SSTableReader> sstableReader;
 
 	/**
 	 * The Index Reader for the SSTables
@@ -80,10 +81,11 @@ public class SSTableManager implements Lifecycle {
 		this.storageState = storageState;
 		this.name = name;
 		this.directory = directory;
-		this.setTableNumber(0);
+		this.tableNumber = new AtomicInteger();
+		this.tableNumber.set(0);
 		
 		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
-		tableReader = new CopyOnWriteArrayList<SSTableReader>();
+		sstableReader = new CopyOnWriteArrayList<SSTableReader>();
 		indexReader = Collections.synchronizedMap(new HashMap<SSTableReader, SSTableIndexReader>());
 	}
 
@@ -96,11 +98,13 @@ public class SSTableManager implements Lifecycle {
 		logger.info("Init a new instance for the table: " + getName());
 		unflushedMemtables.clear();
 		indexReader.clear();
-		tableReader.clear();
+		sstableReader.clear();
 		createSSTableDirIfNeeded();
 		scanForExistingTables();
 		
-		setTableNumber(getLastSequencenumberFromReader());
+		this.tableNumber = new AtomicInteger();
+		this.tableNumber.set(getLastSequencenumberFromReader());
+		
 		ready = true;
 		flushThread = new Thread(new SSTableFlushThread(this));
 		flushThread.setName("Memtable flush thread for: " + getName());
@@ -127,10 +131,10 @@ public class SSTableManager implements Lifecycle {
 		}
 		indexReader.clear();
 		
-		for(final AbstractTableReader reader : tableReader) {
+		for(final AbstractTableReader reader : sstableReader) {
 			reader.shutdown();
 		}
-		tableReader.clear();
+		sstableReader.clear();
 	}
 	
 	
@@ -187,7 +191,7 @@ public class SSTableManager implements Lifecycle {
 				
 				try {
 					final SSTableReader reader = new SSTableReader(getName(), getDirectory(), file);
-					tableReader.add(reader);
+					sstableReader.add(reader);
 				} catch(StorageManagerException e) {
 					logger.warn("Unable to parse sequence number, ignoring file: " + filename, e);
 				}
@@ -205,7 +209,7 @@ public class SSTableManager implements Lifecycle {
 		
 		int number = 0;
 		
-		for(AbstractTableReader reader : tableReader) {
+		for(AbstractTableReader reader : sstableReader) {
 			final int sequenceNumber = reader.getTablebumber();
 			
 			if(sequenceNumber >= number) {
@@ -341,7 +345,7 @@ public class SSTableManager implements Lifecycle {
 		}
 		
 		// Read data from the persistent SSTables
-		for(final SSTableReader reader : tableReader) {
+		for(final SSTableReader reader : sstableReader) {
 
 			final SSTableIndexReader indexReader = getIndexReaderForTable(reader);
 			int position = indexReader.getPositionForTuple(key);
@@ -424,11 +428,11 @@ public class SSTableManager implements Lifecycle {
 	}
 
 	public int getTableNumber() {
-		return tableNumber;
+		return tableNumber.get();
 	}
-
-	public void setTableNumber(int tableNumber) {
-		this.tableNumber = tableNumber;
+	
+	public int increaseTableNumber() {
+		return tableNumber.getAndIncrement();
 	}
 
 	public boolean isReady() {
@@ -443,8 +447,24 @@ public class SSTableManager implements Lifecycle {
 		return name;
 	}
 
-	protected String getDirectory() {
+	public String getDirectory() {
 		return directory;
+	}
+	
+	/**
+	 * Get the sstable reader
+	 * @return
+	 */
+	public List<SSTableReader> getSstableReader() {
+		return sstableReader;
+	}
+
+	/**
+	 * Get the index reader
+	 * @return
+	 */
+	public Map<SSTableReader, SSTableIndexReader> getIndexReader() {
+		return indexReader;
 	}
 
 }
