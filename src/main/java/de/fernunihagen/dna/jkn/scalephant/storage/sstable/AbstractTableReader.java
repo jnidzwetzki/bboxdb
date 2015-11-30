@@ -127,7 +127,7 @@ public abstract class AbstractTableReader implements Lifecycle {
 	}
 
 	/**
-	 * Delete the unterlaying file
+	 * Delete the underlaying file
 	 */
 	public boolean delete() {
 		if(file != null) {
