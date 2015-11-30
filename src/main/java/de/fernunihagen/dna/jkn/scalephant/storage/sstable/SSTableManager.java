@@ -110,7 +110,7 @@ public class SSTableManager implements Lifecycle {
 		flushThread.setName("Memtable flush thread for: " + getName());
 		flushThread.start();
 		
-		compactThread = new Thread(new SSTableCompactThread(this));
+		compactThread = new Thread(new SSTableCompactorThread(this));
 		compactThread.setName("Compact thread for: " + getName());
 		compactThread.start();
 	}

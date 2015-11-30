@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 
-public class SSTableCompactThread implements Runnable {
+public class SSTableCompactorThread implements Runnable {
 
 	
 	/**
@@ -19,10 +19,10 @@ public class SSTableCompactThread implements Runnable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactThread.class);
+	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactorThread.class);
 
 
-	public SSTableCompactThread(final SSTableManager ssTableManager) {
+	public SSTableCompactorThread(final SSTableManager ssTableManager) {
 		this.sstableManager = ssTableManager;
 	}
 
