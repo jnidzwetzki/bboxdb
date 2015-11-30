@@ -96,7 +96,7 @@ class SSTableFlushThread implements Runnable {
 			logger.info("Exception while write memtable: " + sstableManager.getName() + " / " + sstableManager.getTableNumber(), e);
 			sstableManager.storageState.setReady(false);
 		} finally {
-			sstableManager.setTableNumber(sstableManager.getTableNumber() + 1);
+			sstableManager.increaseTableNumber();
 		}
 		
 		return null;
