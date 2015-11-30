@@ -10,6 +10,11 @@ public class SSTableConst {
 	public final static byte[] MAGIC_BYTES = "scalephant".getBytes();
 	
 	/**
+	 * The current version of the SSTable layout format
+	 */
+	public final short SST_VERSION = 1;
+	
+	/**
 	 * The prefix for every SSTable file
 	 */
 	public final static String SST_FILE_PREFIX = "sstable_";
