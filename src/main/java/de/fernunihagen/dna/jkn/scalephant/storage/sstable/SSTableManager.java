@@ -100,7 +100,13 @@ public class SSTableManager implements Lifecycle {
 		indexReader.clear();
 		sstableReader.clear();
 		createSSTableDirIfNeeded();
-		scanForExistingTables();
+		
+		try {
+			scanForExistingTables();
+		} catch (StorageManagerException e) {
+			// Unable to init the instance
+			return;
+		}
 		
 		this.tableNumber = new AtomicInteger();
 		this.tableNumber.set(getLastSequencenumberFromReader());
@@ -123,8 +129,14 @@ public class SSTableManager implements Lifecycle {
 	public void shutdown() {
 		logger.info("Shuting down the instance for table: " + getName());
 		ready = false;
-		flushThread.interrupt();
-		compactThread.interrupt();
+		
+		if(flushThread != null) {
+			flushThread.interrupt();
+		}
+		
+		if(compactThread != null) {
+			compactThread.interrupt();
+		}
 		
 		for(final SSTableIndexReader reader : indexReader.values()) {
 			reader.shutdown();
@@ -174,14 +186,15 @@ public class SSTableManager implements Lifecycle {
 	/**
 	 * Scan the database directory for all existing SSTables and
 	 * create reader objects
+	 * @throws StorageManagerException 
 	 * 
 	 */
-	protected void scanForExistingTables() {
+	protected void scanForExistingTables() throws StorageManagerException {
 		logger.info("Scan for existing SSTables: " + getName());
 		final File directoryHandle = new File(getSSTableDir(getDirectory(), getName()));
 		
-		checkSSTableDir(directoryHandle);
-		
+	    checkSSTableDir(directoryHandle);
+	
 		final File[] entries = directoryHandle.listFiles();
 				
 		for(final File file : entries) {
@@ -224,25 +237,29 @@ public class SSTableManager implements Lifecycle {
 	 * Ensure that the storage directory does exist
 	 * 
 	 * @param directoryHandle
+	 * @throws StorageManagerException 
 	 */
-	protected void checkSSTableDir(final File directoryHandle) {
+	public void checkSSTableDir(final File directoryHandle) throws StorageManagerException {
 		if(! directoryHandle.isDirectory()) {
-			logger.error("Storage directory is not an directory: " + directoryHandle);
+			final String message = "Storage directory is not an directory: " + directoryHandle;
 			storageState.setReady(false);
-		}
+			logger.error(message);
+			throw new StorageManagerException(message);
+		}		
 	}
 	
 	/**
 	 * Delete all existing SSTables in the given directory
 	 * 
 	 * @return Directory was deleted or not
+	 * @throws StorageManagerException 
 	 */
-	public boolean deleteExistingTables() {
+	public boolean deleteExistingTables() throws StorageManagerException {
 		logger.info("Delete all existing SSTables for relation: " + getName());
 		final File directoryHandle = new File(getSSTableDir(getDirectory(), getName()));
 	
 		checkSSTableDir(directoryHandle);
-		
+
 		final File[] entries = directoryHandle.listFiles();
 				
 		for(final File file : entries) {

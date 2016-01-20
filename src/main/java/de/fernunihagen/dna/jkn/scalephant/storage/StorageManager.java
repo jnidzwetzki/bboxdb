@@ -112,7 +112,11 @@ public class StorageManager implements Lifecycle, Storage {
 			}
 		}
 		
-		sstableManager.deleteExistingTables();
+		try {
+			sstableManager.deleteExistingTables();
+		} catch (StorageManagerException e) {
+			logger.error("Error during deletion", e);
+		}
 		
 		init();
 	}
