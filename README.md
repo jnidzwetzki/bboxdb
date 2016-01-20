@@ -14,4 +14,4 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 - Switched the reader from File IO to Memory Mapped IO
 
 ### Version 0.0.1 (Alpha) - 20.11.2015
-- Inital release
+- Initial release
