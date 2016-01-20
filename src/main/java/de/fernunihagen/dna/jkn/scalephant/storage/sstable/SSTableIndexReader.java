@@ -112,6 +112,12 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 	 * @return
 	 */
 	protected int convertEntryToPosition(long entry) {
+		
+		// Memory was unmapped
+		if(memory == null) {
+			return -1;
+		}
+		
 		memory.position((int) ((entry * SSTableConst.INDEX_ENTRY_BYTES) + SSTableConst.MAGIC_BYTES.length));
 		int position = memory.getInt();
 		return position;

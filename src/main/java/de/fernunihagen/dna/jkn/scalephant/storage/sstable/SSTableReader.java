@@ -58,6 +58,12 @@ public class SSTableReader extends AbstractTableReader {
 	 */
 	public Tuple getTupleAtPosition(int position) throws StorageManagerException {
 		try {
+			
+			// The memory was unmapped
+			if(memory != null) {
+				return null;
+			}
+			
 			memory.position(position);
 			
 			final Tuple tuple = decodeTuple();
