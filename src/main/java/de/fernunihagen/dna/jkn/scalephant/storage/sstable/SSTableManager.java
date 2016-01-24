@@ -363,6 +363,12 @@ public class SSTableManager implements Lifecycle {
 		
 		// Read data from the persistent SSTables
 		for(final SSTableReader reader : sstableReader) {
+			
+			boolean canBeUsed = reader.acquire();
+			
+			if(! canBeUsed ) {
+				continue;
+			}
 
 			final SSTableIndexReader indexReader = getIndexReaderForTable(reader);
 			int position = indexReader.getPositionForTuple(key);
@@ -378,6 +384,8 @@ public class SSTableManager implements Lifecycle {
 					tuple = tableTuple;
 				}
 			}
+			
+			reader.release();
 		}
 		
 		if(tuple instanceof DeletedTuple) {

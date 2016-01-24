@@ -142,6 +142,11 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 	 */
 	protected int getNumberOfEntries() {
 		try {
+			if(fileChannel == null) {
+				logger.warn("getNumberOfEntries() called on closed sstableindexreader for relation: " + name);
+				return 0;
+			}
+			
 			return (int) ((fileChannel.size() - SSTableConst.MAGIC_BYTES.length) / SSTableConst.INDEX_ENTRY_BYTES);
 		} catch (IOException e) {
 			logger.error("IO Exception while reading from index", e);
@@ -156,6 +161,28 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 	 */
 	public SSTableReader getSstableReader() {
 		return sstableReader;
+	}
+	
+	/**
+	 * Propergate the acquire call to the sstable
+	 */
+	@Override
+	public boolean acquire() {
+		
+		if(! sstableReader.acquire()) {
+			return false;
+		}
+		
+		return super.acquire();
+	}
+	
+	/**
+	 * Propergate the release call to the sstable
+	 */
+	@Override
+	public void release() {
+		super.release();
+		sstableReader.release();
 	}
 	
 	/**

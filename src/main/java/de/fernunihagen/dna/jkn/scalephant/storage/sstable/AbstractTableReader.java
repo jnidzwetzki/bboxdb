@@ -7,6 +7,7 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public abstract class AbstractTableReader implements Lifecycle {
 	/**
 	 * The filename of the table
 	 */
-	protected final File file;
+	protected File file;
 	
 	/**
 	 * The Directoy for the SSTables
@@ -47,6 +48,16 @@ public abstract class AbstractTableReader implements Lifecycle {
 	protected FileChannel fileChannel;
 	
 	/**
+	 * The usage counter
+	 */
+	protected final AtomicInteger usage;
+	
+	/**
+	 * Delete file on close
+	 */
+	protected volatile boolean deleteOnClose; 
+	
+	/**
 	 * The Logger
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
@@ -57,6 +68,8 @@ public abstract class AbstractTableReader implements Lifecycle {
 		this.directory = directory;
 		this.file = file;
 		this.tablebumber = SSTableHelper.extractSequenceFromFilename(name, file.getName());
+		this.usage = new AtomicInteger(0);
+		deleteOnClose = false;
 	}
 	
 	/**
@@ -84,7 +97,6 @@ public abstract class AbstractTableReader implements Lifecycle {
 		if(! Arrays.equals(magicBytes, SSTableConst.MAGIC_BYTES)) {
 			throw new StorageManagerException("File " + file + " does not contain the magic bytes");
 		}
-
 	}
 	
 	/**
@@ -127,16 +139,12 @@ public abstract class AbstractTableReader implements Lifecycle {
 	}
 
 	/**
-	 * Delete the underlaying file
+	 * Delete the underlaying file as soon as usage == 0
 	 */
-	public boolean delete() {
-		if(file != null) {
-			logger.info("Delete file: " + file);
-			file.delete();
-			return true;
-		}
+	public void deleteOnClose() {
+		deleteOnClose = true;
 		
-		return false;
+		testFileDelete();
 	}
 	
 	/**
@@ -168,6 +176,42 @@ public abstract class AbstractTableReader implements Lifecycle {
 	 */
 	public String getDirectory() {
 		return directory;
+	}
+	
+	
+	/** 
+	 * Increment the usage counter
+	 * @return
+	 */
+	public boolean acquire() {
+		
+		// We are closing this instnance
+		if(deleteOnClose == true) {
+			return false;
+		}
+		
+		usage.incrementAndGet();
+		return true;
+	}
+	
+	/**
+	 * Decfement the usage counter
+	 */
+	public void release() {
+		usage.decrementAndGet();
+		
+		testFileDelete();
+	}
+
+	/**
+	 * Delete the file if possible
+	 */
+	protected void testFileDelete() {
+		if(file != null && usage.get() == 0) {
+			logger.info("Delete file: " + file);
+			file.delete();
+			file = null;
+		}
 	}
 
 }

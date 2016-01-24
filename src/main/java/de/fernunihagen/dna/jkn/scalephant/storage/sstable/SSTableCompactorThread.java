@@ -3,6 +3,8 @@ package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.ws.spi.Invoker;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,9 +106,9 @@ public class SSTableCompactorThread implements Runnable {
 		reader2.shutdown();
 		
 		// Delete the files
-		indexReader1.delete();
-		indexReader2.delete();
-		reader1.delete();
-		reader2.delete();
+		indexReader1.deleteOnClose();
+		indexReader2.deleteOnClose();
+		reader1.deleteOnClose();
+		reader2.deleteOnClose();
 	}
 }
