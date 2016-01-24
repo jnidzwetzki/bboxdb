@@ -142,6 +142,7 @@ public class SSTableWriter implements AutoCloseable {
 		}
 		
 		for(final Tuple tuple : tuples) {
+			writtenTuples++;
 			addNextTuple(tuple);
 		}
 	}
