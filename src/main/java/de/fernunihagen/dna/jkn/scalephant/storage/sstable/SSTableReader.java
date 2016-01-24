@@ -60,7 +60,8 @@ public class SSTableReader extends AbstractTableReader {
 		try {
 			
 			// The memory was unmapped
-			if(memory != null) {
+			if(memory == null) {
+				logger.warn("Read request to unmapped memory for relation: " + name);
 				return null;
 			}
 			
