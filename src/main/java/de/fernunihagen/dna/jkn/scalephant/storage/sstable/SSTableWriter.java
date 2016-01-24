@@ -51,6 +51,11 @@ public class SSTableWriter implements AutoCloseable {
 	protected File sstableIndexFile;
 	
 	/**
+	 * A counter for the written tuples
+	 */
+	protected long writtenTuples;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableWriter.class);
@@ -63,6 +68,7 @@ public class SSTableWriter implements AutoCloseable {
 		this.tablebumber = tablenumber;
 		
 		this.sstableOutputStream = null;
+		writtenTuples = 0;
 	}
 	
 	public void open() throws StorageManagerException {
@@ -113,6 +119,8 @@ public class SSTableWriter implements AutoCloseable {
 		} catch (IOException e) {
 			throw new StorageManagerException("Exception while closing streams", e);
 		}
+		
+		logger.info("Closing new SSTable for " + name + " with " + writtenTuples + " entries");
 	}
 	
 	/**
@@ -132,7 +140,6 @@ public class SSTableWriter implements AutoCloseable {
 			logger.error(error);
 			throw new StorageManagerException(error);
 		}
-		
 		
 		for(final Tuple tuple : tuples) {
 			addNextTuple(tuple);
