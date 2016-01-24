@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
@@ -13,6 +16,11 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 	 * The coresponding sstable reader
 	 */
 	protected final SSTableReader sstableReader;
+	
+	/**
+	 * The Logger
+	 */
+	protected static final Logger logger = LoggerFactory.getLogger(SSTableIndexReader.class);
 
 	public SSTableIndexReader(final SSTableReader sstableReader) throws StorageManagerException {
 		super(sstableReader.getName(), sstableReader.getDirectory(), constructFileFromReader(sstableReader));
@@ -33,6 +41,11 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 				sstableReader.getTablebumber()));
 	}
 
+	@Override
+	public void init() {
+		super.init();
+		logger.info("Opened index for relation: " + name + " with " + getNumberOfEntries() + " entries");
+	}
 
 	/**
 	 * Scan the index file for the tuple position
@@ -158,10 +171,6 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 			
 			@Override
 			public boolean hasNext() {
-				if(lastEntry == 0) {
-					return false;
-				}
-				
 				return entry <= lastEntry;
 			}
 
