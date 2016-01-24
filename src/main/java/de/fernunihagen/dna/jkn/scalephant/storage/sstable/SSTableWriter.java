@@ -120,7 +120,7 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException("Exception while closing streams", e);
 		}
 		
-		logger.info("Closing new SSTable for " + name + " with " + writtenTuples + " entries");
+		logger.info("Closing new SSTable for relation: " + name + " with " + writtenTuples + " entries");
 	}
 	
 	/**
