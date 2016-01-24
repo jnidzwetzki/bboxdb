@@ -158,6 +158,10 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 			
 			@Override
 			public boolean hasNext() {
+				if(lastEntry == 0) {
+					return false;
+				}
+				
 				return entry <= lastEntry;
 			}
 
