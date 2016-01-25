@@ -85,19 +85,18 @@ class SSTableFlushThread implements Runnable {
 	 * @return
 	 */
 	protected File writeMemtable(final Memtable memtable) {
-		logger.info("Writing new memtable: " + sstableManager.getTableNumber());
+		int tableNumber = sstableManager.increaseTableNumber();
+		logger.info("Writing new memtable: " + tableNumber);
 		
-		try(final SSTableWriter ssTableWriter = new SSTableWriter(sstableManager.getDirectory(), sstableManager.getName(), sstableManager.getTableNumber())) {
+		try(final SSTableWriter ssTableWriter = new SSTableWriter(sstableManager.getDirectory(), sstableManager.getName(), tableNumber)) {
 			ssTableWriter.open();
 			final File filehandle = ssTableWriter.getSstableFile();
 			ssTableWriter.addData(memtable.getSortedTupleList());
 			return filehandle;
 		} catch (Exception e) {
-			logger.info("Exception while write memtable: " + sstableManager.getName() + " / " + sstableManager.getTableNumber(), e);
+			logger.info("Exception while write memtable: " + sstableManager.getName() + " / " + tableNumber, e);
 			sstableManager.storageState.setReady(false);
-		} finally {
-			sstableManager.increaseTableNumber();
-		}
+		} 
 		
 		return null;
 	}

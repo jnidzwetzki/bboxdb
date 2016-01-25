@@ -207,11 +207,10 @@ public abstract class AbstractTableReader implements Lifecycle {
 	 * Delete the file if possible
 	 */
 	protected void testFileDelete() {
-		if(file != null && usage.get() == 0) {
+		if(deleteOnClose & file != null && usage.get() == 0) {
 			logger.info("Delete file: " + file);
 			file.delete();
 			file = null;
 		}
 	}
-
 }

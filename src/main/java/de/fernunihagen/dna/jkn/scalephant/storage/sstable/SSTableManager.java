@@ -347,9 +347,7 @@ public class SSTableManager implements Lifecycle {
 	 * @throws StorageManagerException
 	 */
 	public Tuple get(final String key) throws StorageManagerException {
-		
-		logger.debug("Searching for: " + key);
-		
+			
 		Tuple tuple = null;
 		
 		// Read tuple from unflushed memtables
@@ -360,17 +358,18 @@ public class SSTableManager implements Lifecycle {
 				return tuple;
 			}
 		}
-		
+				
 		// Read data from the persistent SSTables
 		for(final SSTableReader reader : sstableReader) {
 			
-			boolean canBeUsed = reader.acquire();
+			final SSTableIndexReader indexReader = getIndexReaderForTable(reader);
+
+			boolean canBeUsed = indexReader.acquire();
 			
 			if(! canBeUsed ) {
 				continue;
 			}
 
-			final SSTableIndexReader indexReader = getIndexReaderForTable(reader);
 			int position = indexReader.getPositionForTuple(key);
 			
 			// Found a tuple
@@ -385,7 +384,7 @@ public class SSTableManager implements Lifecycle {
 				}
 			}
 			
-			reader.release();
+			indexReader.release();
 		}
 		
 		if(tuple instanceof DeletedTuple) {
@@ -452,9 +451,6 @@ public class SSTableManager implements Lifecycle {
 				+ SSTableConst.SST_INDEX_SUFFIX;
 	}
 
-	public int getTableNumber() {
-		return tableNumber.get();
-	}
 	
 	public int increaseTableNumber() {
 		return tableNumber.getAndIncrement();

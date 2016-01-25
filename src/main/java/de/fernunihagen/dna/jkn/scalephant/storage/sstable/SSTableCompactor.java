@@ -52,8 +52,8 @@ public class SSTableCompactor {
 		}
 		
 		try {
-			sstableWriter.open();
 			logger.info("Execute a new compactation into file " + sstableWriter.getSstableFile());
+			sstableWriter.open();
 
 			boolean done = false;
 			

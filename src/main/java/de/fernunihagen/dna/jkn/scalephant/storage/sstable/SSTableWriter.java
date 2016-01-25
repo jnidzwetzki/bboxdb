@@ -87,9 +87,13 @@ public class SSTableWriter implements AutoCloseable {
 		final String outputIndexFileName = SSTableManager.getSSTableIndexFilename(directory, name, tablebumber);
 		sstableIndexFile = new File(outputIndexFileName);
 		
-		// Don't overwrite old data (table)
-		if(sstableFile.exists() || sstableIndexFile.exists()) {
-			throw new StorageManagerException("Table file already exists: " + sstableOutputFileName + " / " + sstableIndexFile);
+		// Don't overwrite old data
+		if(sstableFile.exists()) {
+			throw new StorageManagerException("Table file already exists: " + sstableOutputFileName);
+		}
+		
+		if(sstableIndexFile.exists()) {
+			throw new StorageManagerException("Table file already exists: " + sstableIndexFile);
 		}
 		
 		try {
