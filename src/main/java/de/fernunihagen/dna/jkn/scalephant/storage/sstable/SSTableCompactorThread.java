@@ -101,18 +101,12 @@ public class SSTableCompactorThread implements Runnable {
 		reader1.deleteOnClose();
 		reader2.deleteOnClose();
 		
-		System.out.println("Before: " + sstableManager.getSstableReader().size());
-
-		
 		// Unregister the old tables
 		sstableManager.getSstableReader().remove(reader1);
 		sstableManager.getSstableReader().remove(reader2);
 		sstableManager.getIndexReader().remove(reader1);
 		sstableManager.getIndexReader().remove(reader2);
-		
-		System.out.println("After: " + sstableManager.getSstableReader().size());
 
-		
 		// Shutdown the old reader
 		reader1.shutdown();
 		reader2.shutdown();
