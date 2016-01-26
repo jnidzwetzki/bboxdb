@@ -99,11 +99,10 @@ public class SSTableCompactorThread implements Runnable {
 		sstableManager.getIndexReader().put(newTableReader, newTableIndexReader);
 		
 		// Delete the files
-		/*indexReader1.deleteOnClose();
+		indexReader1.deleteOnClose();
 		indexReader2.deleteOnClose();
 		reader1.deleteOnClose();
-		reader2.deleteOnClose();*/
-		
+		reader2.deleteOnClose();
 		
 		// Unregister the old tables
 		sstableManager.getSstableReader().remove(reader1);
