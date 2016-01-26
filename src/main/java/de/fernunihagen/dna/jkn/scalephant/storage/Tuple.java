@@ -144,7 +144,8 @@ public class Tuple implements Comparable<Tuple> {
 		int res = key.compareTo(otherTuple.getKey());
 		
 		if(res == 0) {
-			return Long.compare(timestamp, otherTuple.getTimestamp());
+			// The most recent version at top
+			return Long.compare(timestamp, otherTuple.getTimestamp()) * -1;
 		}
 			
 		return res;
