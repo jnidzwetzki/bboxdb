@@ -52,7 +52,6 @@ public class SSTableCompactor {
 			tuples.add(null);
 		}
 		
-		
 		try {
 			sstableWriter.open();
 			logger.info("Execute a new compactation into file " + sstableWriter.getSstableFile());
@@ -125,16 +124,13 @@ public class SSTableCompactor {
 				continue;
 			}
 			
-			int result = tuple.getKey().compareTo(nextTuple.getKey());
-
-			if(result == 0) {
-				if(tuple.getTimestamp() < nextTuple.getTimestamp()) {
-					tuple = nextTuple;
-				} 
-			} else if(result < 0) {
+			int result = tuple.compareTo(nextTuple);
+			
+			if(result > 0) {
 				tuple = nextTuple;
 			} 
 		}
+				
 		return tuple;
 	}
 
