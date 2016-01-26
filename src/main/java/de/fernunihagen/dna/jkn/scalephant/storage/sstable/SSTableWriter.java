@@ -124,7 +124,7 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException("Exception while closing streams", e);
 		}
 		
-		logger.info("Closing new SSTable for relation: " + name + " with " + writtenTuples + " entries");
+		logger.info("Closing new SSTable for relation: " + name + " with " + writtenTuples + " entries. File: " + sstableFile.getName());
 	}
 	
 	/**
@@ -146,7 +146,6 @@ public class SSTableWriter implements AutoCloseable {
 		}
 		
 		for(final Tuple tuple : tuples) {
-			writtenTuples++;
 			addNextTuple(tuple);
 		}
 	}
@@ -165,6 +164,7 @@ public class SSTableWriter implements AutoCloseable {
 			
 			// Add Tuple to the SSTable file
 			writeTupleToFile(tuple);
+			writtenTuples++;
 		} catch (IOException e) {
 			throw new StorageManagerException("Untable to write memtable to SSTable", e);
 		}
