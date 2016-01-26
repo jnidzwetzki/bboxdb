@@ -21,7 +21,7 @@ public class SSTableReader extends AbstractTableReader {
 	 * @return the tuple or null	
 	 * @throws StorageManagerException 
 	 */
-	public Tuple scanForTuple(final String key) throws StorageManagerException {
+	public synchronized Tuple scanForTuple(final String key) throws StorageManagerException {
 		logger.info("Search in table: " + tablebumber + " for " + key);
 
 		try {
@@ -56,9 +56,9 @@ public class SSTableReader extends AbstractTableReader {
 	 * @return The tuple
 	 * @throws StorageManagerException
 	 */
-	public Tuple getTupleAtPosition(int position) throws StorageManagerException {
+	public synchronized Tuple getTupleAtPosition(int position) throws StorageManagerException {
+		
 		try {
-			
 			// The memory was unmapped
 			if(memory == null) {
 				logger.warn("Read request to unmapped memory for relation: " + name);
@@ -67,11 +67,13 @@ public class SSTableReader extends AbstractTableReader {
 			
 			memory.position(position);
 			
-			final Tuple tuple = decodeTuple();
-			
-			return tuple;
-		} catch (IOException e) {
-			throw new StorageManagerException(e);
+			return decodeTuple();
+		} catch (Exception e) {
+			try {
+				throw new StorageManagerException("Exception while decoding Position: " + position +  " Size "  + fileChannel.size(), e);
+			} catch (IOException e1) {
+				throw new StorageManagerException(e);
+			}
 		}
 	}
 
@@ -114,7 +116,7 @@ public class SSTableReader extends AbstractTableReader {
 	 * @return
 	 * @throws IOException 
 	 */
-	public String decodeOnlyKeyFromTupleAtPosition(int position) throws IOException {
+	public synchronized String decodeOnlyKeyFromTupleAtPosition(int position) throws IOException {
 		
 		memory.position(position);
 		

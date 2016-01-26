@@ -42,6 +42,7 @@ public class SSTableCompactor {
 	 * @return success or failure
 	 */
 	public boolean executeCompactation() {
+		
 		final List<Iterator<Tuple>> iterators = new ArrayList<Iterator<Tuple>>(sstableIndexReader.size());
 		final List<Tuple> tuples = new ArrayList<Tuple>(sstableIndexReader.size());
 		
@@ -51,13 +52,14 @@ public class SSTableCompactor {
 			tuples.add(null);
 		}
 		
+		
 		try {
-			logger.info("Execute a new compactation into file " + sstableWriter.getSstableFile());
 			sstableWriter.open();
+			logger.info("Execute a new compactation into file " + sstableWriter.getSstableFile());
 
 			boolean done = false;
 			
-			while(done == false) {
+		    while(done == false) {
 				
 				done = refreshTuple(iterators, tuples);
 				

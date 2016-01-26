@@ -91,24 +91,24 @@ public class SSTableCompactorThread implements Runnable {
 		final SSTableReader newTableReader = new SSTableReader(reader1.getName(), reader1.getDirectory(), writer.getSstableFile());
 		final SSTableIndexReader newTableIndexReader = new SSTableIndexReader(newTableReader);
 		
+		newTableReader.init();
+		newTableIndexReader.init();
+		
 		// Register the new sstable reader
 		sstableManager.getSstableReader().add(newTableReader);
 		sstableManager.getIndexReader().put(newTableReader, newTableIndexReader);
 		
 		// Delete the files
-		indexReader1.deleteOnClose();
+		/*indexReader1.deleteOnClose();
 		indexReader2.deleteOnClose();
 		reader1.deleteOnClose();
-		reader2.deleteOnClose();
+		reader2.deleteOnClose();*/
+		
 		
 		// Unregister the old tables
 		sstableManager.getSstableReader().remove(reader1);
 		sstableManager.getSstableReader().remove(reader2);
 		sstableManager.getIndexReader().remove(reader1);
 		sstableManager.getIndexReader().remove(reader2);
-
-		// Shutdown the old reader
-		reader1.shutdown();
-		reader2.shutdown();
 	}
 }

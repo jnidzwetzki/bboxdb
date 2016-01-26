@@ -348,43 +348,39 @@ public class SSTableManager implements Lifecycle {
 	 */
 	public Tuple get(final String key) throws StorageManagerException {
 			
-		Tuple tuple = null;
+		// Read memtables first
+		Tuple tuple = getTupleFromMemtable(key);
+				
+		boolean readComplete = false;
+		while(! readComplete) {
+			readComplete = true;
 		
-		// Read tuple from unflushed memtables
-		for(final Memtable unflushedMemtable : unflushedMemtables) {
-			tuple = unflushedMemtable.get(key);
-
-			if(tuple != null) {
-				return tuple;
-			}
-		}
+			// Read data from the persistent SSTables
+			for(final SSTableReader reader : sstableReader) {
+				final SSTableIndexReader indexReader = getIndexReaderForTable(reader);
+				boolean canBeUsed = indexReader.acquire();
 				
-		// Read data from the persistent SSTables
-		for(final SSTableReader reader : sstableReader) {
-			
-			final SSTableIndexReader indexReader = getIndexReaderForTable(reader);
-
-			boolean canBeUsed = indexReader.acquire();
-			
-			if(! canBeUsed ) {
-				continue;
-			}
-
-			int position = indexReader.getPositionForTuple(key);
-			
-			// Found a tuple
-			if(position != -1) {
-	
-				final Tuple tableTuple = reader.getTupleAtPosition(position);
-				
-				if(tuple == null) {
-					tuple = tableTuple;
-				} else if(tableTuple.getTimestamp() > tuple.getTimestamp()) {
-					tuple = tableTuple;
+				if(! canBeUsed ) {
+					logger.info("Got unusable sstable: " + indexReader);
+					readComplete = false;
+					break;
 				}
+				
+				int position = indexReader.getPositionForTuple(key);
+				
+				// Found a tuple
+				if(position != -1) {
+					final Tuple tableTuple = reader.getTupleAtPosition(position);
+					
+					if(tuple == null) {
+						tuple = tableTuple;
+					} else if(tableTuple.getTimestamp() > tuple.getTimestamp()) {
+						tuple = tableTuple;
+					}
+				}
+				
+				indexReader.release();
 			}
-			
-			indexReader.release();
 		}
 		
 		if(tuple instanceof DeletedTuple) {
@@ -392,6 +388,25 @@ public class SSTableManager implements Lifecycle {
 		}
 		
 		return tuple;
+	}
+
+	/**
+	 * Get the tuple from the unflushed memtables
+	 * @param key
+	 * @return
+	 */
+	protected Tuple getTupleFromMemtable(final String key) {
+		
+		// Read tuple from unflushed memtables
+		for(final Memtable unflushedMemtable : unflushedMemtables) {
+			final Tuple tuple = unflushedMemtable.get(key);
+
+			if(tuple != null) {
+				return tuple;
+			}
+		}
+		
+		return null;
 	}
 	
 	/**
