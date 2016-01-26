@@ -168,12 +168,24 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 	 */
 	@Override
 	public boolean acquire() {
+		boolean acquireReader = sstableReader.acquire();
+		boolean acquireIndex = super.acquire();
 		
-		if(! sstableReader.acquire()) {
-			return false;
+		// Both ressources are acquired
+		if(acquireReader && acquireIndex) {
+			return true;
 		}
 		
-		return super.acquire();
+		// acquire failed, release them 
+		if(acquireReader) {
+			sstableReader.release();
+		}
+		
+		if(acquireIndex) {
+			super.release();
+		}
+		
+		return false;
 	}
 	
 	/**
