@@ -124,7 +124,7 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 	 * @param entry
 	 * @return
 	 */
-	protected int convertEntryToPosition(long entry) {
+	protected synchronized int convertEntryToPosition(long entry) {
 		
 		// Memory was unmapped
 		if(memory == null) {
@@ -213,7 +213,7 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 					entry++;
 					return tuple;
 				} catch (StorageManagerException e) {
-					logger.error("Got exception while iterating");
+					logger.error("Got exception while iterating (requesting entry " + (entry - 1) + " of " + lastEntry + ")", e);
 				}
 								
 				return null;
