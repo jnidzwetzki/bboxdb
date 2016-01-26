@@ -3,6 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -85,6 +86,54 @@ public class TestTableCompactor {
 		}
 		
 		Assert.assertEquals(tupleList1.size() + tupleList2.size(), counter);
+	}
+	
+	@Test
+	public void testCompactTestMergeBig() throws StorageManagerException {
+		
+		SSTableIndexReader reader1 = null;
+		SSTableIndexReader reader2 = null;
+		final List<Tuple> tupleList = new ArrayList<Tuple>();
+
+		for(int i = 0; i < 500; i=i+2) {
+			tupleList.add(new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, "abc".getBytes()));
+		}
+		reader1 = addTuplesToFile(tupleList, 5);
+
+		tupleList.clear();
+	
+		for(int i = 1; i < 500; i=i+2) {
+			tupleList.add(new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, "def".getBytes()));
+		}
+		reader2 = addTuplesToFile(tupleList, 2);
+
+		
+		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
+		
+		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
+		compactor.executeCompactation();
+		writer.close();
+		
+		final SSTableReader reader = new SSTableReader(TEST_RELATION, storageConfiguration.getDataDir(), 
+				writer.getSstableFile());
+		reader.init();
+		
+		final SSTableIndexReader ssTableIndexReader = new SSTableIndexReader(reader);
+		ssTableIndexReader.init();
+		
+		// Check the amount of tuples
+		int counter = 0;
+		for(final Tuple tuple : ssTableIndexReader) {
+			System.out.println(tuple);
+			counter++;
+		}
+		Assert.assertEquals(500, counter);
+		
+		// Check the consistency of the index
+		for(int i = 1; i < 500; i++) {
+			int pos = ssTableIndexReader.getPositionForTuple(Integer.toString(i));
+			Assert.assertTrue(pos != -1);
+		}
 	}
 	
 	
@@ -183,6 +232,9 @@ public class TestTableCompactor {
 	
 	protected SSTableIndexReader addTuplesToFile(final List<Tuple> tupleList, int number)
 			throws StorageManagerException {
+
+		Collections.sort(tupleList);
+		
 		final SSTableWriter ssTableWriter = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, number);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);

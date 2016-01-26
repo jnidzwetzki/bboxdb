@@ -142,9 +142,12 @@ public class TestStorageManager {
 		}
 		
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple tuple = storageManager.get(Integer.toString(i));			
+			final Tuple tuple = storageManager.get(Integer.toString(i));
+			if(tuple == null) {
+				System.out.println("Got null when requesting: " + i);
+				Assert.assertNotNull(tuple);	
+			}
 			Assert.assertEquals(Integer.toString(i), new String(tuple.getDataBytes()));
 		}
-		
 	}
 }
