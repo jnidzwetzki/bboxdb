@@ -22,7 +22,7 @@ public class SSTableReader extends AbstractTableReader {
 	 * @throws StorageManagerException 
 	 */
 	public synchronized Tuple scanForTuple(final String key) throws StorageManagerException {
-		logger.info("Search in table: " + tablebumber + " for " + key);
+		logger.info("Scanning table " + tablebumber + " for " + key);
 
 		try {
 			resetPosition();
