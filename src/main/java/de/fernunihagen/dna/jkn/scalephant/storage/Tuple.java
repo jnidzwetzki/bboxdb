@@ -2,7 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.storage;
 
 import java.util.Arrays;
 
-public class Tuple {
+public class Tuple implements Comparable<Tuple> {
 	
 	protected String key;
 	protected BoundingBox boundingBox;
@@ -138,5 +138,15 @@ public class Tuple {
 			return false;
 		return true;
 	}
-	
+
+	@Override
+	public int compareTo(Tuple otherTuple) {
+		int res = key.compareTo(otherTuple.getKey());
+		
+		if(res == 0) {
+			return Long.compare(timestamp, otherTuple.getTimestamp());
+		}
+			
+		return res;
+	}
 }
