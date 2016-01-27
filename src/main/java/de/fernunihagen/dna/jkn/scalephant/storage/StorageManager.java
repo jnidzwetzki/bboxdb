@@ -73,17 +73,25 @@ public class StorageManager implements Lifecycle, Storage {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
 		
-		final Tuple tuple = memtable.get(key);
+		// Read from memtable
+		final Tuple memtableTuple = memtable.get(key);
 		
-		if(tuple instanceof DeletedTuple) {
+		if(memtableTuple instanceof DeletedTuple) {
 			return null;
 		}
 		
-		if(tuple != null) {
-			return tuple;
+		if(memtableTuple != null) {
+			return memtableTuple;
 		}
 
-		return sstableManager.get(key);
+		// Read from storage
+		final Tuple storageTuple = sstableManager.get(key);
+		
+		if(storageTuple instanceof DeletedTuple) {
+			return null;
+		}
+		
+		return storageTuple;
 	}
 
 	@Override
