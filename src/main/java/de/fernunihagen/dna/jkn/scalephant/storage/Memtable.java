@@ -15,7 +15,7 @@ import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
 public class Memtable implements Lifecycle, Storage {
 	
 	/**
-	 * The name of the coresponding table
+	 * The name of the corresponding table
 	 */
 	protected final String table;
 	
@@ -30,7 +30,7 @@ public class Memtable implements Lifecycle, Storage {
 	protected int freePos;
 	
 	/**
-	 * Maximal number of entries keept in memory
+	 * Maximal number of entries keep in memory
 	 */
 	protected final int entries;
 	
@@ -45,7 +45,7 @@ public class Memtable implements Lifecycle, Storage {
 	protected int currentSize;
 	
 	/**
-	 * The lock for synchronisation
+	 * The lock for synchronization
 	 */
 	protected final Lock lock = new ReentrantLock();
 
