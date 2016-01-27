@@ -53,6 +53,7 @@ public class StorageManager implements Lifecycle, Storage {
 	
 	@Override
 	public void put(final Tuple tuple) throws StorageManagerException {
+		
 		if(! state.isReady()) {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
@@ -83,6 +84,11 @@ public class StorageManager implements Lifecycle, Storage {
 
 	@Override
 	public void delete(final String key) throws StorageManagerException {
+		
+		if(! state.isReady()) {
+			throw new StorageManagerException("Storage manager is not ready");
+		}
+		
 		memtable.delete(key);
 	}
 	
@@ -119,5 +125,18 @@ public class StorageManager implements Lifecycle, Storage {
 		}
 		
 		init();
+	}
+	
+	/**
+	 * Returns if the storage manager is ready or not
+	 * @return
+	 */
+	public boolean isReady() {
+		
+		if(sstableManager.isReady() == false) {
+			return false;
+		}
+		
+		return state.isReady();
 	}
 }

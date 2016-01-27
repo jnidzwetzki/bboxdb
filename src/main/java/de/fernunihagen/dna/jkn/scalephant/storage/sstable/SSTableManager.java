@@ -26,7 +26,7 @@ public class SSTableManager implements Lifecycle {
 	private final String name;
 	
 	/**
-	 * The Directoy for the SSTables
+	 * The directory for the SSTables
 	 */
 	private final String directory;
 	
@@ -36,12 +36,12 @@ public class SSTableManager implements Lifecycle {
 	private AtomicInteger tableNumber;
 	
 	/**
-	 * The Reader for existing SSTables
+	 * The reader for existing SSTables
 	 */
 	protected final List<SSTableReader> sstableReader;
 
 	/**
-	 * The Index Reader for the SSTables
+	 * The index reader for the SSTables
 	 */
 	protected final Map<SSTableReader, SSTableIndexReader> indexReader;
 	
@@ -66,7 +66,7 @@ public class SSTableManager implements Lifecycle {
 	protected Thread compactThread;
 	
 	/**
-	 * The coresponding storage manager state
+	 * The corresponding storage manager state
 	 */
 	protected State storageState;
 	
