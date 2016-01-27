@@ -20,12 +20,12 @@ public class TestStorageManager {
 	@Before
 	public void init() {
 		storageManager = StorageInterface.getStorageManager(TEST_RELATION);
+		storageManager.clear();
+		Assert.assertTrue(storageManager.isReady());
 	}
 	
 	@Test
 	public void testInsertElements() throws Exception {
-		Assert.assertTrue(storageManager.isReady());
-
 		final Tuple tuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
 		storageManager.put(tuple);
 		Assert.assertEquals(tuple, storageManager.get("1"));
@@ -33,8 +33,6 @@ public class TestStorageManager {
 	
 	@Test
 	public void testInsertAndReadPerson() throws Exception {
-		Assert.assertTrue(storageManager.isReady());
-
 		final PersonEntity person1 = new PersonEntity("Jan", "Jansen", 30);
 		final ObjectSerializer<PersonEntity> serializer = new ObjectSerializer<PersonEntity>();
 		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, serializer.serialize(person1));
@@ -49,17 +47,12 @@ public class TestStorageManager {
 	
 	@Test
 	public void getNonExisting() throws Exception {
-		storageManager.clear();
-		Assert.assertTrue(storageManager.isReady());
 		Assert.assertEquals(null, storageManager.get("1"));
 		Assert.assertEquals(null, storageManager.get("1000"));
 	}
 	
 	@Test
 	public void testStoreNullTuple() throws Exception {
-		storageManager.clear();
-		Assert.assertTrue(storageManager.isReady());
-
 		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, null);
 		storageManager.put(createdTuple);
 		
@@ -68,9 +61,6 @@ public class TestStorageManager {
 	
 	@Test
 	public void testTupleDelete() throws Exception {
-		storageManager.clear();
-		Assert.assertTrue(storageManager.isReady());
-
 		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
 		storageManager.put(createdTuple);
 		
@@ -82,9 +72,6 @@ public class TestStorageManager {
 	
 	@Test
 	public void testDeleteTuple() throws StorageManagerException, InterruptedException {
-		storageManager.clear();
-		Assert.assertTrue(storageManager.isReady());
-
 		int MAX_TUPLES = 100000;
 		int SPECIAL_TUPLE = MAX_TUPLES / 2;
 		
@@ -107,9 +94,6 @@ public class TestStorageManager {
 	
 	@Test
 	public void testDeleteTuple2() throws StorageManagerException, InterruptedException {
-		storageManager.clear();
-		Assert.assertTrue(storageManager.isReady());
-
 		int MAX_TUPLES = 100000;
 		int SPECIAL_TUPLE = MAX_TUPLES / 2;
 		int DELETE_AFTER = (int) (MAX_TUPLES * 0.75);
@@ -137,9 +121,6 @@ public class TestStorageManager {
 	
 	@Test
 	public void testBigInsert() throws Exception {
-		storageManager.clear();
-		Assert.assertTrue(storageManager.isReady());
-		
 		int MAX_TUPLES = 100000;
 
 		for(int i = 0; i < MAX_TUPLES; i++) {
