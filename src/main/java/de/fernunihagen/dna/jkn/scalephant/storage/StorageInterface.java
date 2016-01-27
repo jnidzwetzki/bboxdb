@@ -5,7 +5,19 @@ import java.util.Map;
 
 public class StorageInterface {
 
-	private static Map<String, StorageManager> instances;
+	/**
+	 * A map with all created storage instances
+	 */
+	protected static Map<String, StorageManager> instances;
+	
+	/**
+	 * The used storage configuration
+	 */
+	protected static StorageConfiguration storageConfiguration;
+	
+	static {
+		storageConfiguration = new StorageConfiguration();
+	}
 	
 	/**
 	 * Get the storage manager for a given table. If the storage manager does not 
@@ -23,7 +35,6 @@ public class StorageInterface {
 			return instances.get(table);
 		}
 		
-		final StorageConfiguration storageConfiguration = new StorageConfiguration();
 		final StorageManager storageManager = new StorageManager(table, storageConfiguration);
 		storageManager.init();
 		
@@ -42,5 +53,22 @@ public class StorageInterface {
 				storageManager.shutdown();
 			}
 		}
+	}
+
+	/**
+	 * Get the current storage configuration
+	 * @return
+	 */
+	public static StorageConfiguration getStorageConfiguration() {
+		return storageConfiguration;
+	}
+
+	/**
+	 * Set a new storage configuration
+	 * @param storageConfiguration
+	 */
+	public static void setStorageConfiguration(
+			StorageConfiguration storageConfiguration) {
+		StorageInterface.storageConfiguration = storageConfiguration;
 	}
 }
