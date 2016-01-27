@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.fernunihagen.dna.jkn.scalephant.storage.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
@@ -74,9 +75,8 @@ public class TestInMemoryStorage {
 		memtable.put(createdTuple);
 		
 		Assert.assertEquals(createdTuple, memtable.get("1"));
-		
 		memtable.delete("1");
-		Assert.assertEquals(null, memtable.get("1"));
+		Assert.assertTrue(memtable.get("1") instanceof DeletedTuple);
 	}
 	
 	@Test(expected=StorageManagerException.class)
