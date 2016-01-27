@@ -1,9 +1,8 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
+import java.nio.channels.ClosedByInterruptException;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.xml.ws.spi.Invoker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class SSTableCompactorThread implements Runnable {
 	@Override
 	public void run() {
 		logger.info("Starting new compact thread for: " + sstableManager.getName());
-		
+
 		final List<SSTableReader> reader = sstableManager.getSstableReader();
 		
 		while(sstableManager.isReady()) {
@@ -48,15 +47,21 @@ public class SSTableCompactorThread implements Runnable {
 					try {
 						mergeSSTables(reader1, reader2);						
 					} catch (StorageManagerException e) {
+						
+						if(Thread.currentThread().isInterrupted()) {
+							logger.info("Compact thread for: " + sstableManager.getName() + " is done");
+							return;
+						}
+						
 						logger.error("Error while merging tables", e);
-					}	
+					} 
 				}
 			
 				Thread.sleep(10 * 1000);
 			} catch (InterruptedException e) {
 				logger.info("Compact thread for: " + sstableManager.getName() + " is done");
 				return;
-			}
+			} 
 		}
 		
 		logger.info("Compact thread for: " + sstableManager.getName() + " is done");

@@ -83,6 +83,7 @@ public class SSTableManager implements Lifecycle {
 		this.directory = directory;
 		this.tableNumber = new AtomicInteger();
 		this.tableNumber.set(0);
+		ready = false;
 		
 		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
 		sstableReader = new CopyOnWriteArrayList<SSTableReader>();
@@ -95,6 +96,12 @@ public class SSTableManager implements Lifecycle {
 	 */
 	@Override
 	public void init() {
+		
+		if(ready == true) {
+			logger.warn("SSTable manager is active and init() is called");
+			return;
+		}
+		
 		logger.info("Init a new instance for the table: " + getName());
 		unflushedMemtables.clear();
 		indexReader.clear();
@@ -111,7 +118,6 @@ public class SSTableManager implements Lifecycle {
 		this.tableNumber = new AtomicInteger();
 		this.tableNumber.set(getLastSequencenumberFromReader());
 		
-		ready = true;
 		flushThread = new Thread(new SSTableFlushThread(this));
 		flushThread.setName("Memtable flush thread for: " + getName());
 		flushThread.start();
@@ -119,6 +125,8 @@ public class SSTableManager implements Lifecycle {
 		compactThread = new Thread(new SSTableCompactorThread(this));
 		compactThread.setName("Compact thread for: " + getName());
 		compactThread.start();
+		
+		ready = true;
 	}
 
 	/**
@@ -361,7 +369,6 @@ public class SSTableManager implements Lifecycle {
 				boolean canBeUsed = indexReader.acquire();
 				
 				if(! canBeUsed ) {
-					logger.info("Got unusable sstable: " + indexReader);
 					readComplete = false;
 					break;
 				}

@@ -69,12 +69,7 @@ class SSTableFlushThread implements Runnable {
 				}
 			}
 			
-			final Memtable removedTable = sstableManager.unflushedMemtables.remove(0);
-
-			if(memtable != removedTable) {
-				logger.error("Get other table than removed!");
-			}
-
+			sstableManager.unflushedMemtables.remove(memtable);
 		}
 	}
 		

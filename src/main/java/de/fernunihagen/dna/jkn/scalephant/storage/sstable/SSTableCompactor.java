@@ -135,7 +135,7 @@ public class SSTableCompactor {
 	}
 
 	/**
-	 * Read a tuple from each iterator, if the coresponding position 
+	 * Read a tuple from each iterator, if the corresponding position 
 	 * of out buffer
 	 * 
 	 * @param iterators

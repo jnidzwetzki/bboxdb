@@ -2,8 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant;
 
 import junit.framework.Assert;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
@@ -15,17 +14,13 @@ import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 
 public class TestStorageManager {
 	
-	protected static StorageManager storageManager;
+	protected StorageManager storageManager;
 	protected final static String TEST_RELATION = "testrelation";
 	
-	@BeforeClass
-	public static void init() {
+	@Before
+	public void init() {
 		storageManager = StorageInterface.getStorageManager(TEST_RELATION);
-	}
-	
-	@AfterClass
-	public static void shutdown() {
-		storageManager.shutdown();
+		storageManager.init();
 	}
 	
 	@Test
