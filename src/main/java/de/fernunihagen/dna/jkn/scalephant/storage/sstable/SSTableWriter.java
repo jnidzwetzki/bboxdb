@@ -60,7 +60,7 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableWriter.class);
 	
-	public SSTableWriter(final String directory, final String name, final int tablenumber) {
+	public SSTableWriter(final String name, final String directory, final int tablenumber) {
 		this.directory = directory;
 		this.name = name;
 		this.tablebumber = tablenumber;

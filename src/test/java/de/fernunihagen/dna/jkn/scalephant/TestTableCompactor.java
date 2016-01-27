@@ -45,7 +45,7 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableIndexReader reader2 = addTuplesToFile(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(TEST_RELATION, storageConfiguration.getDataDir(), 3);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		boolean compactResult = compactor.executeCompactation();
@@ -67,7 +67,7 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableIndexReader reader2 = addTuplesToFile(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(TEST_RELATION, storageConfiguration.getDataDir(), 3);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		compactor.executeCompactation();
@@ -107,7 +107,7 @@ public class TestTableCompactor {
 		reader2 = addTuplesToFile(tupleList, 2);
 
 		
-		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(TEST_RELATION, storageConfiguration.getDataDir(), 3);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		compactor.executeCompactation();
@@ -144,7 +144,7 @@ public class TestTableCompactor {
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
 		final SSTableIndexReader reader2 = addTuplesToFile(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(TEST_RELATION, storageConfiguration.getDataDir(), 3);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		compactor.executeCompactation();
@@ -173,7 +173,7 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableIndexReader reader2 = addTuplesToFile(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(TEST_RELATION, storageConfiguration.getDataDir(), 3);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		compactor.executeCompactation();
@@ -203,7 +203,7 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("1", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableIndexReader reader2 = addTuplesToFile(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(TEST_RELATION, storageConfiguration.getDataDir(), 3);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		compactor.executeCompactation();
@@ -231,7 +231,7 @@ public class TestTableCompactor {
 
 		Collections.sort(tupleList);
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, number);
+		final SSTableWriter ssTableWriter = new SSTableWriter(TEST_RELATION, storageConfiguration.getDataDir(), number);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();

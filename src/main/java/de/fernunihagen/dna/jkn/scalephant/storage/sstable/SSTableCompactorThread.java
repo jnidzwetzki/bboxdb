@@ -84,7 +84,7 @@ public class SSTableCompactorThread implements Runnable {
 		
 		logger.info("Merging " + reader1.getTablebumber() + " and " + reader2.getTablebumber() + " into " + tablenumber);
 
-		final SSTableWriter writer = new SSTableWriter(reader1.getDirectory(), reader1.getName(), tablenumber);
+		final SSTableWriter writer = new SSTableWriter(reader1.getName(), reader1.getDirectory(), tablenumber);
 		final SSTableCompactor ssTableCompactor = new SSTableCompactor(Arrays.asList(indexReader1, indexReader2), writer);
 		boolean compactSuccess = ssTableCompactor.executeCompactation();
 		

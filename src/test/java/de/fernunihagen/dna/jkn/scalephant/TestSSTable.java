@@ -35,7 +35,7 @@ public class TestSSTable {
 	
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 1);
+		final SSTableWriter ssTableWriter = new SSTableWriter(TEST_RELATION, storageConfiguration.getDataDir(), 1);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();
@@ -58,7 +58,7 @@ public class TestSSTable {
 	
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(storageConfiguration.getDataDir(), TEST_RELATION, 1);
+		final SSTableWriter ssTableWriter = new SSTableWriter(TEST_RELATION, storageConfiguration.getDataDir(), 1);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();

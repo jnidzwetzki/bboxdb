@@ -91,7 +91,7 @@ class SSTableFlushThread implements Runnable {
 		int tableNumber = sstableManager.increaseTableNumber();
 		logger.info("Writing new memtable: " + tableNumber);
 		
-		try(final SSTableWriter ssTableWriter = new SSTableWriter(getStorageDataDir(), sstableManager.getName(), tableNumber)) {
+		try(final SSTableWriter ssTableWriter = new SSTableWriter(sstableManager.getName(), getStorageDataDir(), tableNumber)) {
 			ssTableWriter.open();
 			final File filehandle = ssTableWriter.getSstableFile();
 			ssTableWriter.addData(memtable.getSortedTupleList());
