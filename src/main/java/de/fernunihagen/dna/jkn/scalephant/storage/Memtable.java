@@ -122,11 +122,6 @@ public class Memtable implements Lifecycle, Storage {
 			}
 		}
 		
-		// The most recent tuple is the delete marker
-		if(tuple instanceof DeletedTuple) {
-			return null;
-		}
-		
 		return tuple;
 	}
 	

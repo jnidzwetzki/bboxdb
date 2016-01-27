@@ -113,14 +113,10 @@ public abstract class AbstractTableReader implements Lifecycle {
 			memory = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
 			memory.order(SSTableConst.SSTABLE_BYTE_ORDER);
 			validateFile();
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			logger.error("Error during an IO operation", e);
-		} catch (IOException e) {
-			logger.error("Error during an IO operation", e);
-		} catch (StorageManagerException e) {
-			logger.error("Error during an IO operation", e);
-		}
-		
+			shutdown();
+		} 
 	}
 
 	@Override
@@ -133,13 +129,15 @@ public abstract class AbstractTableReader implements Lifecycle {
 				fileChannel.close();
 				fileChannel = null;
 			} catch (IOException e) {
-				logger.error("Error during an IO operation", e);
+				if(! Thread.currentThread().isInterrupted()) {
+					logger.error("Error during an IO operation", e);
+				}
 			}
 		}
 	}
 
 	/**
-	 * Delete the underlaying file as soon as usage == 0
+	 * Delete the underlying file as soon as usage == 0
 	 */
 	public void deleteOnClose() {
 		deleteOnClose = true;
@@ -185,7 +183,7 @@ public abstract class AbstractTableReader implements Lifecycle {
 	 */
 	public boolean acquire() {
 		
-		// We are closing this instnance
+		// We are closing this instance
 		if(deleteOnClose == true) {
 			return false;
 		}
@@ -195,7 +193,7 @@ public abstract class AbstractTableReader implements Lifecycle {
 	}
 	
 	/**
-	 * Decfement the usage counter
+	 * Decrement the usage counter
 	 */
 	public void release() {
 		usage.decrementAndGet();

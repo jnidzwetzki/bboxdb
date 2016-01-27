@@ -20,7 +20,6 @@ public class TestStorageManager {
 	@Before
 	public void init() {
 		storageManager = StorageInterface.getStorageManager(TEST_RELATION);
-		storageManager.init();
 	}
 	
 	@Test
@@ -115,6 +114,10 @@ public class TestStorageManager {
 		int SPECIAL_TUPLE = MAX_TUPLES / 2;
 		int DELETE_AFTER = (int) (MAX_TUPLES * 0.75);
 		
+		// Ensure that the tuple is not contained in the storage manager
+		final Tuple resultTuple = storageManager.get(Integer.toString(SPECIAL_TUPLE));
+		Assert.assertEquals(null, resultTuple);
+		
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
@@ -127,9 +130,9 @@ public class TestStorageManager {
 		// Let the storage manager swap the memtables out
 		Thread.sleep(10000);
 		
-		final Tuple resultTuple = storageManager.get(Integer.toString(SPECIAL_TUPLE));
-		
-		Assert.assertEquals(null, resultTuple);
+		// Fetch the deleted tuple
+		final Tuple resultTuple2 = storageManager.get(Integer.toString(SPECIAL_TUPLE));
+		Assert.assertEquals(null, resultTuple2);
 	}
 	
 	@Test

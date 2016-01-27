@@ -75,10 +75,14 @@ public class StorageManager implements Lifecycle, Storage {
 		
 		final Tuple tuple = memtable.get(key);
 		
+		if(tuple instanceof DeletedTuple) {
+			return null;
+		}
+		
 		if(tuple != null) {
 			return tuple;
 		}
-		
+
 		return sstableManager.get(key);
 	}
 

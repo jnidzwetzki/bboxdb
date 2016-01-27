@@ -38,15 +38,15 @@ public class SSTableCompactorThread implements Runnable {
 		final List<SSTableReader> reader = sstableManager.getSstableReader();
 		
 		while(sstableManager.isReady()) {
-			try {
-				
+			
+			try {	
 				if(reader.size() > 2) {
 					final SSTableReader reader1 = reader.get(0);
 					final SSTableReader reader2 = reader.get(1);
 					
 					try {
 						mergeSSTables(reader1, reader2);						
-					} catch (StorageManagerException e) {
+					} catch (Exception e) {
 						
 						if(Thread.currentThread().isInterrupted()) {
 							logger.info("Compact thread for: " + sstableManager.getName() + " is done");

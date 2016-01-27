@@ -117,7 +117,10 @@ public class SSTableManager implements Lifecycle {
 		
 		this.tableNumber = new AtomicInteger();
 		this.tableNumber.set(getLastSequencenumberFromReader());
-		
+
+		// Set to ready before the threads are started
+		ready = true;
+
 		flushThread = new Thread(new SSTableFlushThread(this));
 		flushThread.setName("Memtable flush thread for: " + getName());
 		flushThread.start();
@@ -125,8 +128,6 @@ public class SSTableManager implements Lifecycle {
 		compactThread = new Thread(new SSTableCompactorThread(this));
 		compactThread.setName("Compact thread for: " + getName());
 		compactThread.start();
-		
-		ready = true;
 	}
 
 	/**
@@ -378,7 +379,6 @@ public class SSTableManager implements Lifecycle {
 				// Found a tuple
 				if(position != -1) {
 					final Tuple tableTuple = reader.getTupleAtPosition(position);
-					
 					if(tuple == null) {
 						tuple = tableTuple;
 					} else if(tableTuple.getTimestamp() > tuple.getTimestamp()) {
@@ -404,16 +404,26 @@ public class SSTableManager implements Lifecycle {
 	 */
 	protected Tuple getTupleFromMemtable(final String key) {
 		
-		// Read tuple from unflushed memtables
+		Tuple result = null;
+		
 		for(final Memtable unflushedMemtable : unflushedMemtables) {
 			final Tuple tuple = unflushedMemtable.get(key);
-
+			
 			if(tuple != null) {
-				return tuple;
+				if(result == null) {
+					result = tuple;
+					continue;
+				}
+				
+				// Get the most recent version of the tuple
+				if(tuple.compareTo(result) < 0) {
+					result = tuple;
+					continue;	
+				}
 			}
 		}
 		
-		return null;
+		return result;
 	}
 	
 	/**
@@ -509,5 +519,4 @@ public class SSTableManager implements Lifecycle {
 	public Map<SSTableReader, SSTableIndexReader> getIndexReader() {
 		return indexReader;
 	}
-
 }
