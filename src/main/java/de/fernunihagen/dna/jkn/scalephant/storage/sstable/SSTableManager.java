@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
 import de.fernunihagen.dna.jkn.scalephant.storage.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
+import de.fernunihagen.dna.jkn.scalephant.storage.StorageConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
@@ -26,9 +27,9 @@ public class SSTableManager implements Lifecycle {
 	private final String name;
 	
 	/**
-	 * The directory for the SSTables
+	 * The Storage configuration
 	 */
-	private final String directory;
+	private final StorageConfiguration storageConfiguration;
 	
 	/**
 	 * The number of the table
@@ -75,12 +76,12 @@ public class SSTableManager implements Lifecycle {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final State storageState, final String name, final String directory) {
+	public SSTableManager(final State storageState, final String name, final StorageConfiguration storageConfiguration) {
 		super();
-		
+
+		this.storageConfiguration = storageConfiguration;
 		this.storageState = storageState;
 		this.name = name;
-		this.directory = directory;
 		this.tableNumber = new AtomicInteger();
 		this.tableNumber.set(0);
 		ready = false;
@@ -121,13 +122,17 @@ public class SSTableManager implements Lifecycle {
 		// Set to ready before the threads are started
 		ready = true;
 
-		flushThread = new Thread(new SSTableFlushThread(this));
-		flushThread.setName("Memtable flush thread for: " + getName());
-		flushThread.start();
+		if(storageConfiguration.isRunMemtableFlushThread()) {
+			flushThread = new Thread(new SSTableFlushThread(this));
+			flushThread.setName("Memtable flush thread for: " + getName());
+			flushThread.start();
+		}
 		
-		compactThread = new Thread(new SSTableCompactorThread(this));
-		compactThread.setName("Compact thread for: " + getName());
-		compactThread.start();
+		if(storageConfiguration.isRunCompactThread()) {
+			compactThread = new Thread(new SSTableCompactorThread(this));
+			compactThread.setName("Compact thread for: " + getName());
+			compactThread.start();
+		}
 	}
 
 	/**
@@ -183,8 +188,8 @@ public class SSTableManager implements Lifecycle {
 	 * 
 	 */
 	protected void createSSTableDirIfNeeded() {
-		final File rootDir = new File(getDirectory());		
-		final File directoryHandle = new File(getSSTableDir(getDirectory(), getName()));
+		final File rootDir = new File(storageConfiguration.getDataDir());		
+		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDir(), getName()));
 		
 		if(rootDir.exists() && ! directoryHandle.exists()) {
 			logger.info("Create a new dir for table: " + getName());
@@ -200,7 +205,7 @@ public class SSTableManager implements Lifecycle {
 	 */
 	protected void scanForExistingTables() throws StorageManagerException {
 		logger.info("Scan for existing SSTables: " + getName());
-		final File directoryHandle = new File(getSSTableDir(getDirectory(), getName()));
+		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDir(), getName()));
 		
 	    checkSSTableDir(directoryHandle);
 	
@@ -212,7 +217,7 @@ public class SSTableManager implements Lifecycle {
 				logger.info("Found sstable: " + filename);
 				
 				try {
-					final SSTableReader reader = new SSTableReader(getName(), getDirectory(), file);
+					final SSTableReader reader = new SSTableReader(getName(), storageConfiguration.getDataDir(), file);
 					sstableReader.add(reader);
 				} catch(StorageManagerException e) {
 					logger.warn("Unable to parse sequence number, ignoring file: " + filename, e);
@@ -265,7 +270,7 @@ public class SSTableManager implements Lifecycle {
 	 */
 	public boolean deleteExistingTables() throws StorageManagerException {
 		logger.info("Delete all existing SSTables for relation: " + getName());
-		final File directoryHandle = new File(getSSTableDir(getDirectory(), getName()));
+		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDir(), getName()));
 	
 		checkSSTableDir(directoryHandle);
 
@@ -499,10 +504,6 @@ public class SSTableManager implements Lifecycle {
 	public String getName() {
 		return name;
 	}
-
-	public String getDirectory() {
-		return directory;
-	}
 	
 	/**
 	 * Get the sstable reader
@@ -519,4 +520,13 @@ public class SSTableManager implements Lifecycle {
 	public Map<SSTableReader, SSTableIndexReader> getIndexReader() {
 		return indexReader;
 	}
+
+	/**
+	 * Returns the storage configuration
+	 * @return
+	 */
+	public StorageConfiguration getStorageConfiguration() {
+		return storageConfiguration;
+	}
+	
 }

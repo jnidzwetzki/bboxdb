@@ -62,7 +62,7 @@ class SSTableFlushThread implements Runnable {
 			
 			if(sstableFile != null) {
 				try {
-					final SSTableReader reader = new SSTableReader(sstableManager.getName(), sstableManager.getDirectory(), sstableFile);
+					final SSTableReader reader = new SSTableReader(sstableManager.getName(), getStorageDataDir(), sstableFile);
 					sstableManager.sstableReader.add(reader);
 				} catch (StorageManagerException e) {
 					logger.error("Exception while creating SSTable reader", e);
@@ -71,6 +71,14 @@ class SSTableFlushThread implements Runnable {
 			
 			sstableManager.unflushedMemtables.remove(memtable);
 		}
+	}
+
+	/**
+	 * Get the root directory for storage
+	 * @return
+	 */
+	protected String getStorageDataDir() {
+		return sstableManager.getStorageConfiguration().getDataDir();
 	}
 		
 	/**
@@ -83,7 +91,7 @@ class SSTableFlushThread implements Runnable {
 		int tableNumber = sstableManager.increaseTableNumber();
 		logger.info("Writing new memtable: " + tableNumber);
 		
-		try(final SSTableWriter ssTableWriter = new SSTableWriter(sstableManager.getDirectory(), sstableManager.getName(), tableNumber)) {
+		try(final SSTableWriter ssTableWriter = new SSTableWriter(getStorageDataDir(), sstableManager.getName(), tableNumber)) {
 			ssTableWriter.open();
 			final File filehandle = ssTableWriter.getSstableFile();
 			ssTableWriter.addData(memtable.getSortedTupleList());

@@ -23,7 +23,7 @@ public class StorageManager implements Lifecycle, Storage {
 		this.table = table;
 		this.configuration = configuration;
 		this.state = new State(false);
-		this.sstableManager = new SSTableManager(state, table, configuration.getDataDir());
+		this.sstableManager = new SSTableManager(state, table, configuration);
 	}
 
 	public void init() {
