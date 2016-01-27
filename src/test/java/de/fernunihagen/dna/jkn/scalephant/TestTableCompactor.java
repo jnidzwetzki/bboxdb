@@ -82,7 +82,6 @@ public class TestTableCompactor {
 		int counter = 0;
 		for(final Tuple tuple : ssTableIndexReader) {
 			counter++;
-			System.out.println(tuple);
 		}
 		
 		Assert.assertEquals(tupleList1.size() + tupleList2.size(), counter);
@@ -124,7 +123,6 @@ public class TestTableCompactor {
 		// Check the amount of tuples
 		int counter = 0;
 		for(final Tuple tuple : ssTableIndexReader) {
-			System.out.println(tuple);
 			counter++;
 		}
 		Assert.assertEquals(500, counter);
@@ -161,7 +159,6 @@ public class TestTableCompactor {
 		int counter = 0;
 		for(final Tuple tuple : ssTableIndexReader) {
 			counter++;
-			System.out.println(tuple);
 		}
 		
 		Assert.assertEquals(tupleList1.size() + tupleList2.size(), counter);
@@ -191,7 +188,6 @@ public class TestTableCompactor {
 		int counter = 0;
 		for(final Tuple tuple : ssTableIndexReader) {
 			counter++;
-			System.out.println(tuple);
 		}
 		
 		Assert.assertEquals(tupleList1.size() + tupleList2.size(), counter);

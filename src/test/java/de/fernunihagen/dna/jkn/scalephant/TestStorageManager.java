@@ -137,7 +137,7 @@ public class TestStorageManager {
 		storageManager.clear();
 		Assert.assertTrue(storageManager.isReady());
 		
-		int MAX_TUPLES = 1000000;
+		int MAX_TUPLES = 100000;
 
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -150,6 +150,11 @@ public class TestStorageManager {
 				System.out.println("Got null when requesting: " + i);
 				Assert.assertNotNull(tuple);	
 			}
+			
+			if(i % 1000 == 0) {
+				System.out.println("Read tuples from storage manager: " + i);
+			}
+			
 			Assert.assertEquals(Integer.toString(i), new String(tuple.getDataBytes()));
 		}
 	}
