@@ -126,12 +126,16 @@ public class SSTableManager implements Lifecycle {
 			flushThread = new Thread(new SSTableFlushThread(this));
 			flushThread.setName("Memtable flush thread for: " + getName());
 			flushThread.start();
+		} else {
+			logger.info("NOT starting the memtable flush thread.");
 		}
 		
 		if(storageConfiguration.isRunCompactThread()) {
 			compactThread = new Thread(new SSTableCompactorThread(this));
 			compactThread.setName("Compact thread for: " + getName());
 			compactThread.start();
+		} else {
+			logger.info("NOT starting the sstable compact thread.");
 		}
 	}
 
