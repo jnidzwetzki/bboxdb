@@ -18,7 +18,7 @@ public class StorageConfiguration {
 	private static boolean runCompactThread = true;
 	
 	// Start flush thread (can be disabled for tests - all data stays in memory)
-	private static boolean runMemtableFlushThread;
+	private static boolean runMemtableFlushThread = true;
 	
 	/**
 	 * The size of the in memory tuple buffer
