@@ -32,5 +32,11 @@ public class Main implements Daemon {
 	public void stop() throws Exception {
 		logger.info("Stopping the scalephant");
 	}
+	
+	public static void main(String[] args) throws DaemonInitException, Exception {
+		final Main main = new Main();
+		main.init(null);
+		main.start();
+	}
 
 }
