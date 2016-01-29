@@ -4,7 +4,6 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 
 ## The request frame
 
-
     0         8       16       24       32
 	+---------+--------+--------+--------+
 	| Version |    Request-ID   |  Type  |
@@ -25,23 +24,39 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 
 Request Types:
 
-* Type 0x00 - Insert Request
-* Type 0x01 - Delete Request
-* Type 0x02 - Query Request
+* Type 0x00 - Insert request
+* Type 0x01 - Delete request
+* Type 0x02 - Truncate request
+* Type 0x03 - Query request
 
 ## Body
-The structure of the body depends on the request type. The next sections describe the different structures.
+The structure of the body depends on the request type. The next sections describe the used structures.
 
 #### Insert
+This package inserts a new element into a given table. 
+
+###### Request Body
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|       Table      |                 |
+	+------------------+-----------------+
+	|             Data-Length            |
+	+------------------+-----------------+
+	|                                    |
+	|               Data                 |
+	.                                    .
+	.                                    .
+	+------------------------------------+
+
+###### Response 
 
 #### Delete
+This package deletes a element from a table.
+
+#### Truncate
 
 #### Query
 
-## The response frame
 
-
-### Header
-### Body
-The structure of the body depends on the response type. The next sections describe the different structures.
 
