@@ -60,6 +60,7 @@ public class ConnectionHandler implements Lifecycle {
 		serverSocketDispatcher = new ConnectionDispatcher();
 		serverSocketDispatchThread = new Thread(serverSocketDispatcher);
 		serverSocketDispatchThread.start();
+		serverSocketDispatchThread.setName("Connection Dispatch Thread");
 		
 		state.setReady(true);
 	}
@@ -143,8 +144,13 @@ public class ConnectionHandler implements Lifecycle {
 			this.shutdown = shutdown;
 		}
 		
+		/**
+		 * Dispatch the connection to the thread pool
+		 * @param clientSocket
+		 */
 		protected void handleConnection(final Socket clientSocket) {
-			logger.debug("Handling new connection from: " + clientSocket.getInetAddress());
+			logger.debug("Got new connection from: " + clientSocket.getInetAddress());
+			threadPool.submit(new ClientConnectionHandler(clientSocket));
 		}
 	}
 }
