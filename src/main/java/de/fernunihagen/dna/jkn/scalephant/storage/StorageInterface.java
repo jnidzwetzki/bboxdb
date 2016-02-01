@@ -17,6 +17,7 @@ public class StorageInterface {
 	
 	static {
 		storageConfiguration = new StorageConfiguration();
+		instances = new HashMap<String, StorageManager>();
 	}
 	
 	/**
@@ -26,11 +27,7 @@ public class StorageInterface {
 	 * @return
 	 */
 	public static synchronized StorageManager getStorageManager(final String table) {
-		
-		if(instances == null) {
-			instances = new HashMap<String, StorageManager>();
-		}
-		
+
 		if(instances.containsKey(table)) {
 			return instances.get(table);
 		}
@@ -43,6 +40,35 @@ public class StorageInterface {
 		return storageManager;
 	}
 	
+	/**
+	 * Shut down the storage manager for a given relation
+	 * @param table
+	 * @return
+	 */
+	public static synchronized boolean shutdown(final String table) {
+		if(! instances.containsKey(table)) {
+			return false;
+		}
+		
+		final StorageManager storageManager = instances.remove(table);
+		storageManager.shutdown();
+		
+		return true;
+	}
+	
+	/**
+	 * Is a storage manager for the relation active?
+	 * @param table
+	 * @return
+	 */
+	public static synchronized boolean isStorageManagerActive(final String table) {
+		return instances.containsKey(table);
+	}
+	
+	/**
+	 * Shutdown all instances
+	 * 
+	 */
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
