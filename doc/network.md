@@ -66,8 +66,22 @@ This package inserts a new tuple into a given table.
 #### Delete
 This package deletes a tuple from a table.
 
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|       Table      |    Key-Length   |
+	+------------------------------------+
+	|               Key                  |
+	.                                    .
+	+------------------------------------+
+
+
 #### Truncate
 Truncate a whole table
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|       Table      |      Unused     |
+	+------------------------------------+
 
 #### Query
 
