@@ -4,7 +4,8 @@ public interface NetworkPackage {
 
 	/**
 	 * Encode the package
+	 * @return 
 	 */
-	public void getByteArray();
+	public byte[] getByteArray();
 	
 }

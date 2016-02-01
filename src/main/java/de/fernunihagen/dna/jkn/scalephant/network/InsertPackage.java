@@ -30,9 +30,8 @@ public class InsertPackage implements NetworkPackage {
 	}
 
 	@Override
-	public void getByteArray() {
-		// TODO Auto-generated method stub
-		
+	public byte[] getByteArray() {
+		return null;
 	}
 
 }
