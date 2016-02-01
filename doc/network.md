@@ -24,37 +24,50 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 
 Request Types:
 
-* Type 0x00 - Insert request
-* Type 0x01 - Delete request
-* Type 0x02 - Truncate request
+* Type 0x00 - Insert tuple request
+* Type 0x01 - Delete tuple request
+* Type 0x02 - Truncate table request
 * Type 0x03 - Query request
 
 ## Body
 The structure of the body depends on the request type. The next sections describe the used structures.
 
 #### Insert
-This package inserts a new element into a given table. 
+This package inserts a new tuple into a given table. 
 
 ###### Request Body
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	|       Table      |                 |
+	|       Table      |    Key-Length   |
 	+------------------+-----------------+
-	|             Data-Length            |
-	+------------------+-----------------+
+	|            BBox-Length             |
+	+------------------------------------+
+	|            Data-Length             |
+	+------------------------------------+
+	|             Timestamp              |
+	|                                    |
+	+------------------------------------+
+	|               Key                  |
+	.                                    .
+	+------------------------------------+
+	|               BBOX                 |
+	.                                    .
+	+------------------------------------+
 	|                                    |
 	|               Data                 |
 	.                                    .
 	.                                    .
 	+------------------------------------+
+	
 
 ###### Response 
 
 #### Delete
-This package deletes a element from a table.
+This package deletes a tuple from a table.
 
 #### Truncate
+Truncate a whole table
 
 #### Query
 
