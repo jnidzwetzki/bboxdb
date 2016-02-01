@@ -8,7 +8,7 @@ public class StorageInterface {
 	/**
 	 * A map with all created storage instances
 	 */
-	protected static Map<String, StorageManager> instances;
+	protected static final Map<String, StorageManager> instances;
 	
 	/**
 	 * The used storage configuration
