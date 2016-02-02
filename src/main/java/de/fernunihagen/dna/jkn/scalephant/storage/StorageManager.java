@@ -37,13 +37,31 @@ public class StorageManager implements Lifecycle, Storage {
 		state.setReady(true);
 	}
 
+	/**
+	 * Shutdown the instance of the storage manager
+	 */
 	public void shutdown() {
 		state.setReady(false);
 		memtable.shutdown();
 		sstableManager.shutdown();
 	}
 
-	private void initNewMemtable() {
+	/**
+	 * Is the shutdown complete
+	 */
+	public boolean isShutdownComplete() {
+		
+		if(sstableManager == null) {
+			return true;
+		}
+		
+		return sstableManager.isShutdownComplete();
+	}
+	
+	/**
+	 * Create a new storage manager
+	 */
+	protected void initNewMemtable() {
 		memtable = new Memtable(table, 
 				configuration.getMemtableEntries(), 
 				configuration.getMemtableSize());
