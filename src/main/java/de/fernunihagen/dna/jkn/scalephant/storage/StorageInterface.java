@@ -60,6 +60,24 @@ public class StorageInterface {
 	}
 	
 	/**
+	 * Delete the given table
+	 * @param table
+	 */
+	public static void deleteTable(final String table) {
+		
+		shutdown(table);
+		
+		final String pathname = storageConfiguration.getDataDir() + File.separator + table;
+		final File directory = new File(pathname);
+		
+		if(! directory.exists()) {
+			return;
+		}
+		
+		directory.delete();
+	}
+	
+	/**
 	 * Is a storage manager for the relation active?
 	 * @param table
 	 * @return
