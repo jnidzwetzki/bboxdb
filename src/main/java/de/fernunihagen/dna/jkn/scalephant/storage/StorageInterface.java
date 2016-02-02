@@ -1,6 +1,9 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class StorageInterface {
@@ -63,6 +66,25 @@ public class StorageInterface {
 	 */
 	public static synchronized boolean isStorageManagerActive(final String table) {
 		return instances.containsKey(table);
+	}
+	
+	/**
+	 * Returns a list with all known tables
+	 * 
+	 * @return
+	 */
+	public static List<String> getAllTables() {
+		final List<String> allTables = new ArrayList<String>();
+		
+		final File folder = new File(storageConfiguration.getDataDir());
+		
+		for (final File fileEntry : folder.listFiles()) {
+	        if (fileEntry.isDirectory()) {
+	           allTables.add(fileEntry.getName());
+	        } 
+	    }
+		
+		return allTables;
 	}
 	
 	/**
