@@ -29,7 +29,7 @@ public class NetworkPackageBuilder {
 	 * @return 
 	 * 
 	 */
-	protected ByteArrayOutputStream getByteOutputStream(final short packageType) {
+	public ByteArrayOutputStream getByteOutputStream(final short packageType) {
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
 		// Append the frame header to the package
