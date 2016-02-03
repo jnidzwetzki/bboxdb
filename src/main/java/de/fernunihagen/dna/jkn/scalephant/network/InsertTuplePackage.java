@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 
-public class InsertPackage implements NetworkPackage {
+public class InsertTuplePackage implements NetworkPackage {
 
 	/**
 	 * The name of the table
@@ -38,7 +38,7 @@ public class InsertPackage implements NetworkPackage {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(InsertPackage.class);
+	private final static Logger logger = LoggerFactory.getLogger(InsertTuplePackage.class);
 	
 	
 	/**
@@ -50,7 +50,7 @@ public class InsertPackage implements NetworkPackage {
 	 * @param bbox
 	 * @param data
 	 */
-	public InsertPackage(final String table, final String key, final long timestamp,
+	public InsertTuplePackage(final String table, final String key, final long timestamp,
 			final BoundingBox bbox, final String data) {
 		this.table = table;
 		this.key = key;
@@ -64,7 +64,7 @@ public class InsertPackage implements NetworkPackage {
 	 * 
 	 * @param encodedPackage
 	 */
-	public InsertPackage(byte encodedPackage[]) {
+	public InsertTuplePackage(byte encodedPackage[]) {
 		// FIXME:
 		table = null;
 		key = null;
@@ -146,7 +146,7 @@ public class InsertPackage implements NetworkPackage {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InsertPackage other = (InsertPackage) obj;
+		InsertTuplePackage other = (InsertTuplePackage) obj;
 		if (bbox == null) {
 			if (other.bbox != null)
 				return false;
