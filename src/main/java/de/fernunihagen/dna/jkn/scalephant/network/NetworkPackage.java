@@ -6,6 +6,12 @@ public interface NetworkPackage {
 	 * Encode the package
 	 * @return 
 	 */
-	public byte[] getByteArray();
+	public abstract byte[] getByteArray(final SequenceNumberGenerator sequenceNumberGenerator);
 	
+	/**
+	 * Returns the type of the package as a byte
+	 * @return
+	 */
+	public abstract byte getPackageType();
+
 }

@@ -1,14 +1,45 @@
 package de.fernunihagen.dna.jkn.scalephant.network;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 
 public class InsertPackage implements NetworkPackage {
 
+	/**
+	 * The name of the table
+	 */
 	protected final String table;
+	
+	/**
+	 * The key to insert
+	 */
 	protected final String key;
+	
+	/**
+	 * The timestamp of the tuple
+	 */
 	protected final long timestamp;
+	
+	/**
+	 * The bounding box of the tuple
+	 */
 	protected final BoundingBox bbox;
+	
+	/**
+	 * The data 
+	 */
 	protected final String data;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(InsertPackage.class);
+	
 	
 	/**
 	 * Create package from parameter
@@ -21,7 +52,6 @@ public class InsertPackage implements NetworkPackage {
 	 */
 	public InsertPackage(final String table, final String key, final long timestamp,
 			final BoundingBox bbox, final String data) {
-		super();
 		this.table = table;
 		this.key = key;
 		this.timestamp = timestamp;
@@ -44,8 +74,28 @@ public class InsertPackage implements NetworkPackage {
 	}
 
 	@Override
-	public byte[] getByteArray() {
-		return null;
+	public byte[] getByteArray(final SequenceNumberGenerator sequenceNumberGenerator) {
+		
+		final NetworkPackageBuilder networkPackageBuilder 
+			= new NetworkPackageBuilder(sequenceNumberGenerator);
+		
+		final ByteArrayOutputStream bos = networkPackageBuilder.getByteOutputStream(getPackageType());
+		
+		try {
+			final byte[] bboxBytes = bbox.toByteArray();
+			final byte[] dataBytes = data.getBytes();
+			bos.write(table.getBytes());
+			bos.write(key.getBytes().length);
+			bos.write(bboxBytes.length);
+			bos.write(dataBytes.length);
+						
+			bos.close();
+		} catch (IOException e) {
+			logger.error("Got exception while converting package into bytes", e);
+			return null;
+		}
+		
+		return bos.toByteArray();
 	}
 
 	
@@ -122,4 +172,8 @@ public class InsertPackage implements NetworkPackage {
 		return true;
 	}
 
+	@Override
+	public byte getPackageType() {
+		return NetworkConst.REQUEST_TYPE_INSERT_TUPLE;
+	}
 }
