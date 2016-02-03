@@ -1,6 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
-import java.nio.channels.ClosedByInterruptException;
 import java.util.Arrays;
 import java.util.List;
 
