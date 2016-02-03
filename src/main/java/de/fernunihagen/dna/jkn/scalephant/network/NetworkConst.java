@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.network;
 
+import java.nio.ByteOrder;
+
 public class NetworkConst {
 	
 	/**
@@ -31,5 +33,10 @@ public class NetworkConst {
 	 * Request type query
 	 */
 	public static final byte REQUEST_TYPE_QUERY = 0x04;
+	
+	/**
+	 * Byte order for network communication
+	 */
+	public static final ByteOrder NETWORK_BYTEORDER = ByteOrder.BIG_ENDIAN;
 	
 }

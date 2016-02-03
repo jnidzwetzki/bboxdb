@@ -3,7 +3,6 @@ package de.fernunihagen.dna.jkn.scalephant.network;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,7 @@ public class NetworkPackageBuilder {
 	 */
 	protected void appendPackageHeader(final byte packageType, final ByteArrayOutputStream bos) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
-		byteBuffer.order(ByteOrder.BIG_ENDIAN);
+		byteBuffer.order(NetworkConst.NETWORK_BYTEORDER);
 		byteBuffer.put(NetworkConst.PROTOCOL_VERSION);
 		byteBuffer.put(packageType);
 		byteBuffer.putShort(sequenceNumberGenerator.getNextSequenceNummber());
