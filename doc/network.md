@@ -16,7 +16,7 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 	.                                    .
 	+------------------------------------+
  
-### Header
+### Request Header
 
 * Version - The protocol version, currently always 0x01.
 * Request-ID - The id of the request, e.g., a consecutive number.
@@ -26,16 +26,26 @@ Request Types:
 
 * Type 0x00 - Insert tuple request
 * Type 0x01 - Delete tuple request
-* Type 0x02 - Truncate table request
-* Type 0x03 - Query request
+* Type 0x02 - Delete table request
+* Type 0x03 - List all tables request
+* Type 0x04 - Query request
 
-## Body
+
+## The response frame
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	| Version |    Request-ID   | Result |
+	+---------+-----------------+--------+
+	
+
+## Frame body
 The structure of the body depends on the request type. The next sections describe the used structures.
 
-#### Insert
+### Insert
 This package inserts a new tuple into a given table. 
 
-###### Request Body
+#### Request body
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
@@ -61,10 +71,12 @@ This package inserts a new tuple into a given table.
 	+------------------------------------+
 	
 
-###### Response 
+#### Response body
 
-#### Delete
+### Delete Tuple
 This package deletes a tuple from a table.
+
+#### Request body
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
@@ -73,17 +85,45 @@ This package deletes a tuple from a table.
 	|               Key                  |
 	.                                    .
 	+------------------------------------+
+	
+#### Response body
 
 
-#### Truncate
-Truncate a whole table
+### Delete Table
+This package deletes a whole table
+
+#### Request body
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
 	|       Table      |      Unused     |
 	+------------------------------------+
+	
+#### Response body
 
-#### Query
+
+### List all tables
+This package lists all existing tables
+
+#### Request body
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|                Unused              | 
+	+------------------------------------+
+
+#### Response body
 
 
+### Query
+This package represents a query.  
+
+#### Request body
+
+Query type:
+
+* Type 0x01 - Key query
+* Type 0x02 - Bounding Box query
+
+#### Response body
 
