@@ -83,9 +83,12 @@ This package deletes a tuple from a table.
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	|       Table      |    Key-Length   |
+	|   Table-Length   |   Key-Length    |
+	+------------------+-----------------+
+	|              Tablename             |
+	.                                    .
 	+------------------------------------+
-	|               Key                  |
+	|                 Key                |
 	.                                    .
 	+------------------------------------+
 	
@@ -99,7 +102,10 @@ This package deletes a whole table
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	|       Table      |      Unused     |
+	|   Table-Length   |                 |
+	+------------------+                 |
+	|              Tablename             |
+	.                                    .
 	+------------------------------------+
 	
 #### Response body
