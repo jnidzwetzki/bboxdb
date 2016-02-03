@@ -15,9 +15,19 @@ public class SequenceNumberGenerator {
 	
 	/**
 	 * Get the next free sequence number
-	 * @return
+	 * 
+	 * @return The sequence number
 	 */
 	public short getNextSequenceNummber() {
 		return (short) sequenceNumber.getAndIncrement();
+	}
+	
+	/**
+	 * Get the curent sequence number
+	 * 
+	 * @return The sequence number
+	 */
+	public short getSequeneNumberWithoutIncrement() {
+		return sequenceNumber.shortValue();
 	}
 }
