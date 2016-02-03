@@ -6,7 +6,7 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	| Version |    Request-ID   |  Type  |
+	| Version |  Type  |   Request-ID    |
 	+---------+-----------------+--------+
 	|            Body-Length             |
 	+------------------------------------+
@@ -19,8 +19,8 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 ### Request Header
 
 * Version - The protocol version, currently always 0x01.
-* Request-ID - The id of the request, e.g., a consecutive number.
 * Type - The type of the request.
+* Request-ID - The id of the request, e.g., a consecutive number.
 
 Request Types:
 
