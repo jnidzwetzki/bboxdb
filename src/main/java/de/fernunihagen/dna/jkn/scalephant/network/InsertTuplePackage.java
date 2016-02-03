@@ -95,6 +95,7 @@ public class InsertTuplePackage implements NetworkPackage {
 			return null;
 		}
 		
+		
 		return bos.toByteArray();
 	}
 
