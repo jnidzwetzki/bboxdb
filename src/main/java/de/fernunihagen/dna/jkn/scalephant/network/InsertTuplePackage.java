@@ -2,6 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.network;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +73,19 @@ public class InsertTuplePackage implements NetworkPackage {
 		bbox = null;
 		data = null;
 	}
+	
+	/**
+	 * Check validity of the entries
+	 * @return
+	 */
+	protected boolean isValied() {
+		if(table.getBytes().length > 16) {
+			logger.warn("Tablename to long: " + table);
+			return false;
+		}
+		
+		return true;
+	}
 
 	@Override
 	public byte[] getByteArray(final SequenceNumberGenerator sequenceNumberGenerator) {
@@ -82,19 +96,29 @@ public class InsertTuplePackage implements NetworkPackage {
 		final ByteArrayOutputStream bos = networkPackageBuilder.getByteOutputStream(getPackageType());
 		
 		try {
+			final byte[] tableBytes = table.getBytes();
+			final byte[] keyBytes = key.getBytes();
 			final byte[] bboxBytes = bbox.toByteArray();
 			final byte[] dataBytes = data.getBytes();
-			bos.write(table.getBytes());
-			bos.write(key.getBytes().length);
-			bos.write(bboxBytes.length);
-			bos.write(dataBytes.length);
-						
+			
+			final ByteBuffer bb = ByteBuffer.allocate(160);
+			bb.order(NetworkConst.NETWORK_BYTEORDER);
+			bb.putShort((short) tableBytes.length);
+			bb.putShort((short) keyBytes.length);
+			bb.putInt(bboxBytes.length);
+			bb.putInt(dataBytes.length);
+			
+			bos.write(bb.array());
+			bos.write(tableBytes);
+			bos.write(keyBytes);
+			bos.write(bboxBytes);
+			bos.write(dataBytes);
+			
 			bos.close();
 		} catch (IOException e) {
 			logger.error("Got exception while converting package into bytes", e);
 			return null;
 		}
-		
 		
 		return bos.toByteArray();
 	}
