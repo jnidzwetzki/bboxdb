@@ -2,6 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import junit.framework.Assert;
@@ -10,7 +11,8 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.network.InsertTuplePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
-import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageBuilder;
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 
@@ -67,7 +69,7 @@ public class TestNetworkClasses {
 	public void testRequestPackageHeader() {
 		final short currentSequenceNumber = sequenceNumberGenerator.getSequeneNumberWithoutIncrement();
 		
-		final NetworkPackageBuilder networkPackageBuilder = new NetworkPackageBuilder(sequenceNumberGenerator);
+		final NetworkPackageEncoder networkPackageBuilder = new NetworkPackageEncoder(sequenceNumberGenerator);
 		final ByteArrayOutputStream encodedPackageStream
 			= networkPackageBuilder.getByteOutputStream(NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		
@@ -95,14 +97,29 @@ public class TestNetworkClasses {
 		byte[] encodedVersion = insertPackage.getByteArray(sequenceNumberGenerator);
 		Assert.assertNotNull(encodedVersion);
 
-		/*final InsertTuplePackage decodedPackage = new InsertTuplePackage(encodedVersion);
-		Assert.assertEquals(insertPackage, decodedPackage);
-		
-		Assert.assertEquals(insertPackage.getKey(), decodedPackage.getKey());
+		final InsertTuplePackage decodedPackage = InsertTuplePackage.decodeTuple(encodedVersion);
+				
+	/*	Assert.assertEquals(insertPackage.getKey(), decodedPackage.getKey());
 		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(insertPackage.getTimestamp(), decodedPackage.getTimestamp());
 		Assert.assertEquals(insertPackage.getBbox(), decodedPackage.getBbox());
-		Assert.assertEquals(insertPackage.getData(), decodedPackage.getData());*/
+		Assert.assertEquals(insertPackage.getData(), decodedPackage.getData());
+		
+		Assert.assertEquals(insertPackage, decodedPackage);*/
 	}
-
+	
+	/**
+	 * Decode an encoded package
+	 */
+	@Test
+	public void testDecodePackage() {
+		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc");
+		
+		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
+		Assert.assertNotNull(encodedPackage);
+				
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		boolean result = NetworkPackageDecoder.validatePackageHeader(bb);
+		Assert.assertTrue(result);
+	}
 }

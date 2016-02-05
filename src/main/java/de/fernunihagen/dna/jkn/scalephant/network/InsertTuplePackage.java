@@ -61,17 +61,17 @@ public class InsertTuplePackage implements NetworkPackage {
 	}
 	
 	/**
-	 * Create package from byte string
+	 * Decode the encoded tuple into a object
 	 * 
 	 * @param encodedPackage
+	 * @return
 	 */
-	public InsertTuplePackage(byte encodedPackage[]) {
-		// FIXME:
-		table = null;
-		key = null;
-		timestamp = 0;
-		bbox = null;
-		data = null;
+	public static InsertTuplePackage decodeTuple(final byte encodedPackage[]) {
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		NetworkPackageDecoder.validatePackageHeader(bb);
+		
+		return null;
 	}
 	
 	/**
@@ -90,10 +90,10 @@ public class InsertTuplePackage implements NetworkPackage {
 	@Override
 	public byte[] getByteArray(final SequenceNumberGenerator sequenceNumberGenerator) {
 		
-		final NetworkPackageBuilder networkPackageBuilder 
-			= new NetworkPackageBuilder(sequenceNumberGenerator);
+		final NetworkPackageEncoder networkPackageEncoder 
+			= new NetworkPackageEncoder(sequenceNumberGenerator);
 		
-		final ByteArrayOutputStream bos = networkPackageBuilder.getByteOutputStream(getPackageType());
+		final ByteArrayOutputStream bos = networkPackageEncoder.getByteOutputStream(getPackageType());
 		
 		try {
 			final byte[] tableBytes = table.getBytes();
@@ -108,6 +108,16 @@ public class InsertTuplePackage implements NetworkPackage {
 			bb.putInt(bboxBytes.length);
 			bb.putInt(dataBytes.length);
 			
+			// Write body length
+			final int bodyLength = bb.capacity() + tableBytes.length 
+					+ keyBytes.length + bboxBytes.length + dataBytes.length;
+			
+			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
+			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
+			bodyLengthBuffer.putInt(bodyLength);
+			bos.write(bodyLengthBuffer.array());
+			
+			// Write body
 			bos.write(bb.array());
 			bos.write(tableBytes);
 			bos.write(keyBytes);

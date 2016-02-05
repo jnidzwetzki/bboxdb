@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NetworkPackageBuilder {
+public class NetworkPackageEncoder {
 	
 	/**
 	 * The sequence number generator 
@@ -17,10 +17,10 @@ public class NetworkPackageBuilder {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(NetworkPackageBuilder.class);
+	private final static Logger logger = LoggerFactory.getLogger(NetworkPackageEncoder.class);
 	
 	
-	public NetworkPackageBuilder(final SequenceNumberGenerator sequenceNumberGenerator) {
+	public NetworkPackageEncoder(final SequenceNumberGenerator sequenceNumberGenerator) {
 		this.sequenceNumberGenerator = sequenceNumberGenerator;
 	}
 	
