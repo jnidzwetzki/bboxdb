@@ -2,7 +2,6 @@ package de.fernunihagen.dna.jkn.scalephant.network.packages;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream.GetField;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
