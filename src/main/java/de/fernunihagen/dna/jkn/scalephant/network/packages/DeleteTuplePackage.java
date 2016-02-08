@@ -78,7 +78,7 @@ public class DeleteTuplePackage implements NetworkPackage {
 	}
 	
 	/**
-	 * Decode the encoded package into a object
+	 * Decode the encoded package into an object
 	 * 
 	 * @param encodedPackage
 	 * @return
