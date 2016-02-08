@@ -122,4 +122,25 @@ public class TestNetworkClasses {
 		boolean result = NetworkPackageDecoder.validatePackageHeader(bb);
 		Assert.assertTrue(result);
 	}
+	
+	/**
+	 * Get the sequence number from a package
+	 */
+	@Test
+	public void testGetSequenceNumber() {
+		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc");
+		
+		// Increment to avoid sequenceNumber = 0
+		sequenceNumberGenerator.getNextSequenceNummber();
+		sequenceNumberGenerator.getNextSequenceNummber();
+		
+		short curSequencenUmber = sequenceNumberGenerator.getSequeneNumberWithoutIncrement();
+		
+		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
+		Assert.assertNotNull(encodedPackage);
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		short packageSequencenUmber = NetworkPackageDecoder.getRequestIDFromPackage(bb);
+		
+		Assert.assertEquals(curSequencenUmber, packageSequencenUmber);		
+	}
 }
