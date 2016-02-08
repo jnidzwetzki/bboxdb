@@ -90,13 +90,13 @@ public class SSTableReader extends AbstractTableReader {
 		final int dataLength = memory.getInt();
 		final long timestamp = memory.getLong();
 
-		byte[] keyBytes = new byte[keyLength];
+		final byte[] keyBytes = new byte[keyLength];
 		memory.get(keyBytes, 0, keyBytes.length);
 		
-		byte[] boxBytes = new byte[boxLength];
+		final byte[] boxBytes = new byte[boxLength];
 		memory.get(boxBytes, 0, boxBytes.length);
 		
-		byte[] dataBytes = new byte[dataLength];
+		final byte[] dataBytes = new byte[dataLength];
 		memory.get(dataBytes, 0, dataBytes.length);				
 		
 		final long[] longArray = SSTableHelper.readLongArrayFromByte(boxBytes);
