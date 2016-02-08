@@ -38,12 +38,35 @@ Request Types:
 	| Version |    Request-ID   | Result |
 	+---------+-----------------+--------+
 	
+* Version - The protocol version, currently always 0x01.
+* Request-ID - The id of the request which the repsonse belongs too.
+* Result - The result of the operation
+
+Result-Types:
+
+* Type 0x00 - Operation Success - no package body
+* Type 0x01 - Operation Success - with details in the body
+* Type 0x02 - Operation Error - no package body
+* Type 0x03 - Operation Error - with details in the body
+	
+### Body for response type = 0x03 (Error with details)
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|   Message-Length |     Message     |
+	+------------------+                 |
+	.                                    .
+	.                                    .
+	+------------------------------------+
+	
+* Message-Length - The length of the error message
+* Message - The error message
 
 ## Frame body
 The structure of the body depends on the request type. The next sections describe the used structures.
 
 ### Insert
-This package inserts a new tuple into a given table. 
+This package inserts a new tuple into a given table. The result could be currently response type 0x00, 0x02 and 0x03.
 
 #### Request body
 
@@ -74,10 +97,8 @@ This package inserts a new tuple into a given table.
 	+------------------------------------+
 	
 
-#### Response body
-
 ### Delete Tuple
-This package deletes a tuple from a table.
+This package deletes a tuple from a table. The result could be currently response type 0x00, 0x02 and 0x03.
 
 #### Request body
 
@@ -92,11 +113,8 @@ This package deletes a tuple from a table.
 	.                                    .
 	+------------------------------------+
 	
-#### Response body
-
-
 ### Delete Table
-This package deletes a whole table
+This package deletes a whole table. The result could be currently response type 0x00, 0x02 and 0x03.
 
 #### Request body
 
@@ -108,8 +126,6 @@ This package deletes a whole table
 	.                                    .
 	+------------------------------------+
 	
-#### Response body
-
 
 ### List all tables
 This package lists all existing tables
