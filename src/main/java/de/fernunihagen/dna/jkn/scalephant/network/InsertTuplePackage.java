@@ -3,6 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.network;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class InsertTuplePackage implements NetworkPackage {
 	/**
 	 * The data 
 	 */
-	protected final String data;
+	protected final byte[] data;
 	
 	/**
 	 * The Logger
@@ -53,7 +54,7 @@ public class InsertTuplePackage implements NetworkPackage {
 	 * @param data
 	 */
 	public InsertTuplePackage(final String table, final String key, final long timestamp,
-			final BoundingBox bbox, final String data) {
+			final BoundingBox bbox, final byte[] data) {
 		this.table = table;
 		this.key = key;
 		this.timestamp = timestamp;
@@ -91,7 +92,6 @@ public class InsertTuplePackage implements NetworkPackage {
 
 		final byte[] dataBytes = new byte[dataLength];
 		bb.get(dataBytes, 0, dataBytes.length);
-		final String data = new String(dataBytes);
 
 		if(bb.remaining() != 0) {
 			logger.error("Some bytes are left after encoding: " + bb.remaining());
@@ -100,7 +100,7 @@ public class InsertTuplePackage implements NetworkPackage {
 		final long[] longArray = SSTableHelper.readLongArrayFromByte(boxBytes);
 		final BoundingBox boundingBox = new BoundingBox(longArray);
 
-		return new InsertTuplePackage(table, key, timestamp, boundingBox, data);
+		return new InsertTuplePackage(table, key, timestamp, boundingBox, dataBytes);
 	}
 	
 	/**
@@ -128,19 +128,18 @@ public class InsertTuplePackage implements NetworkPackage {
 			final byte[] tableBytes = table.getBytes();
 			final byte[] keyBytes = key.getBytes();
 			final byte[] bboxBytes = bbox.toByteArray();
-			final byte[] dataBytes = data.getBytes();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(20);
 			bb.order(NetworkConst.NETWORK_BYTEORDER);
 			bb.putShort((short) tableBytes.length);
 			bb.putShort((short) keyBytes.length);
 			bb.putInt(bboxBytes.length);
-			bb.putInt(dataBytes.length);
+			bb.putInt(data.length);
 			bb.putLong(timestamp);
 			
 			// Write body length
 			final int bodyLength = bb.capacity() + tableBytes.length 
-					+ keyBytes.length + bboxBytes.length + dataBytes.length;
+					+ keyBytes.length + bboxBytes.length + data.length;
 			
 			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
 			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
@@ -152,7 +151,7 @@ public class InsertTuplePackage implements NetworkPackage {
 			bos.write(tableBytes);
 			bos.write(keyBytes);
 			bos.write(bboxBytes);
-			bos.write(dataBytes);
+			bos.write(data);
 			
 			bos.close();
 		} catch (IOException e) {
@@ -180,7 +179,7 @@ public class InsertTuplePackage implements NetworkPackage {
 		return bbox;
 	}
 
-	public String getData() {
+	public byte[] getData() {
 		return data;
 	}
 
@@ -196,7 +195,7 @@ public class InsertTuplePackage implements NetworkPackage {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((bbox == null) ? 0 : bbox.hashCode());
-		result = prime * result + ((data == null) ? 0 : data.hashCode());
+		result = prime * result + Arrays.hashCode(data);
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		result = prime * result + ((table == null) ? 0 : table.hashCode());
 		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
@@ -217,10 +216,7 @@ public class InsertTuplePackage implements NetworkPackage {
 				return false;
 		} else if (!bbox.equals(other.bbox))
 			return false;
-		if (data == null) {
-			if (other.data != null)
-				return false;
-		} else if (!data.equals(other.data))
+		if (!Arrays.equals(data, other.data))
 			return false;
 		if (key == null) {
 			if (other.key != null)

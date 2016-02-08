@@ -2,6 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import junit.framework.Assert;
@@ -91,7 +92,7 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeInsertTuple() {
 				
-		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc");
+		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		
 		byte[] encodedVersion = insertPackage.getByteArray(sequenceNumberGenerator);
 		Assert.assertNotNull(encodedVersion);
@@ -102,7 +103,7 @@ public class TestNetworkClasses {
 		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(insertPackage.getTimestamp(), decodedPackage.getTimestamp());
 		Assert.assertEquals(insertPackage.getBbox(), decodedPackage.getBbox());
-		Assert.assertEquals(insertPackage.getData(), decodedPackage.getData());
+		Assert.assertTrue(Arrays.equals(insertPackage.getData(), decodedPackage.getData()));
 		
 		Assert.assertEquals(insertPackage, decodedPackage);
 	}
@@ -112,7 +113,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testDecodePackage() {
-		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc");
+		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		
 		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
 		Assert.assertNotNull(encodedPackage);
@@ -127,7 +128,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testGetSequenceNumber() {
-		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc");
+		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		
 		// Increment to avoid sequenceNumber = 0
 		sequenceNumberGenerator.getNextSequenceNummber();
@@ -148,7 +149,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testGetBodyLength() {
-		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc");
+		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
 		Assert.assertNotNull(encodedPackage);
 		
