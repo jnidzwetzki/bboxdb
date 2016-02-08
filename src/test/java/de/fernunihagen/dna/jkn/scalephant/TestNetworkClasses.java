@@ -16,6 +16,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.DeleteTablePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.DeleteTuplePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.InsertTuplePackage;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.ListTablesPackage;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 
 public class TestNetworkClasses {
@@ -143,6 +144,22 @@ public class TestNetworkClasses {
 				
 		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(deletePackage, decodedPackage);
+	}
+	
+	/**
+	 * The the encoding and decoding of a list tables package
+	 */
+	@Test
+	public void encodeAndDecodeListTable() {
+				
+		final ListTablesPackage listPackage = new ListTablesPackage();
+		
+		byte[] encodedVersion = listPackage.getByteArray(sequenceNumberGenerator);
+		Assert.assertNotNull(encodedVersion);
+
+		final ListTablesPackage decodedPackage = ListTablesPackage.decodeTuple(encodedVersion);
+				
+		Assert.assertEquals(listPackage, decodedPackage);
 	}
 	
 	/**
