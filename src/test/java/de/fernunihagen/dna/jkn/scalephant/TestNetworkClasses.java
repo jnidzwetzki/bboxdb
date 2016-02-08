@@ -2,7 +2,6 @@ package de.fernunihagen.dna.jkn.scalephant;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import junit.framework.Assert;
@@ -99,13 +98,13 @@ public class TestNetworkClasses {
 
 		final InsertTuplePackage decodedPackage = InsertTuplePackage.decodeTuple(encodedVersion);
 				
-	/*	Assert.assertEquals(insertPackage.getKey(), decodedPackage.getKey());
+		Assert.assertEquals(insertPackage.getKey(), decodedPackage.getKey());
 		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(insertPackage.getTimestamp(), decodedPackage.getTimestamp());
 		Assert.assertEquals(insertPackage.getBbox(), decodedPackage.getBbox());
 		Assert.assertEquals(insertPackage.getData(), decodedPackage.getData());
 		
-		Assert.assertEquals(insertPackage, decodedPackage);*/
+		Assert.assertEquals(insertPackage, decodedPackage);
 	}
 	
 	/**

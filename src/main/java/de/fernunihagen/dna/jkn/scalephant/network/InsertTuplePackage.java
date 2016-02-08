@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
 public class InsertTuplePackage implements NetworkPackage {
 
@@ -75,34 +76,31 @@ public class InsertTuplePackage implements NetworkPackage {
 		short keyLength = bb.getShort();
 		int bBoxLength = bb.getInt();
 		int dataLength = bb.getInt();
-		long timeStamp = bb.getLong();
-		
-		System.out.println("POsition: " + bb.position());
-		
-		System.out.println("Timestamp: " + timeStamp);
-
+		long timestamp = bb.getLong();
 		
 		final byte[] tableBytes = new byte[tableLength];
 		bb.get(tableBytes, 0, tableBytes.length);
-		final String tableName = new String(tableBytes);
-		
-		System.out.println(tableLength + " - " + tableName);
+		final String table = new String(tableBytes);
 		
 		final byte[] keyBytes = new byte[keyLength];
 		bb.get(keyBytes, 0, keyBytes.length);
 		final String key = new String(keyBytes);
 		
-		System.out.println(keyLength + " - " + key);
-		
-		final byte[] bbBoyBytes = new byte[bBoxLength];
-		bb.get(bbBoyBytes, 0, bbBoyBytes.length);
+		final byte[] boxBytes = new byte[bBoxLength];
+		bb.get(boxBytes, 0, boxBytes.length);
 
 		final byte[] dataBytes = new byte[dataLength];
 		bb.get(dataBytes, 0, dataBytes.length);
+		final String data = new String(dataBytes);
 
-		System.out.println("Remain: " + bb.remaining());
+		if(bb.remaining() != 0) {
+			logger.error("Some bytes are left after encoding: " + bb.remaining());
+		}
 		
-		return null;
+		final long[] longArray = SSTableHelper.readLongArrayFromByte(boxBytes);
+		final BoundingBox boundingBox = new BoundingBox(longArray);
+
+		return new InsertTuplePackage(table, key, timestamp, boundingBox, data);
 	}
 	
 	/**
