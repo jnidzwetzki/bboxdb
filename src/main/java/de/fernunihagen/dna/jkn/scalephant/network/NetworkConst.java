@@ -34,6 +34,31 @@ public class NetworkConst {
 	 */
 	public static final byte REQUEST_TYPE_QUERY = 0x04;
 	
+	
+	
+	
+	/**
+	 * Response type success
+	 */
+	public static final byte RESPONSE_SUCCESS = 0x00;
+	
+	/**
+	 * Response type with body
+	 */
+	public static final byte RESPONSE_SUCCESS_WITH_BODY = 0x01;
+	
+	/**
+	 * Response type error
+	 */
+	public static final byte RESPONSE_ERROR = 0x02;
+	
+	/**
+	 * Response type error with body
+	 */
+	public static final byte RESPONSE_ERROR_WITH_BODY = 0x03;
+
+	
+	
 	/**
 	 * Byte order for network communication
 	 */
