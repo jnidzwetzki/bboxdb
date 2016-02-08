@@ -9,11 +9,11 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import de.fernunihagen.dna.jkn.scalephant.network.InsertTuplePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.InsertTuplePackage;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 
 public class TestNetworkClasses {

@@ -1,4 +1,6 @@
-package de.fernunihagen.dna.jkn.scalephant.network;
+package de.fernunihagen.dna.jkn.scalephant.network.packages;
+
+import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 
 public interface NetworkPackage {
 

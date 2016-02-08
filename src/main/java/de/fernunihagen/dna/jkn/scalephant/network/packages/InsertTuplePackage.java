@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.network;
+package de.fernunihagen.dna.jkn.scalephant.network.packages;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -8,6 +8,10 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
+import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
