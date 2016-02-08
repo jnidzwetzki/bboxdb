@@ -12,7 +12,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 
-public class ListTablesPackage implements NetworkPackage {
+public class ListTablesPackage implements NetworkRequestPackage {
 	
 	/**
 	 * The Logger

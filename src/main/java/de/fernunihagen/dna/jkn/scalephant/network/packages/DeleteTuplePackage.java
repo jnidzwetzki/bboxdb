@@ -13,7 +13,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 
 
-public class DeleteTuplePackage implements NetworkPackage {
+public class DeleteTuplePackage implements NetworkRequestPackage {
 
 	/**
 	 * The name of the table

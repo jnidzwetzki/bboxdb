@@ -15,7 +15,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
-public class InsertTuplePackage implements NetworkPackage {
+public class InsertTuplePackage implements NetworkRequestPackage {
 
 	/**
 	 * The name of the table
