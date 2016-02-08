@@ -13,6 +13,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.DeleteTablePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.DeleteTuplePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.InsertTuplePackage;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
@@ -110,7 +111,7 @@ public class TestNetworkClasses {
 	}
 	
 	/**
-	 * The the encoding and decoding of an insert tuple package
+	 * The the encoding and decoding of an delete tuple package
 	 */
 	@Test
 	public void encodeAndDecodeDeleteTuple() {
@@ -123,6 +124,23 @@ public class TestNetworkClasses {
 		final DeleteTuplePackage decodedPackage = DeleteTuplePackage.decodeTuple(encodedVersion);
 				
 		Assert.assertEquals(deletePackage.getKey(), decodedPackage.getKey());
+		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(deletePackage, decodedPackage);
+	}
+	
+	/**
+	 * The the encoding and decoding of an delete table package
+	 */
+	@Test
+	public void encodeAndDecodeDeleteTable() {
+				
+		final DeleteTablePackage deletePackage = new DeleteTablePackage("test");
+		
+		byte[] encodedVersion = deletePackage.getByteArray(sequenceNumberGenerator);
+		Assert.assertNotNull(encodedVersion);
+
+		final DeleteTablePackage decodedPackage = DeleteTablePackage.decodeTuple(encodedVersion);
+				
 		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(deletePackage, decodedPackage);
 	}
