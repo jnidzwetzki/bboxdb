@@ -13,6 +13,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.DeleteTuplePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.InsertTuplePackage;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 
@@ -109,6 +110,24 @@ public class TestNetworkClasses {
 	}
 	
 	/**
+	 * The the encoding and decoding of an insert tuple package
+	 */
+	@Test
+	public void encodeAndDecodeDeleteTuple() {
+				
+		final DeleteTuplePackage deletePackage = new DeleteTuplePackage("test", "key");
+		
+		byte[] encodedVersion = deletePackage.getByteArray(sequenceNumberGenerator);
+		Assert.assertNotNull(encodedVersion);
+
+		final DeleteTuplePackage decodedPackage = DeleteTuplePackage.decodeTuple(encodedVersion);
+				
+		Assert.assertEquals(deletePackage.getKey(), decodedPackage.getKey());
+		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(deletePackage, decodedPackage);
+	}
+	
+	/**
 	 * Decode an encoded package
 	 */
 	@Test
@@ -119,7 +138,7 @@ public class TestNetworkClasses {
 		Assert.assertNotNull(encodedPackage);
 				
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		boolean result = NetworkPackageDecoder.validatePackageHeader(bb);
+		boolean result = NetworkPackageDecoder.validatePackageHeader(bb, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		Assert.assertTrue(result);
 	}
 	
