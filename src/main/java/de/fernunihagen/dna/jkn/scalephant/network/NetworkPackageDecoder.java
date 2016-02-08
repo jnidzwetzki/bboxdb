@@ -22,7 +22,7 @@ public class NetworkPackageDecoder {
 	 * @param buffer
 	 * @return true or false, depending of the integrity of the package
 	 */
-	public static boolean validatePackageHeader(final ByteBuffer bb) {
+	public static boolean validatePackageHeader(final ByteBuffer bb, final byte packageType) {
 		
 		// Reset position
 		bb.position(0);
@@ -38,7 +38,7 @@ public class NetworkPackageDecoder {
 		}
 		
 		// Check package type
-		if(bb.get() != NetworkConst.REQUEST_TYPE_INSERT_TUPLE) {
+		if(bb.get() != packageType) {
 			return false;
 		}
 		
