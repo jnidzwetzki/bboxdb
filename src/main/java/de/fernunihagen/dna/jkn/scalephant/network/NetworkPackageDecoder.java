@@ -28,7 +28,7 @@ public class NetworkPackageDecoder {
 		bb.position(0);
 		
 		// Buffer is to little to contain valid data
-		if(bb.remaining() < 64) {
+		if(bb.remaining() < 8) {
 			return false;
 		}
 		
@@ -61,6 +61,19 @@ public class NetworkPackageDecoder {
 		
 		// Read request id
 		return bb.getShort();
+	}
+	
+	/**
+	 * Read the body length from a package header
+	 * @param bb
+	 * @return
+	 */
+	public static int getBodyLengthFromPackage(final ByteBuffer bb) {
+		// Set positon
+		bb.position(4);
+		
+		// Read the body length
+		return bb.getInt();
 	}
 
 }

@@ -137,10 +137,27 @@ public class TestNetworkClasses {
 		short curSequencenUmber = sequenceNumberGenerator.getSequeneNumberWithoutIncrement();
 		
 		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
-		Assert.assertNotNull(encodedPackage);
+		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		short packageSequencenUmber = NetworkPackageDecoder.getRequestIDFromPackage(bb);
 		
 		Assert.assertEquals(curSequencenUmber, packageSequencenUmber);		
+	}
+	
+	/**
+	 * Read the body length from a package
+	 */
+	@Test
+	public void testGetBodyLength() {
+		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc");
+		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
+		Assert.assertNotNull(encodedPackage);
+		
+		// 8 Byte package header
+		int calculatedBodyLength = encodedPackage.length - 8;
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		int bodyLength = NetworkPackageDecoder.getBodyLengthFromPackage(bb);
+		
+		Assert.assertEquals(calculatedBodyLength, bodyLength);
 	}
 }

@@ -71,6 +71,11 @@ public class InsertTuplePackage implements NetworkPackage {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		NetworkPackageDecoder.validatePackageHeader(bb);
 		
+		short tableLength = bb.getShort();
+		short keyLength = bb.getShort();
+		int bBoxLength = bb.getInt();
+		int dataLength = bb.getInt();
+		
 		return null;
 	}
 	
@@ -101,7 +106,7 @@ public class InsertTuplePackage implements NetworkPackage {
 			final byte[] bboxBytes = bbox.toByteArray();
 			final byte[] dataBytes = data.getBytes();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(160);
+			final ByteBuffer bb = ByteBuffer.allocate(20);
 			bb.order(NetworkConst.NETWORK_BYTEORDER);
 			bb.putShort((short) tableBytes.length);
 			bb.putShort((short) keyBytes.length);
