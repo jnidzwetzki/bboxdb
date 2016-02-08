@@ -75,6 +75,32 @@ public class InsertTuplePackage implements NetworkPackage {
 		short keyLength = bb.getShort();
 		int bBoxLength = bb.getInt();
 		int dataLength = bb.getInt();
+		long timeStamp = bb.getLong();
+		
+		System.out.println("POsition: " + bb.position());
+		
+		System.out.println("Timestamp: " + timeStamp);
+
+		
+		final byte[] tableBytes = new byte[tableLength];
+		bb.get(tableBytes, 0, tableBytes.length);
+		final String tableName = new String(tableBytes);
+		
+		System.out.println(tableLength + " - " + tableName);
+		
+		final byte[] keyBytes = new byte[keyLength];
+		bb.get(keyBytes, 0, keyBytes.length);
+		final String key = new String(keyBytes);
+		
+		System.out.println(keyLength + " - " + key);
+		
+		final byte[] bbBoyBytes = new byte[bBoxLength];
+		bb.get(bbBoyBytes, 0, bbBoyBytes.length);
+
+		final byte[] dataBytes = new byte[dataLength];
+		bb.get(dataBytes, 0, dataBytes.length);
+
+		System.out.println("Remain: " + bb.remaining());
 		
 		return null;
 	}
@@ -112,6 +138,7 @@ public class InsertTuplePackage implements NetworkPackage {
 			bb.putShort((short) keyBytes.length);
 			bb.putInt(bboxBytes.length);
 			bb.putInt(dataBytes.length);
+			bb.putLong(timestamp);
 			
 			// Write body length
 			final int bodyLength = bb.capacity() + tableBytes.length 
