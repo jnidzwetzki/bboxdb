@@ -170,7 +170,7 @@ public class NetworkPackageDecoder {
 				|| packageType == NetworkConst.RESPONSE_SUCCESS_WITH_BODY) {
 			// Set positon
 			bb.position(4);
-			
+						
 			// Read the body length
 			return bb.getShort();
 		}

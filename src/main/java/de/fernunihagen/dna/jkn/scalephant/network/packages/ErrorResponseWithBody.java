@@ -45,15 +45,7 @@ public class ErrorResponseWithBody extends NetworkResponsePackage {
 			final ByteBuffer bb = ByteBuffer.allocate(2);
 			bb.order(NetworkConst.NETWORK_BYTEORDER);
 			bb.putShort((short) bodyBytes.length);
-			
-			// Write body length
-			final int bodyLength = bb.capacity() + bodyBytes.length;
-			
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
-			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
-			bodyLengthBuffer.putInt(bodyLength);
-			bos.write(bodyLengthBuffer.array());
-			
+
 			// Write body
 			bos.write(bb.array());
 			bos.write(bodyBytes);
