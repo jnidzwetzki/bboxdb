@@ -199,10 +199,10 @@ public class TestNetworkClasses {
 	}
 	
 	/**
-	 * Read the body length from a package
+	 * Read the body length from a request package
 	 */
 	@Test
-	public void testGetBodyLength() {
+	public void testGetRequestBodyLength() {
 		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
 		Assert.assertNotNull(encodedPackage);
@@ -214,4 +214,7 @@ public class TestNetworkClasses {
 		
 		Assert.assertEquals(calculatedBodyLength, bodyLength);
 	}
+	
+	
+	
 }

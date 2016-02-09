@@ -2,8 +2,16 @@ package de.fernunihagen.dna.jkn.scalephant.network;
 
 import java.nio.ByteBuffer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class NetworkPackageDecoder {
 	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(NetworkPackageDecoder.class);
+
 	/**
 	 * Encapsulate the encoded package into a bytebuffer
 	 * 
@@ -53,7 +61,7 @@ public class NetworkPackageDecoder {
 	 * @param bb
 	 * @return the request id
 	 */
-	public static short geRequestIDFromResponsePackage(final ByteBuffer bb) {
+	public static short getRequestIDFromResponsePackage(final ByteBuffer bb) {
 		// Reset position (Protocol, Request Type)
 		bb.position(1);
 		
@@ -109,7 +117,7 @@ public class NetworkPackageDecoder {
 	}
 	
 	/**
-	 * Read the body length from a package header
+	 * Read the body length from a request package header
 	 * @param bb
 	 * @return
 	 */
@@ -119,6 +127,57 @@ public class NetworkPackageDecoder {
 		
 		// Read the body length
 		return bb.getInt();
+	}
+	
+	/**
+	 * Get the package type from a request package
+	 * @param bb
+	 * @return
+	 */
+	public static byte getPackageTypeFromRequest(final ByteBuffer bb) {
+		bb.position(1);
+		
+		return bb.get();
+	}
+	
+	/**
+	 * Get the package type from a result package
+	 * @param bb
+	 * @return
+	 */
+	public static byte getPackageTypeFromResponse(final ByteBuffer bb) {
+		bb.position(3);
+		
+		return bb.get();
+	}
+	
+	/**
+	 * Read the body length from a response package header
+	 * @param bb
+	 * @return
+	 */
+	public static int getBodyLengthFromResponsePackage(final ByteBuffer bb) {
+		
+		byte packageType = getPackageTypeFromResponse(bb);
+		
+		// Simple packages without body
+		if(packageType == NetworkConst.RESPONSE_ERROR 
+				|| packageType == NetworkConst.RESPONSE_SUCCESS) {
+			return 0;
+		}
+		
+		if(packageType == NetworkConst.RESPONSE_ERROR_WITH_BODY 
+				|| packageType == NetworkConst.RESPONSE_SUCCESS_WITH_BODY) {
+			// Set positon
+			bb.position(4);
+			
+			// Read the body length
+			return bb.getShort();
+		}
+		
+		logger.error("Unknown package type: " + packageType);
+		
+		return -1;
 	}
 
 }

@@ -89,7 +89,7 @@ public class ErrorResponseWithBody extends NetworkResponsePackage {
 			logger.error("Some bytes are left after encoding: " + bb.remaining());
 		}
 		
-		final short requestId = NetworkPackageDecoder.geRequestIDFromResponsePackage(bb);
+		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(bb);
 		
 		return new ErrorResponseWithBody(requestId, body);
 	}
