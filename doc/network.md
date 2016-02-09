@@ -28,7 +28,8 @@ Request Types:
 * Type 0x01 - Delete tuple request
 * Type 0x02 - Delete table request
 * Type 0x03 - List all tables request
-* Type 0x04 - Query request
+* Type 0x04 - Disconnect request
+* Type 0x05 - Query request
 
 
 ## The response frame
@@ -132,13 +133,25 @@ This package lists all existing tables
 
 #### Request body
 
+The body of the package is empty
+
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	|                Unused              | 
-	+------------------------------------+
 
 #### Response body
 
+### Disconnect 
+Discconnect from server
+
+#### Request body
+
+The body of the package is empty
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+
+#### Response body
+Unavailable. The connection is closed after sending this package.
 
 ### Query
 This package represents a query.  

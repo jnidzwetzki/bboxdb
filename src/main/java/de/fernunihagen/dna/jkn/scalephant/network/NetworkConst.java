@@ -32,7 +32,12 @@ public class NetworkConst {
 	/**
 	 * Request type query
 	 */
-	public static final byte REQUEST_TYPE_QUERY = 0x04;
+	public static final byte REQUEST_TYPE_DISCONNECT = 0x04;
+	
+	/**
+	 * Request type query
+	 */
+	public static final byte REQUEST_TYPE_QUERY = 0x05;
 	
 	
 	

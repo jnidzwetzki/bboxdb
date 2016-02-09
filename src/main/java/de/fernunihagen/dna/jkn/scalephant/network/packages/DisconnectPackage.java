@@ -12,12 +12,12 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 
-public class ListTablesPackage implements NetworkRequestPackage {
+public class DisconnectPackage implements NetworkRequestPackage {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ListTablesPackage.class);
+	private final static Logger logger = LoggerFactory.getLogger(DisconnectPackage.class);
 
 	
 	@Override
@@ -49,25 +49,25 @@ public class ListTablesPackage implements NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static ListTablesPackage decodeTuple(final byte encodedPackage[]) {
+	public static DisconnectPackage decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_LIST_TABLES);
+		NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_DISCONNECT);
 		
 		if(bb.remaining() != 0) {
 			logger.error("Some bytes are left after encoding: " + bb.remaining());
 		}
 		
-		return new ListTablesPackage();
+		return new DisconnectPackage();
 	}
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.REQUEST_TYPE_LIST_TABLES;
+		return NetworkConst.REQUEST_TYPE_DISCONNECT;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof ListTablesPackage) {
+		if(obj instanceof DisconnectPackage) {
 			return true;
 		}
 		
