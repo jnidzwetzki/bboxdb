@@ -173,7 +173,7 @@ public class TestNetworkClasses {
 		Assert.assertNotNull(encodedPackage);
 				
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		boolean result = NetworkPackageDecoder.validatePackageHeader(bb, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
+		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		Assert.assertTrue(result);
 	}
 	
@@ -193,7 +193,7 @@ public class TestNetworkClasses {
 		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		short packageSequencenUmber = NetworkPackageDecoder.getRequestIDFromPackage(bb);
+		short packageSequencenUmber = NetworkPackageDecoder.getRequestIDFromRequestPackage(bb);
 		
 		Assert.assertEquals(curSequencenUmber, packageSequencenUmber);		
 	}
@@ -210,7 +210,7 @@ public class TestNetworkClasses {
 		// 8 Byte package header
 		int calculatedBodyLength = encodedPackage.length - 8;
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		int bodyLength = NetworkPackageDecoder.getBodyLengthFromPackage(bb);
+		int bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(bb);
 		
 		Assert.assertEquals(calculatedBodyLength, bodyLength);
 	}

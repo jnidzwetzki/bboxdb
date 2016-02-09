@@ -85,7 +85,7 @@ public class DeleteTuplePackage implements NetworkRequestPackage {
 	 */
 	public static DeleteTuplePackage decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		NetworkPackageDecoder.validatePackageHeader(bb, NetworkConst.REQUEST_TYPE_DELETE_TUPLE);
+		NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_DELETE_TUPLE);
 		
 		short tableLength = bb.getShort();
 		short keyLength = bb.getShort();

@@ -17,12 +17,57 @@ public class NetworkPackageDecoder {
 	}
 	
 	/**
-	 * Validate the package header
+	 * Validate the response package header
 	 * 
 	 * @param buffer
 	 * @return true or false, depending of the integrity of the package
 	 */
-	public static boolean validatePackageHeader(final ByteBuffer bb, final byte packageType) {
+	public static boolean validateResponsePackageHeader(final ByteBuffer bb, final byte packageType) {
+		
+		// Reset position
+		bb.position(0);
+		
+		// Buffer is to little to contain valid data
+		if(bb.remaining() < 4) {
+			return false;
+		}
+		
+		// Check protocol version
+		if(bb.get() != NetworkConst.PROTOCOL_VERSION) {
+			return false;
+		}
+		
+		// Read request id
+		bb.getShort();
+		
+		// Check package type
+		if(bb.get() != packageType) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Get the request id form a reponse package
+	 * @param bb
+	 * @return the request id
+	 */
+	public static short geRequestIDFromResponsePackage(final ByteBuffer bb) {
+		// Reset position (Protocol, Request Type)
+		bb.position(1);
+		
+		// Read request id
+		return bb.getShort();
+	}
+	
+	/**
+	 * Validate the request package header
+	 * 
+	 * @param buffer
+	 * @return true or false, depending of the integrity of the package
+	 */
+	public static boolean validateRequestPackageHeader(final ByteBuffer bb, final byte packageType) {
 		
 		// Reset position
 		bb.position(0);
@@ -51,11 +96,11 @@ public class NetworkPackageDecoder {
 	}
 	
 	/**
-	 * Get the request id form a package
+	 * Get the request id form a request package
 	 * @param bb
 	 * @return the request id
 	 */
-	public static short getRequestIDFromPackage(final ByteBuffer bb) {
+	public static short getRequestIDFromRequestPackage(final ByteBuffer bb) {
 		// Reset position (Protocol, Request Type)
 		bb.position(2);
 		
@@ -68,7 +113,7 @@ public class NetworkPackageDecoder {
 	 * @param bb
 	 * @return
 	 */
-	public static int getBodyLengthFromPackage(final ByteBuffer bb) {
+	public static int getBodyLengthFromRequestPackage(final ByteBuffer bb) {
 		// Set positon
 		bb.position(4);
 		

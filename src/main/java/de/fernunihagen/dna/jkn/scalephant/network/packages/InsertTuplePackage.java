@@ -75,7 +75,7 @@ public class InsertTuplePackage implements NetworkRequestPackage {
 	public static InsertTuplePackage decodeTuple(final byte encodedPackage[]) {
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		NetworkPackageDecoder.validatePackageHeader(bb, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
+		NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		
 		short tableLength = bb.getShort();
 		short keyLength = bb.getShort();

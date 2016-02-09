@@ -72,7 +72,7 @@ public class DeleteTablePackage implements NetworkRequestPackage {
 	 */
 	public static DeleteTablePackage decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		NetworkPackageDecoder.validatePackageHeader(bb, NetworkConst.REQUEST_TYPE_DELETE_TABLE);
+		NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_DELETE_TABLE);
 		
 		short tableLength = bb.getShort();
 		

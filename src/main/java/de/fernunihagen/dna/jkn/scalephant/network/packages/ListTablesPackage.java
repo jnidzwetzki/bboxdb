@@ -50,7 +50,7 @@ public class ListTablesPackage implements NetworkRequestPackage {
 	 */
 	public static ListTablesPackage decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		NetworkPackageDecoder.validatePackageHeader(bb, NetworkConst.REQUEST_TYPE_LIST_TABLES);
+		NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_LIST_TABLES);
 		
 		if(bb.remaining() != 0) {
 			logger.error("Some bytes are left after encoding: " + bb.remaining());
