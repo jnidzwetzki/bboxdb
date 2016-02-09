@@ -25,7 +25,8 @@ public class NetworkPackageEncoder {
 	}
 	
 	/**
-	 * Append the package header to the output stream
+	 * Append the request package header to the output stream
+	 * @param packageType
 	 * @param bos
 	 */
 	protected void appendRequestPackageHeader(final byte packageType, final ByteArrayOutputStream bos) {
@@ -43,8 +44,27 @@ public class NetworkPackageEncoder {
 	}
 	
 	/**
-	 * Return a byte arry output stream that contains the header
-	 * of the package
+	 * Append the response package header to the output stream
+	 * @param requestId
+	 * @param bos
+	 */
+	protected void appendResponsePackageHeader(final short requestId, final ByteArrayOutputStream bos) {
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(3);
+		byteBuffer.order(NetworkConst.NETWORK_BYTEORDER);
+		byteBuffer.put(NetworkConst.PROTOCOL_VERSION);
+		byteBuffer.putShort(requestId);
+
+		try {
+			bos.write(byteBuffer.array());
+		} catch (IOException e) {
+			logger.error("Exception while writing", e);
+		}
+	}
+	
+	/**
+	 * Return a byte array output stream for request packages that contains 
+	 * the header of the package
+	 * @param packageType
 	 * @return
 	 */
 	public ByteArrayOutputStream getOutputStreamForRequestPackage(final byte packageType) {
@@ -52,6 +72,21 @@ public class NetworkPackageEncoder {
 		
 		// Append the frame header to the package
 		appendRequestPackageHeader(packageType, bos);
+		
+		return bos;
+	}
+	
+	/**
+	 * Return a bate array output stream for response packages that contains
+	 * the header of the package
+	 * @param packageType
+	 * @return
+	 */
+	public ByteArrayOutputStream getOutputStreamForResponsePackage(final short requestId) {
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		
+		// Append the frame header to the package
+		appendResponsePackageHeader(requestId, bos);
 		
 		return bos;
 	}
