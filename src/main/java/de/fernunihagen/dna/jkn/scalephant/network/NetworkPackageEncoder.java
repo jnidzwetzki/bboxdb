@@ -41,7 +41,7 @@ public class NetworkPackageEncoder {
 	 * @param bos
 	 */
 	protected void appendResponsePackageHeader(final short requestId, final byte packageType, final ByteArrayOutputStream bos) {
-		final ByteBuffer byteBuffer = ByteBuffer.allocate(3);
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
 		byteBuffer.order(NetworkConst.NETWORK_BYTEORDER);
 		byteBuffer.put(NetworkConst.PROTOCOL_VERSION);
 		byteBuffer.putShort(requestId);
