@@ -8,28 +8,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NetworkPackageEncoder {
-	
-	/**
-	 * The sequence number generator 
-	 */
-	protected final SequenceNumberGenerator sequenceNumberGenerator;
-	
+
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(NetworkPackageEncoder.class);
 	
-	
-	public NetworkPackageEncoder(final SequenceNumberGenerator sequenceNumberGenerator) {
-		this.sequenceNumberGenerator = sequenceNumberGenerator;
-	}
-	
 	/**
 	 * Append the request package header to the output stream
+	 * @param sequenceNumberGenerator 
 	 * @param packageType
 	 * @param bos
 	 */
-	protected void appendRequestPackageHeader(final byte packageType, final ByteArrayOutputStream bos) {
+	protected void appendRequestPackageHeader(final SequenceNumberGenerator sequenceNumberGenerator, final byte packageType, final ByteArrayOutputStream bos) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
 		byteBuffer.order(NetworkConst.NETWORK_BYTEORDER);
 		byteBuffer.put(NetworkConst.PROTOCOL_VERSION);
@@ -67,11 +58,11 @@ public class NetworkPackageEncoder {
 	 * @param packageType
 	 * @return
 	 */
-	public ByteArrayOutputStream getOutputStreamForRequestPackage(final byte packageType) {
+	public ByteArrayOutputStream getOutputStreamForRequestPackage(final SequenceNumberGenerator sequenceNumberGenerator, final byte packageType) {
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
 		// Append the frame header to the package
-		appendRequestPackageHeader(packageType, bos);
+		appendRequestPackageHeader(sequenceNumberGenerator, packageType, bos);
 		
 		return bos;
 	}

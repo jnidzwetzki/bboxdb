@@ -124,9 +124,9 @@ public class InsertTuplePackage implements NetworkRequestPackage {
 	public byte[] getByteArray(final SequenceNumberGenerator sequenceNumberGenerator) {
 		
 		final NetworkPackageEncoder networkPackageEncoder 
-			= new NetworkPackageEncoder(sequenceNumberGenerator);
+			= new NetworkPackageEncoder();
 		
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(getPackageType());
+		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(sequenceNumberGenerator, getPackageType());
 		
 		try {
 			final byte[] tableBytes = table.getBytes();

@@ -72,9 +72,9 @@ public class TestNetworkClasses {
 	public void testRequestPackageHeader() {
 		final short currentSequenceNumber = sequenceNumberGenerator.getSequeneNumberWithoutIncrement();
 		
-		final NetworkPackageEncoder networkPackageBuilder = new NetworkPackageEncoder(sequenceNumberGenerator);
+		final NetworkPackageEncoder networkPackageBuilder = new NetworkPackageEncoder();
 		final ByteArrayOutputStream encodedPackageStream
-			= networkPackageBuilder.getOutputStreamForRequestPackage(NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
+			= networkPackageBuilder.getOutputStreamForRequestPackage(sequenceNumberGenerator, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		
 		final byte[] encodedPackage = encodedPackageStream.toByteArray();
 		
