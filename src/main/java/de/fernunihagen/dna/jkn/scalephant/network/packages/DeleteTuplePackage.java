@@ -43,7 +43,7 @@ public class DeleteTuplePackage implements NetworkRequestPackage {
 		final NetworkPackageEncoder networkPackageEncoder 
 			= new NetworkPackageEncoder(sequenceNumberGenerator);
 		
-		final ByteArrayOutputStream bos = networkPackageEncoder.getByteOutputStream(getPackageType());
+		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(getPackageType());
 		
 		try {
 			final byte[] tableBytes = table.getBytes();

@@ -74,7 +74,7 @@ public class TestNetworkClasses {
 		
 		final NetworkPackageEncoder networkPackageBuilder = new NetworkPackageEncoder(sequenceNumberGenerator);
 		final ByteArrayOutputStream encodedPackageStream
-			= networkPackageBuilder.getByteOutputStream(NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
+			= networkPackageBuilder.getOutputStreamForRequestPackage(NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		
 		final byte[] encodedPackage = encodedPackageStream.toByteArray();
 		

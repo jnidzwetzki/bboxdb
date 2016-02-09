@@ -28,7 +28,7 @@ public class NetworkPackageEncoder {
 	 * Append the package header to the output stream
 	 * @param bos
 	 */
-	protected void appendPackageHeader(final byte packageType, final ByteArrayOutputStream bos) {
+	protected void appendRequestPackageHeader(final byte packageType, final ByteArrayOutputStream bos) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
 		byteBuffer.order(NetworkConst.NETWORK_BYTEORDER);
 		byteBuffer.put(NetworkConst.PROTOCOL_VERSION);
@@ -45,14 +45,13 @@ public class NetworkPackageEncoder {
 	/**
 	 * Return a byte arry output stream that contains the header
 	 * of the package
-	 * @return 
-	 * 
+	 * @return
 	 */
-	public ByteArrayOutputStream getByteOutputStream(final byte packageType) {
+	public ByteArrayOutputStream getOutputStreamForRequestPackage(final byte packageType) {
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
 		// Append the frame header to the package
-		appendPackageHeader(packageType, bos);
+		appendRequestPackageHeader(packageType, bos);
 		
 		return bos;
 	}
