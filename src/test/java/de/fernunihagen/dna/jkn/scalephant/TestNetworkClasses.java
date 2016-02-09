@@ -17,6 +17,8 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.DeleteTablePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.DeleteTuplePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.InsertTuplePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.ListTablesPackage;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.SuccessResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.SuccessResponseWithBody;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 
 public class TestNetworkClasses {
@@ -215,6 +217,62 @@ public class TestNetworkClasses {
 		Assert.assertEquals(calculatedBodyLength, bodyLength);
 	}
 	
+	/**
+	 * Get the package type from the response
+	 */
+	@Test
+	public void getPackageTypeFromResponse1() {
+		final SuccessResponse response = new SuccessResponse((short) 2);
+		byte[] encodedPackage = response.getByteArray();
+		Assert.assertNotNull(encodedPackage);
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		Assert.assertEquals(NetworkConst.RESPONSE_SUCCESS, NetworkPackageDecoder.getPackageTypeFromResponse(bb));
+	}
 	
+	/**
+	 * Get the package type from the response
+	 */
+	@Test
+	public void getPackageTypeFromResponse2() {
+		final SuccessResponseWithBody response = new SuccessResponseWithBody((short) 2, "abc");
+		byte[] encodedPackage = response.getByteArray();
+		Assert.assertNotNull(encodedPackage);
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		Assert.assertEquals(NetworkConst.RESPONSE_SUCCESS_WITH_BODY, NetworkPackageDecoder.getPackageTypeFromResponse(bb));
+	}
+	
+	/**
+	 * Read the body length from a result package
+	 */
+	@Test
+	public void testGetResultBodyLength1() {
+		final SuccessResponse response = new SuccessResponse((short) 2);
+		byte[] encodedPackage = response.getByteArray();
+		Assert.assertNotNull(encodedPackage);
+		
+		// 8 Byte package header
+		int calculatedBodyLength = 0;
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		int bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(bb);
+		
+		Assert.assertEquals(calculatedBodyLength, bodyLength);
+	}
+	
+	/**
+	 * Read the body length from a result package
+	 */
+	@Test
+	public void testGetResultBodyLength2() {
+		final SuccessResponseWithBody response = new SuccessResponseWithBody((short) 2, "abc");
+		byte[] encodedPackage = response.getByteArray();
+		Assert.assertNotNull(encodedPackage);
+		
+		// 8 Byte package header
+		int calculatedBodyLength = 3;
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		int bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(bb);
+		
+		Assert.assertEquals(calculatedBodyLength, bodyLength);
+	}
 	
 }
