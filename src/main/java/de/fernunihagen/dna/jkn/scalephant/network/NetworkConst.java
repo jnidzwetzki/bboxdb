@@ -30,7 +30,7 @@ public class NetworkConst {
 	public static final byte REQUEST_TYPE_LIST_TABLES = 0x03;
 	
 	/**
-	 * Request type query
+	 * Request type disconnect
 	 */
 	public static final byte REQUEST_TYPE_DISCONNECT = 0x04;
 	
