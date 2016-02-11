@@ -18,6 +18,9 @@ public class TestNetworkCommunication {
 		scalephantMain = new ScalephantMain();
 		scalephantMain.init(null);
 		scalephantMain.start();
+		
+		// Wait some time to let the server process start
+		Thread.currentThread().sleep(5000);
 	}
 	
 	@AfterClass
@@ -37,7 +40,6 @@ public class TestNetworkCommunication {
 	public void testSendDisconnectPackage() {
 		// Connect to server
 		final ScalephantClient scalephantClient = connectToServer();
-		
 		scalephantClient.disconnect();
 		Assert.assertFalse(scalephantClient.isConnected());
 	}
