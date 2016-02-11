@@ -6,7 +6,7 @@ import org.apache.commons.daemon.DaemonInitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.network.ConnectionHandler;
+import de.fernunihagen.dna.jkn.scalephant.network.server.ConnectionHandler;
 
 public class ScalephantMain implements Daemon {
 

@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.network;
+package de.fernunihagen.dna.jkn.scalephant.network.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;

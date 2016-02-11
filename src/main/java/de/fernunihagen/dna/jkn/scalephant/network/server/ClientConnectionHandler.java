@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.network;
+package de.fernunihagen.dna.jkn.scalephant.network.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +9,9 @@ import java.nio.ByteBuffer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 
 public class ClientConnectionHandler implements Runnable {
 	
