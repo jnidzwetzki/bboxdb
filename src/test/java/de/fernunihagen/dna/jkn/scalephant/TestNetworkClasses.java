@@ -75,8 +75,10 @@ public class TestNetworkClasses {
 		final short currentSequenceNumber = sequenceNumberGenerator.getSequeneNumberWithoutIncrement();
 		
 		final NetworkPackageEncoder networkPackageBuilder = new NetworkPackageEncoder();
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
 		final ByteArrayOutputStream encodedPackageStream
-			= networkPackageBuilder.getOutputStreamForRequestPackage(sequenceNumberGenerator, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
+			= networkPackageBuilder.getOutputStreamForRequestPackage(sequenceNumber, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		
 		final byte[] encodedPackage = encodedPackageStream.toByteArray();
 		
@@ -98,8 +100,9 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeInsertTuple() {
 				
 		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
-		byte[] encodedVersion = insertPackage.getByteArray(sequenceNumberGenerator);
+		byte[] encodedVersion = insertPackage.getByteArray(sequenceNumber);
 		Assert.assertNotNull(encodedVersion);
 
 		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(encodedVersion);
@@ -120,8 +123,9 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeDeleteTuple() {
 				
 		final DeleteTupleRequest deletePackage = new DeleteTupleRequest("test", "key");
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
-		byte[] encodedVersion = deletePackage.getByteArray(sequenceNumberGenerator);
+		byte[] encodedVersion = deletePackage.getByteArray(sequenceNumber);
 		Assert.assertNotNull(encodedVersion);
 
 		final DeleteTupleRequest decodedPackage = DeleteTupleRequest.decodeTuple(encodedVersion);
@@ -138,8 +142,9 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeDeleteTable() {
 				
 		final DeleteTableRequest deletePackage = new DeleteTableRequest("test");
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
-		byte[] encodedVersion = deletePackage.getByteArray(sequenceNumberGenerator);
+		byte[] encodedVersion = deletePackage.getByteArray(sequenceNumber);
 		Assert.assertNotNull(encodedVersion);
 
 		final DeleteTableRequest decodedPackage = DeleteTableRequest.decodeTuple(encodedVersion);
@@ -155,8 +160,9 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeListTable() {
 				
 		final ListTablesRequest listPackage = new ListTablesRequest();
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
-		byte[] encodedVersion = listPackage.getByteArray(sequenceNumberGenerator);
+		byte[] encodedVersion = listPackage.getByteArray(sequenceNumber);
 		Assert.assertNotNull(encodedVersion);
 
 		final ListTablesRequest decodedPackage = ListTablesRequest.decodeTuple(encodedVersion);
@@ -170,8 +176,9 @@ public class TestNetworkClasses {
 	@Test
 	public void testDecodePackage() {
 		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
-		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
+		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumber);
 		Assert.assertNotNull(encodedPackage);
 				
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
@@ -190,14 +197,14 @@ public class TestNetworkClasses {
 		sequenceNumberGenerator.getNextSequenceNummber();
 		sequenceNumberGenerator.getNextSequenceNummber();
 		
-		short curSequencenUmber = sequenceNumberGenerator.getSequeneNumberWithoutIncrement();
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
-		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
+		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumber);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		short packageSequencenUmber = NetworkPackageDecoder.getRequestIDFromRequestPackage(bb);
 		
-		Assert.assertEquals(curSequencenUmber, packageSequencenUmber);		
+		Assert.assertEquals(sequenceNumber, packageSequencenUmber);		
 	}
 	
 	/**
@@ -206,7 +213,9 @@ public class TestNetworkClasses {
 	@Test
 	public void testGetRequestBodyLength() {
 		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
-		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumber);
 		Assert.assertNotNull(encodedPackage);
 		
 		// 8 Byte package header

@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
-import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
@@ -122,12 +121,12 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	}
 
 	@Override
-	public byte[] getByteArray(final SequenceNumberGenerator sequenceNumberGenerator) {
+	public byte[] getByteArray(final short sequenceNumber) {
 		
 		final NetworkPackageEncoder networkPackageEncoder 
 			= new NetworkPackageEncoder();
 		
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(sequenceNumberGenerator, getPackageType());
+		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(sequenceNumber, getPackageType());
 		
 		try {
 			final byte[] tableBytes = table.getBytes();

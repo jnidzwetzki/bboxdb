@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
-import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 
 public class DisconnectRequest implements NetworkRequestPackage {
@@ -22,11 +21,11 @@ public class DisconnectRequest implements NetworkRequestPackage {
 
 	
 	@Override
-	public byte[] getByteArray(SequenceNumberGenerator sequenceNumberGenerator) {
+	public byte[] getByteArray(final short sequenceNumber) {
 		final NetworkPackageEncoder networkPackageEncoder 
 			= new NetworkPackageEncoder();
 
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(sequenceNumberGenerator, getPackageType());
+		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(sequenceNumber, getPackageType());
 		
 		try {
 			// Body is empty

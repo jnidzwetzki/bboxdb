@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
-import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 
 
@@ -40,11 +39,11 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 	 * Get the a encoded version of this class
 	 */
 	@Override
-	public byte[] getByteArray(SequenceNumberGenerator sequenceNumberGenerator) {
+	public byte[] getByteArray(final short sequenceNumber) {
 		final NetworkPackageEncoder networkPackageEncoder 
 			= new NetworkPackageEncoder();
 		
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(sequenceNumberGenerator, getPackageType());
+		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(sequenceNumber, getPackageType());
 		
 		try {
 			final byte[] tableBytes = table.getBytes();

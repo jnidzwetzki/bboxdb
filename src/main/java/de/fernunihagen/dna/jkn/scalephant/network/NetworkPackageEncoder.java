@@ -20,12 +20,12 @@ public class NetworkPackageEncoder {
 	 * @param packageType
 	 * @param bos
 	 */
-	protected void appendRequestPackageHeader(final SequenceNumberGenerator sequenceNumberGenerator, final byte packageType, final ByteArrayOutputStream bos) {
+	protected void appendRequestPackageHeader(final short sequenceNumber, final byte packageType, final ByteArrayOutputStream bos) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
 		byteBuffer.order(NetworkConst.NETWORK_BYTEORDER);
 		byteBuffer.put(NetworkConst.PROTOCOL_VERSION);
 		byteBuffer.put(packageType);
-		byteBuffer.putShort(sequenceNumberGenerator.getNextSequenceNummber());
+		byteBuffer.putShort(sequenceNumber);
 
 		try {
 			bos.write(byteBuffer.array());
@@ -61,11 +61,11 @@ public class NetworkPackageEncoder {
 	 * @param packageType
 	 * @return
 	 */
-	public ByteArrayOutputStream getOutputStreamForRequestPackage(final SequenceNumberGenerator sequenceNumberGenerator, final byte packageType) {
+	public ByteArrayOutputStream getOutputStreamForRequestPackage(final short sequenceNumber, final byte packageType) {
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
 		// Append the frame header to the package
-		appendRequestPackageHeader(sequenceNumberGenerator, packageType, bos);
+		appendRequestPackageHeader(sequenceNumber, packageType, bos);
 		
 		return bos;
 	}
