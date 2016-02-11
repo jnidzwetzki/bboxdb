@@ -60,7 +60,7 @@ public class ConnectionHandler implements Lifecycle {
 		serverSocketDispatcher = new ConnectionDispatcher();
 		serverSocketDispatchThread = new Thread(serverSocketDispatcher);
 		serverSocketDispatchThread.start();
-		serverSocketDispatchThread.setName("Connection Dispatch Thread");
+		serverSocketDispatchThread.setName("Connection dispatcher thread");
 		
 		state.setReady(true);
 	}
