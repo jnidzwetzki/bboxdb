@@ -80,7 +80,8 @@ public class TestTableCompactor {
 		final SSTableIndexReader ssTableIndexReader = new SSTableIndexReader(reader);
 		ssTableIndexReader.init();
 		int counter = 0;
-		for(final Tuple tuple : ssTableIndexReader) {
+		
+		for(@SuppressWarnings("unused") final Tuple tuple : ssTableIndexReader) {
 			counter++;
 		}
 		
