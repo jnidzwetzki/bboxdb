@@ -5,9 +5,24 @@ import java.nio.ByteOrder;
 public class NetworkConst {
 	
 	/**
+	 *  The port for client requests
+	 */
+	public final static int NETWORK_PORT = 50505;
+	
+	/**
+	 *  The amount of threads to handle client connections
+	 */
+	public final static int SERVER_CONNECTION_THREADS = 10;
+	
+	/**
 	 * The version of the network protocol
 	 */
 	public static final byte PROTOCOL_VERSION = 0x01;
+	
+	/**
+	 * Byte order for network communication
+	 */
+	public static final ByteOrder NETWORK_BYTEORDER = ByteOrder.BIG_ENDIAN;
 	
 	/**
 	 * Request type insert tuple
@@ -61,12 +76,4 @@ public class NetworkConst {
 	 * Response type error with body
 	 */
 	public static final byte RESPONSE_ERROR_WITH_BODY = 0x03;
-
-	
-	
-	/**
-	 * Byte order for network communication
-	 */
-	public static final ByteOrder NETWORK_BYTEORDER = ByteOrder.BIG_ENDIAN;
-	
 }

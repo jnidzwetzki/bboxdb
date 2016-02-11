@@ -9,8 +9,8 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
 
 public class ConnectionHandler implements Lifecycle {
@@ -51,10 +51,10 @@ public class ConnectionHandler implements Lifecycle {
 			return;
 		}
 		
-		logger.info("Start the network connection handler on port: " + Const.PORT);
+		logger.info("Start the network connection handler on port: " + NetworkConst.NETWORK_PORT);
 		
 		if(threadPool == null) {
-			threadPool = Executors.newFixedThreadPool(Const.CLIENT_NETWORK_THREADS);
+			threadPool = Executors.newFixedThreadPool(NetworkConst.SERVER_CONNECTION_THREADS);
 		}
 		
 		serverSocketDispatcher = new ConnectionDispatcher();
@@ -120,7 +120,7 @@ public class ConnectionHandler implements Lifecycle {
 			logger.info("Starting new connection dispatcher");
 			
 			try {
-				final ServerSocket serverSocket = new ServerSocket(Const.PORT);
+				final ServerSocket serverSocket = new ServerSocket(NetworkConst.NETWORK_PORT);
 				
 				while(! shutdown) {
 					final Socket clientSocket = serverSocket.accept();
