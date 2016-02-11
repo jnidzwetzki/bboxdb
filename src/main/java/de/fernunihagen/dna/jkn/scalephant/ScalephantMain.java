@@ -8,12 +8,12 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.network.ConnectionHandler;
 
-public class Main implements Daemon {
+public class ScalephantMain implements Daemon {
 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(Main.class);
+	private final static Logger logger = LoggerFactory.getLogger(ScalephantMain.class);
 	
 	/**
 	 * The network connection handler
@@ -45,7 +45,7 @@ public class Main implements Daemon {
 	}
 	
 	public static void main(String[] args) throws DaemonInitException, Exception {
-		final Main main = new Main();
+		final ScalephantMain main = new ScalephantMain();
 		main.init(null);
 		main.start();
 	}

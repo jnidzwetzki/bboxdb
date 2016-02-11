@@ -63,7 +63,16 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			logger.debug("Handling new connection from: " + clientSocket.getInetAddress());
 			
-			final ByteBuffer bb = readNextPackageHeader();
+			boolean readNewData = true;
+			while(readNewData) {
+				final ByteBuffer bb = readNextPackageHeader();
+				final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
+				
+				if(packageType == NetworkConst.REQUEST_TYPE_DISCONNECT) {
+					readNewData = false;
+					continue;
+				}
+			}
 			
 			logger.info("Closing connection to: " + clientSocket.getInetAddress());
 		} catch (IOException e) {
