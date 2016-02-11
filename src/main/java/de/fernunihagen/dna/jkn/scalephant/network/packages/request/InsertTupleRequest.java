@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.network.packages;
+package de.fernunihagen.dna.jkn.scalephant.network.packages.request;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,10 +12,11 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
-public class InsertTuplePackage implements NetworkRequestPackage {
+public class InsertTupleRequest implements NetworkRequestPackage {
 
 	/**
 	 * The name of the table
@@ -45,7 +46,7 @@ public class InsertTuplePackage implements NetworkRequestPackage {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(InsertTuplePackage.class);
+	private final static Logger logger = LoggerFactory.getLogger(InsertTupleRequest.class);
 	
 	
 	/**
@@ -57,7 +58,7 @@ public class InsertTuplePackage implements NetworkRequestPackage {
 	 * @param bbox
 	 * @param data
 	 */
-	public InsertTuplePackage(final String table, final String key, final long timestamp,
+	public InsertTupleRequest(final String table, final String key, final long timestamp,
 			final BoundingBox bbox, final byte[] data) {
 		this.table = table;
 		this.key = key;
@@ -72,7 +73,7 @@ public class InsertTuplePackage implements NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static InsertTuplePackage decodeTuple(final byte encodedPackage[]) {
+	public static InsertTupleRequest decodeTuple(final byte encodedPackage[]) {
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
@@ -104,7 +105,7 @@ public class InsertTuplePackage implements NetworkRequestPackage {
 		final long[] longArray = SSTableHelper.readLongArrayFromByte(boxBytes);
 		final BoundingBox boundingBox = new BoundingBox(longArray);
 
-		return new InsertTuplePackage(table, key, timestamp, boundingBox, dataBytes);
+		return new InsertTupleRequest(table, key, timestamp, boundingBox, dataBytes);
 	}
 	
 	/**
@@ -214,7 +215,7 @@ public class InsertTuplePackage implements NetworkRequestPackage {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		InsertTuplePackage other = (InsertTuplePackage) obj;
+		InsertTupleRequest other = (InsertTupleRequest) obj;
 		if (bbox == null) {
 			if (other.bbox != null)
 				return false;

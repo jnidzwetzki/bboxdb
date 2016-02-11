@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.network.packages;
+package de.fernunihagen.dna.jkn.scalephant.network.packages.response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,8 +10,9 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
 
-public class SuccessResponseWithBody extends NetworkResponsePackage {
+public class ErrorResponseWithBody extends NetworkResponsePackage {
 	
 	/**
 	 * The result body
@@ -21,16 +22,16 @@ public class SuccessResponseWithBody extends NetworkResponsePackage {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SuccessResponseWithBody.class);
+	private final static Logger logger = LoggerFactory.getLogger(ErrorResponseWithBody.class);
 
-	public SuccessResponseWithBody(final short sequenceNumber, final String body) {
+	public ErrorResponseWithBody(final short sequenceNumber, final String body) {
 		super(sequenceNumber);
 		this.body = body;
 	}
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.RESPONSE_SUCCESS_WITH_BODY;
+		return NetworkConst.RESPONSE_ERROR_WITH_BODY;
 	}
 
 	@Override
@@ -66,10 +67,10 @@ public class SuccessResponseWithBody extends NetworkResponsePackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static SuccessResponseWithBody decodeTuple(final byte encodedPackage[]) {
+	public static ErrorResponseWithBody decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		
-		NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_SUCCESS_WITH_BODY);
+		NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_ERROR_WITH_BODY);
 
 		short bodyLength = bb.getShort();
 		
@@ -83,7 +84,7 @@ public class SuccessResponseWithBody extends NetworkResponsePackage {
 		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(bb);
 		
-		return new SuccessResponseWithBody(requestId, body);
+		return new ErrorResponseWithBody(requestId, body);
 	}
 
 }

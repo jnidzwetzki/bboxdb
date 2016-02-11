@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.network.packages;
+package de.fernunihagen.dna.jkn.scalephant.network.packages.request;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,8 +11,9 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 
-public class DeleteTablePackage implements NetworkRequestPackage {
+public class DeleteTableRequest implements NetworkRequestPackage {
 	
 	/**
 	 * The name of the table
@@ -22,9 +23,9 @@ public class DeleteTablePackage implements NetworkRequestPackage {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(DeleteTablePackage.class);
+	private final static Logger logger = LoggerFactory.getLogger(DeleteTableRequest.class);
 	
-	public DeleteTablePackage(final String table) {
+	public DeleteTableRequest(final String table) {
 		this.table = table;
 	}
 	
@@ -70,7 +71,7 @@ public class DeleteTablePackage implements NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static DeleteTablePackage decodeTuple(final byte encodedPackage[]) {
+	public static DeleteTableRequest decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_DELETE_TABLE);
 		
@@ -84,7 +85,7 @@ public class DeleteTablePackage implements NetworkRequestPackage {
 			logger.error("Some bytes are left after encoding: " + bb.remaining());
 		}
 		
-		return new DeleteTablePackage(table);
+		return new DeleteTableRequest(table);
 	}
 
 	@Override
@@ -114,7 +115,7 @@ public class DeleteTablePackage implements NetworkRequestPackage {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DeleteTablePackage other = (DeleteTablePackage) obj;
+		DeleteTableRequest other = (DeleteTableRequest) obj;
 		if (table == null) {
 			if (other.table != null)
 				return false;

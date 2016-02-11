@@ -13,12 +13,12 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.DeleteTablePackage;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.DeleteTuplePackage;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.InsertTuplePackage;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.ListTablesPackage;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.SuccessResponse;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.SuccessResponseWithBody;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponseWithBody;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 
 public class TestNetworkClasses {
@@ -97,12 +97,12 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeInsertTuple() {
 				
-		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		
 		byte[] encodedVersion = insertPackage.getByteArray(sequenceNumberGenerator);
 		Assert.assertNotNull(encodedVersion);
 
-		final InsertTuplePackage decodedPackage = InsertTuplePackage.decodeTuple(encodedVersion);
+		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(encodedVersion);
 				
 		Assert.assertEquals(insertPackage.getKey(), decodedPackage.getKey());
 		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
@@ -119,12 +119,12 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeDeleteTuple() {
 				
-		final DeleteTuplePackage deletePackage = new DeleteTuplePackage("test", "key");
+		final DeleteTupleRequest deletePackage = new DeleteTupleRequest("test", "key");
 		
 		byte[] encodedVersion = deletePackage.getByteArray(sequenceNumberGenerator);
 		Assert.assertNotNull(encodedVersion);
 
-		final DeleteTuplePackage decodedPackage = DeleteTuplePackage.decodeTuple(encodedVersion);
+		final DeleteTupleRequest decodedPackage = DeleteTupleRequest.decodeTuple(encodedVersion);
 				
 		Assert.assertEquals(deletePackage.getKey(), decodedPackage.getKey());
 		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
@@ -137,12 +137,12 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeDeleteTable() {
 				
-		final DeleteTablePackage deletePackage = new DeleteTablePackage("test");
+		final DeleteTableRequest deletePackage = new DeleteTableRequest("test");
 		
 		byte[] encodedVersion = deletePackage.getByteArray(sequenceNumberGenerator);
 		Assert.assertNotNull(encodedVersion);
 
-		final DeleteTablePackage decodedPackage = DeleteTablePackage.decodeTuple(encodedVersion);
+		final DeleteTableRequest decodedPackage = DeleteTableRequest.decodeTuple(encodedVersion);
 				
 		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(deletePackage, decodedPackage);
@@ -154,12 +154,12 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeListTable() {
 				
-		final ListTablesPackage listPackage = new ListTablesPackage();
+		final ListTablesRequest listPackage = new ListTablesRequest();
 		
 		byte[] encodedVersion = listPackage.getByteArray(sequenceNumberGenerator);
 		Assert.assertNotNull(encodedVersion);
 
-		final ListTablesPackage decodedPackage = ListTablesPackage.decodeTuple(encodedVersion);
+		final ListTablesRequest decodedPackage = ListTablesRequest.decodeTuple(encodedVersion);
 				
 		Assert.assertEquals(listPackage, decodedPackage);
 	}
@@ -169,7 +169,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testDecodePackage() {
-		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		
 		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
 		Assert.assertNotNull(encodedPackage);
@@ -184,7 +184,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testGetSequenceNumber() {
-		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		
 		// Increment to avoid sequenceNumber = 0
 		sequenceNumberGenerator.getNextSequenceNummber();
@@ -205,7 +205,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testGetRequestBodyLength() {
-		final InsertTuplePackage insertPackage = new InsertTuplePackage("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumberGenerator);
 		Assert.assertNotNull(encodedPackage);
 		

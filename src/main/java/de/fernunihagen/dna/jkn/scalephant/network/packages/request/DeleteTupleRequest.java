@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.network.packages;
+package de.fernunihagen.dna.jkn.scalephant.network.packages.request;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,9 +11,10 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 
 
-public class DeleteTuplePackage implements NetworkRequestPackage {
+public class DeleteTupleRequest implements NetworkRequestPackage {
 
 	/**
 	 * The name of the table
@@ -28,9 +29,9 @@ public class DeleteTuplePackage implements NetworkRequestPackage {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(DeleteTuplePackage.class);
+	private final static Logger logger = LoggerFactory.getLogger(DeleteTupleRequest.class);
 	
-	public DeleteTuplePackage(final String table, final String key) {
+	public DeleteTupleRequest(final String table, final String key) {
 		this.table = table;
 		this.key = key;
 	}
@@ -83,7 +84,7 @@ public class DeleteTuplePackage implements NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static DeleteTuplePackage decodeTuple(final byte encodedPackage[]) {
+	public static DeleteTupleRequest decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_DELETE_TUPLE);
 		
@@ -102,7 +103,7 @@ public class DeleteTuplePackage implements NetworkRequestPackage {
 			logger.error("Some bytes are left after encoding: " + bb.remaining());
 		}
 		
-		return new DeleteTuplePackage(table, key);
+		return new DeleteTupleRequest(table, key);
 	}
 
 	@Override
@@ -135,7 +136,7 @@ public class DeleteTuplePackage implements NetworkRequestPackage {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DeleteTuplePackage other = (DeleteTuplePackage) obj;
+		DeleteTupleRequest other = (DeleteTupleRequest) obj;
 		if (key == null) {
 			if (other.key != null)
 				return false;

@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.network.packages;
+package de.fernunihagen.dna.jkn.scalephant.network.packages.response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,21 +10,22 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
 
-public class SuccessResponse extends NetworkResponsePackage {
+public class ErrorResponse extends NetworkResponsePackage {
 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SuccessResponse.class);
+	private final static Logger logger = LoggerFactory.getLogger(ErrorResponse.class);
 
-	public SuccessResponse(final short sequenceNumber) {
+	public ErrorResponse(final short sequenceNumber) {
 		super(sequenceNumber);
 	}
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.RESPONSE_SUCCESS;
+		return NetworkConst.RESPONSE_ERROR;
 	}
 
 	@Override
@@ -50,10 +51,10 @@ public class SuccessResponse extends NetworkResponsePackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static SuccessResponse decodeTuple(final byte encodedPackage[]) {
+	public static ErrorResponse decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		
-		NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_SUCCESS);
+		NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_ERROR);
 		
 		if(bb.remaining() != 0) {
 			logger.error("Some bytes are left after encoding: " + bb.remaining());
@@ -61,7 +62,7 @@ public class SuccessResponse extends NetworkResponsePackage {
 		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(bb);
 		
-		return new SuccessResponse(requestId);
+		return new ErrorResponse(requestId);
 	}
 
 }
