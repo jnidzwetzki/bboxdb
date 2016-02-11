@@ -1,9 +1,9 @@
 package de.fernunihagen.dna.jkn.scalephant.network.server;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 
 public class ClientConnectionHandler implements Runnable {
 	
@@ -23,7 +25,7 @@ public class ClientConnectionHandler implements Runnable {
 	/**
 	 * The output stream of the socket
 	 */
-	protected PrintWriter out;
+	protected BufferedOutputStream out;
 	
 	/**
 	 * The input stream of the socket
@@ -40,7 +42,7 @@ public class ClientConnectionHandler implements Runnable {
 		this.clientSocket = clientSocket;
 		
 		try {
-			out = new PrintWriter(clientSocket.getOutputStream());
+			out = new BufferedOutputStream(clientSocket.getOutputStream());
 		} catch (IOException e) {
 			out = null;
 			logger.error("Exception while creating output stream", e);
@@ -54,12 +56,36 @@ public class ClientConnectionHandler implements Runnable {
 		}
 	}
 
+	/**
+	 * Read the next pakage header from the socket
+	 * @return The package header, wrapped in a ByteBuffer
+	 * @throws IOException
+	 */
 	protected ByteBuffer readNextPackageHeader() throws IOException {
 		final ByteBuffer bb = ByteBuffer.allocate(8);
 		in.read(bb.asCharBuffer().array(), 0, bb.limit());
 		return bb;
 	}
 
+	/**
+	 * Write a response package to the client
+	 * @param responsePackage
+	 */
+	protected boolean writeResultPackage(final NetworkResponsePackage responsePackage) {
+		
+		final byte[] outputData = responsePackage.getByteArray();
+		
+		try {
+			out.write(outputData, 0, outputData.length);
+			out.flush();
+			return true;
+		} catch (IOException e) {
+			logger.warn("Unable to write result package", e);
+		}
+
+		return false;
+	}
+	
 	@Override
 	public void run() {
 		try {
@@ -68,9 +94,11 @@ public class ClientConnectionHandler implements Runnable {
 			boolean readNewData = true;
 			while(readNewData) {
 				final ByteBuffer bb = readNextPackageHeader();
-				final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
+				final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(bb);
+				final byte packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
 				
 				if(packageType == NetworkConst.REQUEST_TYPE_DISCONNECT) {
+					writeResultPackage(new SuccessResponse(packageSequence));
 					readNewData = false;
 					continue;
 				}
