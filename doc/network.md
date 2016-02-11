@@ -151,7 +151,7 @@ The body of the package is empty
 	+---------+--------+--------+--------+
 
 #### Response body
-Unavailable. The connection is closed after sending this package.
+The result could be currently only response type 0x00. The server waits until all pending operations are completed successfully. Afterwards, the reponse type 0x00 is send and the connection is closed. 
 
 ### Query
 This package represents a query.  
