@@ -12,7 +12,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
 
-public class ErrorResponseWithBody extends NetworkResponsePackage {
+public class SuccessWithBodyResponse extends NetworkResponsePackage {
 	
 	/**
 	 * The result body
@@ -22,16 +22,16 @@ public class ErrorResponseWithBody extends NetworkResponsePackage {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ErrorResponseWithBody.class);
+	private final static Logger logger = LoggerFactory.getLogger(SuccessWithBodyResponse.class);
 
-	public ErrorResponseWithBody(final short sequenceNumber, final String body) {
+	public SuccessWithBodyResponse(final short sequenceNumber, final String body) {
 		super(sequenceNumber);
 		this.body = body;
 	}
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.RESPONSE_ERROR_WITH_BODY;
+		return NetworkConst.RESPONSE_SUCCESS_WITH_BODY;
 	}
 
 	@Override
@@ -67,10 +67,10 @@ public class ErrorResponseWithBody extends NetworkResponsePackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static ErrorResponseWithBody decodeTuple(final byte encodedPackage[]) {
+	public static SuccessWithBodyResponse decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		
-		NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_ERROR_WITH_BODY);
+		NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_SUCCESS_WITH_BODY);
 
 		short bodyLength = bb.getShort();
 		
@@ -84,7 +84,7 @@ public class ErrorResponseWithBody extends NetworkResponsePackage {
 		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(bb);
 		
-		return new ErrorResponseWithBody(requestId, body);
+		return new SuccessWithBodyResponse(requestId, body);
 	}
 
 }

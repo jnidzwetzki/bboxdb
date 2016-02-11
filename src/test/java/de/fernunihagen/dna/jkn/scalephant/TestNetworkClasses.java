@@ -18,7 +18,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponseWithBody;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 
 public class TestNetworkClasses {
@@ -234,7 +234,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void getPackageTypeFromResponse2() {
-		final SuccessResponseWithBody response = new SuccessResponseWithBody((short) 2, "abc");
+		final SuccessWithBodyResponse response = new SuccessWithBodyResponse((short) 2, "abc");
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
@@ -263,7 +263,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testGetResultBodyLength2() {
-		final SuccessResponseWithBody response = new SuccessResponseWithBody((short) 2, "abc");
+		final SuccessWithBodyResponse response = new SuccessWithBodyResponse((short) 2, "abc");
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
 		
