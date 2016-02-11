@@ -1,9 +1,8 @@
 package de.fernunihagen.dna.jkn.scalephant.network.server;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
@@ -30,7 +29,7 @@ public class ClientConnectionHandler implements Runnable {
 	/**
 	 * The input stream of the socket
 	 */
-	protected BufferedReader in;
+	protected BufferedInputStream in;
 	
 	/**
 	 * The Logger
@@ -49,7 +48,7 @@ public class ClientConnectionHandler implements Runnable {
 		}
 		
 		try {
-			in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			in = new BufferedInputStream(clientSocket.getInputStream());
 		} catch (IOException e) {
 			in = null;
 			logger.error("Exception while creating input stream", e);
@@ -63,7 +62,7 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected ByteBuffer readNextPackageHeader() throws IOException {
 		final ByteBuffer bb = ByteBuffer.allocate(8);
-		in.read(bb.asCharBuffer().array(), 0, bb.limit());
+		in.read(bb.array(), 0, bb.limit());
 		return bb;
 	}
 
@@ -98,6 +97,7 @@ public class ClientConnectionHandler implements Runnable {
 				final byte packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
 				
 				if(packageType == NetworkConst.REQUEST_TYPE_DISCONNECT) {
+					logger.info("Got disconnect package, closing connection");
 					writeResultPackage(new SuccessResponse(packageSequence));
 					readNewData = false;
 					continue;
