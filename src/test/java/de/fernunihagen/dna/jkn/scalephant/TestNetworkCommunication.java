@@ -19,8 +19,9 @@ public class TestNetworkCommunication {
 		scalephantMain.init(null);
 		scalephantMain.start();
 		
+		Thread.currentThread();
 		// Wait some time to let the server process start
-		Thread.currentThread().sleep(5000);
+		Thread.sleep(5000);
 	}
 	
 	@AfterClass
