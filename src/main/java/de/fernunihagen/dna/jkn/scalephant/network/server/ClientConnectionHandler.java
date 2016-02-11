@@ -29,7 +29,6 @@ public class ClientConnectionHandler implements Runnable {
 	 * The input stream of the socket
 	 */
 	protected BufferedReader in;
-	 
 	
 	/**
 	 * The Logger
