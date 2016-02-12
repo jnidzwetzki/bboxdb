@@ -94,16 +94,7 @@ public class ClientConnectionHandler implements Runnable {
 			logger.debug("Handling new connection from: " + clientSocket.getInetAddress());
 
 			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-				final ByteBuffer bb = readNextPackageHeader();
-				final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(bb);
-				final byte packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
-				
-				if(packageType == NetworkConst.REQUEST_TYPE_DISCONNECT) {
-					logger.info("Got disconnect package, closing connection");
-					writeResultPackage(new SuccessResponse(packageSequence));
-					connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
-					continue;
-				}
+				handleNextPackage();
 			}
 			
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
@@ -119,6 +110,29 @@ public class ClientConnectionHandler implements Runnable {
 			clientSocket.close();
 		} catch (IOException e) {
 			// Ignore close exception
+		}
+	}
+
+	/**
+	 * Handle the next request package
+	 * @throws IOException
+	 */
+	protected void handleNextPackage() throws IOException {
+		final ByteBuffer bb = readNextPackageHeader();
+		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(bb);
+		final byte packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
+		
+		switch (packageType) {
+			case NetworkConst.REQUEST_TYPE_DISCONNECT:
+				logger.info("Got disconnect package, closing connection");
+				writeResultPackage(new SuccessResponse(packageSequence));
+				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+				break;
+
+			default:
+				logger.warn("Got unknown package type, closing connection: " + packageType);
+				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+				break;
 		}
 	}	
 }
