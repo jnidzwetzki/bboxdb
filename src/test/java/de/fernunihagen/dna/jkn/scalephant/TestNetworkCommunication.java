@@ -39,9 +39,21 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testSendDisconnectPackage() {
-		// Connect to server
 		final ScalephantClient scalephantClient = connectToServer();
-		scalephantClient.disconnect();
+		disconnectFromServer(scalephantClient);
+		Assert.assertFalse(scalephantClient.isConnected());
+	}
+	
+	/**
+	 * Send a truncate package to the server
+	 */
+	@Test
+	public void sendDeletePackate() {
+		final ScalephantClient scalephantClient = connectToServer();
+		
+		scalephantClient.deleteTable("testrelation");
+		
+		disconnectFromServer(scalephantClient);
 		Assert.assertFalse(scalephantClient.isConnected());
 	}
 
@@ -57,5 +69,13 @@ public class TestNetworkCommunication {
 		Assert.assertTrue(result);
 		Assert.assertTrue(scalephantClient.isConnected());
 		return scalephantClient;
+	}
+	
+	/**
+	 * Disconnect from server
+	 * @param scalephantClient
+	 */
+	protected void disconnectFromServer(final ScalephantClient scalephantClient) {
+		scalephantClient.disconnect();
 	}
 }

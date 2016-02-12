@@ -16,6 +16,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DisconnectRequest;
 
 public class ScalephantClient {
@@ -123,7 +124,7 @@ public class ScalephantClient {
 	/**
 	 * Disconnect from the server
 	 */
-	public void disconnect() {
+	public boolean disconnect() {
 		
 		logger.info("Disconnecting from server: " + serverHostname + " port " + serverPort);
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
@@ -141,7 +142,7 @@ public class ScalephantClient {
 					pendingCalls.wait();
 					logger.info("All requests are settled");
 				} catch (InterruptedException e) {
-					return; // Thread was canceled
+					return true; // Thread was canceled
 				}
 			}
 		}
@@ -157,6 +158,24 @@ public class ScalephantClient {
 		
 		logger.info("Disconnected from server");
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
+		
+		return true;
+	}
+	
+	/**
+	 * Delete a table on the scalephant server
+	 * @param table
+	 * @return
+	 */
+	public boolean deleteTable(final String table) {
+		try {
+			sendPackageToServer(new DeleteTableRequest(table));
+		} catch (IOException e) {
+			logger.warn("Unable to send delete table request to server", e);
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -252,13 +271,33 @@ public class ScalephantClient {
 			
 			return true;
 		}
+		
+		/**
+		 * Kill pending calls
+		 */
+		protected void handleSocketClosedUnexpected() {
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
+			synchronized (pendingCalls) {
+				if(! pendingCalls.isEmpty()) {
+					logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
+					pendingCalls.clear();
+					pendingCalls.notifyAll();
+				}
+			}
+		}
 
 		@Override
 		public void run() {
 			logger.info("Started new response reader for " + serverHostname + " / " + serverPort);
 			
 			while(clientSocket != null) {
-				processNextResponsePackage();
+				boolean result = processNextResponsePackage();
+				
+				if(result == false) {
+					handleSocketClosedUnexpected();
+					break;
+				}
+				
 			}
 			
 			logger.info("Stopping new response reader for " + serverHostname + " / " + serverPort);
