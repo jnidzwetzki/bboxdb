@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
@@ -32,6 +33,11 @@ public class ClientConnectionHandler implements Runnable {
 	protected BufferedInputStream in;
 	
 	/**
+	 * The connection state
+	 */
+	protected volatile NetworkConnectionState connectionState;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
@@ -39,19 +45,16 @@ public class ClientConnectionHandler implements Runnable {
 
 	public ClientConnectionHandler(final Socket clientSocket) {
 		this.clientSocket = clientSocket;
+		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 		
 		try {
 			out = new BufferedOutputStream(clientSocket.getOutputStream());
-		} catch (IOException e) {
-			out = null;
-			logger.error("Exception while creating output stream", e);
-		}
-		
-		try {
 			in = new BufferedInputStream(clientSocket.getInputStream());
 		} catch (IOException e) {
 			in = null;
-			logger.error("Exception while creating input stream", e);
+			out = null;
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
+			logger.error("Exception while creating IO stream", e);
 		}
 	}
 
@@ -89,9 +92,8 @@ public class ClientConnectionHandler implements Runnable {
 	public void run() {
 		try {
 			logger.debug("Handling new connection from: " + clientSocket.getInetAddress());
-			
-			boolean readNewData = true;
-			while(readNewData) {
+
+			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 				final ByteBuffer bb = readNextPackageHeader();
 				final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(bb);
 				final byte packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
@@ -99,14 +101,18 @@ public class ClientConnectionHandler implements Runnable {
 				if(packageType == NetworkConst.REQUEST_TYPE_DISCONNECT) {
 					logger.info("Got disconnect package, closing connection");
 					writeResultPackage(new SuccessResponse(packageSequence));
-					readNewData = false;
+					connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 					continue;
 				}
 			}
 			
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
 			logger.info("Closing connection to: " + clientSocket.getInetAddress());
 		} catch (IOException e) {
-			// Ignore close exception
+			// Ignore exception on closing sockets
+			if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+				logger.error("Unable to read data from socket (state: " + connectionState + ")", e);
+			}
 		}
 		
 		try {
