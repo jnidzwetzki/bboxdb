@@ -120,14 +120,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence 
 	 * @return
 	 */
-	protected boolean handleDeleteTable(final ByteBuffer packageHeader, final short packageSequence) {
-		
-		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-		
-		// Try to read the full package
-		if(encodedPackage == null) {
-			return false;
-		}
+	protected boolean handleDeleteTable(final ByteBuffer encodedPackage, final short packageSequence) {
 		
 		final DeleteTableRequest resultPackage = DeleteTableRequest.decodeTuple(encodedPackage.array());
 		logger.info("Got delete call for table: " + resultPackage.getTable());
@@ -146,7 +139,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleQuery(final ByteBuffer bb, final short packageSequence) {
+	protected boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) {
 		return false;
 	}
 
@@ -156,7 +149,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleInsertTuple(final ByteBuffer bb, final short packageSequence) {
+	protected boolean handleInsertTuple(final ByteBuffer encodedPackage, final short packageSequence) {
 		return false;
 	}
 
@@ -166,7 +159,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleListTables(final ByteBuffer bb, final short packageSequence) {
+	protected boolean handleListTables(final ByteBuffer encodedPackage, final short packageSequence) {
 		return false;
 	}
 
@@ -176,7 +169,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleDeleteTuple(final ByteBuffer bb, final short packageSequence) {
+	protected boolean handleDeleteTuple(final ByteBuffer encodedPackage, final short packageSequence) {
 		return false;
 	}	
 
@@ -206,9 +199,17 @@ public class ClientConnectionHandler implements Runnable {
 	 * @throws IOException
 	 */
 	protected void handleNextPackage() throws IOException {
-		final ByteBuffer bb = readNextPackageHeader();
-		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(bb);
-		final byte packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
+		final ByteBuffer packageHeader = readNextPackageHeader();
+		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);
+		final byte packageType = NetworkPackageDecoder.getPackageTypeFromRequest(packageHeader);
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+
+		// Try to read the full package
+		if(encodedPackage == null) {
+			logger.error("Unable to read full package");
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+			return;
+		}
 		
 		boolean result = true;
 		
@@ -221,27 +222,27 @@ public class ClientConnectionHandler implements Runnable {
 				
 			case NetworkConst.REQUEST_TYPE_DELETE_TABLE:
 				logger.info("Got delete table package");
-				result = handleDeleteTable(bb, packageSequence);
+				result = handleDeleteTable(encodedPackage, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_DELETE_TUPLE:
 				logger.info("Got delete tuple package");
-				result = handleDeleteTuple(bb, packageSequence);
+				result = handleDeleteTuple(encodedPackage, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_LIST_TABLES:
 				logger.info("Got list tables request");
-				result = handleListTables(bb, packageSequence);
+				result = handleListTables(encodedPackage, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_INSERT_TUPLE:
 				logger.info("Got insert tuple request");
-				result = handleInsertTuple(bb, packageSequence);
+				result = handleInsertTuple(encodedPackage, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_QUERY:
 				logger.info("Got query package");
-				result = handleQuery(bb, packageSequence);
+				result = handleQuery(encodedPackage, packageSequence);
 				break;
 
 			default:
