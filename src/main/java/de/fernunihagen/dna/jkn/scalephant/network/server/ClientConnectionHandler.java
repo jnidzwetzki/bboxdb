@@ -139,6 +139,46 @@ public class ClientConnectionHandler implements Runnable {
 		
 		return true;
 	}
+	
+	/**
+	 * Handle query package
+	 * @param bb
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleQuery(final ByteBuffer bb, final short packageSequence) {
+		return false;
+	}
+
+	/**
+	 * Handle Insert tuple package
+	 * @param bb
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleInsertTuple(final ByteBuffer bb, final short packageSequence) {
+		return false;
+	}
+
+	/**
+	 * Handle list tables package
+	 * @param bb
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleListTables(final ByteBuffer bb, final short packageSequence) {
+		return false;
+	}
+
+	/**
+	 * Handle delete tuple package
+	 * @param bb
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleDeleteTuple(final ByteBuffer bb, final short packageSequence) {
+		return false;
+	}	
 
 	/**
 	 * Read the full package. The total length of the package is read from the package header.
@@ -170,19 +210,38 @@ public class ClientConnectionHandler implements Runnable {
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(bb);
 		final byte packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
 		
+		boolean result = true;
+		
 		switch (packageType) {
 			case NetworkConst.REQUEST_TYPE_DISCONNECT:
 				logger.info("Got disconnect package, closing connection");
 				writeResultPackage(new SuccessResponse(packageSequence));
-				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+				result = false;
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_DELETE_TABLE:
 				logger.info("Got delete table package");
-				boolean result = handleDeleteTable(bb, packageSequence);
-				if(! result) {
-					connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
-				}
+				result = handleDeleteTable(bb, packageSequence);
+				break;
+				
+			case NetworkConst.REQUEST_TYPE_DELETE_TUPLE:
+				logger.info("Got delete tuple package");
+				result = handleDeleteTuple(bb, packageSequence);
+				break;
+				
+			case NetworkConst.REQUEST_TYPE_LIST_TABLES:
+				logger.info("Got list tables request");
+				result = handleListTables(bb, packageSequence);
+				break;
+				
+			case NetworkConst.REQUEST_TYPE_INSERT_TUPLE:
+				logger.info("Got insert tuple request");
+				result = handleInsertTuple(bb, packageSequence);
+				break;
+				
+			case NetworkConst.REQUEST_TYPE_QUERY:
+				logger.info("Got query package");
+				result = handleQuery(bb, packageSequence);
 				break;
 
 			default:
@@ -190,5 +249,9 @@ public class ClientConnectionHandler implements Runnable {
 				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 				break;
 		}
-	}	
+		
+		if(result == false) {
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+		}	
+	}
 }
