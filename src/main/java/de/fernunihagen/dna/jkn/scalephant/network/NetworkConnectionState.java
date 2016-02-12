@@ -24,5 +24,10 @@ public enum NetworkConnectionState {
 	/**
 	 * The connection is closed
 	 */
-	NETWORK_CONNECTION_CLOSED;	
+	NETWORK_CONNECTION_CLOSED,
+	
+	/**
+	 * The connection is closed with errors
+	 */
+	NETWORK_CONNECTION_CLOSED_WITH_ERRORS;	
 }

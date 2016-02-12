@@ -70,7 +70,7 @@ public class ScalephantClient {
 	 * The connection state
 	 */
 	protected volatile NetworkConnectionState connectionState;
-
+	
 	/**
 	 * The Logger
 	 */
@@ -168,6 +168,12 @@ public class ScalephantClient {
 	 * @return
 	 */
 	public boolean deleteTable(final String table) {
+		
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			logger.warn("deleteTable called, but connection not ready: " + connectionState);
+			return false;
+		}
+		
 		try {
 			sendPackageToServer(new DeleteTableRequest(table));
 		} catch (IOException e) {
@@ -198,6 +204,15 @@ public class ScalephantClient {
 		return false;
 	}
 	
+	
+	/**
+	 * Returns the state of the connection
+	 * @return
+	 */
+	public NetworkConnectionState getConnectionState() {
+		return connectionState;
+	}
+
 	/**
 	 * Send a request package to the server
 	 * @param responsePackage
@@ -276,7 +291,8 @@ public class ScalephantClient {
 		 * Kill pending calls
 		 */
 		protected void handleSocketClosedUnexpected() {
-			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED_WITH_ERRORS;
+			
 			synchronized (pendingCalls) {
 				if(! pendingCalls.isEmpty()) {
 					logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
