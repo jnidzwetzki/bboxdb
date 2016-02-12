@@ -7,6 +7,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
 
 public class TestNetworkCommunication {
@@ -45,13 +46,53 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
-	 * Send a truncate package to the server
+	 * Send a delete package to the server
 	 */
 	@Test
-	public void sendDeletePackate() {
+	public void sendDeletePackage() {
 		final ScalephantClient scalephantClient = connectToServer();
 		
-		scalephantClient.deleteTable("testrelation");
+		boolean result = scalephantClient.deleteTable("testrelation");
+		Assert.assertTrue(result);
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
+		
+		disconnectFromServer(scalephantClient);
+		Assert.assertFalse(scalephantClient.isConnected());
+	}
+	
+	/**
+	 * Test the state machine of the connection
+	 */
+	@Test
+	public void testConnectionState() {
+		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1");
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, scalephantClient.getConnectionState());
+		scalephantClient.connect();
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
+		scalephantClient.disconnect();
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, scalephantClient.getConnectionState());
+	}
+	
+	/**
+	 * Send a delete package to the server
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void sendDeletePackage2() throws InterruptedException {
+		final ScalephantClient scalephantClient = connectToServer();
+		
+		// First call
+		boolean result1 = scalephantClient.deleteTable("testrelation");
+		Assert.assertTrue(result1);
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
+		
+		// Wait for command processing
+		Thread.sleep(1000);
+		
+		// Second call
+		boolean result2 = scalephantClient.deleteTable("testrelation");
+		Assert.assertTrue(result2);
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		
 		disconnectFromServer(scalephantClient);
 		Assert.assertFalse(scalephantClient.isConnected());

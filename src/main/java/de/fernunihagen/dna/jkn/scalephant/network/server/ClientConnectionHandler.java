@@ -13,6 +13,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 
 public class ClientConnectionHandler implements Runnable {
@@ -112,6 +113,31 @@ public class ClientConnectionHandler implements Runnable {
 			// Ignore close exception
 		}
 	}
+	
+	/**
+	 * Handle the delete table call
+	 * @param packageSequence 
+	 * @return
+	 */
+	protected boolean handleDeleteTable(final ByteBuffer packageHeader, final short packageSequence) {
+		
+		int bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
+		final ByteBuffer encodedPackage = ByteBuffer.allocate(packageHeader.limit() + bodyLength);
+		encodedPackage.put(packageHeader.array());
+		try {
+			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());
+			in.read(encodedPackage.array(), encodedPackage.position(), bodyLength);
+		} catch (IOException e) {
+			logger.error("IO-Exception while reading package", e);
+			return false;
+		}
+		
+		final DeleteTableRequest resultPackage = DeleteTableRequest.decodeTuple(encodedPackage.array());
+		logger.info("Got delete call for table: " + resultPackage.getTable());
+		writeResultPackage(new SuccessResponse(packageSequence));
+		
+		return true;
+	}
 
 	/**
 	 * Handle the next request package
@@ -127,6 +153,14 @@ public class ClientConnectionHandler implements Runnable {
 				logger.info("Got disconnect package, closing connection");
 				writeResultPackage(new SuccessResponse(packageSequence));
 				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+				break;
+				
+			case NetworkConst.REQUEST_TYPE_DELETE_TABLE:
+				logger.info("Got delete table package");
+				boolean result = handleDeleteTable(bb, packageSequence);
+				if(! result) {
+					connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+				}
 				break;
 
 			default:
