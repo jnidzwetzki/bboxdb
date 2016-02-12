@@ -11,6 +11,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
@@ -63,6 +64,11 @@ public class ScalephantClient {
 	 * The server response reader thread
 	 */
 	protected Thread serverResponseReaderThread;
+	
+	/**
+	 * The connection state
+	 */
+	protected volatile NetworkConnectionState connectionState;
 
 	/**
 	 * The Logger
@@ -74,6 +80,7 @@ public class ScalephantClient {
 		super();
 		this.serverHostname = serverHostname;
 		this.sequenceNumberGenerator = new SequenceNumberGenerator();
+		this.connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
 	}
 
 	/**
@@ -90,6 +97,7 @@ public class ScalephantClient {
 		logger.info("Connecting to server: " + serverHostname + " on port " + serverPort);
 		
 		try {
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPENING;
 			clientSocket = new Socket(serverHostname, serverPort);
 			
 			inputStream = new BufferedInputStream(clientSocket.getInputStream());
@@ -101,10 +109,11 @@ public class ScalephantClient {
 			serverResponseReaderThread = new Thread(serverResponseReader);
 			serverResponseReaderThread.setName("Server response reader for " + serverHostname + " / " + serverPort);
 			serverResponseReaderThread.start();
-			
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 		} catch (Exception e) {
 			logger.error("Got an exception while connecting to server", e);
 			clientSocket = null;
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
 			return false;
 		} 
 		
@@ -117,7 +126,7 @@ public class ScalephantClient {
 	public void disconnect() {
 		
 		logger.info("Disconnecting from server: " + serverHostname + " port " + serverPort);
-		
+		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 		try {
 			sendPackageToServer(new DisconnectRequest());
 		} catch (IOException e) {
@@ -147,6 +156,7 @@ public class ScalephantClient {
 		}
 		
 		logger.info("Disconnected from server");
+		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
 	}
 	
 	/**
@@ -234,8 +244,10 @@ public class ScalephantClient {
 				}
 				
 			} catch (IOException e) {
-				//logger.error("Unable to read data from server", e);		
-				// Ignore exception on close
+				// Ignore exceptions when connection is closing
+				if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+					logger.error("Unable to read data from server (state: " + connectionState + ")", e);
+				}
 			}
 			
 			return true;
@@ -251,6 +263,5 @@ public class ScalephantClient {
 			
 			logger.info("Stopping new response reader for " + serverHostname + " / " + serverPort);
 		}
-	}
-	
+	}	
 }
