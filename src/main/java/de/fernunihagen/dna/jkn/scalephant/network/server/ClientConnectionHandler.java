@@ -15,6 +15,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
+import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 
 public class ClientConnectionHandler implements Runnable {
 	
@@ -130,6 +131,10 @@ public class ClientConnectionHandler implements Runnable {
 		
 		final DeleteTableRequest resultPackage = DeleteTableRequest.decodeTuple(encodedPackage.array());
 		logger.info("Got delete call for table: " + resultPackage.getTable());
+		
+		// Propergate the call to the storage manager
+		StorageInterface.deleteTable(resultPackage.getTable());
+		
 		writeResultPackage(new SuccessResponse(packageSequence));
 		
 		return true;
