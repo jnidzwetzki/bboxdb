@@ -14,6 +14,8 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 
@@ -140,7 +142,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) {
-		return false;
+		writeResultPackage(new SuccessResponse(packageSequence));
+
+		return true;
 	}
 
 	/**
@@ -150,7 +154,10 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleInsertTuple(final ByteBuffer encodedPackage, final short packageSequence) {
-		return false;
+		writeResultPackage(new SuccessResponse(packageSequence));
+		final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage.array());
+		
+		return true;
 	}
 
 	/**
@@ -160,6 +167,8 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleListTables(final ByteBuffer encodedPackage, final short packageSequence) {
+		
+
 		return false;
 	}
 
@@ -170,7 +179,10 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleDeleteTuple(final ByteBuffer encodedPackage, final short packageSequence) {
-		return false;
+		writeResultPackage(new SuccessResponse(packageSequence));
+		final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage.array());
+		
+		return true;
 	}	
 
 	/**
