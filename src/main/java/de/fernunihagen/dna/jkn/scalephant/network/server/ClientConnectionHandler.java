@@ -121,14 +121,10 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean handleDeleteTable(final ByteBuffer packageHeader, final short packageSequence) {
 		
-		int bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
-		final ByteBuffer encodedPackage = ByteBuffer.allocate(packageHeader.limit() + bodyLength);
-		encodedPackage.put(packageHeader.array());
-		try {
-			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());
-			in.read(encodedPackage.array(), encodedPackage.position(), bodyLength);
-		} catch (IOException e) {
-			logger.error("IO-Exception while reading package", e);
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+		
+		// Try to read the full package
+		if(encodedPackage == null) {
 			return false;
 		}
 		
@@ -137,6 +133,27 @@ public class ClientConnectionHandler implements Runnable {
 		writeResultPackage(new SuccessResponse(packageSequence));
 		
 		return true;
+	}
+
+	/**
+	 * Read the full package. The total length of the package is read from the package header.
+	 * @param packageHeader
+	 * @return
+	 */
+	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) {
+		int bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
+		final ByteBuffer encodedPackage = ByteBuffer.allocate(packageHeader.limit() + bodyLength);
+		encodedPackage.put(packageHeader.array());
+		
+		try {
+			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());
+			in.read(encodedPackage.array(), encodedPackage.position(), bodyLength);
+		} catch (IOException e) {
+			logger.error("IO-Exception while reading package", e);
+			return null;
+		}
+		
+		return encodedPackage;
 	}
 
 	/**
