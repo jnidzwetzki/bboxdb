@@ -203,14 +203,28 @@ public class ScalephantClient {
 		
 		return false;
 	}
-	
-	
 	/**
 	 * Returns the state of the connection
 	 * @return
 	 */
 	public NetworkConnectionState getConnectionState() {
 		return connectionState;
+	}
+	
+	/**
+	 * Wait for a specific request to complete
+	 * @param requestId
+	 */
+	public void waitForCompletion(short requestId) {
+		synchronized (pendingCalls) {
+			while(pendingCalls.containsKey(requestId)) {
+				try {
+					pendingCalls.wait();
+				} catch (InterruptedException e) {
+					// Ignore exception
+				}
+			}
+		}
 	}
 
 	/**
