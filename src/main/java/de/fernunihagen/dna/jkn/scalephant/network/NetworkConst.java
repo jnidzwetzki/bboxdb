@@ -76,4 +76,9 @@ public class NetworkConst {
 	 * Response type error with body
 	 */
 	public static final byte RESPONSE_ERROR_WITH_BODY = 0x03;
+	
+	/**
+	 * Response of the list tables request
+	 */
+	public static final byte RESPONSE_LIST_TABLES = 0x04;
 }

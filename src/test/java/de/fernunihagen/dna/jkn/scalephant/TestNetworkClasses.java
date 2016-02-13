@@ -2,8 +2,10 @@ package de.fernunihagen.dna.jkn.scalephant;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -17,6 +19,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
@@ -282,6 +285,27 @@ public class TestNetworkClasses {
 		int bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(bb);
 		
 		Assert.assertEquals(calculatedBodyLength, bodyLength);
+	}
+	
+	/**
+	 * Try to encode and decode the list tables request
+	 */
+	@Test
+	public void testListTablesResponse() {
+		final List<String> tables = new ArrayList<String>();
+		tables.add("table1");
+		tables.add("testtable");
+		tables.add("test4711");
+		tables.add("mytest57");
+		
+		final ListTablesResponse response = new ListTablesResponse((short) 3, tables);
+		byte[] encodedPackage = response.getByteArray();
+		Assert.assertNotNull(encodedPackage);
+
+		final ListTablesResponse responseDecoded = ListTablesResponse.decodeTuple(encodedPackage);
+		final List<String> myTables = responseDecoded.getTables();
+		Assert.assertEquals(tables.size(), myTables.size());
+		Assert.assertEquals(tables, myTables);
 	}
 	
 }
