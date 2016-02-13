@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackag
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 
@@ -167,9 +169,11 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleListTables(final ByteBuffer encodedPackage, final short packageSequence) {
+		final List<String> allTables = StorageInterface.getAllTables();
+		final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
+		writeResultPackage(listTablesResponse);
 		
-
-		return false;
+		return true;
 	}
 
 	/**
