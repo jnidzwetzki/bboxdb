@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DisconnectRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
 
 public class ScalephantClient {
 
@@ -182,6 +184,30 @@ public class ScalephantClient {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * List the existing tables
+	 * @return
+	 */
+	public List<String> listTables() {
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			logger.warn("listTables called, but connection not ready: " + connectionState);
+			return null;
+		}
+		
+		try {
+			final short requestId = sendPackageToServer(new ListTablesRequest());
+			waitForCompletion(requestId);
+			
+			// FIXME: get result of the operation
+			
+		} catch (IOException e) {
+			logger.warn("Unable to send list table request to server", e);
+			return null;
+		}
+		
+		return null;
 	}
 	
 	/**
