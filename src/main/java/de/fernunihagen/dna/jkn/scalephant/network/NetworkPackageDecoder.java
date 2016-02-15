@@ -37,11 +37,14 @@ public class NetworkPackageDecoder {
 		
 		// Buffer is to little to contain valid data
 		if(bb.remaining() < 8) {
+			logger.warn("Package header is to small: " + bb.remaining());
 			return false;
 		}
 		
 		// Check protocol version
-		if(bb.get() != NetworkConst.PROTOCOL_VERSION) {
+		byte protocolVersion = bb.get();
+		if(protocolVersion != NetworkConst.PROTOCOL_VERSION) {
+			logger.warn("Got wrong protocol version: " + protocolVersion);
 			return false;
 		}
 		
@@ -87,16 +90,21 @@ public class NetworkPackageDecoder {
 		
 		// Buffer is to little to contain valid data
 		if(bb.remaining() < 8) {
+			logger.warn("Package header is to small: " + bb.remaining());
 			return false;
 		}
 		
 		// Check protocol version
-		if(bb.get() != NetworkConst.PROTOCOL_VERSION) {
+		byte protocolVersion = bb.get();
+		if(protocolVersion != NetworkConst.PROTOCOL_VERSION) {
+			logger.warn("Got wrong protocol version: " + protocolVersion);
 			return false;
 		}
 		
 		// Check package type
-		if(bb.get() != packageType) {
+		byte readPackageType = bb.get();
+		if(readPackageType != packageType) {
+			logger.warn("Got wrong package type (" + readPackageType + " / " + packageType + ")");
 			return false;
 		}
 		
