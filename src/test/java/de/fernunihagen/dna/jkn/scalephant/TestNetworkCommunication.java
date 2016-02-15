@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
+import java.util.concurrent.ExecutionException;
+
 import junit.framework.Assert;
 
 import org.apache.commons.daemon.DaemonInitException;
@@ -7,6 +9,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.fernunihagen.dna.jkn.scalephant.network.ClientOperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
 
@@ -47,13 +50,20 @@ public class TestNetworkCommunication {
 	
 	/**
 	 * Send a delete package to the server
+	 * @throws InterruptedException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void sendDeletePackage() {
+	public void sendDeletePackage() throws InterruptedException, ExecutionException {
 		final ScalephantClient scalephantClient = connectToServer();
 		
-		boolean result = scalephantClient.deleteTable("testrelation");
-		Assert.assertTrue(result);
+		ClientOperationFuture result = scalephantClient.deleteTable("testrelation");
+		
+		result.get();
+		
+		Assert.assertTrue(result.isDone());
+		Assert.assertFalse(result.isFailed());
+		Assert.assertTrue((Boolean) result.get());
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		
 		disconnectFromServer(scalephantClient);
@@ -76,22 +86,29 @@ public class TestNetworkCommunication {
 	/**
 	 * Send a delete package to the server
 	 * @throws InterruptedException 
+	 * @throws ExecutionException 
 	 */
 	@Test
-	public void sendDeletePackage2() throws InterruptedException {
+	public void sendDeletePackage2() throws InterruptedException, ExecutionException {
 		final ScalephantClient scalephantClient = connectToServer();
 		
 		// First call
-		boolean result1 = scalephantClient.deleteTable("testrelation");
-		Assert.assertTrue(result1);
+		ClientOperationFuture result1 = scalephantClient.deleteTable("testrelation");
+		result1.get();
+		Assert.assertTrue(result1.isDone());
+		Assert.assertFalse(result1.isFailed());
+		Assert.assertTrue((Boolean) result1.get());
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		
 		// Wait for command processing
 		Thread.sleep(1000);
 		
 		// Second call
-		boolean result2 = scalephantClient.deleteTable("testrelation");
-		Assert.assertTrue(result2);
+		ClientOperationFuture result2 = scalephantClient.deleteTable("testrelation");
+		result2.get();
+		Assert.assertTrue(result2.isDone());
+		Assert.assertFalse(result2.isFailed());
+		Assert.assertTrue((Boolean) result2.get());
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		
 		disconnectFromServer(scalephantClient);

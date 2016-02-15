@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.network.ClientOperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
@@ -56,7 +56,7 @@ public class ScalephantClient {
 	/**
 	 * The pending calls
 	 */
-	protected final Map<Short, NetworkRequestPackage> pendingCalls = new HashMap<Short, NetworkRequestPackage>();
+	protected final Map<Short, ClientOperationFuture> pendingCalls = new HashMap<Short, ClientOperationFuture>();
 
 	/**
 	 * The server response reader
@@ -130,12 +130,8 @@ public class ScalephantClient {
 		
 		logger.info("Disconnecting from server: " + serverHostname + " port " + serverPort);
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
-		try {
-			sendPackageToServer(new DisconnectRequest());
-		} catch (IOException e) {
-			logger.warn("Unable to send disconnect request to server", e);
-		}
-		
+		sendPackageToServer(new DisconnectRequest(), new ClientOperationFuture());
+
 		// Wait for all pending calles to settle
 		synchronized (pendingCalls) {
 			while(! pendingCalls.keySet().isEmpty()) {
@@ -169,45 +165,35 @@ public class ScalephantClient {
 	 * @param table
 	 * @return
 	 */
-	public boolean deleteTable(final String table) {
+	public ClientOperationFuture deleteTable(final String table) {
 		
+		final ClientOperationFuture operationFuture = new ClientOperationFuture();
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("deleteTable called, but connection not ready: " + connectionState);
-			return false;
+			operationFuture.setFailedState();
+			return operationFuture;
 		}
 		
-		try {
-			sendPackageToServer(new DeleteTableRequest(table));
-		} catch (IOException e) {
-			logger.warn("Unable to send delete table request to server", e);
-			return false;
-		}
+		sendPackageToServer(new DeleteTableRequest(table), operationFuture);
 		
-		return true;
+		return operationFuture;
 	}
 	
 	/**
 	 * List the existing tables
 	 * @return
 	 */
-	public List<String> listTables() {
+	public ClientOperationFuture listTables() {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("listTables called, but connection not ready: " + connectionState);
 			return null;
 		}
-		
-		try {
-			final short requestId = sendPackageToServer(new ListTablesRequest());
-			waitForCompletion(requestId);
-			
-			// FIXME: get result of the operation
-			
-		} catch (IOException e) {
-			logger.warn("Unable to send list table request to server", e);
-			return null;
-		}
-		
-		return null;
+
+		final ClientOperationFuture future = new ClientOperationFuture();
+		sendPackageToServer(new ListTablesRequest(), future);
+
+		return future;
 	}
 	
 	/**
@@ -229,28 +215,13 @@ public class ScalephantClient {
 		
 		return false;
 	}
+	
 	/**
 	 * Returns the state of the connection
 	 * @return
 	 */
 	public NetworkConnectionState getConnectionState() {
 		return connectionState;
-	}
-	
-	/**
-	 * Wait for a specific request to complete
-	 * @param requestId
-	 */
-	public void waitForCompletion(short requestId) {
-		synchronized (pendingCalls) {
-			while(pendingCalls.containsKey(requestId)) {
-				try {
-					pendingCalls.wait();
-				} catch (InterruptedException e) {
-					// Ignore exception
-				}
-			}
-		}
 	}
 
 	/**
@@ -259,17 +230,23 @@ public class ScalephantClient {
 	 * @return
 	 * @throws IOException 
 	 */
-	protected short sendPackageToServer(final NetworkRequestPackage requestPackage) throws IOException {
+	protected short sendPackageToServer(final NetworkRequestPackage requestPackage, final ClientOperationFuture future) {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		final byte[] output = requestPackage.getByteArray(sequenceNumber);
-		
-		outputStream.write(output, 0, output.length);
-		outputStream.flush();
-		
-		synchronized (pendingCalls) {
-			pendingCalls.put(sequenceNumber, requestPackage);
+
+		future.setRequestId(sequenceNumber);
+
+		try {
+			outputStream.write(output, 0, output.length);
+			outputStream.flush();
+			
+			synchronized (pendingCalls) {
+				pendingCalls.put(sequenceNumber, future);
+			}
+		} catch (IOException e) {
+			future.setFailedState();
 		}
-		
+
 		return sequenceNumber;
 	}
 	
@@ -310,11 +287,17 @@ public class ScalephantClient {
 				}
 				
 				final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(bb);
-
+				ClientOperationFuture pendingCall = null;
+				
 				// Remove pending call
 				synchronized (pendingCalls) {
-					pendingCalls.remove(Short.valueOf(sequenceNumber));
+					pendingCall = pendingCalls.remove(Short.valueOf(sequenceNumber));
 					pendingCalls.notifyAll();
+				}
+				
+				if(pendingCall != null) {
+					// FIXME: Set real operation result
+					pendingCall.setOperationResult(true);
 				}
 				
 			} catch (IOException e) {

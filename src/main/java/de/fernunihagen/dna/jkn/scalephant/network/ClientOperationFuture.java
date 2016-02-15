@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class ClientOperationFuture<V> implements OperationFuture<V> {
+public class ClientOperationFuture implements OperationFuture<Object> {
 	
 	/**
 	 * The id of the operation
@@ -14,7 +14,7 @@ public class ClientOperationFuture<V> implements OperationFuture<V> {
 	/**
 	 * The result of the operation
 	 */
-	protected volatile V operationResult = null;
+	protected volatile Object operationResult = null;
 	
 	/**
 	 * The mutex for sync operations
@@ -62,7 +62,7 @@ public class ClientOperationFuture<V> implements OperationFuture<V> {
 	}
 
 	@Override
-	public V get() throws InterruptedException, ExecutionException {
+	public Object get() throws InterruptedException, ExecutionException {
 		synchronized (mutex) {
 			while(operationResult == null) {
 				mutex.wait();
@@ -73,7 +73,7 @@ public class ClientOperationFuture<V> implements OperationFuture<V> {
 	}
 
 	@Override
-	public V get(long timeout, TimeUnit unit) throws InterruptedException,
+	public Object get(long timeout, TimeUnit unit) throws InterruptedException,
 			ExecutionException, TimeoutException {
 		
 		synchronized (mutex) {
@@ -97,7 +97,7 @@ public class ClientOperationFuture<V> implements OperationFuture<V> {
 	 * Set the result of the operation
 	 */
 	@Override
-	public void setOperationResult(final V result) {
+	public void setOperationResult(final Object result) {
 		synchronized (mutex) {
 			this.operationResult = result;
 			mutex.notifyAll();
