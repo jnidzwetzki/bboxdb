@@ -17,9 +17,13 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackag
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
+import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
+import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
 public class ClientConnectionHandler implements Runnable {
 	
@@ -131,7 +135,6 @@ public class ClientConnectionHandler implements Runnable {
 		
 		// Propergate the call to the storage manager
 		StorageInterface.deleteTable(resultPackage.getTable());
-		
 		writeResultPackage(new SuccessResponse(packageSequence));
 		
 		return true;
@@ -156,8 +159,19 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleInsertTuple(final ByteBuffer encodedPackage, final short packageSequence) {
-		writeResultPackage(new SuccessResponse(packageSequence));
 		final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
+		
+		// Propergate the call to the storage manager
+		final Tuple tuple = new Tuple(insertTupleRequest.getKey(), insertTupleRequest.getBbox(), insertTupleRequest.getData());
+		final StorageManager table = StorageInterface.getStorageManager(insertTupleRequest.getTable());
+		
+		try {
+			table.put(tuple);
+			writeResultPackage(new SuccessResponse(packageSequence));
+		} catch (StorageManagerException e) {
+			logger.warn("Error while insert tuple", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+		}
 		
 		return true;
 	}
@@ -185,6 +199,16 @@ public class ClientConnectionHandler implements Runnable {
 	protected boolean handleDeleteTuple(final ByteBuffer encodedPackage, final short packageSequence) {
 		writeResultPackage(new SuccessResponse(packageSequence));
 		final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
+		
+		// Propergate the call to the storage manager
+		final StorageManager table = StorageInterface.getStorageManager(deleteTupleRequest.getTable());
+		try {
+			table.delete(deleteTupleRequest.getKey());
+			writeResultPackage(new SuccessResponse(packageSequence));
+		} catch (StorageManagerException e) {
+			logger.warn("Error while delete tuple", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+		}
 		
 		return true;
 	}	
