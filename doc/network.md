@@ -38,10 +38,18 @@ Request Types:
 	+---------+--------+--------+--------+
 	| Version |    Request-ID   | Result |
 	+---------+-----------------+--------+
+	|             Body length            |
+	+------------------------------------+
+	|                                    |
+	|               Body                 |
+	.                                    .
+	.                                    .
+	+------------------------------------+
 	
 * Version - The protocol version, currently always 0x01.
 * Request-ID - The id of the request which the repsonse belongs too.
 * Result - The result of the operation
+* Body length - The length of the body. For Packages without body, the length is set to 0.
 
 Result-Types:
 
@@ -49,8 +57,9 @@ Result-Types:
 * Type 0x01 - Operation Success - with details in the body
 * Type 0x02 - Operation Error - no package body
 * Type 0x03 - Operation Error - with details in the body
+* Type 0x04 - Result of the List tables call
 	
-### Body for response type = 0x03 (Error with details)
+### Body for response type = 0x01/0x03 (Success/Error with details)
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
@@ -142,8 +151,6 @@ The body of the package is empty
 The request body contains the names of the existing tables, seperated by a terminal symbol (\0).
 
     0         8       16       24       32
-	+---------+--------+--------+--------+
-	|         Length of all Tables       |
 	+---------+--------+--------+--------+
 	|       Table1\0|   Table2\0|Table3\0|
 	+----------------+----------+--------+
