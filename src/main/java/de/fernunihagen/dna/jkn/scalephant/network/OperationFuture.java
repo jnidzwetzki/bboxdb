@@ -5,6 +5,12 @@ import java.util.concurrent.Future;
 public interface OperationFuture<V> extends Future<V> {
 	
 	/**
+	 * Set the request id of the operation
+	 * @return
+	 */
+	public void setRequestId(final short requestId);
+	
+	/**
 	 * Get the request id of the operation
 	 * @return
 	 */

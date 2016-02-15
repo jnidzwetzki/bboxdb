@@ -9,7 +9,7 @@ public class ClientOperationFuture<V> implements OperationFuture<V> {
 	/**
 	 * The id of the operation
 	 */
-	protected final short requestId;
+	protected short requestId;
 	
 	/**
 	 * The result of the operation
@@ -21,7 +21,16 @@ public class ClientOperationFuture<V> implements OperationFuture<V> {
 	 */
 	protected final Object mutex = new Object();
 	
-
+	/**
+	 * Empty constructor
+	 */
+	public ClientOperationFuture() {
+	}
+	
+	/**
+	 * Constructor with the request id
+	 * @param requestId
+	 */
 	public ClientOperationFuture(final short requestId) {
 		this.requestId = requestId;
 	}
@@ -88,5 +97,13 @@ public class ClientOperationFuture<V> implements OperationFuture<V> {
 			this.operationResult = result;
 			mutex.notifyAll();
 		}
+	}
+
+	/**
+	 * Set the ID of the request
+	 */
+	@Override
+	public void setRequestId(final short requestId) {
+		this.requestId = requestId;
 	}
 }
