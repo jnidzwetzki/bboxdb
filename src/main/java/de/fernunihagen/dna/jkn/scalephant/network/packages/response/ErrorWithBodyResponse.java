@@ -99,4 +99,11 @@ public class ErrorWithBodyResponse extends NetworkResponsePackage {
 		return new ErrorWithBodyResponse(requestId, body);
 	}
 
+	/**
+	 * Get the message string
+	 * @return
+	 */
+	public String getBody() {
+		return body;
+	}
 }

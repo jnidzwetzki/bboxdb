@@ -98,5 +98,12 @@ public class SuccessWithBodyResponse extends NetworkResponsePackage {
 		
 		return new SuccessWithBodyResponse(requestId, body);
 	}
-
+	
+	/**
+	 * Get the message string
+	 * @return
+	 */
+	public String getBody() {
+		return body;
+	}
 }
