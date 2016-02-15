@@ -83,28 +83,27 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static DeleteTupleRequest decodeTuple(final byte encodedPackage[]) {
-		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_DELETE_TUPLE);
+	public static DeleteTupleRequest decodeTuple(final ByteBuffer encodedPackage) {
+		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_DELETE_TUPLE);
 		
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");
 			return null;
 		}
 		
-		short tableLength = bb.getShort();
-		short keyLength = bb.getShort();
+		short tableLength = encodedPackage.getShort();
+		short keyLength = encodedPackage.getShort();
 		
 		final byte[] tableBytes = new byte[tableLength];
-		bb.get(tableBytes, 0, tableBytes.length);
+		encodedPackage.get(tableBytes, 0, tableBytes.length);
 		final String table = new String(tableBytes);
 		
 		final byte[] keyBytes = new byte[keyLength];
-		bb.get(keyBytes, 0, keyBytes.length);
+		encodedPackage.get(keyBytes, 0, keyBytes.length);
 		final String key = new String(keyBytes);
 
-		if(bb.remaining() != 0) {
-			logger.error("Some bytes are left after encoding: " + bb.remaining());
+		if(encodedPackage.remaining() != 0) {
+			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
 		return new DeleteTupleRequest(table, key);

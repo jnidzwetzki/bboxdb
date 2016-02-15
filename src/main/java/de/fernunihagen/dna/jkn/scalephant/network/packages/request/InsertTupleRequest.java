@@ -72,38 +72,37 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static InsertTupleRequest decodeTuple(final byte encodedPackage[]) {
+	public static InsertTupleRequest decodeTuple(final ByteBuffer encodedPackage) {
 
-		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
+		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");
 			return null;
 		}
 		
-		short tableLength = bb.getShort();
-		short keyLength = bb.getShort();
-		int bBoxLength = bb.getInt();
-		int dataLength = bb.getInt();
-		long timestamp = bb.getLong();
+		short tableLength = encodedPackage.getShort();
+		short keyLength = encodedPackage.getShort();
+		int bBoxLength = encodedPackage.getInt();
+		int dataLength = encodedPackage.getInt();
+		long timestamp = encodedPackage.getLong();
 		
 		final byte[] tableBytes = new byte[tableLength];
-		bb.get(tableBytes, 0, tableBytes.length);
+		encodedPackage.get(tableBytes, 0, tableBytes.length);
 		final String table = new String(tableBytes);
 		
 		final byte[] keyBytes = new byte[keyLength];
-		bb.get(keyBytes, 0, keyBytes.length);
+		encodedPackage.get(keyBytes, 0, keyBytes.length);
 		final String key = new String(keyBytes);
 		
 		final byte[] boxBytes = new byte[bBoxLength];
-		bb.get(boxBytes, 0, boxBytes.length);
+		encodedPackage.get(boxBytes, 0, boxBytes.length);
 
 		final byte[] dataBytes = new byte[dataLength];
-		bb.get(dataBytes, 0, dataBytes.length);
+		encodedPackage.get(dataBytes, 0, dataBytes.length);
 
-		if(bb.remaining() != 0) {
-			logger.error("Some bytes are left after encoding: " + bb.remaining());
+		if(encodedPackage.remaining() != 0) {
+			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
 		final long[] longArray = SSTableHelper.readLongArrayFromByte(boxBytes);

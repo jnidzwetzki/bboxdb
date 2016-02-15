@@ -126,7 +126,7 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean handleDeleteTable(final ByteBuffer encodedPackage, final short packageSequence) {
 		
-		final DeleteTableRequest resultPackage = DeleteTableRequest.decodeTuple(encodedPackage.array());
+		final DeleteTableRequest resultPackage = DeleteTableRequest.decodeTuple(encodedPackage);
 		logger.info("Got delete call for table: " + resultPackage.getTable());
 		
 		// Propergate the call to the storage manager
@@ -157,7 +157,7 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean handleInsertTuple(final ByteBuffer encodedPackage, final short packageSequence) {
 		writeResultPackage(new SuccessResponse(packageSequence));
-		final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage.array());
+		final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 		
 		return true;
 	}
@@ -184,7 +184,7 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean handleDeleteTuple(final ByteBuffer encodedPackage, final short packageSequence) {
 		writeResultPackage(new SuccessResponse(packageSequence));
-		final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage.array());
+		final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
 		
 		return true;
 	}	

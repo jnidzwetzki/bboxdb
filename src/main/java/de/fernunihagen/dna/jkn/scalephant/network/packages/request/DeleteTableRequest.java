@@ -70,23 +70,22 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static DeleteTableRequest decodeTuple(final byte encodedPackage[]) {
-		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_DELETE_TABLE);
+	public static DeleteTableRequest decodeTuple(final ByteBuffer encodedPackage) {
+		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_DELETE_TABLE);
 		
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");
 			return null;
 		}
 		
-		short tableLength = bb.getShort();
+		short tableLength = encodedPackage.getShort();
 		
 		final byte[] tableBytes = new byte[tableLength];
-		bb.get(tableBytes, 0, tableBytes.length);
+		encodedPackage.get(tableBytes, 0, tableBytes.length);
 		final String table = new String(tableBytes);
 		
-		if(bb.remaining() != 0) {
-			logger.error("Some bytes are left after encoding: " + bb.remaining());
+		if(encodedPackage.remaining() != 0) {
+			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
 		return new DeleteTableRequest(table);

@@ -108,7 +108,8 @@ public class TestNetworkClasses {
 		byte[] encodedVersion = insertPackage.getByteArray(sequenceNumber);
 		Assert.assertNotNull(encodedVersion);
 
-		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(encodedVersion);
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(insertPackage.getKey(), decodedPackage.getKey());
 		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
@@ -131,7 +132,8 @@ public class TestNetworkClasses {
 		byte[] encodedVersion = deletePackage.getByteArray(sequenceNumber);
 		Assert.assertNotNull(encodedVersion);
 
-		final DeleteTupleRequest decodedPackage = DeleteTupleRequest.decodeTuple(encodedVersion);
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final DeleteTupleRequest decodedPackage = DeleteTupleRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(deletePackage.getKey(), decodedPackage.getKey());
 		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
@@ -150,7 +152,8 @@ public class TestNetworkClasses {
 		byte[] encodedVersion = deletePackage.getByteArray(sequenceNumber);
 		Assert.assertNotNull(encodedVersion);
 
-		final DeleteTableRequest decodedPackage = DeleteTableRequest.decodeTuple(encodedVersion);
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final DeleteTableRequest decodedPackage = DeleteTableRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(deletePackage, decodedPackage);
@@ -168,7 +171,8 @@ public class TestNetworkClasses {
 		byte[] encodedVersion = listPackage.getByteArray(sequenceNumber);
 		Assert.assertNotNull(encodedVersion);
 
-		final ListTablesRequest decodedPackage = ListTablesRequest.decodeTuple(encodedVersion);
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final ListTablesRequest decodedPackage = ListTablesRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(listPackage, decodedPackage);
 	}
