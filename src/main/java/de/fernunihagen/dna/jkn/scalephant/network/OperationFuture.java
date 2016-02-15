@@ -21,5 +21,16 @@ public interface OperationFuture<V> extends Future<V> {
 	 * @param result
 	 */
 	public void setOperationResult(final V result);
+	
+	/**
+	 * Is the future processed successfully or are errors occured?
+	 * @return
+	 */
+	public boolean isFailed();
+
+	/**
+	 * Set the failed state
+	 */
+	public void setFailedState();
 
 }

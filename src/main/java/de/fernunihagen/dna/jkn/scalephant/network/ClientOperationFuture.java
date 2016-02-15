@@ -22,6 +22,11 @@ public class ClientOperationFuture<V> implements OperationFuture<V> {
 	protected final Object mutex = new Object();
 	
 	/**
+	 * The error flag for the operation
+	 */
+	protected boolean failed = false;
+	
+	/**
 	 * Empty constructor
 	 */
 	public ClientOperationFuture() {
@@ -105,5 +110,20 @@ public class ClientOperationFuture<V> implements OperationFuture<V> {
 	@Override
 	public void setRequestId(final short requestId) {
 		this.requestId = requestId;
+	}
+
+	/**
+	 * Is the operation successfull
+	 * @return
+	 */
+	public boolean isFailed() {
+		return failed;
+	}
+
+	/**
+	 * Set the error flag for the operation
+	 */
+	public void setFailedState() {
+		failed = false;
 	}
 }
