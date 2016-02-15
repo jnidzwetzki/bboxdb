@@ -20,6 +20,9 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DisconnectRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorWithBodyResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
 
 public class ScalephantClient {
 
@@ -263,7 +266,7 @@ public class ScalephantClient {
 		 * @throws IOException 
 		 */
 		protected ByteBuffer readNextResponsePackageHeader() throws IOException {
-			final ByteBuffer bb = ByteBuffer.allocate(4);
+			final ByteBuffer bb = ByteBuffer.allocate(8);
 			int read = inputStream.read(bb.array(), 0, bb.limit());
 			
 			// Read error
@@ -305,33 +308,44 @@ public class ScalephantClient {
 		protected void handleResultPackage(final ByteBuffer packageHeader) {
 			final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(packageHeader);
 			final byte packageType = NetworkPackageDecoder.getPackageTypeFromResponse(packageHeader);
-			
+			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+
 			ClientOperationFuture pendingCall = null;
+			synchronized (pendingCalls) {
+				pendingCall = pendingCalls.get(Short.valueOf(sequenceNumber));
+			}
 
 			switch(packageType) {
 				case NetworkConst.RESPONSE_SUCCESS:
+					if(pendingCall != null) {
+						pendingCall.setOperationResult(true);
+					}
 					break;
 				case NetworkConst.RESPONSE_ERROR:
+					if(pendingCall != null) {
+						pendingCall.setOperationResult(false);
+					}
 					break;
 				case NetworkConst.RESPONSE_SUCCESS_WITH_BODY:
+					handleSuccessWithBody(encodedPackage, pendingCall);
 					break;
 				case NetworkConst.RESPONSE_ERROR_WITH_BODY:
+					handleErrorWithBody(encodedPackage, pendingCall);
 					break;
 				case NetworkConst.RESPONSE_LIST_TABLES:
+					handleListTables(encodedPackage, pendingCall);
 					break;
 				default:
 					logger.error("Unknown respose package type: " + packageType);
+					if(pendingCall != null) {
+						pendingCall.setFailedState();
+					}
 			}
 			
 			// Remove pending call
 			synchronized (pendingCalls) {
-				pendingCall = pendingCalls.remove(Short.valueOf(sequenceNumber));
+				pendingCalls.remove(Short.valueOf(sequenceNumber));
 				pendingCalls.notifyAll();
-			}
-			
-			if(pendingCall != null) {
-				// FIXME: Set real operation result
-				pendingCall.setOperationResult(true);
 			}
 		}
 		
@@ -372,5 +386,59 @@ public class ScalephantClient {
 			
 			logger.info("Stopping new response reader for " + serverHostname + " / " + serverPort);
 		}
+	}
+
+	/**
+	 * Read the full package
+	 * @param packageHeader
+	 * @return
+	 */
+	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) {
+		int bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(packageHeader);
+		final ByteBuffer encodedPackage = ByteBuffer.allocate(packageHeader.limit() + bodyLength);
+		encodedPackage.put(packageHeader.array());
+		
+		try {
+			//System.out.println("Trying to read: " + bodyLength + " avail " + inputStream.available());
+			inputStream.read(encodedPackage.array(), encodedPackage.position(), bodyLength);
+		} catch (IOException e) {
+			logger.error("IO-Exception while reading package", e);
+			return null;
+		}
+		
+		return encodedPackage;
+	}
+
+	/**
+	 * Handle List table result
+	 * @param encodedPackage
+	 * @param pendingCall
+	 */
+	protected void handleListTables(final ByteBuffer encodedPackage,
+			final ClientOperationFuture pendingCall) {
+		final ListTablesResponse tables = ListTablesResponse.decodeTuple(encodedPackage.array());
+		pendingCall.setOperationResult(tables.getTables());
+	}
+
+	/**
+	 * Handle error with body result
+	 * @param encodedPackage
+	 * @param pendingCall
+	 */
+	protected void handleErrorWithBody(final ByteBuffer encodedPackage,
+			final ClientOperationFuture pendingCall) {
+		final ErrorWithBodyResponse result = ErrorWithBodyResponse.decodeTuple(encodedPackage.array());
+		pendingCall.setOperationResult(result.getBody());
+	}
+
+	/**
+	 * Handle success with body result
+	 * @param encodedPackage
+	 * @param pendingCall
+	 */
+	protected void handleSuccessWithBody(final ByteBuffer encodedPackage,
+			final ClientOperationFuture pendingCall) {
+		final SuccessWithBodyResponse result = SuccessWithBodyResponse.decodeTuple(encodedPackage.array());
+		pendingCall.setOperationResult(result.getBody());
 	}	
 }
