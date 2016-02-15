@@ -31,12 +31,12 @@ public class ClientConnectionHandler implements Runnable {
 	/**
 	 * The output stream of the socket
 	 */
-	protected BufferedOutputStream out;
+	protected BufferedOutputStream outputStream;
 	
 	/**
 	 * The input stream of the socket
 	 */
-	protected BufferedInputStream in;
+	protected BufferedInputStream inputStream;
 	
 	/**
 	 * The connection state
@@ -54,11 +54,11 @@ public class ClientConnectionHandler implements Runnable {
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 		
 		try {
-			out = new BufferedOutputStream(clientSocket.getOutputStream());
-			in = new BufferedInputStream(clientSocket.getInputStream());
+			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
+			inputStream = new BufferedInputStream(clientSocket.getInputStream());
 		} catch (IOException e) {
-			in = null;
-			out = null;
+			inputStream = null;
+			outputStream = null;
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
 			logger.error("Exception while creating IO stream", e);
 		}
@@ -71,7 +71,7 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected ByteBuffer readNextPackageHeader() throws IOException {
 		final ByteBuffer bb = ByteBuffer.allocate(8);
-		in.read(bb.array(), 0, bb.limit());
+		inputStream.read(bb.array(), 0, bb.limit());
 		return bb;
 	}
 
@@ -84,8 +84,8 @@ public class ClientConnectionHandler implements Runnable {
 		final byte[] outputData = responsePackage.getByteArray();
 		
 		try {
-			out.write(outputData, 0, outputData.length);
-			out.flush();
+			outputStream.write(outputData, 0, outputData.length);
+			outputStream.flush();
 			return true;
 		} catch (IOException e) {
 			logger.warn("Unable to write result package", e);
@@ -201,7 +201,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		try {
 			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());
-			in.read(encodedPackage.array(), encodedPackage.position(), bodyLength);
+			inputStream.read(encodedPackage.array(), encodedPackage.position(), bodyLength);
 		} catch (IOException e) {
 			logger.error("IO-Exception while reading package", e);
 			return null;
