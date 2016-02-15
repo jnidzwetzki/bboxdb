@@ -143,6 +143,8 @@ The request body contains the names of the existing tables, seperated by a termi
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
+	|         Length of all Tables       |
+	+---------+--------+--------+--------+
 	|       Table1\0|   Table2\0|Table3\0|
 	+----------------+----------+--------+
 	|        Table4\0|
