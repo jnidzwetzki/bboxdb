@@ -3,7 +3,6 @@ package de.fernunihagen.dna.jkn.scalephant;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,6 +22,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
 public class TestNetworkClasses {
 	
@@ -101,8 +101,8 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeInsertTuple() {
-				
-		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", tuple);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		byte[] encodedVersion = insertPackage.getByteArray(sequenceNumber);
@@ -111,12 +111,8 @@ public class TestNetworkClasses {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
 		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(bb);
 				
-		Assert.assertEquals(insertPackage.getKey(), decodedPackage.getKey());
-		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
-		Assert.assertEquals(insertPackage.getTimestamp(), decodedPackage.getTimestamp());
-		Assert.assertEquals(insertPackage.getBbox(), decodedPackage.getBbox());
-		Assert.assertTrue(Arrays.equals(insertPackage.getData(), decodedPackage.getData()));
-		
+		Assert.assertEquals(insertPackage.getTuple(), decodedPackage.getTuple());
+		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());		
 		Assert.assertEquals(insertPackage, decodedPackage);
 	}
 	
@@ -182,7 +178,8 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testDecodePackage() {
-		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", tuple);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumber);
@@ -198,7 +195,8 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testGetSequenceNumber() {
-		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", tuple);
 		
 		// Increment to avoid sequenceNumber = 0
 		sequenceNumberGenerator.getNextSequenceNummber();
@@ -219,7 +217,8 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testGetRequestBodyLength() {
-		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", "key", 12, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", tuple);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumber);

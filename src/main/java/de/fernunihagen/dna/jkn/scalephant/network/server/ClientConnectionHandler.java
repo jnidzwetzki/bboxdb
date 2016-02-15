@@ -162,7 +162,7 @@ public class ClientConnectionHandler implements Runnable {
 		final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 		
 		// Propergate the call to the storage manager
-		final Tuple tuple = new Tuple(insertTupleRequest.getKey(), insertTupleRequest.getBbox(), insertTupleRequest.getData());
+		final Tuple tuple = insertTupleRequest.getTuple();
 		final StorageManager table = StorageInterface.getStorageManager(insertTupleRequest.getTable());
 		
 		try {

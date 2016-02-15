@@ -3,7 +3,6 @@ package de.fernunihagen.dna.jkn.scalephant.network.packages.request;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
 public class InsertTupleRequest implements NetworkRequestPackage {
@@ -23,24 +23,9 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	protected final String table;
 	
 	/**
-	 * The key to insert
+	 * The Tuple
 	 */
-	protected final String key;
-	
-	/**
-	 * The timestamp of the tuple
-	 */
-	protected final long timestamp;
-	
-	/**
-	 * The bounding box of the tuple
-	 */
-	protected final BoundingBox bbox;
-	
-	/**
-	 * The data 
-	 */
-	protected final byte[] data;
+	protected Tuple tuple;
 	
 	/**
 	 * The Logger
@@ -57,13 +42,9 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	 * @param bbox
 	 * @param data
 	 */
-	public InsertTupleRequest(final String table, final String key, final long timestamp,
-			final BoundingBox bbox, final byte[] data) {
+	public InsertTupleRequest(final String table, final Tuple tuple) {
 		this.table = table;
-		this.key = key;
-		this.timestamp = timestamp;
-		this.bbox = bbox;
-		this.data = data;
+		this.tuple = tuple;
 	}
 	
 	/**
@@ -107,8 +88,10 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		
 		final long[] longArray = SSTableHelper.readLongArrayFromByte(boxBytes);
 		final BoundingBox boundingBox = new BoundingBox(longArray);
+		
+		final Tuple tuple = new Tuple(key, boundingBox, dataBytes, timestamp);
 
-		return new InsertTupleRequest(table, key, timestamp, boundingBox, dataBytes);
+		return new InsertTupleRequest(table, tuple);
 	}
 
 	@Override
@@ -121,20 +104,20 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		
 		try {
 			final byte[] tableBytes = table.getBytes();
-			final byte[] keyBytes = key.getBytes();
-			final byte[] bboxBytes = bbox.toByteArray();
+			final byte[] keyBytes = tuple.getKey().getBytes();
+			final byte[] bboxBytes = tuple.getBoundingBoxBytes();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(20);
 			bb.order(NetworkConst.NETWORK_BYTEORDER);
 			bb.putShort((short) tableBytes.length);
 			bb.putShort((short) keyBytes.length);
 			bb.putInt(bboxBytes.length);
-			bb.putInt(data.length);
-			bb.putLong(timestamp);
+			bb.putInt(tuple.getDataBytes().length);
+			bb.putLong(tuple.getTimestamp());
 			
 			// Write body length
 			final int bodyLength = bb.capacity() + tableBytes.length 
-					+ keyBytes.length + bboxBytes.length + data.length;
+					+ keyBytes.length + bboxBytes.length + tuple.getDataBytes().length;
 			
 			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
 			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
@@ -146,7 +129,7 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 			bos.write(tableBytes);
 			bos.write(keyBytes);
 			bos.write(bboxBytes);
-			bos.write(data);
+			bos.write(tuple.getDataBytes());
 			
 			bos.close();
 		} catch (IOException e) {
@@ -156,44 +139,21 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		
 		return bos.toByteArray();
 	}
-
 	
 	public String getTable() {
 		return table;
 	}
 
-	public String getKey() {
-		return key;
-	}
-
-	public long getTimestamp() {
-		return timestamp;
-	}
-
-	public BoundingBox getBbox() {
-		return bbox;
-	}
-
-	public byte[] getData() {
-		return data;
-	}
-
-	@Override
-	public String toString() {
-		return "InsertPackage [table=" + table + ", key=" + key
-				+ ", timestamp=" + timestamp + ", bbox=" + bbox + ", data="
-				+ data + "]";
+	public Tuple getTuple() {
+		return tuple;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((bbox == null) ? 0 : bbox.hashCode());
-		result = prime * result + Arrays.hashCode(data);
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		result = prime * result + ((table == null) ? 0 : table.hashCode());
-		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
+		result = prime * result + ((tuple == null) ? 0 : tuple.hashCode());
 		return result;
 	}
 
@@ -206,26 +166,22 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		if (getClass() != obj.getClass())
 			return false;
 		InsertTupleRequest other = (InsertTupleRequest) obj;
-		if (bbox == null) {
-			if (other.bbox != null)
-				return false;
-		} else if (!bbox.equals(other.bbox))
-			return false;
-		if (!Arrays.equals(data, other.data))
-			return false;
-		if (key == null) {
-			if (other.key != null)
-				return false;
-		} else if (!key.equals(other.key))
-			return false;
 		if (table == null) {
 			if (other.table != null)
 				return false;
 		} else if (!table.equals(other.table))
 			return false;
-		if (timestamp != other.timestamp)
+		if (tuple == null) {
+			if (other.tuple != null)
+				return false;
+		} else if (!tuple.equals(other.tuple))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "InsertTupleRequest [table=" + table + ", tuple=" + tuple + "]";
 	}
 
 	@Override
