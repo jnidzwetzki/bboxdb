@@ -306,7 +306,8 @@ public class TestNetworkClasses {
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
 
-		final ListTablesResponse responseDecoded = ListTablesResponse.decodeTuple(encodedPackage);
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		final ListTablesResponse responseDecoded = ListTablesResponse.decodeTuple(bb);
 		final List<String> myTables = responseDecoded.getTables();
 		Assert.assertEquals(tables, myTables);
 		Assert.assertEquals(tables.size(), myTables.size());

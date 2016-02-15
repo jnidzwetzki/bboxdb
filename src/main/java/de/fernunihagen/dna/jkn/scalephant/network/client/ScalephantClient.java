@@ -417,7 +417,7 @@ public class ScalephantClient {
 	 */
 	protected void handleListTables(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) {
-		final ListTablesResponse tables = ListTablesResponse.decodeTuple(encodedPackage.array());
+		final ListTablesResponse tables = ListTablesResponse.decodeTuple(encodedPackage);
 		pendingCall.setOperationResult(tables.getTables());
 	}
 
@@ -428,7 +428,7 @@ public class ScalephantClient {
 	 */
 	protected void handleErrorWithBody(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) {
-		final AbstractBodyResponse result = ErrorWithBodyResponse.decodeTuple(encodedPackage.array());
+		final AbstractBodyResponse result = ErrorWithBodyResponse.decodeTuple(encodedPackage);
 		pendingCall.setOperationResult(result.getBody());
 	}
 
@@ -439,7 +439,7 @@ public class ScalephantClient {
 	 */
 	protected void handleSuccessWithBody(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) {
-		final SuccessWithBodyResponse result = SuccessWithBodyResponse.decodeTuple(encodedPackage.array());
+		final SuccessWithBodyResponse result = SuccessWithBodyResponse.decodeTuple(encodedPackage);
 		pendingCall.setOperationResult(result.getBody());
 	}	
 }

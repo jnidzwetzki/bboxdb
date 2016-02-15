@@ -103,13 +103,11 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static ListTablesResponse decodeTuple(final byte encodedPackage[]) {
-		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		
-		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(bb);
+	public static ListTablesResponse decodeTuple(final ByteBuffer encodedPackage) {		
+		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		final List<String> tables = new ArrayList<String>();
 
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_LIST_TABLES);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_LIST_TABLES);
 
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");
@@ -117,11 +115,11 @@ public class ListTablesResponse extends NetworkResponsePackage {
 		}
 		
 		// Read the body length
-		bb.getShort();
+		encodedPackage.getShort();
 		
 		StringBuilder sb = new StringBuilder();
-		while(bb.remaining() != 0) {
-			final byte currentByte = bb.get();
+		while(encodedPackage.remaining() != 0) {
+			final byte currentByte = encodedPackage.get();
 			
 			// Got terminal, tablename is complete
 			if(currentByte == '\0') {
