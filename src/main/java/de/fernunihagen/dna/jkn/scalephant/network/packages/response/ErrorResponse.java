@@ -36,6 +36,11 @@ public class ErrorResponse extends NetworkResponsePackage {
 		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
 		
 		try {
+			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
+			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
+			bodyLengthBuffer.putInt(0);
+			bos.write(bodyLengthBuffer.array());
+			
 			bos.close();
 		} catch (IOException e) {
 			logger.error("Got exception while converting package into bytes", e);

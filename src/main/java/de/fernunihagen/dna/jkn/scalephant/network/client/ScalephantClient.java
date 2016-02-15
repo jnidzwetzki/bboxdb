@@ -286,19 +286,7 @@ public class ScalephantClient {
 					return false;
 				}
 				
-				final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(bb);
-				ClientOperationFuture pendingCall = null;
-				
-				// Remove pending call
-				synchronized (pendingCalls) {
-					pendingCall = pendingCalls.remove(Short.valueOf(sequenceNumber));
-					pendingCalls.notifyAll();
-				}
-				
-				if(pendingCall != null) {
-					// FIXME: Set real operation result
-					pendingCall.setOperationResult(true);
-				}
+				handleResultPackage(bb);
 				
 			} catch (IOException e) {
 				// Ignore exceptions when connection is closing
@@ -308,6 +296,43 @@ public class ScalephantClient {
 			}
 			
 			return true;
+		}
+
+		/**
+		 * Handle the next result package
+		 * @param packageHeader
+		 */
+		protected void handleResultPackage(final ByteBuffer packageHeader) {
+			final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(packageHeader);
+			final byte packageType = NetworkPackageDecoder.getPackageTypeFromResponse(packageHeader);
+			
+			ClientOperationFuture pendingCall = null;
+
+			switch(packageType) {
+				case NetworkConst.RESPONSE_SUCCESS:
+					break;
+				case NetworkConst.RESPONSE_ERROR:
+					break;
+				case NetworkConst.RESPONSE_SUCCESS_WITH_BODY:
+					break;
+				case NetworkConst.RESPONSE_ERROR_WITH_BODY:
+					break;
+				case NetworkConst.RESPONSE_LIST_TABLES:
+					break;
+				default:
+					logger.error("Unknown respose package type: " + packageType);
+			}
+			
+			// Remove pending call
+			synchronized (pendingCalls) {
+				pendingCall = pendingCalls.remove(Short.valueOf(sequenceNumber));
+				pendingCalls.notifyAll();
+			}
+			
+			if(pendingCall != null) {
+				// FIXME: Set real operation result
+				pendingCall.setOperationResult(true);
+			}
 		}
 		
 		/**
@@ -319,6 +344,12 @@ public class ScalephantClient {
 			synchronized (pendingCalls) {
 				if(! pendingCalls.isEmpty()) {
 					logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
+				
+					for(short requestId : pendingCalls.keySet()) {
+						final ClientOperationFuture future = pendingCalls.get(requestId);
+						future.setFailedState();
+					}
+					
 					pendingCalls.clear();
 					pendingCalls.notifyAll();
 				}

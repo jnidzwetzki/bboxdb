@@ -279,8 +279,8 @@ public class TestNetworkClasses {
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
 		
-		// 8 Byte package header
-		int calculatedBodyLength = 3;
+		// 2 Byte (short) data length
+		int calculatedBodyLength = 5;
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		int bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(bb);
 		
@@ -304,8 +304,8 @@ public class TestNetworkClasses {
 
 		final ListTablesResponse responseDecoded = ListTablesResponse.decodeTuple(encodedPackage);
 		final List<String> myTables = responseDecoded.getTables();
-		Assert.assertEquals(tables.size(), myTables.size());
 		Assert.assertEquals(tables, myTables);
+		Assert.assertEquals(tables.size(), myTables.size());
 	}
 	
 }

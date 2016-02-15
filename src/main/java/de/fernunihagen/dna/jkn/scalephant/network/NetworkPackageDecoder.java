@@ -36,7 +36,7 @@ public class NetworkPackageDecoder {
 		bb.position(0);
 		
 		// Buffer is to little to contain valid data
-		if(bb.remaining() < 4) {
+		if(bb.remaining() < 8) {
 			return false;
 		}
 		
@@ -49,11 +49,16 @@ public class NetworkPackageDecoder {
 		bb.getShort();
 		
 		// Check package type
-		if(bb.get() != packageType) {
+		byte readPackageType = bb.get();
+		if(readPackageType != packageType) {
+			logger.warn("Got wrong package type (" + readPackageType + " / " + packageType + ")");
 			return false;
 		}
 		
-		return true;
+		// Get the length of the body
+		final int bodyLength = bb.getInt();
+
+		return bb.remaining() == bodyLength;
 	}
 	
 	/**
@@ -157,27 +162,10 @@ public class NetworkPackageDecoder {
 	 * @return
 	 */
 	public static int getBodyLengthFromResponsePackage(final ByteBuffer bb) {
+		// Set positon
+		bb.position(4);
 		
-		byte packageType = getPackageTypeFromResponse(bb);
-		
-		// Simple packages without body
-		if(packageType == NetworkConst.RESPONSE_ERROR 
-				|| packageType == NetworkConst.RESPONSE_SUCCESS) {
-			return 0;
-		}
-		
-		if(packageType == NetworkConst.RESPONSE_ERROR_WITH_BODY 
-				|| packageType == NetworkConst.RESPONSE_SUCCESS_WITH_BODY) {
-			// Set positon
-			bb.position(4);
-						
-			// Read the body length
-			return bb.getShort();
-		}
-		
-		logger.error("Unknown package type: " + packageType);
-		
-		return -1;
+		// Read the body length
+		return bb.getInt();
 	}
-
 }
