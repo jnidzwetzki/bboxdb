@@ -77,8 +77,13 @@ public class SuccessWithBodyResponse extends NetworkResponsePackage {
 	public static SuccessWithBodyResponse decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		
-		NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_SUCCESS_WITH_BODY);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_SUCCESS_WITH_BODY);
 
+		if(decodeResult == false) {
+			logger.warn("Unable to decode package");
+			return null;
+		}
+		
 		short bodyLength = bb.getShort();
 		
 		final byte[] bodyBytes = new byte[bodyLength];

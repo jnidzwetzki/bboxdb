@@ -109,8 +109,13 @@ public class ListTablesResponse extends NetworkResponsePackage {
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(bb);
 		final List<String> tables = new ArrayList<String>();
 
-		NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_LIST_TABLES);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_LIST_TABLES);
 
+		if(decodeResult == false) {
+			logger.warn("Unable to decode package");
+			return null;
+		}
+		
 		// Read the body length
 		bb.getShort();
 		

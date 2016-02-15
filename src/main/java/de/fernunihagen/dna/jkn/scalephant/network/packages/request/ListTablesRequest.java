@@ -51,7 +51,12 @@ public class ListTablesRequest implements NetworkRequestPackage {
 	 */
 	public static ListTablesRequest decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_LIST_TABLES);
+		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_LIST_TABLES);
+		
+		if(decodeResult == false) {
+			logger.warn("Unable to decode package");
+			return null;
+		}
 		
 		if(bb.remaining() != 0) {
 			logger.error("Some bytes are left after encoding: " + bb.remaining());

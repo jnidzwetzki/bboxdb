@@ -59,7 +59,12 @@ public class SuccessResponse extends NetworkResponsePackage {
 	public static SuccessResponse decodeTuple(final byte encodedPackage[]) {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		
-		NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_SUCCESS);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_SUCCESS);
+		
+		if(decodeResult == false) {
+			logger.warn("Unable to decode package");
+			return null;
+		}
 		
 		if(bb.remaining() != 0) {
 			logger.error("Some bytes are left after encoding: " + bb.remaining());
