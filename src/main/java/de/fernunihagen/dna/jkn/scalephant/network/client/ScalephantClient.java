@@ -20,6 +20,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DisconnectRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.AbstractBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
@@ -427,7 +428,7 @@ public class ScalephantClient {
 	 */
 	protected void handleErrorWithBody(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) {
-		final ErrorWithBodyResponse result = ErrorWithBodyResponse.decodeTuple(encodedPackage.array());
+		final AbstractBodyResponse result = ErrorWithBodyResponse.decodeTuple(encodedPackage.array());
 		pendingCall.setOperationResult(result.getBody());
 	}
 
