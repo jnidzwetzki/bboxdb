@@ -64,7 +64,7 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	@Override
 	public Object get() throws InterruptedException, ExecutionException {
 		synchronized (mutex) {
-			while(operationResult == null) {
+			while(operationResult == null && ! failed) {
 				mutex.wait();
 			}
 		}
@@ -77,7 +77,7 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 			ExecutionException, TimeoutException {
 		
 		synchronized (mutex) {
-			while(operationResult == null) {
+			while(operationResult == null && ! failed) {
 				mutex.wait(unit.toMillis(timeout));
 			}
 		}
@@ -125,5 +125,10 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	 */
 	public void setFailedState() {
 		failed = false;
+		
+		// Future is failed, wake up all blocked get() calles
+		synchronized (mutex) {
+			mutex.notify();
+		}
 	}
 }
