@@ -110,19 +110,6 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 
 		return new InsertTupleRequest(table, key, timestamp, boundingBox, dataBytes);
 	}
-	
-	/**
-	 * Check validity of the entries
-	 * @return
-	 */
-	protected boolean isValied() {
-		if(table.getBytes().length > 16) {
-			logger.warn("Tablename to long: " + table);
-			return false;
-		}
-		
-		return true;
-	}
 
 	@Override
 	public byte[] getByteArray(final short sequenceNumber) {
