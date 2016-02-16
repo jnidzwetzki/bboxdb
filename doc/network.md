@@ -240,6 +240,6 @@ This query asks for a specific key in a particular table.
 
 
 #### Response body
-The result could be currently the response type 0x02, 0x03 and 0x05. The first two types indicate an error, the last one the result for the query. 
+The result could be currently the response types 0x00, 0x02, 0x03 and 0x05. The result types 0x02, 0x03 indicate an error. The result type 0x00 means, that the query is processed successfully, but no matching tuple was found. The result type 0x05 indicates that one tuple is found.
 
 ### Bounding-Box-Query
