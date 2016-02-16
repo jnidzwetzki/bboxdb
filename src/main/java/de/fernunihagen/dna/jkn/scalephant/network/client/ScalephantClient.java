@@ -18,6 +18,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DisconnectRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
@@ -196,12 +197,32 @@ public class ScalephantClient {
 		final ClientOperationFuture operationFuture = new ClientOperationFuture();
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("deleteTable called, but connection not ready: " + connectionState);
+			logger.warn("insertTuple called, but connection not ready: " + connectionState);
 			operationFuture.setFailedState();
 			return operationFuture;
 		}
 		
 		sendPackageToServer(new InsertTupleRequest(table, tuple), operationFuture);
+		
+		return operationFuture;
+	}
+	
+	/**
+	 * Delete the given key from a table
+	 * @param table
+	 * @param key
+	 * @return
+	 */
+	public ClientOperationFuture deleteTuple(final String table, final String key) {
+		final ClientOperationFuture operationFuture = new ClientOperationFuture();
+
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			logger.warn("deleteTuple called, but connection not ready: " + connectionState);
+			operationFuture.setFailedState();
+			return operationFuture;
+		}
+		
+		sendPackageToServer(new DeleteTupleRequest(table, key), operationFuture);
 		
 		return operationFuture;
 	}
