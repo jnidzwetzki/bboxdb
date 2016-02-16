@@ -61,12 +61,12 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 			logger.warn("Unable to decode package");
 			return null;
 		}
-
+		
+		final TupleAndTable tupleAndTable = NetworkTupleEncoderDecoder.decode(encodedPackage);
+		
 		if(encodedPackage.remaining() != 0) {
 			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
-		
-		final TupleAndTable tupleAndTable = NetworkTupleEncoderDecoder.decode(encodedPackage);
 		
 		return new InsertTupleRequest(tupleAndTable.getTable(), tupleAndTable.getTuple());
 	}
