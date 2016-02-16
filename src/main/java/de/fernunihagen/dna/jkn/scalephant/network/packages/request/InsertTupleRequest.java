@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
+import de.fernunihagen.dna.jkn.scalephant.network.TupleAndTable;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkTupleEncoderDecoder;
 import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
@@ -61,37 +63,14 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 			logger.warn("Unable to decode package");
 			return null;
 		}
-		
-		short tableLength = encodedPackage.getShort();
-		short keyLength = encodedPackage.getShort();
-		int bBoxLength = encodedPackage.getInt();
-		int dataLength = encodedPackage.getInt();
-		long timestamp = encodedPackage.getLong();
-		
-		final byte[] tableBytes = new byte[tableLength];
-		encodedPackage.get(tableBytes, 0, tableBytes.length);
-		final String table = new String(tableBytes);
-		
-		final byte[] keyBytes = new byte[keyLength];
-		encodedPackage.get(keyBytes, 0, keyBytes.length);
-		final String key = new String(keyBytes);
-		
-		final byte[] boxBytes = new byte[bBoxLength];
-		encodedPackage.get(boxBytes, 0, boxBytes.length);
-
-		final byte[] dataBytes = new byte[dataLength];
-		encodedPackage.get(dataBytes, 0, dataBytes.length);
 
 		if(encodedPackage.remaining() != 0) {
 			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
-		final long[] longArray = SSTableHelper.readLongArrayFromByte(boxBytes);
-		final BoundingBox boundingBox = new BoundingBox(longArray);
+		final TupleAndTable tupleAndTable = NetworkTupleEncoderDecoder.decode(encodedPackage);
 		
-		final Tuple tuple = new Tuple(key, boundingBox, dataBytes, timestamp);
-
-		return new InsertTupleRequest(table, tuple);
+		return new InsertTupleRequest(tupleAndTable.getTable(), tupleAndTable.getTuple());
 	}
 
 	@Override
@@ -103,34 +82,7 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(sequenceNumber, getPackageType());
 		
 		try {
-			final byte[] tableBytes = table.getBytes();
-			final byte[] keyBytes = tuple.getKey().getBytes();
-			final byte[] bboxBytes = tuple.getBoundingBoxBytes();
-			
-			final ByteBuffer bb = ByteBuffer.allocate(20);
-			bb.order(NetworkConst.NETWORK_BYTEORDER);
-			bb.putShort((short) tableBytes.length);
-			bb.putShort((short) keyBytes.length);
-			bb.putInt(bboxBytes.length);
-			bb.putInt(tuple.getDataBytes().length);
-			bb.putLong(tuple.getTimestamp());
-			
-			// Write body length
-			final int bodyLength = bb.capacity() + tableBytes.length 
-					+ keyBytes.length + bboxBytes.length + tuple.getDataBytes().length;
-			
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
-			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
-			bodyLengthBuffer.putInt(bodyLength);
-			bos.write(bodyLengthBuffer.array());
-			
-			// Write body
-			bos.write(bb.array());
-			bos.write(tableBytes);
-			bos.write(keyBytes);
-			bos.write(bboxBytes);
-			bos.write(tuple.getDataBytes());
-			
+			NetworkTupleEncoderDecoder.encode(bos, tuple, table);
 			bos.close();
 		} catch (IOException e) {
 			logger.error("Got exception while converting package into bytes", e);
