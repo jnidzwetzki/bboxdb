@@ -17,8 +17,10 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackag
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SingleTupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
@@ -147,9 +149,49 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) {
-		writeResultPackage(new SuccessResponse(packageSequence));
+		
+		final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
+		
+		switch (queryType) {
+			case NetworkConst.REQUEST_QUERY_KEY:
+				handleKeyQuery(encodedPackage, packageSequence);
+				break;
+	
+			default:
+				logger.warn("Unsupported query type: " + queryType);
+				writeResultPackage(new ErrorResponse(packageSequence));
+				return true;
+		}
 
 		return true;
+	}
+
+	/**
+	 * Handle a key query
+	 * @param encodedPackage
+	 * @param packageSequence
+	 */
+	protected void handleKeyQuery(final ByteBuffer encodedPackage,
+			final short packageSequence) {
+		
+		final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
+		final String table = queryKeyRequest.getTable();
+		final StorageManager storageManager = StorageInterface.getStorageManager(table);
+		
+		try {
+			final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
+			
+			if(tuple != null) {
+				writeResultPackage(new SingleTupleResponse(packageSequence, table, tuple));
+			} else {
+				writeResultPackage(new SuccessResponse(packageSequence));
+			}
+			
+		} catch (StorageManagerException e) {
+			logger.warn("Got exception while scanning for key", e);
+		}
+		
+		writeResultPackage(new ErrorResponse(packageSequence));
 	}
 
 	/**
