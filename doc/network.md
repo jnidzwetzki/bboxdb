@@ -58,6 +58,7 @@ Result-Types:
 * Type 0x02 - Operation Error - no package body
 * Type 0x03 - Operation Error - with details in the body
 * Type 0x04 - Result of the List tables call
+* Type 0x05 - A result that contains a single tuple
 	
 ### Body for response type = 0x01/0x03 (Success/Error with details)
 
@@ -71,6 +72,34 @@ Result-Types:
 	
 * Message-Length - The length of the error message
 * Message - The error message
+
+### Body for response type = 0x05
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|   Table-Length   |   Key-Length    |
+	+------------------+-----------------+
+	|            BBox-Length             |
+	+------------------------------------+
+	|            Data-Length             |
+	+------------------------------------|
+	|             Timestamp              |
+	|                                    |
+	+------------------------------------+
+	|             Tablename              |
+	.                                    .
+	+------------------------------------+
+	|               Key                  |
+	.                                    .
+	+------------------------------------+
+	|               BBOX                 |
+	.                                    .
+	+------------------------------------+
+	|                                    |
+	|               Data                 |
+	.                                    .
+	.                                    .
+	+------------------------------------+
 
 ## Frame body
 The structure of the body depends on the request type. The next sections describe the used structures.
@@ -211,31 +240,6 @@ This query asks for a specific key in a particular table.
 
 
 #### Response body
-
-    0         8       16       24       32
-	+---------+--------+--------+--------+
-	|   Table-Length   |   Key-Length    |
-	+------------------+-----------------+
-	|            BBox-Length             |
-	+------------------------------------+
-	|            Data-Length             |
-	+------------------------------------|
-	|             Timestamp              |
-	|                                    |
-	+------------------------------------+
-	|             Tablename              |
-	.                                    .
-	+------------------------------------+
-	|               Key                  |
-	.                                    .
-	+------------------------------------+
-	|               BBOX                 |
-	.                                    .
-	+------------------------------------+
-	|                                    |
-	|               Data                 |
-	.                                    .
-	.                                    .
-	+------------------------------------+
+The result could be currently the response type 0x02, 0x03 and 0x05. The first two types indicate an error, the last one the result for the query. 
 
 ### Bounding-Box-Query
