@@ -26,6 +26,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyReque
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.AbstractBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SingleTupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
@@ -398,6 +399,9 @@ public class ScalephantClient {
 				case NetworkConst.RESPONSE_LIST_TABLES:
 					handleListTables(encodedPackage, pendingCall);
 					break;
+				case NetworkConst.RESPONSE_SINGLE_TUPLE:
+					handleSingleTuple(encodedPackage, pendingCall);
+					break;
 				default:
 					logger.error("Unknown respose package type: " + packageType);
 					if(pendingCall != null) {
@@ -470,6 +474,17 @@ public class ScalephantClient {
 		}
 		
 		return encodedPackage;
+	}
+
+	/**
+	 * Handle a single tuple as result
+	 * @param encodedPackage
+	 * @param pendingCall
+	 */
+	protected void handleSingleTuple(final ByteBuffer encodedPackage,
+			final ClientOperationFuture pendingCall) {
+		final SingleTupleResponse singleTupleResponse = SingleTupleResponse.decodeTuple(encodedPackage);
+		pendingCall.setOperationResult(singleTupleResponse.getTuple());
 	}
 
 	/**
