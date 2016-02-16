@@ -178,6 +178,8 @@ public class TestNetworkClasses {
 		final QueryKeyRequest decodedPackage = QueryKeyRequest.decodeTuple(bb);
 		Assert.assertEquals(queryKeyRequest.getKey(), decodedPackage.getKey());
 		Assert.assertEquals(queryKeyRequest.getTable(), decodedPackage.getTable());
+		
+		Assert.assertEquals(NetworkConst.REQUEST_QUERY_KEY, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 	}
 	
 	/**
@@ -352,6 +354,6 @@ public class TestNetworkClasses {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		final SingleTupleResponse responseDecoded = SingleTupleResponse.decodeTuple(bb);
 		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
-		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());
+		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());		
 	}
 }

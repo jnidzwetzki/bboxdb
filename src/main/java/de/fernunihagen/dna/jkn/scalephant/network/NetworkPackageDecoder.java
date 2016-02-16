@@ -143,6 +143,18 @@ public class NetworkPackageDecoder {
 	}
 	
 	/**
+	 * Get the query type from a request package
+	 * @param bb
+	 * @return
+	 */
+	public static byte getQueryTypeFromRequest(final ByteBuffer bb) {
+		// Set the position
+		bb.position(8);
+		
+		return bb.get();
+	}
+	
+	/**
 	 * Get the package type from a request package
 	 * @param bb
 	 * @return
