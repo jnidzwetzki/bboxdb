@@ -70,7 +70,7 @@ public class SingleTupleResponse extends NetworkResponsePackage {
 	public static SingleTupleResponse decodeTuple(final ByteBuffer encodedPackage) {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_LIST_TABLES);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_SINGLE_TUPLE);
 
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");
