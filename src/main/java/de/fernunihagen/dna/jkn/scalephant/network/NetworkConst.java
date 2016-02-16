@@ -55,6 +55,15 @@ public class NetworkConst {
 	public static final byte REQUEST_TYPE_QUERY = 0x05;
 	
 	
+	/**
+	 * Query type key
+	 */
+	public static final byte REQUEST_QUERY_KEY = 0x01;
+	
+	/**
+	 * Query type bounding box
+	 */
+	public static final byte REQUEST_QUERY_BBOX = 0x02;
 	
 	
 	/**
