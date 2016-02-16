@@ -173,14 +173,69 @@ The body of the package is empty
 The result could be currently only response type 0x00. The server waits until all pending operations are completed successfully. Afterwards, the reponse type 0x00 is send and the connection is closed. 
 
 ### Query
-This package represents a query.  
+This package represents a query.
 
 #### Request body
+
+The request body of a query consists of the query type and specific data for the particular query.
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	| Q-Type  |                          | 
+	+---------+                          |
+	|              Query-Data            |
+	.                                    .
+	+------------------------------------+
 
 Query type:
 
 * Type 0x01 - Key query
 * Type 0x02 - Bounding Box query
 
+### Key-Query
+This query asks for a specific key in a particular table.
+
+#### Request body
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|  0x01   |  Table-Length   | Key-   | 
+	+---------+-----------------+--------+
+	| -Length |     Tablename            |
+	+---------+                          |
+	.                                    .
+	+------------------------------------+
+	|                 Key                |
+	.                                    .
+	+------------------------------------+
+
+
 #### Response body
 
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|   Table-Length   |   Key-Length    |
+	+------------------+-----------------+
+	|            BBox-Length             |
+	+------------------------------------+
+	|            Data-Length             |
+	+------------------------------------|
+	|             Timestamp              |
+	|                                    |
+	+------------------------------------+
+	|             Tablename              |
+	.                                    .
+	+------------------------------------+
+	|               Key                  |
+	.                                    .
+	+------------------------------------+
+	|               BBOX                 |
+	.                                    .
+	+------------------------------------+
+	|                                    |
+	|               Data                 |
+	.                                    .
+	.                                    .
+	+------------------------------------+
+
+### Bounding-Box-Query
