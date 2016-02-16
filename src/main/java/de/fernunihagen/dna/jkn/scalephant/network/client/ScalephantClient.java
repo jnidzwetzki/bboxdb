@@ -22,6 +22,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DisconnectRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.AbstractBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
@@ -239,6 +240,24 @@ public class ScalephantClient {
 
 		final ClientOperationFuture future = new ClientOperationFuture();
 		sendPackageToServer(new ListTablesRequest(), future);
+
+		return future;
+	}
+	
+	/**
+	 * Query a given table for a specific key
+	 * @param table
+	 * @param key
+	 * @return
+	 */
+	public ClientOperationFuture queryKey(final String table, final String key) {
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			logger.warn("queryKey called, but connection not ready: " + connectionState);
+			return null;
+		}
+
+		final ClientOperationFuture future = new ClientOperationFuture();
+		sendPackageToServer(new QueryKeyRequest(table, key), future);
 
 		return future;
 	}
