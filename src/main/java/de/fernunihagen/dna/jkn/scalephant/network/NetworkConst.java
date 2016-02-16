@@ -90,4 +90,9 @@ public class NetworkConst {
 	 * Response of the list tables request
 	 */
 	public static final byte RESPONSE_LIST_TABLES = 0x04;
+	
+	/**
+	 * Response that contains a single tuple
+	 */
+	public static final byte RESPONSE_SINGLE_TUPLE = 0x05;
 }
