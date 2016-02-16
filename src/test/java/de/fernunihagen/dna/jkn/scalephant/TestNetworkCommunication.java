@@ -12,6 +12,8 @@ import org.junit.Test;
 import de.fernunihagen.dna.jkn.scalephant.network.ClientOperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
+import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
 
 public class TestNetworkCommunication {
 
@@ -115,6 +117,52 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(scalephantClient.isConnected());
 	}
 
+	/**
+	 * The the insert and the deletion of a tuple
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testInsertAndDelete() throws InterruptedException, ExecutionException {
+		final String table = "testtable47";
+		final String key = "key12";
+		
+		final ScalephantClient scalephantClient = connectToServer();
+		
+		final ClientOperationFuture deleteResult1 = scalephantClient.deleteTuple(table, key);
+		final Object deleteResult1Object = deleteResult1.get();
+		Assert.assertTrue(deleteResult1Object instanceof Boolean);
+		Assert.assertTrue(((Boolean) deleteResult1Object).booleanValue());
+		
+		final ClientOperationFuture getResult = scalephantClient.queryKey(table, key);
+		final Object getResultObject = getResult.get();
+		Assert.assertTrue(getResultObject instanceof Boolean);
+		Assert.assertTrue(((Boolean) getResultObject).booleanValue());
+		
+		final Tuple tuple = new Tuple(key, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final ClientOperationFuture insertResult = scalephantClient.insertTuple(table, tuple);
+		final Object insertResultObject = insertResult.get();
+		Assert.assertTrue(insertResultObject instanceof Boolean);
+		Assert.assertTrue(((Boolean) insertResultObject).booleanValue());
+
+		final ClientOperationFuture getResult2 = scalephantClient.queryKey(table, key);
+		final Object getResult2Object = getResult2.get();
+		Assert.assertTrue(getResult2Object instanceof Tuple);
+		final Tuple resultTuple = (Tuple) getResult2Object;
+		Assert.assertEquals(tuple, resultTuple);
+
+		final ClientOperationFuture deleteResult2 = scalephantClient.deleteTuple(table, key);
+		final Object deleteResult2Object = deleteResult2.get();
+		Assert.assertTrue(deleteResult2Object instanceof Boolean);
+		Assert.assertTrue(((Boolean) deleteResult2Object).booleanValue());
+		
+		final ClientOperationFuture getResult3 = scalephantClient.queryKey(table, key);
+		final Object getResult3Object = getResult3.get();
+		Assert.assertTrue(getResult3Object instanceof Boolean);
+		Assert.assertTrue(((Boolean) getResult3Object).booleanValue());
+		
+	}
+	
 	/**
 	 * Build a new connection to the scalephant server
 	 * 
