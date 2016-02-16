@@ -13,9 +13,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.TupleAndTable;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkTupleEncoderDecoder;
-import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
 public class InsertTupleRequest implements NetworkRequestPackage {
 
