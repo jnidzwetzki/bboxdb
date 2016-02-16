@@ -18,6 +18,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
@@ -155,6 +156,29 @@ public class TestNetworkClasses {
 		Assert.assertEquals(deletePackage, decodedPackage);
 	}
 	
+	
+	/**
+	 * Test decoding and encoding of the key query
+	 */
+	@Test
+	public void testDecodeKeyQuery() {
+		final String table = "table1";
+		final String key = "key1";
+		
+		final QueryKeyRequest queryKeyRequest = new QueryKeyRequest(table, key);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		byte[] encodedPackage = queryKeyRequest.getByteArray(sequenceNumber);
+		Assert.assertNotNull(encodedPackage);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
+		Assert.assertTrue(result);
+
+		final QueryKeyRequest decodedPackage = QueryKeyRequest.decodeTuple(bb);
+		Assert.assertEquals(queryKeyRequest.getKey(), decodedPackage.getKey());
+		Assert.assertEquals(queryKeyRequest.getTable(), decodedPackage.getTable());
+	}
+	
 	/**
 	 * The the encoding and decoding of a list tables package
 	 */
@@ -188,7 +212,7 @@ public class TestNetworkClasses {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		Assert.assertTrue(result);
-	}
+	}	
 	
 	/**
 	 * Get the sequence number from a package
@@ -311,5 +335,4 @@ public class TestNetworkClasses {
 		Assert.assertEquals(tables, myTables);
 		Assert.assertEquals(tables.size(), myTables.size());
 	}
-	
 }
