@@ -36,6 +36,21 @@ public class Tablename {
 	protected String identifier;
 	
 	/**
+	 * The value for an invalid dimension
+	 */
+	public final static short INVALID_DIMENSION = -1;
+	
+	/**
+	 * The value for an invalid group
+	 */
+	public final static String INVALID_GROUP = null;
+	
+	/**
+	 * The value for an invalid identifier
+	 */
+	public final static String INVALID_IDENTIFIER = null;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Tablename.class);
@@ -63,7 +78,13 @@ public class Tablename {
 			return false;
 		}
 		
-		dimension = Short.parseShort(parts[0]);
+		try {
+			dimension = Short.parseShort(parts[0]);
+		} catch(NumberFormatException e) {
+			logger.warn("Invalid dimension: " + parts[0]);
+			return false;
+		}
+		
 		group = parts[1];
 		identifier = parts[2];
 		
@@ -84,7 +105,7 @@ public class Tablename {
 	 */
 	public short getDimension() {
 		if(! isValid()) {
-			return -1;
+			return INVALID_DIMENSION;
 		}
 		
 		return dimension;
@@ -96,7 +117,7 @@ public class Tablename {
 	 */
 	public String getGroup() {
 		if(! isValid()) {
-			return null;
+			return INVALID_GROUP;
 		}
 		
 		return group;
@@ -108,21 +129,27 @@ public class Tablename {
 	 */
 	public String getIdentifier() {
 		if(! isValid()) {
-			return null;
+			return INVALID_IDENTIFIER;
 		}
 		
 		return identifier;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "Tablename [tablename=" + tablename + "]";
+		return "Tablename [tablename=" + tablename + ", valid=" + valid
+				+ ", dimension=" + dimension + ", group=" + group
+				+ ", identifier=" + identifier + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + dimension;
+		result = prime * result + ((group == null) ? 0 : group.hashCode());
+		result = prime * result
+				+ ((identifier == null) ? 0 : identifier.hashCode());
 		result = prime * result
 				+ ((tablename == null) ? 0 : tablename.hashCode());
 		result = prime * result + (valid ? 1231 : 1237);
@@ -138,6 +165,18 @@ public class Tablename {
 		if (getClass() != obj.getClass())
 			return false;
 		Tablename other = (Tablename) obj;
+		if (dimension != other.dimension)
+			return false;
+		if (group == null) {
+			if (other.group != null)
+				return false;
+		} else if (!group.equals(other.group))
+			return false;
+		if (identifier == null) {
+			if (other.identifier != null)
+				return false;
+		} else if (!identifier.equals(other.identifier))
+			return false;
 		if (tablename == null) {
 			if (other.tablename != null)
 				return false;
