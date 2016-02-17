@@ -26,7 +26,7 @@ classpath="$libs:$jar"
 download_jsvc() {
    cd $basedir
    if [ ! -x ./jsvc ]; then
-       echo "JSVC not found downloading"
+       echo "JSVC not found, downloading"
        wget $jsvc_url
     
        if [ ! -f $jsvc_file ]; then
