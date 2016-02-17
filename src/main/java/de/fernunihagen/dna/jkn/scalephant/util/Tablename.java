@@ -51,6 +51,11 @@ public class Tablename {
 	 * @return
 	 */
 	protected boolean splitTablename() {
+		
+		if(tablename == null) {
+			return false;
+		}
+		
 		final String[] parts = tablename.split("_");
 		
 		if(parts.length != 3) {
