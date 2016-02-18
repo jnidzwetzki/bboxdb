@@ -24,12 +24,12 @@ import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
 
 public class TestTableCompactor {
 	
-	protected final static String TEST_RELATION = "testrelation";
+	protected final static String TEST_RELATION = "1_testgroup1_relation1";
 
 	protected final StorageConfiguration storageConfiguration = new StorageConfiguration();
 
 	@Before
-	public void clearData() {
+	public void clearData() throws StorageManagerException {
 		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();

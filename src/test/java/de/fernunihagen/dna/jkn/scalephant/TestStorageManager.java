@@ -15,10 +15,10 @@ import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 public class TestStorageManager {
 	
 	protected StorageManager storageManager;
-	protected final static String TEST_RELATION = "testrelation";
+	protected final static String TEST_RELATION = "1_testgroup1_abc";
 	
 	@Before
-	public void init() {
+	public void init() throws StorageManagerException {
 		storageManager = StorageInterface.getStorageManager(TEST_RELATION);
 		storageManager.clear();
 		Assert.assertTrue(storageManager.isReady());

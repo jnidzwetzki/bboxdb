@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.fernunihagen.dna.jkn.scalephant.util.Tablename;
+
 public class StorageInterface {
 
 	/**
@@ -29,7 +31,12 @@ public class StorageInterface {
 	 * 
 	 * @return
 	 */
-	public static synchronized StorageManager getStorageManager(final String table) {
+	public static synchronized StorageManager getStorageManager(final String table) throws StorageManagerException {
+		
+		final Tablename tablename = new Tablename(table);
+		if(! tablename.isValid()) {
+			throw new StorageManagerException("Invalid tablename: " + tablename);
+		}
 
 		if(instances.containsKey(table)) {
 			return instances.get(table);
@@ -49,6 +56,7 @@ public class StorageInterface {
 	 * @return
 	 */
 	public static synchronized boolean shutdown(final String table) {
+		
 		if(! instances.containsKey(table)) {
 			return false;
 		}
@@ -62,8 +70,14 @@ public class StorageInterface {
 	/**
 	 * Delete the given table
 	 * @param table
+	 * @throws StorageManagerException 
 	 */
-	public static void deleteTable(final String table) {
+	public static void deleteTable(final String table) throws StorageManagerException {
+		
+		final Tablename tablename = new Tablename(table);
+		if(! tablename.isValid()) {
+			throw new StorageManagerException("Invalid tablename: " + tablename);
+		}
 		
 		shutdown(table);
 		

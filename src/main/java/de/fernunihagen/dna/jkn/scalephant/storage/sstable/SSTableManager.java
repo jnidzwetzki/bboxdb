@@ -276,7 +276,10 @@ public class SSTableManager implements Lifecycle {
 		logger.info("Delete all existing SSTables for relation: " + getName());
 		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDir(), getName()));
 	
-		checkSSTableDir(directoryHandle);
+		// Does the directory exist?
+		if(! directoryHandle.isDirectory()) {
+			return true;
+		}
 
 		final File[] entries = directoryHandle.listFiles();
 				

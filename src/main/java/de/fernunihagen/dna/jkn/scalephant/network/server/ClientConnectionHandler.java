@@ -135,9 +135,14 @@ public class ClientConnectionHandler implements Runnable {
 		final DeleteTableRequest resultPackage = DeleteTableRequest.decodeTuple(encodedPackage);
 		logger.info("Got delete call for table: " + resultPackage.getTable());
 		
-		// Propergate the call to the storage manager
-		StorageInterface.deleteTable(resultPackage.getTable());
-		writeResultPackage(new SuccessResponse(packageSequence));
+		try {
+			// Propergate the call to the storage manager
+			StorageInterface.deleteTable(resultPackage.getTable());
+			writeResultPackage(new SuccessResponse(packageSequence));
+		} catch (StorageManagerException e) {
+			logger.warn("Error while delete tuple", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+		}
 		
 		return true;
 	}
@@ -176,9 +181,10 @@ public class ClientConnectionHandler implements Runnable {
 		
 		final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
 		final String table = queryKeyRequest.getTable();
-		final StorageManager storageManager = StorageInterface.getStorageManager(table);
 		
 		try {
+			final StorageManager storageManager = StorageInterface.getStorageManager(table);
+
 			final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
 			
 			if(tuple != null) {
@@ -205,9 +211,9 @@ public class ClientConnectionHandler implements Runnable {
 		
 		// Propergate the call to the storage manager
 		final Tuple tuple = insertTupleRequest.getTuple();
-		final StorageManager table = StorageInterface.getStorageManager(insertTupleRequest.getTable());
 		
 		try {
+			final StorageManager table = StorageInterface.getStorageManager(insertTupleRequest.getTable());
 			table.put(tuple);
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (StorageManagerException e) {
@@ -243,8 +249,8 @@ public class ClientConnectionHandler implements Runnable {
 		final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
 		
 		// Propergate the call to the storage manager
-		final StorageManager table = StorageInterface.getStorageManager(deleteTupleRequest.getTable());
 		try {
+			final StorageManager table = StorageInterface.getStorageManager(deleteTupleRequest.getTable());
 			table.delete(deleteTupleRequest.getKey());
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (StorageManagerException e) {
