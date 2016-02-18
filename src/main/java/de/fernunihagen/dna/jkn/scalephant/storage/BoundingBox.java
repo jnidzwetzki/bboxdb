@@ -27,6 +27,8 @@ public class BoundingBox {
 	 */
 	protected final List<Float> boundingBox;
 	
+	public final static int INVALID_DIMENSION = -1;
+	
 	/**
 	 * Is the bounding box valid?
 	 */
@@ -97,6 +99,30 @@ public class BoundingBox {
 		}
 		
 		return SSTableHelper.floatArrayToIEEE754ByteBuffer(values).array();
+	}
+	
+	/**
+	 * Tests if two bounding boxes share some space
+	 * @param boundingBox
+	 * @return
+	 */
+	public boolean overlaps(final BoundingBox boundingBox) {
+		
+		// TODO: Implement
+		return false;
+	}
+	
+	/**
+	 * Return the dimension of the bounding box
+	 * @return
+	 */
+	public int getDimension() {
+		
+		if(! valid) {
+			return INVALID_DIMENSION;
+		}
+		
+		return boundingBox.size() / 2;
 	}
 
 	/**

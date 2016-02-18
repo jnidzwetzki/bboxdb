@@ -43,4 +43,25 @@ public class TestBoundingBox {
 		Assert.assertTrue(bb4.isValid());
 	}
 	
+	/**
+	 * Test the dimension of the bounding box
+	 */
+	@Test
+	public void testDimension() {
+		final BoundingBox bb1 = new BoundingBox();
+		Assert.assertEquals(0, bb1.getDimension());
+		
+		final BoundingBox bb2 = new BoundingBox(1f, 10f);
+		Assert.assertEquals(1, bb2.getDimension());
+		
+		final BoundingBox bb3 = new BoundingBox(1f, 10f, 10f, 50f);
+		Assert.assertEquals(2, bb3.getDimension());
+		
+		final BoundingBox bb4 = new BoundingBox(1f, 10f, 10f, 50f, 10f, 10f);
+		Assert.assertEquals(3, bb4.getDimension());
+		
+		final BoundingBox bb5 = new BoundingBox(1f, 10f, 10f);
+		Assert.assertEquals(BoundingBox.INVALID_DIMENSION, bb5.getDimension());
+	}
+	
 }
