@@ -64,7 +64,7 @@ public class BoundingBox {
 			values[i] = boundingBox.get(i);
 		}
 		
-		return SSTableHelper.floatArrayToByteBuffer(values).array();
+		return SSTableHelper.floatArrayToIEEE754ByteBuffer(values).array();
 	}
 
 	/**

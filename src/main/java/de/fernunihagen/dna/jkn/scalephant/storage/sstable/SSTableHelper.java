@@ -12,6 +12,11 @@ public class SSTableHelper {
 	public final static int FLOAT_BYTES = Float.SIZE / Byte.SIZE;
 	
 	/**
+	 * Size of a IEEE 754 encoded float in bytes
+	 */
+	public final static int FLOAT_IEEE754_BYTES = Integer.SIZE / Byte.SIZE;
+	
+	/**
 	 * Size of a long in bytes
 	 */
 	public final static int LONG_BYTES = Long.SIZE / Byte.SIZE;
@@ -44,7 +49,23 @@ public class SSTableHelper {
 	}
 	
 	/** 
-	 * Convert a array of float values into a byte buffer
+	 * Convert a array of float values into a byte buffer (in IEEE 754 notation)
+	 * @param longValues
+	 * @return
+	 */
+	public static ByteBuffer floatArrayToIEEE754ByteBuffer(float floatValues[]) {
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(FLOAT_IEEE754_BYTES * floatValues.length);
+		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		
+		for(int i = 0; i < floatValues.length; i++) {
+			byteBuffer.putInt(Float.floatToIntBits(floatValues[i]));
+		}
+		
+		return byteBuffer;
+	}
+	
+	/** 
+	 * Convert a array of float values into a byte buffer (in java notation)
 	 * @param longValues
 	 * @return
 	 */
@@ -69,19 +90,6 @@ public class SSTableHelper {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(LONG_BYTES);
 		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
 		byteBuffer.putLong(longValue);
-		return byteBuffer;
-	}
-	
-	/**
-	 * Encode a float into a byte buffer
-	 * 
-	 * @param floatValue
-	 * @return the long value
-	 */
-	public static ByteBuffer floatToByteBuffer(float floatValue) {
-		final ByteBuffer byteBuffer = ByteBuffer.allocate(FLOAT_BYTES);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
-		byteBuffer.putFloat(floatValue);
 		return byteBuffer;
 	}
 	
@@ -129,7 +137,26 @@ public class SSTableHelper {
 	}
 	
 	/**
-	 * Decode a float array from a byte buffer
+	 * Decode a IEEE 754 encoded float array from a byte buffer
+	 * @param buffer
+	 * @return the float value
+	 */
+	public static float[] readIEEE754FloatArrayFromByte(byte[] buffer) {
+		final int totalValues = buffer.length / FLOAT_IEEE754_BYTES;
+		float values[] = new float[totalValues];
+		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		
+		for(int i = 0; i < totalValues; i++) {
+			final int value = byteBuffer.getInt(i * FLOAT_IEEE754_BYTES);
+			values[i] = Float.intBitsToFloat(value);
+		}
+		
+		return values;
+	}
+	
+	/**
+	 * Decode a java encoded float array from a byte buffer
 	 * @param buffer
 	 * @return the float value
 	 */
@@ -140,7 +167,7 @@ public class SSTableHelper {
 		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
 		
 		for(int i = 0; i < totalValues; i++) {
-			values[i] = byteBuffer.getFloat(i * LONG_BYTES);
+			values[i] = byteBuffer.getFloat(i * FLOAT_BYTES);
 		}
 		
 		return values;
