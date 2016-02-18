@@ -14,17 +14,28 @@ public class BoundingBox {
 	 * The boundingBox contains a bounding box for a tuple.
 	 * The boundingBox for n dimensions is structured as follows:
 	 * 
-	 * boundingBox[0] = x_1
-	 * boundingBox[1] = y_1
+	 * boundingBox[0] = coordinate_0
+	 * boundingBox[1] = extent_0
+	 * boundingBox[2] = coordinate_1
+	 * boundingBox[3] = extent_1
+	 * boundingBox[4] = coordinate_2
+	 * boundingBox[5] = extent_2
+	 * 
 	 * [...]
-	 * boundingBox[n-1] = x_n
-	 * boundingBox[n] = y_n
+	 * boundingBox[2n] = coordinate_n
+	 * boundingBox[2n+1] = extent_n
 	 */
 	protected final List<Float> boundingBox;
+	
+	/**
+	 * Is the bounding box valid?
+	 */
+	protected final boolean valid;
 	
 	public BoundingBox(Float... args) {
 		boundingBox = new ArrayList<Float>(args.length);
 		boundingBox.addAll(Arrays.asList(args));
+		valid = checkValid();
 	}
 	
 	public BoundingBox(float[] values) {
@@ -33,15 +44,36 @@ public class BoundingBox {
 		for(int i = 0; i < values.length; i++) {
 			boundingBox.add(values[i]);
 		}
+		
+		valid = checkValid();
 	}
 
 	/**
-	 * Checks that the bounding box is valid
+	 * Determines if the bounding box is valid or not
+	 */
+	protected boolean checkValid() {
+		
+		if (boundingBox.size() % 2 != 0) {
+			return false;
+		}
+		
+		// No negative extent
+		for(int i = 1; i < boundingBox.size(); i=i+2) {
+			if(boundingBox.get(i) < 0) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Returns the valid state of the bounding box
 	 * 
 	 * @return
 	 */
 	public boolean isValid() {
-		return (boundingBox.size() / 2 == 0);
+		return valid;
 	}
 	
 	/**
