@@ -59,7 +59,7 @@ public class TestNetworkCommunication {
 	public void sendDeletePackage() throws InterruptedException, ExecutionException {
 		final ScalephantClient scalephantClient = connectToServer();
 		
-		ClientOperationFuture result = scalephantClient.deleteTable("testrelation");
+		ClientOperationFuture result = scalephantClient.deleteTable("1_testgroup1_relation3");
 		
 		result.get();
 		
@@ -95,7 +95,7 @@ public class TestNetworkCommunication {
 		final ScalephantClient scalephantClient = connectToServer();
 		
 		// First call
-		ClientOperationFuture result1 = scalephantClient.deleteTable("testrelation");
+		ClientOperationFuture result1 = scalephantClient.deleteTable("1_testgroup1_relation3");
 		result1.get();
 		Assert.assertTrue(result1.isDone());
 		Assert.assertFalse(result1.isFailed());
@@ -106,7 +106,7 @@ public class TestNetworkCommunication {
 		Thread.sleep(1000);
 		
 		// Second call
-		ClientOperationFuture result2 = scalephantClient.deleteTable("testrelation");
+		ClientOperationFuture result2 = scalephantClient.deleteTable("1_testgroup1_relation3");
 		result2.get();
 		Assert.assertTrue(result2.isDone());
 		Assert.assertFalse(result2.isFailed());
@@ -124,7 +124,7 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException {
-		final String table = "testtable47";
+		final String table = "1_testgroup1_relation3";
 		final String key = "key12";
 		
 		final ScalephantClient scalephantClient = connectToServer();

@@ -19,7 +19,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
 
 public class TestSSTable {
 	
-	protected final static String TEST_RELATION = "testrelation";
+	protected final static String TEST_RELATION = "1_testgroup1_relation3";
 	protected final StorageConfiguration storageConfiguration = new StorageConfiguration();
 
 	
