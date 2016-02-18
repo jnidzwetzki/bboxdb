@@ -26,6 +26,11 @@ public class TestTablenameParser {
 		invalidNames.add("3_abc_");
 		invalidNames.add("3_abc_def_gef");
 		invalidNames.add("__def");
+		invalidNames.add("abc__def");
+		invalidNames.add("-0_df_def");
+		invalidNames.add("1-0_df_def");
+		invalidNames.add("-1_df_def");
+		invalidNames.add("0_df_def");
 
 		for(final String invalidTablename : invalidNames) {
 			final Tablename tablename = new Tablename(invalidTablename);

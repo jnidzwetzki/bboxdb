@@ -85,6 +85,11 @@ public class Tablename {
 			return false;
 		}
 		
+		if(dimension <= 0) {
+			logger.warn("Got invalid dimension: " + dimension);
+			return false;
+		}
+		
 		group = parts[1];
 		identifier = parts[2];
 		
