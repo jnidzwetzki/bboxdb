@@ -129,6 +129,24 @@ public class SSTableHelper {
 	}
 	
 	/**
+	 * Decode a float array from a byte buffer
+	 * @param buffer
+	 * @return the float value
+	 */
+	public static float[] readFloatArrayFromByte(byte[] buffer) {
+		final int totalValues = buffer.length / FLOAT_BYTES;
+		float values[] = new float[totalValues];
+		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
+		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		
+		for(int i = 0; i < totalValues; i++) {
+			values[i] = byteBuffer.getFloat(i * LONG_BYTES);
+		}
+		
+		return values;
+	}
+	
+	/**
 	 * Decode a long from a byte buffer
 	 * @param buffer
 	 * @return the long value

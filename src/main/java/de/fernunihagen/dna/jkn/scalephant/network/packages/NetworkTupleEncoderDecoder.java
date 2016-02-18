@@ -38,8 +38,8 @@ public class NetworkTupleEncoderDecoder {
 		final byte[] dataBytes = new byte[dataLength];
 		encodedPackage.get(dataBytes, 0, dataBytes.length);
 		
-		final long[] longArray = SSTableHelper.readLongArrayFromByte(boxBytes);
-		final BoundingBox boundingBox = new BoundingBox(longArray);
+		final float[] floatArray = SSTableHelper.readFloatArrayFromByte(boxBytes);
+		final BoundingBox boundingBox = new BoundingBox(floatArray);
 		
 		final Tuple tuple = new Tuple(key, boundingBox, dataBytes, timestamp);
 		

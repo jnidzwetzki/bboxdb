@@ -99,8 +99,8 @@ public class SSTableReader extends AbstractTableReader {
 		final byte[] dataBytes = new byte[dataLength];
 		memory.get(dataBytes, 0, dataBytes.length);				
 		
-		final long[] longArray = SSTableHelper.readLongArrayFromByte(boxBytes);
-		final BoundingBox boundingBox = new BoundingBox(longArray);
+		final float[] floatArray = SSTableHelper.readFloatArrayFromByte(boxBytes);
+		final BoundingBox boundingBox = new BoundingBox(floatArray);
 		
 		final String keyString = new String(keyBytes);
 		

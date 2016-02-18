@@ -20,15 +20,15 @@ public class BoundingBox {
 	 * boundingBox[n-1] = x_n
 	 * boundingBox[n] = y_n
 	 */
-	protected final List<Long> boundingBox;
+	protected final List<Float> boundingBox;
 	
-	public BoundingBox(Long... args) {
-		boundingBox = new ArrayList<Long>(args.length);
+	public BoundingBox(Float... args) {
+		boundingBox = new ArrayList<Float>(args.length);
 		boundingBox.addAll(Arrays.asList(args));
 	}
 	
-	public BoundingBox(long[] values) {
-		boundingBox = new ArrayList<Long>(values.length);
+	public BoundingBox(float[] values) {
+		boundingBox = new ArrayList<Float>(values.length);
 		
 		for(int i = 0; i < values.length; i++) {
 			boundingBox.add(values[i]);
@@ -59,12 +59,12 @@ public class BoundingBox {
 	 * @return
 	 */
 	public byte[] toByteArray() {
-		final long[] values = new long[boundingBox.size()];
+		final float[] values = new float[boundingBox.size()];
 		for(int i = 0; i < boundingBox.size(); i++) {
 			values[i] = boundingBox.get(i);
 		}
 		
-		return SSTableHelper.longArrayToByteBuffer(values).array();
+		return SSTableHelper.floatArrayToByteBuffer(values).array();
 	}
 
 	/**
