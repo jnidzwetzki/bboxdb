@@ -7,17 +7,22 @@ import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 public class SSTableHelper {
 	
 	/**
-	 * Size of a Long in Bytes
+	 * Size of a float in bytes
+	 */
+	public final static int FLOAT_BYTES = Float.SIZE / Byte.SIZE;
+	
+	/**
+	 * Size of a long in bytes
 	 */
 	public final static int LONG_BYTES = Long.SIZE / Byte.SIZE;
 	
 	/**
-	 * Shize of a Integer in Bytes
+	 * Size of a integer in bytes
 	 */
 	public final static int INT_BYTES = Integer.SIZE / Byte.SIZE;
 	
 	/**
-	 * Size of a Short in Bytes
+	 * Size of a short in bytes
 	 */
 	public final static int SHORT_BYTES = Short.SIZE / Byte.SIZE;
 	
@@ -38,6 +43,22 @@ public class SSTableHelper {
 		return byteBuffer;
 	}
 	
+	/** 
+	 * Convert a array of float values into a byte buffer
+	 * @param longValues
+	 * @return
+	 */
+	public static ByteBuffer floatArrayToByteBuffer(float floatValues[]) {
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(FLOAT_BYTES * floatValues.length);
+		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		
+		for(int i = 0; i < floatValues.length; i++) {
+			byteBuffer.putFloat(floatValues[i]);
+		}
+		
+		return byteBuffer;
+	}
+	
 	/**
 	 * Encode a long into a byte buffer
 	 * 
@@ -48,6 +69,19 @@ public class SSTableHelper {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(LONG_BYTES);
 		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
 		byteBuffer.putLong(longValue);
+		return byteBuffer;
+	}
+	
+	/**
+	 * Encode a float into a byte buffer
+	 * 
+	 * @param floatValue
+	 * @return the long value
+	 */
+	public static ByteBuffer floatToByteBuffer(float floatValue) {
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(FLOAT_BYTES);
+		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.putFloat(floatValue);
 		return byteBuffer;
 	}
 	
