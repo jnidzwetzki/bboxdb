@@ -124,7 +124,7 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException {
-		final String table = "1_testgroup1_relation3";
+		final String table = "1_testgroup1_relation4";
 		final String key = "key12";
 		
 		final ScalephantClient scalephantClient = connectToServer();
