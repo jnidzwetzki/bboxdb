@@ -9,7 +9,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 
 ### Version 0.0.4 (Alpha) - TBA
 - Implemented BoundingBoxes
-- Implemented naming scheme for tables
+- Implemented a naming scheme for tables
 - Added a start and stop script for Linux (using Apache jsvc)
 
 ### Version 0.0.3 (Alpha) - 16.02.2015
