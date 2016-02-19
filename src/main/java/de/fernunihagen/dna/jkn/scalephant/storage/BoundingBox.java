@@ -113,6 +113,24 @@ public class BoundingBox {
 	}
 	
 	/**
+	 * The the coordinate for the dimension
+	 * @param dimension
+	 * @return
+	 */
+	public float getCoordinate(final int dimension) {
+		return boundingBox.get(dimension);
+	}
+	
+	/**
+	 * Get the extent for the dimension
+	 * @param dimension
+	 * @return
+	 */
+	public float getExtent(final int dimension) {
+		return boundingBox.get(dimension + 1);
+	}
+	
+	/**
 	 * Return the dimension of the bounding box
 	 * @return
 	 */
