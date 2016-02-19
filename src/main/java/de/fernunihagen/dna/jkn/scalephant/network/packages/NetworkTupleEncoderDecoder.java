@@ -18,11 +18,11 @@ public class NetworkTupleEncoderDecoder {
 	 * @return
 	 */
 	public static TupleAndTable decode(final ByteBuffer encodedPackage) {
-		short tableLength = encodedPackage.getShort();
-		short keyLength = encodedPackage.getShort();
-		int bBoxLength = encodedPackage.getInt();
-		int dataLength = encodedPackage.getInt();
-		long timestamp = encodedPackage.getLong();
+		final short tableLength = encodedPackage.getShort();
+		final short keyLength = encodedPackage.getShort();
+		final int bBoxLength = encodedPackage.getInt();
+		final int dataLength = encodedPackage.getInt();
+		final long timestamp = encodedPackage.getLong();
 		
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
