@@ -91,8 +91,8 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 			return null;
 		}
 		
-		short tableLength = encodedPackage.getShort();
-		short keyLength = encodedPackage.getShort();
+		final short tableLength = encodedPackage.getShort();
+		final short keyLength = encodedPackage.getShort();
 		
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
