@@ -103,22 +103,94 @@ public class BoundingBox {
 	
 	/**
 	 * Tests if two bounding boxes share some space
+	 * 
+	 * For each dimension:
+	 * 
+	 * Case 1: 1 overlaps 2 at the left end
+	 *  |--------|                      // 1
+	 *      |------------|              // 2
+	 *
+	 * Case 2: 1 overlaps 2 at the tight end
+	 *            |--------|            // 1
+	 *   |------------|                 // 2
+	 *
+	 * Case 3: 1 is inside 2
+	 *    |-------------------|         // 1
+	 *  |-----------------------|       // 2
+	 *
+	 * Case 4: 2 is inside 1
+	 * |-----------------------|        // 1
+	 *      |----------|                // 2
+	 *
+	 * Case 5: 1 = 2
+	 *            |--------|            // 1
+	 *            |--------|            // 2
+	 * 
+	 * Case 6: No overlapping
+	 * |-------|                        // 1
+	 *               |---------|        // 2
 	 * @param boundingBox
 	 * @return
 	 */
 	public boolean overlaps(final BoundingBox boundingBox) {
 		
-		// TODO: Implement
-		return false;
+		// Null does overlap with nothing
+		if(boundingBox == null) {
+			return false;
+		}
+		
+		// Both boxes are equal (Case 5)
+		if(equals(boundingBox)) {
+			return true;
+		}
+		
+		// Dimensions are not equal
+		if(boundingBox.getDimension() != getDimension()) {
+			return false;
+		}
+		
+		// Check the overlapping in each dimension d
+		for(int d = 0; d < getDimension(); d++) {
+			
+			System.out.println("Test dimension " + d);
+			
+			// Case 1 or 3
+			if(isCoveringPointInDimension(boundingBox.getCoordinateLow(d), d)) {
+				continue;
+			}
+			
+			// Case 2 or 3
+			if(isCoveringPointInDimension(boundingBox.getCoordinateHigh(d), d)) {
+				continue;
+			}
+			
+			// Case 4 
+			if(boundingBox.isCoveringPointInDimension(getCoordinateLow(d), d)) {
+				continue;
+			}
+			
+			System.out.println("Test dimension " + d + " failed");
+
+			
+			// None of the above conditions matches (Case 6)
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/**
-	 * The the coordinate for the dimension
+	 * Does the bounding box covers the point in the dimension?
+	 * @param point
 	 * @param dimension
 	 * @return
 	 */
-	public float getCoordinate(final int dimension) {
-		return boundingBox.get(dimension);
+	public boolean isCoveringPointInDimension(float point, int dimension) {
+		if(getCoordinateLow(dimension) <= point && getCoordinateHigh(dimension) >= point) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -127,7 +199,25 @@ public class BoundingBox {
 	 * @return
 	 */
 	public float getExtent(final int dimension) {
-		return boundingBox.get(dimension + 1);
+		return boundingBox.get((2 * dimension) + 1);
+	}
+	
+	/**
+	 * The the lowest coordinate for the dimension
+	 * @param dimension
+	 * @return
+	 */
+	public float getCoordinateLow(final int dimension) {
+		return boundingBox.get(2 * dimension);
+	}
+	
+	/**
+	 * The the highest coordinate for the dimension
+	 * @param dimension
+	 * @return
+	 */
+	public float getCoordinateHigh(final int dimension) {
+		return getCoordinateLow(dimension) + getExtent(dimension);
 	}
 	
 	/**
@@ -149,7 +239,20 @@ public class BoundingBox {
 	 */
 	@Override
 	public String toString() {
-		return "BoundingBox [boundingBox=" + boundingBox + "]";
+		final StringBuilder sb = new StringBuilder("BoundingBox [dimensions=");
+		sb.append(getDimension());
+		
+		for(int d = 0; d < getDimension(); d++) {
+			sb.append(", dimension ");
+			sb.append(d);
+			sb.append(" low: ");
+			sb.append(getCoordinateLow(d));
+			sb.append(" high: ");
+			sb.append(getCoordinateHigh(d));
+		}
+				
+		sb.append("]");
+		return sb.toString();
 	}
 
 	/**
