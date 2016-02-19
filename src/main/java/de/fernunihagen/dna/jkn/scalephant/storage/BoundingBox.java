@@ -152,8 +152,6 @@ public class BoundingBox {
 		// Check the overlapping in each dimension d
 		for(int d = 0; d < getDimension(); d++) {
 			
-			System.out.println("Test dimension " + d);
-			
 			// Case 1 or 3
 			if(isCoveringPointInDimension(boundingBox.getCoordinateLow(d), d)) {
 				continue;
@@ -168,9 +166,6 @@ public class BoundingBox {
 			if(boundingBox.isCoveringPointInDimension(getCoordinateLow(d), d)) {
 				continue;
 			}
-			
-			System.out.println("Test dimension " + d + " failed");
-
 			
 			// None of the above conditions matches (Case 6)
 			return false;
