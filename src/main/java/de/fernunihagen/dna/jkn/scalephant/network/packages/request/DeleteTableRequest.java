@@ -28,7 +28,6 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 		this.table = table;
 	}
 	
-
 	@Override
 	public byte[] getByteArray(final short sequenceNumber) {
 		final NetworkPackageEncoder networkPackageEncoder 
@@ -78,7 +77,7 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 			return null;
 		}
 		
-		short tableLength = encodedPackage.getShort();
+		final short tableLength = encodedPackage.getShort();
 		
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
