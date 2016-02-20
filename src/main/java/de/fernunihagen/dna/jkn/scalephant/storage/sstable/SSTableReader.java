@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
-import de.fernunihagen.dna.jkn.scalephant.storage.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
-import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class SSTableReader extends AbstractTableReader {
 

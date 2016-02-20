@@ -7,10 +7,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
-import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 
 public class TestInMemoryStorage {

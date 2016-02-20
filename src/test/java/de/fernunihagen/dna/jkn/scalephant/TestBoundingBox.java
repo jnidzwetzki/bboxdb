@@ -4,7 +4,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
 public class TestBoundingBox {
 

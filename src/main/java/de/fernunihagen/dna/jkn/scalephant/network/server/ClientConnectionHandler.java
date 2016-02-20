@@ -25,7 +25,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessRespo
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
-import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class ClientConnectionHandler implements Runnable {
 	

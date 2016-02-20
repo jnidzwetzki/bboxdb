@@ -23,8 +23,8 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SingleTupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
-import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
-import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class TestNetworkClasses {
 	

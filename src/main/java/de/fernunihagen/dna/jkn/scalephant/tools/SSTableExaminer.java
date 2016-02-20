@@ -6,7 +6,7 @@ import java.nio.BufferUnderflowException;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
-import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableIndexReader;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableReader;
 

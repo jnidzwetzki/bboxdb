@@ -12,8 +12,8 @@ import org.junit.Test;
 import de.fernunihagen.dna.jkn.scalephant.network.ClientOperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
-import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
-import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class TestNetworkCommunication {
 

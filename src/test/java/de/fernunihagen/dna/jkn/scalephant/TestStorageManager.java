@@ -5,11 +5,11 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
-import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 
 public class TestStorageManager {

@@ -28,7 +28,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorWithBod
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SingleTupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
-import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class ScalephantClient {
 

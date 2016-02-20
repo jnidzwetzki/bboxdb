@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.TupleAndTable;
-import de.fernunihagen.dna.jkn.scalephant.storage.BoundingBox;
-import de.fernunihagen.dna.jkn.scalephant.storage.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
 public class NetworkTupleEncoderDecoder {
