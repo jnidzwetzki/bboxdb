@@ -243,3 +243,21 @@ This query asks for a specific key in a particular table.
 The result could be currently the response types 0x00, 0x02, 0x03 and 0x05. The result types 0x02, 0x03 indicate an error. The result type 0x00 means, that the query is processed successfully, but no matching tuple was found. The result type 0x05 indicates that one tuple is found.
 
 ### Bounding-Box-Query
+This query asks for all tupes, that are covered by the bounding box.
+
+#### Request body
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|  0x02   |  Table-Length   | BBOX-  | 
+	+---------+-----------------+--------+
+	|           -Length         | Table- |
+	+---------------------------+        |
+	.               -name                .
+	+------------------------------------+
+	|                 BBOX               |
+	.                                    .
+	+------------------------------------+
+
+#### Response body
+The result could be currently the response types 0x02, 0x03.
