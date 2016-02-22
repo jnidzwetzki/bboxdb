@@ -18,6 +18,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SingleTupleResponse;
@@ -180,6 +181,30 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryKeyRequest.getTable(), decodedPackage.getTable());
 		
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_KEY, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+	}
+	
+	/**
+	 * Test decoding and encoding of the key query
+	 */
+	@Test
+	public void testDecodeBoundingBoxQuery() {
+		final String table = "table1";
+		final BoundingBox boundingBox = new BoundingBox(10f, 10f);
+		
+		final QueryBoundingBoxRequest queryRequest = new QueryBoundingBoxRequest(table, boundingBox);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		byte[] encodedPackage = queryRequest.getByteArray(sequenceNumber);
+		Assert.assertNotNull(encodedPackage);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
+		Assert.assertTrue(result);
+
+		final QueryBoundingBoxRequest decodedPackage = QueryBoundingBoxRequest.decodeTuple(bb);
+		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
+		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
+		
+		Assert.assertEquals(NetworkConst.REQUEST_QUERY_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 	}
 	
 	/**

@@ -11,8 +11,9 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkQueryRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
-public class QueryKeyRequest implements NetworkQueryRequestPackage {
+public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	
 	/**
 	 * The name of the table
@@ -20,18 +21,18 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 	protected final String table;
 
 	/**
-	 * The name of the key
+	 * The the query bounding box
 	 */
-	protected final String key;
+	protected final BoundingBox box;
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(QueryKeyRequest.class);
+	private final static Logger logger = LoggerFactory.getLogger(QueryBoundingBoxRequest.class);
 	
-	public QueryKeyRequest(final String table, final String key) {
+	public QueryBoundingBoxRequest(final String table, final BoundingBox box) {
 		this.table = table;
-		this.key = key;
+		this.box = box;
 	}
 
 	@Override
@@ -43,17 +44,17 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 		
 		try {
 			final byte[] tableBytes = table.getBytes();
-			final byte[] keyBytes = key.getBytes();
+			final byte[] bboxBytes = box.toByteArray();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(5);
 			bb.order(NetworkConst.NETWORK_BYTEORDER);
 			
 			bb.put(getQueryType());
 			bb.putShort((short) tableBytes.length);
-			bb.putShort((short) keyBytes.length);
+			bb.putShort((short) bboxBytes.length);
 			
 			// Write body length
-			final int bodyLength = bb.capacity() + tableBytes.length + keyBytes.length;
+			final int bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;
 			
 			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
 			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
@@ -63,7 +64,7 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 			// Write body
 			bos.write(bb.array());
 			bos.write(tableBytes);
-			bos.write(keyBytes);
+			bos.write(bboxBytes);
 			
 			bos.close();
 		} catch (IOException e) {
@@ -80,7 +81,7 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static QueryKeyRequest decodeTuple(final ByteBuffer encodedPackage) {
+	public static QueryBoundingBoxRequest decodeTuple(final ByteBuffer encodedPackage) {
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
 		
 		if(decodeResult == false) {
@@ -90,27 +91,27 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 		
 	    final byte queryType = encodedPackage.get();
 	    
-	    if(queryType != NetworkConst.REQUEST_QUERY_KEY) {
-	    	logger.error("Wrong query type: " + queryType);
+	    if(queryType != NetworkConst.REQUEST_QUERY_BBOX) {
+	    	logger.error("Wrong query type: " + queryType + " required type is: " + NetworkConst.REQUEST_QUERY_BBOX);
 	    	return null;
 	    }
 		
 		final short tableLength = encodedPackage.getShort();
-		final short keyLength = encodedPackage.getShort();
+		final short bboxLength = encodedPackage.getShort();
 		
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
 		final String table = new String(tableBytes);
 		
-		final byte[] keyBytes = new byte[keyLength];
-		encodedPackage.get(keyBytes, 0, keyBytes.length);
-		final String key = new String(keyBytes);
+		final byte[] bboxBytes = new byte[bboxLength];
+		encodedPackage.get(bboxBytes, 0, bboxBytes.length);
+		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);
 		
 		if(encodedPackage.remaining() != 0) {
 			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
-		return new QueryKeyRequest(table, key);
+		return new QueryBoundingBoxRequest(table, boundingBox);
 	}
 
 	@Override
@@ -120,15 +121,15 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 
 	@Override
 	public byte getQueryType() {
-		return NetworkConst.REQUEST_QUERY_KEY;
+		return NetworkConst.REQUEST_QUERY_BBOX;
 	}
 	
 	public String getTable() {
 		return table;
 	}
 
-	public String getKey() {
-		return key;
+	public BoundingBox getBoundingBox() {
+		return box;
 	}
 
 }
