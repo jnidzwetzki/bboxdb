@@ -56,7 +56,7 @@ public class MultipleTupleStartResponse extends NetworkResponsePackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static MultipleTupleStartResponse decodeTuple(final ByteBuffer encodedPackage) {
+	public static MultipleTupleStartResponse decodePackage(final ByteBuffer encodedPackage) {
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_MULTIPLE_TUPLE_START);
 		

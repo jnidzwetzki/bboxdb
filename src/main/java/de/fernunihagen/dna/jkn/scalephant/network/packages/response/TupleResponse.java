@@ -67,7 +67,7 @@ public class TupleResponse extends NetworkResponsePackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static TupleResponse decodeTuple(final ByteBuffer encodedPackage) {		
+	public static TupleResponse decodePackage(final ByteBuffer encodedPackage) {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TUPLE);

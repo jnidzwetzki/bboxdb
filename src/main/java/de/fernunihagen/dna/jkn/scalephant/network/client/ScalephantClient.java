@@ -5,7 +5,9 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -25,6 +27,8 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyReque
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.AbstractBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupleEndResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupleStartResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
@@ -67,6 +71,11 @@ public class ScalephantClient {
 	 */
 	protected final Map<Short, ClientOperationFuture> pendingCalls = new HashMap<Short, ClientOperationFuture>();
 
+	/**
+	 * The result buffer
+	 */
+	protected final Map<Short, List<Tuple>> resultBuffer = new HashMap<Short, List<Tuple>>();
+	
 	/**
 	 * The server response reader
 	 */
@@ -115,6 +124,7 @@ public class ScalephantClient {
 			inputStream = new BufferedInputStream(clientSocket.getInputStream());
 			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
 			pendingCalls.clear();
+			resultBuffer.clear();
 			
 			// Start up the resonse reader
 			serverResponseReader = new ServerResponseReader();
@@ -153,6 +163,9 @@ public class ScalephantClient {
 				}
 			}
 		}
+		
+		pendingCalls.clear();
+		resultBuffer.clear();
 		
 		if(clientSocket != null) {
 			try {
@@ -393,6 +406,7 @@ public class ScalephantClient {
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 
 			ClientOperationFuture pendingCall = null;
+			boolean removeFuture = true;
 			synchronized (pendingCalls) {
 				pendingCall = pendingCalls.get(Short.valueOf(sequenceNumber));
 			}
@@ -403,37 +417,57 @@ public class ScalephantClient {
 						pendingCall.setOperationResult(true);
 					}
 					break;
+					
 				case NetworkConst.RESPONSE_ERROR:
 					if(pendingCall != null) {
 						pendingCall.setOperationResult(false);
 					}
 					break;
+					
 				case NetworkConst.RESPONSE_SUCCESS_WITH_BODY:
 					handleSuccessWithBody(encodedPackage, pendingCall);
 					break;
+					
 				case NetworkConst.RESPONSE_ERROR_WITH_BODY:
 					handleErrorWithBody(encodedPackage, pendingCall);
 					break;
+					
 				case NetworkConst.RESPONSE_LIST_TABLES:
 					handleListTables(encodedPackage, pendingCall);
 					break;
+					
 				case NetworkConst.RESPONSE_TUPLE:
-					handleSingleTuple(encodedPackage, pendingCall);
+					// The removal of the future depends, if this is a one
+					// tuple result or a multiple tuple result
+					removeFuture = handleTuple(encodedPackage, pendingCall);
 					break;
+					
+				case NetworkConst.RESPONSE_MULTIPLE_TUPLE_START:
+					handleMultiTupleStart(encodedPackage);
+					removeFuture = false;
+					break;
+					
+				case NetworkConst.RESPONSE_MULTIPLE_TUPLE_END:
+					handleMultiTupleEnd(encodedPackage, pendingCall);
+					break;
+					
 				default:
 					logger.error("Unknown respose package type: " + packageType);
+					
 					if(pendingCall != null) {
 						pendingCall.setFailedState();
 					}
 			}
 			
 			// Remove pending call
-			synchronized (pendingCalls) {
-				pendingCalls.remove(Short.valueOf(sequenceNumber));
-				pendingCalls.notifyAll();
+			if(removeFuture) {
+				synchronized (pendingCalls) {
+					pendingCalls.remove(Short.valueOf(sequenceNumber));
+					pendingCalls.notifyAll();
+				}
 			}
 		}
-		
+
 		/**
 		 * Kill pending calls
 		 */
@@ -499,10 +533,24 @@ public class ScalephantClient {
 	 * @param encodedPackage
 	 * @param pendingCall
 	 */
-	protected void handleSingleTuple(final ByteBuffer encodedPackage,
+	protected boolean handleTuple(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) {
-		final TupleResponse singleTupleResponse = TupleResponse.decodeTuple(encodedPackage);
-		pendingCall.setOperationResult(singleTupleResponse.getTuple());
+		
+		final TupleResponse singleTupleResponse = TupleResponse.decodePackage(encodedPackage);
+		final short sequenceNumber = singleTupleResponse.getSequenceNumber();
+		
+		// Tuple is part of a multi tuple result
+		if(resultBuffer.containsKey(sequenceNumber)) {
+			resultBuffer.get(sequenceNumber).add(singleTupleResponse.getTuple());
+			return false;
+		}
+		
+		// Single tuple is returned
+		if(pendingCall != null) {
+			pendingCall.setOperationResult(singleTupleResponse.getTuple());
+		}
+		
+		return true;
 	}
 
 	/**
@@ -512,8 +560,11 @@ public class ScalephantClient {
 	 */
 	protected void handleListTables(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) {
-		final ListTablesResponse tables = ListTablesResponse.decodeTuple(encodedPackage);
-		pendingCall.setOperationResult(tables.getTables());
+		final ListTablesResponse tables = ListTablesResponse.decodePackage(encodedPackage);
+		
+		if(pendingCall != null) {
+			pendingCall.setOperationResult(tables.getTables());
+		}
 	}
 
 	/**
@@ -523,8 +574,11 @@ public class ScalephantClient {
 	 */
 	protected void handleErrorWithBody(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) {
-		final AbstractBodyResponse result = ErrorWithBodyResponse.decodeTuple(encodedPackage);
-		pendingCall.setOperationResult(result.getBody());
+		final AbstractBodyResponse result = ErrorWithBodyResponse.decodePackage(encodedPackage);
+		
+		if(pendingCall != null) {
+			pendingCall.setOperationResult(result.getBody());
+		}
 	}
 
 	/**
@@ -534,7 +588,39 @@ public class ScalephantClient {
 	 */
 	protected void handleSuccessWithBody(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) {
-		final SuccessWithBodyResponse result = SuccessWithBodyResponse.decodeTuple(encodedPackage);
-		pendingCall.setOperationResult(result.getBody());
+		final SuccessWithBodyResponse result = SuccessWithBodyResponse.decodePackage(encodedPackage);
+		
+		if(pendingCall != null) {
+			pendingCall.setOperationResult(result.getBody());
+		}
 	}	
+	
+	/**
+	 * 
+	 * @param encodedPackage
+	 */
+	protected void handleMultiTupleStart(final ByteBuffer encodedPackage) {
+		final MultipleTupleStartResponse result = MultipleTupleStartResponse.decodePackage(encodedPackage);
+		resultBuffer.put(result.getSequenceNumber(), new ArrayList<Tuple>());
+	}
+	
+
+	protected void handleMultiTupleEnd(final ByteBuffer encodedPackage,
+			final ClientOperationFuture pendingCall) {
+		final MultipleTupleEndResponse result = MultipleTupleEndResponse.decodePackage(encodedPackage);
+		
+		final List<Tuple> resultList = resultBuffer.get(result.getSequenceNumber());
+		
+		if(resultList == null) {
+			logger.warn("Got handleMultiTupleEnd and resultList is empty");
+			return;
+		}
+		
+		if(pendingCall == null) {
+			logger.warn("Got handleMultiTupleEnd and pendingCall is empty");
+			return;
+		}
+		
+		pendingCall.setOperationResult(resultList);
+	}
 }

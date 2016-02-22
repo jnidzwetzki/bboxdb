@@ -358,7 +358,7 @@ public class TestNetworkClasses {
 		Assert.assertNotNull(encodedPackage);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		final ListTablesResponse responseDecoded = ListTablesResponse.decodeTuple(bb);
+		final ListTablesResponse responseDecoded = ListTablesResponse.decodePackage(bb);
 		final List<String> myTables = responseDecoded.getTables();
 		Assert.assertEquals(tables, myTables);
 		Assert.assertEquals(tables.size(), myTables.size());
@@ -377,7 +377,7 @@ public class TestNetworkClasses {
 		Assert.assertNotNull(encodedPackage);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		final TupleResponse responseDecoded = TupleResponse.decodeTuple(bb);
+		final TupleResponse responseDecoded = TupleResponse.decodePackage(bb);
 		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
 		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());		
 	}

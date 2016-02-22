@@ -56,7 +56,7 @@ public class ErrorResponse extends NetworkResponsePackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static ErrorResponse decodeTuple(final ByteBuffer encodedPackage) {
+	public static ErrorResponse decodePackage(final ByteBuffer encodedPackage) {
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_ERROR);
 		

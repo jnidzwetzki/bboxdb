@@ -22,7 +22,7 @@ public class SuccessWithBodyResponse extends AbstractBodyResponse {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static SuccessWithBodyResponse decodeTuple(final ByteBuffer encodedPackage) {
+	public static SuccessWithBodyResponse decodePackage(final ByteBuffer encodedPackage) {
 		final String body = decodeMessage(encodedPackage);
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		

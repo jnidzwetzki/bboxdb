@@ -56,7 +56,7 @@ public class SuccessResponse extends NetworkResponsePackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static SuccessResponse decodeTuple(final ByteBuffer encodedPackage) {
+	public static SuccessResponse decodePackage(final ByteBuffer encodedPackage) {
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_SUCCESS);
 		
 		if(decodeResult == false) {

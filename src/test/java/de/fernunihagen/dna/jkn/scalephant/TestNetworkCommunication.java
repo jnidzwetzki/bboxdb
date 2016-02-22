@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import junit.framework.Assert;
@@ -114,7 +115,7 @@ public class TestNetworkCommunication {
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		
 		disconnectFromServer(scalephantClient);
-		Assert.assertFalse(scalephantClient.isConnected());
+		Assert.assertFalse(scalephantClient.isConnected());		
 	}
 
 	/**
@@ -161,6 +162,47 @@ public class TestNetworkCommunication {
 		Assert.assertTrue(getResult3Object instanceof Boolean);
 		Assert.assertTrue(((Boolean) getResult3Object).booleanValue());
 		
+		// Disconnect
+		disconnectFromServer(scalephantClient);
+	}
+	
+	/**
+	 * Insert some tuples and start a bounding box query afterwards
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testInsertAndBoundingBoxQuery() throws InterruptedException, ExecutionException {
+		final String table = "2_testgroup1_relation5";
+		final ScalephantClient scalephantClient = connectToServer();
+
+		// Inside our bbox query
+		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0f, 1f, 0f, 1f), "abc".getBytes());
+		scalephantClient.insertTuple(table, tuple1);
+		final Tuple tuple2 = new Tuple("def", new BoundingBox(0f, 0.5f, 0f, 0.5f), "def".getBytes());
+		scalephantClient.insertTuple(table, tuple2);
+		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5f, 1f, 0.5f, 1f), "geh".getBytes());
+		scalephantClient.insertTuple(table, tuple3);
+		
+		// Outside our bbox query
+		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10f, 1f, -10f, 1f), "ijk".getBytes());
+		scalephantClient.insertTuple(table, tuple4);
+		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000f, 1f, 1000f, 1f), "lmn".getBytes());
+		scalephantClient.insertTuple(table, tuple5);
+
+		final ClientOperationFuture future = scalephantClient.queryBoundingBox(table, new BoundingBox(-1f, 2f, -1f, 2f));
+		final Object result = future.get();
+		
+		Assert.assertTrue(result instanceof List);
+		@SuppressWarnings("unchecked")
+		final List<Tuple> resultList = (List<Tuple>) result;
+		
+		Assert.assertEquals(3, resultList.size());
+		Assert.assertTrue(resultList.contains(tuple1));
+		Assert.assertTrue(resultList.contains(tuple2));
+		Assert.assertTrue(resultList.contains(tuple3));
+		Assert.assertFalse(resultList.contains(tuple4));
+		Assert.assertFalse(resultList.contains(tuple5));
 	}
 	
 	/**

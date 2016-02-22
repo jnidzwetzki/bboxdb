@@ -103,7 +103,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static ListTablesResponse decodeTuple(final ByteBuffer encodedPackage) {		
+	public static ListTablesResponse decodePackage(final ByteBuffer encodedPackage) {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		final List<String> tables = new ArrayList<String>();
 
