@@ -167,4 +167,14 @@ public class TestBoundingBox {
 		Assert.assertFalse(bb1right.overlaps(bb1left));
 	}
 	
+	/**
+	 * Test empty bounding box overlapping
+	 */
+	@Test
+	public void testOverlapEmptyBoundingBox() {
+		final BoundingBox bb1left = new BoundingBox(0f, 1f, 0f, 1f, 0f, 1f);
+		Assert.assertTrue(bb1left.overlaps(BoundingBox.EMPTY_BOX));
+		Assert.assertTrue(BoundingBox.EMPTY_BOX.overlaps(BoundingBox.EMPTY_BOX));
+	}
+	
 }

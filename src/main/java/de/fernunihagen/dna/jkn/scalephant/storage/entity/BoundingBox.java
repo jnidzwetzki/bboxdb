@@ -149,6 +149,11 @@ public class BoundingBox {
 			return false;
 		}
 		
+		// The empty bounding box overlaps everything
+		if(boundingBox == BoundingBox.EMPTY_BOX) {
+			return true;
+		}
+		
 		// Both boxes are equal (Case 5)
 		if(equals(boundingBox)) {
 			return true;
