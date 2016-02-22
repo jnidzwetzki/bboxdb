@@ -20,12 +20,14 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DisconnectRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.AbstractBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class ScalephantClient {
@@ -244,7 +246,7 @@ public class ScalephantClient {
 	}
 	
 	/**
-	 * Query a given table for a specific key
+	 * Query the given table for a specific key
 	 * @param table
 	 * @param key
 	 * @return
@@ -257,6 +259,24 @@ public class ScalephantClient {
 
 		final ClientOperationFuture future = new ClientOperationFuture();
 		sendPackageToServer(new QueryKeyRequest(table, key), future);
+
+		return future;
+	}
+	
+	/**
+	 * Execute a bounding box query on the given table
+	 * @param table
+	 * @param boundingBox
+	 * @return
+	 */
+	public ClientOperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			logger.warn("queryBoundingBox called, but connection not ready: " + connectionState);
+			return null;
+		}
+		
+		final ClientOperationFuture future = new ClientOperationFuture();
+		sendPackageToServer(new QueryBoundingBoxRequest(table, boundingBox), future);
 
 		return future;
 	}
