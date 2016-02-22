@@ -47,7 +47,7 @@ Request Types:
 	+------------------------------------+
 	
 * Version - The protocol version, currently always 0x01.
-* Request-ID - The id of the request which the repsonse belongs too.
+* Request-ID - The id of the request which the response belongs too.
 * Result - The result of the operation
 * Body length - The length of the body. For Packages without body, the length is set to 0.
 
@@ -58,7 +58,10 @@ Result-Types:
 * Type 0x02 - Operation Error - no package body
 * Type 0x03 - Operation Error - with details in the body
 * Type 0x04 - Result of the List tables call
-* Type 0x05 - A result that contains a single tuple
+* Type 0x05 - A result that contains a tuple
+* Type 0x06 - Start multiple tuple result
+* Type 0x07 - End multiple tuple result
+
 	
 ### Body for response type = 0x01/0x03 (Success/Error with details)
 
@@ -74,6 +77,7 @@ Result-Types:
 * Message - The error message
 
 ### Body for response type = 0x05
+This is a response body that contains a tuple.
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
@@ -100,7 +104,26 @@ Result-Types:
 	.                                    .
 	.                                    .
 	+------------------------------------+
+	
+### Body for response type = 0x06 / 0x07
+By using the response types 0x06 and 0x07 a set of tuples can be transfered. For example, this could be the result of a query. The begin of the transfer of the tuple set is indicated by the package type 0x06; the end is indicated by the type 0x07. Both package types have an empty body. 
 
+Transferring a set of tuples:
+
+    +-------------------------------------+
+    |  0x06 - Start multiple tuple result |
+    +-------------------------------------+
+    |  0x05 - A result tuple              |
+    +-------------------------------------+
+    |  0x05 - A result tuple              |
+    +-------------------------------------+
+    |               ....                  |
+    +-------------------------------------+
+	|  0x05 - A result tuple              |
+    +-------------------------------------+
+	|  0x07 - End multiple tuple result   |
+    +-------------------------------------+
+    
 ## Frame body
 The structure of the body depends on the request type. The next sections describe the used structures.
 
@@ -177,7 +200,7 @@ The body of the package is empty
 	+---------+--------+--------+--------+
 
 #### Response body
-The request body contains the names of the existing tables, seperated by a terminal symbol (\0).
+The request body contains the names of the existing tables, separated by a terminal symbol (\0).
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
@@ -189,7 +212,7 @@ The request body contains the names of the existing tables, seperated by a termi
 
 
 ### Disconnect 
-Discconnect from server
+Disconnect from server
 
 #### Request body
 
@@ -199,7 +222,7 @@ The body of the package is empty
 	+---------+--------+--------+--------+
 
 #### Response body
-The result could be currently only response type 0x00. The server waits until all pending operations are completed successfully. Afterwards, the reponse type 0x00 is send and the connection is closed. 
+The result could be currently only response type 0x00. The server waits until all pending operations are completed successfully. Afterwards, the response type 0x00 is send and the connection is closed. 
 
 ### Query
 This package represents a query.
@@ -243,7 +266,7 @@ This query asks for a specific key in a particular table.
 The result could be currently the response types 0x00, 0x02, 0x03 and 0x05. The result types 0x02, 0x03 indicate an error. The result type 0x00 means, that the query is processed successfully, but no matching tuple was found. The result type 0x05 indicates that one tuple is found.
 
 ### Bounding-Box-Query
-This query asks for all tupes, that are covered by the bounding box.
+This query asks for all tuples, that are covered by the bounding box.
 
 #### Request body
 
