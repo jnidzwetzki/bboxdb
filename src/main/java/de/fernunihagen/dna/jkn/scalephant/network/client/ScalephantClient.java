@@ -399,7 +399,7 @@ public class ScalephantClient {
 				case NetworkConst.RESPONSE_LIST_TABLES:
 					handleListTables(encodedPackage, pendingCall);
 					break;
-				case NetworkConst.RESPONSE_SINGLE_TUPLE:
+				case NetworkConst.RESPONSE_TUPLE:
 					handleSingleTuple(encodedPackage, pendingCall);
 					break;
 				default:

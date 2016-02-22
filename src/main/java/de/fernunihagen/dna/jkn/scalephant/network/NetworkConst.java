@@ -94,5 +94,16 @@ public class NetworkConst {
 	/**
 	 * Response that contains a single tuple
 	 */
-	public static final byte RESPONSE_SINGLE_TUPLE = 0x05;
+	public static final byte RESPONSE_TUPLE = 0x05;
+	
+	/**
+	 * Start a multiple tuple result
+	 */
+	public static final byte RESPONSE_MULTIPLE_TUPLE_START = 0x06;
+	
+	/**
+	 * End a multiple tuple result
+	 */
+	public static final byte RESPONSE_MULTIPLE_TUPLE_END = 0x07;
+
 }
