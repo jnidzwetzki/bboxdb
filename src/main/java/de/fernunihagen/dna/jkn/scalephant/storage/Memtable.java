@@ -1,6 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
@@ -37,12 +39,12 @@ public class Memtable implements Lifecycle, Storage {
 	protected final int entries;
 	
 	/**
-	 * Maximal size of memtable in kb
+	 * Maximal size of memtable in KB
 	 */
 	protected final int maxsize;
 	
 	/**
-	 * Current size in kb
+	 * Current size in KB
 	 */
 	protected int currentSize;
 	
@@ -125,6 +127,26 @@ public class Memtable implements Lifecycle, Storage {
 		}
 		
 		return tuple;
+	}
+	
+	/**
+	 * Get all tuples that are inside of the bounding box. The result list may 
+	 * contain duplicates
+	 */
+	@Override
+	public Collection<Tuple> getTuplesInside(BoundingBox boundingBox)
+			throws StorageManagerException {
+		
+		final List<Tuple> resultList = new ArrayList<Tuple>();
+		
+		for(int i = 0; i < freePos; i++) {
+			final Tuple possibleTuple = data[i];
+			if(possibleTuple.getBoundingBox().overlaps(boundingBox)) {
+				resultList.add(possibleTuple);
+			}
+		}
+		
+		return resultList;
 	}
 	
 	/**

@@ -1,9 +1,13 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
+import java.util.Collection;
+import java.util.HashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
@@ -112,6 +116,42 @@ public class StorageManager implements Lifecycle, Storage {
 		}
 		
 		return storageTuple;
+	}
+	
+	/**
+	 * Get all tuples inside of the bounding box
+	 */
+	@Override
+	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox)
+			throws StorageManagerException {
+		
+		final HashMap<String, Tuple> allTuples = new HashMap<String, Tuple>();
+		
+		final Collection<Tuple> memtableTuples = memtable.getTuplesInside(boundingBox);
+		for(final Tuple tuple : memtableTuples) {
+			
+			final String tupleKey = tuple.getKey();
+			
+			if(! allTuples.containsKey(tupleKey)) {
+				allTuples.put(tupleKey, tuple);
+			} else {
+				// Update with an newer version
+				if(allTuples.get(tupleKey).compareTo(tuple) < 0) {
+					allTuples.put(tupleKey, tuple);
+				}
+			}
+		}
+		
+		//FIXME: Query SSTables 
+		
+		// Remove deleted tuples from result
+		for(final Tuple tuple : allTuples.values()) {
+			if(tuple instanceof DeletedTuple) {
+				allTuples.remove(tuple.getKey());
+			}
+		}
+
+		return allTuples.values();
 	}
 
 	@Override

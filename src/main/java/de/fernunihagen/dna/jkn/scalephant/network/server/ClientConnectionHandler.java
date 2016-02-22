@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -17,11 +18,14 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackag
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupleEndResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupleStartResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
@@ -161,6 +165,10 @@ public class ClientConnectionHandler implements Runnable {
 			case NetworkConst.REQUEST_QUERY_KEY:
 				handleKeyQuery(encodedPackage, packageSequence);
 				break;
+				
+			case NetworkConst.REQUEST_QUERY_BBOX:
+				handleBoundingBoxQuery(encodedPackage, packageSequence);
+				break;
 	
 			default:
 				logger.warn("Unsupported query type: " + queryType);
@@ -193,8 +201,42 @@ public class ClientConnectionHandler implements Runnable {
 				writeResultPackage(new SuccessResponse(packageSequence));
 			}
 			
+			return;
+			
 		} catch (StorageManagerException e) {
 			logger.warn("Got exception while scanning for key", e);
+		}
+		
+		writeResultPackage(new ErrorResponse(packageSequence));
+	}
+	
+	/**
+	 * Handle a bounding box query
+	 * @param encodedPackage
+	 * @param packageSequence
+	 */
+	protected void handleBoundingBoxQuery(final ByteBuffer encodedPackage,
+			final short packageSequence) {
+		
+		final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
+		final String table = queryRequest.getTable();
+		
+		try {
+			final StorageManager storageManager = StorageInterface.getStorageManager(table);
+
+			final Collection<Tuple> resultTuple = storageManager.getTuplesInside(queryRequest.getBoundingBox());
+			
+			writeResultPackage(new MultipleTupleStartResponse(packageSequence));
+			
+			for(final Tuple tuple : resultTuple) {
+				writeResultPackage(new TupleResponse(packageSequence, table, tuple));
+			}
+			
+			writeResultPackage(new MultipleTupleEndResponse(packageSequence));
+			
+			return;
+		} catch (StorageManagerException e) {
+			logger.warn("Got exception while scanning for bbox", e);
 		}
 		
 		writeResultPackage(new ErrorResponse(packageSequence));
