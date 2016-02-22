@@ -20,7 +20,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SingleTupleResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
@@ -188,7 +188,7 @@ public class ClientConnectionHandler implements Runnable {
 			final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
 			
 			if(tuple != null) {
-				writeResultPackage(new SingleTupleResponse(packageSequence, table, tuple));
+				writeResultPackage(new TupleResponse(packageSequence, table, tuple));
 			} else {
 				writeResultPackage(new SuccessResponse(packageSequence));
 			}

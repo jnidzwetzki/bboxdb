@@ -21,7 +21,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesReq
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SingleTupleResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
@@ -372,12 +372,12 @@ public class TestNetworkClasses {
 		final String tablename = "table1";
 		final Tuple tuple = new Tuple("abc", BoundingBox.EMPTY_BOX, "databytes".getBytes());
 		
-		final SingleTupleResponse singleTupleResponse = new SingleTupleResponse((short) 4, tablename, tuple);
+		final TupleResponse singleTupleResponse = new TupleResponse((short) 4, tablename, tuple);
 		byte[] encodedPackage = singleTupleResponse.getByteArray();
 		Assert.assertNotNull(encodedPackage);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		final SingleTupleResponse responseDecoded = SingleTupleResponse.decodeTuple(bb);
+		final TupleResponse responseDecoded = TupleResponse.decodeTuple(bb);
 		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
 		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());		
 	}

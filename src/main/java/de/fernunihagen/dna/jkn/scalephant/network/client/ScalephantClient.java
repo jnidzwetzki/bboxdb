@@ -26,7 +26,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyReque
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.AbstractBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SingleTupleResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
@@ -483,7 +483,7 @@ public class ScalephantClient {
 	 */
 	protected void handleSingleTuple(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) {
-		final SingleTupleResponse singleTupleResponse = SingleTupleResponse.decodeTuple(encodedPackage);
+		final TupleResponse singleTupleResponse = TupleResponse.decodeTuple(encodedPackage);
 		pendingCall.setOperationResult(singleTupleResponse.getTuple());
 	}
 

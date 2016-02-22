@@ -15,7 +15,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackag
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkTupleEncoderDecoder;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
-public class SingleTupleResponse extends NetworkResponsePackage {
+public class TupleResponse extends NetworkResponsePackage {
 	
 	/**
 	 * The table
@@ -30,9 +30,9 @@ public class SingleTupleResponse extends NetworkResponsePackage {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SingleTupleResponse.class);
+	private final static Logger logger = LoggerFactory.getLogger(TupleResponse.class);
 
-	public SingleTupleResponse(final short sequenceNumber, final String table, final Tuple tuple) {
+	public TupleResponse(final short sequenceNumber, final String table, final Tuple tuple) {
 		super(sequenceNumber);
 		this.table = table;
 		this.tuple = tuple;
@@ -67,7 +67,7 @@ public class SingleTupleResponse extends NetworkResponsePackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static SingleTupleResponse decodeTuple(final ByteBuffer encodedPackage) {		
+	public static TupleResponse decodeTuple(final ByteBuffer encodedPackage) {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_SINGLE_TUPLE);
@@ -83,7 +83,7 @@ public class SingleTupleResponse extends NetworkResponsePackage {
 			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
-		return new SingleTupleResponse(requestId, tupleAndTable.getTable(), tupleAndTable.getTuple());
+		return new TupleResponse(requestId, tupleAndTable.getTable(), tupleAndTable.getTuple());
 	}
 
 	public String getTable() {
