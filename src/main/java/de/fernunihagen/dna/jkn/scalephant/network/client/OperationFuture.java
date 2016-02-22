@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.network;
+package de.fernunihagen.dna.jkn.scalephant.network.client;
 
 import java.util.concurrent.Future;
 
