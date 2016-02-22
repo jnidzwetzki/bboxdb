@@ -1,6 +1,5 @@
-package de.fernunihagen.dna.jkn.scalephant.network;
+package de.fernunihagen.dna.jkn.scalephant.storage.entity;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class TupleAndTable {
 

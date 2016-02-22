@@ -10,10 +10,10 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
-import de.fernunihagen.dna.jkn.scalephant.network.TupleAndTable;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkTupleEncoderDecoder;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.TupleAndTable;
 
 public class TupleResponse extends NetworkResponsePackage {
 	
