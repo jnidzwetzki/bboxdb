@@ -8,7 +8,6 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.TupleAndTable;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
 public class NetworkTupleEncoderDecoder {
 	
@@ -38,8 +37,7 @@ public class NetworkTupleEncoderDecoder {
 		final byte[] dataBytes = new byte[dataLength];
 		encodedPackage.get(dataBytes, 0, dataBytes.length);
 		
-		final float[] floatArray = SSTableHelper.readIEEE754FloatArrayFromByte(boxBytes);
-		final BoundingBox boundingBox = new BoundingBox(floatArray);
+		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
 		
 		final Tuple tuple = new Tuple(key, boundingBox, dataBytes, timestamp);
 		

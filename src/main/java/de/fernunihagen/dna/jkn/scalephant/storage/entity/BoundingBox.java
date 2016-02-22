@@ -102,6 +102,16 @@ public class BoundingBox {
 	}
 	
 	/**
+	 * Read the bounding box from a byte array
+	 * @param boxBytes
+	 * @return
+	 */
+	public static BoundingBox fromByteArray(final byte[] boxBytes) {
+		final float[] floatArray = SSTableHelper.readIEEE754FloatArrayFromByte(boxBytes);
+		return new BoundingBox(floatArray);
+	}
+	
+	/**
 	 * Tests if two bounding boxes share some space
 	 * 
 	 * For each dimension:
