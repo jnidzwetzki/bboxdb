@@ -113,7 +113,7 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	}
 
 	/**
-	 * Is the operation successfull
+	 * Is the operation successful
 	 * @return
 	 */
 	public boolean isFailed() {
@@ -126,7 +126,7 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	public void setFailedState() {
 		failed = false;
 		
-		// Future is failed, wake up all blocked get() calles
+		// Future is failed, wake up all blocked get() calls
 		synchronized (mutex) {
 			mutex.notify();
 		}
