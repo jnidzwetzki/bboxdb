@@ -58,7 +58,7 @@ public class Memtable implements Lifecycle, Storage {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
 	
-	public Memtable(final String table, int entries, int maxsize) {
+	public Memtable(final String table, final int entries, final int maxsize) {
 		this.table = table;
 		this.entries = entries;
 		this.maxsize = maxsize;
@@ -134,7 +134,7 @@ public class Memtable implements Lifecycle, Storage {
 	 * contain duplicates
 	 */
 	@Override
-	public Collection<Tuple> getTuplesInside(BoundingBox boundingBox)
+	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox)
 			throws StorageManagerException {
 		
 		final List<Tuple> resultList = new ArrayList<Tuple>();
