@@ -112,7 +112,7 @@ public class Tuple implements Comparable<Tuple> {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -140,7 +140,7 @@ public class Tuple implements Comparable<Tuple> {
 	}
 
 	@Override
-	public int compareTo(Tuple otherTuple) {
+	public int compareTo(final Tuple otherTuple) {
 		int res = key.compareTo(otherTuple.getKey());
 		
 		if(res == 0) {

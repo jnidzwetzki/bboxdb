@@ -4,7 +4,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
 
 public class DeletedTuple extends Tuple {
 
-	public DeletedTuple(String key) {
+	public DeletedTuple(final String key) {
 		super(key, null, null);
 	}
 

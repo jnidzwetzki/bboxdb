@@ -23,7 +23,7 @@ public class TupleAndTable {
 		return tuple;
 	}
 
-	public void setTuple(Tuple tuple) {
+	public void setTuple(final Tuple tuple) {
 		this.tuple = tuple;
 	}
 
@@ -31,7 +31,7 @@ public class TupleAndTable {
 		return table;
 	}
 
-	public void setTable(String table) {
+	public void setTable(final String table) {
 		this.table = table;
 	}
 	
