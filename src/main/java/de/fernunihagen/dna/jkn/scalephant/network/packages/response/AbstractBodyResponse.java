@@ -24,7 +24,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractBodyResponse.class);
 
-	public AbstractBodyResponse(short sequenceNumber, final String body) {
+	public AbstractBodyResponse(final short sequenceNumber, final String body) {
 		super(sequenceNumber);
 		this.body = body;
 	}
@@ -76,7 +76,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 			return null;
 		}
 		
-		short bodyLength = bb.getShort();
+		final short bodyLength = bb.getShort();
 		
 		final byte[] bodyBytes = new byte[bodyLength];
 		bb.get(bodyBytes, 0, bodyBytes.length);
