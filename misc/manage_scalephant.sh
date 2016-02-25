@@ -16,9 +16,7 @@ basedir=$(dirname $fullpath)
 cd $basedir
 libs=$(find ../target/lib -name '*.jar' | xargs echo | tr ' ' ':')
 jar=$(ls -1 ../target/scalephant*.jar | tail -1)
-classpath="$libs:$jar"
-
-
+classpath="$basedir/../conf:$libs:$jar"
 
 ###
 # Download and compile jsvc if not installed
