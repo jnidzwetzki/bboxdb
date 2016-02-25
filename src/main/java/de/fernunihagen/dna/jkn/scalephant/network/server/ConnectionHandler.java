@@ -10,11 +10,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
-import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
 
 public class ConnectionHandler implements Lifecycle {
 	
+	/**
+	 * The configuration
+	 */
+	protected final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
+
 	/**
 	 * Our thread pool to handle connections
 	 */
@@ -51,10 +57,10 @@ public class ConnectionHandler implements Lifecycle {
 			return;
 		}
 		
-		logger.info("Start the network connection handler on port: " + NetworkConst.NETWORK_PORT);
+		logger.info("Start the network connection handler on port: " + configuration.getNetworkListenPort());
 		
 		if(threadPool == null) {
-			threadPool = Executors.newFixedThreadPool(NetworkConst.SERVER_CONNECTION_THREADS);
+			threadPool = Executors.newFixedThreadPool(configuration.getNetworkConnectionThreads());
 		}
 		
 		serverSocketDispatcher = new ConnectionDispatcher();
@@ -120,7 +126,7 @@ public class ConnectionHandler implements Lifecycle {
 			logger.info("Starting new connection dispatcher");
 			
 			try {
-				final ServerSocket serverSocket = new ServerSocket(NetworkConst.NETWORK_PORT);
+				final ServerSocket serverSocket = new ServerSocket(configuration.getNetworkListenPort());
 				
 				while(! shutdown) {
 					final Socket clientSocket = serverSocket.accept();

@@ -2,6 +2,10 @@
 # Scalephant configuration YAML 
 ######
 
+###
+# Storage
+###
+
 # The directory for data
 # Default: /tmp/scalephant_test
 rootDirectory: /tmp/scalephant_production
@@ -26,3 +30,16 @@ dataDirectory: /tmp/scalephant_production/data
 # When disabled, all data stays in memory
 # Default: true
 # storageRunMemtableFlushThread: true
+
+
+###
+# Network
+###
+
+# The port to listen for incoming network connections
+# Default: 50505
+# networkListenPort: 50505
+
+# The number of threads to handle network connections
+# Default: 10
+# networkConnectionThreads: 10

@@ -13,6 +13,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
@@ -49,7 +50,7 @@ public class ScalephantClient {
 	/**
 	 * The port of the server
 	 */
-	protected int serverPort = NetworkConst.NETWORK_PORT;
+	protected int serverPort = ScalephantConfigurationManager.getConfiguration().getNetworkListenPort();
 	
 	/**
 	 * The socket of the connection

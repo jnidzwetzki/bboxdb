@@ -37,6 +37,16 @@ public class ScalephantConfiguration {
 	 */
 	protected boolean storageRunMemtableFlushThread = true;
 	
+	/**
+	 * The port for client requests
+	 */
+	protected int networkListenPort = 50505;
+
+	/**
+	 *  The amount of threads to handle client connections
+	 */
+	protected int networkConnectionThreads = 10;
+	
 	
 	public String getRootDirectory() {
 		return rootDirectory;
@@ -93,6 +103,22 @@ public class ScalephantConfiguration {
 	public void setStorageRunMemtableFlushThread(
 			final boolean storageRunMemtableFlushThread) {
 		this.storageRunMemtableFlushThread = storageRunMemtableFlushThread;
+	}
+
+	public int getNetworkListenPort() {
+		return networkListenPort;
+	}
+
+	public void setNetworkListenPort(int networkListenPort) {
+		this.networkListenPort = networkListenPort;
+	}
+
+	public int getNetworkConnectionThreads() {
+		return networkConnectionThreads;
+	}
+
+	public void setNetworkConnectionThreads(int networkConnectionThreads) {
+		this.networkConnectionThreads = networkConnectionThreads;
 	}
 
 }
