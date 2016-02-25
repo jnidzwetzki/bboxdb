@@ -8,6 +8,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 ## Changelog
 
 ### Version 0.0.4 (Alpha) - TBA
+- Added configuration file (scalephant.yaml)
 - Added support for multiple tuple result queries
 - Implemented BoundingBoxes
 - Implemented a naming scheme for tables
