@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.util.Tablename;
 
 public class StorageInterface {
@@ -18,10 +20,10 @@ public class StorageInterface {
 	/**
 	 * The used storage configuration
 	 */
-	protected static StorageConfiguration storageConfiguration;
+	protected static ScalephantConfiguration configuration;
 	
 	static {
-		storageConfiguration = new StorageConfiguration();
+		configuration = ScalephantConfigurationManager.getConfiguration();
 		instances = new HashMap<String, StorageManager>();
 	}
 	
@@ -42,7 +44,7 @@ public class StorageInterface {
 			return instances.get(table);
 		}
 		
-		final StorageManager storageManager = new StorageManager(table, storageConfiguration);
+		final StorageManager storageManager = new StorageManager(table, configuration);
 		storageManager.init();
 		
 		instances.put(table, storageManager);
@@ -81,7 +83,7 @@ public class StorageInterface {
 		
 		shutdown(table);
 		
-		final String pathname = storageConfiguration.getDataDir() + File.separator + table;
+		final String pathname = configuration.getDataDirectory() + File.separator + table;
 		final File directory = new File(pathname);
 		
 		if(! directory.exists()) {
@@ -108,7 +110,7 @@ public class StorageInterface {
 	public static List<String> getAllTables() {
 		final List<String> allTables = new ArrayList<String>();
 		
-		final File folder = new File(storageConfiguration.getDataDir());
+		final File folder = new File(configuration.getDataDirectory());
 		
 		for (final File fileEntry : folder.listFiles()) {
 	        if (fileEntry.isDirectory()) {
@@ -133,22 +135,5 @@ public class StorageInterface {
 				storageManager.shutdown();
 			}
 		}
-	}
-
-	/**
-	 * Get the current storage configuration
-	 * @return
-	 */
-	public static StorageConfiguration getStorageConfiguration() {
-		return storageConfiguration;
-	}
-
-	/**
-	 * Set a new storage configuration
-	 * @param storageConfiguration
-	 */
-	public static void setStorageConfiguration(
-			StorageConfiguration storageConfiguration) {
-		StorageInterface.storageConfiguration = storageConfiguration;
 	}
 }

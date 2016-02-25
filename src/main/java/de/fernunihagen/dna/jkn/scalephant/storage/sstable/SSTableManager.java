@@ -12,8 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
-import de.fernunihagen.dna.jkn.scalephant.storage.StorageConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
@@ -29,7 +29,7 @@ public class SSTableManager implements Lifecycle {
 	/**
 	 * The Storage configuration
 	 */
-	private final StorageConfiguration storageConfiguration;
+	private final ScalephantConfiguration storageConfiguration;
 	
 	/**
 	 * The number of the table
@@ -76,7 +76,7 @@ public class SSTableManager implements Lifecycle {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final State storageState, final String name, final StorageConfiguration storageConfiguration) {
+	public SSTableManager(final State storageState, final String name, final ScalephantConfiguration storageConfiguration) {
 		super();
 
 		this.storageConfiguration = storageConfiguration;
@@ -122,7 +122,7 @@ public class SSTableManager implements Lifecycle {
 		// Set to ready before the threads are started
 		ready = true;
 
-		if(storageConfiguration.isRunMemtableFlushThread()) {
+		if(storageConfiguration.isStorageRunMemtableFlushThread()) {
 			flushThread = new Thread(new SSTableFlushThread(this));
 			flushThread.setName("Memtable flush thread for: " + getName());
 			flushThread.start();
@@ -130,7 +130,7 @@ public class SSTableManager implements Lifecycle {
 			logger.info("NOT starting the memtable flush thread.");
 		}
 		
-		if(storageConfiguration.isRunCompactThread()) {
+		if(storageConfiguration.isStorageRunCompactThread()) {
 			compactThread = new Thread(new SSTableCompactorThread(this));
 			compactThread.setName("Compact thread for: " + getName());
 			compactThread.start();
@@ -192,8 +192,8 @@ public class SSTableManager implements Lifecycle {
 	 * 
 	 */
 	protected void createSSTableDirIfNeeded() {
-		final File rootDir = new File(storageConfiguration.getDataDir());		
-		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDir(), getName()));
+		final File rootDir = new File(storageConfiguration.getDataDirectory());		
+		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
 		
 		if(rootDir.exists() && ! directoryHandle.exists()) {
 			logger.info("Create a new dir for table: " + getName());
@@ -209,7 +209,7 @@ public class SSTableManager implements Lifecycle {
 	 */
 	protected void scanForExistingTables() throws StorageManagerException {
 		logger.info("Scan for existing SSTables: " + getName());
-		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDir(), getName()));
+		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
 		
 	    checkSSTableDir(directoryHandle);
 	
@@ -221,7 +221,7 @@ public class SSTableManager implements Lifecycle {
 				logger.info("Found sstable: " + filename);
 				
 				try {
-					final SSTableReader reader = new SSTableReader(getName(), storageConfiguration.getDataDir(), file);
+					final SSTableReader reader = new SSTableReader(getName(), storageConfiguration.getDataDirectory(), file);
 					sstableReader.add(reader);
 				} catch(StorageManagerException e) {
 					logger.warn("Unable to parse sequence number, ignoring file: " + filename, e);
@@ -274,7 +274,7 @@ public class SSTableManager implements Lifecycle {
 	 */
 	public boolean deleteExistingTables() throws StorageManagerException {
 		logger.info("Delete all existing SSTables for relation: " + getName());
-		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDir(), getName()));
+		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
 	
 		// Does the directory exist?
 		if(! directoryHandle.isDirectory()) {
@@ -529,10 +529,10 @@ public class SSTableManager implements Lifecycle {
 	}
 
 	/**
-	 * Returns the storage configuration
+	 * Returns the configuration
 	 * @return
 	 */
-	public StorageConfiguration getStorageConfiguration() {
+	public ScalephantConfiguration getStorageConfiguration() {
 		return storageConfiguration;
 	}
 	

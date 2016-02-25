@@ -1,7 +1,28 @@
+######
 # Scalephant configuration YAML 
+######
 
 # The directory for data
-rootDirectory: /tmp/scalephant
+# Default: /tmp/scalephant_test
+rootDirectory: /tmp/scalephant_production
 
 # The directory for the tables
-dataDirectory: /tmp/scalephant/data
+# Default: /tmp/scalephant_test/data
+dataDirectory: /tmp/scalephant_production/data
+
+# Max entries per memtable 
+# Default: 10000 entries
+# memtableEntriesMax: 10000
+
+# Max size per memtable in KB 
+# Default: 128 MB
+# memtableSizeMax: 131072
+
+# Start a thread to compact SSTables
+# Default: true
+# storageRunCompactThread: true
+
+# Start a thread to flush full memtabls to disk
+# When disabled, all data stays in memory
+# Default: true
+# storageRunMemtableFlushThread: true

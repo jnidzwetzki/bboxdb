@@ -8,7 +8,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.StorageConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
@@ -19,9 +18,9 @@ import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
 
 public class TestSSTable {
 	
+	protected static final String DATA_DIRECTORY = ScalephantConfigurationManager.getConfiguration().getDataDirectory();
+	
 	protected final static String TEST_RELATION = "1_testgroup1_relation3";
-	protected final StorageConfiguration storageConfiguration = new StorageConfiguration();
-
 	
 	/**
 	 * Test written files
@@ -35,7 +34,7 @@ public class TestSSTable {
 	
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(TEST_RELATION, storageConfiguration.getDataDir(), 1);
+		final SSTableWriter ssTableWriter = new SSTableWriter(TEST_RELATION, DATA_DIRECTORY, 1);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();
@@ -58,14 +57,14 @@ public class TestSSTable {
 	
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(TEST_RELATION, storageConfiguration.getDataDir(), 1);
+		final SSTableWriter ssTableWriter = new SSTableWriter(TEST_RELATION, DATA_DIRECTORY, 1);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();
 		final File sstableIndexFile = ssTableWriter.getSstableIndexFile();
 		ssTableWriter.close();
 		
-		final SSTableReader sstableReader = new SSTableReader(TEST_RELATION, storageConfiguration.getDataDir(), sstableFile);
+		final SSTableReader sstableReader = new SSTableReader(TEST_RELATION, DATA_DIRECTORY, sstableFile);
 		sstableReader.init();
 		final SSTableIndexReader ssTableIndexReader = new SSTableIndexReader(sstableReader);
 		ssTableIndexReader.init();

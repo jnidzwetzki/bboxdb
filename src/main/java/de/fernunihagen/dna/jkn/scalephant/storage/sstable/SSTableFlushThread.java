@@ -78,7 +78,7 @@ class SSTableFlushThread implements Runnable {
 	 * @return
 	 */
 	protected String getStorageDataDir() {
-		return sstableManager.getStorageConfiguration().getDataDir();
+		return sstableManager.getStorageConfiguration().getDataDirectory();
 	}
 		
 	/**

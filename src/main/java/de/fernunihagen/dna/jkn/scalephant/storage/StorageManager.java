@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
@@ -16,7 +17,7 @@ import de.fernunihagen.dna.jkn.scalephant.util.State;
 public class StorageManager implements Lifecycle, Storage {
 	
 	protected final String table;
-	protected final StorageConfiguration configuration;
+	protected final ScalephantConfiguration configuration;
 	protected final SSTableManager sstableManager;
 	protected final State state;
 
@@ -24,7 +25,7 @@ public class StorageManager implements Lifecycle, Storage {
 	
 	private final static Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
-	public StorageManager(final String table, final StorageConfiguration configuration) {
+	public StorageManager(final String table, final ScalephantConfiguration configuration) {
 		super();
 		this.table = table;
 		this.configuration = configuration;
@@ -69,8 +70,8 @@ public class StorageManager implements Lifecycle, Storage {
 	 */
 	protected void initNewMemtable() {
 		memtable = new Memtable(table, 
-				configuration.getMemtableEntries(), 
-				configuration.getMemtableSize());
+				configuration.getMemtableEntriesMax(), 
+				configuration.getMemtableSizeMax());
 		
 		memtable.init();
 	}

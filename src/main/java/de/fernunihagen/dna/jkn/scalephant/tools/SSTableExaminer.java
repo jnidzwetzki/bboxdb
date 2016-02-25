@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.StorageConfiguration;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableIndexReader;
@@ -26,8 +27,8 @@ public class SSTableExaminer implements Runnable {
 	@Override
 	public void run() {
 		try {
-			final StorageConfiguration storageConfiguration = new StorageConfiguration();
-			final SSTableReader ssTableReader = new SSTableReader(relationname, storageConfiguration.getDataDir(), new File(filename));
+			final ScalephantConfiguration storageConfiguration = ScalephantConfigurationManager.getConfiguration();
+			final SSTableReader ssTableReader = new SSTableReader(relationname, storageConfiguration.getDataDirectory(), new File(filename));
 			
 			final SSTableIndexReader ssTableIndexReader = new SSTableIndexReader(ssTableReader);
 			
