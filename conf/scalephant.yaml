@@ -1,0 +1,7 @@
+# Scalephant configuration YAML 
+
+# The directory for data
+rootDirectory: /tmp/scalephant
+
+# The directory for the tables
+dataDirectory: /tmp/scalephant/data
