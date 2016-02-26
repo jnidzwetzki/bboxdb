@@ -38,6 +38,11 @@ public class ScalephantConfiguration {
 	protected boolean storageRunMemtableFlushThread = true;
 	
 	/**
+	 * The classname of the spatial indexer
+	 */
+	protected String storageSpatialIndexerFactory = "none";
+	
+	/**
 	 * The port for client requests
 	 */
 	protected int networkListenPort = 50505;
@@ -109,7 +114,7 @@ public class ScalephantConfiguration {
 		return networkListenPort;
 	}
 
-	public void setNetworkListenPort(int networkListenPort) {
+	public void setNetworkListenPort(final int networkListenPort) {
 		this.networkListenPort = networkListenPort;
 	}
 
@@ -117,8 +122,16 @@ public class ScalephantConfiguration {
 		return networkConnectionThreads;
 	}
 
-	public void setNetworkConnectionThreads(int networkConnectionThreads) {
+	public void setNetworkConnectionThreads(final int networkConnectionThreads) {
 		this.networkConnectionThreads = networkConnectionThreads;
+	}
+
+	public String getStorageSpatialIndexerFactory() {
+		return storageSpatialIndexerFactory;
+	}
+
+	public void setStorageSpatialIndexerFactory(String storageSpatialIndexerFactory) {
+		this.storageSpatialIndexerFactory = storageSpatialIndexerFactory;
 	}
 
 }

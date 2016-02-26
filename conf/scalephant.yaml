@@ -31,6 +31,16 @@ dataDirectory: /tmp/scalephant_production/data
 # Default: true
 # storageRunMemtableFlushThread: true
 
+# The classname of the spatial indexer factory
+# When disabled, full table scans are performed
+# for orthogonal spatial queries.
+#
+# Note: Chaning this value after some data is stored
+#       can lead to unexpected behavior.
+#
+# Possible values: none
+# Default: none 
+# storageSpatialIndexerFactory: none
 
 ###
 # Network
