@@ -35,7 +35,7 @@ dataDirectory: /tmp/scalephant_production/data
 # When disabled, full table scans are performed
 # for orthogonal spatial queries.
 #
-# Note: Chaning this value after some data is stored
+# Note: Changing this value on an existing storage
 #       can lead to unexpected behavior.
 #
 # Possible values: none
