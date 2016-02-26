@@ -122,7 +122,7 @@ public class TestTableCompactor {
 		
 		// Check the amount of tuples
 		int counter = 0;
-		for(final Tuple tuple : ssTableIndexReader) {
+		for(@SuppressWarnings("unused") final Tuple tuple : ssTableIndexReader) {
 			counter++;
 		}
 		Assert.assertEquals(500, counter);
@@ -157,7 +157,7 @@ public class TestTableCompactor {
 		final SSTableKeyIndexReader ssTableIndexReader = new SSTableKeyIndexReader(reader);
 		ssTableIndexReader.init();
 		int counter = 0;
-		for(final Tuple tuple : ssTableIndexReader) {
+		for(@SuppressWarnings("unused") final Tuple tuple : ssTableIndexReader) {
 			counter++;
 		}
 		
@@ -186,7 +186,7 @@ public class TestTableCompactor {
 		final SSTableKeyIndexReader ssTableIndexReader = new SSTableKeyIndexReader(reader);
 		ssTableIndexReader.init();
 		int counter = 0;
-		for(final Tuple tuple : ssTableIndexReader) {
+		for(@SuppressWarnings("unused") final Tuple tuple : ssTableIndexReader) {
 			counter++;
 		}
 		
