@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
-public class SSTableIndexReader extends AbstractTableReader implements Iterable<Tuple> {
+public class SSTableKeyIndexReader extends AbstractTableReader implements Iterable<Tuple> {
 	
 	/**
 	 * The coresponding sstable reader
@@ -20,9 +20,9 @@ public class SSTableIndexReader extends AbstractTableReader implements Iterable<
 	/**
 	 * The Logger
 	 */
-	protected static final Logger logger = LoggerFactory.getLogger(SSTableIndexReader.class);
+	protected static final Logger logger = LoggerFactory.getLogger(SSTableKeyIndexReader.class);
 
-	public SSTableIndexReader(final SSTableReader sstableReader) throws StorageManagerException {
+	public SSTableKeyIndexReader(final SSTableReader sstableReader) throws StorageManagerException {
 		super(sstableReader.getName(), sstableReader.getDirectory(), constructFileFromReader(sstableReader));
 		this.sstableReader = sstableReader;
 	}

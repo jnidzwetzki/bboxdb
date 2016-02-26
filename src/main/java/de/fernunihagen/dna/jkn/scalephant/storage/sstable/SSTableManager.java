@@ -44,7 +44,7 @@ public class SSTableManager implements Lifecycle {
 	/**
 	 * The index reader for the SSTables
 	 */
-	protected final Map<SSTableReader, SSTableIndexReader> indexReader;
+	protected final Map<SSTableReader, SSTableKeyIndexReader> indexReader;
 	
 	/**
 	 * The unflushed memtables
@@ -88,7 +88,7 @@ public class SSTableManager implements Lifecycle {
 		
 		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
 		sstableReader = new CopyOnWriteArrayList<SSTableReader>();
-		indexReader = Collections.synchronizedMap(new HashMap<SSTableReader, SSTableIndexReader>());
+		indexReader = Collections.synchronizedMap(new HashMap<SSTableReader, SSTableKeyIndexReader>());
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class SSTableManager implements Lifecycle {
 			compactThread.interrupt();
 		}
 		
-		for(final SSTableIndexReader reader : indexReader.values()) {
+		for(final SSTableKeyIndexReader reader : indexReader.values()) {
 			reader.shutdown();
 		}
 		indexReader.clear();
@@ -346,14 +346,14 @@ public class SSTableManager implements Lifecycle {
 	 * @return The index reader
 	 * @throws StorageManagerException
 	 */
-	protected SSTableIndexReader getIndexReaderForTable(final SSTableReader reader) throws StorageManagerException {
+	protected SSTableKeyIndexReader getIndexReaderForTable(final SSTableReader reader) throws StorageManagerException {
 		
 		if(! indexReader.containsKey(reader)) {
 			if(! reader.isReady()) {
 				reader.init();
 			}
 			
-			final SSTableIndexReader tableIndexReader = new SSTableIndexReader(reader);
+			final SSTableKeyIndexReader tableIndexReader = new SSTableKeyIndexReader(reader);
 			tableIndexReader.init();
 			indexReader.put(reader, tableIndexReader);
 		}
@@ -378,7 +378,7 @@ public class SSTableManager implements Lifecycle {
 		
 			// Read data from the persistent SSTables
 			for(final SSTableReader reader : sstableReader) {
-				final SSTableIndexReader indexReader = getIndexReaderForTable(reader);
+				final SSTableKeyIndexReader indexReader = getIndexReaderForTable(reader);
 				boolean canBeUsed = indexReader.acquire();
 				
 				if(! canBeUsed ) {
@@ -524,7 +524,7 @@ public class SSTableManager implements Lifecycle {
 	 * Get the index reader
 	 * @return
 	 */
-	public Map<SSTableReader, SSTableIndexReader> getIndexReader() {
+	public Map<SSTableReader, SSTableKeyIndexReader> getIndexReader() {
 		return indexReader;
 	}
 

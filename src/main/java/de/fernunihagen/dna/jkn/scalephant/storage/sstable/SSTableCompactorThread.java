@@ -76,8 +76,8 @@ public class SSTableCompactorThread implements Runnable {
 			final SSTableReader reader2) throws StorageManagerException {
 		
 		// Get the index reader for the file reader
-		final SSTableIndexReader indexReader1 = sstableManager.getIndexReaderForTable(reader1);
-		final SSTableIndexReader indexReader2 = sstableManager.getIndexReaderForTable(reader2);
+		final SSTableKeyIndexReader indexReader1 = sstableManager.getIndexReaderForTable(reader1);
+		final SSTableKeyIndexReader indexReader2 = sstableManager.getIndexReaderForTable(reader2);
 		
 		int tablenumber = sstableManager.increaseTableNumber();
 		
@@ -93,7 +93,7 @@ public class SSTableCompactorThread implements Runnable {
 		}
 		
 		final SSTableReader newTableReader = new SSTableReader(reader1.getName(), reader1.getDirectory(), writer.getSstableFile());
-		final SSTableIndexReader newTableIndexReader = new SSTableIndexReader(newTableReader);
+		final SSTableKeyIndexReader newTableIndexReader = new SSTableKeyIndexReader(newTableReader);
 		
 		newTableReader.init();
 		newTableIndexReader.init();

@@ -8,7 +8,7 @@ import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableIndexReader;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableKeyIndexReader;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableReader;
 
 public class SSTableExaminer implements Runnable {
@@ -30,7 +30,7 @@ public class SSTableExaminer implements Runnable {
 			final ScalephantConfiguration storageConfiguration = ScalephantConfigurationManager.getConfiguration();
 			final SSTableReader ssTableReader = new SSTableReader(relationname, storageConfiguration.getDataDirectory(), new File(filename));
 			
-			final SSTableIndexReader ssTableIndexReader = new SSTableIndexReader(ssTableReader);
+			final SSTableKeyIndexReader ssTableIndexReader = new SSTableKeyIndexReader(ssTableReader);
 			
 			ssTableReader.init();
 			ssTableIndexReader.init();
@@ -65,7 +65,7 @@ public class SSTableExaminer implements Runnable {
 	 * @throws StorageManagerException
 	 */
 	protected void seachViaIndex(final SSTableReader ssTableReader,
-			final SSTableIndexReader ssTableIndexReader)
+			final SSTableKeyIndexReader ssTableIndexReader)
 			throws StorageManagerException {
 		
 		System.out.println("Step3: Seach via index");

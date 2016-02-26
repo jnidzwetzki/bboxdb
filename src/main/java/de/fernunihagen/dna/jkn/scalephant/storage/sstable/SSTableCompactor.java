@@ -16,7 +16,7 @@ public class SSTableCompactor {
 	/**
 	 * The list of sstables to compact
 	 */
-	protected final List<SSTableIndexReader> sstableIndexReader;
+	protected final List<SSTableKeyIndexReader> sstableIndexReader;
 	
 	/**
 	 * Our output sstable writer
@@ -28,7 +28,7 @@ public class SSTableCompactor {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactor.class);
 
-	public SSTableCompactor(final List<SSTableIndexReader> sstableIndexReader, 
+	public SSTableCompactor(final List<SSTableKeyIndexReader> sstableIndexReader, 
 			final SSTableWriter sstableWriter) {
 		
 		super();
@@ -47,7 +47,7 @@ public class SSTableCompactor {
 		final List<Tuple> tuples = new ArrayList<Tuple>(sstableIndexReader.size());
 		
 		// Open iterators for input sstables
-		for(final SSTableIndexReader reader : sstableIndexReader) {
+		for(final SSTableKeyIndexReader reader : sstableIndexReader) {
 			iterators.add(reader.iterator());
 			tuples.add(null);
 		}

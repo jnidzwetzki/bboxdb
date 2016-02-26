@@ -12,7 +12,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableIndexReader;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableKeyIndexReader;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableReader;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
 
@@ -66,7 +66,7 @@ public class TestSSTable {
 		
 		final SSTableReader sstableReader = new SSTableReader(TEST_RELATION, DATA_DIRECTORY, sstableFile);
 		sstableReader.init();
-		final SSTableIndexReader ssTableIndexReader = new SSTableIndexReader(sstableReader);
+		final SSTableKeyIndexReader ssTableIndexReader = new SSTableKeyIndexReader(sstableReader);
 		ssTableIndexReader.init();
 		
 		Assert.assertEquals(sstableIndexFile, ssTableIndexReader.getFile());
