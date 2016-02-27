@@ -43,7 +43,9 @@ public class ScalephantConfigurationManager {
 		
 		if(inputFile == null) {
 			scalephantConfiguration = new ScalephantConfiguration();
-			logger.warn("!! No configuration file found, using default values!!");
+			logger.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			logger.warn("!! No configuration file found, using default values !!");
+			logger.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			return;
 		}
 		
