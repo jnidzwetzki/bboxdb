@@ -5,11 +5,11 @@ public interface SpatialIndexFactory {
 	/**
 	 * Get a spatial index reader
 	 */
-	public void getReader();
+	public SpatialIndexReader getReader();
 	
 	/**
 	 * Get a spatial index writer
 	 */
-	public void getWriter();
+	public SpatialIndexWriter getWriter();
 	
 }
