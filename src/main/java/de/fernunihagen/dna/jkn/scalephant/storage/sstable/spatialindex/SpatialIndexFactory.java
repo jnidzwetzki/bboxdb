@@ -3,13 +3,8 @@ package de.fernunihagen.dna.jkn.scalephant.storage.sstable.spatialindex;
 public interface SpatialIndexFactory {
 
 	/**
-	 * Get a spatial index reader
+	 * Get a spatial indexer
 	 */
-	public SpatialIndexReader getReader();
-	
-	/**
-	 * Get a spatial index writer
-	 */
-	public SpatialIndexWriter getWriter();
+	public SpatialIndexer getIndexer();
 	
 }

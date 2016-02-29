@@ -38,7 +38,10 @@ dataDirectory: /tmp/scalephant_production/data
 # Note: Changing this value on an existing storage
 #       can lead to unexpected behavior.
 #
-# Possible values: none
+# Possible values: 
+# none
+# de.fernunihagen.dna.jkn.scalephant.storage.sstable.spatialindex.BoxSearchSpatialIndexFactory
+#
 # Default: none 
 # storageSpatialIndexerFactory: none
 
