@@ -1,5 +1,9 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -213,6 +217,33 @@ public class TestBoundingBox {
 		// Wrong dimensions
 		final BoundingBox boundingBoxResult5 = BoundingBox.getBoundingBox(boundingBox1, boundingBox2, boundingBox3, boundingBox4);
 		Assert.assertTrue(boundingBoxResult5 == null);
+	}
+	
+	/**
+	 * Test the comparable interface of the bounding box
+	 */
+	@Test
+	public void testBoundingBoxSorting() {
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 3f, 4f);
+		final BoundingBox boundingBox2 = new BoundingBox(-1f, 2f, 3f, 4f);
+		final BoundingBox boundingBox3 = new BoundingBox(5f, 2f, 3f, 4f);
+		final BoundingBox boundingBox4 = new BoundingBox(-11f, 2f, 3f, 4f);
+		final BoundingBox boundingBox5 = new BoundingBox(-11f, 2f, -1f, 4f);
+		
+		final List<BoundingBox> boundingBoxList = new ArrayList<BoundingBox>();
+		boundingBoxList.add(boundingBox1);
+		boundingBoxList.add(boundingBox2);
+		boundingBoxList.add(boundingBox3);
+		boundingBoxList.add(boundingBox4);
+		boundingBoxList.add(boundingBox5);
+		
+		Collections.sort(boundingBoxList);
+		
+		Assert.assertEquals(boundingBox5, boundingBoxList.get(0));
+		Assert.assertEquals(boundingBox4, boundingBoxList.get(1));
+		Assert.assertEquals(boundingBox2, boundingBoxList.get(2));
+		Assert.assertEquals(boundingBox1, boundingBoxList.get(3));
+		Assert.assertEquals(boundingBox3, boundingBoxList.get(4));
 	}
 	
 }
