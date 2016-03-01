@@ -6,7 +6,7 @@ import java.util.List;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
-public class BoundingBox {
+public class BoundingBox implements Comparable<BoundingBox> {
 	
 	public final static BoundingBox EMPTY_BOX = new BoundingBox();
 	
@@ -279,7 +279,7 @@ public class BoundingBox {
 	}
 
 	/**
-	 * Compare to an other object
+	 * Is equals with an other object
 	 * 
 	 */
 	@Override
@@ -297,6 +297,32 @@ public class BoundingBox {
 		} else if (!boundingBox.equals(other.boundingBox))
 			return false;
 		return true;
+	}
+
+	/**
+	 * Compare to an other boudning box
+	 */
+	@Override
+	public int compareTo(final BoundingBox otherBox) {
+		
+		// Check number od dimensions
+		if(getDimension() != otherBox.getDimension()) {
+			return getDimension() - otherBox.getDimension(); 
+		}
+		
+		// Check start point of each dimension
+		for(int d = 0; d < getDimension(); d++) {
+			if(getCoordinateLow(d) != otherBox.getCoordinateLow(d)) {
+				if(getCoordinateLow(d) > otherBox.getCoordinateLow(d)) {
+					return 1;
+				} else {
+					return -1;
+				}
+			}
+		}
+		
+		// Objects are equal
+		return 0;
 	}
 	
 }
