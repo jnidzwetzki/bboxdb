@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant;
+package de.fernunihagen.dna.jkn.scalephant.storage;
 
 import java.util.ArrayList;
 import java.util.List;

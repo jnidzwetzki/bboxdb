@@ -1,7 +1,9 @@
-package de.fernunihagen.dna.jkn.scalephant;
+package de.fernunihagen.dna.jkn.scalephant.storage;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 
 /**
  * Run the same test as the normal storage manager. The difference is, that

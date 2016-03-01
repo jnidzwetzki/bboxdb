@@ -1,10 +1,11 @@
-package de.fernunihagen.dna.jkn.scalephant;
+package de.fernunihagen.dna.jkn.scalephant.storage;
 
 import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import de.fernunihagen.dna.jkn.scalephant.PersonEntity;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;

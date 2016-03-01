@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant;
+package de.fernunihagen.dna.jkn.scalephant.network;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;

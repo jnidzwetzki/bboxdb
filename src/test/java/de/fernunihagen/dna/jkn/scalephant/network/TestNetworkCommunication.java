@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant;
+package de.fernunihagen.dna.jkn.scalephant.network;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -10,6 +10,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.fernunihagen.dna.jkn.scalephant.ScalephantMain;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;

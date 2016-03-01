@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant;
+package de.fernunihagen.dna.jkn.scalephant.storage;
 
 import junit.framework.Assert;
 
