@@ -325,4 +325,27 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		return 0;
 	}
 	
+	/**
+	 * Get the bounding box of two bounding boxes
+	 * @param boundingBox1
+	 * @param boundingBox2
+	 * @return
+	 */
+	public static BoundingBox getBoundingBox(final BoundingBox boundingBox1, final BoundingBox boundingBox2) {
+		// Both bounding boxes need the same dimension
+		if(boundingBox1.getDimension() != boundingBox2.getDimension()) {
+			return null;
+		}
+		
+		final float[] coverBox = new float[boundingBox1.getDimension() * 2];
+		
+		// Construct the covering bounding box
+		for(int d = 0; d < boundingBox1.getDimension(); d++) {
+			coverBox[2 * d] = Math.min(boundingBox1.getCoordinateLow(d), boundingBox2.getCoordinateLow(d)); // Start position
+			coverBox[2 * d + 1] = Math.max(boundingBox1.getCoordinateHigh(d), boundingBox1.getCoordinateHigh(d)); // Extend
+		}
+		
+		return new BoundingBox(coverBox);
+	}
+	
 }
