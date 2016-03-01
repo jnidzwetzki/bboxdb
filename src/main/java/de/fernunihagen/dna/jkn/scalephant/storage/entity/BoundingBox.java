@@ -331,18 +331,42 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param boundingBox2
 	 * @return
 	 */
-	public static BoundingBox getBoundingBox(final BoundingBox boundingBox1, final BoundingBox boundingBox2) {
-		// Both bounding boxes need the same dimension
-		if(boundingBox1.getDimension() != boundingBox2.getDimension()) {
+	public static BoundingBox getBoundingBox(final BoundingBox... boundingBoxes) {
+		
+		// No argument
+		if(boundingBoxes.length == 0) {
 			return null;
 		}
 		
-		final float[] coverBox = new float[boundingBox1.getDimension() * 2];
+		// Only 1 argument
+		if(boundingBoxes.length == 1) {
+			return boundingBoxes[0];
+		}
+		
+		int dimensions = boundingBoxes[0].getDimension();
+		
+		// All bounding boxes need the same dimension
+		for(int i = 1 ; i < boundingBoxes.length; i++) {
+			if(dimensions != boundingBoxes[i].getDimension()) {
+				return null;
+			}
+		}
+		
+		// Array with data for the result box
+		final float[] coverBox = new float[boundingBoxes[0].getDimension() * 2];
 		
 		// Construct the covering bounding box
-		for(int d = 0; d < boundingBox1.getDimension(); d++) {
-			coverBox[2 * d] = Math.min(boundingBox1.getCoordinateLow(d), boundingBox2.getCoordinateLow(d)); // Start position
-			coverBox[2 * d + 1] = Math.max(boundingBox1.getCoordinateHigh(d), boundingBox1.getCoordinateHigh(d)); // Extend
+		for(int d = 0; d < dimensions; d++) {
+			float resultMin = Float.MAX_VALUE;
+			float resultMax = Float.MIN_VALUE;
+			
+			for(int i = 0; i < boundingBoxes.length; i++) {
+				resultMin = Math.min(resultMin, boundingBoxes[i].getCoordinateLow(d));
+				resultMax = Math.max(resultMax, boundingBoxes[i].getCoordinateHigh(d));
+			}
+			
+			coverBox[2 * d] = resultMin; // Start position
+			coverBox[2 * d + 1] = resultMax - resultMin; // Extend
 		}
 		
 		return new BoundingBox(coverBox);
