@@ -179,7 +179,7 @@ public class TestBoundingBox {
 	}
 	
 	/**
-	 * Test the creation of the convering bounding box 
+	 * Test the creation of the covering bounding box 
 	 */
 	@Test
 	public void testCoverBoundingBox() {
