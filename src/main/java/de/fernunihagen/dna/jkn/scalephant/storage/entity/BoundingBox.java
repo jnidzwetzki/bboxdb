@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableKeyIndexReader;
 
 public class BoundingBox implements Comparable<BoundingBox> {
 	
@@ -27,8 +31,17 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 */
 	protected final List<Float> boundingBox;
 	
+	/**
+	 * The return value of an invalid dimension
+	 */
 	public final static int INVALID_DIMENSION = -1;
 	
+	/**
+	 * The Logger
+	 */
+	protected static final Logger logger = LoggerFactory.getLogger(BoundingBox.class);
+
+
 	/**
 	 * Is the bounding box valid?
 	 */
@@ -56,12 +69,14 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	protected boolean checkValid() {
 		
 		if (boundingBox.size() % 2 != 0) {
+			logger.warn("Found invalid Bounding Box odd amount of arguments " + boundingBox);
 			return false;
 		}
 		
 		// No negative extent
 		for(int i = 1; i < boundingBox.size(); i=i+2) {
 			if(boundingBox.get(i) < 0) {
+				logger.warn("Found invalid Bounding Box - nagative extent: " + boundingBox);
 				return false;
 			}
 		}
