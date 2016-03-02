@@ -21,7 +21,7 @@ public class BoxSortIndex implements SpatialIndexer {
 	protected BoxNode rootElement;	
 	
 	public void constructFromTuples(final List<Tuple> tuples) {
-		rootElement = partition(tuples, 1);
+		rootElement = partition(tuples, 0);
 	}
 	
 	/**
@@ -32,10 +32,11 @@ public class BoxSortIndex implements SpatialIndexer {
 	 */
 	protected BoxNode partition(final List<Tuple> tuples, final int dimension) {
 	
-		sortTupleList(tuples);
+		sortTupleList(tuples, dimension);
 		
 		final int pivotPosition = tuples.size() / 2;
 		final Tuple pivotTuple = tuples.get(pivotPosition);
+		final int dimensions = pivotTuple.getBoundingBox().getDimension();
 				
 		final List<Tuple> smaller = new ArrayList<Tuple>();
 		final List<Tuple> bigger = new ArrayList<Tuple>();
@@ -45,18 +46,19 @@ public class BoxSortIndex implements SpatialIndexer {
 		final BoxNode subtreeRootnode = new BoxNode();
 		subtreeRootnode.value = pivotTuple;
 		
-		final int dimensions = pivotTuple.getBoundingBox().getDimension();
 		subtreeRootnode.subtreeBoundingBox = pivotTuple.getBoundingBox();
+
+	//	System.out.println("Splitted: " + tuples.size() + " into: " + smaller.size() + " and " + bigger.size());
 		
 		if(! smaller.isEmpty()) {
-			subtreeRootnode.leftChild = partition(smaller, dimension + 1 % dimensions);
+			subtreeRootnode.leftChild = partition(smaller, (dimension + 1) % (dimensions - 1));
 			subtreeRootnode.subtreeBoundingBox = BoundingBox.getBoundingBox(subtreeRootnode.subtreeBoundingBox, subtreeRootnode.leftChild.value.getBoundingBox());
 		} else {
 			subtreeRootnode.leftChild = null;
 		}
 		
 		if(! bigger.isEmpty()) {
-			subtreeRootnode.rightChild = partition(bigger, dimension + 1 % dimensions);
+			subtreeRootnode.rightChild = partition(bigger, (dimension + 1) % (dimensions - 1));
 			subtreeRootnode.subtreeBoundingBox = BoundingBox.getBoundingBox(subtreeRootnode.subtreeBoundingBox, subtreeRootnode.rightChild.value.getBoundingBox());
 		} else {
 			subtreeRootnode.rightChild = null;
@@ -94,14 +96,25 @@ public class BoxSortIndex implements SpatialIndexer {
 	}
 
 	/**
-	 * Sort the list of tuples, regarding the bounding box
+	 * Sort the list of tuples, relative to the dimension of the bounding box
 	 * @param tuples
 	 */
-	protected void sortTupleList(final List<Tuple> tuples) {
+	protected void sortTupleList(final List<Tuple> tuples, final int dimension) {
 		Collections.sort(tuples, new Comparator<Tuple>() {
 			@Override
 			public int compare(final Tuple tuple1, final Tuple tuple2) {
-				return tuple1.getBoundingBox().compareTo(tuple2.getBoundingBox());
+								
+				final float coordinateLowTuple1 = tuple1.getBoundingBox().getCoordinateLow(dimension);
+				final float coordinateLowTuple2 = tuple2.getBoundingBox().getCoordinateLow(dimension);
+				
+				if(coordinateLowTuple1 == coordinateLowTuple2) {
+					return 0;
+				} else if(coordinateLowTuple1 < coordinateLowTuple2) {
+					return -1;
+				} else {
+					return 1;
+				}
+
 			}
 		});
 	}
@@ -154,8 +167,14 @@ public class BoxSortIndex implements SpatialIndexer {
 			}
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "BoxSortIndex [rootElement=" + rootElement + "]";
+	}
 	
 }
+
 
 /**
  * 
@@ -167,4 +186,12 @@ class BoxNode {
 	protected BoxNode rightChild;
 	protected Tuple value;
 	protected BoundingBox subtreeBoundingBox;
+	
+	@Override
+	public String toString() {
+		return "BoxNode [leftChild=" + leftChild + ", rightChild=" + rightChild
+				+ ", value=" + value + ", subtreeBoundingBox="
+				+ subtreeBoundingBox + "]";
+	}
+
 }
