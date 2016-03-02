@@ -149,7 +149,7 @@ public class TestBoxSearchIndex {
 		final List<Tuple> tupleList = new ArrayList<Tuple>();
 		final Random random = new Random();
 		
-		for(int i = 0; i < 10; i++) {
+		for(int i = 0; i < 5000; i++) {
 			final float[] boundingBoxData = new float[dimensions * 2];
 			
 			for(int d = 0; d < dimensions; d++) {
