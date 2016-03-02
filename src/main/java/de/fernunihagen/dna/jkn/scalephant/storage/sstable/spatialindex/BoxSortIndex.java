@@ -63,7 +63,7 @@ public class BoxSortIndex implements SpatialIndexer {
 		} else {
 			subtreeRootnode.rightChild = null;
 		}
-		
+				
 		return subtreeRootnode;
 	}
 
@@ -189,9 +189,28 @@ class BoxNode {
 	
 	@Override
 	public String toString() {
-		return "BoxNode [leftChild=" + leftChild + ", rightChild=" + rightChild
-				+ ", value=" + value + ", subtreeBoundingBox="
-				+ subtreeBoundingBox + "]";
+		final StringBuffer sb = new StringBuffer();
+		getRecursiveTree(sb, 0);
+		return sb.toString();
+	}
+	
+	public void getRecursiveTree(final StringBuffer sb, int deepth) {
+	
+		for(int i = 0; i < deepth; i++) {
+			sb.append("\t");
+		}
+		
+		
+		sb.append("value: " + value.getKey() + " bbox: " + value.getBoundingBox() + " ");
+		sb.append("subtreeBoundingBox: " + subtreeBoundingBox + "\n");
+		
+		if(leftChild != null) {
+			leftChild.getRecursiveTree(sb, deepth + 1);
+		}
+		
+		if(rightChild != null) {
+			rightChild.getRecursiveTree(sb, deepth + 1);
+		}
 	}
 
 }
