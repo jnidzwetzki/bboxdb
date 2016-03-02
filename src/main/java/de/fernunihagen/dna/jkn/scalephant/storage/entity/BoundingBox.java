@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableKeyIndexReader;
 
 public class BoundingBox implements Comparable<BoundingBox> {
 	
