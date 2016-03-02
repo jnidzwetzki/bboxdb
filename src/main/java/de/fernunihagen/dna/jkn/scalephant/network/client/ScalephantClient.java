@@ -152,7 +152,7 @@ public class ScalephantClient {
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 		sendPackageToServer(new DisconnectRequest(), new ClientOperationFuture());
 
-		// Wait for all pending calles to settle
+		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
 			while(! pendingCalls.keySet().isEmpty()) {
 				try {
@@ -336,12 +336,12 @@ public class ScalephantClient {
 		future.setRequestId(sequenceNumber);
 
 		try {
-			outputStream.write(output, 0, output.length);
-			outputStream.flush();
-			
 			synchronized (pendingCalls) {
 				pendingCalls.put(sequenceNumber, future);
 			}
+			
+			outputStream.write(output, 0, output.length);
+			outputStream.flush();
 		} catch (IOException e) {
 			future.setFailedState();
 		}
