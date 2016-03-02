@@ -52,14 +52,14 @@ public class BoxSortIndex implements SpatialIndexer {
 		
 		if(! smaller.isEmpty()) {
 			subtreeRootnode.leftChild = partition(smaller, (dimension + 1) % (dimensions - 1));
-			subtreeRootnode.subtreeBoundingBox = BoundingBox.getBoundingBox(subtreeRootnode.subtreeBoundingBox, subtreeRootnode.leftChild.value.getBoundingBox());
+			subtreeRootnode.subtreeBoundingBox = BoundingBox.getBoundingBox(subtreeRootnode.subtreeBoundingBox, subtreeRootnode.leftChild.subtreeBoundingBox);
 		} else {
 			subtreeRootnode.leftChild = null;
 		}
 		
 		if(! bigger.isEmpty()) {
 			subtreeRootnode.rightChild = partition(bigger, (dimension + 1) % (dimensions - 1));
-			subtreeRootnode.subtreeBoundingBox = BoundingBox.getBoundingBox(subtreeRootnode.subtreeBoundingBox, subtreeRootnode.rightChild.value.getBoundingBox());
+			subtreeRootnode.subtreeBoundingBox = BoundingBox.getBoundingBox(subtreeRootnode.subtreeBoundingBox, subtreeRootnode.rightChild.subtreeBoundingBox);
 		} else {
 			subtreeRootnode.rightChild = null;
 		}
