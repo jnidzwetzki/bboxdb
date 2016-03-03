@@ -44,7 +44,8 @@ public class BoxSortIndex implements SpatialIndexer {
 		splitTupleList(tuples, pivotTuple, smaller, bigger, dimension);
 		
 		final BoxNode subtreeRootnode = new BoxNode();
-		subtreeRootnode.value = pivotTuple;
+		subtreeRootnode.key = pivotTuple.getKey();
+		subtreeRootnode.bbox = pivotTuple.getBoundingBox();
 		
 		subtreeRootnode.subtreeBoundingBox = pivotTuple.getBoundingBox();
 
@@ -126,8 +127,8 @@ public class BoxSortIndex implements SpatialIndexer {
 	 * @param boundingBox
 	 * @return
 	 */
-	public List<Tuple> query(final BoundingBox boundingBox) {
-		final List<Tuple> resultList = new ArrayList<Tuple>();
+	public List<String> query(final BoundingBox boundingBox) {
+		final List<String> resultList = new ArrayList<String>();
 
 		query(boundingBox, rootElement, resultList);
 		
@@ -141,7 +142,7 @@ public class BoxSortIndex implements SpatialIndexer {
 	 * @param resultList 
 	 * @return
 	 */
-	protected void query(final BoundingBox queryBoundingBox, final BoxNode treeRoot, final List<Tuple> resultList) {
+	protected void query(final BoundingBox queryBoundingBox, final BoxNode treeRoot, final List<String> resultList) {
 		
 		// Check parameter
 		if(treeRoot == null || queryBoundingBox == null) {
@@ -149,8 +150,8 @@ public class BoxSortIndex implements SpatialIndexer {
 		}
 		
 		// Element are inside the query box
-		if(treeRoot.value.getBoundingBox().overlaps(queryBoundingBox)) {
-			resultList.add(treeRoot.value);
+		if(treeRoot.bbox.overlaps(queryBoundingBox)) {
+			resultList.add(treeRoot.key);
 		}
 		
 		// Recursive tree traversal (left child)
@@ -184,7 +185,8 @@ public class BoxSortIndex implements SpatialIndexer {
 class BoxNode {
 	protected BoxNode leftChild;
 	protected BoxNode rightChild;
-	protected Tuple value;
+	protected String key;
+	protected BoundingBox bbox;
 	protected BoundingBox subtreeBoundingBox;
 	
 	@Override
@@ -200,8 +202,7 @@ class BoxNode {
 			sb.append("\t");
 		}
 		
-		
-		sb.append("value: " + value.getKey() + " bbox: " + value.getBoundingBox() + " ");
+		sb.append("key: " + key + " bbox: " + bbox + " ");
 		sb.append("subtreeBoundingBox: " + subtreeBoundingBox + "\n");
 		
 		if(leftChild != null) {

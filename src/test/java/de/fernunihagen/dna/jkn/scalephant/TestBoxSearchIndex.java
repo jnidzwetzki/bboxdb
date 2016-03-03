@@ -27,7 +27,7 @@ public class TestBoxSearchIndex {
 	@Test
 	public void testQueryOnEmptytree() {
 		final BoxSortIndex boxSortIndex = new BoxSortIndex();
-		final List<Tuple> result = boxSortIndex.query(new BoundingBox(1f, 1f, 2f, 2f));
+		final List<String> result = boxSortIndex.query(new BoundingBox(1f, 1f, 2f, 2f));
 		Assert.assertTrue(result.isEmpty());
 	}
 	
@@ -116,9 +116,9 @@ public class TestBoxSearchIndex {
 	protected void queryIndex(final List<Tuple> tupleList, final BoxSortIndex boxSortIndex) {
 		
 		for(final Tuple tuple: tupleList) {
-			final List<Tuple> resultList = boxSortIndex.query(tuple.getBoundingBox());
+			final List<String> resultList = boxSortIndex.query(tuple.getBoundingBox());
 			Assert.assertTrue(resultList.size() >= 1);
-			Assert.assertTrue(resultList.contains(tuple));
+			Assert.assertTrue(resultList.contains(tuple.getKey()));
 		}
 	}
 
