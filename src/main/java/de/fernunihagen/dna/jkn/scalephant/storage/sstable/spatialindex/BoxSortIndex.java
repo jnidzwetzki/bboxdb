@@ -10,7 +10,6 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 /**
  * Based on the Box Sort Algorithm by Piet Houthuys
- * @author kristofnidzwetzki
  *
  */
 public class BoxSortIndex implements SpatialIndexer {
