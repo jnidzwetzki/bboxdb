@@ -26,7 +26,7 @@ dataDirectory: /tmp/scalephant_production/data
 # Default: true
 # storageRunCompactThread: true
 
-# Start a thread to flush full memtabls to disk
+# Start a thread to flush full memtables to disk
 # When disabled, all data stays in memory
 # Default: true
 # storageRunMemtableFlushThread: true
