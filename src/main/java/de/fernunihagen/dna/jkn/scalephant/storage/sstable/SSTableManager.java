@@ -1,6 +1,8 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +17,7 @@ import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
@@ -369,7 +372,7 @@ public class SSTableManager implements Lifecycle {
 	 */
 	public Tuple get(final String key) throws StorageManagerException {
 			
-		// Read memtables first
+		// Read unlushed memtables first
 		Tuple tuple = getTupleFromMemtable(key);
 				
 		boolean readComplete = false;
@@ -407,6 +410,53 @@ public class SSTableManager implements Lifecycle {
 		}
 		
 		return tuple;
+	}
+	
+	/**
+	 * Get all tuples that are inside of the bounding box
+	 * @param boundingBox
+	 * @return
+	 * @throws StorageManagerException 
+	 */
+	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox) throws StorageManagerException {
+		final List<Tuple> resultList = new ArrayList<Tuple>();
+		
+		// Read unflushed memtables first
+		for(final Memtable unflushedMemtable : unflushedMemtables) {
+			try {
+				final Collection<Tuple> memtableResult = unflushedMemtable.getTuplesInside(boundingBox);
+				resultList.addAll(memtableResult);
+			} catch (StorageManagerException e) {
+				logger.warn("Got an exception while scanning unflushed memtable: ", e);
+			}
+		}
+		
+		// Scan the sstables
+		boolean readComplete = false;
+		while(! readComplete) {
+			readComplete = true;
+		
+			// Read data from the persistent SSTables
+			for(final SSTableReader reader : sstableReader) {
+				final SSTableKeyIndexReader indexReader = getIndexReaderForTable(reader);
+				boolean canBeUsed = indexReader.acquire();
+				
+				if(! canBeUsed ) {
+					readComplete = false;
+					break;
+				}
+								
+				for (final Tuple tuple : indexReader) {
+					if(tuple.getBoundingBox().overlaps(boundingBox)) {
+						resultList.add(tuple);
+					}
+				}
+				
+				reader.release();
+			}
+		}
+		
+		return resultList;
 	}
 
 	/**

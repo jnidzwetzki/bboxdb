@@ -128,7 +128,16 @@ public class StorageManager implements Lifecycle, Storage {
 		
 		final HashMap<String, Tuple> allTuples = new HashMap<String, Tuple>();
 		
+		// Query all memtables
 		final Collection<Tuple> memtableTuples = memtable.getTuplesInside(boundingBox);
+		
+		// Query the sstables
+		final Collection<Tuple> sstableResult = sstableManager.getTuplesInside(boundingBox);
+		
+		// Merge results
+		memtableTuples.addAll(sstableResult);
+		
+		// Find the most recent version of the tuple
 		for(final Tuple tuple : memtableTuples) {
 			
 			final String tupleKey = tuple.getKey();
@@ -142,8 +151,6 @@ public class StorageManager implements Lifecycle, Storage {
 				}
 			}
 		}
-		
-		//FIXME: Query SSTables 
 		
 		// Remove deleted tuples from result
 		for(final Tuple tuple : allTuples.values()) {
