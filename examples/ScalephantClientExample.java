@@ -19,8 +19,8 @@ public class ScalephantClientExample {
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		
-		// A 2 dimensional table (member of distribution group 3) with the name "testdata"
-		final String mytable = "2_3_testdata";
+		// A 2 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
+		final String mytable = "2_mygroup3_testdata";
 		
 		// Connect to the server
 		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1");
