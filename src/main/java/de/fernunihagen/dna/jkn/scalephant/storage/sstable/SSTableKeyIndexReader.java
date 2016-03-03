@@ -13,7 +13,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 public class SSTableKeyIndexReader extends AbstractTableReader implements Iterable<Tuple> {
 	
 	/**
-	 * The coresponding sstable reader
+	 * The corresponding sstable reader
 	 */
 	protected final SSTableReader sstableReader;
 	
