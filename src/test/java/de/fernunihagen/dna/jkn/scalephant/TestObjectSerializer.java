@@ -2,9 +2,9 @@ package de.fernunihagen.dna.jkn.scalephant;
 
 import java.io.IOException;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import junit.framework.Assert;
 import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 
 public class TestObjectSerializer {

@@ -1,15 +1,13 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
-import junit.framework.Assert;
 
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.PersonEntity;
-import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
-import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;

@@ -3,15 +3,13 @@ package de.fernunihagen.dna.jkn.scalephant.network;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import junit.framework.Assert;
-
 import org.apache.commons.daemon.DaemonInitException;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantMain;
-import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;

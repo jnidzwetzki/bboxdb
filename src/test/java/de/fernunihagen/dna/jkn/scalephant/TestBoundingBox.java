@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
 public class TestBoundingBox {
+	
+	protected final static float EQUALS_DELTA = 0.001f;
 
 	/**
 	 * Create some invalid bounding boxes
@@ -53,16 +54,16 @@ public class TestBoundingBox {
 	@Test
 	public void testGetValues() {
 		final BoundingBox bb1 = new BoundingBox(1f, 10f);
-		Assert.assertEquals(1f, bb1.getCoordinateLow(0));
-		Assert.assertEquals(10f, bb1.getExtent(0));
+		Assert.assertEquals(1f, bb1.getCoordinateLow(0), EQUALS_DELTA);
+		Assert.assertEquals(10f, bb1.getExtent(0), EQUALS_DELTA);
 		
 		final BoundingBox bb2 = new BoundingBox(1f, 20f, -50f, 50f, -100f, 10f);
-		Assert.assertEquals(1f, bb2.getCoordinateLow(0));
-		Assert.assertEquals(20f, bb2.getExtent(0));
-		Assert.assertEquals(-50f, bb2.getCoordinateLow(1));
-		Assert.assertEquals(50f, bb2.getExtent(1));
-		Assert.assertEquals(-100f, bb2.getCoordinateLow(2));
-		Assert.assertEquals(10f, bb2.getExtent(2));
+		Assert.assertEquals(1f, bb2.getCoordinateLow(0), EQUALS_DELTA);
+		Assert.assertEquals(20f, bb2.getExtent(0), EQUALS_DELTA);
+		Assert.assertEquals(-50f, bb2.getCoordinateLow(1), EQUALS_DELTA);
+		Assert.assertEquals(50f, bb2.getExtent(1), EQUALS_DELTA);
+		Assert.assertEquals(-100f, bb2.getCoordinateLow(2), EQUALS_DELTA);
+		Assert.assertEquals(10f, bb2.getExtent(2), EQUALS_DELTA);
 	}
 	
 	/**
@@ -71,14 +72,14 @@ public class TestBoundingBox {
 	@Test
 	public void testLowHigh() {
 		final BoundingBox bb1 = new BoundingBox(1f, 10f);
-		Assert.assertEquals(1f, bb1.getCoordinateLow(0));
-		Assert.assertEquals(11f, bb1.getCoordinateHigh(0));
+		Assert.assertEquals(1f, bb1.getCoordinateLow(0), EQUALS_DELTA);
+		Assert.assertEquals(11f, bb1.getCoordinateHigh(0), EQUALS_DELTA);
 
 		final BoundingBox bb2 = new BoundingBox(1f, 10f, 10f, 50f);
-		Assert.assertEquals(1f, bb2.getCoordinateLow(0));
-		Assert.assertEquals(11f, bb2.getCoordinateHigh(0));
-		Assert.assertEquals(10f, bb2.getCoordinateLow(1));
-		Assert.assertEquals(60f, bb2.getCoordinateHigh(1));
+		Assert.assertEquals(1f, bb2.getCoordinateLow(0), EQUALS_DELTA);
+		Assert.assertEquals(11f, bb2.getCoordinateHigh(0), EQUALS_DELTA);
+		Assert.assertEquals(10f, bb2.getCoordinateLow(1), EQUALS_DELTA);
+		Assert.assertEquals(60f, bb2.getCoordinateHigh(1), EQUALS_DELTA);
 	}
 	
 	/**
@@ -207,12 +208,12 @@ public class TestBoundingBox {
 
 		final BoundingBox boundingBoxResult4 = BoundingBox.getBoundingBox(boundingBox3, boundingBox4);
 		Assert.assertEquals(3, boundingBoxResult4.getDimension());		
-		Assert.assertEquals(-1.0f, boundingBoxResult4.getCoordinateLow(0));
-		Assert.assertEquals(4.0f, boundingBoxResult4.getCoordinateHigh(0));
-		Assert.assertEquals(-1.0f, boundingBoxResult4.getCoordinateLow(1));
-		Assert.assertEquals(4.0f, boundingBoxResult4.getCoordinateHigh(1));
-		Assert.assertEquals(-1.0f, boundingBoxResult4.getCoordinateLow(2));
-		Assert.assertEquals(4.0f, boundingBoxResult4.getCoordinateHigh(2));
+		Assert.assertEquals(-1.0f, boundingBoxResult4.getCoordinateLow(0), EQUALS_DELTA);
+		Assert.assertEquals(4.0f, boundingBoxResult4.getCoordinateHigh(0), EQUALS_DELTA);
+		Assert.assertEquals(-1.0f, boundingBoxResult4.getCoordinateLow(1), EQUALS_DELTA);
+		Assert.assertEquals(4.0f, boundingBoxResult4.getCoordinateHigh(1), EQUALS_DELTA);
+		Assert.assertEquals(-1.0f, boundingBoxResult4.getCoordinateLow(2), EQUALS_DELTA);
+		Assert.assertEquals(4.0f, boundingBoxResult4.getCoordinateHigh(2), EQUALS_DELTA);
 		
 		// Wrong dimensions
 		final BoundingBox boundingBoxResult5 = BoundingBox.getBoundingBox(boundingBox1, boundingBox2, boundingBox3, boundingBox4);

@@ -1,11 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
-
-import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
-import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 
 public class TestStorageInterface {
 	
