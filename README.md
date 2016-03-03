@@ -7,7 +7,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 
 ## Changelog
 
-### Version 0.0.4 (Alpha) - TBA
+### Version 0.0.4 (Alpha) - 03.03.2016
 - Added one client example 
 - Added configuration file (scalephant.yaml)
 - Added support for multiple tuple result queries
@@ -15,7 +15,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 - Implemented a naming scheme for tables
 - Added a start and stop script for Linux (using Apache jsvc)
 
-### Version 0.0.3 (Alpha) - 16.02.2015
+### Version 0.0.3 (Alpha) - 16.02.2016
 - Implemented a network client
 - First network protocol specification (see doc/network.md)
 - Implemented a server service
