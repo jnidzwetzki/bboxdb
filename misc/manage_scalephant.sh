@@ -85,6 +85,33 @@ stop() {
     ./jsvc -pidfile $basedir/scalephant.pid -stop -cwd $basedir -cp $classpath de.fernunihagen.dna.jkn.scalephant.ScalephantMain
 }
 
+###
+# Start Zookeeper
+###
+start_zookeeper() {
+    echo "Start Zookeeper"
+    nohup java -cp $classpath -Dzookeeper.log.dir="$basedir/logs" org.apache.zookeeper.server.quorum.QuorumPeerMain zoo.cfg > zookeeper.log 2>&1 < /dev/null &
+    if [ $? -eq 0 ]; then
+       # Dump PID into file
+       echo -n $! > zookeeper.pid
+    else
+       echo "Unable to start zookeeper, check the logfiles for further information"
+    fi
+}
+
+###
+# Stop Zookeeper
+###
+stop_zookeeper() {
+    if [ ! -f zookeeper.pid ]; then
+       echo "Unable to locate PID file"
+    else
+       echo "Stop Zookeeper"
+       kill -9 $(cat zookeeper.pid)
+       rm zookeeper.pid
+    fi
+}
+
 case "$1" in  
 
 start)
@@ -96,8 +123,14 @@ stop)
 update)
    update_and_build
    ;;  
+start_zookeeper)
+   start_zookeeper
+   ;;
+stop_zookeeper)
+   stop_zookeeper
+   ;;
 *)
-   echo "Usage: $0 {start|stop|update}"
+   echo "Usage: $0 {start|stop|update|start_zookeeper|stop_zookeeper}"
    ;;  
 esac
 
