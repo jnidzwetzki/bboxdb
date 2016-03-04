@@ -108,6 +108,7 @@ dataDir=$zookeeper_workdir
 clientPort=$zookeeper_clientport
 initLimit=5
 syncLimit=2
+autopurge.purgeInterval=2
 EOF
 
     for i in $zookeeper_nodes; do
