@@ -21,6 +21,7 @@ classpath="$basedir/../conf:$libs:$jar"
 # Zookeeper
 zookeeper_workdir=$basedir/zookeeper
 zookeeper_nodes="node1 node2 node3"
+zookeeper_clientport="2181"
 
 ###
 # Download and compile jsvc if not installed
@@ -90,9 +91,9 @@ stop() {
 }
 
 ###
-# Start Zookeeper
+# Zookeeper start
 ###
-start_zookeeper() {
+zookeeper_start() {
     echo "Start Zookeeper"
 
     # Create work dir
@@ -104,7 +105,7 @@ start_zookeeper() {
 cat << EOF > $basedir/zoo.cfg
 tickTime=2000
 dataDir=$zookeeper_workdir
-clientPort=2181
+clientPort=$zookeeper_clientport
 initLimit=5
 syncLimit=2
 EOF
@@ -125,9 +126,9 @@ EOF
 }
 
 ###
-# Stop Zookeeper
+# Zookeeper stop
 ###
-stop_zookeeper() {
+zookeeper_stop() {
     if [ ! -f $basedir/zookeeper.pid ]; then
        echo "Unable to locate PID file"
     else
@@ -136,6 +137,15 @@ stop_zookeeper() {
        rm $basedir/zookeeper.pid
     fi
 }
+
+###
+# Zookeeper client
+###
+zookeeper_client() {
+    echo "Connecting to Zookeeper"
+    java -cp $classpath org.apache.zookeeper.ZooKeeperMain -server 127.0.0.1:$zookeeper_clientport
+}
+
 
 case "$1" in  
 
@@ -148,14 +158,17 @@ stop)
 update)
    update_and_build
    ;;  
-start_zookeeper)
-   start_zookeeper
+zookeeper_start)
+   zookeeper_start
    ;;
-stop_zookeeper)
-   stop_zookeeper
+zookeeper_stop)
+   zookeeper_stop
+   ;;
+zookeeper_client)
+   zookeeper_client
    ;;
 *)
-   echo "Usage: $0 {start|stop|update|start_zookeeper|stop_zookeeper}"
+   echo "Usage: $0 {start|stop|update|zookeeper_start|zookeeper_stop|zookeeper_client}"
    ;;  
 esac
 
