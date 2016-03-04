@@ -90,10 +90,10 @@ stop() {
 ###
 start_zookeeper() {
     echo "Start Zookeeper"
-    nohup java -cp $classpath -Dzookeeper.log.dir="$basedir/logs" org.apache.zookeeper.server.quorum.QuorumPeerMain zoo.cfg > zookeeper.log 2>&1 < /dev/null &
+    nohup java -cp $classpath -Dzookeeper.log.dir="$basedir/logs" org.apache.zookeeper.server.quorum.QuorumPeerMain $basedir/zoo.cfg > $basedir/zookeeper.log 2>&1 < /dev/null &
     if [ $? -eq 0 ]; then
        # Dump PID into file
-       echo -n $! > zookeeper.pid
+       echo -n $! > $basedir/zookeeper.pid
     else
        echo "Unable to start zookeeper, check the logfiles for further information"
     fi
@@ -103,12 +103,12 @@ start_zookeeper() {
 # Stop Zookeeper
 ###
 stop_zookeeper() {
-    if [ ! -f zookeeper.pid ]; then
+    if [ ! -f $basedir/zookeeper.pid ]; then
        echo "Unable to locate PID file"
     else
        echo "Stop Zookeeper"
-       kill -9 $(cat zookeeper.pid)
-       rm zookeeper.pid
+       kill -9 $(cat $basedir/zookeeper.pid)
+       rm $basedir/zookeeper.pid
     fi
 }
 
