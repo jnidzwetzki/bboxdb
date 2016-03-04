@@ -18,6 +18,10 @@ libs=$(find ../target/lib -name '*.jar' | xargs echo | tr ' ' ':')
 jar=$(ls -1 ../target/scalephant*.jar | tail -1)
 classpath="$basedir/../conf:$libs:$jar"
 
+# Zookeeper
+zookeeper_workdir=$basedir/zookeeper
+zookeeper_nodes="node1 node2 node3"
+
 ###
 # Download and compile jsvc if not installed
 ###
@@ -90,7 +94,28 @@ stop() {
 ###
 start_zookeeper() {
     echo "Start Zookeeper"
+
+    # Create work dir
+    if [ ! -d $zookeeper_workdir ]; then
+       mkdir -p $zookeeper_workdir
+    fi
+   
+    # Write zookeeper config
+cat << EOF > $basedir/zoo.cfg
+tickTime=2000
+dataDir=$zookeeper_workdir
+clientPort=2181
+initLimit=5
+syncLimit=2
+EOF
+
+    for i in $zookeeper_nodes; do
+       echo $i:2888:3888 >> $basedir/zoo.cfg
+    done
+ 
+    # Start zookeeper
     nohup java -cp $classpath -Dzookeeper.log.dir="$basedir/logs" org.apache.zookeeper.server.quorum.QuorumPeerMain $basedir/zoo.cfg > $basedir/zookeeper.log 2>&1 < /dev/null &
+    
     if [ $? -eq 0 ]; then
        # Dump PID into file
        echo -n $! > $basedir/zookeeper.pid
