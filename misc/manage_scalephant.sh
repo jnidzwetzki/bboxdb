@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Manage the scalephant
 #
@@ -39,7 +39,7 @@ download_jsvc() {
     
        if [ ! -f $jsvc_file ]; then
           echo "Error: unable to download commons-daemon, exiting"
-          exit -1
+          exit 2
        fi
 
        tar zxvf $jsvc_file > /dev/null
@@ -49,7 +49,7 @@ download_jsvc() {
 
        if [ ! -x jsvc ]; then
            echo "Error: unable to compile jsvc, exiting"
-           exit -1
+           exit 2
        fi
 
        mv jsvc $basedir
@@ -102,7 +102,7 @@ zookeeper_start() {
     # Check for running instance
     if [ -f $basedir/zookeeper.pid ]; then
        echo "Found old zookeeper pid, check process list or remove pid"
-       exit -1
+       exit 2
     fi
 
     echo "Start Zookeeper"
@@ -122,9 +122,22 @@ syncLimit=2
 autopurge.purgeInterval=2
 EOF
 
+    serverid=0
+    instanceid=-1
+    hostname=$(hostname)
     for i in $zookeeper_nodes; do
-       echo $i:2888:3888 >> $basedir/zoo.cfg
+       echo "server.$serverid=$i:2888:3888" >> $basedir/zoo.cfg
+
+       # Store the id of this node
+       if [ "$hostname" == "$i" ]; then
+          instanceid=$serverid
+       fi
+
+       serverid=$((serverid+1))
     done
+
+    # Write the id of this instance
+    echo $instanceid > $zookeeper_workdir/myid
  
     # Start zookeeper
     nohup java -cp $classpath -Dzookeeper.log.dir="$basedir/logs" org.apache.zookeeper.server.quorum.QuorumPeerMain $basedir/zoo.cfg > $basedir/zookeeper.log 2>&1 < /dev/null &
