@@ -14,8 +14,13 @@ basedir=$(dirname $fullpath)
 
 # Find all jars
 cd $basedir
-libs=$(find ../target/lib -name '*.jar' | xargs echo | tr ' ' ':')
-jar=$(ls -1 ../target/scalephant*.jar | tail -1)
+
+# Does a build exists? 
+if [ -d ../target ]; then
+   libs=$(find ../target/lib -name '*.jar' | xargs echo | tr ' ' ':')
+   jar=$(ls -1 ../target/scalephant*.jar | tail -1)
+fi 
+
 classpath="$basedir/../conf:$libs:$jar"
 
 # Zookeeper
@@ -94,6 +99,12 @@ stop() {
 # Zookeeper start
 ###
 zookeeper_start() {
+    # Check for running instance
+    if [ -f $basedir/zookeeper.pid ]; then
+       echo "Found old zookeeper pid, check process list or remove pid"
+       exit -1
+    fi
+
     echo "Start Zookeeper"
 
     # Create work dir
