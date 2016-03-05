@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
+import java.util.Collection;
+
 public class ScalephantConfiguration {
 	
 	/**
@@ -51,6 +53,21 @@ public class ScalephantConfiguration {
 	 *  The amount of threads to handle client connections
 	 */
 	protected int networkConnectionThreads = 10;
+	
+	/**
+	 * The name of the cluster
+	 */
+	protected String clustername;
+	
+	/**
+	 * The amount of replicates
+	 */
+	protected short replicates = 3;
+	
+	/**
+	 * The list of zookeeper nodes 
+	 */
+	protected Collection<String> zookeepernodes;
 	
 	
 	public String getRootDirectory() {
@@ -132,6 +149,30 @@ public class ScalephantConfiguration {
 
 	public void setStorageSpatialIndexerFactory(String storageSpatialIndexerFactory) {
 		this.storageSpatialIndexerFactory = storageSpatialIndexerFactory;
+	}
+
+	public String getClustername() {
+		return clustername;
+	}
+
+	public void setClustername(String clustername) {
+		this.clustername = clustername;
+	}
+
+	public short getReplicates() {
+		return replicates;
+	}
+
+	public void setReplicates(short replicates) {
+		this.replicates = replicates;
+	}
+
+	public Collection<String> getZookeepernodes() {
+		return zookeepernodes;
+	}
+
+	public void setZookeepernodes(Collection<String> zookeepernodes) {
+		this.zookeepernodes = zookeepernodes;
 	}
 
 }

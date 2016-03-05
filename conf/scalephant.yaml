@@ -56,3 +56,17 @@ dataDirectory: /tmp/scalephant_production/data
 # The number of threads to handle network connections
 # Default: 10
 # networkConnectionThreads: 10
+
+###
+# Distribution
+###
+
+# The name of the cluster
+clustername: mycluster
+
+# The number of replicates
+# Default: 3
+# replicates: 3
+
+# The addresses of the zookeeper nodes
+zookeepernodes: [node1, node2, node3]
