@@ -68,5 +68,5 @@ clustername: mycluster
 # Default: 3
 # replicates: 3
 
-# The addresses of the zookeeper nodes
-zookeepernodes: [node1, node2, node3]
+# The addresses (hostname:port) of the zookeeper nodes
+zookeepernodes: [node1:2181, node2:2181, node3:2181]
