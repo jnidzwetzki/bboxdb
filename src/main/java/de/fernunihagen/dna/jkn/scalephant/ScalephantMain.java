@@ -1,6 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.daemon.Daemon;
@@ -31,10 +32,36 @@ public class ScalephantMain implements Daemon {
 		final ScalephantConfiguration scalephantConfiguration = ScalephantConfigurationManager.getConfiguration();
 		
 		// The zookeeper client
-		services.add(new ZookeeperClient(scalephantConfiguration.getZookeepernodes()));
+		services.add(createZookeeperClient(scalephantConfiguration));
 
 		// The network conenction handler
-		services.add(new ConnectionHandler());		
+		services.add(createConnectionHandler());		
+	}
+
+	/**
+	 * Returns a new instance of the connection handler
+	 * @return
+	 */
+	protected ConnectionHandler createConnectionHandler() {
+		return new ConnectionHandler();
+	}
+
+	/**
+	 * Returns a new instance of the zookeeper client
+	 * @param scalephantConfiguration
+	 * @return
+	 */
+	protected ZookeeperClient createZookeeperClient(
+			final ScalephantConfiguration scalephantConfiguration) {
+		
+		final Collection<String> zookeepernodes = scalephantConfiguration.getZookeepernodes();
+		final String clustername = scalephantConfiguration.getClustername();
+		final String localIp = scalephantConfiguration.getLocalip();
+		final int localPort = scalephantConfiguration.getNetworkListenPort();
+		
+		final String instanceName = localIp + ":" + Integer.toString(localPort);
+		
+		return new ZookeeperClient(zookeepernodes, clustername, instanceName);
 	}
 
 	@Override

@@ -22,6 +22,16 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	protected final Collection<String> zookeeperHosts;
 	
 	/**
+	 * The name of the scalephant cluster
+	 */
+	protected final String clustername;
+	
+	/**
+	 * The name of the local instance
+	 */
+	protected final String ownInstanceName;
+	
+	/**
 	 * The zookeeper client instance
 	 */
 	protected ZooKeeper zookeeper;
@@ -36,10 +46,11 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
 
-
-	public ZookeeperClient(final Collection<String> zookeeperHosts) {
+	public ZookeeperClient(final Collection<String> zookeeperHosts, final String clustername, final String ownInstanceName) {
 		super();
 		this.zookeeperHosts = zookeeperHosts;
+		this.clustername = clustername;
+		this.ownInstanceName = ownInstanceName;
 	}
 
 	/**
@@ -47,17 +58,22 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	 */
 	@Override
 	public void init() {
+		if(zookeeperHosts == null || zookeeperHosts.isEmpty()) {
+			logger.warn("No Zookeeper hosts are defined, not connecting to zookeeper");
+			return;
+		}
+		
 		try {
-			
-			if(zookeeperHosts == null || zookeeperHosts.isEmpty()) {
-				logger.warn("No Zookeeper hosts are defined, not connecting to zookeeper");
-				return;
-			}
-			
 			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, this);
 		} catch (IOException e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
 		}
+		
+		try {
+			registerInstance();
+		} catch (InterruptedException | KeeperException e) {
+			logger.warn("Unable to register the local instance in zookeeper");
+		} 
 	}
 
 	/**
@@ -112,15 +128,15 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	 * @param clustername
 	 * @param ownInstanceName
 	 */
-	public boolean registerScalephantInstance(final String clustername, final String ownInstanceName) {
+	protected boolean registerScalephantInstance() {
 		if(zookeeper == null) {
 			logger.warn("Register called but not connected to zookeeper");
 			return false;
 		}
 		
 		try {
-			registerClusternameIfNeeded(clustername);
-			registerInstance(clustername, ownInstanceName);
+			registerClusternameIfNeeded();
+			registerInstance();
 		} catch (KeeperException | InterruptedException e) {
 			logger.warn("Got exception while reigster to zookeeper", e);
 			return false;
@@ -131,12 +147,10 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	
 	/**
 	 * Register the scalephant instance
-	 * @param clustername
-	 * @param ownInstanceName
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	protected void registerInstance(final String clustername, final String ownInstanceName) throws KeeperException, InterruptedException {
+	protected void registerInstance() throws KeeperException, InterruptedException {
 		final String instanceZookeeperPath = getClusterPath(clustername) + "/" + ownInstanceName;
 		logger.info("Register instance on: " + instanceZookeeperPath);
 		zookeeper.create(instanceZookeeperPath, "".getBytes(), ZooDefs.Ids.READ_ACL_UNSAFE, CreateMode.EPHEMERAL);
@@ -144,11 +158,10 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 
 	/**
 	 * Register the name of the cluster in the zookeeper directory
-	 * @param clustername
 	 * @throws KeeperException
 	 * @throws InterruptedException
 	 */
-	protected void registerClusternameIfNeeded(final String clustername) throws KeeperException, InterruptedException {
+	protected void registerClusternameIfNeeded() throws KeeperException, InterruptedException {
 		
 		final String clusterPath = getClusterPath(clustername);
 		
