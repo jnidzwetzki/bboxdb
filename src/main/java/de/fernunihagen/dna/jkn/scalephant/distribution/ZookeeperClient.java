@@ -1,7 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -19,7 +19,7 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	/**
 	 * The list of the zookeeper hosts
 	 */
-	protected final List<String> zookeeperHosts;
+	protected final Collection<String> zookeeperHosts;
 	
 	/**
 	 * The zookeeper client instance
@@ -37,7 +37,7 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
 
 
-	public ZookeeperClient(final List<String> zookeeperHosts) {
+	public ZookeeperClient(final Collection<String> zookeeperHosts) {
 		super();
 		this.zookeeperHosts = zookeeperHosts;
 	}
@@ -76,14 +76,14 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	protected String generateConnectString() {
 		final StringBuilder sb = new StringBuilder();
 		
-		for(int i = 0; i < zookeeperHosts.size(); i++) {
-			sb.append(zookeeperHosts.get(i));
-			
-			if(i != 0) {
+		for(final String zookeeperHost : zookeeperHosts) {
+			boolean wasEmpty = (sb.length() == 0);
+			sb.append(zookeeperHost);
+			if(wasEmpty) {
 				sb.append(", ");
 			}
 		}
-		
+	
 		return sb.toString();
 	}
 
@@ -125,7 +125,9 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	 * @throws KeeperException 
 	 */
 	protected void registerInstance(final String clustername, final String ownInstanceName) throws KeeperException, InterruptedException {
-		zookeeper.create(getClusterPath(clustername) + "/" + ownInstanceName, "".getBytes(), ZooDefs.Ids.READ_ACL_UNSAFE, CreateMode.EPHEMERAL);
+		final String instanceZookeeperPath = getClusterPath(clustername) + "/" + ownInstanceName;
+		logger.info("Register instance on: " + instanceZookeeperPath);
+		zookeeper.create(instanceZookeeperPath, "".getBytes(), ZooDefs.Ids.READ_ACL_UNSAFE, CreateMode.EPHEMERAL);
 	}
 
 	/**
@@ -135,8 +137,12 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	 * @throws InterruptedException
 	 */
 	protected void registerClusternameIfNeeded(final String clustername) throws KeeperException, InterruptedException {
-		if(zookeeper.exists(getClusterPath(clustername), this) == null) {
-			zookeeper.create(getClusterPath(clustername), "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		
+		final String clusterPath = getClusterPath(clustername);
+		
+		if(zookeeper.exists(clusterPath, this) == null) {
+			logger.info(clusterPath + " not found, creating");
+			zookeeper.create(clusterPath, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 		}
 	}
 
