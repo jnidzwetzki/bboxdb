@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
-import de.fernunihagen.dna.jkn.scalephant.network.server.ConnectionHandler;
+import de.fernunihagen.dna.jkn.scalephant.network.server.NetworkConnectionService;
 
 public class ScalephantMain implements Daemon {
 
@@ -42,8 +42,8 @@ public class ScalephantMain implements Daemon {
 	 * Returns a new instance of the connection handler
 	 * @return
 	 */
-	protected ConnectionHandler createConnectionHandler() {
-		return new ConnectionHandler();
+	protected NetworkConnectionService createConnectionHandler() {
+		return new NetworkConnectionService();
 	}
 
 	/**

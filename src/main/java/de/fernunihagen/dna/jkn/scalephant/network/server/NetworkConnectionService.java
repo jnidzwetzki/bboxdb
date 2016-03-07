@@ -14,7 +14,7 @@ import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
 
-public class ConnectionHandler implements ScalephantService {
+public class NetworkConnectionService implements ScalephantService {
 	
 	/**
 	 * The configuration
@@ -45,7 +45,7 @@ public class ConnectionHandler implements ScalephantService {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ConnectionHandler.class);
+	private final static Logger logger = LoggerFactory.getLogger(NetworkConnectionService.class);
 	
 	/**
 	 * Start the network connection handler
