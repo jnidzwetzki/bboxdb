@@ -51,6 +51,7 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 			
 			if(zookeeperHosts == null || zookeeperHosts.isEmpty()) {
 				logger.warn("No Zookeeper hosts are defined, not connecting to zookeeper");
+				return;
 			}
 			
 			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, this);
