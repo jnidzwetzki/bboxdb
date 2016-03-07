@@ -197,4 +197,12 @@ public class ScalephantConfiguration {
 		this.zookeepernodes = zookeepernodes;
 	}
 
+	public String getLocalip() {
+		return localip;
+	}
+
+	public void setLocalip(final String localip) {
+		this.localip = localip;
+	}
+
 }
