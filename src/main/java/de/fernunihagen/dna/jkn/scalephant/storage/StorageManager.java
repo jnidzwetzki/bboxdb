@@ -6,7 +6,7 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
@@ -14,7 +14,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
 
-public class StorageManager implements Lifecycle, Storage {
+public class StorageManager implements ScalephantService, Storage {
 	
 	protected final String table;
 	protected final ScalephantConfiguration configuration;
@@ -218,5 +218,10 @@ public class StorageManager implements Lifecycle, Storage {
 		}
 		
 		return state.isReady();
+	}
+
+	@Override
+	public String getServicename() {
+		return "Storage Manager";
 	}
 }

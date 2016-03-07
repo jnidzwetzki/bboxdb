@@ -237,4 +237,9 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 			}
 		};
 	}
+
+	@Override
+	public String getServicename() {
+		return "SSTable key index reader";
+	}
 }

@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
@@ -22,7 +22,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
 
-public class SSTableManager implements Lifecycle {
+public class SSTableManager implements ScalephantService {
 	
 	/**
 	 * The name of the table
@@ -584,6 +584,11 @@ public class SSTableManager implements Lifecycle {
 	 */
 	public ScalephantConfiguration getStorageConfiguration() {
 		return storageConfiguration;
+	}
+
+	@Override
+	public String getServicename() {
+		return "SSTable manager";
 	}
 	
 }

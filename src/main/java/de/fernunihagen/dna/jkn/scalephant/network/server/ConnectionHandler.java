@@ -9,12 +9,12 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
 
-public class ConnectionHandler implements Lifecycle {
+public class ConnectionHandler implements ScalephantService {
 	
 	/**
 	 * The configuration
@@ -158,5 +158,11 @@ public class ConnectionHandler implements Lifecycle {
 			logger.debug("Got new connection from: " + clientSocket.getInetAddress());
 			threadPool.submit(new ClientConnectionHandler(clientSocket));
 		}
+	}
+
+
+	@Override
+	public String getServicename() {
+		return "Network connection handler";
 	}
 }

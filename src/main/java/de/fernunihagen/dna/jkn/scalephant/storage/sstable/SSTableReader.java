@@ -141,4 +141,9 @@ public class SSTableReader extends AbstractTableReader {
 		return "SSTableReader [tablebumber=" + tablebumber + ", name=" + name
 				+ ", directory=" + directory + "]";
 	}
+
+	@Override
+	public String getServicename() {
+		return "SSTable reader";
+	}
 }

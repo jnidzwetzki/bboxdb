@@ -18,7 +18,7 @@ public class ScalephantMain implements Daemon {
 	/**
 	 * The instances to manage
 	 */
-	protected final List<Lifecycle> services = new ArrayList<Lifecycle>();
+	protected final List<ScalephantService> services = new ArrayList<ScalephantService>();
 	
 	/**
 	 * The Logger
@@ -69,7 +69,8 @@ public class ScalephantMain implements Daemon {
 		logger.info("Starting up the scalephant - version: " + Const.VERSION);	
 		
 		// Init all services
-		for(Lifecycle service : services) {
+		for(ScalephantService service : services) {
+			logger.info("Starting service: " + service.getServicename());
 			service.init();
 		}
 	}
@@ -79,14 +80,15 @@ public class ScalephantMain implements Daemon {
 		logger.info("Stopping the scalephant");
 		
 		// Stop all services
-		for(Lifecycle service : services) {
+		for(ScalephantService service : services) {
+			logger.info("Stopping service: " + service.getServicename());
 			service.shutdown();
 		}
 	}
 	
 	@Override
 	public void destroy() {
-		logger.info("Destroy the scalephant");
+		logger.info("Destroy the instance of the scalephant");
 		services.clear();
 	}
 	

@@ -12,9 +12,9 @@ import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 
-public class ZookeeperClient implements Lifecycle, Watcher {
+public class ZookeeperClient implements ScalephantService, Watcher {
 	
 	/**
 	 * The list of the zookeeper hosts
@@ -178,6 +178,11 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	 */
 	protected String getClusterPath(final String clustername) {
 		return "/" + clustername;
+	}
+
+	@Override
+	public String getServicename() {
+		return "Zookeeper Client";
 	}
 	
 }

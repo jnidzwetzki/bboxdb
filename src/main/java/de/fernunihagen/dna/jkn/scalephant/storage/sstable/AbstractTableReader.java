@@ -11,10 +11,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.Lifecycle;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 
-public abstract class AbstractTableReader implements Lifecycle {
+public abstract class AbstractTableReader implements ScalephantService {
 
 	/**
 	 * The number of the table
