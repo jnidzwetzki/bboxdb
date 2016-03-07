@@ -74,8 +74,14 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	 * @return
 	 */
 	protected String generateConnectString() {
-		final StringBuilder sb = new StringBuilder();
 		
+		// No zookeeper hosts are defined
+		if(zookeeperHosts == null) {
+			logger.warn("No zookeeper hosts are defined");
+			return "";
+		}
+		
+		final StringBuilder sb = new StringBuilder();
 		for(final String zookeeperHost : zookeeperHosts) {
 			boolean wasEmpty = (sb.length() == 0);
 			sb.append(zookeeperHost);
