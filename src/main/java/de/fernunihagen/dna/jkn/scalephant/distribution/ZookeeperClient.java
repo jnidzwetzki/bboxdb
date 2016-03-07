@@ -48,6 +48,11 @@ public class ZookeeperClient implements Lifecycle, Watcher {
 	@Override
 	public void init() {
 		try {
+			
+			if(zookeeperHosts == null || zookeeperHosts.isEmpty()) {
+				logger.warn("No Zookeeper hosts are defined, not connecting to zookeeper");
+			}
+			
 			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, this);
 		} catch (IOException e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
