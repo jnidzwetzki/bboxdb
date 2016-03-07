@@ -1,6 +1,11 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScalephantConfiguration {
 	
@@ -69,6 +74,23 @@ public class ScalephantConfiguration {
 	 */
 	protected Collection<String> zookeepernodes;
 	
+	/**
+	 * The local IP address of this node. The default value is set in the constructor.
+	 */
+	protected String localip = null;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(ScalephantConfiguration.class);
+
+	public ScalephantConfiguration() {
+		try {
+			localip = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			logger.warn("Unable to determine the local IP adress of this node, please specify 'localip' in the configuration", e);
+		}
+	}
 	
 	public String getRootDirectory() {
 		return rootDirectory;
