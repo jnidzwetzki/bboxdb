@@ -174,7 +174,7 @@ zookeeper_client() {
 
 case "$1" in  
 
-scalepahnt_start)
+scalephant_start)
    start
    ;;  
 scalephant_stop)
