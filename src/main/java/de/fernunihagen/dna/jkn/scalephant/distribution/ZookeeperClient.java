@@ -65,15 +65,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		try {
 			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, this);
+			registerScalephantInstance();
 		} catch (IOException e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
 		}
-		
-		try {
-			registerInstance();
-		} catch (InterruptedException | KeeperException e) {
-			logger.warn("Unable to register the local instance in zookeeper");
-		} 
 	}
 
 	/**
@@ -139,7 +134,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			createDirectoryStructureIfNeeded();
 			registerInstance();
 		} catch (KeeperException | InterruptedException e) {
-			logger.warn("Got exception while reigster to zookeeper", e);
+			logger.warn("Got exception while register to zookeeper", e);
 			return false;
 		} 
 		
