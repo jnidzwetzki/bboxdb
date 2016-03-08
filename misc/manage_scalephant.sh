@@ -174,13 +174,13 @@ zookeeper_client() {
 
 case "$1" in  
 
-start)
+scalepahnt_start)
    start
    ;;  
-stop)
+scalephant_stop)
    stop
    ;;  
-update)
+scalephant_update)
    update_and_build
    ;;  
 zookeeper_start)
@@ -193,7 +193,7 @@ zookeeper_client)
    zookeeper_client
    ;;
 *)
-   echo "Usage: $0 {start|stop|update|zookeeper_start|zookeeper_stop|zookeeper_client}"
+   echo "Usage: $0 {scalephant_start|scalepahnt_stop|scalepahnt_update|zookeeper_start|zookeeper_stop|zookeeper_client}"
    ;;  
 esac
 
