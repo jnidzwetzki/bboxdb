@@ -8,9 +8,11 @@
 jsvc_file="commons-daemon-1.0.15-native-src.tar.gz"
 jsvc_url="http://www.apache.org/dist/commons/daemon/source/$jsvc_file"
 
-# Change path to basedir
-fullpath=$(readlink -f "$0")
-basedir=$(dirname $fullpath)
+# Scriptname and Path 
+pushd `dirname $0` > /dev/null
+basedir=`pwd`
+fullpath=$(basename $0)
+popd > /dev/null
 
 # Find all jars
 cd $basedir
