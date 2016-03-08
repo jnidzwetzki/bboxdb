@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Manage the scalephant
+# Manage the local scalephant instance
 #
 #
 #########################################
@@ -58,9 +58,9 @@ download_jsvc() {
 }
 
 ###
-# Build the scalephant
+# Update and build the scalephant
 ###
-update_and_build() {
+scalephant_update() {
    echo "Upgrade the scalephant"
    cd ..
    git pull
@@ -70,7 +70,7 @@ update_and_build() {
 ###
 # Start the scalephant
 ###
-start() {
+scalephant_start() {
     echo "Start the scalephant"
     download_jsvc
     cd $basedir
@@ -89,7 +89,7 @@ start() {
 ###
 # Stop the scalephant
 ###
-stop() {
+scalephant_stop() {
     echo "Stop the scalephant"
     cd $basedir
     ./jsvc -pidfile $basedir/scalephant.pid -stop -cwd $basedir -cp $classpath de.fernunihagen.dna.jkn.scalephant.ScalephantMain
@@ -175,13 +175,13 @@ zookeeper_client() {
 case "$1" in  
 
 scalephant_start)
-   start
+   scalephant_start
    ;;  
 scalephant_stop)
-   stop
+   scalephant_stop
    ;;  
 scalephant_update)
-   update_and_build
+   scalephant_update
    ;;  
 zookeeper_start)
    zookeeper_start
@@ -193,7 +193,7 @@ zookeeper_client)
    zookeeper_client
    ;;
 *)
-   echo "Usage: $0 {scalephant_start|scalepahnt_stop|scalepahnt_update|zookeeper_start|zookeeper_stop|zookeeper_client}"
+   echo "Usage: $0 {scalephant_start|scalephant_stop|scalephant_update|zookeeper_start|zookeeper_stop|zookeeper_client}"
    ;;  
 esac
 
