@@ -135,7 +135,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 		
 		try {
-			registerClusternameIfNeeded();
+			createDirectoryStructureIfNeeded();
 			registerInstance();
 		} catch (KeeperException | InterruptedException e) {
 			logger.warn("Got exception while reigster to zookeeper", e);
@@ -151,7 +151,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws KeeperException 
 	 */
 	protected void registerInstance() throws KeeperException, InterruptedException {
-		final String instanceZookeeperPath = getClusterPath(clustername) + "/" + ownInstanceName;
+		final String instanceZookeeperPath = getNodesPath(clustername) + "/" + ownInstanceName;
 		logger.info("Register instance on: " + instanceZookeeperPath);
 		zookeeper.create(instanceZookeeperPath, "".getBytes(), ZooDefs.Ids.READ_ACL_UNSAFE, CreateMode.EPHEMERAL);
 	}
@@ -161,13 +161,21 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws KeeperException
 	 * @throws InterruptedException
 	 */
-	protected void registerClusternameIfNeeded() throws KeeperException, InterruptedException {
+	protected void createDirectoryStructureIfNeeded() throws KeeperException, InterruptedException {
 		
+		// /clusterpath
 		final String clusterPath = getClusterPath(clustername);
 		
 		if(zookeeper.exists(clusterPath, this) == null) {
 			logger.info(clusterPath + " not found, creating");
 			zookeeper.create(clusterPath, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		}
+		
+		// /clusterpath/nodes
+		final String nodesPath = getNodesPath(clustername);
+		if(zookeeper.exists(nodesPath, this) == null) {
+			logger.info(nodesPath + " not found, creating");
+			zookeeper.create(nodesPath, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 		}
 	}
 
@@ -178,6 +186,15 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	protected String getClusterPath(final String clustername) {
 		return "/" + clustername;
+	}
+	
+	/**
+	 * Get the path of the zookeeper nodes
+	 * @param clustername
+	 * @return
+	 */
+	protected String getNodesPath(final String clustername) {
+		return "/" + clustername + "/nodes";
 	}
 
 	@Override
