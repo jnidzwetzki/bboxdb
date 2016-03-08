@@ -5,6 +5,16 @@
 
 # Line of code
 loc_java=$( (find .. -name '*.java' -print0 | xargs -0 cat ) | wc -l)
+loc_shell=$( (find .. -name '*.sh' -print0 | xargs -0 cat ) | wc -l)
+loc_xml=$( (find .. -name '*.xml' -print0 | xargs -0 cat ) | wc -l)
 
-echo "Lines of java code: $loc_java"
+loc=$((loc_java + $loc_shell + $loc_xml))
+
+printf "Lines of java code:\t %8d\n" $loc_java
+printf "Lines of shell code:\t %8d\n" $loc_shell
+printf "Lines of xml code:\t %8d\n" $loc_xml
+printf "==================================\n"
+printf "Total lines of code:\t %8d\n" $loc
+printf "==================================\n"
+printf "\n"
 
