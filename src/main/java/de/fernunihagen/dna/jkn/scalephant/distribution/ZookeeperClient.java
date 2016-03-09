@@ -145,8 +145,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	@Override
 	public void process(final WatchedEvent watchedEvent) {	
 		
-		logger.warn("Got zookeeper event: " + watchedEvent);
-
+		logger.debug("Got zookeeper event: " + watchedEvent);
 		
 		// Ignore null parameter
 		if(watchedEvent == null) {
