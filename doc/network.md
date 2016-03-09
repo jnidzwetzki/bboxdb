@@ -30,6 +30,7 @@ Request Types:
 * Type 0x03 - List all tables request
 * Type 0x04 - Disconnect request
 * Type 0x05 - Query request
+* Type 0x06 - Transfer SSTable
 
 
 ## The response frame
@@ -284,3 +285,42 @@ This query asks for all tuples, that are covered by the bounding box.
 
 #### Response body
 The result could be currently the response types 0x02, 0x03.
+
+### Transfer SSTable
+This request transfers a whole SSTable from one instance to another. This request is send between two scalephant instances. 
+
+#### Request body
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|   Table-Length   |                 |
+	+------------------+                 |
+	|              Tablename             |
+	.                                    .
+	+------------------------------------+
+	|          Metadata-Length           |
+	|                                    |
+	+------------------------------------+
+	|              Metadata              |
+	|                                    |
+	.                                    .
+	+------------------------------------+
+	|           SSTable-Length           |
+	|                                    |
+	+------------------------------------+
+	|               SSTable              |
+	|                                    |
+	.                                    .
+	+------------------------------------+
+	|          Keyindex-Length           |
+	|                                    |
+	+------------------------------------+
+	|              Keyindex              |
+	|                                    |
+	.                                    .
+	+------------------------------------+
+	
+#### Response body
+The result could be currently the response types 0x00, 0x02 or the receiving server closes the tcp socket during the file transfer. 
+
+
