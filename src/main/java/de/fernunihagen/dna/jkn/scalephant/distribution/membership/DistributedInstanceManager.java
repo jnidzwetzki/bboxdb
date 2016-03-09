@@ -48,6 +48,12 @@ public class DistributedInstanceManager {
 	}
 	
 	/**
+	 * Private constructor to prevent instantiation
+	 */
+	private DistributedInstanceManager() {
+	}
+	
+	/**
 	 * Singletons are not clonable
 	 */
 	@Override

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
 
 public class ZookeeperClient implements ScalephantService, Watcher {
@@ -97,10 +98,15 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	protected void readInitialMembershipAndRegisterWatch() {
 		try {
-			final List<String> members = zookeeper.getChildren(getNodesPath(clustername), this);
-			
-			final Set<String> memberSet = new HashSet<String>(members);
+			final List<String> instances = zookeeper.getChildren(getNodesPath(clustername), this);
 			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
+			
+			final Set<DistributedInstance> instanceSet = new HashSet<DistributedInstance>();
+			for(final String member : instances) {
+				instanceSet.add(new DistributedInstance(member));
+			}
+			
+			distributedInstanceManager.updateInstanceList(instanceSet);
 			
 		} catch (KeeperException | InterruptedException e) {
 			logger.warn("Unable to read membership and create a watch", e);
@@ -137,7 +143,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	@Override
 	public void process(final WatchedEvent watchedEvent) {
-	
+		logger.info("Got a zookeeper event: " + watchedEvent);
 	}
 	
 	/**
