@@ -2,6 +2,9 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -13,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
 
 public class ZookeeperClient implements ScalephantService, Watcher {
 	
@@ -66,6 +70,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		try {
 			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, this);
 			registerScalephantInstance();
+			readInitialMembershipAndRegisterWatch();
 		} catch (IOException e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
 		}
@@ -83,6 +88,22 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 				logger.warn("Got exception while closing zookeeper connection", e);
 			}
 			zookeeper = null;
+		}
+	}
+	
+	/**
+	 * Register a watch on membership changes. A watch is a one-time operation, the watch
+	 * is reregistered in the process() callback.
+	 */
+	protected void readInitialMembershipAndRegisterWatch() {
+		try {
+			final List<String> members = zookeeper.getChildren(getNodesPath(clustername), this);
+			
+			final Set<String> memberSet = new HashSet<String>(members);
+			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
+			
+		} catch (KeeperException | InterruptedException e) {
+			logger.warn("Unable to read membership and create a watch", e);
 		}
 	}
 	
