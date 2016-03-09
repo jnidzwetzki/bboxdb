@@ -10,6 +10,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
@@ -71,7 +72,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		try {
 			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, this);
 			registerScalephantInstance();
-			readInitialMembershipAndRegisterWatch();
+			readMembershipAndRegisterWatch();
 		} catch (IOException e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
 		}
@@ -94,9 +95,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	
 	/**
 	 * Register a watch on membership changes. A watch is a one-time operation, the watch
-	 * is reregistered in the process() callback.
+	 * is reregistered on each method call.
 	 */
-	protected void readInitialMembershipAndRegisterWatch() {
+	protected void readMembershipAndRegisterWatch() {
 		try {
 			final List<String> instances = zookeeper.getChildren(getNodesPath(clustername), this);
 			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
@@ -142,8 +143,30 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * Zookeeper watched event
 	 */
 	@Override
-	public void process(final WatchedEvent watchedEvent) {
-		logger.info("Got a zookeeper event: " + watchedEvent);
+	public void process(final WatchedEvent watchedEvent) {	
+		
+		logger.warn("Got zookeeper event: " + watchedEvent);
+
+		
+		// Ignore null parameter
+		if(watchedEvent == null) {
+			logger.warn("process called with an null argument");
+			return;
+		}
+		
+		// Ignore type=none event
+		if(watchedEvent.getType() == EventType.None) {
+			return;
+		}
+		
+		// Process events
+		if(watchedEvent.getPath() != null) {
+			if(watchedEvent.getPath().equals(getNodesPath(clustername))) {
+				readMembershipAndRegisterWatch();
+			}
+		} else {
+			logger.warn("Got unknown zookeeper event: " + watchedEvent);
+		}
 	}
 	
 	/**
