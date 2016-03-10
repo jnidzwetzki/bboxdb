@@ -44,6 +44,11 @@ public class NetworkConst {
 	 */
 	public static final byte REQUEST_TYPE_QUERY = 0x05;
 	
+	/**
+	 * Request type transfer SSTable
+	 */
+	public static final byte REQUEST_TYPE_TRANSFER = 0x06;
+	
 	
 	/**
 	 * Query type key
