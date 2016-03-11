@@ -107,12 +107,22 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @return
 	 */
 	public byte[] toByteArray() {
+		final float[] values = toFloatArray();
+		
+		return SSTableHelper.floatArrayToIEEE754ByteBuffer(values).array();
+	}
+
+	/**
+	 * Convert the boudning box into a float array
+	 * 
+	 * @return
+	 */
+	public float[] toFloatArray() {
 		final float[] values = new float[boundingBox.size()];
 		for(int i = 0; i < boundingBox.size(); i++) {
 			values[i] = boundingBox.get(i);
 		}
-		
-		return SSTableHelper.floatArrayToIEEE754ByteBuffer(values).array();
+		return values;
 	}
 	
 	/**
