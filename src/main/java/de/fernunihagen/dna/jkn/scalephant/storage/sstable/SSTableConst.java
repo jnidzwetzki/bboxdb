@@ -30,6 +30,11 @@ public class SSTableConst {
 	public final static String SST_INDEX_SUFFIX = ".idx";
 	
 	/**
+	 * The suffix for the meta files
+	 */
+	public final static String SSTABLE_META = ".meta";
+	
+	/**
 	 * The Byte order for encoded values
 	 */
 	public final static ByteOrder SSTABLE_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
