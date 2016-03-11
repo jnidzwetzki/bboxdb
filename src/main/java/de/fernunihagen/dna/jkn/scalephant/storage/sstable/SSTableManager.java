@@ -330,6 +330,16 @@ public class SSTableManager implements ScalephantService {
 	}
 	
 	/**
+	 * Belongs the given filename to a SSTable meta file?
+	 * @param filename
+	 * @return
+	 */
+	protected boolean isFileNameSSTableMetadata(final String filename) {
+		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
+				&& filename.endsWith(SSTableConst.SST_META);
+	}
+	
+	/**
 	 * Schedule a memtable for flush
 	 * 
 	 * @param memtable
