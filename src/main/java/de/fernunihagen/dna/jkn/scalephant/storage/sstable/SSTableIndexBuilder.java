@@ -4,7 +4,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
-public class SSTableIndexCreator {
+public class SSTableIndexBuilder {
 	
 	/**
 	 * The timestamp of the oldest tuple
@@ -43,6 +43,12 @@ public class SSTableIndexCreator {
 	 * @return
 	 */
 	public SStableMetaData getMetaData() {
-		return new SStableMetaData(oldestTuple, newestTuple, boundingBox.toFloatArray());
+		float[] boundingBoxArray = {};
+		
+		if(boundingBox != null) {
+			boundingBoxArray = boundingBox.toFloatArray();
+		}
+		
+		return new SStableMetaData(oldestTuple, newestTuple, boundingBoxArray);
 	}
 }
