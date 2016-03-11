@@ -294,6 +294,9 @@ public class SSTableManager implements ScalephantService {
 			} else if(isFileNameSSTableIndex(filename)) {
 				logger.info("Deleting index file: " + file);
 				file.delete();
+			} else if(isFileNameSSTableMetadata(filename)) {
+				logger.info("Deleting meta file: " + file);
+				file.delete();
 			}
 		}
 		
