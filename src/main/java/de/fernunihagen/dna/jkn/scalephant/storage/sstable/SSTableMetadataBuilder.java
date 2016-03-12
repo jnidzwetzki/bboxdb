@@ -35,7 +35,7 @@ public class SSTableMetadataBuilder {
 				
 		// Update the newest and the oldest tuple
 		newestTuple = Math.max(newestTuple, tuple.getTimestamp());
-		oldestTuple = Math.max(oldestTuple, tuple.getTimestamp());
+		oldestTuple = Math.min(oldestTuple, tuple.getTimestamp());
 	}
 	
 	/**
