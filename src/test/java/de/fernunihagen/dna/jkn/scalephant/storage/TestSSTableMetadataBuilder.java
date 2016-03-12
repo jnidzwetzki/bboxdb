@@ -33,6 +33,7 @@ public class TestSSTableMetadataBuilder {
 		ssTableIndexBuilder.addTuple(tuple1);
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox1.toFloatArray(), metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertEquals(metadata.getOldestTuple(), metadata.getNewestTuple());
 	}
 	
 	/**
@@ -128,6 +129,71 @@ public class TestSSTableMetadataBuilder {
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(new float[] {1f, 1f, 1f, 4f}, metadata.getBoundingBoxData(), 0.001f);
+	}
+	
+	/**
+	 * Dump the index to yaml
+	 */
+	@Test
+	public void testDumpToYaml1() {
+		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
+		final String yamlData = ssTableIndexBuilder.getMetaData().exportToYaml();
+		Assert.assertTrue(yamlData.length() > 10);
+	}
+	
+	/**
+	 * Dump the index to yaml
+	 */
+	@Test
+	public void testDumpToYaml2() {
+		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
+		
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 1f, 1f, 1f);
+		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
+		ssTableIndexBuilder.addTuple(tuple1);
+
+		final String yamlData = ssTableIndexBuilder.getMetaData().exportToYaml();
+		Assert.assertTrue(yamlData.length() > 10);
+	}
+	
+	/**
+	 * Dump the index to yaml and reread the data
+	 */
+	@Test
+	public void testDumpAndReadFromYaml1() {
+		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
+		
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 1f, 1f, 1f);
+		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
+		ssTableIndexBuilder.addTuple(tuple1);
+
+		final SStableMetaData metaData = ssTableIndexBuilder.getMetaData();
+		final String yamlData = metaData.exportToYaml();
+				
+		final SStableMetaData metaDataRead = SStableMetaData.importFromYaml(yamlData);
+		Assert.assertEquals(metaData, metaDataRead);
+	}
+	
+	/**
+	 * Dump the index to yaml and reread the data
+	 */
+	@Test
+	public void testDumpAndReadFromYaml2() {
+		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
+		
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 1f, 1f, 1f);
+		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
+		final BoundingBox boundingBox2 = new BoundingBox(1f, 0.1f, 1f, 4f);
+		final Tuple tuple2 = new Tuple("def", boundingBox2, "".getBytes());
+		
+		ssTableIndexBuilder.addTuple(tuple1);
+		ssTableIndexBuilder.addTuple(tuple2);
+
+		final SStableMetaData metaData = ssTableIndexBuilder.getMetaData();
+		final String yamlData = metaData.exportToYaml();
+			
+		final SStableMetaData metaDataRead = SStableMetaData.importFromYaml(yamlData);
+		Assert.assertEquals(metaData, metaDataRead);
 	}
 	
 }
