@@ -119,13 +119,7 @@ public class TestSSTableMetadataBuilder {
 	public void testSSTableIndexBuilder7() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 1f, 1f, 1f);
-		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
-		final BoundingBox boundingBox2 = new BoundingBox(1f, 0.1f, 1f, 4f);
-		final Tuple tuple2 = new Tuple("def", boundingBox2, "".getBytes());
-
-		ssTableIndexBuilder.addTuple(tuple1);
-		ssTableIndexBuilder.addTuple(tuple2);
+		addTwoTuples(ssTableIndexBuilder);
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(new float[] {1f, 1f, 1f, 4f}, metadata.getBoundingBoxData(), 0.001f);
@@ -181,6 +175,36 @@ public class TestSSTableMetadataBuilder {
 	public void testDumpAndReadFromYaml2() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
+		addTwoTuples(ssTableIndexBuilder);
+
+		final SStableMetaData metaData = ssTableIndexBuilder.getMetaData();
+		final String yamlData = metaData.exportToYaml();
+			
+		final SStableMetaData metaDataRead = SStableMetaData.importFromYaml(yamlData);
+		Assert.assertEquals(metaData, metaDataRead);
+	}
+	
+	/**
+	 * Dump the index to yaml file and reread the data
+	 */
+	@Test
+	public void testDumpAndReadFromYaml3() {
+		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
+		
+		addTwoTuples(ssTableIndexBuilder);
+
+		final SStableMetaData metaData = ssTableIndexBuilder.getMetaData();
+		final String yamlData = metaData.exportToYaml();
+			
+		final SStableMetaData metaDataRead = SStableMetaData.importFromYaml(yamlData);
+		Assert.assertEquals(metaData, metaDataRead);
+	}
+
+	/**
+	 * Add two tuples to the index builder
+	 * @param ssTableIndexBuilder
+	 */
+	protected void addTwoTuples(final SSTableMetadataBuilder ssTableIndexBuilder) {
 		final BoundingBox boundingBox1 = new BoundingBox(1f, 1f, 1f, 1f);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		final BoundingBox boundingBox2 = new BoundingBox(1f, 0.1f, 1f, 4f);
@@ -188,12 +212,6 @@ public class TestSSTableMetadataBuilder {
 		
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
-
-		final SStableMetaData metaData = ssTableIndexBuilder.getMetaData();
-		final String yamlData = metaData.exportToYaml();
-			
-		final SStableMetaData metaDataRead = SStableMetaData.importFromYaml(yamlData);
-		Assert.assertEquals(metaData, metaDataRead);
 	}
 	
 }

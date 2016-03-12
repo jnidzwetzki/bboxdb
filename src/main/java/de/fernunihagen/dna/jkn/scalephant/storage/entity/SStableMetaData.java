@@ -1,5 +1,9 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.entity;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,20 +49,42 @@ public class SStableMetaData {
 	 * @return
 	 */
 	public String exportToYaml() {
-		
-	    final Map<String, Object> data = new HashMap<String, Object>();	    
-	    final Yaml yaml = new Yaml();
-	    	    
-	    data.put("oldestTuple", oldestTuple);
-	    data.put("newestTuple", newestTuple);
-		data.put("dimensions", dimensions);
-	    data.put("boundingBoxData", boundingBoxData);
+	    final Map<String, Object> data = getPropertyMap();
 	    
+	    final Yaml yaml = new Yaml();
 	    return yaml.dump(data);
 	}
 	
 	/**
-	 * Create a instance from yaml data
+	 * Export the data to YAML File
+	 * @return
+	 * @throws IOException 
+	 */
+	public void exportToYamlFile(final String filename) throws IOException {
+	    final Map<String, Object> data = getPropertyMap();
+	    
+	    final FileWriter writer = new FileWriter(filename);
+	    
+	    final Yaml yaml = new Yaml();
+	    yaml.dump(data, writer);
+	    writer.close();
+	}
+
+	/**
+	 * Generate a map with the properties of this class
+	 * @return
+	 */
+	protected Map<String, Object> getPropertyMap() {
+		final Map<String, Object> data = new HashMap<String, Object>();	    
+	    data.put("oldestTuple", oldestTuple);
+	    data.put("newestTuple", newestTuple);
+		data.put("dimensions", dimensions);
+	    data.put("boundingBoxData", boundingBoxData);
+		return data;
+	}
+	
+	/**
+	 * Create a instance from yaml data - read data from string
 	 * 
 	 * @param yaml
 	 * @return
@@ -66,6 +92,19 @@ public class SStableMetaData {
 	public static SStableMetaData importFromYaml(final String yamlString) {
 		  final Yaml yaml = new Yaml(); 
 	      return yaml.loadAs(yamlString, SStableMetaData.class);
+	}
+	
+	/**
+	 * Create a instance from yaml data - read data from file
+	 * 
+	 * @param filename
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	public static SStableMetaData importFromYamlFile(final String filename) throws FileNotFoundException {
+		  final Yaml yaml = new Yaml(); 
+		  final FileReader reader = new FileReader(filename);
+	      return yaml.loadAs(reader, SStableMetaData.class);
 	}
 
 	public long getOldestTuple() {
