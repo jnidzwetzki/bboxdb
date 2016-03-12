@@ -1,5 +1,8 @@
 package de.fernunihagen.dna.jkn.scalephant.storage;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -186,18 +189,22 @@ public class TestSSTableMetadataBuilder {
 	
 	/**
 	 * Dump the index to yaml file and reread the data
+	 * @throws IOException 
 	 */
 	@Test
-	public void testDumpAndReadFromYaml3() {
+	public void testDumpAndReadFromYaml3() throws IOException {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
 		addTwoTuples(ssTableIndexBuilder);
+		
+		final File tmpFile = File.createTempFile("test", ".tmp");
 
 		final SStableMetaData metaData = ssTableIndexBuilder.getMetaData();
-		final String yamlData = metaData.exportToYaml();
+		metaData.exportToYamlFile(tmpFile);
 			
-		final SStableMetaData metaDataRead = SStableMetaData.importFromYaml(yamlData);
+		final SStableMetaData metaDataRead = SStableMetaData.importFromYamlFile(tmpFile);
 		Assert.assertEquals(metaData, metaDataRead);
+		tmpFile.delete();
 	}
 
 	/**

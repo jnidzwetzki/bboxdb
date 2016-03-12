@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.entity;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -60,10 +61,10 @@ public class SStableMetaData {
 	 * @return
 	 * @throws IOException 
 	 */
-	public void exportToYamlFile(final String filename) throws IOException {
+	public void exportToYamlFile(final File tmpFile) throws IOException {
 	    final Map<String, Object> data = getPropertyMap();
 	    
-	    final FileWriter writer = new FileWriter(filename);
+	    final FileWriter writer = new FileWriter(tmpFile);
 	    
 	    final Yaml yaml = new Yaml();
 	    yaml.dump(data, writer);
@@ -97,13 +98,13 @@ public class SStableMetaData {
 	/**
 	 * Create a instance from yaml data - read data from file
 	 * 
-	 * @param filename
+	 * @param tmpFile
 	 * @return
 	 * @throws FileNotFoundException
 	 */
-	public static SStableMetaData importFromYamlFile(final String filename) throws FileNotFoundException {
+	public static SStableMetaData importFromYamlFile(final File tmpFile) throws FileNotFoundException {
 		  final Yaml yaml = new Yaml(); 
-		  final FileReader reader = new FileReader(filename);
+		  final FileReader reader = new FileReader(tmpFile);
 	      return yaml.loadAs(reader, SStableMetaData.class);
 	}
 
