@@ -157,7 +157,7 @@ public class TestSSTableMetadataBuilder {
 	 * Dump the index to yaml and reread the data
 	 */
 	@Test
-	public void testDumpAndReadFromYaml1() {
+	public void testDumpAndReadFromYamlString1() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
 		final BoundingBox boundingBox1 = new BoundingBox(1f, 1f, 1f, 1f);
@@ -175,7 +175,7 @@ public class TestSSTableMetadataBuilder {
 	 * Dump the index to yaml and reread the data
 	 */
 	@Test
-	public void testDumpAndReadFromYaml2() {
+	public void testDumpAndReadFromYamlStrig2() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
 		addTwoTuples(ssTableIndexBuilder);
@@ -188,11 +188,30 @@ public class TestSSTableMetadataBuilder {
 	}
 	
 	/**
-	 * Dump the index to yaml file and reread the data
+	 * Dump the index to yaml file and reread the data - zero tuples
 	 * @throws IOException 
 	 */
 	@Test
-	public void testDumpAndReadFromYaml3() throws IOException {
+	public void testDumpAndReadFromYamlFile1() throws IOException {
+		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
+				
+		final File tmpFile = File.createTempFile("test", ".tmp");
+
+		final SStableMetaData metaData = ssTableIndexBuilder.getMetaData();
+		metaData.exportToYamlFile(tmpFile);
+			
+		final SStableMetaData metaDataRead = SStableMetaData.importFromYamlFile(tmpFile);
+		Assert.assertEquals(metaData, metaDataRead);
+		tmpFile.delete();
+	}
+
+	
+	/**
+	 * Dump the index to yaml file and reread the data - two tuple
+	 * @throws IOException 
+	 */
+	@Test
+	public void testDumpAndReadFromYamlFile2() throws IOException {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
 		addTwoTuples(ssTableIndexBuilder);
