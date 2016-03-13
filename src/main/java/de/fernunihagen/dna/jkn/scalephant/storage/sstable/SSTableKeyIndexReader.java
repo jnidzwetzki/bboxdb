@@ -228,16 +228,6 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	public String getServicename() {
 		return "SSTable key index reader";
 	}
-
-
-	protected static File constructFileFromReader(
-			final SSTableReader sstableReader) {
-		
-		return new File(SSTableManager.getSSTableIndexFilename(
-				sstableReader.getDirectory(), 
-				sstableReader.getName(), 
-				sstableReader.getTablebumber()));
-	}
 	
 	/**
 	 * Construct the filename of the index file
