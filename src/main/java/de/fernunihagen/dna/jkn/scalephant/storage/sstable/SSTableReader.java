@@ -11,8 +11,8 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class SSTableReader extends AbstractTableReader {
 
-	public SSTableReader(final String name, final String directory, final File file) throws StorageManagerException {
-		super(name, directory, file);
+	public SSTableReader(final String directory, final String relation, final int tablenumer) throws StorageManagerException {
+		super(directory, relation, tablenumer);
 	}
 	
 	/**
@@ -145,5 +145,14 @@ public class SSTableReader extends AbstractTableReader {
 	@Override
 	public String getServicename() {
 		return "SSTable reader";
+	}
+
+	/**
+	 * Construct the filename to read
+	 */
+	@Override
+	protected File constructFileToRead() {
+		final String filename = SSTableManager.getSSTableFilename(directory, name, tablebumber);
+		return new File(filename);
 	}
 }

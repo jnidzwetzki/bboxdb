@@ -32,7 +32,7 @@ public class TestSSTable {
 	
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(TEST_RELATION, DATA_DIRECTORY, 1);
+		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();
@@ -55,18 +55,19 @@ public class TestSSTable {
 	
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(TEST_RELATION, DATA_DIRECTORY, 1);
+		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
-		final File sstableFile = ssTableWriter.getSstableFile();
 		final File sstableIndexFile = ssTableWriter.getSstableIndexFile();
 		ssTableWriter.close();
 		
-		final SSTableReader sstableReader = new SSTableReader(TEST_RELATION, DATA_DIRECTORY, sstableFile);
+		final SSTableReader sstableReader = new SSTableReader(DATA_DIRECTORY, TEST_RELATION, 1);
 		sstableReader.init();
 		final SSTableKeyIndexReader ssTableIndexReader = new SSTableKeyIndexReader(sstableReader);
 		ssTableIndexReader.init();
 		
+		Assert.assertEquals(1, sstableReader.getTablebumber());
+		Assert.assertEquals(1, ssTableIndexReader.getTablebumber());
 		Assert.assertEquals(sstableIndexFile, ssTableIndexReader.getFile());
 		
 		int tupleCounter = 0;

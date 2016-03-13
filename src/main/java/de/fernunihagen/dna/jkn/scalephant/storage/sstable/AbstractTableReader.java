@@ -62,14 +62,22 @@ public abstract class AbstractTableReader implements ScalephantService {
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
 	
 	
-	public AbstractTableReader(final String name, final String directory, final File file) throws StorageManagerException {
-		this.name = name;
+	public AbstractTableReader(final String directory, final String relation, final int tablenumer) throws StorageManagerException {
+		this.name = relation;
 		this.directory = directory;
-		this.file = file;
-		this.tablebumber = SSTableHelper.extractSequenceFromFilename(name, file.getName());
+		this.tablebumber = tablenumer;
+
+		this.file = constructFileToRead();
 		this.usage = new AtomicInteger(0);
 		deleteOnClose = false;
 	}
+	
+	/**
+	 * Construct the filename to read
+	 * 
+	 * @return
+	 */
+	protected abstract File constructFileToRead();
 	
 	/**
 	 * Get the sequence number of the SSTable

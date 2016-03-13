@@ -23,22 +23,8 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	protected static final Logger logger = LoggerFactory.getLogger(SSTableKeyIndexReader.class);
 
 	public SSTableKeyIndexReader(final SSTableReader sstableReader) throws StorageManagerException {
-		super(sstableReader.getName(), sstableReader.getDirectory(), constructFileFromReader(sstableReader));
+		super(sstableReader.getDirectory(), sstableReader.getName(), sstableReader.getTablebumber());
 		this.sstableReader = sstableReader;
-	}
-
-	/**
-	 * Construct the filename of the index file
-	 * @param sstableReader
-	 * @return
-	 */
-	protected static File constructFileFromReader(
-			final SSTableReader sstableReader) {
-		
-		return new File(SSTableManager.getSSTableIndexFilename(
-				sstableReader.getDirectory(), 
-				sstableReader.getName(), 
-				sstableReader.getTablebumber()));
 	}
 
 	@Override
@@ -241,5 +227,26 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	@Override
 	public String getServicename() {
 		return "SSTable key index reader";
+	}
+
+
+	protected static File constructFileFromReader(
+			final SSTableReader sstableReader) {
+		
+		return new File(SSTableManager.getSSTableIndexFilename(
+				sstableReader.getDirectory(), 
+				sstableReader.getName(), 
+				sstableReader.getTablebumber()));
+	}
+	
+	/**
+	 * Construct the filename of the index file
+	 * @param sstableReader
+	 * @return
+	 */
+	@Override
+	protected File constructFileToRead() {
+		final String filename = SSTableManager.getSSTableIndexFilename(directory, name, tablebumber);
+		return new File(filename);
 	}
 }

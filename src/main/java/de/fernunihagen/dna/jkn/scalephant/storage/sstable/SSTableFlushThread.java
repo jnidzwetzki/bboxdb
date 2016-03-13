@@ -1,7 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
-import java.io.File;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +56,11 @@ class SSTableFlushThread implements Runnable {
 	protected void flushAllMemtablesToDisk() {
 		while(! sstableManager.unflushedMemtables.isEmpty()) {
 			final Memtable memtable = sstableManager.unflushedMemtables.get(0);
-			final File sstableFile = writeMemtable(memtable);
+			final int tableNumber = writeMemtable(memtable);
 			
-			if(sstableFile != null) {
+			if(tableNumber != -1) {
 				try {
-					final SSTableReader reader = new SSTableReader(sstableManager.getName(), getStorageDataDir(), sstableFile);
+					final SSTableReader reader = new SSTableReader(getStorageDataDir(), sstableManager.getName(), tableNumber);
 					sstableManager.sstableReader.add(reader);
 				} catch (StorageManagerException e) {
 					logger.error("Exception while creating SSTable reader", e);
@@ -87,20 +85,20 @@ class SSTableFlushThread implements Runnable {
 	 * @param memtable
 	 * @return
 	 */
-	protected File writeMemtable(final Memtable memtable) {
+	protected int writeMemtable(final Memtable memtable) {
 		int tableNumber = sstableManager.increaseTableNumber();
 		logger.info("Writing new memtable: " + tableNumber);
 		
-		try(final SSTableWriter ssTableWriter = new SSTableWriter(sstableManager.getName(), getStorageDataDir(), tableNumber)) {
+		try(final SSTableWriter ssTableWriter = new SSTableWriter(getStorageDataDir(), sstableManager.getName(), tableNumber)) {
 			ssTableWriter.open();
-			final File filehandle = ssTableWriter.getSstableFile();
+			ssTableWriter.getSstableFile();
 			ssTableWriter.addData(memtable.getSortedTupleList());
-			return filehandle;
+			return tableNumber;
 		} catch (Exception e) {
 			logger.info("Exception while write memtable: " + sstableManager.getName() + " / " + tableNumber, e);
 			sstableManager.storageState.setReady(false);
 		} 
 		
-		return null;
+		return -1;
 	}
 }

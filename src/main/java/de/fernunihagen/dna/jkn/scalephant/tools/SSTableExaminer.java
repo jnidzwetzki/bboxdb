@@ -1,6 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.tools;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 
@@ -13,13 +12,13 @@ import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableReader;
 
 public class SSTableExaminer implements Runnable {
 
-	protected String filename;
+	protected int tableNumber;
 	protected String relationname;
 	protected String examineKey;
 	
-	public SSTableExaminer(final String relationname, final String filename, final String examineKey) {
+	public SSTableExaminer(final String relationname, final int tableNumber, final String examineKey) {
 		super();
-		this.filename = filename;
+		this.tableNumber = tableNumber;
 		this.relationname = relationname;
 		this.examineKey = examineKey;
 	}
@@ -28,7 +27,7 @@ public class SSTableExaminer implements Runnable {
 	public void run() {
 		try {
 			final ScalephantConfiguration storageConfiguration = ScalephantConfigurationManager.getConfiguration();
-			final SSTableReader ssTableReader = new SSTableReader(relationname, storageConfiguration.getDataDirectory(), new File(filename));
+			final SSTableReader ssTableReader = new SSTableReader(storageConfiguration.getDataDirectory(), relationname, tableNumber);
 			
 			final SSTableKeyIndexReader ssTableIndexReader = new SSTableKeyIndexReader(ssTableReader);
 			
@@ -125,9 +124,9 @@ public class SSTableExaminer implements Runnable {
 	 */
 	public static void main(String[] args) {
 		final String relationname = "testrelation";
-		final String filename = "/tmp/scalephant/data/testrelation/sstable_testrelation_78.sst";
+		final int tableNumber = 78;
 		final String examineKey = "2555";
-		final SSTableExaminer dumper = new SSTableExaminer(relationname, filename, examineKey);
+		final SSTableExaminer dumper = new SSTableExaminer(relationname, tableNumber, examineKey);
 		dumper.run();
 	}
 }
