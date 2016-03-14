@@ -286,5 +286,18 @@ public class SSTableHelper {
 		return getSSTableBase(directory, name, tablebumber)
 				+ SSTableConst.SST_INDEX_SUFFIX;
 	}
+	
+	/**
+	 * The full name of the SSTable medatata file for a given relation
+	 * 
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.meta
+	 */
+	public static String getSSTableMetadataFilename(final String directory, final String name, int tablebumber) {
+		return getSSTableBase(directory, name, tablebumber)
+				+ SSTableConst.SST_META_SUFFIX;
+	}
 
 }

@@ -329,7 +329,7 @@ public class SSTableManager implements ScalephantService {
 	 */
 	protected boolean isFileNameSSTableMetadata(final String filename) {
 		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
-				&& filename.endsWith(SSTableConst.SST_META);
+				&& filename.endsWith(SSTableConst.SST_META_SUFFIX);
 	}
 	
 	/**

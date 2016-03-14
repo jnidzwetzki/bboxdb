@@ -32,7 +32,7 @@ public class SSTableConst {
 	/**
 	 * The suffix for the meta files
 	 */
-	public final static String SST_META = ".meta";
+	public final static String SST_META_SUFFIX = ".meta";
 	
 	/**
 	 * The Byte order for encoded values
