@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class SSTableWriter implements AutoCloseable {
@@ -53,7 +54,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * A counter for the written tuples
 	 */
-	protected long writtenTuples;
+	protected SSTableMetadataBuilder metadataBuilder;
 	
 	/**
 	 * The Logger
@@ -66,7 +67,7 @@ public class SSTableWriter implements AutoCloseable {
 		this.tablebumber = tablenumber;
 		
 		this.sstableOutputStream = null;
-		writtenTuples = 0;
+		this.metadataBuilder = new SSTableMetadataBuilder();
 	}
 	
 	public void open() throws StorageManagerException {
@@ -118,11 +119,17 @@ public class SSTableWriter implements AutoCloseable {
 				sstableIndexOutputStream.close();
 				sstableIndexOutputStream = null;
 			}
+			
+			// Write metadata
+			final SStableMetaData metadata = metadataBuilder.getMetaData();
+			final File metadatafile = new File(SSTableHelper.getSSTableMetadataFilename(directory, name, tablebumber));
+			metadata.exportToYamlFile(metadatafile);
+			
+			logger.info("Closing new SSTable for relation: " + name + " with " + metadata + " File: " + sstableFile.getName());
+			
 		} catch (IOException e) {
 			throw new StorageManagerException("Exception while closing streams", e);
 		}
-		
-		logger.info("Closing new SSTable for relation: " + name + " with " + writtenTuples + " entries. File: " + sstableFile.getName());
 	}
 	
 	/**
@@ -162,7 +169,7 @@ public class SSTableWriter implements AutoCloseable {
 			
 			// Add Tuple to the SSTable file
 			writeTupleToFile(tuple);
-			writtenTuples++;
+			metadataBuilder.addTuple(tuple);
 		} catch (IOException e) {
 			throw new StorageManagerException("Untable to write memtable to SSTable", e);
 		}

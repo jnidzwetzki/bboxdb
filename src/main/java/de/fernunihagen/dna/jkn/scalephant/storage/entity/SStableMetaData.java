@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 public class SStableMetaData {
@@ -37,6 +39,12 @@ public class SStableMetaData {
 	 * The dimensions of the bounding box
 	 */
 	protected int dimensions;
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(SStableMetaData.class);
+
 
 	public SStableMetaData() {
 		
@@ -67,10 +75,11 @@ public class SStableMetaData {
 	 * @return
 	 * @throws IOException 
 	 */
-	public void exportToYamlFile(final File tmpFile) throws IOException {
+	public void exportToYamlFile(final File outputFile) throws IOException {
 	    final Map<String, Object> data = getPropertyMap();
 	    
-	    final FileWriter writer = new FileWriter(tmpFile);
+	    final FileWriter writer = new FileWriter(outputFile);
+	    logger.debug("Output data to: " + outputFile);
 	    
 	    final Yaml yaml = new Yaml();
 	    yaml.dump(data, writer);
