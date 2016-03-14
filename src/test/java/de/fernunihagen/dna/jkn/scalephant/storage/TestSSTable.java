@@ -10,7 +10,9 @@ import org.junit.Test;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableReader;
 
@@ -92,6 +94,52 @@ public class TestSSTable {
 		tupleList.add(new Tuple("3", BoundingBox.EMPTY_BOX, "geh".getBytes()));
 		tupleList.add(new Tuple("4", BoundingBox.EMPTY_BOX, "ijk".getBytes()));
 		return tupleList;
+	}
+	
+	/**
+	 * Test delayed deletion
+	 * @throws Exception
+	 */
+	@Test
+	public void testDelayedDeletion() throws Exception {
+		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
+		storageManager.clear();
+		storageManager.shutdown();
+	
+		final String relationDirectory = SSTableHelper.getSSTableDir(DATA_DIRECTORY, TEST_RELATION);
+		final File relationDirectoryFile = new File(relationDirectory);
+		
+		// Directory should be empty
+		Assert.assertEquals(0, relationDirectoryFile.listFiles().length);
+		
+		final List<Tuple> tupleList = createTupleList();
+		
+		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1);
+		ssTableWriter.open();
+		ssTableWriter.addData(tupleList);
+		final File sstableFile = ssTableWriter.getSstableFile();
+		final File sstableIndexFile = ssTableWriter.getSstableIndexFile();
+		ssTableWriter.close();
+		
+		Assert.assertTrue(sstableFile.exists());
+		Assert.assertTrue(sstableIndexFile.exists());
+		
+		final SSTableFacade ssTableFacade = new SSTableFacade(DATA_DIRECTORY, TEST_RELATION, 1);
+		ssTableFacade.acquire();
+		ssTableFacade.deleteOnClose();
+		
+		// Directory should contain at least the sstable, the key index and the meta data file
+		Assert.assertTrue(relationDirectoryFile.listFiles().length >= 3);
+		Assert.assertTrue(sstableFile.exists());
+		Assert.assertTrue(sstableIndexFile.exists());
+		
+		// After calling release, the files can be deleted
+		ssTableFacade.release();
+		Assert.assertFalse(sstableFile.exists());
+		Assert.assertFalse(sstableIndexFile.exists());
+		
+		// Directory should be empty
+		Assert.assertEquals(0, relationDirectoryFile.listFiles().length);
 	}
 	
 }
