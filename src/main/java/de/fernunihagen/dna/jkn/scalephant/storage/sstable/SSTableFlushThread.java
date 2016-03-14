@@ -60,8 +60,8 @@ class SSTableFlushThread implements Runnable {
 			
 			if(tableNumber != -1) {
 				try {
-					final SSTableReader reader = new SSTableReader(getStorageDataDir(), sstableManager.getName(), tableNumber);
-					sstableManager.sstableReader.add(reader);
+					final SSTableFacade facade = new SSTableFacade(getStorageDataDir(), sstableManager.getName(), tableNumber);
+					sstableManager.sstableFacades.add(facade);
 				} catch (StorageManagerException e) {
 					logger.error("Exception while creating SSTable reader", e);
 				}

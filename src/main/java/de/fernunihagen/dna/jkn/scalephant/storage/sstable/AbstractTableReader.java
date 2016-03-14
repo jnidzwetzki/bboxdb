@@ -6,7 +6,6 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,16 +46,6 @@ public abstract class AbstractTableReader implements ScalephantService {
 	protected FileChannel fileChannel;
 	
 	/**
-	 * The usage counter
-	 */
-	protected final AtomicInteger usage;
-	
-	/**
-	 * Delete file on close
-	 */
-	protected volatile boolean deleteOnClose; 
-	
-	/**
 	 * The Logger
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
@@ -68,8 +57,6 @@ public abstract class AbstractTableReader implements ScalephantService {
 		this.tablebumber = tablenumer;
 
 		this.file = constructFileToRead();
-		this.usage = new AtomicInteger(0);
-		deleteOnClose = false;
 	}
 	
 	/**
@@ -142,15 +129,6 @@ public abstract class AbstractTableReader implements ScalephantService {
 			}
 		}
 	}
-
-	/**
-	 * Delete the underlying file as soon as usage == 0
-	 */
-	public void deleteOnClose() {
-		deleteOnClose = true;
-		
-		testFileDelete();
-	}
 	
 	/**
 	 * Is the reader ready?
@@ -182,37 +160,12 @@ public abstract class AbstractTableReader implements ScalephantService {
 	public String getDirectory() {
 		return directory;
 	}
-	
-	
-	/** 
-	 * Increment the usage counter
-	 * @return
-	 */
-	public boolean acquire() {
-		
-		// We are closing this instance
-		if(deleteOnClose == true) {
-			return false;
-		}
-		
-		usage.incrementAndGet();
-		return true;
-	}
-	
-	/**
-	 * Decrement the usage counter
-	 */
-	public void release() {
-		usage.decrementAndGet();
-		
-		testFileDelete();
-	}
 
 	/**
-	 * Delete the file if possible
+	 * Delete the file
 	 */
-	protected void testFileDelete() {
-		if(deleteOnClose & file != null && usage.get() == 0) {
+	protected void delete() {
+		if(file != null) {
 			logger.info("Delete file: " + file);
 			shutdown();
 			file.delete();

@@ -7,6 +7,7 @@ import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableFacade;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableKeyIndexReader;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableReader;
 
@@ -27,29 +28,23 @@ public class SSTableExaminer implements Runnable {
 	public void run() {
 		try {
 			final ScalephantConfiguration storageConfiguration = ScalephantConfigurationManager.getConfiguration();
-			final SSTableReader ssTableReader = new SSTableReader(storageConfiguration.getDataDirectory(), relationname, tableNumber);
 			
-			final SSTableKeyIndexReader ssTableIndexReader = new SSTableKeyIndexReader(ssTableReader);
+			final SSTableFacade sstableFacade = new SSTableFacade(storageConfiguration.getDataDirectory(), relationname, tableNumber);
+			sstableFacade.init();
 			
-			ssTableReader.init();
-			ssTableIndexReader.init();
-			
-			if(! ssTableReader.acquire()) {
+			if(! sstableFacade.acquire()) {
 				throw new StorageManagerException("Unable to acquire sstable reader");
 			}
-			
-			if(! ssTableIndexReader.acquire()) {
-				throw new StorageManagerException("Unable to acquire sstable index reader");
-			}
-			
+
+			final SSTableReader ssTableReader = sstableFacade.getSsTableReader();
+			final SSTableKeyIndexReader ssTableIndexReader = sstableFacade.getSsTableKeyIndexReader();
+
 			fullTableScan(ssTableReader);
 			internalScan(ssTableReader);
 			seachViaIndex(ssTableReader, ssTableIndexReader);
 			
-			ssTableIndexReader.release();
-			ssTableReader.release();
-			ssTableIndexReader.shutdown();
-			ssTableReader.shutdown();
+			sstableFacade.release();
+			sstableFacade.shutdown();
 		} catch (StorageManagerException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

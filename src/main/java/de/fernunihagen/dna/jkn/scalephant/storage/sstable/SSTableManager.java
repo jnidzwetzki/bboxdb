@@ -3,18 +3,15 @@ package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
@@ -42,13 +39,8 @@ public class SSTableManager implements ScalephantService {
 	/**
 	 * The reader for existing SSTables
 	 */
-	protected final List<SSTableReader> sstableReader;
+	protected final List<SSTableFacade> sstableFacades;
 
-	/**
-	 * The index reader for the SSTables
-	 */
-	protected final Map<SSTableReader, SSTableKeyIndexReader> indexReader;
-	
 	/**
 	 * The unflushed memtables
 	 */
@@ -90,8 +82,7 @@ public class SSTableManager implements ScalephantService {
 		ready = false;
 		
 		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
-		sstableReader = new CopyOnWriteArrayList<SSTableReader>();
-		indexReader = Collections.synchronizedMap(new HashMap<SSTableReader, SSTableKeyIndexReader>());
+		sstableFacades = new CopyOnWriteArrayList<SSTableFacade>();
 	}
 
 	/**
@@ -108,8 +99,7 @@ public class SSTableManager implements ScalephantService {
 		
 		logger.info("Init a new instance for the table: " + getName());
 		unflushedMemtables.clear();
-		indexReader.clear();
-		sstableReader.clear();
+		sstableFacades.clear();
 		createSSTableDirIfNeeded();
 		
 		try {
@@ -159,15 +149,10 @@ public class SSTableManager implements ScalephantService {
 			compactThread.interrupt();
 		}
 		
-		for(final SSTableKeyIndexReader reader : indexReader.values()) {
+		for(final SSTableFacade reader : sstableFacades) {
 			reader.shutdown();
 		}
-		indexReader.clear();
-		
-		for(final AbstractTableReader reader : sstableReader) {
-			reader.shutdown();
-		}
-		sstableReader.clear();
+		sstableFacades.clear();
 	}
 	
 	
@@ -225,8 +210,8 @@ public class SSTableManager implements ScalephantService {
 				
 				try {
 					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(name, filename);
-					final SSTableReader reader = new SSTableReader(storageConfiguration.getDataDirectory(), getName(), sequenceNumber);
-					sstableReader.add(reader);
+					final SSTableFacade facade = new SSTableFacade(storageConfiguration.getDataDirectory(), getName(), sequenceNumber);
+					sstableFacades.add(facade);
 				} catch(StorageManagerException e) {
 					logger.warn("Unable to parse sequence number, ignoring file: " + filename, e);
 				}
@@ -244,7 +229,7 @@ public class SSTableManager implements ScalephantService {
 		
 		int number = 0;
 		
-		for(AbstractTableReader reader : sstableReader) {
+		for(final SSTableFacade reader : sstableFacades) {
 			final int sequenceNumber = reader.getTablebumber();
 			
 			if(sequenceNumber >= number) {
@@ -357,28 +342,6 @@ public class SSTableManager implements ScalephantService {
 	}
 	
 	/**
-	 * Get the index reader for a table reader
-	 * 
-	 * @param reader
-	 * @return The index reader
-	 * @throws StorageManagerException
-	 */
-	protected SSTableKeyIndexReader getIndexReaderForTable(final SSTableReader reader) throws StorageManagerException {
-		
-		if(! indexReader.containsKey(reader)) {
-			if(! reader.isReady()) {
-				reader.init();
-			}
-			
-			final SSTableKeyIndexReader tableIndexReader = new SSTableKeyIndexReader(reader);
-			tableIndexReader.init();
-			indexReader.put(reader, tableIndexReader);
-		}
-		
-		return indexReader.get(reader);
-	}
-	
-	/**
 	 * Search for the most recent version of the tuple
 	 * @param key
 	 * @return The tuple or null
@@ -394,16 +357,18 @@ public class SSTableManager implements ScalephantService {
 			readComplete = true;
 		
 			// Read data from the persistent SSTables
-			for(final SSTableReader reader : sstableReader) {
-				final SSTableKeyIndexReader indexReader = getIndexReaderForTable(reader);
-				boolean canBeUsed = indexReader.acquire();
+			for(final SSTableFacade facade : sstableFacades) {
+				boolean canBeUsed = facade.acquire();
 				
 				if(! canBeUsed ) {
 					readComplete = false;
 					break;
 				}
 				
-				int position = indexReader.getPositionForTuple(key);
+				final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
+				final SSTableReader reader = facade.getSsTableReader();
+				
+				final int position = indexReader.getPositionForTuple(key);
 				
 				// Found a tuple
 				if(position != -1) {
@@ -415,7 +380,7 @@ public class SSTableManager implements ScalephantService {
 					}
 				}
 				
-				indexReader.release();
+				facade.release();
 			}
 		}
 		
@@ -451,14 +416,15 @@ public class SSTableManager implements ScalephantService {
 			readComplete = true;
 		
 			// Read data from the persistent SSTables
-			for(final SSTableReader reader : sstableReader) {
-				final SSTableKeyIndexReader indexReader = getIndexReaderForTable(reader);
-				boolean canBeUsed = indexReader.acquire();
+			for(final SSTableFacade facade : sstableFacades) {
+				boolean canBeUsed = facade.acquire();
 				
 				if(! canBeUsed ) {
 					readComplete = false;
 					break;
 				}
+				
+				final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
 								
 				for (final Tuple tuple : indexReader) {
 					if(tuple.getBoundingBox().overlaps(boundingBox)) {
@@ -466,7 +432,7 @@ public class SSTableManager implements ScalephantService {
 					}
 				}
 				
-				reader.release();
+				facade.release();
 			}
 		}
 		
@@ -575,22 +541,6 @@ public class SSTableManager implements ScalephantService {
 	public String getName() {
 		return name;
 	}
-	
-	/**
-	 * Get the sstable reader
-	 * @return
-	 */
-	public List<SSTableReader> getSstableReader() {
-		return sstableReader;
-	}
-
-	/**
-	 * Get the index reader
-	 * @return
-	 */
-	public Map<SSTableReader, SSTableKeyIndexReader> getIndexReader() {
-		return indexReader;
-	}
 
 	/**
 	 * Returns the configuration
@@ -604,5 +554,8 @@ public class SSTableManager implements ScalephantService {
 	public String getServicename() {
 		return "SSTable manager";
 	}
-	
+
+	public List<SSTableFacade> getSstableFacades() {
+		return sstableFacades;
+	}
 }

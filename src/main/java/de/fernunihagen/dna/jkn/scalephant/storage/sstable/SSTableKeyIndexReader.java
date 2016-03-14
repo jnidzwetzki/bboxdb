@@ -150,40 +150,6 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	}
 	
 	/**
-	 * Propergate the acquire call to the sstable
-	 */
-	@Override
-	public boolean acquire() {
-		boolean acquireReader = sstableReader.acquire();
-		boolean acquireIndex = super.acquire();
-		
-		// Both ressources are acquired
-		if(acquireReader && acquireIndex) {
-			return true;
-		}
-		
-		// acquire failed, release them 
-		if(acquireReader) {
-			sstableReader.release();
-		}
-		
-		if(acquireIndex) {
-			super.release();
-		}
-		
-		return false;
-	}
-	
-	/**
-	 * Propergate the release call to the sstable
-	 */
-	@Override
-	public void release() {
-		super.release();
-		sstableReader.release();
-	}
-	
-	/**
 	 * Iterate over the tuples in the sstable
 	 */
 	@Override
@@ -231,7 +197,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	
 	/**
 	 * Construct the filename of the index file
-	 * @param sstableReader
+	 * @param sstableFacades
 	 * @return
 	 */
 	@Override
