@@ -8,6 +8,8 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 ## Changelog
 
 ### Version 0.0.5 (Alpha) - TBA
+- Improved SSTable usage counting
+- Added SStable metadata
 - Added distributed membership management
 - Added the cluster management script
 - Integrated zookeeper
