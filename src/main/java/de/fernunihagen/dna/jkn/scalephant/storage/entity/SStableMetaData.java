@@ -118,10 +118,17 @@ public class SStableMetaData {
 	 * @return
 	 * @throws FileNotFoundException
 	 */
-	public static SStableMetaData importFromYamlFile(final File tmpFile) throws FileNotFoundException {
+	public static SStableMetaData importFromYamlFile(final File tmpFile) {
 		  final Yaml yaml = new Yaml(); 
-		  final FileReader reader = new FileReader(tmpFile);
-	      return yaml.loadAs(reader, SStableMetaData.class);
+		  FileReader reader;
+		try {
+			reader = new FileReader(tmpFile);
+		} catch (FileNotFoundException e) {
+			logger.warn("Unable to load file: " + tmpFile, e);
+			return null;
+		}
+		
+		return yaml.loadAs(reader, SStableMetaData.class);
 	}
 
 	public long getOldestTuple() {

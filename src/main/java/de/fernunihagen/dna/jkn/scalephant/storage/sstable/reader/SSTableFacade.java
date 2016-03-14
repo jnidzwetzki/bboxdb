@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader;
 
+import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -7,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SStableMetaData;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
 public class SSTableFacade implements ScalephantService {
 	 
@@ -31,9 +34,14 @@ public class SSTableFacade implements ScalephantService {
 	protected final SSTableKeyIndexReader ssTableKeyIndexReader;
 	
 	/**
+	 * The metadata of the sstable
+	 */
+	protected final SStableMetaData ssTableMetadata;
+	
+	/**
 	 * The number of the table
 	 */
-	protected final int tablebumber;
+	protected final int tablenumber;
 	
 	/**
 	 * The usage counter
@@ -55,13 +63,23 @@ public class SSTableFacade implements ScalephantService {
 		super();
 		this.name = relation;
 		this.directory = directory;
-		this.tablebumber = tablenumber;
+		this.tablenumber = tablenumber;
 		
 		ssTableReader = new SSTableReader(directory, relation, tablenumber);
 		ssTableKeyIndexReader = new SSTableKeyIndexReader(ssTableReader);
 		
+		final File metadataFile = getMetadataFile(directory, relation, tablenumber);
+		ssTableMetadata = SStableMetaData.importFromYamlFile(metadataFile);
+		
 		this.usage = new AtomicInteger(0);
 		deleteOnClose = false;
+	}
+
+	protected File getMetadataFile(final String directory,
+			final String relation, final int tablenumber) {
+		final String metadatafile = SSTableHelper.getSSTableMetadataFilename(directory, relation, tablenumber);
+		final File metadataFile = new File(metadatafile);
+		return metadataFile;
 	}
 
 	@Override
@@ -90,13 +108,13 @@ public class SSTableFacade implements ScalephantService {
 
 	@Override
 	public String getServicename() {
-		return "SSTable facade for: " + name + " " + tablebumber;
+		return "SSTable facade for: " + name + " " + tablenumber;
 	}
 
 	@Override
 	public String toString() {
 		return "SSTableFacade [name=" + name + ", directory=" + directory
-				+ ", tablebumber=" + tablebumber + "]";
+				+ ", tablebumber=" + tablenumber + "]";
 	}
 
 	public SSTableReader getSsTableReader() {
@@ -113,7 +131,6 @@ public class SSTableFacade implements ScalephantService {
 	 */
 	public void deleteOnClose() {
 		deleteOnClose = true;
-		
 		testFileDelete();
 	}
 	
@@ -146,7 +163,7 @@ public class SSTableFacade implements ScalephantService {
 	 */
 	protected void testFileDelete() {
 		if(deleteOnClose && usage.get() == 0) {
-			logger.info("Delete service facade for: " + name + " / " + tablebumber);
+			logger.info("Delete service facade for: " + name + " / " + tablenumber);
 			
 			shutdown();
 			
@@ -157,6 +174,10 @@ public class SSTableFacade implements ScalephantService {
 			if(ssTableReader != null) {
 				ssTableReader.delete();
 			}
+			
+			// Delete metadata
+			final File metadataFile = getMetadataFile(directory, name, tablenumber);
+			metadataFile.delete();
 		}
 	}
 
@@ -169,10 +190,15 @@ public class SSTableFacade implements ScalephantService {
 	}
 
 	public int getTablebumber() {
-		return tablebumber;
+		return tablenumber;
 	}
 
 	public AtomicInteger getUsage() {
 		return usage;
 	}
+
+	public SStableMetaData getSsTableMetadata() {
+		return ssTableMetadata;
+	}
+	
 }
