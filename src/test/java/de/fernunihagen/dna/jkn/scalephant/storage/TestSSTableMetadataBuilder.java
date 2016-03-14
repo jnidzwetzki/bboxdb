@@ -21,6 +21,7 @@ public class TestSSTableMetadataBuilder {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(new float[] {}, metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertEquals(0, metadata.getTuples());
 	}
 
 	/**
@@ -37,6 +38,7 @@ public class TestSSTableMetadataBuilder {
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox1.toFloatArray(), metadata.getBoundingBoxData(), 0.001f);
 		Assert.assertEquals(metadata.getOldestTuple(), metadata.getNewestTuple());
+		Assert.assertEquals(1, metadata.getTuples());
 	}
 	
 	/**
@@ -55,6 +57,7 @@ public class TestSSTableMetadataBuilder {
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox1.toFloatArray(), metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertEquals(2, metadata.getTuples());
 	}
 	
 	/**
@@ -74,6 +77,7 @@ public class TestSSTableMetadataBuilder {
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox2.toFloatArray(), metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertEquals(2, metadata.getTuples());
 	}
 	
 	/**
@@ -93,6 +97,7 @@ public class TestSSTableMetadataBuilder {
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox1.toFloatArray(), metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertEquals(2, metadata.getTuples());
 	}
 	
 	/**
@@ -112,6 +117,7 @@ public class TestSSTableMetadataBuilder {
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(new float[] {}, metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertEquals(2, metadata.getTuples());
 	}
 	
 	
@@ -126,6 +132,7 @@ public class TestSSTableMetadataBuilder {
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(new float[] {1f, 1f, 1f, 4f}, metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertEquals(2, metadata.getTuples());
 	}
 	
 	/**
