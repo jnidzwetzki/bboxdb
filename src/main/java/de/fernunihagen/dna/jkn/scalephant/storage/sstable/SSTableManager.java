@@ -149,8 +149,8 @@ public class SSTableManager implements ScalephantService {
 			compactThread.interrupt();
 		}
 		
-		for(final SSTableFacade reader : sstableFacades) {
-			reader.shutdown();
+		for(final SSTableFacade facade : sstableFacades) {
+			facade.shutdown();
 		}
 		sstableFacades.clear();
 	}
@@ -229,8 +229,8 @@ public class SSTableManager implements ScalephantService {
 		
 		int number = 0;
 		
-		for(final SSTableFacade reader : sstableFacades) {
-			final int sequenceNumber = reader.getTablebumber();
+		for(final SSTableFacade facade : sstableFacades) {
+			final int sequenceNumber = facade.getTablebumber();
 			
 			if(sequenceNumber >= number) {
 				number = sequenceNumber + 1;
