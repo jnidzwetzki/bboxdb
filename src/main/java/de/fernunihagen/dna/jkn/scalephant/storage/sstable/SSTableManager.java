@@ -214,6 +214,7 @@ public class SSTableManager implements ScalephantService {
 				try {
 					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(name, filename);
 					final SSTableFacade facade = new SSTableFacade(storageConfiguration.getDataDirectory(), getName(), sequenceNumber);
+					facade.init();
 					sstableFacades.add(facade);
 				} catch(StorageManagerException e) {
 					logger.warn("Unable to parse sequence number, ignoring file: " + filename, e);
