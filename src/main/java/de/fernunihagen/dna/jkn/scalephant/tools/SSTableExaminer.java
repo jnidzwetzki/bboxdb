@@ -7,9 +7,9 @@ import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableFacade;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableKeyIndexReader;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableReader;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableReader;
 
 public class SSTableExaminer implements Runnable {
 

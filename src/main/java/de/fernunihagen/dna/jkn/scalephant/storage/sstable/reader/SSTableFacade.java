@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
+package de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

@@ -10,9 +10,9 @@ import org.junit.Test;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableKeyIndexReader;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableReader;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableReader;
 
 public class TestSSTable {
 	

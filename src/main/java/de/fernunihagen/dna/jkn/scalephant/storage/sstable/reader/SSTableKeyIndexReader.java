@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
+package de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 
 public class SSTableKeyIndexReader extends AbstractTableReader implements Iterable<Tuple> {
 	

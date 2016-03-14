@@ -17,6 +17,9 @@ import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableReader;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
 
 public class SSTableManager implements ScalephantService {
@@ -476,7 +479,7 @@ public class SSTableManager implements ScalephantService {
 	 * 
 	 * @return e.g. /tmp/scalephant/data/relation1 
 	 */
-	protected static String getSSTableDir(final String directory, final String name) {
+	public static String getSSTableDir(final String directory, final String name) {
 		return directory 
 				+ File.separator 
 				+ name;
@@ -490,7 +493,7 @@ public class SSTableManager implements ScalephantService {
 	 * 
 	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2
 	 */
-	protected static String getSSTableBase(final String directory, final String name, int tablebumber) {
+	public static String getSSTableBase(final String directory, final String name, int tablebumber) {
 		return getSSTableDir(directory, name)
 				+ File.separator 
 				+ SSTableConst.SST_FILE_PREFIX 
@@ -507,7 +510,7 @@ public class SSTableManager implements ScalephantService {
 	 * 
 	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.sst
 	 */
-	protected static String getSSTableFilename(final String directory, final String name, int tablebumber) {
+	public static String getSSTableFilename(final String directory, final String name, int tablebumber) {
 		return getSSTableBase(directory, name, tablebumber)
 				+ SSTableConst.SST_FILE_SUFFIX;
 	}
@@ -520,7 +523,7 @@ public class SSTableManager implements ScalephantService {
 	 * 
 	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.idx
 	 */
-	protected static String getSSTableIndexFilename(final String directory, final String name, int tablebumber) {
+	public static String getSSTableIndexFilename(final String directory, final String name, int tablebumber) {
 		return getSSTableBase(directory, name, tablebumber)
 				+ SSTableConst.SST_INDEX_SUFFIX;
 	}

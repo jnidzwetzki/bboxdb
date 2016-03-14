@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
+package de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,9 @@ import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 
 public class SSTableReader extends AbstractTableReader {
 
