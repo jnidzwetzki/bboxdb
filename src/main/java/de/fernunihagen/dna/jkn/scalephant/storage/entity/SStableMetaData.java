@@ -14,6 +14,11 @@ import org.yaml.snakeyaml.Yaml;
 public class SStableMetaData {
 	
 	/**
+	 * The amount of tuples
+	 */
+	protected long tuples = 0;
+	
+	/**
 	 * The timestamp of the oldest tuple
 	 */
 	protected long oldestTuple = Long.MAX_VALUE;
@@ -37,8 +42,9 @@ public class SStableMetaData {
 		
 	}
 	
-	public SStableMetaData(final long oldestTuple, final long newestTuple, final float[] boundingBoxData) {
+	public SStableMetaData(final long tuples, final long oldestTuple, final long newestTuple, final float[] boundingBoxData) {
 		super();
+		this.tuples = tuples;
 		this.oldestTuple = oldestTuple;
 		this.newestTuple = newestTuple;
 		this.boundingBoxData = boundingBoxData;
@@ -76,7 +82,8 @@ public class SStableMetaData {
 	 * @return
 	 */
 	protected Map<String, Object> getPropertyMap() {
-		final Map<String, Object> data = new HashMap<String, Object>();	    
+		final Map<String, Object> data = new HashMap<String, Object>();	
+		data.put("tuples", tuples);
 	    data.put("oldestTuple", oldestTuple);
 	    data.put("newestTuple", newestTuple);
 		data.put("dimensions", dimensions);
@@ -140,12 +147,20 @@ public class SStableMetaData {
 		this.dimensions = dimensions;
 	}
 
+	public long getTuples() {
+		return tuples;
+	}
+
+	public void setTuples(long tuples) {
+		this.tuples = tuples;
+	}
+
 	@Override
 	public String toString() {
-		return "SStableMetaData [oldestTuple=" + oldestTuple + ", newestTuple="
-				+ newestTuple + ", boundingBoxData="
-				+ Arrays.toString(boundingBoxData) + ", dimensions="
-				+ dimensions + "]";
+		return "SStableMetaData [tuples=" + tuples + ", oldestTuple="
+				+ oldestTuple + ", newestTuple=" + newestTuple
+				+ ", boundingBoxData=" + Arrays.toString(boundingBoxData)
+				+ ", dimensions=" + dimensions + "]";
 	}
 
 	@Override
@@ -156,6 +171,7 @@ public class SStableMetaData {
 		result = prime * result + dimensions;
 		result = prime * result + (int) (newestTuple ^ (newestTuple >>> 32));
 		result = prime * result + (int) (oldestTuple ^ (oldestTuple >>> 32));
+		result = prime * result + (int) (tuples ^ (tuples >>> 32));
 		return result;
 	}
 
@@ -175,6 +191,8 @@ public class SStableMetaData {
 		if (newestTuple != other.newestTuple)
 			return false;
 		if (oldestTuple != other.oldestTuple)
+			return false;
+		if (tuples != other.tuples)
 			return false;
 		return true;
 	}

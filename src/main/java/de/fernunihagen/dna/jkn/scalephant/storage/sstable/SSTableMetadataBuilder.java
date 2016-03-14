@@ -7,6 +7,11 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 public class SSTableMetadataBuilder {
 	
 	/**
+	 * The amount of tupes
+	 */
+	protected long tuples = 0;
+	
+	/**
 	 * The timestamp of the oldest tuple
 	 */
 	protected long oldestTuple = Long.MAX_VALUE;
@@ -25,6 +30,8 @@ public class SSTableMetadataBuilder {
 	 * Update the metadata 
 	 */
 	public void addTuple(final Tuple tuple) {
+		tuples++;
+		
 		if(boundingBox == null) {
 			boundingBox = tuple.getBoundingBox();
 		} else {
@@ -49,6 +56,6 @@ public class SSTableMetadataBuilder {
 			boundingBoxArray = boundingBox.toFloatArray();
 		}
 		
-		return new SStableMetaData(oldestTuple, newestTuple, boundingBoxArray);
+		return new SStableMetaData(tuples, oldestTuple, newestTuple, boundingBoxArray);
 	}
 }
