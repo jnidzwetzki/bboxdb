@@ -10,7 +10,6 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 
 public class SSTableReader extends AbstractTableReader {
 
@@ -155,7 +154,7 @@ public class SSTableReader extends AbstractTableReader {
 	 */
 	@Override
 	protected File constructFileToRead() {
-		final String filename = SSTableManager.getSSTableFilename(directory, name, tablebumber);
+		final String filename = SSTableHelper.getSSTableFilename(directory, name, tablebumber);
 		return new File(filename);
 	}
 }

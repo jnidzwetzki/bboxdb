@@ -70,7 +70,7 @@ public class SSTableWriter implements AutoCloseable {
 	}
 	
 	public void open() throws StorageManagerException {
-		final String directoryName = SSTableManager.getSSTableDir(directory, name);
+		final String directoryName = SSTableHelper.getSSTableDir(directory, name);
 		final File directoryHandle = new File(directoryName);
 		
 		if(! directoryHandle.isDirectory()) {
@@ -79,10 +79,10 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException(error);
 		}
 		
-		final String sstableOutputFileName = SSTableManager.getSSTableFilename(directory, name, tablebumber);
+		final String sstableOutputFileName = SSTableHelper.getSSTableFilename(directory, name, tablebumber);
 		sstableFile = new File(sstableOutputFileName);
 		
-		final String outputIndexFileName = SSTableManager.getSSTableIndexFilename(directory, name, tablebumber);
+		final String outputIndexFileName = SSTableHelper.getSSTableIndexFilename(directory, name, tablebumber);
 		sstableIndexFile = new File(outputIndexFileName);
 		
 		// Don't overwrite old data

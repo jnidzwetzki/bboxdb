@@ -184,7 +184,7 @@ public class SSTableManager implements ScalephantService {
 	 */
 	protected void createSSTableDirIfNeeded() {
 		final File rootDir = new File(storageConfiguration.getDataDirectory());		
-		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
 		
 		if(rootDir.exists() && ! directoryHandle.exists()) {
 			logger.info("Create a new dir for table: " + getName());
@@ -200,7 +200,7 @@ public class SSTableManager implements ScalephantService {
 	 */
 	protected void scanForExistingTables() throws StorageManagerException {
 		logger.info("Scan for existing SSTables: " + getName());
-		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
 		
 	    checkSSTableDir(directoryHandle);
 	
@@ -267,7 +267,7 @@ public class SSTableManager implements ScalephantService {
 	 */
 	public boolean deleteExistingTables() throws StorageManagerException {
 		logger.info("Delete all existing SSTables for relation: " + getName());
-		final File directoryHandle = new File(getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
 	
 		// Does the directory exist?
 		if(! directoryHandle.isDirectory()) {
@@ -471,64 +471,6 @@ public class SSTableManager implements ScalephantService {
 		
 		return result;
 	}
-	
-	/**
-	 * The full name of the SSTable directoy for a given relation
-	 * 
-	 * @param directory
-	 * @param name
-	 * 
-	 * @return e.g. /tmp/scalephant/data/relation1 
-	 */
-	public static String getSSTableDir(final String directory, final String name) {
-		return directory 
-				+ File.separator 
-				+ name;
-	}
-	
-	/**
-	 * The base name of the SSTable file for a given relation
-	 * 
-	 * @param directory
-	 * @param name
-	 * 
-	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2
-	 */
-	public static String getSSTableBase(final String directory, final String name, int tablebumber) {
-		return getSSTableDir(directory, name)
-				+ File.separator 
-				+ SSTableConst.SST_FILE_PREFIX 
-				+ name 
-				+ "_" 
-				+ tablebumber;
-	}
-	
-	/**
-	 * The full name of the SSTable file for a given relation
-	 * 
-	 * @param directory
-	 * @param name
-	 * 
-	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.sst
-	 */
-	public static String getSSTableFilename(final String directory, final String name, int tablebumber) {
-		return getSSTableBase(directory, name, tablebumber)
-				+ SSTableConst.SST_FILE_SUFFIX;
-	}
-	
-	/**
-	 * The full name of the SSTable index file for a given relation
-	 * 
-	 * @param directory
-	 * @param name
-	 * 
-	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.idx
-	 */
-	public static String getSSTableIndexFilename(final String directory, final String name, int tablebumber) {
-		return getSSTableBase(directory, name, tablebumber)
-				+ SSTableConst.SST_INDEX_SUFFIX;
-	}
-
 	
 	public int increaseTableNumber() {
 		return tableNumber.getAndIncrement();

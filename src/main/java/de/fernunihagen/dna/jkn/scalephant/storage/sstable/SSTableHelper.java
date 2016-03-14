@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
@@ -227,6 +228,63 @@ public class SSTableHelper {
 			String error = "Unable to parse sequence number: " + filename;
 			throw new StorageManagerException(error, e);
 		}
+	}
+	
+	/**
+	 * The full name of the SSTable directoy for a given relation
+	 * 
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/scalephant/data/relation1 
+	 */
+	public static String getSSTableDir(final String directory, final String name) {
+		return directory 
+				+ File.separator 
+				+ name;
+	}
+	
+	/**
+	 * The base name of the SSTable file for a given relation
+	 * 
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2
+	 */
+	public static String getSSTableBase(final String directory, final String name, int tablebumber) {
+		return getSSTableDir(directory, name)
+				+ File.separator 
+				+ SSTableConst.SST_FILE_PREFIX 
+				+ name 
+				+ "_" 
+				+ tablebumber;
+	}
+	
+	/**
+	 * The full name of the SSTable file for a given relation
+	 * 
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.sst
+	 */
+	public static String getSSTableFilename(final String directory, final String name, int tablebumber) {
+		return getSSTableBase(directory, name, tablebumber)
+				+ SSTableConst.SST_FILE_SUFFIX;
+	}
+	
+	/**
+	 * The full name of the SSTable index file for a given relation
+	 * 
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.idx
+	 */
+	public static String getSSTableIndexFilename(final String directory, final String name, int tablebumber) {
+		return getSSTableBase(directory, name, tablebumber)
+				+ SSTableConst.SST_INDEX_SUFFIX;
 	}
 
 }

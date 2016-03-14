@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
 public class SSTableKeyIndexReader extends AbstractTableReader implements Iterable<Tuple> {
 	
@@ -204,7 +204,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	 */
 	@Override
 	protected File constructFileToRead() {
-		final String filename = SSTableManager.getSSTableIndexFilename(directory, name, tablebumber);
+		final String filename = SSTableHelper.getSSTableIndexFilename(directory, name, tablebumber);
 		return new File(filename);
 	}
 }
