@@ -55,7 +55,7 @@ public class SSTableConst {
 	public final static byte[] DELETED_MARKER = "DEL".getBytes();
 	
 	/**
-	 * Execution interval for the comptact thread (60 seconds)
+	 * Execution interval for the comptact thread (30 seconds)
 	 */
-	public final static int COMPACT_THREAD_DELAY = 60 * 1000;
+	public final static int COMPACT_THREAD_DELAY = 30 * 1000;
 }

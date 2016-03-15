@@ -41,14 +41,15 @@ public class SSTableCompactorThread implements Runnable {
 	public void run() {
 		logger.info("Starting new compact thread for: " + sstableManager.getName());
 
-		final List<SSTableFacade> facades = sstableManager.getSstableFacades();
-		
 		while(sstableManager.isReady()) {
 
 			try {	
 				Thread.sleep(mergeStragegy.getCompactorDelay());
 				logger.debug("Executing compact thread for: " + sstableManager.getName());
 
+				// Create a copy to ensure, that the list of facades don't change
+				// during the compact run.
+				final List<SSTableFacade> facades = new ArrayList<SSTableFacade>(sstableManager.getSstableFacades());
 				final MergeTask mergeTask = mergeStragegy.getMergeTasks(facades);
 					
 				try {
@@ -146,6 +147,7 @@ public class SSTableCompactorThread implements Runnable {
 		
 		for(final SSTableFacade facade : tables) {
 			sb.append(facade.getTablebumber());
+			sb.append(", ");
 		}
 		
 		sb.append(" into ");
