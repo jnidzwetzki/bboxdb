@@ -13,8 +13,8 @@ import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableCompactor;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.compact.SSTableCompactor;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableReader;
 
