@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
 
@@ -23,6 +24,12 @@ public class SSTableCompactor {
 	 * Our output sstable writer
 	 */
 	protected final SSTableWriter sstableWriter;
+	
+	/**
+	 * Major or minor compaction? In a major compaction, the deleted tuple
+	 * marker can be removed.
+	 */
+	protected boolean majorCompaction = false;
 
 	/**
 	 * The logger
@@ -68,7 +75,11 @@ public class SSTableCompactor {
 				// Write the tuple
 				if(tuple != null) {
 					consumeTuplesForKey(tuples, tuple.getKey());
-					sstableWriter.addNextTuple(tuple);
+					
+					// Don't add deleted tuples to output in a major compaction
+					if(! (isMajorCompaction() && (tuple instanceof DeletedTuple))) {
+						sstableWriter.addNextTuple(tuple);
+					}
 				}
 			}
 			
@@ -179,4 +190,21 @@ public class SSTableCompactor {
 	public File getSstableIndexFile() {
 		return sstableWriter.getSstableIndexFile();
 	}
+
+	/**
+	 * Is this a major compaction?
+	 * @return
+	 */
+	public boolean isMajorCompaction() {
+		return majorCompaction;
+	}
+
+	/**
+	 * Set major compaction flag
+	 * @param majorCompaction
+	 */
+	public void setMajorCompaction(boolean majorCompaction) {
+		this.majorCompaction = majorCompaction;
+	}
+	
 }
