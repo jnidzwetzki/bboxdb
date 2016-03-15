@@ -24,7 +24,7 @@ public class TestStorageManager {
 	/**
 	 * The amount of tuples for the big insert test
 	 */
-	protected final static int BIG_INSERT_TUPLES = 1000000;
+	protected int BIG_INSERT_TUPLES = 1000000;
 
 	
 	@Before
@@ -132,6 +132,8 @@ public class TestStorageManager {
 	@Test
 	public void testBigInsert() throws Exception {
 
+		final int BIG_INSERT_TUPLES = getNumberOfTuplesForBigInsert();
+
 		for(int i = 0; i < BIG_INSERT_TUPLES; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
@@ -150,5 +152,13 @@ public class TestStorageManager {
 			
 			Assert.assertEquals(Integer.toString(i), new String(tuple.getDataBytes()));
 		}
+	}
+	
+	/**
+	 * Number of tuples for big insert
+	 * @return
+	 */
+	protected int getNumberOfTuplesForBigInsert() {
+		return 1000000;
 	}
 }
