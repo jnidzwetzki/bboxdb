@@ -12,6 +12,11 @@ import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
  *
  */
 public class TestStorageManagerWithoutFlush extends TestStorageManager {
+	
+	/**
+	 * The amount of tuples for the big insert test
+	 */
+	protected final static int BIG_INSERT_TUPLES = 100000;
 
 	@BeforeClass
 	public static void changeConfigToMemory() {

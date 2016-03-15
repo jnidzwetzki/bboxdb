@@ -11,8 +11,21 @@ import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 
 public class TestStorageManager {
 	
+	/**
+	 * The instance of the storage manager
+	 */
 	protected StorageManager storageManager;
+	
+	/**
+	 * The name of the test relation
+	 */
 	protected final static String TEST_RELATION = "1_testgroup1_abc";
+	
+	/**
+	 * The amount of tuples for the big insert test
+	 */
+	protected final static int BIG_INSERT_TUPLES = 1000000;
+
 	
 	@Before
 	public void init() throws StorageManagerException {
@@ -118,14 +131,13 @@ public class TestStorageManager {
 	
 	@Test
 	public void testBigInsert() throws Exception {
-		int MAX_TUPLES = 100000;
 
-		for(int i = 0; i < MAX_TUPLES; i++) {
+		for(int i = 0; i < BIG_INSERT_TUPLES; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
 		}
 		
-		for(int i = 0; i < MAX_TUPLES; i++) {
+		for(int i = 0; i < BIG_INSERT_TUPLES; i++) {
 			final Tuple tuple = storageManager.get(Integer.toString(i));
 			if(tuple == null) {
 				System.out.println("Got null when requesting: " + i);
