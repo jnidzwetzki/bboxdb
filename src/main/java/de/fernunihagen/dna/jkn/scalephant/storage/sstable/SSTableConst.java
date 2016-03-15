@@ -57,5 +57,5 @@ public class SSTableConst {
 	/**
 	 * Execution interval for the comptact thread (60 seconds)
 	 */
-	public final static int COMPACT_THREAD_INTERVAL = 60 * 1000;
+	public final static int COMPACT_THREAD_DELAY = 60 * 1000;
 }

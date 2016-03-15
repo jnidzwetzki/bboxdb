@@ -1,13 +1,12 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable.compact;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
@@ -21,10 +20,14 @@ public class SSTableCompactorThread implements Runnable {
 	protected final SSTableManager sstableManager;
 	
 	/**
+	 * The merge strategy
+	 */
+	protected final MergeStragegy mergeStragegy = new SimpleMergeStrategy();
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactorThread.class);
-
 
 	public SSTableCompactorThread(final SSTableManager ssTableManager) {
 		this.sstableManager = ssTableManager;
@@ -41,27 +44,18 @@ public class SSTableCompactorThread implements Runnable {
 		final List<SSTableFacade> facades = sstableManager.getSstableFacades();
 		
 		while(sstableManager.isReady()) {
-			
-			try {	
-				if(facades.size() > 2) {
-					
-					final SSTableFacade facade1 = facades.get(0);
-					final SSTableFacade facade2 = facades.get(1);
 
-					try {
-						mergeSSTables(facade1, facade2);						
-					} catch (Exception e) {
-						
-						if(Thread.currentThread().isInterrupted()) {
-							logger.info("Compact thread for: " + sstableManager.getName() + " is done");
-							return;
-						}
-						
-						logger.error("Error while merging tables", e);
-					} 
-				}
-			
-				Thread.sleep(SSTableConst.COMPACT_THREAD_INTERVAL);
+			try {	
+				Thread.sleep(mergeStragegy.getCompactorDelay());
+
+				final MergeTask mergeTask = mergeStragegy.getMergeTasks(facades);
+					
+				try {
+					mergeSSTables(mergeTask.getMinorCompactTables(), false);
+					mergeSSTables(mergeTask.getMajorCompactTables(), true);				
+				} catch (Exception e) {
+					handleExceptionDuringMerge(e);
+				} 
 			} catch (InterruptedException e) {
 				logger.info("Compact thread for: " + sstableManager.getName() + " is done");
 				return;
@@ -72,24 +66,50 @@ public class SSTableCompactorThread implements Runnable {
 	}
 
 	/**
+	 * Handle exceptions during merge, only print the exception
+	 * when the compact thread is not interrupted
+	 * 
+	 * @param e
+	 */
+	protected void handleExceptionDuringMerge(Exception e) {
+		if(Thread.currentThread().isInterrupted()) {
+			logger.info("Compact thread for: " + sstableManager.getName() + " is done");
+		} else {
+			logger.error("Error while merging tables", e);
+		}
+	}
+
+	/**
 	 * Merge two sstables into a new one
 	 * @param reader1
 	 * @param reader2
 	 * @throws StorageManagerException
 	 */
-	protected void mergeSSTables(final SSTableFacade facade1,
-			final SSTableFacade facade2) throws StorageManagerException {
+	protected void mergeSSTables(final List<SSTableFacade> tables, final boolean majorCompaction) throws StorageManagerException {
+	
+		if(tables == null || tables.isEmpty()) {
+			return;
+		}
 		
-		// Get the index reader for the file reader
-		final SSTableKeyIndexReader indexReader1 = facade1.getSsTableKeyIndexReader();
-		final SSTableKeyIndexReader indexReader2 = facade2.getSsTableKeyIndexReader();
+		final String diretory = tables.get(0).getDirectory();
+		final String name = tables.get(0).getName();
 		
-		int tablenumber = sstableManager.increaseTableNumber();
+		final int tablenumber = sstableManager.increaseTableNumber();
+		final SSTableWriter writer = new SSTableWriter(diretory, name, tablenumber);
 		
-		logger.info("Merging " + facade1.getTablebumber() + " and " + facade2.getTablebumber() + " into " + tablenumber);
-
-		final SSTableWriter writer = new SSTableWriter(facade1.getDirectory(), facade1.getName(), tablenumber);
-		final SSTableCompactor ssTableCompactor = new SSTableCompactor(Arrays.asList(indexReader1, indexReader2), writer);
+		final List<SSTableKeyIndexReader> reader = new ArrayList<SSTableKeyIndexReader>();
+		for(final SSTableFacade facade : tables) {
+			reader.add(facade.getSsTableKeyIndexReader());
+		}
+		
+		// Log the compact call
+		if(logger.isInfoEnabled()) {
+			writeMergeLog(tables, tablenumber, majorCompaction);
+		}
+		
+		// Run the compact process
+		final SSTableCompactor ssTableCompactor = new SSTableCompactor(reader, writer);
+		ssTableCompactor.setMajorCompaction(majorCompaction);
 		boolean compactSuccess = ssTableCompactor.executeCompactation();
 		
 		if(!compactSuccess) {
@@ -97,18 +117,38 @@ public class SSTableCompactorThread implements Runnable {
 			return;
 		}
 		
-		final SSTableFacade newFacade = new SSTableFacade(facade1.getDirectory(), facade1.getName(), tablenumber);
+		// Create a new facade and remove the old ones
+		final SSTableFacade newFacade = new SSTableFacade(diretory, name, tablenumber);
 		newFacade.init();
 		
 		// Register the new sstable reader
 		sstableManager.getSstableFacades().add(newFacade);
 
-		// Delete the files
-		facade1.deleteOnClose();
-		facade2.deleteOnClose();
+		// Unregister and delete the files
+		for(final SSTableFacade facade : tables) {
+			facade.deleteOnClose();
+			sstableManager.getSstableFacades().remove(facade);
+		}
+	}
+
+	/***
+	 * Write info about the merge run into log
+	 * @param tables
+	 * @param tablenumber
+	 */
+	protected void writeMergeLog(final List<SSTableFacade> tables, final int tablenumber, 
+			final boolean majorCompaction) {
 		
-		// Unregister the old tables
-		sstableManager.getSstableFacades().remove(facade1);
-		sstableManager.getSstableFacades().remove(facade2);
+		final StringBuilder sb = new StringBuilder("Merging (major: ");
+		sb.append(majorCompaction);
+		sb.append(" [");
+		
+		for(final SSTableFacade facade : tables) {
+			sb.append(facade.getTablebumber());
+		}
+		
+		sb.append(" into ");
+		sb.append(tablenumber);
+		logger.info(sb.toString());
 	}
 }
