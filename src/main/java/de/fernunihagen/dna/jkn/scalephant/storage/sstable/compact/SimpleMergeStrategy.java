@@ -11,15 +11,47 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	/**
 	 * Merge small tables into a big one
 	 */
-	protected final static int SMALL_TABLE = 10000;
+	protected final static int SMALL_TABLE_THRESHOLD = 10000;
+	
+	/**
+	 * Nuber of tables that will trigger a big compactification
+	 */
+	protected final static int BIG_TABLE_THRESHOLD = 20;
 
 	@Override
 	public MergeTask getMergeTasks(final List<SSTableFacade> sstables) {
 		
+		if(sstables.size() > BIG_TABLE_THRESHOLD) {
+			return generateBigCompactTask(sstables);
+		}
+		
+		return generateSmallCompactTask(sstables);
+	}
+
+	/**
+	 * Generate a big compact task
+	 * @param sstables
+	 * @return
+	 */
+	protected MergeTask generateBigCompactTask(
+			final List<SSTableFacade> sstables) {
+		
+		final MergeTask mergeTask = new MergeTask();
+		mergeTask.setMajorCompactTables(sstables);
+		return mergeTask;
+	}
+
+	/**
+	 * Generate a small compact task
+	 * @param sstables
+	 * @return
+	 */
+	protected MergeTask generateSmallCompactTask(
+			final List<SSTableFacade> sstables) {
 		final List<SSTableFacade> smallCompacts = new ArrayList<SSTableFacade>();
 		
 		for(final SSTableFacade facade : sstables) {
-			if(facade.getSsTableMetadata().getTuples() < SMALL_TABLE) {
+			if(facade.getSsTableMetadata().getTuples() < SMALL_TABLE_THRESHOLD) {
 				smallCompacts.add(facade);
 			}
 		}
