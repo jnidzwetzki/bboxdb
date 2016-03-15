@@ -6,7 +6,7 @@ import java.util.List;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
 
-public class SimpleMergeStrategy implements MergeStragegy {
+public class SimpleMergeStrategy implements MergeStrategy {
 	
 	/**
 	 * Merge small tables into a big one

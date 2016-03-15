@@ -22,7 +22,7 @@ public class SSTableCompactorThread implements Runnable {
 	/**
 	 * The merge strategy
 	 */
-	protected final MergeStragegy mergeStragegy = new SimpleMergeStrategy();
+	protected final MergeStrategy mergeStragegy = new SimpleMergeStrategy();
 	
 	/**
 	 * The logger

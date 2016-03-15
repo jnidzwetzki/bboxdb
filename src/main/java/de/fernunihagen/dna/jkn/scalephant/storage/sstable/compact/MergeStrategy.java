@@ -4,7 +4,7 @@ import java.util.List;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
 
-public interface MergeStragegy {
+public interface MergeStrategy {
 
 	/**
 	 * Comculate the merge tasks
