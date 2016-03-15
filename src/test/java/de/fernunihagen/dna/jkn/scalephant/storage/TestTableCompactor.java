@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableCompactor;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
@@ -214,6 +215,40 @@ public class TestTableCompactor {
 		}		
 				
 		Assert.assertEquals(1, counter);
+	}	
+	
+	/**
+	 * Run the compactification with one deleted tuple
+	 * @throws StorageManagerException
+	 */
+	@Test
+	public void testCompactTestWithDeletedTuple() throws StorageManagerException {
+		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
+		tupleList1.add(new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes()));
+		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
+		
+		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
+		tupleList2.add(new DeletedTuple("2"));
+		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
+		
+		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3);
+		
+		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
+		compactor.executeCompactation();
+		writer.close();
+		
+		final SSTableReader reader = new SSTableReader(DATA_DIRECTORY, TEST_RELATION, 3);
+		reader.init();
+		
+		final SSTableKeyIndexReader ssTableIndexReader = new SSTableKeyIndexReader(reader);
+		ssTableIndexReader.init();
+		
+		int counter = 0;
+		for(@SuppressWarnings("unused") final Tuple tuple : ssTableIndexReader) {
+			counter++;
+		}		
+				
+		Assert.assertEquals(2, counter);
 	}	
 	
 	/**

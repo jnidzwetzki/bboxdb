@@ -371,7 +371,16 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		
 		// All bounding boxes need the same dimension
 		for(int i = 1 ; i < boundingBoxes.length; i++) {
-			if(dimensions != boundingBoxes[i].getDimension()) {
+			
+			final BoundingBox curentBox = boundingBoxes[i];
+			
+			// Bounding box could be null, e.g. for DeletedTuple instances
+			if(curentBox == null) {
+				continue;
+			}
+			
+			if(dimensions != curentBox.getDimension()) {
+				logger.warn("Merging bounding boxed with different dimensions");
 				return null;
 			}
 		}
