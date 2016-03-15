@@ -47,6 +47,7 @@ public class SSTableCompactorThread implements Runnable {
 
 			try {	
 				Thread.sleep(mergeStragegy.getCompactorDelay());
+				logger.debug("Executing compact thread for: " + sstableManager.getName());
 
 				final MergeTask mergeTask = mergeStragegy.getMergeTasks(facades);
 					
