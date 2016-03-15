@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
@@ -60,7 +61,7 @@ public class SSTableCompactorThread implements Runnable {
 					} 
 				}
 			
-				Thread.sleep(10 * 1000);
+				Thread.sleep(SSTableConst.COMPACT_THREAD_INTERVAL);
 			} catch (InterruptedException e) {
 				logger.info("Compact thread for: " + sstableManager.getName() + " is done");
 				return;

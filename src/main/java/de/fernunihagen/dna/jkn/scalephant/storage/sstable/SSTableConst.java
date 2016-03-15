@@ -53,4 +53,9 @@ public class SSTableConst {
 	 * Marker for deleted tuples
 	 */
 	public final static byte[] DELETED_MARKER = "DEL".getBytes();
+	
+	/**
+	 * Execution interval for the comptact thread (60 seconds)
+	 */
+	public final static int COMPACT_THREAD_INTERVAL = 60 * 1000;
 }
