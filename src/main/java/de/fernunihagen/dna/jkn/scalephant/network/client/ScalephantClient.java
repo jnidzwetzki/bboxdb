@@ -381,7 +381,10 @@ public class ScalephantClient {
 				final ByteBuffer bb = readNextResponsePackageHeader();
 				
 				if(bb == null) {
-					logger.error("Read error from socket, exiting");
+					// Ignore exceptions when connection is closing
+					if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+						logger.error("Read error from socket, exiting");
+					}
 					return false;
 				}
 				
