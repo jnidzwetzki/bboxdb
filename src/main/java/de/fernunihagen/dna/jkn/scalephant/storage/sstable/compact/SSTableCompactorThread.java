@@ -150,7 +150,10 @@ public class SSTableCompactorThread implements Runnable {
 			sb.append(", ");
 		}
 		
-		sb.append(" into ");
+		// Remove last ", "
+		sb.delete(sb.length() - 2, sb.length());
+		
+		sb.append("] into ");
 		sb.append(tablenumber);
 		logger.info(sb.toString());
 	}
