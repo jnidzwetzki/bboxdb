@@ -1,6 +1,8 @@
 # scalephant - a distributed and highly scalable Key-Value Store based on SSTables
 
-SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like Cassandra or LevelDB. SSTables provide a high throughput for read and write operations. scalephant is a java implementation of SSTables. I wrote this software for research purposes and to understand some of the techniques that are used in other implementations.
+![Scalephant Logo](doc/scalephant.png)
+
+SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like Cassandra or LevelDB. SSTables provide a high throughput for read and write operations. Scalephant is a java implementation of SSTables. I wrote this software for research purposes and to understand some of the techniques that are used in other implementations.
 
 [![Build Status](https://travis-ci.org/jnidzwetzki/scalephant.svg?branch=master)](https://travis-ci.org/jnidzwetzki/scalephant)
 
@@ -8,6 +10,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 ## Changelog
 
 ### Version 0.0.5 (Alpha) - TBA
+- Added a logo
 - Improved compaction strategy
 - Introduced major compactions
 - Improved SSTable usage counting
