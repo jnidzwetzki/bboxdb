@@ -4,6 +4,11 @@
   <artifactId>scalephant</artifactId>
   <version>0.0.5-SNAPSHOT</version>
   <name>Scalephant</name>
+  
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  
   <dependencies>
    <dependency>
         <groupId>org.apache.logging.log4j</groupId>
