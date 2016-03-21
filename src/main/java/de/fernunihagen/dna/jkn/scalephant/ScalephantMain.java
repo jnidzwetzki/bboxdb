@@ -91,7 +91,7 @@ public class ScalephantMain implements Daemon {
 		
 		// Ensure that the server main dir does exist
 		if(! dataDirHandle.exists() ) {
-			logger.error("Data Directory does not exist: " + dataDir);
+			logger.error("Data directory does not exist: " + dataDir);
 			return false;
 		}
 		
