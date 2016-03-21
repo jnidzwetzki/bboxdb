@@ -224,5 +224,7 @@ public class TestNetworkCommunication {
 	 */
 	protected void disconnectFromServer(final ScalephantClient scalephantClient) {
 		scalephantClient.disconnect();
+		Assert.assertFalse(scalephantClient.isConnected());
+		Assert.assertEquals(0, scalephantClient.getInFlightCalls());
 	}
 }
