@@ -324,6 +324,16 @@ public class ScalephantClient {
 	}
 
 	/**
+	 * Get the amount of in flight (running) calls
+	 * @return
+	 */
+	public int getInFlightCalls() {
+		synchronized (pendingCalls) {
+			return pendingCalls.size();
+		}
+	}
+	
+	/**
 	 * Send a request package to the server
 	 * @param responsePackage
 	 * @return
@@ -600,7 +610,7 @@ public class ScalephantClient {
 	}	
 	
 	/**
-	 * 
+	 * Handle the multiple tuple start package
 	 * @param encodedPackage
 	 */
 	protected void handleMultiTupleStart(final ByteBuffer encodedPackage) {
@@ -608,7 +618,11 @@ public class ScalephantClient {
 		resultBuffer.put(result.getSequenceNumber(), new ArrayList<Tuple>());
 	}
 	
-
+	/**
+	 * Handle the multiple tuple end package
+	 * @param encodedPackage
+	 * @param pendingCall
+	 */
 	protected void handleMultiTupleEnd(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) {
 		final MultipleTupleEndResponse result = MultipleTupleEndResponse.decodePackage(encodedPackage);
