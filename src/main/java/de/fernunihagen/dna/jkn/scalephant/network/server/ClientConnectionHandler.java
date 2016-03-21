@@ -345,33 +345,45 @@ public class ClientConnectionHandler implements Runnable {
 		
 		switch (packageType) {
 			case NetworkConst.REQUEST_TYPE_DISCONNECT:
-				logger.info("Got disconnect package, closing connection");
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got disconnect package, closing connection");
+				}
 				writeResultPackage(new SuccessResponse(packageSequence));
 				result = false;
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_DELETE_TABLE:
-				logger.info("Got delete table package");
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got delete table package");
+				}
 				result = handleDeleteTable(encodedPackage, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_DELETE_TUPLE:
-				logger.info("Got delete tuple package");
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got delete tuple package");
+				}
 				result = handleDeleteTuple(encodedPackage, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_LIST_TABLES:
-				logger.info("Got list tables request");
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got list tables request");
+				}
 				result = handleListTables(encodedPackage, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_INSERT_TUPLE:
-				logger.info("Got insert tuple request");
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got insert tuple request");
+				}
 				result = handleInsertTuple(encodedPackage, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_QUERY:
-				logger.info("Got query package");
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got query package");
+				}
 				result = handleQuery(encodedPackage, packageSequence);
 				break;
 
