@@ -24,6 +24,7 @@ public class ScalephantClientExample {
 		
 		// Connect to the server
 		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1");
+		scalephantClient.connect();
 		
 		// Check the connection state
 		if (! scalephantClient.isConnected() ) {

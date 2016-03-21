@@ -24,6 +24,7 @@ public class BenchmarkInsertPerformance {
 		
 		// Connect to the server
 		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1");
+		scalephantClient.connect();
 		
 		if(! scalephantClient.isConnected()) {
 			System.out.println("Connection could not be established");

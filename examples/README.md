@@ -23,7 +23,7 @@ The "client example" (ScalephantClientExample.java) shows how data can be insert
 	# Execute the example
 	java -classpath "../target/*":"../target/lib/*":"../conf":"." ScalephantClientExample
 	
-# Benchmarking
+# Benchmarks
 
 ## The insert benchmark
 	
