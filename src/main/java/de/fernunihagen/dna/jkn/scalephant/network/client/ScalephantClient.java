@@ -38,6 +38,12 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 public class ScalephantClient {
 
 	/**
+	 * The maximum amount of in flight requests. Needs to be lower than Short.MAX_VALUE to
+	 * prevent two in flight requests with the same id.
+	 */
+	public final static short MAX_IN_FLIGHT_CALLS = 1000;
+	
+	/**
 	 * The sequence number generator
 	 */
 	protected final SequenceNumberGenerator sequenceNumberGenerator;
@@ -91,6 +97,12 @@ public class ScalephantClient {
 	 * The connection state
 	 */
 	protected volatile NetworkConnectionState connectionState;
+	
+	/**
+	 * The number of in flight requests
+	 * @return
+	 */
+	protected volatile short maxInFlightCalls = MAX_IN_FLIGHT_CALLS;
 	
 	/**
 	 * The Logger
@@ -336,31 +348,60 @@ public class ScalephantClient {
 	}
 	
 	/**
+	 * Get the max amount of in flight calls
+	 * @return
+	 */
+	public short getMaxInFlightCalls() {
+		return maxInFlightCalls;
+	}
+
+	/**
+	 * Set the max amount of in flight calls
+	 * @param maxInFlightCalls
+	 */
+	public void setMaxInFlightCalls(short maxInFlightCalls) {
+		this.maxInFlightCalls = (short) Math.min(maxInFlightCalls, MAX_IN_FLIGHT_CALLS);
+	}
+
+	/**
 	 * Send a request package to the server
 	 * @param responsePackage
 	 * @return
 	 * @throws IOException 
 	 */
 	protected short sendPackageToServer(final NetworkRequestPackage requestPackage, final ClientOperationFuture future) {
-		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		final byte[] output = requestPackage.getByteArray(sequenceNumber);
-
-		future.setRequestId(sequenceNumber);
 
 		try {
+			synchronized (pendingCalls) {
+				// Ensure that not more then maxInFlightCalls are active
+				while(pendingCalls.size() > maxInFlightCalls) {
+					pendingCalls.wait();
+				}	
+			}
+		} catch(InterruptedException e) {
+			logger.warn("Got an exception while waiting for pending requests", e);
+			return -1;
+		}
+		
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		future.setRequestId(sequenceNumber);
+		final byte[] output = requestPackage.getByteArray(sequenceNumber);
+		
+		try {		
 			synchronized (pendingCalls) {
 				pendingCalls.put(sequenceNumber, future);
 			}
 			
 			outputStream.write(output, 0, output.length);
 			outputStream.flush();
+			
 		} catch (IOException e) {
+			logger.warn("Got an exception while sending package to server", e);
 			future.setFailedState();
 		}
-
+		
 		return sequenceNumber;
 	}
-	
 	
 	/**
 	 * Read the server response packages
