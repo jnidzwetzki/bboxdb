@@ -1,10 +1,12 @@
 package de.fernunihagen.dna.jkn.scalephant.performance;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
@@ -17,7 +19,7 @@ public class BenchmarkInsertPerformance {
 	 */
 	protected static long startTime = 0;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		// A 2 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
 		final String mytable = "2_mygroup3_testdata";
 		
@@ -36,8 +38,10 @@ public class BenchmarkInsertPerformance {
 		}
 		
 		// Remove old data
-		scalephantClient.deleteTable(mytable);
+		final ClientOperationFuture result = scalephantClient.deleteTable(mytable);
+		result.get();
 		
+		// Start benchmark
 		startTime = System.currentTimeMillis();
 		System.out.println("#Time\tTuples");
 		
