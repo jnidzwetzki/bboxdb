@@ -71,7 +71,7 @@ public class ScalephantMain implements Daemon {
 		
 		if (! runBaseChecks() ) {
 			logger.warn("Some of the base checks have failed, exiting");
-			System.exit(0);
+			System.exit(-1);
 		}
 		
 		// Init all services
