@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -68,11 +69,33 @@ public class ScalephantMain implements Daemon {
 	public void start() throws Exception {
 		logger.info("Starting up the scalephant - version: " + Const.VERSION);	
 		
+		if (! runBaseChecks() ) {
+			logger.warn("Some of the base checks have failed, exiting");
+			System.exit(0);
+		}
+		
 		// Init all services
 		for(ScalephantService service : services) {
 			logger.info("Starting service: " + service.getServicename());
 			service.init();
 		}
+	}
+
+	/**
+	 * Run some base checks to ensure, the services could be started
+	 * @return
+	 */
+	protected boolean runBaseChecks() {
+		final String dataDir = ScalephantConfigurationManager.getConfiguration().getDataDirectory();
+		final File dataDirHandle = new File(dataDir);
+		
+		// Ensure that the server main dir does exist
+		if(! dataDirHandle.exists() ) {
+			logger.error("Data Directory does not exist: " + dataDir);
+			return false;
+		}
+		
+		return true;
 	}
 
 	@Override
