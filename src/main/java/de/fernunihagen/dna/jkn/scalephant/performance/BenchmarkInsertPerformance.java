@@ -12,6 +12,10 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class BenchmarkInsertPerformance {
 
+	/**
+	 * Unix time of the benchmark start
+	 */
+	protected static long startTime = 0;
 	
 	public static void main(String[] args) {
 		// A 2 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
@@ -34,13 +38,16 @@ public class BenchmarkInsertPerformance {
 		// Remove old data
 		scalephantClient.deleteTable(mytable);
 		
+		startTime = System.currentTimeMillis();
+		System.out.println("#Time\tTuples");
+		
 		// Dump performance info every second
 		final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
 		executorService.scheduleAtFixedRate(new Runnable() {
 			
 			@Override
 			public void run() {
-				System.out.println(insertedTuples.get());
+				System.out.println(System.currentTimeMillis() - startTime + "\t" + insertedTuples.get());
 			}
 			
 		}, 0, 1, TimeUnit.SECONDS);
@@ -53,8 +60,8 @@ public class BenchmarkInsertPerformance {
 		// Disconnect from server and shutdown the statistics thread
 		scalephantClient.disconnect();
 		executorService.shutdown();
-		
-		System.out.println("Done");
+			
+		System.out.println("Done in " + (System.currentTimeMillis() - startTime) + " ms");
 	}
 	
 }
