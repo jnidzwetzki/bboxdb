@@ -154,15 +154,17 @@ public class ScalephantClient {
 
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
+			logger.info("Waiting for pending requests to settle");		
+			
 			while(! pendingCalls.keySet().isEmpty()) {
 				try {
-					logger.info("Waiting for pending requests to settle");
 					pendingCalls.wait();
-					logger.info("All requests are settled");
 				} catch (InterruptedException e) {
 					return true; // Thread was canceled
 				}
 			}
+			
+			logger.info("All requests are settled");
 		}
 		
 		pendingCalls.clear();
