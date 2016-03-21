@@ -345,9 +345,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		switch (packageType) {
 			case NetworkConst.REQUEST_TYPE_DISCONNECT:
-				if(logger.isDebugEnabled()) {
-					logger.debug("Got disconnect package, closing connection");
-				}
+				logger.info("Got disconnect package, preparing for connection close: "  + clientSocket.getInetAddress());
 				writeResultPackage(new SuccessResponse(packageSequence));
 				result = false;
 				break;
