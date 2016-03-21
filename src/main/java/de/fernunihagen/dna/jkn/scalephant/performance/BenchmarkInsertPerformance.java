@@ -18,7 +18,7 @@ public class BenchmarkInsertPerformance {
 		final String mytable = "2_mygroup3_testdata";
 		
 		// Number of tuples
-		final int tuples = 1000000;
+		final int tuples = 5000000;
 		
 		final AtomicInteger insertedTuples = new AtomicInteger(0);
 		
@@ -30,6 +30,9 @@ public class BenchmarkInsertPerformance {
 			System.out.println("Connection could not be established");
 			System.exit(-1);
 		}
+		
+		// Remove old data
+		scalephantClient.deleteTable(mytable);
 		
 		// Dump performance info every second
 		final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
@@ -47,6 +50,8 @@ public class BenchmarkInsertPerformance {
 			scalephantClient.insertTuple(mytable, new Tuple(Integer.toString(insertedTuples.get()), BoundingBox.EMPTY_BOX, "abcdef".getBytes()));
 		}
 		
+		// Disconnect from server and shutdown the statistics thread
+		scalephantClient.disconnect();
 		executorService.shutdown();
 		
 		System.out.println("Done");
