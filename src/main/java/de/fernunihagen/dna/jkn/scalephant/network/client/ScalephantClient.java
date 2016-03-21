@@ -164,7 +164,7 @@ public class ScalephantClient {
 				}
 			}
 			
-			logger.info("All requests are settled");
+			logger.info("All requests are settled: " + pendingCalls.size());
 		}
 		
 		pendingCalls.clear();
