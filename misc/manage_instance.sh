@@ -77,8 +77,8 @@ scalephant_start() {
     download_jsvc
     cd $basedir
 
-    if [ ! -d ../logs/ ]; then
-        mkdir ../logs
+    if [ ! -d logs/ ]; then
+        mkdir logs
     fi
 
     # Activate JVM start debugging
@@ -108,6 +108,10 @@ zookeeper_start() {
     fi
 
     echo "Start Zookeeper"
+
+    if [ ! -d logs/ ]; then
+        mkdir logs
+    fi
 
     # Create work dir
     if [ ! -d $zookeeper_workdir ]; then
@@ -142,7 +146,7 @@ EOF
     echo $instanceid > $zookeeper_workdir/myid
  
     # Start zookeeper
-    nohup java -cp $classpath -Dzookeeper.log.dir="$basedir/logs" org.apache.zookeeper.server.quorum.QuorumPeerMain $basedir/zoo.cfg > $basedir/zookeeper.log 2>&1 < /dev/null &
+    nohup java -cp $classpath -Dzookeeper.log.dir="$basedir/logs" org.apache.zookeeper.server.quorum.QuorumPeerMain $basedir/zoo.cfg > $basedir/logs/zookeeper.log 2>&1 < /dev/null &
     
     if [ $? -eq 0 ]; then
        # Dump PID into file
