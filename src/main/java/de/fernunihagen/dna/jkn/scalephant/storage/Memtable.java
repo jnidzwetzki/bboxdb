@@ -41,12 +41,12 @@ public class Memtable implements ScalephantService, Storage {
 	/**
 	 * Maximal size of memtable in KB
 	 */
-	protected final int maxsize;
+	protected final int maxSizeInMemory;
 	
 	/**
-	 * Current size in KB
+	 * Current memory size in KB
 	 */
-	protected int currentSize;
+	protected int sizeInMemory;
 	
 	/**
 	 * The lock for synchronization
@@ -58,14 +58,14 @@ public class Memtable implements ScalephantService, Storage {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
 	
-	public Memtable(final String table, final int entries, final int maxsize) {
+	public Memtable(final String table, final int entries, final int maxSizeInMemory) {
 		this.table = table;
 		this.entries = entries;
-		this.maxsize = maxsize;
+		this.maxSizeInMemory = maxSizeInMemory;
 		
 		this.data = new Tuple[entries];
 		freePos = -1;
-		currentSize = 0;
+		sizeInMemory = 0;
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class Memtable implements ScalephantService, Storage {
 		try {
 			data[freePos] = value;
 			freePos++;
-			currentSize = currentSize + value.getSize();
+			sizeInMemory = sizeInMemory + value.getSize();
 		} finally {
 			lock.unlock();
 		}
@@ -214,12 +214,12 @@ public class Memtable implements ScalephantService, Storage {
 	public boolean isFull() {
 		
 		// Check size of the table
-		if(currentSize >= maxsize) {
+		if(sizeInMemory >= maxSizeInMemory) {
 			return true;
 		}
 		
 		// Check number of entries
-		if(freePos + 1 >= entries) {
+		if(freePos + 1 > entries) {
 			return true;
 		}
 		
