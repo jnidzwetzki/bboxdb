@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,11 +47,6 @@ public class Memtable implements ScalephantService, Storage {
 	protected int sizeInMemory;
 	
 	/**
-	 * The lock for synchronization
-	 */
-	protected final Lock lock = new ReentrantLock();
-
-	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
@@ -90,16 +83,10 @@ public class Memtable implements ScalephantService, Storage {
 		if(freePos >= entries) {
 			throw new StorageManagerException("Unable to store a new tuple, all memtable slots are full");
 		}
-		
-		lock.lock();
-		
-		try {
-			data[freePos] = value;
-			freePos++;
-			sizeInMemory = sizeInMemory + value.getSize();
-		} finally {
-			lock.unlock();
-		}
+
+		data[freePos] = value;
+		freePos++;
+		sizeInMemory = sizeInMemory + value.getSize();
 	}
 
 	/**

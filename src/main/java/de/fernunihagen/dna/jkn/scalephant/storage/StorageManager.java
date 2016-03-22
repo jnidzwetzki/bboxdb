@@ -111,10 +111,9 @@ public class StorageManager implements ScalephantService, Storage {
 				sstableManager.flushMemtable(memtable);
 				initNewMemtable();
 			}
+			
+			memtable.put(tuple);
 		}
-		
-		// The memtable itself is thread safe
-		memtable.put(tuple);
 	}
 
 	@Override
