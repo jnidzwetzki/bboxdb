@@ -88,9 +88,9 @@ public class StorageManager implements ScalephantService, Storage {
 				sstableManager.flushMemtable(memtable);
 				initNewMemtable();
 			}
-		}
 		
-		memtable.put(tuple);
+			memtable.put(tuple);
+		}
 	}
 
 	@Override
