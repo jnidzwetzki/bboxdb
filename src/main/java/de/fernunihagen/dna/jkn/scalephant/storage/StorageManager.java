@@ -16,15 +16,37 @@ import de.fernunihagen.dna.jkn.scalephant.util.State;
 
 public class StorageManager implements ScalephantService, Storage {
 	
+	/**
+	 * The name of the table
+	 */
 	protected final String table;
+	
+	/**
+	 * The active configuration
+	 */
 	protected final ScalephantConfiguration configuration;
+	
+	/**
+	 * The instance of the sstable manager
+	 */
 	protected final SSTableManager sstableManager;
+	
+	/**
+	 * The state of the Storage manager
+	 */
 	protected final State state;
 
-	protected Memtable memtable;
+	/**
+	 * The active memtable
+	 */
+	protected volatile Memtable memtable;
 	
+	/**
+	 * The logger
+	 */
 	private final static Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
+	
 	public StorageManager(final String table, final ScalephantConfiguration configuration) {
 		super();
 		this.table = table;
@@ -83,14 +105,16 @@ public class StorageManager implements ScalephantService, Storage {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
 		
+		// Ensure that only one memtable is newly created
 		synchronized (this) {	
 			if(memtable.isFull()) {
 				sstableManager.flushMemtable(memtable);
 				initNewMemtable();
 			}
-		
-			memtable.put(tuple);
 		}
+		
+		// The memtable itself is thread safe
+		memtable.put(tuple);
 	}
 
 	@Override
