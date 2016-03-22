@@ -83,9 +83,11 @@ public class StorageManager implements ScalephantService, Storage {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
 		
-		if(memtable.isFull()) {
-			sstableManager.flushMemtable(memtable);
-			initNewMemtable();
+		synchronized (this) {	
+			if(memtable.isFull()) {
+				sstableManager.flushMemtable(memtable);
+				initNewMemtable();
+			}
 		}
 		
 		memtable.put(tuple);
