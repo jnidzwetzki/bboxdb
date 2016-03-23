@@ -118,7 +118,8 @@ public class Memtable implements ScalephantService, Storage {
 	
 	/**
 	 * Get all tuples that are inside of the bounding box. The result list may 
-	 * contain duplicates
+	 * contain (outdated) tuples with the same key.
+	 * 
 	 */
 	@Override
 	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox)
