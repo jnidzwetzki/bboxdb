@@ -44,6 +44,7 @@ public abstract class AbstractBenchmark implements Runnable {
 	public void run() {
 		try {
 			prepare();
+			startBenchmarkTimer();
 			runBenchmark();
 			done();
 		} catch (Exception e) {
@@ -67,8 +68,13 @@ public abstract class AbstractBenchmark implements Runnable {
 			throw new Exception("Connection could not be established");
 		}
 		
-		executorService = Executors.newScheduledThreadPool(10);
-		
+		executorService = Executors.newScheduledThreadPool(10);		
+	}
+
+	/**
+	 * Start the benchmark timer
+	 */
+	protected void startBenchmarkTimer() {
 		// Init the data table
 		final DataTable dataTable = getDataTable();
 		System.out.println(dataTable.getTableHeader());
