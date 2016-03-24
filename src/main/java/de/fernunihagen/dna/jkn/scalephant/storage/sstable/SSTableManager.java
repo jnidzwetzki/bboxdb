@@ -340,6 +340,12 @@ public class SSTableManager implements ScalephantService {
 	 * @throws StorageManagerException
 	 */
 	public void flushMemtable(final Memtable memtable) throws StorageManagerException {
+		
+		// Empty memtables don't need to be flushed to disk
+		if(memtable.isEmpty()) {
+			return;
+		}
+		
 		synchronized (unflushedMemtables) {
 			unflushedMemtables.add(memtable);
 			unflushedMemtables.notifyAll();
