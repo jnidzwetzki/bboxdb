@@ -31,3 +31,7 @@ The "client example" (ScalephantClientExample.java) shows how data can be insert
 	java -classpath "../target/*":"../target/lib/*":"../conf" de.fernunihagen.dna.jkn.scalephant.performance.BenchmarkInsertPerformance
 	
 ## The key query benchmark
+
+	# Execute the benchmark
+	java -classpath "../target/*":"../target/lib/*":"../conf" de.fernunihagen.dna.jkn.scalephant.performance.BenchmarkKeyQueryPerformance
+	
