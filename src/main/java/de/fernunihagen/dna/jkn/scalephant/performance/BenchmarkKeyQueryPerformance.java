@@ -76,7 +76,13 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 		for(int i = 0; i < 100; i++) {
 			final long start = System.nanoTime();
 			final ClientOperationFuture result = scalephantClient.queryKey(mytable, Integer.toString(40));
-			result.get();
+			
+			// Wait for request to settle
+			final Object queryResult = result.get();
+			if(! (queryResult instanceof Tuple)) {
+				logger.warn("Query failed");
+			}
+			
 			final long end = System.nanoTime();
 			System.out.println(i + "\t" + (end-start));
 			
