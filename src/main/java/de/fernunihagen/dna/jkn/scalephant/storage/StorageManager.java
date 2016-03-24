@@ -198,6 +198,17 @@ public class StorageManager implements ScalephantService, Storage {
 	}
 	
 	/**
+	 * 1) Delete existing tables
+	 * 2) Restart the service and accepting new writes
+	 * 
+	 */
+	@Override
+	public void clear() {
+		deleteExistingTables();
+		init();
+	}
+
+	/**
 	 * Clear all entries in the table
 	 * 
 	 * 1) Reject new writes to this table 
@@ -205,12 +216,8 @@ public class StorageManager implements ScalephantService, Storage {
 	 * 3) Shutdown the sstable flush service
 	 * 4) Wait for shutdown complete
 	 * 5) Delete all persistent sstables
-	 * 6) Restart the service
-	 * 7) Accept new writes
-	 * 
 	 */
-	@Override
-	public void clear() {
+	public void deleteExistingTables() {
 		shutdown();
 		
 		memtable.clear();
@@ -228,8 +235,6 @@ public class StorageManager implements ScalephantService, Storage {
 		} catch (StorageManagerException e) {
 			logger.error("Error during deletion", e);
 		}
-		
-		init();
 	}
 	
 	/**

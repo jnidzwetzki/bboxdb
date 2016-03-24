@@ -64,7 +64,7 @@ public class StorageInterface {
 		}
 		
 		final StorageManager storageManager = instances.remove(table);
-		storageManager.shutdown();
+		storageManager.shutdown();		
 		
 		return true;
 	}
@@ -81,16 +81,10 @@ public class StorageInterface {
 			throw new StorageManagerException("Invalid tablename: " + tablename);
 		}
 		
-		shutdown(table);
-		
-		final String pathname = configuration.getDataDirectory() + File.separator + table;
-		final File directory = new File(pathname);
-		
-		if(! directory.exists()) {
-			return;
-		}
-		
-		directory.delete();
+		final StorageManager storageManager = getStorageManager(table);
+		instances.remove(table);
+
+		storageManager.deleteExistingTables();
 	}
 	
 	/**
