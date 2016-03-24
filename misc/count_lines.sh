@@ -3,7 +3,7 @@
 # Generate some statistics about the project
 ######################
 
-# Line of code
+# Lines of code
 loc_java=$( (find .. -name '*.java' -print0 | xargs -0 cat ) | wc -l)
 loc_shell=$( (find .. -name '*.sh' -print0 | xargs -0 cat ) | wc -l)
 loc_xml=$( (find .. -name '*.xml' -print0 | xargs -0 cat ) | wc -l)
