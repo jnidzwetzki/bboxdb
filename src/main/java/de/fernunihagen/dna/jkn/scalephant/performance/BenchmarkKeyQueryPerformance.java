@@ -53,6 +53,14 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 		for(; insertedTuples.get() < tuplesToInsert; insertedTuples.incrementAndGet()) {
 			scalephantClient.insertTuple(mytable, new Tuple(Integer.toString(insertedTuples.get()), BoundingBox.EMPTY_BOX, "abcdef".getBytes()));
 		}
+		
+		// Wait for requests to settle
+		logger.info("Wait for insert requests to settle");
+		while(scalephantClient.getInFlightCalls() != 0) {
+			logger.info(scalephantClient.getInFlightCalls() + " are pending");
+			Thread.sleep(1000);
+		}
+		logger.info("All insert requests are settled");
 	}
 	
 	@Override
