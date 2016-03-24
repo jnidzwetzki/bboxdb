@@ -213,6 +213,17 @@ public class Memtable implements ScalephantService, Storage {
 		
 		return false;
 	}
+	
+	/**
+	 * Is this memtable empty?
+	 */
+	public boolean isEmpty() {
+		if(freePos <= 0) {
+			return true;
+		}
+		
+		return false;
+	}
 
 	@Override
 	public String getServicename() {
