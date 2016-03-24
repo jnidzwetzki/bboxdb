@@ -70,8 +70,9 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 			final ClientOperationFuture result = scalephantClient.queryKey(mytable, Integer.toString(40));
 			result.get();
 			final long end = System.nanoTime();
-			
 			System.out.println(i + "\t" + (end-start));
+			
+			Thread.sleep(1000);
 		}
 	}
 	
