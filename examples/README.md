@@ -30,11 +30,11 @@ The "client example" (ScalephantClientExample.java) shows how data can be insert
 	# Execute the benchmark
 	java -classpath "../target/*":"../target/lib/*":"../conf" de.fernunihagen.dna.jkn.scalephant.performance.BenchmarkInsertPerformance
 
-        # Plot the query result
-        # (the grep calls are removing the logger statements and let only the performance data pass)
-        java -classpath "../target/*":"../target/lib/*":"../conf" de.fernunihagen.dna.jkn.scalephant.performance.BenchmarkInsertPerformance | grep -v '\[' | grep -v Done > graph/InsertPerformance.dat
-        # Let gnuplot plot the performance data
-        gnuplot InsertPerformance.plot 
+	# Plot the query result
+	# (the grep calls are removing the logger statements and let only the performance data pass)
+	java -classpath "../target/*":"../target/lib/*":"../conf" de.fernunihagen.dna.jkn.scalephant.performance.BenchmarkInsertPerformance | grep -v '\[' | grep -v Done > graph/InsertPerformance.dat
+	# Let gnuplot plot the performance data
+	gnuplot InsertPerformance.plot 
 	
 ## The key query benchmark
 
