@@ -1,4 +1,4 @@
-# Zookeeper structure
+# Zookeeper directory layout
 
 ## Group membership
 The group membership determines, which instances of the scalephant are currently running faultless. The nodes are created as ephemeral nodes. They will be automatically removed, when the instance stops or crashes.
