@@ -20,8 +20,7 @@ Distribution Groups specify, which part of the data is stored on which node.
 * distribution - the directory for data distribution
 * distributiongroupname - the name of the distribution group (e.g. 2_mygroup - for a 2 dimensional distribution group with the name mygroup) 
 
-<code>
-/clustername/distribution/1_mygroup/50-0[192.168.1.1:5050]
+For example:
 
-/clustername/distribution/1_mygroup/50-1[192.168.1.2:5050]
-</code>
+	/clustername/distribution/1_mygroup/50-0[192.168.1.1:5050]
+	/clustername/distribution/1_mygroup/50-1[192.168.1.2:5050]
