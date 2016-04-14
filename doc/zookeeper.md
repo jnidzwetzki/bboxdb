@@ -36,4 +36,4 @@ When the 1 dimensional space is splitted at point 50, the directory structure ch
 	/clustername/distribution/1_mygroup/right/instances/0[192.168.1.2:5050]
 	/clustername/distribution/1_mygroup/right/instances/1[192.168.1.1:5050]
 	
-The instance '192.168.1.1:5050' is the write coordinator for the interval [*, 50], the instance '192.168.1.2:5050' is the write coordinator for the interval (50, *].
+The instance '192.168.1.1:5050' is the write coordinator for the interval [\*, 50], the instance '192.168.1.2:5050' is the write coordinator for the interval (50, \*].
