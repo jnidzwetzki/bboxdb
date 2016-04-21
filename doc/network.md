@@ -301,7 +301,7 @@ This query asks for all tuples, that are inserted after certain time stamp (time
 	|              Timestamp             |
     |         +-----------------+--------+
 	|         |   Table-length  |        |
-	+---------------------------+        |
+	+---------+-----------------+        |
 	|              Tablename             |
     +------------------------------------+
     
