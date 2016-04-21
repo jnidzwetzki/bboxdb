@@ -296,14 +296,15 @@ This query asks for all tuples, that are inserted after certain time stamp (time
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	|  0x02   |  Table-Length   | Table- | 
-	+---------+-----------------+--------+
-	.               -name                .
-	+------------------------------------+
+	|  0x03   |                          |
+    +---------+                          |
 	|              Timestamp             |
-	|                                    |
-	+------------------------------------+
-
+    |         +-----------------+--------+
+	|         |   Table-length  |        |
+	+---------------------------+        |
+	|              Tablename             |
+    +------------------------------------+
+    
 #### Response body
 The result could be currently the response types 0x02, 0x03 and 0x06.
 
