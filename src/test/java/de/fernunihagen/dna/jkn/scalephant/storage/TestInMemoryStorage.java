@@ -32,6 +32,10 @@ public class TestInMemoryStorage {
 		memtable.clear();
 	}
 	
+	/**
+	 * Test insert1
+	 * @throws Exception
+	 */
 	@Test
 	public void testInsertElements() throws Exception {
 		final Tuple tuple = new Tuple("1", null, "abc".getBytes());
@@ -40,6 +44,10 @@ public class TestInMemoryStorage {
 		Assert.assertEquals(tuple, memtable.get("1"));
 	}
 	
+	/**
+	 * Test insert2
+	 * @throws Exception
+	 */
 	@Test
 	public void testInsertAndReadPerson() throws Exception {
 		final PersonEntity person1 = new PersonEntity("Jan", "Jansen", 30);
@@ -54,12 +62,20 @@ public class TestInMemoryStorage {
 		Assert.assertEquals(person1, readPerson1);
 	}
 	
+	/**
+	 * Query for non existing tuples
+	 * @throws Exception
+	 */
 	@Test
 	public void getNonExisting() throws Exception {
 		Assert.assertEquals(null, memtable.get("1"));
 		Assert.assertEquals(null, memtable.get("1000"));
 	}
 	
+	/**
+	 * Test the null tuple
+	 * @throws Exception
+	 */
 	@Test
 	public void testStoreNullTuple() throws Exception {		
 		final Tuple createdTuple = new Tuple("1", null, null);
@@ -68,6 +84,10 @@ public class TestInMemoryStorage {
 		Assert.assertEquals(createdTuple, memtable.get("1"));
 	}
 	
+	/**
+	 * Test the deletion of a tuple
+	 * @throws Exception
+	 */
 	@Test
 	public void testTupleDelete() throws Exception {		
 		final Tuple createdTuple = new Tuple("1", null, "abc".getBytes());
@@ -78,29 +98,35 @@ public class TestInMemoryStorage {
 		Assert.assertTrue(memtable.get("1") instanceof DeletedTuple);
 	}
 	
+	/**
+	 * Test memtable overflow
+	 * @throws Exception
+	 */
 	@Test(expected=StorageManagerException.class)
-	public void testBigInsert() throws Exception {		
-		int MAX_TUPLES = 1000000;
+	public void testBigInsert() throws Exception {	
+		
+		final int MAX_TUPLES = memtable.getMaxEntries() * 10;
 
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), null, Integer.toString(i).getBytes());
 			memtable.put(createdTuple);
 		}
-		
-		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple tuple = memtable.get(Integer.toString(i));
-			Integer integer = Integer.parseInt(new String(tuple.getDataBytes()));
-			Assert.assertEquals(Integer.toString(i), Integer.toString(integer));
-		}
 	}
 	
-	
+	/**
+	 * Test the sorted list query
+	 * @throws StorageManagerException
+	 */
 	@Test
 	public void testSortedList0() throws StorageManagerException {
 		// Cleared memtables should return an empty list
 		Assert.assertEquals(memtable.getSortedTupleList().size(), 0);
 	}
 	
+	/**
+	 * Test key updates and sorted list query
+	 * @throws StorageManagerException
+	 */
 	@Test
 	public void testSortedList1() throws StorageManagerException {
 		// Insert key 1
@@ -112,5 +138,29 @@ public class TestInMemoryStorage {
 		final Tuple createdTuple2 = new Tuple("1", null, "defh".getBytes());
 		memtable.put(createdTuple2);
 		Assert.assertEquals(memtable.getSortedTupleList().size(), 1);
+	}
+	
+	/**
+	 * The the time query
+	 * @throws StorageManagerException
+	 */
+	@Test
+	public void testTimeQuery() throws StorageManagerException {
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
+		memtable.put(createdTuple1);
+		
+		final Tuple createdTuple2 = new Tuple("2", null, "abc".getBytes());
+		memtable.put(createdTuple2);
+		
+		final Tuple createdTuple3 = new Tuple("3", null, "abc".getBytes());
+		memtable.put(createdTuple3);
+		
+		// Query the memtable
+		Assert.assertEquals(3, memtable.getTuplesAfterTime(0).size());
+		Assert.assertEquals(0, memtable.getTuplesAfterTime(Long.MAX_VALUE).size());
+		
+		Assert.assertEquals(2, memtable.getTuplesAfterTime(createdTuple1.getTimestamp()).size());
+		Assert.assertEquals(1, memtable.getTuplesAfterTime(createdTuple2.getTimestamp()).size());
+		Assert.assertEquals(0, memtable.getTuplesAfterTime(createdTuple3.getTimestamp()).size());
 	}
 }
