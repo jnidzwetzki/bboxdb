@@ -20,6 +20,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupleEndResponse;
@@ -169,6 +170,10 @@ public class ClientConnectionHandler implements Runnable {
 			case NetworkConst.REQUEST_QUERY_BBOX:
 				handleBoundingBoxQuery(encodedPackage, packageSequence);
 				break;
+				
+			case NetworkConst.REQUEST_QUERY_TIME:
+				handleTimeQuery(encodedPackage, packageSequence);
+				break;
 	
 			default:
 				logger.warn("Unsupported query type: " + queryType);
@@ -237,6 +242,38 @@ public class ClientConnectionHandler implements Runnable {
 			return;
 		} catch (StorageManagerException e) {
 			logger.warn("Got exception while scanning for bbox", e);
+		}
+		
+		writeResultPackage(new ErrorResponse(packageSequence));
+	}
+	
+	/**
+	 * Handle a time query
+	 * @param encodedPackage
+	 * @param packageSequence
+	 */
+	protected void handleTimeQuery(final ByteBuffer encodedPackage,
+			final short packageSequence) {
+		
+		final QueryTimeRequest queryRequest = QueryTimeRequest.decodeTuple(encodedPackage);
+		final String table = queryRequest.getTable();
+		
+		try {
+			final StorageManager storageManager = StorageInterface.getStorageManager(table);
+
+			final Collection<Tuple> resultTuple = storageManager.getTuplesAfterTime(queryRequest.getTimestamp());
+			
+			writeResultPackage(new MultipleTupleStartResponse(packageSequence));
+			
+			for(final Tuple tuple : resultTuple) {
+				writeResultPackage(new TupleResponse(packageSequence, table, tuple));
+			}
+			
+			writeResultPackage(new MultipleTupleEndResponse(packageSequence));
+			
+			return;
+		} catch (StorageManagerException e) {
+			logger.warn("Got exception while scanning for time", e);
 		}
 		
 		writeResultPackage(new ErrorResponse(packageSequence));

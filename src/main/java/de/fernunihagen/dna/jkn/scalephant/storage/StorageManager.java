@@ -150,9 +150,7 @@ public class StorageManager implements ScalephantService, Storage {
 	@Override
 	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox)
 			throws StorageManagerException {
-		
-		final HashMap<String, Tuple> allTuples = new HashMap<String, Tuple>();
-		
+				
 		// Query all memtables
 		final Collection<Tuple> memtableTuples = memtable.getTuplesInside(boundingBox);
 		
@@ -162,6 +160,39 @@ public class StorageManager implements ScalephantService, Storage {
 		// Merge results
 		memtableTuples.addAll(sstableResult);
 		
+		return getTheMostRecentTuples(memtableTuples);
+	}
+	
+	/**
+	 * Get all tuples inside of the bounding box
+	 */
+	@Override
+	public Collection<Tuple> getTuplesAfterTime(final long timestamp)
+			throws StorageManagerException {
+		
+		// Query all memtables
+		final Collection<Tuple> memtableTuples = memtable.getTuplesAfterTime(timestamp);
+		
+		// Query the sstables
+		final Collection<Tuple> sstableResult = sstableManager.getTuplesAfterTime(timestamp);
+		
+		// Merge results
+		memtableTuples.addAll(sstableResult);
+		
+		return getTheMostRecentTuples(memtableTuples);
+	}
+
+	/**
+	 * Get the a collection with the most recent version of the tuples
+	 * DeletedTuples are removed from the result set
+	 * 
+	 * @param memtableTuples
+	 * @return
+	 */
+	protected Collection<Tuple> getTheMostRecentTuples(
+			final Collection<Tuple> memtableTuples) {
+		final HashMap<String, Tuple> allTuples = new HashMap<String, Tuple>();
+
 		// Find the most recent version of the tuple
 		for(final Tuple tuple : memtableTuples) {
 			
@@ -183,7 +214,7 @@ public class StorageManager implements ScalephantService, Storage {
 				allTuples.remove(tuple.getKey());
 			}
 		}
-
+		
 		return allTuples.values();
 	}
 

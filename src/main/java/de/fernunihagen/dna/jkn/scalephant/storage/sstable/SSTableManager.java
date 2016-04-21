@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
+import de.fernunihagen.dna.jkn.scalephant.storage.Storage;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
@@ -23,7 +24,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndex
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableReader;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
 
-public class SSTableManager implements ScalephantService {
+public class SSTableManager implements ScalephantService, Storage {
 	
 	/**
 	 * The name of the table
@@ -409,6 +410,7 @@ public class SSTableManager implements ScalephantService {
 	 * @throws StorageManagerException 
 	 */
 	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox) throws StorageManagerException {
+	
 		final List<Tuple> resultList = new ArrayList<Tuple>();
 		
 		// Read unflushed memtables first
@@ -423,9 +425,12 @@ public class SSTableManager implements ScalephantService {
 		
 		// Scan the sstables
 		boolean readComplete = false;
+		final List<Tuple> storedTuples = new ArrayList<Tuple>();
+
 		while(! readComplete) {
 			readComplete = true;
-		
+			storedTuples.clear();
+			
 			// Read data from the persistent SSTables
 			for(final SSTableFacade facade : sstableFacades) {
 				boolean canBeUsed = facade.acquire();
@@ -439,7 +444,55 @@ public class SSTableManager implements ScalephantService {
 								
 				for (final Tuple tuple : indexReader) {
 					if(tuple.getBoundingBox().overlaps(boundingBox)) {
-						resultList.add(tuple);
+						storedTuples.add(tuple);
+					}
+				}
+				
+				facade.release();
+			}
+		}
+		resultList.addAll(storedTuples);
+		return resultList;
+	}
+
+	@Override
+	public Collection<Tuple> getTuplesAfterTime(final long timestamp)
+			throws StorageManagerException {
+		
+		final List<Tuple> resultList = new ArrayList<Tuple>();
+
+		// Read unflushed memtables first
+		for(final Memtable unflushedMemtable : unflushedMemtables) {
+			try {
+				final Collection<Tuple> memtableResult = unflushedMemtable.getTuplesAfterTime(timestamp);
+				resultList.addAll(memtableResult);
+			} catch (StorageManagerException e) {
+				logger.warn("Got an exception while scanning unflushed memtable: ", e);
+			}
+		}
+		
+		// Scan the sstables
+		boolean readComplete = false;
+		final List<Tuple> storedTuples = new ArrayList<Tuple>();
+
+		while(! readComplete) {
+			readComplete = true;
+			storedTuples.clear();
+			
+			// Read data from the persistent SSTables
+			for(final SSTableFacade facade : sstableFacades) {
+				boolean canBeUsed = facade.acquire();
+				
+				if(! canBeUsed ) {
+					readComplete = false;
+					break;
+				}
+				
+				final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
+								
+				for (final Tuple tuple : indexReader) {
+					if(tuple.getTimestamp() > timestamp) {
+						storedTuples.add(tuple);
 					}
 				}
 				
@@ -447,9 +500,10 @@ public class SSTableManager implements ScalephantService {
 			}
 		}
 		
+		resultList.addAll(storedTuples);
 		return resultList;
 	}
-
+	
 	/**
 	 * Get the tuple from the unflushed memtables
 	 * @param key
@@ -510,5 +564,21 @@ public class SSTableManager implements ScalephantService {
 
 	public List<SSTableFacade> getSstableFacades() {
 		return sstableFacades;
+	}
+
+	// These methods are required by the interface
+	@Override
+	public void put(Tuple tuple) throws StorageManagerException {
+		throw new UnsupportedOperationException("SSTables are read only");
+	}
+
+	@Override
+	public void delete(String key) throws StorageManagerException {
+		throw new UnsupportedOperationException("SSTables are read only");
+	}
+
+	@Override
+	public void clear() throws StorageManagerException {
+		throw new UnsupportedOperationException("SSTables are read only");
 	}
 }

@@ -138,6 +138,25 @@ public class Memtable implements ScalephantService, Storage {
 	}
 	
 	/**
+	 * Returns all tuples that are inserted after a certain time stamp
+	 */
+	@Override
+	public Collection<Tuple> getTuplesAfterTime(final long timestamp)
+			throws StorageManagerException {
+		
+		final List<Tuple> resultList = new ArrayList<Tuple>();
+		
+		for(int i = 0; i < freePos; i++) {
+			final Tuple possibleTuple = data[i];
+			if(possibleTuple.getTimestamp() > timestamp) {
+				resultList.add(possibleTuple);
+			}
+		}
+		
+		return resultList;
+	}
+	
+	/**
 	 * Delete a tuple, this is implemented by inserting a DeletedTuple object
 	 *
 	 */
@@ -229,4 +248,5 @@ public class Memtable implements ScalephantService, Storage {
 	public String getServicename() {
 		return "Memtable";
 	}
+
 }

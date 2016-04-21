@@ -31,6 +31,14 @@ public interface Storage {
 	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox) throws StorageManagerException;
 	
 	/**
+	 * Search all tuples that are insert the given timestamp
+	 * @param timestamp
+	 * @return
+	 * @throws StorageManagerException
+	 */
+	public Collection<Tuple> getTuplesAfterTime(final long timestamp) throws StorageManagerException;
+	
+	/**
 	 * Delete a tuple
 	 * @param key
 	 * @throws StorageManagerException
