@@ -290,7 +290,7 @@ This query asks for all tuples, that are covered by the bounding box.
 The result could be currently the response types 0x02, 0x03 and 0x06.
 
 ### Time-Query
-This query asks for all tuples, that are inserted after certain time stamp (tuple >= time stamp).
+This query asks for all tuples, that are inserted after certain time stamp (time(tuple) >= time stamp).
 
 #### Request body
 
