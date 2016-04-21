@@ -106,6 +106,8 @@ This is a response body that contains a tuple.
 	.                                    .
 	+------------------------------------+
 	
+Note: All time stamps are 64 bit long and have a resolution of nano seconds
+	
 ### Body for response type = 0x06 / 0x07
 By using the response types 0x06 and 0x07 a set of tuples can be transfered. For example, this could be the result of a query. The begin of the transfer of the tuple set is indicated by the package type 0x06; the end is indicated by the type 0x07. Both package types have an empty body. 
 
@@ -244,6 +246,7 @@ Query type:
 
 * Type 0x01 - Key query
 * Type 0x02 - Bounding Box query
+* Type 0x03 - Time query
 
 ### Key-Query
 This query asks for a specific key in a particular table.
@@ -284,7 +287,25 @@ This query asks for all tuples, that are covered by the bounding box.
 	+------------------------------------+
 
 #### Response body
-The result could be currently the response types 0x02, 0x03.
+The result could be currently the response types 0x02, 0x03 and 0x06.
+
+### Time-Query
+This query asks for all tuples, that are inserted after certain time stamp (tuple >= time stamp).
+
+#### Request body
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|  0x02   |  Table-Length   | Table- | 
+	+---------+-----------------+--------+
+	.               -name                .
+	+------------------------------------+
+	|              Timestamp             |
+	|                                    |
+	+------------------------------------+
+
+#### Response body
+The result could be currently the response types 0x02, 0x03 and 0x06.
 
 ### Transfer SSTable
 This request transfers a whole SSTable from one instance to another. This request is send between two scalephant instances. 
@@ -322,5 +343,4 @@ This request transfers a whole SSTable from one instance to another. This reques
 	
 #### Response body
 The result could be currently the response types 0x00, 0x02 or the receiving server closes the tcp socket during the file transfer. 
-
 
