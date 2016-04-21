@@ -25,6 +25,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.AbstractBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
@@ -305,6 +306,24 @@ public class ScalephantClient {
 		
 		final ClientOperationFuture future = new ClientOperationFuture();
 		sendPackageToServer(new QueryBoundingBoxRequest(table, boundingBox), future);
+
+		return future;
+	}
+	
+	/**
+	 * Query the given table for all tuples newer than
+	 * @param table
+	 * @param key
+	 * @return
+	 */
+	public ClientOperationFuture queryTime(final String table, final long timestamp) {
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			logger.warn("queryTime called, but connection not ready: " + connectionState);
+			return null;
+		}
+
+		final ClientOperationFuture future = new ClientOperationFuture();
+		sendPackageToServer(new QueryTimeRequest(table, timestamp), future);
 
 		return future;
 	}
