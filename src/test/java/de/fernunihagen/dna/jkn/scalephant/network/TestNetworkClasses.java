@@ -16,6 +16,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.ListTablesRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
@@ -180,7 +181,7 @@ public class TestNetworkClasses {
 	}
 	
 	/**
-	 * Test decoding and encoding of the key query
+	 * Test decode bounding box query
 	 */
 	@Test
 	public void testDecodeBoundingBoxQuery() {
@@ -201,6 +202,30 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
 		
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+	}
+	
+	/**
+	 * Test decode time query
+	 */
+	@Test
+	public void testDecodeTimeQuery() {
+		final String table = "table1";
+		final long timeStamp = 4711;
+		
+		final QueryTimeRequest queryRequest = new QueryTimeRequest(table, timeStamp);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		byte[] encodedPackage = queryRequest.getByteArray(sequenceNumber);
+		Assert.assertNotNull(encodedPackage);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
+		Assert.assertTrue(result);
+
+		final QueryTimeRequest decodedPackage = QueryTimeRequest.decodeTuple(bb);
+		Assert.assertEquals(queryRequest.getTimestamp(), decodedPackage.getTimestamp());
+		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
+		
+		Assert.assertEquals(NetworkConst.REQUEST_QUERY_TIME, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 	}
 	
 	/**

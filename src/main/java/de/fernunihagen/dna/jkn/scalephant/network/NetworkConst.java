@@ -60,6 +60,11 @@ public class NetworkConst {
 	 */
 	public static final byte REQUEST_QUERY_BBOX = 0x02;
 	
+	/**
+	 * Query type time
+	 */
+	public static final byte REQUEST_QUERY_TIME = 0x03;
+	
 	
 	/**
 	 * Response type success
