@@ -488,11 +488,13 @@ public class SSTableManager implements ScalephantService, Storage {
 					break;
 				}
 				
-				final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
-								
-				for (final Tuple tuple : indexReader) {
-					if(tuple.getTimestamp() > timestamp) {
-						storedTuples.add(tuple);
+				// Scan only tables that contain newer tuples
+				if(facade.getSsTableMetadata().getNewestTuple() > timestamp) {
+					final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
+					for (final Tuple tuple : indexReader) {
+						if(tuple.getTimestamp() > timestamp) {
+							storedTuples.add(tuple);
+						}
 					}
 				}
 				
