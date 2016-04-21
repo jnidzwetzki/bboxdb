@@ -34,7 +34,7 @@ public class Memtable implements ScalephantService, Storage {
 	/**
 	 * Maximal number of entries keep in memory
 	 */
-	protected final int entries;
+	protected final int maxEntries;
 	
 	/**
 	 * Maximal size of memtable in KB
@@ -53,7 +53,7 @@ public class Memtable implements ScalephantService, Storage {
 	
 	public Memtable(final String table, final int entries, final int maxSizeInMemory) {
 		this.table = table;
-		this.entries = entries;
+		this.maxEntries = entries;
 		this.maxSizeInMemory = maxSizeInMemory;
 		
 		this.data = new Tuple[entries];
@@ -80,7 +80,7 @@ public class Memtable implements ScalephantService, Storage {
 	@Override
 	public void put(final Tuple value) throws StorageManagerException {
 		
-		if(freePos >= entries) {
+		if(freePos >= maxEntries) {
 			throw new StorageManagerException("Unable to store a new tuple, all memtable slots are full");
 		}
 
@@ -226,7 +226,7 @@ public class Memtable implements ScalephantService, Storage {
 		}
 		
 		// Check number of entries
-		if(freePos + 1 > entries) {
+		if(freePos + 1 > maxEntries) {
 			return true;
 		}
 		
@@ -243,6 +243,15 @@ public class Memtable implements ScalephantService, Storage {
 		
 		return false;
 	}
+
+	/**
+	 * Get the maximal number of entries in the memtable
+	 * @return
+	 */
+	public int getMaxEntries() {
+		return maxEntries;
+	}
+
 
 	@Override
 	public String getServicename() {
