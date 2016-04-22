@@ -1,12 +1,15 @@
 package de.fernunihagen.dna.jkn.scalephant.network.packages;
 
+import java.io.OutputStream;
+
+
 
 public interface NetworkRequestPackage extends NetworkPackage {
 
 	/**
 	 * Encode the package
-	 * @return 
+	 * @param outputStream 
 	 */
-	public abstract byte[] getByteArray(final short sequenceNumber);
+	public abstract void writeToOutputStream(final short sequenceNumber, OutputStream outputStream);
 	
 }

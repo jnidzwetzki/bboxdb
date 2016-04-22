@@ -404,14 +404,13 @@ public class ScalephantClient {
 		
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		future.setRequestId(sequenceNumber);
-		final byte[] output = requestPackage.getByteArray(sequenceNumber);
 		
 		try {		
 			synchronized (pendingCalls) {
 				pendingCalls.put(sequenceNumber, future);
 			}
 			
-			outputStream.write(output, 0, output.length);
+			requestPackage.writeToOutputStream(sequenceNumber, outputStream);
 			outputStream.flush();
 			
 		} catch (IOException e) {

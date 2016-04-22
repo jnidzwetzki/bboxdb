@@ -2,6 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.network.packages.request;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.slf4j.Logger;
@@ -72,7 +73,8 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	}
 
 	@Override
-	public byte[] getByteArray(final short sequenceNumber) {
+	public void writeToOutputStream(final short sequenceNumber,
+			final OutputStream outputStream) {
 		
 		final NetworkPackageEncoder networkPackageEncoder 
 			= new NetworkPackageEncoder();
@@ -82,12 +84,11 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		try {
 			NetworkTupleEncoderDecoder.encode(bos, tuple, table);
 			bos.close();
+			final byte[] outputData = bos.toByteArray();
+			outputStream.write(outputData, 0, outputData.length);
 		} catch (IOException e) {
 			logger.error("Got exception while converting package into bytes", e);
-			return null;
-		}
-		
-		return bos.toByteArray();
+		}		
 	}
 	
 	public String getTable() {
