@@ -36,9 +36,9 @@ public class MultipleTupleStartResponse extends NetworkResponsePackage {
 		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
 		
 		try {
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
+			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
 			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
-			bodyLengthBuffer.putInt(0);
+			bodyLengthBuffer.putLong(0);
 			bos.write(bodyLengthBuffer.array());
 			
 			bos.close();

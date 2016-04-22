@@ -35,8 +35,8 @@ public class NetworkPackageDecoder {
 		// Reset position
 		bb.position(0);
 		
-		// Buffer is to little to contain valid data
-		if(bb.remaining() < 8) {
+		// Buffer is to short to contain valid data
+		if(bb.remaining() < 12) {
 			logger.warn("Package header is to small: " + bb.remaining());
 			return false;
 		}
@@ -60,7 +60,7 @@ public class NetworkPackageDecoder {
 		
 		// Get the length of the body
 		final long bodyLength = bb.getLong();
-
+		
 		return bb.remaining() == bodyLength;
 	}
 	
@@ -88,8 +88,8 @@ public class NetworkPackageDecoder {
 		// Reset position
 		bb.position(0);
 		
-		// Buffer is to little to contain valid data
-		if(bb.remaining() < 8) {
+		// Buffer is to short to contain valid data
+		if(bb.remaining() < 12) {
 			logger.warn("Package header is to small: " + bb.remaining());
 			return false;
 		}

@@ -81,7 +81,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * @throws IOException
 	 */
 	protected ByteBuffer readNextPackageHeader() throws IOException {
-		final ByteBuffer bb = ByteBuffer.allocate(8);
+		final ByteBuffer bb = ByteBuffer.allocate(12);
 		inputStream.read(bb.array(), 0, bb.limit());
 		return bb;
 	}
@@ -161,7 +161,7 @@ public class ClientConnectionHandler implements Runnable {
 	protected boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) {
 		
 		final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
-		
+
 		switch (queryType) {
 			case NetworkConst.REQUEST_QUERY_KEY:
 				handleKeyQuery(encodedPackage, packageSequence);
@@ -236,9 +236,9 @@ public class ClientConnectionHandler implements Runnable {
 			for(final Tuple tuple : resultTuple) {
 				writeResultPackage(new TupleResponse(packageSequence, table, tuple));
 			}
-			
+
 			writeResultPackage(new MultipleTupleEndResponse(packageSequence));
-			
+
 			return;
 		} catch (StorageManagerException e) {
 			logger.warn("Got exception while scanning for bbox", e);
@@ -367,6 +367,7 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected void handleNextPackage() throws IOException {
 		final ByteBuffer packageHeader = readNextPackageHeader();
+
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);
 		final byte packageType = NetworkPackageDecoder.getPackageTypeFromRequest(packageHeader);
 		final ByteBuffer encodedPackage = readFullPackage(packageHeader);

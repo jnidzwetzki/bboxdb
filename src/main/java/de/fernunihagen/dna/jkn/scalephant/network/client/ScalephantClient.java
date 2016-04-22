@@ -434,7 +434,7 @@ public class ScalephantClient {
 		 * @throws IOException 
 		 */
 		protected ByteBuffer readNextResponsePackageHeader() throws IOException {
-			final ByteBuffer bb = ByteBuffer.allocate(8);
+			final ByteBuffer bb = ByteBuffer.allocate(12);
 			int read = inputStream.read(bb.array(), 0, bb.limit());
 			
 			// Read error
