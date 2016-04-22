@@ -9,6 +9,7 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 	| Version |  Type  |   Request-ID    |
 	+---------+-----------------+--------+
 	|            Body-Length             |
+	|                                    |
 	+------------------------------------+
 	|                                    |
 	|               Body                 |
@@ -21,6 +22,7 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 * Version - The protocol version, currently always 0x01.
 * Type - The type of the request.
 * Request-ID - The id of the request, e.g., a consecutive number.
+* Body length - The length of the body as a long value.
 
 Request Types:
 
@@ -51,7 +53,7 @@ Request Types:
 * Version - The protocol version, currently always 0x01.
 * Request-ID - The id of the request which the response belongs too.
 * Result - The result of the operation
-* Body length - The length of the body. For Packages without body, the length is set to 0.
+* Body length - The length of the body as a long value. For Packages without body, the length is set to 0.
 
 Result-Types:
 
