@@ -327,7 +327,7 @@ This request transfers a whole SSTable from one instance to another. This reques
 	+------------------------------------+
 	|          Keyindex-Length           |
 	|                                    |
-	+------------------+-----------------+
+	+------------------------------------+
 	|              Tablename             |
 	.                                    .
 	+------------------------------------+
