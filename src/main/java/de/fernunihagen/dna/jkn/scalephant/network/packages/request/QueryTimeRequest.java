@@ -44,10 +44,13 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 		try {
 			final byte[] tableBytes = table.getBytes();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(11);
+			final ByteBuffer bb = ByteBuffer.allocate(14);
 			bb.order(NetworkConst.NETWORK_BYTEORDER);
 			
 			bb.put(getQueryType());
+			bb.put("0".getBytes()); // Used byte 1
+			bb.put("0".getBytes()); // Used byte 2
+			bb.put("0".getBytes()); // Used byte 3
 			bb.putLong(timestamp);
 			bb.putShort((short) tableBytes.length);
 			
@@ -93,6 +96,11 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 	    	return null;
 	    }
 		
+	    // 3 unused bytes
+	    encodedPackage.get(); 
+	    encodedPackage.get();
+	    encodedPackage.get();
+	    
 	    final long timestmap = encodedPackage.getLong();
 		final short tableLength = encodedPackage.getShort();
 		
