@@ -48,9 +48,9 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 			bb.order(NetworkConst.NETWORK_BYTEORDER);
 			
 			bb.put(getQueryType());
-			bb.put("0".getBytes()); // Used byte 1
-			bb.put("0".getBytes()); // Used byte 2
-			bb.put("0".getBytes()); // Used byte 3
+			bb.put(NetworkConst.UNUSED_BYTE);  // Used byte 1
+			bb.put(NetworkConst.UNUSED_BYTE);  // Used byte 2
+			bb.put(NetworkConst.UNUSED_BYTE);  // Used byte 3
 			bb.putLong(timestamp);
 			bb.putShort((short) tableBytes.length);
 			

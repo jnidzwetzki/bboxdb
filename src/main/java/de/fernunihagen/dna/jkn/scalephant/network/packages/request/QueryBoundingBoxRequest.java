@@ -46,10 +46,11 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 			final byte[] tableBytes = table.getBytes();
 			final byte[] bboxBytes = box.toByteArray();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(5);
+			final ByteBuffer bb = ByteBuffer.allocate(6);
 			bb.order(NetworkConst.NETWORK_BYTEORDER);
 			
 			bb.put(getQueryType());
+			bb.put(NetworkConst.UNUSED_BYTE);
 			bb.putShort((short) tableBytes.length);
 			bb.putShort((short) bboxBytes.length);
 			
@@ -95,6 +96,9 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	    	logger.error("Wrong query type: " + queryType + " required type is: " + NetworkConst.REQUEST_QUERY_BBOX);
 	    	return null;
 	    }
+	    
+	    // 1 unused byte
+	    encodedPackage.get();
 		
 		final short tableLength = encodedPackage.getShort();
 		final short bboxLength = encodedPackage.getShort();

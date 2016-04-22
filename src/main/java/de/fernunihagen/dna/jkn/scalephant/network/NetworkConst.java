@@ -15,6 +15,11 @@ public class NetworkConst {
 	public static final ByteOrder NETWORK_BYTEORDER = ByteOrder.BIG_ENDIAN;
 	
 	/**
+	 * Value of an unsed byte
+	 */
+	public final static byte UNUSED_BYTE = 0;
+	
+	/**
 	 * Request type insert tuple
 	 */
 	public static final byte REQUEST_TYPE_INSERT_TUPLE = 0x00;

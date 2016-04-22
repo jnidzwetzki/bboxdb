@@ -276,11 +276,12 @@ This query asks for all tuples, that are covered by the bounding box.
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	|  0x02   |  Table-Length   | BBOX-  | 
-	+---------+-----------------+--------+
-	|           -Length         | Table- |
-	+---------------------------+        |
-	.               -name                .
+	|  0x02   | Unused |  Table-Length   |
+	+---------+--------------------------+
+	|              BBOX-Length           | 
+	+------------------------------------+ 
+	|              Tablename             |
+	.                                    .
 	+------------------------------------+
 	|                 BBOX               |
 	.                                    .
