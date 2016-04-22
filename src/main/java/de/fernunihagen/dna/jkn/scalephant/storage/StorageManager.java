@@ -72,6 +72,14 @@ public class StorageManager implements ScalephantService, Storage {
 	public void shutdown() {
 		state.setReady(false);
 		memtable.shutdown();
+		
+		// Flush in memory data
+		try {
+			sstableManager.flushMemtable(memtable);
+		} catch (StorageManagerException e) {
+			logger.warn("Got exception while flushing pending memtable to disk", e);
+		}
+		
 		sstableManager.shutdown();
 	}
 
