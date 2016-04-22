@@ -135,7 +135,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence 
 	 * @return
 	 */
-	protected boolean handleDeleteTable(final ByteBuffer encodedPackage, final short packageSequence) {
+	protected boolean handleDeleteTable(final ByteBuffer packageHeader, final short packageSequence) {
+		
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 		
 		final DeleteTableRequest resultPackage = DeleteTableRequest.decodeTuple(encodedPackage);
 		logger.info("Got delete call for table: " + resultPackage.getTable());
@@ -158,8 +160,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) {
+	protected boolean handleQuery(final ByteBuffer packageHeader, final short packageSequence) {
 		
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 		final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
 
 		switch (queryType) {
@@ -285,7 +288,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleInsertTuple(final ByteBuffer encodedPackage, final short packageSequence) {
+	protected boolean handleInsertTuple(final ByteBuffer packageHeader, final short packageSequence) {
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+
 		final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 		
 		// Propergate the call to the storage manager
@@ -309,7 +314,8 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleListTables(final ByteBuffer encodedPackage, final short packageSequence) {
+	protected boolean handleListTables(final ByteBuffer packageHeader, final short packageSequence) {
+		readFullPackage(packageHeader);
 		final List<String> allTables = StorageInterface.getAllTables();
 		final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
 		writeResultPackage(listTablesResponse);
@@ -323,10 +329,14 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleDeleteTuple(final ByteBuffer encodedPackage, final short packageSequence) {
-		writeResultPackage(new SuccessResponse(packageSequence));
+	protected boolean handleDeleteTuple(final ByteBuffer packageHeader, final short packageSequence) {
+
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+
 		final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
 		
+		writeResultPackage(new SuccessResponse(packageSequence));
+
 		// Propergate the call to the storage manager
 		try {
 			final StorageManager table = StorageInterface.getStorageManager(deleteTupleRequest.getTable());
@@ -355,6 +365,7 @@ public class ClientConnectionHandler implements Runnable {
 			inputStream.read(encodedPackage.array(), encodedPackage.position(), bodyLength);
 		} catch (IOException e) {
 			logger.error("IO-Exception while reading package", e);
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 			return null;
 		}
 		
@@ -370,57 +381,49 @@ public class ClientConnectionHandler implements Runnable {
 
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);
 		final byte packageType = NetworkPackageDecoder.getPackageTypeFromRequest(packageHeader);
-		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-
-		// Try to read the full package
-		if(encodedPackage == null) {
-			logger.error("Unable to read full package");
-			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
-			return;
-		}
 		
-		boolean result = true;
+		boolean readFurtherPackages = true;
 		
 		switch (packageType) {
 			case NetworkConst.REQUEST_TYPE_DISCONNECT:
 				logger.info("Got disconnect package, preparing for connection close: "  + clientSocket.getInetAddress());
 				writeResultPackage(new SuccessResponse(packageSequence));
-				result = false;
+				readFurtherPackages = false;
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_DELETE_TABLE:
 				if(logger.isDebugEnabled()) {
 					logger.debug("Got delete table package");
 				}
-				result = handleDeleteTable(encodedPackage, packageSequence);
+				readFurtherPackages = handleDeleteTable(packageHeader, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_DELETE_TUPLE:
 				if(logger.isDebugEnabled()) {
 					logger.debug("Got delete tuple package");
 				}
-				result = handleDeleteTuple(encodedPackage, packageSequence);
+				readFurtherPackages = handleDeleteTuple(packageHeader, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_LIST_TABLES:
 				if(logger.isDebugEnabled()) {
 					logger.debug("Got list tables request");
 				}
-				result = handleListTables(encodedPackage, packageSequence);
+				readFurtherPackages = handleListTables(packageHeader, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_INSERT_TUPLE:
 				if(logger.isDebugEnabled()) {
 					logger.debug("Got insert tuple request");
 				}
-				result = handleInsertTuple(encodedPackage, packageSequence);
+				readFurtherPackages = handleInsertTuple(packageHeader, packageSequence);
 				break;
 				
 			case NetworkConst.REQUEST_TYPE_QUERY:
 				if(logger.isDebugEnabled()) {
 					logger.debug("Got query package");
 				}
-				result = handleQuery(encodedPackage, packageSequence);
+				readFurtherPackages = handleQuery(packageHeader, packageSequence);
 				break;
 
 			default:
@@ -429,7 +432,7 @@ public class ClientConnectionHandler implements Runnable {
 				break;
 		}
 		
-		if(result == false) {
+		if(readFurtherPackages == false) {
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 		}	
 	}
