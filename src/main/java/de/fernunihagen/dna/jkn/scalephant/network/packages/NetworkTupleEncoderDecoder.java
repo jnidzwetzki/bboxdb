@@ -1,7 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.network.packages;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
@@ -51,7 +51,7 @@ public class NetworkTupleEncoderDecoder {
 	 * @param table
 	 * @throws IOException
 	 */
-	public static void encode(final ByteArrayOutputStream bos, final Tuple tuple, final String table) throws IOException {
+	public static void encode(final OutputStream bos, final Tuple tuple, final String table) throws IOException {
 		final byte[] tableBytes = table.getBytes();
 		final byte[] keyBytes = tuple.getKey().getBytes();
 		final byte[] bboxBytes = tuple.getBoundingBoxBytes();

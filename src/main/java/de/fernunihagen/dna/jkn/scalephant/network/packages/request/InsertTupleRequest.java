@@ -1,6 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.network.packages.request;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -73,19 +72,12 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber,
-			final OutputStream outputStream) {
+	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
 		
-		final NetworkPackageEncoder networkPackageEncoder 
-			= new NetworkPackageEncoder();
-		
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(sequenceNumber, getPackageType());
-		
+		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
+
 		try {
-			NetworkTupleEncoderDecoder.encode(bos, tuple, table);
-			bos.close();
-			final byte[] outputData = bos.toByteArray();
-			outputStream.write(outputData, 0, outputData.length);
+			NetworkTupleEncoderDecoder.encode(outputStream, tuple, table);
 		} catch (IOException e) {
 			logger.error("Got exception while converting package into bytes", e);
 		}		

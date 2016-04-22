@@ -1,6 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.network.packages.request;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -36,14 +35,10 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber,
-			final OutputStream outputStream) {
+	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
 		
-		final NetworkPackageEncoder networkPackageEncoder 
-			= new NetworkPackageEncoder();
-	
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForRequestPackage(sequenceNumber, getPackageType());
-		
+		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
+
 		try {
 			final byte[] tableBytes = table.getBytes();
 			
@@ -63,15 +58,11 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
 			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
 			bodyLengthBuffer.putLong(bodyLength);
-			bos.write(bodyLengthBuffer.array());
+			outputStream.write(bodyLengthBuffer.array());
 			
 			// Write body
-			bos.write(bb.array());
-			bos.write(tableBytes);
-			bos.close();
-			
-			final byte[] outputData = bos.toByteArray();
-			outputStream.write(outputData, 0, outputData.length);
+			outputStream.write(bb.array());
+			outputStream.write(tableBytes);
 		} catch (IOException e) {
 			logger.error("Got exception while converting package into bytes", e);
 		}	

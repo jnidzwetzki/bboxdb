@@ -2,6 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.network;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public class NetworkPackageEncoder {
 	 * @param packageType
 	 * @param bos
 	 */
-	protected void appendRequestPackageHeader(final short sequenceNumber, final byte packageType, final ByteArrayOutputStream bos) {
+	public static void appendRequestPackageHeader(final short sequenceNumber, final byte packageType, final OutputStream bos) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
 		byteBuffer.order(NetworkConst.NETWORK_BYTEORDER);
 		byteBuffer.put(NetworkConst.PROTOCOL_VERSION);
@@ -53,21 +54,6 @@ public class NetworkPackageEncoder {
 		} catch (IOException e) {
 			logger.error("Exception while writing", e);
 		}
-	}
-	
-	/**
-	 * Return a byte array output stream for request packages that contains 
-	 * the header of the package
-	 * @param packageType
-	 * @return
-	 */
-	public ByteArrayOutputStream getOutputStreamForRequestPackage(final short sequenceNumber, final byte packageType) {
-		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		
-		// Append the frame header to the package
-		appendRequestPackageHeader(sequenceNumber, packageType, bos);
-		
-		return bos;
 	}
 	
 	/**

@@ -89,18 +89,19 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Test the encoding of the request package header
+	 * @throws IOException 
 	 */
 	@Test
-	public void testRequestPackageHeader() {
+	public void testRequestPackageHeader() throws IOException {
 		final short currentSequenceNumber = sequenceNumberGenerator.getSequeneNumberWithoutIncrement();
-		
-		final NetworkPackageEncoder networkPackageBuilder = new NetworkPackageEncoder();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-
-		final ByteArrayOutputStream encodedPackageStream
-			= networkPackageBuilder.getOutputStreamForRequestPackage(sequenceNumber, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
-		final byte[] encodedPackage = encodedPackageStream.toByteArray();
+		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, NetworkConst.REQUEST_TYPE_INSERT_TUPLE, bos);
+		bos.flush();
+		bos.close();
+
+		final byte[] encodedPackage = bos.toByteArray();
 		
 		Assert.assertTrue(encodedPackage.length == 4);
 		
