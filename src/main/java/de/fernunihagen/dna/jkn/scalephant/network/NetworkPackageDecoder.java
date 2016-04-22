@@ -59,7 +59,7 @@ public class NetworkPackageDecoder {
 		}
 		
 		// Get the length of the body
-		final int bodyLength = bb.getInt();
+		final long bodyLength = bb.getLong();
 
 		return bb.remaining() == bodyLength;
 	}
@@ -111,7 +111,7 @@ public class NetworkPackageDecoder {
 		// Read request id
 		bb.getShort();
 		
-		final int bodyLength = bb.getInt();
+		final long bodyLength = bb.getLong();
 		
 		return bb.remaining() == bodyLength;
 	}
@@ -134,12 +134,12 @@ public class NetworkPackageDecoder {
 	 * @param bb
 	 * @return
 	 */
-	public static int getBodyLengthFromRequestPackage(final ByteBuffer bb) {
+	public static long getBodyLengthFromRequestPackage(final ByteBuffer bb) {
 		// Set positon
 		bb.position(4);
 		
 		// Read the body length
-		return bb.getInt();
+		return bb.getLong();
 	}
 	
 	/**
@@ -149,7 +149,7 @@ public class NetworkPackageDecoder {
 	 */
 	public static byte getQueryTypeFromRequest(final ByteBuffer bb) {
 		// Set the position
-		bb.position(8);
+		bb.position(12);
 		
 		return bb.get();
 	}
@@ -181,11 +181,11 @@ public class NetworkPackageDecoder {
 	 * @param bb
 	 * @return
 	 */
-	public static int getBodyLengthFromResponsePackage(final ByteBuffer bb) {
+	public static long getBodyLengthFromResponsePackage(final ByteBuffer bb) {
 		// Set positon
 		bb.position(4);
 		
 		// Read the body length
-		return bb.getInt();
+		return bb.getLong();
 	}
 }

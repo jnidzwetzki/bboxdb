@@ -346,7 +346,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) {
-		int bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
+		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
 		final ByteBuffer encodedPackage = ByteBuffer.allocate(packageHeader.limit() + bodyLength);
 		encodedPackage.put(packageHeader.array());
 		

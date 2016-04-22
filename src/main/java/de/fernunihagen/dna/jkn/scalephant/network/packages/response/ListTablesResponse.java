@@ -53,9 +53,9 @@ public class ListTablesResponse extends NetworkResponsePackage {
 			
 			// Write body length
 			final int bodyLength = bb.capacity() + bodyBytes.length;
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
+			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
 			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
-			bodyLengthBuffer.putInt(bodyLength);
+			bodyLengthBuffer.putLong(bodyLength);
 			bos.write(bodyLengthBuffer.array());
 
 			// Write body

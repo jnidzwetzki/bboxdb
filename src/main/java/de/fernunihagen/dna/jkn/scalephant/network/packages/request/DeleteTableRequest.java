@@ -43,11 +43,11 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 			bb.putShort((short) tableBytes.length);
 			
 			// Write body length
-			final int bodyLength = bb.capacity() + tableBytes.length;
+			final long bodyLength = bb.capacity() + tableBytes.length;
 			
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
+			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
 			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
-			bodyLengthBuffer.putInt(bodyLength);
+			bodyLengthBuffer.putLong(bodyLength);
 			bos.write(bodyLengthBuffer.array());
 			
 			// Write body

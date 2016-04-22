@@ -589,7 +589,7 @@ public class ScalephantClient {
 	 * @return
 	 */
 	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) {
-		int bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(packageHeader);
+		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromResponsePackage(packageHeader);
 		final ByteBuffer encodedPackage = ByteBuffer.allocate(packageHeader.limit() + bodyLength);
 		encodedPackage.put(packageHeader.array());
 		

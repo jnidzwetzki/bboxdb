@@ -40,6 +40,7 @@ Request Types:
 	| Version |    Request-ID   | Result |
 	+---------+-----------------+--------+
 	|             Body length            |
+	|                                    |
 	+------------------------------------+
 	|                                    |
 	|               Body                 |

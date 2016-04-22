@@ -65,12 +65,12 @@ public class NetworkTupleEncoderDecoder {
 		bb.putLong(tuple.getTimestamp());
 		
 		// Write body length
-		final int bodyLength = bb.capacity() + tableBytes.length 
+		final long bodyLength = bb.capacity() + tableBytes.length 
 				+ keyBytes.length + bboxBytes.length + tuple.getDataBytes().length;
 		
-		final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
+		final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
 		bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
-		bodyLengthBuffer.putInt(bodyLength);
+		bodyLengthBuffer.putLong(bodyLength);
 		bos.write(bodyLengthBuffer.array());
 		
 		// Write body

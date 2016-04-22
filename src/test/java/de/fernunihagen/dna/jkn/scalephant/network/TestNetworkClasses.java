@@ -297,10 +297,10 @@ public class TestNetworkClasses {
 		byte[] encodedPackage = insertPackage.getByteArray(sequenceNumber);
 		Assert.assertNotNull(encodedPackage);
 		
-		// 8 Byte package header
-		int calculatedBodyLength = encodedPackage.length - 8;
+		// 12 Byte package header
+		int calculatedBodyLength = encodedPackage.length - 12;
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		int bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(bb);
+		long bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(bb);
 		
 		Assert.assertEquals(calculatedBodyLength, bodyLength);
 	}
@@ -341,7 +341,7 @@ public class TestNetworkClasses {
 		// 8 Byte package header
 		int calculatedBodyLength = 0;
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		int bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(bb);
+		long bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(bb);
 		
 		Assert.assertEquals(calculatedBodyLength, bodyLength);
 	}
@@ -358,7 +358,7 @@ public class TestNetworkClasses {
 		// 2 Byte (short) data length
 		int calculatedBodyLength = 5;
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		int bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(bb);
+		long bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(bb);
 		
 		Assert.assertEquals(calculatedBodyLength, bodyLength);
 	}

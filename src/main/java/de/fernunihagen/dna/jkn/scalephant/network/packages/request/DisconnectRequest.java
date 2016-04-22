@@ -29,9 +29,9 @@ public class DisconnectRequest implements NetworkRequestPackage {
 		
 		try {
 			// Body is empty
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(4);
+			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
 			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
-			bodyLengthBuffer.putInt(0);
+			bodyLengthBuffer.putLong(0);
 			bos.write(bodyLengthBuffer.array());
 			
 			bos.close();
