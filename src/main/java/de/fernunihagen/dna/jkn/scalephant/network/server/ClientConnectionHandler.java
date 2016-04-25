@@ -12,6 +12,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
@@ -22,6 +24,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.QueryTimeRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.TransferSSTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupleEndResponse;
@@ -185,6 +188,29 @@ public class ClientConnectionHandler implements Runnable {
 				return true;
 		}
 
+		return true;
+	}
+	
+	/**
+	 * Handle the transfer package. In contrast to other packages, this package
+	 * type can become very large. Therefore, the data is not buffered into a byte 
+	 * buffer. The network stream is directly passed to the decoder.
+	 * 
+	 * @param bb
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleTransfer(final ByteBuffer packageHeader, final short packageSequence) {
+		
+		final long bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
+		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
+		
+		try {
+			TransferSSTableRequest.decodeTuple(packageHeader, bodyLength, configuration, inputStream);
+		} catch (IOException e) {
+			logger.warn("Exception while handling sstable transfer", e);
+		}
+		
 		return true;
 	}
 
@@ -427,6 +453,13 @@ public class ClientConnectionHandler implements Runnable {
 				readFurtherPackages = handleQuery(packageHeader, packageSequence);
 				break;
 
+			case NetworkConst.REQUEST_TYPE_TRANSFER:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got transfer package");
+				}
+				readFurtherPackages = handleTransfer(packageHeader, packageSequence);
+				break;
+				
 			default:
 				logger.warn("Got unknown package type, closing connection: " + packageType);
 				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
