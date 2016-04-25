@@ -3,6 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.network.server;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -47,7 +48,7 @@ public class ClientConnectionHandler implements Runnable {
 	/**
 	 * The input stream of the socket
 	 */
-	protected BufferedInputStream inputStream;
+	protected InputStream inputStream;
 	
 	/**
 	 * The connection state
