@@ -10,8 +10,8 @@ public class GuiHelper {
      * 
      */
     public static void setCenterPosition(final Frame frame) {
-        Dimension paneSize   = frame.getSize();
-        Dimension screenSize = frame.getToolkit().getScreenSize();
+        final Dimension paneSize   = frame.getSize();
+        final Dimension screenSize = frame.getToolkit().getScreenSize();
         frame.setLocation(
             (screenSize.width  - paneSize.width)  / 2,
             (screenSize.height - paneSize.height) / 2);
