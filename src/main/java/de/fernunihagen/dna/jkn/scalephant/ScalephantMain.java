@@ -62,7 +62,9 @@ public class ScalephantMain implements Daemon {
 		
 		final String instanceName = localIp + ":" + Integer.toString(localPort);
 		
-		return new ZookeeperClient(zookeepernodes, clustername, instanceName);
+		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, clustername);
+		zookeeperClient.registerScalephantInstance(instanceName);
+		return zookeeperClient;
 	}
 
 	@Override

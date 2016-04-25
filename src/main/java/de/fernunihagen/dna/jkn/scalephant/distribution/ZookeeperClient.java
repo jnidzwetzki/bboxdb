@@ -1,6 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -33,11 +32,6 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected final String clustername;
 	
 	/**
-	 * The name of the local instance
-	 */
-	protected final String ownInstanceName;
-	
-	/**
 	 * The zookeeper client instance
 	 */
 	protected ZooKeeper zookeeper;
@@ -52,11 +46,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
 
-	public ZookeeperClient(final Collection<String> zookeeperHosts, final String clustername, final String ownInstanceName) {
+	public ZookeeperClient(final Collection<String> zookeeperHosts, final String clustername) {
 		super();
 		this.zookeeperHosts = zookeeperHosts;
 		this.clustername = clustername;
-		this.ownInstanceName = ownInstanceName;
 	}
 
 	/**
@@ -71,9 +64,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		try {
 			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, this);
-			registerScalephantInstance();
+			createDirectoryStructureIfNeeded();
 			readMembershipAndRegisterWatch();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
 		}
 	}
@@ -173,7 +166,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param clustername
 	 * @param ownInstanceName
 	 */
-	protected boolean registerScalephantInstance() {
+	public boolean registerScalephantInstance(final String ownInstanceName) {
 		if(zookeeper == null) {
 			logger.warn("Register called but not connected to zookeeper");
 			return false;
@@ -181,7 +174,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		try {
 			createDirectoryStructureIfNeeded();
-			registerInstance();
+			registerInstance(ownInstanceName);
 		} catch (KeeperException | InterruptedException e) {
 			logger.warn("Got exception while register to zookeeper", e);
 			return false;
@@ -195,7 +188,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	protected void registerInstance() throws KeeperException, InterruptedException {
+	protected void registerInstance(final String ownInstanceName) throws KeeperException, InterruptedException {
 		final String instanceZookeeperPath = getNodesPath(clustername) + "/" + ownInstanceName;
 		logger.info("Register instance on: " + instanceZookeeperPath);
 		zookeeper.create(instanceZookeeperPath, "".getBytes(), ZooDefs.Ids.READ_ACL_UNSAFE, CreateMode.EPHEMERAL);
