@@ -1,6 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution.membership;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -68,9 +69,10 @@ public class DistributedInstanceManager {
 	public void updateInstanceList(final Set<DistributedInstance> newInstances) {
 		
 		// Check the membership of the old members
-		for(final DistributedInstance instance : instances) {
+		for(final Iterator<DistributedInstance> iter = instances.iterator(); iter.hasNext(); ) {
+			final DistributedInstance instance = iter.next();
 			if(! newInstances.contains(instance) ) {
-				instances.remove(instance);
+				iter.remove();
 				sendEvent(new DistributedInstanceDeleteEvent(instance));
 			}
 		}
