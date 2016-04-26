@@ -112,4 +112,12 @@ public class DistributedInstanceManager {
 	public void removeListener(final DistributedInstanceEventCallback callback) {
 		listener.remove(callback);
 	}
+	
+	/**
+	 * Get the list of the instances
+	 * @return
+	 */
+	public Set<DistributedInstance> getInstances() {
+		return new HashSet<DistributedInstance>(instances);
+	}
 }
