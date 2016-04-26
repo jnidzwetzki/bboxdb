@@ -138,11 +138,13 @@ EOF
     serverid=0
     instanceid=-1
     hostname=$(hostname)
+    localip=$(hostname --ip-address)
+
     for i in $zookeeper_nodes; do
        echo "server.$serverid=$i:2888:3888" >> $basedir/zoo.cfg
 
        # Store the id of this node
-       if [ "$hostname" == "$i" ]; then
+       if [ "$hostname" == "$i" ] || [ "$localip" == "$i" ]; then
           instanceid=$serverid
        fi
 
