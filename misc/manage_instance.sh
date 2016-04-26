@@ -27,8 +27,15 @@ classpath="$basedir/../conf:$libs:$jar"
 
 # Zookeeper
 zookeeper_workdir=$basedir/zookeeper
-zookeeper_nodes="node1 node2 node3"
 zookeeper_clientport="2181"
+
+# Nodes
+zookeeper_nodes="${SCALEPHANT_ZN}"
+
+if [ -z "$zookeeper_nodes" ]; then
+   echo "Your environment variable \$(SCALEPHANT_ZN) is empty. Please check your .scalephantrc"
+   exit -1
+fi
 
 ###
 # Download and compile jsvc if not installed
