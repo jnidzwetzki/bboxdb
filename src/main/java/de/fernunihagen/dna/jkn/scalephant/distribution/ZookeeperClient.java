@@ -130,9 +130,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 		
 		final StringBuilder sb = new StringBuilder();
+		
 		for(final String zookeeperHost : zookeeperHosts) {
-			boolean wasEmpty = (sb.length() == 0);
-			if(! wasEmpty) {
+		
+			if(sb.length() != 0) {
 				sb.append(", ");
 			}
 			
