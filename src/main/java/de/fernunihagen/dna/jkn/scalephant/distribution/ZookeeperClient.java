@@ -37,6 +37,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected ZooKeeper zookeeper;
 	
 	/**
+	 * The name of the instance
+	 */
+	protected String instancename = null;
+	
+	/**
 	 * The timeout for the zookeeper session
 	 */
 	protected final static int DEFAULT_TIMEOUT = 3000;
@@ -65,6 +70,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		try {
 			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, this);
 			createDirectoryStructureIfNeeded();
+			
+			if(instancename != null) {
+				registerInstance();
+			}
+			
 			readMembershipAndRegisterWatch();
 		} catch (Exception e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
@@ -166,21 +176,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param clustername
 	 * @param ownInstanceName
 	 */
-	public boolean registerScalephantInstance(final String ownInstanceName) {
-		if(zookeeper == null) {
-			logger.warn("Register called but not connected to zookeeper");
-			return false;
-		}
-		
-		try {
-			createDirectoryStructureIfNeeded();
-			registerInstance(ownInstanceName);
-		} catch (KeeperException | InterruptedException e) {
-			logger.warn("Got exception while register to zookeeper", e);
-			return false;
-		} 
-		
-		return true;
+	public void registerScalephantInstanceAfterConnect(final String ownInstanceName) {
+		this.instancename = ownInstanceName;
 	}
 	
 	/**
@@ -188,8 +185,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	protected void registerInstance(final String ownInstanceName) throws KeeperException, InterruptedException {
-		final String instanceZookeeperPath = getNodesPath(clustername) + "/" + ownInstanceName;
+	protected void registerInstance() throws KeeperException, InterruptedException {
+		final String instanceZookeeperPath = getNodesPath(clustername) + "/" + instancename;
 		logger.info("Register instance on: " + instanceZookeeperPath);
 		zookeeper.create(instanceZookeeperPath, "".getBytes(), ZooDefs.Ids.READ_ACL_UNSAFE, CreateMode.EPHEMERAL);
 	}

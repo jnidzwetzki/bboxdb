@@ -20,7 +20,7 @@ public class ScalephantMain implements Daemon {
 	 * The instances to manage
 	 */
 	protected final List<ScalephantService> services = new ArrayList<ScalephantService>();
-	
+
 	/**
 	 * The Logger
 	 */
@@ -63,7 +63,7 @@ public class ScalephantMain implements Daemon {
 		final String instanceName = localIp + ":" + Integer.toString(localPort);
 		
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, clustername);
-		zookeeperClient.registerScalephantInstance(instanceName);
+		zookeeperClient.registerScalephantInstanceAfterConnect(instanceName);
 		return zookeeperClient;
 	}
 
