@@ -15,23 +15,24 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		
 		final List<String> zookeeperHosts = Arrays.asList(new String[] {"node1"});
-		final String clustername = "";
+		final String clustername = "mycluster";
 		
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeeperHosts, clustername);
 		zookeeperClient.init();
 		
 		final GUIModel guiModel = new GUIModel(zookeeperClient);
+		
+		final ScalephantGUI scalepahntGUI = new ScalephantGUI(guiModel);
+		guiModel.setScalephantGui(scalepahntGUI);
+		scalepahntGUI.run();
 		guiModel.updateModel();
 		
-		final ScalephantGUI cassandraGUI = new ScalephantGUI(guiModel);
-		cassandraGUI.run();
-		
-		while(! cassandraGUI.shutdown) {
-			cassandraGUI.updateView();
+		while(! scalepahntGUI.shutdown) {
+			scalepahntGUI.updateView();
 			Thread.sleep(1000);
 		}
 		
-		cassandraGUI.dispose();
+		scalepahntGUI.dispose();
 		
 		// Wait for pending gui updates to complete
 		try {

@@ -22,10 +22,12 @@ import javax.swing.JTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
+
 public class ScalephantGUI {
 	
 	protected JFrame mainframe;
-	protected JPanel cassandraPanel;
+	protected JPanel mainPanel;
 	protected JMenuBar menuBar;
 	protected ScalepahntInstanceTableModel tableModel;
 	protected GUIModel guiModel;
@@ -52,7 +54,7 @@ public class ScalephantGUI {
 		mainframe = new JFrame("Scalephant - Data Distribution");
 		
 		setupMenu();
-		setupCassandraPanel();
+		setupMainPanel();
 		
 		tableModel = getTableModel();
 		final JTable table = new JTable(tableModel);
@@ -68,7 +70,7 @@ public class ScalephantGUI {
 		
 		mainframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainframe.setLayout(new BorderLayout());
-		mainframe.add(cassandraPanel, BorderLayout.CENTER);
+		mainframe.add(mainPanel, BorderLayout.CENTER);
 		mainframe.add(scrollPane, BorderLayout.SOUTH);
 
 		mainframe.pack();
@@ -88,26 +90,23 @@ public class ScalephantGUI {
 	 * @return The table model
 	 */
 	private ScalepahntInstanceTableModel getTableModel() {
-		final List<String> scalepahntInstances = guiModel.getScalephantInstances();
+		final List<DistributedInstance> scalepahntInstances = guiModel.getScalephantInstances();
 		return new ScalepahntInstanceTableModel(scalepahntInstances);
 	}
 
 	/**
-	 * Initalize the GUI panel
+	 * Initialize the GUI panel
 	 * 
 	 */
-	protected void setupCassandraPanel() {
-		cassandraPanel = new JPanel() {
+	protected void setupMainPanel() {
+		mainPanel = new JPanel() {
 		
 			private static final long serialVersionUID = -248493308846818192L;
 
 			@Override
 			protected void paintComponent(Graphics g) {
-			
 				super.paintComponent(g);
-				
-	            Graphics2D graphics2D = (Graphics2D)g;
-	            
+	            final Graphics2D graphics2D = (Graphics2D) g;
 	            graphics2D.setRenderingHint(
 	                    RenderingHints.KEY_ANTIALIASING, 
 	                    RenderingHints.VALUE_ANTIALIAS_ON);
@@ -115,9 +114,8 @@ public class ScalephantGUI {
 			
 		};
 		
-		cassandraPanel.setToolTipText("");
-		
-		cassandraPanel.setPreferredSize(new Dimension(800, 500));
+		mainPanel.setToolTipText("");
+		mainPanel.setPreferredSize(new Dimension(800, 500));
 	}
 
 	/**
@@ -146,9 +144,9 @@ public class ScalephantGUI {
 	 * Update the gui model
 	 */
 	public synchronized void updateStatus() {
-		long curTime = System.currentTimeMillis();
-
-		
+		if(tableModel != null) {
+			tableModel.fireTableDataChanged();
+		}
 	}
 	
 	/**
