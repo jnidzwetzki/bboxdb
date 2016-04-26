@@ -134,7 +134,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		for(final String zookeeperHost : zookeeperHosts) {
 		
 			if(sb.length() != 0) {
-				sb.append(", ");
+				sb.append(",");
 			}
 			
 			sb.append(zookeeperHost);
