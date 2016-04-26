@@ -91,6 +91,26 @@ scalephant_start() {
     # Activate JVM start debugging
     debug_flag=""
     #debug_flag="-debug"
+ 
+    config="$basedir/../conf/scalephant.yaml"
+
+    if [ ! -f $config ]; then
+        echo "Unable to locate scalepahnt config $config"
+        exit -1
+    fi
+
+    # Configure zookeeper contact points
+    zookeeper_connect="" 
+    for i in $zookeeper_nodes; do
+        if [[ -z "$zookeeper_connect" ]]; then
+            zookeeper_connect="['$i:$zookeeper_clientport'"
+        else
+            zookeeper_connect="$zookeeper_connect, '$i:$zookeeper_clientport'"
+        fi
+    done
+    zookeeper_connect="$zookeeper_connect]"
+
+    sed -i "s/zookeepernodes: .*/zookeepernodes: $zookeeper_connect/" $config
 
     ./jsvc $debug_flag -outfile $basedir/logs/scalephant.log -pidfile $basedir/scalephant.pid -cwd $basedir -cp $classpath de.fernunihagen.dna.jkn.scalephant.ScalephantMain
 }
