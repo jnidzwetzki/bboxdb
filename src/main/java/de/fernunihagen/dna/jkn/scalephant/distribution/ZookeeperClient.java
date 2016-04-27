@@ -49,6 +49,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected final static int DEFAULT_TIMEOUT = 3000;
 	
 	/**
+	 * The prefix for nodes in sequential queues
+	 */
+	protected final static String SEQUENCE_QUEUE_PREFIX = "id-";
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
@@ -293,12 +298,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	public int getNextTableIdForDistributionGroup(final String distributionGroup) throws ZookeeperException {
 		
-		final String nodeprefix = "id-";
 		final String distributionGroupIdQueuePath = getDistributionGroupIdQueuePath(distributionGroup);
 		
 		createDirectoryStructureRecursive(distributionGroupIdQueuePath);
 		try {	
-			final String nodename = zookeeper.create(distributionGroupIdQueuePath + "/" + nodeprefix, 
+			final String nodename = zookeeper.create(distributionGroupIdQueuePath + "/" + SEQUENCE_QUEUE_PREFIX, 
 					"".getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, 
 					CreateMode.PERSISTENT_SEQUENTIAL);
@@ -306,7 +310,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			// id-0000000063
 			// Element 0: id-
 			// Element 1: The number of the node
-			final String[] splittedName = nodename.split(nodeprefix);
+			final String[] splittedName = nodename.split(SEQUENCE_QUEUE_PREFIX);
 			try {
 				return Integer.parseInt(splittedName[1]);
 			} catch(NumberFormatException e) {
