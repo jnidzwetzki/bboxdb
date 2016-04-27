@@ -56,6 +56,16 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected final static String SEQUENCE_QUEUE_PREFIX = "id-";
 	
 	/**
+	 * Name of the left tree node
+	 */
+	protected final static String NODE_LEFT = "left";
+	
+	/**
+	 * Name of the right tree node
+	 */
+	protected final static String NODE_RIGHT = "right";
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
