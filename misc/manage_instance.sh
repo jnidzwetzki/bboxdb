@@ -206,6 +206,25 @@ zookeeper_client() {
     java -cp $classpath org.apache.zookeeper.ZooKeeperMain -server 127.0.0.1:$zookeeper_clientport
 }
 
+###
+# Zookeeper drop - Drop the zookeeper database
+###
+zookeeper_drop() {
+   
+   zookeeper_stop
+  
+   echo "Drop zookeeper database" 
+  
+   # Drop zookeeper work dir
+   if [ -d $zookeeper_workdir ]; then
+      if [ ! -f $zookeeper_workdir/myid ]; then 
+           echo "File $zookeeper_workdir/myid not found, skipping delete. Maybe $zookeeper_workdir is not a zookeeper workdir"
+           exit -1
+      fi
+
+      rm -r $zookeeper_workdir
+   fi
+}
 
 case "$1" in  
 
@@ -227,8 +246,11 @@ zookeeper_stop)
 zookeeper_client)
    zookeeper_client
    ;;
+zookeeper_drop)
+   zookeeper_drop
+   ;;
 *)
-   echo "Usage: $0 {scalephant_start|scalephant_stop|scalephant_update|zookeeper_start|zookeeper_stop|zookeeper_client}"
+   echo "Usage: $0 {scalephant_start | scalephant_stop | scalephant_update | zookeeper_start | zookeeper_stop | zookeeper_client | zookeeper_drop}"
    ;;  
 esac
 

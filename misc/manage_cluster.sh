@@ -105,6 +105,13 @@ zookeeper_stop() {
    execute_parallel "cd $basedir; ./manage_instance.sh zookeeper_stop > /dev/null" "Stopping Zookeeper" "$zookeeper_nodes" $max_pending
 }
 
+###
+# Drop zookeeper
+###
+zookeeper_drop() {
+   execute_parallel "cd $basedir; ./manage_instance.sh zookeeper_drop > /dev/null" "Dropping Zookeeper database" "$zookeeper_nodes" $max_pending
+}
+
 case "$1" in  
 
 scalephant_start)
@@ -122,8 +129,11 @@ zookeeper_start)
 zookeeper_stop)
    zookeeper_stop
    ;;
+zookeeper_drop)
+   zookeeper_drop
+   ;;
 *)
-   echo "Usage: $0 {scalephant_start|scalephant_stop|scalephant_update|zookeeper_start|zookeeper_stop}"
+   echo "Usage: $0 {scalephant_start | scalephant_stop | scalephant_update | zookeeper_start | zookeeper_stop | zookeeper_drop}"
    ;;  
 esac
 
