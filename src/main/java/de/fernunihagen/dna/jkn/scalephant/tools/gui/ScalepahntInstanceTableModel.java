@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
+
 final class ScalepahntInstanceTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 8593512480994197794L;
@@ -12,10 +14,10 @@ final class ScalepahntInstanceTableModel extends AbstractTableModel {
 	/**
 	 * The running scalephant instances
 	 */
-	protected final List<String> instances;
+	protected final List<DistributedInstance> instances;
 	
-	public ScalepahntInstanceTableModel(List<String> instances) {
-		this.instances = instances;
+	public ScalepahntInstanceTableModel(List<DistributedInstance> scalepahntInstances) {
+		this.instances = scalepahntInstances;
 	}
 
 	/**
@@ -25,7 +27,7 @@ final class ScalepahntInstanceTableModel extends AbstractTableModel {
 	 * @return
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		final String instance = instances.get(rowIndex);
+		final DistributedInstance instance = instances.get(rowIndex);
 		
 		if(instances.size() < rowIndex) {
 			return "";
@@ -40,11 +42,11 @@ final class ScalepahntInstanceTableModel extends AbstractTableModel {
 		}
 		
 		if(columnIndex == 1) {
-			return instance.split(":")[0];
+			return instance.getIp();
 		}
 		
 		if(columnIndex == 2) {
-			return instance.split(":")[1];
+			return instance.getPort();
 		}
 		
 		return "";
