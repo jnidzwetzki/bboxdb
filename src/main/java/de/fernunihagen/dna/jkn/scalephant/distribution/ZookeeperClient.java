@@ -185,21 +185,31 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	
 	/**
 	 * Register the scalephant instance
+	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	protected void registerInstance() throws KeeperException, InterruptedException {
+	protected void registerInstance() throws ZookeeperException {
 		final String instanceZookeeperPath = getNodesPath(clustername) + "/" + instancename;
 		logger.info("Register instance on: " + instanceZookeeperPath);
-		zookeeper.create(instanceZookeeperPath, "".getBytes(), ZooDefs.Ids.READ_ACL_UNSAFE, CreateMode.EPHEMERAL);
+		
+		try {
+			zookeeper.create(instanceZookeeperPath, 
+					"".getBytes(), 
+					ZooDefs.Ids.READ_ACL_UNSAFE, 
+					CreateMode.EPHEMERAL);
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
 	}
 
 	/**
 	 * Register the name of the cluster in the zookeeper directory
+	 * @throws ZookeeperException 
 	 * @throws KeeperException
 	 * @throws InterruptedException
 	 */
-	protected void createDirectoryStructureIfNeeded() throws KeeperException, InterruptedException {
+	protected void createDirectoryStructureIfNeeded() throws ZookeeperException {
 		// /clusterpath/nodes - Node membership
 		final String nodesPath = getNodesPath(clustername);
 		createDirectoryStructureRecursive(nodesPath);
@@ -240,67 +250,71 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	/**
 	 * Create the given directory structure recursive
 	 * @param path
-	 * @throws KeeperException
-	 * @throws InterruptedException
+	 * @throws ZookeeperException 
 	 */
-	protected void createDirectoryStructureRecursive(final String path) throws KeeperException, InterruptedException {
+	protected void createDirectoryStructureRecursive(final String path) throws ZookeeperException {
 		
-		// Does the full path already exists?
-		if(zookeeper.exists(path, this) != null) {
-			return;
-		}
-		
-		// Otherwise check and create all sub paths
-		final String[] allNodes = path.split("/");
-		final StringBuilder sb = new StringBuilder();
-		
-		// Start by 1 to skip the initial / 
-		for (int i = 1; i < allNodes.length; i++) {
-			final String nextNode = allNodes[i];
-			sb.append("/");
-			sb.append(nextNode);
-			
-			final String partialPath = sb.toString();
-						
-			if(zookeeper.exists(partialPath, this) == null) {
-				logger.info(partialPath + " not found, creating");
-				
-				zookeeper.create(partialPath, 
-						"".getBytes(), 
-						ZooDefs.Ids.OPEN_ACL_UNSAFE, 
-						CreateMode.PERSISTENT);
+		try {
+			// Does the full path already exists?
+			if(zookeeper.exists(path, this) != null) {
+				return;
 			}
-		}
+			
+			// Otherwise check and create all sub paths
+			final String[] allNodes = path.split("/");
+			final StringBuilder sb = new StringBuilder();
+			
+			// Start by 1 to skip the initial / 
+			for (int i = 1; i < allNodes.length; i++) {
+				final String nextNode = allNodes[i];
+				sb.append("/");
+				sb.append(nextNode);
+				
+				final String partialPath = sb.toString();
+							
+				if(zookeeper.exists(partialPath, this) == null) {
+					logger.info(partialPath + " not found, creating");
+					
+					zookeeper.create(partialPath, 
+							"".getBytes(), 
+							ZooDefs.Ids.OPEN_ACL_UNSAFE, 
+							CreateMode.PERSISTENT);
+				}
+			}
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		} 
 	}
 	
 	/**
 	 * Get the next table id for a given distribution group
 	 * @return
-	 * @throws InterruptedException 
-	 * @throws KeeperException 
 	 * @throws ZookeeperException 
 	 */
-	public int getNextTableIdForDistributionGroup(final String distributionGroup) throws ZookeeperException, KeeperException, InterruptedException {
+	public int getNextTableIdForDistributionGroup(final String distributionGroup) throws ZookeeperException {
 		
 		final String nodeprefix = "id-";
 		final String distributionGroupIdQueuePath = getDistributionGroupIdQueuePath(distributionGroup);
 		
 		createDirectoryStructureRecursive(distributionGroupIdQueuePath);
-		
-		final String nodename = zookeeper.create(distributionGroupIdQueuePath + "/" + nodeprefix, 
-				"".getBytes(), 
-				ZooDefs.Ids.OPEN_ACL_UNSAFE, 
-				CreateMode.PERSISTENT_SEQUENTIAL);
-		
-		// id-0000000063
-		// Element 0: id-
-		// Element 1: The number of the node
-		final String[] splittedName = nodename.split(nodeprefix);
-	
-		try {
-			return Integer.parseInt(splittedName[1]);
-		} catch(NumberFormatException e) {
-			logger.warn("Unable to parse number: " + splittedName[1], e);
+		try {	
+			final String nodename = zookeeper.create(distributionGroupIdQueuePath + "/" + nodeprefix, 
+					"".getBytes(), 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, 
+					CreateMode.PERSISTENT_SEQUENTIAL);
+			
+			// id-0000000063
+			// Element 0: id-
+			// Element 1: The number of the node
+			final String[] splittedName = nodename.split(nodeprefix);
+			try {
+				return Integer.parseInt(splittedName[1]);
+			} catch(NumberFormatException e) {
+				logger.warn("Unable to parse number: " + splittedName[1], e);
+				throw new ZookeeperException(e);
+			}
+			
+		} catch(InterruptedException | KeeperException e) {
 			throw new ZookeeperException(e);
 		}
 	}
@@ -308,7 +322,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	//===============================================================
 	// Test * Test * Test * Test * Test 
 	//===============================================================
-	public static void main(String[] args) throws KeeperException, InterruptedException, ZookeeperException {
+	public static void main(String[] args) throws ZookeeperException {
 		
 		final ScalephantConfiguration scalephantConfiguration 
 		     = ScalephantConfigurationManager.getConfiguration();
@@ -326,5 +340,4 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		zookeeperClient.shutdown();
 	}
-	
 }
