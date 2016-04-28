@@ -3,9 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupHelper;
-
-public class TablenameHelper extends DistributionGroupHelper {
+public class TablenameHelper {
 
 	/**
 	 * The full name of the table
