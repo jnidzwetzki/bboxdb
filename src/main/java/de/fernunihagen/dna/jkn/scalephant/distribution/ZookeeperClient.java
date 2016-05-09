@@ -359,6 +359,16 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			}
 		}
 	}
+	
+	/**
+	 * Read the structure of a distribution group
+	 * @return
+	 */
+	public DistributionRegion readDistributionGroup(final String name) {
+		final DistributionRegion root = new DistributionRegion(name);
+		
+		return root;
+	}
 
 	//===============================================================
 	// Test * Test * Test * Test * Test 
