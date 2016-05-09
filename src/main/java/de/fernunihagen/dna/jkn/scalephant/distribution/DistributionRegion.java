@@ -15,17 +15,17 @@ public class DistributionRegion implements Watcher {
 	/**
 	 * The split position
 	 */
-	protected long split;
+	protected long split = Long.MIN_VALUE;
 	
 	/**
 	 * The left child
 	 */
-	protected DistributionRegion leftChild;
+	protected DistributionRegion leftChild = null;
 	
 	/**
 	 * The right child
 	 */
-	protected DistributionRegion rightChild;
+	protected DistributionRegion rightChild = null;
 	
 	/**
 	 * The parent of this node
@@ -51,15 +51,6 @@ public class DistributionRegion implements Watcher {
 	public DistributionRegion getLeftChild() {
 		return leftChild;
 	}
-	
-	/**
-	 * Set the left child
-	 * @return
-	 */
-	public void setLeftChild(final DistributionRegion leftChild) {
-		this.leftChild = leftChild;
-		leftChild.setParent(this);
-	}
 
 	/**
 	 * Get the right child
@@ -67,15 +58,6 @@ public class DistributionRegion implements Watcher {
 	 */
 	public DistributionRegion getRightChild() {
 		return rightChild;
-	}
-	
-	/**
-	 * Set the right child
-	 * @return
-	 */
-	public void setRightChild(final DistributionRegion rightChild) {
-		this.rightChild = rightChild;
-		rightChild.setParent(this);
 	}
 
 	/**
@@ -100,6 +82,16 @@ public class DistributionRegion implements Watcher {
 	 */
 	public void setSplit(final long split) {
 		this.split = split;
+		
+		if(leftChild != null || rightChild != null) {
+			throw new IllegalArgumentException("Split called, but left or right node are empty");
+		}
+		
+		leftChild = new DistributionRegion(getName());
+		rightChild = new DistributionRegion(getName());
+		
+		leftChild.setParent(this);
+		rightChild.setParent(this);
 	}
 	
 	/**
@@ -111,11 +103,21 @@ public class DistributionRegion implements Watcher {
 	}
 	
 	/**
+	 * Get the name
+	 * @return
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	/**
 	 * Calculate the bounding box for this node
 	 * @return
 	 */
 	public BoundingBox getBoindingBox() {
 		final BoundingBox boundingBox = BoundingBox.EMPTY_BOX;
+		final DistributionGroupHelper distributionGroupHelper = new DistributionGroupHelper(getName());
+		distributionGroupHelper.getDimension();
 		
 		return boundingBox;
 	}
@@ -125,6 +127,32 @@ public class DistributionRegion implements Watcher {
 		return "DistributionNode [name=" + name + ", split=" + split
 				+ ", leftChild=" + leftChild + ", rightChild=" + rightChild
 				+ ", parent=" + parent + "]";
+	}
+	
+	/**
+	 * Get the root element of the region
+	 */
+	public DistributionRegion getRootRegion() {
+		DistributionRegion currentElement = this;
+		
+		// Follow the links to the root element
+		while(currentElement.getParent() != null) {
+			currentElement = currentElement.getParent();
+		}
+		
+		return currentElement;
+	}
+	
+	/**
+	 * Is this a leaf region node?
+	 * @return
+	 */
+	protected boolean isLeafRegion() {
+		if(leftChild == null || rightChild == null) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 }
