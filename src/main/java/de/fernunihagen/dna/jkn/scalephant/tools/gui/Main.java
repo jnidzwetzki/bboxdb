@@ -16,16 +16,16 @@ public class Main {
 		
 		final List<String> zookeeperHosts = Arrays.asList(new String[] {"node1"});
 		final String clustername = "mycluster";
+		final String distributionGroup = "3_mygroup";
 		
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeeperHosts, clustername);
 		zookeeperClient.init();
 		
-		final GUIModel guiModel = new GUIModel(zookeeperClient);
-		
+		final GUIModel guiModel = new GUIModel(zookeeperClient);		
 		final ScalephantGUI scalepahntGUI = new ScalephantGUI(guiModel);
 		guiModel.setScalephantGui(scalepahntGUI);
 		scalepahntGUI.run();
-		guiModel.updateModel();
+		guiModel.setDistributionGroup(distributionGroup);
 		
 		while(! scalepahntGUI.shutdown) {
 			scalepahntGUI.updateView();
