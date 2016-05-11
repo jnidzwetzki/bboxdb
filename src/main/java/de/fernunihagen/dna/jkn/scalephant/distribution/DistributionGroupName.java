@@ -41,6 +41,7 @@ public class DistributionGroupName {
 	public DistributionGroupName(final String fullname) {
 		super();
 		this.fullname = fullname;
+		splitTablename();
 	}
 	
 	/**
@@ -63,7 +64,7 @@ public class DistributionGroupName {
 		
 		final String[] parts = fullname.split("_");
 		
-		if(parts.length != 3) {
+		if(parts.length != 2) {
 			logger.warn("Got invalid groupname: "+ fullname);
 			return;
 		}
