@@ -10,7 +10,7 @@ public class DistributionRegion implements Watcher {
 	/**
 	 * The name of the distribution group
 	 */
-	protected final String name;
+	protected final DistributionGroupName distributionGroupName;
 	
 	/**
 	 * The split position
@@ -34,7 +34,7 @@ public class DistributionRegion implements Watcher {
 	
 	/**
 	 * The level of the node
-	 * @param name
+	 * @param distributionGroupName
 	 */
 	protected final int level;
 	
@@ -44,8 +44,8 @@ public class DistributionRegion implements Watcher {
 	 * @param name
 	 * @param level
 	 */
-	private DistributionRegion(final String name, final int level) {
-		this.name = name;
+	private DistributionRegion(final DistributionGroupName name, final int level) {
+		this.distributionGroupName = name;
 		this.level = level;
 	}
 	
@@ -55,7 +55,13 @@ public class DistributionRegion implements Watcher {
 	 * @return
 	 */
 	public static DistributionRegion createRootRegion(final String name) {
-		return new DistributionRegion(name, 0);
+		final DistributionGroupName distributionGroupName = new DistributionGroupName(name);
+		
+		if(! distributionGroupName.isValid()) {
+			throw new IllegalArgumentException("Invalid region name: " + name);
+		}
+		
+		return new DistributionRegion(distributionGroupName, 0);
 	}
 
 	/**
@@ -109,8 +115,8 @@ public class DistributionRegion implements Watcher {
 			throw new IllegalArgumentException("Split called, but left or right node are empty");
 		}
 		
-		leftChild = new DistributionRegion(getName(), level + 1);
-		rightChild = new DistributionRegion(getName(), level + 1);
+		leftChild = new DistributionRegion(distributionGroupName, level + 1);
+		rightChild = new DistributionRegion(distributionGroupName, level + 1);
 		
 		leftChild.setParent(this);
 		rightChild.setParent(this);
@@ -129,7 +135,31 @@ public class DistributionRegion implements Watcher {
 	 * @return
 	 */
 	public String getName() {
-		return name;
+		return distributionGroupName.getFullname();
+	}
+	
+	/**
+	 * Get the level of the region
+	 * @return
+	 */
+	public int getLevel() {
+		return level;
+	}
+	
+	/**
+	 * Get the dimension of the distribution region
+	 * @return
+	 */
+	public int getDimension() {
+		return distributionGroupName.getDimension();
+	}
+	
+	/**
+	 * Returns the dimension of the split
+	 * @return
+	 */
+	public int getSplitDimension() {
+		return level % getDimension();
 	}
 	
 	/**
@@ -138,7 +168,7 @@ public class DistributionRegion implements Watcher {
 	 */
 	public BoundingBox getBoindingBox() {
 		final BoundingBox boundingBox = BoundingBox.EMPTY_BOX;
-		final DistributionGroupHelper distributionGroupHelper = new DistributionGroupHelper(getName());
+		final DistributionGroupName distributionGroupHelper = new DistributionGroupName(getName());
 		distributionGroupHelper.getDimension();
 		
 		return boundingBox;
@@ -146,7 +176,7 @@ public class DistributionRegion implements Watcher {
 
 	@Override
 	public String toString() {
-		return "DistributionNode [name=" + name + ", split=" + split
+		return "DistributionNode [name=" + distributionGroupName + ", split=" + split
 				+ ", leftChild=" + leftChild + ", rightChild=" + rightChild
 				+ ", parent=" + parent + "]";
 	}

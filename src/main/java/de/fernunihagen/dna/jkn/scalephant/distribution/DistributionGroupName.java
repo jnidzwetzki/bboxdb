@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.util.TablenameHelper;
 
-public class DistributionGroupHelper {
+public class DistributionGroupName {
 
 	/**
 	 * The name of the distribution group (e.g. 3_mygroup)
@@ -38,7 +38,7 @@ public class DistributionGroupHelper {
 	private final static Logger logger = LoggerFactory.getLogger(TablenameHelper.class);
 	
 
-	public DistributionGroupHelper(final String fullname) {
+	public DistributionGroupName(final String fullname) {
 		super();
 		this.fullname = fullname;
 	}
