@@ -365,7 +365,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return
 	 */
 	public DistributionRegion readDistributionGroup(final String name) {
-		final DistributionRegion root = new DistributionRegion(name);
+		final DistributionRegion root = DistributionRegion.createRootRegion(name);
 		
 		return root;
 	}

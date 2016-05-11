@@ -32,8 +32,30 @@ public class DistributionRegion implements Watcher {
 	 */
 	protected DistributionRegion parent = null;
 	
-	public DistributionRegion(final String name) {
+	/**
+	 * The level of the node
+	 * @param name
+	 */
+	protected final int level;
+	
+	/**
+	 * Private constructor, the factory method and the set split methods should
+	 * be used to create a tree
+	 * @param name
+	 * @param level
+	 */
+	private DistributionRegion(final String name, final int level) {
 		this.name = name;
+		this.level = level;
+	}
+	
+	/**
+	 * Factory method for a new root region
+	 * @param name
+	 * @return
+	 */
+	public static DistributionRegion createRootRegion(final String name) {
+		return new DistributionRegion(name, 0);
 	}
 
 	/**
@@ -87,8 +109,8 @@ public class DistributionRegion implements Watcher {
 			throw new IllegalArgumentException("Split called, but left or right node are empty");
 		}
 		
-		leftChild = new DistributionRegion(getName());
-		rightChild = new DistributionRegion(getName());
+		leftChild = new DistributionRegion(getName(), level + 1);
+		rightChild = new DistributionRegion(getName(), level + 1);
 		
 		leftChild.setParent(this);
 		rightChild.setParent(this);
