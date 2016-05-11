@@ -185,7 +185,7 @@ public class DistributionRegion implements Watcher {
 	 * Is this a leaf region node?
 	 * @return
 	 */
-	protected boolean isLeafRegion() {
+	public boolean isLeafRegion() {
 		if(leftChild == null || rightChild == null) {
 			return true;
 		}
