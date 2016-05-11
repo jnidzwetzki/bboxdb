@@ -3,8 +3,6 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
-
 public class DistributionRegion implements Watcher {
 
 	/**
@@ -160,18 +158,6 @@ public class DistributionRegion implements Watcher {
 	 */
 	public int getSplitDimension() {
 		return level % getDimension();
-	}
-	
-	/**
-	 * Calculate the bounding box for this node
-	 * @return
-	 */
-	public BoundingBox getBoindingBox() {
-		final BoundingBox boundingBox = BoundingBox.EMPTY_BOX;
-		final DistributionGroupName distributionGroupHelper = new DistributionGroupName(getName());
-		distributionGroupHelper.getDimension();
-		
-		return boundingBox;
 	}
 
 	@Override
