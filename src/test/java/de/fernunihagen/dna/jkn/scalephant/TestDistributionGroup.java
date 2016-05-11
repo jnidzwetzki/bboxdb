@@ -57,10 +57,10 @@ public class TestDistributionGroup {
 	}
 	
 	/**
-	 * Test the split dimension
+	 * Test the split dimension 2d
 	 */
 	@Test
-	public void testSplitDimension() {
+	public void testSplitDimension1() {
 		final DistributionRegion level0 = DistributionRegion.createRootRegion("2_foo");
 		level0.setSplit(50);
 		final DistributionRegion level1 = level0.getLeftChild();
@@ -76,6 +76,28 @@ public class TestDistributionGroup {
 		Assert.assertEquals(0, level2.getSplitDimension());
 		Assert.assertEquals(1, level3.getSplitDimension());
 		Assert.assertEquals(0, level4.getSplitDimension());
+	}
+	
+	/**
+	 * Test the split dimension 3d
+	 */
+	@Test
+	public void testSplitDimension2() {
+		final DistributionRegion level0 = DistributionRegion.createRootRegion("3_foo");
+		level0.setSplit(50);
+		final DistributionRegion level1 = level0.getLeftChild();
+		level1.setSplit(40);
+		final DistributionRegion level2 = level1.getLeftChild();
+		level2.setSplit(30);
+		final DistributionRegion level3 = level2.getLeftChild();
+		level3.setSplit(30);
+		final DistributionRegion level4 = level3.getLeftChild();
+
+		Assert.assertEquals(0, level0.getSplitDimension());
+		Assert.assertEquals(1, level1.getSplitDimension());
+		Assert.assertEquals(2, level2.getSplitDimension());
+		Assert.assertEquals(0, level3.getSplitDimension());
+		Assert.assertEquals(1, level4.getSplitDimension());
 	}
 
 }
