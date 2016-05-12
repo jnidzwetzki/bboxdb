@@ -1,13 +1,12 @@
 package de.fernunihagen.dna.jkn.scalephant.tools.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -22,24 +21,42 @@ import javax.swing.JTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 
 public class ScalephantGUI {
 	
+	/**
+	 * The main frame
+	 */
 	protected JFrame mainframe;
+	
+	/**
+	 * The main panel
+	 */
 	protected JPanel mainPanel;
+	
+	/**
+	 * The Menu bar
+	 */
 	protected JMenuBar menuBar;
+	
+	/**
+	 * The table Model
+	 */
 	protected ScalepahntInstanceTableModel tableModel;
+
+	/**
+	 * The GUI Model
+	 */
 	protected GUIModel guiModel;
-	protected int totalTokenRanges;
+
+	/**
+	 * Shutdown the GUI ?
+	 */
+	public volatile boolean shutdown = false;
 	
 	protected final static Logger logger = LoggerFactory.getLogger(ScalephantGUI.class);
-
-	public final static int SIZE = 400;
-	public final Point upperPoint = new Point(200, 30);
-	public final Point centerPoint = new Point(upperPoint.x + SIZE/2,  upperPoint.y + SIZE/2);
-	public final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	public volatile boolean shutdown = false;
 	
 	public ScalephantGUI(final GUIModel guiModel) {
 		this.guiModel = guiModel;
@@ -102,18 +119,41 @@ public class ScalephantGUI {
 		mainPanel = new JPanel() {
 		
 			private static final long serialVersionUID = -248493308846818192L;
+			
+			protected void drawDistributionRegion(final Graphics2D graphics2d, final DistributionRegion distributionRegion) {
+
+				if(distributionRegion == null) {
+					return;
+				}
+				
+				final DistributionRegionComponent distributionRegionComponent = new DistributionRegionComponent(distributionRegion);
+				distributionRegionComponent.drawComponent(graphics2d);
+				
+				drawDistributionRegion(graphics2d, distributionRegion.getLeftChild());
+				drawDistributionRegion(graphics2d, distributionRegion.getRightChild());
+			}
 
 			@Override
-			protected void paintComponent(Graphics g) {
+			protected void paintComponent(final Graphics g) {
 				super.paintComponent(g);
 	            final Graphics2D graphics2D = (Graphics2D) g;
 	            graphics2D.setRenderingHint(
 	                    RenderingHints.KEY_ANTIALIASING, 
 	                    RenderingHints.VALUE_ANTIALIAS_ON);
+	            
+	            
+				final DistributionRegion distributionRegion = DistributionRegion.createRootRegion("2_testregion");
+				distributionRegion.setSplit(50);
+				distributionRegion.getLeftChild().setSplit(-30);
+				
+	            drawDistributionRegion(graphics2D, distributionRegion);
+	            
+				g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 20);
 			}
 			
 		};
 		
+		mainPanel.setBackground(Color.WHITE);
 		mainPanel.setToolTipText("");
 		mainPanel.setPreferredSize(new Dimension(800, 500));
 	}
