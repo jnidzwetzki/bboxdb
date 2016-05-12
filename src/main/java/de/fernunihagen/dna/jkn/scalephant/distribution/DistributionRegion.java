@@ -193,4 +193,28 @@ public class DistributionRegion implements Watcher {
 		return false;
 	}
 	
+	/**
+	 * Is this the left child of the parent
+	 * @return
+	 */
+	public boolean isLeftChild() {
+		if(getParent() == null) {
+			return false;
+		}
+		
+		return (getParent().getLeftChild() == this);
+	}
+	
+	/**
+	 * Is this the right child of the parent
+	 * @return
+	 */
+	public boolean isRightChild() {
+		if(getParent() == null) {
+			return false;
+		}
+		
+		return (getParent().getRightChild() == this);
+	}
+	
 }

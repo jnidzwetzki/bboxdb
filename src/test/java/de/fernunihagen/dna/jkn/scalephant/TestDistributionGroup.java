@@ -99,5 +99,21 @@ public class TestDistributionGroup {
 		Assert.assertEquals(0, level3.getSplitDimension());
 		Assert.assertEquals(1, level4.getSplitDimension());
 	}
+	
+	/**
+	 * Test isLeftChild and isRightChild method
+	 */
+	@Test
+	public void testLeftOrRightChild() {
+		final DistributionRegion level0 = DistributionRegion.createRootRegion("3_foo");
+		Assert.assertFalse(level0.isLeftChild());
+		Assert.assertFalse(level0.isRightChild());
+		
+		final DistributionRegion level1 = level0.getLeftChild();
+		Assert.assertTrue(level1.getLeftChild().isLeftChild());
+		Assert.assertTrue(level1.getRightChild().isRightChild());
+		Assert.assertFalse(level1.getRightChild().isLeftChild());
+		Assert.assertFalse(level1.getLeftChild().isRightChild());
+	}
 
 }
