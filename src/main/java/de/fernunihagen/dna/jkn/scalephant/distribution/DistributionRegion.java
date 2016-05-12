@@ -11,6 +11,11 @@ public class DistributionRegion implements Watcher {
 	protected final DistributionGroupName distributionGroupName;
 	
 	/**
+	 * A pointer that points to the total number of levels
+	 */
+	protected final TotalLevel totalLevel;
+	
+	/**
 	 * The split position
 	 */
 	protected long split = Long.MIN_VALUE;
@@ -42,9 +47,12 @@ public class DistributionRegion implements Watcher {
 	 * @param name
 	 * @param level
 	 */
-	private DistributionRegion(final DistributionGroupName name, final int level) {
+	private DistributionRegion(final DistributionGroupName name, final int level, final TotalLevel totalLevel) {
 		this.distributionGroupName = name;
 		this.level = level;
+		this.totalLevel = totalLevel;
+		
+		totalLevel.registerNewLevel(level + 1);
 	}
 	
 	/**
@@ -59,7 +67,7 @@ public class DistributionRegion implements Watcher {
 			throw new IllegalArgumentException("Invalid region name: " + name);
 		}
 		
-		return new DistributionRegion(distributionGroupName, 0);
+		return new DistributionRegion(distributionGroupName, 0, new TotalLevel());
 	}
 
 	/**
@@ -113,8 +121,8 @@ public class DistributionRegion implements Watcher {
 			throw new IllegalArgumentException("Split called, but left or right node are empty");
 		}
 		
-		leftChild = new DistributionRegion(distributionGroupName, level + 1);
-		rightChild = new DistributionRegion(distributionGroupName, level + 1);
+		leftChild = new DistributionRegion(distributionGroupName, level + 1, totalLevel);
+		rightChild = new DistributionRegion(distributionGroupName, level + 1, totalLevel);
 		
 		leftChild.setParent(this);
 		rightChild.setParent(this);
@@ -142,6 +150,14 @@ public class DistributionRegion implements Watcher {
 	 */
 	public int getLevel() {
 		return level;
+	}
+	
+	/**
+	 * Get the number of levels in this tree
+	 * @return
+	 */
+	public int getTotalLevel() {
+		return totalLevel.getMaxLevel();
 	}
 	
 	/**
@@ -217,4 +233,20 @@ public class DistributionRegion implements Watcher {
 		return (getParent().getRightChild() == this);
 	}
 	
+}
+
+/**
+ * A class that represents the max number of levels
+ *
+ */
+class TotalLevel {
+	protected int maxLevel = 0;
+	
+	public void registerNewLevel(int level) {
+		maxLevel = Math.max(maxLevel, level);
+	}
+	
+	public int getMaxLevel() {
+		return maxLevel;
+	}
 }

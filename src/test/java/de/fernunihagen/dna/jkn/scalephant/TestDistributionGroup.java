@@ -34,6 +34,8 @@ public class TestDistributionGroup {
 		Assert.assertTrue(distributionRegion.isLeafRegion());
 		Assert.assertEquals(3, distributionRegion.getDimension());
 		Assert.assertEquals(0, distributionRegion.getLevel());
+		
+		Assert.assertEquals(1, distributionRegion.getTotalLevel());
 	}
 	
 	/**
@@ -54,6 +56,8 @@ public class TestDistributionGroup {
 		
 		Assert.assertEquals(1, distributionRegion.getLeftChild().getLevel());
 		Assert.assertEquals(1, distributionRegion.getRightChild().getLevel());
+		
+		Assert.assertEquals(2, distributionRegion.getTotalLevel());
 	}
 	
 	/**
@@ -98,6 +102,12 @@ public class TestDistributionGroup {
 		Assert.assertEquals(2, level2.getSplitDimension());
 		Assert.assertEquals(0, level3.getSplitDimension());
 		Assert.assertEquals(1, level4.getSplitDimension());
+		
+		Assert.assertEquals(5, level0.getTotalLevel());
+		Assert.assertEquals(5, level1.getTotalLevel());
+		Assert.assertEquals(5, level2.getTotalLevel());
+		Assert.assertEquals(5, level3.getTotalLevel());
+		Assert.assertEquals(5, level4.getTotalLevel());
 	}
 	
 	/**
