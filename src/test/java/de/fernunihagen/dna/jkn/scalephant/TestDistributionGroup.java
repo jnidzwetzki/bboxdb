@@ -109,11 +109,12 @@ public class TestDistributionGroup {
 		Assert.assertFalse(level0.isLeftChild());
 		Assert.assertFalse(level0.isRightChild());
 		
-		final DistributionRegion level1 = level0.getLeftChild();
-		Assert.assertTrue(level1.getLeftChild().isLeftChild());
-		Assert.assertTrue(level1.getRightChild().isRightChild());
-		Assert.assertFalse(level1.getRightChild().isLeftChild());
-		Assert.assertFalse(level1.getLeftChild().isRightChild());
+		level0.setSplit(50);
+				
+		Assert.assertTrue(level0.getLeftChild().isLeftChild());
+		Assert.assertTrue(level0.getRightChild().isRightChild());
+		Assert.assertFalse(level0.getRightChild().isLeftChild());
+		Assert.assertFalse(level0.getLeftChild().isRightChild());
 	}
 
 }
