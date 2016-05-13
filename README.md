@@ -16,7 +16,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 - Removed a lot of buffers in the network implementation (less memory is needed)
 - Implemented distributed instance discovery via zookeeper 
 - Added a basic GUI
-- The zookeeper database can be deleted with the cluster management script
+- The zookeeper database can be now deleted with the cluster management script
 
 ### Version 0.0.5 (Alpha) - 24.03.2016
 - Added basic benchmarks
