@@ -2,6 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.tools.gui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 
@@ -95,16 +96,24 @@ public class DistributionRegionComponent {
 		final int xOffset = calculateXOffset();
 		final int yOffset = calculateYOffset();
 		
+		// Draw the node
 		final Color oldColor = g.getColor();
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(xOffset, yOffset, WIDTH, HEIGHT);
 		g.setColor(oldColor);
 		g.drawRect(xOffset, yOffset, WIDTH, HEIGHT);
 
-		if(! distributionRegion.isLeafRegion()) {
-			g.drawString(Long.toString(distributionRegion.getSplit()), xOffset + WIDTH / 2, yOffset + HEIGHT / 2);
+		// Write node text
+		String nodeText = Long.toString(distributionRegion.getSplit());
+		if(distributionRegion.isLeafRegion()) {
+			nodeText = "-";
 		}
 		
+		final Rectangle2D bounds = g.getFontMetrics().getStringBounds(nodeText, g);
+		int stringWidth = (int) bounds.getWidth();
+		
+		g.drawString(nodeText, xOffset + (WIDTH / 2) - (stringWidth / 2), yOffset + HEIGHT / 2);
+
 		// Draw the line to the parent node
 		drawParentNodeLine(g, xOffset, yOffset);
 	}
