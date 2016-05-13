@@ -9,6 +9,8 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 
 ## Changelog
 
+### Version 0.0.7 (Alpha) - TBA
+
 ### Version 0.0.6 (Alpha) - 13.05.2016
 - Added timestamp queries
 - Implemented the table transfer network package
