@@ -79,16 +79,18 @@ public class ScalephantGUI {
 		table.getColumnModel().getColumn(2).setMinWidth(100);
 		table.getColumnModel().getColumn(2).setMaxWidth(100);
 
-		final JScrollPane scrollPane = new JScrollPane(table);		
+		final JScrollPane tableScrollPane = new JScrollPane(table);		
 		final Dimension d = table.getPreferredSize();
 		
-		scrollPane.setPreferredSize(
+		tableScrollPane.setPreferredSize(
 		    new Dimension(d.width,table.getRowHeight()*7));
+		
+		final JScrollPane mainScrollPane = new JScrollPane(mainPanel);
 		
 		mainframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainframe.setLayout(new BorderLayout());
-		mainframe.add(mainPanel, BorderLayout.CENTER);
-		mainframe.add(scrollPane, BorderLayout.SOUTH);
+		mainframe.add(mainScrollPane, BorderLayout.CENTER);
+		mainframe.add(tableScrollPane, BorderLayout.SOUTH);
 
 		mainframe.pack();
 		GuiHelper.setCenterPosition(mainframe);
