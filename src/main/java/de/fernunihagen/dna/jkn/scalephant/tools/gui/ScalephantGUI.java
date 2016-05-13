@@ -128,7 +128,11 @@ public class ScalephantGUI {
 					return;
 				}
 				
-				final DistributionRegionComponent distributionRegionComponent = new DistributionRegionComponent(distributionRegion);
+				// The position of the root node
+				final int rootPosX = getWidth() / 2;
+				final int rootPosY = 30;
+				
+				final DistributionRegionComponent distributionRegionComponent = new DistributionRegionComponent(distributionRegion, rootPosX, rootPosY);
 				distributionRegionComponent.drawComponent(graphics2d);
 				
 				drawDistributionRegion(graphics2d, distributionRegion.getLeftChild());

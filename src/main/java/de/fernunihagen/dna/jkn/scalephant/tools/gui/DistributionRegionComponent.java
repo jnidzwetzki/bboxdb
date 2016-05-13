@@ -11,12 +11,12 @@ public class DistributionRegionComponent {
 	/**
 	 * The x position of the root element
 	 */
-	protected final static int POS_ROOT_X = 400;
+	protected final int posRootX;
 	
 	/**
 	 * The y position of the root element
 	 */
-	protected final static int POS_ROOT_Y = 50;
+	protected final int posRootY;
 	
 	/**
 	 * The x offset of a child (- if left child / + if right child)
@@ -43,9 +43,11 @@ public class DistributionRegionComponent {
 	 */
 	protected final DistributionRegion distributionRegion;
 
-	public DistributionRegionComponent(DistributionRegion distributionRegion) {
+	public DistributionRegionComponent(DistributionRegion distributionRegion, final int posRootX, final int posRootY) {
 		super();
 		this.distributionRegion = distributionRegion;
+		this.posRootX = posRootX;
+		this.posRootY = posRootY;
 	}
 	
 	/**
@@ -53,7 +55,7 @@ public class DistributionRegionComponent {
 	 * @return
 	 */
 	protected int calculateXOffset() {
-		int offset = POS_ROOT_X;
+		int offset = posRootX;
 		
 		DistributionRegion level = distributionRegion;
 		
@@ -85,7 +87,7 @@ public class DistributionRegionComponent {
 	 * @return
 	 */
 	protected int calculateYOffset() {
-		return (distributionRegion.getLevel() * LEVEL_DISTANCE) + POS_ROOT_Y;
+		return (distributionRegion.getLevel() * LEVEL_DISTANCE) + posRootY;
 	}
 
 	/**
