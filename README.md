@@ -9,9 +9,14 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 
 ## Changelog
 
-### Version 0.0.6 (Alpha) - TBA
+### Version 0.0.6 (Alpha) - 13.05.2016
 - Added timestamp queries
-- Improved network protocol 
+- Implemented the table transfer network package
+- Changed the requestid of the network protocol to int, to handle more parallel requests
+- Removed a lot of buffers in the network implementation (less memory is needed)
+- Implemented distributed instance discovery via zookeeper 
+- Added a basic GUI
+- The zookeeper database can be deleted with the cluster management script
 
 ### Version 0.0.5 (Alpha) - 24.03.2016
 - Added basic benchmarks
