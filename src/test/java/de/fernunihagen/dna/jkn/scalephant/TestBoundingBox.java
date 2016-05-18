@@ -1,6 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class TestBoundingBox {
 	
@@ -224,6 +226,19 @@ public class TestBoundingBox {
 	}
 	
 	/**
+	 * Test merge on array
+	 */
+	@Test
+	public void testMergeBoxes() {
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 1f, 1f, 1f);
+		final BoundingBox boundingBox2 = new BoundingBox(1f, 0.1f, 1f, 4f);
+		final BoundingBox resultBox = BoundingBox.getBoundingBox(boundingBox1, boundingBox2);
+		System.out.println(resultBox);
+		System.out.println(Arrays.toString(resultBox.toFloatArray()));
+		Assert.assertArrayEquals(new float[] {1f, 1f, 1f, 4f}, resultBox.toFloatArray(), EQUALS_DELTA);
+	}
+	
+	/**
 	 * Test the comparable interface of the bounding box
 	 */
 	@Test
@@ -250,4 +265,5 @@ public class TestBoundingBox {
 		Assert.assertEquals(boundingBox3, boundingBoxList.get(4));
 	}
 	
+
 }

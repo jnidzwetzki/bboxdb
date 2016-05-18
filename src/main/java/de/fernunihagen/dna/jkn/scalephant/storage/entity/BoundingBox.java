@@ -82,9 +82,9 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 */
 	public float[] toFloatArray() {
 		final float[] values = new float[boundingBox.size() * 2];
-		for(int i = 0; i < boundingBox.size(); i = i + 2) {
-			values[i] = boundingBox.get(i).getBegin();
-			values[i+1] = boundingBox.get(i).getEnd();
+		for(int i = 0; i < boundingBox.size(); i++) {
+			values[2*i] = boundingBox.get(i).getBegin();
+			values[(2*i)+1] = boundingBox.get(i).getEnd() - boundingBox.get(i).getBegin();
 		}
 		return values;
 	}
@@ -312,7 +312,9 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			}
 			
 			if(dimensions != curentBox.getDimension()) {
-				logger.warn("Merging bounding boxed with different dimensions");
+				logger.error("Merging bounding boxes with different dimensions: " + dimensions + "/" + curentBox.getDimension());
+				logger.error("Box 0: " + boundingBoxes[0]);
+				logger.error("Other box: " + curentBox);
 				return null;
 			}
 		}
