@@ -1,7 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.entity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -14,21 +13,9 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	public final static BoundingBox EMPTY_BOX = new BoundingBox();
 	
 	/**
-	 * The boundingBox contains a bounding box for a tuple.
-	 * The boundingBox for n dimensions is structured as follows:
-	 * 
-	 * boundingBox[0] = coordinate_0
-	 * boundingBox[1] = extent_0
-	 * boundingBox[2] = coordinate_1
-	 * boundingBox[3] = extent_1
-	 * boundingBox[4] = coordinate_2
-	 * boundingBox[5] = extent_2
-	 * 
-	 * [...]
-	 * boundingBox[2n] = coordinate_n
-	 * boundingBox[2n+1] = extent_n
+	 * The boundingBox contains a interval for each dimension
 	 */
-	protected final List<Float> boundingBox;
+	protected final List<FloatInterval> boundingBox;
 	
 	/**
 	 * The return value of an invalid dimension
@@ -39,59 +26,35 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * The Logger
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(BoundingBox.class);
-
-
-	/**
-	 * Is the bounding box valid?
-	 */
-	protected final boolean valid;
 	
-	public BoundingBox(Float... args) {
-		boundingBox = new ArrayList<Float>(args.length);
-		boundingBox.addAll(Arrays.asList(args));
-		valid = checkValid();
+	public BoundingBox(final Float... args) {
+		
+		if(args.length % 2 != 0) {
+			throw new IllegalArgumentException("Even number of arguments expected");
+		}
+		
+		boundingBox = new ArrayList<FloatInterval>(args.length / 2);
+				
+		for(int i = 0; i < args.length; i = i + 2) {
+			final FloatInterval interval = new FloatInterval(args[i], args[i] + args[i+1]);
+			boundingBox.add(interval);
+		}				
 	}
 	
 	public BoundingBox(float[] values) {
-		boundingBox = new ArrayList<Float>(values.length);
 		
-		for(int i = 0; i < values.length; i++) {
-			boundingBox.add(values[i]);
+		if(values.length % 2 != 0) {
+			throw new IllegalArgumentException("Even number of arguments expected");
 		}
 		
-		valid = checkValid();
+		boundingBox = new ArrayList<FloatInterval>(values.length / 2);
+		
+		for(int i = 0; i < values.length; i = i + 2) {
+			final FloatInterval interval = new FloatInterval(values[i], values[i] + values[i+1]);
+			boundingBox.add(interval);
+		}				
 	}
 
-	/**
-	 * Determines if the bounding box is valid or not
-	 */
-	protected boolean checkValid() {
-		
-		if (boundingBox.size() % 2 != 0) {
-			logger.warn("Found invalid Bounding Box odd amount of arguments " + boundingBox);
-			return false;
-		}
-		
-		// No negative extent
-		for(int i = 1; i < boundingBox.size(); i=i+2) {
-			if(boundingBox.get(i) < 0) {
-				logger.warn("Found invalid Bounding Box - nagative extent: " + boundingBox);
-				return false;
-			}
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * Returns the valid state of the bounding box
-	 * 
-	 * @return
-	 */
-	public boolean isValid() {
-		return valid;
-	}
-	
 	/**
 	 * Returns the size of the bounding box in bytes
 	 * 
@@ -118,9 +81,10 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @return
 	 */
 	public float[] toFloatArray() {
-		final float[] values = new float[boundingBox.size()];
-		for(int i = 0; i < boundingBox.size(); i++) {
-			values[i] = boundingBox.get(i);
+		final float[] values = new float[boundingBox.size() * 2];
+		for(int i = 0; i < boundingBox.size(); i = i + 2) {
+			values[i] = boundingBox.get(i).getBegin();
+			values[i+1] = boundingBox.get(i).getEnd();
 		}
 		return values;
 	}
@@ -137,77 +101,41 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	
 	/**
 	 * Tests if two bounding boxes share some space
-	 * 
-	 * For each dimension:
-	 * 
-	 * Case 1: 1 overlaps 2 at the left end
-	 *  |--------|                      // 1
-	 *      |------------|              // 2
-	 *
-	 * Case 2: 1 overlaps 2 at the tight end
-	 *            |--------|            // 1
-	 *   |------------|                 // 2
-	 *
-	 * Case 3: 1 is inside 2
-	 *    |-------------------|         // 1
-	 *  |-----------------------|       // 2
-	 *
-	 * Case 4: 2 is inside 1
-	 * |-----------------------|        // 1
-	 *      |----------|                // 2
-	 *
-	 * Case 5: 1 = 2
-	 *            |--------|            // 1
-	 *            |--------|            // 2
-	 * 
-	 * Case 6: No overlapping
-	 * |-------|                        // 1
-	 *               |---------|        // 2
-	 * @param boundingBox
+	 * @param otherBoundingBox
 	 * @return
 	 */
-	public boolean overlaps(final BoundingBox boundingBox) {
+	public boolean overlaps(final BoundingBox otherBoundingBox) {
 		
 		// Null does overlap with nothing
-		if(boundingBox == null) {
+		if(otherBoundingBox == null) {
 			return false;
 		}
 		
 		// The empty bounding box overlaps everything
-		if(boundingBox == BoundingBox.EMPTY_BOX) {
+		if(otherBoundingBox == BoundingBox.EMPTY_BOX) {
 			return true;
 		}
 		
 		// Both boxes are equal (Case 5)
-		if(equals(boundingBox)) {
+		if(equals(otherBoundingBox)) {
 			return true;
 		}
 		
 		// Dimensions are not equal
-		if(boundingBox.getDimension() != getDimension()) {
+		if(otherBoundingBox.getDimension() != getDimension()) {
 			return false;
 		}
 		
 		// Check the overlapping in each dimension d
 		for(int d = 0; d < getDimension(); d++) {
 			
-			// Case 1 or 3
-			if(isCoveringPointInDimension(boundingBox.getCoordinateLow(d), d)) {
-				continue;
-			}
+			final FloatInterval ourInterval = boundingBox.get(d);
+			final FloatInterval otherInterval = otherBoundingBox.getIntervalForDimension(d);
 			
-			// Case 2 or 3
-			if(isCoveringPointInDimension(boundingBox.getCoordinateHigh(d), d)) {
-				continue;
-			}
 			
-			// Case 4 
-			if(boundingBox.isCoveringPointInDimension(getCoordinateLow(d), d)) {
-				continue;
+			if(! ourInterval.isOverlappingWith(otherInterval)) {
+				return false;
 			}
-			
-			// None of the above conditions matches (Case 6)
-			return false;
 		}
 		
 		return true;
@@ -233,7 +161,16 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @return
 	 */
 	public float getExtent(final int dimension) {
-		return boundingBox.get((2 * dimension) + 1);
+		return boundingBox.get(dimension).getEnd() - boundingBox.get(dimension).getBegin();
+	}
+	
+	/**
+	 * Get the float interval for the given dimension
+	 * @param dimension
+	 * @return
+	 */
+	public FloatInterval getIntervalForDimension(final int dimension) {
+		return boundingBox.get(dimension);
 	}
 	
 	/**
@@ -242,7 +179,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @return
 	 */
 	public float getCoordinateLow(final int dimension) {
-		return boundingBox.get(2 * dimension);
+		return boundingBox.get(dimension).getBegin();
 	}
 	
 	/**
@@ -251,7 +188,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @return
 	 */
 	public float getCoordinateHigh(final int dimension) {
-		return getCoordinateLow(dimension) + getExtent(dimension);
+		return boundingBox.get(dimension).getEnd();
 	}
 	
 	/**
@@ -259,12 +196,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @return
 	 */
 	public int getDimension() {
-		
-		if(! valid) {
-			return INVALID_DIMENSION;
-		}
-		
-		return boundingBox.size() / 2;
+		return boundingBox.size();
 	}
 
 	/**
