@@ -67,7 +67,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	protected void startBenchmarkTimer() {
 		// Set the benchmark time
 		startTime = System.currentTimeMillis();
-		System.out.println("#Tuple\tTime");
+		System.out.println("#Iteration\tTime");
 	}
 	
 	@Override
