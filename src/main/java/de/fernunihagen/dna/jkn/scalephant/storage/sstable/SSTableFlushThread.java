@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
-import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
 
 class SSTableFlushThread implements Runnable {
@@ -57,18 +56,20 @@ class SSTableFlushThread implements Runnable {
 	protected void flushAllMemtablesToDisk() {
 		while(! sstableManager.unflushedMemtables.isEmpty()) {
 			final Memtable memtable = sstableManager.unflushedMemtables.get(0);
-			final int tableNumber = writeMemtable(memtable);
-			
-			if(tableNumber != -1) {
-				try {
-					final SSTableFacade facade = new SSTableFacade(getStorageDataDir(), sstableManager.getName(), tableNumber);
-					facade.init();
-					sstableManager.sstableFacades.add(facade);
-				} catch (StorageManagerException e) {
-					logger.error("Exception while creating SSTable reader", e);
+
+			try {
+				final int tableNumber = writeMemtable(memtable);
+				final SSTableFacade facade = new SSTableFacade(getStorageDataDir(), sstableManager.getName(), tableNumber);
+				facade.init();
+				sstableManager.sstableFacades.add(facade);
+			} catch (Exception e) {
+				if(Thread.currentThread().isInterrupted()) {
+					logger.warn("Got Exception while flushing memtable, but thread was interrupted. Ignoring exception.");
+				} else {
+					logger.error("Exception while flushing SSTable reader", e);
 				}
 			}
-			
+	
 			sstableManager.unflushedMemtables.remove(memtable);
 		}
 	}
@@ -86,8 +87,9 @@ class SSTableFlushThread implements Runnable {
 	 * 
 	 * @param memtable
 	 * @return
+	 * @throws Exception 
 	 */
-	protected int writeMemtable(final Memtable memtable) {
+	protected int writeMemtable(final Memtable memtable) throws Exception {
 		int tableNumber = sstableManager.increaseTableNumber();
 		logger.info("Writing new memtable: " + tableNumber);
 		
@@ -97,10 +99,7 @@ class SSTableFlushThread implements Runnable {
 			ssTableWriter.addData(memtable.getSortedTupleList());
 			return tableNumber;
 		} catch (Exception e) {
-			logger.info("Exception while write memtable: " + sstableManager.getName() + " / " + tableNumber, e);
-			sstableManager.storageState.setReady(false);
+			throw e;
 		} 
-		
-		return -1;
 	}
 }
