@@ -209,7 +209,7 @@ public class TestNetworkClasses {
 	@Test
 	public void testDecodeBoundingBoxQuery() throws IOException {
 		final String table = "table1";
-		final BoundingBox boundingBox = new BoundingBox(10f, 10f);
+		final BoundingBox boundingBox = new BoundingBox(10f, 20f);
 		
 		final QueryBoundingBoxRequest queryRequest = new QueryBoundingBoxRequest(table, boundingBox);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();

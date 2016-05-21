@@ -36,7 +36,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		boundingBox = new ArrayList<FloatInterval>(args.length / 2);
 				
 		for(int i = 0; i < args.length; i = i + 2) {
-			final FloatInterval interval = new FloatInterval(args[i], args[i] + args[i+1]);
+			final FloatInterval interval = new FloatInterval(args[i], args[i+1]);
 			boundingBox.add(interval);
 		}				
 	}
@@ -50,7 +50,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		boundingBox = new ArrayList<FloatInterval>(values.length / 2);
 		
 		for(int i = 0; i < values.length; i = i + 2) {
-			final FloatInterval interval = new FloatInterval(values[i], values[i] + values[i+1]);
+			final FloatInterval interval = new FloatInterval(values[i], values[i+1]);
 			boundingBox.add(interval);
 		}				
 	}
@@ -84,7 +84,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		final float[] values = new float[boundingBox.size() * 2];
 		for(int i = 0; i < boundingBox.size(); i++) {
 			values[2*i] = boundingBox.get(i).getBegin();
-			values[(2*i)+1] = boundingBox.get(i).getEnd() - boundingBox.get(i).getBegin();
+			values[(2*i)+1] = boundingBox.get(i).getEnd();
 		}
 		return values;
 	}
@@ -332,8 +332,8 @@ public class BoundingBox implements Comparable<BoundingBox> {
 				resultMax = Math.max(resultMax, boundingBoxes[i].getCoordinateHigh(d));
 			}
 			
-			coverBox[2 * d] = resultMin; // Start position
-			coverBox[2 * d + 1] = resultMax - resultMin; // Extend
+			coverBox[2 * d] = resultMin;     // Begin position
+			coverBox[2 * d + 1] = resultMax; // End position
 		}
 		
 		return new BoundingBox(coverBox);

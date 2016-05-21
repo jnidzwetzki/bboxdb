@@ -1,7 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
-import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class TestBoundingBox {
 	
@@ -61,11 +59,11 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testGetValues() {
-		final BoundingBox bb1 = new BoundingBox(1f, 10f);
+		final BoundingBox bb1 = new BoundingBox(1f, 11f);
 		Assert.assertEquals(1f, bb1.getCoordinateLow(0), EQUALS_DELTA);
 		Assert.assertEquals(10f, bb1.getExtent(0), EQUALS_DELTA);
 		
-		final BoundingBox bb2 = new BoundingBox(1f, 20f, -50f, 50f, -100f, 10f);
+		final BoundingBox bb2 = new BoundingBox(1f, 21f, -50f, 0f, -100f, -90f);
 		Assert.assertEquals(1f, bb2.getCoordinateLow(0), EQUALS_DELTA);
 		Assert.assertEquals(20f, bb2.getExtent(0), EQUALS_DELTA);
 		Assert.assertEquals(-50f, bb2.getCoordinateLow(1), EQUALS_DELTA);
@@ -79,11 +77,11 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testLowHigh() {
-		final BoundingBox bb1 = new BoundingBox(1f, 10f);
+		final BoundingBox bb1 = new BoundingBox(1f, 11f);
 		Assert.assertEquals(1f, bb1.getCoordinateLow(0), EQUALS_DELTA);
 		Assert.assertEquals(11f, bb1.getCoordinateHigh(0), EQUALS_DELTA);
 
-		final BoundingBox bb2 = new BoundingBox(1f, 10f, 10f, 50f);
+		final BoundingBox bb2 = new BoundingBox(1f, 11f, 10f, 60f);
 		Assert.assertEquals(1f, bb2.getCoordinateLow(0), EQUALS_DELTA);
 		Assert.assertEquals(11f, bb2.getCoordinateHigh(0), EQUALS_DELTA);
 		Assert.assertEquals(10f, bb2.getCoordinateLow(1), EQUALS_DELTA);
@@ -114,8 +112,8 @@ public class TestBoundingBox {
 	@Test
 	public void testOverlapping1D() {
 		final BoundingBox bb1left = new BoundingBox(0f, 10f);
-		final BoundingBox bb1middle = new BoundingBox(5f, 10f);
-		final BoundingBox bb1right = new BoundingBox(10.1f, 10f);
+		final BoundingBox bb1middle = new BoundingBox(5f, 15f);
+		final BoundingBox bb1right = new BoundingBox(10.1f, 20.1f);
 		
 		Assert.assertTrue(bb1left.overlaps(bb1left));
 		Assert.assertTrue(bb1middle.overlaps(bb1middle));
@@ -141,16 +139,16 @@ public class TestBoundingBox {
 	@Test
 	public void testOverlapping2D() {
 		final BoundingBox bb1left = new BoundingBox(0f, 1f, 0f, 1f);
-		final BoundingBox bb1leftinside = new BoundingBox(0.5f, 0.2f, 0.5f, 0.2f);
+		final BoundingBox bb1leftinside = new BoundingBox(0.5f, 0.7f, 0.5f, 0.7f);
 		
 		Assert.assertTrue(bb1left.overlaps(bb1leftinside));
 		Assert.assertTrue(bb1leftinside.overlaps(bb1left));
 
-		final BoundingBox bb1middle = new BoundingBox(0.5f, 1f, 0.5f, 1f);
+		final BoundingBox bb1middle = new BoundingBox(0.5f, 1.5f, 0.5f, 1.5f);
 		Assert.assertTrue(bb1left.overlaps(bb1middle));
 		Assert.assertTrue(bb1middle.overlaps(bb1left));
 
-		final BoundingBox bb1right = new BoundingBox(1f, 1f, 10f, 1f);
+		final BoundingBox bb1right = new BoundingBox(1f, 2f, 10f, 11f);
 		Assert.assertFalse(bb1left.overlaps(bb1right));
 		Assert.assertFalse(bb1right.overlaps(bb1left));
 	}
@@ -161,15 +159,15 @@ public class TestBoundingBox {
 	@Test
 	public void testOverlapping3D() {
 		final BoundingBox bb1left = new BoundingBox(0f, 1f, 0f, 1f, 0f, 1f);
-		final BoundingBox bb1leftinside = new BoundingBox(0.5f, 0.2f, 0.5f, 0.2f, 0.5f, 0.2f);
+		final BoundingBox bb1leftinside = new BoundingBox(0.5f, 0.7f, 0.5f, 0.7f, 0.5f, 0.7f);
 		Assert.assertTrue(bb1left.overlaps(bb1leftinside));
 		Assert.assertTrue(bb1leftinside.overlaps(bb1left));
 		
-		final BoundingBox bb1middle = new BoundingBox(0.5f, 1f, 0.5f, 1f, 0.5f, 1f);
+		final BoundingBox bb1middle = new BoundingBox(0.5f, 1.5f, 0.5f, 1.5f, 0.5f, 1.5f);
 		Assert.assertTrue(bb1left.overlaps(bb1middle));
 		Assert.assertTrue(bb1middle.overlaps(bb1left));
 
-		final BoundingBox bb1right = new BoundingBox(10f, 1f, 10f, 1f, 10f, 1f);
+		final BoundingBox bb1right = new BoundingBox(10f, 11f, 10f, 11f, 10f, 11f);
 		Assert.assertFalse(bb1left.overlaps(bb1right));
 		Assert.assertFalse(bb1right.overlaps(bb1left));
 	}
@@ -189,11 +187,11 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testCoverBoundingBox() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 2f);
-		final BoundingBox boundingBox2 = new BoundingBox(1f, 3f, 1f, 3f);
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 3f, 1f, 3f);
+		final BoundingBox boundingBox2 = new BoundingBox(1f, 4f, 1f, 4f);
 		
-		final BoundingBox boundingBox3 = new BoundingBox(1f, 3f, 1f, 3f, 1f, 3f);
-		final BoundingBox boundingBox4 = new BoundingBox(-1f, 3f, -1f, 3f, -1f, 3f);
+		final BoundingBox boundingBox3 = new BoundingBox(1f, 4f, 1f, 4f, 1f, 4f);
+		final BoundingBox boundingBox4 = new BoundingBox(-1f, 2f, -1f, 2f, -1f, 2f);
 
 		final BoundingBox boundingBoxResult1 = BoundingBox.getBoundingBox();
 		Assert.assertTrue(boundingBoxResult1 == null);
@@ -230,12 +228,10 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testMergeBoxes() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 1f, 1f, 1f);
-		final BoundingBox boundingBox2 = new BoundingBox(1f, 0.1f, 1f, 4f);
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 1f);
+		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f, 1f, 4f);
 		final BoundingBox resultBox = BoundingBox.getBoundingBox(boundingBox1, boundingBox2);
-		System.out.println(resultBox);
-		System.out.println(Arrays.toString(resultBox.toFloatArray()));
-		Assert.assertArrayEquals(new float[] {1f, 1f, 1f, 4f}, resultBox.toFloatArray(), EQUALS_DELTA);
+		Assert.assertArrayEquals(new float[] {1f, 2f, 1f, 4f}, resultBox.toFloatArray(), EQUALS_DELTA);
 	}
 	
 	/**
@@ -243,11 +239,11 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testBoundingBoxSorting() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 3f, 4f);
-		final BoundingBox boundingBox2 = new BoundingBox(-1f, 2f, 3f, 4f);
-		final BoundingBox boundingBox3 = new BoundingBox(5f, 2f, 3f, 4f);
-		final BoundingBox boundingBox4 = new BoundingBox(-11f, 2f, 3f, 4f);
-		final BoundingBox boundingBox5 = new BoundingBox(-11f, 2f, -1f, 4f);
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 3f, 3f, 7f);
+		final BoundingBox boundingBox2 = new BoundingBox(-1f, 1f, 3f, 7f);
+		final BoundingBox boundingBox3 = new BoundingBox(5f, 7f, 3f, 7f);
+		final BoundingBox boundingBox4 = new BoundingBox(-11f, -9f, 3f, 7f);
+		final BoundingBox boundingBox5 = new BoundingBox(-11f, -9f, -1f, 3f);
 		
 		final List<BoundingBox> boundingBoxList = new ArrayList<BoundingBox>();
 		boundingBoxList.add(boundingBox1);

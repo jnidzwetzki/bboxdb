@@ -180,13 +180,13 @@ public class TestNetworkCommunication {
 		scalephantClient.insertTuple(table, tuple1);
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(0f, 0.5f, 0f, 0.5f), "def".getBytes());
 		scalephantClient.insertTuple(table, tuple2);
-		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5f, 1f, 0.5f, 1f), "geh".getBytes());
+		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5f, 1.5f, 0.5f, 1.5f), "geh".getBytes());
 		scalephantClient.insertTuple(table, tuple3);
 		
 		// Outside our bbox query
-		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10f, 1f, -10f, 1f), "ijk".getBytes());
+		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10f, -9f, -10f, -9f), "ijk".getBytes());
 		scalephantClient.insertTuple(table, tuple4);
-		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000f, 1f, 1000f, 1f), "lmn".getBytes());
+		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000f, 1001f, 1000f, 1001f), "lmn".getBytes());
 		scalephantClient.insertTuple(table, tuple5);
 
 		final ClientOperationFuture future = scalephantClient.queryBoundingBox(table, new BoundingBox(-1f, 2f, -1f, 2f));

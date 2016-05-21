@@ -129,15 +129,15 @@ public class TestBoxSearchIndex {
 	protected List<Tuple> getTupleList() {
 		final List<Tuple> tupleList = new ArrayList<Tuple>();
 		tupleList.add(new Tuple("abc", new BoundingBox(0f, 1f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("def", new BoundingBox(1f, 1f, 1f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("fgh", new BoundingBox(2f, 1f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("ijk", new BoundingBox(3f, 1f, 3f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("lmn", new BoundingBox(1.2f, 1f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("ijk", new BoundingBox(4.6f, 1f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("dwe", new BoundingBox(5.2f, 1f, 4f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("gwd", new BoundingBox(5.1f, 1f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("fs3", new BoundingBox(6.1f, 1f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("xyz", new BoundingBox(8.1f, 1f, 2f, 1f), "abc".getBytes()));
+		tupleList.add(new Tuple("def", new BoundingBox(1f, 2f, 1f, 3f), "abc".getBytes()));
+		tupleList.add(new Tuple("fgh", new BoundingBox(2f, 3f, 0f, 1f), "abc".getBytes()));
+		tupleList.add(new Tuple("ijk", new BoundingBox(3f, 4f, 3f, 7f), "abc".getBytes()));
+		tupleList.add(new Tuple("lmn", new BoundingBox(1.2f, 2.2f, 0f, 1f), "abc".getBytes()));
+		tupleList.add(new Tuple("ijk", new BoundingBox(4.6f, 5.6f, 0f, 1f), "abc".getBytes()));
+		tupleList.add(new Tuple("dwe", new BoundingBox(5.2f, 6.2f, 4f, 5f), "abc".getBytes()));
+		tupleList.add(new Tuple("gwd", new BoundingBox(5.1f, 6.1f, 0f, 1f), "abc".getBytes()));
+		tupleList.add(new Tuple("fs3", new BoundingBox(6.1f, 7.1f, 0f, 1f), "abc".getBytes()));
+		tupleList.add(new Tuple("xyz", new BoundingBox(8.1f, 9.1f, 2f, 5f), "abc".getBytes()));
 		return tupleList;
 	}
 	
@@ -153,8 +153,10 @@ public class TestBoxSearchIndex {
 			final float[] boundingBoxData = new float[dimensions * 2];
 			
 			for(int d = 0; d < dimensions; d++) {
-				boundingBoxData[2 * d] = random.nextInt() % 1000;     // Start coordinate
-				boundingBoxData[2 * d + 1] = Math.abs(random.nextInt() % 1000); // Extent
+				final float begin = random.nextInt() % 1000;
+				final float extent = Math.abs(random.nextInt() % 1000);
+				boundingBoxData[2 * d] = begin;            // Start coordinate
+				boundingBoxData[2 * d + 1] = begin+extent; // End coordinate
 			}
 			
 			final Tuple tuple = new Tuple(Integer.toBinaryString(i), new BoundingBox(boundingBoxData), Integer.toBinaryString(i).getBytes());
