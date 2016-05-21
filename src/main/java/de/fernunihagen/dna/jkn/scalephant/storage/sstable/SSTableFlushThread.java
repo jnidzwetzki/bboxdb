@@ -69,7 +69,7 @@ class SSTableFlushThread implements Runnable {
 				if(Thread.currentThread().isInterrupted()) {
 					logger.warn("Got Exception while flushing memtable, but thread was interrupted. Ignoring exception.");
 				} else {
-					logger.info("Exception while flushing memtable: " + sstableManager.getName(), e);
+					logger.warn("Exception while flushing memtable: " + sstableManager.getName(), e);
 				}
 			}
 	
