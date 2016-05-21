@@ -150,8 +150,17 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException(error);
 		}
 		
-		for(final Tuple tuple : tuples) {
-			addNextTuple(tuple);
+		try {
+			for(final Tuple tuple : tuples) {
+				addNextTuple(tuple);
+			}
+		} catch(StorageManagerException e) {
+			if(Thread.currentThread().isInterrupted()) {
+				logger.warn("Got StorageManagerException while adding tuples to sstable, but thread was interrupted. Ignoring exception.");
+				return;
+			} else {
+				throw e;
+			}
 		}
 	}
 
