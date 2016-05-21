@@ -109,7 +109,9 @@ public abstract class AbstractTableReader implements ScalephantService {
 			memory.order(SSTableConst.SSTABLE_BYTE_ORDER);
 			validateFile();
 		} catch (Exception e) {
-			logger.error("Error during an IO operation", e);
+			if(! Thread.currentThread().isInterrupted()) {
+				logger.error("Error during an IO operation", e);
+			}
 			shutdown();
 		} 
 	}
