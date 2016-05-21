@@ -22,7 +22,7 @@ class SSTableFlushThread implements Runnable {
 	/**
 	 * @param ssTableManager
 	 */
-	SSTableFlushThread(SSTableManager sstableManager) {
+	SSTableFlushThread(final SSTableManager sstableManager) {
 		this.sstableManager = sstableManager;
 	}
 
