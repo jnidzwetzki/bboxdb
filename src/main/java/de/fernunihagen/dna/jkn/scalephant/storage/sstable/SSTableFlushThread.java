@@ -63,10 +63,13 @@ class SSTableFlushThread implements Runnable {
 				facade.init();
 				sstableManager.sstableFacades.add(facade);
 			} catch (Exception e) {
+				
+				sstableManager.storageState.setReady(false);
+				
 				if(Thread.currentThread().isInterrupted()) {
 					logger.warn("Got Exception while flushing memtable, but thread was interrupted. Ignoring exception.");
 				} else {
-					logger.error("Exception while flushing SSTable reader", e);
+					logger.info("Exception while flushing memtable: " + sstableManager.getName(), e);
 				}
 			}
 	
