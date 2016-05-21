@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -70,6 +71,11 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * The corresponding storage manager state
 	 */
 	protected State storageState;
+	
+	/**
+	 * The timeout for a thread join (10 seconds)
+	 */
+	protected long THREAD_WAIT_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
 	
 	/**
 	 * The logger
@@ -144,16 +150,31 @@ public class SSTableManager implements ScalephantService, Storage {
 	@Override
 	public void shutdown() {
 		logger.info("Shuting down the instance for table: " + getName());
+		
+		// Set ready to false. The threads will shutdown after completing
+		// the running tasks
 		ready = false;
 		
-		if(flushThread != null) {
-			flushThread.interrupt();
-		}
+		// Shutdown the running threads
+		final List<Thread> threadsToJoin = new ArrayList<Thread>();
+		threadsToJoin.add(flushThread);
+		threadsToJoin.add(compactThread);
 		
-		if(compactThread != null) {
-			compactThread.interrupt();
+		for(final Thread thread : threadsToJoin) {
+			if(thread != null) {
+				
+				logger.info("Interrupt and join thread: " + thread.getName());
+				thread.interrupt();
+				
+				try {
+					thread.join(THREAD_WAIT_TIMEOUT);
+				} catch (InterruptedException e) {
+					logger.warn("Got exception while waiting on thread join: " + thread.getName(), e);
+				}
+			}
 		}
-		
+
+		// Close all sstables
 		for(final SSTableFacade facade : sstableFacades) {
 			facade.shutdown();
 		}
