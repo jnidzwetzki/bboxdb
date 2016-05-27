@@ -6,7 +6,7 @@ import org.junit.Test;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.FloatInterval;
 
 public class TestFloatInterval {
-
+	
 	/**
 	 * Create an invalid interval
 	 */
@@ -33,15 +33,15 @@ public class TestFloatInterval {
 		final FloatInterval floatInterval = new FloatInterval(1, 100);
 		Assert.assertTrue(floatInterval.isBeginIncluded());
 		Assert.assertTrue(floatInterval.isEndIncluded());
-		Assert.assertTrue(floatInterval.isNumberCovered(floatInterval.getBegin(), true));
-		Assert.assertTrue(floatInterval.isNumberCovered(floatInterval.getEnd(), true));
-		Assert.assertFalse(floatInterval.isNumberCovered(floatInterval.getBegin(), false));
-		Assert.assertFalse(floatInterval.isNumberCovered(floatInterval.getEnd(), false));
-		Assert.assertTrue(floatInterval.isNumberCovered(50, true));
-		Assert.assertTrue(floatInterval.isNumberCovered(50, false));
+		Assert.assertTrue(floatInterval.overlapsWith(floatInterval.getBegin(), true));
+		Assert.assertTrue(floatInterval.overlapsWith(floatInterval.getEnd(), true));
+		Assert.assertFalse(floatInterval.overlapsWith(floatInterval.getBegin(), false));
+		Assert.assertFalse(floatInterval.overlapsWith(floatInterval.getEnd(), false));
+		Assert.assertTrue(floatInterval.overlapsWith(50, true));
+		Assert.assertTrue(floatInterval.overlapsWith(50, false));
 
-		Assert.assertFalse(floatInterval.isNumberCovered(-10, true));
-		Assert.assertFalse(floatInterval.isNumberCovered(110, true));
+		Assert.assertFalse(floatInterval.overlapsWith(-10, true));
+		Assert.assertFalse(floatInterval.overlapsWith(110, true));
 	}
 	
 	/**
@@ -52,15 +52,15 @@ public class TestFloatInterval {
 		final FloatInterval floatInterval = new FloatInterval(1, 100, false, false);
 		Assert.assertFalse(floatInterval.isBeginIncluded());
 		Assert.assertFalse(floatInterval.isEndIncluded());
-		Assert.assertFalse(floatInterval.isNumberCovered(floatInterval.getBegin(), true));
-		Assert.assertFalse(floatInterval.isNumberCovered(floatInterval.getEnd(), true));
-		Assert.assertFalse(floatInterval.isNumberCovered(floatInterval.getBegin(), false));
-		Assert.assertFalse(floatInterval.isNumberCovered(floatInterval.getEnd(), false));
-		Assert.assertTrue(floatInterval.isNumberCovered(50, true));
-		Assert.assertTrue(floatInterval.isNumberCovered(50, false));
+		Assert.assertFalse(floatInterval.overlapsWith(floatInterval.getBegin(), true));
+		Assert.assertFalse(floatInterval.overlapsWith(floatInterval.getEnd(), true));
+		Assert.assertFalse(floatInterval.overlapsWith(floatInterval.getBegin(), false));
+		Assert.assertFalse(floatInterval.overlapsWith(floatInterval.getEnd(), false));
+		Assert.assertTrue(floatInterval.overlapsWith(50, true));
+		Assert.assertTrue(floatInterval.overlapsWith(50, false));
 		
-		Assert.assertFalse(floatInterval.isNumberCovered(-10, true));
-		Assert.assertFalse(floatInterval.isNumberCovered(110, true));
+		Assert.assertFalse(floatInterval.overlapsWith(-10, true));
+		Assert.assertFalse(floatInterval.overlapsWith(110, true));
 	}
 	
 	/**
@@ -150,6 +150,67 @@ public class TestFloatInterval {
 		Assert.assertTrue(floatInterval2.isOverlappingWith(floatInterval2));
 		Assert.assertTrue(floatInterval3.isOverlappingWith(floatInterval3));
 		Assert.assertTrue(floatInterval4.isOverlappingWith(floatInterval4));
+	}
+	
+	/**
+	 * Test the splitting of intervals
+	 */
+	@Test
+	public void testIntervalSplit1() {
+		final FloatInterval interval1 = new FloatInterval(0, 100);
+		final FloatInterval leftPart = interval1.splitAndGetLeftPart(50, true);
+		final FloatInterval rightPart = interval1.splitAndGetRightPart(50, true);
+		
+		Assert.assertTrue(interval1.isBeginIncluded());
+		Assert.assertTrue(interval1.isEndIncluded());
+		
+		Assert.assertTrue(leftPart.isBeginIncluded());
+		Assert.assertTrue(leftPart.isEndIncluded());
+		
+		Assert.assertTrue(rightPart.isBeginIncluded());
+		Assert.assertTrue(rightPart.isEndIncluded());
+		
+		Assert.assertEquals(0, leftPart.getBegin(), 0.0001);
+		Assert.assertEquals(50, leftPart.getEnd(), 0.0001);
+		
+		Assert.assertEquals(50, rightPart.getBegin(), 0.0001);
+		Assert.assertEquals(100, rightPart.getEnd(), 0.0001);
+	}
+	
+	/**
+	 * Test split at invalid position
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testIntervalSplit2() {
+		final FloatInterval interval1 = new FloatInterval(0, 100);
+		interval1.splitAndGetLeftPart(-10, false);
+	}
+	
+	/**
+	 * Test split at invalid position
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testIntervalSplit3() {
+		final FloatInterval interval1 = new FloatInterval(0, 100);
+		interval1.splitAndGetLeftPart(101, false);
+	}
+	
+	/**
+	 * Test split at invalid position
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testIntervalSplit4() {
+		final FloatInterval interval1 = new FloatInterval(0, 100, false, false);
+		interval1.splitAndGetLeftPart(0, false);
+	}
+	
+	/**
+	 * Test split at invalid position
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testIntervalSplit5() {
+		final FloatInterval interval1 = new FloatInterval(0, 100, false, false);
+		interval1.splitAndGetLeftPart(0, false);
 	}
 	
 }

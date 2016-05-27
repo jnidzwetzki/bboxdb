@@ -90,7 +90,16 @@ public class FloatInterval {
 	 * @param number
 	 * @return
 	 */
-	public boolean isNumberCovered(final float number, final boolean numberIncluded) {
+	public boolean isNumberIncluded(final float number) {
+		return overlapsWith(number, true);
+	}
+	
+	/**
+	 * Is the number covered by the interval?
+	 * @param number
+	 * @return
+	 */
+	public boolean overlapsWith(final float number, final boolean numberIncluded) {
 		
 		boolean betweenBeginAndEnd = (number >= begin && number <= end);
 		
@@ -160,17 +169,17 @@ public class FloatInterval {
 	public boolean isOverlappingWith(final FloatInterval otherInterval) {
 		
 		// Case 1 and 6
-		if(isNumberCovered(otherInterval.getBegin(), otherInterval.isBeginIncluded())) {
+		if(overlapsWith(otherInterval.getBegin(), otherInterval.isBeginIncluded())) {
 			return true;
 		}
 		
 		// Case 2 and 6
-		if(isNumberCovered(otherInterval.getEnd(), otherInterval.isEndIncluded())) {
+		if(overlapsWith(otherInterval.getEnd(), otherInterval.isEndIncluded())) {
 			return true;
 		}
 		
 		// Case 3 and 4
-		if(otherInterval.isNumberCovered(begin, beginIncluded)) {
+		if(otherInterval.overlapsWith(begin, beginIncluded)) {
 			return true;
 		}
 		
@@ -182,6 +191,29 @@ public class FloatInterval {
 		return false;
 	}
 	
+	/**
+	 * Split the interval at the given position and return the left part
+	 * @return
+	 */
+	public FloatInterval splitAndGetLeftPart(final float splitPosition, final boolean splitPositionIncluded) {
+		if(! overlapsWith(splitPosition, true)) {
+			throw new IllegalArgumentException("Split position is not included: " + toString() + " / " + splitPosition);
+		}
+		
+		return new FloatInterval(begin, splitPosition, beginIncluded, splitPositionIncluded);
+	} 
+	
+	/**
+	 * Split the interval at the given position and return the right part
+	 * @return
+	 */
+	public FloatInterval splitAndGetRightPart(final float splitPosition, final boolean splitPositionIncluded) {
+		if(! overlapsWith(splitPosition, true)) {
+			throw new IllegalArgumentException("Split position is not included: " + toString() + " / " + splitPosition);
+		}
+		
+		return new FloatInterval(splitPosition, end, splitPositionIncluded, endIncluded);
+	} 
 
 	@Override
 	public String toString() {
