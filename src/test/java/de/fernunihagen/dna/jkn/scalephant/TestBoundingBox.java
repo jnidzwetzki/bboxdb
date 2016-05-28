@@ -261,5 +261,45 @@ public class TestBoundingBox {
 		Assert.assertEquals(boundingBox3, boundingBoxList.get(4));
 	}
 	
+	/**
+	 * Test the split method
+	 */
+	@Test
+	public void testBoundingBoxSplit1() {
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 3f, 3f, 7f);
+		final BoundingBox resultBox = boundingBox1.splitAndGetLeft(2f, 0, true);
+		Assert.assertArrayEquals(new float[] {1f, 2f, 3f, 7f}, resultBox.toFloatArray(), EQUALS_DELTA);
+	}
+	
+	/**
+	 * Test the split method
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testBoundingBoxSplit2() {
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 3f, 3f, 7f);
+		boundingBox1.splitAndGetLeft(4f, 0, true);
+	}
+	
+	/**
+	 * Test the split method  (invalid dimension)
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testBoundingBoxSplit3() {
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 3f, 3f, 7f);
+		boundingBox1.splitAndGetLeft(1f, 2, true);
+	}
+	
+	/**
+	 * Test the open / closed interval split
+	 */
+	@Test
+	public void testBoundingBoxSplit4() {
+		final BoundingBox boundingBox = new BoundingBox(1f, 3f, 3f, 7f);
+		final BoundingBox leftBox = boundingBox.splitAndGetLeft(2, 0, false);
+		final BoundingBox rightBox = boundingBox.splitAndGetRight(2, 0, false);
+		
+		Assert.assertFalse(leftBox.isCoveringPointInDimension(2, 0));
+		Assert.assertFalse(rightBox.isCoveringPointInDimension(2, 0));
+	}
 
 }

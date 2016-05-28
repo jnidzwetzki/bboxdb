@@ -27,6 +27,10 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(BoundingBox.class);
 	
+	/**
+	 * Create from Float
+	 * @param args
+	 */
 	public BoundingBox(final Float... args) {
 		
 		if(args.length % 2 != 0) {
@@ -41,7 +45,11 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		}				
 	}
 	
-	public BoundingBox(float[] values) {
+	/**
+	 * Create from float[]
+	 * @param args
+	 */
+	public BoundingBox(final float[] values) {
 		
 		if(values.length % 2 != 0) {
 			throw new IllegalArgumentException("Even number of arguments expected");
@@ -53,6 +61,14 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			final FloatInterval interval = new FloatInterval(values[i], values[i+1]);
 			boundingBox.add(interval);
 		}				
+	}
+	
+	/**
+	 * Create from List<FloatInterval>
+	 * @param args
+	 */
+	public BoundingBox(final List<FloatInterval> values) {
+		boundingBox = new ArrayList<FloatInterval>(values);
 	}
 
 	/**
@@ -132,7 +148,6 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			final FloatInterval ourInterval = boundingBox.get(d);
 			final FloatInterval otherInterval = otherBoundingBox.getIntervalForDimension(d);
 			
-			
 			if(! ourInterval.isOverlappingWith(otherInterval)) {
 				return false;
 			}
@@ -147,12 +162,14 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param dimension
 	 * @return
 	 */
-	public boolean isCoveringPointInDimension(float point, int dimension) {
-		if(getCoordinateLow(dimension) <= point && getCoordinateHigh(dimension) >= point) {
-			return true;
+	public boolean isCoveringPointInDimension(final float point, final int dimension) {
+		
+		if(dimension > boundingBox.size()) {
+			throw new IllegalArgumentException("Wrong dimension : " + dimension + " we have only" + boundingBox.size() + " dimensions");
 		}
 		
-		return false;
+		final FloatInterval dimensionInterval = boundingBox.get(dimension);
+		return dimensionInterval.isNumberIncluded(point);
 	}
 	
 	/**
@@ -197,6 +214,50 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 */
 	public int getDimension() {
 		return boundingBox.size();
+	}
+	
+	/**
+	 * Split the bounding box at the given position and get the left part
+	 * @param splitPosition
+	 * @param splitPositionIncluded
+	 * @return
+	 */
+	public BoundingBox splitAndGetLeft(final float splitPosition, final int splitDimension, final boolean splitPositionIncluded) {
+		if(splitDimension > getDimension() - 1) {
+			throw new IllegalArgumentException("Unable to split a bounding box with " + getDimension() + " dimensions in dimension" + splitDimension);
+		}
+		
+		if(! isCoveringPointInDimension(splitPosition, splitDimension)) {
+			throw new IllegalArgumentException("Unable to split, point " + splitDimension + " is not covered in dimension " + splitDimension);
+		}
+		
+		final List<FloatInterval> intervals = new ArrayList<FloatInterval>(boundingBox);
+		final FloatInterval splitInterval = intervals.get(splitDimension);
+		final FloatInterval newInterval = splitInterval.splitAndGetLeftPart(splitPosition, splitPositionIncluded);
+		intervals.set(splitDimension, newInterval);
+		return new BoundingBox(intervals);
+	}
+	
+	/**
+	 * Split the bounding box at the given position and get the right part
+	 * @param splitPosition
+	 * @param splitPositionIncluded
+	 * @return
+	 */
+	public BoundingBox splitAndGetRight(final float splitPosition, final int splitDimension, final boolean splitPositionIncluded) {
+		if(splitDimension > getDimension()) {
+			throw new IllegalArgumentException("Unable to split a bounding box with " + getDimension() + " dimensions in dimension" + splitDimension);
+		}
+		
+		if(! isCoveringPointInDimension(splitPosition, splitDimension)) {
+			throw new IllegalArgumentException("Unable to split, point " + splitDimension + " is not covered in dimension " + splitDimension);
+		}
+		
+		final List<FloatInterval> intervals = new ArrayList<FloatInterval>(boundingBox);
+		final FloatInterval splitInterval = intervals.get(splitDimension);
+		final FloatInterval newInterval = splitInterval.splitAndGetRightPart(splitPosition, splitPositionIncluded);
+		intervals.set(splitDimension, newInterval);
+		return new BoundingBox(intervals);
 	}
 
 	/**
