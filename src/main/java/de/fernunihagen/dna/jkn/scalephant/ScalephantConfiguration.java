@@ -80,6 +80,11 @@ public class ScalephantConfiguration {
 	protected String localip = null;
 	
 	/**
+	 * The sstable split strategy
+	 */
+	protected String sstableSplitStrategy = "de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SimpleDistributionStrategy";
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ScalephantConfiguration.class);
@@ -177,7 +182,7 @@ public class ScalephantConfiguration {
 		return clustername;
 	}
 
-	public void setClustername(String clustername) {
+	public void setClustername(final String clustername) {
 		this.clustername = clustername;
 	}
 
@@ -185,7 +190,7 @@ public class ScalephantConfiguration {
 		return replicates;
 	}
 
-	public void setReplicates(short replicates) {
+	public void setReplicates(final short replicates) {
 		this.replicates = replicates;
 	}
 
@@ -193,7 +198,7 @@ public class ScalephantConfiguration {
 		return zookeepernodes;
 	}
 
-	public void setZookeepernodes(Collection<String> zookeepernodes) {
+	public void setZookeepernodes(final Collection<String> zookeepernodes) {
 		this.zookeepernodes = zookeepernodes;
 	}
 
@@ -203,6 +208,14 @@ public class ScalephantConfiguration {
 
 	public void setLocalip(final String localip) {
 		this.localip = localip;
+	}
+
+	public String getSstableSplitStrategy() {
+		return sstableSplitStrategy;
+	}
+
+	public void setSstableSplitStrategy(final String sstableSplitStrategy) {
+		this.sstableSplitStrategy = sstableSplitStrategy;
 	}
 
 }
