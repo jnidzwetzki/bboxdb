@@ -25,7 +25,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	/**
 	 * The min value
 	 */
-	public final static float MIN_VALUE = Float.MIN_VALUE;
+	public final static float MIN_VALUE = -Float.MAX_VALUE;
 	
 	/**
 	 * The max value
@@ -193,8 +193,8 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 */
 	public boolean isCoveringPointInDimension(final float point, final int dimension) {
 		
-		if(dimension > boundingBox.size()) {
-			throw new IllegalArgumentException("Wrong dimension : " + dimension + " we have only" + boundingBox.size() + " dimensions");
+		if(dimension >= boundingBox.size()) {
+			throw new IllegalArgumentException("Wrong dimension : " + dimension + " we have only " + boundingBox.size() + " dimensions");
 		}
 		
 		final FloatInterval dimensionInterval = boundingBox.get(dimension);
