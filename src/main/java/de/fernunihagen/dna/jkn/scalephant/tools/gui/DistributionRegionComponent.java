@@ -2,6 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.tools.gui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
@@ -88,6 +89,23 @@ public class DistributionRegionComponent {
 	 */
 	protected int calculateYOffset() {
 		return (distributionRegion.getLevel() * LEVEL_DISTANCE) + posRootY;
+	}
+	
+	/**
+	 * Is the mouse over this component?
+	 * @return
+	 */
+	protected boolean isMouseOver(final MouseEvent event) {
+		final int xOffset = calculateXOffset();
+		final int yOffset = calculateYOffset();
+		
+		if(event.getX() >= xOffset && event.getX() <= WIDTH) {
+			if(event.getY() >= yOffset && event.getY() <= HEIGHT) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	/**
