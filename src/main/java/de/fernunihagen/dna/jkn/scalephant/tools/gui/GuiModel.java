@@ -13,7 +13,7 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedIns
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.DistributedInstanceEvent;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.DistributedInstanceEventCallback;
 
-public class GUIModel implements DistributedInstanceEventCallback {
+public class GuiModel implements DistributedInstanceEventCallback {
 	
 	/**
 	 * The scalephant instances
@@ -41,9 +41,9 @@ public class GUIModel implements DistributedInstanceEventCallback {
 	protected final ZookeeperClient client;
 
 	
-	protected final static Logger logger = LoggerFactory.getLogger(GUIModel.class);
+	protected final static Logger logger = LoggerFactory.getLogger(GuiModel.class);
 
-	public GUIModel(final ZookeeperClient client) {
+	public GuiModel(final ZookeeperClient client) {
 		super();
 		this.client = client;
 		scalephantInstances = new ArrayList<DistributedInstance>();

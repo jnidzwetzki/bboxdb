@@ -21,7 +21,7 @@ public class Main {
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeeperHosts, clustername);
 		zookeeperClient.init();
 		
-		final GUIModel guiModel = new GUIModel(zookeeperClient);		
+		final GuiModel guiModel = new GuiModel(zookeeperClient);		
 		final ScalephantGUI scalepahntGUI = new ScalephantGUI(guiModel);
 		guiModel.setScalephantGui(scalepahntGUI);
 		scalepahntGUI.run();

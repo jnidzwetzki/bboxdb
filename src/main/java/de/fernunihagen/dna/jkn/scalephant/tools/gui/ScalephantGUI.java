@@ -49,7 +49,7 @@ public class ScalephantGUI {
 	/**
 	 * The GUI Model
 	 */
-	protected GUIModel guiModel;
+	protected GuiModel guiModel;
 
 	/**
 	 * Shutdown the GUI ?
@@ -58,7 +58,7 @@ public class ScalephantGUI {
 	
 	protected final static Logger logger = LoggerFactory.getLogger(ScalephantGUI.class);
 	
-	public ScalephantGUI(final GUIModel guiModel) {
+	public ScalephantGUI(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 	}
 
