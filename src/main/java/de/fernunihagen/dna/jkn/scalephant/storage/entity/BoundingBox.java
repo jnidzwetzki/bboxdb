@@ -23,6 +23,16 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	public final static int INVALID_DIMENSION = -1;
 	
 	/**
+	 * The min value
+	 */
+	public final static float MIN_VALUE = Float.MIN_VALUE;
+	
+	/**
+	 * The max value
+	 */
+	public final static float MAX_VALUE = Float.MAX_VALUE;
+	
+	/**
 	 * The Logger
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(BoundingBox.class);
