@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 
-public class ScalephantGUI {
+public class ScalephantGui {
 	
 	/**
 	 * The main frame
@@ -56,9 +56,9 @@ public class ScalephantGUI {
 	 */
 	public volatile boolean shutdown = false;
 	
-	protected final static Logger logger = LoggerFactory.getLogger(ScalephantGUI.class);
+	protected final static Logger logger = LoggerFactory.getLogger(ScalephantGui.class);
 	
-	public ScalephantGUI(final GuiModel guiModel) {
+	public ScalephantGui(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 	}
 

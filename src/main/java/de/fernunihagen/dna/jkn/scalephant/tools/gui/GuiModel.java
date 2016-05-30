@@ -33,7 +33,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	/**
 	 * The reference to the gui window
 	 */
-	protected ScalephantGUI scalephantGui;
+	protected ScalephantGui scalephantGui;
 	
 	/**
 	 * The zookeeper client
@@ -107,7 +107,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 * Set the gui component
 	 * @param scalephantGui
 	 */
-	public void setScalephantGui(final ScalephantGUI scalephantGui) {
+	public void setScalephantGui(final ScalephantGui scalephantGui) {
 		this.scalephantGui = scalephantGui;
 	}
 

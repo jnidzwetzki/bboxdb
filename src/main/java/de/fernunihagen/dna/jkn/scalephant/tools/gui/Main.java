@@ -22,7 +22,7 @@ public class Main {
 		zookeeperClient.init();
 		
 		final GuiModel guiModel = new GuiModel(zookeeperClient);		
-		final ScalephantGUI scalepahntGUI = new ScalephantGUI(guiModel);
+		final ScalephantGui scalepahntGUI = new ScalephantGui(guiModel);
 		guiModel.setScalephantGui(scalepahntGUI);
 		scalepahntGUI.run();
 		guiModel.setDistributionGroup(distributionGroup);
