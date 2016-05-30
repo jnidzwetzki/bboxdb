@@ -6,6 +6,8 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.FloatInterval;
 
 public class DistributionRegionComponent {
 	
@@ -99,8 +101,10 @@ public class DistributionRegionComponent {
 		final int xOffset = calculateXOffset();
 		final int yOffset = calculateYOffset();
 		
-		if(event.getX() >= xOffset && event.getX() <= WIDTH) {
-			if(event.getY() >= yOffset && event.getY() <= HEIGHT) {
+		System.out.println("Pos is at: " + event.getPoint());
+		
+		if(event.getX() >= xOffset && event.getX() <= xOffset + WIDTH) {
+			if(event.getY() >= yOffset && event.getY() <= yOffset + HEIGHT) {
 				return true;
 			}
 		}
@@ -161,6 +165,52 @@ public class DistributionRegionComponent {
 		}
 		
 		g.drawLine(xOffset + (WIDTH / 2), yOffset, lineEndX, lineEndY);
+	}
+
+	/**
+	 * Get the tooltip text
+	 * @return
+	 */
+	public String getToolTipText() {
+		
+		final BoundingBox boundingBox = distributionRegion.getConveringBox();
+		final StringBuilder sb = new StringBuilder("<html>");
+		
+		for(int i = 0; i < boundingBox.getDimension(); i++) {
+			final FloatInterval floatInterval = boundingBox.getIntervalForDimension(i);
+			sb.append("Dimension: " + i + " ");
+			
+			if(floatInterval.isBeginIncluded()) {
+				sb.append("[");
+			} else {
+				sb.append("(");
+			}
+			
+			if(floatInterval.getBegin() == BoundingBox.MIN_VALUE) {
+				sb.append("min");
+			} else {
+				sb.append(floatInterval.getBegin());
+			}
+			
+			sb.append(",");
+			
+			if(floatInterval.getEnd() == BoundingBox.MAX_VALUE) {
+				sb.append("max");
+			} else {
+				sb.append(floatInterval.getEnd());
+			}
+						
+			if(floatInterval.isEndIncluded()) {
+				sb.append("]");
+			} else {
+				sb.append(")");
+			}
+			
+			sb.append("<br>");
+		}
+		
+		sb.append("</html>");
+		return sb.toString();
 	}
 
 }

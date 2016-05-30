@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -122,6 +124,8 @@ public class ScalephantGui {
 		
 			private static final long serialVersionUID = -248493308846818192L;
 			
+			protected List<DistributionRegionComponent> regions = new ArrayList<DistributionRegionComponent>();
+			
 			protected void drawDistributionRegion(final Graphics2D graphics2d, final DistributionRegion distributionRegion) {
 
 				if(distributionRegion == null) {
@@ -134,6 +138,7 @@ public class ScalephantGui {
 				
 				final DistributionRegionComponent distributionRegionComponent = new DistributionRegionComponent(distributionRegion, rootPosX, rootPosY);
 				distributionRegionComponent.drawComponent(graphics2d);
+				regions.add(distributionRegionComponent);
 				
 				drawDistributionRegion(graphics2d, distributionRegion.getLeftChild());
 				drawDistributionRegion(graphics2d, distributionRegion.getRightChild());
@@ -146,19 +151,41 @@ public class ScalephantGui {
 	            graphics2D.setRenderingHint(
 	                    RenderingHints.KEY_ANTIALIASING, 
 	                    RenderingHints.VALUE_ANTIALIAS_ON);
-	            
-	            
-				final DistributionRegion distributionRegion = DistributionRegion.createRootRegion("2_testregion");
-				distributionRegion.setSplit(50);
-				distributionRegion.getLeftChild().setSplit(-30);
 				
+	            regions.clear();
+	            final DistributionRegion distributionRegion = getDistributionRegion();
 	            drawDistributionRegion(graphics2D, distributionRegion);
 	            
 				g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 20);
 			}
 			
+			protected DistributionRegion getDistributionRegion() {
+				final DistributionRegion distributionRegion = DistributionRegion.createRootRegion("2_testregion");
+				distributionRegion.setSplit(50);
+				distributionRegion.getLeftChild().setSplit(-30);
+				
+				return distributionRegion;
+			}
+			
+			/**
+			 * Get the text for the tool tip
+			 */
+			@Override
+			public String getToolTipText(final MouseEvent event) {
+
+	            for(final DistributionRegionComponent component : regions) {
+	            	System.out.println("TEst: " + component);
+	            	if(component.isMouseOver(event)) {
+	            		return component.getToolTipText();
+	            	}
+	            }
+	            
+	            return "";
+			}
+					
+			
 		};
-		
+
 		mainPanel.setBackground(Color.WHITE);
 		mainPanel.setToolTipText("");
 		mainPanel.setPreferredSize(new Dimension(800, 500));
