@@ -126,7 +126,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	}
 	
 	/**
-	 * Create a bounding box the coveres the full space for n dimensions
+	 * Create a bounding box the covers the full space for n dimensions
 	 * @param dimension
 	 * @return
 	 */
