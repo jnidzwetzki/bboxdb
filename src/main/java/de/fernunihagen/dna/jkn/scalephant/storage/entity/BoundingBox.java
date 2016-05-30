@@ -126,6 +126,25 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	}
 	
 	/**
+	 * Create a bounding box the coveres the full space for n dimensions
+	 * @param dimension
+	 * @return
+	 */
+	public static BoundingBox createFullCoveringDimensionBoundingBox(final int dimension) {
+		if(dimension <= 0) {
+			throw new IllegalArgumentException("Unable to create full covering bounding box for dimension: " + dimension);
+		}
+		
+		final List<FloatInterval> dimensions = new ArrayList<FloatInterval>();
+		
+		for(int i = 0; i < dimension; i++) {
+			dimensions.add(new FloatInterval(MIN_VALUE, MAX_VALUE));
+		}
+		
+		return new BoundingBox(dimensions);
+	}
+	
+	/**
 	 * Tests if two bounding boxes share some space
 	 * @param otherBoundingBox
 	 * @return
