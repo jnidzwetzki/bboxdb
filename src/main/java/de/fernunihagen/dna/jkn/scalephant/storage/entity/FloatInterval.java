@@ -217,9 +217,26 @@ public class FloatInterval {
 
 	@Override
 	public String toString() {
-		return "FloatInterval [begin=" + begin + ", end=" + end
-				+ ", beginIncluded=" + beginIncluded + ", endIncluded="
-				+ endIncluded + "]";
+		final StringBuffer sb = new StringBuffer();
+		sb.append("FloatInterval ");
+		
+		if(beginIncluded) {
+			sb.append("[");
+		} else {
+			sb.append("(");
+		}
+		
+		sb.append(begin);
+		sb.append(",");
+		sb.append(end);
+		
+		if(endIncluded) {
+			sb.append("]");
+		} else {
+			sb.append(")");	
+		}
+		
+		return sb.toString();
 	}
 
 	@Override
