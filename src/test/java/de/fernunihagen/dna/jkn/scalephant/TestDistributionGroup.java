@@ -8,7 +8,7 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 public class TestDistributionGroup {
 
 	/**
-	 * Create an illegal distibution group
+	 * Create an illegal distribution group
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void createInvalidDistributionGroup1() {
@@ -17,7 +17,7 @@ public class TestDistributionGroup {
 	}
 	
 	/**
-	 * Create an illegal distibution group
+	 * Create an illegal distribution group
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void createInvalidDistributionGroup2() {
