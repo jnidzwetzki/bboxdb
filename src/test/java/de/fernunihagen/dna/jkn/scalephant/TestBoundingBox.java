@@ -301,5 +301,20 @@ public class TestBoundingBox {
 		Assert.assertFalse(leftBox.isCoveringPointInDimension(2, 0));
 		Assert.assertFalse(rightBox.isCoveringPointInDimension(2, 0));
 	}
+	
+	/**
+	 * Test the bounding box split
+	 */
+	@Test
+	public void testBoundingBoxSplit5() {
+		final BoundingBox boundingBox = BoundingBox.createFullCoveringDimensionBoundingBox(1);		
+		Assert.assertTrue(boundingBox.isCoveringPointInDimension(0, 0));
+		final BoundingBox boundingBoxLeft = boundingBox.splitAndGetLeft(0, 0, false);
+		final BoundingBox boundingBoxRight = boundingBox.splitAndGetRight(0, 0, false);
+		Assert.assertFalse(boundingBoxLeft.overlaps(boundingBoxRight));
+		Assert.assertTrue(boundingBox.overlaps(boundingBoxLeft));
+		Assert.assertTrue(boundingBox.overlaps(boundingBoxRight));
+		
+	}
 
 }
