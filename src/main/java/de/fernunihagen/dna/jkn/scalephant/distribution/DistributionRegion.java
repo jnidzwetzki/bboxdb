@@ -3,6 +3,8 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+
 public class DistributionRegion implements Watcher {
 
 	/**
@@ -42,6 +44,11 @@ public class DistributionRegion implements Watcher {
 	protected final int level;
 	
 	/**
+	 * The area that is covered
+	 */
+	protected BoundingBox converingBox;
+	
+	/**
 	 * Private constructor, the factory method and the set split methods should
 	 * be used to create a tree
 	 * @param name
@@ -51,10 +58,11 @@ public class DistributionRegion implements Watcher {
 		this.distributionGroupName = name;
 		this.level = level;
 		this.totalLevel = totalLevel;
+		this.converingBox = BoundingBox.createFullCoveringDimensionBoundingBox(name.getDimension());
 		
 		totalLevel.registerNewLevel(level + 1);
 	}
-	
+
 	/**
 	 * Factory method for a new root region
 	 * @param name
@@ -126,6 +134,10 @@ public class DistributionRegion implements Watcher {
 		
 		leftChild.setParent(this);
 		rightChild.setParent(this);
+		
+		// Calculate the covering bounding boxes
+		leftChild.setConveringBox(converingBox.splitAndGetLeft(split, getSplitDimension(), true));
+		leftChild.setConveringBox(converingBox.splitAndGetRight(split, getSplitDimension(), false));
 	}
 	
 	/**
@@ -231,6 +243,22 @@ public class DistributionRegion implements Watcher {
 		}
 		
 		return (getParent().getRightChild() == this);
+	}
+
+	/**
+	 * Get the covering bounding box
+	 * @return
+	 */
+	public BoundingBox getConveringBox() {
+		return converingBox;
+	}
+
+	/**
+	 * Set the covering bounding box
+	 * @param converingBox
+	 */
+	public void setConveringBox(final BoundingBox converingBox) {
+		this.converingBox = converingBox;
 	}
 	
 }
