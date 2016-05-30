@@ -257,7 +257,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		}
 		
 		if(! isCoveringPointInDimension(splitPosition, splitDimension)) {
-			throw new IllegalArgumentException("Unable to split, point " + splitDimension + " is not covered in dimension " + splitDimension);
+			throw new IllegalArgumentException("Unable to split, point " + splitPosition + " is not covered in dimension " + splitDimension + " " + boundingBox.get(getDimension() - 1));
 		}
 		
 		final List<FloatInterval> intervals = new ArrayList<FloatInterval>(boundingBox);

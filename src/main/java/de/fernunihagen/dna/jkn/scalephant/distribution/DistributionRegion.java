@@ -137,7 +137,7 @@ public class DistributionRegion implements Watcher {
 		
 		// Calculate the covering bounding boxes
 		leftChild.setConveringBox(converingBox.splitAndGetLeft(split, getSplitDimension(), true));
-		leftChild.setConveringBox(converingBox.splitAndGetRight(split, getSplitDimension(), false));
+		rightChild.setConveringBox(converingBox.splitAndGetRight(split, getSplitDimension(), false));
 	}
 	
 	/**

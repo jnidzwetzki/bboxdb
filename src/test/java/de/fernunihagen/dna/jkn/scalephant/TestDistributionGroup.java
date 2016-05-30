@@ -70,7 +70,7 @@ public class TestDistributionGroup {
 		final DistributionRegion level1 = level0.getLeftChild();
 		level1.setSplit(40);
 		final DistributionRegion level2 = level1.getLeftChild();
-		level2.setSplit(30);
+		level2.setSplit(-30);
 		final DistributionRegion level3 = level2.getLeftChild();
 		level3.setSplit(30);
 		final DistributionRegion level4 = level3.getLeftChild();
