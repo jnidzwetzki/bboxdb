@@ -1,6 +1,15 @@
 language: java
 sudo: false
 
+before_install:
+  # Install zookeeper
+  - mkdir /tmp/zookeeper
+  - cd /tmp/zookeeper
+  - wget http://www.eu.apache.org/dist/zookeeper/zookeeper-3.4.8/zookeeper-3.4.8.tar.gz
+  - tar xzf zookeeper-3.4.8.tar.gz
+  - cp zookeeper-3.4.8/conf/zoo_sample.cfg zookeeper-3.4.8/conf/zoo.cfg
+  - zookeeper-3.4.8/bin/zkServer.sh start
+
 cache:
   directories:
   - $HOME/.m2
