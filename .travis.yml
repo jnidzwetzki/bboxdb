@@ -11,9 +11,9 @@ before_install:
   # Change config
   - sed -i "s/zookeepernodes: .*/zookeepernodes: ['localhost:2181']/" conf/scalephant.yaml
   # Dump config
-  - echo "#####################################################################"
+  - echo "######################################################################"
   - cat conf/scalephant.yaml
-  - echo "#####################################################################"
+  - echo "######################################################################"
 
 cache:
   directories:
