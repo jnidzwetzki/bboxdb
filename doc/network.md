@@ -33,6 +33,8 @@ Request Types:
 * Type 0x04 - Disconnect request
 * Type 0x05 - Query request
 * Type 0x06 - Transfer SSTable
+* Type 0x07 - Create distribution group
+* Type 0x08 - Delete distribution group
 
 
 ## The response frame

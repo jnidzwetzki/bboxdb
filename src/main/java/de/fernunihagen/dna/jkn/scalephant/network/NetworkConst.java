@@ -54,6 +54,16 @@ public class NetworkConst {
 	 */
 	public static final byte REQUEST_TYPE_TRANSFER = 0x06;
 	
+	/**
+	 * Request type create distribution group
+	 */
+	public static final byte REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP = 0x07;
+	
+	/**
+	 * Request type delete distribution group
+	 */
+	public static final byte REQUEST_TYPE_DELETE_DISTRIBUTION_GRUOP = 0x08;
+	
 	
 	/**
 	 * Query type key
