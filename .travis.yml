@@ -9,7 +9,7 @@ before_install:
   - cp /tmp/zookeeper/zookeeper-3.4.8/conf/zoo_sample.cfg /tmp/zookeeper/zookeeper-3.4.8/conf/zoo.cfg
   - /tmp/zookeeper/zookeeper-3.4.8/bin/zkServer.sh start
   - echo "#####################################################################"
-  - cat scalephant/conf/scalephant.yaml
+  - cat jnidzwetzki/scalephant/conf/scalephant.yaml
   - echo "#####################################################################"
 
 cache:
