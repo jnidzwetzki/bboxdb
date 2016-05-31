@@ -8,6 +8,9 @@ before_install:
   - tar xzf zookeeper-3.4.8.tar.gz -C /tmp/zookeeper
   - cp /tmp/zookeeper/zookeeper-3.4.8/conf/zoo_sample.cfg /tmp/zookeeper/zookeeper-3.4.8/conf/zoo.cfg
   - /tmp/zookeeper/zookeeper-3.4.8/bin/zkServer.sh start
+  # Change config
+  - sed -i "s/zookeepernodes: .*/zookeepernodes: ['localhost:2181']/" conf/scalephant.yaml
+  # Dump config
   - echo "#####################################################################"
   - cat conf/scalephant.yaml
   - echo "#####################################################################"
