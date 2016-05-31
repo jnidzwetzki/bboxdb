@@ -81,3 +81,8 @@ zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
 # The sstable split strategy
 # Default: de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SimpleStrategy
 # sstableSplitStrategy: de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SimpleDistributionStrategy
+
+# The maximum number of values before a sstable is split
+# Default: 1000
+# sstableMaxEntries: 1000
+

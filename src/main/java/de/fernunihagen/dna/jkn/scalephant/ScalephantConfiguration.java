@@ -85,6 +85,11 @@ public class ScalephantConfiguration {
 	protected String sstableSplitStrategy = "de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SimpleDistributionStrategy";
 	
 	/**
+	 * The maximum number of entries per SSTable
+	 */
+	protected int sstableMaxEntries = 1000;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ScalephantConfiguration.class);
@@ -216,6 +221,14 @@ public class ScalephantConfiguration {
 
 	public void setSstableSplitStrategy(final String sstableSplitStrategy) {
 		this.sstableSplitStrategy = sstableSplitStrategy;
+	}
+
+	public int getSstableMaxEntries() {
+		return sstableMaxEntries;
+	}
+
+	public void setSstableMaxEntries(final int sstableMaxEntries) {
+		this.sstableMaxEntries = sstableMaxEntries;
 	}
 
 }
