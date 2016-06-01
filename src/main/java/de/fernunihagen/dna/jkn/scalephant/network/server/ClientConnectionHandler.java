@@ -18,6 +18,8 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.CreateDistributionGroupRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteDistributionGroupRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
@@ -209,6 +211,52 @@ public class ClientConnectionHandler implements Runnable {
 			TransferSSTableRequest.decodeTuple(packageHeader, bodyLength, configuration, inputStream);
 		} catch (IOException e) {
 			logger.warn("Exception while handling sstable transfer", e);
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Create a new distribution group
+	 * @param packageHeader
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleCreateDistributionGroup(final ByteBuffer packageHeader, final short packageSequence) {
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+		
+		final CreateDistributionGroupRequest resultPackage = CreateDistributionGroupRequest.decodeTuple(encodedPackage);
+		logger.info("Create distribution group: " + resultPackage.getDistributionGroup());
+		
+		try {
+			//TODO: Handle the package
+			writeResultPackage(new SuccessResponse(packageSequence));
+		} catch (Exception e) {
+			logger.warn("Error while create distribution group", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Delete an existing distribution group
+	 * @param packageHeader
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleDeleteDistributionGroup(final ByteBuffer packageHeader, final short packageSequence) {
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+		
+		final DeleteDistributionGroupRequest resultPackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
+		logger.info("Delete distribution group: " + resultPackage.getDistributionGroup());
+		
+		try {
+			//TODO: Handle the package
+			writeResultPackage(new SuccessResponse(packageSequence));
+		} catch (Exception e) {
+			logger.warn("Error while delete distribution group", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
 		}
 		
 		return true;
@@ -458,6 +506,20 @@ public class ClientConnectionHandler implements Runnable {
 					logger.debug("Got transfer package");
 				}
 				readFurtherPackages = handleTransfer(packageHeader, packageSequence);
+				break;
+				
+			case NetworkConst.REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got create distribution group package");
+				}
+				readFurtherPackages = handleCreateDistributionGroup(packageHeader, packageSequence);
+				break;
+		
+			case NetworkConst.REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got delete distribution group package");
+				}
+				readFurtherPackages = handleCreateDistributionGroup(packageHeader, packageSequence);
 				break;
 				
 			default:
