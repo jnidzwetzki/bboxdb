@@ -404,7 +404,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			return;
 		}
 		
-		byte[] bytes = zookeeper.getData(splitPathName, false, null);
+		final byte[] bytes = zookeeper.getData(splitPathName, false, null);
 		final float splitFloat = Float.parseFloat(new String(bytes));
 		
 		child.setSplit(splitFloat);
