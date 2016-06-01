@@ -12,6 +12,8 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.network.client.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.CreateDistributionGroupRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteDistributionGroupRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.InsertTupleRequest;
@@ -154,6 +156,46 @@ public class TestNetworkClasses {
 		Assert.assertEquals(deletePackage.getKey(), decodedPackage.getKey());
 		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(deletePackage, decodedPackage);
+	}
+	
+	/**
+	 * The the encoding and decoding of an create distribution group package
+	 * @throws IOException 
+	 */
+	@Test
+	public void encodeAndDecodeCreateDistributionGroup() throws IOException {
+				
+		final CreateDistributionGroupRequest groupPackage = new CreateDistributionGroupRequest("test");
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		byte[] encodedVersion = networkPackageToByte(groupPackage, sequenceNumber);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final CreateDistributionGroupRequest decodedPackage = CreateDistributionGroupRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(groupPackage.getDistributionGroup(), decodedPackage.getDistributionGroup());
+		Assert.assertEquals(groupPackage, decodedPackage);
+	}
+	
+	/**
+	 * The the encoding and decoding of an create distribution group package
+	 * @throws IOException 
+	 */
+	@Test
+	public void encodeAndDecodeDeleteDistributionGroup() throws IOException {
+				
+		final DeleteDistributionGroupRequest groupPackage = new DeleteDistributionGroupRequest("test");
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		byte[] encodedVersion = networkPackageToByte(groupPackage, sequenceNumber);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final DeleteDistributionGroupRequest decodedPackage = DeleteDistributionGroupRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(groupPackage.getDistributionGroup(), decodedPackage.getDistributionGroup());
+		Assert.assertEquals(groupPackage, decodedPackage);
 	}
 	
 	/**

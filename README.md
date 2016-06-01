@@ -13,6 +13,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 - Improved bounding box implementation
 - Added zookeeper to travis ci
 - Improved distribution group GUI handling
+- Added create and delete distribution group network packages
 
 ### Version 0.0.6 (Alpha) - 13.05.2016
 - Added timestamp queries

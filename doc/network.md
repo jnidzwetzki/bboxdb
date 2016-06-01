@@ -352,3 +352,31 @@ This request transfers a whole SSTable from one instance to another. This reques
 #### Response body
 The result could be currently the response types 0x00, 0x02 or the receiving server closes the tcp socket during the file transfer. 
 
+
+### Create distribution group
+This package deletes a whole table. The result could be currently response type 0x00, 0x02 and 0x03.
+
+#### Request body
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|   Group-Length   |                 |
+	+------------------+                 |
+	|        Distribution Group          |
+	.                                    .
+	+------------------------------------+
+
+
+### Delete distribution group
+This package deletes a whole table. The result could be currently response type 0x00, 0x02 and 0x03.
+
+#### Request body
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|   Group-Length   |                 |
+	+------------------+                 |
+	|        Distribution Group          |
+	.                                    .
+	+------------------------------------+
+

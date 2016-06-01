@@ -18,6 +18,8 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.CreateDistributionGroupRequest;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteDistributionGroupRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DisconnectRequest;
@@ -31,8 +33,8 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ErrorWithBod
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupleEndResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupleStartResponse;
-import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
@@ -270,6 +272,40 @@ public class ScalephantClient {
 
 		final ClientOperationFuture future = new ClientOperationFuture();
 		sendPackageToServer(new ListTablesRequest(), future);
+
+		return future;
+	}
+	
+	/**
+	 * Create a new distribution group
+	 * @param distributionGroup
+	 * @return
+	 */
+	public ClientOperationFuture createDistributionGroup(final String distributionGroup) {
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			logger.warn("listTables called, but connection not ready: " + connectionState);
+			return null;
+		}
+
+		final ClientOperationFuture future = new ClientOperationFuture();
+		sendPackageToServer(new CreateDistributionGroupRequest(distributionGroup), future);
+
+		return future;
+	}
+	
+	/**
+	 * Delete a distribution group
+	 * @param distributionGroup
+	 * @return
+	 */
+	public ClientOperationFuture deleteDistributionGroup(final String distributionGroup) {
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			logger.warn("listTables called, but connection not ready: " + connectionState);
+			return null;
+		}
+
+		final ClientOperationFuture future = new ClientOperationFuture();
+		sendPackageToServer(new DeleteDistributionGroupRequest(distributionGroup), future);
 
 		return future;
 	}
