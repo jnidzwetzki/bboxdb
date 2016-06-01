@@ -256,7 +256,16 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return
 	 */
 	protected String getDistributionGroupIdQueuePath(final String distributionGroup) {
-		return "/" + clustername + "/" + distributionGroup + "/nameprefixqueue";
+		 return getDistributionGroupPath(distributionGroup) + "/nameprefixqueue";
+	}
+	
+	/**
+	 * Get the path for the distribution group
+	 * @param distributionGroup
+	 * @return
+	 */
+	protected String getDistributionGroupPath(final String distributionGroup) {
+		return "/" + clustername + "/" + distributionGroup;
 	}
 
 	@Override
