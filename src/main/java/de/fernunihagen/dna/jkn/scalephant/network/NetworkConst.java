@@ -62,7 +62,7 @@ public class NetworkConst {
 	/**
 	 * Request type delete distribution group
 	 */
-	public static final byte REQUEST_TYPE_DELETE_DISTRIBUTION_GRUOP = 0x08;
+	public static final byte REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP = 0x08;
 	
 	
 	/**
