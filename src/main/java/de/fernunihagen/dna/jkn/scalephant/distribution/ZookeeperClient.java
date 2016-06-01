@@ -66,6 +66,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected final static String NODE_RIGHT = "right";
 	
 	/**
+	 * Name of the split node
+	 */
+	protected final static String NAME_SPLIT = "split";
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
@@ -372,11 +377,40 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	/**
 	 * Read the structure of a distribution group
 	 * @return
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
 	 */
-	public DistributionRegion readDistributionGroup(final String name) {
-		final DistributionRegion root = DistributionRegion.createRootRegion(name);
+	public DistributionRegion readDistributionGroup(final String distributionGroup) throws KeeperException, InterruptedException {
+		final DistributionRegion root = DistributionRegion.createRootRegion(distributionGroup);
+		final String path = getDistributionGroupPath(distributionGroup);
+		
+		readDistributionGroupRecursive(path, root);
 		
 		return root;
+	}
+	
+	/**
+	 * Read the distribution group in a recursive way
+	 * @param path
+	 * @param child
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
+	 */
+	protected void readDistributionGroupRecursive(final String path, final DistributionRegion child) throws KeeperException, InterruptedException {
+		
+		final String splitPathName = path + "/" + NAME_SPLIT;
+		
+		if(zookeeper.exists(splitPathName, this) == null) {
+			return;
+		}
+		
+		byte[] bytes = zookeeper.getData(splitPathName, false, null);
+		final float splitFloat = Float.parseFloat(new String(bytes));
+		
+		child.setSplit(splitFloat);
+
+		readDistributionGroupRecursive(path + "/" + NODE_LEFT, child.getLeftChild());
+		readDistributionGroupRecursive(path + "/" + NODE_RIGHT, child.getRightChild());
 	}
 
 	//===============================================================

@@ -3,6 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.tools.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,9 +82,11 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	}
 	
 	/**
-	 * Upate the distribution region
+	 * Update the distribution region
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
 	 */
-	protected void updateDistributionRegion() {
+	protected void updateDistributionRegion() throws KeeperException, InterruptedException {
 		rootRegion = client.readDistributionGroup(distributionGroup);
 	}
 
