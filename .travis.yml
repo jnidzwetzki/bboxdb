@@ -8,12 +8,15 @@ before_install:
   - tar xzf zookeeper-3.4.8.tar.gz -C /tmp/zookeeper
   - cp /tmp/zookeeper/zookeeper-3.4.8/conf/zoo_sample.cfg /tmp/zookeeper/zookeeper-3.4.8/conf/zoo.cfg
   - /tmp/zookeeper/zookeeper-3.4.8/bin/zkServer.sh start
+  # Change config
   - sed -i "s/zookeepernodes:.*/zookeepernodes:\ ['localhost:2181']/" conf/scalephant.yaml
   - sed -i "s|rootDirectory:.*|rootDirectory:\ /tmp/scalephant_test|" conf/scalephant.yaml
   - sed -i "s|dataDirectory:.*|dataDirectory:\ /tmp/scalephant_test/data|" conf/scalephant.yaml
   - echo "#####################################################################"
   - cat conf/scalephant.yaml
   - echo "#####################################################################"
+  # Create required directories
+  - mkdir -p /tmp/scalephant_test/data
 
 cache:
   directories:
