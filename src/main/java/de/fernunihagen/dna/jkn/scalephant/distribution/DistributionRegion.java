@@ -20,7 +20,7 @@ public class DistributionRegion implements Watcher {
 	/**
 	 * The split position
 	 */
-	protected long split = Long.MIN_VALUE;
+	protected float split = Float.MIN_VALUE;
 	
 	/**
 	 * The left child
@@ -122,7 +122,7 @@ public class DistributionRegion implements Watcher {
 	 * Set the split coordinate
 	 * @param split
 	 */
-	public void setSplit(final long split) {
+	public void setSplit(final float split) {
 		this.split = split;
 		
 		if(leftChild != null || rightChild != null) {
@@ -144,7 +144,7 @@ public class DistributionRegion implements Watcher {
 	 * Get the split coordinate
 	 * @return
 	 */
-	public long getSplit() {
+	public float getSplit() {
 		return split;
 	}
 	

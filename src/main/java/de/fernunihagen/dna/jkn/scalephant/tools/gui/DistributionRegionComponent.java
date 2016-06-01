@@ -128,7 +128,7 @@ public class DistributionRegionComponent {
 		g.drawRect(xOffset, yOffset, WIDTH, HEIGHT);
 
 		// Write node text
-		String nodeText = Long.toString(distributionRegion.getSplit());
+		String nodeText = Float.toString(distributionRegion.getSplit());
 		if(distributionRegion.isLeafRegion()) {
 			nodeText = "-";
 		}
