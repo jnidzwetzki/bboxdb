@@ -17,8 +17,6 @@ import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
-import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
@@ -413,25 +411,4 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		readDistributionGroupRecursive(path + "/" + NODE_RIGHT, child.getRightChild());
 	}
 
-	//===============================================================
-	// Test * Test * Test * Test * Test 
-	//===============================================================
-	public static void main(String[] args) throws ZookeeperException {
-		
-		final ScalephantConfiguration scalephantConfiguration 
-		     = ScalephantConfigurationManager.getConfiguration();
-		
-		final ZookeeperClient zookeeperClient 
-		     = new ZookeeperClient(scalephantConfiguration.getZookeepernodes(), 
-				                   scalephantConfiguration.getClustername());
-		
-		zookeeperClient.init();
-		
-		for(int i = 0; i < 10; i++) {
-			int nextId = zookeeperClient.getNextTableIdForDistributionGroup("mygroup1");
-			System.out.println("The next id is: " + nextId);
-		}
-		
-		zookeeperClient.shutdown();
-	}
 }
