@@ -501,5 +501,26 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		return groups;
 	}
+	
+	/**
+	 * Get the replication factor for a distribution group
+	 * @param distributionGroup
+	 * @return
+	 * @throws ZookeeperException
+	 * @throws KeeperException
+	 * @throws InterruptedException
+	 */
+	public short getReplicationFactorForDistributionGroup(final String distributionGroup) throws ZookeeperException, KeeperException, InterruptedException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String fullPath = path + "/" + NAME_REPLICATION;
+		final byte[] data = zookeeper.getData(fullPath, false, null);
+		
+		try {
+			return Short.parseShort(new String(data));
+		} catch (NumberFormatException e) {
+			throw new ZookeeperException("Unable to parse replication factor: " + data + " for " + fullPath);
+		}
+	}
 
 }
