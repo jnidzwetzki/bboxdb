@@ -18,14 +18,20 @@ public class CreateDistributionGroupRequest implements NetworkRequestPackage {
 	 * The name of the table
 	 */
 	protected final String distributionGroup;
+	
+	/**
+	 * The replication factor for the distribution group
+	 */
+	protected final short replicationFactor;
 
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(CreateDistributionGroupRequest.class);
 	
-	public CreateDistributionGroupRequest(final String distributionGroup) {
+	public CreateDistributionGroupRequest(final String distributionGroup, final short replicationFactor) {
 		this.distributionGroup = distributionGroup;
+		this.replicationFactor = replicationFactor;
 	}
 	
 	@Override
@@ -36,9 +42,10 @@ public class CreateDistributionGroupRequest implements NetworkRequestPackage {
 		try {
 			final byte[] groupBytes = distributionGroup.getBytes();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(2);
+			final ByteBuffer bb = ByteBuffer.allocate(4);
 			bb.order(NetworkConst.NETWORK_BYTEORDER);
 			bb.putShort((short) groupBytes.length);
+			bb.putShort(replicationFactor);
 			
 			// Write body length
 			final long bodyLength = bb.capacity() + groupBytes.length;
@@ -71,6 +78,7 @@ public class CreateDistributionGroupRequest implements NetworkRequestPackage {
 		}
 		
 		final short groupLength = encodedPackage.getShort();
+		final short replicationFactor = encodedPackage.getShort();
 		
 		final byte[] groupBytes = new byte[groupLength];
 		encodedPackage.get(groupBytes, 0, groupBytes.length);
@@ -80,7 +88,7 @@ public class CreateDistributionGroupRequest implements NetworkRequestPackage {
 			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
-		return new CreateDistributionGroupRequest(distributionGroup);
+		return new CreateDistributionGroupRequest(distributionGroup, replicationFactor);
 	}
 
 	@Override
@@ -90,6 +98,10 @@ public class CreateDistributionGroupRequest implements NetworkRequestPackage {
 
 	public String getDistributionGroup() {
 		return distributionGroup;
+	}
+	
+	public short getReplicationFactor() {
+		return replicationFactor;
 	}
 
 	@Override

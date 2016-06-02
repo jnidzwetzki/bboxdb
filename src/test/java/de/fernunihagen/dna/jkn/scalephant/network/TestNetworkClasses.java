@@ -165,7 +165,7 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeCreateDistributionGroup() throws IOException {
 				
-		final CreateDistributionGroupRequest groupPackage = new CreateDistributionGroupRequest("test");
+		final CreateDistributionGroupRequest groupPackage = new CreateDistributionGroupRequest("test", (short) 3);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		byte[] encodedVersion = networkPackageToByte(groupPackage, sequenceNumber);
@@ -175,6 +175,7 @@ public class TestNetworkClasses {
 		final CreateDistributionGroupRequest decodedPackage = CreateDistributionGroupRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(groupPackage.getDistributionGroup(), decodedPackage.getDistributionGroup());
+		Assert.assertEquals(groupPackage.getReplicationFactor(), decodedPackage.getReplicationFactor());
 		Assert.assertEquals(groupPackage, decodedPackage);
 	}
 	

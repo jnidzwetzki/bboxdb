@@ -281,14 +281,14 @@ public class ScalephantClient {
 	 * @param distributionGroup
 	 * @return
 	 */
-	public ClientOperationFuture createDistributionGroup(final String distributionGroup) {
+	public ClientOperationFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("listTables called, but connection not ready: " + connectionState);
 			return null;
 		}
 
 		final ClientOperationFuture future = new ClientOperationFuture();
-		sendPackageToServer(new CreateDistributionGroupRequest(distributionGroup), future);
+		sendPackageToServer(new CreateDistributionGroupRequest(distributionGroup, replicationFactor), future);
 
 		return future;
 	}
