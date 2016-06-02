@@ -95,5 +95,11 @@ public class DistributionGroupName {
 	public String getGroupname() {
 		return groupname;
 	}
+
+	@Override
+	public String toString() {
+		return "DistributionGroupName [fullname=" + fullname + ", dimension="
+				+ dimension + ", groupname=" + groupname + "]";
+	}
 	
 }
