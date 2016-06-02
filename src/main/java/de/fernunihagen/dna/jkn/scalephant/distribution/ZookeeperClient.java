@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -67,6 +68,21 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * Name of the split node
 	 */
 	protected final static String NAME_SPLIT = "split";
+	
+	/**
+	 * Name of the name prefix node
+	 */
+	protected final static String NAME_NAMEPREFIX = "nameprefix";
+	
+	/**
+	 * Name of the name prefix queue
+	 */
+	protected static final String NAME_PREFIXQUEUE = "nameprefixqueue";
+
+	/**
+	 * Name of the replication node
+	 */
+	protected final static String NAME_REPLICATION = "replication";
 	
 	/**
 	 * The logger
@@ -240,7 +256,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param clustername
 	 * @return
 	 */
-	protected String getClusterPath(final String clustername) {
+	protected String getClusterPath() {
 		return "/" + clustername;
 	}
 	
@@ -250,7 +266,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return
 	 */
 	protected String getNodesPath(final String clustername) {
-		return "/" + clustername + "/nodes";
+		return getClusterPath() + "/nodes";
 	}
 	
 	/**
@@ -259,7 +275,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return
 	 */
 	protected String getDistributionGroupIdQueuePath(final String distributionGroup) {
-		 return getDistributionGroupPath(distributionGroup) + "/nameprefixqueue";
+		 return getDistributionGroupPath(distributionGroup) + "/" + NAME_PREFIXQUEUE;
 	}
 	
 	/**
@@ -268,7 +284,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return
 	 */
 	protected String getDistributionGroupPath(final String distributionGroup) {
-		return "/" + clustername + "/" + distributionGroup;
+		return getClusterPath() + "/" + distributionGroup;
 	}
 
 	@Override
@@ -325,6 +341,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		final String distributionGroupIdQueuePath = getDistributionGroupIdQueuePath(distributionGroup);
 		
 		createDirectoryStructureRecursive(distributionGroupIdQueuePath);
+		
 		try {	
 			final String nodename = zookeeper.create(distributionGroupIdQueuePath + "/" + SEQUENCE_QUEUE_PREFIX, 
 					"".getBytes(), 
@@ -409,6 +426,80 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 
 		readDistributionGroupRecursive(path + "/" + NODE_LEFT, child.getLeftChild());
 		readDistributionGroupRecursive(path + "/" + NODE_RIGHT, child.getRightChild());
+	}
+	
+	/**
+	 * Delete the node recursive
+	 * @param path
+	 * @throws KeeperException 
+	 * @throws InterruptedException 
+	 */
+	protected void deleteNodesRecursive(final String path) throws InterruptedException, KeeperException {
+		
+		final List<String> childs = zookeeper.getChildren(path, false);
+		
+		for(final String child: childs) {
+			deleteNodesRecursive(path + "/"+ child);
+		}
+		
+		zookeeper.delete(path, -1);
+	}
+	
+	/**
+	 * Create a new distribution group
+	 * @param distributionGroup
+	 * @param replicationFactor
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
+	 * @throws ZookeeperException 
+	 */
+	public void createDistributionGroup(final String distributionGroup, final short replicationFactor) throws KeeperException, InterruptedException, ZookeeperException {
+		final String path = getDistributionGroupPath(distributionGroup);
+		
+		zookeeper.create(path, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		
+		final int nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
+		
+		zookeeper.create(path + "/" + NAME_NAMEPREFIX, Integer.toString(nameprefix).getBytes(), 
+				ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		
+		zookeeper.create(path + "/" + NAME_REPLICATION, Short.toString(replicationFactor).getBytes(), 
+				ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);	
+	}
+	
+	/**
+	 * Delete an existing distribution group
+	 * @param distributionGroup
+	 * @throws InterruptedException
+	 * @throws KeeperException
+	 */
+	public void deleteDistributionGroup(final String distributionGroup) throws InterruptedException, KeeperException {
+		final String path = getDistributionGroupPath(distributionGroup);
+		deleteNodesRecursive(path);
+	}
+	
+	/**
+	 * List all existing distribution groups
+	 * @return
+	 * @throws InterruptedException 
+	 * @throws KeeperException 
+	 */
+	public List<DistributionGroupName> getDistributionGroups() throws KeeperException, InterruptedException {
+		final List<DistributionGroupName> groups = new ArrayList<DistributionGroupName>();
+		
+		final String clusterPath = getClusterPath();
+		final List<String> nodes = zookeeper.getChildren(clusterPath, false);
+		
+		for(final String node : nodes) {
+			final DistributionGroupName groupName = new DistributionGroupName(node);
+			if(groupName.isValid()) {
+				groups.add(groupName);
+			} else {
+				logger.warn("Got invalid distribution group name from zookeeper: " + groupName);
+			}
+		}
+		
+		return groups;
 	}
 
 }
