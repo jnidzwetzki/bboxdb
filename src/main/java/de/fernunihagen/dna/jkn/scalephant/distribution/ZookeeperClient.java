@@ -392,16 +392,19 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	/**
 	 * Read the structure of a distribution group
 	 * @return
-	 * @throws InterruptedException 
-	 * @throws KeeperException 
+	 * @throws ZookeeperException 
 	 */
-	public DistributionRegion readDistributionGroup(final String distributionGroup) throws KeeperException, InterruptedException {
-		final DistributionRegion root = DistributionRegion.createRootRegion(distributionGroup);
-		final String path = getDistributionGroupPath(distributionGroup);
-		
-		readDistributionGroupRecursive(path, root);
-		
-		return root;
+	public DistributionRegion readDistributionGroup(final String distributionGroup) throws ZookeeperException {
+		try {
+			final DistributionRegion root = DistributionRegion.createRootRegion(distributionGroup);
+			final String path = getDistributionGroupPath(distributionGroup);
+			
+			readDistributionGroupRecursive(path, root);
+			
+			return root;
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
 	}
 	
 	/**
@@ -449,57 +452,64 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * Create a new distribution group
 	 * @param distributionGroup
 	 * @param replicationFactor
-	 * @throws InterruptedException 
-	 * @throws KeeperException 
 	 * @throws ZookeeperException 
 	 */
-	public void createDistributionGroup(final String distributionGroup, final short replicationFactor) throws KeeperException, InterruptedException, ZookeeperException {
-		final String path = getDistributionGroupPath(distributionGroup);
-		
-		zookeeper.create(path, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-		
-		final int nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
-		
-		zookeeper.create(path + "/" + NAME_NAMEPREFIX, Integer.toString(nameprefix).getBytes(), 
-				ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-		
-		zookeeper.create(path + "/" + NAME_REPLICATION, Short.toString(replicationFactor).getBytes(), 
-				ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);	
+	public void createDistributionGroup(final String distributionGroup, final short replicationFactor) throws ZookeeperException {
+		try {
+			final String path = getDistributionGroupPath(distributionGroup);
+			
+			zookeeper.create(path, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			
+			final int nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
+			
+			zookeeper.create(path + "/" + NAME_NAMEPREFIX, Integer.toString(nameprefix).getBytes(), 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			
+			zookeeper.create(path + "/" + NAME_REPLICATION, Short.toString(replicationFactor).getBytes(), 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
 	}
 	
 	/**
 	 * Delete an existing distribution group
 	 * @param distributionGroup
-	 * @throws InterruptedException
-	 * @throws KeeperException
+	 * @throws ZookeeperException 
 	 */
-	public void deleteDistributionGroup(final String distributionGroup) throws InterruptedException, KeeperException {
-		final String path = getDistributionGroupPath(distributionGroup);
-		deleteNodesRecursive(path);
+	public void deleteDistributionGroup(final String distributionGroup) throws ZookeeperException {
+		try {
+			final String path = getDistributionGroupPath(distributionGroup);
+			deleteNodesRecursive(path);
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
 	}
 	
 	/**
 	 * List all existing distribution groups
 	 * @return
-	 * @throws InterruptedException 
-	 * @throws KeeperException 
+	 * @throws ZookeeperException 
 	 */
-	public List<DistributionGroupName> getDistributionGroups() throws KeeperException, InterruptedException {
-		final List<DistributionGroupName> groups = new ArrayList<DistributionGroupName>();
-		
-		final String clusterPath = getClusterPath();
-		final List<String> nodes = zookeeper.getChildren(clusterPath, false);
-		
-		for(final String node : nodes) {
-			final DistributionGroupName groupName = new DistributionGroupName(node);
-			if(groupName.isValid()) {
-				groups.add(groupName);
-			} else {
-				logger.warn("Got invalid distribution group name from zookeeper: " + groupName);
+	public List<DistributionGroupName> getDistributionGroups() throws ZookeeperException {
+		try {
+			final List<DistributionGroupName> groups = new ArrayList<DistributionGroupName>();
+			final String clusterPath = getClusterPath();
+			final List<String> nodes = zookeeper.getChildren(clusterPath, false);
+			
+			for(final String node : nodes) {
+				final DistributionGroupName groupName = new DistributionGroupName(node);
+				if(groupName.isValid()) {
+					groups.add(groupName);
+				} else {
+					logger.warn("Got invalid distribution group name from zookeeper: " + groupName);
+				}
 			}
+			
+			return groups;
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
 		}
-		
-		return groups;
 	}
 	
 	/**
@@ -507,20 +517,22 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param distributionGroup
 	 * @return
 	 * @throws ZookeeperException
-	 * @throws KeeperException
-	 * @throws InterruptedException
 	 */
-	public short getReplicationFactorForDistributionGroup(final String distributionGroup) throws ZookeeperException, KeeperException, InterruptedException {
-		
-		final String path = getDistributionGroupPath(distributionGroup);
-		final String fullPath = path + "/" + NAME_REPLICATION;
-		final byte[] data = zookeeper.getData(fullPath, false, null);
+	public short getReplicationFactorForDistributionGroup(final String distributionGroup) throws ZookeeperException {
 		
 		try {
-			return Short.parseShort(new String(data));
-		} catch (NumberFormatException e) {
-			throw new ZookeeperException("Unable to parse replication factor: " + data + " for " + fullPath);
-		}
+			final String path = getDistributionGroupPath(distributionGroup);
+			final String fullPath = path + "/" + NAME_REPLICATION;
+			final byte[] data = zookeeper.getData(fullPath, false, null);
+			
+			try {
+				return Short.parseShort(new String(data));
+			} catch (NumberFormatException e) {
+				throw new ZookeeperException("Unable to parse replication factor: " + data + " for " + fullPath);
+			}
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		} 
 	}
 
 }

@@ -3,12 +3,12 @@ package de.fernunihagen.dna.jkn.scalephant.tools.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.DistributedInstanceEvent;
@@ -83,10 +83,9 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	
 	/**
 	 * Update the distribution region
-	 * @throws InterruptedException 
-	 * @throws KeeperException 
+	 * @throws ZookeeperException 
 	 */
-	protected void updateDistributionRegion() throws KeeperException, InterruptedException {
+	protected void updateDistributionRegion() throws ZookeeperException {
 		rootRegion = client.readDistributionGroup(distributionGroup);
 	}
 
