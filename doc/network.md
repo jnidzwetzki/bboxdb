@@ -360,18 +360,18 @@ This package deletes a whole table. The result could be currently response type 
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	|   Group-Length   |                 |
-	+------------------+                 |
+	|   Group-Length   |   Replication   |
+	+------------------+-----------------+
 	|        Distribution Group          |
 	.                                    .
 	+------------------------------------+
-
+	
+The field 'replication' determines how many replicates are created into the distribution group
 
 ### Delete distribution group
 This package deletes a whole table. The result could be currently response type 0x00, 0x02 and 0x03.
 
 #### Request body
-
     0         8       16       24       32
 	+---------+--------+--------+--------+
 	|   Group-Length   |                 |
@@ -379,4 +379,5 @@ This package deletes a whole table. The result could be currently response type 
 	|        Distribution Group          |
 	.                                    .
 	+------------------------------------+
+
 
