@@ -65,11 +65,6 @@ public class ScalephantConfiguration {
 	protected String clustername;
 	
 	/**
-	 * The amount of replicates
-	 */
-	protected short replicates = 3;
-	
-	/**
 	 * The list of zookeeper nodes 
 	 */
 	protected Collection<String> zookeepernodes;
@@ -189,14 +184,6 @@ public class ScalephantConfiguration {
 
 	public void setClustername(final String clustername) {
 		this.clustername = clustername;
-	}
-
-	public short getReplicates() {
-		return replicates;
-	}
-
-	public void setReplicates(final short replicates) {
-		this.replicates = replicates;
 	}
 
 	public Collection<String> getZookeepernodes() {
