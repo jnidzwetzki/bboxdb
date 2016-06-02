@@ -480,6 +480,12 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	public void deleteDistributionGroup(final String distributionGroup) throws ZookeeperException {
 		try {
 			final String path = getDistributionGroupPath(distributionGroup);
+
+			// Does the path not exist? We are done!
+			if(zookeeper.exists(path, this) == null) {
+				return;
+			}
+			
 			deleteNodesRecursive(path);
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
