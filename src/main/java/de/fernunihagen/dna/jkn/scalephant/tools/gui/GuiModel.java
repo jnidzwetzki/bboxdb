@@ -127,7 +127,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 * 
 	 * @param distributionGroup
 	 */
-	public void setDistributionGroup(String distributionGroup) {
+	public void setDistributionGroup(final String distributionGroup) {
 		this.distributionGroup = distributionGroup;
 		
 		// Display the new distribution group
