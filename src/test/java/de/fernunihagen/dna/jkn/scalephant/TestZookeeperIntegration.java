@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 
@@ -102,5 +103,31 @@ public class TestZookeeperIntegration {
 		zookeeperClient.deleteDistributionGroup(testGroup);
 		zookeeperClient.createDistributionGroup(testGroup, (short) 3); 
 		Assert.assertEquals(3, zookeeperClient.getReplicationFactorForDistributionGroup(testGroup));
+	}
+	
+	/**
+	 * Test the split of a distribution region
+	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testDistributionRegionSplit() throws ZookeeperException, InterruptedException {
+		final String testGroup = "4_abc";
+		zookeeperClient.deleteDistributionGroup(testGroup);
+		zookeeperClient.createDistributionGroup(testGroup, (short) 3); 
+		
+		// Split and update
+		final DistributionRegion distributionGroup = zookeeperClient.readDistributionGroup(testGroup);
+		Assert.assertEquals(testGroup, distributionGroup.getName());
+		distributionGroup.setSplit(10);
+		zookeeperClient.updateSplit(distributionGroup);
+		Assert.assertEquals(10.0, distributionGroup.getSplit(), 0.0001);
+
+		// Sleep 2 seconds to wait for the update
+		Thread.sleep(2000);
+		
+		// Reread group from zookeeper
+		final DistributionRegion newDistributionGroup = zookeeperClient.readDistributionGroup(testGroup);
+		Assert.assertEquals(10.0, newDistributionGroup.getSplit(), 0.0001);
 	}
 }
