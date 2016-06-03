@@ -261,6 +261,13 @@ public class DistributionRegion implements Watcher {
 		this.converingBox = converingBox;
 	}
 	
+	/**
+	 * Returns get the distribution group name
+	 * @return
+	 */
+	public DistributionGroupName getDistributionGroupName() {
+		return distributionGroupName;
+	}
 }
 
 /**
