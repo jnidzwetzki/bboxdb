@@ -540,5 +540,67 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			throw new ZookeeperException(e);
 		} 
 	}
+	
+	/**
+	 * Update zookeeper after splitting an region
+	 * @param distributionRegion
+	 * @throws ZookeeperException 
+	 */
+	public void updateSplit(final DistributionRegion distributionRegion) throws ZookeeperException {
+		try {
+			final String zookeeperPath = getZookeeperPathForDistributionRegion(distributionRegion);
+			
+			zookeeper.create(zookeeperPath + "/" + NAME_SPLIT, "".getBytes(), 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
+			
+			// Left child
+			final String leftPath = zookeeperPath + "/" + NODE_LEFT;
+			
+			zookeeper.create(leftPath, "".getBytes(), 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
+			
+			final int leftNamePrefix = getNextTableIdForDistributionGroup(distributionRegion.getName());
+			
+			zookeeper.create(leftPath + "/" + NAME_NAMEPREFIX, Integer.toString(leftNamePrefix).getBytes(), 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			
+			// Right child
+			final String rightPath = zookeeperPath + "/" + NODE_RIGHT;
+			zookeeper.create(rightPath, "".getBytes(), 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
+			
+			final int rightNamePrefix = getNextTableIdForDistributionGroup(distributionRegion.getName());
+			
+			zookeeper.create(rightPath + "/" + NAME_NAMEPREFIX, Integer.toString(rightNamePrefix).getBytes(), 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
+	}
+
+	/**
+	 * Get the zookeeper path for a distribution region
+	 * @param distributionRegion
+	 * @return
+	 */
+	protected String getZookeeperPathForDistributionRegion(final DistributionRegion distributionRegion) {
+		final String name = distributionRegion.getName();
+		final StringBuilder sb = new StringBuilder();
+		
+		DistributionRegion tmpRegion = distributionRegion;
+		while(tmpRegion.getRootRegion() != null) {
+			if(tmpRegion.isLeftChild()) {
+				sb.insert(0, "/" + NODE_LEFT);
+			} else {
+				sb.insert(0, "/" + NODE_RIGHT);
+			}
+			
+			tmpRegion = tmpRegion.getRootRegion();
+		}
+		
+		sb.insert(0, getDistributionGroupPath(name));
+		return sb.toString();
+	}
 
 }
