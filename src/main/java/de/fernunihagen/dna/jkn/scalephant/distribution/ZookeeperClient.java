@@ -589,14 +589,14 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		final StringBuilder sb = new StringBuilder();
 		
 		DistributionRegion tmpRegion = distributionRegion;
-		while(tmpRegion.getRootRegion() != null) {
+		while(tmpRegion.getParent() != null) {
 			if(tmpRegion.isLeftChild()) {
 				sb.insert(0, "/" + NODE_LEFT);
 			} else {
 				sb.insert(0, "/" + NODE_RIGHT);
 			}
 			
-			tmpRegion = tmpRegion.getRootRegion();
+			tmpRegion = tmpRegion.getParent();
 		}
 		
 		sb.insert(0, getDistributionGroupPath(name));
