@@ -395,40 +395,46 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws ZookeeperException 
 	 */
 	public DistributionRegion readDistributionGroup(final String distributionGroup) throws ZookeeperException {
-		try {
-			final DistributionRegion root = DistributionRegion.createRootRegion(distributionGroup);
-			final String path = getDistributionGroupPath(distributionGroup);
-			
-			readDistributionGroupRecursive(path, root);
-			
-			return root;
-		} catch (KeeperException | InterruptedException e) {
-			throw new ZookeeperException(e);
-		}
+		final DistributionRegion root = DistributionRegion.createRootRegion(distributionGroup);
+		final String path = getDistributionGroupPath(distributionGroup);
+		
+		readDistributionGroupRecursive(path, root);
+		
+		return root;
 	}
 	
 	/**
 	 * Read the distribution group in a recursive way
 	 * @param path
 	 * @param child
+	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	protected void readDistributionGroupRecursive(final String path, final DistributionRegion child) throws KeeperException, InterruptedException {
+	protected void readDistributionGroupRecursive(final String path, final DistributionRegion child) throws ZookeeperException {
 		
 		final String splitPathName = path + "/" + NAME_SPLIT;
-		
-		if(zookeeper.exists(splitPathName, this) == null) {
-			return;
-		}
-		
-		final byte[] bytes = zookeeper.getData(splitPathName, false, null);
-		final float splitFloat = Float.parseFloat(new String(bytes));
-		
-		child.setSplit(splitFloat);
 
-		readDistributionGroupRecursive(path + "/" + NODE_LEFT, child.getLeftChild());
-		readDistributionGroupRecursive(path + "/" + NODE_RIGHT, child.getRightChild());
+		try {
+			if(zookeeper.exists(splitPathName, this) == null) {
+				return;
+			}
+			
+			final byte[] bytes = zookeeper.getData(splitPathName, false, null);
+			final String splitString = new String(bytes);
+
+			try {
+				final float splitFloat = Float.parseFloat(splitString);
+				child.setSplit(splitFloat);
+			} catch (NumberFormatException e) {
+				throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + splitPathName);
+			}
+
+			readDistributionGroupRecursive(path + "/" + NODE_LEFT, child.getLeftChild());
+			readDistributionGroupRecursive(path + "/" + NODE_RIGHT, child.getRightChild());
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
 	}
 	
 	/**
