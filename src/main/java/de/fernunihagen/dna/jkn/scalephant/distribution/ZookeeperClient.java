@@ -551,13 +551,13 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			final String zookeeperPath = getZookeeperPathForDistributionRegion(distributionRegion);
 			
 			zookeeper.create(zookeeperPath + "/" + NAME_SPLIT, "".getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
 			// Left child
 			final String leftPath = zookeeperPath + "/" + NODE_LEFT;
 			
 			zookeeper.create(leftPath, "".getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
 			final int leftNamePrefix = getNextTableIdForDistributionGroup(distributionRegion.getName());
 			
@@ -567,7 +567,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			// Right child
 			final String rightPath = zookeeperPath + "/" + NODE_RIGHT;
 			zookeeper.create(rightPath, "".getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
 			final int rightNamePrefix = getNextTableIdForDistributionGroup(distributionRegion.getName());
 			
