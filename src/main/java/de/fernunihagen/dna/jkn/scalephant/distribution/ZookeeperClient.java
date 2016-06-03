@@ -556,7 +556,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		try {
 			final String zookeeperPath = getZookeeperPathForDistributionRegion(distributionRegion);
 			
-			zookeeper.create(zookeeperPath + "/" + NAME_SPLIT, "".getBytes(), 
+			// Write split position
+			final String splitPosString = Float.toString(distributionRegion.getSplit());
+			zookeeper.create(zookeeperPath + "/" + NAME_SPLIT, splitPosString.getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
 			// Left child
