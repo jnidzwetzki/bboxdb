@@ -5,7 +5,7 @@ public class Const {
 	/**
 	 *  The version of the software
 	 */
-	public final static String VERSION = "0.0.7";
+	public final static String VERSION = "0.0.8";
 	
 	/**
 	 * The name of the configuration file
