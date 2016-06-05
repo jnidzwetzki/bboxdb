@@ -405,7 +405,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 
 			try {
 				final float splitFloat = Float.parseFloat(splitString);
-				child.setSplit(splitFloat);
+				child.setSplit(splitFloat, true);
 			} catch (NumberFormatException e) {
 				throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + splitPathName);
 			}
@@ -526,69 +526,18 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			throw new ZookeeperException(e);
 		} 
 	}
-	
+
 	/**
-	 * Update zookeeper after splitting an region
-	 * @param distributionRegion
+	 * Create a new persistent node
+	 * @param path
+	 * @param bytes
 	 * @throws ZookeeperException 
 	 */
-	public void updateSplit(final DistributionRegion distributionRegion) throws ZookeeperException {
+	public void createPersistentNode(final String path, final byte[] bytes) throws ZookeeperException {
 		try {
-			final String zookeeperPath = getZookeeperPathForDistributionRegion(distributionRegion);
-			
-			// Write split position
-			final String splitPosString = Float.toString(distributionRegion.getSplit());
-			zookeeper.create(zookeeperPath + "/" + NAME_SPLIT, splitPosString.getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			
-			// Left child
-			final String leftPath = zookeeperPath + "/" + NODE_LEFT;
-			
-			zookeeper.create(leftPath, "".getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			
-			final int leftNamePrefix = getNextTableIdForDistributionGroup(distributionRegion.getName());
-			
-			zookeeper.create(leftPath + "/" + NAME_NAMEPREFIX, Integer.toString(leftNamePrefix).getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			
-			// Right child
-			final String rightPath = zookeeperPath + "/" + NODE_RIGHT;
-			zookeeper.create(rightPath, "".getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			
-			final int rightNamePrefix = getNextTableIdForDistributionGroup(distributionRegion.getName());
-			
-			zookeeper.create(rightPath + "/" + NAME_NAMEPREFIX, Integer.toString(rightNamePrefix).getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			
+			zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
 		}
 	}
-
-	/**
-	 * Get the zookeeper path for a distribution region
-	 * @param distributionRegion
-	 * @return
-	 */
-	protected String getZookeeperPathForDistributionRegion(final DistributionRegion distributionRegion) {
-		final String name = distributionRegion.getName();
-		final StringBuilder sb = new StringBuilder();
-		
-		DistributionRegion tmpRegion = distributionRegion;
-		while(tmpRegion.getParent() != null) {
-			if(tmpRegion.isLeftChild()) {
-				sb.insert(0, "/" + NODE_LEFT);
-			} else {
-				sb.insert(0, "/" + NODE_RIGHT);
-			}
-			
-			tmpRegion = tmpRegion.getParent();
-		}
-		
-		sb.insert(0, getDistributionGroupPath(name));
-		return sb.toString();
-	}
-
 }

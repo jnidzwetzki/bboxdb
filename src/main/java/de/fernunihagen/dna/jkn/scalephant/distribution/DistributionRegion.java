@@ -92,11 +92,20 @@ public class DistributionRegion {
 		this.parent = parent;
 	}
 	
+	
 	/**
 	 * Set the split coordinate
 	 * @param split
 	 */
 	public void setSplit(final float split) {
+		setSplit(split, false);
+	}
+	
+	/**
+	 * Set the split coordinate
+	 * @param split
+	 */
+	public void setSplit(final float split, final boolean structureBuild) {
 		this.split = split;
 		
 		if(leftChild != null || rightChild != null) {
