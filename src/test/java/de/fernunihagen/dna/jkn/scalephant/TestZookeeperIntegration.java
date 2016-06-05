@@ -12,6 +12,8 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionFactory;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionWithZookeeperIntegration;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 
@@ -178,6 +180,21 @@ public class TestZookeeperIntegration {
 
 		// Read update from the second object
 		Assert.assertEquals(10.0, distributionGroup2.getSplit(), 0.0001);
+	}
+	
+	/**
+	 * Test the distribution group factory
+	 */
+	@Test
+	public void testFactory() {
+		DistributionRegionFactory.setZookeeperClient(null);
+		final DistributionRegion region1 = DistributionRegionFactory.createRootRegion(TEST_GROUP);
+		Assert.assertTrue(region1 instanceof DistributionRegion);
+		Assert.assertFalse(region1 instanceof DistributionRegionWithZookeeperIntegration);
+
+		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
+		final DistributionRegion region2 = DistributionRegionFactory.createRootRegion(TEST_GROUP);
+		Assert.assertTrue(region2 instanceof DistributionRegionWithZookeeperIntegration);
 	}
 
 }
