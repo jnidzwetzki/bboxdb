@@ -133,31 +133,6 @@ public class TestZookeeperIntegration {
 	}
 	
 	/**
-	 * Test the split of a distribution region (without calling zookeeperClient.updateSplit)
-	 * @throws ZookeeperException 
-	 * @throws InterruptedException 
-	 */
-	@Ignore
-	@Test
-	public void testDistributionRegionSplitWithZookeeper() throws ZookeeperException, InterruptedException {
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
-		
-		// Split and update
-		final DistributionRegion distributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);
-		Assert.assertEquals(TEST_GROUP, distributionGroup.getName());
-		distributionGroup.setSplit(10);
-		Assert.assertEquals(10.0, distributionGroup.getSplit(), 0.0001);
-
-		// Sleep 2 seconds to wait for the update
-		Thread.sleep(2000);
-		
-		// Reread group from zookeeper
-		final DistributionRegion newDistributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);
-		Assert.assertEquals(10.0, newDistributionGroup.getSplit(), 0.0001);
-	}
-	
-	/**
 	 * Test the distribution of changes in the zookeeper structure (reading data from the second object)
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
