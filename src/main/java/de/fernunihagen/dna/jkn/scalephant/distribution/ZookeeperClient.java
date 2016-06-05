@@ -405,7 +405,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 
 			try {
 				final float splitFloat = Float.parseFloat(splitString);
-				child.setSplit(splitFloat, true);
+				child.setSplit(splitFloat, false);
 			} catch (NumberFormatException e) {
 				throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + splitPathName);
 			}

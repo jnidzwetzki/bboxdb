@@ -42,13 +42,13 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	 * Set the split position and propergate this to zookeeper (if this not a structure build call)
 	 */
 	@Override
-	public void setSplit(float split, final boolean structureBuild) {
+	public void setSplit(final float split, final boolean sendNotify) {
 		// Update data structure
-		super.setSplit(split, structureBuild);
+		super.setSplit(split, sendNotify);
 		
 		// Update zookeeper (if this is a call from a user)
 		try {
-			if(structureBuild == false) {
+			if(sendNotify == true) {
 				updateZookeeperSplit();
 			}
 		} catch (ZookeeperException e) {
