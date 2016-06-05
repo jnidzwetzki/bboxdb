@@ -85,13 +85,10 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	}
 	
 	/**
-	 * Set the split position and propergate this to zookeeper (if this not a structure build call)
+	 * Propergate the split position to zookeeper
 	 */
 	@Override
-	public void setSplit(final float split, final boolean sendNotify) {
-		// Update data structure
-		super.setSplit(split, sendNotify);
-		
+	protected void afterSplitHook(final boolean sendNotify) {
 		// Update zookeeper (if this is a call from a user)
 		try {
 			if(sendNotify == true) {
@@ -102,10 +99,6 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		} catch (ZookeeperException e) {
 			logger.error("Unable to update split in zookeeper: ", e);
 		}
-		
-		// Send the on node complete event
-		getLeftChild().onNodeComplete();
-		getRightChild().onNodeComplete();
 	}
 	
 	/**

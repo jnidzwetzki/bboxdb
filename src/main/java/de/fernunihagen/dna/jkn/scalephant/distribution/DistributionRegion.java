@@ -128,6 +128,20 @@ public class DistributionRegion {
 		// Calculate the covering bounding boxes
 		leftChild.setConveringBox(converingBox.splitAndGetLeft(split, getSplitDimension(), true));
 		rightChild.setConveringBox(converingBox.splitAndGetRight(split, getSplitDimension(), false));
+		
+		afterSplitHook(sendNotify);
+		
+		// Send the on node complete event
+		getLeftChild().onNodeComplete();
+		getRightChild().onNodeComplete();
+	}
+
+	/**
+	 * A hook that is called after the nodes are split
+	 * @param sendNotify
+	 */
+	protected void afterSplitHook(final boolean sendNotify) {
+		
 	}
 
 	/**
