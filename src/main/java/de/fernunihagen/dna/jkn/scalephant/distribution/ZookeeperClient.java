@@ -127,6 +127,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	public void shutdown() {
 		if(zookeeper != null) {
 			try {
+				logger.info("Disconnecting from zookeeper");
 				zookeeper.close();
 			} catch (InterruptedException e) {
 				logger.warn("Got exception while closing zookeeper connection", e);
@@ -156,6 +157,22 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 	}
 	
+	
+	/**
+	 * Get the children and register a watch
+	 * @param path
+	 * @param watcher
+	 * @return
+	 * @throws ZookeeperException 
+	 */
+	public List<String> getChildren(final String path, final Watcher watcher) throws ZookeeperException {
+		try {
+			return zookeeper.getChildren(path, watcher);
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
+	}
+
 	/**
 	 * Build a comma separated list of the zookeeper nodes
 	 * @return

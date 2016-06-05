@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution;
 
+import java.util.List;
+
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.slf4j.Logger;
@@ -21,13 +23,57 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		super(name, level, totalLevel);
 		this.zookeeperClient = zookeeperClient;
 	}
+	
+	/**
+	 * The node complete event
+	 */
+	public void onNodeComplete() {
+		final String zookeeperPath = getZookeeperPathForDistributionRegion(this);
+		try {
+			logger.info("Register watch for: " + zookeeperPath);
+			zookeeperClient.getChildren(zookeeperPath, this);
+		} catch (ZookeeperException e) {
+			logger.info("Unable to register watch for: " + zookeeperPath, e);
+		}
+	}
 
 	/**
 	 * Process structure updates (e.g. changes in the distribution group)
 	 */
 	@Override
 	public void process(final WatchedEvent event) {
+		final String zookeeperPath = getZookeeperPathForDistributionRegion(this);
+		logger.info("Node: " + zookeeperPath + " got event: " + event);
 		
+		if(! isLeafRegion()) {
+			logger.debug("Ignore update events on ! leafRegions");
+			return;
+		}
+		
+		try {
+			// Does the split position exists?
+			logger.info("Read for: " + zookeeperPath);
+			final List<String> childs = zookeeperClient.getChildren(zookeeperPath, this);
+			boolean splitExists = false;
+			
+			for(final String child : childs) {
+				if(child.endsWith(ZookeeperClient.NAME_SPLIT)) {
+					splitExists = true;
+					break;
+				}
+			}
+			
+			// Wait for a new event of the creation for the split position
+			if(! splitExists) {
+				return;
+			}
+			
+			// Update data structure with data from zookeeper
+			zookeeperClient.readDistributionGroupRecursive(zookeeperPath, this);
+
+		} catch (ZookeeperException e) {
+			logger.error("Unable read data from zookeeper: ", e);
+		}
 	}
 	
 	/**
@@ -35,7 +81,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	 */
 	@Override
 	protected DistributionRegion createNewInstance() {
-		return new DistributionRegionWithZookeeperIntegration(distributionGroupName, level, totalLevel, zookeeperClient);
+		return new DistributionRegionWithZookeeperIntegration(distributionGroupName, level + 1, totalLevel, zookeeperClient);
 	}
 	
 	/**
@@ -49,11 +95,17 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		// Update zookeeper (if this is a call from a user)
 		try {
 			if(sendNotify == true) {
+				logger.debug("Propergate split to zookeeper");
 				updateZookeeperSplit();
+				logger.debug("Propergate split to zookeeper done");
 			}
 		} catch (ZookeeperException e) {
 			logger.error("Unable to update split in zookeeper: ", e);
 		}
+		
+		// Send the on node complete event
+		getLeftChild().onNodeComplete();
+		getRightChild().onNodeComplete();
 	}
 	
 	/**
@@ -65,30 +117,28 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 
 		final String zookeeperPath = getZookeeperPathForDistributionRegion(this);
 		
-		// Write split position
-		final String splitPosString = Float.toString(getSplit());
-		zookeeperClient.createPersistentNode(zookeeperPath + "/" + ZookeeperClient.NAME_SPLIT, 
-				splitPosString.getBytes());
-		
 		// Left child
 		final String leftPath = zookeeperPath + "/" + ZookeeperClient.NODE_LEFT;
-		
+		logger.debug("Create: " + leftPath);
 		zookeeperClient.createPersistentNode(leftPath, "".getBytes());
 		
 		final int leftNamePrefix = zookeeperClient.getNextTableIdForDistributionGroup(getName());
-		
 		zookeeperClient.createPersistentNode(leftPath + "/" + ZookeeperClient.NAME_NAMEPREFIX, 
 				Integer.toString(leftNamePrefix).getBytes());
 		
 		// Right child
 		final String rightPath = zookeeperPath + "/" + ZookeeperClient.NODE_RIGHT;
+		logger.debug("Create: " + rightPath);
 		zookeeperClient.createPersistentNode(rightPath, "".getBytes());
 		
 		final int rightNamePrefix = zookeeperClient.getNextTableIdForDistributionGroup(getName());
-		
 		zookeeperClient.createPersistentNode(rightPath + "/" + ZookeeperClient.NAME_NAMEPREFIX, 
 				Integer.toString(rightNamePrefix).getBytes());
-
+		
+		// Last step: write split position
+		final String splitPosString = Float.toString(getSplit());
+		zookeeperClient.createPersistentNode(zookeeperPath + "/" + ZookeeperClient.NAME_SPLIT, 
+				splitPosString.getBytes());
 	}
 
 	/**

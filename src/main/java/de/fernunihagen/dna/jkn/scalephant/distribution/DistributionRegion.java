@@ -61,6 +61,13 @@ public class DistributionRegion {
 	}
 
 	/**
+	 * The node complete event
+	 */
+	public void onNodeComplete() {
+		
+	}
+	
+	/**
 	 * Get the left child
 	 * @return
 	 */

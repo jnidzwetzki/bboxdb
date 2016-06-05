@@ -7,7 +7,6 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
@@ -137,7 +136,6 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
 	 */
-	@Ignore
 	@Test
 	public void testDistributionRegionSplitWithZookeeperPropergate() throws ZookeeperException, InterruptedException {
 		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
@@ -154,6 +152,36 @@ public class TestZookeeperIntegration {
 
 		// Read update from the second object
 		Assert.assertEquals(10.0, distributionGroup2.getSplit(), 0.0001);
+	}
+	
+	/**
+	 * Test the distribution of changes in the zookeeper structure (reading data from the second object)
+	 * @throws ZookeeperException
+	 * @throws InterruptedException
+	 */
+	@Test
+	public void testDistributionRegionSplitWithZookeeperPropergate2() throws ZookeeperException, InterruptedException {
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		
+		final DistributionRegion distributionGroup1 = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion distributionGroup2 = zookeeperClient.readDistributionGroup(TEST_GROUP);
+
+		Assert.assertEquals(0, distributionGroup1.getLevel());
+		
+		// Update object 1
+		distributionGroup1.setSplit(10);
+		final DistributionRegion leftChild = distributionGroup1.getLeftChild();
+		Assert.assertEquals(1, leftChild.getLevel());
+		Assert.assertEquals(1, leftChild.getSplitDimension());
+		leftChild.setSplit(50);
+		
+		// Sleep 2 seconds to wait for the update
+		Thread.sleep(2000);
+
+		// Read update from the second object
+		Assert.assertEquals(10.0, distributionGroup2.getSplit(), 0.0001);
+		Assert.assertEquals(50.0, distributionGroup2.getLeftChild().getSplit(), 0.0001);
 	}
 	
 	/**

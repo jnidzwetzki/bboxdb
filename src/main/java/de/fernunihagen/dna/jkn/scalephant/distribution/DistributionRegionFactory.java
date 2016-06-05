@@ -24,13 +24,18 @@ public class DistributionRegionFactory {
 			throw new IllegalArgumentException("Invalid region name: " + name);
 		}
 		
+		DistributionRegion result = null;
+		
 		if(zookeeperClient != null) {
-			return new DistributionRegionWithZookeeperIntegration(distributionGroupName, 
+			result = new DistributionRegionWithZookeeperIntegration(distributionGroupName, 
 					BASE_LEVEL, new TotalLevel(), zookeeperClient);
 		} else {
-			return new DistributionRegion(distributionGroupName, BASE_LEVEL, new TotalLevel());
-
+			result = new DistributionRegion(distributionGroupName, BASE_LEVEL, new TotalLevel());
 		}	
+		
+		result.onNodeComplete();
+		
+		return result;
 	}
 
 	/**
