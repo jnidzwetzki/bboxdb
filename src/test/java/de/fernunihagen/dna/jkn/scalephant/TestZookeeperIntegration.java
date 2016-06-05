@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
@@ -19,7 +20,12 @@ public class TestZookeeperIntegration {
 	/**
 	 * The zookeeper client
 	 */
-	protected  ZookeeperClient zookeeperClient;
+	protected ZookeeperClient zookeeperClient;
+	
+	/**
+	 * The name of the test region
+	 */
+	protected static final String TEST_GROUP = "4_abc";
 	
 	@Before
 	public void before() {
@@ -64,16 +70,15 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testDistributionGroupCreateDelete() throws ZookeeperException {
-		final String testGroup = "4_abc";
 		
 		// Create new group
-		zookeeperClient.deleteDistributionGroup(testGroup);
-		zookeeperClient.createDistributionGroup(testGroup, (short) 3); 
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
 		final List<DistributionGroupName> groups = zookeeperClient.getDistributionGroups();
 		System.out.println(groups);
 		boolean found = false;
 		for(final DistributionGroupName group : groups) {
-			if(group.getFullname().equals(testGroup)) {
+			if(group.getFullname().equals(TEST_GROUP)) {
 				found = true;
 			}
 		}
@@ -81,11 +86,11 @@ public class TestZookeeperIntegration {
 		Assert.assertTrue(found);
 		
 		// Delete group
-		zookeeperClient.deleteDistributionGroup(testGroup);
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
 		final List<DistributionGroupName> groups2 = zookeeperClient.getDistributionGroups();
 		found = false;
 		for(final DistributionGroupName group : groups2) {
-			if(group.getFullname().equals(testGroup)) {
+			if(group.getFullname().equals(TEST_GROUP)) {
 				found = true;
 			}
 		}
@@ -99,10 +104,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testDistributionGroupReplicationFactor() throws ZookeeperException {
-		final String testGroup = "4_abc";
-		zookeeperClient.deleteDistributionGroup(testGroup);
-		zookeeperClient.createDistributionGroup(testGroup, (short) 3); 
-		Assert.assertEquals(3, zookeeperClient.getReplicationFactorForDistributionGroup(testGroup));
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		Assert.assertEquals(3, zookeeperClient.getReplicationFactorForDistributionGroup(TEST_GROUP));
 	}
 	
 	/**
@@ -112,22 +116,68 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testDistributionRegionSplit() throws ZookeeperException, InterruptedException {
-		final String testGroup = "4_abc";
-		zookeeperClient.deleteDistributionGroup(testGroup);
-		zookeeperClient.createDistributionGroup(testGroup, (short) 3); 
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
 		// Split and update
-		final DistributionRegion distributionGroup = zookeeperClient.readDistributionGroup(testGroup);
-		Assert.assertEquals(testGroup, distributionGroup.getName());
+		final DistributionRegion distributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		Assert.assertEquals(TEST_GROUP, distributionGroup.getName());
 		distributionGroup.setSplit(10);
 		zookeeperClient.updateSplit(distributionGroup);
+		Assert.assertEquals(10.0, distributionGroup.getSplit(), 0.0001);
+
+		// Reread group from zookeeper
+		final DistributionRegion newDistributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		Assert.assertEquals(10.0, newDistributionGroup.getSplit(), 0.0001);
+	}
+	
+	/**
+	 * Test the split of a distribution region (without calling zookeeperClient.updateSplit)
+	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
+	 */
+	@Ignore
+	@Test
+	public void testDistributionRegionSplitWithZookeeper() throws ZookeeperException, InterruptedException {
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		
+		// Split and update
+		final DistributionRegion distributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		Assert.assertEquals(TEST_GROUP, distributionGroup.getName());
+		distributionGroup.setSplit(10);
 		Assert.assertEquals(10.0, distributionGroup.getSplit(), 0.0001);
 
 		// Sleep 2 seconds to wait for the update
 		Thread.sleep(2000);
 		
 		// Reread group from zookeeper
-		final DistributionRegion newDistributionGroup = zookeeperClient.readDistributionGroup(testGroup);
+		final DistributionRegion newDistributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);
 		Assert.assertEquals(10.0, newDistributionGroup.getSplit(), 0.0001);
 	}
+	
+	/**
+	 * Test the distribution of changes in the zookeeper structure (reading data from the second object)
+	 * @throws ZookeeperException
+	 * @throws InterruptedException
+	 */
+	@Ignore
+	@Test
+	public void testDistributionRegionSplitWithZookeeperPropergate() throws ZookeeperException, InterruptedException {
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		
+		final DistributionRegion distributionGroup1 = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion distributionGroup2 = zookeeperClient.readDistributionGroup(TEST_GROUP);
+
+		// Update object 1
+		distributionGroup1.setSplit(10);
+		
+		// Sleep 2 seconds to wait for the update
+		Thread.sleep(2000);
+
+		// Read update from the second object
+		Assert.assertEquals(10.0, distributionGroup2.getSplit(), 0.0001);
+	}
+
 }

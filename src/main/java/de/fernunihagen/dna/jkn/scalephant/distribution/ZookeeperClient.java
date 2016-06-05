@@ -93,6 +93,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		super();
 		this.zookeeperHosts = zookeeperHosts;
 		this.clustername = clustername;
+		
+		// Set the zookeeper instance for self updating data structures
+		DistributionRegionFactory.setZookeeperClient(this);
 	}
 
 	/**
@@ -395,7 +398,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws ZookeeperException 
 	 */
 	public DistributionRegion readDistributionGroup(final String distributionGroup) throws ZookeeperException {
-		final DistributionRegion root = DistributionRegion.createRootRegion(distributionGroup);
+		final DistributionRegion root = DistributionRegionFactory.createRootRegion(distributionGroup);
 		final String path = getDistributionGroupPath(distributionGroup);
 		
 		readDistributionGroupRecursive(path, root);

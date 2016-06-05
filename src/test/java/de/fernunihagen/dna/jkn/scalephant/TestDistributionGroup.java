@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionFactory;
 
 public class TestDistributionGroup {
 
@@ -13,7 +14,7 @@ public class TestDistributionGroup {
 	@Test(expected=IllegalArgumentException.class)
 	public void createInvalidDistributionGroup1() {
 		@SuppressWarnings("unused")
-		final DistributionRegion distributionRegion = DistributionRegion.createRootRegion("foo");
+		final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("foo");
 	}
 	
 	/**
@@ -22,7 +23,7 @@ public class TestDistributionGroup {
 	@Test(expected=IllegalArgumentException.class)
 	public void createInvalidDistributionGroup2() {
 		@SuppressWarnings("unused")
-		final DistributionRegion distributionRegion = DistributionRegion.createRootRegion("12_foo_bar");
+		final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("12_foo_bar");
 	}
 	
 	/**
@@ -30,7 +31,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testLeafNode() {
-		final DistributionRegion distributionRegion = DistributionRegion.createRootRegion("3_foo");
+		final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("3_foo");
 		Assert.assertTrue(distributionRegion.isLeafRegion());
 		Assert.assertEquals(3, distributionRegion.getDimension());
 		Assert.assertEquals(0, distributionRegion.getLevel());
@@ -43,7 +44,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testTwoLevel() {
-		final DistributionRegion distributionRegion = DistributionRegion.createRootRegion("3_foo");
+		final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("3_foo");
 		Assert.assertTrue(distributionRegion.isLeafRegion());
 		distributionRegion.setSplit(0);
 		Assert.assertFalse(distributionRegion.isLeafRegion());
@@ -65,7 +66,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testSplitDimension1() {
-		final DistributionRegion level0 = DistributionRegion.createRootRegion("2_foo");
+		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("2_foo");
 		level0.setSplit(50);
 		final DistributionRegion level1 = level0.getLeftChild();
 		level1.setSplit(40);
@@ -87,7 +88,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testSplitDimension2() {
-		final DistributionRegion level0 = DistributionRegion.createRootRegion("3_foo");
+		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("3_foo");
 		level0.setSplit(50);
 		final DistributionRegion level1 = level0.getLeftChild();
 		level1.setSplit(40);
@@ -115,7 +116,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testLeftOrRightChild() {
-		final DistributionRegion level0 = DistributionRegion.createRootRegion("3_foo");
+		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("3_foo");
 		Assert.assertFalse(level0.isLeftChild());
 		Assert.assertFalse(level0.isRightChild());
 		

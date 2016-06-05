@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionFactory;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 
 public class ScalephantGui {
@@ -160,7 +161,7 @@ public class ScalephantGui {
 			}
 			
 			protected DistributionRegion getDistributionRegion() {
-				final DistributionRegion distributionRegion = DistributionRegion.createRootRegion("2_testregion");
+				final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("2_testregion");
 				distributionRegion.setSplit(50);
 				distributionRegion.getLeftChild().setSplit(-30);
 				

@@ -1,11 +1,8 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution;
 
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
-public class DistributionRegion implements Watcher {
+public class DistributionRegion {
 
 	/**
 	 * The name of the distribution group
@@ -54,36 +51,13 @@ public class DistributionRegion implements Watcher {
 	 * @param name
 	 * @param level
 	 */
-	private DistributionRegion(final DistributionGroupName name, final int level, final TotalLevel totalLevel) {
+	protected DistributionRegion(final DistributionGroupName name, final int level, final TotalLevel totalLevel) {
 		this.distributionGroupName = name;
 		this.level = level;
 		this.totalLevel = totalLevel;
 		this.converingBox = BoundingBox.createFullCoveringDimensionBoundingBox(name.getDimension());
 		
 		totalLevel.registerNewLevel(level + 1);
-	}
-
-	/**
-	 * Factory method for a new root region
-	 * @param name
-	 * @return
-	 */
-	public static DistributionRegion createRootRegion(final String name) {
-		final DistributionGroupName distributionGroupName = new DistributionGroupName(name);
-		
-		if(! distributionGroupName.isValid()) {
-			throw new IllegalArgumentException("Invalid region name: " + name);
-		}
-		
-		return new DistributionRegion(distributionGroupName, 0, new TotalLevel());
-	}
-
-	/**
-	 * Process structure updates (e.g. changes in the distribution group)
-	 */
-	@Override
-	public void process(final WatchedEvent event) {
-		
 	}
 
 	/**
@@ -129,8 +103,8 @@ public class DistributionRegion implements Watcher {
 			throw new IllegalArgumentException("Split called, but left or right node are empty");
 		}
 		
-		leftChild = new DistributionRegion(distributionGroupName, level + 1, totalLevel);
-		rightChild = new DistributionRegion(distributionGroupName, level + 1, totalLevel);
+		leftChild = createNewInstance();
+		rightChild = createNewInstance();
 		
 		leftChild.setParent(this);
 		rightChild.setParent(this);
@@ -138,6 +112,14 @@ public class DistributionRegion implements Watcher {
 		// Calculate the covering bounding boxes
 		leftChild.setConveringBox(converingBox.splitAndGetLeft(split, getSplitDimension(), true));
 		rightChild.setConveringBox(converingBox.splitAndGetRight(split, getSplitDimension(), false));
+	}
+
+	/**
+	 * Create a new instance of this type (e.g. for childs)
+	 * @return
+	 */
+	protected DistributionRegion createNewInstance() {
+		return new DistributionRegion(distributionGroupName, level + 1, totalLevel);
 	}
 	
 	/**
