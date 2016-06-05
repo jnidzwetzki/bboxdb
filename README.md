@@ -9,12 +9,13 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 
 ## Changelog
 
-### Version 0.0.7 (Alpha) - TBA
+### Version 0.0.7 (Alpha) - 05.06.2016
 - Improved bounding box implementation
 - Improved distribution group GUI handling
 - Added create and delete distribution group network packages
 - Replication factor is now configurable per distribution group
 - Added logic to store distribution groups in zookeeper
+- Added a in memory structure for distribution groups (updated by zookeeper) 
 - Added zookeeper to travis ci environment
 - Added zookeeper integration tests
 
