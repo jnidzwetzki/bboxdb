@@ -3,9 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import org.apache.zookeeper.CreateMode;
@@ -351,8 +349,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, 
 					CreateMode.PERSISTENT_SEQUENTIAL);
 			
-			// Garbage collect the old child nodes
-			doIdQueueGarbageCollection(distributionGroupIdQueuePath);
+			// Delete the created node
+			logger.debug("Got new table id; deleting node: " + nodename);
+			zookeeper.delete(nodename, -1);
 			
 			// id-0000000063
 			// Element 0: id-
@@ -367,28 +366,6 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			
 		} catch(InterruptedException | KeeperException e) {
 			throw new ZookeeperException(e);
-		}
-	}
-
-	/**
-	 * Delete the old and unused child nodes for a given ID queue
-	 * @param distributionGroupIdQueuePath
-	 * @throws KeeperException
-	 * @throws InterruptedException
-	 */
-	protected void doIdQueueGarbageCollection(final String distributionGroupIdQueuePath) throws KeeperException, InterruptedException {
-		final Random random = new Random(System.currentTimeMillis());
-		
-		// 10 % garbage collection calls, 90% nop method calls
-		if((random.nextInt() % 100) > 90) {
-			
-			logger.debug("Executing garbage collection on path: " + distributionGroupIdQueuePath);
-			
-			final List<String> childs = zookeeper.getChildren(distributionGroupIdQueuePath, false);
-			for (Iterator<String> iterator = childs.iterator(); iterator.hasNext();) {
-				final String nodeName = iterator.next();
-				zookeeper.delete(distributionGroupIdQueuePath + "/" + nodeName, -1);
-			}
 		}
 	}
 	
