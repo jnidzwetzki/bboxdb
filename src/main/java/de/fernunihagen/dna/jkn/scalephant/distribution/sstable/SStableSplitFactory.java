@@ -5,6 +5,6 @@ public interface SStableSplitFactory {
 	/**
 	 * Get a sstable distributor
 	 */
-	public SSTableSplitter getDistributor();
+	public SSTableSplitter getSSTableSplitter();
 	
 }
