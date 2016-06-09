@@ -11,7 +11,7 @@ class SSTableFlushThread implements Runnable {
 	/**
 	 * The reference to the sstable Manager
 	 */
-	private final SSTableManager sstableManager;
+	protected final SSTableManager sstableManager;
 
 	/**
 	 * The logger
@@ -86,7 +86,7 @@ class SSTableFlushThread implements Runnable {
 	}
 		
 	/**
-	 * Write a memtable to disk and return the Filehandle of the table
+	 * Write a memtable to disk and return the file handle of the table
 	 * 
 	 * @param memtable
 	 * @return
