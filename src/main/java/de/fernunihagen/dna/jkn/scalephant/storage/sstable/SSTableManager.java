@@ -564,7 +564,7 @@ public class SSTableManager implements ScalephantService, Storage {
 		return ready;
 	}
 
-	public void setReady(boolean ready) {
+	public void setReady(final boolean ready) {
 		this.ready = ready;
 	}
 
@@ -591,12 +591,12 @@ public class SSTableManager implements ScalephantService, Storage {
 
 	// These methods are required by the interface
 	@Override
-	public void put(Tuple tuple) throws StorageManagerException {
+	public void put(final Tuple tuple) throws StorageManagerException {
 		throw new UnsupportedOperationException("SSTables are read only");
 	}
 
 	@Override
-	public void delete(String key) throws StorageManagerException {
+	public void delete(final String key) throws StorageManagerException {
 		throw new UnsupportedOperationException("SSTables are read only");
 	}
 
