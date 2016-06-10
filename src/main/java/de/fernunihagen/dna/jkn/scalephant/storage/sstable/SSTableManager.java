@@ -63,6 +63,11 @@ public class SSTableManager implements ScalephantService, Storage {
 	protected Thread flushThread;
 	
 	/**
+	 * The Flush thread instance
+	 */
+	protected SSTableFlushThread ssTableFlushThread;
+	
+	/**
 	 * The compactification thread
 	 */
 	protected Thread compactThread;
@@ -127,7 +132,8 @@ public class SSTableManager implements ScalephantService, Storage {
 		ready = true;
 
 		if(storageConfiguration.isStorageRunMemtableFlushThread()) {
-			flushThread = new Thread(new SSTableFlushThread(this));
+			ssTableFlushThread = new SSTableFlushThread(this);
+			flushThread = new Thread(ssTableFlushThread);
 			flushThread.setName("Memtable flush thread for: " + getName());
 			flushThread.start();
 		} else {
@@ -157,20 +163,25 @@ public class SSTableManager implements ScalephantService, Storage {
 		
 		// Shutdown the running threads
 		final List<Thread> threadsToJoin = new ArrayList<Thread>();
-		threadsToJoin.add(flushThread);
-		threadsToJoin.add(compactThread);
+		
+		if(flushThread != null) {
+			ssTableFlushThread.stop();
+			ssTableFlushThread = null;
+			threadsToJoin.add(flushThread);
+		}
+		
+		if(compactThread != null) {
+			threadsToJoin.add(compactThread);
+		}
 		
 		for(final Thread thread : threadsToJoin) {
-			if(thread != null) {
-				
-				logger.info("Interrupt and join thread: " + thread.getName());
-				thread.interrupt();
-				
-				try {
-					thread.join(THREAD_WAIT_TIMEOUT);
-				} catch (InterruptedException e) {
-					logger.warn("Got exception while waiting on thread join: " + thread.getName(), e);
-				}
+			logger.info("Interrupt and join thread: " + thread.getName());
+			thread.interrupt();
+			
+			try {
+				thread.join(THREAD_WAIT_TIMEOUT);
+			} catch (InterruptedException e) {
+				logger.warn("Got exception while waiting on thread join: " + thread.getName(), e);
 			}
 		}
 

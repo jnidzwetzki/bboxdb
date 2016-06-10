@@ -14,6 +14,11 @@ class SSTableFlushThread implements Runnable {
 	protected final SSTableManager sstableManager;
 
 	/**
+	 * The run variable
+	 */
+	protected volatile boolean run;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableFlushThread.class);
@@ -23,6 +28,7 @@ class SSTableFlushThread implements Runnable {
 	 */
 	SSTableFlushThread(final SSTableManager sstableManager) {
 		this.sstableManager = sstableManager;
+		run = true;
 	}
 
 	/**
@@ -31,7 +37,7 @@ class SSTableFlushThread implements Runnable {
 	 */
 	@Override
 	public void run() {
-		while(sstableManager.isReady()) {
+		while(run) {
 			while(sstableManager.unflushedMemtables.isEmpty()) {
 				try {					
 					synchronized (sstableManager.unflushedMemtables) {
@@ -47,6 +53,14 @@ class SSTableFlushThread implements Runnable {
 		}
 		
 		logger.info("Memtable flush thread has stopped: " + sstableManager.getName());
+	}
+	
+	/**
+	 * Stop the memtable flush thread
+	 */
+	public void stop() {
+		logger.info("Stopping memtable flush thread for: " + sstableManager.getName());
+		run = false;
 	}
 
 	/**

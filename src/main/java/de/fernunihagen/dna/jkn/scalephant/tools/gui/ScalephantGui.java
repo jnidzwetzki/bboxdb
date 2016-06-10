@@ -162,8 +162,8 @@ public class ScalephantGui {
 			
 			protected DistributionRegion getDistributionRegion() {
 				final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("2_testregion");
-				distributionRegion.setSplit(50);
-				distributionRegion.getLeftChild().setSplit(-30);
+				distributionRegion.setSplit(50, false);
+				distributionRegion.getLeftChild().setSplit(-30, false);
 				
 				return distributionRegion;
 			}
