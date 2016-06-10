@@ -366,10 +366,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		createDirectoryStructureRecursive(distributionGroupIdQueuePath);
 		
 		try {	
-			final String nodename = zookeeper.create(distributionGroupIdQueuePath + "/" + SEQUENCE_QUEUE_PREFIX, 
-					"".getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, 
-					CreateMode.PERSISTENT_SEQUENTIAL);
+			final String nodename = createPersistentSequencialNode(distributionGroupIdQueuePath + "/" + SEQUENCE_QUEUE_PREFIX, 
+					"".getBytes());
 			
 			// Delete the created node
 			logger.debug("Got new table id; deleting node: " + nodename);
