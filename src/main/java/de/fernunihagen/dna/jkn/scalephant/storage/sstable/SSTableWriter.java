@@ -62,6 +62,11 @@ public class SSTableWriter implements AutoCloseable {
 	protected SSTableMetadataBuilder metadataBuilder;
 	
 	/**
+	 * The error flag
+	 */
+	protected boolean exceptionDuringWrite;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableWriter.class);
@@ -76,6 +81,8 @@ public class SSTableWriter implements AutoCloseable {
 		
 		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, name, tablebumber);
 		this.metadatafile = new File(ssTableMetadataFilename);
+		
+		this.exceptionDuringWrite = false;
 	}
 	
 	/**
@@ -114,8 +121,10 @@ public class SSTableWriter implements AutoCloseable {
 			sstableIndexOutputStream = new FileOutputStream(sstableIndexFile);
 			sstableIndexOutputStream.write(SSTableConst.MAGIC_BYTES);
 		} catch (FileNotFoundException e) {
+			exceptionDuringWrite = true;
 			throw new StorageManagerException("Unable to open output file", e);
 		} catch (IOException e) {
+			exceptionDuringWrite = true;
 			throw new StorageManagerException("Unable to write into output file", e);
 		}
 	}
@@ -137,12 +146,35 @@ public class SSTableWriter implements AutoCloseable {
 				sstableIndexOutputStream = null;
 			}
 			
-			writeMetadata();			
+			writeMetadata();	
 		} catch (IOException e) {
+			exceptionDuringWrite = true;
 			throw new StorageManagerException("Exception while closing streams", e);
+		} finally {
+			handleWriteException();
 		}
 	}
 
+	/**
+	 *  Delete half written files if an exception has occurred
+	 *  The variable exceptionDuringWrite is set to true in every catch block
+	 */
+	protected void handleWriteException() {
+		if(exceptionDuringWrite == true) {
+			if(sstableFile != null && sstableFile.exists()) {
+				sstableFile.delete();
+			}
+			
+			if(sstableIndexFile != null && sstableIndexFile.exists()) {
+				sstableIndexFile.delete();
+			}
+			
+			if(metadatafile != null && metadatafile.exists()) {
+				metadatafile.delete();
+			}
+		}
+	}
+	
 	/**
 	 * Write the meta data to yaml info file
 	 * @throws IOException
@@ -179,6 +211,7 @@ public class SSTableWriter implements AutoCloseable {
 				logger.warn("Got StorageManagerException while adding tuples to sstable, but thread was interrupted. Ignoring exception.");
 				return;
 			} else {
+				exceptionDuringWrite = true;
 				throw e;
 			}
 		}
@@ -200,6 +233,7 @@ public class SSTableWriter implements AutoCloseable {
 			writeTupleToFile(tuple);
 			metadataBuilder.addTuple(tuple);
 		} catch (IOException e) {
+			exceptionDuringWrite = true;
 			throw new StorageManagerException("Untable to write memtable to SSTable", e);
 		}
 	}
