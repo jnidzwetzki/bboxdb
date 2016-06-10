@@ -198,5 +198,31 @@ public class TestZookeeperIntegration {
 		final DistributionRegion region2 = DistributionRegionFactory.createRootRegion(TEST_GROUP);
 		Assert.assertTrue(region2 instanceof DistributionRegionWithZookeeperIntegration);
 	}
+	
+	/**
+	 * Test the system register and unregister methods
+	 * @throws ZookeeperException 
+	 */
+	@Test
+	public void testSystemRegisterAndUnregister() throws ZookeeperException {
+		final String systemName = "192.168.1.10:5050";
+		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		
+		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		final Collection<String> systems1 = zookeeperClient.getSystemsForDistributionRegion(region);
+		Assert.assertEquals(0, systems1.size());
+		
+		// Add a system
+		zookeeperClient.addSystemToDistributionRegion(region, systemName);
+		final Collection<String> systems2 = zookeeperClient.getSystemsForDistributionRegion(region);
+		Assert.assertEquals(1, systems2.size());
+		Assert.assertTrue(systems2.contains(systemName));
+		
+		zookeeperClient.deleteSystemFromDistributionRegion(region, systemName);
+		final Collection<String> systems3 = zookeeperClient.getSystemsForDistributionRegion(region);
+		Assert.assertEquals(0, systems3.size());
+	}
 
 }

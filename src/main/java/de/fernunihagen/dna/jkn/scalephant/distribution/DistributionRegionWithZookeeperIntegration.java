@@ -118,6 +118,8 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		final int leftNamePrefix = zookeeperClient.getNextTableIdForDistributionGroup(getName());
 		zookeeperClient.createPersistentNode(leftPath + "/" + ZookeeperClient.NAME_NAMEPREFIX, 
 				Integer.toString(leftNamePrefix).getBytes());
+		zookeeperClient.createPersistentNode(leftPath + "/" + ZookeeperClient.NAME_SYSTEMS, 
+				"".getBytes());
 		
 		// Right child
 		final String rightPath = zookeeperPath + "/" + ZookeeperClient.NODE_RIGHT;
@@ -127,6 +129,8 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		final int rightNamePrefix = zookeeperClient.getNextTableIdForDistributionGroup(getName());
 		zookeeperClient.createPersistentNode(rightPath + "/" + ZookeeperClient.NAME_NAMEPREFIX, 
 				Integer.toString(rightNamePrefix).getBytes());
+		zookeeperClient.createPersistentNode(rightPath + "/" + ZookeeperClient.NAME_SYSTEMS, 
+				"".getBytes());
 		
 		// Last step: write split position
 		final String splitPosString = Float.toString(getSplit());

@@ -475,6 +475,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			
 			zookeeper.create(path + "/" + NAME_REPLICATION, Short.toString(replicationFactor).getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			
+			zookeeper.create(path + "/" + NAME_SYSTEMS, "".getBytes(), 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
 		}
@@ -553,11 +557,27 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * Create a new persistent node
 	 * @param path
 	 * @param bytes
+	 * @return 
 	 * @throws ZookeeperException 
 	 */
-	public void createPersistentNode(final String path, final byte[] bytes) throws ZookeeperException {
+	public String createPersistentNode(final String path, final byte[] bytes) throws ZookeeperException {
 		try {
-			zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			return zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
+	}
+	
+	/**
+	 * Create a new persistent sequencial node
+	 * @param path
+	 * @param bytes
+	 * @return 
+	 * @throws ZookeeperException 
+	 */
+	public String createPersistentSequencialNode(final String path, final byte[] bytes) throws ZookeeperException {
+		try {
+			return zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
 		}
@@ -585,5 +605,81 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		sb.insert(0, getDistributionGroupPath(name));
 		return sb.toString();
+	}
+	
+	/**
+	 * Get the systems for the distribution region
+	 * @param region
+	 * @return
+	 * @throws ZookeeperException 
+	 */
+	public Collection<String> getSystemsForDistributionRegion(final DistributionRegion region) throws ZookeeperException {
+		try {
+			final Set<String> result = new HashSet<String>();
+			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NAME_SYSTEMS;
+			final List<String> childs = zookeeper.getChildren(path, false);
+			
+			for(final String childName : childs) {
+				final byte[] data = zookeeper.getData(path + "/" + childName, false, null);
+				result.add(new String(data));
+			}
+			
+			return result;
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
+	}
+	
+	/**
+	 * Add a system to a distribution region
+	 * @param region
+	 * @param system
+	 * @throws ZookeeperException 
+	 */
+	public void addSystemToDistributionRegion(final DistributionRegion region, final String system) throws ZookeeperException {
+		
+		if(system == null) {
+			throw new IllegalArgumentException("Unable to add system with value null");
+		}
+		
+		try {
+			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NAME_SYSTEMS + "/" + SEQUENCE_QUEUE_PREFIX;
+			createPersistentSequencialNode(path, system.getBytes());
+		} catch (ZookeeperException e) {
+			throw new ZookeeperException(e);
+		}
+	}
+	
+	/**
+	 * Delete a system to a distribution region
+	 * @param region
+	 * @param system
+	 * @return 
+	 * @throws ZookeeperException 
+	 */
+	public boolean deleteSystemFromDistributionRegion(final DistributionRegion region, final String system) throws ZookeeperException {
+		
+		if(system == null) {
+			throw new IllegalArgumentException("Unable to delete system with value null");
+		}
+		
+		try {
+			boolean childDeleted = false;
+			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NAME_SYSTEMS;
+			final List<String> childs = zookeeper.getChildren(path, false);
+			
+			for(final String childName : childs) {
+				final String childPath = path + "/" + childName;
+				final byte[] data = zookeeper.getData(childPath, false, null);
+				if(system.equals(new String(data))) {
+					zookeeper.delete(childPath, -1);
+					childDeleted = true;
+				}
+			}
+			
+			return childDeleted;
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
 	}
 }
