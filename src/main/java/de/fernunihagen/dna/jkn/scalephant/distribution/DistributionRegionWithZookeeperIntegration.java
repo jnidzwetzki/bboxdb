@@ -28,7 +28,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	 * The node complete event
 	 */
 	public void onNodeComplete() {
-		final String zookeeperPath = getZookeeperPathForDistributionRegion(this);
+		final String zookeeperPath = zookeeperClient.getZookeeperPathForDistributionRegion(this);
 		try {
 			logger.info("Register watch for: " + zookeeperPath);
 			zookeeperClient.getChildren(zookeeperPath, this);
@@ -42,7 +42,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	 */
 	@Override
 	public void process(final WatchedEvent event) {
-		final String zookeeperPath = getZookeeperPathForDistributionRegion(this);
+		final String zookeeperPath = zookeeperClient.getZookeeperPathForDistributionRegion(this);
 		logger.info("Node: " + zookeeperPath + " got event: " + event);
 		
 		if(! isLeafRegion()) {
@@ -108,7 +108,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	 */
 	protected void updateZookeeperSplit() throws ZookeeperException {
 
-		final String zookeeperPath = getZookeeperPathForDistributionRegion(this);
+		final String zookeeperPath = zookeeperClient.getZookeeperPathForDistributionRegion(this);
 		
 		// Left child
 		final String leftPath = zookeeperPath + "/" + ZookeeperClient.NODE_LEFT;
@@ -132,30 +132,6 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		final String splitPosString = Float.toString(getSplit());
 		zookeeperClient.createPersistentNode(zookeeperPath + "/" + ZookeeperClient.NAME_SPLIT, 
 				splitPosString.getBytes());
-	}
-
-	/**
-	 * Get the zookeeper path for a distribution region
-	 * @param distributionRegion
-	 * @return
-	 */
-	protected String getZookeeperPathForDistributionRegion(final DistributionRegion distributionRegion) {
-		final String name = distributionRegion.getName();
-		final StringBuilder sb = new StringBuilder();
-		
-		DistributionRegion tmpRegion = distributionRegion;
-		while(tmpRegion.getParent() != null) {
-			if(tmpRegion.isLeftChild()) {
-				sb.insert(0, "/" + ZookeeperClient.NODE_LEFT);
-			} else {
-				sb.insert(0, "/" + ZookeeperClient.NODE_RIGHT);
-			}
-			
-			tmpRegion = tmpRegion.getParent();
-		}
-		
-		sb.insert(0, zookeeperClient.getDistributionGroupPath(name));
-		return sb.toString();
 	}
 
 }

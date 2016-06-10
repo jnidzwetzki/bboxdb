@@ -562,4 +562,28 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			throw new ZookeeperException(e);
 		}
 	}
+	
+	/**
+	 * Get the zookeeper path for a distribution region
+	 * @param distributionRegion
+	 * @return
+	 */
+	protected String getZookeeperPathForDistributionRegion(final DistributionRegion distributionRegion) {
+		final String name = distributionRegion.getName();
+		final StringBuilder sb = new StringBuilder();
+		
+		DistributionRegion tmpRegion = distributionRegion;
+		while(tmpRegion.getParent() != null) {
+			if(tmpRegion.isLeftChild()) {
+				sb.insert(0, "/" + ZookeeperClient.NODE_LEFT);
+			} else {
+				sb.insert(0, "/" + ZookeeperClient.NODE_RIGHT);
+			}
+			
+			tmpRegion = tmpRegion.getParent();
+		}
+		
+		sb.insert(0, getDistributionGroupPath(name));
+		return sb.toString();
+	}
 }
