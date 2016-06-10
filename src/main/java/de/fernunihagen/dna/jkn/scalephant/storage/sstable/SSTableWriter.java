@@ -52,6 +52,11 @@ public class SSTableWriter implements AutoCloseable {
 	protected File sstableIndexFile;
 	
 	/**
+	 * The meta data file
+	 */
+	protected File metadatafile;
+	
+	/**
 	 * A counter for the written tuples
 	 */
 	protected SSTableMetadataBuilder metadataBuilder;
@@ -68,8 +73,15 @@ public class SSTableWriter implements AutoCloseable {
 		
 		this.sstableOutputStream = null;
 		this.metadataBuilder = new SSTableMetadataBuilder();
+		
+		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, name, tablebumber);
+		this.metadatafile = new File(ssTableMetadataFilename);
 	}
 	
+	/**
+	 * Open all required files
+	 * @throws StorageManagerException
+	 */
 	public void open() throws StorageManagerException {
 		final String directoryName = SSTableHelper.getSSTableDir(directory, name);
 		final File directoryHandle = new File(directoryName);
@@ -108,8 +120,13 @@ public class SSTableWriter implements AutoCloseable {
 		}
 	}
 	
+	/**
+	 * Close all open file handles and write the meta data
+	 */
 	public void close() throws StorageManagerException {
-		try {
+		try {			
+			logger.info("Closing new SSTable for relation: " + name + " number " + tablebumber + " File: " + sstableFile.getName());
+
 			if(sstableOutputStream != null) {
 				sstableOutputStream.close();
 				sstableOutputStream = null;
@@ -120,16 +137,19 @@ public class SSTableWriter implements AutoCloseable {
 				sstableIndexOutputStream = null;
 			}
 			
-			// Write metadata
-			final SStableMetaData metadata = metadataBuilder.getMetaData();
-			final File metadatafile = new File(SSTableHelper.getSSTableMetadataFilename(directory, name, tablebumber));
-			metadata.exportToYamlFile(metadatafile);
-			
-			logger.info("Closing new SSTable for relation: " + name + " with " + metadata + " File: " + sstableFile.getName());
-			
+			writeMetadata();			
 		} catch (IOException e) {
 			throw new StorageManagerException("Exception while closing streams", e);
 		}
+	}
+
+	/**
+	 * Write the meta data to yaml info file
+	 * @throws IOException
+	 */
+	protected void writeMetadata() throws IOException {
+		final SStableMetaData metadata = metadataBuilder.getMetaData();
+		metadata.exportToYamlFile(metadatafile);
 	}
 	
 	/**
