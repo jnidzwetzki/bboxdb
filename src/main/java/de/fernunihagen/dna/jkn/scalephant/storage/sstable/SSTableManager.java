@@ -164,9 +164,12 @@ public class SSTableManager implements ScalephantService, Storage {
 		// Shutdown the running threads
 		final List<Thread> threadsToJoin = new ArrayList<Thread>();
 		
-		if(flushThread != null) {
+		if(ssTableFlushThread != null) {
 			ssTableFlushThread.stop();
 			ssTableFlushThread = null;
+		}
+		
+		if(flushThread != null) {
 			threadsToJoin.add(flushThread);
 		}
 		
