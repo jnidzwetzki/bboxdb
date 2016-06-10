@@ -27,7 +27,7 @@ public class SSTableWriter implements AutoCloseable {
 	protected final String name;
 	
 	/**
-	 * The Directoy for the SSTables
+	 * The directory for the SSTables
 	 */
 	protected final String directory;
 	
