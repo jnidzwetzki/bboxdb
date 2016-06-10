@@ -83,6 +83,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected final static String NAME_REPLICATION = "replication";
 	
 	/**
+	 * Name of the systems node
+	 */
+	protected final static String NAME_SYSTEMS = "systems";
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
