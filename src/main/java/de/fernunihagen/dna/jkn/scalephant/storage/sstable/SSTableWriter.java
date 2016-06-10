@@ -298,4 +298,12 @@ public class SSTableWriter implements AutoCloseable {
 		return sstableIndexFile;
 	}
 	
+	/**
+	 * Does an exception during a write operation occured?
+	 * @return
+	 */
+	public boolean isErrorFlagSet() {
+		return exceptionDuringWrite;
+	}
+	
 }
