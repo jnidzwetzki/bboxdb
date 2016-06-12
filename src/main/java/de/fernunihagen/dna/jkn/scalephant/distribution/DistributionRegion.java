@@ -306,6 +306,15 @@ public class DistributionRegion {
 	public void addSystem(final String system) {
 		systems.add(system);
 	}
+	
+	/**
+	 * Set the systems for this DistributionRegion
+	 * @param systems
+	 */
+	public void setSystems(final Collection<String> systems) {
+		this.systems.clear();
+		this.systems.addAll(systems);
+	}
 }
 
 /**
