@@ -3,8 +3,6 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.hamcrest.core.IsEqual;
-
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
 public class DistributionRegion {
