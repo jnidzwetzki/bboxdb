@@ -1,5 +1,8 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
 public class DistributionRegion {
@@ -45,8 +48,10 @@ public class DistributionRegion {
 	 */
 	protected BoundingBox converingBox;
 	
+	protected final List<String> systems;
+	
 	/**
-	 * Private constructor, the factory method and the set split methods should
+	 * Protected constructor, the factory method and the set split methods should
 	 * be used to create a tree
 	 * @param name
 	 * @param level
@@ -58,6 +63,8 @@ public class DistributionRegion {
 		this.converingBox = BoundingBox.createFullCoveringDimensionBoundingBox(name.getDimension());
 		
 		totalLevel.registerNewLevel(level + 1);
+		
+		systems = new ArrayList<String>();
 	}
 
 	/**
@@ -279,6 +286,22 @@ public class DistributionRegion {
 	 */
 	public DistributionGroupName getDistributionGroupName() {
 		return distributionGroupName;
+	}
+	
+	/**
+	 * Get all systems that are responsible for this DistributionRegion
+	 * @return
+	 */
+	public List<String> getSystems() {
+		return new ArrayList<String>(systems);
+	}
+	
+	/**
+	 * Add a system to this DistributionRegion
+	 * @param system
+	 */
+	public void addSystem(final String system) {
+		systems.add(system);
 	}
 }
 
