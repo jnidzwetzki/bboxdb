@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.performance;
 
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,11 +25,19 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 				
 		// Remove old data
 		final ClientOperationFuture result = scalephantClient.deleteTable(mytable);
-		result.get();		
+		result.get();
+		
+		final Random bbBoxRandom = new Random();
 	
 		// Insert the tuples
 		for(; insertedTuples.get() < tuples; insertedTuples.incrementAndGet()) {
-			scalephantClient.insertTuple(mytable, new Tuple(Integer.toString(insertedTuples.get()), BoundingBox.EMPTY_BOX, "abcdef".getBytes()));
+			final float x = bbBoxRandom.nextFloat();
+			final float y = bbBoxRandom.nextFloat();
+			final float z = bbBoxRandom.nextFloat();
+			
+			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1, z, z+1);
+			
+			scalephantClient.insertTuple(mytable, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
 		}
 	}
 
