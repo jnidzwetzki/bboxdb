@@ -3,6 +3,8 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.hamcrest.core.IsEqual;
+
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
 public class DistributionRegion {
@@ -314,6 +316,36 @@ public class DistributionRegion {
 	public void setSystems(final Collection<String> systems) {
 		this.systems.clear();
 		this.systems.addAll(systems);
+	}
+	
+	/**
+	 * Get the a list of systems for the bounding box
+	 * @return
+	 */
+	public Collection<String> getSystemsForBoundingBox(final BoundingBox boundingBox) {
+		final Collection<String> result = new ArrayList<String>();
+		addSystemsForBoundingBoxRecursive(boundingBox, result);
+		return result;
+	}
+	
+	/**
+	 * Add the leaf nodes systems that are covered by the bounding box
+	 * @param boundingBox
+	 * @param systems
+	 */
+	protected void addSystemsForBoundingBoxRecursive(final BoundingBox boundingBox, Collection<String> resultSystems) {
+		
+		// This node is not covered. So, edge nodes are not covered
+		if(! converingBox.overlaps(boundingBox)) {
+			return;
+		}
+		
+		if(isLeafRegion()) {
+			resultSystems.addAll(systems);
+		} else {
+			leftChild.addSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
+			rightChild.addSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
+		}
 	}
 }
 
