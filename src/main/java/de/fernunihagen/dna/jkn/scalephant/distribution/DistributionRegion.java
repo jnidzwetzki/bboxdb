@@ -1,7 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
@@ -48,7 +48,10 @@ public class DistributionRegion {
 	 */
 	protected BoundingBox converingBox;
 	
-	protected final List<String> systems;
+	/**
+	 * The systems
+	 */
+	protected final Collection<String> systems;
 	
 	/**
 	 * Protected constructor, the factory method and the set split methods should
@@ -292,7 +295,7 @@ public class DistributionRegion {
 	 * Get all systems that are responsible for this DistributionRegion
 	 * @return
 	 */
-	public List<String> getSystems() {
+	public Collection<String> getSystems() {
 		return new ArrayList<String>(systems);
 	}
 	
