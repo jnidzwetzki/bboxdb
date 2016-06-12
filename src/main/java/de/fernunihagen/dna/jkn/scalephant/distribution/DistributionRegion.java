@@ -142,8 +142,8 @@ public class DistributionRegion {
 		afterSplitHook(sendNotify);
 		
 		// Send the on node complete event
-		getLeftChild().onNodeComplete();
-		getRightChild().onNodeComplete();
+		leftChild.onNodeComplete();
+		rightChild.onNodeComplete();
 	}
 
 	/**

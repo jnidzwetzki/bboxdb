@@ -416,6 +416,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		final String splitPathName = path + "/" + NAME_SPLIT;
 
 		try {
+			child.setSystems(getSystemsForDistributionRegion(child));
+			
 			if(zookeeper.exists(splitPathName, this) == null) {
 				return;
 			}
@@ -567,7 +569,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 	
 	/**
-	 * Create a new persistent sequencial node
+	 * Create a new persistent sequential node
 	 * @param path
 	 * @param bytes
 	 * @return 
@@ -642,6 +644,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		try {
 			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NAME_SYSTEMS + "/" + SEQUENCE_QUEUE_PREFIX;
+			logger.debug("Register system under systems node: " + path);
 			createPersistentSequencialNode(path, system.getBytes());
 		} catch (ZookeeperException e) {
 			throw new ZookeeperException(e);

@@ -224,5 +224,27 @@ public class TestZookeeperIntegration {
 		final Collection<String> systems3 = zookeeperClient.getSystemsForDistributionRegion(region);
 		Assert.assertEquals(0, systems3.size());
 	}
+	
+	/**
+	 * Test the systems field
+	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testSystems() throws ZookeeperException, InterruptedException {
+		final String systemName = "192.168.1.10:5050";
+		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		
+		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		zookeeperClient.addSystemToDistributionRegion(region, systemName);
+		
+		// Sleep 2 seconds to wait for the update
+		Thread.sleep(2000);
+
+		Assert.assertEquals(1, region.getSystems().size());
+		Assert.assertTrue(region.getSystems().contains(systemName));
+	}
 
 }
