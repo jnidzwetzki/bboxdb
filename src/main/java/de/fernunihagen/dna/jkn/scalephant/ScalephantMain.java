@@ -2,7 +2,6 @@ package de.fernunihagen.dna.jkn.scalephant;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.daemon.Daemon;
@@ -11,7 +10,7 @@ import org.apache.commons.daemon.DaemonInitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
 import de.fernunihagen.dna.jkn.scalephant.network.server.NetworkConnectionService;
 
 public class ScalephantMain implements Daemon {
@@ -29,13 +28,11 @@ public class ScalephantMain implements Daemon {
 	@Override
 	public void init(final DaemonContext ctx) throws DaemonInitException, Exception {
 		logger.info("Init the scalephant");
-		
-		final ScalephantConfiguration scalephantConfiguration = ScalephantConfigurationManager.getConfiguration();
-		
+				
 		// The zookeeper client
-		services.add(createZookeeperClient(scalephantConfiguration));
+		services.add(ZookeeperClientFactory.getZookeeperClient());
 
-		// The network conenction handler
+		// The network connection handler
 		services.add(createConnectionHandler());		
 	}
 
@@ -45,26 +42,6 @@ public class ScalephantMain implements Daemon {
 	 */
 	protected NetworkConnectionService createConnectionHandler() {
 		return new NetworkConnectionService();
-	}
-
-	/**
-	 * Returns a new instance of the zookeeper client
-	 * @param scalephantConfiguration
-	 * @return
-	 */
-	protected ZookeeperClient createZookeeperClient(
-			final ScalephantConfiguration scalephantConfiguration) {
-		
-		final Collection<String> zookeepernodes = scalephantConfiguration.getZookeepernodes();
-		final String clustername = scalephantConfiguration.getClustername();
-		final String localIp = scalephantConfiguration.getLocalip();
-		final int localPort = scalephantConfiguration.getNetworkListenPort();
-		
-		final String instanceName = localIp + ":" + Integer.toString(localPort);
-		
-		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, clustername);
-		zookeeperClient.registerScalephantInstanceAfterConnect(instanceName);
-		return zookeeperClient;
 	}
 
 	@Override
