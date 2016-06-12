@@ -149,10 +149,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	protected void updateZookeeperSplit() throws ZookeeperException {	
 		
 		logger.debug("Write split into zookeeper");
-		
-		System.out.println("Path: "+ zookeeperPath);
 		final String zookeeperPath = zookeeperClient.getZookeeperPathForDistributionRegion(this);
-		System.out.println("Path: "+ zookeeperPath);
 		
 		// Left child
 		final String leftPath = zookeeperPath + "/" + ZookeeperClient.NODE_LEFT;
