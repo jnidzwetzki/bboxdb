@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
+import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
@@ -229,7 +231,8 @@ public class ClientConnectionHandler implements Runnable {
 		logger.info("Create distribution group: " + resultPackage.getDistributionGroup());
 		
 		try {
-			//TODO: Handle the package
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			zookeeperClient.createDistributionGroup(resultPackage.getDistributionGroup(), resultPackage.getReplicationFactor());
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while create distribution group", e);
@@ -252,7 +255,8 @@ public class ClientConnectionHandler implements Runnable {
 		logger.info("Delete distribution group: " + resultPackage.getDistributionGroup());
 		
 		try {
-			//TODO: Handle the package
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			zookeeperClient.deleteDistributionGroup(resultPackage.getDistributionGroup());
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while delete distribution group", e);
