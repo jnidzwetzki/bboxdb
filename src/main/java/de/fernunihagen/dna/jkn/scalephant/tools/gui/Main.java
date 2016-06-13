@@ -20,6 +20,7 @@ public class Main {
 		
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeeperHosts, clustername);
 		zookeeperClient.init();
+		zookeeperClient.startMembershipObserver();
 		
 		final GuiModel guiModel = new GuiModel(zookeeperClient);		
 		final ScalephantGui scalepahntGUI = new ScalephantGui(guiModel);

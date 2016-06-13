@@ -44,6 +44,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected String instancename = null;
 	
 	/**
+	 * Is the membership observer active?
+	 */
+	protected volatile boolean membershipObserver = false;
+	
+	/**
 	 * The timeout for the zookeeper session
 	 */
 	protected final static int DEFAULT_TIMEOUT = 3000;
@@ -116,11 +121,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, this);
 			createDirectoryStructureIfNeeded();
 			
-			if(instancename != null) {
-				registerInstance();
-			}
-			
-			readMembershipAndRegisterWatch();
+			registerInstanceIfNameWasSet();
 		} catch (Exception e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
 		}
@@ -143,10 +144,28 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 	
 	/**
+	 * Start the membership observer
+	 */
+	public void startMembershipObserver() {
+		membershipObserver = true;
+		readMembershipAndRegisterWatch();
+	}
+	
+	public void stopMembershipObserver() {
+		membershipObserver = false;
+	}
+	
+	/**
 	 * Register a watch on membership changes. A watch is a one-time operation, the watch
 	 * is reregistered on each method call.
 	 */
 	protected void readMembershipAndRegisterWatch() {
+		
+		if(!membershipObserver) {
+			logger.info("Ignore membership event, because observer is not active");
+			return;
+		}
+		
 		try {
 			final List<String> instances = zookeeper.getChildren(getNodesPath(clustername), this);
 			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
@@ -261,7 +280,12 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	protected void registerInstance() throws ZookeeperException {
+	protected void registerInstanceIfNameWasSet() throws ZookeeperException {
+		
+		if(instancename == null) {
+			return;
+		}
+
 		final String instanceZookeeperPath = getNodesPath(clustername) + "/" + instancename;
 		logger.info("Register instance on: " + instanceZookeeperPath);
 		
