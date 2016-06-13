@@ -44,10 +44,8 @@ public class ZookeeperClientFactory {
 		final String localIp = scalephantConfiguration.getLocalip();
 		final int localPort = scalephantConfiguration.getNetworkListenPort();
 		
-		final String instanceName = localIp + ":" + Integer.toString(localPort);
-		
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, clustername);
-		zookeeperClient.registerScalephantInstanceAfterConnect(instanceName);
+		zookeeperClient.registerScalephantInstanceAfterConnect(localIp, localPort);
 		
 		// Register instance
 		instances.put(scalephantConfiguration, zookeeperClient);

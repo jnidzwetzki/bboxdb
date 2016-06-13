@@ -235,11 +235,23 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	
 	/**
 	 * Register this instance of the scalephant
-	 * @param clustername
-	 * @param ownInstanceName
+	 * @param localIp
+	 * @param localPort
 	 */
-	public void registerScalephantInstanceAfterConnect(final String ownInstanceName) {
-		this.instancename = ownInstanceName;
+	public void registerScalephantInstanceAfterConnect(final String localIp, final Integer localPort) {
+		final String instanceName = generateInstanceName(localIp, localPort);
+		this.instancename = instanceName;
+	}
+
+	/**
+	 * Generate the name of the instance 
+	 * @param localIp
+	 * @param localPort
+	 * @return
+	 */
+	public String generateInstanceName(final String localIp, final Integer localPort) {
+		final String instanceName = localIp + ":" + Integer.toString(localPort);
+		return instanceName;
 	}
 	
 	/**
