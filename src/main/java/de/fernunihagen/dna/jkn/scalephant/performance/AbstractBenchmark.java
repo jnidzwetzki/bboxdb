@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
 
 public abstract class AbstractBenchmark implements Runnable {
@@ -19,7 +20,7 @@ public abstract class AbstractBenchmark implements Runnable {
 	/**
 	 * The scalephant client
 	 */
-	protected ScalephantClient scalephantClient;
+	protected Scalephant scalephantClient;
 	
 	/**
 	 * The executor service

@@ -38,7 +38,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleRespons
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
-public class ScalephantClient {
+public class ScalephantClient implements Scalephant {
 
 	/**
 	 * The maximum amount of in flight requests. Needs to be lower than Short.MAX_VALUE to
@@ -120,10 +120,10 @@ public class ScalephantClient {
 		this.connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
 	}
 
-	/**
-	 * Connect to the server
-	 * @return true or false, depending on the connection state
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#connect()
 	 */
+	@Override
 	public boolean connect() {
 		
 		if(clientSocket != null) {
@@ -158,9 +158,10 @@ public class ScalephantClient {
 		return true;
 	}
 	
-	/**
-	 * Disconnect from the server
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#disconnect()
 	 */
+	@Override
 	public boolean disconnect() {
 		
 		logger.info("Disconnecting from server: " + serverHostname + " port " + serverPort);
@@ -200,11 +201,10 @@ public class ScalephantClient {
 		return true;
 	}
 	
-	/**
-	 * Delete a table on the scalephant server
-	 * @param table
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#deleteTable(java.lang.String)
 	 */
+	@Override
 	public ClientOperationFuture deleteTable(final String table) {
 		
 		final ClientOperationFuture operationFuture = new ClientOperationFuture();
@@ -220,12 +220,10 @@ public class ScalephantClient {
 		return operationFuture;
 	}
 	
-	/**
-	 * Insert a new tuple into the given table
-	 * @param tuple
-	 * @param table
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#insertTuple(java.lang.String, de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple)
 	 */
+	@Override
 	public ClientOperationFuture insertTuple(final String table, final Tuple tuple) {
 		final ClientOperationFuture operationFuture = new ClientOperationFuture();
 
@@ -240,12 +238,10 @@ public class ScalephantClient {
 		return operationFuture;
 	}
 	
-	/**
-	 * Delete the given key from a table
-	 * @param table
-	 * @param key
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#deleteTuple(java.lang.String, java.lang.String)
 	 */
+	@Override
 	public ClientOperationFuture deleteTuple(final String table, final String key) {
 		final ClientOperationFuture operationFuture = new ClientOperationFuture();
 
@@ -260,10 +256,10 @@ public class ScalephantClient {
 		return operationFuture;
 	}
 	
-	/**
-	 * List the existing tables
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#listTables()
 	 */
+	@Override
 	public ClientOperationFuture listTables() {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("listTables called, but connection not ready: " + connectionState);
@@ -276,11 +272,10 @@ public class ScalephantClient {
 		return future;
 	}
 	
-	/**
-	 * Create a new distribution group
-	 * @param distributionGroup
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#createDistributionGroup(java.lang.String, short)
 	 */
+	@Override
 	public ClientOperationFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("listTables called, but connection not ready: " + connectionState);
@@ -293,11 +288,10 @@ public class ScalephantClient {
 		return future;
 	}
 	
-	/**
-	 * Delete a distribution group
-	 * @param distributionGroup
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#deleteDistributionGroup(java.lang.String)
 	 */
+	@Override
 	public ClientOperationFuture deleteDistributionGroup(final String distributionGroup) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("listTables called, but connection not ready: " + connectionState);
@@ -310,12 +304,10 @@ public class ScalephantClient {
 		return future;
 	}
 	
-	/**
-	 * Query the given table for a specific key
-	 * @param table
-	 * @param key
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#queryKey(java.lang.String, java.lang.String)
 	 */
+	@Override
 	public ClientOperationFuture queryKey(final String table, final String key) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("queryKey called, but connection not ready: " + connectionState);
@@ -328,12 +320,10 @@ public class ScalephantClient {
 		return future;
 	}
 	
-	/**
-	 * Execute a bounding box query on the given table
-	 * @param table
-	 * @param boundingBox
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#queryBoundingBox(java.lang.String, de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox)
 	 */
+	@Override
 	public ClientOperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("queryBoundingBox called, but connection not ready: " + connectionState);
@@ -346,12 +336,10 @@ public class ScalephantClient {
 		return future;
 	}
 	
-	/**
-	 * Query the given table for all tuples newer than
-	 * @param table
-	 * @param key
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#queryTime(java.lang.String, long)
 	 */
+	@Override
 	public ClientOperationFuture queryTime(final String table, final long timestamp) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("queryTime called, but connection not ready: " + connectionState);
@@ -364,18 +352,18 @@ public class ScalephantClient {
 		return future;
 	}
 	
-	/**
-	 * Set an alternative server port
-	 * @param serverPort
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#setPort(int)
 	 */
+	@Override
 	public void setPort(final int serverPort) {
 		this.serverPort = serverPort;
 	}
 	
-	/**
-	 * Is the client connected?
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#isConnected()
 	 */
+	@Override
 	public boolean isConnected() {
 		if(clientSocket != null) {
 			return ! clientSocket.isClosed();
@@ -384,36 +372,36 @@ public class ScalephantClient {
 		return false;
 	}
 	
-	/**
-	 * Returns the state of the connection
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#getConnectionState()
 	 */
+	@Override
 	public NetworkConnectionState getConnectionState() {
 		return connectionState;
 	}
 
-	/**
-	 * Get the amount of in flight (running) calls
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#getInFlightCalls()
 	 */
+	@Override
 	public int getInFlightCalls() {
 		synchronized (pendingCalls) {
 			return pendingCalls.size();
 		}
 	}
 	
-	/**
-	 * Get the max amount of in flight calls
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#getMaxInFlightCalls()
 	 */
+	@Override
 	public short getMaxInFlightCalls() {
 		return maxInFlightCalls;
 	}
 
-	/**
-	 * Set the max amount of in flight calls
-	 * @param maxInFlightCalls
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#setMaxInFlightCalls(short)
 	 */
+	@Override
 	public void setMaxInFlightCalls(short maxInFlightCalls) {
 		this.maxInFlightCalls = (short) Math.min(maxInFlightCalls, MAX_IN_FLIGHT_CALLS);
 	}
