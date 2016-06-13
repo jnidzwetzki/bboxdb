@@ -346,16 +346,6 @@ public class ScalephantClient implements Scalephant {
 		return future;
 	}
 	
-	
-	/**
-	 * Set an alternative server port
-	 * @param serverPort
-	 */
-	/*
-	public void setPort(final int serverPort) {
-		this.serverPort = serverPort;
-	}*/
-	
 	/* (non-Javadoc)
 	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#isConnected()
 	 */
