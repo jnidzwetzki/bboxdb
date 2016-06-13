@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionFactory;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
 public class TestDistributionGroup {
 
@@ -128,4 +129,27 @@ public class TestDistributionGroup {
 		Assert.assertFalse(level0.getLeftChild().isRightChild());
 	}
 
+	/**
+	 * Test the find systems method
+	 */
+	@Test
+	public void testFindSystems() {
+		final String SYSTEM_A = "192.168.1.200:5050";
+		final String SYSTEM_B = "192.168.1.201:5050";
+		
+		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("1_foo");
+		level0.setSplit(50);
+
+		level0.getLeftChild().addSystem(SYSTEM_A);
+		level0.getRightChild().addSystem(SYSTEM_B);
+		
+		Assert.assertFalse(level0.getSystemsForBoundingBox(new BoundingBox(100f, 110f)).contains(SYSTEM_A));
+		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 10f)).contains(SYSTEM_A));
+		
+		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 10f)).contains(SYSTEM_A));
+		Assert.assertFalse(level0.getSystemsForBoundingBox(new BoundingBox(100f, 110f)).contains(SYSTEM_A));
+		
+		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 100f)).contains(SYSTEM_A));
+		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 100f)).contains(SYSTEM_B));
+	}
 }
