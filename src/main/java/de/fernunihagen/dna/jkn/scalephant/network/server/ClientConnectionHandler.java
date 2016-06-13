@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
@@ -233,6 +234,18 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			zookeeperClient.createDistributionGroup(resultPackage.getDistributionGroup(), resultPackage.getReplicationFactor());
+			
+			final DistributionRegion region = zookeeperClient.readDistributionGroup(resultPackage.getDistributionGroup());
+			
+			final ScalephantConfiguration scalephantConfiguration = 
+					ScalephantConfigurationManager.getConfiguration();
+
+			final String localIp = scalephantConfiguration.getLocalip();
+			final int localPort = scalephantConfiguration.getNetworkListenPort();
+			
+			final String instanceName = zookeeperClient.generateInstanceName(localIp, localPort);
+			zookeeperClient.addSystemToDistributionRegion(region, instanceName);
+			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while create distribution group", e);
