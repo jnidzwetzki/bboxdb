@@ -94,12 +94,6 @@ public interface Scalephant {
 	public abstract ClientOperationFuture queryTime(String table, long timestamp);
 
 	/**
-	 * Set an alternative server port
-	 * @param serverPort
-	 */
-	public abstract void setPort(int serverPort);
-
-	/**
 	 * Is the client connected?
 	 * @return
 	 */

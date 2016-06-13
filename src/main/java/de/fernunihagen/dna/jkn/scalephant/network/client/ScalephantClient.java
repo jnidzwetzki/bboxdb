@@ -346,10 +346,10 @@ public class ScalephantClient implements Scalephant {
 		return future;
 	}
 	
-	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#setPort(int)
+	/**
+	 * Set an alternative server port
+	 * @param serverPort
 	 */
-	@Override
 	public void setPort(final int serverPort) {
 		this.serverPort = serverPort;
 	}
