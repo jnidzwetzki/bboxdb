@@ -5,6 +5,12 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public interface Scalephant {
+	
+	/**
+	 * The maximum amount of in flight requests. Needs to be lower than Short.MAX_VALUE to
+	 * prevent two in flight requests with the same id.
+	 */
+	public final static short MAX_IN_FLIGHT_CALLS = 1000;
 
 	/**
 	 * Connect to the server
