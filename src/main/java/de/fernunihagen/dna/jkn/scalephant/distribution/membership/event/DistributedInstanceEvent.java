@@ -10,5 +10,13 @@ public abstract class DistributedInstanceEvent {
 		super();
 		this.instance = instance;
 	}
+
+	/**
+	 * Get the instance from the event
+	 * @return
+	 */
+	public DistributedInstance getInstance() {
+		return instance;
+	}
 	
 }
