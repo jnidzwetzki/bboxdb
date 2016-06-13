@@ -13,7 +13,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
@@ -53,7 +52,7 @@ public class ScalephantClient implements Scalephant {
 	/**
 	 * The port of the server
 	 */
-	protected int serverPort = ScalephantConfigurationManager.getConfiguration().getNetworkListenPort();
+	protected final int serverPort;
 	
 	/**
 	 * The socket of the connection
@@ -107,9 +106,10 @@ public class ScalephantClient implements Scalephant {
 	private final static Logger logger = LoggerFactory.getLogger(ScalephantClient.class);
 	
 
-	public ScalephantClient(final String serverHostname) {
+	public ScalephantClient(final String serverHostname, final int serverPort) {
 		super();
 		this.serverHostname = serverHostname;
+		this.serverPort = serverPort;
 		this.sequenceNumberGenerator = new SequenceNumberGenerator();
 		this.connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
 	}
@@ -346,13 +346,15 @@ public class ScalephantClient implements Scalephant {
 		return future;
 	}
 	
+	
 	/**
 	 * Set an alternative server port
 	 * @param serverPort
 	 */
+	/*
 	public void setPort(final int serverPort) {
 		this.serverPort = serverPort;
-	}
+	}*/
 	
 	/* (non-Javadoc)
 	 * @see de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant#isConnected()

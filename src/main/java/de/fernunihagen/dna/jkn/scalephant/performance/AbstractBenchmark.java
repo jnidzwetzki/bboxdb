@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
 
@@ -62,7 +63,8 @@ public abstract class AbstractBenchmark implements Runnable {
 		benchmarkActive = true;
 		
 		// Connect to the scalephant server
-		scalephantClient = new ScalephantClient("127.0.0.1");
+		final int port = ScalephantConfigurationManager.getConfiguration().getNetworkListenPort();
+		scalephantClient = new ScalephantClient("127.0.0.1", port);
 		scalephantClient.connect();
 		
 		if(! scalephantClient.isConnected()) {

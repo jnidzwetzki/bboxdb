@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantMain;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
@@ -77,7 +78,8 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testConnectionState() {
-		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1");
+		final int port = ScalephantConfigurationManager.getConfiguration().getNetworkListenPort();
+		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1", port);
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, scalephantClient.getConnectionState());
 		scalephantClient.connect();
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
@@ -210,7 +212,8 @@ public class TestNetworkCommunication {
 	 * @return
 	 */
 	protected ScalephantClient connectToServer() {
-		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1");
+		final int port = ScalephantConfigurationManager.getConfiguration().getNetworkListenPort();
+		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1", port);
 		Assert.assertFalse(scalephantClient.isConnected());
 		boolean result = scalephantClient.connect();
 		Assert.assertTrue(result);
