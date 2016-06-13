@@ -31,9 +31,9 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 	
 		// Insert the tuples
 		for(; insertedTuples.get() < tuples; insertedTuples.incrementAndGet()) {
-			final float x = bbBoxRandom.nextFloat();
-			final float y = bbBoxRandom.nextFloat();
-			final float z = bbBoxRandom.nextFloat();
+			final float x = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
+			final float y = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
+			final float z = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
 			
 			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1, z, z+1);
 			
