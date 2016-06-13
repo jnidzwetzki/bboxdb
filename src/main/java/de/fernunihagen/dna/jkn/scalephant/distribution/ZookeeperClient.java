@@ -701,7 +701,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * Is the zookeeper client connected?
 	 * @return
 	 */
-	protected boolean isConnected() {
+	public boolean isConnected() {
 		if(zookeeper == null) {
 			return false;
 		}
