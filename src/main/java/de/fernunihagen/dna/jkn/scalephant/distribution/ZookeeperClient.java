@@ -13,6 +13,7 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.ZooKeeper.States;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -694,5 +695,18 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
 		}
+	}
+	
+	/**
+	 * Is the zookeeper client connected?
+	 * @return
+	 */
+	protected boolean isConnected() {
+		if(zookeeper == null) {
+			return false;
+		}
+		
+		return zookeeper.getState() == States.CONNECTED ||
+				zookeeper.getState() == States.CONNECTING;
 	}
 }
