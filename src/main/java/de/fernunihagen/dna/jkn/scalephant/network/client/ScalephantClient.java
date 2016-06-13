@@ -3,6 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.network.client;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -112,6 +113,10 @@ public class ScalephantClient implements Scalephant {
 		this.serverPort = serverPort;
 		this.sequenceNumberGenerator = new SequenceNumberGenerator();
 		this.connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
+	}
+	
+	public ScalephantClient(final InetSocketAddress address) {
+		this(address.getHostString(), address.getPort());
 	}
 
 	/* (non-Javadoc)
