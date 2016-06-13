@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution.membership;
 
+import java.net.InetSocketAddress;
+
 public class DistributedInstance {
 	
 	/**
@@ -67,6 +69,14 @@ public class DistributedInstance {
 		if (port != other.port)
 			return false;
 		return true;
+	}
+	
+	/**
+	 * Get the inet socket address from the instance
+	 * @return
+	 */
+	public InetSocketAddress getInetSocketAddress() {
+		return new InetSocketAddress(ip, port);
 	}
 	
 }
