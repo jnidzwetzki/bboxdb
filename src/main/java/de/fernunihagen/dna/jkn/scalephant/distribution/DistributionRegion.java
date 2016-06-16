@@ -54,6 +54,11 @@ public class DistributionRegion {
 	protected final Collection<String> systems;
 	
 	/**
+	 * Is the node initialized
+	 */
+	protected volatile boolean ready;
+	
+	/**
 	 * Protected constructor, the factory method and the set split methods should
 	 * be used to create a tree
 	 * @param name
@@ -68,13 +73,14 @@ public class DistributionRegion {
 		totalLevel.registerNewLevel(level + 1);
 		
 		systems = new ArrayList<String>();
+		ready = false;
 	}
 
 	/**
 	 * The node complete event
 	 */
 	public void onNodeComplete() {
-		
+		ready = true;
 	}
 	
 	/**
@@ -236,11 +242,13 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public boolean isLeafRegion() {
-		if(leftChild == null || rightChild == null) {
-			return true;
+		if(leftChild != null && rightChild != null) {
+			if(leftChild.isReady() && rightChild.isReady()) {
+				return false;
+			}
 		}
 		
-		return false;
+		return true;
 	}
 	
 	/**
@@ -344,6 +352,14 @@ public class DistributionRegion {
 			leftChild.addSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
 			rightChild.addSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
 		}
+	}
+	
+	/**
+	 * Is the region ready (initialized)
+	 * @return
+	 */
+	public boolean isReady() {
+		return ready;
 	}
 }
 
