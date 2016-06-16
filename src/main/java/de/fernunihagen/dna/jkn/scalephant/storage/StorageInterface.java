@@ -8,7 +8,7 @@ import java.util.Map;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
-import de.fernunihagen.dna.jkn.scalephant.util.TablenameHelper;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 public class StorageInterface {
 
@@ -35,7 +35,7 @@ public class StorageInterface {
 	 */
 	public static synchronized StorageManager getStorageManager(final String table) throws StorageManagerException {
 		
-		final TablenameHelper tablename = new TablenameHelper(table);
+		final SSTableName tablename = new SSTableName(table);
 		if(! tablename.isValid()) {
 			throw new StorageManagerException("Invalid tablename: " + tablename);
 		}
@@ -76,7 +76,7 @@ public class StorageInterface {
 	 */
 	public static void deleteTable(final String table) throws StorageManagerException {
 		
-		final TablenameHelper tablename = new TablenameHelper(table);
+		final SSTableName tablename = new SSTableName(table);
 		if(! tablename.isValid()) {
 			throw new StorageManagerException("Invalid tablename: " + tablename);
 		}

@@ -1,9 +1,9 @@
-package de.fernunihagen.dna.jkn.scalephant.util;
+package de.fernunihagen.dna.jkn.scalephant.storage.entity;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TablenameHelper {
+public class SSTableName {
 
 	/**
 	 * The full name of the table
@@ -53,9 +53,9 @@ public class TablenameHelper {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(TablenameHelper.class);
+	private final static Logger logger = LoggerFactory.getLogger(SSTableName.class);
 	
-	public TablenameHelper(final String fullname) {
+	public SSTableName(final String fullname) {
 		super();
 		this.fullname = fullname;
 		this.valid = splitTablename();
@@ -169,7 +169,7 @@ public class TablenameHelper {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TablenameHelper other = (TablenameHelper) obj;
+		SSTableName other = (SSTableName) obj;
 		if (dimension != other.dimension)
 			return false;
 		if (group == null) {

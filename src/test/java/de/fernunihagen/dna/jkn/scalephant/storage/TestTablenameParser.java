@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.fernunihagen.dna.jkn.scalephant.util.TablenameHelper;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 public class TestTablenameParser {
 	
@@ -32,11 +32,11 @@ public class TestTablenameParser {
 		invalidNames.add("0_df_def");
 
 		for(final String invalidTablename : invalidNames) {
-			final TablenameHelper tablename = new TablenameHelper(invalidTablename);
+			final SSTableName tablename = new SSTableName(invalidTablename);
 			Assert.assertFalse(tablename.isValid());
-			Assert.assertEquals(TablenameHelper.INVALID_GROUP, tablename.getGroup());
-			Assert.assertEquals(TablenameHelper.INVALID_DIMENSION, tablename.getDimension());
-			Assert.assertEquals(TablenameHelper.INVALID_TABLENAME, tablename.getTablename());
+			Assert.assertEquals(SSTableName.INVALID_GROUP, tablename.getGroup());
+			Assert.assertEquals(SSTableName.INVALID_DIMENSION, tablename.getDimension());
+			Assert.assertEquals(SSTableName.INVALID_TABLENAME, tablename.getTablename());
 		}
 		
 	}
@@ -54,7 +54,7 @@ public class TestTablenameParser {
 		validNames.add("122_12def_table21");
 		
 		for(final String validTablename : validNames) {
-			final TablenameHelper tablename = new TablenameHelper(validTablename);
+			final SSTableName tablename = new SSTableName(validTablename);
 			Assert.assertTrue(tablename.isValid());
 			Assert.assertNotNull(tablename.getGroup());
 			Assert.assertNotNull(tablename.getDimension());

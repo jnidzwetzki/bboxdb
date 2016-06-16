@@ -3,7 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.util.TablenameHelper;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 public class DistributionGroupName {
 
@@ -35,7 +35,7 @@ public class DistributionGroupName {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(TablenameHelper.class);
+	private final static Logger logger = LoggerFactory.getLogger(SSTableName.class);
 	
 
 	public DistributionGroupName(final String fullname) {

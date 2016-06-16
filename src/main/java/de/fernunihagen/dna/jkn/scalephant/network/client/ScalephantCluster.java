@@ -74,7 +74,8 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 
 	@Override
 	public ClientOperationFuture insertTuple(String table, Tuple tuple) {
-		// TODO Auto-generated method stub
+		
+		// FIXME: Demo Implementation 
 		return null;
 	}
 
