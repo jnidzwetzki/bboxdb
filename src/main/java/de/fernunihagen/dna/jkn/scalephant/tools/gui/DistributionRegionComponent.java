@@ -209,6 +209,8 @@ public class DistributionRegionComponent {
 			sb.append("<br>");
 		}
 		
+		sb.append("Systems: " + distributionRegion.getSystems());
+		
 		sb.append("</html>");
 		return sb.toString();
 	}
