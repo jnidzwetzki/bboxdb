@@ -218,11 +218,13 @@ public class DistributionRegion {
 
 	@Override
 	public String toString() {
-		return "DistributionNode [name=" + distributionGroupName + ", split=" + split
-				+ ", leftChild=" + leftChild + ", rightChild=" + rightChild
-				+ ", parent=" + parent + "]";
+		return "DistributionRegion [distributionGroupName="
+				+ distributionGroupName + ", totalLevel=" + totalLevel
+				+ ", split=" + split + ", level=" + level + ", converingBox="
+				+ converingBox + ", systems=" + systems + ", ready=" + ready
+				+ "]";
 	}
-	
+
 	/**
 	 * Get the root element of the region
 	 */
