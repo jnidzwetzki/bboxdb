@@ -9,6 +9,7 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -164,6 +165,10 @@ public class ScalephantGui {
 				final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("2_testregion");
 				distributionRegion.setSplit(50, false);
 				distributionRegion.getLeftChild().setSplit(-30, false);
+				
+				distributionRegion.getLeftChild().getLeftChild().setSystems(Arrays.asList(new String[] {"node2", "node4"}));
+				distributionRegion.getLeftChild().getRightChild().setSystems(Arrays.asList(new String[] {"node2", "node4"}));
+				distributionRegion.getRightChild().setSystems(Arrays.asList(new String[] {"node5"}));
 				
 				return distributionRegion;
 			}
