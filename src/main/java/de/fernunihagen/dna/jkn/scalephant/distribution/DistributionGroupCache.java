@@ -26,7 +26,7 @@ public class DistributionGroupCache {
 	 * @return
 	 * @throws ZookeeperException 
 	 */
-	public static DistributionRegion getGroupForGroupName(final String groupName) throws ZookeeperException {
+	public static synchronized DistributionRegion getGroupForGroupName(final String groupName) throws ZookeeperException {
 		if(! groupGroupMap.containsKey(groupName)) {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final DistributionRegion distributionRegion = zookeeperClient.readDistributionGroup(groupName);
@@ -42,7 +42,7 @@ public class DistributionGroupCache {
 	 * @return
 	 * @throws ZookeeperException 
 	 */
-	public static DistributionRegion getGroupForTableName(final String tableName) throws ZookeeperException {
+	public static synchronized DistributionRegion getGroupForTableName(final String tableName) throws ZookeeperException {
 		if(! tableNameGroupMap.containsKey(tableName)) {
 			final DistributionGroupName distributionGroupName = new DistributionGroupName(tableName);
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
