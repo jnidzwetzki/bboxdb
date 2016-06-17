@@ -48,11 +48,11 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 			
 			logger.info("Register watch for: " + zookeeperSystemsPath);
 			zookeeperClient.getChildren(zookeeperSystemsPath, this);
-			
-			// The node is ready and can be used
-			ready = true;
 		} catch (ZookeeperException e) {
 			logger.info("Unable to register watch for: " + zookeeperPath, e);
+		} finally {
+			// The node is ready and can be used
+			ready = true;
 		}
 	}
 
