@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupCache;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.DistributedInstanceAddEvent;
@@ -76,6 +80,21 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	public ClientOperationFuture insertTuple(String table, Tuple tuple) {
 		
 		// FIXME: Demo Implementation 
+		try {
+			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
+			final Collection<String> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
+			logger.info("Writing tuple to systems: " + systems);
+			
+			for(final String system : systems) {
+				logger.info("Sending call to:  " + system);
+				final ScalephantClient connection = serverConnections.get(system);
+				connection.insertTuple(table, tuple);
+			}
+			
+		} catch (ZookeeperException e) {
+			e.printStackTrace();
+		}
+		
 		return null;
 	}
 
@@ -209,10 +228,27 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	// Test * Test * Test * Test * Test * Test * Test * Test
 	//===============================================================
 	public static void main(final String[] args) throws InterruptedException {
+		final String GROUP = "2_TESTGROUP";
+		final String TABLE = "2_TESTGROUP_DATA";
+		
 		final Collection<String> zookeeperNodes = new ArrayList<String>();
 		zookeeperNodes.add("node1:2181");
 		final ScalephantCluster scalephantCluster = new ScalephantCluster(zookeeperNodes, "mycluster");
 		scalephantCluster.connect();
+		
+		// Insert the tuples
+		final Random bbBoxRandom = new Random();
+		for(int i = 0; i < 100000; i++) {
+			final float x = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
+			final float y = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
+			final float z = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
+			
+			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1, z, z+1);
+			
+			System.out.println("Inserting Tuple: " + boundingBox);
+			
+			scalephantCluster.insertTuple(TABLE, new Tuple(Integer.toString(i), boundingBox, "abcdef".getBytes()));
+		}
 		
 		Thread.sleep(10000000);
 	}
