@@ -432,12 +432,20 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws ZookeeperException 
 	 */
 	public DistributionRegion readDistributionGroup(final String distributionGroup) throws ZookeeperException {
-		final DistributionRegion root = DistributionRegionFactory.createRootRegion(distributionGroup);
-		final String path = getDistributionGroupPath(distributionGroup);
-		
-		readDistributionGroupRecursive(path, root);
-		
-		return root;
+		try {
+			final DistributionRegion root = DistributionRegionFactory.createRootRegion(distributionGroup);
+			final String path = getDistributionGroupPath(distributionGroup);
+			
+			if(zookeeper.exists(path, false) == null) {
+				throw new ZookeeperException("Unable to read: " + distributionGroup + " path " + path + " does not exist");
+			}
+			
+			readDistributionGroupRecursive(path, root);
+			
+			return root;
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
 	}
 	
 	/**
