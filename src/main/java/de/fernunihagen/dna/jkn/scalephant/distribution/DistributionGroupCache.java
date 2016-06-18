@@ -3,6 +3,8 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
+
 public class DistributionGroupCache {
 	
 	/**
@@ -44,9 +46,14 @@ public class DistributionGroupCache {
 	 */
 	public static synchronized DistributionRegion getGroupForTableName(final String tableName) throws ZookeeperException {
 		if(! tableNameGroupMap.containsKey(tableName)) {
-			final DistributionGroupName distributionGroupName = new DistributionGroupName(tableName);
+			final SSTableName ssTableName = new SSTableName(tableName);
+			
+			if(! ssTableName.isValid()) {
+				throw new IllegalArgumentException("Invalid table name: " + tableName);
+			}
+			
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			final DistributionRegion distributionRegion = zookeeperClient.readDistributionGroup(distributionGroupName.getGroupname());
+			final DistributionRegion distributionRegion = zookeeperClient.readDistributionGroup(ssTableName.getDistributionGroup());
 			tableNameGroupMap.put(tableName, distributionRegion);
 		}
 		
