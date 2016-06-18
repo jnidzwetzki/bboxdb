@@ -129,6 +129,14 @@ public class SSTableName {
 	}
 	
 	/**
+	 * Get the name of the distribution group
+	 * @return
+	 */
+	public String getDistributionGroup() {
+		return dimension + "_" + group;
+	}
+	
+	/**
 	 * Get the identifier from the tablename
 	 * @return
 	 */
