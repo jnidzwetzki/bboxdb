@@ -17,8 +17,8 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 
 	@Override
 	public void runBenchmark() throws InterruptedException, ExecutionException {
-		// A 2 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
-		final String mytable = "2_mygroup3_testdata";
+		// A 3 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
+		final String mytable = "3_mygroup3_testdata";
 		
 		// Number of tuples
 		final int tuples = 5000000;
@@ -31,9 +31,9 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 	
 		// Insert the tuples
 		for(; insertedTuples.get() < tuples; insertedTuples.incrementAndGet()) {
-			final float x = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
-			final float y = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
-			final float z = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
+			final float x = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
+			final float y = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
+			final float z = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
 			
 			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1, z, z+1);
 			
