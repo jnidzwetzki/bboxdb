@@ -188,8 +188,6 @@ public class ScalephantGui {
 	            
 	            return "";
 			}
-					
-			
 		};
 
 		mainPanel.setBackground(Color.WHITE);
@@ -205,7 +203,7 @@ public class ScalephantGui {
 		JMenu menu = new JMenu("File");
 		menuBar.add(menu);
 		
-		JMenuItem menuItem = new JMenuItem("Close");
+		final JMenuItem menuItem = new JMenuItem("Close");
 		menuItem.addActionListener(new AbstractAction() {
 			
 			private static final long serialVersionUID = -5380326547117916348L;

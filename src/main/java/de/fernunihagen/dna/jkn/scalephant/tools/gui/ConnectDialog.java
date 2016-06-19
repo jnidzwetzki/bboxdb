@@ -214,20 +214,38 @@ public class ConnectDialog {
 				scalepahntGUI.run();
 				guiModel.setDistributionGroup(distributionGroup);
 				
-				try {
-					while(! scalepahntGUI.shutdown) {
-						scalepahntGUI.updateView();
-						Thread.sleep(1000);
-					}
-					
-					// Wait for pending gui updates to complete
-					scalepahntGUI.dispose();				
-					Thread.sleep(1000);
-				} catch (InterruptedException e1) {
-					// Ignore exception
-				}
+				startNewMainThread(zookeeperClient, scalepahntGUI);
+			}
+
+			/**
+			 * The main thread
+			 * @param zookeeperClient
+			 * @param scalepahntGUI
+			 */
+			protected void startNewMainThread(
+					final ZookeeperClient zookeeperClient,
+					final ScalephantGui scalepahntGUI) {
 				
-				zookeeperClient.shutdown();
+				// Start a new update thread
+				(new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							while(! scalepahntGUI.shutdown) {
+								scalepahntGUI.updateView();
+								Thread.sleep(1000);
+							}
+							
+							// Wait for pending gui updates to complete
+							scalepahntGUI.dispose();				
+							Thread.sleep(1000);
+						} catch (InterruptedException e1) {
+							// Ignore exception
+						}
+						
+						zookeeperClient.shutdown();
+					}
+				})).start();
 			}
 		};
 		return connectAction;
