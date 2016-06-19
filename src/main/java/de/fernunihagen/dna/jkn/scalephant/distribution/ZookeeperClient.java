@@ -739,7 +739,6 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			return false;
 		}
 		
-		return zookeeper.getState() == States.CONNECTED ||
-				zookeeper.getState() == States.CONNECTING;
+		return zookeeper.getState() == States.CONNECTED;
 	}
 }
