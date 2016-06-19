@@ -1,9 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.tools.gui;
 
-import java.util.Arrays;
-import java.util.List;
-
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 
 public class Main {
 	
@@ -13,35 +9,7 @@ public class Main {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		
-		final List<String> zookeeperHosts = Arrays.asList(new String[] {"node1"});
-		final String clustername = "mycluster";
-		final String distributionGroup = "3_mygroup";
-		
-		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeeperHosts, clustername);
-		zookeeperClient.init();
-		zookeeperClient.startMembershipObserver();
-		
-		final GuiModel guiModel = new GuiModel(zookeeperClient);		
-		final ScalephantGui scalepahntGUI = new ScalephantGui(guiModel);
-		guiModel.setScalephantGui(scalepahntGUI);
-		scalepahntGUI.run();
-		guiModel.setDistributionGroup(distributionGroup);
-		
-		while(! scalepahntGUI.shutdown) {
-			scalepahntGUI.updateView();
-			Thread.sleep(1000);
-		}
-		
-		scalepahntGUI.dispose();
-		
-		// Wait for pending gui updates to complete
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e1) {
-			// Ignore exception
-		}
-		
-		zookeeperClient.shutdown();
+		final ConnectDialog connectDialog = new ConnectDialog();
+		connectDialog.showDialog();
 	}
 }

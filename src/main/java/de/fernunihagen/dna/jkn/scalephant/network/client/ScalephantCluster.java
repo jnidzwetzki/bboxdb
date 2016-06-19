@@ -2,9 +2,11 @@ package de.fernunihagen.dna.jkn.scalephant.network.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +44,15 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	protected final Map<DistributedInstance, ScalephantClient> serverConnections;
 	
 	/**
+	 * The random generator
+	 */
+	protected Random randomGenerator;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ScalephantCluster.class);
-	
+
 	/**
 	 * Create a new instance of the ScalepahntCluster 
 	 * @param zookeeperNodes
@@ -53,7 +60,9 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	 */
 	public ScalephantCluster(final Collection<String> zookeeperNodes, final String clustername) {
 		zookeeperClient = new ZookeeperClient(zookeeperNodes, clustername);
-		serverConnections = new HashMap<DistributedInstance, ScalephantClient>();
+		final HashMap<DistributedInstance, ScalephantClient> connectionMap = new HashMap<DistributedInstance, ScalephantClient>();
+		serverConnections = Collections.synchronizedMap(connectionMap);
+		randomGenerator = new Random();;
 	}
 
 	@Override
@@ -112,16 +121,44 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 
 	@Override
 	public ClientOperationFuture createDistributionGroup(
-			String distributionGroup, short replicationFactor) {
-		// TODO Auto-generated method stub
-		return null;
+			final String distributionGroup, final short replicationFactor) {
+
+		if(serverConnections.size() == 0) {
+			final ClientOperationFuture future = new ClientOperationFuture();
+			future.setFailedState();
+			return future;
+		} else {
+			final ScalephantClient scalephantClient = getRandomHost();
+			return scalephantClient.createDistributionGroup(distributionGroup, replicationFactor);
+		}
 	}
 
 	@Override
 	public ClientOperationFuture deleteDistributionGroup(
-			String distributionGroup) {
-		// TODO Auto-generated method stub
-		return null;
+			final String distributionGroup) {
+
+		if(serverConnections.size() == 0) {
+			final ClientOperationFuture future = new ClientOperationFuture();
+			future.setFailedState();
+			return future;
+		} else {
+			final ScalephantClient scalephantClient = getRandomHost();
+			return scalephantClient.deleteDistributionGroup(distributionGroup);
+		}
+	}
+	
+	/**
+	 * Get one random host from the connection list
+	 * @return 
+	 */
+	protected ScalephantClient getRandomHost() {
+		
+		synchronized (serverConnections) {
+			final ScalephantClient[] elements = serverConnections.values().toArray(new ScalephantClient[0]);
+			final int element = randomGenerator.nextInt() % elements.length;
+			return elements[element];
+		}
+		
 	}
 
 	@Override
@@ -227,7 +264,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	//===============================================================
 	// Test * Test * Test * Test * Test * Test * Test * Test
 	//===============================================================
-	public static void main(final String[] args) throws InterruptedException {
+	public static void main(final String[] args) throws InterruptedException, ExecutionException {
 		final String GROUP = "2_TESTGROUP";
 		final String TABLE = "2_TESTGROUP_DATA";
 		
@@ -236,14 +273,19 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 		final ScalephantCluster scalephantCluster = new ScalephantCluster(zookeeperNodes, "mycluster");
 		scalephantCluster.connect();
 		
+		// Recreate distribution group
+		final ClientOperationFuture futureDelete = scalephantCluster.deleteDistributionGroup(GROUP);
+		futureDelete.get();
+		final ClientOperationFuture futureCreate = scalephantCluster.createDistributionGroup(GROUP, (short) 2);
+		futureCreate.get();
+		
 		// Insert the tuples
 		final Random bbBoxRandom = new Random();
 		for(int i = 0; i < 100000; i++) {
-			final float x = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
-			final float y = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
-			final float z = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0);
+			final float x = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
+			final float y = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
 			
-			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1, z, z+1);
+			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1);
 			
 			System.out.println("Inserting Tuple: " + boundingBox);
 			
