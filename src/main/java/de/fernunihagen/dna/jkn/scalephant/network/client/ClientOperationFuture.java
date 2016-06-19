@@ -124,7 +124,7 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	 * Set the error flag for the operation
 	 */
 	public void setFailedState() {
-		failed = false;
+		failed = true;
 		
 		// Future is failed, wake up all blocked get() calls
 		synchronized (mutex) {
