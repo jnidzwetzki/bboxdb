@@ -182,6 +182,7 @@ public class ConnectDialog {
 						    "No distribution groups are found. Please create them first.",
 						    "Distribution Groups",
 						    JOptionPane.ERROR_MESSAGE);
+					System.exit(0);
 				}
 				
 				final List<String> groupNames = new ArrayList<String>();
