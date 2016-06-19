@@ -158,7 +158,8 @@ public class ScalephantGui {
 	            final DistributionRegion distributionRegion = getDistributionRegion();
 	            drawDistributionRegion(graphics2D, distributionRegion);
 	            
-				g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 20);
+				g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);
+				g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 40);
 			}
 			
 			protected DistributionRegion getDistributionRegion() {
@@ -180,7 +181,6 @@ public class ScalephantGui {
 			public String getToolTipText(final MouseEvent event) {
 
 	            for(final DistributionRegionComponent component : regions) {
-	            	System.out.println("TEst: " + component);
 	            	if(component.isMouseOver(event)) {
 	            		return component.getToolTipText();
 	            	}
@@ -200,7 +200,7 @@ public class ScalephantGui {
 	 */
 	protected void setupMenu() {
 		menuBar = new JMenuBar();
-		JMenu menu = new JMenu("File");
+		final JMenu menu = new JMenu("File");
 		menuBar.add(menu);
 		
 		final JMenuItem menuItem = new JMenuItem("Close");

@@ -121,6 +121,14 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	public String getDistributionGroup() {
 		return distributionGroup;
 	}
+	
+	/**
+	 * Get the name of the cluster
+	 * @return
+	 */
+	public String getClustername() {
+		return client.getClustername();
+	}
 
 	/**
 	 * Set the distribution group
