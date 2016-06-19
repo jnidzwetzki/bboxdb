@@ -741,4 +741,12 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		return zookeeper.getState() == States.CONNECTED;
 	}
+	
+	/**
+	 * Returns the name of the cluster
+	 * @return
+	 */
+	public String getClustername() {
+		return clustername;
+	}
 }
