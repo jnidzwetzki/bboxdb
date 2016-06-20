@@ -9,7 +9,6 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -25,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
-import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionFactory;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 
 public class ScalephantGui {
@@ -155,23 +153,11 @@ public class ScalephantGui {
 	                    RenderingHints.VALUE_ANTIALIAS_ON);
 				
 	            regions.clear();
-	            final DistributionRegion distributionRegion = getDistributionRegion();
+	            final DistributionRegion distributionRegion = guiModel.getRootRegion();
 	            drawDistributionRegion(graphics2D, distributionRegion);
 	            
 				g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);
 				g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 40);
-			}
-			
-			protected DistributionRegion getDistributionRegion() {
-				final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("2_testregion");
-				distributionRegion.setSplit(50, false);
-				distributionRegion.getLeftChild().setSplit(-30, false);
-				
-				distributionRegion.getLeftChild().getLeftChild().setSystems(Arrays.asList(new DistributedInstance[] {new DistributedInstance("node4", 1000), new DistributedInstance("node7", 3000)}));
-				distributionRegion.getLeftChild().getRightChild().setSystems(Arrays.asList(new DistributedInstance[] {new DistributedInstance("node2", 1000)}));
-				distributionRegion.getRightChild().setSystems(Arrays.asList(new DistributedInstance[] {new DistributedInstance("node5", 1000)}));
-				
-				return distributionRegion;
 			}
 			
 			/**

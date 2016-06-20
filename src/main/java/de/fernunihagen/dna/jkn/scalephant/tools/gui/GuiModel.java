@@ -65,7 +65,6 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	public synchronized void updateModel() {
 		try {
 			updateScalepahntInstances();
-			updateDistributionRegion();
 			scalephantGui.updateView();
 		} catch(Exception e) {
 			logger.info("Exception while updating the view", e);
@@ -137,9 +136,23 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 */
 	public void setDistributionGroup(final String distributionGroup) {
 		this.distributionGroup = distributionGroup;
+	
+		try {
+			updateDistributionRegion();
+		} catch(Exception e) {
+			logger.info("Exception while updating the view", e);
+		}
 		
 		// Display the new distribution group
 		updateModel();
+	}
+	
+	/**
+	 * Get the root region
+	 * @return
+	 */
+	public DistributionRegion getRootRegion() {
+		return rootRegion;
 	}
 
 }
