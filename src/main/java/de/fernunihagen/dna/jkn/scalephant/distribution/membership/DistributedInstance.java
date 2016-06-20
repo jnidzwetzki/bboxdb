@@ -79,4 +79,12 @@ public class DistributedInstance {
 		return new InetSocketAddress(ip, port);
 	}
 	
+	/**
+	 * Convert the data back into a string
+	 * @return
+	 */
+	public String getStringValue() {
+		return ip + ":" + port;
+	}
+	
 }
