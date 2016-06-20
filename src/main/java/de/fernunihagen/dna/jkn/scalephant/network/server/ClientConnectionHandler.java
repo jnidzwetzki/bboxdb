@@ -536,7 +536,7 @@ public class ClientConnectionHandler implements Runnable {
 				if(logger.isDebugEnabled()) {
 					logger.debug("Got delete distribution group package");
 				}
-				readFurtherPackages = handleCreateDistributionGroup(packageHeader, packageSequence);
+				readFurtherPackages = handleDeleteDistributionGroup(packageHeader, packageSequence);
 				break;
 				
 			default:
