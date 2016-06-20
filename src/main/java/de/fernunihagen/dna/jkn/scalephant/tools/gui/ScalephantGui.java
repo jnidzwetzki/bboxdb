@@ -167,9 +167,9 @@ public class ScalephantGui {
 				distributionRegion.setSplit(50, false);
 				distributionRegion.getLeftChild().setSplit(-30, false);
 				
-				distributionRegion.getLeftChild().getLeftChild().setSystems(Arrays.asList(new String[] {"node2", "node4"}));
-				distributionRegion.getLeftChild().getRightChild().setSystems(Arrays.asList(new String[] {"node2", "node4"}));
-				distributionRegion.getRightChild().setSystems(Arrays.asList(new String[] {"node5"}));
+				distributionRegion.getLeftChild().getLeftChild().setSystems(Arrays.asList(new DistributedInstance[] {new DistributedInstance("node4", 1000), new DistributedInstance("node7", 3000)}));
+				distributionRegion.getLeftChild().getRightChild().setSystems(Arrays.asList(new DistributedInstance[] {new DistributedInstance("node2", 1000)}));
+				distributionRegion.getRightChild().setSystems(Arrays.asList(new DistributedInstance[] {new DistributedInstance("node5", 1000)}));
 				
 				return distributionRegion;
 			}

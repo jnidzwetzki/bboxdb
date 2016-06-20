@@ -30,6 +30,11 @@ public class DistributedInstance {
 		}
 	}
 
+	public DistributedInstance(final String localIp, final Integer localPort) {
+		ip = localIp;
+		port = localPort;
+	}
+
 	public String getIp() {
 		return ip;
 	}

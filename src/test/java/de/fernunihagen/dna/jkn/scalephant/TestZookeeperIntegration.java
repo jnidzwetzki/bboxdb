@@ -15,6 +15,7 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionFactory
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionWithZookeeperIntegration;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 
 public class TestZookeeperIntegration {
 
@@ -205,23 +206,23 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testSystemRegisterAndUnregister() throws ZookeeperException {
-		final String systemName = "192.168.1.10:5050";
+		final DistributedInstance systemName = new DistributedInstance("192.168.1.10:5050");
 		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
 		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
 		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
 		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
-		final Collection<String> systems1 = zookeeperClient.getSystemsForDistributionRegion(region);
+		final Collection<DistributedInstance> systems1 = zookeeperClient.getSystemsForDistributionRegion(region);
 		Assert.assertEquals(0, systems1.size());
 		
 		// Add a system
 		zookeeperClient.addSystemToDistributionRegion(region, systemName);
-		final Collection<String> systems2 = zookeeperClient.getSystemsForDistributionRegion(region);
+		final Collection<DistributedInstance> systems2 = zookeeperClient.getSystemsForDistributionRegion(region);
 		Assert.assertEquals(1, systems2.size());
 		Assert.assertTrue(systems2.contains(systemName));
 		
 		zookeeperClient.deleteSystemFromDistributionRegion(region, systemName);
-		final Collection<String> systems3 = zookeeperClient.getSystemsForDistributionRegion(region);
+		final Collection<DistributedInstance> systems3 = zookeeperClient.getSystemsForDistributionRegion(region);
 		Assert.assertEquals(0, systems3.size());
 	}
 	
@@ -232,7 +233,7 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testSystems() throws ZookeeperException, InterruptedException {
-		final String systemName = "192.168.1.10:5050";
+		final DistributedInstance systemName = new DistributedInstance("192.168.1.10:5050");
 		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
 		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
 		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 

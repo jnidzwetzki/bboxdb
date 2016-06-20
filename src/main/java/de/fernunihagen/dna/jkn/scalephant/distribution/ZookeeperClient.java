@@ -41,7 +41,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	/**
 	 * The name of the instance
 	 */
-	protected String instancename = null;
+	protected DistributedInstance instancename = null;
 	
 	/**
 	 * Is the membership observer active?
@@ -259,21 +259,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param localPort
 	 */
 	public void registerScalephantInstanceAfterConnect(final String localIp, final Integer localPort) {
-		final String instanceName = generateInstanceName(localIp, localPort);
-		this.instancename = instanceName;
+		this.instancename = new DistributedInstance(localIp, localPort);
 	}
 
-	/**
-	 * Generate the name of the instance 
-	 * @param localIp
-	 * @param localPort
-	 * @return
-	 */
-	public String generateInstanceName(final String localIp, final Integer localPort) {
-		final String instanceName = localIp + ":" + Integer.toString(localPort);
-		return instanceName;
-	}
-	
 	/**
 	 * Register the scalephant instance
 	 * @throws ZookeeperException 
@@ -659,15 +647,16 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return
 	 * @throws ZookeeperException 
 	 */
-	public Collection<String> getSystemsForDistributionRegion(final DistributionRegion region) throws ZookeeperException {
+	public Collection<DistributedInstance> getSystemsForDistributionRegion(final DistributionRegion region) throws ZookeeperException {
 		try {
-			final Set<String> result = new HashSet<String>();
+			final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
 			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NAME_SYSTEMS;
 			final List<String> childs = zookeeper.getChildren(path, false);
 			
 			for(final String childName : childs) {
 				final byte[] data = zookeeper.getData(path + "/" + childName, false, null);
-				result.add(new String(data));
+				final String systemName = new String(data);
+				result.add(new DistributedInstance(systemName));
 			}
 			
 			return result;
@@ -682,7 +671,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param system
 	 * @throws ZookeeperException 
 	 */
-	public void addSystemToDistributionRegion(final DistributionRegion region, final String system) throws ZookeeperException {
+	public void addSystemToDistributionRegion(final DistributionRegion region, final DistributedInstance system) throws ZookeeperException {
 		
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to add system with value null");
@@ -691,7 +680,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		try {
 			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NAME_SYSTEMS + "/" + SEQUENCE_QUEUE_PREFIX;
 			logger.debug("Register system under systems node: " + path);
-			createPersistentSequencialNode(path, system.getBytes());
+			createPersistentSequencialNode(path, system.getStringValue().getBytes());
 		} catch (ZookeeperException e) {
 			throw new ZookeeperException(e);
 		}
@@ -704,7 +693,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return 
 	 * @throws ZookeeperException 
 	 */
-	public boolean deleteSystemFromDistributionRegion(final DistributionRegion region, final String system) throws ZookeeperException {
+	public boolean deleteSystemFromDistributionRegion(final DistributionRegion region, final DistributedInstance system) throws ZookeeperException {
 		
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to delete system with value null");
@@ -718,7 +707,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			for(final String childName : childs) {
 				final String childPath = path + "/" + childName;
 				final byte[] data = zookeeper.getData(childPath, false, null);
-				if(system.equals(new String(data))) {
+				if(system.getStringValue().equals(new String(data))) {
 					zookeeper.delete(childPath, -1);
 					childDeleted = true;
 				}

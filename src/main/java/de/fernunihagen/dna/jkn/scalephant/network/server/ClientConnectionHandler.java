@@ -17,6 +17,7 @@ import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
@@ -243,8 +244,8 @@ public class ClientConnectionHandler implements Runnable {
 			final String localIp = scalephantConfiguration.getLocalip();
 			final int localPort = scalephantConfiguration.getNetworkListenPort();
 			
-			final String instanceName = zookeeperClient.generateInstanceName(localIp, localPort);
-			zookeeperClient.addSystemToDistributionRegion(region, instanceName);
+			final DistributedInstance intance = new DistributedInstance(localIp, localPort);
+			zookeeperClient.addSystemToDistributionRegion(region, intance);
 			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {

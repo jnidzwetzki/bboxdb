@@ -94,11 +94,12 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 		// FIXME: Demo Implementation 
 		try {
 			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
-			final Collection<String> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
+			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
 			logger.info("Writing tuple to systems: " + systems);
 			
-			for(final String system : systems) {
+			for(final DistributedInstance system : systems) {
 				logger.info("Sending call to:  " + system);
+	
 				final ScalephantClient connection = serverConnections.get(system);
 				connection.insertTuple(table, tuple);
 			}

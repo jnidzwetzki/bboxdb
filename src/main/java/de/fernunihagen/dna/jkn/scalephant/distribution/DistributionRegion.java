@@ -3,6 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
 public class DistributionRegion {
@@ -51,7 +52,7 @@ public class DistributionRegion {
 	/**
 	 * The systems
 	 */
-	protected final Collection<String> systems;
+	protected final Collection<DistributedInstance> systems;
 	
 	/**
 	 * Is the node initialized
@@ -72,7 +73,7 @@ public class DistributionRegion {
 		
 		totalLevel.registerNewLevel(level + 1);
 		
-		systems = new ArrayList<String>();
+		systems = new ArrayList<DistributedInstance>();
 		ready = false;
 	}
 
@@ -305,15 +306,15 @@ public class DistributionRegion {
 	 * Get all systems that are responsible for this DistributionRegion
 	 * @return
 	 */
-	public Collection<String> getSystems() {
-		return new ArrayList<String>(systems);
+	public Collection<DistributedInstance> getSystems() {
+		return new ArrayList<DistributedInstance>(systems);
 	}
 	
 	/**
 	 * Add a system to this DistributionRegion
 	 * @param system
 	 */
-	public void addSystem(final String system) {
+	public void addSystem(final DistributedInstance system) {
 		systems.add(system);
 	}
 	
@@ -321,7 +322,7 @@ public class DistributionRegion {
 	 * Set the systems for this DistributionRegion
 	 * @param systems
 	 */
-	public void setSystems(final Collection<String> systems) {
+	public void setSystems(final Collection<DistributedInstance> systems) {
 		this.systems.clear();
 		this.systems.addAll(systems);
 	}
@@ -330,8 +331,8 @@ public class DistributionRegion {
 	 * Get the a list of systems for the bounding box
 	 * @return
 	 */
-	public Collection<String> getSystemsForBoundingBox(final BoundingBox boundingBox) {
-		final Collection<String> result = new ArrayList<String>();
+	public Collection<DistributedInstance> getSystemsForBoundingBox(final BoundingBox boundingBox) {
+		final Collection<DistributedInstance> result = new ArrayList<DistributedInstance>();
 		addSystemsForBoundingBoxRecursive(boundingBox, result);
 		return result;
 	}
@@ -341,7 +342,7 @@ public class DistributionRegion {
 	 * @param boundingBox
 	 * @param systems
 	 */
-	protected void addSystemsForBoundingBoxRecursive(final BoundingBox boundingBox, Collection<String> resultSystems) {
+	protected void addSystemsForBoundingBoxRecursive(final BoundingBox boundingBox, final Collection<DistributedInstance> resultSystems) {
 		
 		// This node is not covered. So, edge nodes are not covered
 		if(! converingBox.overlaps(boundingBox)) {
