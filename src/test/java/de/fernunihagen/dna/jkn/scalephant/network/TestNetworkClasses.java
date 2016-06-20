@@ -6,10 +6,12 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.client.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.CreateDistributionGroupRequest;
@@ -472,5 +474,20 @@ public class TestNetworkClasses {
 		final TupleResponse responseDecoded = TupleResponse.decodePackage(bb);
 		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
 		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());		
+	}
+	
+	/**
+	 * Test the failed operation
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testFutureFailureState() throws InterruptedException, ExecutionException {
+		final ClientOperationFuture future = new ClientOperationFuture();
+		Assert.assertFalse(future.isFailed());
+		Assert.assertFalse(future.isDone());
+		future.setFailedState();
+		Assert.assertTrue(future.isFailed());
+		Assert.assertTrue(future.get() == null);
 	}
 }
