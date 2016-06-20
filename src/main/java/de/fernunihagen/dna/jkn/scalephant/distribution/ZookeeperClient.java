@@ -274,7 +274,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			return;
 		}
 
-		final String instanceZookeeperPath = getNodesPath(clustername) + "/" + instancename;
+		final String instanceZookeeperPath = getNodesPath(clustername) + "/" + instancename.getStringValue();
 		logger.info("Register instance on: " + instanceZookeeperPath);
 		
 		try {
