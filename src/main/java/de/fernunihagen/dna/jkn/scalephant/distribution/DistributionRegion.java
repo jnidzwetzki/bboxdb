@@ -133,7 +133,7 @@ public class DistributionRegion {
 		this.split = split;
 		
 		if(leftChild != null || rightChild != null) {
-			throw new IllegalArgumentException("Split called, but left or right node are empty");
+			throw new IllegalArgumentException("Split called, but left or right node are not empty");
 		}
 		
 		leftChild = createNewInstance();

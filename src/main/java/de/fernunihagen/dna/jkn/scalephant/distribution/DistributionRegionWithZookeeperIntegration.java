@@ -112,8 +112,14 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 				return;
 			}
 			
-			// Update data structure with data from zookeeper
-			zookeeperClient.readDistributionGroupRecursive(zookeeperPath, this);
+			// Ignore split event, when we are already splitted
+			// E.g. setSplit is called localy and written into zookeeper
+			// the zookeeper callback will call setSplit again
+			if(leftChild != null || rightChild != null) {
+				logger.debug("Ignore zookeeper split, because we are already splited");
+			} else {
+				zookeeperClient.readDistributionGroupRecursive(zookeeperPath, this);
+			}
 		} catch (ZookeeperException e) {
 			logger.error("Unable read data from zookeeper: ", e);
 		}
