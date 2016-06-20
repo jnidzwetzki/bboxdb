@@ -104,7 +104,7 @@ public class NetworkPackageDecoder {
 		// Check package type
 		byte readPackageType = bb.get();
 		if(readPackageType != packageType) {
-			logger.warn("Got wrong package type (" + readPackageType + " / " + packageType + ")");
+			logger.warn("Got wrong package type (got " + readPackageType + " / expected " + packageType + ")");
 			return false;
 		}
 		
