@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -79,6 +78,18 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	@Override
 	public boolean disconnect() {
 		zookeeperClient.shutdown();
+		
+		// Close all connections
+		synchronized (serverConnections) {
+			for(final DistributedInstance instance : serverConnections.keySet()) {
+				final ScalephantClient client = serverConnections.get(instance);
+				logger.info("Disconnecting from: " + instance);
+				client.disconnect();
+			}
+			
+			serverConnections.clear();
+		}
+		
 		return true;
 	}
 
@@ -92,23 +103,26 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	public ClientOperationFuture insertTuple(String table, Tuple tuple) {
 		
 		// FIXME: Demo Implementation 
+		ClientOperationFuture result = null;
+
 		try {
 			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
 			logger.info("Writing tuple to systems: " + systems);
 			
+			
 			for(final DistributedInstance system : systems) {
 				logger.info("Sending call to:  " + system);
 	
 				final ScalephantClient connection = serverConnections.get(system);
-				connection.insertTuple(table, tuple);
+				result = connection.insertTuple(table, tuple);
 			}
 			
 		} catch (ZookeeperException e) {
 			e.printStackTrace();
 		}
 		
-		return null;
+		return result;
 	}
 
 	@Override
@@ -285,7 +299,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 		
 		// Insert the tuples
 		final Random bbBoxRandom = new Random();
-		for(int i = 0; i < 100000; i++) {
+		for(int i = 0; i < 10; i++) {
 			final float x = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
 			final float y = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
 			
@@ -293,10 +307,11 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 			
 			System.out.println("Inserting Tuple: " + boundingBox);
 			
-			scalephantCluster.insertTuple(TABLE, new Tuple(Integer.toString(i), boundingBox, "abcdef".getBytes()));
-		}
+			final ClientOperationFuture result = scalephantCluster.insertTuple(TABLE, new Tuple(Integer.toString(i), boundingBox, "abcdef".getBytes()));
+			result.get();
+		}		
 		
-		Thread.sleep(10000000);
+		scalephantCluster.disconnect();
 	}
 
 }
