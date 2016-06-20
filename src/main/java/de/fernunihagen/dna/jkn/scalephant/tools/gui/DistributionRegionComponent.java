@@ -100,9 +100,7 @@ public class DistributionRegionComponent {
 	protected boolean isMouseOver(final MouseEvent event) {
 		final int xOffset = calculateXOffset();
 		final int yOffset = calculateYOffset();
-		
-		System.out.println("Pos is at: " + event.getPoint());
-		
+				
 		if(event.getX() >= xOffset && event.getX() <= xOffset + WIDTH) {
 			if(event.getY() >= yOffset && event.getY() <= yOffset + HEIGHT) {
 				return true;
