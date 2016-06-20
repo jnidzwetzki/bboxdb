@@ -192,6 +192,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	public List<String> getChildren(final String path, final Watcher watcher) throws ZookeeperException {
 		try {
+			
+			if(zookeeper.exists(path, false) == null) {
+				return null;
+			}
+			
 			return zookeeper.getChildren(path, watcher);
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
