@@ -98,6 +98,12 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 			// Does the split position exists?
 			logger.info("Read for: " + zookeeperPath);
 			final List<String> childs = zookeeperClient.getChildren(zookeeperPath, this);
+			
+			// Was the node deleted?
+			if(childs == null) {
+				return;
+			}
+			
 			boolean splitExists = false;
 			
 			for(final String child : childs) {
