@@ -14,6 +14,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 - Improved exception handling and prevent half written sstables
 - Introduced the multi server client "ScalephantCluster"
 - Made GUI settings (ZookeeperHost, Clustername) configurable
+- The GUI now uses data fetched from zookeeper instead of mockup data
 - Introduced a simple resource allocation strategy
 
 ### Version 0.0.7 (Alpha) - 05.06.2016
