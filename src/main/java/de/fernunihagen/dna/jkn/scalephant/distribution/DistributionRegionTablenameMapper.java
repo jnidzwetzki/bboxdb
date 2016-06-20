@@ -6,7 +6,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
-public class RegionTablenameMapper {
+public class DistributionRegionTablenameMapper {
 	
 	/**
 	 * The zookeeper client
@@ -19,7 +19,7 @@ public class RegionTablenameMapper {
 	protected final List<RegionTablenameEntry> regions = new CopyOnWriteArrayList<RegionTablenameEntry>();
 	
 	
-	public RegionTablenameMapper(final ZookeeperClient zookeeperClient) {
+	public DistributionRegionTablenameMapper(final ZookeeperClient zookeeperClient) {
 		super();
 		this.zookeeperClient = zookeeperClient;
 	}
