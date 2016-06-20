@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -21,6 +22,8 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.Distribu
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.DistributedInstanceDeleteEvent;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.DistributedInstanceEvent;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.DistributedInstanceEventCallback;
+import de.fernunihagen.dna.jkn.scalephant.distribution.resource.RandomResourcePlacementStrategy;
+import de.fernunihagen.dna.jkn.scalephant.distribution.resource.ResourcePlacementStrategy;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
@@ -44,9 +47,9 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	protected final Map<DistributedInstance, ScalephantClient> serverConnections;
 	
 	/**
-	 * The random generator
+	 * The ressource placement strategy
 	 */
-	protected Random randomGenerator;
+	protected final ResourcePlacementStrategy resourcePlacementStrategy;
 	
 	/**
 	 * The Logger
@@ -62,7 +65,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 		zookeeperClient = new ZookeeperClient(zookeeperNodes, clustername);
 		final HashMap<DistributedInstance, ScalephantClient> connectionMap = new HashMap<DistributedInstance, ScalephantClient>();
 		serverConnections = Collections.synchronizedMap(connectionMap);
-		randomGenerator = new Random();;
+		resourcePlacementStrategy = new RandomResourcePlacementStrategy();
 	}
 
 	@Override
@@ -124,41 +127,41 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 			final String distributionGroup, final short replicationFactor) {
 
 		if(serverConnections.size() == 0) {
+			logger.warn("createDistributionGroup called, but connection list is empty");
 			final ClientOperationFuture future = new ClientOperationFuture();
 			future.setFailedState();
 			return future;
 		} else {
-			final ScalephantClient scalephantClient = getRandomHost();
+			final ScalephantClient scalephantClient = getSystemForNewRessources();
 			return scalephantClient.createDistributionGroup(distributionGroup, replicationFactor);
 		}
 	}
+
+	/**
+	 * Find a system with free ressources
+	 * @return
+	 */
+	protected ScalephantClient getSystemForNewRessources() {
+		synchronized (serverConnections) {
+			final DistributedInstance system = resourcePlacementStrategy.findSystemToAllocate(serverConnections.keySet());
+			return serverConnections.get(system);
+		}
+	}
+	
 
 	@Override
 	public ClientOperationFuture deleteDistributionGroup(
 			final String distributionGroup) {
 
 		if(serverConnections.size() == 0) {
+			logger.warn("deleteDistributionGroup called, but connection list is empty");
 			final ClientOperationFuture future = new ClientOperationFuture();
 			future.setFailedState();
 			return future;
 		} else {
-			final ScalephantClient scalephantClient = getRandomHost();
+			final ScalephantClient scalephantClient = getSystemForNewRessources();
 			return scalephantClient.deleteDistributionGroup(distributionGroup);
 		}
-	}
-	
-	/**
-	 * Get one random host from the connection list
-	 * @return 
-	 */
-	protected ScalephantClient getRandomHost() {
-		
-		synchronized (serverConnections) {
-			final ScalephantClient[] elements = serverConnections.values().toArray(new ScalephantClient[0]);
-			final int element = randomGenerator.nextInt() % elements.length;
-			return elements[element];
-		}
-		
 	}
 
 	@Override
