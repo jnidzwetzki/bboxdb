@@ -118,8 +118,8 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 				return;
 			}
 			
-			// Ignore split event, when we are already splitted
-			// E.g. setSplit is called localy and written into zookeeper
+			// Ignore split event, when we are already split
+			// E.g. setSplit is called locally and written into zookeeper
 			// the zookeeper callback will call setSplit again
 			if(leftChild != null || rightChild != null) {
 				logger.debug("Ignore zookeeper split, because we are already splited");
@@ -176,6 +176,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 				Integer.toString(leftNamePrefix).getBytes());
 		zookeeperClient.createPersistentNode(leftPath + "/" + ZookeeperClient.NAME_SYSTEMS, 
 				"".getBytes());
+		leftChild.setNameprefix(leftNamePrefix);
 		
 		// Right child
 		final String rightPath = zookeeperPath + "/" + ZookeeperClient.NODE_RIGHT;
@@ -187,6 +188,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 				Integer.toString(rightNamePrefix).getBytes());
 		zookeeperClient.createPersistentNode(rightPath + "/" + ZookeeperClient.NAME_SYSTEMS, 
 				"".getBytes());
+		rightChild.setNameprefix(rightNamePrefix);
 		
 		// Last step: write split position
 		final String splitPosString = Float.toString(getSplit());

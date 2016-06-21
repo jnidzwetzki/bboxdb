@@ -248,4 +248,39 @@ public class TestZookeeperIntegration {
 		Assert.assertTrue(region.getSystems().contains(systemName));
 	}
 
+	/**
+	 * Test the generation of the nameprefix
+	 * @throws ZookeeperException
+	 * @throws InterruptedException
+	 */
+	@Test
+	public void testNameprefix1() throws ZookeeperException, InterruptedException {
+		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		
+		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		Assert.assertEquals(0, region.getNameprefix());
+	}
+	
+	/**
+	 * Test the generation of the nameprefix
+	 * @throws ZookeeperException
+	 * @throws InterruptedException
+	 */
+	@Test
+	public void testNameprefix2() throws ZookeeperException, InterruptedException {
+		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		
+		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		region.setSplit(10);
+		final DistributionRegion leftChild = region.getLeftChild();
+		final DistributionRegion rightChild = region.getLeftChild();
+		
+		Assert.assertEquals(0, region.getNameprefix());
+		Assert.assertEquals(1, leftChild.getNameprefix());
+		Assert.assertEquals(2, rightChild.getNameprefix());
+	}
 }

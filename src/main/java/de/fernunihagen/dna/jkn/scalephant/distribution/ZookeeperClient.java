@@ -452,15 +452,61 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	protected void readDistributionGroupRecursive(final String path, final DistributionRegion child) throws ZookeeperException {
 			
-			final float splitFloat = getSplitPositionForPath(path);
-			child.setSplit(splitFloat, false);
+			final int namePrefix = getNamePrefixForPath(path);
+			child.setNameprefix(namePrefix);
 
 			child.setSystems(getSystemsForDistributionRegion(child));
 
+			// If the node is not split, stop recursion
+			if(! isGroupSplitted(path)) {
+				return;
+			}
+			
+			final float splitFloat = getSplitPositionForPath(path);
+			child.setSplit(splitFloat, false);
+			
 			readDistributionGroupRecursive(path + "/" + NODE_LEFT, child.getLeftChild());
 			readDistributionGroupRecursive(path + "/" + NODE_RIGHT, child.getRightChild());
 	}
 
+	/**
+	 * Get the name prefix for a given path
+	 * @param path
+	 * @return
+	 * @throws ZookeeperException 
+	 */
+	protected int getNamePrefixForPath(final String path) throws ZookeeperException {
+		
+		final String namePrefixPath = path + "/" + NAME_NAMEPREFIX;
+		String namePrefix = null;
+		
+		try {
+			namePrefix = readPathAndReturnString(namePrefixPath);
+			return Integer.parseInt(namePrefix);
+		} catch (NumberFormatException e) {
+			throw new ZookeeperException("Unable to parse name prefix '" + namePrefix + "' for " + namePrefixPath);
+		}		
+	}
+	
+	/**
+	 * Test wheather the group path is splitted or not
+	 * @param path
+	 * @return
+	 * @throws ZookeeperException 
+	 */
+	protected boolean isGroupSplitted(final String path) throws ZookeeperException {
+		try {
+			final String splitPathName = path + "/" + NAME_SPLIT;
+			if(zookeeper.exists(splitPathName, this) == null) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
+	}
+	
 	/**
 	 * Get the split position for a given path
 	 * @param path
@@ -469,26 +515,34 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	protected float getSplitPositionForPath(final String path) throws ZookeeperException  {
 		
-		byte[] bytes = null;
+		final String splitPathName = path + "/" + NAME_SPLIT;
 		String splitString = null;
 		
 		try {			
-			final String splitPathName = path + "/" + NAME_SPLIT;
-			if(zookeeper.exists(splitPathName, this) == null) {
-				throw new ZookeeperException("Unable to get split positon: " + path);
-			}
-			
-			bytes = zookeeper.getData(splitPathName, false, null);
-			splitString = new String(bytes);
-		
+			splitString = readPathAndReturnString(splitPathName);
 			return Float.parseFloat(splitString);
 		} catch (NumberFormatException e) {
-			throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + path);
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			throw new ZookeeperException(e);
+			throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + splitPathName);
 		}		
+	}
+
+	/**
+	 * Read the given path and returns a string result
+	 * @param splitPathName
+	 * @return
+	 * @throws ZookeeperException
+	 */
+	protected String readPathAndReturnString(final String splitPathName) throws ZookeeperException {
+		try {
+			if(zookeeper.exists(splitPathName, this) == null) {
+				throw new ZookeeperException("The path does not exist: " + splitPathName);
+			}
+		
+			final byte[] bytes = zookeeper.getData(splitPathName, false, null);
+			return new String(bytes);
+		} catch(InterruptedException | KeeperException e) {
+			throw new ZookeeperException(e);
+		}
 	}
 	
 	/**
@@ -514,13 +568,13 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param replicationFactor
 	 * @throws ZookeeperException 
 	 */
-	public void createDistributionGroup(final String distributionGroup, final short replicationFactor) throws ZookeeperException {
+	public int createDistributionGroup(final String distributionGroup, final short replicationFactor) throws ZookeeperException {
 		try {
 			final String path = getDistributionGroupPath(distributionGroup);
 			
 			zookeeper.create(path, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
-			final int nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
+			nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
 						
 			zookeeper.create(path + "/" + NAME_NAMEPREFIX, Integer.toString(nameprefix).getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
