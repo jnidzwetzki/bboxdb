@@ -177,39 +177,52 @@ public class DistributionRegionComponent {
 		for(int i = 0; i < boundingBox.getDimension(); i++) {
 			final FloatInterval floatInterval = boundingBox.getIntervalForDimension(i);
 			sb.append("Dimension: " + i + " ");
-			
-			if(floatInterval.isBeginIncluded()) {
-				sb.append("[");
-			} else {
-				sb.append("(");
-			}
-			
-			if(floatInterval.getBegin() == BoundingBox.MIN_VALUE) {
-				sb.append("min");
-			} else {
-				sb.append(floatInterval.getBegin());
-			}
-			
-			sb.append(",");
-			
-			if(floatInterval.getEnd() == BoundingBox.MAX_VALUE) {
-				sb.append("max");
-			} else {
-				sb.append(floatInterval.getEnd());
-			}
-						
-			if(floatInterval.isEndIncluded()) {
-				sb.append("]");
-			} else {
-				sb.append(")");
-			}
-			
+			sb.append(intervalToString(floatInterval));
 			sb.append("<br>");
 		}
 		
 		sb.append("Systems: " + distributionRegion.getSystems());
+		sb.append("<br>");
+		sb.append("Nameprefix: " + distributionRegion.getNameprefix());
 		
 		sb.append("</html>");
+		return sb.toString();
+	}
+
+	/**
+	 * Convert the given interval into a string representation
+	 * @param floatInterval
+	 * @return
+	 */
+	protected String intervalToString(final FloatInterval floatInterval) {
+		final StringBuilder sb = new StringBuilder();
+		
+		if(floatInterval.isBeginIncluded()) {
+			sb.append("[");
+		} else {
+			sb.append("(");
+		}
+		
+		if(floatInterval.getBegin() == BoundingBox.MIN_VALUE) {
+			sb.append("min");
+		} else {
+			sb.append(floatInterval.getBegin());
+		}
+		
+		sb.append(",");
+		
+		if(floatInterval.getEnd() == BoundingBox.MAX_VALUE) {
+			sb.append("max");
+		} else {
+			sb.append(floatInterval.getEnd());
+		}
+					
+		if(floatInterval.isEndIncluded()) {
+			sb.append("]");
+		} else {
+			sb.append(")");
+		}
+		
 		return sb.toString();
 	}
 
