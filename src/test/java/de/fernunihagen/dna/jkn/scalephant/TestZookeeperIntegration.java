@@ -277,7 +277,7 @@ public class TestZookeeperIntegration {
 		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
 		region.setSplit(10);
 		final DistributionRegion leftChild = region.getLeftChild();
-		final DistributionRegion rightChild = region.getLeftChild();
+		final DistributionRegion rightChild = region.getRightChild();
 		
 		Assert.assertEquals(0, region.getNameprefix());
 		Assert.assertEquals(1, leftChild.getNameprefix());
