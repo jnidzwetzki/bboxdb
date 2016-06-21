@@ -451,31 +451,44 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws KeeperException 
 	 */
 	protected void readDistributionGroupRecursive(final String path, final DistributionRegion child) throws ZookeeperException {
-		
-		final String splitPathName = path + "/" + NAME_SPLIT;
+			
+			final float splitFloat = getSplitPositionForPath(path);
+			child.setSplit(splitFloat, false);
 
-		try {
 			child.setSystems(getSystemsForDistributionRegion(child));
-			
-			if(zookeeper.exists(splitPathName, this) == null) {
-				return;
-			}
-			
-			final byte[] bytes = zookeeper.getData(splitPathName, false, null);
-			final String splitString = new String(bytes);
-
-			try {
-				final float splitFloat = Float.parseFloat(splitString);
-				child.setSplit(splitFloat, false);
-			} catch (NumberFormatException e) {
-				throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + splitPathName);
-			}
 
 			readDistributionGroupRecursive(path + "/" + NODE_LEFT, child.getLeftChild());
 			readDistributionGroupRecursive(path + "/" + NODE_RIGHT, child.getRightChild());
-		} catch (KeeperException | InterruptedException e) {
+	}
+
+	/**
+	 * Get the split position for a given path
+	 * @param path
+	 * @return
+	 * @throws ZookeeperException
+	 */
+	protected float getSplitPositionForPath(final String path) throws ZookeeperException  {
+		
+		byte[] bytes = null;
+		String splitString = null;
+		
+		try {			
+			final String splitPathName = path + "/" + NAME_SPLIT;
+			if(zookeeper.exists(splitPathName, this) == null) {
+				throw new ZookeeperException("Unable to get split positon: " + path);
+			}
+			
+			bytes = zookeeper.getData(splitPathName, false, null);
+			splitString = new String(bytes);
+		
+			return Float.parseFloat(splitString);
+		} catch (NumberFormatException e) {
+			throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + path);
+		} catch (KeeperException e) {
 			throw new ZookeeperException(e);
-		}
+		} catch (InterruptedException e) {
+			throw new ZookeeperException(e);
+		}		
 	}
 	
 	/**
@@ -508,7 +521,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			zookeeper.create(path, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
 			final int nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
-			
+						
 			zookeeper.create(path + "/" + NAME_NAMEPREFIX, Integer.toString(nameprefix).getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
