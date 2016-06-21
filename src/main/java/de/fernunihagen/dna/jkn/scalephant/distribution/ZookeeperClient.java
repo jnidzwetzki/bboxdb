@@ -568,13 +568,13 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param replicationFactor
 	 * @throws ZookeeperException 
 	 */
-	public int createDistributionGroup(final String distributionGroup, final short replicationFactor) throws ZookeeperException {
+	public void createDistributionGroup(final String distributionGroup, final short replicationFactor) throws ZookeeperException {
 		try {
 			final String path = getDistributionGroupPath(distributionGroup);
 			
 			zookeeper.create(path, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
-			nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
+			final int nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
 						
 			zookeeper.create(path + "/" + NAME_NAMEPREFIX, Integer.toString(nameprefix).getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
