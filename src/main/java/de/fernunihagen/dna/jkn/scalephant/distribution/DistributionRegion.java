@@ -55,7 +55,12 @@ public class DistributionRegion {
 	protected final Collection<DistributedInstance> systems;
 	
 	/**
-	 * Is the node initialized
+	 * The nameprefix of the region
+	 */
+	protected int nameprefix;
+	
+	/**
+	 * Is the node initialized or not
 	 */
 	protected volatile boolean ready;
 	
@@ -219,11 +224,10 @@ public class DistributionRegion {
 
 	@Override
 	public String toString() {
-		return "DistributionRegion [distributionGroupName="
-				+ distributionGroupName + ", totalLevel=" + totalLevel
-				+ ", split=" + split + ", level=" + level + ", converingBox="
-				+ converingBox + ", systems=" + systems + ", ready=" + ready
-				+ "]";
+		return "DistributionRegion [distributionGroupName=" + distributionGroupName + ", totalLevel=" + totalLevel
+				+ ", split=" + split + ", leftChild=" + leftChild + ", rightChild=" + rightChild + ", parent=" + parent
+				+ ", level=" + level + ", converingBox=" + converingBox + ", systems=" + systems + ", nameprefix="
+				+ nameprefix + ", ready=" + ready + "]";
 	}
 
 	/**
@@ -364,6 +368,23 @@ public class DistributionRegion {
 	public boolean isReady() {
 		return ready;
 	}
+
+	/**
+	 * Get the nameprefix of the node
+	 * @return
+	 */
+	public int getNameprefix() {
+		return nameprefix;
+	}
+
+	/**
+	 * Set a new nameprefix
+	 * @param nameprefix
+	 */
+	public void setNameprefix(final int nameprefix) {
+		this.nameprefix = nameprefix;
+	}
+	
 }
 
 /**
