@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,17 +27,19 @@ public class DistributionRegionTablenameMapper {
 	}
 
 	/**
-	 * Search the table that covers the region
+	 * Search the nameprefixes that are overlapped by the bounding box
 	 */
-	public String getTablenameForRegion(final BoundingBox region) {
+	public Collection<Integer> getNameprefixesForRegion(final BoundingBox region) {
 
+		final List<Integer> result = new ArrayList<Integer>();
+		
 		for(final RegionTablenameEntry regionTablenameEntry : regions) {
 			if(regionTablenameEntry.getBoundingBox().overlaps(region)) {
-				return regionTablenameEntry.getTablename();
+				result.add(regionTablenameEntry.getNameprefix());
 			}
 		}
 		
-		return null;
+		return result;
 	}
 	
 	/**
@@ -43,19 +47,19 @@ public class DistributionRegionTablenameMapper {
 	 * @param tablename
 	 * @param boundingBox
 	 */
-	public void addMapping(final String tablename, final BoundingBox boundingBox) {
-		regions.add(new RegionTablenameEntry(boundingBox, tablename));
+	public void addMapping(final int nameprefix, final BoundingBox boundingBox) {
+		regions.add(new RegionTablenameEntry(boundingBox, nameprefix));
 	}
 	
 	/**
 	 * Remove a mapping
 	 * @return
 	 */
-	public boolean removeMapping(final String tablename) {
+	public boolean removeMapping(final int nameprefix) {
 		for (final Iterator<RegionTablenameEntry> iterator = regions.iterator(); iterator.hasNext(); ) {
 			final RegionTablenameEntry regionTablenameEntry = (RegionTablenameEntry) iterator.next();
 			
-			if(regionTablenameEntry.getTablename().equals(tablename)) {
+			if(regionTablenameEntry.getNameprefix() == nameprefix) {
 				iterator.remove();
 				return true;
 			}
@@ -69,12 +73,12 @@ public class DistributionRegionTablenameMapper {
 
 class RegionTablenameEntry {
 	protected BoundingBox boundingBox;
-	protected String tablename;
+	protected int nameprefix;
 	
-	public RegionTablenameEntry(final BoundingBox boundingBox, final String tablename) {
+	public RegionTablenameEntry(final BoundingBox boundingBox, final int nameprefix) {
 		super();
 		this.boundingBox = boundingBox;
-		this.tablename = tablename;
+		this.nameprefix = nameprefix;
 	}
 
 	public BoundingBox getBoundingBox() {
@@ -85,18 +89,18 @@ class RegionTablenameEntry {
 		this.boundingBox = boundingBox;
 	}
 
-	public String getTablename() {
-		return tablename;
+	public int getNameprefix() {
+		return nameprefix;
 	}
 
-	public void setTablename(final String tablename) {
-		this.tablename = tablename;
-	}
-
-	@Override
-	public String toString() {
-		return "RegionTablenameEntry [boundingBox=" + boundingBox
-				+ ", tablename=" + tablename + "]";
+	public void setNameprefix(int nameprefix) {
+		this.nameprefix = nameprefix;
 	}
 	
+	@Override
+	public String toString() {
+		return "RegionTablenameEntry [boundingBox=" + boundingBox + ", nameprefix=" + nameprefix + "]";
+	}
+
+
 }
