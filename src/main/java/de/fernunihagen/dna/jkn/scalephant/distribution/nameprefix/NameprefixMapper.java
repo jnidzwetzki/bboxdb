@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.distribution;
+package de.fernunihagen.dna.jkn.scalephant.distribution.nameprefix;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
-public class DistributionRegionTablenameMapper {
+public class NameprefixMapper {
 
 	/**
 	 * The mappings
@@ -16,7 +16,7 @@ public class DistributionRegionTablenameMapper {
 	protected final List<RegionTablenameEntry> regions = new CopyOnWriteArrayList<RegionTablenameEntry>();
 	
 	
-	public DistributionRegionTablenameMapper() {
+	public NameprefixMapper() {
 		super();
 	}
 
