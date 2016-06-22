@@ -9,13 +9,15 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 
 ## Changelog
 
+### Version 0.0.9 (Alpha) - TBA
+
 ### Version 0.0.8 (Alpha) - 22.06.2016
 - Store Distribution Region assignment in zookeeper
 - Improved exception handling and prevent half written sstables
 - Introduced the multi server client "ScalephantCluster"
 - Made GUI settings (ZookeeperHost, Clustername) configurable
 - The GUI now uses data fetched from zookeeper instead of mockup data
-- The nameprefix of the distribution regions is now stored 
+- The nameprefix of the distribution regions is now stored in zookeeper
 - Introduced a simple resource allocation strategy
 
 ### Version 0.0.7 (Alpha) - 05.06.2016
