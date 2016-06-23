@@ -67,7 +67,7 @@ public class TestZookeeperIntegration {
 	}
 	
 	/**
-	 * Test the creation and the deletion of a distributon group
+	 * Test the creation and the deletion of a distribution group
 	 * @throws ZookeeperException
 	 */
 	@Test
