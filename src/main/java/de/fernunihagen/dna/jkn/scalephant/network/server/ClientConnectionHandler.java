@@ -149,12 +149,12 @@ public class ClientConnectionHandler implements Runnable {
 		
 		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 		
-		final DeleteTableRequest resultPackage = DeleteTableRequest.decodeTuple(encodedPackage);
-		logger.info("Got delete call for table: " + resultPackage.getTable());
+		final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);
+		logger.info("Got delete call for table: " + deletePackage.getTable());
 		
 		try {
 			// Propergate the call to the storage manager
-			StorageInterface.deleteTable(resultPackage.getTable());
+			StorageInterface.deleteTable(deletePackage.getTable());
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (StorageManagerException e) {
 			logger.warn("Error while delete tuple", e);
@@ -229,14 +229,14 @@ public class ClientConnectionHandler implements Runnable {
 	protected boolean handleCreateDistributionGroup(final ByteBuffer packageHeader, final short packageSequence) {
 		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 		
-		final CreateDistributionGroupRequest resultPackage = CreateDistributionGroupRequest.decodeTuple(encodedPackage);
-		logger.info("Create distribution group: " + resultPackage.getDistributionGroup());
+		final CreateDistributionGroupRequest createPackage = CreateDistributionGroupRequest.decodeTuple(encodedPackage);
+		logger.info("Create distribution group: " + createPackage.getDistributionGroup());
 		
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			zookeeperClient.createDistributionGroup(resultPackage.getDistributionGroup(), resultPackage.getReplicationFactor());
+			zookeeperClient.createDistributionGroup(createPackage.getDistributionGroup(), createPackage.getReplicationFactor());
 			
-			final DistributionRegion region = zookeeperClient.readDistributionGroup(resultPackage.getDistributionGroup());
+			final DistributionRegion region = zookeeperClient.readDistributionGroup(createPackage.getDistributionGroup());
 			
 			final ScalephantConfiguration scalephantConfiguration = 
 					ScalephantConfigurationManager.getConfiguration();
@@ -265,12 +265,12 @@ public class ClientConnectionHandler implements Runnable {
 	protected boolean handleDeleteDistributionGroup(final ByteBuffer packageHeader, final short packageSequence) {
 		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 		
-		final DeleteDistributionGroupRequest resultPackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
-		logger.info("Delete distribution group: " + resultPackage.getDistributionGroup());
+		final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
+		logger.info("Delete distribution group: " + deletePackage.getDistributionGroup());
 		
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			zookeeperClient.deleteDistributionGroup(resultPackage.getDistributionGroup());
+			zookeeperClient.deleteDistributionGroup(deletePackage.getDistributionGroup());
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while delete distribution group", e);
