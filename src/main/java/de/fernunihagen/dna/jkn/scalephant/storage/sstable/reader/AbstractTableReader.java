@@ -32,7 +32,7 @@ public abstract class AbstractTableReader implements ScalephantService {
 	protected File file;
 	
 	/**
-	 * The Directoy for the SSTables
+	 * The Directory for the SSTables
 	 */
 	protected final String directory;
 	
@@ -42,7 +42,7 @@ public abstract class AbstractTableReader implements ScalephantService {
 	protected MappedByteBuffer memory;
 
 	/**
-	 * The coresponding fileChanel
+	 * The corresponding fileChanel
 	 */
 	protected FileChannel fileChannel;
 	
@@ -101,6 +101,12 @@ public abstract class AbstractTableReader implements ScalephantService {
 		memory.position(SSTableConst.MAGIC_BYTES.length);
 	}
 
+	/**
+	 * Init the resources
+	 * 
+	 * The file channel resource is closed in the shutdown method
+	 */
+	@SuppressWarnings("resource")
 	@Override
 	public void init() {
 		try {
