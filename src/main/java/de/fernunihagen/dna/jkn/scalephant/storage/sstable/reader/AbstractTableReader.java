@@ -173,12 +173,15 @@ public abstract class AbstractTableReader implements ScalephantService {
 	/**
 	 * Delete the file
 	 */
-	protected void delete() {
-		if(file != null) {
-			logger.info("Delete file: " + file);
-			shutdown();
-			file.delete();
-			file = null;
+	public void delete() {
+		shutdown();
+
+		synchronized (this) {
+			if(file != null) {
+				logger.info("Delete file: " + file);
+				file.delete();
+				file = null;
+			}
 		}
 	}
 }
