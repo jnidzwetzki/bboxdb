@@ -812,7 +812,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 	
 	/**
-	 * Get the instnce name
+	 * Get the instance name
 	 * @return
 	 */
 	public DistributedInstance getInstancename() {
