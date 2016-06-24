@@ -147,6 +147,22 @@ public class SSTableName {
 		
 		return tablename;
 	}
+	
+	/**
+	 * Added getter for the fullname
+	 * @return
+	 */
+	public String getFullname() {
+		return fullname;
+	}
+	
+	/**
+	 * Get the bytes of the fullname
+	 * @return
+	 */
+	public byte[] getFullnameBytes() {
+		return fullname.getBytes();
+	}
 
 	@Override
 	public String toString() {
