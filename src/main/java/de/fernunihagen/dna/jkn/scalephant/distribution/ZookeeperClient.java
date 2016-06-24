@@ -810,4 +810,12 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	public String getClustername() {
 		return clustername;
 	}
+	
+	/**
+	 * Get the instnce name
+	 * @return
+	 */
+	public DistributedInstance getInstancename() {
+		return instancename;
+	}
 }
