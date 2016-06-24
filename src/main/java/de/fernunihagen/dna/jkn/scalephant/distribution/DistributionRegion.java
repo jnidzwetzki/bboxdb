@@ -394,7 +394,7 @@ public class DistributionRegion {
 class TotalLevel {
 	protected int maxLevel = 0;
 	
-	public void registerNewLevel(int level) {
+	public void registerNewLevel(final int level) {
 		maxLevel = Math.max(maxLevel, level);
 	}
 	
