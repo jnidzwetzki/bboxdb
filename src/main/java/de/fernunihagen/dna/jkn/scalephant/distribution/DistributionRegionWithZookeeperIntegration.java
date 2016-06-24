@@ -1,11 +1,15 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.jkn.scalephant.distribution.nameprefix.NameprefixInstanceManager;
 
 public class DistributionRegionWithZookeeperIntegration extends DistributionRegion implements Watcher {
 
@@ -137,6 +141,17 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	@Override
 	protected DistributionRegion createNewInstance() {
 		return new DistributionRegionWithZookeeperIntegration(distributionGroupName, level + 1, totalLevel, zookeeperClient);
+	}
+	
+	@Override
+	public void setSystems(final Collection<DistributedInstance> systems) {
+		super.setSystems(systems);
+		
+		// Add the mapping to the nameprefix mapper
+		if(systems.contains(zookeeperClient.getInstancename())) {
+			logger.info("Add local mapping for: " + distributionGroupName + " nameprefix " + nameprefix);
+			NameprefixInstanceManager.getInstance(distributionGroupName).addMapping(nameprefix, converingBox);
+		}
 	}
 	
 	/**

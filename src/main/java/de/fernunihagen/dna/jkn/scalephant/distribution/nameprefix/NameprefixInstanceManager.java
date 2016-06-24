@@ -20,7 +20,7 @@ public class NameprefixInstanceManager {
 	 * Get the instance 
 	 * @param distributionGroupName
 	 */
-	public synchronized NameprefixMapper getInstance(final DistributionGroupName distributionGroupName) {
+	public static synchronized NameprefixMapper getInstance(final DistributionGroupName distributionGroupName) {
 		if(! instances.containsKey(distributionGroupName)) {
 			instances.put(distributionGroupName, new NameprefixMapper());
 		}
