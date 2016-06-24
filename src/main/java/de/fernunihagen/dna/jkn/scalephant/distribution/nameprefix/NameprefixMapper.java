@@ -62,12 +62,11 @@ public class NameprefixMapper {
 		return false;
 	}
 	
-	
 }
 
 class RegionTablenameEntry {
-	protected BoundingBox boundingBox;
-	protected int nameprefix;
+	protected final BoundingBox boundingBox;
+	protected final int nameprefix;
 	
 	public RegionTablenameEntry(final BoundingBox boundingBox, final int nameprefix) {
 		super();
@@ -79,16 +78,8 @@ class RegionTablenameEntry {
 		return boundingBox;
 	}
 
-	public void setBoundingBox(final BoundingBox boundingBox) {
-		this.boundingBox = boundingBox;
-	}
-
 	public int getNameprefix() {
 		return nameprefix;
-	}
-
-	public void setNameprefix(int nameprefix) {
-		this.nameprefix = nameprefix;
 	}
 	
 	@Override
