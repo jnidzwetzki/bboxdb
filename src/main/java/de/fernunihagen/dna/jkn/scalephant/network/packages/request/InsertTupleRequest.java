@@ -12,6 +12,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkTupleEncoderDecoder;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.TupleAndTable;
 
@@ -20,7 +21,7 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	/**
 	 * The name of the table
 	 */
-	protected final String table;
+	protected final SSTableName table;
 	
 	/**
 	 * The Tuple
@@ -43,7 +44,7 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	 * @param data
 	 */
 	public InsertTupleRequest(final String table, final Tuple tuple) {
-		this.table = table;
+		this.table = new SSTableName(table);
 		this.tuple = tuple;
 	}
 	
@@ -77,13 +78,13 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
 
 		try {
-			NetworkTupleEncoderDecoder.encode(outputStream, tuple, table);
+			NetworkTupleEncoderDecoder.encode(outputStream, tuple, table.getFullname());
 		} catch (IOException e) {
 			logger.error("Got exception while converting package into bytes", e);
 		}		
 	}
 	
-	public String getTable() {
+	public SSTableName getTable() {
 		return table;
 	}
 

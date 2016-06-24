@@ -19,6 +19,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
 
@@ -27,7 +28,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 	/**
 	 * The name of the table
 	 */
-	protected final String table;
+	protected final SSTableName table;
 	
 	/**
 	 * The meta data
@@ -51,7 +52,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 	
 	public TransferSSTableRequest(final String table, final File metadata, final File sstable, final File keyIndex) {
 		super();
-		this.table = table;
+		this.table = new SSTableName(table);
 		this.metadata = metadata;
 		this.sstable = sstable;
 		this.keyIndex = keyIndex;
@@ -66,7 +67,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
 
 		try {
-			final byte[] tableBytes = table.getBytes();
+			final byte[] tableBytes = table.getFullnameBytes();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(28);
 			bb.order(NetworkConst.NETWORK_BYTEORDER);
@@ -243,7 +244,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 		return NetworkConst.REQUEST_TYPE_TRANSFER;
 	}
 
-	public String getTable() {
+	public SSTableName getTable() {
 		return table;
 	}
 

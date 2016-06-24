@@ -12,13 +12,14 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkQueryRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	
 	/**
 	 * The name of the table
 	 */
-	protected final String table;
+	protected final SSTableName table;
 
 	/**
 	 * The the query bounding box
@@ -31,7 +32,7 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	private final static Logger logger = LoggerFactory.getLogger(QueryBoundingBoxRequest.class);
 	
 	public QueryBoundingBoxRequest(final String table, final BoundingBox box) {
-		this.table = table;
+		this.table = new SSTableName(table);
 		this.box = box;
 	}
 
@@ -41,7 +42,7 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
 
 		try {
-			final byte[] tableBytes = table.getBytes();
+			final byte[] tableBytes = table.getFullnameBytes();
 			final byte[] bboxBytes = box.toByteArray();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(6);
@@ -121,7 +122,7 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 		return NetworkConst.REQUEST_QUERY_BBOX;
 	}
 	
-	public String getTable() {
+	public SSTableName getTable() {
 		return table;
 	}
 

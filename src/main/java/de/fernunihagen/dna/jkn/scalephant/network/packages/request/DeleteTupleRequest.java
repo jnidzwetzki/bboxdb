@@ -11,6 +11,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 
 public class DeleteTupleRequest implements NetworkRequestPackage {
@@ -18,7 +19,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 	/**
 	 * The name of the table
 	 */
-	protected final String table;
+	protected final SSTableName table;
 	
 	/**
 	 * The key to delete
@@ -31,7 +32,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 	private final static Logger logger = LoggerFactory.getLogger(DeleteTupleRequest.class);
 	
 	public DeleteTupleRequest(final String table, final String key) {
-		this.table = table;
+		this.table = new SSTableName(table);
 		this.key = key;
 	}
 
@@ -44,7 +45,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
 		
 		try {
-			final byte[] tableBytes = table.getBytes();
+			final byte[] tableBytes = table.getFullnameBytes();
 			final byte[] keyBytes = key.getBytes();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(4);
@@ -107,7 +108,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 		return NetworkConst.REQUEST_TYPE_DELETE_TUPLE;
 	}
 
-	public String getTable() {
+	public SSTableName getTable() {
 		return table;
 	}
 

@@ -11,13 +11,14 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkQueryRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 public class QueryKeyRequest implements NetworkQueryRequestPackage {
 	
 	/**
 	 * The name of the table
 	 */
-	protected final String table;
+	protected final SSTableName table;
 
 	/**
 	 * The name of the key
@@ -30,7 +31,7 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 	private final static Logger logger = LoggerFactory.getLogger(QueryKeyRequest.class);
 	
 	public QueryKeyRequest(final String table, final String key) {
-		this.table = table;
+		this.table = new SSTableName(table);
 		this.key = key;
 	}
 
@@ -40,7 +41,7 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
 
 		try {
-			final byte[] tableBytes = table.getBytes();
+			final byte[] tableBytes = table.getFullnameBytes();
 			final byte[] keyBytes = key.getBytes();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(5);
@@ -116,7 +117,7 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 		return NetworkConst.REQUEST_QUERY_KEY;
 	}
 	
-	public String getTable() {
+	public SSTableName getTable() {
 		return table;
 	}
 

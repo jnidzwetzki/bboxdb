@@ -154,7 +154,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		try {
 			// Propergate the call to the storage manager
-			StorageInterface.deleteTable(deletePackage.getTable());
+			StorageInterface.deleteTable(deletePackage.getTable().getFullname());
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (StorageManagerException e) {
 			logger.warn("Error while delete tuple", e);
@@ -289,7 +289,7 @@ public class ClientConnectionHandler implements Runnable {
 			final short packageSequence) {
 		
 		final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
-		final String table = queryKeyRequest.getTable();
+		final String table = queryKeyRequest.getTable().getFullname();
 		
 		try {
 			final StorageManager storageManager = StorageInterface.getStorageManager(table);
@@ -320,7 +320,7 @@ public class ClientConnectionHandler implements Runnable {
 			final short packageSequence) {
 		
 		final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
-		final String table = queryRequest.getTable();
+		final String table = queryRequest.getTable().getFullname();
 		
 		try {
 			final StorageManager storageManager = StorageInterface.getStorageManager(table);
@@ -352,7 +352,7 @@ public class ClientConnectionHandler implements Runnable {
 			final short packageSequence) {
 		
 		final QueryTimeRequest queryRequest = QueryTimeRequest.decodeTuple(encodedPackage);
-		final String table = queryRequest.getTable();
+		final String table = queryRequest.getTable().getFullname();
 		
 		try {
 			final StorageManager storageManager = StorageInterface.getStorageManager(table);
@@ -390,7 +390,7 @@ public class ClientConnectionHandler implements Runnable {
 		final Tuple tuple = insertTupleRequest.getTuple();
 		
 		try {
-			final StorageManager table = StorageInterface.getStorageManager(insertTupleRequest.getTable());
+			final StorageManager table = StorageInterface.getStorageManager(insertTupleRequest.getTable().getFullname());
 			table.put(tuple);
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (StorageManagerException e) {
@@ -432,7 +432,7 @@ public class ClientConnectionHandler implements Runnable {
 
 		// Propergate the call to the storage manager
 		try {
-			final StorageManager table = StorageInterface.getStorageManager(deleteTupleRequest.getTable());
+			final StorageManager table = StorageInterface.getStorageManager(deleteTupleRequest.getTable().getFullname());
 			table.delete(deleteTupleRequest.getKey());
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (StorageManagerException e) {

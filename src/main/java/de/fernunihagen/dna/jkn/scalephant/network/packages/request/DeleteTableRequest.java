@@ -11,13 +11,14 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 public class DeleteTableRequest implements NetworkRequestPackage {
 	
 	/**
 	 * The name of the table
 	 */
-	protected final String table;
+	protected final SSTableName table;
 
 	/**
 	 * The Logger
@@ -25,7 +26,7 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 	private final static Logger logger = LoggerFactory.getLogger(DeleteTableRequest.class);
 	
 	public DeleteTableRequest(final String table) {
-		this.table = table;
+		this.table = new SSTableName(table);
 	}
 	
 	@Override
@@ -34,7 +35,7 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
 		
 		try {
-			final byte[] tableBytes = table.getBytes();
+			final byte[] tableBytes = table.getFullnameBytes();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(2);
 			bb.order(NetworkConst.NETWORK_BYTEORDER);
@@ -88,10 +89,9 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 		return NetworkConst.REQUEST_TYPE_DELETE_TABLE;
 	}
 
-	public String getTable() {
+	public SSTableName getTable() {
 		return table;
 	}
-
 
 	@Override
 	public int hashCode() {
