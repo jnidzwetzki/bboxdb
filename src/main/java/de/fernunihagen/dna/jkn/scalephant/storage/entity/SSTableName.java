@@ -36,6 +36,11 @@ public class SSTableName {
 	protected String tablename;
 	
 	/**
+	 * The nameprefix
+	 */
+	protected short nameprefix;
+	
+	/**
 	 * The value for an invalid dimension
 	 */
 	public final static short INVALID_DIMENSION = -1;
@@ -49,6 +54,11 @@ public class SSTableName {
 	 * The value for an invalid table
 	 */
 	public final static String INVALID_TABLENAME = null;
+	
+	/**
+	 * The value for an invalid name prefix
+	 */
+	public final static short INVALID_NAMEPEFIX = -1;
 	
 	/**
 	 * The Logger
@@ -73,7 +83,7 @@ public class SSTableName {
 		
 		final String[] parts = fullname.split("_");
 		
-		if(parts.length != 3) {
+		if(parts.length != 3 && parts.length != 4) {
 			logger.warn("Got invalid tablename: "+ fullname);
 			return false;
 		}
@@ -92,6 +102,17 @@ public class SSTableName {
 		
 		group = parts[1];
 		tablename = parts[2];
+		
+		if(parts.length == 4) {
+			try {
+				nameprefix = Short.parseShort(parts[3]);
+			} catch(NumberFormatException e) {
+				logger.warn("Invalid name prefix: " + parts[3]);
+				return false;
+			}			
+		} else {
+			nameprefix = INVALID_NAMEPEFIX;
+		}
 		
 		return true;
 	}
@@ -146,6 +167,14 @@ public class SSTableName {
 		}
 		
 		return tablename;
+	}
+	
+	/**
+	 * Get the nameprefix of the table
+	 * @return
+	 */
+	public short getNameprefix() {
+		return nameprefix;
 	}
 	
 	/**
