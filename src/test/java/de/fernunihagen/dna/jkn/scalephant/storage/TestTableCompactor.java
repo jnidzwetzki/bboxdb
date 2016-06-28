@@ -50,6 +50,9 @@ public class TestTableCompactor {
 		Assert.assertTrue(writer.getSstableFile().exists());
 		Assert.assertTrue(writer.getSstableIndexFile().exists());
 		
+		Assert.assertEquals(2, compactor.getReadTuples());
+		Assert.assertEquals(2, compactor.getWrittenTuples());
+		
 		writer.close();
 	}
 	
@@ -113,6 +116,7 @@ public class TestTableCompactor {
 			int pos = ssTableIndexReader.getPositionForTuple(Integer.toString(i));
 			Assert.assertTrue(pos != -1);
 		}
+		
 	}
 	
 	

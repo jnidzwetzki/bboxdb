@@ -31,6 +31,16 @@ public class SSTableCompactor {
 	 * marker can be removed.
 	 */
 	protected boolean majorCompaction = false;
+	
+	/**
+	 * The amount of read tuples
+	 */
+	protected int readTuples;
+	
+	/**
+	 * The amount of written tuples
+	 */
+	protected int writtenTuples;
 
 	/**
 	 * The logger
@@ -43,6 +53,8 @@ public class SSTableCompactor {
 		super();
 		this.sstableIndexReader = sstableIndexReader;
 		this.sstableWriter = sstableWriter;
+		this.readTuples = 0;
+		this.writtenTuples = 0;
 	}
 	
 	/** 
@@ -80,6 +92,7 @@ public class SSTableCompactor {
 					// Don't add deleted tuples to output in a major compaction
 					if(! (isMajorCompaction() && (tuple instanceof DeletedTuple))) {
 						sstableWriter.addNextTuple(tuple);
+						writtenTuples++;
 					}
 				}
 			}
@@ -165,6 +178,7 @@ public class SSTableCompactor {
 			if(tuples.get(i) == null) {
 				if(iterators.get(i).hasNext()) {
 					tuples.set(i, iterators.get(i).next());
+					readTuples++;
 				}
 			}
 			
@@ -206,6 +220,22 @@ public class SSTableCompactor {
 	 */
 	public void setMajorCompaction(boolean majorCompaction) {
 		this.majorCompaction = majorCompaction;
+	}
+	
+	/**
+	 * Get the amount of read tuples
+	 * @return
+	 */
+	public int getReadTuples() {
+		return readTuples;
+	}
+	
+	/**
+	 * Get the amount of written tuples
+	 * @return
+	 */
+	public int getWrittenTuples() {
+		return writtenTuples;
 	}
 	
 }

@@ -117,6 +117,10 @@ public class SSTableCompactorThread implements Runnable {
 		if(!compactSuccess) {
 			logger.error("Error during compactation");
 			return;
+		} else {
+			logger.info("Compactation done. Read: " + ssTableCompactor.getReadTuples() 
+				+ " tuple wrote: " + ssTableCompactor.getWrittenTuples() + " tuples. Factor: " 
+				+ ((float) ssTableCompactor.getWrittenTuples() / (float) ssTableCompactor.getReadTuples()));
 		}
 		
 		// Create a new facade and remove the old ones
