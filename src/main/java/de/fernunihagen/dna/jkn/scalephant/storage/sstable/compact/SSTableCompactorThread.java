@@ -124,6 +124,19 @@ public class SSTableCompactorThread implements Runnable {
 				+ ((float) ssTableCompactor.getWrittenTuples() / (float) ssTableCompactor.getReadTuples()));
 		}
 		
+		registerNewFacadeAndDeleteOldInstances(tables, directory, name, tablenumber);
+	}
+
+	/**
+	 * Register a new sstable facade and delete the old ones
+	 * @param tables
+	 * @param directory
+	 * @param name
+	 * @param tablenumber
+	 * @throws StorageManagerException
+	 */
+	protected void registerNewFacadeAndDeleteOldInstances(final List<SSTableFacade> tables, final String directory,
+			final String name, final int tablenumber) throws StorageManagerException {
 		// Create a new facade and remove the old ones
 		final SSTableFacade newFacade = new SSTableFacade(directory, name, tablenumber);
 		newFacade.init();
