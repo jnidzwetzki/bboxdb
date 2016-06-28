@@ -178,6 +178,14 @@ public class SSTableName {
 	}
 	
 	/**
+	 * Is the nameprefix valid?
+	 * @return
+	 */
+	public boolean isNameprefixValid() {
+		return nameprefix != INVALID_NAMEPEFIX;
+	}
+	
+	/**
 	 * Added getter for the fullname
 	 * @return
 	 */
