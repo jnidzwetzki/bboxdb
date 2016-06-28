@@ -30,6 +30,10 @@ public class TestTablenameParser {
 		invalidNames.add("1-0_df_def");
 		invalidNames.add("-1_df_def");
 		invalidNames.add("0_df_def");
+		invalidNames.add("0_df_def_");
+		invalidNames.add("0_df_def_a");
+		invalidNames.add("0_df_def__");
+		invalidNames.add("_____");
 
 		for(final String invalidTablename : invalidNames) {
 			final SSTableName tablename = new SSTableName(invalidTablename);
@@ -52,6 +56,8 @@ public class TestTablenameParser {
 		validNames.add("122_def_34");
 		validNames.add("122_def_table21");
 		validNames.add("122_12def_table21");
+		validNames.add("122_12def_table21_1");
+		validNames.add("122_12def_table21_4711");
 		
 		for(final String validTablename : validNames) {
 			final SSTableName tablename = new SSTableName(validTablename);
