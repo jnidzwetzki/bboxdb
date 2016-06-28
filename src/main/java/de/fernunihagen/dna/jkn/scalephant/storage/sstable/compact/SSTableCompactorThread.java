@@ -94,11 +94,11 @@ public class SSTableCompactorThread implements Runnable {
 			return;
 		}
 		
-		final String diretory = tables.get(0).getDirectory();
+		final String directory = tables.get(0).getDirectory();
 		final String name = tables.get(0).getName();
 		
 		final int tablenumber = sstableManager.increaseTableNumber();
-		final SSTableWriter writer = new SSTableWriter(diretory, name, tablenumber);
+		final SSTableWriter writer = new SSTableWriter(directory, name, tablenumber);
 		
 		final List<SSTableKeyIndexReader> reader = new ArrayList<SSTableKeyIndexReader>();
 		for(final SSTableFacade facade : tables) {
@@ -125,7 +125,7 @@ public class SSTableCompactorThread implements Runnable {
 		}
 		
 		// Create a new facade and remove the old ones
-		final SSTableFacade newFacade = new SSTableFacade(diretory, name, tablenumber);
+		final SSTableFacade newFacade = new SSTableFacade(directory, name, tablenumber);
 		newFacade.init();
 		
 		// Register the new sstable reader
