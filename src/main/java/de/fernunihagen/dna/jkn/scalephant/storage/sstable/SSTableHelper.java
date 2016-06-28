@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.ByteBuffer;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 public class SSTableHelper {
 	
@@ -214,11 +215,11 @@ public class SSTableHelper {
 	 * @return the sequence number
 	 * @throws StorageManagerException 
 	 */
-	public static int extractSequenceFromFilename(final String tablename, final String filename)
+	public static int extractSequenceFromFilename(final SSTableName tablename, final String filename)
 			throws StorageManagerException {
 		try {
 			final String sequence = filename
-				.replace(SSTableConst.SST_FILE_PREFIX + tablename + "_", "")
+				.replace(SSTableConst.SST_FILE_PREFIX + tablename.getFullname() + "_", "")
 				.replace(SSTableConst.SST_FILE_SUFFIX, "")
 				.replace(SSTableConst.SST_INDEX_SUFFIX, "");
 			

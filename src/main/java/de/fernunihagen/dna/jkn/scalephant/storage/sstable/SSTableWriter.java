@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
@@ -24,7 +25,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * The name of the table
 	 */
-	protected final String name;
+	protected final SSTableName name;
 	
 	/**
 	 * The directory for the SSTables
@@ -71,7 +72,7 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableWriter.class);
 	
-	public SSTableWriter(final String directory, final String name, final int tablenumber) {
+	public SSTableWriter(final String directory, final SSTableName name, final int tablenumber) {
 		this.directory = directory;
 		this.name = name;
 		this.tablebumber = tablenumber;
@@ -79,7 +80,7 @@ public class SSTableWriter implements AutoCloseable {
 		this.sstableOutputStream = null;
 		this.metadataBuilder = new SSTableMetadataBuilder();
 		
-		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, name, tablebumber);
+		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, name.getFullname(), tablebumber);
 		this.metadatafile = new File(ssTableMetadataFilename);
 		
 		this.exceptionDuringWrite = false;
@@ -90,7 +91,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws StorageManagerException
 	 */
 	public void open() throws StorageManagerException {
-		final String directoryName = SSTableHelper.getSSTableDir(directory, name);
+		final String directoryName = SSTableHelper.getSSTableDir(directory, name.getFullname());
 		final File directoryHandle = new File(directoryName);
 		
 		if(! directoryHandle.isDirectory()) {
@@ -99,10 +100,10 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException(error);
 		}
 		
-		final String sstableOutputFileName = SSTableHelper.getSSTableFilename(directory, name, tablebumber);
+		final String sstableOutputFileName = SSTableHelper.getSSTableFilename(directory, name.getFullname(), tablebumber);
 		sstableFile = new File(sstableOutputFileName);
 		
-		final String outputIndexFileName = SSTableHelper.getSSTableIndexFilename(directory, name, tablebumber);
+		final String outputIndexFileName = SSTableHelper.getSSTableIndexFilename(directory, name.getFullname(), tablebumber);
 		sstableIndexFile = new File(outputIndexFileName);
 		
 		// Don't overwrite old data

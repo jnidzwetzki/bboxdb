@@ -6,7 +6,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SSTableSplitter;
+import de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SStableSplitHelper;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
@@ -95,7 +98,7 @@ public class SSTableCompactorThread implements Runnable {
 		}
 		
 		final String directory = tables.get(0).getDirectory();
-		final String name = tables.get(0).getName();
+		final SSTableName name = tables.get(0).getName();
 		
 		final int tablenumber = sstableManager.increaseTableNumber();
 		final SSTableWriter writer = new SSTableWriter(directory, name, tablenumber);
@@ -125,6 +128,26 @@ public class SSTableCompactorThread implements Runnable {
 		}
 		
 		registerNewFacadeAndDeleteOldInstances(tables, directory, name, tablenumber);
+		
+		if(majorCompaction) {
+			testAndPerformTableSplit(ssTableCompactor.getWrittenTuples());
+		}
+	}
+
+	/**
+	 * Test and perform an table split if needed
+	 * @param totalWrittenTuples 
+	 */
+	protected void testAndPerformTableSplit(final int totalWrittenTuples) {
+		
+		logger.info("Test for table split: " + sstableManager.getName() + " total tuples: " + totalWrittenTuples);
+		
+		final SSTableSplitter splitter = SStableSplitHelper.getFactoryInstance().getSSTableSplitter();
+		
+		if(splitter.isSplitNeeded(totalWrittenTuples)) {
+			splitter.performSplit(sstableManager.getName());
+		}
+		
 	}
 
 	/**
@@ -136,7 +159,7 @@ public class SSTableCompactorThread implements Runnable {
 	 * @throws StorageManagerException
 	 */
 	protected void registerNewFacadeAndDeleteOldInstances(final List<SSTableFacade> tables, final String directory,
-			final String name, final int tablenumber) throws StorageManagerException {
+			final SSTableName name, final int tablenumber) throws StorageManagerException {
 		// Create a new facade and remove the old ones
 		final SSTableFacade newFacade = new SSTableFacade(directory, name, tablenumber);
 		newFacade.init();

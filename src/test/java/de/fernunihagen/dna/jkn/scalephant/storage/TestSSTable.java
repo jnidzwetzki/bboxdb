@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
@@ -20,7 +21,7 @@ public class TestSSTable {
 	
 	protected static final String DATA_DIRECTORY = ScalephantConfigurationManager.getConfiguration().getDataDirectory();
 	
-	protected final static String TEST_RELATION = "1_testgroup1_relation3";
+	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_relation3");
 	
 	/**
 	 * Test written files
@@ -28,7 +29,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testWrittenFiles() throws Exception {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
+		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION.getFullname());
 		storageManager.clear();
 		storageManager.shutdown();
 	
@@ -51,7 +52,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testIndexIterator() throws Exception {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
+		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION.getFullname());
 		storageManager.clear();
 		storageManager.shutdown();
 	
@@ -102,11 +103,11 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testDelayedDeletion() throws Exception {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
+		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION.getFullname());
 		storageManager.clear();
 		storageManager.shutdown();
 	
-		final String relationDirectory = SSTableHelper.getSSTableDir(DATA_DIRECTORY, TEST_RELATION);
+		final String relationDirectory = SSTableHelper.getSSTableDir(DATA_DIRECTORY, TEST_RELATION.getFullname());
 		final File relationDirectoryFile = new File(relationDirectory);
 		
 		// Directory should be empty

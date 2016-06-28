@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
 
 public abstract class AbstractTableReader implements ScalephantService {
@@ -24,7 +25,7 @@ public abstract class AbstractTableReader implements ScalephantService {
 	/**
 	 * The name of the table
 	 */
-	protected final String name;
+	protected final SSTableName name;
 	
 	/**
 	 * The filename of the table
@@ -52,8 +53,8 @@ public abstract class AbstractTableReader implements ScalephantService {
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
 	
 	
-	public AbstractTableReader(final String directory, final String relation, final int tablenumer) throws StorageManagerException {
-		this.name = relation;
+	public AbstractTableReader(final String directory, final SSTableName name, final int tablenumer) throws StorageManagerException {
+		this.name = name;
 		this.directory = directory;
 		this.tablebumber = tablenumer;
 
@@ -150,7 +151,7 @@ public abstract class AbstractTableReader implements ScalephantService {
 	 * Get the name
 	 * @return the file handle
 	 */
-	public String getName() {
+	public SSTableName getName() {
 		return name;
 	}
 

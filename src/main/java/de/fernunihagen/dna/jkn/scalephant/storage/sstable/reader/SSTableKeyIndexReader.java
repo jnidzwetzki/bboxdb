@@ -204,7 +204,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	 */
 	@Override
 	protected File constructFileToRead() {
-		final String filename = SSTableHelper.getSSTableIndexFilename(directory, name, tablebumber);
+		final String filename = SSTableHelper.getSSTableIndexFilename(directory, name.getFullname(), tablebumber);
 		return new File(filename);
 	}
 }

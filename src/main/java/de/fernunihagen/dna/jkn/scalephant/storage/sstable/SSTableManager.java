@@ -18,6 +18,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.Storage;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.compact.SSTableCompactorThread;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
@@ -30,17 +31,17 @@ public class SSTableManager implements ScalephantService, Storage {
 	/**
 	 * The name of the table
 	 */
-	private final String name;
+	protected final SSTableName name;
 	
 	/**
 	 * The Storage configuration
 	 */
-	private final ScalephantConfiguration storageConfiguration;
+	protected final ScalephantConfiguration storageConfiguration;
 	
 	/**
 	 * The number of the table
 	 */
-	private AtomicInteger tableNumber;
+	protected AtomicInteger tableNumber;
 	
 	/**
 	 * The reader for existing SSTables
@@ -87,7 +88,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final State storageState, final String name, final ScalephantConfiguration storageConfiguration) {
+	public SSTableManager(final State storageState, final SSTableName name, final ScalephantConfiguration storageConfiguration) {
 		super();
 
 		this.storageConfiguration = storageConfiguration;
@@ -221,7 +222,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	protected void createSSTableDirIfNeeded() {
 		final File rootDir = new File(storageConfiguration.getDataDirectory());		
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), name.getFullname()));
 		
 		if(rootDir.exists() && ! directoryHandle.exists()) {
 			logger.info("Create a new dir for table: " + getName());
@@ -237,7 +238,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	protected void scanForExistingTables() throws StorageManagerException {
 		logger.info("Scan for existing SSTables: " + getName());
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), name.getFullname()));
 		
 	    checkSSTableDir(directoryHandle);
 	
@@ -250,7 +251,7 @@ public class SSTableManager implements ScalephantService, Storage {
 				
 				try {
 					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(name, filename);
-					final SSTableFacade facade = new SSTableFacade(storageConfiguration.getDataDirectory(), getName(), sequenceNumber);
+					final SSTableFacade facade = new SSTableFacade(storageConfiguration.getDataDirectory(), name, sequenceNumber);
 					facade.init();
 					sstableFacades.add(facade);
 				} catch(StorageManagerException e) {
@@ -304,7 +305,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	public boolean deleteExistingTables() throws StorageManagerException {
 		logger.info("Delete all existing SSTables for relation: " + getName());
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), getName()));
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), name.getFullname()));
 	
 		// Does the directory exist?
 		if(! directoryHandle.isDirectory()) {
@@ -582,7 +583,7 @@ public class SSTableManager implements ScalephantService, Storage {
 		this.ready = ready;
 	}
 
-	public String getName() {
+	public SSTableName getName() {
 		return name;
 	}
 

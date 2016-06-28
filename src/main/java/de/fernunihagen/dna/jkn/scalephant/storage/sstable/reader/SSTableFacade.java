@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
@@ -16,7 +17,7 @@ public class SSTableFacade implements ScalephantService {
 	/**
 	 * The name of the table
 	 */
-	protected final String name;
+	protected final SSTableName name;
 	
 	/**
 	 * The Directoy for the SSTables
@@ -59,16 +60,16 @@ public class SSTableFacade implements ScalephantService {
 	protected static final Logger logger = LoggerFactory.getLogger(SSTableFacade.class);
 	
 
-	public SSTableFacade(final String directory, final String relation, final int tablenumber) throws StorageManagerException {
+	public SSTableFacade(final String directory, final SSTableName tablename, final int tablenumber) throws StorageManagerException {
 		super();
-		this.name = relation;
+		this.name = tablename;
 		this.directory = directory;
 		this.tablenumber = tablenumber;
 		
-		ssTableReader = new SSTableReader(directory, relation, tablenumber);
+		ssTableReader = new SSTableReader(directory, tablename, tablenumber);
 		ssTableKeyIndexReader = new SSTableKeyIndexReader(ssTableReader);
 		
-		final File metadataFile = getMetadataFile(directory, relation, tablenumber);
+		final File metadataFile = getMetadataFile(directory, tablename, tablenumber);
 		ssTableMetadata = SStableMetaData.importFromYamlFile(metadataFile);
 		
 		this.usage = new AtomicInteger(0);
@@ -76,8 +77,8 @@ public class SSTableFacade implements ScalephantService {
 	}
 
 	protected File getMetadataFile(final String directory,
-			final String relation, final int tablenumber) {
-		final String metadatafile = SSTableHelper.getSSTableMetadataFilename(directory, relation, tablenumber);
+			final SSTableName tablename, final int tablenumber) {
+		final String metadatafile = SSTableHelper.getSSTableMetadataFilename(directory, tablename.getFullname(), tablenumber);
 		final File metadataFile = new File(metadatafile);
 		return metadataFile;
 	}
@@ -181,7 +182,7 @@ public class SSTableFacade implements ScalephantService {
 		}
 	}
 
-	public String getName() {
+	public SSTableName getName() {
 		return name;
 	}
 

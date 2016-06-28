@@ -6,6 +6,7 @@ import java.nio.BufferUnderflowException;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
@@ -13,11 +14,22 @@ import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableReader;
 
 public class SSTableExaminer implements Runnable {
 
+	/**
+	 * The number of the table
+	 */
 	protected int tableNumber;
-	protected String relationname;
+	
+	/**
+	 * The name of the relation
+	 */
+	protected SSTableName relationname;
+	
+	/**
+	 * The key to examine
+	 */
 	protected String examineKey;
 	
-	public SSTableExaminer(final String relationname, final int tableNumber, final String examineKey) {
+	public SSTableExaminer(final SSTableName relationname, final int tableNumber, final String examineKey) {
 		super();
 		this.tableNumber = tableNumber;
 		this.relationname = relationname;
@@ -118,7 +130,7 @@ public class SSTableExaminer implements Runnable {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		final String relationname = "testrelation";
+		final SSTableName relationname = new SSTableName("2_mygroup_testrelation");
 		final int tableNumber = 78;
 		final String examineKey = "2555";
 		final SSTableExaminer dumper = new SSTableExaminer(relationname, tableNumber, examineKey);

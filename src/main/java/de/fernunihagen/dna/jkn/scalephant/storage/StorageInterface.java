@@ -44,7 +44,7 @@ public class StorageInterface {
 			return instances.get(table);
 		}
 		
-		final StorageManager storageManager = new StorageManager(table, configuration);
+		final StorageManager storageManager = new StorageManager(tablename, configuration);
 		storageManager.init();
 		
 		instances.put(table, storageManager);

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class Memtable implements ScalephantService, Storage {
@@ -19,7 +20,7 @@ public class Memtable implements ScalephantService, Storage {
 	/**
 	 * The name of the corresponding table
 	 */
-	protected final String table;
+	protected final SSTableName table;
 	
 	/**
 	 * The memtable
@@ -51,7 +52,7 @@ public class Memtable implements ScalephantService, Storage {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
 	
-	public Memtable(final String table, final int entries, final int maxSizeInMemory) {
+	public Memtable(final SSTableName table, final int entries, final int maxSizeInMemory) {
 		this.table = table;
 		this.maxEntries = entries;
 		this.maxSizeInMemory = maxSizeInMemory;
@@ -68,7 +69,7 @@ public class Memtable implements ScalephantService, Storage {
 			return;
 		}
 		
-		logger.info("Initializing a new memtable for table: " + table);
+		logger.info("Initializing a new memtable for table: " + table.getFullname());
 		freePos = 0;
 	}
 

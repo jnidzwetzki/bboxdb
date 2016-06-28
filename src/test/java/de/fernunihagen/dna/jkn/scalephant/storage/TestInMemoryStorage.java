@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.PersonEntity;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 
@@ -18,7 +19,7 @@ public class TestInMemoryStorage {
 	
 	@BeforeClass
 	public static void init() {
-		memtable = new Memtable("test", 1000, 10000);
+		memtable = new Memtable(new SSTableName("3_mygroup_test"), 1000, 10000);
 		memtable.init();
 	}
 	

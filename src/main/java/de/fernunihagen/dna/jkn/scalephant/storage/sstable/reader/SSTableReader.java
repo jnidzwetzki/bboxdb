@@ -7,14 +7,15 @@ import java.util.Arrays;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
 public class SSTableReader extends AbstractTableReader {
 
-	public SSTableReader(final String directory, final String relation, final int tablenumer) throws StorageManagerException {
-		super(directory, relation, tablenumer);
+	public SSTableReader(final String directory, final SSTableName tablename, final int tablenumer) throws StorageManagerException {
+		super(directory, tablename, tablenumer);
 	}
 	
 	/**
@@ -154,7 +155,7 @@ public class SSTableReader extends AbstractTableReader {
 	 */
 	@Override
 	protected File constructFileToRead() {
-		final String filename = SSTableHelper.getSSTableFilename(directory, name, tablebumber);
+		final String filename = SSTableHelper.getSSTableFilename(directory, name.getFullname(), tablebumber);
 		return new File(filename);
 	}
 }

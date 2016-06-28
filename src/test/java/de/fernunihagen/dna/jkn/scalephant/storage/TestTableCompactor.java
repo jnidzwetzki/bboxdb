@@ -12,6 +12,7 @@ import org.junit.Test;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.compact.SSTableCompactor;
@@ -20,13 +21,13 @@ import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableReader;
 
 public class TestTableCompactor {
 	
-	protected final static String TEST_RELATION = "1_testgroup1_relation1";
+	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_relation1");
 	
 	protected static final String DATA_DIRECTORY = ScalephantConfigurationManager.getConfiguration().getDataDirectory();
 
 	@Before
 	public void clearData() throws StorageManagerException {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
+		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION.getFullname());
 		storageManager.clear();
 		storageManager.shutdown();
 	}

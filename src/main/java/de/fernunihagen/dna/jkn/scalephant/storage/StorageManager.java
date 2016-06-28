@@ -10,6 +10,7 @@ import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
@@ -19,7 +20,7 @@ public class StorageManager implements ScalephantService, Storage {
 	/**
 	 * The name of the table
 	 */
-	protected final String table;
+	protected final SSTableName table;
 	
 	/**
 	 * The active configuration
@@ -47,7 +48,7 @@ public class StorageManager implements ScalephantService, Storage {
 	private final static Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
 	
-	public StorageManager(final String table, final ScalephantConfiguration configuration) {
+	public StorageManager(final SSTableName table, final ScalephantConfiguration configuration) {
 		super();
 		this.table = table;
 		this.configuration = configuration;
