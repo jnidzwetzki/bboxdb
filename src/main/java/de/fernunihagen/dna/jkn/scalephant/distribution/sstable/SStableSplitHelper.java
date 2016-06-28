@@ -54,7 +54,7 @@ public class SStableSplitHelper {
 			return cachedInstance;
 			
 		} catch (Exception e) {
-			logger.warn("Unable to instance class" + factoryClass, e);
+			logger.warn("Unable to instance class: " + factoryClass, e);
 			throw new RuntimeException(e);
 		} 
 	}

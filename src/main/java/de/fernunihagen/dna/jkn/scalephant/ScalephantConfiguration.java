@@ -77,7 +77,7 @@ public class ScalephantConfiguration {
 	/**
 	 * The sstable split strategy
 	 */
-	protected String sstableSplitStrategy = "de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SStableSplitFactory";
+	protected String sstableSplitStrategy = "de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SimpleStrategyFactory";
 	
 	/**
 	 * The maximum number of entries per SSTable
