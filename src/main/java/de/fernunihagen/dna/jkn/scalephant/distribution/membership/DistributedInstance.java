@@ -2,7 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.distribution.membership;
 
 import java.net.InetSocketAddress;
 
-public class DistributedInstance {
+public class DistributedInstance implements Comparable<DistributedInstance> {
 	
 	public final static String UNKOWN_VERSION = "unknown";
 	
@@ -108,6 +108,11 @@ public class DistributedInstance {
 	 */
 	public String getStringValue() {
 		return ip + ":" + port;
+	}
+
+	@Override
+	public int compareTo(final DistributedInstance otherInstance) {
+		return getStringValue().compareTo(otherInstance.getStringValue());
 	}
 	
 }

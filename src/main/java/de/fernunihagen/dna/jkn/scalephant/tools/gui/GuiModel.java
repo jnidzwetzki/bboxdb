@@ -1,6 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.tools.gui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -78,6 +79,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	protected void updateScalepahntInstances() {
 		scalephantInstances.clear();
 		scalephantInstances.addAll(DistributedInstanceManager.getInstance().getInstances());
+		Collections.sort(scalephantInstances);
 	}
 	
 	/**
