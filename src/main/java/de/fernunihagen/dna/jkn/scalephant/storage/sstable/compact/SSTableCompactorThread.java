@@ -43,13 +43,13 @@ public class SSTableCompactorThread implements Runnable {
 	 */
 	@Override
 	public void run() {
-		logger.info("Starting new compact thread for: " + sstableManager.getName());
+		logger.info("Starting new compact thread for: " + sstableManager.getName().getFullname());
 
 		while(sstableManager.isReady()) {
 
 			try {	
 				Thread.sleep(mergeStragegy.getCompactorDelay());
-				logger.debug("Executing compact thread for: " + sstableManager.getName());
+				logger.debug("Executing compact thread for: " + sstableManager.getName().getFullname());
 
 				// Create a copy to ensure, that the list of facades don't change
 				// during the compact run.
@@ -79,7 +79,7 @@ public class SSTableCompactorThread implements Runnable {
 	 */
 	protected void handleExceptionDuringMerge(Exception e) {
 		if(Thread.currentThread().isInterrupted()) {
-			logger.info("Compact thread for: " + sstableManager.getName() + " is done");
+			logger.info("Compact thread for: " + sstableManager.getName().getFullname() + " is done");
 		} else {
 			logger.error("Error while merging tables", e);
 		}
@@ -140,7 +140,8 @@ public class SSTableCompactorThread implements Runnable {
 	 */
 	protected void testAndPerformTableSplit(final int totalWrittenTuples) {
 		
-		logger.info("Test for table split: " + sstableManager.getName() + " total tuples: " + totalWrittenTuples);
+		logger.info("Test for table split: " + sstableManager.getName().getFullname() 
+				+ " total tuples: " + totalWrittenTuples);
 		
 		final SSTableSplitter splitter = SStableSplitHelper.getFactoryInstance().getSSTableSplitter();
 		
