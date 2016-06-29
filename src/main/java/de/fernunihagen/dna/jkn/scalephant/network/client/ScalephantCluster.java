@@ -299,7 +299,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 		
 		// Insert the tuples
 		final Random bbBoxRandom = new Random();
-		for(int i = 0; i < 10; i++) {
+		for(int i = 0; i < 100000; i++) {
 			final float x = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
 			final float y = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
 			

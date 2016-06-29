@@ -14,22 +14,23 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 public class ListTablesResponse extends NetworkResponsePackage {
 	
 	/**
 	 * The tables
 	 */
-	protected final List<String> tables;
+	protected final List<SSTableName> tables;
 
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ListTablesResponse.class);
 
-	public ListTablesResponse(final short sequenceNumber, final List<String> tables) {
+	public ListTablesResponse(final short sequenceNumber, final List<SSTableName> allTables) {
 		super(sequenceNumber);
-		this.tables = tables;
+		this.tables = allTables;
 	}
 
 	@Override
@@ -79,8 +80,8 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	protected byte[] createBody() throws IOException {
 		final ByteArrayOutputStream bodyStream = new ByteArrayOutputStream();
 		
-		for(final String table : tables) {
-			final byte[] tableBytes = table.getBytes();
+		for(final SSTableName table : tables) {
+			final byte[] tableBytes = table.getFullnameBytes();
 			bodyStream.write(tableBytes, 0, tableBytes.length);
 			bodyStream.write('\0');
 		}
@@ -93,7 +94,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	 * Returns the relations of this request
 	 * @return
 	 */
-	public List<String> getTables() {
+	public List<SSTableName> getTables() {
 		return Collections.unmodifiableList(tables);
 	}
 
@@ -105,7 +106,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	 */
 	public static ListTablesResponse decodePackage(final ByteBuffer encodedPackage) {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
-		final List<String> tables = new ArrayList<String>();
+		final List<SSTableName> tables = new ArrayList<SSTableName>();
 
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_LIST_TABLES);
 
@@ -123,7 +124,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 			
 			// Got terminal, tablename is complete
 			if(currentByte == '\0') {
-				tables.add(sb.toString());
+				tables.add(new SSTableName(sb.toString()));
 				sb = new StringBuilder();
 			} else {
 				sb.append((char) currentByte);

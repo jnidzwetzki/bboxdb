@@ -101,14 +101,15 @@ public class StorageInterface {
 	 * 
 	 * @return
 	 */
-	public static List<String> getAllTables() {
-		final List<String> allTables = new ArrayList<String>();
+	public static List<SSTableName> getAllTables() {
+		final List<SSTableName> allTables = new ArrayList<SSTableName>();
 		
 		final File folder = new File(configuration.getDataDirectory());
 		
 		for (final File fileEntry : folder.listFiles()) {
 	        if (fileEntry.isDirectory()) {
-	           allTables.add(fileEntry.getName());
+	        	final String tableName = fileEntry.getName();
+	        	allTables.add(new SSTableName(tableName));
 	        } 
 	    }
 		

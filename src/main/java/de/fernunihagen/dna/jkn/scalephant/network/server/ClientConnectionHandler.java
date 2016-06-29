@@ -41,6 +41,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleRespons
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class ClientConnectionHandler implements Runnable {
@@ -410,7 +411,7 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean handleListTables(final ByteBuffer packageHeader, final short packageSequence) {
 		readFullPackage(packageHeader);
-		final List<String> allTables = StorageInterface.getAllTables();
+		final List<SSTableName> allTables = StorageInterface.getAllTables();
 		final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
 		writeResultPackage(listTablesResponse);
 		
