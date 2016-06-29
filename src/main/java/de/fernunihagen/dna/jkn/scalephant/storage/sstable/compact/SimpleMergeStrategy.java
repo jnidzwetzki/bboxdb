@@ -14,7 +14,7 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	protected final static int SMALL_TABLE_THRESHOLD = 10000;
 	
 	/**
-	 * Nuber of tables that will trigger a big compactification
+	 * Number of tables that will trigger a big compactification
 	 */
 	protected final static int BIG_TABLE_THRESHOLD = 20;
 
