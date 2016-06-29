@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
-public class DistributionGroupName {
+public class DistributionGroupName implements Comparable<DistributionGroupName> {
 
 	/**
 	 * The name of the distribution group (e.g. 3_mygroup)
@@ -100,6 +100,11 @@ public class DistributionGroupName {
 	public String toString() {
 		return "DistributionGroupName [fullname=" + fullname + ", dimension="
 				+ dimension + ", groupname=" + groupname + "]";
+	}
+
+	@Override
+	public int compareTo(final DistributionGroupName otherDistributionGroup) {
+		return fullname.compareTo(otherDistributionGroup.getFullname());
 	}
 	
 }
