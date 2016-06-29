@@ -743,6 +743,12 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		try {
 			final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
 			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NAME_SYSTEMS;
+			
+			// Does the requested node exists?
+			if(zookeeper.exists(path, this) == null) {
+				return null;
+			}
+			
 			final List<String> childs = zookeeper.getChildren(path, false);
 			
 			for(final String childName : childs) {
