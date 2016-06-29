@@ -3,6 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.tools.gui;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -182,6 +183,7 @@ public class ConnectDialog {
 					throws ZookeeperException {
 				
 				final List<DistributionGroupName> distributionGroups = zookeeperClient.getDistributionGroups();
+				Collections.sort(distributionGroups);
 				
 				if(distributionGroups.isEmpty()) {
 					JOptionPane.showMessageDialog(mainframe,
