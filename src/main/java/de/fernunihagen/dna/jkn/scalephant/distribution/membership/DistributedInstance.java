@@ -4,6 +4,8 @@ import java.net.InetSocketAddress;
 
 public class DistributedInstance {
 	
+	public final static String UNKOWN_VERSION = "unknown";
+	
 	/**
 	 * The IP address of the instance
 	 */
@@ -13,6 +15,17 @@ public class DistributedInstance {
 	 * The port of the instance
 	 */
 	protected final int port;
+	
+	/**
+	 * The version number of the instance
+	 */
+	protected String version = UNKOWN_VERSION;
+	
+	
+	public DistributedInstance(final String connectionString, final String version) {
+		this(connectionString);
+		this.version = version;
+	}
 	
 	public DistributedInstance(final String connectionString) {
 		final String[] parts = connectionString.split(":");
@@ -30,9 +43,10 @@ public class DistributedInstance {
 		}
 	}
 
-	public DistributedInstance(final String localIp, final Integer localPort) {
-		ip = localIp;
-		port = localPort;
+	public DistributedInstance(final String localIp, final Integer localPort, final String version) {
+		this.ip = localIp;
+		this.port = localPort;
+		this.version = version;
 	}
 
 	public String getIp() {
@@ -43,17 +57,17 @@ public class DistributedInstance {
 		return port;
 	}
 
-	@Override
-	public String toString() {
-		return "DistributedInstance [ip=" + ip + ", port=" + port + "]";
+	public String getVersion() {
+		return version;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((ip == null) ? 0 : ip.hashCode());
 		result = prime * result + port;
+		result = prime * result + ((version == null) ? 0 : version.hashCode());
 		return result;
 	}
 
@@ -73,9 +87,19 @@ public class DistributedInstance {
 			return false;
 		if (port != other.port)
 			return false;
+		if (version == null) {
+			if (other.version != null)
+				return false;
+		} else if (!version.equals(other.version))
+			return false;
 		return true;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + "]";
+	}
+
 	/**
 	 * Get the inet socket address from the instance
 	 * @return

@@ -49,6 +49,10 @@ final class ScalepahntInstanceTableModel extends AbstractTableModel {
 			return instance.getPort();
 		}
 		
+		if(columnIndex == 3) {
+			return instance.getVersion();
+		}
+		
 		return "";
 		
 	}
@@ -60,7 +64,7 @@ final class ScalepahntInstanceTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 3;
+		return 4;
 	}
 
 	@Override
@@ -77,6 +81,8 @@ final class ScalepahntInstanceTableModel extends AbstractTableModel {
 			return "IP";
 	   } else if(column == 2) {
 		   return "Port";
+	   }  else if(column == 3) {
+		   return "Version";
 	   }
 		
 	   return "---";

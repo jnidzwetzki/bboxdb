@@ -12,6 +12,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
@@ -244,7 +245,7 @@ public class ClientConnectionHandler implements Runnable {
 			final String localIp = scalephantConfiguration.getLocalip();
 			final int localPort = scalephantConfiguration.getNetworkListenPort();
 			
-			final DistributedInstance intance = new DistributedInstance(localIp, localPort);
+			final DistributedInstance intance = new DistributedInstance(localIp, localPort, Const.VERSION);
 			zookeeperClient.addSystemToDistributionRegion(region, intance);
 			
 			writeResultPackage(new SuccessResponse(packageSequence));

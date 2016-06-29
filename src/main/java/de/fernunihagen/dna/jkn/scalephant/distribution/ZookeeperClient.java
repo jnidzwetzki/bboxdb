@@ -17,6 +17,7 @@ import org.apache.zookeeper.ZooKeeper.States;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
@@ -94,6 +95,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected final static String NAME_SYSTEMS = "systems";
 	
 	/**
+	 * Name of the version node
+	 */
+	protected final static String NAME_VERSION = "version";
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
@@ -167,12 +173,24 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 		
 		try {
-			final List<String> instances = zookeeper.getChildren(getNodesPath(clustername), this);
+			final String nodesPath = getNodesPath(clustername);
+			final List<String> instances = zookeeper.getChildren(nodesPath, this);
 			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 			
 			final Set<DistributedInstance> instanceSet = new HashSet<DistributedInstance>();
 			for(final String member : instances) {
-				instanceSet.add(new DistributedInstance(member));
+				
+				final String versionPath = nodesPath + "/" + member + "/" + NAME_VERSION;
+				String versionName = DistributedInstance.UNKOWN_VERSION; 
+				
+				try {
+					versionName = readPathAndReturnString(versionPath);
+				} catch (ZookeeperException e) {
+					logger.info("Unable to read version for: " + versionPath);
+				}
+				
+				final DistributedInstance theInstance = new DistributedInstance(member, versionName); 
+				instanceSet.add(theInstance);
 			}
 			
 			distributedInstanceManager.updateInstanceList(instanceSet);
@@ -264,7 +282,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param localPort
 	 */
 	public void registerScalephantInstanceAfterConnect(final String localIp, final Integer localPort) {
-		this.instancename = new DistributedInstance(localIp, localPort);
+		this.instancename = new DistributedInstance(localIp, localPort, Const.VERSION);
 	}
 
 	/**
@@ -280,13 +298,13 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 
 		final String instanceZookeeperPath = getNodesPath(clustername) + "/" + instancename.getStringValue();
+		final String versionPath = instanceZookeeperPath + "/" + NAME_VERSION;
+		
 		logger.info("Register instance on: " + instanceZookeeperPath);
 		
 		try {
-			zookeeper.create(instanceZookeeperPath, 
-					"".getBytes(), 
-					ZooDefs.Ids.READ_ACL_UNSAFE, 
-					CreateMode.EPHEMERAL);
+			zookeeper.create(instanceZookeeperPath, "".getBytes(), ZooDefs.Ids.READ_ACL_UNSAFE, CreateMode.EPHEMERAL);
+			zookeeper.create(versionPath, Const.VERSION.getBytes(), ZooDefs.Ids.READ_ACL_UNSAFE, CreateMode.EPHEMERAL);
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
 		}
@@ -528,17 +546,17 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 
 	/**
 	 * Read the given path and returns a string result
-	 * @param splitPathName
+	 * @param pathName
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	protected String readPathAndReturnString(final String splitPathName) throws ZookeeperException {
+	protected String readPathAndReturnString(final String pathName) throws ZookeeperException {
 		try {
-			if(zookeeper.exists(splitPathName, this) == null) {
-				throw new ZookeeperException("The path does not exist: " + splitPathName);
+			if(zookeeper.exists(pathName, this) == null) {
+				throw new ZookeeperException("The path does not exist: " + pathName);
 			}
 		
-			final byte[] bytes = zookeeper.getData(splitPathName, false, null);
+			final byte[] bytes = zookeeper.getData(pathName, false, null);
 			return new String(bytes);
 		} catch(InterruptedException | KeeperException e) {
 			throw new ZookeeperException(e);
