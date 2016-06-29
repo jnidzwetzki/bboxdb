@@ -153,4 +153,41 @@ public class TestDistributionGroup {
 		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 100f)).contains(SYSTEM_A));
 		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 100f)).contains(SYSTEM_B));
 	}
+	
+	/**
+	 * Test nameprefix search
+	 */
+	@Test
+	public void testNameprefixSearch() {
+		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("2_foo");
+		level0.setNameprefix(1);
+		level0.setSplit(50);
+		level0.getLeftChild().setNameprefix(2);
+		level0.getRightChild().setNameprefix(3);
+		
+		final DistributionRegion level1 = level0.getLeftChild();
+		level1.setSplit(40);
+		level1.getLeftChild().setNameprefix(4);
+		level1.getRightChild().setNameprefix(5);
+		
+		final DistributionRegion level2 = level1.getLeftChild();
+		level2.setSplit(30);
+		level2.getLeftChild().setNameprefix(6);
+		level2.getRightChild().setNameprefix(7);
+		
+		final DistributionRegion level3 = level2.getLeftChild();
+		level3.setSplit(35);
+		level3.getLeftChild().setNameprefix(8);
+		level3.getRightChild().setNameprefix(9);
+		
+		Assert.assertTrue(level0.getDistributionRegionForNamePrefix(4711) == null);
+		
+		Assert.assertEquals(level0, level0.getDistributionRegionForNamePrefix(1));
+		Assert.assertEquals(level1.getLeftChild(), level0.getDistributionRegionForNamePrefix(4));
+		Assert.assertEquals(level1.getRightChild(), level0.getDistributionRegionForNamePrefix(5));
+		Assert.assertEquals(level3.getLeftChild(), level0.getDistributionRegionForNamePrefix(8));
+		Assert.assertEquals(level3.getRightChild(), level0.getDistributionRegionForNamePrefix(9));
+		
+		Assert.assertEquals(null, level3.getDistributionRegionForNamePrefix(1));
+	}
 }

@@ -225,8 +225,8 @@ public class DistributionRegion {
 	@Override
 	public String toString() {
 		return "DistributionRegion [distributionGroupName=" + distributionGroupName + ", totalLevel=" + totalLevel
-				+ ", split=" + split + ", leftChild=" + leftChild + ", rightChild=" + rightChild + ", parent=" + parent
-				+ ", level=" + level + ", converingBox=" + converingBox + ", systems=" + systems + ", nameprefix="
+				+ ", split=" + split + ", level=" + level + ", converingBox=" + converingBox 
+				+ ", systems=" + systems + ", nameprefix="
 				+ nameprefix + ", ready=" + ready + "]";
 	}
 
@@ -337,7 +337,7 @@ public class DistributionRegion {
 	 */
 	public Collection<DistributedInstance> getSystemsForBoundingBox(final BoundingBox boundingBox) {
 		final Collection<DistributedInstance> result = new ArrayList<DistributedInstance>();
-		addSystemsForBoundingBoxRecursive(boundingBox, result);
+		getSystemsForBoundingBoxRecursive(boundingBox, result);
 		return result;
 	}
 	
@@ -346,7 +346,7 @@ public class DistributionRegion {
 	 * @param boundingBox
 	 * @param systems
 	 */
-	protected void addSystemsForBoundingBoxRecursive(final BoundingBox boundingBox, final Collection<DistributedInstance> resultSystems) {
+	protected void getSystemsForBoundingBoxRecursive(final BoundingBox boundingBox, final Collection<DistributedInstance> resultSystems) {
 		
 		// This node is not covered. So, edge nodes are not covered
 		if(! converingBox.overlaps(boundingBox)) {
@@ -356,11 +356,39 @@ public class DistributionRegion {
 		if(isLeafRegion()) {
 			resultSystems.addAll(systems);
 		} else {
-			leftChild.addSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
-			rightChild.addSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
+			leftChild.getSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
+			rightChild.getSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
 		}
 	}
-	
+
+	/**
+	 * Find the region for the given nameprefix
+	 * @param searchNameprefix
+	 * @return
+	 */
+	public DistributionRegion getDistributionRegionForNamePrefix(final int searchNameprefix) {
+		
+		if(searchNameprefix == nameprefix) {
+			return this;
+		}
+		
+		if(isLeafRegion()) {
+			return null;
+		}
+		
+		final DistributionRegion leftResult = leftChild.getDistributionRegionForNamePrefix(searchNameprefix);
+		if(leftResult != null) {
+			return leftResult;
+		}
+		
+		final DistributionRegion rightResult = rightChild.getDistributionRegionForNamePrefix(searchNameprefix);
+		if(rightResult != null) {
+			return rightResult;
+		}
+		
+		return null;
+	}
+
 	/**
 	 * Is the region ready (initialized)
 	 * @return
