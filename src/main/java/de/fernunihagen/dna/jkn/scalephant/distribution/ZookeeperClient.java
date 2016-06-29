@@ -95,11 +95,6 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected final static String NAME_SYSTEMS = "systems";
 	
 	/**
-	 * Name of the version node
-	 */
-	protected final static String NAME_VERSION = "version";
-	
-	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
@@ -180,7 +175,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			final Set<DistributedInstance> instanceSet = new HashSet<DistributedInstance>();
 			for(final String member : instances) {
 				
-				final String versionPath = nodesPath + "/" + member + "/" + NAME_VERSION;
+				final String versionPath = nodesPath + "/" + member;
 				String versionName = DistributedInstance.UNKOWN_VERSION; 
 				
 				try {
@@ -298,13 +293,13 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 
 		final String instanceZookeeperPath = getNodesPath(clustername) + "/" + instancename.getStringValue();
-		final String versionPath = instanceZookeeperPath + "/" + NAME_VERSION;
 		
 		logger.info("Register instance on: " + instanceZookeeperPath);
 		
 		try {
-			zookeeper.create(instanceZookeeperPath, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-			zookeeper.create(versionPath, Const.VERSION.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+			zookeeper.create(instanceZookeeperPath, Const.VERSION.getBytes(), 
+					ZooDefs.Ids.READ_ACL_UNSAFE, 
+					CreateMode.EPHEMERAL);
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
 		}
