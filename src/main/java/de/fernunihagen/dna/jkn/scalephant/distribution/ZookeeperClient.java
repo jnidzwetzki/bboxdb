@@ -367,7 +367,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		try {
 			// Does the full path already exists?
-			if(zookeeper.exists(path, this) != null) {
+			if(zookeeper.exists(path, false) != null) {
 				return;
 			}
 			
@@ -383,7 +383,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 				
 				final String partialPath = sb.toString();
 							
-				if(zookeeper.exists(partialPath, this) == null) {
+				if(zookeeper.exists(partialPath, false) == null) {
 					logger.info(partialPath + " not found, creating");
 					
 					zookeeper.create(partialPath, 
@@ -510,7 +510,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected boolean isGroupSplitted(final String path) throws ZookeeperException {
 		try {
 			final String splitPathName = path + "/" + NAME_SPLIT;
-			if(zookeeper.exists(splitPathName, this) == null) {
+			if(zookeeper.exists(splitPathName, false) == null) {
 				return false;
 			} else {
 				return true;
@@ -547,12 +547,12 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	protected String readPathAndReturnString(final String pathName, final boolean retry) throws ZookeeperException {
 		try {
-			if(zookeeper.exists(pathName, this) == null) {
+			if(zookeeper.exists(pathName, false) == null) {
 				if(retry != true) {
 					throw new ZookeeperException("The path does not exist: " + pathName);
 				} else {
 					Thread.sleep(500);
-					if(zookeeper.exists(pathName, this) == null) {
+					if(zookeeper.exists(pathName, false) == null) {
 						throw new ZookeeperException("The path does not exist: " + pathName);
 					}
 				}
@@ -620,7 +620,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			final String path = getDistributionGroupPath(distributionGroup);
 
 			// Does the path not exist? We are done!
-			if(zookeeper.exists(path, this) == null) {
+			if(zookeeper.exists(path, false) == null) {
 				return;
 			}
 			
@@ -745,7 +745,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NAME_SYSTEMS;
 			
 			// Does the requested node exists?
-			if(zookeeper.exists(path, this) == null) {
+			if(zookeeper.exists(path, false) == null) {
 				return null;
 			}
 			
