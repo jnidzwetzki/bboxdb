@@ -157,6 +157,12 @@ public class ConnectDialog {
 				
 				try {
 					final String distributionGroup = getDistributioGroup(zookeeperClient); 
+					
+					if(distributionGroup == null) {
+						logger.info("Cancel selected, exiting");
+						System.exit(0);
+					}
+					
 					zookeeperClient.startMembershipObserver();
 					mainframe.dispose();
 					showMainDialog(distributionGroup, zookeeperClient);
