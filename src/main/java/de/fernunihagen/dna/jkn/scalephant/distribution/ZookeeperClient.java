@@ -184,7 +184,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 				String versionName = DistributedInstance.UNKOWN_VERSION; 
 				
 				try {
-					versionName = readPathAndReturnString(versionPath);
+					versionName = readPathAndReturnString(versionPath, true);
 				} catch (ZookeeperException e) {
 					logger.info("Unable to read version for: " + versionPath);
 				}
@@ -499,7 +499,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		String namePrefix = null;
 		
 		try {
-			namePrefix = readPathAndReturnString(namePrefixPath);
+			namePrefix = readPathAndReturnString(namePrefixPath, false);
 			return Integer.parseInt(namePrefix);
 		} catch (NumberFormatException e) {
 			throw new ZookeeperException("Unable to parse name prefix '" + namePrefix + "' for " + namePrefixPath);
@@ -537,7 +537,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		String splitString = null;
 		
 		try {			
-			splitString = readPathAndReturnString(splitPathName);
+			splitString = readPathAndReturnString(splitPathName, false);
 			return Float.parseFloat(splitString);
 		} catch (NumberFormatException e) {
 			throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + splitPathName);
@@ -550,10 +550,17 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	protected String readPathAndReturnString(final String pathName) throws ZookeeperException {
+	protected String readPathAndReturnString(final String pathName, final boolean retry) throws ZookeeperException {
 		try {
 			if(zookeeper.exists(pathName, this) == null) {
-				throw new ZookeeperException("The path does not exist: " + pathName);
+				if(retry != true) {
+					throw new ZookeeperException("The path does not exist: " + pathName);
+				} else {
+					Thread.sleep(500);
+					if(zookeeper.exists(pathName, this) == null) {
+						throw new ZookeeperException("The path does not exist: " + pathName);
+					}
+				}
 			}
 		
 			final byte[] bytes = zookeeper.getData(pathName, false, null);
