@@ -303,8 +303,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		logger.info("Register instance on: " + instanceZookeeperPath);
 		
 		try {
-			zookeeper.create(instanceZookeeperPath, "".getBytes(), ZooDefs.Ids.READ_ACL_UNSAFE, CreateMode.EPHEMERAL);
-			zookeeper.create(versionPath, Const.VERSION.getBytes(), ZooDefs.Ids.READ_ACL_UNSAFE, CreateMode.EPHEMERAL);
+			zookeeper.create(instanceZookeeperPath, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+			zookeeper.create(versionPath, Const.VERSION.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
 		}
