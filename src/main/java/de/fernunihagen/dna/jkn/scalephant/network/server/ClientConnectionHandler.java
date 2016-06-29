@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
@@ -271,8 +272,14 @@ public class ClientConnectionHandler implements Runnable {
 		logger.info("Delete distribution group: " + deletePackage.getDistributionGroup());
 		
 		try {
+			// Delete in Zookeeper
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			zookeeperClient.deleteDistributionGroup(deletePackage.getDistributionGroup());
+			
+			// Delete local stored data
+			final DistributionGroupName distributionGroupName = new DistributionGroupName(deletePackage.getDistributionGroup());
+			StorageInterface.deleteAllTablesInDistributionGroup(distributionGroupName);
+			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while delete distribution group", e);

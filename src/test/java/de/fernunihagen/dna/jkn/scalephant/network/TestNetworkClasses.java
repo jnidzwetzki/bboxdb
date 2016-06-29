@@ -28,6 +28,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessRespo
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class TestNetworkClasses {
@@ -441,11 +442,11 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testListTablesResponse() {
-		final List<String> tables = new ArrayList<String>();
-		tables.add("table1");
-		tables.add("testtable");
-		tables.add("test4711");
-		tables.add("mytest57");
+		final List<SSTableName> tables = new ArrayList<SSTableName>();
+		tables.add(new SSTableName("table1"));
+		tables.add(new SSTableName("testtable"));
+		tables.add(new SSTableName("test4711"));
+		tables.add(new SSTableName("mytest57"));
 		
 		final ListTablesResponse response = new ListTablesResponse((short) 3, tables);
 		byte[] encodedPackage = response.getByteArray();
@@ -453,7 +454,7 @@ public class TestNetworkClasses {
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		final ListTablesResponse responseDecoded = ListTablesResponse.decodePackage(bb);
-		final List<String> myTables = responseDecoded.getTables();
+		final List<SSTableName> myTables = responseDecoded.getTables();
 		Assert.assertEquals(tables, myTables);
 		Assert.assertEquals(tables.size(), myTables.size());
 	}

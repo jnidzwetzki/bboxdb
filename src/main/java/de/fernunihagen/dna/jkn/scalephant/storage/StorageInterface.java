@@ -8,6 +8,7 @@ import java.util.Map;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 public class StorageInterface {
@@ -85,6 +86,20 @@ public class StorageInterface {
 		instances.remove(table);
 
 		storageManager.deleteExistingTables();
+	}
+	
+	/**
+	 * Delete all tables that are part of the distribution group
+	 * @param distributionGroupName
+	 * @throws StorageManagerException 
+	 */
+	public static void deleteAllTablesInDistributionGroup(final DistributionGroupName distributionGroupName) throws StorageManagerException {
+		final List<SSTableName> allTables = getAllTables();
+		for(final SSTableName ssTableName : allTables) {
+			if(ssTableName.getDistributionGroup().equals(distributionGroupName)) {
+				deleteTable(ssTableName.getFullname());
+			}
+		}
 	}
 	
 	/**
