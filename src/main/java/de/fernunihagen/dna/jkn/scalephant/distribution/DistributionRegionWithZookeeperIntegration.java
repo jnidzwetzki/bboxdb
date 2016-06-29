@@ -65,6 +65,12 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	 */
 	@Override
 	public void process(final WatchedEvent event) {
+		
+		// Ignore events like connected and disconnected
+		if(event == null || event.getPath() == null) {
+			return;
+		}
+		
 		logger.info("Node: " + zookeeperPath + " got event: " + event);
 
 		if(event.getPath().endsWith(zookeeperPath)) {
