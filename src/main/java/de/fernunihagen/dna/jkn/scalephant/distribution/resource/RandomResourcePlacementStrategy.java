@@ -23,7 +23,7 @@ public class RandomResourcePlacementStrategy implements ResourcePlacementStrateg
 
 		synchronized (systems) {
 			final List<DistributedInstance> elements = new ArrayList<DistributedInstance>(systems);
-			final int element = randomGenerator.nextInt() % elements.size();
+			final int element = Math.abs(randomGenerator.nextInt()) % elements.size();
 			return elements.get(element);
 		}
 		
