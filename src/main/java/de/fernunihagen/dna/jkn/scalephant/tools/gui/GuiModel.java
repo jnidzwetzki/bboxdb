@@ -63,7 +63,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	/**
 	 * Update the GUI model
 	 */
-	public synchronized void updateModel() {
+	public void updateModel() {
 		try {
 			updateScalepahntInstances();
 			scalephantGui.updateView();
@@ -77,9 +77,11 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 * Update the system state
 	 */
 	protected void updateScalepahntInstances() {
-		scalephantInstances.clear();
-		scalephantInstances.addAll(DistributedInstanceManager.getInstance().getInstances());
-		Collections.sort(scalephantInstances);
+		synchronized (scalephantInstances) {		
+			scalephantInstances.clear();
+			scalephantInstances.addAll(DistributedInstanceManager.getInstance().getInstances());
+			Collections.sort(scalephantInstances);
+		}
 	}
 	
 	/**

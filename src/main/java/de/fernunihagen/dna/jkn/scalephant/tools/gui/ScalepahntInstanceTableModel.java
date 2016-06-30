@@ -16,7 +16,7 @@ final class ScalepahntInstanceTableModel extends AbstractTableModel {
 	 */
 	protected final List<DistributedInstance> instances;
 	
-	public ScalepahntInstanceTableModel(List<DistributedInstance> scalepahntInstances) {
+	public ScalepahntInstanceTableModel(final List<DistributedInstance> scalepahntInstances) {
 		this.instances = scalepahntInstances;
 	}
 
@@ -27,34 +27,42 @@ final class ScalepahntInstanceTableModel extends AbstractTableModel {
 	 * @return
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		final DistributedInstance instance = instances.get(rowIndex);
 		
-		if(instances.size() < rowIndex) {
+		synchronized (instances) {
+			
+			// Is entry removed by another thread?
+			if(rowIndex > instances.size()) {
+				return "";
+			}
+			
+			final DistributedInstance instance = instances.get(rowIndex);
+		
+			if(instances.size() < rowIndex) {
+				return "";
+			}
+			
+			if(instance == null) {
+				return "";
+			}
+			
+			if(columnIndex == 0) {
+				return rowIndex;
+			}
+			
+			if(columnIndex == 1) {
+				return instance.getIp();
+			}
+			
+			if(columnIndex == 2) {
+				return instance.getPort();
+			}
+			
+			if(columnIndex == 3) {
+				return instance.getVersion();
+			}
+			
 			return "";
 		}
-		
-		if(instance == null) {
-			return "";
-		}
-		
-		if(columnIndex == 0) {
-			return rowIndex;
-		}
-		
-		if(columnIndex == 1) {
-			return instance.getIp();
-		}
-		
-		if(columnIndex == 2) {
-			return instance.getPort();
-		}
-		
-		if(columnIndex == 3) {
-			return instance.getVersion();
-		}
-		
-		return "";
-		
 	}
 
 	@Override
