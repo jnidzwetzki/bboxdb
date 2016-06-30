@@ -1,9 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.tools.gui;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -39,17 +37,17 @@ public class ConnectDialog {
 	/**
 	 * The hosts field
 	 */
-	private JTextField hosts;
+	protected JTextField hosts;
 
 	/**
 	 * The clustername field
 	 */
-	private JTextField clustername;
+	protected JTextField clustername;
 
 	/**
 	 * The main frame
 	 */
-	private JFrame mainframe;
+	protected JFrame mainframe;
 	
 	/**
 	 * The logger
@@ -157,104 +155,28 @@ public class ConnectDialog {
 				}
 				
 				try {
-					final String distributionGroup = getDistributioGroup(zookeeperClient); 
-					
-					if(distributionGroup == null) {
-						logger.info("Cancel selected, exiting");
+					mainframe.dispose();
+
+					final List<DistributionGroupName> distributionGroups = zookeeperClient.getDistributionGroups();
+
+					if(distributionGroups.isEmpty()) {
+						JOptionPane.showMessageDialog(mainframe,
+							    "No distribution groups are found. Please create them first.",
+							    "Distribution Groups",
+							    JOptionPane.ERROR_MESSAGE);
 						System.exit(0);
 					}
 					
-					zookeeperClient.startMembershipObserver();
-					mainframe.dispose();
-					showMainDialog(distributionGroup, zookeeperClient);
+					final ChooseDistributionGroupDialog chooseDistributionGroupDialog = 
+							new ChooseDistributionGroupDialog(distributionGroups, zookeeperClient);
+					
+					chooseDistributionGroupDialog.showDialog();
+					
 				} catch (ZookeeperException e1) {
 					logger.error("Got an exception", e1);
 				}
 			}
-
-			/**
-			 * Get the distribution group to display
-			 * @param zookeeperClient
-			 * @return
-			 * @throws ZookeeperException
-			 */
-			protected String getDistributioGroup(
-					final ZookeeperClient zookeeperClient)
-					throws ZookeeperException {
-				
-				final List<DistributionGroupName> distributionGroups = zookeeperClient.getDistributionGroups();
-				Collections.sort(distributionGroups);
-				
-				if(distributionGroups.isEmpty()) {
-					JOptionPane.showMessageDialog(mainframe,
-						    "No distribution groups are found. Please create them first.",
-						    "Distribution Groups",
-						    JOptionPane.ERROR_MESSAGE);
-					System.exit(0);
-				}
-				
-				final List<String> groupNames = new ArrayList<String>();
-				
-				for(final DistributionGroupName name: distributionGroups) {
-					groupNames.add(name.getFullname());
-				}
-				
-				final String distributionGroup = (String) JOptionPane.showInputDialog(mainframe, "Distribution Group",
-				        "Choose the distribution group", JOptionPane.QUESTION_MESSAGE, null,
-				        groupNames.toArray(), 
-				        0);
-				
-				return distributionGroup;
-			}
-
-			/**
-			 * Show the main dialog
-			 * 
-			 * @param distributionGroup
-			 * @param zookeeperClient
-			 */
-			protected void showMainDialog(final String distributionGroup,
-					final ZookeeperClient zookeeperClient) {
-				
-				final GuiModel guiModel = new GuiModel(zookeeperClient);		
-				final ScalephantGui scalepahntGUI = new ScalephantGui(guiModel);
-				guiModel.setScalephantGui(scalepahntGUI);
-				scalepahntGUI.run();
-				guiModel.setDistributionGroup(distributionGroup);
-				
-				startNewMainThread(zookeeperClient, scalepahntGUI);
-			}
-
-			/**
-			 * The main thread
-			 * @param zookeeperClient
-			 * @param scalepahntGUI
-			 */
-			protected void startNewMainThread(
-					final ZookeeperClient zookeeperClient,
-					final ScalephantGui scalepahntGUI) {
-				
-				// Start a new update thread
-				(new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							while(! scalepahntGUI.shutdown) {
-								scalepahntGUI.updateView();
-								Thread.sleep(1000);
-							}
-							
-							// Wait for pending gui updates to complete
-							scalepahntGUI.dispose();				
-							Thread.sleep(1000);
-						} catch (InterruptedException e1) {
-							// Ignore exception
-						}
-						
-						zookeeperClient.shutdown();
-					}
-				})).start();
-			}
+			
 		};
 		return connectAction;
 	}
