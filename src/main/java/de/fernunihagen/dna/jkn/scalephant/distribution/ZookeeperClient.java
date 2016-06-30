@@ -568,18 +568,29 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	/**
 	 * Delete the node recursive
 	 * @param path
-	 * @throws KeeperException 
-	 * @throws InterruptedException 
+	 * @throws ZookeeperException 
 	 */
-	protected void deleteNodesRecursive(final String path) throws InterruptedException, KeeperException {
-		
-		final List<String> childs = zookeeper.getChildren(path, false);
-		
-		for(final String child: childs) {
-			deleteNodesRecursive(path + "/"+ child);
+	protected void deleteNodesRecursive(final String path) throws ZookeeperException {
+		try {
+			
+			final List<String> childs = zookeeper.getChildren(path, false);
+			
+			for(final String child: childs) {
+				deleteNodesRecursive(path + "/"+ child);
+			}
+			
+			zookeeper.delete(path, -1);
+			
+		} catch (InterruptedException e) {
+			throw new ZookeeperException(e);
+		} catch (KeeperException e) {
+			if(e.code() == KeeperException.Code.NONODE) {
+				// We try to delete concurrently deleted
+				// nodes. So we can ignore the exception.
+			} else {
+				throw new ZookeeperException(e);
+			}
 		}
-		
-		zookeeper.delete(path, -1);
 	}
 	
 	/**
