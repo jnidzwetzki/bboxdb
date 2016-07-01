@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
@@ -22,6 +25,12 @@ public class StorageInterface {
 	 * The used storage configuration
 	 */
 	protected static ScalephantConfiguration configuration;
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(StorageInterface.class);
+
 	
 	static {
 		configuration = ScalephantConfigurationManager.getConfiguration();
@@ -94,9 +103,13 @@ public class StorageInterface {
 	 * @throws StorageManagerException 
 	 */
 	public static void deleteAllTablesInDistributionGroup(final DistributionGroupName distributionGroupName) throws StorageManagerException {
+		
+		final String fullname = distributionGroupName.getFullname();
+		logger.info("Deleting all local stored data for distribution group: " + fullname);
+		
 		final List<SSTableName> allTables = getAllTables();
 		for(final SSTableName ssTableName : allTables) {
-			if(ssTableName.getDistributionGroup().equals(distributionGroupName)) {
+			if(ssTableName.getDistributionGroup().equals(fullname)) {
 				deleteTable(ssTableName.getFullname());
 			}
 		}
