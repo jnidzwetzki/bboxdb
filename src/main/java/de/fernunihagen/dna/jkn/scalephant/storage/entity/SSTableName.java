@@ -73,6 +73,17 @@ public class SSTableName {
 		this.valid = splitTablename();
 	}
 	
+	public SSTableName(final short dimension, final String distributionGroup, final String tablename, final short nameprefix) {
+		super();
+		this.fullname = dimension + "_" + distributionGroup + "_" + tablename + "_" + nameprefix;
+		this.valid = true;
+		
+		this.dimension = dimension;
+		this.group = distributionGroup;
+		this.tablename = tablename;
+		this.nameprefix = nameprefix;
+	}
+	
 	/**
 	 * Split the tablename into the three components
 	 * @return
