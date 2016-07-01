@@ -72,6 +72,7 @@ public class StorageInterface {
 			return false;
 		}
 		
+		logger.info("Shuting down storage interface for: " + table);
 		final StorageManager storageManager = instances.remove(table);
 		storageManager.shutdown();		
 		
@@ -100,11 +101,20 @@ public class StorageInterface {
 	 * @param distributionGroupName
 	 * @throws StorageManagerException 
 	 */
-	public static void deleteAllTablesInDistributionGroup(final DistributionGroupName distributionGroupName) throws StorageManagerException {
+	public static synchronized void deleteAllTablesInDistributionGroup(final DistributionGroupName distributionGroupName) throws StorageManagerException {
 		
 		final String fullname = distributionGroupName.getFullname();
-		logger.info("Deleting all local stored data for distribution group: " + fullname);
 		
+		// Memtabes
+		logger.info("Shuting down active memtables for distribution group: " + fullname);
+		for(final SSTableName ssTableName : instances.keySet()) {
+			if(ssTableName.getDistributionGroup().equals(fullname)) {
+				shutdown(ssTableName);
+			}
+		}
+		
+		// Storage on disk
+		logger.info("Deleting all local stored data for distribution group: " + fullname);
 		final List<SSTableName> allTables = getAllTables();
 		for(final SSTableName ssTableName : allTables) {
 			if(ssTableName.getDistributionGroup().equals(fullname)) {
