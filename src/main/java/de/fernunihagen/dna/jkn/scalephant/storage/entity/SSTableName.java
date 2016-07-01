@@ -3,6 +3,8 @@ package de.fernunihagen.dna.jkn.scalephant.storage.entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
+
 public class SSTableName {
 
 	/**
@@ -155,6 +157,14 @@ public class SSTableName {
 	 */
 	public String getDistributionGroup() {
 		return dimension + "_" + group;
+	}
+	
+	/**
+	 * Get the distribution group as object
+	 * @return
+	 */
+	public DistributionGroupName getDistributionGroupObject() {
+		return new DistributionGroupName(getDistributionGroup());
 	}
 	
 	/**
