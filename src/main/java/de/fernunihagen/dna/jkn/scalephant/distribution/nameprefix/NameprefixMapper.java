@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 public class NameprefixMapper {
 
@@ -31,6 +32,30 @@ public class NameprefixMapper {
 			if(regionTablenameEntry.getBoundingBox().overlaps(region)) {
 				result.add(regionTablenameEntry.getNameprefix());
 			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Get the SSTables that are responsible for a given bounding box
+	 * @param region
+	 * @param ssTableName
+	 * @return
+	 */
+	public Collection<SSTableName> getNameprefixesForRegionWithTable(final BoundingBox region, final SSTableName ssTableName) {
+		final Collection<Integer> namprefixes = getNameprefixesForRegion(region);
+		final List<SSTableName> result = new ArrayList<SSTableName>();
+		
+		for(final Integer nameprefix : namprefixes) {
+			
+			final SSTableName fullTableName = new SSTableName(
+					ssTableName.getDimension(), 
+					ssTableName.getDistributionGroup(), 
+					ssTableName.getTablename(), 
+					nameprefix);
+			
+			result.add(fullTableName);
 		}
 		
 		return result;
