@@ -86,7 +86,11 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	protected void handleSystemNodeUpdateEvent() {
 		try {
 			logger.debug("Got an system node event for: " + zookeeperSystemsPath);
-			setSystems(zookeeperClient.getSystemsForDistributionRegion(this));
+			final Collection<DistributedInstance> systemsForDistributionRegion = zookeeperClient.getSystemsForDistributionRegion(this);
+
+			if(systemsForDistributionRegion != null) {
+				setSystems(systemsForDistributionRegion);
+			}
 		} catch (ZookeeperException e) {
 			logger.error("Unable read data from zookeeper: ", e);
 		}
