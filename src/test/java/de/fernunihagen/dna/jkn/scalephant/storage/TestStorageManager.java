@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.PersonEntity;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 
@@ -19,7 +20,7 @@ public class TestStorageManager {
 	/**
 	 * The name of the test relation
 	 */
-	protected final static String TEST_RELATION = "1_testgroup1_abc";
+	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_abc");
 	
 	/**
 	 * The amount of tuples for the big insert test

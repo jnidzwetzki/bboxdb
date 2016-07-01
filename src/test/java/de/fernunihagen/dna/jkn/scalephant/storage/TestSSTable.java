@@ -29,7 +29,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testWrittenFiles() throws Exception {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION.getFullname());
+		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	
@@ -52,7 +52,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testIndexIterator() throws Exception {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION.getFullname());
+		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	
@@ -103,7 +103,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testDelayedDeletion() throws Exception {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION.getFullname());
+		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	

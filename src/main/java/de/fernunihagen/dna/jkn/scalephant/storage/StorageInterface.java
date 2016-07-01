@@ -19,7 +19,7 @@ public class StorageInterface {
 	/**
 	 * A map with all created storage instances
 	 */
-	protected static final Map<String, StorageManager> instances;
+	protected static final Map<SSTableName, StorageManager> instances;
 	
 	/**
 	 * The used storage configuration
@@ -34,7 +34,7 @@ public class StorageInterface {
 	
 	static {
 		configuration = ScalephantConfigurationManager.getConfiguration();
-		instances = new HashMap<String, StorageManager>();
+		instances = new HashMap<SSTableName, StorageManager>();
 	}
 	
 	/**
@@ -43,18 +43,17 @@ public class StorageInterface {
 	 * 
 	 * @return
 	 */
-	public static synchronized StorageManager getStorageManager(final String table) throws StorageManagerException {
+	public static synchronized StorageManager getStorageManager(final SSTableName table) throws StorageManagerException {
 		
-		final SSTableName tablename = new SSTableName(table);
-		if(! tablename.isValid()) {
-			throw new StorageManagerException("Invalid tablename: " + tablename);
+		if(! table.isValid()) {
+			throw new StorageManagerException("Invalid tablename: " + table);
 		}
 
 		if(instances.containsKey(table)) {
 			return instances.get(table);
 		}
 		
-		final StorageManager storageManager = new StorageManager(tablename, configuration);
+		final StorageManager storageManager = new StorageManager(table, configuration);
 		storageManager.init();
 		
 		instances.put(table, storageManager);
@@ -67,7 +66,7 @@ public class StorageInterface {
 	 * @param table
 	 * @return
 	 */
-	public static synchronized boolean shutdown(final String table) {
+	public static synchronized boolean shutdown(final SSTableName table) {
 		
 		if(! instances.containsKey(table)) {
 			return false;
@@ -84,11 +83,10 @@ public class StorageInterface {
 	 * @param table
 	 * @throws StorageManagerException 
 	 */
-	public static void deleteTable(final String table) throws StorageManagerException {
+	public static void deleteTable(final SSTableName table) throws StorageManagerException {
 		
-		final SSTableName tablename = new SSTableName(table);
-		if(! tablename.isValid()) {
-			throw new StorageManagerException("Invalid tablename: " + tablename);
+		if(! table.isValid()) {
+			throw new StorageManagerException("Invalid tablename: " + table);
 		}
 		
 		final StorageManager storageManager = getStorageManager(table);
@@ -110,7 +108,7 @@ public class StorageInterface {
 		final List<SSTableName> allTables = getAllTables();
 		for(final SSTableName ssTableName : allTables) {
 			if(ssTableName.getDistributionGroup().equals(fullname)) {
-				deleteTable(ssTableName.getFullname());
+				deleteTable(ssTableName);
 			}
 		}
 	}
@@ -120,7 +118,7 @@ public class StorageInterface {
 	 * @param table
 	 * @return
 	 */
-	public static synchronized boolean isStorageManagerActive(final String table) {
+	public static synchronized boolean isStorageManagerActive(final SSTableName table) {
 		return instances.containsKey(table);
 	}
 	
@@ -153,7 +151,7 @@ public class StorageInterface {
 		super.finalize();
 		
 		if(instances != null) {
-			for(final String table : instances.keySet()) {
+			for(final SSTableName table : instances.keySet()) {
 				final StorageManager storageManager = instances.get(table);
 				storageManager.shutdown();
 			}

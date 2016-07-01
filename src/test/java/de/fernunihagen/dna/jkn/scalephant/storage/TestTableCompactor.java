@@ -27,7 +27,7 @@ public class TestTableCompactor {
 
 	@Before
 	public void clearData() throws StorageManagerException {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION.getFullname());
+		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	}

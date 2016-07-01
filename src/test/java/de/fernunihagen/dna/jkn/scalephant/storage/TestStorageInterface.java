@@ -8,6 +8,7 @@ import org.junit.Test;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class TestStorageInterface {
@@ -15,7 +16,7 @@ public class TestStorageInterface {
 	/**
 	 * The name of the test relation
 	 */
-	protected static final String RELATION_NAME = "3_grouptest1_table1";
+	protected static final SSTableName RELATION_NAME = new SSTableName("3_grouptest1_table1");
 
 	/**
 	 * Test registering and unregistering the storage manager
