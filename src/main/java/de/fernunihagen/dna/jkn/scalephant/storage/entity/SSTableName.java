@@ -40,7 +40,7 @@ public class SSTableName {
 	/**
 	 * The nameprefix
 	 */
-	protected short nameprefix;
+	protected int nameprefix;
 	
 	/**
 	 * The value for an invalid dimension
@@ -73,7 +73,7 @@ public class SSTableName {
 		this.valid = splitTablename();
 	}
 	
-	public SSTableName(final short dimension, final String distributionGroup, final String tablename, final short nameprefix) {
+	public SSTableName(final short dimension, final String distributionGroup, final String tablename, final int nameprefix) {
 		super();
 		this.fullname = dimension + "_" + distributionGroup + "_" + tablename + "_" + nameprefix;
 		this.valid = true;
@@ -194,7 +194,7 @@ public class SSTableName {
 	 * Get the nameprefix of the table
 	 * @return
 	 */
-	public short getNameprefix() {
+	public int getNameprefix() {
 		return nameprefix;
 	}
 	
