@@ -176,7 +176,15 @@ public class TestNetworkCommunication {
 	public void testInsertAndBoundingBoxQuery() throws InterruptedException, ExecutionException {
 		final String table = "2_testgroup1_relation5";
 		final ScalephantClient scalephantClient = connectToServer();
-
+		
+		final ClientOperationFuture resultDelete = scalephantClient.deleteDistributionGroup("2_testgroup");
+		resultDelete.get();
+		Assert.assertFalse(resultDelete.isFailed());
+		
+		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup("2_testgroup", (short) 3);
+		resultCreate.get();
+		Assert.assertFalse(resultCreate.isFailed());
+		
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0f, 1f, 0f, 1f), "abc".getBytes());
 		scalephantClient.insertTuple(table, tuple1);
