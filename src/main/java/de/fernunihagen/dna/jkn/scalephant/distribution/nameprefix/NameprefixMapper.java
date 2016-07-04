@@ -22,7 +22,7 @@ public class NameprefixMapper {
 	}
 
 	/**
-	 * Search the nameprefixes that are overlapped by the bounding box
+	 * Search the name prefixes that are overlapped by the bounding box
 	 */
 	public Collection<Integer> getNameprefixesForRegion(final BoundingBox region) {
 
@@ -30,8 +30,21 @@ public class NameprefixMapper {
 		
 		for(final RegionTablenameEntry regionTablenameEntry : regions) {
 			if(regionTablenameEntry.getBoundingBox().overlaps(region)) {
-				result.add(regionTablenameEntry.getNameprefix());
 			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Get all name prefixes
+	 * @return
+	 */
+	public Collection<Integer> getAllNamePrefixes() {
+		final List<Integer> result = new ArrayList<Integer>(regions.size());
+		
+		for(final RegionTablenameEntry regionTablenameEntry : regions) {
+			result.add(regionTablenameEntry.getNameprefix());
 		}
 		
 		return result;
@@ -45,6 +58,31 @@ public class NameprefixMapper {
 	 */
 	public Collection<SSTableName> getNameprefixesForRegionWithTable(final BoundingBox region, final SSTableName ssTableName) {
 		final Collection<Integer> namprefixes = getNameprefixesForRegion(region);
+		
+		return prefixNameprefixIntergerList(ssTableName, namprefixes);
+	}
+	
+	
+	/**
+	 * Get all SSTables that are stored local
+	 * @param ssTableName
+	 * @return
+	 */
+	public Collection<SSTableName> getAllNameprefixesWithTable(final SSTableName ssTableName) {
+		final Collection<Integer> namprefixes = getAllNamePrefixes();
+		
+		return prefixNameprefixIntergerList(ssTableName, namprefixes);		
+	}
+
+	/**
+	 * Prefix all entries of the given list with the name of the sstable
+	 * @param ssTableName
+	 * @param namprefixes
+	 * @return
+	 */
+	protected Collection<SSTableName> prefixNameprefixIntergerList(final SSTableName ssTableName,
+			final Collection<Integer> namprefixes) {
+		
 		final List<SSTableName> result = new ArrayList<SSTableName>();
 		
 		for(final Integer nameprefix : namprefixes) {
