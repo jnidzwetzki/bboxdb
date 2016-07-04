@@ -10,7 +10,7 @@ public interface MergeStrategy {
 	 * Comculate the merge tasks
 	 * @param sstables
 	 */
-	public abstract MergeTask getMergeTasks(final List<SSTableFacade> sstables);
+	public abstract MergeTask getMergeTask(final List<SSTableFacade> sstables);
 
 	/**
 	 * Get the delay for the compact thread

@@ -54,7 +54,7 @@ public class SSTableCompactorThread implements Runnable {
 				// Create a copy to ensure, that the list of facades don't change
 				// during the compact run.
 				final List<SSTableFacade> facades = new ArrayList<SSTableFacade>(sstableManager.getSstableFacades());
-				final MergeTask mergeTask = mergeStragegy.getMergeTasks(facades);
+				final MergeTask mergeTask = mergeStragegy.getMergeTask(facades);
 					
 				try {
 					mergeSSTables(mergeTask.getMinorCompactTables(), false);

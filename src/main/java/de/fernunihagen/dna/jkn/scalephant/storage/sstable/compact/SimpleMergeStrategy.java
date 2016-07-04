@@ -14,12 +14,17 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	protected final static int SMALL_TABLE_THRESHOLD = 10000;
 	
 	/**
+	 * The number of tables to merge per task
+	 */
+	protected final static int MAX_MERGE_TABLES_PER_JOB = 100;
+	
+	/**
 	 * Number of tables that will trigger a big compactification
 	 */
 	protected final static int BIG_TABLE_THRESHOLD = 20;
 
 	@Override
-	public MergeTask getMergeTasks(final List<SSTableFacade> sstables) {
+	public MergeTask getMergeTask(final List<SSTableFacade> sstables) {
 		
 		if(sstables.size() > BIG_TABLE_THRESHOLD) {
 			return generateBigCompactTask(sstables);
@@ -36,8 +41,17 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	protected MergeTask generateBigCompactTask(
 			final List<SSTableFacade> sstables) {
 		
+		final List<SSTableFacade> bigCompacts = new ArrayList<SSTableFacade>();
+		for(SSTableFacade ssTableFacade : sstables) {
+			bigCompacts.add(ssTableFacade);
+			
+			if(bigCompacts.size() >= MAX_MERGE_TABLES_PER_JOB) {
+				break;
+			}
+		}
+
 		final MergeTask mergeTask = new MergeTask();
-		mergeTask.setMajorCompactTables(sstables);
+		mergeTask.setMajorCompactTables(bigCompacts);
 		return mergeTask;
 	}
 
@@ -53,6 +67,10 @@ public class SimpleMergeStrategy implements MergeStrategy {
 		for(final SSTableFacade facade : sstables) {
 			if(facade.getSsTableMetadata().getTuples() < SMALL_TABLE_THRESHOLD) {
 				smallCompacts.add(facade);
+				
+				if(smallCompacts.size() >= MAX_MERGE_TABLES_PER_JOB) {
+					break;
+				}
 			}
 		}
 		
