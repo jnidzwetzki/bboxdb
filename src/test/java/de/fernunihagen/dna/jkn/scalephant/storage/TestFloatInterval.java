@@ -3,6 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.storage;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.FloatInterval;
 
 public class TestFloatInterval {
@@ -211,6 +212,15 @@ public class TestFloatInterval {
 	public void testIntervalSplit5() {
 		final FloatInterval interval1 = new FloatInterval(0, 100, false, false);
 		interval1.splitAndGetLeftPart(0, false);
+	}
+	
+	/**
+	 * Test midpoint calculation
+	 */
+	@Test
+	public void testMidpoint1() {
+		final FloatInterval interval1 = new FloatInterval(BoundingBox.MIN_VALUE, BoundingBox.MAX_VALUE);
+		Assert.assertEquals(0, interval1.getMidpoint(), 0.0001f);
 	}
 	
 }

@@ -82,7 +82,7 @@ public class FloatInterval {
 	 * @return
 	 */
 	public float getMidpoint() {
-		return (float) ((end - begin) / 2.0) + begin;
+		return (float) (((double) end - (double) begin) / 2.0) + begin;
 	}
 	
 	/**
