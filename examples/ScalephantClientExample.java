@@ -36,17 +36,34 @@ public class ScalephantClientExample {
 		// Clean the old content of the distribution group
 		final ClientOperationFuture deleteGroupResult = scalephantClient.deleteDistributionGroup(distributionGroup);
 		deleteGroupResult.get();
+		if(deleteGroupResult.isFailed()) {
+			System.err.println("Unable to delete distribution group: " + distributuionGroup);
+			System.exit(-1);
+		}
 		
 		// Create a new distribution group
 		final ClientOperationFuture createGroupResult = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
 		createGroupResult.get();
+		if(createGroupResult.isFailed()) {
+			System.err.println("Unable to create distribution group: " + distributuionGroup);
+			System.exit(-1);
+		}
 		
 		// Insert two new tuples
 		final Tuple tuple1 = new Tuple("key1", new BoundingBox(0f, 5f, 0f, 1f), "mydata1".getBytes());
-		scalephantClient.insertTuple(mytable, tuple1);
+		final ClientOperationFuture insertResult1 = scalephantClient.insertTuple(mytable, tuple1);
 		
 		final Tuple tuple2 = new Tuple("key2", new BoundingBox(-1f, 2f, -1f, 2f), "mydata2".getBytes());
-		scalephantClient.insertTuple(mytable, tuple2);
+		final ClientOperationFuture insertResult2 = scalephantClient.insertTuple(mytable, tuple2);
+		
+		// Wait for the insert operations to complete
+		insertResult1.get();
+		insertResult2.get();
+		
+		if(insertResult1.isFailed() || insertResult2.isFailed()) {
+			System.err.println("Unable to insert tuples");
+			System.exit(-1);
+		}
 		
 		// Query by key
 		final ClientOperationFuture resultFuture1 = scalephantClient.queryKey(mytable, "key");
