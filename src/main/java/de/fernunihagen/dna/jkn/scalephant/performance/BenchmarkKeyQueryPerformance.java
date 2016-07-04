@@ -22,10 +22,15 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	 */
 	protected final int tuplesToInsert;
 
-	/**
-	 * The name of the table
+	/** 
+	 * A 3 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
 	 */
-	protected String mytable = "2_mygroup3_testdata";
+	protected final static String DISTRIBUTION_GROUP = "3_testgroup3";
+	
+	/** 
+	 * A 3 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
+	 */
+	protected final static String TABLE = DISTRIBUTION_GROUP + "_testdata";
 
 	/**
 	 * The Logger
@@ -44,14 +49,18 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 		super.prepare();
 		
 		// Remove old data
-		final ClientOperationFuture result = scalephantClient.deleteTable(mytable);
-		result.get();		
+		final ClientOperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		deleteResult.get();
+		
+		// Create a new distribution group
+		final ClientOperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
+		createResult.get();
 		
 		logger.info("Inserting " + tuplesToInsert + " tuples");
 	
 		// Insert the tuples
 		for(; insertedTuples.get() < tuplesToInsert; insertedTuples.incrementAndGet()) {
-			scalephantClient.insertTuple(mytable, new Tuple(Integer.toString(insertedTuples.get()), BoundingBox.EMPTY_BOX, "abcdef".getBytes()));
+			scalephantClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), BoundingBox.EMPTY_BOX, "abcdef".getBytes()));
 		}
 		
 		// Wait for requests to settle
@@ -75,7 +84,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	
 		for(int i = 0; i < 100; i++) {
 			final long start = System.nanoTime();
-			final ClientOperationFuture result = scalephantClient.queryKey(mytable, Integer.toString(40));
+			final ClientOperationFuture result = scalephantClient.queryKey(TABLE, Integer.toString(40));
 			
 			// Wait for request to settle
 			final Object queryResult = result.get();

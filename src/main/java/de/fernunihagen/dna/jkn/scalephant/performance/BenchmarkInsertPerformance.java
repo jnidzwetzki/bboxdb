@@ -14,18 +14,30 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 	 * The amount of inserted tuples
 	 */
 	protected AtomicInteger insertedTuples = new AtomicInteger(0);
+	
+	/** 
+	 * A 3 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
+	 */
+	protected final static String DISTRIBUTION_GROUP = "3_testgroup3";
+	
+	/** 
+	 * A 3 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
+	 */
+	protected final static String TABLE = DISTRIBUTION_GROUP + "_testdata";
 
 	@Override
 	public void runBenchmark() throws InterruptedException, ExecutionException {
-		// A 3 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
-		final String mytable = "3_mygroup3_testdata";
-		
+
 		// Number of tuples
 		final int tuples = 5000000;
 				
 		// Remove old data
-		final ClientOperationFuture result = scalephantClient.deleteTable(mytable);
-		result.get();
+		final ClientOperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		deleteResult.get();
+		
+		// Create a new distribution group
+		final ClientOperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
+		createResult.get();
 		
 		final Random bbBoxRandom = new Random();
 	
@@ -37,7 +49,7 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 			
 			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1, z, z+1);
 			
-			scalephantClient.insertTuple(mytable, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
+			scalephantClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
 		}
 	}
 
