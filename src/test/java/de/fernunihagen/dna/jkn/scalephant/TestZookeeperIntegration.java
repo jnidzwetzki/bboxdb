@@ -86,6 +86,7 @@ public class TestZookeeperIntegration {
 		}
 		
 		Assert.assertTrue(found);
+		Assert.assertTrue(zookeeperClient.isDistributionGroupRegistered(TEST_GROUP));
 		
 		// Delete group
 		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
@@ -98,6 +99,7 @@ public class TestZookeeperIntegration {
 		}
 		
 		Assert.assertFalse(found);
+		Assert.assertFalse(zookeeperClient.isDistributionGroupRegistered(TEST_GROUP));
 	}
 	
 	/**
