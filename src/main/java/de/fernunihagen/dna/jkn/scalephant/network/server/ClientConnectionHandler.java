@@ -228,6 +228,9 @@ public class ClientConnectionHandler implements Runnable {
 			final DistributedInstance intance = new DistributedInstance(localIp, localPort, Const.VERSION);
 			zookeeperClient.addSystemToDistributionRegion(region, intance);
 			
+			// Wait for zookeeper calls to settle down
+			Thread.sleep(1000);
+			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while create distribution group", e);
