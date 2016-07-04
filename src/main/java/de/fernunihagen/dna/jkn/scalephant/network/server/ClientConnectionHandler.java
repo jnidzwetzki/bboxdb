@@ -228,8 +228,7 @@ public class ClientConnectionHandler implements Runnable {
 			final DistributedInstance intance = new DistributedInstance(localIp, localPort, Const.VERSION);
 			zookeeperClient.addSystemToDistributionRegion(region, intance);
 			
-			// Wait for zookeeper calls to settle down
-			Thread.sleep(1000);
+			waitForDistributionGroupReady(createPackage);
 			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
@@ -238,6 +237,34 @@ public class ClientConnectionHandler implements Runnable {
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Wait until the newly created distribution group is ready
+	 * @param createPackage
+	 * @throws InterruptedException
+	 */
+	protected void waitForDistributionGroupReady(final CreateDistributionGroupRequest createPackage)
+			throws InterruptedException {
+		
+		
+		final DistributionGroupName distributionGroupName = new DistributionGroupName(createPackage.getDistributionGroup());
+		final NameprefixMapper nameprefixMapper = NameprefixInstanceManager.getInstance(distributionGroupName);
+
+		// Wait for zookeeper calls to settle down
+		final int tries = 10;
+		int loop = 0;
+		while(nameprefixMapper.getAllNamePrefixes().isEmpty()) {
+			Thread.sleep(500);
+			loop++;
+			if(loop > tries) {
+				break;
+			}
+		}
+		
+		if(loop > tries) {
+			logger.warn("Waited but distribution group dont became ready, give up");
+		}
 	}
 	
 	/**
