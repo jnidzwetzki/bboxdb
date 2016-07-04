@@ -20,6 +20,8 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.jkn.scalephant.distribution.nameprefix.NameprefixInstanceManager;
+import de.fernunihagen.dna.jkn.scalephant.distribution.nameprefix.NameprefixMapper;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
@@ -89,7 +91,7 @@ public class ClientConnectionHandler implements Runnable {
 	}
 
 	/**
-	 * Read the next pakage header from the socket
+	 * Read the next package header from the socket
 	 * @return The package header, wrapped in a ByteBuffer
 	 * @throws IOException
 	 */
@@ -141,30 +143,6 @@ public class ClientConnectionHandler implements Runnable {
 		} catch (IOException e) {
 			// Ignore close exception
 		}
-	}
-	
-	/**
-	 * Handle the delete table call
-	 * @param packageSequence 
-	 * @return
-	 */
-	protected boolean handleDeleteTable(final ByteBuffer packageHeader, final short packageSequence) {
-		
-		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-		
-		final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);
-		logger.info("Got delete call for table: " + deletePackage.getTable());
-		
-		try {
-			// Propergate the call to the storage manager
-			StorageInterface.deleteTable(deletePackage.getTable());
-			writeResultPackage(new SuccessResponse(packageSequence));
-		} catch (StorageManagerException e) {
-			logger.warn("Error while delete tuple", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
-		}
-		
-		return true;
 	}
 	
 	/**
@@ -288,6 +266,38 @@ public class ClientConnectionHandler implements Runnable {
 		
 		return true;
 	}
+	
+	
+	/**
+	 * Handle the delete table call
+	 * @param packageSequence 
+	 * @return
+	 */
+	protected boolean handleDeleteTable(final ByteBuffer packageHeader, final short packageSequence) {
+		
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+		
+		final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);
+		final SSTableName requestTable = deletePackage.getTable();
+		logger.info("Got delete call for table: " + requestTable);
+		
+		try {
+			// Send the call to the storage manager
+			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
+			
+			for(final SSTableName ssTableName : localTables) {
+				StorageInterface.deleteTable(ssTableName);	
+			}
+			
+			writeResultPackage(new SuccessResponse(packageSequence));
+		} catch (StorageManagerException e) {
+			logger.warn("Error while delete tuple", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+		}
+		
+		return true;
+	}
 
 	/**
 	 * Handle a key query
@@ -298,19 +308,24 @@ public class ClientConnectionHandler implements Runnable {
 			final short packageSequence) {
 		
 		final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
-		final String table = queryKeyRequest.getTable().getFullname();
+		final SSTableName requestTable = queryKeyRequest.getTable();
 		
 		try {
-			final StorageManager storageManager = StorageInterface.getStorageManager(queryKeyRequest.getTable());
-
-			final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
+			// Send the call to the storage manager
+			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
 			
-			if(tuple != null) {
-				writeResultPackage(new TupleResponse(packageSequence, table, tuple));
-			} else {
-				writeResultPackage(new SuccessResponse(packageSequence));
+			for(final SSTableName ssTableName : localTables) {
+				final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+				final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
+				
+				if(tuple != null) {
+					writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
+					return;
+				}
 			}
-			
+
+		    writeResultPackage(new SuccessResponse(packageSequence));
 			return;
 			
 		} catch (StorageManagerException e) {
@@ -329,17 +344,22 @@ public class ClientConnectionHandler implements Runnable {
 			final short packageSequence) {
 		
 		final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
-		final String table = queryRequest.getTable().getFullname();
+		final SSTableName requestTable = queryRequest.getTable();
 		
 		try {
-			final StorageManager storageManager = StorageInterface.getStorageManager(queryRequest.getTable());
-
-			final Collection<Tuple> resultTuple = storageManager.getTuplesInside(queryRequest.getBoundingBox());
+			// Send the call to the storage manager
+			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final Collection<SSTableName> localTables = nameprefixManager.getNameprefixesForRegionWithTable(queryRequest.getBoundingBox(), requestTable);
 			
 			writeResultPackage(new MultipleTupleStartResponse(packageSequence));
-			
-			for(final Tuple tuple : resultTuple) {
-				writeResultPackage(new TupleResponse(packageSequence, table, tuple));
+
+			for(final SSTableName ssTableName : localTables) {
+				final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+				final Collection<Tuple> resultTuple = storageManager.getTuplesInside(queryRequest.getBoundingBox());
+				
+				for(final Tuple tuple : resultTuple) {
+					writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
+				}
 			}
 
 			writeResultPackage(new MultipleTupleEndResponse(packageSequence));
@@ -361,21 +381,24 @@ public class ClientConnectionHandler implements Runnable {
 			final short packageSequence) {
 		
 		final QueryTimeRequest queryRequest = QueryTimeRequest.decodeTuple(encodedPackage);
-		final String table = queryRequest.getTable().getFullname();
+		final SSTableName requestTable = queryRequest.getTable();
 		
 		try {
-			final StorageManager storageManager = StorageInterface.getStorageManager(queryRequest.getTable());
-
-			final Collection<Tuple> resultTuple = storageManager.getTuplesAfterTime(queryRequest.getTimestamp());
+			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
 			
 			writeResultPackage(new MultipleTupleStartResponse(packageSequence));
-			
-			for(final Tuple tuple : resultTuple) {
-				writeResultPackage(new TupleResponse(packageSequence, table, tuple));
+
+			for(final SSTableName ssTableName : localTables) {
+				final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+				final Collection<Tuple> resultTuple = storageManager.getTuplesAfterTime(queryRequest.getTimestamp());
+
+				for(final Tuple tuple : resultTuple) {
+					writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
+				}
 			}
-			
 			writeResultPackage(new MultipleTupleEndResponse(packageSequence));
-			
+
 			return;
 		} catch (StorageManagerException e) {
 			logger.warn("Got exception while scanning for time", e);
@@ -392,15 +415,21 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean handleInsertTuple(final ByteBuffer packageHeader, final short packageSequence) {
 		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-
 		final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 		
-		// Propergate the call to the storage manager
-		final Tuple tuple = insertTupleRequest.getTuple();
-		
 		try {
-			final StorageManager table = StorageInterface.getStorageManager(insertTupleRequest.getTable());
-			table.put(tuple);
+			// Send the call to the storage manager
+			final Tuple tuple = insertTupleRequest.getTuple();			
+			final SSTableName requestTable = insertTupleRequest.getTable();
+			
+			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final Collection<SSTableName> localTables = nameprefixManager.getNameprefixesForRegionWithTable(insertTupleRequest.getTuple().getBoundingBox(), requestTable);
+			
+			for(final SSTableName ssTableName : localTables) {
+				final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+				storageManager.put(tuple);
+			}
+			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (StorageManagerException e) {
 			logger.warn("Error while insert tuple", e);
@@ -436,19 +465,24 @@ public class ClientConnectionHandler implements Runnable {
 		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 
 		final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
-		
-		writeResultPackage(new SuccessResponse(packageSequence));
+		final SSTableName requestTable = deleteTupleRequest.getTable();
 
-		// Propergate the call to the storage manager
 		try {
-			final StorageManager table = StorageInterface.getStorageManager(deleteTupleRequest.getTable());
-			table.delete(deleteTupleRequest.getKey());
+			// Send the call to the storage manager
+			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
+
+			for(final SSTableName ssTableName : localTables) {
+				final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+				storageManager.delete(deleteTupleRequest.getKey());
+			}
+			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (StorageManagerException e) {
 			logger.warn("Error while delete tuple", e);
 			writeResultPackage(new ErrorResponse(packageSequence));	
 		}
-		
+
 		return true;
 	}	
 
