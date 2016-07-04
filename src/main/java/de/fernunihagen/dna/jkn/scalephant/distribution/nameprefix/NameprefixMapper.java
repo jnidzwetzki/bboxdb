@@ -38,6 +38,7 @@ public class NameprefixMapper {
 		
 		for(final RegionTablenameEntry regionTablenameEntry : regions) {
 			if(regionTablenameEntry.getBoundingBox().overlaps(region)) {
+				result.add(regionTablenameEntry.getNameprefix());
 			}
 		}
 		
