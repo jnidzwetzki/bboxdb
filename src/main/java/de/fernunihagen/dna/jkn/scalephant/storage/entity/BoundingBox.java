@@ -166,6 +166,11 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			return true;
 		}
 		
+		// An other instance of the bounding box
+		if(otherBoundingBox.getDimension() == 0) {
+			return true;
+		}
+		
 		// Both boxes are equal (Case 5)
 		if(equals(otherBoundingBox)) {
 			return true;

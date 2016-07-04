@@ -126,10 +126,21 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException {
-		final String table = "1_testgroup1_relation4";
+		final String distributionGroup = "1_testgroup1"; 
+		final String table = distributionGroup + "_relation4";
 		final String key = "key12";
 		
 		final ScalephantClient scalephantClient = connectToServer();
+		
+		// Delete distribution group
+		final ClientOperationFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
+		resultDelete.get();
+		Assert.assertFalse(resultDelete.isFailed());
+		
+		// Create distribution group
+		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
+		resultCreate.get();
+		Assert.assertFalse(resultCreate.isFailed());
 		
 		final ClientOperationFuture deleteResult1 = scalephantClient.deleteTuple(table, key);
 		final Object deleteResult1Object = deleteResult1.get();
@@ -174,14 +185,18 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testInsertAndBoundingBoxQuery() throws InterruptedException, ExecutionException {
-		final String table = "2_testgroup1_relation5";
+		final String distributionGroup = "2_testgroup"; 
+		final String table = distributionGroup + "_relation5";
+		
 		final ScalephantClient scalephantClient = connectToServer();
 		
-		final ClientOperationFuture resultDelete = scalephantClient.deleteDistributionGroup("2_testgroup");
+		// Delete distribution group
+		final ClientOperationFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
 		resultDelete.get();
 		Assert.assertFalse(resultDelete.isFailed());
 		
-		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup("2_testgroup", (short) 3);
+		// Create distribution group
+		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
 		resultCreate.get();
 		Assert.assertFalse(resultCreate.isFailed());
 		

@@ -75,9 +75,10 @@ public class SSTableName {
 	
 	public SSTableName(final short dimension, final String distributionGroup, final String tablename, final int nameprefix) {
 		super();
+		
 		this.fullname = dimension + "_" + distributionGroup + "_" + tablename + "_" + nameprefix;
 		this.valid = true;
-		
+
 		this.dimension = dimension;
 		this.group = distributionGroup;
 		this.tablename = tablename;
@@ -224,9 +225,8 @@ public class SSTableName {
 
 	@Override
 	public String toString() {
-		return "Tablename [tablename=" + fullname + ", valid=" + valid
-				+ ", dimension=" + dimension + ", group=" + group
-				+ ", identifier=" + tablename + "]";
+		return "SSTableName [fullname=" + fullname + ", valid=" + valid + ", dimension=" + dimension + ", group="
+				+ group + ", tablename=" + tablename + ", nameprefix=" + nameprefix + "]";
 	}
 
 	@Override

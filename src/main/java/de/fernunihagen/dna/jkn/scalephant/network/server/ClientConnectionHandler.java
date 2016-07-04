@@ -228,7 +228,7 @@ public class ClientConnectionHandler implements Runnable {
 			final DistributedInstance intance = new DistributedInstance(localIp, localPort, Const.VERSION);
 			zookeeperClient.addSystemToDistributionRegion(region, intance);
 			
-			waitForDistributionGroupReady(createPackage);
+			waitForDistributionGroupReady(createPackage.getDistributionGroup());
 			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
@@ -244,12 +244,11 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param createPackage
 	 * @throws InterruptedException
 	 */
-	protected void waitForDistributionGroupReady(final CreateDistributionGroupRequest createPackage)
+	protected void waitForDistributionGroupReady(final String distributionGroupName)
 			throws InterruptedException {
-		
-		
-		final DistributionGroupName distributionGroupName = new DistributionGroupName(createPackage.getDistributionGroup());
-		final NameprefixMapper nameprefixMapper = NameprefixInstanceManager.getInstance(distributionGroupName);
+
+		final DistributionGroupName distributionGroup = new DistributionGroupName(distributionGroupName);
+		final NameprefixMapper nameprefixMapper = NameprefixInstanceManager.getInstance(distributionGroup);
 
 		// Wait for zookeeper calls to settle down
 		final int tries = 10;
@@ -263,7 +262,8 @@ public class ClientConnectionHandler implements Runnable {
 		}
 		
 		if(loop > tries) {
-			logger.warn("Waited but distribution group dont became ready, give up");
+			logger.warn("Waited, but distribution group " 
+					+ distributionGroupName + " don't became ready, give up");
 		}
 	}
 	
@@ -380,7 +380,7 @@ public class ClientConnectionHandler implements Runnable {
 			// Send the call to the storage manager
 			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
 			final Collection<SSTableName> localTables = nameprefixManager.getNameprefixesForRegionWithTable(queryRequest.getBoundingBox(), requestTable);
-			
+
 			writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 
 			for(final SSTableName ssTableName : localTables) {

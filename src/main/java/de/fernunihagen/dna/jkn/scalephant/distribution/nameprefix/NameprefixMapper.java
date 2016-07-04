@@ -106,7 +106,7 @@ public class NameprefixMapper {
 			
 			final SSTableName fullTableName = new SSTableName(
 					ssTableName.getDimension(), 
-					ssTableName.getDistributionGroup(), 
+					ssTableName.getGroup(), 
 					ssTableName.getTablename(), 
 					nameprefix);
 			
