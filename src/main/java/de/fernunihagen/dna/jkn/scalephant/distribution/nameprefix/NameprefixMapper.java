@@ -6,6 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
@@ -15,6 +18,11 @@ public class NameprefixMapper {
 	 * The mappings
 	 */
 	protected final List<RegionTablenameEntry> regions = new CopyOnWriteArrayList<RegionTablenameEntry>();
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(NameprefixMapper.class);
 	
 	
 	public NameprefixMapper() {
@@ -59,6 +67,10 @@ public class NameprefixMapper {
 	public Collection<SSTableName> getNameprefixesForRegionWithTable(final BoundingBox region, final SSTableName ssTableName) {
 		final Collection<Integer> namprefixes = getNameprefixesForRegion(region);
 		
+		if(namprefixes.isEmpty() && logger.isWarnEnabled()) {
+			logger.warn("Got an empty result list by query region: " + region);
+		}
+		
 		return prefixNameprefixIntergerList(ssTableName, namprefixes);
 	}
 	
@@ -70,6 +82,10 @@ public class NameprefixMapper {
 	 */
 	public Collection<SSTableName> getAllNameprefixesWithTable(final SSTableName ssTableName) {
 		final Collection<Integer> namprefixes = getAllNamePrefixes();
+		
+		if(namprefixes.isEmpty() && logger.isWarnEnabled()) {
+			logger.warn("Got an empty result list by query all regions");
+		}
 		
 		return prefixNameprefixIntergerList(ssTableName, namprefixes);		
 	}
