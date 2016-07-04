@@ -20,7 +20,8 @@ public class ScalephantClientExample {
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		
 		// A 2 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
-		final String mytable = "2_mygroup3_testdata";
+		final String distributuionGroup = "2_mygroup3"; 
+		final String mytable = distributuionGroup + "_testdata";
 		
 		// Connect to the server
 		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1");
@@ -32,8 +33,13 @@ public class ScalephantClientExample {
 			System.exit(-1);
 		}
 		
-		// Clean the old content of the table
-		scalephantClient.deleteTable(mytable);
+		// Clean the old content of the distribution group
+		final ClientOperationFuture deleteGroupResult = scalephantClient.deleteDistributionGroup(distributionGroup);
+		deleteGroupResult.get();
+		
+		// Create a new distribution group
+		final ClientOperationFuture createGroupResult = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
+		createGroupResult.get();
 		
 		// Insert two new tuples
 		final Tuple tuple1 = new Tuple("key1", new BoundingBox(0f, 5f, 0f, 1f), "mydata1".getBytes());
