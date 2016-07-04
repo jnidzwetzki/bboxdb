@@ -12,4 +12,10 @@ public class Const {
 	 */
 	public final static String CONFIG_FILE = "scalephant.yaml";
 	
+	/**
+	 * If an operation is retried, this is the max amount
+	 * of retries
+	 */
+	public final static int OPERATION_RETRY = 10;
+	
 }

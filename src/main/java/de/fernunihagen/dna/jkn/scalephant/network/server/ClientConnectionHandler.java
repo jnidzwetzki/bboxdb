@@ -251,17 +251,16 @@ public class ClientConnectionHandler implements Runnable {
 		final NameprefixMapper nameprefixMapper = NameprefixInstanceManager.getInstance(distributionGroup);
 
 		// Wait for zookeeper calls to settle down
-		final int tries = 10;
-		int loop = 0;
+		int retryCounter = 0;
 		while(nameprefixMapper.getAllNamePrefixes().isEmpty()) {
 			Thread.sleep(500);
-			loop++;
-			if(loop > tries) {
+			retryCounter++;
+			if(retryCounter > Const.OPERATION_RETRY) {
 				break;
 			}
 		}
 		
-		if(loop > tries) {
+		if(retryCounter > Const.OPERATION_RETRY) {
 			logger.warn("Waited, but distribution group " 
 					+ distributionGroupName + " don't became ready, give up");
 		}
