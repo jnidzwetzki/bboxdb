@@ -157,6 +157,11 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		}
 		
 		// The empty bounding box overlaps everything
+		if(this == BoundingBox.EMPTY_BOX) {
+			return true;
+		}
+		
+		// The empty bounding box overlaps everything
 		if(otherBoundingBox == BoundingBox.EMPTY_BOX) {
 			return true;
 		}
