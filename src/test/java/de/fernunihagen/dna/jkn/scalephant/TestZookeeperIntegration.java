@@ -126,8 +126,17 @@ public class TestZookeeperIntegration {
 		// Split and update
 		final DistributionRegion distributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);
 		Assert.assertEquals(TEST_GROUP, distributionGroup.getName());
+		Assert.assertEquals(DistributionRegion.STATE_CREATED, zookeeperClient.getStateForDistributionRegion(distributionGroup));
+		
+		zookeeperClient.setStateForDistributionGroup(distributionGroup, DistributionRegion.STATE_ACTIVE);
+		Thread.sleep(1000);
+		
+		Assert.assertEquals(DistributionRegion.STATE_ACTIVE, zookeeperClient.getStateForDistributionRegion(distributionGroup));
 		distributionGroup.setSplit(10);
+		
+		Thread.sleep(1000);
 		Assert.assertEquals(10.0, distributionGroup.getSplit(), 0.0001);
+		Assert.assertEquals(DistributionRegion.STATE_SPLITTED, zookeeperClient.getStateForDistributionRegion(distributionGroup));
 
 		// Reread group from zookeeper
 		final DistributionRegion newDistributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);

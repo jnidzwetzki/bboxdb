@@ -56,51 +56,56 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	
 
 	
-	class NodeNames {
+	public class NodeNames {
 		/**
 		 * The prefix for nodes in sequential queues
 		 */
-		protected final static String SEQUENCE_QUEUE_PREFIX = "id-";
+		public final static String SEQUENCE_QUEUE_PREFIX = "id-";
 		
 		/**
 		 * Name of the left tree node
 		 */
-		protected final static String NAME_LEFT = "left";
+		public final static String NAME_LEFT = "left";
 		
 		/**
 		 * Name of the right tree node
 		 */
-		protected final static String NAME_RIGHT = "right";
+		public final static String NAME_RIGHT = "right";
 		
 		/**
 		 * Name of the split node
 		 */
-		protected final static String NAME_SPLIT = "split";
+		public final static String NAME_SPLIT = "split";
 		
 		/**
 		 * Name of the name prefix node
 		 */
-		protected final static String NAME_NAMEPREFIX = "nameprefix";
+		public final static String NAME_NAMEPREFIX = "nameprefix";
 		
 		/**
 		 * Name of the name prefix queue
 		 */
-		protected static final String NAME_PREFIXQUEUE = "nameprefixqueue";
+		public static final String NAME_PREFIXQUEUE = "nameprefixqueue";
 	
 		/**
 		 * Name of the replication node
 		 */
-		protected final static String NAME_REPLICATION = "replication";
+		public final static String NAME_REPLICATION = "replication";
 		
 		/**
 		 * Name of the systems node
 		 */
-		protected final static String NAME_SYSTEMS = "systems";
+		public final static String NAME_SYSTEMS = "systems";
 		
 		/**
 		 * Name of the version node
 		 */
-		protected final static String NAME_VERSION = "version";
+		public final static String NAME_VERSION = "version";
+		
+		/**
+		 * Name of the state node
+		 */
+		public final static String NAME_STATE = "state";
 	}
 	
 	/**
@@ -478,6 +483,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			child.setNameprefix(namePrefix);
 
 			child.setSystems(getSystemsForDistributionRegion(child));
+			child.setState(getStateForDistributionRegion(path));
 
 			// If the node is not split, stop recursion
 			if(! isGroupSplitted(path)) {
@@ -511,7 +517,53 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 	
 	/**
-	 * Test wheather the group path is splitted or not
+	 * Get the state for a given path
+	 * @throws ZookeeperException 
+	 */
+	public String getStateForDistributionRegion(final String path) throws ZookeeperException {
+		final String statePath = path + "/" + NodeNames.NAME_STATE;
+		return readPathAndReturnString(statePath, false);
+	}
+	
+	/**
+	 * Get the state for a given path
+	 * @return 
+	 * @throws ZookeeperException 
+	 */
+	public String getStateForDistributionRegion(final DistributionRegion region) throws ZookeeperException  {
+		final String path = getZookeeperPathForDistributionRegion(region);
+		return getStateForDistributionRegion(path);
+	}
+	
+	/**
+	 * Set the state for a given path
+	 * @param path
+	 * @param state
+	 * @throws ZookeeperException 
+	 */
+	public void setStateForDistributionGroup(final String path, final String state) throws ZookeeperException  {
+		final String statePath = path + "/" + NodeNames.NAME_STATE;
+		try {
+			zookeeper.setData(statePath, state.getBytes(), -1);
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
+	}
+	
+	/**
+	 * Set the state for a given distribution region
+	 * @param region
+	 * @param state
+	 * @throws ZookeeperException
+	 */
+	public void setStateForDistributionGroup(final DistributionRegion region, final String state) throws ZookeeperException  {
+		final String path = getZookeeperPathForDistributionRegion(region);
+		setStateForDistributionGroup(path, state);
+	}
+
+	
+	/**
+	 * Test weather the group path is split or not
 	 * @param path
 	 * @return
 	 * @throws ZookeeperException 
@@ -626,6 +678,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
 			zookeeper.create(path + "/" + NodeNames.NAME_VERSION, Long.toString(System.currentTimeMillis()).getBytes(), 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			
+			zookeeper.create(path + "/" + NodeNames.NAME_STATE, DistributionRegion.STATE_CREATED.getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
 		} catch (KeeperException | InterruptedException e) {

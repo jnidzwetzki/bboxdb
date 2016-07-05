@@ -227,6 +227,7 @@ public class ClientConnectionHandler implements Runnable {
 			
 			final DistributedInstance intance = new DistributedInstance(localIp, localPort, Const.VERSION);
 			zookeeperClient.addSystemToDistributionRegion(region, intance);
+			zookeeperClient.setStateForDistributionGroup(region, DistributionRegion.STATE_ACTIVE);
 			
 			waitForDistributionGroupReady(createPackage.getDistributionGroup());
 			
