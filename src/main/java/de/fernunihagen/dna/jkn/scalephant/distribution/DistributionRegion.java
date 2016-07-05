@@ -50,6 +50,11 @@ public class DistributionRegion {
 	protected BoundingBox converingBox;
 	
 	/**
+	 * The state of the region
+	 */
+	protected String state = STATE_CREATED;
+	
+	/**
 	 * The systems
 	 */
 	protected final Collection<DistributedInstance> systems;
@@ -63,6 +68,26 @@ public class DistributionRegion {
 	 * Is the node initialized or not
 	 */
 	protected volatile boolean ready;
+	
+	/**
+	 * State created
+	 */
+	public final static String STATE_CREATED = "created";
+	
+	/**
+	 * State active
+	 */
+	public final static String STATE_ACTIVE = "active";
+	
+	/**
+	 * State splitting
+	 */
+	public final static String STATE_SPLITTING = "splitting";
+	
+	/**
+	 * State splitted
+	 */
+	public final static String STATE_SPLITTED = "splitted";
 	
 	/**
 	 * Protected constructor, the factory method and the set split methods should
@@ -191,6 +216,22 @@ public class DistributionRegion {
 	}
 	
 	/**
+	 * Get the state of the node
+	 * @return
+	 */
+	public String getState() {
+		return state;
+	}
+
+	/**
+	 * Set the state of the node
+	 * @param state
+	 */
+	public void setState(final String state) {
+		this.state = state;
+	}
+
+	/**
 	 * Get the level of the region
 	 * @return
 	 */
@@ -225,9 +266,8 @@ public class DistributionRegion {
 	@Override
 	public String toString() {
 		return "DistributionRegion [distributionGroupName=" + distributionGroupName + ", totalLevel=" + totalLevel
-				+ ", split=" + split + ", level=" + level + ", converingBox=" + converingBox 
-				+ ", systems=" + systems + ", nameprefix="
-				+ nameprefix + ", ready=" + ready + "]";
+				+ ", split=" + split + ", level=" + level + ", converingBox=" + converingBox + ", state=" + state
+				+ ", systems=" + systems + ", nameprefix=" + nameprefix + ", ready=" + ready + "]";
 	}
 
 	/**

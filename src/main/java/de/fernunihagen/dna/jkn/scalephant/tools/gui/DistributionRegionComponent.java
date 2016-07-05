@@ -194,6 +194,8 @@ public class DistributionRegionComponent {
 		
 		sb.append("<br>");
 		sb.append("Nameprefix: " + distributionRegion.getNameprefix());
+		sb.append("<br>");
+		sb.append("State: " + distributionRegion.getState());
 		
 		sb.append("</html>");
 		return sb.toString();

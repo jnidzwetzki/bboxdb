@@ -15,6 +15,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 - Store the version number of the instances in zookeeper
 - Data is now stored in region tables
 - Added version number to distribution groups
+- Added state field to distribution groups
 
 ### Version 0.0.8 (Alpha) - 22.06.2016
 - Store Distribution Region assignment in zookeeper
