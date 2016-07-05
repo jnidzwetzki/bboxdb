@@ -20,6 +20,7 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 
 public class ChooseDistributionGroupDialog {
 
@@ -182,6 +183,11 @@ public class ChooseDistributionGroupDialog {
 					public void run() {
 						try {
 							while(! scalepahntGUI.shutdown) {
+								try {
+									guiModel.updateDistributionRegion();
+								} catch (ZookeeperException e) {
+									logger.warn("Got exception: ", e);
+								}
 								scalepahntGUI.updateView();
 								Thread.sleep(1000);
 							}

@@ -33,6 +33,11 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	protected DistributionRegion rootRegion;
 	
 	/**
+	 * The version of the root region
+	 */
+	protected String rootRegionVersion;
+	
+	/**
 	 * The reference to the gui window
 	 */
 	protected ScalephantGui scalephantGui;
@@ -89,7 +94,13 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 * @throws ZookeeperException 
 	 */
 	public void updateDistributionRegion() throws ZookeeperException {
-		rootRegion = client.readDistributionGroup(distributionGroup);
+		final String currentVersion = client.getVersionForDistributionGroup(distributionGroup);
+		
+		if(! currentVersion.equals(rootRegionVersion)) {
+			logger.info("Reread distribution group, version has changed: " + rootRegionVersion + " / " + currentVersion);
+			rootRegion = client.readDistributionGroup(distributionGroup);
+			rootRegionVersion = currentVersion;
+		}
 	}
 
 	/**
