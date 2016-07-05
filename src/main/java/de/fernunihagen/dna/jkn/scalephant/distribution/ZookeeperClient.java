@@ -95,6 +95,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected final static String NAME_SYSTEMS = "systems";
 	
 	/**
+	 * Name of the version node
+	 */
+	protected final static String NAME_VERSION = "version";
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
@@ -615,6 +620,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			
 			zookeeper.create(path + "/" + NAME_SYSTEMS, "".getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+
+			zookeeper.create(path + "/" + NAME_VERSION, Long.toString(System.currentTimeMillis()).getBytes(), 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
@@ -705,6 +713,18 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
 		} 
+	}
+	
+	/**
+	 * Get the version number of the distribution group
+	 * @param distributionGroup
+	 * @return
+	 * @throws ZookeeperException
+	 */
+	public String getVersionForDistributionGroup(final String distributionGroup) throws ZookeeperException {
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String fullPath = path + "/" + NAME_VERSION;
+		return readPathAndReturnString(fullPath, false);	 
 	}
 
 	/**
