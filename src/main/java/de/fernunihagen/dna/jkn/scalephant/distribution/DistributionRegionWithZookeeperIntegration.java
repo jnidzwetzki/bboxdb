@@ -45,7 +45,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		try {
 			// Update zookeeper path
 			zookeeperPath = zookeeperClient.getZookeeperPathForDistributionRegion(this);
-			zookeeperSystemsPath = zookeeperPath + "/" + ZookeeperClient.NAME_SYSTEMS;
+			zookeeperSystemsPath = zookeeperPath + "/" + ZookeeperClient.NodeNames.NAME_SYSTEMS;
 			
 			logger.info("Register watch for: " + zookeeperPath);
 			zookeeperClient.getChildren(zookeeperPath, this);
@@ -121,7 +121,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 			boolean splitExists = false;
 			
 			for(final String child : childs) {
-				if(child.endsWith(ZookeeperClient.NAME_SPLIT)) {
+				if(child.endsWith(ZookeeperClient.NodeNames.NAME_SPLIT)) {
 					splitExists = true;
 					break;
 				}
@@ -192,32 +192,32 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		final String zookeeperPath = zookeeperClient.getZookeeperPathForDistributionRegion(this);
 		
 		// Left child
-		final String leftPath = zookeeperPath + "/" + ZookeeperClient.NODE_LEFT;
+		final String leftPath = zookeeperPath + "/" + ZookeeperClient.NodeNames.NAME_LEFT;
 		logger.debug("Create: " + leftPath);
 		zookeeperClient.createPersistentNode(leftPath, "".getBytes());
 		
 		final int leftNamePrefix = zookeeperClient.getNextTableIdForDistributionGroup(getName());
-		zookeeperClient.createPersistentNode(leftPath + "/" + ZookeeperClient.NAME_NAMEPREFIX, 
+		zookeeperClient.createPersistentNode(leftPath + "/" + ZookeeperClient.NodeNames.NAME_NAMEPREFIX, 
 				Integer.toString(leftNamePrefix).getBytes());
-		zookeeperClient.createPersistentNode(leftPath + "/" + ZookeeperClient.NAME_SYSTEMS, 
+		zookeeperClient.createPersistentNode(leftPath + "/" + ZookeeperClient.NodeNames.NAME_SYSTEMS, 
 				"".getBytes());
 		leftChild.setNameprefix(leftNamePrefix);
 		
 		// Right child
-		final String rightPath = zookeeperPath + "/" + ZookeeperClient.NODE_RIGHT;
+		final String rightPath = zookeeperPath + "/" + ZookeeperClient.NodeNames.NAME_RIGHT;
 		logger.debug("Create: " + rightPath);
 		zookeeperClient.createPersistentNode(rightPath, "".getBytes());
 		
 		final int rightNamePrefix = zookeeperClient.getNextTableIdForDistributionGroup(getName());
-		zookeeperClient.createPersistentNode(rightPath + "/" + ZookeeperClient.NAME_NAMEPREFIX, 
+		zookeeperClient.createPersistentNode(rightPath + "/" + ZookeeperClient.NodeNames.NAME_NAMEPREFIX, 
 				Integer.toString(rightNamePrefix).getBytes());
-		zookeeperClient.createPersistentNode(rightPath + "/" + ZookeeperClient.NAME_SYSTEMS, 
+		zookeeperClient.createPersistentNode(rightPath + "/" + ZookeeperClient.NodeNames.NAME_SYSTEMS, 
 				"".getBytes());
 		rightChild.setNameprefix(rightNamePrefix);
 		
 		// Last step: write split position
 		final String splitPosString = Float.toString(getSplit());
-		zookeeperClient.createPersistentNode(zookeeperPath + "/" + ZookeeperClient.NAME_SPLIT, 
+		zookeeperClient.createPersistentNode(zookeeperPath + "/" + ZookeeperClient.NodeNames.NAME_SPLIT, 
 				splitPosString.getBytes());
 	}
 }
