@@ -4,8 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.util.Iterator;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.FloatInterval;
 
@@ -181,7 +183,15 @@ public class DistributionRegionComponent {
 			sb.append("<br>");
 		}
 		
-		sb.append("Systems: " + distributionRegion.getSystems());
+		sb.append("Systems: ");
+		
+		for(Iterator<DistributedInstance> iter = distributionRegion.getSystems().iterator(); iter.hasNext(); ) {
+			sb.append(iter.next().toGUIString());
+			if(iter.hasNext()) {
+				sb.append(", ");
+			}
+		}
+		
 		sb.append("<br>");
 		sb.append("Nameprefix: " + distributionRegion.getNameprefix());
 		

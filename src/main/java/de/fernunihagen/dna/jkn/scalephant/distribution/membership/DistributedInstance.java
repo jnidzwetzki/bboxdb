@@ -89,11 +89,19 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 		return true;
 	}
 
+	public String toGUIString() {
+		if(version == UNKOWN_VERSION) {
+			return "DistributedInstance [ip=" + ip + ", port=" + port + "]";
+		} else {
+			return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + "]";
+		}
+	}
+	
 	@Override
 	public String toString() {
 		return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + "]";
 	}
-
+	
 	/**
 	 * Get the inet socket address from the instance
 	 * @return
