@@ -21,12 +21,16 @@ public class RandomResourcePlacementStrategy implements ResourcePlacementStrateg
 	@Override
 	public DistributedInstance findSystemToAllocate(final Collection<DistributedInstance> systems) {
 
+		if(systems.isEmpty()) {
+			throw new IllegalArgumentException("Unable to choose a system, list of systems is empty");
+		}
+		
 		synchronized (systems) {
 			final List<DistributedInstance> elements = new ArrayList<DistributedInstance>(systems);
 			final int element = Math.abs(randomGenerator.nextInt()) % elements.size();
 			return elements.get(element);
 		}
-		
+
 	}
 
 }
