@@ -174,8 +174,14 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 			future.setFailedState();
 			return future;
 		} else {
-			final ScalephantClient scalephantClient = getSystemForNewRessources();
-			return scalephantClient.deleteDistributionGroup(distributionGroup);
+			for(final ScalephantClient client : serverConnections.values()) {
+				client.deleteDistributionGroup(distributionGroup);
+			}
+
+			// FIXME: 
+			final ClientOperationFuture future = new ClientOperationFuture();
+			future.setOperationResult("");
+			return future;
 		}
 	}
 
@@ -200,8 +206,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 
 	@Override
 	public boolean isConnected() {
-		// TODO Auto-generated method stub
-		return false;
+		return ! serverConnections.isEmpty();
 	}
 
 	@Override
@@ -234,7 +239,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 		logger.info("Opening connection to new node: " + distributedInstance);
 		
 		if(serverConnections.containsKey(distributedInstance)) {
-			logger.info("We allready have a connection to: " + distributedInstance);
+			logger.info("We already have a connection to: " + distributedInstance);
 			return;
 		}
 		
@@ -250,7 +255,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	}
 	
 	/**
-	 * Terminate the connection to a missing scalepahnt system
+	 * Terminate the connection to a missing scalephant system
 	 * @param distributedInstance 
 	 */
 	protected synchronized void terminateConnection(final DistributedInstance distributedInstance) {
@@ -292,10 +297,11 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 		scalephantCluster.connect();
 		
 		// Recreate distribution group
-		final ClientOperationFuture futureDelete = scalephantCluster.deleteDistributionGroup(GROUP);
-		futureDelete.get();
-		final ClientOperationFuture futureCreate = scalephantCluster.createDistributionGroup(GROUP, (short) 2);
-		futureCreate.get();
+		//final ClientOperationFuture futureDelete = scalephantCluster.deleteDistributionGroup(GROUP);
+		//futureDelete.get();
+		//final ClientOperationFuture futureCreate = scalephantCluster.createDistributionGroup(GROUP, (short) 2);
+		//futureCreate.get();
+		
 		
 		// Insert the tuples
 		final Random bbBoxRandom = new Random();
@@ -305,7 +311,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 			
 			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1);
 			
-			System.out.println("Inserting Tuple: " + boundingBox);
+			System.out.println("Inserting Tuple " + i + " : " + boundingBox);
 			
 			final ClientOperationFuture result = scalephantCluster.insertTuple(TABLE, new Tuple(Integer.toString(i), boundingBox, "abcdef".getBytes()));
 			result.get();
