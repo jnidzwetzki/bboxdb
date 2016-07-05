@@ -2,7 +2,6 @@ package de.fernunihagen.dna.jkn.scalephant.tools.gui;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class ChooseDistributionGroupDialog {
 	/**
 	 * The distribution groups
 	 */
-	protected final Collection<DistributionGroupName> distributionGroups;
+	protected final List<DistributionGroupName> distributionGroups;
 	
 	/**
 	 * The main frame
@@ -52,8 +51,7 @@ public class ChooseDistributionGroupDialog {
 	public ChooseDistributionGroupDialog(final List<DistributionGroupName> distributionGroups, final ZookeeperClient zookeeperClient) {
 		this.distributionGroups = new ArrayList<DistributionGroupName>(distributionGroups.size());
 		this.distributionGroups.addAll(distributionGroups);
-		Collections.sort(distributionGroups);
-		
+		Collections.sort(this.distributionGroups);
 		this.zookeeperClient = zookeeperClient;
 	}
 
