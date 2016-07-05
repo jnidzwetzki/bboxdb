@@ -33,6 +33,11 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	protected DistributionRegion rootRegion;
 	
 	/**
+	 * The replication factor for the distribution group
+	 */
+	protected short replicationFactor;
+	
+	/**
 	 * The version of the root region
 	 */
 	protected String rootRegionVersion;
@@ -100,6 +105,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 			logger.info("Reread distribution group, version has changed: " + rootRegionVersion + " / " + currentVersion);
 			rootRegion = client.readDistributionGroup(distributionGroup);
 			rootRegionVersion = currentVersion;
+			replicationFactor = client.getReplicationFactorForDistributionGroup(distributionGroup);
 		}
 	}
 
@@ -142,6 +148,22 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 */
 	public String getClustername() {
 		return client.getClustername();
+	}
+	
+	/**
+	 * Get the replication factor
+	 * @return
+	 */
+	public short getReplicationFactor() {
+		return replicationFactor;
+	}
+
+	/**
+	 * Set the replication factor
+	 * @param replicationFactor
+	 */
+	public void setReplicationFactor(final short replicationFactor) {
+		this.replicationFactor = replicationFactor;
 	}
 
 	/**

@@ -158,6 +158,7 @@ public class ScalephantGui {
 	            
 				g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);
 				g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 40);
+				g.drawString("Replication factor: " + guiModel.getReplicationFactor(), 10, 60);
 			}
 			
 			/**
