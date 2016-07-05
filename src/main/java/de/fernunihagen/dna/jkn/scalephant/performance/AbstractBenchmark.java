@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.performance;
 
+import java.util.Collection;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -9,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant;
-import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
+import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantCluster;
 
 public abstract class AbstractBenchmark implements Runnable {
 	
@@ -62,9 +63,10 @@ public abstract class AbstractBenchmark implements Runnable {
 		// Set the benchmark flag to active
 		benchmarkActive = true;
 		
-		// Connect to the scalephant server
-		final int port = ScalephantConfigurationManager.getConfiguration().getNetworkListenPort();
-		scalephantClient = new ScalephantClient("127.0.0.1", port);
+		// Connect to the scalephant cluster
+		final Collection<String> zookeeperNodes = ScalephantConfigurationManager.getConfiguration().getZookeepernodes();
+		final String clustername = ScalephantConfigurationManager.getConfiguration().getClustername();
+		scalephantClient = new ScalephantCluster(zookeeperNodes, clustername);
 		scalephantClient.connect();
 		
 		if(! scalephantClient.isConnected()) {
