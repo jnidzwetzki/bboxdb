@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
+import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
+import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.resource.RandomResourcePlacementStrategy;
@@ -67,7 +70,13 @@ public class SimpleSplitStrategy extends SSTableSplitter {
 		final DistributedInstance systemLeftChild = resourcePlacementStrategy.findSystemToAllocate(systems);
 		final DistributedInstance systemRightChild = resourcePlacementStrategy.findSystemToAllocate(systems);
 		
-		region.getLeftChild().addSystem(systemLeftChild);
-		region.getRightChild().addSystem(systemRightChild);
+		try {
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			zookeeperClient.addSystemToDistributionRegion(region.getLeftChild(), systemLeftChild);
+			zookeeperClient.addSystemToDistributionRegion(region.getRightChild(), systemRightChild);
+		} catch (ZookeeperException e) {
+			logger.warn("Unable to assign systems to splitted region: " + region, e);
+		}
+		
 	}
 }
