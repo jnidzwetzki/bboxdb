@@ -1,11 +1,16 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution.sstable;
 
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
+import de.fernunihagen.dna.jkn.scalephant.distribution.resource.RandomResourcePlacementStrategy;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.FloatInterval;
 
 public class SimpleSplitStrategy extends SSTableSplitter {
@@ -37,6 +42,7 @@ public class SimpleSplitStrategy extends SSTableSplitter {
 	protected void performSplit(final DistributionRegion region) {
 		logger.info("Performing split of region: " + region);
 		
+		// Split region
 		final int splitDimension = region.getSplitDimension();
 		final FloatInterval interval = region.getConveringBox().getIntervalForDimension(splitDimension);
 		
@@ -45,5 +51,16 @@ public class SimpleSplitStrategy extends SSTableSplitter {
 		
 		logger.info("Set split at:" + midpoint);
 		region.setSplit(midpoint);
+		
+		// Assign systems
+		final RandomResourcePlacementStrategy resourcePlacementStrategy = new RandomResourcePlacementStrategy();
+		DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
+		final Set<DistributedInstance> systems = distributedInstanceManager.getInstances();
+		
+		final DistributedInstance systemLeftChild = resourcePlacementStrategy.findSystemToAllocate(systems);
+		final DistributedInstance systemRightChild = resourcePlacementStrategy.findSystemToAllocate(systems);
+		
+		region.getLeftChild().addSystem(systemLeftChild);
+		region.getRightChild().addSystem(systemRightChild);
 	}
 }
