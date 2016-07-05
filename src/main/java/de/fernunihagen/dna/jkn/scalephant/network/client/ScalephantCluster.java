@@ -41,6 +41,11 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	protected volatile short maxInFlightCalls = MAX_IN_FLIGHT_CALLS;
 	
 	/**
+	 * The pending calls
+	 */
+	protected final Map<Short, ClientOperationFuture> pendingCalls = new HashMap<Short, ClientOperationFuture>();
+	
+	/**
 	 * The server connections
 	 */
 	protected final Map<DistributedInstance, ScalephantClient> serverConnections;
@@ -217,8 +222,9 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 
 	@Override
 	public int getInFlightCalls() {
-		// TODO Auto-generated method stub
-		return 0;
+		synchronized (pendingCalls) {
+			return pendingCalls.size();
+		}
 	}
 
 	@Override
@@ -297,10 +303,10 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 		scalephantCluster.connect();
 		
 		// Recreate distribution group
-		//final ClientOperationFuture futureDelete = scalephantCluster.deleteDistributionGroup(GROUP);
-		//futureDelete.get();
-		//final ClientOperationFuture futureCreate = scalephantCluster.createDistributionGroup(GROUP, (short) 2);
-		//futureCreate.get();
+		final ClientOperationFuture futureDelete = scalephantCluster.deleteDistributionGroup(GROUP);
+		futureDelete.get();
+		final ClientOperationFuture futureCreate = scalephantCluster.createDistributionGroup(GROUP, (short) 2);
+		futureCreate.get();
 		
 		
 		// Insert the tuples
