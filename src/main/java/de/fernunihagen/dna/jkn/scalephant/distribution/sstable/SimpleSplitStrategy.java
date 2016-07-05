@@ -40,6 +40,15 @@ public class SimpleSplitStrategy extends SSTableSplitter {
 	 */
 	@Override
 	protected void performSplit(final DistributionRegion region) {
+		
+		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
+		final Set<DistributedInstance> systems = distributedInstanceManager.getInstances();
+		
+		if(systems.isEmpty()) {
+			logger.warn("Unable to split region, no ressources are avilable: " + region);
+			return;
+		}
+		
 		logger.info("Performing split of region: " + region);
 		
 		// Split region
@@ -54,8 +63,6 @@ public class SimpleSplitStrategy extends SSTableSplitter {
 		
 		// Assign systems
 		final RandomResourcePlacementStrategy resourcePlacementStrategy = new RandomResourcePlacementStrategy();
-		DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
-		final Set<DistributedInstance> systems = distributedInstanceManager.getInstances();
 		
 		final DistributedInstance systemLeftChild = resourcePlacementStrategy.findSystemToAllocate(systems);
 		final DistributedInstance systemRightChild = resourcePlacementStrategy.findSystemToAllocate(systems);
