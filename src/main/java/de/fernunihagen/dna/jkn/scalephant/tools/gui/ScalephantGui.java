@@ -166,6 +166,8 @@ public class ScalephantGui {
 			@Override
 			public String getToolTipText(final MouseEvent event) {
 
+				System.out.println(guiModel.getRootRegion());
+				
 	            for(final DistributionRegionComponent component : regions) {
 	            	if(component.isMouseOver(event)) {
 	            		return component.getToolTipText();

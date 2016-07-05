@@ -140,10 +140,11 @@ public class ChooseDistributionGroupDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				zookeeperClient.startMembershipObserver();
-				mainframe.dispose();
 				final String distributionGroup = (String) distributionGroupBox.getSelectedItem();
 				showMainDialog(distributionGroup, zookeeperClient);
+				
+				zookeeperClient.startMembershipObserver();
+				mainframe.dispose();
 			}
 
 			/**
@@ -161,17 +162,19 @@ public class ChooseDistributionGroupDialog {
 				scalepahntGUI.run();
 				guiModel.setDistributionGroup(distributionGroup);
 				
-				startNewMainThread(zookeeperClient, scalepahntGUI);
+				startNewMainThread(zookeeperClient, scalepahntGUI, guiModel);
 			}
 
 			/**
 			 * The main thread
 			 * @param zookeeperClient
 			 * @param scalepahntGUI
+			 * @param guiModel 
 			 */
 			protected void startNewMainThread(
 					final ZookeeperClient zookeeperClient,
-					final ScalephantGui scalepahntGUI) {
+					final ScalephantGui scalepahntGUI,
+					final GuiModel guiModel) {
 				
 				// Start a new update thread
 				(new Thread(new Runnable() {

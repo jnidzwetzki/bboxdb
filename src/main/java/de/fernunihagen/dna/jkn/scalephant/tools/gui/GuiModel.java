@@ -88,7 +88,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 * Update the distribution region
 	 * @throws ZookeeperException 
 	 */
-	protected void updateDistributionRegion() throws ZookeeperException {
+	public void updateDistributionRegion() throws ZookeeperException {
 		rootRegion = client.readDistributionGroup(distributionGroup);
 	}
 
