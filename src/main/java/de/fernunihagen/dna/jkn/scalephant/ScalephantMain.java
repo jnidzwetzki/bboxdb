@@ -58,6 +58,9 @@ public class ScalephantMain implements Daemon {
 			logger.info("Starting service: " + service.getServicename());
 			service.init();
 		}
+		
+		// Read membership
+		ZookeeperClientFactory.getZookeeperClient().startMembershipObserver();
 	}
 
 	/**
