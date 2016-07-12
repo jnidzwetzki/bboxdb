@@ -290,8 +290,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param localIp
 	 * @param localPort
 	 */
-	public void registerScalephantInstanceAfterConnect(final String localIp, final Integer localPort) {
-		this.instancename = new DistributedInstance(localIp, localPort, Const.VERSION);
+	public void registerScalephantInstanceAfterConnect(final DistributedInstance instance) {
+		this.instancename = instance;
 	}
 
 	/**

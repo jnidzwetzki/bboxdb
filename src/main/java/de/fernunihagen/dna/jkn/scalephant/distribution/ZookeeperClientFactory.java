@@ -4,8 +4,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 
 public class ZookeeperClientFactory {
 	
@@ -41,15 +43,26 @@ public class ZookeeperClientFactory {
 		
 		final Collection<String> zookeepernodes = scalephantConfiguration.getZookeepernodes();
 		final String clustername = scalephantConfiguration.getClustername();
-		final String localIp = scalephantConfiguration.getLocalip();
-		final int localPort = scalephantConfiguration.getNetworkListenPort();
-		
+
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, clustername);
-		zookeeperClient.registerScalephantInstanceAfterConnect(localIp, localPort);
+		final DistributedInstance instance = getLocalInstanceName(scalephantConfiguration);
+		zookeeperClient.registerScalephantInstanceAfterConnect(instance);
 		
 		// Register instance
 		instances.put(scalephantConfiguration, zookeeperClient);
 		
 		return zookeeperClient;
+	}
+
+	/**
+	 * Get the name of the local instance
+	 * @param scalephantConfiguration
+	 * @return
+	 */
+	public static DistributedInstance getLocalInstanceName(final ScalephantConfiguration scalephantConfiguration) {
+		final String localIp = scalephantConfiguration.getLocalip();
+		final int localPort = scalephantConfiguration.getNetworkListenPort();
+		final DistributedInstance instance = new DistributedInstance(localIp, localPort, Const.VERSION);
+		return instance;
 	}
 }
