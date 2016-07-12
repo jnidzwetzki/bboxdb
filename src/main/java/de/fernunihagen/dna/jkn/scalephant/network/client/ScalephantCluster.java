@@ -2,8 +2,8 @@ package de.fernunihagen.dna.jkn.scalephant.network.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -16,18 +16,14 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
-import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
-import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.DistributedInstanceAddEvent;
-import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.DistributedInstanceDeleteEvent;
-import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.DistributedInstanceEvent;
-import de.fernunihagen.dna.jkn.scalephant.distribution.membership.event.DistributedInstanceEventCallback;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.MembershipConnectionService;
 import de.fernunihagen.dna.jkn.scalephant.distribution.resource.RandomResourcePlacementStrategy;
 import de.fernunihagen.dna.jkn.scalephant.distribution.resource.ResourcePlacementStrategy;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
-public class ScalephantCluster implements Scalephant, DistributedInstanceEventCallback {
+public class ScalephantCluster implements Scalephant {
 	
 	/**
 	 * The zookeeper connection
@@ -44,16 +40,16 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	 * The pending calls
 	 */
 	protected final Map<Short, ClientOperationFuture> pendingCalls = new HashMap<Short, ClientOperationFuture>();
-	
+
 	/**
-	 * The server connections
-	 */
-	protected final Map<DistributedInstance, ScalephantClient> serverConnections;
-	
-	/**
-	 * The ressource placement strategy
+	 * The resource placement strategy
 	 */
 	protected final ResourcePlacementStrategy resourcePlacementStrategy;
+	
+	/**
+	 * The membership connection service
+	 */
+	protected final MembershipConnectionService membershipConnectionService;
 	
 	/**
 	 * The Logger
@@ -67,34 +63,22 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	 */
 	public ScalephantCluster(final Collection<String> zookeeperNodes, final String clustername) {
 		zookeeperClient = new ZookeeperClient(zookeeperNodes, clustername);
-		final HashMap<DistributedInstance, ScalephantClient> connectionMap = new HashMap<DistributedInstance, ScalephantClient>();
-		serverConnections = Collections.synchronizedMap(connectionMap);
 		resourcePlacementStrategy = new RandomResourcePlacementStrategy();
+		membershipConnectionService = new MembershipConnectionService();
 	}
 
 	@Override
 	public boolean connect() {
 		zookeeperClient.init();
-		DistributedInstanceManager.getInstance().registerListener(this);
 		zookeeperClient.startMembershipObserver();
+		membershipConnectionService.init();
 		return zookeeperClient.isConnected();
 	}
 
 	@Override
 	public boolean disconnect() {
-		zookeeperClient.shutdown();
-		
-		// Close all connections
-		synchronized (serverConnections) {
-			for(final DistributedInstance instance : serverConnections.keySet()) {
-				final ScalephantClient client = serverConnections.get(instance);
-				logger.info("Disconnecting from: " + instance);
-				client.disconnect();
-			}
-			
-			serverConnections.clear();
-		}
-		
+		membershipConnectionService.shutdown();
+		zookeeperClient.shutdown();		
 		return true;
 	}
 
@@ -119,7 +103,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 			for(final DistributedInstance system : systems) {
 				logger.info("Sending call to:  " + system);
 	
-				final ScalephantClient connection = serverConnections.get(system);
+				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
 				result = connection.insertTuple(table, tuple);
 			}
 			
@@ -146,7 +130,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	public ClientOperationFuture createDistributionGroup(
 			final String distributionGroup, final short replicationFactor) {
 
-		if(serverConnections.size() == 0) {
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("createDistributionGroup called, but connection list is empty");
 			final ClientOperationFuture future = new ClientOperationFuture();
 			future.setFailedState();
@@ -158,14 +142,13 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	}
 
 	/**
-	 * Find a system with free ressources
+	 * Find a system with free resources
 	 * @return
 	 */
 	protected ScalephantClient getSystemForNewRessources() {
-		synchronized (serverConnections) {
-			final DistributedInstance system = resourcePlacementStrategy.findSystemToAllocate(serverConnections.keySet());
-			return serverConnections.get(system);
-		}
+		final List<DistributedInstance> serverConnections = membershipConnectionService.getAllInstances();
+		final DistributedInstance system = resourcePlacementStrategy.findSystemToAllocate(serverConnections);
+		return membershipConnectionService.getConnectionForInstance(system);
 	}
 	
 
@@ -173,13 +156,13 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 	public ClientOperationFuture deleteDistributionGroup(
 			final String distributionGroup) {
 
-		if(serverConnections.size() == 0) {
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("deleteDistributionGroup called, but connection list is empty");
 			final ClientOperationFuture future = new ClientOperationFuture();
 			future.setFailedState();
 			return future;
 		} else {
-			for(final ScalephantClient client : serverConnections.values()) {
+			for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
 				client.deleteDistributionGroup(distributionGroup);
 			}
 
@@ -211,7 +194,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 
 	@Override
 	public boolean isConnected() {
-		return ! serverConnections.isEmpty();
+		return (membershipConnectionService.getNumberOfConnections() > 0);
 	}
 
 	@Override
@@ -237,58 +220,7 @@ public class ScalephantCluster implements Scalephant, DistributedInstanceEventCa
 		this.maxInFlightCalls = maxInFlightCalls;
 	}
 	
-	/**
-	 * Add a new connection to a scalephant system
-	 * @param distributedInstance
-	 */
-	protected synchronized void createConnection(final DistributedInstance distributedInstance) {
-		logger.info("Opening connection to new node: " + distributedInstance);
-		
-		if(serverConnections.containsKey(distributedInstance)) {
-			logger.info("We already have a connection to: " + distributedInstance);
-			return;
-		}
-		
-		final ScalephantClient client = new ScalephantClient(distributedInstance.getInetSocketAddress());
-		final boolean result = client.connect();
-		
-		if(! result) {
-			logger.info("Unable to open connection to: " + distributedInstance);
-		} else {
-			logger.info("Connection successfully established: " + distributedInstance);
-			serverConnections.put(distributedInstance, client);
-		}
-	}
-	
-	/**
-	 * Terminate the connection to a missing scalephant system
-	 * @param distributedInstance 
-	 */
-	protected synchronized void terminateConnection(final DistributedInstance distributedInstance) {
-		
-		logger.info("Closing connections to terminating node: " + distributedInstance);
-		
-		if(! serverConnections.containsKey(distributedInstance)) {
-			return;
-		}
-		
-		final ScalephantClient client = serverConnections.remove(distributedInstance);
-		client.disconnect();
-	}
 
-	/**
-	 * Handle membership events	
-	 */
-	@Override
-	public void distributedInstanceEvent(final DistributedInstanceEvent event) {
-		if(event instanceof DistributedInstanceAddEvent) {
-			createConnection(event.getInstance());
-		} else if(event instanceof DistributedInstanceDeleteEvent) {
-			terminateConnection(event.getInstance());
-		} else {
-			logger.warn("Unknown event: " + event);
-		}
-	}
 	
 	//===============================================================
 	// Test * Test * Test * Test * Test * Test * Test * Test

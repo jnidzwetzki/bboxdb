@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.MembershipConnectionService;
 import de.fernunihagen.dna.jkn.scalephant.network.server.NetworkConnectionService;
 
 public class ScalephantMain implements Daemon {
@@ -31,9 +33,26 @@ public class ScalephantMain implements Daemon {
 				
 		// The zookeeper client
 		services.add(ZookeeperClientFactory.getZookeeperClient());
+		
+		// The membership connection service
+		services.add(createMembershipService());
 
 		// The network connection handler
 		services.add(createConnectionHandler());		
+	}
+
+	/**
+	 * Retuns a new instance of the membership service
+	 * @return
+	 */
+	public MembershipConnectionService createMembershipService() {
+		final MembershipConnectionService membershipService = new MembershipConnectionService();
+		
+		// Prevent network connections to ourself
+		final DistributedInstance localhost = ZookeeperClientFactory.getLocalInstanceName(ScalephantConfigurationManager.getConfiguration());
+		membershipService.addSystemToBlacklist(localhost);
+		
+		return membershipService;
 	}
 
 	/**
