@@ -7,9 +7,11 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
     0         8       16       24       32
 	+---------+--------+--------+--------+
 	| Version |  Type  |   Request-ID    |
-	+---------+--------+-----------------+
-	| Routed  |  Hop   | Length of hosts |
-	+---------+--------+-----------------+
+	+---------+--------+--------+--------+
+	| Routed  |       Hop       | Unused |
+	+---------+--------+--------+--------+
+	|  Length of hosts |                 |
+	+------------------+                 |
 	|  Comma separated list of hosts     |
 	+------------------------------------+
 	|            Body-Length             |
