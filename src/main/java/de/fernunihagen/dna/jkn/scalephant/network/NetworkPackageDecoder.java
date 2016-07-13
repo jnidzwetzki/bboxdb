@@ -13,7 +13,7 @@ public class NetworkPackageDecoder {
 	private final static Logger logger = LoggerFactory.getLogger(NetworkPackageDecoder.class);
 
 	/**
-	 * Encapsulate the encoded package into a bytebuffer
+	 * Encapsulate the encoded package into a byte buffer
 	 * 
 	 * @param encodedPackage
 	 * @return
@@ -65,7 +65,7 @@ public class NetworkPackageDecoder {
 	}
 	
 	/**
-	 * Get the request id form a reponse package
+	 * Get the request id form a response package
 	 * @param bb
 	 * @return the request id
 	 */
@@ -135,7 +135,7 @@ public class NetworkPackageDecoder {
 	 * @return
 	 */
 	public static long getBodyLengthFromRequestPackage(final ByteBuffer bb) {
-		// Set positon
+		// Set position
 		bb.position(4);
 		
 		// Read the body length
@@ -182,7 +182,7 @@ public class NetworkPackageDecoder {
 	 * @return
 	 */
 	public static long getBodyLengthFromResponsePackage(final ByteBuffer bb) {
-		// Set positon
+		// Set position
 		bb.position(4);
 		
 		// Read the body length
