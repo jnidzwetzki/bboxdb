@@ -10,10 +10,8 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 	+---------+--------+--------+--------+
 	| Routed  |       Hop       | Unused |
 	+---------+--------+--------+--------+
-	|  Length of hosts |                 |
-	+------------------+                 |
-	|  Comma separated list of hosts     |
-	+------------------------------------+
+	|  Length of hosts |  Routing-List   |
+	+------------------+-----------------+
 	|            Body-Length             |
 	|                                    |
 	+------------------------------------+
@@ -31,7 +29,7 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 * Routed - Does the package contain routing information (0x01) or not (0x0).
 * Hop - The hop of the package. Is set to 0x00 if the package is not routed.
 * Length of host - The length of the host list. Will be set to 0x00 if the package is not routed.
-* Comma separated list of hosts - The list of hosts for package routing. The format of the list is: [host1:port,host2:port,...].
+* Routing-List - A comma separated list of hosts for package routing. The format of the list is: [host1:port,host2:port,...].
 * Body length - The length of the body as a long value.
 
 Request Types:
