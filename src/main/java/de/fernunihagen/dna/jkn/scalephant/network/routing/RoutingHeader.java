@@ -2,6 +2,9 @@ package de.fernunihagen.dna.jkn.scalephant.network.routing;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 
 public class RoutingHeader {
@@ -24,13 +27,23 @@ public class RoutingHeader {
 	/**
 	 * The flag for direct packages
 	 */
-	public static byte DIRECT_PACKAGE = 0x00;
+	public final static byte DIRECT_PACKAGE = 0x00;
 	
 	/**
 	 * The flag for routed packages
 	 */
-	public static byte ROUTED_PACKAGE = 0x01;
+	public final static byte ROUTED_PACKAGE = 0x01;
+
+	/**
+	 * The separator char for the host / hop list
+	 */
+	public final static String SEPARATOR_CHAR = ",";
 	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(RoutingHeader.class);
+
 	
 	public RoutingHeader() {
 	
@@ -69,7 +82,7 @@ public class RoutingHeader {
 	 * Set the current hop
 	 * @param hop
 	 */
-	public void setHop(short hop) {
+	public void setHop(final short hop) {
 		this.hop = hop;
 	}
 
@@ -87,6 +100,39 @@ public class RoutingHeader {
 	 */
 	public void setHops(final List<DistributedInstance> hops) {
 		this.hops = hops;
+	}
+	
+	/**
+	 * Set the list with hops (as string list)
+	 * @param hops
+	 */
+	public void setHops(final String hopList) {
+		final String[] parts = hopList.split(SEPARATOR_CHAR);
+		hops.clear();
+		
+		for(final String hop : parts) {
+			try {
+				final DistributedInstance distributedInstance = new DistributedInstance(hop);
+				hops.add(distributedInstance);
+			} catch(IllegalArgumentException e) {
+				logger.warn("Unable to parse as distributed instance: " + hop);
+			}
+		}
+	}
+	
+	/**
+	 * Get the hop list as string list
+	 * @return
+	 */
+	public String getHopList() {
+		final StringBuilder sb = new StringBuilder();
+		for(final DistributedInstance distributedInstance : hops) {
+			if(sb.length() != 0) {
+				sb.append(SEPARATOR_CHAR);
+			}
+			sb.append(distributedInstance.getStringValue());
+		}
+		return sb.toString();
 	}
 	
 }
