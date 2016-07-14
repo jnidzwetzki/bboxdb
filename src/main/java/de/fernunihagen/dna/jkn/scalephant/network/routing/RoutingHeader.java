@@ -107,8 +107,16 @@ public class RoutingHeader {
 	 * @param stringRoutingList
 	 */
 	public void setRoutingList(final String stringRoutingList) {
-		final String[] parts = stringRoutingList.split(SEPARATOR_CHAR);
+		
 		routingList.clear();
+		
+		// Routing list is empty
+		if(stringRoutingList == null || stringRoutingList.length() == 0) {
+			return;
+		}
+		
+		final String[] parts = stringRoutingList.split(SEPARATOR_CHAR);
+		
 		
 		for(final String hop : parts) {
 			try {
