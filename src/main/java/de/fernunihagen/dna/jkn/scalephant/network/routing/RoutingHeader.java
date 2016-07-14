@@ -22,7 +22,7 @@ public class RoutingHeader {
 	/**
 	 * The hops for this package
 	 */
-	protected List<DistributedInstance> hops;
+	protected List<DistributedInstance> routingList;
 
 	/**
 	 * The flag for direct packages
@@ -51,7 +51,7 @@ public class RoutingHeader {
 	
 	@Override
 	public String toString() {
-		return "RoutingHeader [routedPackage=" + routedPackage + ", hop=" + hop + ", hops=" + hops + "]";
+		return "RoutingHeader [routedPackage=" + routedPackage + ", hop=" + hop + ", routingList=" + routingList + "]";
 	}
 
 	/**
@@ -91,29 +91,29 @@ public class RoutingHeader {
 	 * @return
 	 */
 	public List<DistributedInstance> getHops() {
-		return hops;
+		return routingList;
 	}
 
 	/**
 	 * Set the list with hops
-	 * @param hops
+	 * @param routingList
 	 */
-	public void setHops(final List<DistributedInstance> hops) {
-		this.hops = hops;
+	public void setRoutingList(final List<DistributedInstance> routingList) {
+		this.routingList = routingList;
 	}
 	
 	/**
 	 * Set the list with hops (as string list)
-	 * @param hops
+	 * @param stringRoutingList
 	 */
-	public void setHops(final String hopList) {
-		final String[] parts = hopList.split(SEPARATOR_CHAR);
-		hops.clear();
+	public void setRoutingList(final String stringRoutingList) {
+		final String[] parts = stringRoutingList.split(SEPARATOR_CHAR);
+		routingList.clear();
 		
 		for(final String hop : parts) {
 			try {
 				final DistributedInstance distributedInstance = new DistributedInstance(hop);
-				hops.add(distributedInstance);
+				routingList.add(distributedInstance);
 			} catch(IllegalArgumentException e) {
 				logger.warn("Unable to parse as distributed instance: " + hop);
 			}
@@ -126,7 +126,7 @@ public class RoutingHeader {
 	 */
 	public String getHopList() {
 		final StringBuilder sb = new StringBuilder();
-		for(final DistributedInstance distributedInstance : hops) {
+		for(final DistributedInstance distributedInstance : routingList) {
 			if(sb.length() != 0) {
 				sb.append(SEPARATOR_CHAR);
 			}
