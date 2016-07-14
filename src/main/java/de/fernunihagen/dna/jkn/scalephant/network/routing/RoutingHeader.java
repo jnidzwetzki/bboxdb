@@ -90,7 +90,7 @@ public class RoutingHeader {
 	 * Get the list with hops
 	 * @return
 	 */
-	public List<DistributedInstance> getHops() {
+	public List<DistributedInstance> getRoutingList() {
 		return routingList;
 	}
 
@@ -124,7 +124,7 @@ public class RoutingHeader {
 	 * Get the hop list as string list
 	 * @return
 	 */
-	public String getRoutingList() {
+	public String getRoutingListAsString() {
 		final StringBuilder sb = new StringBuilder();
 		for(final DistributedInstance distributedInstance : routingList) {
 			if(sb.length() != 0) {
