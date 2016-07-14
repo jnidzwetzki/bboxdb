@@ -16,6 +16,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 - Data is now stored in region tables
 - Added version number to distribution groups
 - Added state field to distribution groups
+- Implemented membership connection service
 
 ### Version 0.0.8 (Alpha) - 22.06.2016
 - Store Distribution Region assignment in zookeeper
