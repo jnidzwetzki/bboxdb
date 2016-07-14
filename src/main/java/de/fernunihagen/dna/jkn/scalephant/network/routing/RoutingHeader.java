@@ -124,7 +124,7 @@ public class RoutingHeader {
 	 * Get the hop list as string list
 	 * @return
 	 */
-	public String getHopList() {
+	public String getRoutingList() {
 		final StringBuilder sb = new StringBuilder();
 		for(final DistributedInstance distributedInstance : routingList) {
 			if(sb.length() != 0) {
