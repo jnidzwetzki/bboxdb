@@ -11,6 +11,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
+import de.fernunihagen.dna.jkn.scalephant.tools.DataEncoderHelper;
 
 public class SSTableReader extends AbstractTableReader {
 
@@ -124,9 +125,9 @@ public class SSTableReader extends AbstractTableReader {
 		
 		final short keyLength = memory.getShort();
 
-		final int remainingTupleSize = SSTableHelper.INT_BYTES  // BBOX-Length
-				+ SSTableHelper.INT_BYTES 						// Data-Length
-				+ SSTableHelper.LONG_BYTES;						// Timestamp
+		final int remainingTupleSize = DataEncoderHelper.INT_BYTES  // BBOX-Length
+				+ DataEncoderHelper.INT_BYTES 						// Data-Length
+				+ DataEncoderHelper.LONG_BYTES;						// Timestamp
 		
 		memory.position(memory.position() + remainingTupleSize);
 		

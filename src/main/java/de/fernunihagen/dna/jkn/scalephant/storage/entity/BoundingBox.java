@@ -6,7 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
+import de.fernunihagen.dna.jkn.scalephant.tools.DataEncoderHelper;
 
 public class BoundingBox implements Comparable<BoundingBox> {
 	
@@ -98,7 +98,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	public byte[] toByteArray() {
 		final float[] values = toFloatArray();
 		
-		return SSTableHelper.floatArrayToIEEE754ByteBuffer(values).array();
+		return DataEncoderHelper.floatArrayToIEEE754ByteBuffer(values).array();
 	}
 
 	/**
@@ -121,7 +121,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @return
 	 */
 	public static BoundingBox fromByteArray(final byte[] boxBytes) {
-		final float[] floatArray = SSTableHelper.readIEEE754FloatArrayFromByte(boxBytes);
+		final float[] floatArray = DataEncoderHelper.readIEEE754FloatArrayFromByte(boxBytes);
 		return new BoundingBox(floatArray);
 	}
 	

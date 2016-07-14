@@ -14,6 +14,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.tools.DataEncoderHelper;
 
 public class SSTableWriter implements AutoCloseable {
 	
@@ -246,14 +247,14 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	protected void writeTupleToFile(final Tuple tuple) throws IOException {
 		final byte[] keyBytes = tuple.getKey().getBytes();
-		final ByteBuffer keyLengthBytes = SSTableHelper.shortToByteBuffer((short) keyBytes.length);
+		final ByteBuffer keyLengthBytes = DataEncoderHelper.shortToByteBuffer((short) keyBytes.length);
 
 		final byte[] boundingBoxBytes = tuple.getBoundingBoxBytes();
 		final byte[] data = tuple.getDataBytes();
 		
-		final ByteBuffer boxLengthBytes = SSTableHelper.intToByteBuffer(boundingBoxBytes.length);
-		final ByteBuffer dataLengthBytes = SSTableHelper.intToByteBuffer(data.length);
-	    final ByteBuffer timestampBytes = SSTableHelper.longToByteBuffer(tuple.getTimestamp());
+		final ByteBuffer boxLengthBytes = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
+		final ByteBuffer dataLengthBytes = DataEncoderHelper.intToByteBuffer(data.length);
+	    final ByteBuffer timestampBytes = DataEncoderHelper.longToByteBuffer(tuple.getTimestamp());
 	    
 	    sstableOutputStream.write(keyLengthBytes.array());
 		sstableOutputStream.write(boxLengthBytes.array());
@@ -279,7 +280,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws IOException
 	 */
 	protected void writeIndexEntry(int tuplePosition) throws IOException {
-		final ByteBuffer tuplePositionBytes = SSTableHelper.intToByteBuffer(tuplePosition);
+		final ByteBuffer tuplePositionBytes = DataEncoderHelper.intToByteBuffer(tuplePosition);
 		sstableIndexOutputStream.write(tuplePositionBytes.array());
 	}
 
