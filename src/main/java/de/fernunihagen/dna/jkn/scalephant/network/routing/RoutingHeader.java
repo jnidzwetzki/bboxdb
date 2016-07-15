@@ -49,6 +49,16 @@ public class RoutingHeader {
 	
 	}
 	
+	public RoutingHeader(final boolean routedPackage) {
+		this.routedPackage = routedPackage;
+	}
+
+	public RoutingHeader(final boolean routedPackage, final short hop, final List<DistributedInstance> routingList) {
+		this.routedPackage = routedPackage;
+		this.hop = hop;
+		this.routingList = routingList;
+	}
+
 	@Override
 	public String toString() {
 		return "RoutingHeader [routedPackage=" + routedPackage + ", hop=" + hop + ", routingList=" + routingList + "]";
