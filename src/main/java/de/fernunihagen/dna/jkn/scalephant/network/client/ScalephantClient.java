@@ -450,7 +450,7 @@ public class ScalephantClient implements Scalephant {
 		 */
 		protected ByteBuffer readNextResponsePackageHeader() throws IOException {
 			final ByteBuffer bb = ByteBuffer.allocate(12);
-			NetworkHelper.readExactlyBytes(inputStream, bb.array(), bb.limit());
+			NetworkHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
 			return bb;
 		}
 		
@@ -602,13 +602,10 @@ public class ScalephantClient implements Scalephant {
 		final int headerLength = packageHeader.limit();
 		final ByteBuffer encodedPackage = ByteBuffer.allocate(headerLength + bodyLength);
 		
-		
 		try {
 			//System.out.println("Trying to read: " + bodyLength + " avail " + inputStream.available());
-			final byte packetBytes[] = new byte[bodyLength];
-			NetworkHelper.readExactlyBytes(inputStream, packetBytes, bodyLength);
 			encodedPackage.put(packageHeader.array());
-			encodedPackage.put(packetBytes);
+			NetworkHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
 		} catch (IOException e) {
 			logger.error("IO-Exception while reading package", e);
 			return null;

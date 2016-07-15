@@ -98,7 +98,7 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected ByteBuffer readNextPackageHeader() throws IOException {
 		final ByteBuffer bb = ByteBuffer.allocate(12);
-		NetworkHelper.readExactlyBytes(inputStream, bb.array(), bb.limit());
+		NetworkHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
 		return bb;
 	}
 
@@ -529,11 +529,9 @@ public class ClientConnectionHandler implements Runnable {
 		final ByteBuffer encodedPackage = ByteBuffer.allocate(headerLength + bodyLength);
 		
 		try {
-			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());
-			final byte packetBytes[] = new byte[bodyLength];
-			NetworkHelper.readExactlyBytes(inputStream, packetBytes, bodyLength);
+			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());			
 			encodedPackage.put(packageHeader.array());
-			encodedPackage.put(packetBytes);
+			NetworkHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
 		} catch (IOException e) {
 			logger.error("IO-Exception while reading package", e);
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;

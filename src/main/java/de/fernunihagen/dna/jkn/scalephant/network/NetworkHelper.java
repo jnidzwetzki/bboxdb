@@ -12,22 +12,22 @@ public class NetworkHelper {
 	 * @throws IOException 
 	 */
 	public static void readExactlyBytes(final InputStream inputStream, 
-			final byte[] buffer, final int bytesToRead) throws IOException {
-		
-		int offset = 0;
-		
+			final byte[] buffer, final int offset, final int bytesToRead) throws IOException {
+				
 		if(buffer.length < bytesToRead) {
-			throw new IllegalArgumentException("Unable to read " + bytesToRead + " into a buffer with size " + buffer.length);
+			throw new IllegalArgumentException("Unable to read " + bytesToRead + " bytes into a buffer with size " + buffer.length);
 		}
 		
-		while(offset < bytesToRead) {
-			int bytesRead = inputStream.read(buffer, offset, (bytesToRead - offset));
+		int totalReadBytes = 0;
+		
+		while(totalReadBytes < bytesToRead) {
+			int bytesRead = inputStream.read(buffer, offset + totalReadBytes, (bytesToRead - totalReadBytes));
 			
 			if(bytesRead <= 0) {
 				throw new IOException("Return code on read operation: " + bytesRead);
 			}
 			
-			offset = offset + bytesRead;
+			totalReadBytes = totalReadBytes + bytesRead;
 		}
 		
 	}
