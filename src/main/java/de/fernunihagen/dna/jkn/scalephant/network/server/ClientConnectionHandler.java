@@ -24,6 +24,7 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.nameprefix.NameprefixInst
 import de.fernunihagen.dna.jkn.scalephant.distribution.nameprefix.NameprefixMapper;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.CreateDistributionGroupRequest;
@@ -97,7 +98,7 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected ByteBuffer readNextPackageHeader() throws IOException {
 		final ByteBuffer bb = ByteBuffer.allocate(12);
-		inputStream.read(bb.array(), 0, bb.limit());
+		NetworkHelper.readExactlyBytes(inputStream, bb.array(), bb.limit());
 		return bb;
 	}
 
@@ -523,12 +524,16 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) {
 		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
-		final ByteBuffer encodedPackage = ByteBuffer.allocate(packageHeader.limit() + bodyLength);
-		encodedPackage.put(packageHeader.array());
+		final int headerLength = packageHeader.limit();
+		
+		final ByteBuffer encodedPackage = ByteBuffer.allocate(headerLength + bodyLength);
 		
 		try {
 			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());
-			inputStream.read(encodedPackage.array(), encodedPackage.position(), bodyLength);
+			final byte packetBytes[] = new byte[bodyLength];
+			NetworkHelper.readExactlyBytes(inputStream, packetBytes, bodyLength);
+			encodedPackage.put(packageHeader.array());
+			encodedPackage.put(packetBytes);
 		} catch (IOException e) {
 			logger.error("IO-Exception while reading package", e);
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;

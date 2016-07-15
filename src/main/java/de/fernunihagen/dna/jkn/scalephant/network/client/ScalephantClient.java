@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
+import de.fernunihagen.dna.jkn.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.CreateDistributionGroupRequest;
@@ -449,13 +450,7 @@ public class ScalephantClient implements Scalephant {
 		 */
 		protected ByteBuffer readNextResponsePackageHeader() throws IOException {
 			final ByteBuffer bb = ByteBuffer.allocate(12);
-			int read = inputStream.read(bb.array(), 0, bb.limit());
-			
-			// Read error
-			if(read == -1) {
-				return null;
-			}
-			
+			NetworkHelper.readExactlyBytes(inputStream, bb.array(), bb.limit());
 			return bb;
 		}
 		
@@ -604,12 +599,16 @@ public class ScalephantClient implements Scalephant {
 	 */
 	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) {
 		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromResponsePackage(packageHeader);
-		final ByteBuffer encodedPackage = ByteBuffer.allocate(packageHeader.limit() + bodyLength);
-		encodedPackage.put(packageHeader.array());
+		final int headerLength = packageHeader.limit();
+		final ByteBuffer encodedPackage = ByteBuffer.allocate(headerLength + bodyLength);
+		
 		
 		try {
 			//System.out.println("Trying to read: " + bodyLength + " avail " + inputStream.available());
-			inputStream.read(encodedPackage.array(), encodedPackage.position(), bodyLength);
+			final byte packetBytes[] = new byte[bodyLength];
+			NetworkHelper.readExactlyBytes(inputStream, packetBytes, bodyLength);
+			encodedPackage.put(packageHeader.array());
+			encodedPackage.put(packetBytes);
 		} catch (IOException e) {
 			logger.error("IO-Exception while reading package", e);
 			return null;
