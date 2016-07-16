@@ -57,7 +57,7 @@ public class NetworkPackageEncoder {
 	}
 	
 	/**
-	 * Return a bate array output stream for response packages that contains
+	 * Return a byte array output stream for response packages that contains
 	 * the header of the package
 	 * @param packageType
 	 * @return
