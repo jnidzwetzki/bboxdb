@@ -37,7 +37,7 @@ public class NetworkHelper {
 	 * @param bytesToSkip
 	 * @throws IOException
 	 */
-	public void skipBytesExcactly(final InputStream inputStream, final int bytesToSkip) throws IOException {
+	public static void skipBytesExcactly(final InputStream inputStream, final int bytesToSkip) throws IOException {
 		int totalSkipBytes = 0;
 		
 		while(totalSkipBytes < bytesToSkip) {
