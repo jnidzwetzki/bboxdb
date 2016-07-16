@@ -28,8 +28,22 @@ public class NetworkHelper {
 			}
 			
 			totalReadBytes = totalReadBytes + bytesRead;
-		}
+		}	
+	}
+	
+	/**
+	 * The exactly n bytes in the input stream
+	 * @param inputStream
+	 * @param bytesToSkip
+	 * @throws IOException
+	 */
+	public void skipBytesExcactly(final InputStream inputStream, final int bytesToSkip) throws IOException {
+		int totalSkipBytes = 0;
 		
+		while(totalSkipBytes < bytesToSkip) {
+			int skippedBytes = (int) inputStream.skip(bytesToSkip);
+			totalSkipBytes = totalSkipBytes + skippedBytes;
+		}
 	}
 
 }
