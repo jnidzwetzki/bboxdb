@@ -37,7 +37,7 @@ public class SSTableConst {
 	/**
 	 * The Byte order for encoded values
 	 */
-	public final static ByteOrder SSTABLE_BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
+	public final static ByteOrder SSTABLE_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 	
 	/**
 	 * Format of the index file:
