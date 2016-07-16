@@ -58,6 +58,12 @@ public class RoutingHeader {
 		this.hop = hop;
 		this.routingList = routingList;
 	}
+	
+	public RoutingHeader(final boolean routedPackage, final short hop, final String routingList) {
+		this.routedPackage = routedPackage;
+		this.hop = hop;
+		setRoutingList(routingList);
+	}
 
 	@Override
 	public String toString() {
