@@ -158,5 +158,36 @@ public class RoutingHeader {
 		}
 		return sb.toString();
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + hop;
+		result = prime * result + (routedPackage ? 1231 : 1237);
+		result = prime * result + ((routingList == null) ? 0 : routingList.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RoutingHeader other = (RoutingHeader) obj;
+		if (hop != other.hop)
+			return false;
+		if (routedPackage != other.routedPackage)
+			return false;
+		if (routingList == null) {
+			if (other.routingList != null)
+				return false;
+		} else if (!routingList.equals(other.routingList))
+			return false;
+		return true;
+	}
 	
 }
