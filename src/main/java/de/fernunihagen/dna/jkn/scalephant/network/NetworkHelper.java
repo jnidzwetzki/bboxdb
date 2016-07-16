@@ -41,7 +41,7 @@ public class NetworkHelper {
 		int totalSkipBytes = 0;
 		
 		while(totalSkipBytes < bytesToSkip) {
-			int skippedBytes = (int) inputStream.skip(bytesToSkip);
+			int skippedBytes = (int) inputStream.skip((bytesToSkip - totalSkipBytes));
 			totalSkipBytes = totalSkipBytes + skippedBytes;
 		}
 	}
