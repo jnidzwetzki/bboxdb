@@ -3,19 +3,20 @@ package de.fernunihagen.dna.jkn.scalephant.performance;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
-import org.openstreetmap.osmosis.core.domain.v0_6.EntityType;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
-import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
-import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 import crosby.binary.osmosis.OsmosisReader;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
+import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMEntityFilter;
+import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMTrafficSignalEntityFilter;
+import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMTreeEntityFilter;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
@@ -32,6 +33,11 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	protected final static String DISTRIBUTION_GROUP = "2_osmgroup";
 	
 	/**
+	 * The filter
+	 */
+	protected final static Map<String, OSMEntityFilter> filter = new HashMap<String, OSMEntityFilter>();
+	
+	/**
 	 * The filename to parse
 	 */
 	protected final String filename;
@@ -45,6 +51,11 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	 * The name of the table to insert data into
 	 */
 	protected final String table;
+	
+	static {
+		filter.put("tree", new OSMTreeEntityFilter());
+		filter.put("trafficsignals", new OSMTrafficSignalEntityFilter());
+	}
 
 	public BenchmarkOSMInsertPerformance(final String filename, final String type) {
 		this.filename = filename;
@@ -83,20 +94,10 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 				public void process(final EntityContainer entityContainer) {
 					
 					if(entityContainer.getEntity() instanceof Node) {
-						final Node node = (Node) entityContainer.getEntity();
-						boolean importEntity = false;
-						for(final Tag tag : node.getTags()) {
-							//System.out.println(node.getId() + " " + tag.getKey() + " " + tag.getValue());
-							
-							// Filter
-							if(type.equals("tree")) {
-								if(tag.getKey().equals("natural") && tag.getValue().equals("tree")) {
-									importEntity = true;
-								}
-							}
-						}
+						final Node node = (Node) entityContainer.getEntity();						
+						final OSMEntityFilter entityFilter = filter.get(type);
 						
-						if(importEntity) {
+						if(entityFilter.forwardNode(node)) {
 							final BoundingBox boundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
 							final Tuple tuple = new Tuple(Long.toString(node.getId()), boundingBox, "abc".getBytes());
 							scalephantClient.insertTuple(table, tuple);
@@ -169,7 +170,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		
 		// Check parameter
 		if(args.length != 2) {
-			System.err.println("Usage: programm <filename> <type:tree>");
+			System.err.println("Usage: programm <filename> <type:tree|trafficsignals>");
 			System.exit(-1);
 		}
 		
@@ -184,7 +185,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		}
 		
 		// Check type
-		if(! type.equals("tree")) {
+		if(! filter.keySet().contains(type)) {
 			System.err.println("Unknown type: " + type);
 			System.exit(-1);
 		}
@@ -192,5 +193,6 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		final BenchmarkOSMInsertPerformance benchmarkInsertPerformance = new BenchmarkOSMInsertPerformance(filename, type);
 		benchmarkInsertPerformance.run();
 	}
+
 	
 }
