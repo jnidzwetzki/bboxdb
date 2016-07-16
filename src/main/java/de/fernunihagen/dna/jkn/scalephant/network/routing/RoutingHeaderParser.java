@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.network.routing;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +20,7 @@ public class RoutingHeaderParser {
 	private final static Logger logger = LoggerFactory.getLogger(RoutingHeaderParser.class);
 	
 	/**
-	 * Decode the routing header from a byte buffer
+	 * Decode the routing header from a input stream
 	 * @param bb
 	 * @return
 	 * @throws IOException 
@@ -41,6 +42,32 @@ public class RoutingHeaderParser {
 		} else {
 			return decodeRoutedPackage(inputStream);
 		} 
+	}
+	
+	/**
+	 * Read the routing header from a byte buffer
+	 * @param bb
+	 * @return
+	 * @throws IOException
+	 */
+	public static RoutingHeader decodeRoutingHeader(final ByteBuffer bb) throws IOException {
+		final ByteArrayInputStream bis = new ByteArrayInputStream(bb.array(), bb.position(), bb.remaining());
+				
+		final RoutingHeader routingHeader = decodeRoutingHeader(bis);
+		skipRoutingHeader(bb);
+		return routingHeader;
+	}
+	
+	/**
+	 * Skip the bytes of the routing header
+	 * @param bb
+	 */
+	public static void skipRoutingHeader(final ByteBuffer bb) {
+		bb.get(); 		// Routed or direct
+		bb.getShort(); 	// Hop
+		bb.get(); 		// Unused
+		final short routingListLength = bb.getShort();	// Routing list length
+		bb.position(bb.position() + routingListLength);
 	}
 	
 	/**
@@ -79,12 +106,7 @@ public class RoutingHeaderParser {
 	 */
 	protected static RoutingHeader decodeDirectPackage(final InputStream inputStream) throws IOException {
 		// Skip 5 unused bytes
-		int skipped = 0;
-		
-		while(skipped != 5) {
-			skipped = (int) (skipped + inputStream.skip(5 - skipped));
-		}
-		
+		NetworkHelper.skipBytesExcactly(inputStream, 5);
 		return new RoutingHeader(false);
 	}
 

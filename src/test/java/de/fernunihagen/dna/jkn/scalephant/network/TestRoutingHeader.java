@@ -2,6 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.network;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,6 +102,42 @@ public class TestRoutingHeader {
 		final ByteArrayInputStream bis = new ByteArrayInputStream(encodedBytes);
 		final RoutingHeader resultRoutingHeader = RoutingHeaderParser.decodeRoutingHeader(bis);
 		
+		Assert.assertEquals(routingHeader, resultRoutingHeader);
+	}
+	
+	/**
+	 * Test the encoding and the decoding of an routed package
+	 * @throws IOException 
+	 */
+	@Test
+	public void testRoutedPackageHeader3() throws IOException {
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "node1:12,node2:23");
+		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
+		final ByteBuffer bb = ByteBuffer.wrap(encodedBytes);
+		bb.order(NetworkConst.NETWORK_BYTEORDER);
+		Assert.assertEquals(0, bb.position());
+		
+		final RoutingHeader resultRoutingHeader = RoutingHeaderParser.decodeRoutingHeader(bb);
+		
+		Assert.assertEquals(0, bb.remaining());
+		Assert.assertEquals(routingHeader, resultRoutingHeader);
+	}
+	
+	/**
+	 * Test the encoding and the decoding of an routed package
+	 * @throws IOException 
+	 */
+	@Test
+	public void testRoutedPackageHeader4() throws IOException {
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "");
+		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
+		final ByteBuffer bb = ByteBuffer.wrap(encodedBytes);
+		bb.order(NetworkConst.NETWORK_BYTEORDER);
+		Assert.assertEquals(0, bb.position());
+		
+		final RoutingHeader resultRoutingHeader = RoutingHeaderParser.decodeRoutingHeader(bb);
+		
+		Assert.assertEquals(0, bb.remaining());
 		Assert.assertEquals(routingHeader, resultRoutingHeader);
 	}
 }
