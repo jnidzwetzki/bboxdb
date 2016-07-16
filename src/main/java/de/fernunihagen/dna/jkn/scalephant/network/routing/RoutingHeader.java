@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.network.routing;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ public class RoutingHeader {
 	/**
 	 * The hops for this package
 	 */
-	protected List<DistributedInstance> routingList;
+	protected final List<DistributedInstance> routingList = new ArrayList<DistributedInstance>();
 
 	/**
 	 * The flag for direct packages
@@ -56,7 +57,7 @@ public class RoutingHeader {
 	public RoutingHeader(final boolean routedPackage, final short hop, final List<DistributedInstance> routingList) {
 		this.routedPackage = routedPackage;
 		this.hop = hop;
-		this.routingList = routingList;
+		this.routingList.addAll(routingList);
 	}
 	
 	public RoutingHeader(final boolean routedPackage, final short hop, final String routingList) {
@@ -115,7 +116,8 @@ public class RoutingHeader {
 	 * @param routingList
 	 */
 	public void setRoutingList(final List<DistributedInstance> routingList) {
-		this.routingList = routingList;
+		this.routingList.clear();
+		this.routingList.addAll(routingList);
 	}
 	
 	/**
