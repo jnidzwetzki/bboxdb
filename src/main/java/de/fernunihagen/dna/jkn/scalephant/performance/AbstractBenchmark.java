@@ -70,7 +70,7 @@ public abstract class AbstractBenchmark implements Runnable {
 		scalephantClient.connect();
 		
 		if(! scalephantClient.isConnected()) {
-			throw new Exception("Connection could not be established");
+			throw new Exception("Connection could not be established: " + zookeeperNodes);
 		}
 		
 		executorService = Executors.newScheduledThreadPool(10);		
