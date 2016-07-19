@@ -19,6 +19,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
 
@@ -63,8 +64,6 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 	 */
 	@Override
 	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
-		
-		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -79,14 +78,14 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 			bb.putLong(sstable.length());
 			bb.putLong(keyIndex.length());
 			
-			// Write body length
+			// Body length
 			final long bodyLength = bb.capacity() + tableBytes.length 
 					+ metadata.length() + sstable.length() + keyIndex.length();
 			
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
-			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
-			bodyLengthBuffer.putLong(bodyLength);
-			outputStream.write(bodyLengthBuffer.array());
+			// Unrouted package
+			final RoutingHeader routingHeader = new RoutingHeader(false);
+			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader,
+					getPackageType(), outputStream);
 			
 			// Write body
 			outputStream.write(bb.array());
@@ -138,9 +137,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 	public static boolean decodeTuple(final ByteBuffer packageHeader, final long bodyLength, 
 			final ScalephantConfiguration configuration, final InputStream inputStream) throws IOException {
 		
-		final String dataDirectory = configuration.getDataDirectory();
-		
-		// Read the package until the data streams (4 Byte Tablename, 3x8 Byte Datalength = 28 Byte)
+		// Read the package until the data streams (4 byte table name, 3x8 byte data length = 28 bytes)
 		final int partialBodyLength = packageHeader.limit() + 28;
 		final ByteBuffer partialPackage = ByteBuffer.allocate(partialBodyLength);
 		partialPackage.put(packageHeader.array());
@@ -173,6 +170,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 		inputStream.read(tableBytes, 0, tableBytes.length);
 		final String table = new String(tableBytes);
 		
+		final String dataDirectory = configuration.getDataDirectory();
 		final File directoryHandle = new File(SSTableHelper.getSSTableDir(dataDirectory, table));
 		
 		if( ! checkDirectoryAndCreate(directoryHandle) ) {

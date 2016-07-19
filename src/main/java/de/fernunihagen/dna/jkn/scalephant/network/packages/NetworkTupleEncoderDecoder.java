@@ -1,7 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.network.packages;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
@@ -47,11 +47,15 @@ public class NetworkTupleEncoderDecoder {
 	/**
 	 * Write the tuple and the table onto a ByteArrayOutputStream
 	 * @param bos
+	 * @param routingHeader 
 	 * @param tuple
 	 * @param table
+	 * @return 
 	 * @throws IOException
 	 */
-	public static void encode(final OutputStream bos, final Tuple tuple, final String table) throws IOException {
+	public static byte[] encode(final Tuple tuple, final String table) throws IOException {
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		
 		final byte[] tableBytes = table.getBytes();
 		final byte[] keyBytes = tuple.getKey().getBytes();
 		final byte[] bboxBytes = tuple.getBoundingBoxBytes();
@@ -63,22 +67,17 @@ public class NetworkTupleEncoderDecoder {
 		bb.putInt(bboxBytes.length);
 		bb.putInt(tuple.getDataBytes().length);
 		bb.putLong(tuple.getTimestamp());
-		
-		// Write body length
-		final long bodyLength = bb.capacity() + tableBytes.length 
-				+ keyBytes.length + bboxBytes.length + tuple.getDataBytes().length;
-		
-		final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
-		bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
-		bodyLengthBuffer.putLong(bodyLength);
-		bos.write(bodyLengthBuffer.array());
-		
+
 		// Write body
 		bos.write(bb.array());
 		bos.write(tableBytes);
 		bos.write(keyBytes);
 		bos.write(bboxBytes);
 		bos.write(tuple.getDataBytes());
+		
+		bos.close();
+		
+		return bos.toByteArray();
 	}
 
 }

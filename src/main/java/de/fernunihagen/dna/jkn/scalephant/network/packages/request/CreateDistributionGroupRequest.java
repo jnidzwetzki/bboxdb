@@ -11,6 +11,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
 
 public class CreateDistributionGroupRequest implements NetworkRequestPackage {
 	
@@ -37,8 +38,6 @@ public class CreateDistributionGroupRequest implements NetworkRequestPackage {
 	@Override
 	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
 
-		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
-		
 		try {
 			final byte[] groupBytes = distributionGroup.getBytes();
 			
@@ -47,13 +46,13 @@ public class CreateDistributionGroupRequest implements NetworkRequestPackage {
 			bb.putShort((short) groupBytes.length);
 			bb.putShort(replicationFactor);
 			
-			// Write body length
+			// Body length
 			final long bodyLength = bb.capacity() + groupBytes.length;
-			
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
-			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
-			bodyLengthBuffer.putLong(bodyLength);
-			outputStream.write(bodyLengthBuffer.array());
+
+			// Unrouted package
+			final RoutingHeader routingHeader = new RoutingHeader(false);
+			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, 
+					routingHeader, getPackageType(), outputStream);
 			
 			// Write body
 			outputStream.write(bb.array());

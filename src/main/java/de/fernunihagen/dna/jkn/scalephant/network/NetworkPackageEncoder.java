@@ -8,6 +8,9 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
+import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeaderParser;
+
 public class NetworkPackageEncoder {
 
 	/**
@@ -17,19 +20,28 @@ public class NetworkPackageEncoder {
 	
 	/**
 	 * Append the request package header to the output stream
+	 * @param routingHeader 
+	 * @param bodyLength 
 	 * @param sequenceNumberGenerator 
 	 * @param packageType
 	 * @param bos
 	 */
-	public static void appendRequestPackageHeader(final short sequenceNumber, final byte packageType, final OutputStream bos) {
-		final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+	public static void appendRequestPackageHeader(final short sequenceNumber, final long bodyLength, 
+			final RoutingHeader routingHeader, final byte packageType, final OutputStream bos) {
+		
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(12);
 		byteBuffer.order(NetworkConst.NETWORK_BYTEORDER);
 		byteBuffer.put(NetworkConst.PROTOCOL_VERSION);
 		byteBuffer.put(packageType);
 		byteBuffer.putShort(sequenceNumber);
+		byteBuffer.putLong(bodyLength);
 
 		try {
 			bos.write(byteBuffer.array());
+			
+			// Write routing header
+			final byte[] routingHeaderBytes = RoutingHeaderParser.encodeHeader(routingHeader);
+			bos.write(routingHeaderBytes);
 		} catch (IOException e) {
 			logger.error("Exception while writing", e);
 		}

@@ -12,6 +12,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkTupleEncoderDecoder;
+import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.TupleAndTable;
@@ -74,11 +75,20 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 
 	@Override
 	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
-		
-		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
 
 		try {
-			NetworkTupleEncoderDecoder.encode(outputStream, tuple, table.getFullname());
+			final byte[] tupleAsByte = NetworkTupleEncoderDecoder.encode(tuple, table.getFullname());
+			
+			// Body length
+			final long bodyLength = tupleAsByte.length;
+			
+			// Unrouted package
+			final RoutingHeader routingHeader = new RoutingHeader(false);
+			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
+					getPackageType(), outputStream);
+
+			// Write tuple
+			outputStream.write(tupleAsByte);
 		} catch (IOException e) {
 			logger.error("Got exception while converting package into bytes", e);
 		}		

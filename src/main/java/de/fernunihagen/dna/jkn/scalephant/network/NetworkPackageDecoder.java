@@ -1,9 +1,13 @@
 package de.fernunihagen.dna.jkn.scalephant.network;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
+import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeaderParser;
 
 public class NetworkPackageDecoder {
 	
@@ -111,7 +115,11 @@ public class NetworkPackageDecoder {
 		// Read request id
 		bb.getShort();
 		
+		// Read body lengh
 		final long bodyLength = bb.getLong();
+		
+		// Read header
+		RoutingHeaderParser.skipRoutingHeader(bb);
 		
 		return bb.remaining() == bodyLength;
 	}
@@ -127,6 +135,17 @@ public class NetworkPackageDecoder {
 		
 		// Read request id
 		return bb.getShort();
+	}
+	
+	/**
+	 * Decode the routing header from package header
+	 * @param bb
+	 * @return
+	 * @throws IOException 
+	 */
+	public static RoutingHeader getRoutingHeaderFromRequestPackage(final ByteBuffer bb) throws IOException {
+		bb.position(12);
+		return RoutingHeaderParser.decodeRoutingHeader(bb);
 	}
 	
 	/**
@@ -149,7 +168,9 @@ public class NetworkPackageDecoder {
 	 */
 	public static byte getQueryTypeFromRequest(final ByteBuffer bb) {
 		// Set the position
-		bb.position(12);
+		bb.position(4);
+		RoutingHeaderParser.skipRoutingHeader(bb);
+		bb.getLong();
 		
 		return bb.get();
 	}

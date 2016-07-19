@@ -1,6 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.network.packages.request;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
@@ -11,6 +10,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
 
 public class ListTablesRequest implements NetworkRequestPackage {
 	
@@ -22,16 +22,16 @@ public class ListTablesRequest implements NetworkRequestPackage {
 	
 	@Override
 	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
-		
-		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, getPackageType(), outputStream);
 
 		try {
-			// Body is empty
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
-			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
-			bodyLengthBuffer.putLong(0);
-			outputStream.write(bodyLengthBuffer.array());
-		} catch (IOException e) {
+			// Write body length
+			final long bodyLength = 0;
+			
+			// Unrouted package
+			final RoutingHeader routingHeader = new RoutingHeader(false);
+			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
+					getPackageType(), outputStream);
+		} catch (Exception e) {
 			logger.error("Got exception while converting package into bytes", e);
 		}	
 	}

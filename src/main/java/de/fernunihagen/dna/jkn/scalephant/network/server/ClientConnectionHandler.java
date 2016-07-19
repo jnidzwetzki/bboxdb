@@ -42,6 +42,8 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupl
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupleStartResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
+import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeaderParser;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
@@ -99,7 +101,15 @@ public class ClientConnectionHandler implements Runnable {
 	protected ByteBuffer readNextPackageHeader() throws IOException {
 		final ByteBuffer bb = ByteBuffer.allocate(12);
 		NetworkHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
-		return bb;
+		
+		final RoutingHeader routingHeader = RoutingHeaderParser.decodeRoutingHeader(inputStream);
+		final byte[] routingHeaderBytes = RoutingHeaderParser.encodeHeader(routingHeader);
+		
+		final ByteBuffer header = ByteBuffer.allocate(bb.limit() + routingHeaderBytes.length);
+		header.put(bb.array());
+		header.put(routingHeaderBytes);
+		
+		return header;
 	}
 
 	/**
@@ -137,8 +147,17 @@ public class ClientConnectionHandler implements Runnable {
 			if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 				logger.error("Unable to read data from socket (state: " + connectionState + ")", e);
 			}
+		} catch(Throwable e) {
+			logger.error("Got an expcetion during execution: ", e);
 		}
 		
+		closeSocketNE();
+	}
+
+	/**
+	 * Close the socket without throwing an exception
+	 */
+	protected void closeSocketNE() {
 		try {
 			clientSocket.close();
 		} catch (IOException e) {

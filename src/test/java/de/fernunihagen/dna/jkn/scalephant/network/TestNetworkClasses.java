@@ -27,6 +27,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.ListTablesRe
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
@@ -102,13 +103,15 @@ public class TestNetworkClasses {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
-		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, NetworkConst.REQUEST_TYPE_INSERT_TUPLE, bos);
+		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, 10, new RoutingHeader(false),
+				NetworkConst.REQUEST_TYPE_INSERT_TUPLE, bos);
+		
 		bos.flush();
 		bos.close();
 
 		final byte[] encodedPackage = bos.toByteArray();
 		
-		Assert.assertTrue(encodedPackage.length == 4);
+		Assert.assertEquals(18, encodedPackage.length);
 		
 		final ByteBuffer bb = ByteBuffer.wrap(encodedPackage);
 		bb.order(NetworkConst.NETWORK_BYTEORDER);
@@ -229,16 +232,16 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testDecodeKeyQuery() throws IOException {
-		final String table = "table1";
+		final String table = "1_mygroup_table1";
 		final String key = "key1";
 		
 		final QueryKeyRequest queryKeyRequest = new QueryKeyRequest(table, key);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		byte[] encodedPackage = networkPackageToByte(queryKeyRequest, sequenceNumber);
+		final byte[] encodedPackage = networkPackageToByte(queryKeyRequest, sequenceNumber);
 		Assert.assertNotNull(encodedPackage);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
+		final boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
 		Assert.assertTrue(result);
 
 		final QueryKeyRequest decodedPackage = QueryKeyRequest.decodeTuple(bb);
@@ -371,8 +374,8 @@ public class TestNetworkClasses {
 		byte[] encodedPackage = networkPackageToByte(insertPackage, sequenceNumber);
 		Assert.assertNotNull(encodedPackage);
 		
-		// 12 Byte package header
-		int calculatedBodyLength = encodedPackage.length - 12;
+		// 18 Byte package header
+		int calculatedBodyLength = encodedPackage.length - 18;
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		long bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(bb);
 		

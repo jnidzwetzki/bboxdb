@@ -14,6 +14,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackag
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkTupleEncoderDecoder;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.TupleAndTable;
+import de.fernunihagen.dna.jkn.scalephant.tools.DataEncoderHelper;
 
 public class TupleResponse extends NetworkResponsePackage {
 	
@@ -45,13 +46,16 @@ public class TupleResponse extends NetworkResponsePackage {
 
 	@Override
 	public byte[] getByteArray() {
-		final NetworkPackageEncoder networkPackageEncoder 
-			= new NetworkPackageEncoder();
-
+		
+		final NetworkPackageEncoder networkPackageEncoder = new NetworkPackageEncoder();
+		
 		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
 
 			try {
-				NetworkTupleEncoderDecoder.encode(bos, tuple, table);
+				final byte[] encodedBytes = NetworkTupleEncoderDecoder.encode(tuple, table);
+				final ByteBuffer lengthBytes = DataEncoderHelper.longToByteBuffer(encodedBytes.length);
+				bos.write(lengthBytes.array());
+				bos.write(encodedBytes);
 				bos.close();
 			} catch (IOException e) {
 				logger.error("Got exception while converting package into bytes", e);

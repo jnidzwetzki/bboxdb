@@ -472,9 +472,11 @@ public class ScalephantClient implements Scalephant {
 				handleResultPackage(bb);
 				
 			} catch (IOException e) {
+				
 				// Ignore exceptions when connection is closing
 				if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 					logger.error("Unable to read data from server (state: " + connectionState + ")", e);
+					return false;
 				}
 			}
 			
