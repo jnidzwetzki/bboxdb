@@ -1,8 +1,10 @@
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
-import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
+import de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant;
+import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantCluster;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
@@ -20,11 +22,17 @@ public class ScalephantClientExample {
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		
 		// A 2 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
-		final String distributuionGroup = "2_mygroup3"; 
-		final String mytable = distributuionGroup + "_testdata";
+		final String distributionGroup = "2_mygroup3"; 
+		final String mytable = distributionGroup + "_testdata";
+		
+		// The name of the cluster
+		final String clustername = "mycluster";
+		
+		// The zookeeper connect points
+		final List<String> connectPoints = Arrays.asList("localhost:2181");
 		
 		// Connect to the server
-		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1");
+		final Scalephant scalephantClient = new ScalephantCluster(connectPoints, clustername);
 		scalephantClient.connect();
 		
 		// Check the connection state
@@ -37,7 +45,7 @@ public class ScalephantClientExample {
 		final ClientOperationFuture deleteGroupResult = scalephantClient.deleteDistributionGroup(distributionGroup);
 		deleteGroupResult.get();
 		if(deleteGroupResult.isFailed()) {
-			System.err.println("Unable to delete distribution group: " + distributuionGroup);
+			System.err.println("Unable to delete distribution group: " + distributionGroup);
 			System.exit(-1);
 		}
 		
@@ -45,7 +53,7 @@ public class ScalephantClientExample {
 		final ClientOperationFuture createGroupResult = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
 		createGroupResult.get();
 		if(createGroupResult.isFailed()) {
-			System.err.println("Unable to create distribution group: " + distributuionGroup);
+			System.err.println("Unable to create distribution group: " + distributionGroup);
 			System.exit(-1);
 		}
 		
