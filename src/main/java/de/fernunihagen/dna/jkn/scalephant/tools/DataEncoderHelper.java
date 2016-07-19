@@ -2,7 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.tools;
 
 import java.nio.ByteBuffer;
 
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableConst;
+import de.fernunihagen.dna.jkn.scalephant.Const;
 
 public class DataEncoderHelper {
 	
@@ -39,7 +39,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer longArrayToByteBuffer(long longValues[]) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(LONG_BYTES * longValues.length);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		
 		for(int i = 0; i < longValues.length; i++) {
 			byteBuffer.putLong(longValues[i]);
@@ -55,7 +55,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer floatArrayToIEEE754ByteBuffer(float floatValues[]) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(FLOAT_IEEE754_BYTES * floatValues.length);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		
 		for(int i = 0; i < floatValues.length; i++) {
 			byteBuffer.putInt(Float.floatToIntBits(floatValues[i]));
@@ -71,7 +71,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer floatArrayToByteBuffer(float floatValues[]) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(FLOAT_BYTES * floatValues.length);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		
 		for(int i = 0; i < floatValues.length; i++) {
 			byteBuffer.putFloat(floatValues[i]);
@@ -88,7 +88,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer longToByteBuffer(long longValue) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(LONG_BYTES);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		byteBuffer.putLong(longValue);
 		return byteBuffer;
 	}
@@ -101,7 +101,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer intToByteBuffer(int intValue) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(INT_BYTES);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		byteBuffer.putInt(intValue);
 		return byteBuffer;		
 	}
@@ -113,7 +113,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer shortToByteBuffer(short shortValue) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(SHORT_BYTES);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		byteBuffer.putShort(shortValue);
 		return byteBuffer;		
 	}
@@ -127,7 +127,7 @@ public class DataEncoderHelper {
 		final int totalValues = buffer.length / LONG_BYTES;
 		long values[] = new long[totalValues];
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		
 		for(int i = 0; i < totalValues; i++) {
 			values[i] = byteBuffer.getLong(i * LONG_BYTES);
@@ -145,7 +145,7 @@ public class DataEncoderHelper {
 		final int totalValues = buffer.length / FLOAT_IEEE754_BYTES;
 		float values[] = new float[totalValues];
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		
 		for(int i = 0; i < totalValues; i++) {
 			final int value = byteBuffer.getInt(i * FLOAT_IEEE754_BYTES);
@@ -164,7 +164,7 @@ public class DataEncoderHelper {
 		final int totalValues = buffer.length / FLOAT_BYTES;
 		float values[] = new float[totalValues];
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		
 		for(int i = 0; i < totalValues; i++) {
 			values[i] = byteBuffer.getFloat(i * FLOAT_BYTES);
@@ -180,7 +180,7 @@ public class DataEncoderHelper {
 	 */
 	public static long readLongFromByte(byte[] buffer) {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		return byteBuffer.getLong();
 	}
 	
@@ -191,7 +191,7 @@ public class DataEncoderHelper {
 	 */
 	public static int readIntFromByte(byte[] buffer) {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		return byteBuffer.getInt();
 	}
 	
@@ -202,7 +202,7 @@ public class DataEncoderHelper {
 	 */
 	public static short readShortFromByte(byte[] buffer) {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(SSTableConst.SSTABLE_BYTE_ORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		return byteBuffer.getShort();
 	}
 

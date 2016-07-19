@@ -10,6 +10,7 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
@@ -113,7 +114,7 @@ public abstract class AbstractTableReader implements ScalephantService {
 		try {
 			fileChannel = new RandomAccessFile(file, "r").getChannel();
 			memory = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
-			memory.order(SSTableConst.SSTABLE_BYTE_ORDER);
+			memory.order(Const.APPLICATION_BYTE_ORDER);
 			validateFile();
 		} catch (Exception e) {
 			if(! Thread.currentThread().isInterrupted()) {

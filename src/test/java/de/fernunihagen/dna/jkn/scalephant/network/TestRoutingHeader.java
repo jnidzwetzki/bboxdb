@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeaderParser;
@@ -114,7 +115,7 @@ public class TestRoutingHeader {
 		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "node1:12,node2:23");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 		final ByteBuffer bb = ByteBuffer.wrap(encodedBytes);
-		bb.order(NetworkConst.NETWORK_BYTEORDER);
+		bb.order(Const.APPLICATION_BYTE_ORDER);
 		Assert.assertEquals(0, bb.position());
 		
 		final RoutingHeader resultRoutingHeader = RoutingHeaderParser.decodeRoutingHeader(bb);
@@ -132,7 +133,7 @@ public class TestRoutingHeader {
 		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 		final ByteBuffer bb = ByteBuffer.wrap(encodedBytes);
-		bb.order(NetworkConst.NETWORK_BYTEORDER);
+		bb.order(Const.APPLICATION_BYTE_ORDER);
 		Assert.assertEquals(0, bb.position());
 		
 		final RoutingHeader resultRoutingHeader = RoutingHeaderParser.decodeRoutingHeader(bb);

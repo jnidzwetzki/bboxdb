@@ -1,7 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.network;
 
-import java.nio.ByteOrder;
-
 public class NetworkConst {
 	
 	/**
@@ -10,12 +8,7 @@ public class NetworkConst {
 	public static final byte PROTOCOL_VERSION = 0x01;
 	
 	/**
-	 * Byte order for network communication
-	 */
-	public static final ByteOrder NETWORK_BYTEORDER = ByteOrder.BIG_ENDIAN;
-	
-	/**
-	 * Value of an unsed byte
+	 * Value of an unused byte
 	 */
 	public final static byte UNUSED_BYTE = 0;
 	

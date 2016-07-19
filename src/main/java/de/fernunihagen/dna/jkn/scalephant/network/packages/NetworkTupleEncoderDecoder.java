@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.TupleAndTable;
@@ -61,7 +61,7 @@ public class NetworkTupleEncoderDecoder {
 		final byte[] bboxBytes = tuple.getBoundingBoxBytes();
 		
 		final ByteBuffer bb = ByteBuffer.allocate(20);
-		bb.order(NetworkConst.NETWORK_BYTEORDER);
+		bb.order(Const.APPLICATION_BYTE_ORDER);
 		bb.putShort((short) tableBytes.length);
 		bb.putShort((short) keyBytes.length);
 		bb.putInt(bboxBytes.length);

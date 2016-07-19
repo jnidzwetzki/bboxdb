@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
@@ -43,7 +44,7 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 			final byte[] tableBytes = table.getFullnameBytes();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(14);
-			bb.order(NetworkConst.NETWORK_BYTEORDER);
+			bb.order(Const.APPLICATION_BYTE_ORDER);
 			
 			bb.put(getQueryType());
 			bb.put(NetworkConst.UNUSED_BYTE);  // Used byte 1

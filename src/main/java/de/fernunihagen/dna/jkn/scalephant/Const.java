@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
+import java.nio.ByteOrder;
+
 public class Const {
 	
 	/**
@@ -17,5 +19,10 @@ public class Const {
 	 * of retries
 	 */
 	public final static int OPERATION_RETRY = 10;
+	
+	/**
+	 * The Byte order for encoded values
+	 */
+	public final static ByteOrder APPLICATION_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 	
 }

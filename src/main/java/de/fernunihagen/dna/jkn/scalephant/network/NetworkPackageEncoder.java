@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeaderParser;
 
@@ -30,7 +31,7 @@ public class NetworkPackageEncoder {
 			final RoutingHeader routingHeader, final byte packageType, final OutputStream bos) {
 		
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(12);
-		byteBuffer.order(NetworkConst.NETWORK_BYTEORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		byteBuffer.put(NetworkConst.PROTOCOL_VERSION);
 		byteBuffer.put(packageType);
 		byteBuffer.putShort(sequenceNumber);
@@ -55,7 +56,7 @@ public class NetworkPackageEncoder {
 	 */
 	protected void appendResponsePackageHeader(final short requestId, final byte packageType, final ByteArrayOutputStream bos) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
-		byteBuffer.order(NetworkConst.NETWORK_BYTEORDER);
+		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		byteBuffer.put(NetworkConst.PROTOCOL_VERSION);
 		byteBuffer.putShort(requestId);
 		byteBuffer.put(packageType);

@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
@@ -39,13 +40,13 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 		try {
 			final byte[] bodyBytes = body.getBytes();
 			final ByteBuffer bb = ByteBuffer.allocate(2);
-			bb.order(NetworkConst.NETWORK_BYTEORDER);
+			bb.order(Const.APPLICATION_BYTE_ORDER);
 			bb.putShort((short) bodyBytes.length);
 			
 			// Write body length
 			final long bodyLength = bb.capacity() + bodyBytes.length;
 			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
-			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
+			bodyLengthBuffer.order(Const.APPLICATION_BYTE_ORDER);
 			bodyLengthBuffer.putLong(bodyLength);
 			bos.write(bodyLengthBuffer.array());
 	

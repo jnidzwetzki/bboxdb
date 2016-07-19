@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.client.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
@@ -114,7 +115,7 @@ public class TestNetworkClasses {
 		Assert.assertEquals(18, encodedPackage.length);
 		
 		final ByteBuffer bb = ByteBuffer.wrap(encodedPackage);
-		bb.order(NetworkConst.NETWORK_BYTEORDER);
+		bb.order(Const.APPLICATION_BYTE_ORDER);
 		
 		// Check fields
 		Assert.assertEquals(NetworkConst.PROTOCOL_VERSION, bb.get());

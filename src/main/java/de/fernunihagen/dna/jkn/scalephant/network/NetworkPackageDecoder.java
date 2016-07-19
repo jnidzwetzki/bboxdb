@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeaderParser;
 
@@ -24,7 +25,7 @@ public class NetworkPackageDecoder {
 	 */
 	public static ByteBuffer encapsulateBytes(final byte[] encodedPackage) {
 		final ByteBuffer bb = ByteBuffer.wrap(encodedPackage);
-		bb.order(NetworkConst.NETWORK_BYTEORDER);
+		bb.order(Const.APPLICATION_BYTE_ORDER);
 		return bb;
 	}
 	

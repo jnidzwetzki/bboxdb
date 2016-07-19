@@ -1,7 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
-import java.nio.ByteOrder;
-
 public class SSTableConst {
 	
 	/**
@@ -33,12 +31,7 @@ public class SSTableConst {
 	 * The suffix for the meta files
 	 */
 	public final static String SST_META_SUFFIX = ".meta";
-	
-	/**
-	 * The Byte order for encoded values
-	 */
-	public final static ByteOrder SSTABLE_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-	
+
 	/**
 	 * Format of the index file:
 	 * 

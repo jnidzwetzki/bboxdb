@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
@@ -69,7 +70,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 			final byte[] tableBytes = table.getFullnameBytes();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(28);
-			bb.order(NetworkConst.NETWORK_BYTEORDER);
+			bb.order(Const.APPLICATION_BYTE_ORDER);
 			bb.putShort((short) tableBytes.length);
 			bb.put(NetworkConst.UNUSED_BYTE);
 			bb.put(NetworkConst.UNUSED_BYTE);

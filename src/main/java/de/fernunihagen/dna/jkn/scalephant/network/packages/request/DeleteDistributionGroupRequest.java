@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
@@ -36,7 +37,7 @@ public class DeleteDistributionGroupRequest implements NetworkRequestPackage {
 			final byte[] groupBytes = distributionGroup.getBytes();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(2);
-			bb.order(NetworkConst.NETWORK_BYTEORDER);
+			bb.order(Const.APPLICATION_BYTE_ORDER);
 			bb.putShort((short) groupBytes.length);
 			
 			// Body length

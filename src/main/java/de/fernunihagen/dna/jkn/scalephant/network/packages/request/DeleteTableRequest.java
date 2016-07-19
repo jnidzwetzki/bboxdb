@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
@@ -37,7 +38,7 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 			final byte[] tableBytes = table.getFullnameBytes();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(2);
-			bb.order(NetworkConst.NETWORK_BYTEORDER);
+			bb.order(Const.APPLICATION_BYTE_ORDER);
 			bb.putShort((short) tableBytes.length);
 			
 			// Body length

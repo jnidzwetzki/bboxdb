@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
@@ -37,7 +38,7 @@ public class MultipleTupleEndResponse extends NetworkResponsePackage {
 		
 		try {
 			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
-			bodyLengthBuffer.order(NetworkConst.NETWORK_BYTEORDER);
+			bodyLengthBuffer.order(Const.APPLICATION_BYTE_ORDER);
 			bodyLengthBuffer.putLong(0);
 			bos.write(bodyLengthBuffer.array());
 			

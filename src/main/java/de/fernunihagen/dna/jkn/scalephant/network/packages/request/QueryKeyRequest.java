@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
@@ -44,7 +45,7 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 			final byte[] keyBytes = key.getBytes();
 			
 			final ByteBuffer bb = ByteBuffer.allocate(5);
-			bb.order(NetworkConst.NETWORK_BYTEORDER);
+			bb.order(Const.APPLICATION_BYTE_ORDER);
 			
 			bb.put(getQueryType());
 			bb.putShort((short) tableBytes.length);
