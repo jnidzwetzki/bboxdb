@@ -73,7 +73,7 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	}
 
 	@Override
-	public Object get(long timeout, TimeUnit unit) throws InterruptedException,
+	public Object get(final long timeout, final TimeUnit unit) throws InterruptedException,
 			ExecutionException, TimeoutException {
 		
 		synchronized (mutex) {
