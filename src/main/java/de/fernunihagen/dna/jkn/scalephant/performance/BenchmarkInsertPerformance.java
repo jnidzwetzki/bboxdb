@@ -4,7 +4,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
+import de.fernunihagen.dna.jkn.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
@@ -32,12 +32,12 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 		final int tuples = 5000000;
 				
 		// Remove old data
-		final ClientOperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
-		deleteResult.get();
+		final OperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final ClientOperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
-		createResult.get();
+		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
+		createResult.waitForAll();
 		
 		final Random bbBoxRandom = new Random();
 	

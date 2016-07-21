@@ -419,7 +419,7 @@ public class ScalephantClient implements Scalephant {
 		}
 		
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		future.setRequestId(sequenceNumber);
+		future.setRequestId(0, sequenceNumber);
 		
 		try {		
 			synchronized (pendingCalls) {
@@ -501,13 +501,13 @@ public class ScalephantClient implements Scalephant {
 			switch(packageType) {
 				case NetworkConst.RESPONSE_SUCCESS:
 					if(pendingCall != null) {
-						pendingCall.setOperationResult(true);
+						pendingCall.setOperationResult(0, true);
 					}
 					break;
 					
 				case NetworkConst.RESPONSE_ERROR:
 					if(pendingCall != null) {
-						pendingCall.setOperationResult(false);
+						pendingCall.setOperationResult(0, false);
 					}
 					break;
 					
@@ -635,7 +635,7 @@ public class ScalephantClient implements Scalephant {
 		
 		// Single tuple is returned
 		if(pendingCall != null) {
-			pendingCall.setOperationResult(singleTupleResponse.getTuple());
+			pendingCall.setOperationResult(0, singleTupleResponse.getTuple());
 		}
 		
 		return true;
@@ -651,7 +651,7 @@ public class ScalephantClient implements Scalephant {
 		final ListTablesResponse tables = ListTablesResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
-			pendingCall.setOperationResult(tables.getTables());
+			pendingCall.setOperationResult(0, tables.getTables());
 		}
 	}
 
@@ -665,7 +665,7 @@ public class ScalephantClient implements Scalephant {
 		final AbstractBodyResponse result = ErrorWithBodyResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
-			pendingCall.setOperationResult(result.getBody());
+			pendingCall.setOperationResult(0, result.getBody());
 		}
 	}
 
@@ -679,7 +679,7 @@ public class ScalephantClient implements Scalephant {
 		final SuccessWithBodyResponse result = SuccessWithBodyResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
-			pendingCall.setOperationResult(result.getBody());
+			pendingCall.setOperationResult(0, result.getBody());
 		}
 	}	
 	
@@ -713,6 +713,6 @@ public class ScalephantClient implements Scalephant {
 			return;
 		}
 		
-		pendingCall.setOperationResult(resultList);
+		pendingCall.setOperationResult(0, resultList);
 	}
 }

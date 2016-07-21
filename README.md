@@ -14,6 +14,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 - Added first version of the OSM data import benchmark
 - Added routig header to network packages 
 - First version with working ClusterClient
+- Changed client API (Introduced multi result futures)
 
 ### Version 0.0.9 (Alpha) - 14.07.2016
 - Added compactification statistics

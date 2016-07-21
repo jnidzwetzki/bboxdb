@@ -493,17 +493,7 @@ public class TestNetworkClasses {
 		Assert.assertFalse(future.isDone());
 		future.setFailedState();
 		Assert.assertTrue(future.isFailed());
-		Assert.assertTrue(future.get() == null);
+		Assert.assertTrue(future.get(0) == null);
 	}
 	
-	/**
-	 * Test the cancel state of the future (canceling is not supported currently)
-	 */
-	@Test
-	public void testCancelState() {
-		final ClientOperationFuture future = new ClientOperationFuture();
-		Assert.assertFalse(future.isCancelled());
-		future.cancel(true);
-		Assert.assertFalse(future.isCancelled());
-	}
 }

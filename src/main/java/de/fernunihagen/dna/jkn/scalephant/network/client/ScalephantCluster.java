@@ -83,7 +83,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public ClientOperationFuture deleteTable(final String table) {
+	public OperationFuture deleteTable(final String table) {
 		
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("deleteTable called, but connection list is empty");
@@ -108,7 +108,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public ClientOperationFuture insertTuple(final String table, final Tuple tuple) {
+	public OperationFuture insertTuple(final String table, final Tuple tuple) {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("insertTuple called, but connection list is empty");
@@ -140,7 +140,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public ClientOperationFuture deleteTuple(final String table, final String key) {
+	public OperationFuture deleteTuple(final String table, final String key) {
 		final List<ScalephantClient> connections = membershipConnectionService.getAllConnections();
 		
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
@@ -165,13 +165,13 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public ClientOperationFuture listTables() {
+	public OperationFuture listTables() {
 		final ScalephantClient scalephantClient = getSystemForNewRessources();
 		return scalephantClient.listTables();
 	}
 
 	@Override
-	public ClientOperationFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) {
+	public OperationFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("createDistributionGroup called, but connection list is empty");
@@ -196,7 +196,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public ClientOperationFuture deleteDistributionGroup(final String distributionGroup) {
+	public OperationFuture deleteDistributionGroup(final String distributionGroup) {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("deleteDistributionGroup called, but connection list is empty");
@@ -216,7 +216,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public ClientOperationFuture queryKey(final String table, final String key) {
+	public OperationFuture queryKey(final String table, final String key) {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("queryKey called, but connection list is empty");
 			final ClientOperationFuture future = new ClientOperationFuture();
@@ -235,7 +235,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public ClientOperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
+	public OperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("queryBoundingBox called, but connection list is empty");
 			final ClientOperationFuture future = new ClientOperationFuture();
@@ -267,7 +267,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public ClientOperationFuture queryTime(final String table, final long timestamp) {
+	public OperationFuture queryTime(final String table, final long timestamp) {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("queryTime called, but connection list is empty");
 			final ClientOperationFuture future = new ClientOperationFuture();
@@ -327,11 +327,10 @@ public class ScalephantCluster implements Scalephant {
 		scalephantCluster.connect();
 		
 		// Recreate distribution group
-		final ClientOperationFuture futureDelete = scalephantCluster.deleteDistributionGroup(GROUP);
-		futureDelete.get();
-		final ClientOperationFuture futureCreate = scalephantCluster.createDistributionGroup(GROUP, (short) 2);
-		futureCreate.get();
-		
+		final OperationFuture futureDelete = scalephantCluster.deleteDistributionGroup(GROUP);
+		futureDelete.waitForAll();
+		final OperationFuture futureCreate = scalephantCluster.createDistributionGroup(GROUP, (short) 2);
+		futureCreate.waitForAll();
 		
 		// Insert the tuples
 		final Random bbBoxRandom = new Random();
@@ -343,8 +342,8 @@ public class ScalephantCluster implements Scalephant {
 			
 			System.out.println("Inserting Tuple " + i + " : " + boundingBox);
 			
-			final ClientOperationFuture result = scalephantCluster.insertTuple(TABLE, new Tuple(Integer.toString(i), boundingBox, "abcdef".getBytes()));
-			result.get();
+			final OperationFuture result = scalephantCluster.insertTuple(TABLE, new Tuple(Integer.toString(i), boundingBox, "abcdef".getBytes()));
+			result.waitForAll();
 		}		
 		
 		scalephantCluster.disconnect();

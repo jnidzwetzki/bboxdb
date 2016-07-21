@@ -13,7 +13,7 @@ import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 import crosby.binary.osmosis.OsmosisReader;
-import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
+import de.fernunihagen.dna.jkn.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMEntityFilter;
 import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMTrafficSignalEntityFilter;
 import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMTreeEntityFilter;
@@ -67,12 +67,12 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	public void runBenchmark() throws InterruptedException, ExecutionException {
 
 		// Remove old data
-		final ClientOperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
-		deleteResult.get();
+		final OperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final ClientOperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
-		createResult.get();
+		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
+		createResult.waitForAll();
 		
 		try {
 			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));

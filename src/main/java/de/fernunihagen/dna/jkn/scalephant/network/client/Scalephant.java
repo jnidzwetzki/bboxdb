@@ -28,7 +28,7 @@ public interface Scalephant {
 	 * @param table
 	 * @return
 	 */
-	public abstract ClientOperationFuture deleteTable(String table);
+	public abstract OperationFuture deleteTable(final String table);
 
 	/**
 	 * Insert a new tuple into the given table
@@ -36,7 +36,7 @@ public interface Scalephant {
 	 * @param table
 	 * @return
 	 */
-	public abstract ClientOperationFuture insertTuple(String table, Tuple tuple);
+	public abstract OperationFuture insertTuple(final String table, final Tuple tuple);
 
 	/**
 	 * Delete the given key from a table
@@ -44,29 +44,29 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public abstract ClientOperationFuture deleteTuple(String table, String key);
+	public abstract OperationFuture deleteTuple(final String table, final String key);
 
 	/**
 	 * List the existing tables
 	 * @return
 	 */
-	public abstract ClientOperationFuture listTables();
+	public abstract OperationFuture listTables();
 
 	/**
 	 * Create a new distribution group
 	 * @param distributionGroup
 	 * @return
 	 */
-	public abstract ClientOperationFuture createDistributionGroup(
-			String distributionGroup, short replicationFactor);
+	public abstract OperationFuture createDistributionGroup(
+			final String distributionGroup, final short replicationFactor);
 
 	/**
 	 * Delete a distribution group
 	 * @param distributionGroup
 	 * @return
 	 */
-	public abstract ClientOperationFuture deleteDistributionGroup(
-			String distributionGroup);
+	public abstract OperationFuture deleteDistributionGroup(
+			final String distributionGroup);
 
 	/**
 	 * Query the given table for a specific key
@@ -74,7 +74,7 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public abstract ClientOperationFuture queryKey(String table, String key);
+	public abstract OperationFuture queryKey(final String table, final String key);
 
 	/**
 	 * Execute a bounding box query on the given table
@@ -82,8 +82,8 @@ public interface Scalephant {
 	 * @param boundingBox
 	 * @return
 	 */
-	public abstract ClientOperationFuture queryBoundingBox(String table,
-			BoundingBox boundingBox);
+	public abstract OperationFuture queryBoundingBox(final String table,
+			final BoundingBox boundingBox);
 
 	/**
 	 * Query the given table for all tuples newer than
@@ -91,7 +91,7 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public abstract ClientOperationFuture queryTime(String table, long timestamp);
+	public abstract OperationFuture queryTime(final String table, final long timestamp);
 
 	/**
 	 * Is the client connected?
@@ -121,6 +121,6 @@ public interface Scalephant {
 	 * Set the max amount of in flight calls
 	 * @param maxInFlightCalls
 	 */
-	public abstract void setMaxInFlightCalls(short maxInFlightCalls);
+	public abstract void setMaxInFlightCalls(final short maxInFlightCalls);
 
 }

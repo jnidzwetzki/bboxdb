@@ -62,11 +62,11 @@ public class TestNetworkCommunication {
 		
 		ClientOperationFuture result = scalephantClient.deleteTable("1_testgroup1_relation3");
 		
-		result.get();
+		result.waitForAll();
 		
 		Assert.assertTrue(result.isDone());
 		Assert.assertFalse(result.isFailed());
-		Assert.assertTrue((Boolean) result.get());
+		Assert.assertTrue((Boolean) result.get(0));
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		
 		disconnectFromServer(scalephantClient);
@@ -98,10 +98,10 @@ public class TestNetworkCommunication {
 		
 		// First call
 		ClientOperationFuture result1 = scalephantClient.deleteTable("1_testgroup1_relation3");
-		result1.get();
+		result1.waitForAll();
 		Assert.assertTrue(result1.isDone());
 		Assert.assertFalse(result1.isFailed());
-		Assert.assertTrue((Boolean) result1.get());
+		Assert.assertTrue((Boolean) result1.get(0));
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		
 		// Wait for command processing
@@ -109,10 +109,10 @@ public class TestNetworkCommunication {
 		
 		// Second call
 		ClientOperationFuture result2 = scalephantClient.deleteTable("1_testgroup1_relation3");
-		result2.get();
+		result2.waitForAll();
 		Assert.assertTrue(result2.isDone());
 		Assert.assertFalse(result2.isFailed());
-		Assert.assertTrue((Boolean) result2.get());
+		Assert.assertTrue((Boolean) result2.get(0));
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		
 		disconnectFromServer(scalephantClient);
@@ -134,43 +134,43 @@ public class TestNetworkCommunication {
 		
 		// Delete distribution group
 		final ClientOperationFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
-		resultDelete.get();
+		resultDelete.waitForAll();
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
 		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
-		resultCreate.get();
+		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
 		final ClientOperationFuture deleteResult1 = scalephantClient.deleteTuple(table, key);
-		final Object deleteResult1Object = deleteResult1.get();
+		final Object deleteResult1Object = deleteResult1.get(0);
 		Assert.assertTrue(deleteResult1Object instanceof Boolean);
 		Assert.assertTrue(((Boolean) deleteResult1Object).booleanValue());
 		
 		final ClientOperationFuture getResult = scalephantClient.queryKey(table, key);
-		final Object getResultObject = getResult.get();
+		final Object getResultObject = getResult.get(0);
 		Assert.assertTrue(getResultObject instanceof Boolean);
 		Assert.assertTrue(((Boolean) getResultObject).booleanValue());
 		
 		final Tuple tuple = new Tuple(key, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		final ClientOperationFuture insertResult = scalephantClient.insertTuple(table, tuple);
-		final Object insertResultObject = insertResult.get();
+		final Object insertResultObject = insertResult.get(0);
 		Assert.assertTrue(insertResultObject instanceof Boolean);
 		Assert.assertTrue(((Boolean) insertResultObject).booleanValue());
 
 		final ClientOperationFuture getResult2 = scalephantClient.queryKey(table, key);
-		final Object getResult2Object = getResult2.get();
+		final Object getResult2Object = getResult2.get(0);
 		Assert.assertTrue(getResult2Object instanceof Tuple);
 		final Tuple resultTuple = (Tuple) getResult2Object;
 		Assert.assertEquals(tuple, resultTuple);
 
 		final ClientOperationFuture deleteResult2 = scalephantClient.deleteTuple(table, key);
-		final Object deleteResult2Object = deleteResult2.get();
+		final Object deleteResult2Object = deleteResult2.get(0);
 		Assert.assertTrue(deleteResult2Object instanceof Boolean);
 		Assert.assertTrue(((Boolean) deleteResult2Object).booleanValue());
 		
 		final ClientOperationFuture getResult3 = scalephantClient.queryKey(table, key);
-		final Object getResult3Object = getResult3.get();
+		final Object getResult3Object = getResult3.get(0);
 		Assert.assertTrue(getResult3Object instanceof Boolean);
 		Assert.assertTrue(((Boolean) getResult3Object).booleanValue());
 		
@@ -192,12 +192,12 @@ public class TestNetworkCommunication {
 		
 		// Delete distribution group
 		final ClientOperationFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
-		resultDelete.get();
+		resultDelete.waitForAll();
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
 		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
-		resultCreate.get();
+		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
 		// Inside our bbox query
@@ -215,7 +215,7 @@ public class TestNetworkCommunication {
 		scalephantClient.insertTuple(table, tuple5);
 
 		final ClientOperationFuture future = scalephantClient.queryBoundingBox(table, new BoundingBox(-1f, 2f, -1f, 2f));
-		final Object result = future.get();
+		final Object result = future.get(0);
 		
 		Assert.assertTrue(result instanceof List);
 		@SuppressWarnings("unchecked")

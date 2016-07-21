@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class ClientOperationFuture implements OperationFuture<Object> {
+public class ClientOperationFuture implements OperationFuture {
 	
 	/**
 	 * The id of the operation
@@ -39,22 +39,6 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	public ClientOperationFuture(final short requestId) {
 		this.requestId = requestId;
 	}
-	
-	/**
-	 * Canceling is not supported
-	 */
-	@Override
-	public boolean cancel(final boolean mayInterruptIfRunning) {
-		return false;
-	}
-
-	/**
-	 * Canceling is not supported
-	 */
-	@Override
-	public boolean isCancelled() {
-		return false;
-	}
 
 	@Override
 	public boolean isDone() {
@@ -62,7 +46,12 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	}
 
 	@Override
-	public Object get() throws InterruptedException, ExecutionException {
+	public Object get(final int resultId) throws InterruptedException, ExecutionException {
+		
+		if(resultId != 0) {
+			throw new ExecutionException("Unable to getID != 0 : " + resultId, new IllegalArgumentException());
+		}
+		
 		synchronized (mutex) {
 			while(operationResult == null && ! failed) {
 				mutex.wait();
@@ -73,8 +62,12 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	}
 
 	@Override
-	public Object get(final long timeout, final TimeUnit unit) throws InterruptedException,
+	public Object get(final int resultId, final long timeout, final TimeUnit unit) throws InterruptedException,
 			ExecutionException, TimeoutException {
+		
+		if(resultId != 0) {
+			throw new ExecutionException("Unable to getID != 0 : " + resultId, new IllegalArgumentException());
+		}
 		
 		synchronized (mutex) {
 			while(operationResult == null && ! failed) {
@@ -89,7 +82,12 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	 * Returns the request id
 	 */
 	@Override
-	public short getRequestId() {
+	public short getRequestId(final int resultId) {
+		
+		if(resultId != 0) {
+			throw new IllegalArgumentException("Unable to getID != 0 : " + resultId);
+		}
+		
 		return requestId;
 	}
 
@@ -97,7 +95,12 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	 * Set the result of the operation
 	 */
 	@Override
-	public void setOperationResult(final Object result) {
+	public void setOperationResult(final int resultId, final Object result) {
+		
+		if(resultId != 0) {
+			throw new IllegalArgumentException("Unable to getID != 0 : " + resultId);
+		}
+		
 		synchronized (mutex) {
 			this.operationResult = result;
 			mutex.notifyAll();
@@ -108,7 +111,12 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 	 * Set the ID of the request
 	 */
 	@Override
-	public void setRequestId(final short requestId) {
+	public void setRequestId(final int resultId, final short requestId) {
+		
+		if(resultId != 0) {
+			throw new IllegalArgumentException("Unable to getID != 0 : " + resultId);
+		}
+		
 		this.requestId = requestId;
 	}
 
@@ -130,5 +138,19 @@ public class ClientOperationFuture implements OperationFuture<Object> {
 		synchronized (mutex) {
 			mutex.notify();
 		}
+	}
+
+	@Override
+	public int getNumberOfResultObjets() {
+		return 1;
+	}
+
+	@Override
+	public boolean waitForAll() throws InterruptedException, ExecutionException {
+		for(int i = 0; i < getNumberOfResultObjets(); i++) {
+			get(i);
+		}
+		
+		return true;
 	}
 }

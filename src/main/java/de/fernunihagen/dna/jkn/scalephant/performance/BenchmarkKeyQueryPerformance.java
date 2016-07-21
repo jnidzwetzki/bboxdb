@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
+import de.fernunihagen.dna.jkn.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
@@ -49,12 +49,12 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 		super.prepare();
 		
 		// Remove old data
-		final ClientOperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
-		deleteResult.get();
+		final OperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final ClientOperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
-		createResult.get();
+		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
+		createResult.waitForAll();
 		
 		logger.info("Inserting " + tuplesToInsert + " tuples");
 	
@@ -84,12 +84,14 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	
 		for(int i = 0; i < 100; i++) {
 			final long start = System.nanoTime();
-			final ClientOperationFuture result = scalephantClient.queryKey(TABLE, Integer.toString(40));
+			final OperationFuture result = scalephantClient.queryKey(TABLE, Integer.toString(40));
 			
 			// Wait for request to settle
-			final Object queryResult = result.get();
-			if(! (queryResult instanceof Tuple)) {
-				logger.warn("Query failed");
+			for(int requestId = 0; requestId < result.getNumberOfResultObjets(); requestId++) {
+				final Object queryResult = result.get(requestId);
+				if(! (queryResult instanceof Tuple)) {
+					logger.warn("Query failed");
+				}
 			}
 			
 			final long end = System.nanoTime();
