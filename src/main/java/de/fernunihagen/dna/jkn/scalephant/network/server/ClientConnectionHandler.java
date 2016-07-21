@@ -465,9 +465,10 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean handleInsertTuple(final ByteBuffer packageHeader, final short packageSequence) {
 		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-		final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 		
 		try {
+			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
+			
 			// Send the call to the storage manager
 			final Tuple tuple = insertTupleRequest.getTuple();			
 			final SSTableName requestTable = insertTupleRequest.getTable();
@@ -481,7 +482,7 @@ public class ClientConnectionHandler implements Runnable {
 			}
 			
 			writeResultPackage(new SuccessResponse(packageSequence));
-		} catch (StorageManagerException e) {
+		} catch (StorageManagerException | IOException e) {
 			logger.warn("Error while insert tuple", e);
 			writeResultPackage(new ErrorResponse(packageSequence));	
 		}

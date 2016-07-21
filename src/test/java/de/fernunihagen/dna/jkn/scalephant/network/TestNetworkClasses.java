@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -12,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.Const;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.client.SequenceNumberGenerator;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
@@ -140,9 +142,36 @@ public class TestNetworkClasses {
 		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(insertPackage.getTuple(), decodedPackage.getTuple());
-		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());		
+		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(insertPackage.getRoutingHeader(), new RoutingHeader(false));
 		Assert.assertEquals(insertPackage, decodedPackage);
 	}
+	
+	/**
+	 * The the encoding and decoding of an insert tuple package
+	 * @throws IOException 
+	 */
+	@Test
+	public void encodeAndDecodeInsertTupleWithCustomHeader() throws IOException {
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
+		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(routingHeader, "test", tuple);
+		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		byte[] encodedVersion = networkPackageToByte(insertPackage, sequenceNumber);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(insertPackage.getTuple(), decodedPackage.getTuple());
+		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(routingHeader, decodedPackage.getRoutingHeader());
+		Assert.assertFalse(insertPackage.getRoutingHeader().equals(new RoutingHeader(false)));
+		Assert.assertEquals(insertPackage, decodedPackage);
+	}
+	
 	
 	/**
 	 * The the encoding and decoding of an delete tuple package

@@ -27,7 +27,12 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	/**
 	 * The Tuple
 	 */
-	protected Tuple tuple;
+	protected final Tuple tuple;
+	
+	/**
+	 * A routing header for custom routing
+	 */
+	protected final RoutingHeader routingHeader;
 	
 	/**
 	 * The Logger
@@ -44,9 +49,14 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	 * @param bbox
 	 * @param data
 	 */
-	public InsertTupleRequest(final String table, final Tuple tuple) {
+	public InsertTupleRequest(final RoutingHeader routingHeader, final String table, final Tuple tuple) {
+		this.routingHeader = routingHeader;
 		this.table = new SSTableName(table);
 		this.tuple = tuple;
+	}
+	
+	public InsertTupleRequest(final String table, final Tuple tuple) { 
+		this(new RoutingHeader(false), table, tuple);
 	}
 	
 	/**
@@ -54,8 +64,9 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws IOException 
 	 */
-	public static InsertTupleRequest decodeTuple(final ByteBuffer encodedPackage) {
+	public static InsertTupleRequest decodeTuple(final ByteBuffer encodedPackage) throws IOException {
 
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		
@@ -65,12 +76,14 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		}
 		
 		final TupleAndTable tupleAndTable = NetworkTupleEncoderDecoder.decode(encodedPackage);
-		
+
 		if(encodedPackage.remaining() != 0) {
 			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
-		return new InsertTupleRequest(tupleAndTable.getTable(), tupleAndTable.getTuple());
+		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
+		
+		return new InsertTupleRequest(routingHeader, tupleAndTable.getTable(), tupleAndTable.getTuple());
 	}
 
 	@Override
@@ -83,7 +96,6 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 			final long bodyLength = tupleAsByte.length;
 			
 			// Unrouted package
-			final RoutingHeader routingHeader = new RoutingHeader(false);
 			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
 					getPackageType(), outputStream);
 
@@ -94,14 +106,30 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		}		
 	}
 	
+	/**
+	 * Get the referenced table
+	 * @return
+	 */
 	public SSTableName getTable() {
 		return table;
 	}
 
+	/**
+	 * Get the referenced tuple
+	 * @return
+	 */
 	public Tuple getTuple() {
 		return tuple;
 	}
 
+	/**
+	 * Get the routing header
+	 * @return
+	 */
+	public RoutingHeader getRoutingHeader() {
+		return routingHeader;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -135,7 +163,7 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 
 	@Override
 	public String toString() {
-		return "InsertTupleRequest [table=" + table + ", tuple=" + tuple + "]";
+		return "InsertTupleRequest [table=" + table + ", tuple=" + tuple + ", routingHeader=" + routingHeader + "]";
 	}
 
 	@Override
