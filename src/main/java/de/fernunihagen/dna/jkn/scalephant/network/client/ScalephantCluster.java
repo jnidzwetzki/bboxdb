@@ -83,62 +83,106 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public ClientOperationFuture deleteTable(String table) {
-		// TODO Auto-generated method stub
-		return null;
+	public ClientOperationFuture deleteTable(final String table) {
+		
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			logger.warn("deleteTable called, but connection list is empty");
+			final ClientOperationFuture future = new ClientOperationFuture();
+			future.setFailedState();
+			return future;
+		}
+		
+		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		final List<ScalephantClient> connections = membershipConnectionService.getAllConnections();
+		for(final ScalephantClient client : connections) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("Send delete call for table " + table + " to " + client);
+			}
+			
+			final ClientOperationFuture result = client.deleteTable(table);
+			future.addFuture(result);
+		}
+		
+		return future;
 	}
 
 	@Override
-	public ClientOperationFuture insertTuple(String table, Tuple tuple) {
-		
-		// FIXME: Demo Implementation 
-		ClientOperationFuture result = null;
+	public ClientOperationFuture insertTuple(final String table, final Tuple tuple) {
 
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			logger.warn("insertTuple called, but connection list is empty");
+			final ClientOperationFuture future = new ClientOperationFuture();
+			future.setFailedState();
+			return future;
+		}
+		
+		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		
 		try {
 			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
 			logger.info("Writing tuple to systems: " + systems);
 			
-			
 			for(final DistributedInstance system : systems) {
 				logger.info("Sending call to:  " + system);
 	
 				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
-				result = connection.insertTuple(table, tuple);
+				final ClientOperationFuture result = connection.insertTuple(table, tuple);
+				future.addFuture(result);
 			}
 			
 		} catch (ZookeeperException e) {
 			e.printStackTrace();
 		}
 		
-		return result;
+		return future;
 	}
 
 	@Override
-	public ClientOperationFuture deleteTuple(String table, String key) {
-		// TODO Auto-generated method stub
-		return null;
+	public ClientOperationFuture deleteTuple(final String table, final String key) {
+		final List<ScalephantClient> connections = membershipConnectionService.getAllConnections();
+		
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			logger.warn("deleteTuple called, but connection list is empty");
+			final ClientOperationFuture future = new ClientOperationFuture();
+			future.setFailedState();
+			return future;
+		}
+		
+		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		
+		for(final ScalephantClient client : connections) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("Send delete call for table " + table + " to " + client);
+			}
+			
+			final ClientOperationFuture result = client.deleteTuple(table, key);
+			future.addFuture(result);
+		}
+		
+		return future;
 	}
 
 	@Override
 	public ClientOperationFuture listTables() {
-		// TODO Auto-generated method stub
-		return null;
+		final ScalephantClient scalephantClient = getSystemForNewRessources();
+		return scalephantClient.listTables();
 	}
 
 	@Override
-	public ClientOperationFuture createDistributionGroup(
-			final String distributionGroup, final short replicationFactor) {
+	public ClientOperationFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("createDistributionGroup called, but connection list is empty");
 			final ClientOperationFuture future = new ClientOperationFuture();
 			future.setFailedState();
 			return future;
-		} else {
-			final ScalephantClient scalephantClient = getSystemForNewRessources();
-			return scalephantClient.createDistributionGroup(distributionGroup, replicationFactor);
 		}
+		
+		final ScalephantClient scalephantClient = getSystemForNewRessources();
+		return scalephantClient.createDistributionGroup(distributionGroup, replicationFactor);
+
 	}
 
 	/**
@@ -150,46 +194,95 @@ public class ScalephantCluster implements Scalephant {
 		final DistributedInstance system = resourcePlacementStrategy.findSystemToAllocate(serverConnections);
 		return membershipConnectionService.getConnectionForInstance(system);
 	}
-	
 
 	@Override
-	public ClientOperationFuture deleteDistributionGroup(
-			final String distributionGroup) {
+	public ClientOperationFuture deleteDistributionGroup(final String distributionGroup) {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("deleteDistributionGroup called, but connection list is empty");
 			final ClientOperationFuture future = new ClientOperationFuture();
 			future.setFailedState();
 			return future;
-		} else {
-			for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
-				client.deleteDistributionGroup(distributionGroup);
-			}
+		}
+		
+		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		
+		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
+			final ClientOperationFuture deleteFuture = client.deleteDistributionGroup(distributionGroup);
+			future.addFuture(deleteFuture);
+		}
 
-			// FIXME: 
+		return future;
+	}
+
+	@Override
+	public ClientOperationFuture queryKey(final String table, final String key) {
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			logger.warn("queryKey called, but connection list is empty");
 			final ClientOperationFuture future = new ClientOperationFuture();
-			future.setOperationResult("");
+			future.setFailedState();
 			return future;
 		}
+		
+		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		
+		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
+			final ClientOperationFuture deleteFuture = client.queryKey(table, key);
+			future.addFuture(deleteFuture);
+		}
+
+		return future;
 	}
 
 	@Override
-	public ClientOperationFuture queryKey(String table, String key) {
-		// TODO Auto-generated method stub
-		return null;
+	public ClientOperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			logger.warn("queryBoundingBox called, but connection list is empty");
+			final ClientOperationFuture future = new ClientOperationFuture();
+			future.setFailedState();
+			return future;
+		}
+		
+		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		
+		try {
+			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
+			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(boundingBox);
+			logger.info("Query tuple on systems: " + systems);
+			
+			for(final DistributedInstance system : systems) {
+				logger.info("Sending call to:  " + system);
+	
+				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
+				final ClientOperationFuture result = connection.queryBoundingBox(table, boundingBox);
+				future.addFuture(result);
+			}
+			
+		} catch (ZookeeperException e) {
+			e.printStackTrace();
+		}
+		
+		return future;
+		
 	}
 
 	@Override
-	public ClientOperationFuture queryBoundingBox(String table,
-			BoundingBox boundingBox) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public ClientOperationFuture queryTime(final String table, final long timestamp) {
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			logger.warn("queryTime called, but connection list is empty");
+			final ClientOperationFuture future = new ClientOperationFuture();
+			future.setFailedState();
+			return future;
+		}
+		
+		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		
+		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
+			final ClientOperationFuture deleteFuture = client.queryTime(table, timestamp);
+			future.addFuture(deleteFuture);
+		}
 
-	@Override
-	public ClientOperationFuture queryTime(String table, long timestamp) {
-		// TODO Auto-generated method stub
-		return null;
+		return future;
 	}
 
 	@Override
@@ -199,8 +292,7 @@ public class ScalephantCluster implements Scalephant {
 
 	@Override
 	public NetworkConnectionState getConnectionState() {
-		// TODO Auto-generated method stub
-		return null;
+		return NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 	}
 
 	@Override
