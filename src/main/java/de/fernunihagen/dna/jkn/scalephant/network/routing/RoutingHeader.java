@@ -100,7 +100,41 @@ public class RoutingHeader {
 	 * @param hop
 	 */
 	public void setHop(final short hop) {
+		
+		if(hop >= routingList.size()) {
+			throw new IllegalArgumentException("Try to set hop : " + hop + " of an routing list of: " + routingList);
+		}
+		
 		this.hop = hop;
+	}
+	
+	/**
+	 * Set the hop to the next position
+	 * @return
+	 */
+	public boolean dispatchToNextHop() {
+		if(hop < routingList.size() - 1) {
+			hop++;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Reached the package the last hop
+	 * @return
+	 */
+	public boolean reachedFinalInstance() {
+		return hop == routingList.size() - 1;
+	}
+	
+	/**
+	 * Get the next receiver of the package
+	 * @return
+	 */
+	public DistributedInstance getReceiver() {
+		return routingList.get(hop);
 	}
 
 	/**

@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -141,4 +142,53 @@ public class TestRoutingHeader {
 		Assert.assertEquals(0, bb.remaining());
 		Assert.assertEquals(routingHeader, resultRoutingHeader);
 	}
+	
+	/**
+	 * Test set valid next hops
+	 */
+	@Test
+	public void testSetHopValid() {
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "node1:12,node2:23");
+		routingHeader.setHop((short) 0);
+		routingHeader.setHop((short) 1);
+	}
+	
+	/**
+	 * Test set invalid next hops
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testSetHopInvalid() {
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "node1:12,node2:23");
+		routingHeader.setHop((short) 2);
+	}
+	
+	/**
+	 * Test header dispatch
+	 */
+	@Test
+	public void testDispatchHeader() {
+		final DistributedInstance hop1 = new DistributedInstance("node1:12");
+		final DistributedInstance hop2 = new DistributedInstance("node2:23");
+		
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 0, Arrays.asList(new DistributedInstance[] {hop1, hop2} ));
+		Assert.assertEquals(0, routingHeader.getHop());
+		Assert.assertFalse(routingHeader.reachedFinalInstance());
+		Assert.assertEquals(hop1, routingHeader.getReceiver());
+		
+		final boolean res1 = routingHeader.dispatchToNextHop();
+		Assert.assertTrue(res1);
+		Assert.assertTrue(routingHeader.reachedFinalInstance());
+		Assert.assertEquals(1, routingHeader.getHop());
+		Assert.assertEquals(hop2, routingHeader.getReceiver());
+		
+		final boolean res2 = routingHeader.dispatchToNextHop();
+		Assert.assertFalse(res2);
+		Assert.assertTrue(routingHeader.reachedFinalInstance());
+		Assert.assertEquals(1, routingHeader.getHop());
+		
+		final boolean res3 = routingHeader.dispatchToNextHop();
+		Assert.assertFalse(res3);
+		Assert.assertTrue(routingHeader.reachedFinalInstance());
+	}
+	
 }
