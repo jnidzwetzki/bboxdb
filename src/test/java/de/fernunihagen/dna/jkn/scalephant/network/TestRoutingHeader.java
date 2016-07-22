@@ -173,13 +173,13 @@ public class TestRoutingHeader {
 		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 0, Arrays.asList(new DistributedInstance[] {hop1, hop2} ));
 		Assert.assertEquals(0, routingHeader.getHop());
 		Assert.assertFalse(routingHeader.reachedFinalInstance());
-		Assert.assertEquals(hop1, routingHeader.getReceiver());
+		Assert.assertEquals(hop1, routingHeader.getHopInstance());
 		
 		final boolean res1 = routingHeader.dispatchToNextHop();
 		Assert.assertTrue(res1);
 		Assert.assertTrue(routingHeader.reachedFinalInstance());
 		Assert.assertEquals(1, routingHeader.getHop());
-		Assert.assertEquals(hop2, routingHeader.getReceiver());
+		Assert.assertEquals(hop2, routingHeader.getHopInstance());
 		
 		final boolean res2 = routingHeader.dispatchToNextHop();
 		Assert.assertFalse(res2);

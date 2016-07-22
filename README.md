@@ -15,6 +15,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 - Added routig header to network packages 
 - First version with working ClusterClient
 - Changed client API (Introduced multi result futures)
+- Implemented insert request routing
 
 ### Version 0.0.9 (Alpha) - 14.07.2016
 - Added compactification statistics

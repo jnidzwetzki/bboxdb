@@ -37,6 +37,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupl
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessWithBodyResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class ScalephantClient implements Scalephant {
@@ -233,7 +234,23 @@ public class ScalephantClient implements Scalephant {
 			return operationFuture;
 		}
 		
-		sendPackageToServer(new InsertTupleRequest(table, tuple), operationFuture);
+		final SSTableName ssTableName = new SSTableName(table);
+		
+		sendPackageToServer(new InsertTupleRequest(ssTableName, tuple), operationFuture);
+		
+		return operationFuture;
+	}
+	
+	public ClientOperationFuture insertTuple(final InsertTupleRequest insertTupleRequest) {
+		final ClientOperationFuture operationFuture = new ClientOperationFuture();
+
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			logger.warn("insertTuple called, but connection not ready: " + connectionState);
+			operationFuture.setFailedState();
+			return operationFuture;
+		}
+		
+		sendPackageToServer(insertTupleRequest, operationFuture);
 		
 		return operationFuture;
 	}

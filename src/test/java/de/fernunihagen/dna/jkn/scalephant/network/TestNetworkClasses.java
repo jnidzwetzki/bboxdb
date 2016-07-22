@@ -132,7 +132,7 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeInsertTuple() throws IOException {
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(new SSTableName("test"), tuple);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		byte[] encodedVersion = networkPackageToByte(insertPackage, sequenceNumber);
@@ -155,7 +155,7 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeInsertTupleWithCustomHeader() throws IOException {
 		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(routingHeader, "test", tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(routingHeader, new SSTableName("test"), tuple);
 		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
@@ -357,7 +357,7 @@ public class TestNetworkClasses {
 	@Test
 	public void testDecodePackage() throws IOException {
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(new SSTableName("test"), tuple);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		byte[] encodedPackage = networkPackageToByte(insertPackage, sequenceNumber);
@@ -375,7 +375,7 @@ public class TestNetworkClasses {
 	@Test
 	public void testGetSequenceNumber() throws IOException {
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(new SSTableName("test"), tuple);
 		
 		// Increment to avoid sequenceNumber = 0
 		sequenceNumberGenerator.getNextSequenceNummber();
@@ -398,7 +398,7 @@ public class TestNetworkClasses {
 	@Test
 	public void testGetRequestBodyLength() throws IOException {
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest("test", tuple);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(new SSTableName("test"), tuple);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		byte[] encodedPackage = networkPackageToByte(insertPackage, sequenceNumber);

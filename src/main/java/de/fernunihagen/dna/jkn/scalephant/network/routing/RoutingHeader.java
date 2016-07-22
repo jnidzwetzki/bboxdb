@@ -133,7 +133,7 @@ public class RoutingHeader {
 	 * Get the next receiver of the package
 	 * @return
 	 */
-	public DistributedInstance getReceiver() {
+	public DistributedInstance getHopInstance() {
 		return routingList.get(hop);
 	}
 

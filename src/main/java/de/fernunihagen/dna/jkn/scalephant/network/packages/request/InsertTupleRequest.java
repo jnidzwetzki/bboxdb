@@ -49,13 +49,13 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	 * @param bbox
 	 * @param data
 	 */
-	public InsertTupleRequest(final RoutingHeader routingHeader, final String table, final Tuple tuple) {
+	public InsertTupleRequest(final RoutingHeader routingHeader, final SSTableName table, final Tuple tuple) {
 		this.routingHeader = routingHeader;
-		this.table = new SSTableName(table);
+		this.table = table;
 		this.tuple = tuple;
 	}
 	
-	public InsertTupleRequest(final String table, final Tuple tuple) { 
+	public InsertTupleRequest(final SSTableName table, final Tuple tuple) { 
 		this(new RoutingHeader(false), table, tuple);
 	}
 	
@@ -83,7 +83,8 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 		
-		return new InsertTupleRequest(routingHeader, tupleAndTable.getTable(), tupleAndTable.getTuple());
+		final SSTableName ssTableName = new SSTableName(tupleAndTable.getTable());
+		return new InsertTupleRequest(routingHeader, ssTableName, tupleAndTable.getTuple());
 	}
 
 	@Override
