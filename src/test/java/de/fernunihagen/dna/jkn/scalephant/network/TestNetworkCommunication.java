@@ -186,7 +186,7 @@ public class TestNetworkCommunication {
 	@Test
 	public void testInsertAndBoundingBoxQuery() throws InterruptedException, ExecutionException {
 		final String distributionGroup = "2_testgroup"; 
-		final String table = distributionGroup + "_relation5";
+		final String table = distributionGroup + "_relation9999";
 		
 		final ScalephantClient scalephantClient = connectToServer();
 		

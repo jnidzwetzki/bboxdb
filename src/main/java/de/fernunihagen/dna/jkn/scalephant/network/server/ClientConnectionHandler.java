@@ -483,7 +483,7 @@ public class ClientConnectionHandler implements Runnable {
 			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
 			final BoundingBox boundingBox = insertTupleRequest.getTuple().getBoundingBox();
 			final Collection<SSTableName> localTables = nameprefixManager.getNameprefixesForRegionWithTable(boundingBox, requestTable);
-			
+
 			for(final SSTableName ssTableName : localTables) {
 				final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
 				storageManager.put(tuple);

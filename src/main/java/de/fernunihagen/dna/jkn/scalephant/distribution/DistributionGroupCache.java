@@ -11,15 +11,9 @@ public class DistributionGroupCache {
 	 * Mapping between the string group and the group object
 	 */
 	protected final static Map<String, DistributionRegion> groupGroupMap;
-	
-	/**
-	 * Mapping between the table (as string) and the group object
-	 */
-	protected final static Map<String, DistributionRegion> tableNameGroupMap;
 
 	static {
 		groupGroupMap = new HashMap<String, DistributionRegion>();
-		tableNameGroupMap = new HashMap<String, DistributionRegion>();
 	}
 	
 	/**
@@ -44,17 +38,7 @@ public class DistributionGroupCache {
 	 * @throws ZookeeperException 
 	 */
 	public static synchronized DistributionRegion getGroupForTableName(final String tableName, final ZookeeperClient zookeeperClient) throws ZookeeperException {
-		if(! tableNameGroupMap.containsKey(tableName)) {
-			final SSTableName ssTableName = new SSTableName(tableName);
-			
-			if(! ssTableName.isValid()) {
-				throw new IllegalArgumentException("Invalid table name: " + tableName);
-			}
-			
-			final DistributionRegion distributionRegion = zookeeperClient.readDistributionGroup(ssTableName.getDistributionGroup());
-			tableNameGroupMap.put(tableName, distributionRegion);
-		}
-		
-		return tableNameGroupMap.get(tableName);
+		final SSTableName ssTableName = new SSTableName(tableName);
+		return getGroupForGroupName(ssTableName.getDistributionGroup(), zookeeperClient);
 	}
 }
