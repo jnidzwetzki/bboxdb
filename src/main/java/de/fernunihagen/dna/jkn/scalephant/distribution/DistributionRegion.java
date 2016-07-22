@@ -2,6 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
@@ -375,8 +376,8 @@ public class DistributionRegion {
 	 * Get the a list of systems for the bounding box
 	 * @return
 	 */
-	public Collection<DistributedInstance> getSystemsForBoundingBox(final BoundingBox boundingBox) {
-		final Collection<DistributedInstance> result = new ArrayList<DistributedInstance>();
+	public List<DistributedInstance> getSystemsForBoundingBox(final BoundingBox boundingBox) {
+		final List<DistributedInstance> result = new ArrayList<DistributedInstance>();
 		getSystemsForBoundingBoxRecursive(boundingBox, result);
 		return result;
 	}
