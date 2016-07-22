@@ -126,6 +126,11 @@ public class RoutingHeader {
 	 * @return
 	 */
 	public boolean reachedFinalInstance() {
+		
+		if(routingList.isEmpty()) {
+			return true;
+		}
+		
 		return hop == routingList.size() - 1;
 	}
 	
