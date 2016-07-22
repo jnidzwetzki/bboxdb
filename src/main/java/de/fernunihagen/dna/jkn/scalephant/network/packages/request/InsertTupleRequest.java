@@ -32,7 +32,7 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	/**
 	 * A routing header for custom routing
 	 */
-	protected final RoutingHeader routingHeader;
+	protected RoutingHeader routingHeader;
 	
 	/**
 	 * The Logger
@@ -130,6 +130,14 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		return routingHeader;
 	}
 	
+	/**
+	 * Replace the existing routing header with a new one
+	 * @param routingHeader
+	 */
+	public void replaceRoutingHeader(final RoutingHeader routingHeader) {
+		this.routingHeader = routingHeader;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -170,4 +178,5 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	public byte getPackageType() {
 		return NetworkConst.REQUEST_TYPE_INSERT_TUPLE;
 	}
+
 }
