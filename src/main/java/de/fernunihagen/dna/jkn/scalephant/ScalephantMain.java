@@ -46,7 +46,7 @@ public class ScalephantMain implements Daemon {
 	 * @return
 	 */
 	public MembershipConnectionService createMembershipService() {
-		final MembershipConnectionService membershipService = new MembershipConnectionService();
+		final MembershipConnectionService membershipService = MembershipConnectionService.getInstance();
 		
 		// Prevent network connections to ourself
 		final DistributedInstance localhost = ZookeeperClientFactory.getLocalInstanceName(ScalephantConfigurationManager.getConfiguration());

@@ -64,7 +64,7 @@ public class ScalephantCluster implements Scalephant {
 	public ScalephantCluster(final Collection<String> zookeeperNodes, final String clustername) {
 		zookeeperClient = new ZookeeperClient(zookeeperNodes, clustername);
 		resourcePlacementStrategy = new RandomResourcePlacementStrategy();
-		membershipConnectionService = new MembershipConnectionService();
+		membershipConnectionService = MembershipConnectionService.getInstance();
 	}
 
 	@Override

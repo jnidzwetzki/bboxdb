@@ -30,14 +30,33 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	 */
 	protected Set<DistributedInstance> blacklist = new HashSet<>();
 	
+	protected static MembershipConnectionService instance = null;
+	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(MembershipConnectionService.class);
 	
-	public MembershipConnectionService() {
+	private MembershipConnectionService() {
 		final HashMap<DistributedInstance, ScalephantClient> connectionMap = new HashMap<DistributedInstance, ScalephantClient>();
 		serverConnections = Collections.synchronizedMap(connectionMap);
+	}
+	
+	/**
+	 * Get the instance of the membership connection service
+	 * @return
+	 */
+	public static synchronized MembershipConnectionService getInstance() {
+		if(instance == null) {
+			instance = new MembershipConnectionService();
+		}
+		
+		return instance;
+	}
+	
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException("Unable to clone a singleton");
 	}
 
 	/**
