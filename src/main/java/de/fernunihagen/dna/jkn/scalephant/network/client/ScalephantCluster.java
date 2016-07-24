@@ -110,33 +110,29 @@ public class ScalephantCluster implements Scalephant {
 	@Override
 	public OperationFuture insertTuple(final String table, final Tuple tuple) {
 
-		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			logger.warn("insertTuple called, but connection list is empty");
+		try {
+			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
+			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
+
+			if(systems.isEmpty()) {
+				logger.warn("Insert tuple called, but system list is empty");
+				final ClientOperationFuture future = new ClientOperationFuture();
+				future.setFailedState();
+				return future;
+			}
+			
+			// Determine the first system, it will route the request to the remaining systems
+			final DistributedInstance system = systems.iterator().next();
+			logger.info("Sending call to:  " + system);
+
+			final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
+			return connection.insertTuple(table, tuple);
+		} catch (ZookeeperException e) {
+			logger.warn("Got exception while inserting tuple", e);
 			final ClientOperationFuture future = new ClientOperationFuture();
 			future.setFailedState();
 			return future;
 		}
-		
-		final MultiClientOperationFuture future = new MultiClientOperationFuture();
-		
-		try {
-			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
-			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
-			logger.info("Writing tuple to systems: " + systems);
-			
-			for(final DistributedInstance system : systems) {
-				logger.info("Sending call to:  " + system);
-	
-				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
-				final ClientOperationFuture result = connection.insertTuple(table, tuple);
-				future.addFuture(result);
-			}
-			
-		} catch (ZookeeperException e) {
-			e.printStackTrace();
-		}
-		
-		return future;
 	}
 
 	@Override
