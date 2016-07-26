@@ -8,7 +8,11 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +82,16 @@ public class ClientConnectionHandler implements Runnable {
 	 * The connection state
 	 */
 	protected volatile NetworkConnectionState connectionState;
+
+	/**
+	 * The thread pool
+	 */
+	protected final ThreadPoolExecutor threadPool;
+	
+	/**
+	 * Number of pending requests
+	 */
+	public static int PENDING_REQUESTS = 25;
 	
 	/**
 	 * The Logger
@@ -88,6 +102,11 @@ public class ClientConnectionHandler implements Runnable {
 	public ClientConnectionHandler(final Socket clientSocket) {
 		this.clientSocket = clientSocket;
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
+		
+		// Create a thread pool that blocks after submitting more than PENDING_REQUESTS
+		final BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<Runnable>(PENDING_REQUESTS);
+		threadPool = new ThreadPoolExecutor(1, PENDING_REQUESTS/2, 30, TimeUnit.SECONDS, 
+				linkedBlockingDeque, new ThreadPoolExecutor.CallerRunsPolicy());
 		
 		try {
 			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
@@ -123,7 +142,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * Write a response package to the client
 	 * @param responsePackage
 	 */
-	protected boolean writeResultPackage(final NetworkResponsePackage responsePackage) {
+	protected synchronized boolean writeResultPackage(final NetworkResponsePackage responsePackage) {
 		
 		final byte[] outputData = responsePackage.getByteArray();
 		
@@ -157,6 +176,8 @@ public class ClientConnectionHandler implements Runnable {
 		} catch(Throwable e) {
 			logger.error("Got an expcetion during execution: ", e);
 		}
+		
+		threadPool.shutdown();
 		
 		closeSocketNE();
 	}
@@ -489,13 +510,7 @@ public class ClientConnectionHandler implements Runnable {
 				storageManager.put(tuple);
 			}
 
-			final boolean routingResult = routePackage(packageSequence, insertTupleRequest, boundingBox);
-			
-			if(routingResult) {
-				writeResultPackage(new SuccessResponse(packageSequence));
-			} else {
-				writeResultPackage(new ErrorResponse(packageSequence));
-			}
+			performPackageRoutingAsync(packageSequence, insertTupleRequest, boundingBox);
 			
 		} catch (Exception e) {
 			logger.warn("Error while insert tuple", e);
@@ -503,6 +518,41 @@ public class ClientConnectionHandler implements Runnable {
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Perform the routing task async
+	 * @param packageSequence
+	 * @param insertTupleRequest
+	 * @param boundingBox
+	 */
+	protected void performPackageRoutingAsync(final short packageSequence, final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) {
+	
+		final Runnable routeRunable = new Runnable() {
+			@Override
+			public void run() {
+				boolean routeResult;
+				try {
+					routeResult = routePackage(packageSequence, insertTupleRequest, boundingBox);
+					
+					if(routeResult) {
+						writeResultPackage(new SuccessResponse(packageSequence));
+					} else {
+						writeResultPackage(new ErrorResponse(packageSequence));
+					}
+				} catch (ZookeeperException | InterruptedException | ExecutionException e) {
+					logger.warn("Exception while routing package", e);
+				}
+			}
+		};
+		
+		// Submit the runnable to our pool
+		if(threadPool.isTerminating()) {
+			logger.warn("Thread pool is shutting down, don't route package: " + packageSequence);
+			writeResultPackage(new ErrorResponse(packageSequence));
+		} else {
+			threadPool.submit(routeRunable);
+		}
 	}
 
 	/**
