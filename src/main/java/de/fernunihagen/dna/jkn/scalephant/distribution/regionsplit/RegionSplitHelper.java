@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.distribution.sstable;
+package de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,30 +6,30 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 
-public class SStableSplitHelper {
+public class RegionSplitHelper {
 	
 	/**
 	 * The cached instance of the factory
 	 */
-	protected static SStableSplitFactory cachedInstance = null;
+	protected static RegionSplitFactory cachedInstance = null;
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SStableSplitHelper.class);
+	private final static Logger logger = LoggerFactory.getLogger(RegionSplitHelper.class);
 
 	/**
 	 * Get an instance of the configured factory
 	 * @return
 	 */
-	public static SStableSplitFactory getFactoryInstance() {
+	public static RegionSplitFactory getFactoryInstance() {
 		
 		if(cachedInstance != null) {
 			return cachedInstance;
 		}
 		
 		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
-		final String factoryClass = configuration.getSstableSplitStrategy();
+		final String factoryClass = configuration.getRegionSplitStrategy();
 		
 		if("none".equals(factoryClass)) {
 			return null;
@@ -45,11 +45,11 @@ public class SStableSplitHelper {
 			
 			final Object factoryObject = classObject.newInstance();
 			
-			if(! (factoryObject instanceof SStableSplitFactory)) {
-				throw new ClassNotFoundException(factoryClass + " is not a instance of SpatialIndexFactory");
+			if(! (factoryObject instanceof RegionSplitFactory)) {
+				throw new ClassNotFoundException(factoryClass + " is not a instance of RegionSplitFactory");
 			}
 			
-			cachedInstance = (SStableSplitFactory) factoryObject;
+			cachedInstance = (RegionSplitFactory) factoryObject;
 			
 			return cachedInstance;
 			

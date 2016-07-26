@@ -6,8 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SSTableSplitter;
-import de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SStableSplitHelper;
+import de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit.RegionSplitHelper;
+import de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit.RegionSplitter;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
@@ -143,7 +143,7 @@ public class SSTableCompactorThread implements Runnable {
 		logger.info("Test for table split: " + sstableManager.getName().getFullname() 
 				+ " total tuples: " + totalWrittenTuples);
 		
-		final SSTableSplitter splitter = SStableSplitHelper.getFactoryInstance().getSSTableSplitter();
+		final RegionSplitter splitter = RegionSplitHelper.getFactoryInstance().getRegionSplitter();
 		
 		if(splitter.isSplitNeeded(totalWrittenTuples)) {
 			splitter.performSplit(sstableManager.getName());

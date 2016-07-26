@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.distribution.sstable;
+package de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,12 +10,12 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
-public abstract class SSTableSplitter {
+public abstract class RegionSplitter {
 	
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(SSTableSplitter.class);
+	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitter.class);
 
 	/**
 	 * Is a split needed?
@@ -61,7 +61,7 @@ public abstract class SSTableSplitter {
 			}
 			
 			performSplit(region);
-			
+			redistributeData(region);
 		} catch (ZookeeperException e) {
 			logger.warn("Unable to split sstable: " + ssTableName, e);
 			return false;
@@ -69,5 +69,16 @@ public abstract class SSTableSplitter {
 		
 		return true;
 	}
-	
+
+	/**
+	 * Redistribute data after region split
+	 * @param region
+	 */
+	protected void redistributeData(final DistributionRegion region) {
+		logger.info("Redistributing data for region: " + region);
+		
+		
+		
+		logger.info("Redistributing data for region DONE: " + region);
+	}
 }

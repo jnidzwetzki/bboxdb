@@ -77,7 +77,7 @@ public class ScalephantConfiguration {
 	/**
 	 * The sstable split strategy
 	 */
-	protected String sstableSplitStrategy = "de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SimpleStrategyFactory";
+	protected String regionSplitStrategy = "de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit.SimpleStrategyFactory";
 	
 	/**
 	 * The maximum number of entries per SSTable
@@ -202,20 +202,20 @@ public class ScalephantConfiguration {
 		this.localip = localip;
 	}
 
-	public String getSstableSplitStrategy() {
-		return sstableSplitStrategy;
-	}
-
-	public void setSstableSplitStrategy(final String sstableSplitStrategy) {
-		this.sstableSplitStrategy = sstableSplitStrategy;
-	}
-
 	public int getSstableMaxEntries() {
 		return sstableMaxEntries;
 	}
 
 	public void setSstableMaxEntries(final int sstableMaxEntries) {
 		this.sstableMaxEntries = sstableMaxEntries;
+	}
+
+	public String getRegionSplitStrategy() {
+		return regionSplitStrategy;
+	}
+
+	public void setRegionSplitStrategy(final String regionSplitStrategy) {
+		this.regionSplitStrategy = regionSplitStrategy;
 	}
 
 }

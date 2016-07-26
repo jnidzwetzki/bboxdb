@@ -74,11 +74,11 @@ zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
 # Default: the first IP address of the local node
 # localip: 10.10.10.10
 
-# The sstable split strategy
-# Default: de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SimpleStrategyFactory
-# sstableSplitStrategy: de.fernunihagen.dna.jkn.scalephant.distribution.sstable.SimpleStrategyFactory
+# The region split strategy
+# Default: de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit.SimpleStrategyFactory
+# regionSplitStrategy: de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit.SimpleStrategyFactory
 
-# The maximum number of values before a sstable is split
+# The maximum number of values before a region is split
 # Default: 1000
 # sstableMaxEntries: 1000
 

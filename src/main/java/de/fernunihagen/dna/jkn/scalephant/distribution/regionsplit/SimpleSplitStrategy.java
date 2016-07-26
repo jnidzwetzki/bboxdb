@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.distribution.sstable;
+package de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit;
 
 import java.util.Set;
 
@@ -16,7 +16,7 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedIns
 import de.fernunihagen.dna.jkn.scalephant.distribution.resource.RandomResourcePlacementStrategy;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.FloatInterval;
 
-public class SimpleSplitStrategy extends SSTableSplitter {
+public class SimpleSplitStrategy extends RegionSplitter {
 	
 	/**
 	 * The Logger
@@ -39,7 +39,7 @@ public class SimpleSplitStrategy extends SSTableSplitter {
 	}
 
 	/**
-	 * Perform a split of the given sstable
+	 * Perform a split of the given distribution region
 	 */
 	@Override
 	protected void performSplit(final DistributionRegion region) {
