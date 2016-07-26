@@ -294,4 +294,12 @@ public class StorageManager implements ScalephantService, Storage {
 	public String getServicename() {
 		return "Storage Manager";
 	}
+	
+	/**
+	 * Get the corresponding sstable manager
+	 * @return
+	 */
+	public SSTableManager getSstableManager() {
+		return sstableManager;
+	}
 }
