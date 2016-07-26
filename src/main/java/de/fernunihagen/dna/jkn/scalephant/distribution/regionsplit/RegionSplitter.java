@@ -120,7 +120,7 @@ public abstract class RegionSplitter {
 			logger.warn("Got an exception while distributing tuples for: " + ssTableName, e);
 		}
 		
-		logger.info("Redistributing table " + ssTableName.getFullname() + " DONE");
+		logger.info("Redistributing table " + ssTableName.getFullname() + " is DONE");
 	}
 
 	/**
