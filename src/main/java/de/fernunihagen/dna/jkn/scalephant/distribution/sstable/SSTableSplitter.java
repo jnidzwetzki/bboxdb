@@ -3,6 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.distribution.sstable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupCache;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
@@ -45,8 +46,7 @@ public abstract class SSTableSplitter {
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			
-			final DistributionRegion distributionGroup = zookeeperClient.readDistributionGroup(
-					ssTableName.getDistributionGroup());
+			final DistributionRegion distributionGroup = DistributionGroupCache.getGroupForGroupName(ssTableName.getDistributionGroup(), zookeeperClient);
 			
 			final DistributionRegion region = distributionGroup.getDistributionRegionForNamePrefix(ssTableName.getNameprefix());
 			
