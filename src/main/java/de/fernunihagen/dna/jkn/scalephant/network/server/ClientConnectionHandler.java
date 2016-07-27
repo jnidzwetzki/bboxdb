@@ -384,33 +384,47 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected void handleKeyQuery(final ByteBuffer encodedPackage,
 			final short packageSequence) {
-		
-		final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
-		final SSTableName requestTable = queryKeyRequest.getTable();
-		
-		try {
-			// Send the call to the storage manager
-			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
-			
-			for(final SSTableName ssTableName : localTables) {
-				final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
-				final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
-				
-				if(tuple != null) {
-					writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
-					return;
-				}
-			}
 
-		    writeResultPackage(new SuccessResponse(packageSequence));
-			return;
-			
-		} catch (StorageManagerException e) {
-			logger.warn("Got exception while scanning for key", e);
+		final Runnable queryRunable = new Runnable() {
+
+			@Override
+			public void run() {
+				final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
+				final SSTableName requestTable = queryKeyRequest.getTable();
+				
+				try {
+					// Send the call to the storage manager
+					final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+					final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
+					
+					for(final SSTableName ssTableName : localTables) {
+						final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+						final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
+						
+						if(tuple != null) {
+							writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
+							return;
+						}
+					}
+
+				    writeResultPackage(new SuccessResponse(packageSequence));
+					return;
+					
+				} catch (StorageManagerException e) {
+					logger.warn("Got exception while scanning for key", e);
+				}
+				
+				writeResultPackage(new ErrorResponse(packageSequence));				
+			}			
+		};
+
+		// Submit the runnable to our pool
+		if(threadPool.isTerminating()) {
+			logger.warn("Thread pool is shutting down, don't execute query: " + packageSequence);
+			writeResultPackage(new ErrorResponse(packageSequence));
+		} else {
+			threadPool.submit(queryRunable);
 		}
-		
-		writeResultPackage(new ErrorResponse(packageSequence));
 	}
 	
 	/**
@@ -421,33 +435,48 @@ public class ClientConnectionHandler implements Runnable {
 	protected void handleBoundingBoxQuery(final ByteBuffer encodedPackage,
 			final short packageSequence) {
 		
-		final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
-		final SSTableName requestTable = queryRequest.getTable();
-		
-		try {
-			// Send the call to the storage manager
-			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = nameprefixManager.getNameprefixesForRegionWithTable(queryRequest.getBoundingBox(), requestTable);
+		final Runnable queryRunable = new Runnable() {
 
-			writeResultPackage(new MultipleTupleStartResponse(packageSequence));
-
-			for(final SSTableName ssTableName : localTables) {
-				final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
-				final Collection<Tuple> resultTuple = storageManager.getTuplesInside(queryRequest.getBoundingBox());
+			@Override
+			public void run() {
+				final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
+				final SSTableName requestTable = queryRequest.getTable();
 				
-				for(final Tuple tuple : resultTuple) {
-					writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
+				try {
+					// Send the call to the storage manager
+					final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+					final Collection<SSTableName> localTables = nameprefixManager.getNameprefixesForRegionWithTable(queryRequest.getBoundingBox(), requestTable);
+
+					writeResultPackage(new MultipleTupleStartResponse(packageSequence));
+
+					for(final SSTableName ssTableName : localTables) {
+						final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+						final Collection<Tuple> resultTuple = storageManager.getTuplesInside(queryRequest.getBoundingBox());
+						
+						for(final Tuple tuple : resultTuple) {
+							writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
+						}
+					}
+
+					writeResultPackage(new MultipleTupleEndResponse(packageSequence));
+
+					return;
+				} catch (StorageManagerException e) {
+					logger.warn("Got exception while scanning for bbox", e);
 				}
+				
+				writeResultPackage(new ErrorResponse(packageSequence));				
 			}
+		};
 
-			writeResultPackage(new MultipleTupleEndResponse(packageSequence));
-
-			return;
-		} catch (StorageManagerException e) {
-			logger.warn("Got exception while scanning for bbox", e);
+		// Submit the runnable to our pool
+		if(threadPool.isTerminating()) {
+			logger.warn("Thread pool is shutting down, don't execute query: " + packageSequence);
+			writeResultPackage(new ErrorResponse(packageSequence));
+		} else {
+			threadPool.submit(queryRunable);
 		}
-		
-		writeResultPackage(new ErrorResponse(packageSequence));
+
 	}
 	
 	/**
@@ -458,31 +487,46 @@ public class ClientConnectionHandler implements Runnable {
 	protected void handleTimeQuery(final ByteBuffer encodedPackage,
 			final short packageSequence) {
 		
-		final QueryTimeRequest queryRequest = QueryTimeRequest.decodeTuple(encodedPackage);
-		final SSTableName requestTable = queryRequest.getTable();
-		
-		try {
-			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
+		final Runnable queryRunable = new Runnable() {
 			
-			writeResultPackage(new MultipleTupleStartResponse(packageSequence));
+			@Override
+			public void run() {
+				final QueryTimeRequest queryRequest = QueryTimeRequest.decodeTuple(encodedPackage);
+				final SSTableName requestTable = queryRequest.getTable();
+				
+				try {
+					final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+					final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
+					
+					writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 
-			for(final SSTableName ssTableName : localTables) {
-				final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
-				final Collection<Tuple> resultTuple = storageManager.getTuplesAfterTime(queryRequest.getTimestamp());
+					for(final SSTableName ssTableName : localTables) {
+						final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+						final Collection<Tuple> resultTuple = storageManager.getTuplesAfterTime(queryRequest.getTimestamp());
 
-				for(final Tuple tuple : resultTuple) {
-					writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
+						for(final Tuple tuple : resultTuple) {
+							writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
+						}
+					}
+					writeResultPackage(new MultipleTupleEndResponse(packageSequence));
+
+					return;
+				} catch (StorageManagerException e) {
+					logger.warn("Got exception while scanning for time", e);
 				}
+				
+				writeResultPackage(new ErrorResponse(packageSequence));		
 			}
-			writeResultPackage(new MultipleTupleEndResponse(packageSequence));
-
-			return;
-		} catch (StorageManagerException e) {
-			logger.warn("Got exception while scanning for time", e);
+		};
+		
+		// Submit the runnable to our pool
+		if(threadPool.isTerminating()) {
+			logger.warn("Thread pool is shutting down, don't execute query: " + packageSequence);
+			writeResultPackage(new ErrorResponse(packageSequence));
+		} else {
+			threadPool.submit(queryRunable);
 		}
 		
-		writeResultPackage(new ErrorResponse(packageSequence));
 	}
 
 	/**
