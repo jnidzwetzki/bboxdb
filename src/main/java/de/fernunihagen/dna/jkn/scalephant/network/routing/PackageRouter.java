@@ -127,9 +127,9 @@ public class PackageRouter {
 			tryCounter++;
 			
 			// Unrouted package: Create routing list and route package
-			final List<DistributedInstance> instancesBeforeRouting = getRoutingDestinations(insertTupleRequest, boundingBox);
-			
-			setInsertRoutingHeader(insertTupleRequest, instancesBeforeRouting);
+			final Set<DistributionRegion> instancesBeforeRouting = getRoutingDestinations(insertTupleRequest, boundingBox);
+			final List<DistributedInstance> systemList = convertRegionsToDistributedInstances(instancesBeforeRouting);
+			setInsertRoutingHeader(insertTupleRequest, systemList);
 			
 			final boolean sendResult = sendInsertPackage(insertTupleRequest);
 			
@@ -138,7 +138,7 @@ public class PackageRouter {
 				continue;
 			}
 			
-			final List<DistributedInstance> instancesAfterRouting = getRoutingDestinations(insertTupleRequest, boundingBox);
+			final Set<DistributionRegion> instancesAfterRouting = getRoutingDestinations(insertTupleRequest, boundingBox);
 
 			if(instancesBeforeRouting.equals(instancesAfterRouting)) {
 				return true;
@@ -199,15 +199,26 @@ public class PackageRouter {
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	protected List<DistributedInstance> getRoutingDestinations(final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) throws ZookeeperException {
+	protected Set<DistributionRegion> getRoutingDestinations(final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) throws ZookeeperException {
 		
-		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
 		final String distributionGroup = insertTupleRequest.getTable().getDistributionGroup();
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForGroupName(distributionGroup, zookeeperClient);
 		
 		final Set<DistributionRegion> regions = distributionRegion.getDistributionRegionsForBoundingBox(boundingBox);
 		
+		return regions;
+	}
+	
+	
+	/**
+	 * Convert the region list into a system list
+	 * @param regions
+	 * @return
+	 */
+	protected List<DistributedInstance> convertRegionsToDistributedInstances(final Set<DistributionRegion> regions) {
+		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
+
 		for(final DistributionRegion region : regions) {
 			for(DistributedInstance instance : region.getSystems()) {
 				if(! systems.contains(instance)) {
