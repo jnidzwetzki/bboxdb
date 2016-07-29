@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -20,22 +19,17 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
-import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupCache;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
-import de.fernunihagen.dna.jkn.scalephant.distribution.membership.MembershipConnectionService;
 import de.fernunihagen.dna.jkn.scalephant.distribution.nameprefix.NameprefixInstanceManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.nameprefix.NameprefixMapper;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
-import de.fernunihagen.dna.jkn.scalephant.network.client.ClientOperationFuture;
-import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.request.DeleteDistributionGroupRequest;
@@ -52,6 +46,7 @@ import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupl
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.MultipleTupleStartResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.response.TupleResponse;
+import de.fernunihagen.dna.jkn.scalephant.network.routing.PackageRouter;
 import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeaderParser;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
@@ -89,17 +84,23 @@ public class ClientConnectionHandler implements Runnable {
 	protected final ThreadPoolExecutor threadPool;
 	
 	/**
+	 * The package router
+	 */
+	protected final PackageRouter packageRouter;
+	
+	/**
 	 * Number of pending requests
 	 */
-	public static int PENDING_REQUESTS = 25;
+	public final static int PENDING_REQUESTS = 25;
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
-	
 
 	public ClientConnectionHandler(final Socket clientSocket) {
+		
+		// The network connection state
 		this.clientSocket = clientSocket;
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 		
@@ -107,6 +108,9 @@ public class ClientConnectionHandler implements Runnable {
 		final BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<Runnable>(PENDING_REQUESTS);
 		threadPool = new ThreadPoolExecutor(1, PENDING_REQUESTS/2, 30, TimeUnit.SECONDS, 
 				linkedBlockingDeque, new ThreadPoolExecutor.CallerRunsPolicy());
+		
+		// The package router
+		packageRouter = new PackageRouter(threadPool, this);
 		
 		try {
 			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
@@ -142,7 +146,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * Write a response package to the client
 	 * @param responsePackage
 	 */
-	protected synchronized boolean writeResultPackage(final NetworkResponsePackage responsePackage) {
+	public synchronized boolean writeResultPackage(final NetworkResponsePackage responsePackage) {
 		
 		final byte[] outputData = responsePackage.getByteArray();
 		
@@ -554,7 +558,7 @@ public class ClientConnectionHandler implements Runnable {
 				storageManager.put(tuple);
 			}
 
-			performPackageRoutingAsync(packageSequence, insertTupleRequest, boundingBox);
+			packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest, boundingBox);
 			
 		} catch (Exception e) {
 			logger.warn("Error while insert tuple", e);
@@ -562,110 +566,6 @@ public class ClientConnectionHandler implements Runnable {
 		}
 		
 		return true;
-	}
-
-	/**
-	 * Perform the routing task async
-	 * @param packageSequence
-	 * @param insertTupleRequest
-	 * @param boundingBox
-	 */
-	protected void performPackageRoutingAsync(final short packageSequence, final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) {
-	
-		final Runnable routeRunable = new Runnable() {
-			@Override
-			public void run() {
-				boolean routeResult;
-				try {
-					routeResult = routePackage(packageSequence, insertTupleRequest, boundingBox);
-					
-					if(routeResult) {
-						writeResultPackage(new SuccessResponse(packageSequence));
-					} else {
-						writeResultPackage(new ErrorResponse(packageSequence));
-					}
-				} catch (ZookeeperException | InterruptedException | ExecutionException e) {
-					logger.warn("Exception while routing package", e);
-				}
-			}
-		};
-		
-		// Submit the runnable to our pool
-		if(threadPool.isTerminating()) {
-			logger.warn("Thread pool is shutting down, don't route package: " + packageSequence);
-			writeResultPackage(new ErrorResponse(packageSequence));
-		} else {
-			threadPool.submit(routeRunable);
-		}
-	}
-
-	/**
-	 * Route the package to the next hop
-	 * @param packageSequence
-	 * @param insertTupleRequest
-	 * @param boundingBox
-	 * @return
-	 * @throws ZookeeperException
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 */
-	protected boolean routePackage(final short packageSequence, final InsertTupleRequest insertTupleRequest,
-			final BoundingBox boundingBox) throws ZookeeperException, InterruptedException, ExecutionException {
-		
-		// Create a new routing header or dispatch to next system
-		prepareRountingHeader(insertTupleRequest, boundingBox);
-		
-		if(insertTupleRequest.getRoutingHeader().reachedFinalInstance()) {
-			return true;
-		} 
-		
-		final DistributedInstance receiver = insertTupleRequest.getRoutingHeader().getHopInstance();
-		final ScalephantClient connection = MembershipConnectionService.getInstance().getConnectionForInstance(receiver);
-		
-		if(connection == null) {
-			logger.error("Unable to get a connection to system: " + receiver);
-			return false;
-		} 
-		
-		final ClientOperationFuture insertFuture = connection.insertTuple(insertTupleRequest);
-		insertFuture.waitForAll();
-		
-		if(insertFuture.isFailed()) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-
-	/**
-	 * Prepare the routing header for the next hop
-	 * @param insertTupleRequest
-	 * @param boundingBox
-	 * @throws ZookeeperException
-	 */
-	protected boolean prepareRountingHeader(final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) throws ZookeeperException {
-		if(! insertTupleRequest.getRoutingHeader().isRoutedPackage()) {
-			// Unrouted package: Create routing list
-			final String distributionGroup = insertTupleRequest.getTable().getDistributionGroup();
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForGroupName(distributionGroup, zookeeperClient);
-			final List<DistributedInstance> instances = distributionRegion.getSystemsForBoundingBox(boundingBox);
-			
-			// Remove the local instance
-			instances.remove(ZookeeperClientFactory.getLocalInstanceName(ScalephantConfigurationManager.getConfiguration()));
-			
-			final RoutingHeader routingHeader = new RoutingHeader(true, (short) 0, instances);
-			insertTupleRequest.replaceRoutingHeader(routingHeader);
-			
-			// New routing header created
-			return true;
-		} else { 
-			// Routed package: dispatch to next hop
-			insertTupleRequest.getRoutingHeader().dispatchToNextHop();
-
-			// No new routing header created
-			return false;
-		}
 	}
 
 	/**
