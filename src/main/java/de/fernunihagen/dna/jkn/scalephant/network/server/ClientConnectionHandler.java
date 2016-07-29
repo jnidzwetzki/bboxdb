@@ -643,7 +643,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param boundingBox
 	 * @throws ZookeeperException
 	 */
-	protected void prepareRountingHeader(final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) throws ZookeeperException {
+	protected boolean prepareRountingHeader(final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) throws ZookeeperException {
 		if(! insertTupleRequest.getRoutingHeader().isRoutedPackage()) {
 			// Unrouted package: Create routing list
 			final String distributionGroup = insertTupleRequest.getTable().getDistributionGroup();
@@ -656,9 +656,15 @@ public class ClientConnectionHandler implements Runnable {
 			
 			final RoutingHeader routingHeader = new RoutingHeader(true, (short) 0, instances);
 			insertTupleRequest.replaceRoutingHeader(routingHeader);
+			
+			// New routing header created
+			return true;
 		} else { 
 			// Routed package: dispatch to next hop
 			insertTupleRequest.getRoutingHeader().dispatchToNextHop();
+
+			// No new routing header created
+			return false;
 		}
 	}
 
