@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -189,5 +191,42 @@ public class TestDistributionGroup {
 		Assert.assertEquals(level3.getRightChild(), level0.getDistributionRegionForNamePrefix(9));
 		
 		Assert.assertEquals(null, level3.getDistributionRegionForNamePrefix(1));
+	}
+	
+	
+	/**
+	 * Get the systems for a distribution group
+	 */
+	@Test
+	public void testGetSystemsForDistributionGroup1() {
+		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("2_foo");
+		level0.setSplit(50);
+		level0.getLeftChild().setNameprefix(2);
+		level0.getRightChild().setNameprefix(3);
+		
+		level0.addSystem(new DistributedInstance("node1:123"));
+		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
+		level0.getRightChild().addSystem(new DistributedInstance("node3:123"));
+		
+		final List<DistributedInstance> systems = level0.getSystemsForBoundingBox(BoundingBox.EMPTY_BOX);
+		Assert.assertEquals(2, systems.size());
+	}
+	
+	/**
+	 * Get the systems for a distribution group
+	 */
+	@Test
+	public void testGetSystemsForDistributionGroup2() {
+		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("2_foo");
+		level0.setSplit(50);
+		level0.getLeftChild().setNameprefix(2);
+		level0.getRightChild().setNameprefix(3);
+		
+		level0.addSystem(new DistributedInstance("node1:123"));
+		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
+		level0.getRightChild().addSystem(new DistributedInstance("node2:123"));
+		
+		final List<DistributedInstance> systems = level0.getSystemsForBoundingBox(BoundingBox.EMPTY_BOX);
+		Assert.assertEquals(1, systems.size());
 	}
 }

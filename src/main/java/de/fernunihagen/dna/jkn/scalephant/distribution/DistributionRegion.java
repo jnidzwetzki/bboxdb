@@ -395,7 +395,11 @@ public class DistributionRegion {
 		}
 		
 		if(isLeafRegion()) {
-			resultSystems.addAll(systems);
+			for(final DistributedInstance system : systems) {
+				if(! resultSystems.contains(system)) {
+					resultSystems.add(system);
+				}
+			}
 		} else {
 			leftChild.getSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
 			rightChild.getSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
