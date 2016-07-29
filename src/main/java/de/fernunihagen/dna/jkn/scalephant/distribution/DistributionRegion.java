@@ -2,7 +2,9 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
@@ -407,7 +409,37 @@ public class DistributionRegion {
 	}
 
 	/**
-	 * Find the region for the given nameprefix
+	 * Get the DistributionRegions for a given bounding box 
+	 * @param boundingBox
+	 * @return
+	 */
+	public Set<DistributionRegion> getDistributionRegionsForBoundingBox(final BoundingBox boundingBox) {
+		final Set<DistributionRegion> resultSet = new HashSet<DistributionRegion>();
+		getDistributionRegionsForBoundingBoxRecursive(boundingBox, resultSet);
+		return resultSet;
+	}
+	
+	/**
+	 * Get the DistributionRegions for a given bounding box recursive 
+	 * @param boundingBox
+	 * @return
+	 */
+	protected void getDistributionRegionsForBoundingBoxRecursive(final BoundingBox boundingBox, final Set<DistributionRegion> resultSet) {
+		// This node is not covered. So, edge nodes are not covered
+		if(! converingBox.overlaps(boundingBox)) {
+			return;
+		}
+		
+		resultSet.add(this);
+		
+		if(! isLeafRegion()) {
+			leftChild.getDistributionRegionsForBoundingBoxRecursive(boundingBox, resultSet);
+			rightChild.getDistributionRegionsForBoundingBoxRecursive(boundingBox, resultSet);
+		}
+	}
+
+	/**
+	 * Find the region for the given name prefix
 	 * @param searchNameprefix
 	 * @return
 	 */

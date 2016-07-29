@@ -1,6 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -228,5 +229,23 @@ public class TestDistributionGroup {
 		
 		final List<DistributedInstance> systems = level0.getSystemsForBoundingBox(BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(1, systems.size());
+	}
+	
+	/**
+	 * Get the distribution groups for a distribution group
+	 */
+	@Test
+	public void testGetDistributionGroupsForDistributionGroup() {
+		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("2_foo");
+		level0.setSplit(50);
+		level0.getLeftChild().setNameprefix(2);
+		level0.getRightChild().setNameprefix(3);
+		
+		level0.addSystem(new DistributedInstance("node1:123"));
+		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
+		level0.getRightChild().addSystem(new DistributedInstance("node2:123"));
+		
+		final Set<DistributionRegion> regions = level0.getDistributionRegionsForBoundingBox(BoundingBox.EMPTY_BOX);
+		Assert.assertEquals(3, regions.size());
 	}
 }
