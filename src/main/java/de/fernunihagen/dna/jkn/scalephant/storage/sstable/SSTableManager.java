@@ -617,13 +617,28 @@ public class SSTableManager implements ScalephantService, Storage {
 		return storageConfiguration;
 	}
 
+	/**
+	 * Get the name of this service
+	 */
 	@Override
 	public String getServicename() {
 		return "SSTable manager";
 	}
 
+	/**
+	 * Get the sstable facades
+	 * @return
+	 */
 	public List<SSTableFacade> getSstableFacades() {
 		return sstableFacades;
+	}
+	
+	/**
+	 * Get the unflushed memtables
+	 * @return
+	 */
+	public List<Memtable> getUnflushedMemtables() {
+		return unflushedMemtables;
 	}
 
 	// These methods are required by the interface
