@@ -577,18 +577,34 @@ public class SSTableManager implements ScalephantService, Storage {
 		return result;
 	}
 	
+	/**
+	 * Get and increase the table number
+	 * @return
+	 */
 	public int increaseTableNumber() {
 		return tableNumber.getAndIncrement();
 	}
 
+	/**
+	 * Is the instance ready?
+	 * @return
+	 */
 	public boolean isReady() {
 		return ready;
 	}
 
+	/**
+	 * Set ready flag
+	 * @param ready
+	 */
 	public void setReady(final boolean ready) {
 		this.ready = ready;
 	}
 
+	/**
+	 * Get the sstable name for this instance
+	 * @return
+	 */
 	public SSTableName getName() {
 		return name;
 	}
