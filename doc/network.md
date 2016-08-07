@@ -222,11 +222,11 @@ The response body contains the names of the existing tables.
 	+---------+--------+--------+--------+
     |           Number of tables         | 
     +------------------+-----------------+
-    | Length of Table 1|   Table name 1  |
+    | Length of table 1|   Table name 1  |
     +------------------+-----------------+
     |                 ...                |
     +------------------+-----------------+   
-    | Length of Table n|   Table name n  |
+    | Length of table n|   Table name n  |
     +------------------------------------+  
     
 ### Disconnect 
