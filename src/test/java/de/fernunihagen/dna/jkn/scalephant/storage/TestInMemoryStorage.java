@@ -164,4 +164,62 @@ public class TestInMemoryStorage {
 		Assert.assertEquals(1, memtable.getTuplesAfterTime(createdTuple2.getTimestamp()).size());
 		Assert.assertEquals(0, memtable.getTuplesAfterTime(createdTuple3.getTimestamp()).size());
 	}
+	
+	/**
+	 * Test iterator 1
+	 * @throws Exception
+	 */
+	@Test
+	public void testIterate1() throws Exception {
+		
+		Assert.assertEquals(0, memtable.getSortedTupleList().size());
+		
+		int tuples = 0;
+		for(@SuppressWarnings("unused") final Tuple tuple : memtable) {
+			tuples++;
+		}
+		
+		Assert.assertEquals(0, tuples);
+	}
+	
+	/**
+	 * Test iterator 2
+	 * @throws Exception
+	 */
+	@Test
+	public void testIterate2() throws Exception {
+		final Tuple tuple1 = new Tuple("1", null, "abc".getBytes());
+		memtable.put(tuple1);
+		
+		int tuples = 0;
+		for(@SuppressWarnings("unused") final Tuple tuple : memtable) {
+			tuples++;
+		}
+		
+		Assert.assertEquals(1, tuples);
+	}
+	
+	/**
+	 * Test iterator 3
+	 * @throws Exception
+	 */
+	@Test
+	public void testIterate3() throws Exception {
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
+		memtable.put(createdTuple1);
+		
+		final Tuple createdTuple2 = new Tuple("2", null, "abc".getBytes());
+		memtable.put(createdTuple2);
+		
+		final Tuple createdTuple3 = new Tuple("3", null, "abc".getBytes());
+		memtable.put(createdTuple3);
+		
+		int tuples = 0;
+		for(@SuppressWarnings("unused") final Tuple tuple : memtable) {
+			tuples++;
+		}
+		
+		Assert.assertEquals(3, tuples);
+	}
+	
 }

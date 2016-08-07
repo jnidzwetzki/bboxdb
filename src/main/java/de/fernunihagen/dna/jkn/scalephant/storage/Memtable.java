@@ -2,6 +2,7 @@ package de.fernunihagen.dna.jkn.scalephant.storage;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -15,7 +16,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
-public class Memtable implements ScalephantService, Storage {
+public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 	
 	/**
 	 * The name of the corresponding table
@@ -253,10 +254,40 @@ public class Memtable implements ScalephantService, Storage {
 		return maxEntries;
 	}
 
-
 	@Override
 	public String getServicename() {
 		return "Memtable";
+	}
+
+	@Override
+	public Iterator<Tuple> iterator() {
+		return new Iterator<Tuple>() {
+
+			protected int entry = 0;
+			protected int lastEntry = freePos;
+			
+			@Override
+			public boolean hasNext() {
+				return entry < lastEntry;
+			}
+
+			@Override
+			public Tuple next() {
+				
+				if(entry > lastEntry) {
+					throw new IllegalStateException("Requesting wrong position: " + entry + " of " + lastEntry);
+				}
+				
+				final Tuple tuple = data[entry];
+				entry++;
+				return tuple;
+			}
+
+			@Override
+			public void remove() {
+				throw new IllegalStateException("Remove is not supported");
+			}
+		};
 	}
 
 }
