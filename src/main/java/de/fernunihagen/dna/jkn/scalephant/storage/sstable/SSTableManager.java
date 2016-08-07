@@ -162,6 +162,19 @@ public class SSTableManager implements ScalephantService, Storage {
 		// the running tasks
 		ready = false;
 		
+		stopFlushAndCompactThread();
+
+		// Close all sstables
+		for(final SSTableFacade facade : sstableFacades) {
+			facade.shutdown();
+		}
+		sstableFacades.clear();
+	}
+
+	/**
+	 * Shutdown the flush and the compact thread
+	 */
+	public void stopFlushAndCompactThread() {
 		// Shutdown the running threads
 		final List<Thread> threadsToJoin = new ArrayList<Thread>();
 		
@@ -188,12 +201,6 @@ public class SSTableManager implements ScalephantService, Storage {
 				logger.warn("Got exception while waiting on thread join: " + thread.getName(), e);
 			}
 		}
-
-		// Close all sstables
-		for(final SSTableFacade facade : sstableFacades) {
-			facade.shutdown();
-		}
-		sstableFacades.clear();
 	}
 	
 	
