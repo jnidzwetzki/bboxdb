@@ -210,17 +210,16 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * @return
 	 */
 	public boolean isShutdownComplete() {
-		boolean shutdownComplete = true;
 		
-		if(flushThread != null) {
-			shutdownComplete = shutdownComplete & ! flushThread.isAlive();
+		if(flushThread != null && flushThread.isAlive()) {
+			return false;
 		}
 		
-		if(compactThread != null) {
-			shutdownComplete = shutdownComplete & ! compactThread.isAlive();
+		if(compactThread != null && compactThread.isAlive()) {
+			return false;
 		}
 		
-		return shutdownComplete;
+		return true;
 	}
 	
 	/**
