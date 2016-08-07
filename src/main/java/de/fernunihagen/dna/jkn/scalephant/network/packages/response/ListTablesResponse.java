@@ -10,12 +10,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
+import de.fernunihagen.dna.jkn.scalephant.tools.DataEncoderHelper;
 
 public class ListTablesResponse extends NetworkResponsePackage {
 	
@@ -49,21 +49,13 @@ public class ListTablesResponse extends NetworkResponsePackage {
 		try {
 			final byte[] bodyBytes = createBody();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(2);
-			bb.order(Const.APPLICATION_BYTE_ORDER);
-			bb.putShort((short) bodyBytes.length);
-			
-			// Write body length
-			final int bodyLength = bb.capacity() + bodyBytes.length;
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
-			bodyLengthBuffer.order(Const.APPLICATION_BYTE_ORDER);
-			bodyLengthBuffer.putLong(bodyLength);
+			// Calculate and write body length
+			final int bodyLength = bodyBytes.length;			
+			final ByteBuffer bodyLengthBuffer = DataEncoderHelper.longToByteBuffer(bodyLength);			
 			bos.write(bodyLengthBuffer.array());
 
 			// Write body
-			bos.write(bb.array());
 			bos.write(bodyBytes);
-			
 			bos.close();
 		} catch (IOException e) {
 			logger.error("Got exception while converting package into bytes", e);
@@ -81,10 +73,19 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	protected byte[] createBody() throws IOException {
 		final ByteArrayOutputStream bodyStream = new ByteArrayOutputStream();
 		
+		// Write total amount of tables
+		final ByteBuffer totalTables = DataEncoderHelper.intToByteBuffer(tables.size());			
+		bodyStream.write(totalTables.array(), 0, totalTables.array().length);
+		
 		for(final SSTableName table : tables) {
 			final byte[] tableBytes = table.getFullnameBytes();
+			
+			// Write table length
+			final ByteBuffer tableLength = DataEncoderHelper.shortToByteBuffer((short) tableBytes.length);			
+			bodyStream.write(tableLength.array(), 0, tableLength.array().length);
+			
+			// Write table name
 			bodyStream.write(tableBytes, 0, tableBytes.length);
-			bodyStream.write('\0');
 		}
 		bodyStream.close();
 		
@@ -107,7 +108,6 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	 */
 	public static ListTablesResponse decodePackage(final ByteBuffer encodedPackage) {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
-		final List<SSTableName> tables = new ArrayList<SSTableName>();
 
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_LIST_TABLES);
 
@@ -116,24 +116,25 @@ public class ListTablesResponse extends NetworkResponsePackage {
 			return null;
 		}
 		
-		// Read the body length
-		encodedPackage.getShort();
-		
-		StringBuilder sb = new StringBuilder();
-		while(encodedPackage.remaining() != 0) {
-			final byte currentByte = encodedPackage.get();
+		// Read the total amount of tables
+		final int totalTables = encodedPackage.getInt();
+		final List<SSTableName> tables = new ArrayList<SSTableName>(totalTables);
+
+		// Read and decode tables
+		for(short readTables = 0; readTables < totalTables; readTables++) {
+			// Read table name length
+			final short tableNameLength = encodedPackage.getShort();
+			final byte[] tablenameBytes = new byte[tableNameLength];
 			
-			// Got terminal, tablename is complete
-			if(currentByte == '\0') {
-				tables.add(new SSTableName(sb.toString()));
-				sb = new StringBuilder();
-			} else {
-				sb.append((char) currentByte);
-			}
+			// Read table name and decode
+			encodedPackage.get(tablenameBytes, 0, tablenameBytes.length);
+			final String tablename = new String(tablenameBytes);
+			final SSTableName sstableName = new SSTableName(tablename);
+			tables.add(sstableName);
 		}
 		
-		if(sb.length() != 0) {
-			logger.warn("Body read complete, but buffer not empty. Is the last table terminated by \\0?" + sb.toString());
+		if(encodedPackage.remaining() != 0) {
+			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new ListTablesResponse(requestId, tables);

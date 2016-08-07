@@ -12,10 +12,11 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 ### Version 0.1.0 (Alpha) - TBA
 - Fixed some crashes in the network handler
 - Added first version of the OSM data import benchmark
-- Added routig header to network packages 
+- Added routing header to network packages 
 - First version with working ClusterClient
 - Changed client API (Introduced multi result futures)
 - Implemented insert request routing
+- Changed the structure of the list tables response package
 
 ### Version 0.0.9 (Alpha) - 14.07.2016
 - Added compactification statistics

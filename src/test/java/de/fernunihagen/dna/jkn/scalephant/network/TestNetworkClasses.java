@@ -476,10 +476,10 @@ public class TestNetworkClasses {
 	@Test
 	public void testListTablesResponse() {
 		final List<SSTableName> tables = new ArrayList<SSTableName>();
-		tables.add(new SSTableName("table1"));
-		tables.add(new SSTableName("testtable"));
-		tables.add(new SSTableName("test4711"));
-		tables.add(new SSTableName("mytest57"));
+		tables.add(new SSTableName("3_group1_table1"));
+		tables.add(new SSTableName("3_group1_testtable"));
+		tables.add(new SSTableName("3_group1_test4711"));
+		tables.add(new SSTableName("3_group1_mytest57"));
 		
 		final ListTablesResponse response = new ListTablesResponse((short) 3, tables);
 		byte[] encodedPackage = response.getByteArray();

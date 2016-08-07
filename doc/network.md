@@ -216,17 +216,19 @@ The body of the package is empty
 	+---------+--------+--------+--------+
 
 #### Response body
-The request body contains the names of the existing tables, separated by a terminal symbol (\0).
+The response body contains the names of the existing tables.
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	|       Table1\0|   Table2\0|Table3\0|
-	+----------------+----------+--------+
-	|        Table4\0|
-	+----------------+
-	
-
-
+    |           Number of tables         | 
+    +------------------+-----------------+
+    | Length of Table 1|   Table name 1  |
+    +------------------+-----------------+
+    |                 ...                |
+    +------------------+-----------------+   
+    | Length of Table n|   Table name n  |
+    +------------------------------------+  
+    
 ### Disconnect 
 Disconnect from server
 
