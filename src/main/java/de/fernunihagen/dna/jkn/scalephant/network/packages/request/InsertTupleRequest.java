@@ -78,7 +78,7 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		final TupleAndTable tupleAndTable = NetworkTupleEncoderDecoder.decode(encodedPackage);
 
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
+			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);

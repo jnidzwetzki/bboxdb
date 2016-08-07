@@ -97,7 +97,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 		final String key = new String(keyBytes);
 
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
+			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new DeleteTupleRequest(table, key);

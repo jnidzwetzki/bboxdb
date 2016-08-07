@@ -78,7 +78,7 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 		final String table = new String(tableBytes);
 		
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
+			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new DeleteTableRequest(table);

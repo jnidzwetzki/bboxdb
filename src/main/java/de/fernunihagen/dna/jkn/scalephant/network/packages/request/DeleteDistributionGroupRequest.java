@@ -77,7 +77,7 @@ public class DeleteDistributionGroupRequest implements NetworkRequestPackage {
 		final String distributionGroup = new String(groupBytes);
 		
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
+			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new DeleteDistributionGroupRequest(distributionGroup);

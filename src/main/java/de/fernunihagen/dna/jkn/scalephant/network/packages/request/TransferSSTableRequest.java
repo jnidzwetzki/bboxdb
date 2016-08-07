@@ -163,7 +163,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 		final long indexLength = partialPackage.getLong();
 				
 		if(partialPackage.remaining() != 0) {
-			logger.error("Some bytes are left after encoding: " + partialPackage.remaining());
+			logger.error("Some bytes are left after decoding: " + partialPackage.remaining());
 			return false;
 		}
 		
