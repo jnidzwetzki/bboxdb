@@ -403,7 +403,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	public Tuple get(final String key) throws StorageManagerException {
 			
-		// Read unlushed memtables first
+		// Read unflushed memtables first
 		Tuple tuple = getTupleFromMemtable(key);
 				
 		boolean readComplete = false;
