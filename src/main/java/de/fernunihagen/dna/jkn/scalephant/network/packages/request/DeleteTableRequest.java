@@ -7,13 +7,13 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.jkn.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
+import de.fernunihagen.dna.jkn.scalephant.tools.DataEncoderHelper;
 
 public class DeleteTableRequest implements NetworkRequestPackage {
 	
@@ -36,11 +36,8 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
-			
-			final ByteBuffer bb = ByteBuffer.allocate(2);
-			bb.order(Const.APPLICATION_BYTE_ORDER);
-			bb.putShort((short) tableBytes.length);
-			
+			final ByteBuffer bb = DataEncoderHelper.shortToByteBuffer((short) tableBytes.length);
+
 			// Body length
 			final long bodyLength = bb.capacity() + tableBytes.length;
 			
