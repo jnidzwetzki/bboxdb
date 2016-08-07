@@ -117,12 +117,20 @@ public class StorageManager implements ScalephantService, Storage {
 		// Ensure that only one memtable is newly created
 		synchronized (this) {	
 			if(memtable.isFull()) {
-				sstableManager.flushMemtable(memtable);
-				initNewMemtable();
+				flushMemtable();
 			}
 			
 			memtable.put(tuple);
 		}
+	}
+
+	/**
+	 * Flush the open memtable to disk
+	 * @throws StorageManagerException
+	 */
+	public void flushMemtable() throws StorageManagerException {
+		sstableManager.flushMemtable(memtable);
+		initNewMemtable();
 	}
 
 	@Override
