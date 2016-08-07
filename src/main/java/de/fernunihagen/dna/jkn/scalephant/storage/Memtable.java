@@ -254,6 +254,14 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 		return maxEntries;
 	}
 
+	/**
+	 * The size of the memtable in memory
+	 * @return
+	 */
+	public int getSizeInMemory() {
+		return sizeInMemory;
+	}
+	
 	@Override
 	public String getServicename() {
 		return "Memtable";
