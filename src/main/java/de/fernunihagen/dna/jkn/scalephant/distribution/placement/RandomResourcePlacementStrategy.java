@@ -33,12 +33,12 @@ public class RandomResourcePlacementStrategy extends ResourcePlacementStrategy {
 			throw new ResourceAllocationException("Unable to choose a system, list of systems is empty");
 		}
 		
-		if(systems.size() == blacklist.size()) {
-			throw new ResourceAllocationException("Unable to choose a system, size of blacklist and system list are equal: " + blacklist.size());
-		}
-		
 		final List<DistributedInstance> availableSystems = new ArrayList<DistributedInstance>(systems);
 		availableSystems.removeAll(blacklist);
+		
+		if(availableSystems.isEmpty()) {
+			throw new ResourceAllocationException("Unable to choose a system, all systems are blacklisted");
+		}
 		
 		final int element = Math.abs(randomGenerator.nextInt()) % availableSystems.size();
 		return availableSystems.get(element);
