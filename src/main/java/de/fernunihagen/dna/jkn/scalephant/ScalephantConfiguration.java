@@ -77,7 +77,7 @@ public class ScalephantConfiguration {
 	/**
 	 * The sstable split strategy
 	 */
-	protected String regionSplitStrategy = "de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit.SimpleStrategyFactory";
+	protected String regionSplitStrategy = "de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit.SimpleSplitStrategy";
 
 	/**
 	 * The replication strategy
