@@ -34,7 +34,7 @@ public class RandomResourcePlacementStrategy extends ResourcePlacementStrategy {
 		}
 		
 		if(systems.size() == blacklist.size()) {
-			throw new ResourceAllocationException("Unable to choose a system, size of blacklist and system list are equal");
+			throw new ResourceAllocationException("Unable to choose a system, size of blacklist and system list are equal: " + blacklist.size());
 		}
 		
 		int retryCounter = 0; 
