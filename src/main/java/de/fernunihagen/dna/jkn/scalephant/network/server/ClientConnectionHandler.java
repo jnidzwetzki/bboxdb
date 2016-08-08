@@ -16,14 +16,13 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
-import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.nameprefix.NameprefixInstanceManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.nameprefix.NameprefixMapper;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
@@ -271,17 +270,12 @@ public class ClientConnectionHandler implements Runnable {
 			
 			final DistributionRegion region = zookeeperClient.readDistributionGroup(createPackage.getDistributionGroup());
 			
-			final ScalephantConfiguration scalephantConfiguration = 
-					ScalephantConfigurationManager.getConfiguration();
-
-			final String localIp = scalephantConfiguration.getLocalip();
-			final int localPort = scalephantConfiguration.getNetworkListenPort();
+			DistributionRegionHelper.allocateSystemsToNewRegion(region, zookeeperClient);
 			
-			final DistributedInstance intance = new DistributedInstance(localIp, localPort, Const.VERSION);
-			zookeeperClient.addSystemToDistributionRegion(region, intance);
+			// Let the data settle down
+			Thread.sleep(5000);
+			
 			zookeeperClient.setStateForDistributionGroup(region, DistributionRegion.STATE_ACTIVE);
-			
-			waitForDistributionGroupReady(createPackage.getDistributionGroup());
 			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
@@ -290,33 +284,6 @@ public class ClientConnectionHandler implements Runnable {
 		}
 		
 		return true;
-	}
-
-	/**
-	 * Wait until the newly created distribution group is ready
-	 * @param createPackage
-	 * @throws InterruptedException
-	 */
-	protected void waitForDistributionGroupReady(final String distributionGroupName)
-			throws InterruptedException {
-
-		final DistributionGroupName distributionGroup = new DistributionGroupName(distributionGroupName);
-		final NameprefixMapper nameprefixMapper = NameprefixInstanceManager.getInstance(distributionGroup);
-
-		// Wait for zookeeper calls to settle down
-		int retryCounter = 0;
-		while(nameprefixMapper.getAllNamePrefixes().isEmpty()) {
-			Thread.sleep(500);
-			retryCounter++;
-			if(retryCounter > Const.OPERATION_RETRY) {
-				break;
-			}
-		}
-		
-		if(retryCounter > Const.OPERATION_RETRY) {
-			logger.warn("Waited, but distribution group " 
-					+ distributionGroupName + " don't became ready, give up");
-		}
 	}
 	
 	/**
