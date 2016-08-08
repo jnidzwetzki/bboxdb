@@ -3,8 +3,10 @@ package de.fernunihagen.dna.jkn.scalephant.storage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +109,10 @@ public class StorageInterface {
 		
 		// Memtabes
 		logger.info("Shuting down active memtables for distribution group: " + fullname);
-		for(final SSTableName ssTableName : instances.keySet()) {
+		
+		// Create a copy of the key set to allow deletions (performed by shutdown) during iteration
+		final Set<SSTableName> copyOfInstances = new HashSet<SSTableName>(instances.keySet());
+		for(final SSTableName ssTableName : copyOfInstances) {
 			if(ssTableName.getDistributionGroup().equals(fullname)) {
 				shutdown(ssTableName);
 			}
