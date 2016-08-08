@@ -29,7 +29,7 @@ public class ResourcePlacementStrategyFactory {
 		}
 		
 		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
-		final String factoryClass = configuration.getRegionSplitStrategy();
+		final String factoryClass = configuration.getResourcePlacementStrategy();
 		
 		if("none".equals(factoryClass)) {
 			return null;
