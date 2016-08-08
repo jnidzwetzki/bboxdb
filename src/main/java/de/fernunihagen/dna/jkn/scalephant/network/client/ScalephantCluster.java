@@ -17,8 +17,9 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.MembershipConnectionService;
-import de.fernunihagen.dna.jkn.scalephant.distribution.resource.RandomResourcePlacementStrategy;
-import de.fernunihagen.dna.jkn.scalephant.distribution.resource.ResourcePlacementStrategy;
+import de.fernunihagen.dna.jkn.scalephant.distribution.placement.RandomResourcePlacementStrategy;
+import de.fernunihagen.dna.jkn.scalephant.distribution.placement.ResourceAllocationException;
+import de.fernunihagen.dna.jkn.scalephant.distribution.placement.ResourcePlacementStrategy;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
@@ -162,8 +163,15 @@ public class ScalephantCluster implements Scalephant {
 
 	@Override
 	public OperationFuture listTables() {
-		final ScalephantClient scalephantClient = getSystemForNewRessources();
-		return scalephantClient.listTables();
+		try {
+			final ScalephantClient scalephantClient = getSystemForNewRessources();
+			return scalephantClient.listTables();
+		} catch (ResourceAllocationException e) {
+			logger.warn("listTables called, but no ressoures are available", e);
+			final ClientOperationFuture future = new ClientOperationFuture();
+			future.setFailedState();
+			return future;
+		}
 	}
 
 	@Override
@@ -175,19 +183,27 @@ public class ScalephantCluster implements Scalephant {
 			future.setFailedState();
 			return future;
 		}
-		
-		final ScalephantClient scalephantClient = getSystemForNewRessources();
-		return scalephantClient.createDistributionGroup(distributionGroup, replicationFactor);
 
+		try {
+			final ScalephantClient scalephantClient = getSystemForNewRessources();
+			return scalephantClient.createDistributionGroup(distributionGroup, replicationFactor);
+		} catch (ResourceAllocationException e) {
+			logger.warn("createDistributionGroup called, but no ressoures are available", e);
+			final ClientOperationFuture future = new ClientOperationFuture();
+			future.setFailedState();
+			return future;
+		}
 	}
 
 	/**
 	 * Find a system with free resources
 	 * @return
+	 * @throws ResourceAllocationException 
 	 */
-	protected ScalephantClient getSystemForNewRessources() {
+	protected ScalephantClient getSystemForNewRessources() throws ResourceAllocationException {
 		final List<DistributedInstance> serverConnections = membershipConnectionService.getAllInstances();
-		final DistributedInstance system = resourcePlacementStrategy.findSystemToAllocate(serverConnections);
+		final List<DistributedInstance> systems = resourcePlacementStrategy.getInstancesForNewRessource(serverConnections, 1);
+		final DistributedInstance system = systems.get(0);
 		return membershipConnectionService.getConnectionForInstance(system);
 	}
 

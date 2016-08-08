@@ -82,7 +82,7 @@ zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
 # Default: 1000
 # sstableMaxEntries: 1000
 
-# The replication strategy
-# Default: de.fernunihagen.dna.jkn.scalephant.distribution.replication.RandomReplicationStrategy
-# replicationStrategy: de.fernunihagen.dna.jkn.scalephant.distribution.replication.RandomReplicationStrategy
+# The resource placement strategy
+# Default: de.fernunihagen.dna.jkn.scalephant.distribution.placement.RandomResourcePlacementStrategy
+# resourcePlacementStrategy: de.fernunihagen.dna.jkn.scalephant.distribution.placement.RandomResourcePlacementStrategy
 

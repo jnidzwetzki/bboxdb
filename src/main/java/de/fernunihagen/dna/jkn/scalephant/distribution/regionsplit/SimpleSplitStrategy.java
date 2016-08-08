@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit;
 
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -13,7 +14,9 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
 import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
-import de.fernunihagen.dna.jkn.scalephant.distribution.resource.RandomResourcePlacementStrategy;
+import de.fernunihagen.dna.jkn.scalephant.distribution.placement.RandomResourcePlacementStrategy;
+import de.fernunihagen.dna.jkn.scalephant.distribution.placement.ResourceAllocationException;
+import de.fernunihagen.dna.jkn.scalephant.distribution.placement.ResourcePlacementStrategy;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.FloatInterval;
 
 public class SimpleSplitStrategy extends RegionSplitStrategy {
@@ -63,19 +66,23 @@ public class SimpleSplitStrategy extends RegionSplitStrategy {
 		
 		logger.info("Set split at:" + midpoint);
 		region.setSplit(midpoint);
-		
-		// Assign systems
-		final RandomResourcePlacementStrategy resourcePlacementStrategy = new RandomResourcePlacementStrategy();
-		
-		final DistributedInstance systemLeftChild = resourcePlacementStrategy.findSystemToAllocate(systems);
-		final DistributedInstance systemRightChild = resourcePlacementStrategy.findSystemToAllocate(systems);
-		
+
 		try {
+			// Find resources to allocate
+			final ResourcePlacementStrategy resourcePlacementStrategy = new RandomResourcePlacementStrategy();
+
+			final List<DistributedInstance> systemsToAllocate = resourcePlacementStrategy.getInstancesForNewRessource(systems, 2);
+			
+			final DistributedInstance systemLeftChild = systemsToAllocate.get(0);
+			final DistributedInstance systemRightChild = systemsToAllocate.get(1);
+			
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			zookeeperClient.addSystemToDistributionRegion(region.getLeftChild(), systemLeftChild);
 			zookeeperClient.addSystemToDistributionRegion(region.getRightChild(), systemRightChild);
 		} catch (ZookeeperException e) {
 			logger.warn("Unable to assign systems to splitted region: " + region, e);
+		} catch (ResourceAllocationException e) {
+			logger.warn("Unable to find systems for splitted region: " + region, e);
 		}
 		
 	}
