@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution.placement;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -7,7 +8,6 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 
 public class RandomResourcePlacementStrategy extends ResourcePlacementStrategy {
@@ -37,19 +37,10 @@ public class RandomResourcePlacementStrategy extends ResourcePlacementStrategy {
 			throw new ResourceAllocationException("Unable to choose a system, size of blacklist and system list are equal: " + blacklist.size());
 		}
 		
-		int retryCounter = 0; 
+		final List<DistributedInstance> availableSystems = new ArrayList<DistributedInstance>(systems);
+		availableSystems.removeAll(blacklist);
 		
-		while(retryCounter < Const.OPERATION_RETRY) {
-			final int element = Math.abs(randomGenerator.nextInt()) % systems.size();
-			final DistributedInstance system = systems.get(element);
-			
-			if(! blacklist.contains(system)) {
-				return system;
-			}
-			
-			retryCounter++;
-		}
-		
-		throw new ResourceAllocationException("Unable to pick a non blacklisted system by using " + Const.OPERATION_RETRY + " retries");
+		final int element = Math.abs(randomGenerator.nextInt()) % availableSystems.size();
+		return availableSystems.get(element);
 	}
 }
