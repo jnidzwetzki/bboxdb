@@ -68,7 +68,7 @@ clustername: mycluster
 zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
 
 # The IP address of the local node. This IP address 
-# is published in zookeeper and is used for incomming 
+# is published in zookeeper and is used for incoming 
 # connections from other scalephant instances.
 #
 # Default: the first IP address of the local node
@@ -84,5 +84,10 @@ zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
 
 # The resource placement strategy
 # Default: de.fernunihagen.dna.jkn.scalephant.distribution.placement.RandomResourcePlacementStrategy
+# 
+# Supported values:
+# de.fernunihagen.dna.jkn.scalephant.distribution.placement.RandomResourcePlacementStrategy
+# de.fernunihagen.dna.jkn.scalephant.distribution.placement.RoundRobinResourcePlacementStrategy
+#
 # resourcePlacementStrategy: de.fernunihagen.dna.jkn.scalephant.distribution.placement.RandomResourcePlacementStrategy
 
