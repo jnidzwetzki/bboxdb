@@ -18,7 +18,15 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class TestNetworkCommunication {
 
+	/**
+	 * The instance of the software
+	 */
 	protected static ScalephantMain scalephantMain;
+	
+	/**
+	 * The replication factor for the unit tests
+	 */
+	public final static short REPLICATION_FACTOR = 1;
 	
 	@BeforeClass
 	public static void init() throws DaemonInitException, Exception {
@@ -138,7 +146,7 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
-		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
+		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
@@ -196,7 +204,7 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
-		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
+		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
