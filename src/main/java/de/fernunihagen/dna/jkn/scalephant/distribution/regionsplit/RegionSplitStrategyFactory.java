@@ -6,23 +6,23 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 
-public class RegionSplitFactory {
+public class RegionSplitStrategyFactory {
 	
 	/**
 	 * The cached instance of the factory
 	 */
-	protected static RegionSplitter cachedInstance = null;
+	protected static RegionSplitStrategy cachedInstance = null;
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(RegionSplitFactory.class);
+	private final static Logger logger = LoggerFactory.getLogger(RegionSplitStrategyFactory.class);
 
 	/**
 	 * Get an instance of the configured factory
 	 * @return
 	 */
-	public static RegionSplitter getInstance() {
+	public static RegionSplitStrategy getInstance() {
 		
 		if(cachedInstance != null) {
 			return cachedInstance;
@@ -45,11 +45,11 @@ public class RegionSplitFactory {
 			
 			final Object factoryObject = classObject.newInstance();
 			
-			if(! (factoryObject instanceof RegionSplitter)) {
+			if(! (factoryObject instanceof RegionSplitStrategy)) {
 				throw new ClassNotFoundException(factoryClass + " is not a instance of RegionSplitter");
 			}
 			
-			cachedInstance = (RegionSplitter) factoryObject;
+			cachedInstance = (RegionSplitStrategy) factoryObject;
 			
 			return cachedInstance;
 			

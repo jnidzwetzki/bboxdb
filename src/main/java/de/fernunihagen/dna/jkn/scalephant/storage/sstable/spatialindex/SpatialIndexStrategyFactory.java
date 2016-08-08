@@ -6,23 +6,23 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 
-public class SpatialIndexFactory {
+public class SpatialIndexStrategyFactory {
 	
 	/**
 	 * The cached instance of the factory
 	 */
-	protected static SpatialIndexer cachedInstance = null;
+	protected static SpatialIndexStrategy cachedInstance = null;
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SpatialIndexFactory.class);
+	private final static Logger logger = LoggerFactory.getLogger(SpatialIndexStrategyFactory.class);
 
 	/**
 	 * Get an instance of the configured factory
 	 * @return
 	 */
-	public static SpatialIndexer getInstance() {
+	public static SpatialIndexStrategy getInstance() {
 		
 		if(cachedInstance != null) {
 			return cachedInstance;
@@ -45,11 +45,11 @@ public class SpatialIndexFactory {
 			
 			final Object factoryObject = classObject.newInstance();
 			
-			if(! (factoryObject instanceof SpatialIndexer)) {
+			if(! (factoryObject instanceof SpatialIndexStrategy)) {
 				throw new ClassNotFoundException(factoryClass + " is not a instance of SpatialIndexer");
 			}
 			
-			cachedInstance = (SpatialIndexer) factoryObject;
+			cachedInstance = (SpatialIndexStrategy) factoryObject;
 			
 			return cachedInstance;
 			

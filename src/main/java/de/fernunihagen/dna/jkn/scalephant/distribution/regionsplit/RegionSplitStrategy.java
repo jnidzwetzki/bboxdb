@@ -25,12 +25,12 @@ import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
 
-public abstract class RegionSplitter {
+public abstract class RegionSplitStrategy {
 	
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitter.class);
+	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitStrategy.class);
 
 	/**
 	 * Is a split needed?

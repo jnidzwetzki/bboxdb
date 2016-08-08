@@ -16,7 +16,7 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedIns
 import de.fernunihagen.dna.jkn.scalephant.distribution.resource.RandomResourcePlacementStrategy;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.FloatInterval;
 
-public class SimpleSplitStrategy extends RegionSplitter {
+public class SimpleSplitStrategy extends RegionSplitStrategy {
 	
 	/**
 	 * The Logger
