@@ -78,6 +78,11 @@ public class ScalephantConfiguration {
 	 * The sstable split strategy
 	 */
 	protected String regionSplitStrategy = "de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit.SimpleStrategyFactory";
+
+	/**
+	 * The replication strategy
+	 */
+	protected String replicationStrategy = "de.fernunihagen.dna.jkn.scalephant.distribution.replication.RandomReplicationStrategy";
 	
 	/**
 	 * The maximum number of entries per SSTable
@@ -216,6 +221,14 @@ public class ScalephantConfiguration {
 
 	public void setRegionSplitStrategy(final String regionSplitStrategy) {
 		this.regionSplitStrategy = regionSplitStrategy;
+	}
+
+	public String getReplicationStrategy() {
+		return replicationStrategy;
+	}
+
+	public void setReplicationStrategy(final String replicationStrategy) {
+		this.replicationStrategy = replicationStrategy;
 	}
 
 }
