@@ -12,7 +12,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
  * Based on the Box Sort Algorithm by Piet Houthuys
  *
  */
-public class BoxSortIndex implements SpatialIndexer {
+public class BoxSortSpatialIndexStrategy implements SpatialIndexer {
 
 	/**
 	 * The root element of the tree

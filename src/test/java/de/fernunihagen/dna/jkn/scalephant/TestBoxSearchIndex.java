@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.jkn.scalephant.storage.sstable.spatialindex.BoxSortIndex;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.spatialindex.BoxSortSpatialIndexStrategy;
 
 public class TestBoxSearchIndex {
 	
@@ -20,13 +20,13 @@ public class TestBoxSearchIndex {
 	public void testBoxesInsert() {
 		final List<Tuple> tupleList = getTupleList();
 		
-		final BoxSortIndex boxSortIndex = new BoxSortIndex();
+		final BoxSortSpatialIndexStrategy boxSortIndex = new BoxSortSpatialIndexStrategy();
 		boxSortIndex.constructFromTuples(tupleList);
 	}
 	
 	@Test
 	public void testQueryOnEmptytree() {
-		final BoxSortIndex boxSortIndex = new BoxSortIndex();
+		final BoxSortSpatialIndexStrategy boxSortIndex = new BoxSortSpatialIndexStrategy();
 		final List<String> result = boxSortIndex.query(new BoundingBox(1f, 1f, 2f, 2f));
 		Assert.assertTrue(result.isEmpty());
 	}
@@ -38,7 +38,7 @@ public class TestBoxSearchIndex {
 	public void testBoxQuery1() {
 		final List<Tuple> tupleList = getTupleList();
 		
-		final BoxSortIndex boxSortIndex = new BoxSortIndex();
+		final BoxSortSpatialIndexStrategy boxSortIndex = new BoxSortSpatialIndexStrategy();
 		boxSortIndex.constructFromTuples(tupleList);
 		queryIndex(tupleList, boxSortIndex);
 	}
@@ -50,7 +50,7 @@ public class TestBoxSearchIndex {
 	public void testBoxQuery2() {
 		final List<Tuple> tupleList = generateRandomTupleList(2);
 		
-		final BoxSortIndex boxSortIndex = new BoxSortIndex();
+		final BoxSortSpatialIndexStrategy boxSortIndex = new BoxSortSpatialIndexStrategy();
 		boxSortIndex.constructFromTuples(tupleList);
 		queryIndex(tupleList, boxSortIndex);
 	}
@@ -62,7 +62,7 @@ public class TestBoxSearchIndex {
 	public void testBoxQuery3() {
 		final List<Tuple> tupleList = generateRandomTupleList(3);
 		
-		final BoxSortIndex boxSortIndex = new BoxSortIndex();
+		final BoxSortSpatialIndexStrategy boxSortIndex = new BoxSortSpatialIndexStrategy();
 		boxSortIndex.constructFromTuples(tupleList);
 		
 		queryIndex(tupleList, boxSortIndex);
@@ -75,7 +75,7 @@ public class TestBoxSearchIndex {
 	public void testBoxQuery4() {
 		final List<Tuple> tupleList = generateRandomTupleList(4);
 		
-		final BoxSortIndex boxSortIndex = new BoxSortIndex();
+		final BoxSortSpatialIndexStrategy boxSortIndex = new BoxSortSpatialIndexStrategy();
 		boxSortIndex.constructFromTuples(tupleList);
 		
 		queryIndex(tupleList, boxSortIndex);
@@ -88,7 +88,7 @@ public class TestBoxSearchIndex {
 	public void testBoxQuery5() {
 		final List<Tuple> tupleList = generateRandomTupleList(5);
 		
-		final BoxSortIndex boxSortIndex = new BoxSortIndex();
+		final BoxSortSpatialIndexStrategy boxSortIndex = new BoxSortSpatialIndexStrategy();
 		boxSortIndex.constructFromTuples(tupleList);
 		
 		queryIndex(tupleList, boxSortIndex);
@@ -101,7 +101,7 @@ public class TestBoxSearchIndex {
 	public void testBoxQuery6() {
 		final List<Tuple> tupleList = generateRandomTupleList(10);
 		
-		final BoxSortIndex boxSortIndex = new BoxSortIndex();
+		final BoxSortSpatialIndexStrategy boxSortIndex = new BoxSortSpatialIndexStrategy();
 		boxSortIndex.constructFromTuples(tupleList);
 		
 		queryIndex(tupleList, boxSortIndex);
@@ -113,7 +113,7 @@ public class TestBoxSearchIndex {
 	 * @param tupleList
 	 * @param boxSortIndex
 	 */
-	protected void queryIndex(final List<Tuple> tupleList, final BoxSortIndex boxSortIndex) {
+	protected void queryIndex(final List<Tuple> tupleList, final BoxSortSpatialIndexStrategy boxSortIndex) {
 		
 		for(final Tuple tuple: tupleList) {
 			final List<String> resultList = boxSortIndex.query(tuple.getBoundingBox());

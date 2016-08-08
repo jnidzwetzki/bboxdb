@@ -40,7 +40,7 @@ dataDirectory: /tmp/scalephant_production/data
 #
 # Possible values: 
 # none
-# de.fernunihagen.dna.jkn.scalephant.storage.sstable.spatialindex.BoxSortSpatialIndexFactory
+# de.fernunihagen.dna.jkn.scalephant.storage.sstable.spatialindex.BoxSortSpatialIndexStrategy
 #
 # Default: none 
 # storageSpatialIndexerFactory: none
