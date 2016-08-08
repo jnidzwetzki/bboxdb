@@ -202,8 +202,7 @@ public class ScalephantCluster implements Scalephant {
 	 */
 	protected ScalephantClient getSystemForNewRessources() throws ResourceAllocationException {
 		final List<DistributedInstance> serverConnections = membershipConnectionService.getAllInstances();
-		final List<DistributedInstance> systems = resourcePlacementStrategy.getInstancesForNewRessource(serverConnections, 1);
-		final DistributedInstance system = systems.get(0);
+		final DistributedInstance system = resourcePlacementStrategy.getInstancesForNewRessource(serverConnections);
 		return membershipConnectionService.getConnectionForInstance(system);
 	}
 

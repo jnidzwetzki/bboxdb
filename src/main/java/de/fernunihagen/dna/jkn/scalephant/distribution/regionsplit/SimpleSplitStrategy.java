@@ -1,7 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit;
 
 import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class SimpleSplitStrategy extends RegionSplitStrategy {
 	protected void performSplit(final DistributionRegion region) {
 		
 		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
-		final Set<DistributedInstance> systems = distributedInstanceManager.getInstances();
+		final List<DistributedInstance> systems = distributedInstanceManager.getInstances();
 		
 		if(systems.isEmpty()) {
 			logger.warn("Unable to split region, no ressources are avilable: " + region);
@@ -71,10 +70,8 @@ public class SimpleSplitStrategy extends RegionSplitStrategy {
 			// Find resources to allocate
 			final ResourcePlacementStrategy resourcePlacementStrategy = new RandomResourcePlacementStrategy();
 
-			final List<DistributedInstance> systemsToAllocate = resourcePlacementStrategy.getInstancesForNewRessource(systems, 2);
-			
-			final DistributedInstance systemLeftChild = systemsToAllocate.get(0);
-			final DistributedInstance systemRightChild = systemsToAllocate.get(1);
+			final DistributedInstance systemLeftChild = resourcePlacementStrategy.getInstancesForNewRessource(systems);
+			final DistributedInstance systemRightChild = resourcePlacementStrategy.getInstancesForNewRessource(systems);
 			
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			zookeeperClient.addSystemToDistributionRegion(region.getLeftChild(), systemLeftChild);

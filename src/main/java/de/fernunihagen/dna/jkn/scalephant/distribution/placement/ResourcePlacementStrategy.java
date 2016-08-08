@@ -1,6 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution.placement;
 
-import java.util.Collection;
 import java.util.List;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
@@ -14,6 +13,6 @@ public interface ResourcePlacementStrategy {
 	 * @return
 	 * @throws ResourceAllocationException 
 	 */
-	public List<DistributedInstance> getInstancesForNewRessource(final Collection<DistributedInstance> systems, final int numberToAllocate) throws ResourceAllocationException; 
-	
+	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems) throws ResourceAllocationException; 
+
 }

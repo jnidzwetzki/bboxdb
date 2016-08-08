@@ -1,7 +1,5 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution.placement;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -27,33 +25,13 @@ public class RandomResourcePlacementStrategy implements ResourcePlacementStrateg
 	}
 	
 	@Override
-	public List<DistributedInstance> getInstancesForNewRessource(final Collection<DistributedInstance> systems, final int numberToAllocate) throws ResourceAllocationException {
+	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems) throws ResourceAllocationException {
 		
-		final List<DistributedInstance> resultSystems = new ArrayList<DistributedInstance>(numberToAllocate);
-
 		if(systems.isEmpty()) {
 			throw new ResourceAllocationException("Unable to choose a system, list of systems is empty");
 		}
 		
-		if(numberToAllocate > systems.size()) {
-			throw new ResourceAllocationException("Number to allocate " + numberToAllocate + " is larger than system list " + systems);
-		}
-
-		final List<DistributedInstance> elements = new ArrayList<DistributedInstance>(systems.size());
-		
-		synchronized (systems) {
-			elements.addAll(systems);
-		}
-		
-		for(short i = 0; i < numberToAllocate; i++) {
-			final int element = Math.abs(randomGenerator.nextInt()) % elements.size();
-			resultSystems.add(elements.get(element));
-		}
-		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Assigning ressources: " + resultSystems);
-		}
-		
-		return resultSystems;
+		final int element = Math.abs(randomGenerator.nextInt()) % systems.size();
+		return systems.get(element);
 	}
 }

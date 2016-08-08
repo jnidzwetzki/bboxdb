@@ -75,7 +75,7 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 		DistributedInstanceManager.getInstance().registerListener(this);
 		
 		// Create connections to existing instances
-		final Set<DistributedInstance> instances = DistributedInstanceManager.getInstance().getInstances();
+		final List<DistributedInstance> instances = DistributedInstanceManager.getInstance().getInstances();
 		
 		if(instances.isEmpty()) {
 			logger.warn("The list of instances is empty");

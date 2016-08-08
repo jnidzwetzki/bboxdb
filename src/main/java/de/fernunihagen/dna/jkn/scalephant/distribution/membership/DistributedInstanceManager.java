@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution.membership;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -119,7 +120,7 @@ public class DistributedInstanceManager {
 	 * Get the list of the instances
 	 * @return
 	 */
-	public Set<DistributedInstance> getInstances() {
-		return new HashSet<DistributedInstance>(instances);
+	public List<DistributedInstance> getInstances() {
+		return new ArrayList<DistributedInstance>(instances);
 	}
 }
