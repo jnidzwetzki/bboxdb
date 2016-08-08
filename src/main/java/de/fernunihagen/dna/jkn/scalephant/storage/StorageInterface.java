@@ -84,7 +84,7 @@ public class StorageInterface {
 	 * @param table
 	 * @throws StorageManagerException 
 	 */
-	public static void deleteTable(final SSTableName table) throws StorageManagerException {
+	public static synchronized void deleteTable(final SSTableName table) throws StorageManagerException {
 		
 		if(! table.isValid()) {
 			throw new StorageManagerException("Invalid tablename: " + table);
