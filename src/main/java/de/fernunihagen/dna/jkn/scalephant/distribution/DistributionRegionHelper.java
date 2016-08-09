@@ -1,7 +1,10 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -67,6 +70,18 @@ public class DistributionRegionHelper {
 		return distributionRegionNameprefixFinder.getResult();
 	}
 	
+	/**
+	 * Calculate the amount of regions each DistributedInstance is responsible
+	 * @param region
+	 * @return
+	 */
+	public static Map<DistributedInstance, Integer> getSystemUtilization(final DistributionRegion region) {
+		final CalculateSystemUtilization calculateSystemUtilization = new CalculateSystemUtilization();
+		region.visit(calculateSystemUtilization);
+		
+		return calculateSystemUtilization.getResult();
+	}
+	
 }
 
 class DistributionRegionNameprefixFinder implements DistributionRegionVisitor {
@@ -100,7 +115,47 @@ class DistributionRegionNameprefixFinder implements DistributionRegionVisitor {
 		return true;
 	}
 	
+	/**
+	 * Get the result
+	 * @return
+	 */
 	public DistributionRegion getResult() {
 		return result;
 	}
+}
+
+class CalculateSystemUtilization implements DistributionRegionVisitor {
+
+	/**
+	 * The utilization
+	 */
+	protected Map<DistributedInstance, Integer> utilization = new HashMap<DistributedInstance, Integer>();
+	
+	@Override
+	public boolean visitRegion(final DistributionRegion distributionRegion) {
+	
+		final Collection<DistributedInstance> systems = distributionRegion.getSystems();
+		
+		for(final DistributedInstance instance : systems) {
+			if(! utilization.containsKey(instance)) {
+				utilization.put(instance, 1);
+			} else {
+				int oldValue = utilization.get(instance);
+				oldValue++;
+				utilization.put(instance, oldValue);
+			}
+		}
+		
+		// Visit remaining nodes
+		return true;
+	}
+	
+	/**
+	 * Get the result
+	 * @return
+	 */
+	public Map<DistributedInstance, Integer> getResult() {
+		return utilization;
+	}
+	
 }
