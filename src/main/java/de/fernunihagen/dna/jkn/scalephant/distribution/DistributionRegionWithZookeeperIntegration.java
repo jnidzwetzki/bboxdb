@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.nameprefix.NameprefixInstanceManager;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperException;
 
 public class DistributionRegionWithZookeeperIntegration extends DistributionRegion implements Watcher {
 

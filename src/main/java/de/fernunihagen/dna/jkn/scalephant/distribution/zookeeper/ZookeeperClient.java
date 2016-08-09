@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.distribution;
+package de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.Const;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantService;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionFactory;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
 
@@ -477,7 +480,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	protected void readDistributionGroupRecursive(final String path, final DistributionRegion child) throws ZookeeperException {
+	public void readDistributionGroupRecursive(final String path, final DistributionRegion child) throws ZookeeperException {
 			
 			final int namePrefix = getNamePrefixForPath(path);
 			child.setNameprefix(namePrefix);
@@ -821,7 +824,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param distributionRegion
 	 * @return
 	 */
-	protected String getZookeeperPathForDistributionRegion(final DistributionRegion distributionRegion) {
+	public String getZookeeperPathForDistributionRegion(final DistributionRegion distributionRegion) {
 		final String name = distributionRegion.getName();
 		final StringBuilder sb = new StringBuilder();
 		

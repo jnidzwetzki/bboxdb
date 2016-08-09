@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.distribution;
+package de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper;
 
 public class ZookeeperException extends Exception {
 

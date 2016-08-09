@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.jkn.scalephant.distribution;
+package de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper;
 
 import java.util.Collection;
 import java.util.HashMap;

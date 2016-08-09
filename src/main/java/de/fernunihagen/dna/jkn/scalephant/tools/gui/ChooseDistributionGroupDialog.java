@@ -19,8 +19,8 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperException;
 
 public class ChooseDistributionGroupDialog {
 

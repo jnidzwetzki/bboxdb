@@ -3,6 +3,8 @@ package de.fernunihagen.dna.jkn.scalephant.distribution;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 
 public class DistributionGroupCache {

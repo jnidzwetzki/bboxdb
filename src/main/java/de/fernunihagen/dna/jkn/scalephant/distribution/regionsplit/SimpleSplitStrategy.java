@@ -9,12 +9,12 @@ import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionHelper;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstanceManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.placement.ResourceAllocationException;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClientFactory;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.FloatInterval;
 
 public class SimpleSplitStrategy extends RegionSplitStrategy {

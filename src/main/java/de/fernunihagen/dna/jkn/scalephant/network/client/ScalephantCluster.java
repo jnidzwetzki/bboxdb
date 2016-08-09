@@ -13,13 +13,13 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupCache;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.MembershipConnectionService;
 import de.fernunihagen.dna.jkn.scalephant.distribution.placement.RandomResourcePlacementStrategy;
 import de.fernunihagen.dna.jkn.scalephant.distribution.placement.ResourceAllocationException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.placement.ResourcePlacementStrategy;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;

@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupCache;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.MembershipConnectionService;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClientFactory;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;

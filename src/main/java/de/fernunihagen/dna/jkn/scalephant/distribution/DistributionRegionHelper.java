@@ -12,6 +12,8 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedIns
 import de.fernunihagen.dna.jkn.scalephant.distribution.placement.ResourceAllocationException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.placement.ResourcePlacementStrategy;
 import de.fernunihagen.dna.jkn.scalephant.distribution.placement.ResourcePlacementStrategyFactory;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperException;
 
 public class DistributionRegionHelper {
 

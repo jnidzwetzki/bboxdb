@@ -13,9 +13,9 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionFactory;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionWithZookeeperIntegration;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClient;
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperException;
 
 public class TestZookeeperIntegration {
 

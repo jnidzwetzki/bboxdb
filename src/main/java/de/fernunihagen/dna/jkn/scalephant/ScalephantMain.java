@@ -10,9 +10,9 @@ import org.apache.commons.daemon.DaemonInitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.jkn.scalephant.distribution.ZookeeperClientFactory;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.MembershipConnectionService;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.jkn.scalephant.network.server.NetworkConnectionService;
 
 public class ScalephantMain implements Daemon {

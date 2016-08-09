@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.distribution;
 
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClient;
+
 public class DistributionRegionFactory {
 
 	/**
