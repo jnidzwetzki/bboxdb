@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionFactory;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 
@@ -182,16 +183,16 @@ public class TestDistributionGroup {
 		level3.setSplit(35);
 		level3.getLeftChild().setNameprefix(8);
 		level3.getRightChild().setNameprefix(9);
+
+		Assert.assertTrue(DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 4711) == null);
 		
-		Assert.assertTrue(level0.getDistributionRegionForNamePrefix(4711) == null);
+		Assert.assertEquals(level0, DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 1));
+		Assert.assertEquals(level1.getLeftChild(), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 4));
+		Assert.assertEquals(level1.getRightChild(), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 5));
+		Assert.assertEquals(level3.getLeftChild(), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 8));
+		Assert.assertEquals(level3.getRightChild(), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 9));
 		
-		Assert.assertEquals(level0, level0.getDistributionRegionForNamePrefix(1));
-		Assert.assertEquals(level1.getLeftChild(), level0.getDistributionRegionForNamePrefix(4));
-		Assert.assertEquals(level1.getRightChild(), level0.getDistributionRegionForNamePrefix(5));
-		Assert.assertEquals(level3.getLeftChild(), level0.getDistributionRegionForNamePrefix(8));
-		Assert.assertEquals(level3.getRightChild(), level0.getDistributionRegionForNamePrefix(9));
-		
-		Assert.assertEquals(null, level3.getDistributionRegionForNamePrefix(1));
+		Assert.assertEquals(null, DistributionRegionHelper.getDistributionRegionForNamePrefix(level3, 1));
 	}
 	
 	

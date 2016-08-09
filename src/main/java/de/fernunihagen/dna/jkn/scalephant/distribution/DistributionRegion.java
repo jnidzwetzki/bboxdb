@@ -439,33 +439,24 @@ public class DistributionRegion {
 	}
 
 	/**
-	 * Find the region for the given name prefix
-	 * @param searchNameprefix
-	 * @return
+	 * Visit all child nodes of the distribution region
+	 * @param distributionRegionVisitor
 	 */
-	public DistributionRegion getDistributionRegionForNamePrefix(final int searchNameprefix) {
+	public void visit(final DistributionRegionVisitor distributionRegionVisitor) {
+		final boolean result = distributionRegionVisitor.visitRegion(this);
 		
-		if(searchNameprefix == nameprefix) {
-			return this;
+		if(result == false) {
+			return;
 		}
 		
 		if(isLeafRegion()) {
-			return null;
+			return;
 		}
 		
-		final DistributionRegion leftResult = leftChild.getDistributionRegionForNamePrefix(searchNameprefix);
-		if(leftResult != null) {
-			return leftResult;
-		}
-		
-		final DistributionRegion rightResult = rightChild.getDistributionRegionForNamePrefix(searchNameprefix);
-		if(rightResult != null) {
-			return rightResult;
-		}
-		
-		return null;
+		leftChild.visit(distributionRegionVisitor);
+		rightChild.visit(distributionRegionVisitor);
 	}
-
+	
 	/**
 	 * Is the region ready (initialized)
 	 * @return

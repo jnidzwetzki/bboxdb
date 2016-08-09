@@ -22,7 +22,14 @@ public class DistributionRegionHelper {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionHelper.class);
 
-	
+	/**
+	 * Allocate the required amount of systems to the given region
+	 * 
+	 * @param region
+	 * @param zookeeperClient
+	 * @throws ZookeeperException
+	 * @throws ResourceAllocationException
+	 */
 	public static void allocateSystemsToNewRegion(final DistributionRegion region, final ZookeeperClient zookeeperClient) throws ZookeeperException, ResourceAllocationException {
 		
 		final short replicationFactor = zookeeperClient.getReplicationFactorForDistributionGroup(region.getName());
@@ -46,5 +53,54 @@ public class DistributionRegionHelper {
 		for(final DistributedInstance instance : allocationSystems) {
 			zookeeperClient.addSystemToDistributionRegion(region, instance);
 		}
+	}
+	
+	/**
+	 * Find the region for the given name prefix
+	 * @param searchNameprefix
+	 * @return
+	 */
+	public static DistributionRegion getDistributionRegionForNamePrefix(final DistributionRegion region, final int searchNameprefix) {
+		final DistributionRegionNameprefixFinder distributionRegionNameprefixFinder = new DistributionRegionNameprefixFinder(searchNameprefix);
+		region.visit(distributionRegionNameprefixFinder);
+		
+		return distributionRegionNameprefixFinder.getResult();
+	}
+	
+}
+
+class DistributionRegionNameprefixFinder implements DistributionRegionVisitor {
+
+	/**
+	 * The name prefix to search
+	 */
+	protected int nameprefix;
+	
+	/**
+	 * The result
+	 */
+	protected DistributionRegion result = null;
+	
+	public DistributionRegionNameprefixFinder(final int nameprefix) {
+		this.nameprefix = nameprefix;
+	}
+	
+	@Override
+	public boolean visitRegion(final DistributionRegion distributionRegion) {
+		
+		if(distributionRegion.getNameprefix() == nameprefix) {
+			result = distributionRegion;
+		}
+		
+		// Stop search
+		if(result != null) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public DistributionRegion getResult() {
+		return result;
 	}
 }

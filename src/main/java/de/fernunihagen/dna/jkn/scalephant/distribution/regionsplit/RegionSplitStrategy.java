@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupCache;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.jkn.scalephant.distribution.membership.MembershipConnectionService;
 import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClient;
@@ -63,8 +64,8 @@ public abstract class RegionSplitStrategy {
 			
 			final DistributionRegion distributionGroup = DistributionGroupCache.getGroupForGroupName(ssTableName.getDistributionGroup(), zookeeperClient);
 			
-			final DistributionRegion region = distributionGroup.getDistributionRegionForNamePrefix(ssTableName.getNameprefix());
-			
+			final DistributionRegion region = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroup, ssTableName.getNameprefix());
+		
 			if(region == null) {
 				logger.warn("Unable to find nameprefix in distributionGroup: " + ssTableName);
 				return false;
