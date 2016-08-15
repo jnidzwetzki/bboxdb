@@ -26,6 +26,98 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 
 public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 
+	protected class OSMSinglePointSink implements Sink {
+
+		/**
+		 * The entity filter
+		 */
+		private final OSMSinglePointEntityFilter entityFilter;
+
+		protected OSMSinglePointSink(final OSMSinglePointEntityFilter entityFilter) {
+			this.entityFilter = entityFilter;
+		}
+
+		@Override
+		public void release() {
+		}
+
+		@Override
+		public void complete() {
+		}
+
+		@Override
+		public void initialize(final Map<String, Object> arg0) {
+		}
+
+		@Override
+		public void process(final EntityContainer entityContainer) {
+			
+			if(entityContainer.getEntity() instanceof Node) {
+				final Node node = (Node) entityContainer.getEntity();						
+				
+				if(entityFilter.forwardNode(node)) {
+					final BoundingBox boundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
+					final Tuple tuple = new Tuple(Long.toString(node.getId()), boundingBox, "abc".getBytes());
+					final OperationFuture insertFuture = scalephantClient.insertTuple(table, tuple);
+					
+					// register pending future
+					pendingFutures.add(insertFuture);
+					checkForCompletedFutures();
+					
+					insertedTuples.incrementAndGet();
+				}
+			}
+		}
+	}
+
+	protected class OSMMultipointSink implements Sink {
+		
+		/**
+		 * The node map
+		 */
+		private final Map<Long, Node> nodeMap;
+		
+		/**
+		 * The entity filter
+		 */
+		private final OSMMultiPointEntityFilter entityFilter;
+
+		protected OSMMultipointSink(final Map<Long, Node> nodeMap, final OSMMultiPointEntityFilter entityFilter) {
+			this.nodeMap = nodeMap;
+			this.entityFilter = entityFilter;
+		}
+
+		@Override
+		public void initialize(Map<String, Object> arg0) {
+			
+		}
+
+		@Override
+		public void complete() {
+			
+		}
+
+		@Override
+		public void release() {
+			
+		}
+
+		@Override
+		public void process(final EntityContainer entityContainer) {
+			if(entityContainer.getEntity() instanceof Node) {
+				final Node node = (Node) entityContainer.getEntity();						
+				nodeMap.put(node.getId(), node);
+			} else if(entityContainer.getEntity() instanceof Way) {
+				final Way way = (Way) entityContainer.getEntity();
+				final boolean forward = entityFilter.forwardNode(way.getTags());
+
+				if(forward) {
+					insertWay(way, nodeMap);
+				}
+			}
+		}
+	}
+
 	/**
 	 * The amount of inserted tuples
 	 */
@@ -113,39 +205,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
 			final OSMMultiPointEntityFilter entityFilter = multiPointFilter.get(type);
 			
-			reader.setSink(new Sink() {
-
-				@Override
-				public void initialize(Map<String, Object> arg0) {
-					
-				}
-
-				@Override
-				public void complete() {
-					
-				}
-
-				@Override
-				public void release() {
-					
-				}
-
-				@Override
-				public void process(final EntityContainer entityContainer) {
-					if(entityContainer.getEntity() instanceof Node) {
-						final Node node = (Node) entityContainer.getEntity();						
-						nodeMap.put(node.getId(), node);
-					} else if(entityContainer.getEntity() instanceof Way) {
-						final Way way = (Way) entityContainer.getEntity();
-						final boolean forward = entityFilter.forwardNode(way.getTags());
-
-						if(forward) {
-							insertWay(way, nodeMap);
-						}
-					}
-				}
-				
-			});
+			reader.setSink(new OSMMultipointSink(nodeMap, entityFilter));
 			
 			waitForReaderThread(reader);
 		} catch (FileNotFoundException e) {
@@ -203,40 +263,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
 			final OSMSinglePointEntityFilter entityFilter = singlePointFilter.get(type);
 			
-			reader.setSink(new Sink() {
-				
-				@Override
-				public void release() {
-				}
-				
-				@Override
-				public void complete() {
-				}
-				
-				@Override
-				public void initialize(final Map<String, Object> arg0) {
-				}
-				
-				@Override
-				public void process(final EntityContainer entityContainer) {
-					
-					if(entityContainer.getEntity() instanceof Node) {
-						final Node node = (Node) entityContainer.getEntity();						
-						
-						if(entityFilter.forwardNode(node)) {
-							final BoundingBox boundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
-							final Tuple tuple = new Tuple(Long.toString(node.getId()), boundingBox, "abc".getBytes());
-							final OperationFuture insertFuture = scalephantClient.insertTuple(table, tuple);
-							
-							// register pending future
-							pendingFutures.add(insertFuture);
-							checkForCompletedFutures();
-							
-							insertedTuples.incrementAndGet();
-						}
-					}
-				}
-			});
+			reader.setSink(new OSMSinglePointSink(entityFilter));
 			
 			waitForReaderThread(reader);
 		} catch (FileNotFoundException e) {
