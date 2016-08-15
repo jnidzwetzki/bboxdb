@@ -101,7 +101,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 							final BoundingBox boundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
 							final Tuple tuple = new Tuple(Long.toString(node.getId()), boundingBox, "abc".getBytes());
 							scalephantClient.insertTuple(table, tuple);
-							System.out.println("Insert: "  + tuple + " into " + table);
+							insertedTuples.incrementAndGet();
 						}
 					}
 				}
