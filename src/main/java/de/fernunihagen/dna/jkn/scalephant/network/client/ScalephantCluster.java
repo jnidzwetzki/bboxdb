@@ -124,8 +124,6 @@ public class ScalephantCluster implements Scalephant {
 			
 			// Determine the first system, it will route the request to the remaining systems
 			final DistributedInstance system = systems.iterator().next();
-			logger.info("Sending call to:  " + system);
-
 			final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
 			return connection.insertTuple(table, tuple);
 		} catch (ZookeeperException e) {
