@@ -204,29 +204,37 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean handleQuery(final ByteBuffer packageHeader, final short packageSequence) {
 		
-		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-		final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
+		try {
+			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+			
+			final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
 
-		switch (queryType) {
-			case NetworkConst.REQUEST_QUERY_KEY:
-				handleKeyQuery(encodedPackage, packageSequence);
-				break;
-				
-			case NetworkConst.REQUEST_QUERY_BBOX:
-				handleBoundingBoxQuery(encodedPackage, packageSequence);
-				break;
-				
-			case NetworkConst.REQUEST_QUERY_TIME:
-				handleTimeQuery(encodedPackage, packageSequence);
-				break;
-	
-			default:
-				logger.warn("Unsupported query type: " + queryType);
-				writeResultPackage(new ErrorResponse(packageSequence));
-				return true;
+			switch (queryType) {
+				case NetworkConst.REQUEST_QUERY_KEY:
+					handleKeyQuery(encodedPackage, packageSequence);
+					break;
+					
+				case NetworkConst.REQUEST_QUERY_BBOX:
+					handleBoundingBoxQuery(encodedPackage, packageSequence);
+					break;
+					
+				case NetworkConst.REQUEST_QUERY_TIME:
+					handleTimeQuery(encodedPackage, packageSequence);
+					break;
+		
+				default:
+					logger.warn("Unsupported query type: " + queryType);
+					writeResultPackage(new ErrorResponse(packageSequence));
+					return true;
+			}
+
+			return true;
+			
+		} catch (IOException e) {
+			logger.warn("Got an IO error during package read: ", e);
+			writeResultPackage(new ErrorResponse(packageSequence));
+			return false;
 		}
-
-		return true;
 	}
 	
 	/**
@@ -259,12 +267,13 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleCreateDistributionGroup(final ByteBuffer packageHeader, final short packageSequence) {
-		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-		
-		final CreateDistributionGroupRequest createPackage = CreateDistributionGroupRequest.decodeTuple(encodedPackage);
-		logger.info("Create distribution group: " + createPackage.getDistributionGroup());
 		
 		try {
+			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+			
+			final CreateDistributionGroupRequest createPackage = CreateDistributionGroupRequest.decodeTuple(encodedPackage);
+			logger.info("Create distribution group: " + createPackage.getDistributionGroup());
+			
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			zookeeperClient.createDistributionGroup(createPackage.getDistributionGroup(), createPackage.getReplicationFactor());
 			
@@ -293,12 +302,13 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleDeleteDistributionGroup(final ByteBuffer packageHeader, final short packageSequence) {
-		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-		
-		final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
-		logger.info("Delete distribution group: " + deletePackage.getDistributionGroup());
 		
 		try {
+			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+			
+			final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
+			logger.info("Delete distribution group: " + deletePackage.getDistributionGroup());
+			
 			// Delete in Zookeeper
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			zookeeperClient.deleteDistributionGroup(deletePackage.getDistributionGroup());
@@ -324,13 +334,13 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean handleDeleteTable(final ByteBuffer packageHeader, final short packageSequence) {
 		
-		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-		
-		final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);
-		final SSTableName requestTable = deletePackage.getTable();
-		logger.info("Got delete call for table: " + requestTable);
-		
 		try {
+			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+			
+			final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);
+			final SSTableName requestTable = deletePackage.getTable();
+			logger.info("Got delete call for table: " + requestTable);
+			
 			// Send the call to the storage manager
 			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
 			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
@@ -342,6 +352,9 @@ public class ClientConnectionHandler implements Runnable {
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (StorageManagerException e) {
 			logger.warn("Error while delete tuple", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+		} catch (IOException e) {
+			logger.warn("Error while reading network package", e);
 			writeResultPackage(new ErrorResponse(packageSequence));	
 		}
 		
@@ -507,9 +520,11 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleInsertTuple(final ByteBuffer packageHeader, final short packageSequence) {
-		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+		
 		
 		try {
+			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+			
 			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 			
 			// Send the call to the storage manager
@@ -542,10 +557,15 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleListTables(final ByteBuffer packageHeader, final short packageSequence) {
-		readFullPackage(packageHeader);
-		final List<SSTableName> allTables = StorageInterface.getAllTables();
-		final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
-		writeResultPackage(listTablesResponse);
+		try {
+			readFullPackage(packageHeader);
+			final List<SSTableName> allTables = StorageInterface.getAllTables();
+			final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
+			writeResultPackage(listTablesResponse);
+		} catch (IOException e) {
+			logger.warn("Error while reading network package", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+		}
 		
 		return true;
 	}
@@ -558,12 +578,12 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean handleDeleteTuple(final ByteBuffer packageHeader, final short packageSequence) {
 
-		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-
-		final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
-		final SSTableName requestTable = deleteTupleRequest.getTable();
-
 		try {
+			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+	
+			final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
+			final SSTableName requestTable = deleteTupleRequest.getTable();
+
 			// Send the call to the storage manager
 			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
 			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
@@ -577,6 +597,9 @@ public class ClientConnectionHandler implements Runnable {
 		} catch (StorageManagerException e) {
 			logger.warn("Error while delete tuple", e);
 			writeResultPackage(new ErrorResponse(packageSequence));	
+		} catch (IOException e) {
+			logger.warn("Error while reading network package", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
 		}
 
 		return true;
@@ -586,8 +609,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * Read the full package. The total length of the package is read from the package header.
 	 * @param packageHeader
 	 * @return
+	 * @throws IOException 
 	 */
-	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) {
+	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) throws IOException {
 		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
 		final int headerLength = packageHeader.limit();
 		
@@ -598,9 +622,8 @@ public class ClientConnectionHandler implements Runnable {
 			encodedPackage.put(packageHeader.array());
 			NetworkHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
 		} catch (IOException e) {
-			logger.error("IO-Exception while reading package", e);
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
-			return null;
+			throw e;
 		}
 		
 		return encodedPackage;
