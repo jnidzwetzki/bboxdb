@@ -211,7 +211,7 @@ public class ScalephantClient implements Scalephant {
 		final ClientOperationFuture operationFuture = new ClientOperationFuture();
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("deleteTable called, but connection not ready: " + connectionState);
+			logger.warn("deleteTable called, but connection not ready: " + this);
 			operationFuture.setFailedState();
 			return operationFuture;
 		}
@@ -229,7 +229,7 @@ public class ScalephantClient implements Scalephant {
 		final ClientOperationFuture operationFuture = new ClientOperationFuture();
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("insertTuple called, but connection not ready: " + connectionState);
+			logger.warn("insertTuple called, but connection not ready: " + this);
 			operationFuture.setFailedState();
 			return operationFuture;
 		}
@@ -245,7 +245,7 @@ public class ScalephantClient implements Scalephant {
 		final ClientOperationFuture operationFuture = new ClientOperationFuture();
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("insertTuple called, but connection not ready: " + connectionState);
+			logger.warn("insertTuple called, but connection not ready: " + this);
 			operationFuture.setFailedState();
 			return operationFuture;
 		}
@@ -263,7 +263,7 @@ public class ScalephantClient implements Scalephant {
 		final ClientOperationFuture operationFuture = new ClientOperationFuture();
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("deleteTuple called, but connection not ready: " + connectionState);
+			logger.warn("deleteTuple called, but connection not ready: " + this);
 			operationFuture.setFailedState();
 			return operationFuture;
 		}
@@ -279,7 +279,7 @@ public class ScalephantClient implements Scalephant {
 	@Override
 	public ClientOperationFuture listTables() {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("listTables called, but connection not ready: " + connectionState);
+			logger.warn("listTables called, but connection not ready: " + this);
 			return null;
 		}
 
@@ -295,7 +295,7 @@ public class ScalephantClient implements Scalephant {
 	@Override
 	public ClientOperationFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("listTables called, but connection not ready: " + connectionState);
+			logger.warn("listTables called, but connection not ready: " + this);
 			return null;
 		}
 
@@ -311,7 +311,7 @@ public class ScalephantClient implements Scalephant {
 	@Override
 	public ClientOperationFuture deleteDistributionGroup(final String distributionGroup) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("listTables called, but connection not ready: " + connectionState);
+			logger.warn("listTables called, but connection not ready: " + this);
 			return null;
 		}
 
@@ -327,7 +327,7 @@ public class ScalephantClient implements Scalephant {
 	@Override
 	public ClientOperationFuture queryKey(final String table, final String key) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("queryKey called, but connection not ready: " + connectionState);
+			logger.warn("queryKey called, but connection not ready: " + this);
 			return null;
 		}
 
@@ -343,7 +343,7 @@ public class ScalephantClient implements Scalephant {
 	@Override
 	public ClientOperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("queryBoundingBox called, but connection not ready: " + connectionState);
+			logger.warn("queryBoundingBox called, but connection not ready: " + this);
 			return null;
 		}
 		
@@ -359,7 +359,7 @@ public class ScalephantClient implements Scalephant {
 	@Override
 	public ClientOperationFuture queryTime(final String table, final long timestamp) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("queryTime called, but connection not ready: " + connectionState);
+			logger.warn("queryTime called, but connection not ready: " + this);
 			return null;
 		}
 
@@ -732,4 +732,11 @@ public class ScalephantClient implements Scalephant {
 		
 		pendingCall.setOperationResult(0, resultList);
 	}
+
+	@Override
+	public String toString() {
+		return "ScalephantClient [serverHostname=" + serverHostname + ", serverPort=" + serverPort + ", pendingCalls="
+				+ pendingCalls.size() + ", connectionState=" + connectionState + "]";
+	}
+	
 }
