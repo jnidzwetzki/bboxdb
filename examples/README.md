@@ -41,4 +41,11 @@ The "client example" (ScalephantClientExample.java) shows how data can be insert
 	# Execute the benchmark
 	java -classpath "../target/*":"../target/lib/*":"../conf" de.fernunihagen.dna.jkn.scalephant.performance.BenchmarkKeyQueryPerformance
 
+## The OSM insert benchmark
+
+	# Execute the benchmark
+	java -classpath "../target/*":"../target/lib/*":"../conf" de.fernunihagen.dna.jkn.scalephant.performance.BenchmarkOSMInsertPerformance <OSM file> <type> <replication factor>
+	
+	# For example
+	java -classpath "../target/*":"../target/lib/*":"../conf" de.fernunihagen.dna.jkn.scalephant.performance.BenchmarkOSMInsertPerformance /tmp/hamburg-latest.osm.pbf roads 1
 	
