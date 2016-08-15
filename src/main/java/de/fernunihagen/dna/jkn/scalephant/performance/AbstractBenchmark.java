@@ -1,6 +1,9 @@
 package de.fernunihagen.dna.jkn.scalephant.performance;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -9,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
+import de.fernunihagen.dna.jkn.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.jkn.scalephant.network.client.Scalephant;
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantCluster;
 
@@ -35,11 +39,57 @@ public abstract class AbstractBenchmark implements Runnable {
 	protected volatile boolean benchmarkActive;
 	
 	/**
+	 * The pending futures
+	 */
+	protected final List<OperationFuture> pendingFutures;
+	
+	/**
+	 * The amount of pending insert futures
+	 */
+	protected final static int MAX_PENDING_FUTURES = 5000;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(AbstractBenchmark.class);
 
+	public AbstractBenchmark() {
+		pendingFutures = new LinkedList<OperationFuture>();
+	}
+	
+	protected void checkForCompletedFutures() {
+		if(pendingFutures.size() > MAX_PENDING_FUTURES) {
+			
+			// Reduce futures
+			while(pendingFutures.size() > MAX_PENDING_FUTURES * 0.8) {
+				
+				// Remove old futures
+				final Iterator<OperationFuture> futureIterator = pendingFutures.iterator();
+				while(futureIterator.hasNext()) {
+					final OperationFuture future = futureIterator.next();
+					
+					if(future.isDone()) {
+						futureIterator.remove();
+					}
+					
+					if(future.isFailed()) {
+						logger.error("Failed future detected: " + future);
+						futureIterator.remove();
+					}
+				}
 
+				// Still to much futures? Wait some time
+				if(pendingFutures.size() > MAX_PENDING_FUTURES * 0.8) {
+					try {
+						Thread.sleep(1);
+					} catch (InterruptedException e) {
+						// Ignore exception
+					}
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Run the benchmark
 	 */
@@ -115,6 +165,21 @@ public abstract class AbstractBenchmark implements Runnable {
 	 * The default done method
 	 */
 	protected void done() throws Exception {
+		
+		// Wait for pending futures
+		if(! pendingFutures.isEmpty()) {
+			System.out.println("Wait for pending futures to settle: " + pendingFutures.size());
+			
+			for(final OperationFuture future : pendingFutures) {
+				future.waitForAll();
+				
+				if(future.isFailed()) {
+					System.out.println("Got failed future: " + future);
+				}
+			}
+			
+			pendingFutures.clear();
+		}
 		
 		// Disconnect from server and shutdown the statistics thread
 		scalephantClient.disconnect();

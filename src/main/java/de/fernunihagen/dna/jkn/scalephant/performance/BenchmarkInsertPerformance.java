@@ -49,7 +49,11 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 			
 			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1, z, z+1);
 			
-			scalephantClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
+			final OperationFuture insertFuture = scalephantClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
+			
+			// register pending future
+			pendingFutures.add(insertFuture);
+			checkForCompletedFutures();
 		}
 	}
 

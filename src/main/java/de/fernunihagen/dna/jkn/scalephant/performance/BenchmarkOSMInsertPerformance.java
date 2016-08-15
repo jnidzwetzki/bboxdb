@@ -71,7 +71,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
+		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 1);
 		createResult.waitForAll();
 		
 		try {
@@ -100,7 +100,12 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 						if(entityFilter.forwardNode(node)) {
 							final BoundingBox boundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
 							final Tuple tuple = new Tuple(Long.toString(node.getId()), boundingBox, "abc".getBytes());
-							scalephantClient.insertTuple(table, tuple);
+							final OperationFuture insertFuture = scalephantClient.insertTuple(table, tuple);
+							
+							// register pending future
+							pendingFutures.add(insertFuture);
+							checkForCompletedFutures();
+							
 							insertedTuples.incrementAndGet();
 						}
 					}
@@ -170,7 +175,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		
 		// Check parameter
 		if(args.length != 2) {
-			System.err.println("Usage: programm <filename> <type:tree|trafficsignals>");
+			System.err.println("Usage: programm <filename> <tree|trafficsignals>");
 			System.exit(-1);
 		}
 		
