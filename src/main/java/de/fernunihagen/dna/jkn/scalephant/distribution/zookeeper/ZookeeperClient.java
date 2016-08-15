@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -136,7 +137,19 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 		
 		try {
-			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, this);
+			
+			final CountDownLatch connectLatch = new CountDownLatch(1);
+			
+			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, new Watcher() {
+				@Override
+				public void process(final WatchedEvent event) {
+					if(event.getState() == Watcher.Event.KeeperState.SyncConnected) {
+						connectLatch.countDown();
+					}
+				}
+			});
+			
+			connectLatch.await();
 			createDirectoryStructureIfNeeded();
 			
 			registerInstanceIfNameWasSet();
