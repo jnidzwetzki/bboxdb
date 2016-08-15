@@ -262,8 +262,6 @@ public class ScalephantCluster implements Scalephant {
 			logger.info("Query tuple on systems: " + systems);
 			
 			for(final DistributedInstance system : systems) {
-				logger.info("Sending call to:  " + system);
-	
 				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
 				final ClientOperationFuture result = connection.queryBoundingBox(table, boundingBox);
 				future.addFuture(result);
