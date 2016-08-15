@@ -10,10 +10,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
+import org.openstreetmap.osmosis.core.domain.v0_6.Way;
+import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 import crosby.binary.osmosis.OsmosisReader;
 import de.fernunihagen.dna.jkn.scalephant.network.client.OperationFuture;
+import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMMultiPointEntityFilter;
+import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMRoadsEntityFilter;
 import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMSinglePointEntityFilter;
 import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMTrafficSignalEntityFilter;
 import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMTreeEntityFilter;
@@ -38,6 +42,12 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	protected final static Map<String, OSMSinglePointEntityFilter> singlePointFilter = new HashMap<String, OSMSinglePointEntityFilter>();
 	
 	/**
+	 * The multi point filter
+	 */
+	protected final static Map<String, OSMMultiPointEntityFilter> multiPointFilter = new HashMap<String, OSMMultiPointEntityFilter>();
+	
+	
+	/**
 	 * The filename to parse
 	 */
 	protected final String filename;
@@ -60,6 +70,8 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	static {
 		singlePointFilter.put("tree", new OSMTreeEntityFilter());
 		singlePointFilter.put("trafficsignals", new OSMTrafficSignalEntityFilter());
+		
+		multiPointFilter.put("roads", new OSMRoadsEntityFilter());
 	}
 
 	public BenchmarkOSMInsertPerformance(final String filename, final String type, final short replicationFactor) {
@@ -80,8 +92,117 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, replicationFactor);
 		createResult.waitForAll();
 		
+		if(singlePointFilter.containsKey(type)) {
+			runSinglePointBenchmark();
+		} else if(multiPointFilter.containsKey(type)) {
+			runMultiPointBenchmark();
+		} else {
+			System.err.println("Unknown filter: " + type);
+		}
+	}
+
+	/**
+	 * Run the benchmark for multi point objects
+	 * @throws ExecutionException 
+	 */
+	protected void runMultiPointBenchmark() throws ExecutionException {
+	
+		final Map<Long, Node> nodeMap = new HashMap<Long, Node>();
+		
 		try {
 			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
+			final OSMMultiPointEntityFilter entityFilter = multiPointFilter.get(type);
+			
+			reader.setSink(new Sink() {
+
+				@Override
+				public void initialize(Map<String, Object> arg0) {
+					
+				}
+
+				@Override
+				public void complete() {
+					
+				}
+
+				@Override
+				public void release() {
+					
+				}
+
+				@Override
+				public void process(final EntityContainer entityContainer) {
+					if(entityContainer.getEntity() instanceof Node) {
+						final Node node = (Node) entityContainer.getEntity();						
+						nodeMap.put(node.getId(), node);
+					} else if(entityContainer.getEntity() instanceof Way) {
+						final Way way = (Way) entityContainer.getEntity();
+						final boolean forward = entityFilter.forwardNode(way.getTags());
+
+						if(forward) {
+							insertWay(way, nodeMap);
+						}
+					}
+				}
+				
+			});
+			
+			waitForReaderThread(reader);
+		} catch (FileNotFoundException e) {
+			throw new ExecutionException(e);
+		}
+	}
+
+	/**
+	 * Insert the given way into the scalephant
+	 * @param way
+	 * @param nodeMap 
+	 */
+	protected boolean insertWay(final Way way, final Map<Long, Node> nodeMap) {
+		BoundingBox boundingBox = null;
+		
+		for(final WayNode wayNode : way.getWayNodes()) {
+			
+			if(! nodeMap.containsKey(wayNode.getNodeId())) {
+				System.err.println("Unable to find node for way: " + wayNode.getNodeId());
+				return false;
+			}
+			
+			final Node node = nodeMap.get(wayNode.getNodeId());
+			final BoundingBox nodeBoundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
+			
+			if(boundingBox == null) {
+				boundingBox = nodeBoundingBox;
+			} else {
+				boundingBox = BoundingBox.getBoundingBox(boundingBox, nodeBoundingBox);
+			}
+		}
+		
+		if(boundingBox != null) {
+			final Tuple tuple = new Tuple(Long.toString(way.getId()), boundingBox, "abc".getBytes());
+			final OperationFuture insertFuture = scalephantClient.insertTuple(table, tuple);
+			
+			// register pending future
+			pendingFutures.add(insertFuture);
+			checkForCompletedFutures();
+			
+			insertedTuples.incrementAndGet();
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Run the benchmark for single point objects
+	 * @throws ExecutionException
+	 */
+	protected void runSinglePointBenchmark() throws ExecutionException {
+		try {
+			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
+			final OSMSinglePointEntityFilter entityFilter = singlePointFilter.get(type);
+			
 			reader.setSink(new Sink() {
 				
 				@Override
@@ -101,7 +222,6 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 					
 					if(entityContainer.getEntity() instanceof Node) {
 						final Node node = (Node) entityContainer.getEntity();						
-						final OSMSinglePointEntityFilter entityFilter = singlePointFilter.get(type);
 						
 						if(entityFilter.forwardNode(node)) {
 							final BoundingBox boundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
@@ -118,19 +238,28 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 				}
 			});
 			
-			final Thread readerThread = new Thread(reader);
-			readerThread.start();
-
-			while (readerThread.isAlive()) {
-			    try {
-			        readerThread.join();
-			        System.out.println("Done");
-			    } catch (InterruptedException e) {
-			        /* do nothing */
-			    }
-			}
+			waitForReaderThread(reader);
 		} catch (FileNotFoundException e) {
 			throw new ExecutionException(e);
+		}
+	}
+
+	/**
+	 * Wait for the reader thread to complete
+	 * 
+	 * @param reader
+	 */
+	protected void waitForReaderThread(final OsmosisReader reader) {
+		final Thread readerThread = new Thread(reader);
+		readerThread.start();
+
+		while (readerThread.isAlive()) {
+		    try {
+		        readerThread.join();
+		        System.out.println("Done");
+		    } catch (InterruptedException e) {
+		        /* do nothing */
+		    }
 		}
 	}
 
@@ -181,7 +310,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		
 		// Check parameter
 		if(args.length != 3) {
-			System.err.println("Usage: programm <filename> <tree|trafficsignals> <replication factor>");
+			System.err.println("Usage: programm <filename> <tree|trafficsignals|roads> <replication factor>");
 			System.exit(-1);
 		}
 		
@@ -198,7 +327,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		}
 		
 		// Check type
-		if(! singlePointFilter.keySet().contains(type)) {
+		if(! singlePointFilter.keySet().contains(type) && ! multiPointFilter.keySet().contains(type)) {
 			System.err.println("Unknown type: " + type);
 			System.exit(-1);
 		}
