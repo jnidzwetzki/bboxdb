@@ -174,10 +174,10 @@ public class ClientConnectionHandler implements Runnable {
 		} catch (IOException e) {
 			// Ignore exception on closing sockets
 			if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-				logger.error("Unable to read data from socket (state: " + connectionState + ")", e);
+				logger.error("Socket closed unexpectly (state: " + connectionState + "), closing connection", e);
 			}
 		} catch(Throwable e) {
-			logger.error("Got an expcetion during execution: ", e);
+			logger.error("Got an exception during connection handling: ", e);
 		}
 		
 		threadPool.shutdown();
