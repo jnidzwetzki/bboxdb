@@ -52,15 +52,21 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	 */
 	protected final String table;
 	
+	/**
+	 * The replication factor
+	 */
+	protected final short replicationFactor;
+	
 	static {
 		singlePointFilter.put("tree", new OSMTreeEntityFilter());
 		singlePointFilter.put("trafficsignals", new OSMTrafficSignalEntityFilter());
 	}
 
-	public BenchmarkOSMInsertPerformance(final String filename, final String type) {
+	public BenchmarkOSMInsertPerformance(final String filename, final String type, final short replicationFactor) {
 		this.filename = filename;
 		this.type = type;
 		this.table = DISTRIBUTION_GROUP + "_" + type;
+		this.replicationFactor = replicationFactor;
 	}
 
 	@Override
@@ -71,7 +77,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 1);
+		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, replicationFactor);
 		createResult.waitForAll();
 		
 		try {
@@ -174,13 +180,15 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	public static void main(final String[] args) throws InterruptedException, ExecutionException {
 		
 		// Check parameter
-		if(args.length != 2) {
-			System.err.println("Usage: programm <filename> <tree|trafficsignals>");
+		if(args.length != 3) {
+			System.err.println("Usage: programm <filename> <tree|trafficsignals> <replication factor>");
 			System.exit(-1);
 		}
 		
 		final String filename = args[0];
 		final String type = args[1];
+		final String replicationFactorString = args[2];
+		short replicationFactor = -1;
 		
 		// Check file
 		final File inputFile = new File(filename);
@@ -195,9 +203,15 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 			System.exit(-1);
 		}
 		
-		final BenchmarkOSMInsertPerformance benchmarkInsertPerformance = new BenchmarkOSMInsertPerformance(filename, type);
+		try {
+			replicationFactor = Short.parseShort(replicationFactorString);
+		} catch(NumberFormatException e) {
+			System.err.println("Invalid replication factor: " + replicationFactorString);
+			System.exit(-1);	
+		}
+		
+		final BenchmarkOSMInsertPerformance benchmarkInsertPerformance = new BenchmarkOSMInsertPerformance(filename, type, replicationFactor);
 		benchmarkInsertPerformance.run();
 	}
-
 	
 }
