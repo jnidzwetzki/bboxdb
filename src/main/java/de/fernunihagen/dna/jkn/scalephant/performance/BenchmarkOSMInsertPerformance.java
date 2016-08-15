@@ -14,7 +14,7 @@ import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 import crosby.binary.osmosis.OsmosisReader;
 import de.fernunihagen.dna.jkn.scalephant.network.client.OperationFuture;
-import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMEntityFilter;
+import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMSinglePointEntityFilter;
 import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMTrafficSignalEntityFilter;
 import de.fernunihagen.dna.jkn.scalephant.performance.osm.OSMTreeEntityFilter;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
@@ -28,14 +28,14 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	protected AtomicInteger insertedTuples = new AtomicInteger(0);
 	
 	/** 
-	 * A 3 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
+	 * A 2 dimensional distribution group 
 	 */
 	protected final static String DISTRIBUTION_GROUP = "2_osmgroup";
 	
 	/**
-	 * The filter
+	 * The single point filter
 	 */
-	protected final static Map<String, OSMEntityFilter> filter = new HashMap<String, OSMEntityFilter>();
+	protected final static Map<String, OSMSinglePointEntityFilter> singlePointFilter = new HashMap<String, OSMSinglePointEntityFilter>();
 	
 	/**
 	 * The filename to parse
@@ -53,8 +53,8 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	protected final String table;
 	
 	static {
-		filter.put("tree", new OSMTreeEntityFilter());
-		filter.put("trafficsignals", new OSMTrafficSignalEntityFilter());
+		singlePointFilter.put("tree", new OSMTreeEntityFilter());
+		singlePointFilter.put("trafficsignals", new OSMTrafficSignalEntityFilter());
 	}
 
 	public BenchmarkOSMInsertPerformance(final String filename, final String type) {
@@ -95,7 +95,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 					
 					if(entityContainer.getEntity() instanceof Node) {
 						final Node node = (Node) entityContainer.getEntity();						
-						final OSMEntityFilter entityFilter = filter.get(type);
+						final OSMSinglePointEntityFilter entityFilter = singlePointFilter.get(type);
 						
 						if(entityFilter.forwardNode(node)) {
 							final BoundingBox boundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
@@ -190,7 +190,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		}
 		
 		// Check type
-		if(! filter.keySet().contains(type)) {
+		if(! singlePointFilter.keySet().contains(type)) {
 			System.err.println("Unknown type: " + type);
 			System.exit(-1);
 		}
