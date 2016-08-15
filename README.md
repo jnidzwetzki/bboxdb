@@ -12,6 +12,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 ### Version 0.1.1 (Alpha) - TBA
 - Introduced replication strategies
 - Handle pending futures in benchmarks correctly and limit the number of pending requests
+- Implemented roads in OSM Benchmark
 
 ### Version 0.1.0 (Alpha) - 07.08.2016
 - Fixed some crashes in the network handler
