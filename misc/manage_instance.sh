@@ -122,6 +122,15 @@ scalephant_stop() {
     echo "Stop the scalephant"
     cd $basedir
     ./jsvc -pidfile $basedir/scalephant.pid -stop -cwd $basedir -cp $classpath de.fernunihagen.dna.jkn.scalephant.ScalephantMain
+
+    # Was stop successfully?
+    if [ -f $basedir/scalephant.pid ]; then
+        pid=$(cat $basedir/scalephant.pid)
+        if [ -d /proc/$pid ]; then
+            echo "Normal shutdown was not successfully, killing process...."
+            kill -9 $pid
+        fi
+    fi
 }
 
 ###
