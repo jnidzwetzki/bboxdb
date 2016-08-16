@@ -227,7 +227,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 				"".getBytes());
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperClient.NodeNames.NAME_STATE, 
-				STATE_CREATED.getBytes());
+				STATE_CREATING.getBytes());
 		
 		child.setNameprefix(namePrefix);
 		

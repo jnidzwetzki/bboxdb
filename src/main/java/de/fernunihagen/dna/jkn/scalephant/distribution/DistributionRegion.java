@@ -55,7 +55,7 @@ public class DistributionRegion {
 	/**
 	 * The state of the region
 	 */
-	protected String state = STATE_CREATED;
+	protected String state = STATE_CREATING;
 	
 	/**
 	 * The systems
@@ -75,7 +75,7 @@ public class DistributionRegion {
 	/**
 	 * State created
 	 */
-	public final static String STATE_CREATED = "created";
+	public final static String STATE_CREATING = "creating";
 	
 	/**
 	 * State active
