@@ -696,7 +696,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			zookeeper.create(path + "/" + NodeNames.NAME_VERSION, Long.toString(System.currentTimeMillis()).getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
-			zookeeper.create(path + "/" + NodeNames.NAME_STATE, DistributionRegion.STATE_CREATING.getBytes(), 
+			zookeeper.create(path + "/" + NodeNames.NAME_STATE, DistributionRegion.STATE_ACTIVE.getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
 		} catch (KeeperException | InterruptedException e) {

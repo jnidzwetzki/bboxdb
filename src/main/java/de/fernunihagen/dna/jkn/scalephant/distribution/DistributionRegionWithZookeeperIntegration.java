@@ -207,7 +207,9 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		final String splitPosString = Float.toString(getSplit());
 		zookeeperClient.createPersistentNode(zookeeperPath + "/" + ZookeeperClient.NodeNames.NAME_SPLIT, 
 				splitPosString.getBytes());
-		zookeeperClient.setStateForDistributionGroup(zookeeperPath, STATE_SPLITTED);
+		zookeeperClient.setStateForDistributionGroup(zookeeperPath, STATE_SPLITTING);
+		zookeeperClient.setStateForDistributionGroup(leftPath, STATE_ACTIVE);
+		zookeeperClient.setStateForDistributionGroup(rightPath, STATE_ACTIVE);
 	}
 
 	/**

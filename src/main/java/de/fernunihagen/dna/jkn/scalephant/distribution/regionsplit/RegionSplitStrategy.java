@@ -100,6 +100,13 @@ public abstract class RegionSplitStrategy {
 			}
 		}
 		
+		try {
+			final ZookeeperClient zookeperClient = ZookeeperClientFactory.getZookeeperClient();
+			zookeperClient.setStateForDistributionGroup(region, DistributionRegion.STATE_SPLITTED);
+		} catch (ZookeeperException e) {
+			logger.error("Got an exception while setting region state to splitted", e);
+		}
+		
 		logger.info("Redistributing data for region: " + region + " DONE");
 	}
 
