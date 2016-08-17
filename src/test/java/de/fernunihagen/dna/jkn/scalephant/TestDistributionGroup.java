@@ -148,6 +148,10 @@ public class TestDistributionGroup {
 		level0.getLeftChild().addSystem(SYSTEM_A);
 		level0.getRightChild().addSystem(SYSTEM_B);
 		
+		level0.setState(DistributionRegion.STATE_SPLITTED);
+		level0.getLeftChild().setState(DistributionRegion.STATE_ACTIVE);
+		level0.getRightChild().setState(DistributionRegion.STATE_ACTIVE);
+		
 		Assert.assertFalse(level0.getSystemsForBoundingBox(new BoundingBox(100f, 110f)).contains(SYSTEM_A));
 		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 10f)).contains(SYSTEM_A));
 		
@@ -159,7 +163,7 @@ public class TestDistributionGroup {
 	}
 	
 	/**
-	 * Test nameprefix search
+	 * Test name prefix search
 	 */
 	@Test
 	public void testNameprefixSearch() {
@@ -206,6 +210,10 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setNameprefix(2);
 		level0.getRightChild().setNameprefix(3);
 		
+		level0.setState(DistributionRegion.STATE_SPLITTED);
+		level0.getLeftChild().setState(DistributionRegion.STATE_ACTIVE);
+		level0.getRightChild().setState(DistributionRegion.STATE_ACTIVE);
+		
 		level0.addSystem(new DistributedInstance("node1:123"));
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
 		level0.getRightChild().addSystem(new DistributedInstance("node3:123"));
@@ -223,6 +231,10 @@ public class TestDistributionGroup {
 		level0.setSplit(50);
 		level0.getLeftChild().setNameprefix(2);
 		level0.getRightChild().setNameprefix(3);
+		
+		level0.setState(DistributionRegion.STATE_SPLITTED);
+		level0.getLeftChild().setState(DistributionRegion.STATE_ACTIVE);
+		level0.getRightChild().setState(DistributionRegion.STATE_ACTIVE);
 		
 		level0.addSystem(new DistributedInstance("node1:123"));
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
