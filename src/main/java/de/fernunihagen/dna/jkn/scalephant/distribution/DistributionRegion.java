@@ -396,7 +396,7 @@ public class DistributionRegion {
 			return;
 		}
 		
-		if(isLeafRegion()) {
+		if(state.equals(STATE_ACTIVE) || state.equals(STATE_SPLITTING)) {
 			for(final DistributedInstance system : systems) {
 				if(! resultSystems.contains(system)) {
 					resultSystems.add(system);
