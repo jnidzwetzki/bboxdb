@@ -89,6 +89,10 @@ class SSTableFlushThread implements Runnable {
 	
 			sstableManager.unflushedMemtables.remove(memtable);
 		}
+		
+		synchronized (sstableManager.unflushedMemtables) {
+			sstableManager.unflushedMemtables.notifyAll();
+		}
 	}
 
 	/**
