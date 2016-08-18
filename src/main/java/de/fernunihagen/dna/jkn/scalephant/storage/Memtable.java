@@ -49,6 +49,11 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 	protected int sizeInMemory;
 	
 	/**
+	 * The timestamp when the memtable is created
+	 */
+	protected long createdTimestamp;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
@@ -59,8 +64,10 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 		this.maxSizeInMemory = maxSizeInMemory;
 		
 		this.data = new Tuple[entries];
-		freePos = -1;
-		sizeInMemory = 0;
+		this.freePos = -1;
+		this.sizeInMemory = 0;
+		
+		this.createdTimestamp = System.currentTimeMillis();
 	}
 
 	@Override
@@ -260,6 +267,14 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 	 */
 	public int getSizeInMemory() {
 		return sizeInMemory;
+	}
+	
+	/**
+	 * Get the created timestamp
+	 * @return
+	 */
+	public long getCreatedTimestamp() {
+		return createdTimestamp;
 	}
 	
 	@Override
