@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +14,11 @@ class SSTableFlushThread implements Runnable {
 	 * The reference to the sstable Manager
 	 */
 	protected final SSTableManager sstableManager;
+	
+	/**
+	 * The unflushed memtables
+	 */
+	protected List<Memtable> unflushedMemtables;
 
 	/**
 	 * The run variable
@@ -28,7 +35,8 @@ class SSTableFlushThread implements Runnable {
 	 */
 	SSTableFlushThread(final SSTableManager sstableManager) {
 		this.sstableManager = sstableManager;
-		run = true;
+		this.unflushedMemtables = sstableManager.getUnflushedMemtables();
+		this.run = true;
 	}
 
 	/**
@@ -38,10 +46,10 @@ class SSTableFlushThread implements Runnable {
 	@Override
 	public void run() {
 		while(run) {
-			while(sstableManager.unflushedMemtables.isEmpty()) {
+			while(unflushedMemtables.isEmpty()) {
 				try {					
-					synchronized (sstableManager.unflushedMemtables) {
-						sstableManager.unflushedMemtables.wait();
+					synchronized (unflushedMemtables) {
+						unflushedMemtables.wait();
 					}
 				} catch (InterruptedException e) {
 					logger.info("Memtable flush thread has stopped: " + sstableManager.getName());
@@ -68,8 +76,8 @@ class SSTableFlushThread implements Runnable {
 	 * 
 	 */
 	protected void flushAllMemtablesToDisk() {
-		while(! sstableManager.unflushedMemtables.isEmpty()) {
-			final Memtable memtable = sstableManager.unflushedMemtables.get(0);
+		while(! unflushedMemtables.isEmpty()) {
+			final Memtable memtable = unflushedMemtables.get(0);
 
 			try {
 				final int tableNumber = writeMemtable(memtable);
@@ -87,11 +95,11 @@ class SSTableFlushThread implements Runnable {
 				}
 			}
 	
-			sstableManager.unflushedMemtables.remove(memtable);
+			unflushedMemtables.remove(memtable);
 		}
 		
-		synchronized (sstableManager.unflushedMemtables) {
-			sstableManager.unflushedMemtables.notifyAll();
+		synchronized (unflushedMemtables) {
+			unflushedMemtables.notifyAll();
 		}
 	}
 
