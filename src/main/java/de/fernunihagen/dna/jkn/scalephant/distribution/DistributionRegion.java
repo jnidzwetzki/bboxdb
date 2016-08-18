@@ -403,8 +403,10 @@ public class DistributionRegion {
 				}
 			}
 		} else {
-			leftChild.getSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
-			rightChild.getSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
+			if(! isLeafRegion()) {
+				leftChild.getSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
+				rightChild.getSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
+			}
 		}
 	}
 
