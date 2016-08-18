@@ -123,7 +123,7 @@ public abstract class RegionSplitStrategy {
 			final SSTableManager ssTableManager = storageManager.getSstableManager();
 			
 			// Stop flush thread, so new data remains in memory
-			ssTableManager.stopFlushAndCompactThread();
+			ssTableManager.stopThreads();
 			
 			// Spread on disk data
 			final List<SSTableFacade> facades = ssTableManager.getSstableFacades();

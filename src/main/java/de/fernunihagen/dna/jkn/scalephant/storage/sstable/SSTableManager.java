@@ -162,7 +162,7 @@ public class SSTableManager implements ScalephantService, Storage {
 		// the running tasks
 		ready = false;
 		
-		stopFlushAndCompactThread();
+		stopThreads();
 
 		// Close all sstables
 		for(final SSTableFacade facade : sstableFacades) {
@@ -172,9 +172,9 @@ public class SSTableManager implements ScalephantService, Storage {
 	}
 
 	/**
-	 * Shutdown the flush and the compact thread
+	 * Shutdown all running service threads
 	 */
-	public void stopFlushAndCompactThread() {
+	public void stopThreads() {
 		// Shutdown the running threads
 		final List<Thread> threadsToJoin = new ArrayList<Thread>();
 		
