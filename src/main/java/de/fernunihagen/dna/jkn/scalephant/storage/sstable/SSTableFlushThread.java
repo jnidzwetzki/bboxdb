@@ -18,7 +18,7 @@ class SSTableFlushThread implements Runnable {
 	/**
 	 * The unflushed memtables
 	 */
-	protected List<Memtable> unflushedMemtables;
+	protected final List<Memtable> unflushedMemtables;
 
 	/**
 	 * The run variable
