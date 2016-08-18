@@ -875,9 +875,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			final List<String> childs = zookeeper.getChildren(path, false);
 			
 			for(final String childName : childs) {
-				final byte[] data = zookeeper.getData(path + "/" + childName, false, null);
-				final String systemName = new String(data);
-				result.add(new DistributedInstance(systemName));
+				result.add(new DistributedInstance(childName));
 			}
 			
 			return result;
@@ -899,9 +897,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 		
 		try {
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS + "/" + NodeNames.SEQUENCE_QUEUE_PREFIX;
+			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS;
 			logger.debug("Register system under systems node: " + path);
-			createPersistentSequencialNode(path, system.getStringValue().getBytes());
+			createPersistentNode(path + "/" + system.getStringValue(), "".getBytes());
 		} catch (ZookeeperException e) {
 			throw new ZookeeperException(e);
 		}
@@ -921,20 +919,15 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 		
 		try {
-			boolean childDeleted = false;
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS;
-			final List<String> childs = zookeeper.getChildren(path, false);
+			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
 			
-			for(final String childName : childs) {
-				final String childPath = path + "/" + childName;
-				final byte[] data = zookeeper.getData(childPath, false, null);
-				if(system.getStringValue().equals(new String(data))) {
-					zookeeper.delete(childPath, -1);
-					childDeleted = true;
-				}
+			if(zookeeper.exists(path, null) == null) {
+				return false;
 			}
 			
-			return childDeleted;
+			zookeeper.delete(path, -1);
+			
+			return true;
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
 		}
