@@ -895,14 +895,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
-		
-		try {
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS;
-			logger.debug("Register system under systems node: " + path);
-			createPersistentNode(path + "/" + system.getStringValue(), "".getBytes());
-		} catch (ZookeeperException e) {
-			throw new ZookeeperException(e);
-		}
+	
+		final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS;
+		logger.debug("Register system under systems node: " + path);
+		createPersistentNode(path + "/" + system.getStringValue(), "".getBytes());
 	}
 	
 	/**
