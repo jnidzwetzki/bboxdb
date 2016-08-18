@@ -50,6 +50,11 @@ public class ScalephantConfiguration {
 	protected String storageSpatialIndexerFactory = "none";
 	
 	/**
+	 * The snapshot interval
+	 */
+	protected int storageSnapshotInterval = 1800;
+	
+	/**
 	 * The port for client requests
 	 */
 	protected int networkListenPort = 50505;
@@ -231,4 +236,11 @@ public class ScalephantConfiguration {
 		this.resourcePlacementStrategy = resourcePlacementStrategy;
 	}
 
+	public int getStorageSnapshotInterval() {
+		return storageSnapshotInterval;
+	}
+
+	public void setStorageSnapshotInterval(final int storageSnapshotInterval) {
+		this.storageSnapshotInterval = storageSnapshotInterval;
+	}
 }

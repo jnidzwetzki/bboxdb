@@ -45,6 +45,14 @@ dataDirectory: /tmp/scalephant_production/data
 # Default: none 
 # storageSpatialIndexerFactory: none
 
+# Snapshot interval in seconds . After this interval, still open in 
+# memory tables will be written to disk.
+# 
+# Possible values: 1-999999
+#
+# Default: 1800 seconds
+# storageSnapshotInterval: 1800
+
 ###
 # Network
 ###
