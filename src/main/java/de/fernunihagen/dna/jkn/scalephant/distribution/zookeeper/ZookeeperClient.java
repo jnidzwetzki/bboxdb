@@ -906,6 +906,66 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 	
 	/**
+	 * Set the checkpoint for the distribution region and system
+	 * @param region
+	 * @param system
+	 * @throws ZookeeperException
+	 */
+	public void setCheckpointForDistributionRegion(final DistributionRegion region, final DistributedInstance system, final long checkpoint) throws ZookeeperException {
+		if(system == null) {
+			throw new IllegalArgumentException("Unable to add system with value null");
+		}
+		
+		try {
+			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
+			
+			logger.debug("Set checkpoint for: " + path + " to " + checkpoint);
+			
+			if(zookeeper.exists(path, null) == null) {
+				throw new ZookeeperException("Path " + path + " does not exists");
+			}
+			
+			zookeeper.setData(path, Long.toString(checkpoint).getBytes(), -1);
+
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
+	}
+	
+	/**
+	 * Get the checkpoint for the distribution region and system
+	 * @param region
+	 * @param system
+	 * @return 
+	 * @throws ZookeeperException
+	 */
+	public long getCheckpointForDistributionRegion(final DistributionRegion region, final DistributedInstance system) throws ZookeeperException {
+		if(system == null) {
+			throw new IllegalArgumentException("Unable to add system with value null");
+		}
+		
+		try {
+			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
+		
+			if(zookeeper.exists(path, null) == null) {
+				throw new ZookeeperException("Path " + path + " does not exists");
+			}
+
+			final byte[] bytes = zookeeper.getData(path, false, null);
+			
+			final String checkpointString = new String(bytes);
+			
+			if("".equals(checkpointString)) {
+				return -1;
+			}
+			
+			return Long.parseLong(checkpointString);
+		} catch (KeeperException | InterruptedException | NumberFormatException e) {
+			throw new ZookeeperException(e);
+		}
+	}
+			
+	/**
 	 * Delete a system to a distribution region
 	 * @param region
 	 * @param system

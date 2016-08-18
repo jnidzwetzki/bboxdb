@@ -234,6 +234,81 @@ public class TestZookeeperIntegration {
 	}
 	
 	/**
+	 * Test the set and get checkpoint methods
+	 * @throws ZookeeperException 
+	 */
+	@Test
+	public void testSystemCheckpoint1() throws ZookeeperException {
+		final DistributedInstance systemName1 = new DistributedInstance("192.168.1.10:5050");
+		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
+
+		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		
+		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
+
+		zookeeperClient.addSystemToDistributionRegion(region, systemName1);
+		zookeeperClient.addSystemToDistributionRegion(region, systemName2);
+
+		final long checkpoint1 = zookeeperClient.getCheckpointForDistributionRegion(region, systemName1);
+		Assert.assertEquals(-1, checkpoint1);
+
+		zookeeperClient.setCheckpointForDistributionRegion(region, systemName1, 5000);
+		final long checkpoint2 = zookeeperClient.getCheckpointForDistributionRegion(region, systemName1);
+		Assert.assertEquals(5000, checkpoint2);
+		
+		// System 2
+		final long checkpoint3 = zookeeperClient.getCheckpointForDistributionRegion(region, systemName2);
+		Assert.assertEquals(-1, checkpoint3);
+
+		zookeeperClient.setCheckpointForDistributionRegion(region, systemName2, 9000);
+		final long checkpoint4 = zookeeperClient.getCheckpointForDistributionRegion(region, systemName2);
+		Assert.assertEquals(9000, checkpoint4);
+		
+		zookeeperClient.setCheckpointForDistributionRegion(region, systemName2, 9001);
+		final long checkpoint5 = zookeeperClient.getCheckpointForDistributionRegion(region, systemName2);
+		Assert.assertEquals(9001, checkpoint5);
+	}
+	
+	/**
+	 * Test the set and get checkpoint methods
+	 * @throws ZookeeperException 
+	 */
+	@Test
+	public void testSystemCheckpoint2() throws ZookeeperException {
+		final DistributedInstance systemName1 = new DistributedInstance("192.168.1.10:5050");
+		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
+
+		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
+		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
+		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		
+		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		region.setSplit(50);
+		
+		zookeeperClient.addSystemToDistributionRegion(region.getLeftChild(), systemName1);
+		zookeeperClient.addSystemToDistributionRegion(region.getLeftChild(), systemName2);
+		zookeeperClient.addSystemToDistributionRegion(region.getRightChild(), systemName1);
+		zookeeperClient.addSystemToDistributionRegion(region.getRightChild(), systemName2);
+		
+		zookeeperClient.setCheckpointForDistributionRegion(region.getLeftChild(), systemName1, 1);
+		zookeeperClient.setCheckpointForDistributionRegion(region.getLeftChild(), systemName2, 2);
+		zookeeperClient.setCheckpointForDistributionRegion(region.getRightChild(), systemName1, 3);
+		zookeeperClient.setCheckpointForDistributionRegion(region.getRightChild(), systemName2, 4);
+
+		final long checkpoint1 = zookeeperClient.getCheckpointForDistributionRegion(region.getLeftChild(), systemName1);
+		final long checkpoint2 = zookeeperClient.getCheckpointForDistributionRegion(region.getLeftChild(), systemName2);
+		final long checkpoint3 = zookeeperClient.getCheckpointForDistributionRegion(region.getRightChild(), systemName1);
+		final long checkpoint4 = zookeeperClient.getCheckpointForDistributionRegion(region.getRightChild(), systemName2);
+
+		Assert.assertEquals(1, checkpoint1);
+		Assert.assertEquals(2, checkpoint2);
+		Assert.assertEquals(3, checkpoint3);
+		Assert.assertEquals(4, checkpoint4);
+	}
+	
+	/**
 	 * Test the systems field
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
