@@ -45,7 +45,7 @@ dataDirectory: /tmp/scalephant_production/data
 # Default: none 
 # storageSpatialIndexerFactory: none
 
-# Snapshot interval in seconds . After this interval, still open in 
+# Checkpoint interval in seconds . After this interval, still open in 
 # memory tables will be written to disk.
 # 
 # Possible values: 0-999999
@@ -53,7 +53,7 @@ dataDirectory: /tmp/scalephant_production/data
 # 1-999999 - Value in seconds how long data can stay in memory
 #
 # Default: 1800 seconds
-# storageSnapshotInterval: 1800
+# storageCheckpointInterval: 1800
 
 ###
 # Network
