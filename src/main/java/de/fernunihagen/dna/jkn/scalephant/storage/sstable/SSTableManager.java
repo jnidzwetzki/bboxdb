@@ -132,8 +132,24 @@ public class SSTableManager implements ScalephantService, Storage {
 
 		startMemtableFlushThread();
 		startCompactThread();
+		startCheckpointThread();
 	}
 
+	/**
+	 * Start the checkpoint thread if needed
+	 */
+	protected void startCheckpointThread() {
+		if(storageConfiguration.getStorageCheckpointInterval() > 0) {
+			final int maxUncheckpointedSeconds = storageConfiguration.getStorageCheckpointInterval();
+			final SSTableCheckpointThread ssTableCheckpointThread = new SSTableCheckpointThread(maxUncheckpointedSeconds);
+			final Thread checkpointThread = new Thread(ssTableCheckpointThread);
+			checkpointThread.start();
+			runningThreads.add(checkpointThread);
+		} else {
+			logger.info("NOT starting the checkpoint thread for: " + getName());
+		}
+	}
+	
 	/**
 	 * Start the compact thread if needed
 	 */
@@ -144,7 +160,7 @@ public class SSTableManager implements ScalephantService, Storage {
 			compactThread.start();
 			runningThreads.add(compactThread);
 		} else {
-			logger.info("NOT starting the sstable compact thread.");
+			logger.info("NOT starting the sstable compact thread for: " + getName());
 		}
 	}
 
@@ -159,7 +175,7 @@ public class SSTableManager implements ScalephantService, Storage {
 			flushThread.start();
 			runningThreads.add(flushThread);
 		} else {
-			logger.info("NOT starting the memtable flush thread.");
+			logger.info("NOT starting the memtable flush thread for:" + getName());
 		}
 	}
 
