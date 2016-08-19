@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
@@ -22,15 +22,15 @@ public class TestZookeeperIntegration {
 	/**
 	 * The zookeeper client
 	 */
-	protected ZookeeperClient zookeeperClient;
+	protected static ZookeeperClient zookeeperClient;
 	
 	/**
 	 * The name of the test region
 	 */
 	protected static final String TEST_GROUP = "4_abc";
 	
-	@Before
-	public void before() {
+	@BeforeClass
+	public static void before() {
 		final ScalephantConfiguration scalephantConfiguration 
 			= ScalephantConfigurationManager.getConfiguration();
 	
@@ -44,8 +44,8 @@ public class TestZookeeperIntegration {
 		zookeeperClient.init();
 	}
 	
-	@After
-	public void after() {
+	@AfterClass
+	public static void after() {
 		zookeeperClient.shutdown();
 	}
 
