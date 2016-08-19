@@ -48,7 +48,9 @@ dataDirectory: /tmp/scalephant_production/data
 # Snapshot interval in seconds . After this interval, still open in 
 # memory tables will be written to disk.
 # 
-# Possible values: 1-999999
+# Possible values: 0-999999
+# 0 - Disable the snapshot thread
+# 1-999999 - Value in seconds how long data can stay in memory
 #
 # Default: 1800 seconds
 # storageSnapshotInterval: 1800
