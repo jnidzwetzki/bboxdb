@@ -92,7 +92,6 @@ public class SSTableManager implements ScalephantService, Storage {
 		this.storageState = storageState;
 		this.name = name;
 		this.tableNumber = new AtomicInteger();
-		this.tableNumber.set(0);
 		this.ready = false;
 		
 		this.unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
@@ -113,33 +112,32 @@ public class SSTableManager implements ScalephantService, Storage {
 		}
 		
 		logger.info("Init a new instance for the table: " + getName());
+		
 		unflushedMemtables.clear();
 		sstableFacades.clear();
+		runningThreads.clear();
 		createSSTableDirIfNeeded();
 		
 		try {
 			scanForExistingTables();
 		} catch (StorageManagerException e) {
-			// Unable to init the instance
+			logger.error("Unable to init the instance: " + getName(), e);
 			return;
 		}
 		
-		this.tableNumber = new AtomicInteger();
-		this.tableNumber.set(getLastSequencenumberFromReader());
+		tableNumber.set(getLastSequencenumberFromReader());
 
 		// Set to ready before the threads are started
 		ready = true;
 
-		if(storageConfiguration.isStorageRunMemtableFlushThread()) {
-			ssTableFlushThread = new SSTableFlushThread(this);
-			final Thread flushThread = new Thread(ssTableFlushThread);
-			flushThread.setName("Memtable flush thread for: " + getName());
-			flushThread.start();
-			runningThreads.add(flushThread);
-		} else {
-			logger.info("NOT starting the memtable flush thread.");
-		}
-		
+		startMemtableFlushThread();
+		startCompactThread();
+	}
+
+	/**
+	 * Start the compact thread if needed
+	 */
+	protected void startCompactThread() {
 		if(storageConfiguration.isStorageRunCompactThread()) {
 			final Thread compactThread = new Thread(new SSTableCompactorThread(this));
 			compactThread.setName("Compact thread for: " + getName());
@@ -151,8 +149,22 @@ public class SSTableManager implements ScalephantService, Storage {
 	}
 
 	/**
+	 * Start the memtable flush thread if needed
+	 */
+	protected void startMemtableFlushThread() {
+		if(storageConfiguration.isStorageRunMemtableFlushThread()) {
+			ssTableFlushThread = new SSTableFlushThread(this);
+			final Thread flushThread = new Thread(ssTableFlushThread);
+			flushThread.setName("Memtable flush thread for: " + getName());
+			flushThread.start();
+			runningThreads.add(flushThread);
+		} else {
+			logger.info("NOT starting the memtable flush thread.");
+		}
+	}
+
+	/**
 	 * Shutdown the instance
-	 * 
 	 */
 	@Override
 	public void shutdown() {
