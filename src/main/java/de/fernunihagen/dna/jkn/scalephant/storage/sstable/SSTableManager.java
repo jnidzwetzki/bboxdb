@@ -27,6 +27,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableReader;
 import de.fernunihagen.dna.jkn.scalephant.util.State;
+import de.fernunihagen.dna.jkn.scalephant.util.Stoppable;
 
 public class SSTableManager implements ScalephantService, Storage {
 	
@@ -59,11 +60,6 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * Ready flag for flush thread
 	 */
 	protected volatile boolean ready;
-
-	/**
-	 * The Flush thread instance
-	 */
-	protected SSTableFlushThread ssTableFlushThread;
 	
 	/**
 	 * The corresponding storage manager state
@@ -74,6 +70,11 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * The running threads
 	 */
 	protected final Set<Thread> runningThreads;
+	
+	/**
+	 * The stoppable tasks
+	 */
+	protected final Set<Stoppable> stoppableTasks;
 	
 	/**
 	 * The timeout for a thread join (10 seconds)
@@ -97,6 +98,7 @@ public class SSTableManager implements ScalephantService, Storage {
 		this.unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
 		this.sstableFacades = new CopyOnWriteArrayList<SSTableFacade>();
 		this.runningThreads = new HashSet<Thread>();
+		this.stoppableTasks = new HashSet<Stoppable>();
 	}
 
 	/**
@@ -169,11 +171,12 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	protected void startMemtableFlushThread() {
 		if(storageConfiguration.isStorageRunMemtableFlushThread()) {
-			ssTableFlushThread = new SSTableFlushThread(this);
+			final SSTableFlushThread ssTableFlushThread = new SSTableFlushThread(this);
 			final Thread flushThread = new Thread(ssTableFlushThread);
 			flushThread.setName("Memtable flush thread for: " + getName());
 			flushThread.start();
 			runningThreads.add(flushThread);
+			stoppableTasks.add(ssTableFlushThread);
 		} else {
 			logger.info("NOT starting the memtable flush thread for:" + getName());
 		}
@@ -204,12 +207,12 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	public void stopThreads() {
 		
-		// Shutdown the running threads
-		if(ssTableFlushThread != null) {
-			ssTableFlushThread.stop();
-			ssTableFlushThread = null;
+		// Stop the running tasks
+		for(final Stoppable stoppable : stoppableTasks) {
+			stoppable.stop();
 		}
-
+		
+		// Stop the corresponsing threads
 		for(final Thread thread : runningThreads) {
 			logger.info("Interrupt and join thread: " + thread.getName());
 			thread.interrupt();

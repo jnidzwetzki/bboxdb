@@ -1,6 +1,8 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
-public class SSTableCheckpointThread implements Runnable {
+import de.fernunihagen.dna.jkn.scalephant.util.Stoppable;
+
+public class SSTableCheckpointThread implements Runnable, Stoppable {
 
 	/**
 	 * The maximal number of seconds for data to stay in memory
@@ -14,6 +16,11 @@ public class SSTableCheckpointThread implements Runnable {
 	@Override
 	public void run() {
 	
+	}
+
+	@Override
+	public void stop() {
+		
 	}
 
 }

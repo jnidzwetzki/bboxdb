@@ -7,8 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
+import de.fernunihagen.dna.jkn.scalephant.util.Stoppable;
 
-class SSTableFlushThread implements Runnable {
+class SSTableFlushThread implements Runnable, Stoppable {
 
 	/**
 	 * The reference to the sstable Manager
