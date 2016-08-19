@@ -3,7 +3,9 @@ package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -57,26 +59,21 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * Ready flag for flush thread
 	 */
 	protected volatile boolean ready;
-	
-	/**
-	 * The Flush thread
-	 */
-	protected Thread flushThread;
-	
+
 	/**
 	 * The Flush thread instance
 	 */
 	protected SSTableFlushThread ssTableFlushThread;
 	
 	/**
-	 * The compactification thread
-	 */
-	protected Thread compactThread;
-	
-	/**
 	 * The corresponding storage manager state
 	 */
 	protected State storageState;
+	
+	/**
+	 * The running threads
+	 */
+	protected final Set<Thread> runningThreads;
 	
 	/**
 	 * The timeout for a thread join (10 seconds)
@@ -96,10 +93,11 @@ public class SSTableManager implements ScalephantService, Storage {
 		this.name = name;
 		this.tableNumber = new AtomicInteger();
 		this.tableNumber.set(0);
-		ready = false;
+		this.ready = false;
 		
-		unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
-		sstableFacades = new CopyOnWriteArrayList<SSTableFacade>();
+		this.unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
+		this.sstableFacades = new CopyOnWriteArrayList<SSTableFacade>();
+		this.runningThreads = new HashSet<Thread>();
 	}
 
 	/**
@@ -134,17 +132,19 @@ public class SSTableManager implements ScalephantService, Storage {
 
 		if(storageConfiguration.isStorageRunMemtableFlushThread()) {
 			ssTableFlushThread = new SSTableFlushThread(this);
-			flushThread = new Thread(ssTableFlushThread);
+			final Thread flushThread = new Thread(ssTableFlushThread);
 			flushThread.setName("Memtable flush thread for: " + getName());
 			flushThread.start();
+			runningThreads.add(flushThread);
 		} else {
 			logger.info("NOT starting the memtable flush thread.");
 		}
 		
 		if(storageConfiguration.isStorageRunCompactThread()) {
-			compactThread = new Thread(new SSTableCompactorThread(this));
+			final Thread compactThread = new Thread(new SSTableCompactorThread(this));
 			compactThread.setName("Compact thread for: " + getName());
 			compactThread.start();
+			runningThreads.add(compactThread);
 		} else {
 			logger.info("NOT starting the sstable compact thread.");
 		}
@@ -175,23 +175,14 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * Shutdown all running service threads
 	 */
 	public void stopThreads() {
-		// Shutdown the running threads
-		final List<Thread> threadsToJoin = new ArrayList<Thread>();
 		
+		// Shutdown the running threads
 		if(ssTableFlushThread != null) {
 			ssTableFlushThread.stop();
 			ssTableFlushThread = null;
 		}
-		
-		if(flushThread != null) {
-			threadsToJoin.add(flushThread);
-		}
-		
-		if(compactThread != null) {
-			threadsToJoin.add(compactThread);
-		}
-		
-		for(final Thread thread : threadsToJoin) {
+
+		for(final Thread thread : runningThreads) {
 			logger.info("Interrupt and join thread: " + thread.getName());
 			thread.interrupt();
 			
@@ -211,14 +202,12 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	public boolean isShutdownComplete() {
 		
-		if(flushThread != null && flushThread.isAlive()) {
-			return false;
+		for(final Thread thread : runningThreads) {
+			if(thread.isAlive()) {
+				return false;
+			}
 		}
-		
-		if(compactThread != null && compactThread.isAlive()) {
-			return false;
-		}
-		
+
 		return true;
 	}
 	
