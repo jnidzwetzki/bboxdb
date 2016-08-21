@@ -14,6 +14,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.compact.SSTableCompactor;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
@@ -27,7 +28,7 @@ public class TestTableCompactor {
 
 	@Before
 	public void clearData() throws StorageManagerException {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageInterface.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	}

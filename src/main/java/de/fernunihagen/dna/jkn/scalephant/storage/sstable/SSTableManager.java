@@ -3,6 +3,7 @@ package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +53,11 @@ public class SSTableManager implements ScalephantService, Storage {
 	protected final List<SSTableFacade> sstableFacades;
 
 	/**
+	 * The active memtable
+	 */
+	protected volatile Memtable memtable;
+	
+	/**
 	 * The unflushed memtables
 	 */
 	protected List<Memtable> unflushedMemtables;
@@ -86,11 +92,11 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final State storageState, final SSTableName sstablename, final ScalephantConfiguration scalephantConfiguration) {
+	public SSTableManager(final SSTableName sstablename, final ScalephantConfiguration scalephantConfiguration) {
 		super();
 
 		this.scalephantConfiguration = scalephantConfiguration;
-		this.storageState = storageState;
+		this.storageState = new State(false); 
 		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
 		this.ready = false;
@@ -113,12 +119,18 @@ public class SSTableManager implements ScalephantService, Storage {
 			return;
 		}
 		
+		storageState.setReady(true);
+		
 		logger.info("Init a new instance for the table: " + getSSTableName());
 		
 		unflushedMemtables.clear();
 		sstableFacades.clear();
 		runningThreads.clear();
 		createSSTableDirIfNeeded();
+		
+		// Init the memtable before the sstablemanager. This ensures, that the
+		// sstable recovery can put entries into the memtable
+		initNewMemtable();
 		
 		try {
 			scanForExistingTables();
@@ -135,6 +147,17 @@ public class SSTableManager implements ScalephantService, Storage {
 		startMemtableFlushThread();
 		startCompactThread();
 		startCheckpointThread();
+	}
+	
+	/**
+	 * Create a new storage manager
+	 */
+	protected void initNewMemtable() {
+		memtable = new Memtable(sstablename, 
+				scalephantConfiguration.getMemtableEntriesMax(), 
+				scalephantConfiguration.getMemtableSizeMax());
+		
+		memtable.init();
 	}
 
 	/**
@@ -193,6 +216,16 @@ public class SSTableManager implements ScalephantService, Storage {
 		// Set ready to false. The threads will shutdown after completing
 		// the running tasks
 		ready = false;
+		storageState.setReady(false);
+		
+		memtable.shutdown();
+		
+		// Flush in memory data
+		try {
+			flushMemtable(memtable);
+		} catch (StorageManagerException e) {
+			logger.warn("Got exception while flushing pending memtable to disk", e);
+		}
 		
 		stopThreads();
 
@@ -325,13 +358,32 @@ public class SSTableManager implements ScalephantService, Storage {
 	}
 	
 	/**
-	 * Delete all existing SSTables in the given directory
+	 * Delete all existing data
+	 * 
+	 * 1) Reject new writes to this table 
+	 * 2) Clear the memtable
+	 * 3) Shutdown the sstable flush service
+	 * 4) Wait for shutdown complete
+	 * 5) Delete all persistent sstables
 	 * 
 	 * @return Directory was deleted or not
 	 * @throws StorageManagerException 
 	 */
 	public boolean deleteExistingTables() throws StorageManagerException {
 		logger.info("Delete all existing SSTables for relation: " + getSSTableName());
+		
+		memtable.clear();
+		
+		shutdown();
+		
+		while(! isShutdownComplete()) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				return false;
+			}
+		}
+		
 		final File directoryHandle = new File(SSTableHelper.getSSTableDir(scalephantConfiguration.getDataDirectory(), sstablename.getFullname()));
 	
 		// Does the directory exist?
@@ -424,6 +476,21 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	public Tuple get(final String key) throws StorageManagerException {
 			
+		if(! storageState.isReady()) {
+			throw new StorageManagerException("Storage manager is not ready");
+		}
+		
+		// Read from memtable
+		final Tuple memtableTuple = memtable.get(key);
+		
+		if(memtableTuple instanceof DeletedTuple) {
+			return null;
+		}
+		
+		if(memtableTuple != null) {
+			return memtableTuple;
+		}
+		
 		// Read unflushed memtables first
 		Tuple tuple = getTupleFromMemtable(key);
 				
@@ -466,6 +533,43 @@ public class SSTableManager implements ScalephantService, Storage {
 		return tuple;
 	}
 	
+	
+	/**
+	 * Get the a collection with the most recent version of the tuples
+	 * DeletedTuples are removed from the result set
+	 * 
+	 * @param memtableTuples
+	 * @return
+	 */
+	protected Collection<Tuple> getTheMostRecentTuples(
+			final Collection<Tuple> memtableTuples) {
+		final HashMap<String, Tuple> allTuples = new HashMap<String, Tuple>();
+
+		// Find the most recent version of the tuple
+		for(final Tuple tuple : memtableTuples) {
+			
+			final String tupleKey = tuple.getKey();
+			
+			if(! allTuples.containsKey(tupleKey)) {
+				allTuples.put(tupleKey, tuple);
+			} else {
+				// Update with an newer version
+				if(allTuples.get(tupleKey).compareTo(tuple) < 0) {
+					allTuples.put(tupleKey, tuple);
+				}
+			}
+		}
+		
+		// Remove deleted tuples from result
+		for(final Tuple tuple : allTuples.values()) {
+			if(tuple instanceof DeletedTuple) {
+				allTuples.remove(tuple.getKey());
+			}
+		}
+		
+		return allTuples.values();
+	}
+	
 	/**
 	 * Get all tuples that are inside of the bounding box
 	 * @param boundingBox
@@ -475,6 +579,11 @@ public class SSTableManager implements ScalephantService, Storage {
 	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox) throws StorageManagerException {
 	
 		final List<Tuple> resultList = new ArrayList<Tuple>();
+		
+		// Query memtable
+		final Collection<Tuple> memtableTuples = memtable.getTuplesInside(boundingBox);
+		resultList.addAll(memtableTuples);
+		
 		
 		// Read unflushed memtables first
 		for(final Memtable unflushedMemtable : unflushedMemtables) {
@@ -515,14 +624,19 @@ public class SSTableManager implements ScalephantService, Storage {
 			}
 		}
 		resultList.addAll(storedTuples);
-		return resultList;
+		
+		return getTheMostRecentTuples(resultList);
 	}
 
 	@Override
 	public Collection<Tuple> getTuplesAfterTime(final long timestamp)
 			throws StorageManagerException {
-		
+	
 		final List<Tuple> resultList = new ArrayList<Tuple>();
+		
+		// Query all memtables
+		final Collection<Tuple> memtableTuples = memtable.getTuplesAfterTime(timestamp);
+		resultList.addAll(memtableTuples);
 
 		// Read unflushed memtables first
 		for(final Memtable unflushedMemtable : unflushedMemtables) {
@@ -566,7 +680,8 @@ public class SSTableManager implements ScalephantService, Storage {
 		}
 		
 		resultList.addAll(storedTuples);
-		return resultList;
+		
+		return getTheMostRecentTuples(resultList);
 	}
 	
 	/**
@@ -661,20 +776,45 @@ public class SSTableManager implements ScalephantService, Storage {
 	public List<Memtable> getUnflushedMemtables() {
 		return unflushedMemtables;
 	}
+	
+	/**
+	 * Flush the open memtable to disk
+	 * @throws StorageManagerException
+	 */
+	public void flushMemtable() throws StorageManagerException {
+		flushMemtable(memtable);
+		initNewMemtable();
+	}
 
 	// These methods are required by the interface
 	@Override
 	public void put(final Tuple tuple) throws StorageManagerException {
-		throw new UnsupportedOperationException("SSTables are read only");
+		if(! storageState.isReady()) {
+			throw new StorageManagerException("Storage manager is not ready");
+		}
+		
+		// Ensure that only one memtable is newly created
+		synchronized (this) {	
+			if(memtable.isFull()) {
+				flushMemtable();
+			}
+			
+			memtable.put(tuple);
+		}
 	}
 
 	@Override
 	public void delete(final String key) throws StorageManagerException {
-		throw new UnsupportedOperationException("SSTables are read only");
+		if(! storageState.isReady()) {
+			throw new StorageManagerException("Storage manager is not ready");
+		}
+		
+		memtable.delete(key);
 	}
 
 	@Override
 	public void clear() throws StorageManagerException {
-		throw new UnsupportedOperationException("SSTables are read only");
+		deleteExistingTables();
+		init();
 	}
 }

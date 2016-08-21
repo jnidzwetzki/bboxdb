@@ -8,6 +8,7 @@ import de.fernunihagen.dna.jkn.scalephant.PersonEntity;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.jkn.scalephant.util.ObjectSerializer;
 
 public class TestStorageManager {
@@ -15,7 +16,7 @@ public class TestStorageManager {
 	/**
 	 * The instance of the storage manager
 	 */
-	protected StorageManager storageManager;
+	protected SSTableManager storageManager;
 	
 	/**
 	 * The name of the test relation
@@ -30,7 +31,7 @@ public class TestStorageManager {
 	
 	@Before
 	public void init() throws StorageManagerException {
-		storageManager = StorageInterface.getStorageManager(TEST_RELATION);
+		storageManager = StorageInterface.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		Assert.assertTrue(storageManager.isReady());
 	}

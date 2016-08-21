@@ -15,13 +15,14 @@ import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 
 public class StorageInterface {
 
 	/**
 	 * A map with all created storage instances
 	 */
-	protected static final Map<SSTableName, StorageManager> instances;
+	protected static final Map<SSTableName, SSTableManager> instances;
 	
 	/**
 	 * The used storage configuration
@@ -36,7 +37,7 @@ public class StorageInterface {
 	
 	static {
 		configuration = ScalephantConfigurationManager.getConfiguration();
-		instances = new HashMap<SSTableName, StorageManager>();
+		instances = new HashMap<SSTableName, SSTableManager>();
 	}
 	
 	/**
@@ -45,7 +46,7 @@ public class StorageInterface {
 	 * 
 	 * @return
 	 */
-	public static synchronized StorageManager getStorageManager(final SSTableName table) throws StorageManagerException {
+	public static synchronized SSTableManager getSSTableManager(final SSTableName table) throws StorageManagerException {
 		
 		if(! table.isValid()) {
 			throw new StorageManagerException("Invalid tablename: " + table);
@@ -55,12 +56,12 @@ public class StorageInterface {
 			return instances.get(table);
 		}
 		
-		final StorageManager storageManager = new StorageManager(table, configuration);
-		storageManager.init();
+		final SSTableManager sstableManager = new SSTableManager(table, configuration);
+		sstableManager.init();
 		
-		instances.put(table, storageManager);
+		instances.put(table, sstableManager);
 		
-		return storageManager;
+		return sstableManager;
 	}
 	
 	/**
@@ -75,8 +76,8 @@ public class StorageInterface {
 		}
 		
 		logger.info("Shuting down storage interface for: " + table);
-		final StorageManager storageManager = instances.remove(table);
-		storageManager.shutdown();		
+		final SSTableManager sstableManager = instances.remove(table);
+		sstableManager.shutdown();		
 		
 		return true;
 	}
@@ -92,10 +93,10 @@ public class StorageInterface {
 			throw new StorageManagerException("Invalid tablename: " + table);
 		}
 		
-		final StorageManager storageManager = getStorageManager(table);
+		final SSTableManager sstableManager = getSSTableManager(table);
 		instances.remove(table);
 
-		storageManager.deleteExistingTables();
+		sstableManager.deleteExistingTables();
 	}
 	
 	/**
@@ -167,8 +168,8 @@ public class StorageInterface {
 		
 		if(instances != null) {
 			for(final SSTableName table : instances.keySet()) {
-				final StorageManager storageManager = instances.get(table);
-				storageManager.shutdown();
+				final SSTableManager sstableManager = instances.get(table);
+				sstableManager.shutdown();
 			}
 		}
 	}

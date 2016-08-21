@@ -49,11 +49,11 @@ import de.fernunihagen.dna.jkn.scalephant.network.routing.PackageRouter;
 import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.jkn.scalephant.network.routing.RoutingHeaderParser;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
-import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 
 public class ClientConnectionHandler implements Runnable {
 	
@@ -382,7 +382,7 @@ public class ClientConnectionHandler implements Runnable {
 					final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
 					
 					for(final SSTableName ssTableName : localTables) {
-						final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+						final SSTableManager storageManager = StorageInterface.getSSTableManager(ssTableName);
 						final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
 						
 						if(tuple != null) {
@@ -434,7 +434,7 @@ public class ClientConnectionHandler implements Runnable {
 					writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 
 					for(final SSTableName ssTableName : localTables) {
-						final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+						final SSTableManager storageManager = StorageInterface.getSSTableManager(ssTableName);
 						final Collection<Tuple> resultTuple = storageManager.getTuplesInside(queryRequest.getBoundingBox());
 						
 						for(final Tuple tuple : resultTuple) {
@@ -485,7 +485,7 @@ public class ClientConnectionHandler implements Runnable {
 					writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 
 					for(final SSTableName ssTableName : localTables) {
-						final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+						final SSTableManager storageManager = StorageInterface.getSSTableManager(ssTableName);
 						final Collection<Tuple> resultTuple = storageManager.getTuplesAfterTime(queryRequest.getTimestamp());
 
 						for(final Tuple tuple : resultTuple) {
@@ -536,7 +536,7 @@ public class ClientConnectionHandler implements Runnable {
 			final Collection<SSTableName> localTables = nameprefixManager.getNameprefixesForRegionWithTable(boundingBox, requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
-				final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+				final SSTableManager storageManager = StorageInterface.getSSTableManager(ssTableName);
 				storageManager.put(tuple);
 			}
 
@@ -589,7 +589,7 @@ public class ClientConnectionHandler implements Runnable {
 			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
-				final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
+				final SSTableManager storageManager = StorageInterface.getSSTableManager(ssTableName);
 				storageManager.delete(deleteTupleRequest.getKey());
 			}
 			

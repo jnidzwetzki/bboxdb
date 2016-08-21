@@ -12,6 +12,7 @@ import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableHelper;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableWriter;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableFacade;
 import de.fernunihagen.dna.jkn.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
@@ -29,7 +30,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testWrittenFiles() throws Exception {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageInterface.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	
@@ -52,7 +53,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testIndexIterator() throws Exception {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageInterface.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	
@@ -103,7 +104,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testDelayedDeletion() throws Exception {
-		final StorageManager storageManager = StorageInterface.getStorageManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageInterface.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	

@@ -18,7 +18,6 @@ import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperExcept
 import de.fernunihagen.dna.jkn.scalephant.network.client.ScalephantClient;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageInterface;
-import de.fernunihagen.dna.jkn.scalephant.storage.StorageManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
@@ -119,8 +118,7 @@ public abstract class RegionSplitStrategy {
 		logger.info("Redistributing table " + ssTableName.getFullname());
 		
 		try {
-			final StorageManager storageManager = StorageInterface.getStorageManager(ssTableName);
-			final SSTableManager ssTableManager = storageManager.getSstableManager();
+			final SSTableManager ssTableManager = StorageInterface.getSSTableManager(ssTableName);
 			
 			// Stop flush thread, so new data remains in memory
 			ssTableManager.stopThreads();
@@ -130,7 +128,7 @@ public abstract class RegionSplitStrategy {
 			spreadFacades(region, ssTableName, facades);
 			
 			// Spread in memory data
-			storageManager.flushMemtable();
+			ssTableManager.flushMemtable();
 			final List<Memtable> unflushedMemtables = ssTableManager.getUnflushedMemtables();
 			spreadUnflushedMemtables(region, ssTableName, unflushedMemtables);
 			

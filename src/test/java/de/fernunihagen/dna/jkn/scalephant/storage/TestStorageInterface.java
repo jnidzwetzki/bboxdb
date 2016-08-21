@@ -10,6 +10,7 @@ import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.jkn.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.jkn.scalephant.storage.sstable.SSTableManager;
 
 public class TestStorageInterface {
 	
@@ -27,7 +28,7 @@ public class TestStorageInterface {
 	@Test
 	public void testRegisterAndUnregister() throws StorageManagerException {
 		Assert.assertFalse(StorageInterface.isStorageManagerActive(RELATION_NAME));
-		StorageInterface.getStorageManager(RELATION_NAME);
+		StorageInterface.getSSTableManager(RELATION_NAME);
 		Assert.assertTrue(StorageInterface.isStorageManagerActive(RELATION_NAME));
 		StorageInterface.shutdown(RELATION_NAME);
 		Assert.assertFalse(StorageInterface.isStorageManagerActive(RELATION_NAME));
@@ -41,7 +42,7 @@ public class TestStorageInterface {
 	@Test
 	public void testDeleteTable() throws StorageManagerException, InterruptedException {
 		
-		final StorageManager storageManager = StorageInterface.getStorageManager(RELATION_NAME);
+		final SSTableManager storageManager = StorageInterface.getSSTableManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
