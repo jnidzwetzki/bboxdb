@@ -86,12 +86,12 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final State storageState, final SSTableName name, final ScalephantConfiguration storageConfiguration) {
+	public SSTableManager(final State storageState, final SSTableName sstablename, final ScalephantConfiguration storageConfiguration) {
 		super();
 
 		this.storageConfiguration = storageConfiguration;
 		this.storageState = storageState;
-		this.sstablename = name;
+		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
 		this.ready = false;
 		
