@@ -53,7 +53,7 @@ class SSTableFlushThread implements Runnable, Stoppable {
 						unflushedMemtables.wait();
 					}
 				} catch (InterruptedException e) {
-					logger.info("Memtable flush thread has stopped: " + sstableManager.getName());
+					logger.info("Memtable flush thread has stopped: " + sstableManager.getSSTableName());
 					return;
 				}
 			}
@@ -61,14 +61,14 @@ class SSTableFlushThread implements Runnable, Stoppable {
 			flushAllMemtablesToDisk();
 		}
 		
-		logger.info("Memtable flush thread has stopped: " + sstableManager.getName());
+		logger.info("Memtable flush thread has stopped: " + sstableManager.getSSTableName());
 	}
 	
 	/**
 	 * Stop the memtable flush thread
 	 */
 	public void stop() {
-		logger.info("Stopping memtable flush thread for: " + sstableManager.getName());
+		logger.info("Stopping memtable flush thread for: " + sstableManager.getSSTableName());
 		run = false;
 	}
 
@@ -82,7 +82,7 @@ class SSTableFlushThread implements Runnable, Stoppable {
 
 			try {
 				final int tableNumber = writeMemtable(memtable);
-				final SSTableFacade facade = new SSTableFacade(getStorageDataDir(), sstableManager.getName(), tableNumber);
+				final SSTableFacade facade = new SSTableFacade(getStorageDataDir(), sstableManager.getSSTableName(), tableNumber);
 				facade.init();
 				sstableManager.sstableFacades.add(facade);
 			} catch (Exception e) {
@@ -92,7 +92,7 @@ class SSTableFlushThread implements Runnable, Stoppable {
 				if(Thread.currentThread().isInterrupted()) {
 					logger.warn("Got Exception while flushing memtable, but thread was interrupted. Ignoring exception.");
 				} else {
-					logger.warn("Exception while flushing memtable: " + sstableManager.getName(), e);
+					logger.warn("Exception while flushing memtable: " + sstableManager.getSSTableName(), e);
 				}
 			}
 	
@@ -123,7 +123,7 @@ class SSTableFlushThread implements Runnable, Stoppable {
 		int tableNumber = sstableManager.increaseTableNumber();
 		logger.info("Writing new memtable: " + tableNumber);
 		
-		try(final SSTableWriter ssTableWriter = new SSTableWriter(getStorageDataDir(), sstableManager.getName(), tableNumber)) {
+		try(final SSTableWriter ssTableWriter = new SSTableWriter(getStorageDataDir(), sstableManager.getSSTableName(), tableNumber)) {
 			ssTableWriter.open();
 			ssTableWriter.getSstableFile();
 			ssTableWriter.addData(memtable.getSortedTupleList());

@@ -43,13 +43,13 @@ public class SSTableCompactorThread implements Runnable {
 	 */
 	@Override
 	public void run() {
-		logger.info("Starting new compact thread for: " + sstableManager.getName().getFullname());
+		logger.info("Starting new compact thread for: " + sstableManager.getSSTableName().getFullname());
 
 		while(sstableManager.isReady()) {
 
 			try {	
 				Thread.sleep(mergeStragegy.getCompactorDelay());
-				logger.debug("Executing compact thread for: " + sstableManager.getName().getFullname());
+				logger.debug("Executing compact thread for: " + sstableManager.getSSTableName().getFullname());
 
 				// Create a copy to ensure, that the list of facades don't change
 				// during the compact run.
@@ -63,12 +63,12 @@ public class SSTableCompactorThread implements Runnable {
 					handleExceptionDuringMerge(e);
 				} 
 			} catch (InterruptedException e) {
-				logger.info("Compact thread for: " + sstableManager.getName() + " is done");
+				logger.info("Compact thread for: " + sstableManager.getSSTableName() + " is done");
 				return;
 			} 
 		}
 		
-		logger.info("Compact thread for: " + sstableManager.getName() + " is done");
+		logger.info("Compact thread for: " + sstableManager.getSSTableName() + " is done");
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class SSTableCompactorThread implements Runnable {
 	 */
 	protected void handleExceptionDuringMerge(Exception e) {
 		if(Thread.currentThread().isInterrupted()) {
-			logger.info("Compact thread for: " + sstableManager.getName().getFullname() + " is done");
+			logger.info("Compact thread for: " + sstableManager.getSSTableName().getFullname() + " is done");
 		} else {
 			logger.error("Error while merging tables", e);
 		}
@@ -140,13 +140,13 @@ public class SSTableCompactorThread implements Runnable {
 	 */
 	protected void testAndPerformTableSplit(final int totalWrittenTuples) {
 		
-		logger.info("Test for table split: " + sstableManager.getName().getFullname() 
+		logger.info("Test for table split: " + sstableManager.getSSTableName().getFullname() 
 				+ " total tuples: " + totalWrittenTuples);
 		
 		final RegionSplitStrategy splitter = RegionSplitStrategyFactory.getInstance();
 		
 		if(splitter.isSplitNeeded(totalWrittenTuples)) {
-			splitter.performSplit(sstableManager.getName());
+			splitter.performSplit(sstableManager.getSSTableName());
 		}
 		
 	}

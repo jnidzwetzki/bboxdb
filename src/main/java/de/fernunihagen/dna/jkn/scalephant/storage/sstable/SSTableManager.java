@@ -34,7 +34,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName name;
+	protected final SSTableName sstablename;
 	
 	/**
 	 * The Storage configuration
@@ -91,7 +91,7 @@ public class SSTableManager implements ScalephantService, Storage {
 
 		this.storageConfiguration = storageConfiguration;
 		this.storageState = storageState;
-		this.name = name;
+		this.sstablename = name;
 		this.tableNumber = new AtomicInteger();
 		this.ready = false;
 		
@@ -113,7 +113,7 @@ public class SSTableManager implements ScalephantService, Storage {
 			return;
 		}
 		
-		logger.info("Init a new instance for the table: " + getName());
+		logger.info("Init a new instance for the table: " + getSSTableName());
 		
 		unflushedMemtables.clear();
 		sstableFacades.clear();
@@ -123,7 +123,7 @@ public class SSTableManager implements ScalephantService, Storage {
 		try {
 			scanForExistingTables();
 		} catch (StorageManagerException e) {
-			logger.error("Unable to init the instance: " + getName(), e);
+			logger.error("Unable to init the instance: " + getSSTableName(), e);
 			return;
 		}
 		
@@ -149,7 +149,7 @@ public class SSTableManager implements ScalephantService, Storage {
 			runningThreads.add(checkpointThread);
 			stoppableTasks.add(ssTableCheckpointThread);
 		} else {
-			logger.info("NOT starting the checkpoint thread for: " + getName());
+			logger.info("NOT starting the checkpoint thread for: " + getSSTableName());
 		}
 	}
 	
@@ -159,11 +159,11 @@ public class SSTableManager implements ScalephantService, Storage {
 	protected void startCompactThread() {
 		if(storageConfiguration.isStorageRunCompactThread()) {
 			final Thread compactThread = new Thread(new SSTableCompactorThread(this));
-			compactThread.setName("Compact thread for: " + getName());
+			compactThread.setName("Compact thread for: " + getSSTableName());
 			compactThread.start();
 			runningThreads.add(compactThread);
 		} else {
-			logger.info("NOT starting the sstable compact thread for: " + getName());
+			logger.info("NOT starting the sstable compact thread for: " + getSSTableName());
 		}
 	}
 
@@ -174,12 +174,12 @@ public class SSTableManager implements ScalephantService, Storage {
 		if(storageConfiguration.isStorageRunMemtableFlushThread()) {
 			final SSTableFlushThread ssTableFlushThread = new SSTableFlushThread(this);
 			final Thread flushThread = new Thread(ssTableFlushThread);
-			flushThread.setName("Memtable flush thread for: " + getName());
+			flushThread.setName("Memtable flush thread for: " + getSSTableName());
 			flushThread.start();
 			runningThreads.add(flushThread);
 			stoppableTasks.add(ssTableFlushThread);
 		} else {
-			logger.info("NOT starting the memtable flush thread for:" + getName());
+			logger.info("NOT starting the memtable flush thread for:" + getSSTableName());
 		}
 	}
 
@@ -188,7 +188,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	@Override
 	public void shutdown() {
-		logger.info("Shuting down the instance for table: " + getName());
+		logger.info("Shuting down the instance for table: " + getSSTableName());
 		
 		// Set ready to false. The threads will shutdown after completing
 		// the running tasks
@@ -249,10 +249,10 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	protected void createSSTableDirIfNeeded() {
 		final File rootDir = new File(storageConfiguration.getDataDirectory());		
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), name.getFullname()));
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), sstablename.getFullname()));
 		
 		if(rootDir.exists() && ! directoryHandle.exists()) {
-			logger.info("Create a new dir for table: " + getName());
+			logger.info("Create a new dir for table: " + getSSTableName());
 			directoryHandle.mkdir();
 		}
 	}
@@ -264,8 +264,8 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * 
 	 */
 	protected void scanForExistingTables() throws StorageManagerException {
-		logger.info("Scan for existing SSTables: " + getName());
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), name.getFullname()));
+		logger.info("Scan for existing SSTables: " + getSSTableName());
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), sstablename.getFullname()));
 		
 	    checkSSTableDir(directoryHandle);
 	
@@ -277,8 +277,8 @@ public class SSTableManager implements ScalephantService, Storage {
 				logger.info("Found sstable: " + filename);
 				
 				try {
-					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(name, filename);
-					final SSTableFacade facade = new SSTableFacade(storageConfiguration.getDataDirectory(), name, sequenceNumber);
+					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(sstablename, filename);
+					final SSTableFacade facade = new SSTableFacade(storageConfiguration.getDataDirectory(), sstablename, sequenceNumber);
 					facade.init();
 					sstableFacades.add(facade);
 				} catch(StorageManagerException e) {
@@ -331,8 +331,8 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * @throws StorageManagerException 
 	 */
 	public boolean deleteExistingTables() throws StorageManagerException {
-		logger.info("Delete all existing SSTables for relation: " + getName());
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), name.getFullname()));
+		logger.info("Delete all existing SSTables for relation: " + getSSTableName());
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), sstablename.getFullname()));
 	
 		// Does the directory exist?
 		if(! directoryHandle.isDirectory()) {
@@ -626,8 +626,8 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * Get the sstable name for this instance
 	 * @return
 	 */
-	public SSTableName getName() {
-		return name;
+	public SSTableName getSSTableName() {
+		return sstablename;
 	}
 
 	/**
