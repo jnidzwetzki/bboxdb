@@ -81,7 +81,7 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	}
 	
 	@Override
-	public int getCompactorDelay() {
+	public long getCompactorDelay() {
 		return SSTableConst.COMPACT_THREAD_DELAY;
 	}
 

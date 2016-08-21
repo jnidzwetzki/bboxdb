@@ -16,6 +16,6 @@ public interface MergeStrategy {
 	 * Get the delay for the compact thread
 	 * @return
 	 */
-	public abstract int getCompactorDelay();
+	public abstract long getCompactorDelay();
 
 }
