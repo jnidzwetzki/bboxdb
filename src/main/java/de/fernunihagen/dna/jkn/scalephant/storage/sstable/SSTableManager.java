@@ -143,7 +143,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	protected void startCheckpointThread() {
 		if(storageConfiguration.getStorageCheckpointInterval() > 0) {
 			final int maxUncheckpointedSeconds = storageConfiguration.getStorageCheckpointInterval();
-			final SSTableCheckpointThread ssTableCheckpointThread = new SSTableCheckpointThread(maxUncheckpointedSeconds);
+			final SSTableCheckpointThread ssTableCheckpointThread = new SSTableCheckpointThread(maxUncheckpointedSeconds, this);
 			final Thread checkpointThread = new Thread(ssTableCheckpointThread);
 			checkpointThread.start();
 			runningThreads.add(checkpointThread);
