@@ -109,7 +109,7 @@ class SSTableFlushThread implements Runnable, Stoppable {
 	 * @return
 	 */
 	protected String getStorageDataDir() {
-		return sstableManager.getStorageConfiguration().getDataDirectory();
+		return sstableManager.getScalephantConfiguration().getDataDirectory();
 	}
 		
 	/**

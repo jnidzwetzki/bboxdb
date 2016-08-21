@@ -634,7 +634,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * Returns the configuration
 	 * @return
 	 */
-	public ScalephantConfiguration getStorageConfiguration() {
+	public ScalephantConfiguration getScalephantConfiguration() {
 		return scalephantConfiguration;
 	}
 
