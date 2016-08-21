@@ -17,6 +17,11 @@ class SSTableFlushThread implements Runnable, Stoppable {
 	protected final SSTableManager sstableManager;
 	
 	/**
+	 * The data directory
+	 */
+	protected String dataDirectory;
+	
+	/**
 	 * The unflushed memtables
 	 */
 	protected final List<Memtable> unflushedMemtables;
@@ -37,6 +42,7 @@ class SSTableFlushThread implements Runnable, Stoppable {
 	SSTableFlushThread(final SSTableManager sstableManager) {
 		this.sstableManager = sstableManager;
 		this.unflushedMemtables = sstableManager.getUnflushedMemtables();
+		this.dataDirectory = sstableManager.getScalephantConfiguration().getDataDirectory();
 		this.run = true;
 	}
 
@@ -82,7 +88,7 @@ class SSTableFlushThread implements Runnable, Stoppable {
 
 			try {
 				final int tableNumber = writeMemtable(memtable);
-				final SSTableFacade facade = new SSTableFacade(getStorageDataDir(), sstableManager.getSSTableName(), tableNumber);
+				final SSTableFacade facade = new SSTableFacade(dataDirectory, sstableManager.getSSTableName(), tableNumber);
 				facade.init();
 				sstableManager.sstableFacades.add(facade);
 			} catch (Exception e) {
@@ -103,14 +109,6 @@ class SSTableFlushThread implements Runnable, Stoppable {
 			unflushedMemtables.notifyAll();
 		}
 	}
-
-	/**
-	 * Get the root directory for storage
-	 * @return
-	 */
-	protected String getStorageDataDir() {
-		return sstableManager.getScalephantConfiguration().getDataDirectory();
-	}
 		
 	/**
 	 * Write a memtable to disk and return the file handle of the table
@@ -123,7 +121,7 @@ class SSTableFlushThread implements Runnable, Stoppable {
 		int tableNumber = sstableManager.increaseTableNumber();
 		logger.info("Writing new memtable: " + tableNumber);
 		
-		try(final SSTableWriter ssTableWriter = new SSTableWriter(getStorageDataDir(), sstableManager.getSSTableName(), tableNumber)) {
+		try(final SSTableWriter ssTableWriter = new SSTableWriter(dataDirectory, sstableManager.getSSTableName(), tableNumber)) {
 			ssTableWriter.open();
 			ssTableWriter.getSstableFile();
 			ssTableWriter.addData(memtable.getSortedTupleList());
