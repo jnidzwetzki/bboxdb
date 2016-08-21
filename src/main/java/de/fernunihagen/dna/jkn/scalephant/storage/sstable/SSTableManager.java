@@ -39,7 +39,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	/**
 	 * The Storage configuration
 	 */
-	protected final ScalephantConfiguration storageConfiguration;
+	protected final ScalephantConfiguration scalephantConfiguration;
 	
 	/**
 	 * The number of the table
@@ -86,10 +86,10 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final State storageState, final SSTableName sstablename, final ScalephantConfiguration storageConfiguration) {
+	public SSTableManager(final State storageState, final SSTableName sstablename, final ScalephantConfiguration scalephantConfiguration) {
 		super();
 
-		this.storageConfiguration = storageConfiguration;
+		this.scalephantConfiguration = scalephantConfiguration;
 		this.storageState = storageState;
 		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
@@ -141,8 +141,8 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * Start the checkpoint thread if needed
 	 */
 	protected void startCheckpointThread() {
-		if(storageConfiguration.getStorageCheckpointInterval() > 0) {
-			final int maxUncheckpointedSeconds = storageConfiguration.getStorageCheckpointInterval();
+		if(scalephantConfiguration.getStorageCheckpointInterval() > 0) {
+			final int maxUncheckpointedSeconds = scalephantConfiguration.getStorageCheckpointInterval();
 			final SSTableCheckpointThread ssTableCheckpointThread = new SSTableCheckpointThread(maxUncheckpointedSeconds, this);
 			final Thread checkpointThread = new Thread(ssTableCheckpointThread);
 			checkpointThread.start();
@@ -157,7 +157,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * Start the compact thread if needed
 	 */
 	protected void startCompactThread() {
-		if(storageConfiguration.isStorageRunCompactThread()) {
+		if(scalephantConfiguration.isStorageRunCompactThread()) {
 			final Thread compactThread = new Thread(new SSTableCompactorThread(this));
 			compactThread.setName("Compact thread for: " + getSSTableName());
 			compactThread.start();
@@ -171,7 +171,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * Start the memtable flush thread if needed
 	 */
 	protected void startMemtableFlushThread() {
-		if(storageConfiguration.isStorageRunMemtableFlushThread()) {
+		if(scalephantConfiguration.isStorageRunMemtableFlushThread()) {
 			final SSTableFlushThread ssTableFlushThread = new SSTableFlushThread(this);
 			final Thread flushThread = new Thread(ssTableFlushThread);
 			flushThread.setName("Memtable flush thread for: " + getSSTableName());
@@ -248,8 +248,8 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * 
 	 */
 	protected void createSSTableDirIfNeeded() {
-		final File rootDir = new File(storageConfiguration.getDataDirectory());		
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), sstablename.getFullname()));
+		final File rootDir = new File(scalephantConfiguration.getDataDirectory());		
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(scalephantConfiguration.getDataDirectory(), sstablename.getFullname()));
 		
 		if(rootDir.exists() && ! directoryHandle.exists()) {
 			logger.info("Create a new dir for table: " + getSSTableName());
@@ -265,7 +265,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	protected void scanForExistingTables() throws StorageManagerException {
 		logger.info("Scan for existing SSTables: " + getSSTableName());
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), sstablename.getFullname()));
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(scalephantConfiguration.getDataDirectory(), sstablename.getFullname()));
 		
 	    checkSSTableDir(directoryHandle);
 	
@@ -278,7 +278,7 @@ public class SSTableManager implements ScalephantService, Storage {
 				
 				try {
 					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(sstablename, filename);
-					final SSTableFacade facade = new SSTableFacade(storageConfiguration.getDataDirectory(), sstablename, sequenceNumber);
+					final SSTableFacade facade = new SSTableFacade(scalephantConfiguration.getDataDirectory(), sstablename, sequenceNumber);
 					facade.init();
 					sstableFacades.add(facade);
 				} catch(StorageManagerException e) {
@@ -332,7 +332,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 */
 	public boolean deleteExistingTables() throws StorageManagerException {
 		logger.info("Delete all existing SSTables for relation: " + getSSTableName());
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(storageConfiguration.getDataDirectory(), sstablename.getFullname()));
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(scalephantConfiguration.getDataDirectory(), sstablename.getFullname()));
 	
 		// Does the directory exist?
 		if(! directoryHandle.isDirectory()) {
@@ -635,7 +635,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * @return
 	 */
 	public ScalephantConfiguration getStorageConfiguration() {
-		return storageConfiguration;
+		return scalephantConfiguration;
 	}
 
 	/**
