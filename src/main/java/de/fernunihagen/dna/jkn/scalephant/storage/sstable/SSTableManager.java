@@ -147,6 +147,7 @@ public class SSTableManager implements ScalephantService, Storage {
 			final Thread checkpointThread = new Thread(ssTableCheckpointThread);
 			checkpointThread.start();
 			runningThreads.add(checkpointThread);
+			stoppableTasks.add(ssTableCheckpointThread);
 		} else {
 			logger.info("NOT starting the checkpoint thread for: " + getName());
 		}
