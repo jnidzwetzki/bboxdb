@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.jkn.scalephant.storage.sstable;
 
+import java.util.concurrent.TimeUnit;
+
 public class SSTableConst {
 	
 	/**
@@ -48,7 +50,7 @@ public class SSTableConst {
 	public final static byte[] DELETED_MARKER = "DEL".getBytes();
 	
 	/**
-	 * Execution interval for the comptact thread (30 seconds)
+	 * Execution interval for the compact thread (30 seconds)
 	 */
-	public final static int COMPACT_THREAD_DELAY = 30 * 1000;
+	public final static long COMPACT_THREAD_DELAY = TimeUnit.SECONDS.toMillis(30);
 }
