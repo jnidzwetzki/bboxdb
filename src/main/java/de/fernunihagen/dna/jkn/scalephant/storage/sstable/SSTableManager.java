@@ -584,8 +584,7 @@ public class SSTableManager implements ScalephantService, Storage {
 		final Collection<Tuple> memtableTuples = memtable.getTuplesInside(boundingBox);
 		resultList.addAll(memtableTuples);
 		
-		
-		// Read unflushed memtables first
+		// Query unflushed memtables
 		for(final Memtable unflushedMemtable : unflushedMemtables) {
 			try {
 				final Collection<Tuple> memtableResult = unflushedMemtable.getTuplesInside(boundingBox);
@@ -595,7 +594,20 @@ public class SSTableManager implements ScalephantService, Storage {
 			}
 		}
 		
-		// Scan the sstables
+		// Query the sstables
+		final List<Tuple> storedTuples = getTuplesInsideFromSStable(boundingBox);
+		resultList.addAll(storedTuples);
+		
+		return getTheMostRecentTuples(resultList);
+	}
+
+	/**
+	 * Get all tuples that are inside the given bounding box from the sstables
+	 * @param timestamp
+	 * @return
+	 */
+	protected List<Tuple> getTuplesInsideFromSStable(final BoundingBox boundingBox) {
+		
 		boolean readComplete = false;
 		final List<Tuple> storedTuples = new ArrayList<Tuple>();
 
@@ -623,9 +635,7 @@ public class SSTableManager implements ScalephantService, Storage {
 				facade.release();
 			}
 		}
-		resultList.addAll(storedTuples);
-		
-		return getTheMostRecentTuples(resultList);
+		return storedTuples;
 	}
 
 	@Override
@@ -634,11 +644,11 @@ public class SSTableManager implements ScalephantService, Storage {
 	
 		final List<Tuple> resultList = new ArrayList<Tuple>();
 		
-		// Query all memtables
+		// Query active memtable
 		final Collection<Tuple> memtableTuples = memtable.getTuplesAfterTime(timestamp);
 		resultList.addAll(memtableTuples);
 
-		// Read unflushed memtables first
+		// Query unflushed memtables
 		for(final Memtable unflushedMemtable : unflushedMemtables) {
 			try {
 				final Collection<Tuple> memtableResult = unflushedMemtable.getTuplesAfterTime(timestamp);
@@ -647,6 +657,20 @@ public class SSTableManager implements ScalephantService, Storage {
 				logger.warn("Got an exception while scanning unflushed memtable: ", e);
 			}
 		}
+		
+		// Query sstables
+		final List<Tuple> storedTuples = getTuplesAfterTimeFromSSTable(timestamp);
+		resultList.addAll(storedTuples);
+		
+		return getTheMostRecentTuples(resultList);
+	}
+
+	/**
+	 * Get all tuples that are newer than the given timestamp from the sstables
+	 * @param timestamp
+	 * @return
+	 */
+	protected List<Tuple> getTuplesAfterTimeFromSSTable(final long timestamp) {
 		
 		// Scan the sstables
 		boolean readComplete = false;
@@ -678,10 +702,7 @@ public class SSTableManager implements ScalephantService, Storage {
 				facade.release();
 			}
 		}
-		
-		resultList.addAll(storedTuples);
-		
-		return getTheMostRecentTuples(resultList);
+		return storedTuples;
 	}
 	
 	/**
