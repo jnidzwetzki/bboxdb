@@ -7,6 +7,15 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfiguration;
+import de.fernunihagen.dna.jkn.scalephant.ScalephantConfigurationManager;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionGroupCache;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegion;
+import de.fernunihagen.dna.jkn.scalephant.distribution.DistributionRegionHelper;
+import de.fernunihagen.dna.jkn.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClient;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperClientFactory;
+import de.fernunihagen.dna.jkn.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.jkn.scalephant.storage.Memtable;
 import de.fernunihagen.dna.jkn.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.jkn.scalephant.util.Stoppable;
@@ -32,16 +41,39 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	 * The delay
 	 */
 	protected final long DELAY = TimeUnit.SECONDS.toMillis(60);
+
+	/**
+	 * The name of the local instance
+	 */
+	protected DistributedInstance localInstance;
+	
+	/**
+	 * The distribution region of the sstable
+	 */
+	protected DistributionRegion distributionRegion = null;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCheckpointThread.class);
-	
+
 	public SSTableCheckpointThread(final int maxUncheckpointedSeconds, final SSTableManager ssTableManager) {
 		this.maxUncheckpointedMiliseconds = TimeUnit.SECONDS.toMillis(maxUncheckpointedSeconds);
 		this.ssTableManager = ssTableManager;
 		this.run = true;
+		
+		// Local instance
+		final ScalephantConfiguration scalephantConfiguration = ScalephantConfigurationManager.getConfiguration();
+		this.localInstance = ZookeeperClientFactory.getLocalInstanceName(scalephantConfiguration);
+	
+		// Distribution region
+		try {
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			final DistributionRegion distributionGroupRoot = DistributionGroupCache.getGroupForTableName(ssTableManager.getSSTableName().getFullname(), zookeeperClient);
+			distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableManager.getSSTableName().getNameprefix());
+		} catch (ZookeeperException e) {
+			logger.warn("Unable to find distribution region: " , e);
+		}
 	}
 
 	@Override
@@ -88,7 +120,6 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	 */
 	protected void createCheckpoint() {
 		try {
-
 			// Is a new checkpoint needed?
 			if(! isCheckpointNeeded()) {
 				return;
@@ -115,15 +146,21 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			logger.warn("Got an exception while creating checkpoint", e);
 		} catch (InterruptedException e) {
 			logger.warn("Got an exception while creating checkpoint", e);
+		} catch (ZookeeperException e) {
+			logger.error("Got an exception while updating checkpoint", e);
 		}
 	}
 
 	/**
-	 * Update the checkpoint date (e.g. propergate checkpoint to zookeeper)
+	 * Update the checkpoint date (e.g. propagate checkpoint to zookeeper)
 	 * @param createdTimestamp
+	 * @throws ZookeeperException 
 	 */
-	protected void updateCheckpointDate(final long createdTimestamp) {
-		
+	protected void updateCheckpointDate(final long checkpointTimestamp) throws ZookeeperException {
+		if(distributionRegion != null) {
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			zookeeperClient.setCheckpointForDistributionRegion(distributionRegion, localInstance, checkpointTimestamp);
+		}
 	}
 
 	@Override
