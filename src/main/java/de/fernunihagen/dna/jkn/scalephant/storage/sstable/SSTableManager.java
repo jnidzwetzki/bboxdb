@@ -455,7 +455,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * @param memtable
 	 * @throws StorageManagerException
 	 */
-	public void flushMemtable(final Memtable memtable) throws StorageManagerException {
+	protected void flushMemtable(final Memtable memtable) throws StorageManagerException {
 		
 		// Empty memtables don't need to be flushed to disk
 		if(memtable.isEmpty()) {
@@ -837,5 +837,13 @@ public class SSTableManager implements ScalephantService, Storage {
 	public void clear() throws StorageManagerException {
 		deleteExistingTables();
 		init();
+	}
+	
+	/**
+	 * Get the active memtable
+	 * @return
+	 */
+	public Memtable getMemtable() {
+		return memtable;
 	}
 }
