@@ -122,7 +122,7 @@ public class ScalephantClient implements Scalephant {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#connect()
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#connect()
 	 */
 	@Override
 	public boolean connect() {
@@ -160,7 +160,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#disconnect()
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#disconnect()
 	 */
 	@Override
 	public boolean disconnect() {
@@ -203,7 +203,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#deleteTable(java.lang.String)
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#deleteTable(java.lang.String)
 	 */
 	@Override
 	public ClientOperationFuture deleteTable(final String table) {
@@ -222,7 +222,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#insertTuple(java.lang.String, de.fernunihagenscalephant.storage.entity.Tuple)
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#insertTuple(java.lang.String, de.fernunihagen.dna.scalephant.storage.entity.Tuple)
 	 */
 	@Override
 	public ClientOperationFuture insertTuple(final String table, final Tuple tuple) {
@@ -256,7 +256,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#deleteTuple(java.lang.String, java.lang.String)
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#deleteTuple(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public ClientOperationFuture deleteTuple(final String table, final String key) {
@@ -274,7 +274,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#listTables()
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#listTables()
 	 */
 	@Override
 	public ClientOperationFuture listTables() {
@@ -290,7 +290,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#createDistributionGroup(java.lang.String, short)
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#createDistributionGroup(java.lang.String, short)
 	 */
 	@Override
 	public ClientOperationFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) {
@@ -306,7 +306,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#deleteDistributionGroup(java.lang.String)
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#deleteDistributionGroup(java.lang.String)
 	 */
 	@Override
 	public ClientOperationFuture deleteDistributionGroup(final String distributionGroup) {
@@ -322,7 +322,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#queryKey(java.lang.String, java.lang.String)
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#queryKey(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public ClientOperationFuture queryKey(final String table, final String key) {
@@ -338,7 +338,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#queryBoundingBox(java.lang.String, de.fernunihagenscalephant.storage.entity.BoundingBox)
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#queryBoundingBox(java.lang.String, de.fernunihagen.dna.scalephant.storage.entity.BoundingBox)
 	 */
 	@Override
 	public ClientOperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
@@ -354,7 +354,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#queryTime(java.lang.String, long)
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#queryTime(java.lang.String, long)
 	 */
 	@Override
 	public ClientOperationFuture queryTime(final String table, final long timestamp) {
@@ -370,7 +370,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#isConnected()
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#isConnected()
 	 */
 	@Override
 	public boolean isConnected() {
@@ -382,7 +382,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#getConnectionState()
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#getConnectionState()
 	 */
 	@Override
 	public NetworkConnectionState getConnectionState() {
@@ -390,7 +390,7 @@ public class ScalephantClient implements Scalephant {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#getInFlightCalls()
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#getInFlightCalls()
 	 */
 	@Override
 	public int getInFlightCalls() {
@@ -400,7 +400,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#getMaxInFlightCalls()
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#getMaxInFlightCalls()
 	 */
 	@Override
 	public short getMaxInFlightCalls() {
@@ -408,7 +408,7 @@ public class ScalephantClient implements Scalephant {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagenscalephant.network.client.Scalephant#setMaxInFlightCalls(short)
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#setMaxInFlightCalls(short)
 	 */
 	@Override
 	public void setMaxInFlightCalls(short maxInFlightCalls) {
