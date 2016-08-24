@@ -3,17 +3,41 @@ package de.fernunihagen.dna.scalephant;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionFactory;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 
 public class TestDistributionGroup {
 
+	protected static ZookeeperClient zookeeperClient;
+	
+	/**
+	 * Store and restore the zookeeper client. The test is executed
+	 * without the zookeeper integration
+	 */
+	@BeforeClass
+	public static void beforeClass() {
+		zookeeperClient = DistributionRegionFactory.getZookeeperClient();
+		DistributionRegionFactory.setZookeeperClient(null);
+	}
+	
+	/**
+	 * Store and restore the zookeeper client. The test is executed
+	 * without the zookeeper integration
+	 */
+	@AfterClass
+	public static void afterClass() {
+		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
+	}
+	
 	/**
 	 * Create an illegal distribution group
 	 */
