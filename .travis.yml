@@ -1,5 +1,7 @@
 language: java
-sudo: false
+
+# Don't use the Travis Container-Based Infrastructure (jobs are killed during execution)
+sudo: true
 
 before_install:
   # Install zookeeper
