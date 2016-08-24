@@ -40,7 +40,7 @@ dataDirectory: /tmp/scalephant_production/data
 #
 # Possible values: 
 # none
-# de.fernunihagen.dna.jkn.scalephant.storage.sstable.spatialindex.BoxSortSpatialIndexStrategy
+# de.fernunihagen.dna.scalephant.storage.sstable.spatialindex.BoxSortSpatialIndexStrategy
 #
 # Default: none 
 # storageSpatialIndexerFactory: none
@@ -85,20 +85,20 @@ zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
 # localip: 10.10.10.10
 
 # The region split strategy
-# Default: de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit.SimpleSplitStrategy
-# regionSplitStrategy: de.fernunihagen.dna.jkn.scalephant.distribution.regionsplit.SimpleSplitStrategy
+# Default: de.fernunihagen.dna.scalephant.distribution.regionsplit.SimpleSplitStrategy
+# regionSplitStrategy: de.fernunihagen.dna.scalephant.distribution.regionsplit.SimpleSplitStrategy
 
 # The maximum number of values before a region is split
 # Default: 1000
 # sstableMaxEntries: 1000
 
 # The resource placement strategy
-# Default: de.fernunihagen.dna.jkn.scalephant.distribution.placement.RandomResourcePlacementStrategy
+# Default: de.fernunihagen.dna.scalephant.distribution.placement.RandomResourcePlacementStrategy
 # 
 # Supported values:
-# de.fernunihagen.dna.jkn.scalephant.distribution.placement.RandomResourcePlacementStrategy
-# de.fernunihagen.dna.jkn.scalephant.distribution.placement.RoundRobinResourcePlacementStrategy
-# de.fernunihagen.dna.jkn.scalephant.distribution.placement.LowUtilizationResourcePlacementStrategy
+# de.fernunihagen.dna.scalephant.distribution.placement.RandomResourcePlacementStrategy
+# de.fernunihagen.dna.scalephant.distribution.placement.RoundRobinResourcePlacementStrategy
+# de.fernunihagen.dna.scalephant.distribution.placement.LowUtilizationResourcePlacementStrategy
 #
-# resourcePlacementStrategy: de.fernunihagen.dna.jkn.scalephant.distribution.placement.RandomResourcePlacementStrategy
+# resourcePlacementStrategy: de.fernunihagen.dna.scalephant.distribution.placement.RandomResourcePlacementStrategy
 

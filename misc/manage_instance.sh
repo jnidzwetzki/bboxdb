@@ -112,7 +112,7 @@ scalephant_start() {
 
     sed -i "s/zookeepernodes: .*/zookeepernodes: $zookeeper_connect/" $config
 
-    ./jsvc $debug_flag -outfile $basedir/logs/scalephant.log -pidfile $basedir/scalephant.pid -cwd $basedir -cp $classpath de.fernunihagen.dna.jkn.scalephant.ScalephantMain
+    ./jsvc $debug_flag -outfile $basedir/logs/scalephant.log -pidfile $basedir/scalephant.pid -cwd $basedir -cp $classpath de.fernunihagen.dna.scalephant.ScalephantMain
 }
 
 ###
@@ -121,7 +121,7 @@ scalephant_start() {
 scalephant_stop() {
     echo "Stop the scalephant"
     cd $basedir
-    ./jsvc -pidfile $basedir/scalephant.pid -stop -cwd $basedir -cp $classpath de.fernunihagen.dna.jkn.scalephant.ScalephantMain
+    ./jsvc -pidfile $basedir/scalephant.pid -stop -cwd $basedir -cp $classpath de.fernunihagen.dna.scalephant.ScalephantMain
 
     # Was stop successfully?
     if [ -f $basedir/scalephant.pid ]; then

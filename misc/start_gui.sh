@@ -28,6 +28,6 @@ classpath="$basedir/../conf:$libs:$jar"
 
 echo "Start the GUI"
 
-java -cp $classpath de.fernunihagen.dna.jkn.scalephant.tools.gui.Main
+java -cp $classpath de.fernunihagen.dna.scalephant.tools.gui.Main
 
 exit 0
