@@ -36,11 +36,6 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	 * The run variable
 	 */
 	protected volatile boolean run;
-	
-	/**
-	 * The delay
-	 */
-	protected final long DELAY = TimeUnit.SECONDS.toMillis(60);
 
 	/**
 	 * The name of the local instance
@@ -84,7 +79,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			createCheckpoint();
 		
 			try {
-				Thread.sleep(DELAY);
+				Thread.sleep(SSTableConst.CHECKPOINT_THREAD_DELAY);
 			} catch (InterruptedException e) {
 				logger.info("Got interrupted exception, stopping thread");
 				return;

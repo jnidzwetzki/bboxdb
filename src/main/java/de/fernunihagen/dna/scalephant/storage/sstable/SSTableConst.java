@@ -53,4 +53,9 @@ public class SSTableConst {
 	 * Execution interval for the compact thread (30 seconds)
 	 */
 	public final static long COMPACT_THREAD_DELAY = TimeUnit.SECONDS.toMillis(30);
+	
+	/**
+	 * Execution interval for the checkpoint thread
+	 */
+	public final static long CHECKPOINT_THREAD_DELAY = TimeUnit.SECONDS.toMillis(60);
 }
