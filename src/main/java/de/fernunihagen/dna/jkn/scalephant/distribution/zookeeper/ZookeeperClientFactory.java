@@ -65,4 +65,18 @@ public class ZookeeperClientFactory {
 		final DistributedInstance instance = new DistributedInstance(localIp, localPort, Const.VERSION);
 		return instance;
 	}
+
+	/**
+	 * Get a zookeeoer instance and init if needed
+	 * @return
+	 */
+	public static ZookeeperClient getZookeeperClientAndInit() {
+		final ZookeeperClient zookeeperClient = getZookeeperClient();
+		
+		if(! zookeeperClient.isConnected()) {
+			zookeeperClient.init();
+		}
+		
+		return zookeeperClient;
+	}
 }

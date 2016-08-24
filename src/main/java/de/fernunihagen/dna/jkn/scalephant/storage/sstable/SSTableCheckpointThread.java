@@ -66,15 +66,13 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 		final ScalephantConfiguration scalephantConfiguration = ScalephantConfigurationManager.getConfiguration();
 		this.localInstance = ZookeeperClientFactory.getLocalInstanceName(scalephantConfiguration);
 	
-		// Distribution region
-		/**
 		try {
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
 			final DistributionRegion distributionGroupRoot = DistributionGroupCache.getGroupForTableName(ssTableManager.getSSTableName().getFullname(), zookeeperClient);
 			distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableManager.getSSTableName().getNameprefix());
 		} catch (ZookeeperException e) {
 			logger.warn("Unable to find distribution region: " , e);
-		}*/
+		}
 	}
 
 	@Override
