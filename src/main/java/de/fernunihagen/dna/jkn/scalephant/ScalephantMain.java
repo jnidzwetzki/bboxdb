@@ -42,7 +42,7 @@ public class ScalephantMain implements Daemon {
 	}
 
 	/**
-	 * Retuns a new instance of the membership service
+	 * Returns a new instance of the membership service
 	 * @return
 	 */
 	public MembershipConnectionService createMembershipService() {
