@@ -198,7 +198,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 		
 		try {
-			final String nodesPath = getNodesPath(clustername);
+			final String nodesPath = getActiveInstancesPath(clustername);
 			final List<String> instances = zookeeper.getChildren(nodesPath, this);
 			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 			
@@ -293,7 +293,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		// Process events
 		if(watchedEvent.getPath() != null) {
-			if(watchedEvent.getPath().equals(getNodesPath(clustername))) {
+			if(watchedEvent.getPath().equals(getActiveInstancesPath(clustername))) {
 				readMembershipAndRegisterWatch();
 			}
 		} else {
@@ -322,7 +322,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			return;
 		}
 
-		final String instanceZookeeperPath = getNodesPath(clustername) + "/" + instancename.getStringValue();
+		final String instanceZookeeperPath = getActiveInstancesPath(clustername) + "/" + instancename.getStringValue();
 		
 		logger.info("Register instance on: " + instanceZookeeperPath);
 		
@@ -342,9 +342,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws InterruptedException
 	 */
 	protected void createDirectoryStructureIfNeeded() throws ZookeeperException {
-		// /clusterpath/nodes - Node membership
-		final String nodesPath = getNodesPath(clustername);
-		createDirectoryStructureRecursive(nodesPath);
+		final String activeInstancesPath = getActiveInstancesPath(clustername);
+		createDirectoryStructureRecursive(activeInstancesPath);
 	}
 
 	/**
@@ -361,7 +360,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param clustername
 	 * @return
 	 */
-	protected String getNodesPath(final String clustername) {
+	protected String getActiveInstancesPath(final String clustername) {
 		return getClusterPath() + "/nodes";
 	}
 	
