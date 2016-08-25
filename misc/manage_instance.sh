@@ -84,6 +84,16 @@ scalephant_start() {
     download_jsvc
     cd $basedir
 
+    # Is already running?
+    if [ -f $basedir/scalephant.pid ]; then
+        pid=$(cat $basedir/scalephant.pid)
+        if [ -d /proc/$pid ]; then
+            echo "Scalephant is already running PID ($pid)"
+            return
+        fi
+    fi
+    
+    # Create log dir if needed
     if [ ! -d logs/ ]; then
         mkdir logs
     fi
