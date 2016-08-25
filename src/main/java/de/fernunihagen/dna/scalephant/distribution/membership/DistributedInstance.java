@@ -2,6 +2,8 @@ package de.fernunihagen.dna.scalephant.distribution.membership;
 
 import java.net.InetSocketAddress;
 
+import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceState;
+
 public class DistributedInstance implements Comparable<DistributedInstance> {
 	
 	public final static String UNKOWN_VERSION = "unknown";
@@ -21,7 +23,11 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	 */
 	protected String version = UNKOWN_VERSION;
 	
-	
+	/**
+	 * The state of the instance
+	 */
+	protected DistributedInstanceState state = DistributedInstanceState.UNKNOWN;
+
 	public DistributedInstance(final String connectionString, final String version) {
 		this(connectionString);
 		this.version = version;
@@ -91,17 +97,18 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 
 	public String toGUIString() {
 		if(version == UNKOWN_VERSION) {
-			return "DistributedInstance [ip=" + ip + ", port=" + port + "]";
+			return "DistributedInstance [ip=" + ip + ", port=" + port + ", state=" + state + "]";
 		} else {
-			return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + "]";
+			return "DistributedInstance [ip=" + ip + ", port=" + port + ", state=" + state + ", version=" + version + "]";
 		}
 	}
-	
+
 	@Override
 	public String toString() {
-		return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + "]";
+		return "DistributedInstance [ip=" + ip + ", port=" + port
+				+ ", version=" + version + ", state=" + state + "]";
 	}
-	
+
 	/**
 	 * Get the inet socket address from the instance
 	 * @return
@@ -121,6 +128,22 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	@Override
 	public int compareTo(final DistributedInstance otherInstance) {
 		return getStringValue().compareTo(otherInstance.getStringValue());
+	}
+	
+	/**
+	 * Get the state of the instance
+	 * @return
+	 */
+	public DistributedInstanceState getState() {
+		return state;
+	}
+	
+	/**
+	 * Set the state of the instance
+	 * @param state
+	 */
+	public void setState(final DistributedInstanceState state) {
+		this.state = state;
 	}
 	
 }
