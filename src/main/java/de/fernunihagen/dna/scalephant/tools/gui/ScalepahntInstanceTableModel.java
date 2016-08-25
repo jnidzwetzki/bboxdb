@@ -61,6 +61,10 @@ final class ScalepahntInstanceTableModel extends AbstractTableModel {
 				return instance.getVersion();
 			}
 			
+			if(columnIndex == 4) {
+				return instance.getState().getZookeeperValue();
+			}
+			
 			return "";
 		}
 	}
@@ -72,7 +76,7 @@ final class ScalepahntInstanceTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 4;
+		return 5;
 	}
 
 	@Override
@@ -91,6 +95,8 @@ final class ScalepahntInstanceTableModel extends AbstractTableModel {
 		   return "Port";
 	   }  else if(column == 3) {
 		   return "Version";
+	   } else if(column == 4) {
+		   return "State";
 	   }
 		
 	   return "---";
