@@ -122,7 +122,7 @@ public class NameprefixMapper {
 	 * @param boundingBox
 	 */
 	public boolean addMapping(final int nameprefix, final BoundingBox boundingBox) {
-		
+				
 		for(final RegionTablenameEntry regionTablenameEntry : regions) {
 			// Mapping is known
 			if(regionTablenameEntry.getNameprefix() == nameprefix) {
