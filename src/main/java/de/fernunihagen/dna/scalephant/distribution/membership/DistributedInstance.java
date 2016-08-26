@@ -28,9 +28,10 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	 */
 	protected DistributedInstanceState state = DistributedInstanceState.UNKNOWN;
 
-	public DistributedInstance(final String connectionString, final String version) {
+	public DistributedInstance(final String connectionString, final String version, final DistributedInstanceState state) {
 		this(connectionString);
 		this.version = version;
+		this.state = state;
 	}
 	
 	public DistributedInstance(final String connectionString) {
@@ -91,6 +92,36 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 		} else if (!ip.equals(other.ip))
 			return false;
 		if (port != other.port)
+			return false;
+		return true;
+	}
+
+	/**
+	 * An alternative equals method that checks version and state information too
+	 * @param obj
+	 * @return
+	 */
+	public boolean fullEquals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DistributedInstance other = (DistributedInstance) obj;
+		if (ip == null) {
+			if (other.ip != null)
+				return false;
+		} else if (!ip.equals(other.ip))
+			return false;
+		if (port != other.port)
+			return false;
+		if (state != other.state)
+			return false;
+		if (version == null) {
+			if (other.version != null)
+				return false;
+		} else if (!version.equals(other.version))
 			return false;
 		return true;
 	}
