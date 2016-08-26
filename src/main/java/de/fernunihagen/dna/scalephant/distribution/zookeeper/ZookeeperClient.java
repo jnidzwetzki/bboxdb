@@ -374,7 +374,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			
 			// State
 			zookeeper.create(statePath, instancename.getState().getZookeeperValue().getBytes(), 
-					ZooDefs.Ids.READ_ACL_UNSAFE, 
+					ZooDefs.Ids.OPEN_ACL_UNSAFE, 
 					CreateMode.EPHEMERAL);
 		} catch (KeeperException | InterruptedException e) {
 			throw new ZookeeperException(e);
