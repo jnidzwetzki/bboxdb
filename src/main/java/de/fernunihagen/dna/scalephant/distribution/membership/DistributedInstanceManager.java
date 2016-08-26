@@ -1,9 +1,11 @@
 package de.fernunihagen.dna.scalephant.distribution.membership;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -11,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceAddEvent;
+import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceChangedEvent;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceDeleteEvent;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceEvent;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceEventCallback;
@@ -25,7 +28,7 @@ public class DistributedInstanceManager {
 	/**
 	 * The active scalephant instances
 	 */
-	protected final Set<DistributedInstance> instances = new HashSet<DistributedInstance>();
+	protected final Map<InetSocketAddress, DistributedInstance> instances = new HashMap<InetSocketAddress, DistributedInstance>();
 	
 	/**
 	 * The logger
@@ -69,20 +72,29 @@ public class DistributedInstanceManager {
 	 */
 	public void updateInstanceList(final Set<DistributedInstance> newInstances) {
 		
-		// Check the membership of the old members
-		for(final Iterator<DistributedInstance> iter = instances.iterator(); iter.hasNext(); ) {
-			final DistributedInstance instance = iter.next();
+		// Are members removed?
+		for(final Iterator<InetSocketAddress> iter = instances.keySet().iterator(); iter.hasNext(); ) {
+			final InetSocketAddress inetSocketAddress = iter.next();
+			final DistributedInstance instance = instances.get(inetSocketAddress);
 			if(! newInstances.contains(instance) ) {
 				iter.remove();
 				sendEvent(new DistributedInstanceDeleteEvent(instance));
 			}
 		}
 		
-		// Any new member?
 		for(final DistributedInstance instance : newInstances) {
-			if( ! instances.contains(instance)) {
-				instances.add(instance);
+			
+			final InetSocketAddress inetSocketAddress = instance.getInetSocketAddress();
+			
+			// Any new member?
+			if( ! instances.containsKey(inetSocketAddress)) {
+				instances.put(inetSocketAddress, instance);
 				sendEvent(new DistributedInstanceAddEvent(instance));
+			} else {
+				// Changed member?
+				if(! instances.get(inetSocketAddress).equals(instance)) {
+					sendEvent(new DistributedInstanceChangedEvent(instance));
+				}
 			}
 		}
 	}
@@ -121,6 +133,6 @@ public class DistributedInstanceManager {
 	 * @return
 	 */
 	public List<DistributedInstance> getInstances() {
-		return new ArrayList<DistributedInstance>(instances);
+		return new ArrayList<DistributedInstance>(instances.values());
 	}
 }
