@@ -173,7 +173,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	}
 	
 	/**
-	 * Propergate the split position to zookeeper
+	 * Propagate the split position to zookeeper
 	 */
 	@Override
 	protected void afterSplitHook(final boolean sendNotify) {
