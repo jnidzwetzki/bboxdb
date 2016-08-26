@@ -15,6 +15,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 - Implemented roads in OSM Benchmark
 - Improved states for DistributionRegions
 - Implemented checkpoints
+- Store node states in zookeeper
 
 ### Version 0.1.0 (Alpha) - 07.08.2016
 - Fixed some crashes in the network handler
