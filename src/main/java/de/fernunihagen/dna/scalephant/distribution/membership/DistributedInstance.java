@@ -29,9 +29,13 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	protected DistributedInstanceState state = DistributedInstanceState.UNKNOWN;
 
 	public DistributedInstance(final String connectionString, final String version, final DistributedInstanceState state) {
+		this(connectionString, version);
+		this.state = state;
+	}
+	
+	public DistributedInstance(final String connectionString, final String version) {
 		this(connectionString);
 		this.version = version;
-		this.state = state;
 	}
 	
 	public DistributedInstance(final String connectionString) {
@@ -67,41 +71,20 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	public String getVersion() {
 		return version;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((ip == null) ? 0 : ip.hashCode());
 		result = prime * result + port;
+		result = prime * result + ((state == null) ? 0 : state.hashCode());
+		result = prime * result + ((version == null) ? 0 : version.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DistributedInstance other = (DistributedInstance) obj;
-		if (ip == null) {
-			if (other.ip != null)
-				return false;
-		} else if (!ip.equals(other.ip))
-			return false;
-		if (port != other.port)
-			return false;
-		return true;
-	}
-
-	/**
-	 * An alternative equals method that checks version and state information too
-	 * @param obj
-	 * @return
-	 */
-	public boolean fullEquals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
