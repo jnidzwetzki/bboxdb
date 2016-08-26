@@ -2,6 +2,7 @@ package de.fernunihagen.dna.scalephant.tools.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -19,12 +20,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceState;
 
 public class ScalephantGui {
 	
@@ -80,6 +83,34 @@ public class ScalephantGui {
 		table.getColumnModel().getColumn(0).setMaxWidth(40);
 		table.getColumnModel().getColumn(2).setMinWidth(100);
 		table.getColumnModel().getColumn(2).setMaxWidth(100);
+		
+		table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -2405592763548531423L;
+
+			@Override
+			public Component getTableCellRendererComponent(JTable table,
+					Object value, boolean isSelected, boolean hasFocus,
+					int row, int column) {
+				
+				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				
+		        final String state = (String) table.getModel().getValueAt(row, 4);
+		        
+		        if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
+		        	setBackground(Color.YELLOW);
+		        } else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
+		        	setBackground(Color.GREEN);
+		        } else {
+		        	setBackground(table.getBackground());
+		        }
+				
+				return this;
+			}
+		});
 
 		final JScrollPane tableScrollPane = new JScrollPane(table);		
 		final Dimension d = table.getPreferredSize();
