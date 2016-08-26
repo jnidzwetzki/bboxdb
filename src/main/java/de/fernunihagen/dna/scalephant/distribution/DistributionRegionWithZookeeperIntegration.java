@@ -160,6 +160,11 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	public void setSystems(final Collection<DistributedInstance> systems) {
 		super.setSystems(systems);
 		
+		if(zookeeperClient.getInstancename() == null) {
+			// Local instance name is not set, so no local mapping is possible
+			return;
+		}
+		
 		final InetSocketAddress localInetSocketAddress = zookeeperClient.getInstancename().getInetSocketAddress();
 		
 		// Add the mapping to the nameprefix mapper
