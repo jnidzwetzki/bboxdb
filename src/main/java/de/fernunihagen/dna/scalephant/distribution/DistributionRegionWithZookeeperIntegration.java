@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.scalephant.distribution;
 
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.List;
 
@@ -159,10 +160,15 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	public void setSystems(final Collection<DistributedInstance> systems) {
 		super.setSystems(systems);
 		
+		final InetSocketAddress localInetSocketAddress = zookeeperClient.getInstancename().getInetSocketAddress();
+		
 		// Add the mapping to the nameprefix mapper
-		if(systems.contains(zookeeperClient.getInstancename())) {
-			logger.info("Add local mapping for: " + distributionGroupName + " nameprefix " + nameprefix);
-			NameprefixInstanceManager.getInstance(distributionGroupName).addMapping(nameprefix, converingBox);
+		for(final DistributedInstance instance : systems) {
+			if(instance.getInetSocketAddress().equals(localInetSocketAddress)) {
+				logger.info("Add local mapping for: " + distributionGroupName + " nameprefix " + nameprefix);
+				NameprefixInstanceManager.getInstance(distributionGroupName).addMapping(nameprefix, converingBox);
+				break;
+			}
 		}
 	}
 	
