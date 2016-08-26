@@ -382,6 +382,31 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 
 	/**
+	 * Set the state for the local instance
+	 * @param distributedInstanceState
+	 * @return 
+	 * @throws ZookeeperException
+	 */
+	public boolean setLocalInstanceState(final DistributedInstanceState distributedInstanceState) throws ZookeeperException {
+		
+		if(instancename == null) {
+			logger.warn("Try to set instance state without register local instance: " + distributedInstanceState);
+			return false;
+		}
+		
+		final String statePath = getActiveInstancesPath(clustername) + "/" + instancename.getStringValue();
+
+		try {
+			zookeeper.setData(statePath, 
+					distributedInstanceState.getZookeeperValue().getBytes(), -1);
+		} catch (KeeperException | InterruptedException e) {
+			throw new ZookeeperException(e);
+		}
+		
+		return true;
+	}
+	
+	/**
 	 * Register the name of the cluster in the zookeeper directory
 	 * @throws ZookeeperException 
 	 * @throws KeeperException

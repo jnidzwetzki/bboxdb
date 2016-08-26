@@ -14,6 +14,7 @@ import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanc
 import de.fernunihagen.dna.scalephant.distribution.membership.MembershipConnectionService;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.network.server.NetworkConnectionService;
+import de.fernunihagen.dna.scalephant.storage.RecoveryService;
 
 public class ScalephantMain implements Daemon {
 
@@ -36,6 +37,9 @@ public class ScalephantMain implements Daemon {
 		
 		// The membership connection service
 		services.add(createMembershipService());
+		
+		// The recovery service
+		services.add(new RecoveryService());
 
 		// The network connection handler
 		services.add(createConnectionHandler());		
