@@ -228,17 +228,17 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	protected DistributedInstanceState getStateForInstance(final String member) {		
 		final String nodesPath = getActiveInstancesPath(member);
-		final String versionPath = nodesPath + "/" + member;
+		final String statePath = nodesPath + "/" + member;
 
 		try {
-			final String state = readPathAndReturnString(versionPath, true);
+			final String state = readPathAndReturnString(statePath, true);
 			if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
 				return DistributedInstanceState.READONLY;
 			} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
 				return DistributedInstanceState.READWRITE;
 			}
 		} catch (ZookeeperException e) {
-			logger.info("Unable to state version for: " + versionPath);
+			logger.info("Unable to read instane state from: " + statePath);
 		}
 		
 		return DistributedInstanceState.UNKNOWN;
