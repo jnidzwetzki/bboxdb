@@ -364,9 +364,13 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		try {
 			// Version
-			zookeeper.create(versionPath, Const.VERSION.getBytes(), 
-					ZooDefs.Ids.READ_ACL_UNSAFE, 
-					CreateMode.PERSISTENT);
+			if(zookeeper.exists(versionPath, false) != null) {
+				zookeeper.setData(versionPath, Const.VERSION.getBytes(), -1);
+			} else {
+				zookeeper.create(versionPath, Const.VERSION.getBytes(), 
+						ZooDefs.Ids.OPEN_ACL_UNSAFE, 
+						CreateMode.PERSISTENT);
+			}
 			
 			// State
 			zookeeper.create(statePath, instancename.getState().getZookeeperValue().getBytes(), 
@@ -391,7 +395,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		// Version of the instances
 		final String instancesVersionPath = getInstancesVersionPath(clustername);
-		createDirectoryStructureRecursive(instancesVersionPath);
+		createDirectoryStructureRecursive(instancesVersionPath);		
 	}
 
 	/**
