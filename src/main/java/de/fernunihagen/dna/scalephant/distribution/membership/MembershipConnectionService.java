@@ -13,9 +13,11 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.ScalephantService;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceAddEvent;
+import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceChangedEvent;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceDeleteEvent;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceEvent;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceEventCallback;
+import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceState;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
 
 public class MembershipConnectionService implements ScalephantService, DistributedInstanceEventCallback {
@@ -81,8 +83,8 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 			logger.warn("The list of instances is empty");
 		}
 		
-		for(DistributedInstance distributedInstance : instances) {
-			createConnection(distributedInstance);
+		for(final DistributedInstance distributedInstance : instances) {
+			createConnectionIfSystemReady(distributedInstance);
 		}
 	}
 
@@ -117,8 +119,14 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	 * Add a new connection to a scalephant system
 	 * @param distributedInstance
 	 */
-	protected synchronized void createConnection(final DistributedInstance distributedInstance) {
+	protected synchronized void createConnectionIfSystemReady(final DistributedInstance distributedInstance) {
 
+		// Create only connections to readonly or readwrite systems
+		if(distributedInstance.getState() == DistributedInstanceState.UNKNOWN) {
+			logger.info("State for instance is unknown, ignoring connect request: " + distributedInstance);
+			return;
+		}
+		
 		if(serverConnections.containsKey(distributedInstance)) {
 			logger.info("We already have a connection to: " + distributedInstance);
 			return;
@@ -164,7 +172,9 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	@Override
 	public void distributedInstanceEvent(final DistributedInstanceEvent event) {
 		if(event instanceof DistributedInstanceAddEvent) {
-			createConnection(event.getInstance());
+			createConnectionIfSystemReady(event.getInstance());
+		} else if(event instanceof DistributedInstanceChangedEvent) {
+			createConnectionIfSystemReady(event.getInstance());
 		} else if(event instanceof DistributedInstanceDeleteEvent) {
 			terminateConnection(event.getInstance());
 		} else {

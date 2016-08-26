@@ -25,6 +25,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionFactory;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanceManager;
+import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceState;
 
 public class ZookeeperClient implements ScalephantService, Watcher {
 	
@@ -192,40 +193,75 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	protected void readMembershipAndRegisterWatch() {
 		
-		if(!membershipObserver) {
+		if(! membershipObserver) {
 			logger.info("Ignore membership event, because observer is not active");
 			return;
 		}
 		
 		try {
-			final String nodesPath = getActiveInstancesPath(clustername);
-			final List<String> instances = zookeeper.getChildren(nodesPath, this);
+			final String instancesVersionPath = getInstancesVersionPath(clustername);
+			final List<String> instances = zookeeper.getChildren(instancesVersionPath, this);
 			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 			
 			final Set<DistributedInstance> instanceSet = new HashSet<DistributedInstance>();
 			for(final String member : instances) {
-				
-				final String versionPath = nodesPath + "/" + member;
-				String versionName = DistributedInstance.UNKOWN_VERSION; 
-				
-				try {
-					versionName = readPathAndReturnString(versionPath, true);
-				} catch (ZookeeperException e) {
-					logger.info("Unable to read version for: " + versionPath);
-				}
-				
-				final DistributedInstance theInstance = new DistributedInstance(member, versionName); 
+				final String instanceVersion = getVersionForInstance(member);
+				final DistributedInstanceState state = getStateForInstance(member);
+				final DistributedInstance theInstance = new DistributedInstance(member, instanceVersion, state); 
 				instanceSet.add(theInstance);
 			}
 			
 			distributedInstanceManager.updateInstanceList(instanceSet);
 			
+			// Register watch on active nodes
+			final String activeNodesPath = getActiveInstancesPath(clustername);
+			zookeeper.getChildren(activeNodesPath, this);
 		} catch (KeeperException | InterruptedException e) {
 			logger.warn("Unable to read membership and create a watch", e);
 		}
 	}
 	
-	
+	/**
+	 * Read the state for the given instance
+	 * @param member
+	 * @return
+	 */
+	protected DistributedInstanceState getStateForInstance(final String member) {		
+		final String nodesPath = getActiveInstancesPath(member);
+		final String versionPath = nodesPath + "/" + member;
+
+		try {
+			final String state = readPathAndReturnString(versionPath, true);
+			if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
+				return DistributedInstanceState.READONLY;
+			} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
+				return DistributedInstanceState.READWRITE;
+			}
+		} catch (ZookeeperException e) {
+			logger.info("Unable to state version for: " + versionPath);
+		}
+		
+		return DistributedInstanceState.UNKNOWN;
+	}
+
+	/**
+	 * Read the version for the given instance
+	 * @param member
+	 * @return
+	 */
+	protected String getVersionForInstance(final String member) {		
+		final String nodesPath = getInstancesVersionPath(member);
+		final String versionPath = nodesPath + "/" + member;
+
+		try {
+			return readPathAndReturnString(versionPath, true);
+		} catch (ZookeeperException e) {
+			logger.info("Unable to read version for: " + versionPath);
+		}
+		
+		return DistributedInstance.UNKOWN_VERSION;
+	}
+
 	/**
 	 * Get the children and register a watch
 	 * @param path
@@ -293,7 +329,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		// Process events
 		if(watchedEvent.getPath() != null) {
-			if(watchedEvent.getPath().equals(getActiveInstancesPath(clustername))) {
+			if(watchedEvent.getPath().startsWith(getNodesPath(clustername))) {
 				readMembershipAndRegisterWatch();
 			}
 		} else {
@@ -322,12 +358,18 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			return;
 		}
 
-		final String instanceZookeeperPath = getActiveInstancesPath(clustername) + "/" + instancename.getStringValue();
-		
-		logger.info("Register instance on: " + instanceZookeeperPath);
+		final String statePath = getActiveInstancesPath(clustername) + "/" + instancename.getStringValue();
+		final String versionPath = getInstancesVersionPath(clustername) + "/" + instancename.getStringValue();
+		logger.info("Register instance on: " + statePath);
 		
 		try {
-			zookeeper.create(instanceZookeeperPath, Const.VERSION.getBytes(), 
+			// Version
+			zookeeper.create(versionPath, Const.VERSION.getBytes(), 
+					ZooDefs.Ids.READ_ACL_UNSAFE, 
+					CreateMode.PERSISTENT);
+			
+			// State
+			zookeeper.create(statePath, instancename.getState().getZookeeperValue().getBytes(), 
 					ZooDefs.Ids.READ_ACL_UNSAFE, 
 					CreateMode.EPHEMERAL);
 		} catch (KeeperException | InterruptedException e) {
@@ -342,8 +384,14 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws InterruptedException
 	 */
 	protected void createDirectoryStructureIfNeeded() throws ZookeeperException {
+		
+		// Active instances
 		final String activeInstancesPath = getActiveInstancesPath(clustername);
 		createDirectoryStructureRecursive(activeInstancesPath);
+		
+		// Version of the instances
+		final String instancesVersionPath = getInstancesVersionPath(clustername);
+		createDirectoryStructureRecursive(instancesVersionPath);
 	}
 
 	/**
@@ -356,12 +404,30 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 	
 	/**
+	 * Get the path for the nodes
+	 * @param clustername
+	 * @return
+	 */
+	protected String getNodesPath(final String clustername) {
+		return getClusterPath() + "/nodes";
+	}
+	
+	/**
 	 * Get the path of the zookeeper nodes
 	 * @param clustername
 	 * @return
 	 */
 	protected String getActiveInstancesPath(final String clustername) {
-		return getClusterPath() + "/nodes";
+		return getNodesPath(clustername) + "/active";
+	}
+	
+	/**
+	 * Get the path of the zookeeper nodes
+	 * @param clustername
+	 * @return
+	 */
+	protected String getInstancesVersionPath(final String clustername) {
+		return getNodesPath(clustername) + "/version";
 	}
 	
 	/**
