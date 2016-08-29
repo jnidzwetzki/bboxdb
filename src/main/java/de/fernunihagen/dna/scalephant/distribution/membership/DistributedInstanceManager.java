@@ -149,6 +149,8 @@ public class DistributedInstanceManager {
 	 */
 	public void zookeeperDisconnect() {
 		
+		logger.info("Zookeeper disconnected, sending delete events for all nodes");
+		
 		for(final DistributedInstance instance : instances.values()) {
 			sendEvent(new DistributedInstanceDeleteEvent(instance));
 		}
