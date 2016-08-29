@@ -177,10 +177,19 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	
 	/**
 	 * Start the membership observer
+	 * @return 
 	 */
-	public void startMembershipObserver() {
+	public boolean startMembershipObserver() {
+		
+		if(zookeeper == null) {
+			logger.error("startMembershipObserver() called before init()");
+			return false;
+		}
+		
 		membershipObserver = true;
 		readMembershipAndRegisterWatch();
+		
+		return true;
 	}
 	
 	public void stopMembershipObserver() {
