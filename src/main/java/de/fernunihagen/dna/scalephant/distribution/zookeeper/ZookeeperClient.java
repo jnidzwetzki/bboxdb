@@ -221,10 +221,6 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			}
 			
 			distributedInstanceManager.updateInstanceList(instanceSet);
-			
-			// Register watch on active nodes
-			final String activeNodesPath = getActiveInstancesPath(clustername);
-			zookeeper.getChildren(activeNodesPath, this);
 		} catch (KeeperException | InterruptedException e) {
 			logger.warn("Unable to read membership and create a watch", e);
 		}
@@ -240,7 +236,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		final String statePath = nodesPath + "/" + member;
 
 		try {
-			final String state = readPathAndReturnString(statePath, true);
+			final String state = readPathAndReturnString(statePath, true, this);
 			if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
 				return DistributedInstanceState.READONLY;
 			} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
@@ -263,7 +259,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		final String versionPath = nodesPath + "/" + member;
 
 		try {
-			return readPathAndReturnString(versionPath, true);
+			return readPathAndReturnString(versionPath, true, null);
 		} catch (ZookeeperException e) {
 			logger.info("Unable to read version for: " + versionPath);
 		}
@@ -628,7 +624,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		String namePrefix = null;
 		
 		try {
-			namePrefix = readPathAndReturnString(namePrefixPath, false);
+			namePrefix = readPathAndReturnString(namePrefixPath, false, null);
 			return Integer.parseInt(namePrefix);
 		} catch (NumberFormatException e) {
 			throw new ZookeeperException("Unable to parse name prefix '" + namePrefix + "' for " + namePrefixPath);
@@ -641,7 +637,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	public String getStateForDistributionRegion(final String path) throws ZookeeperException {
 		final String statePath = path + "/" + NodeNames.NAME_STATE;
-		return readPathAndReturnString(statePath, false);
+		return readPathAndReturnString(statePath, false, null);
 	}
 	
 	/**
@@ -712,7 +708,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		String splitString = null;
 		
 		try {			
-			splitString = readPathAndReturnString(splitPathName, false);
+			splitString = readPathAndReturnString(splitPathName, false, null);
 			return Float.parseFloat(splitString);
 		} catch (NumberFormatException e) {
 			throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + splitPathName);
@@ -725,7 +721,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	protected String readPathAndReturnString(final String pathName, final boolean retry) throws ZookeeperException {
+	protected String readPathAndReturnString(final String pathName, final boolean retry, final Watcher watcher) throws ZookeeperException {
 		try {
 			if(zookeeper.exists(pathName, false) == null) {
 				if(retry != true) {
@@ -738,7 +734,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 				}
 			}
 		
-			final byte[] bytes = zookeeper.getData(pathName, false, null);
+			final byte[] bytes = zookeeper.getData(pathName, watcher, null);
 			return new String(bytes);
 		} catch(InterruptedException | KeeperException e) {
 			throw new ZookeeperException(e);
@@ -914,7 +910,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	public String getVersionForDistributionGroup(final String distributionGroup) throws ZookeeperException {
 		final String path = getDistributionGroupPath(distributionGroup);
 		final String fullPath = path + "/" + NodeNames.NAME_VERSION;
-		return readPathAndReturnString(fullPath, false);	 
+		return readPathAndReturnString(fullPath, false, null);	 
 	}
 
 	/**
