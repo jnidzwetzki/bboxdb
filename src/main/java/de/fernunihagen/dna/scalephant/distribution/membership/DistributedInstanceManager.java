@@ -130,10 +130,29 @@ public class DistributedInstanceManager {
 	}
 	
 	/**
+	 * Remove all listener
+	 */
+	public void removeAllListener() {
+		listener.clear();
+	}
+	
+	/**
 	 * Get the list of the instances
 	 * @return
 	 */
 	public List<DistributedInstance> getInstances() {
 		return new ArrayList<DistributedInstance>(instances.values());
+	}
+	
+	/**
+	 * Disconnect from zookeeper, all instaces are unregistered
+	 */
+	public void zookeeperDisconnect() {
+		
+		for(final DistributedInstance instance : instances.values()) {
+			sendEvent(new DistributedInstanceDeleteEvent(instance));
+		}
+		
+		instances.clear();
 	}
 }

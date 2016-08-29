@@ -172,6 +172,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	public void shutdown() {
 		
 		shutdownPending = true;
+		stopMembershipObserver();
 		
 		if(zookeeper != null) {
 			try {
@@ -201,7 +202,17 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		return true;
 	}
 	
+	/**
+	 * Stop the membership observer. This will send a delete event for all 
+	 * known instances if the membership observer was active.
+	 */
 	public void stopMembershipObserver() {
+		
+		if(membershipObserver == true) {
+			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
+			distributedInstanceManager.zookeeperDisconnect();
+		}
+		
 		membershipObserver = false;
 	}
 	
@@ -225,6 +236,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			for(final String member : instances) {
 				final String instanceVersion = getVersionForInstance(member);
 				final DistributedInstanceState state = getStateForInstance(member);
+				
 				final DistributedInstance theInstance = new DistributedInstance(member, instanceVersion, state); 
 				instanceSet.add(theInstance);
 			}
@@ -252,9 +264,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 				return DistributedInstanceState.READWRITE;
 			}
 		} catch (ZookeeperException e) {
-			logger.info("Unable to read instance state from: " + statePath);
+			logger.debug("Unable to read instance state from: " + statePath);
 		}
-		
+
 		return DistributedInstanceState.UNKNOWN;
 	}
 
@@ -327,7 +339,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	@Override
 	public void process(final WatchedEvent watchedEvent) {	
-		
+				
 		logger.debug("Got zookeeper event: " + watchedEvent);
 		
 		// Ignore null parameter
