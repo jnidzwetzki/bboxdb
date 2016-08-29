@@ -108,6 +108,19 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 			return false;
 		return true;
 	}
+	
+	/**
+	 * Equals based on the socketAddress
+	 * @param instance
+	 * @return
+	 */
+	public boolean socketAddressEquals(final DistributedInstance instance) {
+		if(instance == null) {
+			return false;
+		}
+		
+		return instance.getInetSocketAddress().equals(getInetSocketAddress());
+	}
 
 	public String toGUIString() {
 		if(version == UNKOWN_VERSION) {
