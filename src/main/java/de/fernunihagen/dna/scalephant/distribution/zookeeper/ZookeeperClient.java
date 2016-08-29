@@ -808,6 +808,16 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 	
 	/**
+	 * Delete all known data about a cluster
+	 * @param distributionGroup
+	 * @throws ZookeeperException 
+	 */
+	public void deleteCluster() throws ZookeeperException {
+		final String path = getClusterPath();
+		deleteNodesRecursive(path);
+	}
+	
+	/**
 	 * Delete an existing distribution group
 	 * @param distributionGroup
 	 * @throws ZookeeperException 
