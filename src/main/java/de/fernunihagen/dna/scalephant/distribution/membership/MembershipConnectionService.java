@@ -1,5 +1,6 @@
 package de.fernunihagen.dna.scalephant.distribution.membership;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,12 +26,17 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	/**
 	 * The server connections
 	 */
-	protected final Map<DistributedInstance, ScalephantClient> serverConnections;
+	protected final Map<InetSocketAddress, ScalephantClient> serverConnections;
+	
+	/**
+	 * The known instances
+	 */
+	protected final Map<InetSocketAddress, DistributedInstance> knownInstances;
 	
 	/**
 	 * The blacklisted instances, no connection will be created to these systems
 	 */
-	protected Set<DistributedInstance> blacklist = new HashSet<>();
+	protected Set<InetSocketAddress> blacklist = new HashSet<>();
 	
 	protected static MembershipConnectionService instance = null;
 	
@@ -40,8 +46,11 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	private final static Logger logger = LoggerFactory.getLogger(MembershipConnectionService.class);
 	
 	private MembershipConnectionService() {
-		final HashMap<DistributedInstance, ScalephantClient> connectionMap = new HashMap<DistributedInstance, ScalephantClient>();
+		final HashMap<InetSocketAddress, ScalephantClient> connectionMap = new HashMap<InetSocketAddress, ScalephantClient>();
 		serverConnections = Collections.synchronizedMap(connectionMap);
+		
+		final HashMap<InetSocketAddress, DistributedInstance> instanceMap = new HashMap<InetSocketAddress, DistributedInstance>();
+		knownInstances = Collections.synchronizedMap(instanceMap);
 	}
 	
 	/**
@@ -66,7 +75,7 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	 * @param distributedInstance
 	 */
 	public void addSystemToBlacklist(final DistributedInstance distributedInstance) {
-		blacklist.add(distributedInstance);
+		blacklist.add(distributedInstance.getInetSocketAddress());
 	}
 	
 	/**
@@ -84,7 +93,7 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 		}
 		
 		for(final DistributedInstance distributedInstance : instances) {
-			createConnectionIfSystemReady(distributedInstance);
+			createOrTerminateConnetion(distributedInstance);
 		}
 	}
 
@@ -97,13 +106,14 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 		
 		// Close all connections
 		synchronized (serverConnections) {
-			for(final DistributedInstance instance : serverConnections.keySet()) {
+			for(final InetSocketAddress instance : serverConnections.keySet()) {
 				final ScalephantClient client = serverConnections.get(instance);
 				logger.info("Disconnecting from: " + instance);
 				client.disconnect();
 			}
 			
 			serverConnections.clear();
+			knownInstances.clear();
 		}
 	}
 
@@ -119,25 +129,34 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	 * Add a new connection to a scalephant system
 	 * @param distributedInstance
 	 */
-	protected synchronized void createConnectionIfSystemReady(final DistributedInstance distributedInstance) {
+	protected synchronized void createOrTerminateConnetion(final DistributedInstance distributedInstance) {
 
 		// Create only connections to readonly or readwrite systems
-		if(distributedInstance.getState() == DistributedInstanceState.UNKNOWN) {
-			logger.info("State for instance is unknown, ignoring connect request: " + distributedInstance);
-			return;
+		if(distributedInstance.getState() == DistributedInstanceState.UNKNOWN) {			
+			terminateConnection(distributedInstance);
+		} else {
+			createConnection(distributedInstance);
 		}
+	}
+
+
+	/**
+	 * Create a new connection to the given instance
+	 * @param distributedInstance
+	 */
+	protected void createConnection(final DistributedInstance distributedInstance) {
 		
-		if(serverConnections.containsKey(distributedInstance)) {
+		if(serverConnections.containsKey(distributedInstance.getInetSocketAddress())) {
 			logger.info("We already have a connection to: " + distributedInstance);
 			return;
 		}
 		
-		if(blacklist.contains(distributedInstance)) {
+		if(blacklist.contains(distributedInstance.getInetSocketAddress())) {
 			logger.info("Not creating a connection to the blacklisted sysetm: " + distributedInstance);
 			return;
 		}
 		
-		logger.info("Opening connection to new node: " + distributedInstance);
+		logger.info("Opening connection to instance: " + distributedInstance);
 		
 		final ScalephantClient client = new ScalephantClient(distributedInstance.getInetSocketAddress());
 		final boolean result = client.connect();
@@ -146,7 +165,8 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 			logger.info("Unable to open connection to: " + distributedInstance);
 		} else {
 			logger.info("Connection successfully established: " + distributedInstance);
-			serverConnections.put(distributedInstance, client);
+			serverConnections.put(distributedInstance.getInetSocketAddress(), client);
+			knownInstances.put(distributedInstance.getInetSocketAddress(), distributedInstance);
 		}
 	}
 	
@@ -156,13 +176,14 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	 */
 	protected synchronized void terminateConnection(final DistributedInstance distributedInstance) {
 		
-		logger.info("Closing connections to terminating node: " + distributedInstance);
-		
-		if(! serverConnections.containsKey(distributedInstance)) {
+		if(! serverConnections.containsKey(distributedInstance.getInetSocketAddress())) {
 			return;
 		}
 		
-		final ScalephantClient client = serverConnections.remove(distributedInstance);
+		logger.info("Closing connection to dead instance: " + distributedInstance);
+		
+		knownInstances.remove(distributedInstance.getInetSocketAddress());
+		final ScalephantClient client = serverConnections.remove(distributedInstance.getInetSocketAddress());
 		client.disconnect();
 	}
 
@@ -172,9 +193,9 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	@Override
 	public void distributedInstanceEvent(final DistributedInstanceEvent event) {
 		if(event instanceof DistributedInstanceAddEvent) {
-			createConnectionIfSystemReady(event.getInstance());
+			createOrTerminateConnetion(event.getInstance());
 		} else if(event instanceof DistributedInstanceChangedEvent) {
-			createConnectionIfSystemReady(event.getInstance());
+			createOrTerminateConnetion(event.getInstance());
 		} else if(event instanceof DistributedInstanceDeleteEvent) {
 			terminateConnection(event.getInstance());
 		} else {
@@ -188,7 +209,7 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	 * @return
 	 */
 	public ScalephantClient getConnectionForInstance(final DistributedInstance instance) {
-		return serverConnections.get(instance);
+		return serverConnections.get(instance.getInetSocketAddress());
 	}
 	
 	/**
@@ -212,6 +233,6 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	 * @return
 	 */
 	public List<DistributedInstance> getAllInstances() {
-		return new ArrayList<DistributedInstance>(serverConnections.keySet());
+		return new ArrayList<DistributedInstance>(knownInstances.values());
 	}
 }
