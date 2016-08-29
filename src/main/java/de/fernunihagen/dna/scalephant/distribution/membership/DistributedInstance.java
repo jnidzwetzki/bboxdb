@@ -18,6 +18,11 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	 */
 	protected final int port;
 	
+	/** 
+	 * The inet socket address
+	 */
+	protected final InetSocketAddress socketAddress;
+	
 	/**
 	 * The version number of the instance
 	 */
@@ -47,8 +52,9 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 		
 		try {
 			final Integer portInterger = Integer.parseInt(parts[1]);
-			ip = parts[0];
-			port = portInterger;
+			this.ip = parts[0];
+			this.port = portInterger;
+			this.socketAddress = new InetSocketAddress(ip, port);
 		} catch(NumberFormatException e) {
 			throw new IllegalArgumentException("Unable to parse: " + parts[1], e);
 		}
@@ -58,6 +64,7 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 		this.ip = localIp;
 		this.port = localPort;
 		this.version = version;
+		this.socketAddress = new InetSocketAddress(ip, port);
 	}
 
 	public String getIp() {
@@ -141,7 +148,7 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	 * @return
 	 */
 	public InetSocketAddress getInetSocketAddress() {
-		return new InetSocketAddress(ip, port);
+		return socketAddress;
 	}
 	
 	/**
