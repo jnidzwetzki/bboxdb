@@ -93,6 +93,7 @@ public class DistributedInstanceManager {
 			} else {
 				// Changed member?
 				if(! instances.get(inetSocketAddress).equals(instance)) {
+					instances.put(inetSocketAddress, instance);
 					sendEvent(new DistributedInstanceChangedEvent(instance));
 				}
 			}
