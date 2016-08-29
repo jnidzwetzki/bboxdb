@@ -813,6 +813,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws ZookeeperException 
 	 */
 	public void deleteCluster() throws ZookeeperException {
+		stopMembershipObserver();
+		
 		final String path = getClusterPath();
 		deleteNodesRecursive(path);
 	}
