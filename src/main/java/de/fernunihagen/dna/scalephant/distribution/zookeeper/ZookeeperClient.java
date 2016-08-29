@@ -55,6 +55,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected volatile boolean membershipObserver = false;
 	
 	/**
+	 * Is a shutdown call pending
+	 */
+	protected volatile boolean shutdownPending = false;
+	
+	/**
 	 * The timeout for the zookeeper session
 	 */
 	protected final static int DEFAULT_TIMEOUT = 3000;
@@ -138,6 +143,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 		
 		try {
+			shutdownPending = false;
 			
 			final CountDownLatch connectLatch = new CountDownLatch(1);
 			
@@ -164,6 +170,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	@Override
 	public void shutdown() {
+		
+		shutdownPending = true;
+		
 		if(zookeeper != null) {
 			try {
 				logger.info("Disconnecting from zookeeper");
@@ -324,6 +333,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		// Ignore null parameter
 		if(watchedEvent == null) {
 			logger.warn("process called with an null argument");
+			return;
+		}
+		
+		// Shutdown is pending, stop event processing
+		if(shutdownPending == true) {
 			return;
 		}
 		
