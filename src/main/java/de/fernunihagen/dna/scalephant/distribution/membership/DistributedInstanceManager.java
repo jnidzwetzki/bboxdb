@@ -3,7 +3,6 @@ package de.fernunihagen.dna.scalephant.distribution.membership;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,15 +72,19 @@ public class DistributedInstanceManager {
 	public void updateInstanceList(final Set<DistributedInstance> newInstances) {
 		
 		// Are members removed?
-		for(final Iterator<InetSocketAddress> iter = instances.keySet().iterator(); iter.hasNext(); ) {
-			final InetSocketAddress inetSocketAddress = iter.next();
-			final DistributedInstance instance = instances.get(inetSocketAddress);
-			if(! newInstances.contains(instance) ) {
-				iter.remove();
-				sendEvent(new DistributedInstanceDeleteEvent(instance));
-			}
+		final List<InetSocketAddress> deletedInstances = new ArrayList<InetSocketAddress>(instances.size());
+		deletedInstances.addAll(instances.keySet());
+		
+		// Remove still existing instances from 'to delete list'
+		for(final DistributedInstance newInstance : newInstances) {
+			deletedInstances.remove(newInstance.getInetSocketAddress());
 		}
 		
+		for(final InetSocketAddress inetSocketAddress : deletedInstances) {
+			final DistributedInstance deletedInstance = instances.remove(inetSocketAddress);
+			sendEvent(new DistributedInstanceDeleteEvent(deletedInstance));
+		}
+
 		for(final DistributedInstance instance : newInstances) {
 			
 			final InetSocketAddress inetSocketAddress = instance.getInetSocketAddress();
@@ -145,7 +148,7 @@ public class DistributedInstanceManager {
 	}
 	
 	/**
-	 * Disconnect from zookeeper, all instaces are unregistered
+	 * Disconnect from zookeeper, all instances are unregistered
 	 */
 	public void zookeeperDisconnect() {
 		
