@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.scalephant;
+package de.fernunihagen.dna.scalephant.distribution;
 
 import java.util.ArrayList;
 import java.util.Collection;
