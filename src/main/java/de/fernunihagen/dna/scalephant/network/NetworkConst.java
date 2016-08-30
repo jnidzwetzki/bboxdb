@@ -57,6 +57,10 @@ public class NetworkConst {
 	 */
 	public static final byte REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP = 0x08;
 	
+	/**
+	 * Request network compression
+	 */
+	public static final byte REQUEST_TYPE_START_COMPRESSION = 0x09;
 	
 	/**
 	 * Query type key

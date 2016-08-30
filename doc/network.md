@@ -43,6 +43,7 @@ Request Types:
 * Type 0x06 - Transfer SSTable
 * Type 0x07 - Create distribution group
 * Type 0x08 - Delete distribution group
+* Type 0x09 - Start Compression
 
 
 ## The response frame
@@ -389,5 +390,18 @@ This package deletes a whole table. The result could be currently response type 
 	|        Distribution Group          |
 	.                                    .
 	+------------------------------------+
+
+### Start compression
+Try to use compression
+
+#### Request body
+
+The body of the package is empty
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+
+#### Response body
+This package deletes a whole table. The result could be currently response type 0x00 or 0x02. When response package is 0x00, the compression is started immediately. If the response type is 0x02 the connection stays uncompressed.
 
 

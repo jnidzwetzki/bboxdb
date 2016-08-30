@@ -29,6 +29,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.StartCompressionRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessWithBodyResponse;
@@ -349,6 +350,25 @@ public class TestNetworkClasses {
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
 		final ListTablesRequest decodedPackage = ListTablesRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(listPackage, decodedPackage);
+	}
+	
+	/**
+	 * The the encoding and decoding of the request compression
+	 * @throws IOException 
+	 */
+	@Test
+	public void encodeAndDecodeStartCompression() throws IOException {
+				
+		final StartCompressionRequest listPackage = new StartCompressionRequest();
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		byte[] encodedVersion = networkPackageToByte(listPackage, sequenceNumber);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final StartCompressionRequest decodedPackage = StartCompressionRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(listPackage, decodedPackage);
 	}
