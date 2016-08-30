@@ -2,7 +2,7 @@ package de.fernunihagen.dna.scalephant.distribution;
 
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 
-class OudatedRegion {
+class OudatedDistributionRegion {
 	
 	/**
 	 * The distributed region which is outdated
@@ -19,7 +19,7 @@ class OudatedRegion {
 	 */
 	protected final long localVersion;
 	
-	public OudatedRegion(final DistributionRegion distributedRegion, final DistributedInstance newestInstance, final long localVersion) {
+	public OudatedDistributionRegion(final DistributionRegion distributedRegion, final DistributedInstance newestInstance, final long localVersion) {
 		this.distributedRegion = distributedRegion;
 		this.newestInstance = newestInstance;
 		this.localVersion = localVersion;
@@ -27,7 +27,7 @@ class OudatedRegion {
 
 	@Override
 	public String toString() {
-		return "OudatedRegion [distributedRegion=" + distributedRegion
+		return "OudatedDistributionRegion [distributedRegion=" + distributedRegion
 				+ ", newestInstance=" + newestInstance + ", localVersion="
 				+ localVersion + "]";
 	}
@@ -54,7 +54,7 @@ class OudatedRegion {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		OudatedRegion other = (OudatedRegion) obj;
+		OudatedDistributionRegion other = (OudatedDistributionRegion) obj;
 		if (distributedRegion == null) {
 			if (other.distributedRegion != null)
 				return false;
