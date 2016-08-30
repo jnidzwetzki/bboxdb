@@ -2,7 +2,7 @@ package de.fernunihagen.dna.scalephant.distribution;
 
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 
-class OutdatedDistributionRegion {
+public class OutdatedDistributionRegion {
 	
 	/**
 	 * The distributed region which is outdated
