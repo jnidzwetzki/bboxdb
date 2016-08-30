@@ -159,6 +159,24 @@ public class StorageInterface {
 	}
 	
 	/**
+	 * Get all tables for the given nameprefix
+	 * @param nameprefix
+	 * @return
+	 */
+	public static List<SSTableName> getAllTablesForNameprefix(final int nameprefix) {
+		final List<SSTableName> allTables = getAllTables();
+		final List<SSTableName> resultTables = new ArrayList<SSTableName>();
+
+		for(final SSTableName ssTableName : allTables) {
+			if(ssTableName.getNameprefix() == nameprefix) {
+				resultTables.add(ssTableName);
+			}
+		}
+		
+		return resultTables;
+	}
+	
+	/**
 	 * Shutdown all instances
 	 * 
 	 */
