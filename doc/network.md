@@ -402,6 +402,6 @@ The body of the package is empty
 	+---------+--------+--------+--------+
 
 #### Response body
-This package deletes a whole table. The result could be currently response type 0x00 or 0x02. When response package is 0x00, the compression is started immediately. If the response type is 0x02 the connection stays uncompressed.
+This package indicates, that the client wishes to use compression in future packages. The result could be currently response type 0x00 or 0x02. The server can acknowledge (result 0x00) or reject this (result 0x02) wish. Acknowledging this package means, that the server can handle compressed request packages and the server can generate compressed response packages.
 
 
