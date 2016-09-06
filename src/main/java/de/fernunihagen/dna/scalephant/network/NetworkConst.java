@@ -15,52 +15,52 @@ public class NetworkConst {
 	/**
 	 * Request network compression
 	 */
-	public static final byte REQUEST_TYPE_HELO = 0x00;
+	public static final short REQUEST_TYPE_HELO = 0x00;
 	
 	/**
 	 * Request type insert tuple
 	 */
-	public static final byte REQUEST_TYPE_INSERT_TUPLE = 0x01;
+	public static final short REQUEST_TYPE_INSERT_TUPLE = 0x01;
 	
 	/**
 	 * Request type delete tuple
 	 */
-	public static final byte REQUEST_TYPE_DELETE_TUPLE = 0x02;
+	public static final short REQUEST_TYPE_DELETE_TUPLE = 0x02;
 	
 	/**
 	 * Request type delete table
 	 */
-	public static final byte REQUEST_TYPE_DELETE_TABLE = 0x03;
+	public static final short REQUEST_TYPE_DELETE_TABLE = 0x03;
 	
 	/**
 	 * Request type list tables
 	 */
-	public static final byte REQUEST_TYPE_LIST_TABLES = 0x04;
+	public static final short REQUEST_TYPE_LIST_TABLES = 0x04;
 	
 	/**
 	 * Request type disconnect
 	 */
-	public static final byte REQUEST_TYPE_DISCONNECT = 0x05;
+	public static final short REQUEST_TYPE_DISCONNECT = 0x05;
 	
 	/**
 	 * Request type query
 	 */
-	public static final byte REQUEST_TYPE_QUERY = 0x06;
+	public static final short REQUEST_TYPE_QUERY = 0x06;
 	
 	/**
 	 * Request type transfer SSTable
 	 */
-	public static final byte REQUEST_TYPE_TRANSFER = 0x07;
+	public static final short REQUEST_TYPE_TRANSFER = 0x07;
 	
 	/**
 	 * Request type create distribution group
 	 */
-	public static final byte REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP = 0x08;
+	public static final short REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP = 0x08;
 	
 	/**
 	 * Request type delete distribution group
 	 */
-	public static final byte REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP = 0x09;
+	public static final short REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP = 0x09;
 	
 	/**
 	 * Query type key
