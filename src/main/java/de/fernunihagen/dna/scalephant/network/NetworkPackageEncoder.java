@@ -32,8 +32,8 @@ public class NetworkPackageEncoder {
 		
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(12);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
-		byteBuffer.putShort(packageType);
 		byteBuffer.putShort(sequenceNumber);
+		byteBuffer.putShort(packageType);
 		byteBuffer.putLong(bodyLength);
 
 		try {

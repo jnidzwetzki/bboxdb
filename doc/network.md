@@ -6,7 +6,7 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	|       Type       |   Request-ID    |
+	|     Request-ID   |  Request-Type   |
 	+---------+--------+-----------------+
 	|            Body-Length             |
 	|                                    |
@@ -23,8 +23,8 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
  
 ### Request Header
 
-* Type - The type of the request.
 * Request-ID - The id of the request, e.g., a consecutive number.
+* Request-Type - The type of the request.
 * Body length - The length of the body as a long value.
 * Routed - Does the package contain routing information (0x01) or not (0x0).
 * Hop - The hop of the package. Is set to 0x00 if the package is not routed.

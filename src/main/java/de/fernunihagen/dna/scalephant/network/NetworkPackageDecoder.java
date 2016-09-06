@@ -68,8 +68,8 @@ public class NetworkPackageDecoder {
 	 * @return the request id
 	 */
 	public static short getRequestIDFromResponsePackage(final ByteBuffer bb) {
-		// Reset position (Protocol, Request Type)
-		bb.position(1);
+		// Reset position (Request Type)
+		bb.position(0);
 		
 		// Read request id
 		return bb.getShort();
@@ -92,15 +92,15 @@ public class NetworkPackageDecoder {
 			return false;
 		}
 		
+		// Read request id
+		bb.getShort();
+		
 		// Check package type
 		final short readPackageType = bb.getShort();
 		if(readPackageType != packageType) {
 			logger.warn("Got wrong package type (got " + readPackageType + " / expected " + packageType + ")");
 			return false;
 		}
-		
-		// Read request id
-		bb.getShort();
 		
 		// Read body lengh
 		final long bodyLength = bb.getLong();
@@ -118,7 +118,7 @@ public class NetworkPackageDecoder {
 	 */
 	public static short getRequestIDFromRequestPackage(final ByteBuffer bb) {
 		// Reset position (Request Type)
-		bb.position(2);
+		bb.position(0);
 		
 		// Read request id
 		return bb.getShort();
@@ -168,7 +168,7 @@ public class NetworkPackageDecoder {
 	 * @return
 	 */
 	public static short getPackageTypeFromRequest(final ByteBuffer bb) {
-		bb.position(0);
+		bb.position(2);
 		
 		return bb.getShort();
 	}
