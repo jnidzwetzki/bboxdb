@@ -49,7 +49,7 @@ Request Types:
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	| Version |    Request-ID   | Result |
+	|     Request-ID   |  Result-Type    | 
 	+---------+-----------------+--------+
 	|             Body length            |
 	|                                    |
@@ -60,9 +60,8 @@ Request Types:
 	.                                    .
 	+------------------------------------+
 	
-* Version - The protocol version, currently always 0x01.
 * Request-ID - The id of the request which the response belongs too.
-* Result - The result of the operation
+* Result-Type - The result type of the operation.
 * Body length - The length of the body as a long value. For Packages without body, the length is set to 0.
 
 Result-Types:

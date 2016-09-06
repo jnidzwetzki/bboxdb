@@ -53,13 +53,11 @@ public class NetworkPackageEncoder {
 	 * @param packageType 
 	 * @param bos
 	 */
-	protected void appendResponsePackageHeader(final short requestId, final byte packageType, final ByteArrayOutputStream bos) {
+	protected void appendResponsePackageHeader(final short requestId, final short packageType, final ByteArrayOutputStream bos) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
-		byteBuffer.put(NetworkConst.PROTOCOL_VERSION);
 		byteBuffer.putShort(requestId);
-		byteBuffer.put(packageType);
-
+		byteBuffer.putShort(packageType);
 
 		try {
 			bos.write(byteBuffer.array());
@@ -74,7 +72,7 @@ public class NetworkPackageEncoder {
 	 * @param packageType
 	 * @return
 	 */
-	public ByteArrayOutputStream getOutputStreamForResponsePackage(final short requestId, final byte packageType) {
+	public ByteArrayOutputStream getOutputStreamForResponsePackage(final short requestId, final short packageType) {
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		
 		// Append the frame header to the package

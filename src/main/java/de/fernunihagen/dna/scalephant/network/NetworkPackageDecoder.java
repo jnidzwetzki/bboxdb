@@ -35,7 +35,7 @@ public class NetworkPackageDecoder {
 	 * @param buffer
 	 * @return true or false, depending of the integrity of the package
 	 */
-	public static boolean validateResponsePackageHeader(final ByteBuffer bb, final byte packageType) {
+	public static boolean validateResponsePackageHeader(final ByteBuffer bb, final short packageType) {
 		
 		// Reset position
 		bb.position(0);
@@ -46,18 +46,11 @@ public class NetworkPackageDecoder {
 			return false;
 		}
 		
-		// Check protocol version
-		byte protocolVersion = bb.get();
-		if(protocolVersion != NetworkConst.PROTOCOL_VERSION) {
-			logger.warn("Got wrong protocol version: " + protocolVersion);
-			return false;
-		}
-		
 		// Read request id
 		bb.getShort();
 		
 		// Check package type
-		byte readPackageType = bb.get();
+		final short readPackageType = bb.getShort();
 		if(readPackageType != packageType) {
 			logger.warn("Got wrong package type (" + readPackageType + " / " + packageType + ")");
 			return false;
@@ -185,10 +178,10 @@ public class NetworkPackageDecoder {
 	 * @param bb
 	 * @return
 	 */
-	public static byte getPackageTypeFromResponse(final ByteBuffer bb) {
-		bb.position(3);
+	public static short getPackageTypeFromResponse(final ByteBuffer bb) {
+		bb.position(2);
 		
-		return bb.get();
+		return bb.getShort();
 	}
 	
 	/**

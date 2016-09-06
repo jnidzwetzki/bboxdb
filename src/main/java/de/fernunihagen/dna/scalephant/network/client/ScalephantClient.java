@@ -506,7 +506,7 @@ public class ScalephantClient implements Scalephant {
 		 */
 		protected void handleResultPackage(final ByteBuffer packageHeader) {
 			final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(packageHeader);
-			final byte packageType = NetworkPackageDecoder.getPackageTypeFromResponse(packageHeader);
+			final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(packageHeader);
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 
 			ClientOperationFuture pendingCall = null;
