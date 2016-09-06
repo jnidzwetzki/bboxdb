@@ -88,7 +88,7 @@ public class NetworkPackageDecoder {
 	 * @param buffer
 	 * @return true or false, depending of the integrity of the package
 	 */
-	public static boolean validateRequestPackageHeader(final ByteBuffer bb, final byte packageType) {
+	public static boolean validateRequestPackageHeader(final ByteBuffer bb, final short packageType) {
 		
 		// Reset position
 		bb.position(0);

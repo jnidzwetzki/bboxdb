@@ -28,7 +28,7 @@ public class NetworkPackageEncoder {
 	 * @param bos
 	 */
 	public static void appendRequestPackageHeader(final short sequenceNumber, final long bodyLength, 
-			final RoutingHeader routingHeader, final byte packageType, final OutputStream bos) {
+			final RoutingHeader routingHeader, final short packageType, final OutputStream bos) {
 		
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(12);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);

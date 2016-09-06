@@ -121,8 +121,7 @@ public class TestNetworkClasses {
 		bb.order(Const.APPLICATION_BYTE_ORDER);
 		
 		// Check fields
-		Assert.assertEquals(NetworkConst.PROTOCOL_VERSION, bb.get());
-		Assert.assertEquals(NetworkConst.REQUEST_TYPE_INSERT_TUPLE, bb.get());
+		Assert.assertEquals(NetworkConst.REQUEST_TYPE_INSERT_TUPLE, bb.getShort());
 		Assert.assertEquals(currentSequenceNumber, bb.getShort());
 	}
 	
