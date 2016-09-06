@@ -12,12 +12,12 @@ import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 
-public class StartCompressionRequest implements NetworkRequestPackage {
+public class HeloRequest implements NetworkRequestPackage {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(StartCompressionRequest.class);
+	private final static Logger logger = LoggerFactory.getLogger(HeloRequest.class);
 
 	
 	@Override
@@ -42,8 +42,8 @@ public class StartCompressionRequest implements NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 */
-	public static StartCompressionRequest decodeTuple(final ByteBuffer encodedPackage) {
-		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_START_COMPRESSION);
+	public static HeloRequest decodeTuple(final ByteBuffer encodedPackage) {
+		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_HELO);
 		
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");
@@ -54,17 +54,17 @@ public class StartCompressionRequest implements NetworkRequestPackage {
 			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new StartCompressionRequest();
+		return new HeloRequest();
 	}
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.REQUEST_TYPE_START_COMPRESSION;
+		return NetworkConst.REQUEST_TYPE_HELO;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof StartCompressionRequest) {
+		if(obj instanceof HeloRequest) {
 			return true;
 		}
 		

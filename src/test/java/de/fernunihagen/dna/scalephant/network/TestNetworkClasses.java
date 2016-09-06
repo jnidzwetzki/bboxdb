@@ -14,9 +14,6 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
-import de.fernunihagen.dna.scalephant.network.NetworkConst;
-import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
-import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.SequenceNumberGenerator;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
@@ -24,12 +21,12 @@ import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributio
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTupleRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.HeloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
-import de.fernunihagen.dna.scalephant.network.packages.request.StartCompressionRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessWithBodyResponse;
@@ -355,20 +352,20 @@ public class TestNetworkClasses {
 	}
 	
 	/**
-	 * The the encoding and decoding of the request compression
+	 * The the encoding and decoding of the request helo
 	 * @throws IOException 
 	 */
 	@Test
-	public void encodeAndDecodeStartCompression() throws IOException {
+	public void encodeAndDecodeHelo() throws IOException {
 				
-		final StartCompressionRequest listPackage = new StartCompressionRequest();
+		final HeloRequest listPackage = new HeloRequest();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		byte[] encodedVersion = networkPackageToByte(listPackage, sequenceNumber);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
-		final StartCompressionRequest decodedPackage = StartCompressionRequest.decodeTuple(bb);
+		final HeloRequest decodedPackage = HeloRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(listPackage, decodedPackage);
 	}

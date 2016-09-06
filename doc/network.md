@@ -34,16 +34,16 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 
 Request Types:
 
-* Type 0x00 - Insert tuple request
-* Type 0x01 - Delete tuple request
-* Type 0x02 - Delete table request
-* Type 0x03 - List all tables request
-* Type 0x04 - Disconnect request
-* Type 0x05 - Query request
-* Type 0x06 - Transfer SSTable
-* Type 0x07 - Create distribution group
-* Type 0x08 - Delete distribution group
-* Type 0x09 - Start Compression
+* Type 0x00 - Helo
+* Type 0x01 - Insert tuple request
+* Type 0x02 - Delete tuple request
+* Type 0x03 - Delete table request
+* Type 0x04 - List all tables request
+* Type 0x05 - Disconnect request
+* Type 0x06 - Query request
+* Type 0x07 - Transfer SSTable
+* Type 0x08 - Create distribution group
+* Type 0x09 - Delete distribution group
 
 
 ## The response frame
@@ -68,14 +68,15 @@ Request Types:
 
 Result-Types:
 
-* Type 0x00 - Operation Success - no package body
-* Type 0x01 - Operation Success - with details in the body
-* Type 0x02 - Operation Error - no package body
-* Type 0x03 - Operation Error - with details in the body
-* Type 0x04 - Result of the List tables call
-* Type 0x05 - A result that contains a tuple
-* Type 0x06 - Start multiple tuple result
-* Type 0x07 - End multiple tuple result
+* Type 0x00 - Helo result
+* Type 0x01 - Operation Success - no package body
+* Type 0x02 - Operation Success - with details in the body
+* Type 0x03 - Operation Error - no package body
+* Type 0x04 - Operation Error - with details in the body
+* Type 0x05 - Result of the List tables call
+* Type 0x06 - A result that contains a tuple
+* Type 0x07 - Start multiple tuple result
+* Type 0x08 - End multiple tuple result
 
 	
 ### Body for response type = 0x01/0x03 (Success/Error with details)
@@ -143,6 +144,38 @@ Transferring a set of tuples:
     
 ## Frame body
 The structure of the body depends on the request type. The next sections describe the used structures.
+
+### Helo 
+Handshake with the server
+
+#### Request body
+
+The body contains the protocol version and the features of the client.
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|          Protocol Version          |
+	+------------------------------------+
+	|           Client-Features          |
+	+------------------------------------+
+	
+Client features:
+
+Bit 0: Compression
+
+#### Response body
+The body contains the protocol version and the features of the server.
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|          Protocol Version          |
+	+------------------------------------+
+	|           Client-Features          |
+	+------------------------------------+
+	
+Client features:
+
+Bit 1: Compression
 
 ### Insert
 This package inserts a new tuple into a given table. The result could be currently response type 0x00, 0x02 and 0x03.
@@ -391,17 +424,6 @@ This package deletes a whole table. The result could be currently response type 
 	.                                    .
 	+------------------------------------+
 
-### Start compression
-Try to use compression
 
-#### Request body
-
-The body of the package is empty
-
-    0         8       16       24       32
-	+---------+--------+--------+--------+
-
-#### Response body
-This package indicates, that the client wishes to use compression in future packages. The result could be currently response type 0x00 or 0x02. The server can acknowledge (result 0x00) or reject this (result 0x02) wish. Acknowledging this package means, that the server can handle compressed request packages and the server can generate compressed response packages.
 
 
