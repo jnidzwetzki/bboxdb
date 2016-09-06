@@ -6,7 +6,7 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	| Version |  Type  |   Request-ID    |
+	|       Type       |   Request-ID    |
 	+---------+--------+-----------------+
 	|            Body-Length             |
 	|                                    |
@@ -23,7 +23,6 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
  
 ### Request Header
 
-* Version - The protocol version, currently always 0x01.
 * Type - The type of the request.
 * Request-ID - The id of the request, e.g., a consecutive number.
 * Body length - The length of the body as a long value.
@@ -175,7 +174,7 @@ The body contains the protocol version and the features of the server.
 	
 Client features:
 
-Bit 1: Compression
+Bit 0: Compression
 
 ### Insert
 This package inserts a new tuple into a given table. The result could be currently response type 0x00, 0x02 and 0x03.

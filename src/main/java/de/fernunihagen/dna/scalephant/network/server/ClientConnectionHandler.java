@@ -637,7 +637,7 @@ public class ClientConnectionHandler implements Runnable {
 		final ByteBuffer packageHeader = readNextPackageHeader();
 
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);
-		final byte packageType = NetworkPackageDecoder.getPackageTypeFromRequest(packageHeader);
+		final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(packageHeader);
 		
 		boolean readFurtherPackages = true;
 		
