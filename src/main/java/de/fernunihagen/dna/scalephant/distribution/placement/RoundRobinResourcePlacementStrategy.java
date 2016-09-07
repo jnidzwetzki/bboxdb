@@ -34,6 +34,7 @@ public class RoundRobinResourcePlacementStrategy extends ResourcePlacementStrate
 		
 		final List<DistributedInstance> availableSystems = new ArrayList<DistributedInstance>(systems);
 		availableSystems.removeAll(blacklist);
+
 		PlacementHelper.removeAllNonReadySystems(availableSystems);
 		
 		if(availableSystems.isEmpty()) {
@@ -46,34 +47,22 @@ public class RoundRobinResourcePlacementStrategy extends ResourcePlacementStrate
 			return availableSystems.get(0);
 		}
 
-		// Last allocated system was removed, start on position 0
-		if(! systems.contains(lastInstance)) {
+		// Last allocated system was removed or is not ready, start on position 0
+		if(! availableSystems.contains(lastInstance)) {
 			lastInstance = availableSystems.get(0);
 			return availableSystems.get(0);
 		}
 		
 		// Find the position of the last assignment
 		int lastPosition = 0; 
-		for(; lastPosition < systems.size(); lastPosition++) {
-			if(systems.get(lastPosition).equals(lastInstance)) {
+		for(; lastPosition < availableSystems.size(); lastPosition++) {
+			if(availableSystems.get(lastPosition).equals(lastInstance)) {
 				break;
 			}
 		}
 		
-		// Search for next not blacklisted system
-		int nextPosition = (lastPosition + 1) % systems.size();
-		
-		while(lastPosition != nextPosition) {
-			
-			final DistributedInstance instance = systems.get(nextPosition);
-			if(! blacklist.contains(instance)) {
-				lastInstance = instance;
-				return instance;
-			}
-			
-			nextPosition = (nextPosition + 1) % systems.size();
-		} 
-		
-		throw new ResourceAllocationException("Unable to find a system for ressource allocation!");
+		final int nextPosition = (lastPosition + 1) % availableSystems.size();
+		lastInstance = availableSystems.get(nextPosition);
+		return lastInstance;
 	}
 }
