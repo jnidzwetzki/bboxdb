@@ -700,7 +700,8 @@ public class ClientConnectionHandler implements Runnable {
 			}
 			readFurtherPackages = handleTransfer(packageHeader, packageSequence);
 		} else {	
-			readFurtherPackages = handleBufferedPackage(packageHeader, packageSequence, packageType);
+			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+			readFurtherPackages = handleBufferedPackage(encodedPackage, packageSequence, packageType);
 		}
 		
 		if(readFurtherPackages == false) {
@@ -708,10 +709,8 @@ public class ClientConnectionHandler implements Runnable {
 		}	
 	}
 
-	protected boolean handleBufferedPackage(final ByteBuffer packageHeader, final short packageSequence, final short packageType) throws IOException {
-		
-		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-		
+	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, final short packageSequence, final short packageType) throws IOException {
+				
 		switch (packageType) {
 			case NetworkConst.REQUEST_TYPE_HELO:
 				logger.info("Handskaking with: " + clientSocket.getInetAddress());
