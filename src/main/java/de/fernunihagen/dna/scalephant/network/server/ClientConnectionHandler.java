@@ -40,6 +40,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.TransferSSTableRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorResponse;
+import de.fernunihagen.dna.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleEndResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleStartResponse;
@@ -56,7 +57,7 @@ import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 
 public class ClientConnectionHandler implements Runnable {
-	
+
 	/**
 	 * The client socket
 	 */
@@ -91,6 +92,16 @@ public class ClientConnectionHandler implements Runnable {
 	 * Number of pending requests
 	 */
 	public final static int PENDING_REQUESTS = 25;
+	
+	/**
+	 * Readony node error message
+	 */
+	protected final static String INSTANCE_IS_READ_ONLY_MSG = "Instance is read only";
+	
+	/**
+	 * Readonly mode
+	 */
+	protected boolean readonly = true;
 	
 	/**
 	 * The Logger
@@ -271,6 +282,11 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 			
+			if(readonly) {
+				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				return true;
+			}
+			
 			final CreateDistributionGroupRequest createPackage = CreateDistributionGroupRequest.decodeTuple(encodedPackage);
 			logger.info("Create distribution group: " + createPackage.getDistributionGroup());
 			
@@ -306,6 +322,11 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 			
+			if(readonly) {
+				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				return true;
+			}
+			
 			final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
 			logger.info("Delete distribution group: " + deletePackage.getDistributionGroup());
 			
@@ -336,6 +357,11 @@ public class ClientConnectionHandler implements Runnable {
 		
 		try {
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+			
+			if(readonly) {
+				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				return true;
+			}
 			
 			final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);
 			final SSTableName requestTable = deletePackage.getTable();
@@ -525,6 +551,11 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 			
+			if(readonly) {
+				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				return true;
+			}
+			
 			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 			
 			// Send the call to the storage manager
@@ -581,6 +612,11 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 	
+			if(readonly) {
+				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				return true;
+			}
+			
 			final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
 			final SSTableName requestTable = deleteTupleRequest.getTable();
 
@@ -714,4 +750,21 @@ public class ClientConnectionHandler implements Runnable {
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 		}	
 	}
+	
+	/**
+	 * Set the readonly mode
+	 * @param readonly
+	 */
+	public void setReadonly(final boolean readonly) {
+		this.readonly = readonly;
+	}
+
+	/**
+	 * Get the readonly mode
+	 * @return
+	 */
+	public boolean isReadonly() {
+		return readonly;
+	}
+
 }
