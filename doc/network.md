@@ -178,7 +178,7 @@ The body contains the protocol version and the capabilities of the client.
 	
 Client features:
 
-Bit 0: Compression
+Bit 0: GZIP Compression
 
 #### Response body
 The body contains the protocol version and the capabilities of the server.
@@ -192,7 +192,7 @@ The body contains the protocol version and the capabilities of the server.
 	
 Client features:
 
-Bit 0: Compression
+Bit 0: GZIP Compression
 
 ### Insert
 This package inserts a new tuple into a given table. The result could be currently response type 0x00, 0x02 and 0x03.

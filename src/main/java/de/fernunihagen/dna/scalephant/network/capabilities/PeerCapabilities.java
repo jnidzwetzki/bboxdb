@@ -9,7 +9,7 @@ public class PeerCapabilities {
 	/**
 	 * The compression flag
 	 */
-	public final static short CAPABILITY_COMPRESSION = 0;
+	public final static short CAPABILITY_COMPRESSION_GZIP = 0;
 
 	/**
 	 * The length of the capabilities
@@ -35,22 +35,22 @@ public class PeerCapabilities {
 	 * 
 	 * @return
 	 */
-	public boolean hasCompression() {
-		return getBit(CAPABILITY_COMPRESSION);
+	public boolean hasGZipCompression() {
+		return getBit(CAPABILITY_COMPRESSION_GZIP);
 	}
 
 	/**
 	 * Set the compression bit
 	 */
-	public void setCompression() {
-		setBit(CAPABILITY_COMPRESSION);
+	public void setGZipCompression() {
+		setBit(CAPABILITY_COMPRESSION_GZIP);
 	}
 
 	/**
 	 * Clear the compression bit
 	 */
-	public void clearCompression() {
-		clearBit(CAPABILITY_COMPRESSION);
+	public void clearGZipCompression() {
+		clearBit(CAPABILITY_COMPRESSION_GZIP);
 	}
 
 	/**

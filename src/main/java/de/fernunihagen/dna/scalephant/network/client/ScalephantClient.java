@@ -191,7 +191,7 @@ public class ScalephantClient implements Scalephant {
 		}
 		
 		final PeerCapabilities clientCapabilities = new PeerCapabilities();
-		clientCapabilities.setCompression();
+		clientCapabilities.setGZipCompression();
 		
 		sendPackageToServer(new HeloRequest(NetworkConst.PROTOCOL_VERSION, clientCapabilities), operationFuture);
 		

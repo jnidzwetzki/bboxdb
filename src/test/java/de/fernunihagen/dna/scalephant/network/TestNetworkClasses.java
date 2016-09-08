@@ -370,8 +370,8 @@ public class TestNetworkClasses {
 		final HeloRequest decodedPackage = HeloRequest.decodeRequest(bb);
 				
 		Assert.assertEquals(helloPackage, decodedPackage);
-		Assert.assertFalse(decodedPackage.getPeerCapabilities().hasCompression());
-		Assert.assertFalse(helloPackage.getPeerCapabilities().hasCompression());
+		Assert.assertFalse(decodedPackage.getPeerCapabilities().hasGZipCompression());
+		Assert.assertFalse(helloPackage.getPeerCapabilities().hasGZipCompression());
 	}
 	
 	/**
@@ -381,7 +381,7 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeHeloRequst2() throws IOException {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
-		peerCapabilities.setCompression();
+		peerCapabilities.setGZipCompression();
 		
 		final HeloRequest helloPackage = new HeloRequest(2, peerCapabilities);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -393,8 +393,8 @@ public class TestNetworkClasses {
 		final HeloRequest decodedPackage = HeloRequest.decodeRequest(bb);
 		
 		Assert.assertEquals(helloPackage, decodedPackage);
-		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasCompression());
-		Assert.assertTrue(helloPackage.getPeerCapabilities().hasCompression());
+		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasGZipCompression());
+		Assert.assertTrue(helloPackage.getPeerCapabilities().hasGZipCompression());
 	}
 	
 	/**
@@ -415,8 +415,8 @@ public class TestNetworkClasses {
 		final HeloResponse decodedPackage = HeloResponse.decodePackage(bb);
 				
 		Assert.assertEquals(helloPackage, decodedPackage);
-		Assert.assertFalse(decodedPackage.getPeerCapabilities().hasCompression());
-		Assert.assertFalse(helloPackage.getPeerCapabilities().hasCompression());
+		Assert.assertFalse(decodedPackage.getPeerCapabilities().hasGZipCompression());
+		Assert.assertFalse(helloPackage.getPeerCapabilities().hasGZipCompression());
 	}
 	
 	/**
@@ -426,7 +426,7 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeHeloResponse2() throws IOException {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
-		peerCapabilities.setCompression();
+		peerCapabilities.setGZipCompression();
 		
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		final HeloResponse helloPackage = new HeloResponse(sequenceNumber, 2, peerCapabilities);
@@ -438,8 +438,8 @@ public class TestNetworkClasses {
 		final HeloResponse decodedPackage = HeloResponse.decodePackage(bb);
 				
 		Assert.assertEquals(helloPackage, decodedPackage);
-		Assert.assertTrue(helloPackage.getPeerCapabilities().hasCompression());
-		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasCompression());
+		Assert.assertTrue(helloPackage.getPeerCapabilities().hasGZipCompression());
+		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasGZipCompression());
 	}
 	
 	
