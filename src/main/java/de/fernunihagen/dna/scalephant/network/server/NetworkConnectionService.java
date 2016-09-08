@@ -43,6 +43,11 @@ public class NetworkConnectionService implements ScalephantService {
 	protected Thread serverSocketDispatchThread = null;
 	
 	/**
+	 * The state of the server (readonly or readwrite)
+	 */
+	protected final NetworkConnectionServiceState networkConnectionServiceState = new NetworkConnectionServiceState();
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(NetworkConnectionService.class);
@@ -62,6 +67,8 @@ public class NetworkConnectionService implements ScalephantService {
 		if(threadPool == null) {
 			threadPool = Executors.newFixedThreadPool(configuration.getNetworkConnectionThreads());
 		}
+		
+		networkConnectionServiceState.setReadonly(true);
 		
 		serverSocketDispatcher = new ConnectionDispatcher();
 		serverSocketDispatchThread = new Thread(serverSocketDispatcher);
@@ -156,7 +163,7 @@ public class NetworkConnectionService implements ScalephantService {
 		 */
 		protected void handleConnection(final Socket clientSocket) {
 			logger.debug("Got new connection from: " + clientSocket.getInetAddress());
-			threadPool.submit(new ClientConnectionHandler(clientSocket));
+			threadPool.submit(new ClientConnectionHandler(clientSocket, networkConnectionServiceState));
 		}
 	}
 
@@ -164,5 +171,21 @@ public class NetworkConnectionService implements ScalephantService {
 	@Override
 	public String getServicename() {
 		return "Network connection handler";
+	}
+	
+	/**
+	 * Set the readonly mode
+	 * @param readonly
+	 */
+	public void setReadonly(final boolean readonly) {
+		networkConnectionServiceState.setReadonly(readonly);
+	}
+
+	/**
+	 * Get the readonly mode
+	 * @return
+	 */
+	public boolean isReadonly() {
+		return networkConnectionServiceState.isReadonly();
 	}
 }

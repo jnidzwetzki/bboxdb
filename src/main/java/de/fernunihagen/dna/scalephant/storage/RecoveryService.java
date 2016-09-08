@@ -22,6 +22,7 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFact
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
+import de.fernunihagen.dna.scalephant.network.server.NetworkConnectionService;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
@@ -33,9 +34,13 @@ public class RecoveryService implements ScalephantService {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(RecoveryService.class);
 	
+	/**
+	 * The connection handler
+	 */
+	protected final NetworkConnectionService connectionHandler;
 
-	public RecoveryService() {
-
+	public RecoveryService(final NetworkConnectionService connectionHandler) {
+		this.connectionHandler = connectionHandler;
 	}
 
 	@Override
@@ -48,6 +53,8 @@ public class RecoveryService implements ScalephantService {
 			runRecovery();
 			
 			logger.info("Running recovery for local stored data DONE");
+			connectionHandler.setReadonly(false);
+			
 			zookeeperClient.setLocalInstanceState(DistributedInstanceState.READWRITE);
 		} catch (ZookeeperException e) {
 			logger.error("Got an exception during recovery: ", e);

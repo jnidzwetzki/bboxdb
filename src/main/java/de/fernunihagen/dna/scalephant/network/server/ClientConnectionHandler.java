@@ -89,6 +89,11 @@ public class ClientConnectionHandler implements Runnable {
 	protected final PackageRouter packageRouter;
 	
 	/**
+	 * The state of the server (readonly or readwrite)
+	 */
+	protected final NetworkConnectionServiceState networkConnectionServiceState;
+	
+	/**
 	 * Number of pending requests
 	 */
 	public final static int PENDING_REQUESTS = 25;
@@ -98,21 +103,19 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected final static String INSTANCE_IS_READ_ONLY_MSG = "Instance is read only";
 	
-	/**
-	 * Readonly mode
-	 */
-	protected boolean readonly = true;
-	
+
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
 
-	public ClientConnectionHandler(final Socket clientSocket) {
+	public ClientConnectionHandler(final Socket clientSocket, final NetworkConnectionServiceState networkConnectionServiceState) {
 		
 		// The network connection state
 		this.clientSocket = clientSocket;
-		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
+		this.networkConnectionServiceState = networkConnectionServiceState;
+		
+		this.connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 		
 		// Create a thread pool that blocks after submitting more than PENDING_REQUESTS
 		final BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<Runnable>(PENDING_REQUESTS);
@@ -282,7 +285,7 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 			
-			if(readonly) {
+			if(networkConnectionServiceState.isReadonly()) {
 				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
 			}
@@ -322,7 +325,7 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 			
-			if(readonly) {
+			if(networkConnectionServiceState.isReadonly()) {
 				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
 			}
@@ -358,7 +361,7 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 			
-			if(readonly) {
+			if(networkConnectionServiceState.isReadonly()) {
 				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
 			}
@@ -551,7 +554,7 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 			
-			if(readonly) {
+			if(networkConnectionServiceState.isReadonly()) {
 				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
 			}
@@ -612,7 +615,7 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 	
-			if(readonly) {
+			if(networkConnectionServiceState.isReadonly()) {
 				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
 			}
@@ -750,21 +753,6 @@ public class ClientConnectionHandler implements Runnable {
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 		}	
 	}
-	
-	/**
-	 * Set the readonly mode
-	 * @param readonly
-	 */
-	public void setReadonly(final boolean readonly) {
-		this.readonly = readonly;
-	}
 
-	/**
-	 * Get the readonly mode
-	 * @return
-	 */
-	public boolean isReadonly() {
-		return readonly;
-	}
 
 }

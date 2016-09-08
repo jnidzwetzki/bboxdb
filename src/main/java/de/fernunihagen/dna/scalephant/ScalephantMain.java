@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.MembershipConnectionService;
+import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.network.server.NetworkConnectionService;
 import de.fernunihagen.dna.scalephant.storage.RecoveryService;
@@ -31,18 +32,24 @@ public class ScalephantMain implements Daemon {
 	@Override
 	public void init(final DaemonContext ctx) throws DaemonInitException, Exception {
 		logger.info("Init the scalephant");
-				
+		
+		services.clear();
+		
 		// The zookeeper client
-		services.add(ZookeeperClientFactory.getZookeeperClient());
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		services.add(zookeeperClient);
 		
 		// The membership connection service
-		services.add(createMembershipService());
+		final MembershipConnectionService membershipService = createMembershipService();
+		services.add(membershipService);
+		
+		// The network connection handler
+		final NetworkConnectionService connectionHandler = createConnectionHandler();
+		services.add(connectionHandler);	
 		
 		// The recovery service
-		services.add(new RecoveryService());
-
-		// The network connection handler
-		services.add(createConnectionHandler());		
+		final RecoveryService recoveryService = new RecoveryService(connectionHandler);
+		services.add(recoveryService);
 	}
 
 	/**
