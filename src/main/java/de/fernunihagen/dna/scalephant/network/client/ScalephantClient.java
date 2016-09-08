@@ -182,7 +182,7 @@ public class ScalephantClient implements Scalephant {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	protected void runHandshake() throws InterruptedException, ExecutionException {
+	protected void runHandshake() throws Exception {
 		
 		final ClientOperationFuture operationFuture = new ClientOperationFuture();
 
@@ -201,6 +201,8 @@ public class ScalephantClient implements Scalephant {
 		if(operationResult instanceof HeloResponse) {
 			final HeloResponse heloResponse = (HeloResponse) operationResult;
 			connectionCapabilities = heloResponse.getPeerCapabilities();
+		} else {
+			throw new Exception("Got an error during handshake");
 		}
 		
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
