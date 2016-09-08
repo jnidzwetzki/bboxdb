@@ -9,10 +9,27 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
+import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
+import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
 
 public class HeloRequest implements NetworkRequestPackage {
+	
+	/**
+	 * The supported protocol version
+	 */
+	protected final int protocolVersion;
+	
+	/**
+	 * The peer capabilities (e.g. compression)
+	 */
+	protected final PeerCapabilities peerCapabilities;
+	
+	public HeloRequest(final int protocolVersion, final PeerCapabilities peerCapabilities) {
+		this.protocolVersion = protocolVersion;
+		this.peerCapabilities = peerCapabilities;
+	}
 	
 	/**
 	 * The Logger
@@ -24,13 +41,19 @@ public class HeloRequest implements NetworkRequestPackage {
 	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
 
 		try {
-			// Write body length
-			final long bodyLength = 0;
+			final ByteBuffer bb = DataEncoderHelper.intToByteBuffer(protocolVersion);
+			final byte[] peerCapabilitiesBytes = peerCapabilities.toByteArray();
+			
+			// Body length
+			final long bodyLength = bb.capacity() + peerCapabilitiesBytes.length;
 			
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
 			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
 					getPackageType(), outputStream);
+			
+			outputStream.write(bb.array());
+			outputStream.write(peerCapabilitiesBytes);
 		} catch (Exception e) {
 			logger.error("Got exception while converting package into bytes", e);
 		}	
@@ -50,11 +73,25 @@ public class HeloRequest implements NetworkRequestPackage {
 			return null;
 		}
 		
+		final int protocolVersion = encodedPackage.getInt();
+		final byte[] capabilityBytes = new byte[PeerCapabilities.CAPABILITY_BYTES];
+		encodedPackage.get(capabilityBytes, 0, capabilityBytes.length);
+
 		if(encodedPackage.remaining() != 0) {
 			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new HeloRequest();
+		final PeerCapabilities peerCapabilities = new PeerCapabilities(capabilityBytes);
+		
+		return new HeloRequest(protocolVersion, peerCapabilities);
+	}
+	
+	/**
+	 * Get the capabilities
+	 * @return
+	 */
+	public PeerCapabilities getPeerCapabilities() {
+		return peerCapabilities;
 	}
 
 	@Override
@@ -63,11 +100,33 @@ public class HeloRequest implements NetworkRequestPackage {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if(obj instanceof HeloRequest) {
-			return true;
-		}
-		
-		return false;
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime
+				* result
+				+ ((peerCapabilities == null) ? 0 : peerCapabilities.hashCode());
+		result = prime * result + protocolVersion;
+		return result;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		HeloRequest other = (HeloRequest) obj;
+		if (peerCapabilities == null) {
+			if (other.peerCapabilities != null)
+				return false;
+		} else if (!peerCapabilities.equals(other.peerCapabilities))
+			return false;
+		if (protocolVersion != other.protocolVersion)
+			return false;
+		return true;
+	}
+
 }
