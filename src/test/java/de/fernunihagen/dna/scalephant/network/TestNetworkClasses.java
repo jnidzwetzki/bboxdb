@@ -28,6 +28,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
+import de.fernunihagen.dna.scalephant.network.packages.response.HeloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessWithBodyResponse;
@@ -356,7 +357,7 @@ public class TestNetworkClasses {
 	 * @throws IOException 
 	 */
 	@Test
-	public void encodeAndDecodeHelo1() throws IOException {
+	public void encodeAndDecodeHeloRequest1() throws IOException {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		
 		final HeloRequest helloPackage = new HeloRequest(2, peerCapabilities);
@@ -366,7 +367,7 @@ public class TestNetworkClasses {
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
-		final HeloRequest decodedPackage = HeloRequest.decodeTuple(bb);
+		final HeloRequest decodedPackage = HeloRequest.decodeRequest(bb);
 				
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertFalse(decodedPackage.getPeerCapabilities().hasCompression());
@@ -378,7 +379,7 @@ public class TestNetworkClasses {
 	 * @throws IOException 
 	 */
 	@Test
-	public void encodeAndDecodeHelo2() throws IOException {
+	public void encodeAndDecodeHeloRequst2() throws IOException {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		peerCapabilities.setCompression();
 		
@@ -389,12 +390,58 @@ public class TestNetworkClasses {
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
-		final HeloRequest decodedPackage = HeloRequest.decodeTuple(bb);
+		final HeloRequest decodedPackage = HeloRequest.decodeRequest(bb);
 		
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasCompression());
 		Assert.assertTrue(helloPackage.getPeerCapabilities().hasCompression());
 	}
+	
+	/**
+	 * The the encoding and decoding of the response helo
+	 * @throws IOException 
+	 */
+	@Test
+	public void encodeAndDecodeHeloResponse1() throws IOException {
+		final PeerCapabilities peerCapabilities = new PeerCapabilities();
+		
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		final HeloResponse helloPackage = new HeloResponse(sequenceNumber, 2, peerCapabilities);
+		
+		byte[] encodedVersion = helloPackage.getByteArray();
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final HeloResponse decodedPackage = HeloResponse.decodePackage(bb);
+				
+		Assert.assertEquals(helloPackage, decodedPackage);
+		Assert.assertFalse(decodedPackage.getPeerCapabilities().hasCompression());
+		Assert.assertFalse(helloPackage.getPeerCapabilities().hasCompression());
+	}
+	
+	/**
+	 * The the encoding and decoding of the response helo
+	 * @throws IOException 
+	 */
+	@Test
+	public void encodeAndDecodeHeloResponse2() throws IOException {
+		final PeerCapabilities peerCapabilities = new PeerCapabilities();
+		peerCapabilities.setCompression();
+		
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		final HeloResponse helloPackage = new HeloResponse(sequenceNumber, 2, peerCapabilities);
+		
+		byte[] encodedVersion = helloPackage.getByteArray();
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final HeloResponse decodedPackage = HeloResponse.decodePackage(bb);
+				
+		Assert.assertEquals(helloPackage, decodedPackage);
+		Assert.assertTrue(helloPackage.getPeerCapabilities().hasCompression());
+		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasCompression());
+	}
+	
 	
 	/**
 	 * Decode an encoded package
