@@ -63,6 +63,11 @@ public class NetworkConst {
 	public static final short REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP = 0x09;
 	
 	/**
+	 * Compression
+	 */
+	public static final short REQUEST_TYPE_COMPRESSION = 0x10;
+	
+	/**
 	 * Query type key
 	 */
 	public static final byte REQUEST_QUERY_KEY = 0x01;
@@ -121,5 +126,10 @@ public class NetworkConst {
 	 * End a multiple tuple result
 	 */
 	public static final short RESPONSE_MULTIPLE_TUPLE_END = 0x08;
+	
+	/**
+	 * Compression envelope request
+	 */
+	public static final short RESPONSE_TYPE_COMPRESSION = 0x10;
 
 }

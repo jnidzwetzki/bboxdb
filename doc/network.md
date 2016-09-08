@@ -43,6 +43,7 @@ Request Types:
 * Type 0x07 - Transfer SSTable
 * Type 0x08 - Create distribution group
 * Type 0x09 - Delete distribution group
+* Type 0x10 - Compression envelope
 
 
 ## The response frame
@@ -75,7 +76,7 @@ Result-Types:
 * Type 0x06 - A result that contains a tuple
 * Type 0x07 - Start multiple tuple result
 * Type 0x08 - End multiple tuple result
-
+* Type 0x10 - Compression envelope
 	
 ### Body for response type = 0x01/0x03 (Success/Error with details)
 
@@ -126,6 +127,7 @@ By using the response types 0x06 and 0x07 a set of tuples can be transfered. For
 
 Transferring a set of tuples:
 
+    0         8       16       24       32
     +-------------------------------------+
     |  0x06 - Start multiple tuple result |
     +-------------------------------------+
@@ -139,6 +141,23 @@ Transferring a set of tuples:
     +-------------------------------------+
 	|  0x07 - End multiple tuple result   |
     +-------------------------------------+
+    
+ ### Body for response type (0x10)
+ This is a compression envelope. This package containts another response package in compressed format.
+ 
+     0         8       16       24       32
+    +-------------------------------------+
+    |               Body size             |
+    |                                     |
+    +----------+--------------------------+
+    |  CP Type |            Body          |
+    +----------+                          |
+    |                                     |
+    +-------------------------------------+
+    
+ Body size - The length of the body in bytes.
+ CP Type - Compression type (0x00 = gzip compression).
+ 
     
 ## Frame body
 The structure of the body depends on the request type. The next sections describe the used structures.
@@ -423,5 +442,21 @@ This package deletes a whole table. The result could be currently response type 
 	+------------------------------------+
 
 
-
+ ### Compression envelope
+ This is a compression envelope. This package containts another request package in compressed format. The result type depends of the content of the envelope.
+ 
+ #### Request body
+ 
+     0         8       16       24       32
+    +-------------------------------------+
+    |               Body size             |
+    |                                     |
+    +----------+--------------------------+
+    |  CP Type |            Body          |
+    +----------+                          |
+    |                                     |
+    +-------------------------------------+
+    
+ Body size - The length of the body in bytes.
+ CP Type - Compression type (0x00 = gzip compression).
 
