@@ -29,11 +29,13 @@ import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
+import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTupleRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.HeloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
@@ -41,6 +43,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.TransferSSTableRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorWithBodyResponse;
+import de.fernunihagen.dna.scalephant.network.packages.response.HeloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleEndResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleStartResponse;
@@ -94,6 +97,11 @@ public class ClientConnectionHandler implements Runnable {
 	protected final NetworkConnectionServiceState networkConnectionServiceState;
 	
 	/**
+	 * The capabilities of the connection
+	 */
+	protected PeerCapabilities connectionCapabilities = new PeerCapabilities();
+	
+	/**
 	 * Number of pending requests
 	 */
 	public final static int PENDING_REQUESTS = 25;
@@ -102,7 +110,6 @@ public class ClientConnectionHandler implements Runnable {
 	 * Readony node error message
 	 */
 	protected final static String INSTANCE_IS_READ_ONLY_MSG = "Instance is read only";
-	
 
 	/**
 	 * The Logger
@@ -115,7 +122,7 @@ public class ClientConnectionHandler implements Runnable {
 		this.clientSocket = clientSocket;
 		this.networkConnectionServiceState = networkConnectionServiceState;
 		
-		this.connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
+		this.connectionState = NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING;
 		
 		// Create a thread pool that blocks after submitting more than PENDING_REQUESTS
 		final BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<Runnable>(PENDING_REQUESTS);
@@ -179,7 +186,8 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			logger.debug("Handling new connection from: " + clientSocket.getInetAddress());
 
-			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN ||
+					connectionState == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
 				handleNextPackage();
 			}
 			
@@ -350,6 +358,28 @@ public class ClientConnectionHandler implements Runnable {
 		return true;
 	}
 	
+	/**
+	 * Run the connection handshake
+	 * @param packageSequence 
+	 * @return
+	 */
+	protected boolean runHandshake(final ByteBuffer packageHeader, final short packageSequence) {
+		try {
+			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+			
+			final HeloRequest heloRequest = HeloRequest.decodeRequest(encodedPackage);
+			connectionCapabilities = heloRequest.getPeerCapabilities();
+			
+			writeResultPackage(new HeloResponse(packageSequence, NetworkConst.PROTOCOL_VERSION, connectionCapabilities));
+
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
+			return true;
+		} catch(Exception e) {
+			logger.warn("Error while reading network package", e);
+			writeResultPackage(new ErrorResponse(packageSequence));
+			return false;
+		}
+	}
 	
 	/**
 	 * Handle the delete table call
@@ -678,9 +708,22 @@ public class ClientConnectionHandler implements Runnable {
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(packageHeader);
 		
+		if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
+			if(packageType != NetworkConst.REQUEST_TYPE_HELO) {
+				logger.error("Connection is in handshake state but got package: " + packageType);
+				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+				return;
+			}
+		}
+		
 		boolean readFurtherPackages = true;
 		
 		switch (packageType) {
+			case NetworkConst.REQUEST_TYPE_HELO:
+				logger.info("Handskaking with: " + clientSocket.getInetAddress());
+				readFurtherPackages = runHandshake(packageHeader, packageSequence);
+				break;
+		
 			case NetworkConst.REQUEST_TYPE_DISCONNECT:
 				logger.info("Got disconnect package, preparing for connection close: "  + clientSocket.getInetAddress());
 				writeResultPackage(new SuccessResponse(packageSequence));

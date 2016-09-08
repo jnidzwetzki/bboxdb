@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +19,14 @@ import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
+import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DisconnectRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.HeloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
@@ -31,6 +34,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.AbstractBodyResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorWithBodyResponse;
+import de.fernunihagen.dna.scalephant.network.packages.response.HeloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleEndResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleStartResponse;
@@ -102,6 +106,11 @@ public class ScalephantClient implements Scalephant {
 	 * @return
 	 */
 	protected volatile short maxInFlightCalls = MAX_IN_FLIGHT_CALLS;
+
+	/**
+	 * The capabilities of the connection
+	 */
+	protected PeerCapabilities connectionCapabilities = new PeerCapabilities();
 	
 	/**
 	 * The Logger
@@ -132,10 +141,10 @@ public class ScalephantClient implements Scalephant {
 			return true;
 		}
 		
-		logger.info("Connecting to server: " + serverHostname + " on port " + serverPort);
+		logger.info("Connecting to server: " + getConnectionName());
 		
 		try {
-			connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPENING;
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING;
 			clientSocket = new Socket(serverHostname, serverPort);
 			
 			inputStream = new BufferedInputStream(clientSocket.getInputStream());
@@ -146,9 +155,10 @@ public class ScalephantClient implements Scalephant {
 			// Start up the resonse reader
 			serverResponseReader = new ServerResponseReader();
 			serverResponseReaderThread = new Thread(serverResponseReader);
-			serverResponseReaderThread.setName("Server response reader for " + serverHostname + " / " + serverPort);
+			serverResponseReaderThread.setName("Server response reader for " + getConnectionName());
 			serverResponseReaderThread.start();
-			connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
+			
+			runHandshake();
 		} catch (Exception e) {
 			logger.error("Got an exception while connecting to server", e);
 			clientSocket = null;
@@ -157,6 +167,44 @@ public class ScalephantClient implements Scalephant {
 		} 
 		
 		return true;
+	}
+	
+	/**
+	 * The name of the connection
+	 * @return
+	 */
+	public String getConnectionName() {
+		return serverHostname + " / " + serverPort;
+	}
+	
+	/**
+	 * Run the handshake with the server
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 */
+	protected void runHandshake() throws InterruptedException, ExecutionException {
+		
+		final ClientOperationFuture operationFuture = new ClientOperationFuture();
+
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
+			logger.error("Handshaking called in wrong state: " + connectionState);
+		}
+		
+		final PeerCapabilities clientCapabilities = new PeerCapabilities();
+		clientCapabilities.setCompression();
+		
+		sendPackageToServer(new HeloRequest(NetworkConst.PROTOCOL_VERSION, clientCapabilities), operationFuture);
+		
+		operationFuture.waitForAll();
+		
+		final Object operationResult = operationFuture.get(0);
+		if(operationResult instanceof HeloResponse) {
+			final HeloResponse heloResponse = (HeloResponse) operationResult;
+			connectionCapabilities = heloResponse.getPeerCapabilities();
+		}
+		
+		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
+		logger.info("Handshaking with " + getConnectionName() + " done");
 	}
 	
 	/* (non-Javadoc)

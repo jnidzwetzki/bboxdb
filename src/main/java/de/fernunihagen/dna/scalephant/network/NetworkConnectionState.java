@@ -9,7 +9,7 @@ public enum NetworkConnectionState {
 	/**
 	 * The connection is establishing
 	 */
-	NETWORK_CONNECTION_OPENING,
+	NETWORK_CONNECTION_HANDSHAKING,
 	
 	/**
 	 * The connection is open
