@@ -566,6 +566,11 @@ public class ScalephantClient implements Scalephant {
 			}
 
 			switch(packageType) {
+			
+				case NetworkConst.RESPONSE_HELO:
+					handleHelo(encodedPackage, pendingCall);
+				break;
+			
 				case NetworkConst.RESPONSE_SUCCESS:
 					if(pendingCall != null) {
 						pendingCall.setOperationResult(0, true);
@@ -722,6 +727,19 @@ public class ScalephantClient implements Scalephant {
 		}
 	}
 
+	/**
+	 * Handle the helo result package
+	 * @param encodedPackage
+	 * @param pendingCall
+	 */
+	protected void handleHelo(final ByteBuffer encodedPackage, final ClientOperationFuture pendingCall) {
+		final HeloResponse heloResonse = HeloResponse.decodePackage(encodedPackage);
+		
+		if(pendingCall != null) {
+			pendingCall.setOperationResult(0, heloResonse);
+		}
+	}
+	
 	/**
 	 * Handle error with body result
 	 * @param encodedPackage
