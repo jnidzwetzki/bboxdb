@@ -709,6 +709,14 @@ public class ClientConnectionHandler implements Runnable {
 		}	
 	}
 
+	/**
+	 * Handle a buffered package
+	 * @param encodedPackage
+	 * @param packageSequence
+	 * @param packageType
+	 * @return
+	 * @throws IOException
+	 */
 	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, final short packageSequence, final short packageType) throws IOException {
 				
 		switch (packageType) {
