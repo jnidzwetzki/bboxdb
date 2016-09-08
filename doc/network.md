@@ -148,13 +148,13 @@ Handshake with the server
 
 #### Request body
 
-The body contains the protocol version and the features of the client.
+The body contains the protocol version and the capabilities of the client.
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
 	|          Protocol Version          |
 	+------------------------------------+
-	|           Client-Features          |
+	|         Client-Capabilities        |
 	+------------------------------------+
 	
 Client features:
@@ -162,13 +162,13 @@ Client features:
 Bit 0: Compression
 
 #### Response body
-The body contains the protocol version and the features of the server.
+The body contains the protocol version and the capabilities of the server.
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
 	|          Protocol Version          |
 	+------------------------------------+
-	|           Client-Features          |
+	|         Client-Capabilities        |
 	+------------------------------------+
 	
 Client features:
