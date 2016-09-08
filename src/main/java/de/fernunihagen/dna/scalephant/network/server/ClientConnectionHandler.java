@@ -224,39 +224,30 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleQuery(final ByteBuffer packageHeader, final short packageSequence) {
-		
-		try {
-			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-			
-			final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
+	protected boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) {
+	
+		final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
 
-			switch (queryType) {
-				case NetworkConst.REQUEST_QUERY_KEY:
-					handleKeyQuery(encodedPackage, packageSequence);
-					break;
-					
-				case NetworkConst.REQUEST_QUERY_BBOX:
-					handleBoundingBoxQuery(encodedPackage, packageSequence);
-					break;
-					
-				case NetworkConst.REQUEST_QUERY_TIME:
-					handleTimeQuery(encodedPackage, packageSequence);
-					break;
-		
-				default:
-					logger.warn("Unsupported query type: " + queryType);
-					writeResultPackage(new ErrorResponse(packageSequence));
-					return true;
-			}
-
-			return true;
-			
-		} catch (IOException e) {
-			logger.warn("Got an IO error during package read: ", e);
-			writeResultPackage(new ErrorResponse(packageSequence));
-			return false;
+		switch (queryType) {
+			case NetworkConst.REQUEST_QUERY_KEY:
+				handleKeyQuery(encodedPackage, packageSequence);
+				break;
+				
+			case NetworkConst.REQUEST_QUERY_BBOX:
+				handleBoundingBoxQuery(encodedPackage, packageSequence);
+				break;
+				
+			case NetworkConst.REQUEST_QUERY_TIME:
+				handleTimeQuery(encodedPackage, packageSequence);
+				break;
+	
+			default:
+				logger.warn("Unsupported query type: " + queryType);
+				writeResultPackage(new ErrorResponse(packageSequence));
+				return true;
 		}
+
+		return true;
 	}
 	
 	/**
@@ -288,11 +279,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleCreateDistributionGroup(final ByteBuffer packageHeader, final short packageSequence) {
+	protected boolean handleCreateDistributionGroup(final ByteBuffer encodedPackage, final short packageSequence) {
 		
 		try {
-			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-			
 			if(networkConnectionServiceState.isReadonly()) {
 				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
@@ -328,11 +317,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleDeleteDistributionGroup(final ByteBuffer packageHeader, final short packageSequence) {
+	protected boolean handleDeleteDistributionGroup(final ByteBuffer encodedPackage, final short packageSequence) {
 		
-		try {
-			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-			
+		try {			
 			if(networkConnectionServiceState.isReadonly()) {
 				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
@@ -363,13 +350,11 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence 
 	 * @return
 	 */
-	protected boolean runHandshake(final ByteBuffer packageHeader, final short packageSequence) {
-		try {
-			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-			
+	protected boolean runHandshake(final ByteBuffer encodedPackage, final short packageSequence) {
+		try {	
 			final HeloRequest heloRequest = HeloRequest.decodeRequest(encodedPackage);
 			connectionCapabilities = heloRequest.getPeerCapabilities();
-			
+
 			writeResultPackage(new HeloResponse(packageSequence, NetworkConst.PROTOCOL_VERSION, connectionCapabilities));
 
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
@@ -386,11 +371,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence 
 	 * @return
 	 */
-	protected boolean handleDeleteTable(final ByteBuffer packageHeader, final short packageSequence) {
+	protected boolean handleDeleteTable(final ByteBuffer encodedPackage, final short packageSequence) {
 		
 		try {
-			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-			
 			if(networkConnectionServiceState.isReadonly()) {
 				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
@@ -412,9 +395,6 @@ public class ClientConnectionHandler implements Runnable {
 		} catch (StorageManagerException e) {
 			logger.warn("Error while delete tuple", e);
 			writeResultPackage(new ErrorResponse(packageSequence));	
-		} catch (IOException e) {
-			logger.warn("Error while reading network package", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
 		}
 		
 		return true;
@@ -425,8 +405,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param encodedPackage
 	 * @param packageSequence
 	 */
-	protected void handleKeyQuery(final ByteBuffer encodedPackage,
-			final short packageSequence) {
+	protected void handleKeyQuery(final ByteBuffer encodedPackage, final short packageSequence) {
 
 		final Runnable queryRunable = new Runnable() {
 
@@ -578,12 +557,10 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleInsertTuple(final ByteBuffer packageHeader, final short packageSequence) {
+	protected boolean handleInsertTuple(final ByteBuffer encodedPackage, final short packageSequence) {
 		
 		
 		try {
-			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-			
 			if(networkConnectionServiceState.isReadonly()) {
 				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
@@ -620,16 +597,10 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleListTables(final ByteBuffer packageHeader, final short packageSequence) {
-		try {
-			readFullPackage(packageHeader);
-			final List<SSTableName> allTables = StorageInterface.getAllTables();
-			final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
-			writeResultPackage(listTablesResponse);
-		} catch (IOException e) {
-			logger.warn("Error while reading network package", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
-		}
+	protected boolean handleListTables(final ByteBuffer encodedPackage, final short packageSequence) {
+		final List<SSTableName> allTables = StorageInterface.getAllTables();
+		final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
+		writeResultPackage(listTablesResponse);
 		
 		return true;
 	}
@@ -640,11 +611,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageSequence
 	 * @return
 	 */
-	protected boolean handleDeleteTuple(final ByteBuffer packageHeader, final short packageSequence) {
+	protected boolean handleDeleteTuple(final ByteBuffer encodedPackage, final short packageSequence) {
 
 		try {
-			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-	
 			if(networkConnectionServiceState.isReadonly()) {
 				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
@@ -666,13 +635,20 @@ public class ClientConnectionHandler implements Runnable {
 		} catch (StorageManagerException e) {
 			logger.warn("Error while delete tuple", e);
 			writeResultPackage(new ErrorResponse(packageSequence));	
-		} catch (IOException e) {
-			logger.warn("Error while reading network package", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
-		}
+		} 
 
 		return true;
 	}	
+	
+	/**
+	 * Handle the disconnect request
+	 * @param encodedPackage
+	 * @return
+	 */
+	protected boolean handleDisconnect(final ByteBuffer encodedPackage, final short packageSequence) {
+		writeResultPackage(new SuccessResponse(packageSequence));
+		return false;
+	}
 
 	/**
 	 * Read the full package. The total length of the package is read from the package header.
@@ -718,78 +694,13 @@ public class ClientConnectionHandler implements Runnable {
 		
 		boolean readFurtherPackages = true;
 		
-		switch (packageType) {
-			case NetworkConst.REQUEST_TYPE_HELO:
-				logger.info("Handskaking with: " + clientSocket.getInetAddress());
-				readFurtherPackages = runHandshake(packageHeader, packageSequence);
-				break;
-		
-			case NetworkConst.REQUEST_TYPE_DISCONNECT:
-				logger.info("Got disconnect package, preparing for connection close: "  + clientSocket.getInetAddress());
-				writeResultPackage(new SuccessResponse(packageSequence));
-				readFurtherPackages = false;
-				break;
-				
-			case NetworkConst.REQUEST_TYPE_DELETE_TABLE:
-				if(logger.isDebugEnabled()) {
-					logger.debug("Got delete table package");
-				}
-				readFurtherPackages = handleDeleteTable(packageHeader, packageSequence);
-				break;
-				
-			case NetworkConst.REQUEST_TYPE_DELETE_TUPLE:
-				if(logger.isDebugEnabled()) {
-					logger.debug("Got delete tuple package");
-				}
-				readFurtherPackages = handleDeleteTuple(packageHeader, packageSequence);
-				break;
-				
-			case NetworkConst.REQUEST_TYPE_LIST_TABLES:
-				if(logger.isDebugEnabled()) {
-					logger.debug("Got list tables request");
-				}
-				readFurtherPackages = handleListTables(packageHeader, packageSequence);
-				break;
-				
-			case NetworkConst.REQUEST_TYPE_INSERT_TUPLE:
-				if(logger.isDebugEnabled()) {
-					logger.debug("Got insert tuple request");
-				}
-				readFurtherPackages = handleInsertTuple(packageHeader, packageSequence);
-				break;
-				
-			case NetworkConst.REQUEST_TYPE_QUERY:
-				if(logger.isDebugEnabled()) {
-					logger.debug("Got query package");
-				}
-				readFurtherPackages = handleQuery(packageHeader, packageSequence);
-				break;
-
-			case NetworkConst.REQUEST_TYPE_TRANSFER:
-				if(logger.isDebugEnabled()) {
-					logger.debug("Got transfer package");
-				}
-				readFurtherPackages = handleTransfer(packageHeader, packageSequence);
-				break;
-				
-			case NetworkConst.REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP:
-				if(logger.isDebugEnabled()) {
-					logger.debug("Got create distribution group package");
-				}
-				readFurtherPackages = handleCreateDistributionGroup(packageHeader, packageSequence);
-				break;
-		
-			case NetworkConst.REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP:
-				if(logger.isDebugEnabled()) {
-					logger.debug("Got delete distribution group package");
-				}
-				readFurtherPackages = handleDeleteDistributionGroup(packageHeader, packageSequence);
-				break;
-				
-			default:
-				logger.warn("Got unknown package type, closing connection: " + packageType);
-				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
-				break;
+		if(packageType == NetworkConst.REQUEST_TYPE_TRANSFER) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("Got transfer package");
+			}
+			readFurtherPackages = handleTransfer(packageHeader, packageSequence);
+		} else {	
+			readFurtherPackages = handleBufferedPackage(packageHeader, packageSequence, packageType);
 		}
 		
 		if(readFurtherPackages == false) {
@@ -797,5 +708,65 @@ public class ClientConnectionHandler implements Runnable {
 		}	
 	}
 
-
+	protected boolean handleBufferedPackage(final ByteBuffer packageHeader, final short packageSequence, final short packageType) throws IOException {
+		
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+		
+		switch (packageType) {
+			case NetworkConst.REQUEST_TYPE_HELO:
+				logger.info("Handskaking with: " + clientSocket.getInetAddress());
+				return runHandshake(encodedPackage, packageSequence);
+		
+			case NetworkConst.REQUEST_TYPE_DISCONNECT:
+				logger.info("Got disconnect package, preparing for connection close: "  + clientSocket.getInetAddress());
+				return handleDisconnect(encodedPackage, packageSequence);
+				
+			case NetworkConst.REQUEST_TYPE_DELETE_TABLE:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got delete table package");
+				}
+				return handleDeleteTable(encodedPackage, packageSequence);
+				
+			case NetworkConst.REQUEST_TYPE_DELETE_TUPLE:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got delete tuple package");
+				}
+				return handleDeleteTuple(encodedPackage, packageSequence);
+				
+			case NetworkConst.REQUEST_TYPE_LIST_TABLES:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got list tables request");
+				}
+				return handleListTables(encodedPackage, packageSequence);
+				
+			case NetworkConst.REQUEST_TYPE_INSERT_TUPLE:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got insert tuple request");
+				}
+				return handleInsertTuple(encodedPackage, packageSequence);
+				
+			case NetworkConst.REQUEST_TYPE_QUERY:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got query package");
+				}
+				return handleQuery(encodedPackage, packageSequence);
+				
+			case NetworkConst.REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got create distribution group package");
+				}
+				return handleCreateDistributionGroup(encodedPackage, packageSequence);
+		
+			case NetworkConst.REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got delete distribution group package");
+				}
+				return handleDeleteDistributionGroup(encodedPackage, packageSequence);
+				
+			default:
+				logger.warn("Got unknown package type, closing connection: " + packageType);
+				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+				return false;
+		}
+	}
 }
