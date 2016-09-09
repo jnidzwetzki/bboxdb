@@ -29,12 +29,7 @@ public class CompressionEnvelopeRequest implements NetworkRequestPackage {
 	 * The compression type
 	 */
 	protected byte compressionType;
-	
-	/**
-	 * The gzip compression type
-	 */
-	public final static byte COMPRESSION_TYPE_GZIP = 0x00;
-	
+
 	/**
 	 * The Logger
 	 */
@@ -47,7 +42,7 @@ public class CompressionEnvelopeRequest implements NetworkRequestPackage {
 
 	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
 		try {
-			if(compressionType != COMPRESSION_TYPE_GZIP) {
+			if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
 				logger.error("Unknown compression method: " + compressionType);
 				return;
 			}
@@ -98,7 +93,7 @@ public class CompressionEnvelopeRequest implements NetworkRequestPackage {
 		final int compressedDataLength = encodedPackage.getInt();
 		final byte compressionType = encodedPackage.get();
 		
-		if(compressionType != COMPRESSION_TYPE_GZIP) {
+		if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
 			logger.error("Unknown compression type: " + compressionType);
 			return null;
 		}

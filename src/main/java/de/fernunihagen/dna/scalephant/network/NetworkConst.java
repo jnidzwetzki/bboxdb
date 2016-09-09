@@ -132,4 +132,10 @@ public class NetworkConst {
 	 */
 	public static final short RESPONSE_TYPE_COMPRESSION = 0x10;
 
+	
+	/**
+	 * The gzip compression type
+	 */
+	public final static byte COMPRESSION_TYPE_GZIP = 0x00;
+	
 }
