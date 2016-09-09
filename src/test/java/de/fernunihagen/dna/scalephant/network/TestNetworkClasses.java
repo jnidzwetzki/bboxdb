@@ -631,7 +631,7 @@ public class TestNetworkClasses {
 		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
-		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(insertPackage, CompressionEnvelopeRequest.COMPRESSION_TYPE_GZIP);
+		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(insertPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
 		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		compressionPackage.writeToOutputStream(sequenceNumber, bos);
@@ -667,7 +667,7 @@ public class TestNetworkClasses {
 		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
-		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(insertPackage, CompressionEnvelopeRequest.COMPRESSION_TYPE_GZIP);
+		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(insertPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
 		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		compressionPackage.writeToOutputStream(sequenceNumber, bos);
