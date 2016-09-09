@@ -148,7 +148,6 @@ Transferring a set of tuples:
      0         8       16       24       32
     +-------------------------------------+
     |               Body size             |
-    |                                     |
     +----------+--------------------------+
     |  CP Type |            Body          |
     +----------+                          |
@@ -450,7 +449,6 @@ This package deletes a whole table. The result could be currently response type 
      0         8       16       24       32
     +-------------------------------------+
     |               Body size             |
-    |                                     |
     +----------+--------------------------+
     |  CP Type |            Body          |
     +----------+                          |
