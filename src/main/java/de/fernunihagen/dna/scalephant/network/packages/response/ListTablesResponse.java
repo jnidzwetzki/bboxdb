@@ -36,7 +36,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.RESPONSE_LIST_TABLES;
+		return NetworkConst.RESPONSE_TYPE_LIST_TABLES;
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	public static ListTablesResponse decodePackage(final ByteBuffer encodedPackage) {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_LIST_TABLES);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_LIST_TABLES);
 
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");

@@ -26,7 +26,7 @@ public class SuccessResponse extends NetworkResponsePackage {
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.RESPONSE_SUCCESS;
+		return NetworkConst.RESPONSE_TYPE_SUCCESS;
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class SuccessResponse extends NetworkResponsePackage {
 	 * @return
 	 */
 	public static SuccessResponse decodePackage(final ByteBuffer encodedPackage) {
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_SUCCESS);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_SUCCESS);
 		
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");

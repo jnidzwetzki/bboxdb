@@ -26,7 +26,7 @@ public class MultipleTupleEndResponse extends NetworkResponsePackage {
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.RESPONSE_MULTIPLE_TUPLE_END;
+		return NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END;
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class MultipleTupleEndResponse extends NetworkResponsePackage {
 	 */
 	public static MultipleTupleEndResponse decodePackage(final ByteBuffer encodedPackage) {
 		
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_MULTIPLE_TUPLE_END);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END);
 		
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");

@@ -26,7 +26,7 @@ public class ErrorResponse extends NetworkResponsePackage {
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.RESPONSE_ERROR;
+		return NetworkConst.RESPONSE_TYPE_ERROR;
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class ErrorResponse extends NetworkResponsePackage {
 	 */
 	public static ErrorResponse decodePackage(final ByteBuffer encodedPackage) {
 		
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_ERROR);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_ERROR);
 		
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");

@@ -13,7 +13,7 @@ public class ErrorWithBodyResponse extends AbstractBodyResponse {
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.RESPONSE_ERROR_WITH_BODY;
+		return NetworkConst.RESPONSE_TYPE_ERROR_WITH_BODY;
 	}
 
 	/**

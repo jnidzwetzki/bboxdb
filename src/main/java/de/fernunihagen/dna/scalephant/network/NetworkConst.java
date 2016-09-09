@@ -85,47 +85,47 @@ public class NetworkConst {
 	/**
 	 * Response type helo
 	 */
-	public static final short RESPONSE_HELO = 0x00;
+	public static final short RESPONSE_TYPE_HELO = 0x00;
 	
 	/**
 	 * Response type success
 	 */
-	public static final short RESPONSE_SUCCESS = 0x01;
+	public static final short RESPONSE_TYPE_SUCCESS = 0x01;
 	
 	/**
 	 * Response type with body
 	 */
-	public static final short RESPONSE_SUCCESS_WITH_BODY = 0x02;
+	public static final short RESPONSE_TYPE_SUCCESS_WITH_BODY = 0x02;
 	
 	/**
 	 * Response type error
 	 */
-	public static final short RESPONSE_ERROR = 0x03;
+	public static final short RESPONSE_TYPE_ERROR = 0x03;
 	
 	/**
 	 * Response type error with body
 	 */
-	public static final short RESPONSE_ERROR_WITH_BODY = 0x04;
+	public static final short RESPONSE_TYPE_ERROR_WITH_BODY = 0x04;
 	
 	/**
 	 * Response of the list tables request
 	 */
-	public static final short RESPONSE_LIST_TABLES = 0x05;
+	public static final short RESPONSE_TYPE_LIST_TABLES = 0x05;
 	
 	/**
 	 * Response that contains a single tuple
 	 */
-	public static final short RESPONSE_TUPLE = 0x06;
+	public static final short RESPONSE_TYPE_TUPLE = 0x06;
 	
 	/**
 	 * Start a multiple tuple result
 	 */
-	public static final short RESPONSE_MULTIPLE_TUPLE_START = 0x07;
+	public static final short RESPONSE_TYPE_MULTIPLE_TUPLE_START = 0x07;
 	
 	/**
 	 * End a multiple tuple result
 	 */
-	public static final short RESPONSE_MULTIPLE_TUPLE_END = 0x08;
+	public static final short RESPONSE_TYPE_MULTIPLE_TUPLE_END = 0x08;
 	
 	/**
 	 * Compression envelope request

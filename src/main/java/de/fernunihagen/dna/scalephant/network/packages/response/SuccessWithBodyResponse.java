@@ -13,7 +13,7 @@ public class SuccessWithBodyResponse extends AbstractBodyResponse {
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.RESPONSE_SUCCESS_WITH_BODY;
+		return NetworkConst.RESPONSE_TYPE_SUCCESS_WITH_BODY;
 	}
 
 	/**

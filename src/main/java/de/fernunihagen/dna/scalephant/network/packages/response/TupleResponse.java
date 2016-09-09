@@ -41,7 +41,7 @@ public class TupleResponse extends NetworkResponsePackage {
 	
 	@Override
 	public byte getPackageType() {
-			return NetworkConst.RESPONSE_TUPLE;
+			return NetworkConst.RESPONSE_TYPE_TUPLE;
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class TupleResponse extends NetworkResponsePackage {
 	public static TupleResponse decodePackage(final ByteBuffer encodedPackage) {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TUPLE);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_TUPLE);
 
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");

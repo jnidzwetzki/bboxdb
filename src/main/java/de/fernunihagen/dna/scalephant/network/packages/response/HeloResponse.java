@@ -74,7 +74,7 @@ public class HeloResponse extends NetworkResponsePackage {
 	public static HeloResponse decodePackage(final ByteBuffer encodedPackage) {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_HELO);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_HELO);
 
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");
@@ -104,7 +104,7 @@ public class HeloResponse extends NetworkResponsePackage {
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.RESPONSE_HELO;
+		return NetworkConst.RESPONSE_TYPE_HELO;
 	}
 
 	@Override

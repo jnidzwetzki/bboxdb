@@ -515,7 +515,7 @@ public class TestNetworkClasses {
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		Assert.assertEquals(NetworkConst.RESPONSE_SUCCESS, NetworkPackageDecoder.getPackageTypeFromResponse(bb));
+		Assert.assertEquals(NetworkConst.RESPONSE_TYPE_SUCCESS, NetworkPackageDecoder.getPackageTypeFromResponse(bb));
 	}
 	
 	/**
@@ -527,7 +527,7 @@ public class TestNetworkClasses {
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		Assert.assertEquals(NetworkConst.RESPONSE_SUCCESS_WITH_BODY, NetworkPackageDecoder.getPackageTypeFromResponse(bb));
+		Assert.assertEquals(NetworkConst.RESPONSE_TYPE_SUCCESS_WITH_BODY, NetworkPackageDecoder.getPackageTypeFromResponse(bb));
 	}
 	
 	/**

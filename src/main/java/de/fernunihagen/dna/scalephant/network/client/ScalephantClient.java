@@ -567,46 +567,46 @@ public class ScalephantClient implements Scalephant {
 
 			switch(packageType) {
 			
-				case NetworkConst.RESPONSE_HELO:
+				case NetworkConst.RESPONSE_TYPE_HELO:
 					handleHelo(encodedPackage, pendingCall);
 				break;
 			
-				case NetworkConst.RESPONSE_SUCCESS:
+				case NetworkConst.RESPONSE_TYPE_SUCCESS:
 					if(pendingCall != null) {
 						pendingCall.setOperationResult(0, true);
 					}
 					break;
 					
-				case NetworkConst.RESPONSE_ERROR:
+				case NetworkConst.RESPONSE_TYPE_ERROR:
 					if(pendingCall != null) {
 						pendingCall.setOperationResult(0, false);
 					}
 					break;
 					
-				case NetworkConst.RESPONSE_SUCCESS_WITH_BODY:
+				case NetworkConst.RESPONSE_TYPE_SUCCESS_WITH_BODY:
 					handleSuccessWithBody(encodedPackage, pendingCall);
 					break;
 					
-				case NetworkConst.RESPONSE_ERROR_WITH_BODY:
+				case NetworkConst.RESPONSE_TYPE_ERROR_WITH_BODY:
 					handleErrorWithBody(encodedPackage, pendingCall);
 					break;
 					
-				case NetworkConst.RESPONSE_LIST_TABLES:
+				case NetworkConst.RESPONSE_TYPE_LIST_TABLES:
 					handleListTables(encodedPackage, pendingCall);
 					break;
 					
-				case NetworkConst.RESPONSE_TUPLE:
+				case NetworkConst.RESPONSE_TYPE_TUPLE:
 					// The removal of the future depends, if this is a one
 					// tuple result or a multiple tuple result
 					removeFuture = handleTuple(encodedPackage, pendingCall);
 					break;
 					
-				case NetworkConst.RESPONSE_MULTIPLE_TUPLE_START:
+				case NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_START:
 					handleMultiTupleStart(encodedPackage);
 					removeFuture = false;
 					break;
 					
-				case NetworkConst.RESPONSE_MULTIPLE_TUPLE_END:
+				case NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END:
 					handleMultiTupleEnd(encodedPackage, pendingCall);
 					break;
 					

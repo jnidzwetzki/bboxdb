@@ -70,7 +70,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 	 * @return
 	 */
 	protected static String decodeMessage(final ByteBuffer bb) {
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_ERROR_WITH_BODY);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_TYPE_ERROR_WITH_BODY);
 
 		if(decodeResult == false) {
 			logger.warn("Unable to decode package");
