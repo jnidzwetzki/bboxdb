@@ -18,6 +18,7 @@ import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.SequenceNumberGenerator;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTableRequest;
@@ -618,4 +619,75 @@ public class TestNetworkClasses {
 		Assert.assertTrue(future.get(0) == null);
 	}
 	
+	/**
+	 * Test the decoding and the encoding of an compressed request package
+	 * @throws IOException
+	 */
+	@Test
+	public void testCompression1() throws IOException {
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
+		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(routingHeader, new SSTableName("test"), tuple);
+		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(insertPackage, CompressionEnvelopeRequest.COMPRESSION_TYPE_GZIP);
+		
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		compressionPackage.writeToOutputStream(sequenceNumber, bos);
+		bos.close();
+		final byte[] encodedVersion = bos.toByteArray();
+		
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		Assert.assertNotNull(bb);
+
+		final byte[] uncompressedBytes = CompressionEnvelopeRequest.decodePackage(bb);
+		final ByteBuffer uncompressedByteBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedBytes);
+		
+		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(uncompressedByteBuffer);
+				
+		Assert.assertEquals(insertPackage.getTuple(), decodedPackage.getTuple());
+		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(routingHeader, decodedPackage.getRoutingHeader());
+		Assert.assertFalse(insertPackage.getRoutingHeader().equals(new RoutingHeader(false)));
+		Assert.assertEquals(insertPackage, decodedPackage);
+	}
+	
+	/**
+	 * Test the decoding and the encoding of an compressed request package
+	 * @throws IOException
+	 */
+	@Test
+	public void testCompression2() throws IOException {
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
+		final Tuple tuple = new Tuple("abcdefghijklmopqrstuvxyz", BoundingBox.EMPTY_BOX, "abcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyz".getBytes(), 12);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(routingHeader, new SSTableName("test"), tuple);
+		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(insertPackage, CompressionEnvelopeRequest.COMPRESSION_TYPE_GZIP);
+		
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		compressionPackage.writeToOutputStream(sequenceNumber, bos);
+		bos.close();
+		final byte[] encodedVersion = bos.toByteArray();
+		
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		Assert.assertNotNull(bb);
+
+		final byte[] uncompressedBytes = CompressionEnvelopeRequest.decodePackage(bb);
+		final ByteBuffer uncompressedByteBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedBytes);
+		
+		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(uncompressedByteBuffer);
+				
+		Assert.assertEquals(insertPackage.getTuple(), decodedPackage.getTuple());
+		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(routingHeader, decodedPackage.getRoutingHeader());
+		Assert.assertFalse(insertPackage.getRoutingHeader().equals(new RoutingHeader(false)));
+		Assert.assertEquals(insertPackage, decodedPackage);
+	}
 }
