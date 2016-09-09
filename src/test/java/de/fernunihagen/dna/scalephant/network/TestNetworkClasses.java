@@ -29,6 +29,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
+import de.fernunihagen.dna.scalephant.network.packages.response.CompressionEnvelopeResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.HeloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;
@@ -380,7 +381,7 @@ public class TestNetworkClasses {
 	 * @throws IOException 
 	 */
 	@Test
-	public void encodeAndDecodeHeloRequst2() throws IOException {
+	public void encodeAndDecodeHeloRequest2() throws IOException {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		peerCapabilities.setGZipCompression();
 		
@@ -624,7 +625,7 @@ public class TestNetworkClasses {
 	 * @throws IOException
 	 */
 	@Test
-	public void testCompression1() throws IOException {
+	public void testCompression1Request() throws IOException {
 		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(routingHeader, new SSTableName("test"), tuple);
@@ -660,7 +661,7 @@ public class TestNetworkClasses {
 	 * @throws IOException
 	 */
 	@Test
-	public void testCompression2() throws IOException {
+	public void testCompression2Request() throws IOException {
 		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
 		final Tuple tuple = new Tuple("abcdefghijklmopqrstuvxyz", BoundingBox.EMPTY_BOX, "abcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyz".getBytes(), 12);
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(routingHeader, new SSTableName("test"), tuple);
@@ -690,4 +691,57 @@ public class TestNetworkClasses {
 		Assert.assertFalse(insertPackage.getRoutingHeader().equals(new RoutingHeader(false)));
 		Assert.assertEquals(insertPackage, decodedPackage);
 	}
+	
+	/**
+	 * Test the compression response
+	 * @throws IOException 
+	 */
+	@Test
+	public void testCompressionReponse1() throws IOException {
+		final String tablename = "table1";
+		final Tuple tuple = new Tuple("abc", BoundingBox.EMPTY_BOX, "databytes".getBytes());
+		
+		final TupleResponse singleTupleResponse = new TupleResponse((short) 4, tablename, tuple);
+		final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(singleTupleResponse, NetworkConst.COMPRESSION_TYPE_GZIP);
+		final byte[] encodedPackage = compressionEnvelopeResponse.getByteArray();
+		Assert.assertNotNull(encodedPackage);
+		
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		final byte[] uncompressedPackage = CompressionEnvelopeResponse.decodePackage(bb);
+		
+		final ByteBuffer uncompressedPackageBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage);
+
+		final TupleResponse responseDecoded = TupleResponse.decodePackage(uncompressedPackageBuffer);
+		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
+		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());
+	}
+	
+	/**
+	 * Test the compression response
+	 * @throws IOException 
+	 */
+	@Test
+	public void testCompressionReponse2() throws IOException {
+		final PeerCapabilities peerCapabilities = new PeerCapabilities();
+		peerCapabilities.setGZipCompression();
+		
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		final HeloResponse helloPackage = new HeloResponse(sequenceNumber, 2, peerCapabilities);
+		
+		final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(helloPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
+		final byte[] encodedPackage = compressionEnvelopeResponse.getByteArray();
+		Assert.assertNotNull(encodedPackage);
+		
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		final byte[] uncompressedPackage = CompressionEnvelopeResponse.decodePackage(bb);
+		
+		final ByteBuffer uncompressedPackageBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage);
+
+		final HeloResponse decodedPackage = HeloResponse.decodePackage(uncompressedPackageBuffer);
+				
+		Assert.assertEquals(helloPackage, decodedPackage);
+		Assert.assertTrue(helloPackage.getPeerCapabilities().hasGZipCompression());
+		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasGZipCompression());
+	}
 }
+	
