@@ -113,10 +113,15 @@ public class ScalephantClient implements Scalephant {
 	protected PeerCapabilities connectionCapabilities = new PeerCapabilities();
 	
 	/**
+	 * The capabilities of the client
+	 */
+	protected PeerCapabilities clientCapabilities = new PeerCapabilities();
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ScalephantClient.class);
-	
+
 
 	public ScalephantClient(final String serverHostname, final int serverPort) {
 		super();
@@ -124,6 +129,9 @@ public class ScalephantClient implements Scalephant {
 		this.serverPort = serverPort;
 		this.sequenceNumberGenerator = new SequenceNumberGenerator();
 		this.connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
+		
+		// Default: Enable gzip compression
+		clientCapabilities.setGZipCompression();
 	}
 	
 	public ScalephantClient(final InetSocketAddress address) {
@@ -189,9 +197,6 @@ public class ScalephantClient implements Scalephant {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
 			logger.error("Handshaking called in wrong state: " + connectionState);
 		}
-		
-		final PeerCapabilities clientCapabilities = new PeerCapabilities();
-		clientCapabilities.setGZipCompression();
 		
 		sendPackageToServer(new HeloRequest(NetworkConst.PROTOCOL_VERSION, clientCapabilities), operationFuture);
 		
@@ -806,5 +811,19 @@ public class ScalephantClient implements Scalephant {
 		return "ScalephantClient [serverHostname=" + serverHostname + ", serverPort=" + serverPort + ", pendingCalls="
 				+ pendingCalls.size() + ", connectionState=" + connectionState + "]";
 	}
-	
+
+	/**
+	 * Get the capabilities (e.g. gzip compression) of the client
+	 */
+	public PeerCapabilities getConnectionCapabilities() {
+		return connectionCapabilities;
+	}
+
+	/**
+	 * Set the capabilities
+	 * @param connectionCapabilities
+	 */
+	public void setConnectionCapabilities(final PeerCapabilities connectionCapabilities) {
+		this.connectionCapabilities = connectionCapabilities;
+	}
 }
