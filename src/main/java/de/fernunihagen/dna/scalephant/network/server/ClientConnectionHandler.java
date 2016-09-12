@@ -31,6 +31,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTableRequest;
@@ -364,6 +365,29 @@ public class ClientConnectionHandler implements Runnable {
 			writeResultPackage(new ErrorResponse(packageSequence));
 			return false;
 		}
+	}
+	
+	/**
+	 * Handle compressed packages. Uncompress envelope and handle package
+	 * @param encodedPackage
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleCompression(final ByteBuffer encodedPackage, final short packageSequence) {
+		try {
+			final byte[] uncompressedPackage = CompressionEnvelopeRequest.decodePackage(encodedPackage);
+			final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(encodedPackage);
+			
+			final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage);
+
+			handleBufferedPackage(bb, packageSequence, packageType);
+		} catch (IOException e) {
+			logger.error("Got an exception while decoding compressed package", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -723,6 +747,9 @@ public class ClientConnectionHandler implements Runnable {
 			case NetworkConst.REQUEST_TYPE_HELO:
 				logger.info("Handskaking with: " + clientSocket.getInetAddress());
 				return runHandshake(encodedPackage, packageSequence);
+				
+			case NetworkConst.REQUEST_TYPE_COMPRESSION:
+				return handleCompression(encodedPackage, packageSequence);
 		
 			case NetworkConst.REQUEST_TYPE_DISCONNECT:
 				logger.info("Got disconnect package, preparing for connection close: "  + clientSocket.getInetAddress());
@@ -776,4 +803,6 @@ public class ClientConnectionHandler implements Runnable {
 				return false;
 		}
 	}
+
+
 }
