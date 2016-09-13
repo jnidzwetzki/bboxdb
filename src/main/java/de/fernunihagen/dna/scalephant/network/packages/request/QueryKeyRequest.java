@@ -4,14 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkQueryRequestPackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 
@@ -26,19 +24,14 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 	 * The name of the key
 	 */
 	protected final String key;
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(QueryKeyRequest.class);
-	
+
 	public QueryKeyRequest(final String table, final String key) {
 		this.table = new SSTableName(table);
 		this.key = key;
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
+	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -64,7 +57,7 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 			outputStream.write(tableBytes);
 			outputStream.write(keyBytes);
 		} catch (IOException e) {
-			logger.error("Got exception while converting package into bytes", e);
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}	
 	}
 	
@@ -73,20 +66,19 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	public static QueryKeyRequest decodeTuple(final ByteBuffer encodedPackage) {
+	public static QueryKeyRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
 		
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 	    final byte queryType = encodedPackage.get();
 	    
 	    if(queryType != NetworkConst.REQUEST_QUERY_KEY) {
-	    	logger.error("Wrong query type: " + queryType);
-	    	return null;
+	    	throw new PackageEncodeError("Wrong query type: " + queryType);
 	    }
 		
 		final short tableLength = encodedPackage.getShort();
@@ -101,7 +93,7 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 		final String key = new String(keyBytes);
 		
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new QueryKeyRequest(table, key);

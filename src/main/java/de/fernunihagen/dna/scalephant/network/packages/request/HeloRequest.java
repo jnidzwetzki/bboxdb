@@ -3,14 +3,12 @@ package de.fernunihagen.dna.scalephant.network.packages.request;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
 
@@ -31,14 +29,8 @@ public class HeloRequest implements NetworkRequestPackage {
 		this.peerCapabilities = peerCapabilities;
 	}
 	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(HeloRequest.class);
-
-	
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
+	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final ByteBuffer bb = DataEncoderHelper.intToByteBuffer(protocolVersion);
@@ -55,7 +47,7 @@ public class HeloRequest implements NetworkRequestPackage {
 			outputStream.write(bb.array());
 			outputStream.write(peerCapabilitiesBytes);
 		} catch (Exception e) {
-			logger.error("Got exception while converting package into bytes", e);
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}	
 	}
 	
@@ -64,13 +56,13 @@ public class HeloRequest implements NetworkRequestPackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	public static HeloRequest decodeRequest(final ByteBuffer encodedPackage) {
+	public static HeloRequest decodeRequest(final ByteBuffer encodedPackage) throws PackageEncodeError {
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_HELO);
 		
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 		final int protocolVersion = encodedPackage.getInt();
@@ -78,7 +70,7 @@ public class HeloRequest implements NetworkRequestPackage {
 		encodedPackage.get(capabilityBytes, 0, capabilityBytes.length);
 
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		final PeerCapabilities peerCapabilities = new PeerCapabilities(capabilityBytes);

@@ -3,25 +3,17 @@ package de.fernunihagen.dna.scalephant.network.packages.request;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 
 public class ListTablesRequest implements NetworkRequestPackage {
 	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(ListTablesRequest.class);
-
-	
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
+	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			// Write body length
@@ -32,7 +24,7 @@ public class ListTablesRequest implements NetworkRequestPackage {
 			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
 					getPackageType(), outputStream);
 		} catch (Exception e) {
-			logger.error("Got exception while converting package into bytes", e);
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}	
 	}
 	
@@ -41,17 +33,17 @@ public class ListTablesRequest implements NetworkRequestPackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	public static ListTablesRequest decodeTuple(final ByteBuffer encodedPackage) {
+	public static ListTablesRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_LIST_TABLES);
 		
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new ListTablesRequest();

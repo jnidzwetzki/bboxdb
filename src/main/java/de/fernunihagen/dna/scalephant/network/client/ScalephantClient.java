@@ -513,7 +513,7 @@ public class ScalephantClient implements Scalephant {
 			requestPackage.writeToOutputStream(sequenceNumber, outputStream);
 			outputStream.flush();
 			
-		} catch (IOException e) {
+		} catch (IOException | PackageEncodeError e) {
 			logger.warn("Got an exception while sending package to server", e);
 			future.setFailedState();
 		}

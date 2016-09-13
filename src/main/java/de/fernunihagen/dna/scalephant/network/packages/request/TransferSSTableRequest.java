@@ -20,6 +20,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
@@ -51,7 +52,8 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(TransferSSTableRequest.class);
-	
+
+
 	public TransferSSTableRequest(final String table, final File metadata, final File sstable, final File keyIndex) {
 		super();
 		this.table = new SSTableName(table);
@@ -62,9 +64,10 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 
 	/**
 	 * Get the a encoded version of this class
+	 * @throws PackageEncodeError 
 	 */
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
+	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -97,7 +100,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 			writeFileToOutput(outputStream, sstable);
 			writeFileToOutput(outputStream, keyIndex);
 		} catch (IOException e) {
-			logger.error("Got exception while converting package into bytes", e);
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}		
 	}
 
@@ -134,9 +137,10 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 	 * @param inputStream 
 	 * @return
 	 * @throws IOException 
+	 * @throws PackageEncodeError 
 	 */
 	public static boolean decodeTuple(final ByteBuffer packageHeader, final long bodyLength, 
-			final ScalephantConfiguration configuration, final InputStream inputStream) throws IOException {
+			final ScalephantConfiguration configuration, final InputStream inputStream) throws IOException, PackageEncodeError {
 		
 		// Read the package until the data streams (4 byte table name, 3x8 byte data length = 28 bytes)
 		final int partialBodyLength = packageHeader.limit() + 28;
@@ -147,8 +151,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(partialPackage, NetworkConst.REQUEST_TYPE_TRANSFER);
 		
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return false;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 		final short tableLength = partialPackage.getShort();
@@ -163,8 +166,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 		final long indexLength = partialPackage.getLong();
 				
 		if(partialPackage.remaining() != 0) {
-			logger.error("Some bytes are left after decoding: " + partialPackage.remaining());
-			return false;
+			throw new PackageEncodeError("Some bytes are left after decoding: " + partialPackage.remaining());
 		}
 		
 		final byte[] tableBytes = new byte[tableLength];

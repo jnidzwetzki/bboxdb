@@ -261,8 +261,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param bb
 	 * @param packageSequence
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	protected boolean handleTransfer(final ByteBuffer packageHeader, final short packageSequence) {
+	protected boolean handleTransfer(final ByteBuffer packageHeader, final short packageSequence) throws PackageEncodeError {
 		
 		final long bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
 		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
@@ -374,21 +375,16 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param encodedPackage
 	 * @param packageSequence
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	protected boolean handleCompression(final ByteBuffer encodedPackage, final short packageSequence) {
-		
-		try {
-			final byte[] uncompressedPackage = CompressionEnvelopeRequest.decodePackage(encodedPackage);
-			
-			final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage);
+	protected boolean handleCompression(final ByteBuffer encodedPackage, final short packageSequence) throws PackageEncodeError {
 
-			final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
-			handleBufferedPackage(bb, packageSequence, packageType);
-		} catch (IOException e) {
-			logger.error("Got an exception while decoding compressed package", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
-			return false;
-		}
+		final byte[] uncompressedPackage = CompressionEnvelopeRequest.decodePackage(encodedPackage);
+		
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage);
+
+		final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
+		handleBufferedPackage(bb, packageSequence, packageType);
 		
 		return true;
 	}
@@ -397,8 +393,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * Handle the delete table call
 	 * @param packageSequence 
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	protected boolean handleDeleteTable(final ByteBuffer encodedPackage, final short packageSequence) {
+	protected boolean handleDeleteTable(final ByteBuffer encodedPackage, final short packageSequence) throws PackageEncodeError {
 		
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
@@ -438,10 +435,11 @@ public class ClientConnectionHandler implements Runnable {
 
 			@Override
 			public void run() {
-				final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
-				final SSTableName requestTable = queryKeyRequest.getTable();
-				
+
 				try {
+					final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
+					final SSTableName requestTable = queryKeyRequest.getTable();
+					
 					// Send the call to the storage manager
 					final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
 					final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
@@ -459,7 +457,7 @@ public class ClientConnectionHandler implements Runnable {
 				    writeResultPackage(new SuccessResponse(packageSequence));
 					return;
 					
-				} catch (StorageManagerException e) {
+				} catch (StorageManagerException | PackageEncodeError e) {
 					logger.warn("Got exception while scanning for key", e);
 				}
 				
@@ -488,10 +486,11 @@ public class ClientConnectionHandler implements Runnable {
 
 			@Override
 			public void run() {
-				final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
-				final SSTableName requestTable = queryRequest.getTable();
-				
+
 				try {
+					final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
+					final SSTableName requestTable = queryRequest.getTable();
+					
 					// Send the call to the storage manager
 					final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
 					final Collection<SSTableName> localTables = nameprefixManager.getNameprefixesForRegionWithTable(queryRequest.getBoundingBox(), requestTable);
@@ -510,7 +509,7 @@ public class ClientConnectionHandler implements Runnable {
 					writeResultPackage(new MultipleTupleEndResponse(packageSequence));
 
 					return;
-				} catch (StorageManagerException e) {
+				} catch (StorageManagerException | PackageEncodeError e) {
 					logger.warn("Got exception while scanning for bbox", e);
 				}
 				
@@ -540,10 +539,11 @@ public class ClientConnectionHandler implements Runnable {
 			
 			@Override
 			public void run() {
-				final QueryTimeRequest queryRequest = QueryTimeRequest.decodeTuple(encodedPackage);
-				final SSTableName requestTable = queryRequest.getTable();
-				
+
 				try {
+					final QueryTimeRequest queryRequest = QueryTimeRequest.decodeTuple(encodedPackage);
+					final SSTableName requestTable = queryRequest.getTable();
+					
 					final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
 					final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
 					
@@ -560,7 +560,7 @@ public class ClientConnectionHandler implements Runnable {
 					writeResultPackage(new MultipleTupleEndResponse(packageSequence));
 
 					return;
-				} catch (StorageManagerException e) {
+				} catch (StorageManagerException | PackageEncodeError e) {
 					logger.warn("Got exception while scanning for time", e);
 				}
 				
@@ -637,8 +637,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param bb
 	 * @param packageSequence
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	protected boolean handleDeleteTuple(final ByteBuffer encodedPackage, final short packageSequence) {
+	protected boolean handleDeleteTuple(final ByteBuffer encodedPackage, final short packageSequence) throws PackageEncodeError {
 
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
@@ -704,8 +705,9 @@ public class ClientConnectionHandler implements Runnable {
 	/**
 	 * Handle the next request package
 	 * @throws IOException
+	 * @throws PackageEncodeError 
 	 */
-	protected void handleNextPackage() throws IOException {
+	protected void handleNextPackage() throws IOException, PackageEncodeError {
 		final ByteBuffer packageHeader = readNextPackageHeader();
 
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);
@@ -743,8 +745,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageType
 	 * @return
 	 * @throws IOException
+	 * @throws PackageEncodeError 
 	 */
-	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, final short packageSequence, final short packageType) throws IOException {
+	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, final short packageSequence, final short packageType) throws PackageEncodeError {
 				
 		switch (packageType) {
 			case NetworkConst.REQUEST_TYPE_HELO:

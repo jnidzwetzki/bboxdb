@@ -4,14 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkQueryRequestPackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
@@ -27,19 +25,14 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	 * The the query bounding box
 	 */
 	protected final BoundingBox box;
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(QueryBoundingBoxRequest.class);
-	
+
 	public QueryBoundingBoxRequest(final String table, final BoundingBox box) {
 		this.table = new SSTableName(table);
 		this.box = box;
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
+	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -66,7 +59,7 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 			outputStream.write(tableBytes);
 			outputStream.write(bboxBytes);
 		} catch (IOException e) {
-			logger.error("Got exception while converting package into bytes", e);
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}	
 	}
 	
@@ -75,20 +68,19 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	public static QueryBoundingBoxRequest decodeTuple(final ByteBuffer encodedPackage) {
+	public static QueryBoundingBoxRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
 		
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 	    final byte queryType = encodedPackage.get();
 	    
 	    if(queryType != NetworkConst.REQUEST_QUERY_BBOX) {
-	    	logger.error("Wrong query type: " + queryType + " required type is: " + NetworkConst.REQUEST_QUERY_BBOX);
-	    	return null;
+	    	throw new PackageEncodeError("Wrong query type: " + queryType + " required type is: " + NetworkConst.REQUEST_QUERY_BBOX);
 	    }
 	    
 	    // 1 unused byte
@@ -106,7 +98,7 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);
 		
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new QueryBoundingBoxRequest(table, boundingBox);

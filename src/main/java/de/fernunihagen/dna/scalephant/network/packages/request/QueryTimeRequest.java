@@ -4,14 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkQueryRequestPackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 
@@ -26,19 +24,14 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 	 * The timestamp
 	 */
 	protected final long timestamp;
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(QueryTimeRequest.class);
-	
+
 	public QueryTimeRequest(final String table, final long timestamp) {
 		this.table = new SSTableName(table);
 		this.timestamp = timestamp;
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
+	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -65,7 +58,7 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 			outputStream.write(bb.array());
 			outputStream.write(tableBytes);
 		} catch (IOException e) {
-			logger.error("Got exception while converting package into bytes", e);
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}	
 	}
 	
@@ -74,20 +67,19 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	public static QueryTimeRequest decodeTuple(final ByteBuffer encodedPackage) {
+	public static QueryTimeRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
 		
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 	    final byte queryType = encodedPackage.get();
 	    
 	    if(queryType != NetworkConst.REQUEST_QUERY_TIME) {
-	    	logger.error("Wrong query type: " + queryType);
-	    	return null;
+	    	throw new PackageEncodeError("Wrong query type: " + queryType);
 	    }
 		
 	    // 3 unused bytes
@@ -103,7 +95,7 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 		final String table = new String(tableBytes);
 		
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new QueryTimeRequest(table, timestmap);

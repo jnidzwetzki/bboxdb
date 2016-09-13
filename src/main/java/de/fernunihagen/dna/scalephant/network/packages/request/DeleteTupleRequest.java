@@ -4,14 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 
@@ -27,12 +25,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 	 * The key to delete
 	 */
 	protected final String key;
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(DeleteTupleRequest.class);
-	
+
 	public DeleteTupleRequest(final String table, final String key) {
 		this.table = new SSTableName(table);
 		this.key = key;
@@ -40,9 +33,10 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 
 	/**
 	 * Get the a encoded version of this class
+	 * @throws PackageEncodeError 
 	 */
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) {
+	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -67,7 +61,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 			outputStream.write(tableBytes);
 			outputStream.write(keyBytes);
 		} catch (IOException e) {
-			logger.error("Got exception while converting package into bytes", e);
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}
 	}
 	
@@ -76,13 +70,13 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	public static DeleteTupleRequest decodeTuple(final ByteBuffer encodedPackage) {
+	public static DeleteTupleRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_DELETE_TUPLE);
 		
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 		final short tableLength = encodedPackage.getShort();
@@ -97,7 +91,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 		final String key = new String(keyBytes);
 
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new DeleteTupleRequest(table, key);
