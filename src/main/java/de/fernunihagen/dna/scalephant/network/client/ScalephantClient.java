@@ -198,6 +198,8 @@ public class ScalephantClient implements Scalephant {
 			logger.error("Handshaking called in wrong state: " + connectionState);
 		}
 		
+		// Capabilies are reported to server. Make client capabilies read only. 
+		clientCapabilities.freeze();
 		sendPackageToServer(new HeloRequest(NetworkConst.PROTOCOL_VERSION, clientCapabilities), operationFuture);
 		
 		operationFuture.waitForAll();
@@ -818,12 +820,12 @@ public class ScalephantClient implements Scalephant {
 	public PeerCapabilities getConnectionCapabilities() {
 		return connectionCapabilities;
 	}
-
+	
 	/**
-	 * Set the capabilities
-	 * @param connectionCapabilities
+	 * Get the capabilities of the client
+	 * @return
 	 */
-	public void setConnectionCapabilities(final PeerCapabilities connectionCapabilities) {
-		this.connectionCapabilities = connectionCapabilities;
+	public PeerCapabilities getClientCapabilities() {
+		return clientCapabilities;
 	}
 }

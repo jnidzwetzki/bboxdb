@@ -90,6 +90,7 @@ public class HeloResponse extends NetworkResponsePackage {
 		}
 		
 		final PeerCapabilities peerCapabilities = new PeerCapabilities(capabilityBytes);
+		peerCapabilities.freeze();
 		
 		return new HeloResponse(requestId, protocolVersion, peerCapabilities);
 	}
