@@ -7,6 +7,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.scalephant.ScalephantConfiguration;
+import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.scalephant.distribution.DistributionGroupCache;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
@@ -37,7 +39,16 @@ public abstract class RegionSplitStrategy {
 	 * @param totalTuplesInTable
 	 * @return
 	 */
-	public abstract boolean isSplitNeeded(final int totalTuplesInTable);
+	public boolean isSplitNeeded(final int totalTuplesInTable) {
+		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
+		final int maxEntries = configuration.getSstableMaxEntries();
+		
+		if(totalTuplesInTable > maxEntries) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 	/**
 	 * Perform a split of the given region

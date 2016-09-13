@@ -5,8 +5,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.scalephant.ScalephantConfiguration;
-import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
@@ -23,21 +21,6 @@ public class SimpleSplitStrategy extends RegionSplitStrategy {
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(SimpleSplitStrategy.class);
-
-	/**
-	 * Test if a split is needed
-	 */
-	@Override
-	public boolean isSplitNeeded(final int totalTuplesInTable) {
-		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
-		final int maxEntries = configuration.getSstableMaxEntries();
-		
-		if(totalTuplesInTable > maxEntries) {
-			return true;
-		} else {
-			return false;
-		}
-	}
 
 	/**
 	 * Perform a split of the given distribution region
