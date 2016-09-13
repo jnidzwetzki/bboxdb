@@ -47,6 +47,9 @@ public class TestNetworkCommunication {
 			scalephantMain.destroy();
 			scalephantMain = null;
 		}
+		
+		// Wait some time for socket resuse
+		Thread.sleep(5000);
 	}
 	
 	/**

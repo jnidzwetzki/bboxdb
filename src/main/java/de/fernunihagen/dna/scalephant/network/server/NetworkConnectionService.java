@@ -126,6 +126,11 @@ public class NetworkConnectionService implements ScalephantService {
 		 * The shutdown signal
 		 */
 		protected volatile boolean shutdown = false;
+		
+		/**
+		 * The server socket
+		 */
+		private ServerSocket serverSocket;
 
 		@Override
 		public void run() {
@@ -133,28 +138,46 @@ public class NetworkConnectionService implements ScalephantService {
 			logger.info("Starting new connection dispatcher");
 			
 			try {
-				final ServerSocket serverSocket = new ServerSocket(configuration.getNetworkListenPort());
+				serverSocket = new ServerSocket(configuration.getNetworkListenPort());
 				
 				while(! shutdown) {
 					final Socket clientSocket = serverSocket.accept();
 					handleConnection(clientSocket);
 				}
 				
-				serverSocket.close();
 			} catch(IOException e) {
-				logger.error("Unable to start server socket ", e);
+				logger.error("Got an IO exception while reading from server socket ", e);
 				shutdown = true;
+			} finally {
+				closeSocketNE();
 			}
 			
 			logger.info("Shutting down the connection dispatcher");
+		}
+
+		/**
+		 * Close socket without an exception
+		 */
+		protected void closeSocketNE() {
+			if(serverSocket != null) {
+				try {
+					serverSocket.close();
+				} catch (IOException e) {
+					// Ignore close exception
+				}
+			}
 		}
 		
 		/**
 		 * Set the shutdown flag
 		 * @param shutdown
 		 */
-		public void setShutdown(boolean shutdown) {
+		public void setShutdown(final boolean shutdown) {
 			this.shutdown = shutdown;
+			
+			if(shutdown == true) {
+				closeSocketNE();
+			}
 		}
 		
 		/**
