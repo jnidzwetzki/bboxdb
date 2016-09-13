@@ -14,6 +14,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 - Unified the structure of request and response packages
 - Introduced connection capabilities and connection handshaking
 - Implemented network compression
+- Improved network package decoding
 
 ### Version 0.1.1 (Alpha) - 26.08.2016
 - Introduced replication strategies
