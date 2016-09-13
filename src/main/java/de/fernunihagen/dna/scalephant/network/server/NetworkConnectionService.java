@@ -139,6 +139,7 @@ public class NetworkConnectionService implements ScalephantService {
 			
 			try {
 				serverSocket = new ServerSocket(configuration.getNetworkListenPort());
+				serverSocket.setReuseAddress(true);
 				
 				while(! shutdown) {
 					final Socket clientSocket = serverSocket.accept();
@@ -161,7 +162,9 @@ public class NetworkConnectionService implements ScalephantService {
 		protected void closeSocketNE() {
 			if(serverSocket != null) {
 				try {
+					logger.info("Close server socket on port: " + serverSocket.getLocalPort());
 					serverSocket.close();
+					serverSocket = null;
 				} catch (IOException e) {
 					// Ignore close exception
 				}
