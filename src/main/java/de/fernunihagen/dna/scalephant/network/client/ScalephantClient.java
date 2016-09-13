@@ -21,6 +21,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTableRequest;
@@ -293,7 +294,14 @@ public class ScalephantClient implements Scalephant {
 		
 		final SSTableName ssTableName = new SSTableName(table);
 		
-		sendPackageToServer(new InsertTupleRequest(ssTableName, tuple), operationFuture);
+		final InsertTupleRequest requestPackage = new InsertTupleRequest(ssTableName, tuple);
+		
+		if(connectionCapabilities.hasGZipCompression()) {
+			final CompressionEnvelopeRequest compressionEnvelopeRequest = new CompressionEnvelopeRequest(requestPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
+			sendPackageToServer(compressionEnvelopeRequest, operationFuture);
+		} else {
+			sendPackageToServer(requestPackage, operationFuture);
+		}
 		
 		return operationFuture;
 	}

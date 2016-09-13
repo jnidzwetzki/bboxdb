@@ -374,12 +374,13 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleCompression(final ByteBuffer encodedPackage, final short packageSequence) {
+		
 		try {
 			final byte[] uncompressedPackage = CompressionEnvelopeRequest.decodePackage(encodedPackage);
-			final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(encodedPackage);
 			
 			final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage);
 
+			final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
 			handleBufferedPackage(bb, packageSequence, packageType);
 		} catch (IOException e) {
 			logger.error("Got an exception while decoding compressed package", e);
