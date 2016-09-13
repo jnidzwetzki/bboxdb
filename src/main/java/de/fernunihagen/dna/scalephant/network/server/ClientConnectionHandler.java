@@ -31,6 +31,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
@@ -170,13 +171,13 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	public synchronized boolean writeResultPackage(final NetworkResponsePackage responsePackage) {
 		
-		final byte[] outputData = responsePackage.getByteArray();
-		
 		try {
+			final byte[] outputData = responsePackage.getByteArray();
+
 			outputStream.write(outputData, 0, outputData.length);
 			outputStream.flush();
 			return true;
-		} catch (IOException e) {
+		} catch (IOException | PackageEncodeError e) {
 			logger.warn("Unable to write result package", e);
 		}
 

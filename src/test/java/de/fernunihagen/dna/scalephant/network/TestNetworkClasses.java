@@ -18,6 +18,7 @@ import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.SequenceNumberGenerator;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
@@ -402,9 +403,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of the response helo
 	 * @throws IOException 
+	 * @throws PackageEncodeError 
 	 */
 	@Test
-	public void encodeAndDecodeHeloResponse1() throws IOException {
+	public void encodeAndDecodeHeloResponse1() throws IOException, PackageEncodeError {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -424,9 +426,10 @@ public class TestNetworkClasses {
 	/**
 	 * The the encoding and decoding of the response helo
 	 * @throws IOException 
+	 * @throws PackageEncodeError 
 	 */
 	@Test
-	public void encodeAndDecodeHeloResponse2() throws IOException {
+	public void encodeAndDecodeHeloResponse2() throws IOException, PackageEncodeError {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		peerCapabilities.setGZipCompression();
 		
@@ -509,9 +512,10 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Get the package type from the response
+	 * @throws PackageEncodeError 
 	 */
 	@Test
-	public void getPackageTypeFromResponse1() {
+	public void getPackageTypeFromResponse1() throws PackageEncodeError {
 		final SuccessResponse response = new SuccessResponse((short) 2);
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
@@ -521,9 +525,10 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Get the package type from the response
+	 * @throws PackageEncodeError 
 	 */
 	@Test
-	public void getPackageTypeFromResponse2() {
+	public void getPackageTypeFromResponse2() throws PackageEncodeError {
 		final SuccessWithBodyResponse response = new SuccessWithBodyResponse((short) 2, "abc");
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
@@ -533,9 +538,10 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Read the body length from a result package
+	 * @throws PackageEncodeError 
 	 */
 	@Test
-	public void testGetResultBodyLength1() {
+	public void testGetResultBodyLength1() throws PackageEncodeError {
 		final SuccessResponse response = new SuccessResponse((short) 2);
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
@@ -550,9 +556,10 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Read the body length from a result package
+	 * @throws PackageEncodeError 
 	 */
 	@Test
-	public void testGetResultBodyLength2() {
+	public void testGetResultBodyLength2() throws PackageEncodeError {
 		final SuccessWithBodyResponse response = new SuccessWithBodyResponse((short) 2, "abc");
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
@@ -567,9 +574,10 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Try to encode and decode the list tables response
+	 * @throws PackageEncodeError 
 	 */
 	@Test
-	public void testListTablesResponse() {
+	public void testListTablesResponse() throws PackageEncodeError {
 		final List<SSTableName> tables = new ArrayList<SSTableName>();
 		tables.add(new SSTableName("3_group1_table1"));
 		tables.add(new SSTableName("3_group1_testtable"));
@@ -589,9 +597,10 @@ public class TestNetworkClasses {
 	
 	/**
 	 * Try to encode and decode the single tuple response 
+	 * @throws PackageEncodeError 
 	 */
 	@Test
-	public void testSingleTupleResponse() {
+	public void testSingleTupleResponse() throws PackageEncodeError {
 		final String tablename = "table1";
 		final Tuple tuple = new Tuple("abc", BoundingBox.EMPTY_BOX, "databytes".getBytes());
 		
@@ -695,9 +704,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test the compression response
 	 * @throws IOException 
+	 * @throws PackageEncodeError 
 	 */
 	@Test
-	public void testCompressionReponse1() throws IOException {
+	public void testCompressionReponse1() throws IOException, PackageEncodeError {
 		final String tablename = "table1";
 		final Tuple tuple = new Tuple("abc", BoundingBox.EMPTY_BOX, "databytes".getBytes());
 		
@@ -719,9 +729,10 @@ public class TestNetworkClasses {
 	/**
 	 * Test the compression response
 	 * @throws IOException 
+	 * @throws PackageEncodeError 
 	 */
 	@Test
-	public void testCompressionReponse2() throws IOException {
+	public void testCompressionReponse2() throws IOException, PackageEncodeError {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		peerCapabilities.setGZipCompression();
 		

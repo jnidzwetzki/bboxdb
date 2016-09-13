@@ -7,13 +7,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
 
@@ -23,11 +21,6 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	 * The tables
 	 */
 	protected final List<SSTableName> tables;
-
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(ListTablesResponse.class);
 
 	public ListTablesResponse(final short sequenceNumber, final List<SSTableName> allTables) {
 		super(sequenceNumber);
@@ -40,9 +33,8 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public byte[] getByteArray() {
-		final NetworkPackageEncoder networkPackageEncoder 
-			= new NetworkPackageEncoder();
+	public byte[] getByteArray() throws PackageEncodeError {
+		final NetworkPackageEncoder networkPackageEncoder = new NetworkPackageEncoder();
 	
 		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
 		
@@ -58,8 +50,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 			bos.write(bodyBytes);
 			bos.close();
 		} catch (IOException e) {
-			logger.error("Got exception while converting package into bytes", e);
-			return null;
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}
 	
 		return bos.toByteArray();
@@ -105,15 +96,15 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	public static ListTablesResponse decodePackage(final ByteBuffer encodedPackage) {		
+	public static ListTablesResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_LIST_TABLES);
 
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 		// Read the total amount of tables
@@ -134,7 +125,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 		}
 		
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new ListTablesResponse(requestId, tables);

@@ -21,6 +21,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
@@ -555,7 +556,7 @@ public class ScalephantClient implements Scalephant {
 				final ByteBuffer encodedPackage = readFullPackage(bb);
 				handleResultPackage(encodedPackage);
 				
-			} catch (IOException e) {
+			} catch (IOException | PackageEncodeError e) {
 				
 				// Ignore exceptions when connection is closing
 				if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
@@ -570,8 +571,9 @@ public class ScalephantClient implements Scalephant {
 		/**
 		 * Handle the next result package
 		 * @param packageHeader
+		 * @throws PackageEncodeError 
 		 */
-		protected void handleResultPackage(final ByteBuffer encodedPackage) {
+		protected void handleResultPackage(final ByteBuffer encodedPackage) throws PackageEncodeError {
 			final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 			final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
 
@@ -714,9 +716,10 @@ public class ScalephantClient implements Scalephant {
 	 * Handle a single tuple as result
 	 * @param encodedPackage
 	 * @param pendingCall
+	 * @throws PackageEncodeError 
 	 */
 	protected boolean handleTuple(final ByteBuffer encodedPackage,
-			final ClientOperationFuture pendingCall) {
+			final ClientOperationFuture pendingCall) throws PackageEncodeError {
 		
 		final TupleResponse singleTupleResponse = TupleResponse.decodePackage(encodedPackage);
 		final short sequenceNumber = singleTupleResponse.getSequenceNumber();
@@ -739,9 +742,10 @@ public class ScalephantClient implements Scalephant {
 	 * Handle List table result
 	 * @param encodedPackage
 	 * @param pendingCall
+	 * @throws PackageEncodeError 
 	 */
 	protected void handleListTables(final ByteBuffer encodedPackage,
-			final ClientOperationFuture pendingCall) {
+			final ClientOperationFuture pendingCall) throws PackageEncodeError {
 		final ListTablesResponse tables = ListTablesResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
@@ -752,22 +756,20 @@ public class ScalephantClient implements Scalephant {
 	/**
 	 * Handle the compressed package
 	 * @param encodedPackage
+	 * @throws PackageEncodeError 
 	 */
-	protected void handleCompression(final ByteBuffer encodedPackage) {
-		try {
-			final byte[] uncompressedPackage = CompressionEnvelopeResponse.decodePackage(encodedPackage);
-  			final ByteBuffer uncompressedPackageBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage); 
-  			serverResponseReader.handleResultPackage(uncompressedPackageBuffer);
-		} catch (IOException e) {
-			logger.error("Got an exception while decoding package", e);
-		}
+	protected void handleCompression(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final byte[] uncompressedPackage = CompressionEnvelopeResponse.decodePackage(encodedPackage);
+		final ByteBuffer uncompressedPackageBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage); 
+		serverResponseReader.handleResultPackage(uncompressedPackageBuffer);
 	}
 	/**
 	 * Handle the helo result package
 	 * @param encodedPackage
 	 * @param pendingCall
+	 * @throws PackageEncodeError 
 	 */
-	protected void handleHelo(final ByteBuffer encodedPackage, final ClientOperationFuture pendingCall) {
+	protected void handleHelo(final ByteBuffer encodedPackage, final ClientOperationFuture pendingCall) throws PackageEncodeError {
 		final HeloResponse heloResonse = HeloResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
@@ -779,9 +781,10 @@ public class ScalephantClient implements Scalephant {
 	 * Handle error with body result
 	 * @param encodedPackage
 	 * @param pendingCall
+	 * @throws PackageEncodeError 
 	 */
 	protected void handleErrorWithBody(final ByteBuffer encodedPackage,
-			final ClientOperationFuture pendingCall) {
+			final ClientOperationFuture pendingCall) throws PackageEncodeError {
 		final AbstractBodyResponse result = ErrorWithBodyResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
@@ -793,9 +796,10 @@ public class ScalephantClient implements Scalephant {
 	 * Handle success with body result
 	 * @param encodedPackage
 	 * @param pendingCall
+	 * @throws PackageEncodeError 
 	 */
 	protected void handleSuccessWithBody(final ByteBuffer encodedPackage,
-			final ClientOperationFuture pendingCall) {
+			final ClientOperationFuture pendingCall) throws PackageEncodeError {
 		final SuccessWithBodyResponse result = SuccessWithBodyResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
@@ -806,8 +810,9 @@ public class ScalephantClient implements Scalephant {
 	/**
 	 * Handle the multiple tuple start package
 	 * @param encodedPackage
+	 * @throws PackageEncodeError 
 	 */
-	protected void handleMultiTupleStart(final ByteBuffer encodedPackage) {
+	protected void handleMultiTupleStart(final ByteBuffer encodedPackage) throws PackageEncodeError {
 		final MultipleTupleStartResponse result = MultipleTupleStartResponse.decodePackage(encodedPackage);
 		resultBuffer.put(result.getSequenceNumber(), new ArrayList<Tuple>());
 	}
@@ -816,9 +821,10 @@ public class ScalephantClient implements Scalephant {
 	 * Handle the multiple tuple end package
 	 * @param encodedPackage
 	 * @param pendingCall
+	 * @throws PackageEncodeError 
 	 */
 	protected void handleMultiTupleEnd(final ByteBuffer encodedPackage,
-			final ClientOperationFuture pendingCall) {
+			final ClientOperationFuture pendingCall) throws PackageEncodeError {
 		final MultipleTupleEndResponse result = MultipleTupleEndResponse.decodePackage(encodedPackage);
 		
 		final List<Tuple> resultList = resultBuffer.get(result.getSequenceNumber());

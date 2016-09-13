@@ -3,14 +3,12 @@ package de.fernunihagen.dna.scalephant.network.packages.response;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
 
 public class HeloResponse extends NetworkResponsePackage {
@@ -25,6 +23,7 @@ public class HeloResponse extends NetworkResponsePackage {
 	 */
 	protected final PeerCapabilities peerCapabilities;
 	
+	
 	public HeloResponse(final short sequenceNumber, final int protocolVersion, final PeerCapabilities peerCapabilities) {
 		super(sequenceNumber);
 
@@ -32,14 +31,8 @@ public class HeloResponse extends NetworkResponsePackage {
 		this.peerCapabilities = peerCapabilities;
 	}
 	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(HeloResponse.class);
-
-	
 	@Override
-	public byte[] getByteArray() {
+	public byte[] getByteArray() throws PackageEncodeError {
 		final NetworkPackageEncoder networkPackageEncoder = new NetworkPackageEncoder();
 	
 		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
@@ -59,7 +52,7 @@ public class HeloResponse extends NetworkResponsePackage {
 			bos.write(peerCapabilitiesBytes);
 			bos.close();
 		} catch (Exception e) {
-			logger.error("Got exception while converting package into bytes", e);
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}	
 		
 		return bos.toByteArray();
@@ -70,15 +63,15 @@ public class HeloResponse extends NetworkResponsePackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	public static HeloResponse decodePackage(final ByteBuffer encodedPackage) {		
+	public static HeloResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_HELO);
 
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 		final int protocolVersion = encodedPackage.getInt();
@@ -86,7 +79,7 @@ public class HeloResponse extends NetworkResponsePackage {
 		encodedPackage.get(capabilityBytes, 0, capabilityBytes.length);
 
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		final PeerCapabilities peerCapabilities = new PeerCapabilities(capabilityBytes);

@@ -4,21 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 
 public class SuccessResponse extends NetworkResponsePackage {
-
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(SuccessResponse.class);
 
 	public SuccessResponse(final short sequenceNumber) {
 		super(sequenceNumber);
@@ -30,9 +23,8 @@ public class SuccessResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public byte[] getByteArray() {
-		final NetworkPackageEncoder networkPackageEncoder 
-			= new NetworkPackageEncoder();
+	public byte[] getByteArray() throws PackageEncodeError {
+		final NetworkPackageEncoder networkPackageEncoder = new NetworkPackageEncoder();
 	
 		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
 		
@@ -44,8 +36,7 @@ public class SuccessResponse extends NetworkResponsePackage {
 			
 			bos.close();
 		} catch (IOException e) {
-			logger.error("Got exception while converting package into bytes", e);
-			return null;
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}
 	
 		return bos.toByteArray();
@@ -56,17 +47,17 @@ public class SuccessResponse extends NetworkResponsePackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	public static SuccessResponse decodePackage(final ByteBuffer encodedPackage) {
+	public static SuccessResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_SUCCESS);
 		
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
+			throw new PackageEncodeError("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);

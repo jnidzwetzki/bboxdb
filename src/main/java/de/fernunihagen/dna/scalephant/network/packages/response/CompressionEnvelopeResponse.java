@@ -8,14 +8,12 @@ import java.nio.ByteBuffer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 
 public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 
@@ -28,12 +26,6 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 	 * The compression type
 	 */
 	protected byte compressionType;
-
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(CompressionEnvelopeResponse.class);
 
 	public CompressionEnvelopeResponse(final NetworkResponsePackage networkResponsePackage, final byte compressionType) {
 		super(networkResponsePackage.getSequenceNumber());
@@ -48,7 +40,7 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public byte[] getByteArray() {
+	public byte[] getByteArray() throws PackageEncodeError {
 		final NetworkPackageEncoder networkPackageEncoder 
 			= new NetworkPackageEncoder();
 	
@@ -56,8 +48,7 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 		
 		try {
 			if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
-				logger.error("Unknown compression method: " + compressionType);
-				return null;
+				throw new PackageEncodeError("Unknown compression method: " + compressionType);
 			}
 			
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -87,8 +78,7 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 			
 			bos.close();
 		} catch (IOException e) {
-			logger.error("Got exception while converting package into bytes", e);
-			return null;
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}
 	
 		return bos.toByteArray();
@@ -100,45 +90,47 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 	 * @param encodedPackage
 	 * @return
 	 * @throws IOException 
+	 * @throws PackageEncodeError 
 	 */
-	public static byte[] decodePackage(final ByteBuffer encodedPackage) throws IOException {
+	public static byte[] decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_COMPRESSION);
 		
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 		final int compressedDataLength = encodedPackage.getInt();
 		final byte compressionType = encodedPackage.get();
 		
 		if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
-			logger.error("Unknown compression type: " + compressionType);
-			return null;
+			throw new PackageEncodeError("Unknown compression type: " + compressionType);
 		}
 		
 		if(compressedDataLength != encodedPackage.remaining()) {
-			logger.error("Remaning : " + encodedPackage.remaining() + " bytes. But compressed data should have: " + compressedDataLength + " bytes");
-			return null;
+			throw new PackageEncodeError("Remaning : " + encodedPackage.remaining() + " bytes. But compressed data should have: " + compressedDataLength + " bytes");
 		}
 		
 		final byte[] compressedBytes = new byte[compressedDataLength];
 		encodedPackage.get(compressedBytes, 0, compressedDataLength);
 		
-		final ByteArrayInputStream bais = new ByteArrayInputStream(compressedBytes);
-		final GZIPInputStream inputStream = new GZIPInputStream(bais);
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			final ByteArrayInputStream bais = new ByteArrayInputStream(compressedBytes);
+			final GZIPInputStream inputStream = new GZIPInputStream(bais);
+			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		final byte[] buffer = new byte[10240];
-		for (int length = 0; (length = inputStream.read(buffer)) > 0; ) {
-			baos.write(buffer, 0, length);
+			final byte[] buffer = new byte[10240];
+			for (int length = 0; (length = inputStream.read(buffer)) > 0; ) {
+				baos.write(buffer, 0, length);
+			}
+
+			inputStream.close();
+			baos.close();
+			
+			return baos.toByteArray();
+		} catch (IOException e) {
+			throw new PackageEncodeError(e);
 		}
-
-		inputStream.close();
-		baos.close();
-		
-		return baos.toByteArray();
 	}
 
 }

@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 
 public class ErrorWithBodyResponse extends AbstractBodyResponse {
 	
@@ -21,8 +22,9 @@ public class ErrorWithBodyResponse extends AbstractBodyResponse {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	public static ErrorWithBodyResponse decodePackage(final ByteBuffer encodedPackage) {
+	public static ErrorWithBodyResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {
 		final String body = decodeMessage(encodedPackage);
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		

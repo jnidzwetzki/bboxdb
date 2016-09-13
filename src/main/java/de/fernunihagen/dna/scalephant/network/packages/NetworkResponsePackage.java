@@ -16,8 +16,9 @@ public abstract class NetworkResponsePackage implements NetworkPackage {
 	/**
 	 * Encode the package
 	 * @return 
+	 * @throws PackageEncodeError 
 	 */
-	public abstract byte[] getByteArray();
+	public abstract byte[] getByteArray() throws PackageEncodeError;
 
 	/**
 	 * Get the sequence number of the package

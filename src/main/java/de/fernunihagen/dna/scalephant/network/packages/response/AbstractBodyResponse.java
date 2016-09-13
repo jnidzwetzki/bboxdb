@@ -12,6 +12,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 
 public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 
@@ -31,9 +32,9 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public byte[] getByteArray() {
-		final NetworkPackageEncoder networkPackageEncoder 
-			= new NetworkPackageEncoder();
+	public byte[] getByteArray() throws PackageEncodeError {
+		
+		final NetworkPackageEncoder networkPackageEncoder = new NetworkPackageEncoder();
 	
 		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
 		
@@ -56,8 +57,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 			
 			bos.close();
 		} catch (IOException e) {
-			logger.error("Got exception while converting package into bytes", e);
-			return null;
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}
 	
 		return bos.toByteArray();
@@ -68,13 +68,13 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 	 * Decode the message of the answer
 	 * @param bb
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	protected static String decodeMessage(final ByteBuffer bb) {
+	protected static String decodeMessage(final ByteBuffer bb) throws PackageEncodeError {
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_TYPE_ERROR_WITH_BODY);
 
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 		final short bodyLength = bb.getShort();
@@ -84,7 +84,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 		final String body = new String(bodyBytes);
 		
 		if(bb.remaining() != 0) {
-			logger.error("Some bytes are left after encoding: " + bb.remaining());
+			throw new PackageEncodeError("Some bytes are left after encoding: " + bb.remaining());
 		}
 		
 		return body;

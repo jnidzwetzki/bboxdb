@@ -4,14 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkTupleEncoderDecoder;
+import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.entity.TupleAndTable;
 import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
@@ -28,11 +26,6 @@ public class TupleResponse extends NetworkResponsePackage {
 	 */
 	protected final Tuple tuple;
 
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(TupleResponse.class);
-
 	public TupleResponse(final short sequenceNumber, final String table, final Tuple tuple) {
 		super(sequenceNumber);
 		this.table = table;
@@ -45,7 +38,7 @@ public class TupleResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public byte[] getByteArray() {
+	public byte[] getByteArray() throws PackageEncodeError {
 		
 		final NetworkPackageEncoder networkPackageEncoder = new NetworkPackageEncoder();
 		
@@ -58,8 +51,7 @@ public class TupleResponse extends NetworkResponsePackage {
 				bos.write(encodedBytes);
 				bos.close();
 			} catch (IOException e) {
-				logger.error("Got exception while converting package into bytes", e);
-				return null;
+				throw new PackageEncodeError("Got exception while converting package into bytes", e);
 			}
 	
 		return bos.toByteArray();
@@ -70,21 +62,21 @@ public class TupleResponse extends NetworkResponsePackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
+	 * @throws PackageEncodeError 
 	 */
-	public static TupleResponse decodePackage(final ByteBuffer encodedPackage) {		
+	public static TupleResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_TUPLE);
 
 		if(decodeResult == false) {
-			logger.warn("Unable to decode package");
-			return null;
+			throw new PackageEncodeError("Unable to decode package");
 		}
 		
 		final TupleAndTable tupleAndTable = NetworkTupleEncoderDecoder.decode(encodedPackage);
 		
 		if(encodedPackage.remaining() != 0) {
-			logger.error("Some bytes are left after encoding: " + encodedPackage.remaining());
+			throw new PackageEncodeError("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
 		return new TupleResponse(requestId, tupleAndTable.getTable(), tupleAndTable.getTuple());
