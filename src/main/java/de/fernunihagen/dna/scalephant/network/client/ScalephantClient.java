@@ -551,7 +551,8 @@ public class ScalephantClient implements Scalephant {
 					return false;
 				}
 				
-				handleResultPackage(bb);
+				final ByteBuffer encodedPackage = readFullPackage(bb);
+				handleResultPackage(encodedPackage);
 				
 			} catch (IOException e) {
 				
@@ -569,13 +570,13 @@ public class ScalephantClient implements Scalephant {
 		 * Handle the next result package
 		 * @param packageHeader
 		 */
-		protected void handleResultPackage(final ByteBuffer packageHeader) {
-			final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(packageHeader);
-			final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(packageHeader);
-			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+		protected void handleResultPackage(final ByteBuffer encodedPackage) {
+			final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
+			final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
 
 			ClientOperationFuture pendingCall = null;
 			boolean removeFuture = true;
+			
 			synchronized (pendingCalls) {
 				pendingCall = pendingCalls.get(Short.valueOf(sequenceNumber));
 			}
