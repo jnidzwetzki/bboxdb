@@ -34,6 +34,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxR
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.AbstractBodyResponse;
+import de.fernunihagen.dna.scalephant.network.packages.response.CompressionEnvelopeResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.HeloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
@@ -583,6 +584,11 @@ public class ScalephantClient implements Scalephant {
 
 			switch(packageType) {
 			
+				case NetworkConst.RESPONSE_TYPE_COMPRESSION:
+					removeFuture = false;
+					handleCompression(encodedPackage);
+				break;
+				
 				case NetworkConst.RESPONSE_TYPE_HELO:
 					handleHelo(encodedPackage, pendingCall);
 				break;
@@ -743,6 +749,19 @@ public class ScalephantClient implements Scalephant {
 		}
 	}
 
+	/**
+	 * Handle the compressed package
+	 * @param encodedPackage
+	 */
+	protected void handleCompression(final ByteBuffer encodedPackage) {
+		try {
+			final byte[] uncompressedPackage = CompressionEnvelopeResponse.decodePackage(encodedPackage);
+  			final ByteBuffer uncompressedPackageBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage); 
+  			serverResponseReader.handleResultPackage(uncompressedPackageBuffer);
+		} catch (IOException e) {
+			logger.error("Got an exception while decoding package", e);
+		}
+	}
 	/**
 	 * Handle the helo result package
 	 * @param encodedPackage
