@@ -10,6 +10,11 @@ public class PeerCapabilities {
 	 * The compression flag
 	 */
 	public final static short CAPABILITY_COMPRESSION_GZIP = 0;
+	
+	/**
+	 * The readonly flag
+	 */
+	protected boolean readonly;
 
 	/**
 	 * The length of the capabilities
@@ -19,6 +24,7 @@ public class PeerCapabilities {
 	public PeerCapabilities() {
 		capabilities = ByteBuffer.allocate(CAPABILITY_BYTES);
 		capabilities.clear();
+		readonly = false;
 	}
 
 	public PeerCapabilities(final byte[] byteArray) {
@@ -28,6 +34,13 @@ public class PeerCapabilities {
 		}
 
 		capabilities = ByteBuffer.wrap(byteArray);
+	}
+	
+	/**
+	 * Freeze the bit set (make read only)
+	 */
+	public void freeze() {
+		readonly = true;
 	}
 
 	/**
@@ -59,6 +72,11 @@ public class PeerCapabilities {
 	 * @param bit
 	 */
 	protected void setBit(final int bit) {
+		
+		if(readonly) {
+			throw new IllegalStateException("Unable to set bit in read only mode");
+		}
+		
 		final int byteNumber = bit / 8;
 		final int offset = bit % 8;
 		byte b = capabilities.get(byteNumber);
@@ -72,6 +90,11 @@ public class PeerCapabilities {
 	 * @param bit
 	 */
 	protected void clearBit(final int bit) {
+		
+		if(readonly) {
+			throw new IllegalStateException("Unable to set bit in read only mode");
+		}
+		
 		final int byteNumber = bit / 8;
 		final int offset = bit % 8;
 		byte b = capabilities.get(byteNumber);
