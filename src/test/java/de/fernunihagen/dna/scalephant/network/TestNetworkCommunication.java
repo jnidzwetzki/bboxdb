@@ -246,11 +246,35 @@ public class TestNetworkCommunication {
 	protected ScalephantClient connectToServer() {
 		final int port = ScalephantConfigurationManager.getConfiguration().getNetworkListenPort();
 		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1", port);
+		
+		if(compressPackages()) {
+			scalephantClient.getClientCapabilities().setGZipCompression();
+			Assert.assertTrue(scalephantClient.getClientCapabilities().hasGZipCompression());
+		} else {
+			scalephantClient.getClientCapabilities().clearGZipCompression();
+			Assert.assertFalse(scalephantClient.getClientCapabilities().hasGZipCompression());
+		}
+		
 		Assert.assertFalse(scalephantClient.isConnected());
 		boolean result = scalephantClient.connect();
 		Assert.assertTrue(result);
 		Assert.assertTrue(scalephantClient.isConnected());
+		
+		if(compressPackages()) { 
+			Assert.assertTrue(scalephantClient.getConnectionCapabilities().hasGZipCompression());
+		} else {
+			Assert.assertFalse(scalephantClient.getConnectionCapabilities().hasGZipCompression());
+		}
+		
 		return scalephantClient;
+	}
+	
+	/**
+	 * Should the packages be compressed or not
+	 * @return
+	 */
+	protected boolean compressPackages() {
+		return false;
 	}
 	
 	/**
