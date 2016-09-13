@@ -42,6 +42,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxR
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.TransferSSTableRequest;
+import de.fernunihagen.dna.scalephant.network.packages.response.CompressionEnvelopeResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.HeloResponse;
@@ -449,7 +450,7 @@ public class ClientConnectionHandler implements Runnable {
 						final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
 						
 						if(tuple != null) {
-							writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
+							writeResultTuple(packageSequence, requestTable, tuple);
 							return;
 						}
 					}
@@ -501,7 +502,7 @@ public class ClientConnectionHandler implements Runnable {
 						final Collection<Tuple> resultTuple = storageManager.getTuplesInside(queryRequest.getBoundingBox());
 						
 						for(final Tuple tuple : resultTuple) {
-							writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
+							writeResultTuple(packageSequence, requestTable, tuple);
 						}
 					}
 
@@ -552,7 +553,7 @@ public class ClientConnectionHandler implements Runnable {
 						final Collection<Tuple> resultTuple = storageManager.getTuplesAfterTime(queryRequest.getTimestamp());
 
 						for(final Tuple tuple : resultTuple) {
-							writeResultPackage(new TupleResponse(packageSequence, requestTable.getFullname(), tuple));
+							writeResultTuple(packageSequence, requestTable, tuple);
 						}
 					}
 					writeResultPackage(new MultipleTupleEndResponse(packageSequence));
@@ -802,6 +803,23 @@ public class ClientConnectionHandler implements Runnable {
 				logger.warn("Got unknown package type, closing connection: " + packageType);
 				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 				return false;
+		}
+	}
+
+	/**
+	 * Send a new result tuple to the client (compressed or uncompressed)
+	 * @param packageSequence
+	 * @param requestTable
+	 * @param tuple
+	 */
+	protected void writeResultTuple(final short packageSequence, final SSTableName requestTable, final Tuple tuple) {
+		final TupleResponse responsePackage = new TupleResponse(packageSequence, requestTable.getFullname(), tuple);
+		
+		if(connectionCapabilities.hasGZipCompression()) {
+			final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(responsePackage, NetworkConst.COMPRESSION_TYPE_GZIP);
+			writeResultPackage(compressionEnvelopeResponse);
+		} else {
+			writeResultPackage(responsePackage);
 		}
 	}
 
