@@ -10,7 +10,7 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 ## Changelog
 You will find the changelog of the project [here](changelog.md).
 
-## Docs 
+## Documentation 
 The documentation of the project is stored in the [doc](doc/) directory.
 
 ## Examples 
