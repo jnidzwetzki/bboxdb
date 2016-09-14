@@ -40,14 +40,22 @@ public abstract class RegionSplitStrategy {
 	 * @return
 	 */
 	public boolean isSplitNeeded(final int totalTuplesInTable) {
-		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
-		final int maxEntries = configuration.getSstableMaxEntries();
+		final int maxEntries = maxEntriesPerTable();
 		
 		if(totalTuplesInTable > maxEntries) {
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Get the number of entries per table
+	 * @return
+	 */
+	protected int maxEntriesPerTable() {
+		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
+		return configuration.getSstableMaxEntries();
 	}
 	
 	/**
