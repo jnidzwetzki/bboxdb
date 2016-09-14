@@ -102,7 +102,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	 * @return
 	 * @throws IOException
 	 */
-	protected String getKeyForIndexEntry(long entry) throws IOException {
+	public String getKeyForIndexEntry(final long entry) throws IOException {
 		int position = convertEntryToPosition(entry);
 		return sstableReader.decodeOnlyKeyFromTupleAtPosition(position);
 	}
@@ -112,7 +112,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	 * @param entry
 	 * @return
 	 */
-	protected synchronized int convertEntryToPosition(long entry) {
+	protected synchronized int convertEntryToPosition(final long entry) {
 		
 		// Memory was unmapped
 		if(memory == null) {
