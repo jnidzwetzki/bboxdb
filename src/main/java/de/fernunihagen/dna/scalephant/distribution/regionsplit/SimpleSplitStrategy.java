@@ -6,13 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
-import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanceManager;
-import de.fernunihagen.dna.scalephant.distribution.placement.ResourceAllocationException;
-import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
-import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
-import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.storage.entity.FloatInterval;
 
 public class SimpleSplitStrategy extends RegionSplitStrategy {
@@ -45,25 +40,6 @@ public class SimpleSplitStrategy extends RegionSplitStrategy {
 		logger.info("Split at dimension:" + splitDimension + " interval: " + interval);
 		float midpoint = interval.getMidpoint();
 		
-		logger.info("Set split at:" + midpoint);
-		region.setSplit(midpoint);
-
-		try {
-			// Allocate systems 
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			DistributionRegionHelper.allocateSystemsToNewRegion(region.getLeftChild(), zookeeperClient);
-			DistributionRegionHelper.allocateSystemsToNewRegion(region.getRightChild(), zookeeperClient);
-		
-			// Let the data settle down
-			Thread.sleep(5000);
-			
-		} catch (ZookeeperException e) {
-			logger.warn("Unable to assign systems to splitted region: " + region, e);
-		} catch (ResourceAllocationException e) {
-			logger.warn("Unable to find systems for splitted region: " + region, e);
-		} catch (InterruptedException e) {
-			logger.warn("Got InterruptedException while wait for settle down: " + region, e);
-		}
-		
+		performSplitAtPosition(region, midpoint);
 	}
 }

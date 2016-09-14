@@ -14,6 +14,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.MembershipConnectionService;
+import de.fernunihagen.dna.scalephant.distribution.placement.ResourceAllocationException;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
@@ -245,5 +246,32 @@ public abstract class RegionSplitStrategy {
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Perform a split at the given position
+	 * @param region
+	 * @param splitPosition
+	 */
+	protected void performSplitAtPosition(final DistributionRegion region, final float splitPosition) {
+		logger.info("Set split at:" + splitPosition);
+		region.setSplit(splitPosition);
+	
+		try {
+			// Allocate systems 
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			DistributionRegionHelper.allocateSystemsToNewRegion(region.getLeftChild(), zookeeperClient);
+			DistributionRegionHelper.allocateSystemsToNewRegion(region.getRightChild(), zookeeperClient);
+		
+			// Let the data settle down
+			Thread.sleep(5000);
+			
+		} catch (ZookeeperException e) {
+			logger.warn("Unable to assign systems to splitted region: " + region, e);
+		} catch (ResourceAllocationException e) {
+			logger.warn("Unable to find systems for splitted region: " + region, e);
+		} catch (InterruptedException e) {
+			logger.warn("Got InterruptedException while wait for settle down: " + region, e);
+		}
 	}
 }
