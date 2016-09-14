@@ -1,6 +1,6 @@
 package de.fernunihagen.dna.scalephant.storage.entity;
 
-public class FloatInterval {
+public class FloatInterval implements Comparable<FloatInterval> {
 	
 	/**
 	 * The begin of the interval
@@ -281,6 +281,15 @@ public class FloatInterval {
 		}
 		
 		return true;
+	}
+
+	@Override
+	public int compareTo(final FloatInterval otherInterval) {
+		if(getBegin() != otherInterval.getBegin()) {
+			return Float.compare(getBegin(), otherInterval.getBegin());
+		}
+		
+		return Float.compare(getEnd(), otherInterval.getEnd());
 	}
 	
 }
