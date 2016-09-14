@@ -177,6 +177,23 @@ public class StorageInterface {
 	}
 	
 	/**
+	 * Get all tables for a given distribution group
+	 * @return
+	 */
+	public static List<SSTableName> getAllTablesForDistributionGroup(final DistributionGroupName distributionGroupName) {
+		final List<SSTableName> allTables = getAllTables();
+		final List<SSTableName> resultTables = new ArrayList<SSTableName>();
+		
+		for(final SSTableName ssTableName : allTables) {
+			if(ssTableName.getDistributionGroup().equals(distributionGroupName.getFullname())) {
+				resultTables.add(ssTableName);
+			}
+		}
+		
+		return resultTables;
+	}
+	
+	/**
 	 * Shutdown all instances
 	 * 
 	 */
