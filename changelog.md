@@ -1,6 +1,6 @@
 # Changelog
 
-### Version 0.1.2 (Alpha) - TBA
+### Version 0.1.2 (Alpha) - 14.09.2016
 - Implemented the recovery service
 - Unified the structure of request and response packages
 - Introduced connection capabilities and connection handshaking
