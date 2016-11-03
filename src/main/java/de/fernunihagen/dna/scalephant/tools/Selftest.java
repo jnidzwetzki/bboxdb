@@ -14,9 +14,14 @@ import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 public class Selftest {
 
 	/**
+	 * The name of the distribution group
+	 */
+	private static final String DISTRIBUTION_GROUP = "2_testgroup";
+	
+	/**
 	 * The table to query
 	 */
-	private static final String TABLE = "mytable";
+	private static final String TABLE = DISTRIBUTION_GROUP + "_mytable";
 	
 	/**
 	 * The amount of operations
@@ -40,8 +45,8 @@ public class Selftest {
 	
 		final ScalephantCluster scalephantClient = new ScalephantCluster(endpoints, clustername); 
 		scalephantClient.connect();
-		scalephantClient.deleteDistributionGroup("2_testgroup");
-		scalephantClient.createDistributionGroup("2_testgroup", (short) 2);
+		scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
 		
 		executeSelftest(scalephantClient);
 	}
