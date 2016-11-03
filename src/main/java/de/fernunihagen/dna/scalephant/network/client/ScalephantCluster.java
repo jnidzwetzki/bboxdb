@@ -84,13 +84,10 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture deleteTable(final String table) {
+	public OperationFuture deleteTable(final String table) throws ScalephantException {
 		
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			logger.warn("deleteTable called, but connection list is empty");
-			final ClientOperationFuture future = new ClientOperationFuture();
-			future.setFailedState();
-			return future;
+			throw new ScalephantException("deleteTable called, but connection list is empty");
 		}
 		
 		final MultiClientOperationFuture future = new MultiClientOperationFuture();
@@ -116,10 +113,7 @@ public class ScalephantCluster implements Scalephant {
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
 
 			if(systems.isEmpty()) {
-				logger.warn("Insert tuple called, but system list is empty");
-				final ClientOperationFuture future = new ClientOperationFuture();
-				future.setFailedState();
-				return future;
+				throw new ScalephantException("Insert tuple called, but system list is empty");
 			}
 			
 			// Determine the first system, it will route the request to the remaining systems
@@ -135,14 +129,11 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture deleteTuple(final String table, final String key) {
+	public OperationFuture deleteTuple(final String table, final String key) throws ScalephantException {
 		final List<ScalephantClient> connections = membershipConnectionService.getAllConnections();
 		
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			logger.warn("deleteTuple called, but connection list is empty");
-			final ClientOperationFuture future = new ClientOperationFuture();
-			future.setFailedState();
-			return future;
+			throw new ScalephantException("deleteTuple called, but connection list is empty");
 		}
 		
 		final MultiClientOperationFuture future = new MultiClientOperationFuture();
@@ -173,13 +164,10 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) {
+	public OperationFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) throws ScalephantException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			logger.warn("createDistributionGroup called, but connection list is empty");
-			final ClientOperationFuture future = new ClientOperationFuture();
-			future.setFailedState();
-			return future;
+			throw new ScalephantException("createDistributionGroup called, but connection list is empty");
 		}
 
 		try {
@@ -205,13 +193,10 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture deleteDistributionGroup(final String distributionGroup) {
+	public OperationFuture deleteDistributionGroup(final String distributionGroup) throws ScalephantException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			logger.warn("deleteDistributionGroup called, but connection list is empty");
-			final ClientOperationFuture future = new ClientOperationFuture();
-			future.setFailedState();
-			return future;
+			throw new ScalephantException("deleteDistributionGroup called, but connection list is empty");
 		}
 		
 		final MultiClientOperationFuture future = new MultiClientOperationFuture();
@@ -225,12 +210,9 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture queryKey(final String table, final String key) {
+	public OperationFuture queryKey(final String table, final String key) throws ScalephantException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			logger.warn("queryKey called, but connection list is empty");
-			final ClientOperationFuture future = new ClientOperationFuture();
-			future.setFailedState();
-			return future;
+			throw new ScalephantException("queryKey called, but connection list is empty");
 		}
 		
 		final MultiClientOperationFuture future = new MultiClientOperationFuture();
@@ -246,10 +228,7 @@ public class ScalephantCluster implements Scalephant {
 	@Override
 	public OperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) throws ScalephantException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			logger.warn("queryBoundingBox called, but connection list is empty");
-			final ClientOperationFuture future = new ClientOperationFuture();
-			future.setFailedState();
-			return future;
+			throw new ScalephantException("queryBoundingBox called, but connection list is empty");
 		}
 		
 		final MultiClientOperationFuture future = new MultiClientOperationFuture();
@@ -274,12 +253,9 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture queryTime(final String table, final long timestamp) {
+	public OperationFuture queryTime(final String table, final long timestamp) throws ScalephantException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			logger.warn("queryTime called, but connection list is empty");
-			final ClientOperationFuture future = new ClientOperationFuture();
-			future.setFailedState();
-			return future;
+			throw new ScalephantException("queryTime called, but connection list is empty");
 		}
 		
 		final MultiClientOperationFuture future = new MultiClientOperationFuture();

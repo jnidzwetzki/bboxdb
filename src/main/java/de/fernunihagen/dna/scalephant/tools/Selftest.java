@@ -45,9 +45,20 @@ public class Selftest {
 	
 		final ScalephantCluster scalephantClient = new ScalephantCluster(endpoints, clustername); 
 		scalephantClient.connect();
-		scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
-		scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
 		
+		final OperationFuture deleteFuture = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		deleteFuture.waitForAll();
+		if(deleteFuture.isFailed()) {
+			System.err.println("Unable to delete distribution group: " + DISTRIBUTION_GROUP);
+			System.exit(-1);
+		}
+		
+		final OperationFuture createFuture = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
+		createFuture.waitForAll();
+		if(createFuture.isFailed()) {
+			System.err.println("Unable to create distribution group: " + DISTRIBUTION_GROUP);
+			System.exit(-1);
+		}
 		executeSelftest(scalephantClient);
 	}
 
@@ -74,8 +85,9 @@ public class Selftest {
 	 * Delete the stored tuples
 	 * @param scalephantClient
 	 * @throws InterruptedException
+	 * @throws ScalephantException 
 	 */
-	private static void deleteTuples(final ScalephantCluster scalephantClient) throws InterruptedException {
+	private static void deleteTuples(final ScalephantCluster scalephantClient) throws InterruptedException, ScalephantException {
 		System.out.println("Deleting tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
@@ -90,8 +102,9 @@ public class Selftest {
 	 * @param random
 	 * @throws InterruptedException
 	 * @throws ExecutionException
+	 * @throws ScalephantException 
 	 */
-	private static void queryForTuples(final ScalephantCluster scalephantClient, final Random random) throws InterruptedException, ExecutionException {
+	private static void queryForTuples(final ScalephantCluster scalephantClient, final Random random) throws InterruptedException, ExecutionException, ScalephantException {
 		System.out.println("Query for tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(random.nextInt() % NUMBER_OF_OPERATIONS);
