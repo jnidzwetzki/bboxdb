@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -26,7 +27,7 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 	protected final static String TABLE = DISTRIBUTION_GROUP + "_testdata";
 
 	@Override
-	public void runBenchmark() throws InterruptedException, ExecutionException {
+	public void runBenchmark() throws InterruptedException, ExecutionException, ScalephantException {
 
 		// Number of tuples
 		final int tuples = 5000000;

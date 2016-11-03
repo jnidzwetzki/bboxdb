@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.Scalephant;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantCluster;
+import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -17,9 +18,10 @@ public class ScalephantClientExample {
 	 * @param args
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
+	 * @throws ScalephantException 
 	 */
 	@SuppressWarnings("unchecked")
-	public static void main(String[] args) throws InterruptedException, ExecutionException {
+	public static void main(String[] args) throws InterruptedException, ExecutionException, ScalephantException {
 		
 		// A 2 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
 		final String distributionGroup = "2_mygroup3"; 

@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 
 import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantCluster;
+import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -22,7 +23,7 @@ public class Selftest {
 	 */
 	private static final int NUMBER_OF_OPERATIONS = 10000;
 
-	public static void main(final String[] args) throws InterruptedException, ExecutionException {
+	public static void main(final String[] args) throws InterruptedException, ExecutionException, ScalephantException {
 		
 		if(args.length < 2) {
 			System.err.println("Usage: Selftest <Cluster-Name> <Cluster-Endpoint1> <Cluster-EndpointN>");
@@ -50,8 +51,9 @@ public class Selftest {
 	 * @param scalephantClient
 	 * @throws InterruptedException
 	 * @throws ExecutionException
+	 * @throws ScalephantException 
 	 */
-	private static void executeSelftest(final ScalephantCluster scalephantClient) throws InterruptedException, ExecutionException {
+	private static void executeSelftest(final ScalephantCluster scalephantClient) throws InterruptedException, ExecutionException, ScalephantException {
 		final Random random = new Random();
 		
 		while(true) {
@@ -103,8 +105,9 @@ public class Selftest {
 	 * @param scalephantClient
 	 * @throws InterruptedException
 	 * @throws ExecutionException
+	 * @throws ScalephantException 
 	 */
-	private static void insertNewTuples(final ScalephantCluster scalephantClient) throws InterruptedException, ExecutionException {
+	private static void insertNewTuples(final ScalephantCluster scalephantClient) throws InterruptedException, ExecutionException, ScalephantException {
 		System.out.println("Inserting new tuples");
 		
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {

@@ -109,7 +109,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture insertTuple(final String table, final Tuple tuple) {
+	public OperationFuture insertTuple(final String table, final Tuple tuple) throws ScalephantException {
 
 		try {
 			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
@@ -244,7 +244,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
+	public OperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) throws ScalephantException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			logger.warn("queryBoundingBox called, but connection list is empty");
 			final ClientOperationFuture future = new ClientOperationFuture();
@@ -320,11 +320,10 @@ public class ScalephantCluster implements Scalephant {
 	}
 	
 
-	
 	//===============================================================
 	// Test * Test * Test * Test * Test * Test * Test * Test
 	//===============================================================
-	public static void main(final String[] args) throws InterruptedException, ExecutionException {
+	public static void main(final String[] args) throws InterruptedException, ExecutionException, ScalephantException {
 		final String GROUP = "2_TESTGROUP";
 		final String TABLE = "2_TESTGROUP_DATA";
 		

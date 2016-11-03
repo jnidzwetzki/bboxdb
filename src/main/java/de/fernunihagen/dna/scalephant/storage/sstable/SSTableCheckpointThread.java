@@ -16,6 +16,7 @@ import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanc
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
+import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.storage.Memtable;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.util.Stoppable;
@@ -65,7 +66,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
 			final DistributionRegion distributionGroupRoot = DistributionGroupCache.getGroupForTableName(ssTableManager.getSSTableName().getFullname(), zookeeperClient);
 			distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableManager.getSSTableName().getNameprefix());
-		} catch (ZookeeperException e) {
+		} catch (ZookeeperException | ScalephantException e) {
 			logger.warn("Unable to find distribution region: " , e);
 		}
 	}

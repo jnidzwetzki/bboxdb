@@ -28,7 +28,7 @@ public interface Scalephant {
 	 * @param table
 	 * @return
 	 */
-	public abstract OperationFuture deleteTable(final String table);
+	public abstract OperationFuture deleteTable(final String table) throws ScalephantException;
 
 	/**
 	 * Insert a new tuple into the given table
@@ -36,7 +36,7 @@ public interface Scalephant {
 	 * @param table
 	 * @return
 	 */
-	public abstract OperationFuture insertTuple(final String table, final Tuple tuple);
+	public abstract OperationFuture insertTuple(final String table, final Tuple tuple) throws ScalephantException;
 
 	/**
 	 * Delete the given key from a table
@@ -44,13 +44,13 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public abstract OperationFuture deleteTuple(final String table, final String key);
+	public abstract OperationFuture deleteTuple(final String table, final String key) throws ScalephantException;
 
 	/**
 	 * List the existing tables
 	 * @return
 	 */
-	public abstract OperationFuture listTables();
+	public abstract OperationFuture listTables() throws ScalephantException;
 
 	/**
 	 * Create a new distribution group
@@ -58,7 +58,7 @@ public interface Scalephant {
 	 * @return
 	 */
 	public abstract OperationFuture createDistributionGroup(
-			final String distributionGroup, final short replicationFactor);
+			final String distributionGroup, final short replicationFactor) throws ScalephantException;
 
 	/**
 	 * Delete a distribution group
@@ -66,7 +66,7 @@ public interface Scalephant {
 	 * @return
 	 */
 	public abstract OperationFuture deleteDistributionGroup(
-			final String distributionGroup);
+			final String distributionGroup) throws ScalephantException;
 
 	/**
 	 * Query the given table for a specific key
@@ -74,7 +74,7 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public abstract OperationFuture queryKey(final String table, final String key);
+	public abstract OperationFuture queryKey(final String table, final String key) throws ScalephantException;
 
 	/**
 	 * Execute a bounding box query on the given table
@@ -83,7 +83,7 @@ public interface Scalephant {
 	 * @return
 	 */
 	public abstract OperationFuture queryBoundingBox(final String table,
-			final BoundingBox boundingBox);
+			final BoundingBox boundingBox) throws ScalephantException;
 
 	/**
 	 * Query the given table for all tuples newer than
@@ -91,7 +91,7 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public abstract OperationFuture queryTime(final String table, final long timestamp);
+	public abstract OperationFuture queryTime(final String table, final long timestamp) throws ScalephantException;
 
 	/**
 	 * Is the client connected?

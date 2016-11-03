@@ -16,6 +16,7 @@ import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 import crosby.binary.osmosis.OsmosisReader;
 import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.performance.osm.OSMMultiPointEntityFilter;
 import de.fernunihagen.dna.scalephant.performance.osm.OSMRoadsEntityFilter;
 import de.fernunihagen.dna.scalephant.performance.osm.OSMSinglePointEntityFilter;
@@ -56,15 +57,19 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 				final Node node = (Node) entityContainer.getEntity();						
 				
 				if(entityFilter.forwardNode(node)) {
-					final BoundingBox boundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
-					final Tuple tuple = new Tuple(Long.toString(node.getId()), boundingBox, "abc".getBytes());
-					final OperationFuture insertFuture = scalephantClient.insertTuple(table, tuple);
-					
-					// register pending future
-					pendingFutures.add(insertFuture);
-					checkForCompletedFutures();
-					
-					insertedTuples.incrementAndGet();
+					try {
+						final BoundingBox boundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
+						final Tuple tuple = new Tuple(Long.toString(node.getId()), boundingBox, "abc".getBytes());
+						final OperationFuture insertFuture = scalephantClient.insertTuple(table, tuple);
+						
+						// register pending future
+						pendingFutures.add(insertFuture);
+						checkForCompletedFutures();
+						
+						insertedTuples.incrementAndGet();
+					} catch (ScalephantException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -112,7 +117,11 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 				final boolean forward = entityFilter.forwardNode(way.getTags());
 
 				if(forward) {
-					insertWay(way, nodeMap);
+					try {
+						insertWay(way, nodeMap);
+					} catch (ScalephantException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -174,7 +183,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	}
 
 	@Override
-	public void runBenchmark() throws InterruptedException, ExecutionException {
+	public void runBenchmark() throws InterruptedException, ExecutionException, ScalephantException {
 
 		// Remove old data
 		final OperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
@@ -217,8 +226,9 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	 * Insert the given way into the scalephant
 	 * @param way
 	 * @param nodeMap 
+	 * @throws ScalephantException 
 	 */
-	protected boolean insertWay(final Way way, final Map<Long, Node> nodeMap) {
+	protected boolean insertWay(final Way way, final Map<Long, Node> nodeMap) throws ScalephantException {
 		BoundingBox boundingBox = null;
 		
 		for(final WayNode wayNode : way.getWayNodes()) {

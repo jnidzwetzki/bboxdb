@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -80,7 +81,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	}
 	
 	@Override
-	public void runBenchmark() throws InterruptedException, ExecutionException {
+	public void runBenchmark() throws InterruptedException, ExecutionException, ScalephantException {
 	
 		for(int i = 0; i < 100; i++) {
 			final long start = System.nanoTime();
