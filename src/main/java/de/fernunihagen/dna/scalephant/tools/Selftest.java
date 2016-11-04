@@ -37,35 +37,35 @@ public class Selftest {
 
 		System.out.println("Running selftest......");
 		
-		final String clustername = args[1];
+		final String clustername = args[0];
 		final Collection<String> endpoints = new ArrayList<String>();
 		for(int i = 1; i < args.length; i++) {
 			endpoints.add(args[i]);
 		}
 	
-		final ScalephantCluster scalephantClient = new ScalephantCluster(endpoints, clustername); 
-		scalephantClient.connect();
+		final ScalephantCluster scalephantCluster = new ScalephantCluster(endpoints, clustername); 
+		scalephantCluster.connect();
 		
-		if(! scalephantClient.isConnected()) {
+		if(! scalephantCluster.isConnected()) {
 			System.err.println("Connection could not be established");
 			System.exit(-1);
 		}
 		
-		final OperationFuture deleteFuture = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		final OperationFuture deleteFuture = scalephantCluster.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteFuture.waitForAll();
 		if(deleteFuture.isFailed()) {
 			System.err.println("Unable to delete distribution group: " + DISTRIBUTION_GROUP);
 			System.exit(-1);
 		}
 		
-		final OperationFuture createFuture = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
+		final OperationFuture createFuture = scalephantCluster.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
 		createFuture.waitForAll();
 		if(createFuture.isFailed()) {
 			System.err.println("Unable to create distribution group: " + DISTRIBUTION_GROUP);
 			System.exit(-1);
 		}
 		
-		executeSelftest(scalephantClient);
+		executeSelftest(scalephantCluster);
 	}
 
 	/**
