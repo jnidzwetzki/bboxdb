@@ -46,6 +46,11 @@ public class Selftest {
 		final ScalephantCluster scalephantClient = new ScalephantCluster(endpoints, clustername); 
 		scalephantClient.connect();
 		
+		if(! scalephantClient.isConnected()) {
+			System.err.println("Connection could not be established");
+			System.exit(-1);
+		}
+		
 		final OperationFuture deleteFuture = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteFuture.waitForAll();
 		if(deleteFuture.isFailed()) {
@@ -59,6 +64,7 @@ public class Selftest {
 			System.err.println("Unable to create distribution group: " + DISTRIBUTION_GROUP);
 			System.exit(-1);
 		}
+		
 		executeSelftest(scalephantClient);
 	}
 
