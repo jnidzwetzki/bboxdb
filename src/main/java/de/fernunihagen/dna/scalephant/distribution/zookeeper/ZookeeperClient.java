@@ -61,9 +61,14 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected volatile boolean shutdownPending = false;
 	
 	/**
-	 * The timeout for the zookeeper session
+	 * The timeout for the zookeeper session in miliseconds
 	 */
-	protected final static int DEFAULT_TIMEOUT = 3000;
+	protected final static int ZOOKEEPER_SESSION_TIMEOUT = 10000;
+	
+	/**
+	 * The connect timeout in seconds
+	 */
+	protected final static int ZOOKEEPER_CONNCT_TIMEOUT = 30;
 
 	/**
 	 * The logger
@@ -95,7 +100,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			
 			final CountDownLatch connectLatch = new CountDownLatch(1);
 			
-			zookeeper = new ZooKeeper(generateConnectString(), DEFAULT_TIMEOUT, new Watcher() {
+			zookeeper = new ZooKeeper(generateConnectString(), ZOOKEEPER_SESSION_TIMEOUT, new Watcher() {
 				@Override
 				public void process(final WatchedEvent event) {
 					if(event.getState() == Watcher.Event.KeeperState.SyncConnected) {
@@ -104,10 +109,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 				}
 			});
 			
-			boolean waitResult = connectLatch.await(30, TimeUnit.SECONDS);
+			boolean waitResult = connectLatch.await(ZOOKEEPER_CONNCT_TIMEOUT, TimeUnit.SECONDS);
 			
 			if(waitResult == false) {
-				logger.warn("Unable to connect in 30 seconds");
+				logger.warn("Unable to connect in " + ZOOKEEPER_CONNCT_TIMEOUT + " seconds");
 				closeZookeeperConnectionNE();
 				return;
 			}
