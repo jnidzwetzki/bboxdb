@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -156,7 +157,14 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 				}
 			});
 			
-			connectLatch.await();
+			boolean waitResult = connectLatch.await(30, TimeUnit.SECONDS);
+			
+			if(waitResult == false) {
+				logger.warn("Unable to connect in 30 seconds");
+				closeZookeeperConnectionNE();
+				return;
+			}
+			
 			createDirectoryStructureIfNeeded();
 			
 			registerInstanceIfNameWasSet();
@@ -170,19 +178,27 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	@Override
 	public void shutdown() {
-		
 		shutdownPending = true;
 		stopMembershipObserver();
-		
-		if(zookeeper != null) {
-			try {
-				logger.info("Disconnecting from zookeeper");
-				zookeeper.close();
-			} catch (InterruptedException e) {
-				logger.warn("Got exception while closing zookeeper connection", e);
-			}
-			zookeeper = null;
+		closeZookeeperConnectionNE();
+	}
+
+	/**
+	 * Close the zookeeper connection without any exception
+	 */
+	protected void closeZookeeperConnectionNE() {
+		if(zookeeper == null) {
+			return;
 		}
+		
+		try {
+			logger.info("Disconnecting from zookeeper");
+			zookeeper.close();
+		} catch (InterruptedException e) {
+			logger.warn("Got exception while closing zookeeper connection", e);
+		}
+		
+		zookeeper = null;
 	}
 	
 	/**
