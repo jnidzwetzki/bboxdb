@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.nameprefix.NameprefixInstanceManager;
+import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperNodeNames;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 
@@ -48,7 +49,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		try {
 			// Update zookeeper path
 			zookeeperPath = zookeeperClient.getZookeeperPathForDistributionRegion(this);
-			zookeeperSystemsPath = zookeeperPath + "/" + ZookeeperClient.NodeNames.NAME_SYSTEMS;
+			zookeeperSystemsPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
 			
 			logger.info("Register watch for: " + zookeeperPath);
 			zookeeperClient.getChildren(zookeeperPath, this);
@@ -124,7 +125,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 			boolean splitExists = false;
 			
 			for(final String child : childs) {
-				if(child.endsWith(ZookeeperClient.NodeNames.NAME_SPLIT)) {
+				if(child.endsWith(ZookeeperNodeNames.NAME_SPLIT)) {
 					splitExists = true;
 					break;
 				}
@@ -205,18 +206,18 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		final String zookeeperPath = zookeeperClient.getZookeeperPathForDistributionRegion(this);
 		
 		// Left child
-		final String leftPath = zookeeperPath + "/" + ZookeeperClient.NodeNames.NAME_LEFT;
+		final String leftPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_LEFT;
 		logger.debug("Create: " + leftPath);
 		createNewChild(leftPath, leftChild);
 
 		// Right child
-		final String rightPath = zookeeperPath + "/" + ZookeeperClient.NodeNames.NAME_RIGHT;
+		final String rightPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_RIGHT;
 		logger.debug("Create: " + rightPath);
 		createNewChild(rightPath, rightChild);
 		
 		// Write split position and update state
 		final String splitPosString = Float.toString(getSplit());
-		zookeeperClient.createPersistentNode(zookeeperPath + "/" + ZookeeperClient.NodeNames.NAME_SPLIT, 
+		zookeeperClient.createPersistentNode(zookeeperPath + "/" + ZookeeperNodeNames.NAME_SPLIT, 
 				splitPosString.getBytes());
 		zookeeperClient.setStateForDistributionGroup(zookeeperPath, STATE_SPLITTING);
 		zookeeperClient.setStateForDistributionGroup(leftPath, STATE_ACTIVE);
@@ -233,13 +234,13 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		
 		final int namePrefix = zookeeperClient.getNextTableIdForDistributionGroup(getName());
 		
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperClient.NodeNames.NAME_NAMEPREFIX, 
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
 				Integer.toString(namePrefix).getBytes());
 		
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperClient.NodeNames.NAME_SYSTEMS, 
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 				"".getBytes());
 		
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperClient.NodeNames.NAME_STATE, 
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_STATE, 
 				STATE_CREATING.getBytes());
 		
 		child.setNameprefix(namePrefix);

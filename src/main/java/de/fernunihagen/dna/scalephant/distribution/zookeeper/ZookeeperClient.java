@@ -64,66 +64,13 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * The timeout for the zookeeper session
 	 */
 	protected final static int DEFAULT_TIMEOUT = 3000;
-	
 
-	
-	public class NodeNames {
-		/**
-		 * The prefix for nodes in sequential queues
-		 */
-		public final static String SEQUENCE_QUEUE_PREFIX = "id-";
-		
-		/**
-		 * Name of the left tree node
-		 */
-		public final static String NAME_LEFT = "left";
-		
-		/**
-		 * Name of the right tree node
-		 */
-		public final static String NAME_RIGHT = "right";
-		
-		/**
-		 * Name of the split node
-		 */
-		public final static String NAME_SPLIT = "split";
-		
-		/**
-		 * Name of the name prefix node
-		 */
-		public final static String NAME_NAMEPREFIX = "nameprefix";
-		
-		/**
-		 * Name of the name prefix queue
-		 */
-		public static final String NAME_PREFIXQUEUE = "nameprefixqueue";
-	
-		/**
-		 * Name of the replication node
-		 */
-		public final static String NAME_REPLICATION = "replication";
-		
-		/**
-		 * Name of the systems node
-		 */
-		public final static String NAME_SYSTEMS = "systems";
-		
-		/**
-		 * Name of the version node
-		 */
-		public final static String NAME_VERSION = "version";
-		
-		/**
-		 * Name of the state node
-		 */
-		public final static String NAME_STATE = "state";
-	}
-	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
 
+	
 	public ZookeeperClient(final Collection<String> zookeeperHosts, final String clustername) {
 		super();
 		this.zookeeperHosts = zookeeperHosts;
@@ -512,7 +459,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return
 	 */
 	protected String getDistributionGroupIdQueuePath(final String distributionGroup) {
-		 return getDistributionGroupPath(distributionGroup) + "/" + NodeNames.NAME_PREFIXQUEUE;
+		 return getDistributionGroupPath(distributionGroup) + "/" + ZookeeperNodeNames.NAME_PREFIXQUEUE;
 	}
 	
 	/**
@@ -581,7 +528,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		try {	
 			final String nodename = createPersistentSequencialNode(distributionGroupIdQueuePath + "/" 
-					+ NodeNames.SEQUENCE_QUEUE_PREFIX, "".getBytes());
+					+ ZookeeperNodeNames.SEQUENCE_QUEUE_PREFIX, "".getBytes());
 			
 			// Delete the created node
 			logger.debug("Got new table id; deleting node: " + nodename);
@@ -590,7 +537,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			// id-0000000063
 			// Element 0: id-
 			// Element 1: The number of the node
-			final String[] splittedName = nodename.split(NodeNames.SEQUENCE_QUEUE_PREFIX);
+			final String[] splittedName = nodename.split(ZookeeperNodeNames.SEQUENCE_QUEUE_PREFIX);
 			try {
 				return Integer.parseInt(splittedName[1]);
 			} catch(NumberFormatException e) {
@@ -650,8 +597,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			final float splitFloat = getSplitPositionForPath(path);
 			child.setSplit(splitFloat, false);
 			
-			readDistributionGroupRecursive(path + "/" + NodeNames.NAME_LEFT, child.getLeftChild());
-			readDistributionGroupRecursive(path + "/" + NodeNames.NAME_RIGHT, child.getRightChild());
+			readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_LEFT, child.getLeftChild());
+			readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, child.getRightChild());
 	}
 
 	/**
@@ -662,7 +609,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	protected int getNamePrefixForPath(final String path) throws ZookeeperException {
 		
-		final String namePrefixPath = path + "/" + NodeNames.NAME_NAMEPREFIX;
+		final String namePrefixPath = path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX;
 		String namePrefix = null;
 		
 		try {
@@ -678,7 +625,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws ZookeeperException 
 	 */
 	public String getStateForDistributionRegion(final String path) throws ZookeeperException {
-		final String statePath = path + "/" + NodeNames.NAME_STATE;
+		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
 		return readPathAndReturnString(statePath, false, null);
 	}
 	
@@ -699,7 +646,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @throws ZookeeperException 
 	 */
 	public void setStateForDistributionGroup(final String path, final String state) throws ZookeeperException  {
-		final String statePath = path + "/" + NodeNames.NAME_STATE;
+		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
 		try {
 			zookeeper.setData(statePath, state.getBytes(), -1);
 		} catch (KeeperException | InterruptedException e) {
@@ -727,7 +674,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	protected boolean isGroupSplitted(final String path) throws ZookeeperException {
 		try {
-			final String splitPathName = path + "/" + NodeNames.NAME_SPLIT;
+			final String splitPathName = path + "/" + ZookeeperNodeNames.NAME_SPLIT;
 			if(zookeeper.exists(splitPathName, false) == null) {
 				return false;
 			} else {
@@ -746,7 +693,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	protected float getSplitPositionForPath(final String path) throws ZookeeperException  {
 		
-		final String splitPathName = path + "/" + NodeNames.NAME_SPLIT;
+		final String splitPathName = path + "/" + ZookeeperNodeNames.NAME_SPLIT;
 		String splitString = null;
 		
 		try {			
@@ -825,19 +772,19 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			
 			final int nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
 						
-			zookeeper.create(path + "/" + NodeNames.NAME_NAMEPREFIX, Integer.toString(nameprefix).getBytes(), 
+			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, Integer.toString(nameprefix).getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
-			zookeeper.create(path + "/" + NodeNames.NAME_REPLICATION, Short.toString(replicationFactor).getBytes(), 
+			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_REPLICATION, Short.toString(replicationFactor).getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
-			zookeeper.create(path + "/" + NodeNames.NAME_SYSTEMS, "".getBytes(), 
+			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS, "".getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
-			zookeeper.create(path + "/" + NodeNames.NAME_VERSION, Long.toString(System.currentTimeMillis()).getBytes(), 
+			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_VERSION, Long.toString(System.currentTimeMillis()).getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
-			zookeeper.create(path + "/" + NodeNames.NAME_STATE, DistributionRegion.STATE_ACTIVE.getBytes(), 
+			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_STATE, DistributionRegion.STATE_ACTIVE.getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
 		} catch (KeeperException | InterruptedException e) {
@@ -930,7 +877,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		try {
 			final String path = getDistributionGroupPath(distributionGroup);
-			final String fullPath = path + "/" + NodeNames.NAME_REPLICATION;
+			final String fullPath = path + "/" + ZookeeperNodeNames.NAME_REPLICATION;
 			final byte[] data = zookeeper.getData(fullPath, false, null);
 			
 			try {
@@ -951,7 +898,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 */
 	public String getVersionForDistributionGroup(final String distributionGroup) throws ZookeeperException {
 		final String path = getDistributionGroupPath(distributionGroup);
-		final String fullPath = path + "/" + NodeNames.NAME_VERSION;
+		final String fullPath = path + "/" + ZookeeperNodeNames.NAME_VERSION;
 		return readPathAndReturnString(fullPath, false, null);	 
 	}
 
@@ -997,9 +944,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		DistributionRegion tmpRegion = distributionRegion;
 		while(tmpRegion.getParent() != null) {
 			if(tmpRegion.isLeftChild()) {
-				sb.insert(0, "/" + NodeNames.NAME_LEFT);
+				sb.insert(0, "/" + ZookeeperNodeNames.NAME_LEFT);
 			} else {
-				sb.insert(0, "/" + NodeNames.NAME_RIGHT);
+				sb.insert(0, "/" + ZookeeperNodeNames.NAME_RIGHT);
 			}
 			
 			tmpRegion = tmpRegion.getParent();
@@ -1018,7 +965,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	public Collection<DistributedInstance> getSystemsForDistributionRegion(final DistributionRegion region) throws ZookeeperException {
 		try {
 			final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS;
+			final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
 			
 			// Does the requested node exists?
 			if(zookeeper.exists(path, false) == null) {
@@ -1049,7 +996,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
 	
-		final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS;
+		final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
 		logger.debug("Register system under systems node: " + path);
 		createPersistentNode(path + "/" + system.getStringValue(), "".getBytes());
 	}
@@ -1066,7 +1013,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 		
 		try {
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
+			final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
 			
 			logger.debug("Set checkpoint for: " + path + " to " + checkpoint);
 			
@@ -1094,7 +1041,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 		
 		try {
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
+			final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
 		
 			if(zookeeper.exists(path, null) == null) {
 				throw new ZookeeperException("Path " + path + " does not exists");
@@ -1128,7 +1075,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		}
 		
 		try {
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + NodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
+			final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
 			
 			if(zookeeper.exists(path, null) == null) {
 				return false;
