@@ -65,6 +65,9 @@ public class Selftest {
 			System.exit(-1);
 		}
 		
+		// Wait for distribution group to appear
+		Thread.sleep(1000);
+		
 		executeSelftest(scalephantCluster);
 	}
 
@@ -116,6 +119,12 @@ public class Selftest {
 			final String key = Integer.toString(random.nextInt() % NUMBER_OF_OPERATIONS);
 			final OperationFuture queryResult = scalephantClient.queryKey(TABLE, key);
 			queryResult.waitForAll();
+			
+			if(queryResult.isFailed()) {
+				System.err.println("Got failed future, when query for: " + i);
+				System.exit(-1);
+			}
+			
 			final Tuple result = (Tuple) queryResult.get(0);
 			if(result.getKey() != key) {
 				System.err.println("Got tuple with wrong key");
