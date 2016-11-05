@@ -113,7 +113,7 @@ public class ScalephantCluster implements Scalephant {
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
 
 			if(systems.isEmpty()) {
-				throw new ScalephantException("Insert tuple called, but system list is empty");
+				throw new ScalephantException("Insert tuple called, but system list for bounding box is empty: " + tuple.getBoundingBox());
 			}
 			
 			// Determine the first system, it will route the request to the remaining systems
