@@ -51,6 +51,7 @@ public class Selftest {
 			System.exit(-1);
 		}
 		
+		System.out.println("Delete old distribution group: " + DISTRIBUTION_GROUP);
 		final OperationFuture deleteFuture = scalephantCluster.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteFuture.waitForAll();
 		if(deleteFuture.isFailed()) {
@@ -58,6 +59,7 @@ public class Selftest {
 			System.exit(-1);
 		}
 		
+		System.out.println("Create new distribution group: " + DISTRIBUTION_GROUP);
 		final OperationFuture createFuture = scalephantCluster.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
 		createFuture.waitForAll();
 		if(createFuture.isFailed()) {
