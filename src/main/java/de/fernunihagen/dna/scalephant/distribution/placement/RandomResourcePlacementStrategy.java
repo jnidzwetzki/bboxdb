@@ -38,7 +38,7 @@ public class RandomResourcePlacementStrategy extends ResourcePlacementStrategy {
 		PlacementHelper.removeAllNonReadySystems(availableSystems);
 		
 		if(availableSystems.isEmpty()) {
-			throw new ResourceAllocationException("Unable to choose a system, all systems are blacklisted");
+			throw new ResourceAllocationException("Unable to choose a system, all systems are blacklisted. Blacklisted: " + blacklist + " / All: " + systems);
 		}
 		
 		final int element = Math.abs(randomGenerator.nextInt()) % availableSystems.size();
