@@ -499,4 +499,10 @@ class TotalLevel {
 	public int getMaxLevel() {
 		return maxLevel;
 	}
+
+	@Override
+	public String toString() {
+		return "TotalLevel [maxLevel=" + maxLevel + "]";
+	}
+	
 }
