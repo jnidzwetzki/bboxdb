@@ -1,6 +1,7 @@
 # Changelog
 
 ### Version 0.2.0 (Beta) - TBA
+- Fixed duplicate log entries
 
 ### Version 0.1.2 (Alpha) - 14.09.2016
 - Implemented the recovery service
