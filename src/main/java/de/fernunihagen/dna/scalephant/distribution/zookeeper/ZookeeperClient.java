@@ -232,7 +232,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 				return DistributedInstanceState.READWRITE;
 			}
 		} catch (ZookeeperException e) {
-			logger.debug("Unable to read instance state from: " + statePath);
+			// Ignore exception, instance state is unknown
 		}
 
 		return DistributedInstanceState.UNKNOWN;
