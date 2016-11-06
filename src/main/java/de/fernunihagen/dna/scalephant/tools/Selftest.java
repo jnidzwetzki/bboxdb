@@ -51,6 +51,9 @@ public class Selftest {
 			System.exit(-1);
 		}
 		
+		System.out.println("Connected to cluster: " + clustername);
+		System.out.println("With endpoint(s): " + endpoints);
+		
 		System.out.println("Delete old distribution group: " + DISTRIBUTION_GROUP);
 		final OperationFuture deleteFuture = scalephantCluster.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteFuture.waitForAll();
@@ -58,6 +61,9 @@ public class Selftest {
 			System.err.println("Unable to delete distribution group: " + DISTRIBUTION_GROUP);
 			System.exit(-1);
 		}
+		
+		// Wait for distribution group to settle
+		Thread.sleep(5000);
 		
 		System.out.println("Create new distribution group: " + DISTRIBUTION_GROUP);
 		final OperationFuture createFuture = scalephantCluster.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
@@ -68,7 +74,7 @@ public class Selftest {
 		}
 		
 		// Wait for distribution group to appear
-		Thread.sleep(1000);
+		Thread.sleep(5000);
 		
 		executeSelftest(scalephantCluster);
 	}
@@ -124,6 +130,11 @@ public class Selftest {
 			
 			if(queryResult.isFailed()) {
 				System.err.println("Got failed future, when query for: " + i);
+				System.exit(-1);
+			}
+			
+			if(! (queryResult.get(0) instanceof Tuple)) {
+				System.err.println("Result is not a tuple. Key: " + key + " result: " + queryResult.get(0));
 				System.exit(-1);
 			}
 			
