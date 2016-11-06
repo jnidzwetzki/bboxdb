@@ -105,7 +105,7 @@ scalephant_start() {
     config="$basedir/../conf/scalephant.yaml"
 
     if [ ! -f $config ]; then
-        echo "Unable to locate scalepahnt config $config"
+        echo "Unable to locate scalephant config $config"
         exit -1
     fi
 
