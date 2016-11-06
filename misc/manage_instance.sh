@@ -122,7 +122,7 @@ scalephant_start() {
 
     sed -i "s/zookeepernodes: .*/zookeepernodes: $zookeeper_connect/" $config
 
-    ./jsvc $debug_flag -outfile $basedir/logs/scalephant.log -pidfile $basedir/scalephant.pid -cwd $basedir -cp $classpath de.fernunihagen.dna.scalephant.ScalephantMain
+    ./jsvc $debug_flag -outfile $basedir/logs/scalephant.out.log -pidfile $basedir/scalephant.pid -Dscalephant.log.dir="$basedir/logs" -cwd $basedir -cp $classpath de.fernunihagen.dna.scalephant.ScalephantMain
 }
 
 ###
