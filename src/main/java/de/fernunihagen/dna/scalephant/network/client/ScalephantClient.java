@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,22 @@ public class ScalephantClient implements Scalephant {
 	protected Thread serverResponseReaderThread;
 	
 	/**
+	 * The keep alive handler instance
+	 */
+	protected KeepAliveHandler keepAliveHandler;
+	
+	/**
+	 * The keep alive thread
+	 */
+	protected Thread keepAliveThread;
+	
+	/**
+	 * If no data was send for keepAliveTime, a keep alive package is send to the 
+	 * server to keep the tcp connection open
+	 */
+	protected long keepAliveTime = TimeUnit.SECONDS.toMillis(30);
+	
+	/**
 	 * The connection state
 	 */
 	protected volatile NetworkConnectionState connectionState;
@@ -169,7 +186,7 @@ public class ScalephantClient implements Scalephant {
 			pendingCalls.clear();
 			resultBuffer.clear();
 			
-			// Start up the resonse reader
+			// Start up the response reader
 			serverResponseReader = new ServerResponseReader();
 			serverResponseReaderThread = new Thread(serverResponseReader);
 			serverResponseReaderThread.setName("Server response reader for " + getConnectionName());
@@ -223,6 +240,11 @@ public class ScalephantClient implements Scalephant {
 		
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 		logger.info("Handshaking with " + getConnectionName() + " done");
+		
+		keepAliveHandler = new KeepAliveHandler();
+		keepAliveThread = new Thread(keepAliveHandler);
+		keepAliveThread.setName("Keep alive thread for: " + serverHostname + " / " + serverPort);
+		keepAliveThread.start();
 	}
 	
 	/* (non-Javadoc)
@@ -545,6 +567,27 @@ public class ScalephantClient implements Scalephant {
 		}
 		
 		return sequenceNumber;
+	}
+	
+	class KeepAliveHandler implements Runnable {
+
+		@Override
+		public void run() {
+			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+				if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
+					logger.debug("Sending keep alive package to: " + serverHostname + " / " + serverPort);
+					sendKeepAlivePackage();
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						// Ingore InterruptedException
+						break;
+					}
+				}
+			}
+			
+			logger.debug("Keep alive thread for: " + serverHostname + " / " + serverPort + " has terminated");
+		}
 	}
 	
 	/**
