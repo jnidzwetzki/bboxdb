@@ -129,18 +129,18 @@ public class Selftest {
 			queryResult.waitForAll();
 			
 			if(queryResult.isFailed()) {
-				System.err.println("Got failed future, when query for: " + i);
+				System.err.println("Query " + i + ": Got failed future, when query for: " + i);
 				System.exit(-1);
 			}
 			
 			if(! (queryResult.get(0) instanceof Tuple)) {
-				System.err.println("Result is not a tuple. Key: " + key + " result: " + queryResult.get(0));
+				System.err.println("Query " + i + ": Result is not a tuple. Key: " + key + " result: " + queryResult.get(0));
 				System.exit(-1);
 			}
 			
 			final Tuple result = (Tuple) queryResult.get(0);
 			if(result.getKey() != key) {
-				System.err.println("Got tuple with wrong key");
+				System.err.println("Query " + i + ": Got tuple with wrong key");
 				System.exit(-1);
 			}
 		}
