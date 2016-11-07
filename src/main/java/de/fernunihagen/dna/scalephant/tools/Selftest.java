@@ -133,14 +133,22 @@ public class Selftest {
 				System.exit(-1);
 			}
 			
-			if(! (queryResult.get(0) instanceof Tuple)) {
-				System.err.println("Query " + i + ": Result is not a tuple. Key: " + key + " result: " + queryResult.get(0));
-				System.exit(-1);
+
+			boolean tupleFound = false;
+			
+			for(int result = 0; result < queryResult.getNumberOfResultObjets(); result++) {
+				if(queryResult.get(result) instanceof Tuple) {
+					final Tuple resultTuple = (Tuple) queryResult.get(result);
+					tupleFound = true;
+					if(resultTuple.getKey() != key) {
+						System.err.println("Query " + i + ": Got tuple with wrong key");
+						System.exit(-1);
+					}
+				}
 			}
 			
-			final Tuple result = (Tuple) queryResult.get(0);
-			if(result.getKey() != key) {
-				System.err.println("Query " + i + ": Got tuple with wrong key");
+			if(tupleFound == false) {
+				System.err.println("Query " + i + ": Key " + key + " not found");
 				System.exit(-1);
 			}
 		}
