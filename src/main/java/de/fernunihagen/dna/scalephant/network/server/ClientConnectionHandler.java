@@ -316,6 +316,19 @@ public class ClientConnectionHandler implements Runnable {
 	}
 	
 	/**
+	 * Handle the keep alive package. Simply send a success response package back
+	 * @param packageHeader
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleKeepAlivePackage(final ByteBuffer encodedPackage, final short packageSequence) {
+		writeResultPackage(new SuccessResponse(packageSequence));
+		
+		return true;
+	}
+		
+	
+	/**
 	 * Delete an existing distribution group
 	 * @param packageHeader
 	 * @param packageSequence
@@ -802,6 +815,12 @@ public class ClientConnectionHandler implements Runnable {
 					logger.debug("Got delete distribution group package");
 				}
 				return handleDeleteDistributionGroup(encodedPackage, packageSequence);
+			
+			case NetworkConst.REQUEST_TYPE_KEEP_ALIVE:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got keep alive package");
+				}
+				return handleKeepAlivePackage(encodedPackage, packageSequence);
 				
 			default:
 				logger.warn("Got unknown package type, closing connection: " + packageType);

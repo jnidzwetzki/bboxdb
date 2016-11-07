@@ -241,6 +241,28 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultList.contains(tuple5));
 	}
 	
+	
+	/**
+	 * Send a keep alive package to the server
+	 * @throws InterruptedException 
+	 * @throws ExecutionException 
+	 */
+	@Test
+	public void sendKeepAlivePackage() throws InterruptedException, ExecutionException {
+		final ScalephantClient scalephantClient = connectToServer();
+		
+		ClientOperationFuture result = scalephantClient.sendKeepAlivePackage();
+		result.waitForAll();
+		
+		Assert.assertTrue(result.isDone());
+		Assert.assertFalse(result.isFailed());
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
+		
+		disconnectFromServer(scalephantClient);
+		Assert.assertFalse(scalephantClient.isConnected());
+	}
+	
+	
 	/**
 	 * Build a new connection to the scalephant server
 	 * 

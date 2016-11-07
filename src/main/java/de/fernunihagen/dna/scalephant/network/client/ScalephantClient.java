@@ -30,6 +30,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTupleReques
 import de.fernunihagen.dna.scalephant.network.packages.request.DisconnectRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.HelloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.KeepAliveRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
@@ -432,6 +433,22 @@ public class ScalephantClient implements Scalephant {
 
 		final ClientOperationFuture future = new ClientOperationFuture();
 		sendPackageToServer(new QueryTimeRequest(table, timestamp), future);
+
+		return future;
+	}
+	
+	/**
+	 * Send a keep alive package to the server, to keep the TCP connection open.
+	 * @return
+	 */
+	public ClientOperationFuture sendKeepAlivePackage() {
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			logger.warn("sendKeepAlivePackage called, but connection not ready: " + this);
+			return null;
+		}
+		
+		final ClientOperationFuture future = new ClientOperationFuture();
+		sendPackageToServer(new KeepAliveRequest(), future);
 
 		return future;
 	}

@@ -415,7 +415,7 @@ The result could be currently the response types 0x00, 0x02 or the receiving ser
 
 
 ### Create distribution group
-This package deletes a whole table. The result could be currently response type 0x00, 0x02 and 0x03.
+This package deletes a whole table. The result could be currently response type 0x01, 0x03 and 0x04.
 
 #### Request body
 
@@ -430,7 +430,7 @@ This package deletes a whole table. The result could be currently response type 
 The field 'replication' determines how many replicates are created into the distribution group
 
 ### Delete distribution group
-This package deletes a whole table. The result could be currently response type 0x00, 0x02 and 0x03.
+This package deletes a whole table. The result could be currently response type 0x01, 0x03 and 0x04.
 
 #### Request body
     0         8       16       24       32
@@ -443,7 +443,7 @@ This package deletes a whole table. The result could be currently response type 
 
 
 ### Compression envelope
-This is a compression envelope. This package containts another request package in compressed format. The result type depends of the content of the envelope.
+This is a compression envelope. This package contains another request package in compressed format. The result type depends of the content of the envelope.
  
 #### Request body
  
@@ -465,4 +465,5 @@ This package is send periodically to keep the TCP connection open.
 #### Request body
 The body of the package is empty. 
      
-     
+#### Response body
+The result could be currently the response type 0x01.
