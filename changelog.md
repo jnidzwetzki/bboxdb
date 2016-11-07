@@ -1,7 +1,9 @@
 # Changelog
 
 ### Version 0.2.0 (Beta) - TBA
-- Fixed duplicate log entries
+- Fixed logfile output
+- Improved logging
+- Implemented keep alive packages
 
 ### Version 0.1.2 (Alpha) - 14.09.2016
 - Implemented the recovery service
