@@ -132,7 +132,6 @@ public class Selftest {
 				System.err.println("Query " + i + ": Got failed future, when query for: " + i);
 				System.exit(-1);
 			}
-			
 
 			boolean tupleFound = false;
 			
@@ -149,6 +148,7 @@ public class Selftest {
 			
 			if(tupleFound == false) {
 				System.err.println("Query " + i + ": Key " + key + " not found");
+				System.err.println("Number of result futures: " + queryResult.getNumberOfResultObjets());
 				System.exit(-1);
 			}
 		}
