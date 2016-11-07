@@ -33,7 +33,7 @@ The protocol of the scalephant is based on frames. Each frame consists of a head
 
 Request Types:
 
-* Type 0x00 - Helo
+* Type 0x00 - Hello
 * Type 0x01 - Insert tuple request
 * Type 0x02 - Delete tuple request
 * Type 0x03 - Delete table request
@@ -67,7 +67,7 @@ Request Types:
 
 Result-Types:
 
-* Type 0x00 - Helo result
+* Type 0x00 - Hello result
 * Type 0x01 - Operation Success - no package body
 * Type 0x02 - Operation Success - with details in the body
 * Type 0x03 - Operation Error - no package body
@@ -161,7 +161,7 @@ Transferring a set of tuples:
 ## Frame body
 The structure of the body depends on the request type. The next sections describe the used structures.
 
-### Helo 
+### Hello 
 Handshake with the server
 
 #### Request body
