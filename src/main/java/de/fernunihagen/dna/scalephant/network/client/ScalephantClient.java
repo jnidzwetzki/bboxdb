@@ -573,14 +573,15 @@ public class ScalephantClient implements Scalephant {
 
 		@Override
 		public void run() {
+			logger.debug("Starting keep alive thread for: " + serverHostname + " / " + serverPort);
+
 			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 				if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
-					logger.debug("Sending keep alive package to: " + serverHostname + " / " + serverPort);
 					sendKeepAlivePackage();
 					try {
 						Thread.sleep(10000);
 					} catch (InterruptedException e) {
-						// Ingore InterruptedException
+						// Ignore InterruptedException
 						break;
 					}
 				}
