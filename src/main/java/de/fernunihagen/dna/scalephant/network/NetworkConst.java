@@ -68,6 +68,12 @@ public class NetworkConst {
 	public static final short REQUEST_TYPE_COMPRESSION = 0x10;
 	
 	/**
+	 * Keep alive package
+	 */
+	public static final short REQUEST_TYPE_KEEP_ALIVE = 0x11;
+	
+	
+	/**
 	 * Query type key
 	 */
 	public static final byte REQUEST_QUERY_KEY = 0x01;

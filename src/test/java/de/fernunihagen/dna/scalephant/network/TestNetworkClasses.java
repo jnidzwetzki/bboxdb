@@ -26,6 +26,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTableReques
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.HeloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.KeepAliveRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
@@ -771,6 +772,26 @@ public class TestNetworkClasses {
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertTrue(helloPackage.getPeerCapabilities().hasGZipCompression());
 		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasGZipCompression());
+	}
+	
+	/**
+	 * The the encoding and decoding of a keep alive package
+	 * @throws IOException 
+	 * @throws PackageEncodeError 
+	 */
+	@Test
+	public void encodeAndDecodeKeepAlive() throws IOException, PackageEncodeError {
+				
+		final KeepAliveRequest keepAlivePackage = new KeepAliveRequest();
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		byte[] encodedVersion = networkPackageToByte(keepAlivePackage, sequenceNumber);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final KeepAliveRequest decodedPackage = KeepAliveRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(keepAlivePackage, decodedPackage);
 	}
 }
 	

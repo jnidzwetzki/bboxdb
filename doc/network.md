@@ -44,6 +44,7 @@ Request Types:
 * Type 0x08 - Create distribution group
 * Type 0x09 - Delete distribution group
 * Type 0x10 - Compression envelope
+* Type 0x11 - Keep alive package
 
 
 ## The response frame
@@ -441,10 +442,10 @@ This package deletes a whole table. The result could be currently response type 
 	+------------------------------------+
 
 
- ### Compression envelope
- This is a compression envelope. This package containts another request package in compressed format. The result type depends of the content of the envelope.
+### Compression envelope
+This is a compression envelope. This package containts another request package in compressed format. The result type depends of the content of the envelope.
  
- #### Request body
+#### Request body
  
      0         8       16       24       32
     +-------------------------------------+
@@ -458,3 +459,10 @@ This package deletes a whole table. The result could be currently response type 
  Body size - The length of the body in bytes.
  CP Type - Compression type (0x00 = gzip compression).
 
+### Keep alive package
+This package is send periodically to keep the TCP connection open. 
+
+#### Request body
+The body of the package is empty. 
+     
+     
