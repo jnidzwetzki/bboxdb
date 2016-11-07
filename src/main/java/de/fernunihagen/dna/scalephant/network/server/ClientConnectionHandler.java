@@ -37,7 +37,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributio
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTupleRequest;
-import de.fernunihagen.dna.scalephant.network.packages.request.HeloRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.HelloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
@@ -46,7 +46,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.TransferSSTableRe
 import de.fernunihagen.dna.scalephant.network.packages.response.CompressionEnvelopeResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorWithBodyResponse;
-import de.fernunihagen.dna.scalephant.network.packages.response.HeloResponse;
+import de.fernunihagen.dna.scalephant.network.packages.response.HelloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleEndResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleStartResponse;
@@ -356,10 +356,10 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean runHandshake(final ByteBuffer encodedPackage, final short packageSequence) {
 		try {	
-			final HeloRequest heloRequest = HeloRequest.decodeRequest(encodedPackage);
+			final HelloRequest heloRequest = HelloRequest.decodeRequest(encodedPackage);
 			connectionCapabilities = heloRequest.getPeerCapabilities();
 
-			writeResultPackage(new HeloResponse(packageSequence, NetworkConst.PROTOCOL_VERSION, connectionCapabilities));
+			writeResultPackage(new HelloResponse(packageSequence, NetworkConst.PROTOCOL_VERSION, connectionCapabilities));
 
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 			return true;
@@ -714,7 +714,7 @@ public class ClientConnectionHandler implements Runnable {
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(packageHeader);
 		
 		if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
-			if(packageType != NetworkConst.REQUEST_TYPE_HELO) {
+			if(packageType != NetworkConst.REQUEST_TYPE_HELLO) {
 				logger.error("Connection is in handshake state but got package: " + packageType);
 				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 				return;
@@ -750,7 +750,7 @@ public class ClientConnectionHandler implements Runnable {
 	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, final short packageSequence, final short packageType) throws PackageEncodeError {
 				
 		switch (packageType) {
-			case NetworkConst.REQUEST_TYPE_HELO:
+			case NetworkConst.REQUEST_TYPE_HELLO:
 				logger.info("Handskaking with: " + clientSocket.getInetAddress());
 				return runHandshake(encodedPackage, packageSequence);
 				

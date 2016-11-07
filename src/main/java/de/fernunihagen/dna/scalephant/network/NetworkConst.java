@@ -15,7 +15,7 @@ public class NetworkConst {
 	/**
 	 * Request network compression
 	 */
-	public static final short REQUEST_TYPE_HELO = 0x00;
+	public static final short REQUEST_TYPE_HELLO = 0x00;
 	
 	/**
 	 * Request type insert tuple
@@ -91,7 +91,7 @@ public class NetworkConst {
 	/**
 	 * Response type helo
 	 */
-	public static final short RESPONSE_TYPE_HELO = 0x00;
+	public static final short RESPONSE_TYPE_HELLO = 0x00;
 	
 	/**
 	 * Response type success

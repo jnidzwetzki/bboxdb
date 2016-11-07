@@ -28,7 +28,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributio
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DisconnectRequest;
-import de.fernunihagen.dna.scalephant.network.packages.request.HeloRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.HelloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
@@ -37,7 +37,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.AbstractBodyResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.CompressionEnvelopeResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorWithBodyResponse;
-import de.fernunihagen.dna.scalephant.network.packages.response.HeloResponse;
+import de.fernunihagen.dna.scalephant.network.packages.response.HelloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleEndResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleStartResponse;
@@ -203,13 +203,13 @@ public class ScalephantClient implements Scalephant {
 		
 		// Capabilies are reported to server. Make client capabilies read only. 
 		clientCapabilities.freeze();
-		sendPackageToServer(new HeloRequest(NetworkConst.PROTOCOL_VERSION, clientCapabilities), operationFuture);
+		sendPackageToServer(new HelloRequest(NetworkConst.PROTOCOL_VERSION, clientCapabilities), operationFuture);
 		
 		operationFuture.waitForAll();
 		
 		final Object operationResult = operationFuture.get(0);
-		if(operationResult instanceof HeloResponse) {
-			final HeloResponse heloResponse = (HeloResponse) operationResult;
+		if(operationResult instanceof HelloResponse) {
+			final HelloResponse heloResponse = (HelloResponse) operationResult;
 			connectionCapabilities = heloResponse.getPeerCapabilities();
 		} else {
 			throw new Exception("Got an error during handshake");
@@ -591,7 +591,7 @@ public class ScalephantClient implements Scalephant {
 					handleCompression(encodedPackage);
 				break;
 				
-				case NetworkConst.RESPONSE_TYPE_HELO:
+				case NetworkConst.RESPONSE_TYPE_HELLO:
 					handleHelo(encodedPackage, pendingCall);
 				break;
 			
@@ -770,7 +770,7 @@ public class ScalephantClient implements Scalephant {
 	 * @throws PackageEncodeError 
 	 */
 	protected void handleHelo(final ByteBuffer encodedPackage, final ClientOperationFuture pendingCall) throws PackageEncodeError {
-		final HeloResponse heloResonse = HeloResponse.decodePackage(encodedPackage);
+		final HelloResponse heloResonse = HelloResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
 			pendingCall.setOperationResult(0, heloResonse);

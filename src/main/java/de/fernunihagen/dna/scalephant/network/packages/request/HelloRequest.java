@@ -1,17 +1,18 @@
-package de.fernunihagen.dna.scalephant.network.packages.response;
+package de.fernunihagen.dna.scalephant.network.packages.request;
 
-import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
-import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
+import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
+import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
 
-public class HeloResponse extends NetworkResponsePackage {
+public class HelloRequest implements NetworkRequestPackage {
 	
 	/**
 	 * The supported protocol version
@@ -23,20 +24,14 @@ public class HeloResponse extends NetworkResponsePackage {
 	 */
 	protected final PeerCapabilities peerCapabilities;
 	
-	
-	public HeloResponse(final short sequenceNumber, final int protocolVersion, final PeerCapabilities peerCapabilities) {
-		super(sequenceNumber);
-
+	public HelloRequest(final int protocolVersion, final PeerCapabilities peerCapabilities) {
 		this.protocolVersion = protocolVersion;
 		this.peerCapabilities = peerCapabilities;
 	}
 	
 	@Override
-	public byte[] getByteArray() throws PackageEncodeError {
-		final NetworkPackageEncoder networkPackageEncoder = new NetworkPackageEncoder();
-	
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
-		
+	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+
 		try {
 			final ByteBuffer bb = DataEncoderHelper.intToByteBuffer(protocolVersion);
 			final byte[] peerCapabilitiesBytes = peerCapabilities.toByteArray();
@@ -44,20 +39,18 @@ public class HeloResponse extends NetworkResponsePackage {
 			// Body length
 			final long bodyLength = bb.capacity() + peerCapabilitiesBytes.length;
 			
-			final ByteBuffer bodyLengthBuffer = DataEncoderHelper.longToByteBuffer(bodyLength);			
-			bos.write(bodyLengthBuffer.array());
-
-			// Write body
-			bos.write(bb.array());
-			bos.write(peerCapabilitiesBytes);
-			bos.close();
+			// Unrouted package
+			final RoutingHeader routingHeader = new RoutingHeader(false);
+			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
+					getPackageType(), outputStream);
+			
+			outputStream.write(bb.array());
+			outputStream.write(peerCapabilitiesBytes);
 		} catch (Exception e) {
 			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}	
-		
-		return bos.toByteArray();
 	}
-
+	
 	/**
 	 * Decode the encoded package into a object
 	 * 
@@ -65,11 +58,9 @@ public class HeloResponse extends NetworkResponsePackage {
 	 * @return
 	 * @throws PackageEncodeError 
 	 */
-	public static HeloResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {		
-		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
-
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_HELO);
-
+	public static HelloRequest decodeRequest(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_HELLO);
+		
 		if(decodeResult == false) {
 			throw new PackageEncodeError("Unable to decode package");
 		}
@@ -83,9 +74,8 @@ public class HeloResponse extends NetworkResponsePackage {
 		}
 		
 		final PeerCapabilities peerCapabilities = new PeerCapabilities(capabilityBytes);
-		peerCapabilities.freeze();
 		
-		return new HeloResponse(requestId, protocolVersion, peerCapabilities);
+		return new HelloRequest(protocolVersion, peerCapabilities);
 	}
 	
 	/**
@@ -98,7 +88,7 @@ public class HeloResponse extends NetworkResponsePackage {
 
 	@Override
 	public byte getPackageType() {
-		return NetworkConst.RESPONSE_TYPE_HELO;
+		return NetworkConst.REQUEST_TYPE_HELLO;
 	}
 
 	@Override
@@ -120,7 +110,7 @@ public class HeloResponse extends NetworkResponsePackage {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		HeloResponse other = (HeloResponse) obj;
+		HelloRequest other = (HelloRequest) obj;
 		if (peerCapabilities == null) {
 			if (other.peerCapabilities != null)
 				return false;

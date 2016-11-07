@@ -24,7 +24,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributio
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTableRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTupleRequest;
-import de.fernunihagen.dna.scalephant.network.packages.request.HeloRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.HelloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.KeepAliveRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest;
@@ -32,7 +32,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxR
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.CompressionEnvelopeResponse;
-import de.fernunihagen.dna.scalephant.network.packages.response.HeloResponse;
+import de.fernunihagen.dna.scalephant.network.packages.response.HelloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessWithBodyResponse;
@@ -376,14 +376,14 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeHeloRequest1() throws IOException, PackageEncodeError {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		
-		final HeloRequest helloPackage = new HeloRequest(2, peerCapabilities);
+		final HelloRequest helloPackage = new HelloRequest(2, peerCapabilities);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		byte[] encodedVersion = networkPackageToByte(helloPackage, sequenceNumber);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
-		final HeloRequest decodedPackage = HeloRequest.decodeRequest(bb);
+		final HelloRequest decodedPackage = HelloRequest.decodeRequest(bb);
 				
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertFalse(decodedPackage.getPeerCapabilities().hasGZipCompression());
@@ -400,14 +400,14 @@ public class TestNetworkClasses {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		peerCapabilities.setGZipCompression();
 		
-		final HeloRequest helloPackage = new HeloRequest(2, peerCapabilities);
+		final HelloRequest helloPackage = new HelloRequest(2, peerCapabilities);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		byte[] encodedVersion = networkPackageToByte(helloPackage, sequenceNumber);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
-		final HeloRequest decodedPackage = HeloRequest.decodeRequest(bb);
+		final HelloRequest decodedPackage = HelloRequest.decodeRequest(bb);
 		
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertTrue(decodedPackage.getPeerCapabilities().hasGZipCompression());
@@ -424,13 +424,13 @@ public class TestNetworkClasses {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		final HeloResponse helloPackage = new HeloResponse(sequenceNumber, 2, peerCapabilities);
+		final HelloResponse helloPackage = new HelloResponse(sequenceNumber, 2, peerCapabilities);
 		
 		byte[] encodedVersion = helloPackage.getByteArray();
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
-		final HeloResponse decodedPackage = HeloResponse.decodePackage(bb);
+		final HelloResponse decodedPackage = HelloResponse.decodePackage(bb);
 				
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertFalse(decodedPackage.getPeerCapabilities().hasGZipCompression());
@@ -448,13 +448,13 @@ public class TestNetworkClasses {
 		peerCapabilities.setGZipCompression();
 		
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		final HeloResponse helloPackage = new HeloResponse(sequenceNumber, 2, peerCapabilities);
+		final HelloResponse helloPackage = new HelloResponse(sequenceNumber, 2, peerCapabilities);
 		
 		byte[] encodedVersion = helloPackage.getByteArray();
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
-		final HeloResponse decodedPackage = HeloResponse.decodePackage(bb);
+		final HelloResponse decodedPackage = HelloResponse.decodePackage(bb);
 				
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertTrue(helloPackage.getPeerCapabilities().hasGZipCompression());
@@ -756,7 +756,7 @@ public class TestNetworkClasses {
 		peerCapabilities.setGZipCompression();
 		
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		final HeloResponse helloPackage = new HeloResponse(sequenceNumber, 2, peerCapabilities);
+		final HelloResponse helloPackage = new HelloResponse(sequenceNumber, 2, peerCapabilities);
 		
 		final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(helloPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
 		final byte[] encodedPackage = compressionEnvelopeResponse.getByteArray();
@@ -767,7 +767,7 @@ public class TestNetworkClasses {
 		
 		final ByteBuffer uncompressedPackageBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage);
 
-		final HeloResponse decodedPackage = HeloResponse.decodePackage(uncompressedPackageBuffer);
+		final HelloResponse decodedPackage = HelloResponse.decodePackage(uncompressedPackageBuffer);
 				
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertTrue(helloPackage.getPeerCapabilities().hasGZipCompression());
