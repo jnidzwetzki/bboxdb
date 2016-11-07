@@ -122,6 +122,11 @@ public class ScalephantClient implements Scalephant {
 	protected PeerCapabilities clientCapabilities = new PeerCapabilities();
 	
 	/**
+	 * The timestamp when the last data was send (useful for sending keep alive packages)
+	 */
+	protected long lastDataSendTimestamp = 0;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ScalephantClient.class);
@@ -532,6 +537,8 @@ public class ScalephantClient implements Scalephant {
 				outputStream.flush();
 			}
 			
+			lastDataSendTimestamp = System.currentTimeMillis();
+			
 		} catch (IOException | PackageEncodeError e) {
 			logger.warn("Got an exception while sending package to server", e);
 			future.setFailedState();
@@ -880,5 +887,13 @@ public class ScalephantClient implements Scalephant {
 	 */
 	public PeerCapabilities getClientCapabilities() {
 		return clientCapabilities;
+	}
+	
+	/**
+	 * The the timestamp when the last data was send to the server
+	 * @return
+	 */
+	public long getLastDataSendTimestamp() {
+		return lastDataSendTimestamp;
 	}
 }
