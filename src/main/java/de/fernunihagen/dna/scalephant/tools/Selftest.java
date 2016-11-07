@@ -124,7 +124,7 @@ public class Selftest {
 	private static void queryForTuples(final ScalephantCluster scalephantClient, final Random random) throws InterruptedException, ExecutionException, ScalephantException {
 		System.out.println("Query for tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
-			final String key = Integer.toString(random.nextInt() % NUMBER_OF_OPERATIONS);
+			final String key = Integer.toString(Math.abs(random.nextInt()) % NUMBER_OF_OPERATIONS);
 			final OperationFuture queryResult = scalephantClient.queryKey(TABLE, key);
 			queryResult.waitForAll();
 			
