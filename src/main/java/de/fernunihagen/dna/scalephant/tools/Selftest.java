@@ -5,6 +5,9 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantCluster;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
@@ -27,15 +30,21 @@ public class Selftest {
 	 * The amount of operations
 	 */
 	private static final int NUMBER_OF_OPERATIONS = 10000;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(Selftest.class);
+
 
 	public static void main(final String[] args) throws InterruptedException, ExecutionException, ScalephantException {
 		
 		if(args.length < 2) {
-			System.err.println("Usage: Selftest <Cluster-Name> <Cluster-Endpoint1> <Cluster-EndpointN>");
+			logger.error("Usage: Selftest <Cluster-Name> <Cluster-Endpoint1> <Cluster-EndpointN>");
 			System.exit(-1);
 		}
 
-		System.out.println("Running selftest......");
+		logger.info("Running selftest......");
 		
 		final String clustername = args[0];
 		final Collection<String> endpoints = new ArrayList<String>();
@@ -47,29 +56,29 @@ public class Selftest {
 		scalephantCluster.connect();
 		
 		if(! scalephantCluster.isConnected()) {
-			System.err.println("Connection could not be established");
+			logger.error("Connection could not be established");
 			System.exit(-1);
 		}
 		
-		System.out.println("Connected to cluster: " + clustername);
-		System.out.println("With endpoint(s): " + endpoints);
+		logger.info("Connected to cluster: " + clustername);
+		logger.info("With endpoint(s): " + endpoints);
 		
-		System.out.println("Delete old distribution group: " + DISTRIBUTION_GROUP);
+		logger.info("Delete old distribution group: " + DISTRIBUTION_GROUP);
 		final OperationFuture deleteFuture = scalephantCluster.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteFuture.waitForAll();
 		if(deleteFuture.isFailed()) {
-			System.err.println("Unable to delete distribution group: " + DISTRIBUTION_GROUP);
+			logger.error("Unable to delete distribution group: " + DISTRIBUTION_GROUP);
 			System.exit(-1);
 		}
 		
 		// Wait for distribution group to settle
 		Thread.sleep(5000);
 		
-		System.out.println("Create new distribution group: " + DISTRIBUTION_GROUP);
+		logger.info("Create new distribution group: " + DISTRIBUTION_GROUP);
 		final OperationFuture createFuture = scalephantCluster.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
 		createFuture.waitForAll();
 		if(createFuture.isFailed()) {
-			System.err.println("Unable to create distribution group: " + DISTRIBUTION_GROUP);
+			logger.error("Unable to create distribution group: " + DISTRIBUTION_GROUP);
 			System.exit(-1);
 		}
 		
@@ -88,13 +97,17 @@ public class Selftest {
 	 */
 	private static void executeSelftest(final ScalephantCluster scalephantClient) throws InterruptedException, ExecutionException, ScalephantException {
 		final Random random = new Random();
+		long iteration = 1;
 		
 		while(true) {
+			logger.info("Starting new iteration: " + iteration);
 			insertNewTuples(scalephantClient);
 			queryForTuples(scalephantClient, random);
 			deleteTuples(scalephantClient);
 			
 			Thread.sleep(1000);
+			
+			iteration++;
 		}
 	}
 
@@ -106,14 +119,14 @@ public class Selftest {
 	 * @throws ExecutionException 
 	 */
 	private static void deleteTuples(final ScalephantCluster scalephantClient) throws InterruptedException, ScalephantException, ExecutionException {
-		System.out.println("Deleting tuples");
+		logger.info("Deleting tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
 			final OperationFuture deletionResult = scalephantClient.deleteTuple(TABLE, key);
 			final boolean result = deletionResult.waitForAll();
 			
 			if(! result) {
-				System.err.println("Got an error when deleting: key");
+				logger.error("Got an error when deleting: key");
 				System.exit(-1);
 			}
 		}
@@ -128,14 +141,14 @@ public class Selftest {
 	 * @throws ScalephantException 
 	 */
 	private static void queryForTuples(final ScalephantCluster scalephantClient, final Random random) throws InterruptedException, ExecutionException, ScalephantException {
-		System.out.println("Query for tuples");
+		logger.info("Query for tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(Math.abs(random.nextInt()) % NUMBER_OF_OPERATIONS);
 			final OperationFuture queryResult = scalephantClient.queryKey(TABLE, key);
 			queryResult.waitForAll();
 			
 			if(queryResult.isFailed()) {
-				System.err.println("Query " + i + ": Got failed future, when query for: " + i);
+				logger.error("Query " + i + ": Got failed future, when query for: " + i);
 				System.exit(-1);
 			}
 
@@ -146,16 +159,16 @@ public class Selftest {
 					final Tuple resultTuple = (Tuple) queryResult.get(result);
 					tupleFound = true;
 					if(! resultTuple.getKey().equals(key)) {
-						System.err.println("Query " + i + ": Got tuple with wrong key.");
-						System.err.println("Expected: " + key + " but got: " + resultTuple.getKey());
+						logger.error("Query " + i + ": Got tuple with wrong key.");
+						logger.error("Expected: " + key + " but got: " + resultTuple.getKey());
 						System.exit(-1);
 					}
 				}
 			}
 			
 			if(tupleFound == false) {
-				System.err.println("Query " + i + ": Key " + key + " not found");
-				System.err.println("Number of result futures: " + queryResult.getNumberOfResultObjets());
+				logger.error("Query " + i + ": Key " + key + " not found");
+				logger.error("Number of result futures: " + queryResult.getNumberOfResultObjets());
 				System.exit(-1);
 			}
 		}
@@ -169,7 +182,7 @@ public class Selftest {
 	 * @throws ScalephantException 
 	 */
 	private static void insertNewTuples(final ScalephantCluster scalephantClient) throws InterruptedException, ExecutionException, ScalephantException {
-		System.out.println("Inserting new tuples");
+		logger.info("Inserting new tuples");
 		
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
@@ -178,7 +191,7 @@ public class Selftest {
 			insertResult.waitForAll();
 			
 			if(insertResult.isFailed()) {
-				System.err.println("Got an error during tuple insert");
+				logger.error("Got an error during tuple insert");
 				System.exit(-1);
 			}
 		}
