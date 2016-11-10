@@ -140,7 +140,8 @@ public class Selftest {
 					final Tuple resultTuple = (Tuple) queryResult.get(result);
 					tupleFound = true;
 					if(resultTuple.getKey() != key) {
-						System.err.println("Query " + i + ": Got tuple with wrong key");
+						System.err.println("Query " + i + ": Got tuple with wrong key.");
+						System.err.println("Expected: " + key + "but got: " + resultTuple.getKey());
 						System.exit(-1);
 					}
 				}
