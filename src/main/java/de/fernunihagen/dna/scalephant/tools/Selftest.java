@@ -103,13 +103,19 @@ public class Selftest {
 	 * @param scalephantClient
 	 * @throws InterruptedException
 	 * @throws ScalephantException 
+	 * @throws ExecutionException 
 	 */
-	private static void deleteTuples(final ScalephantCluster scalephantClient) throws InterruptedException, ScalephantException {
+	private static void deleteTuples(final ScalephantCluster scalephantClient) throws InterruptedException, ScalephantException, ExecutionException {
 		System.out.println("Deleting tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
 			final OperationFuture deletionResult = scalephantClient.deleteTuple(TABLE, key);
-			deletionResult.wait();
+			final boolean result = deletionResult.waitForAll();
+			
+			if(! result) {
+				System.err.println("Got an error when deleting: key");
+				System.exit(-1);
+			}
 		}
 	}
 
