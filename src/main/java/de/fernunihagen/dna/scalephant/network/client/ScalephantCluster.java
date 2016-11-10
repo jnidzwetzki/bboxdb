@@ -140,7 +140,7 @@ public class ScalephantCluster implements Scalephant {
 		
 		for(final ScalephantClient client : connections) {
 			if(logger.isDebugEnabled()) {
-				logger.debug("Send delete call for table " + table + " to " + client);
+				logger.debug("Send delete call for tuple " + key + " on " + table + " to " + client);
 			}
 			
 			final ClientOperationFuture result = client.deleteTuple(table, key);
