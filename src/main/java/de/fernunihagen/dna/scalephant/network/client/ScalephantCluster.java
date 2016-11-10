@@ -217,6 +217,10 @@ public class ScalephantCluster implements Scalephant {
 		
 		final MultiClientOperationFuture future = new MultiClientOperationFuture();
 		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Query by for key " + key + " in table " + table);
+		}
+		
 		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
 			final ClientOperationFuture deleteFuture = client.queryKey(table, key);
 			future.addFuture(deleteFuture);
@@ -236,7 +240,10 @@ public class ScalephantCluster implements Scalephant {
 		try {
 			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(boundingBox);
-			logger.info("Query tuple on systems: " + systems);
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("Query by for bounding box " + boundingBox + " in table " + table + " on systems: " + systems);
+			}
 			
 			for(final DistributedInstance system : systems) {
 				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
@@ -256,6 +263,10 @@ public class ScalephantCluster implements Scalephant {
 	public OperationFuture queryTime(final String table, final long timestamp) throws ScalephantException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new ScalephantException("queryTime called, but connection list is empty");
+		}
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Query by for timestamp " + timestamp + " in table " + table);
 		}
 		
 		final MultiClientOperationFuture future = new MultiClientOperationFuture();
