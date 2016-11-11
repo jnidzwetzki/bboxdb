@@ -77,10 +77,9 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public boolean disconnect() {
+	public void disconnect() {
 		membershipConnectionService.shutdown();
 		zookeeperClient.shutdown();		
-		return true;
 	}
 
 	@Override

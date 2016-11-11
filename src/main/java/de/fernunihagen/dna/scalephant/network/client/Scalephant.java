@@ -21,7 +21,7 @@ public interface Scalephant {
 	/**
 	 * Disconnect from the server
 	 */
-	public abstract boolean disconnect();
+	public abstract void disconnect();
 
 	/**
 	 * Delete a table on the scalephant server

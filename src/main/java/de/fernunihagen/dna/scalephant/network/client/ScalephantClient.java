@@ -251,7 +251,7 @@ public class ScalephantClient implements Scalephant {
 	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#disconnect()
 	 */
 	@Override
-	public boolean disconnect() {
+	public void disconnect() {
 		
 		logger.info("Disconnecting from server: " + serverHostname + " port " + serverPort);
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
@@ -265,7 +265,7 @@ public class ScalephantClient implements Scalephant {
 				try {
 					pendingCalls.wait();
 				} catch (InterruptedException e) {
-					return true; // Thread was canceled
+					return; // Thread was canceled
 				}
 			}
 			
@@ -275,6 +275,16 @@ public class ScalephantClient implements Scalephant {
 		pendingCalls.clear();
 		resultBuffer.clear();
 		
+		closeSocketNE();
+		
+		logger.info("Disconnected from server");
+		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
+	}
+
+	/**
+	 * Close socket without any exception
+	 */
+	protected void closeSocketNE() {
 		if(clientSocket != null) {
 			try {
 				clientSocket.close();
@@ -283,11 +293,6 @@ public class ScalephantClient implements Scalephant {
 			}
 			clientSocket = null;
 		}
-		
-		logger.info("Disconnected from server");
-		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
-		
-		return true;
 	}
 	
 	/* (non-Javadoc)
