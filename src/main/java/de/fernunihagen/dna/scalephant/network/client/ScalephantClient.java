@@ -270,7 +270,8 @@ public class ScalephantClient implements Scalephant {
 				try {
 					pendingCalls.wait(DEFAULT_TIMEOUT);
 				} catch (InterruptedException e) {
-					return; // Thread was canceled
+					logger.debug("Got an InterruptedException during pending calls wait.");
+					// Close connection immediately
 				}
 			}
 			
