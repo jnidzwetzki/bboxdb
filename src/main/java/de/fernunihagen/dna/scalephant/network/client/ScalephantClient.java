@@ -112,6 +112,11 @@ public class ScalephantClient implements Scalephant {
 	protected Thread keepAliveThread;
 	
 	/**
+	 * The default timeout
+	 */
+	protected static final long DEFAULT_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
+
+	/**
 	 * If no data was send for keepAliveTime, a keep alive package is send to the 
 	 * server to keep the tcp connection open
 	 */
@@ -261,17 +266,28 @@ public class ScalephantClient implements Scalephant {
 		synchronized (pendingCalls) {
 			logger.info("Waiting for pending requests to settle");		
 			
-			while(! pendingCalls.keySet().isEmpty()) {
+			if(! pendingCalls.keySet().isEmpty()) {
 				try {
-					pendingCalls.wait();
+					pendingCalls.wait(DEFAULT_TIMEOUT);
 				} catch (InterruptedException e) {
 					return; // Thread was canceled
 				}
 			}
 			
-			logger.info("All requests are settled (pending: " + pendingCalls.size() + ").");
+			logger.info("All requests are settled. (Non completed requests: " + pendingCalls.size() + ").");
 		}
 		
+		closeConnection();
+	}
+
+	/**
+	 * Close the connection to the server without sending a disconnect package. For a
+	 * reagular disconnect, see the disconnect() method.
+	 */
+	public void closeConnection() {
+		
+		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+
 		pendingCalls.clear();
 		resultBuffer.clear();
 		

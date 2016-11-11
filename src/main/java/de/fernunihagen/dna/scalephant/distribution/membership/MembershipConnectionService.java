@@ -108,8 +108,8 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 		synchronized (serverConnections) {
 			for(final InetSocketAddress instance : serverConnections.keySet()) {
 				final ScalephantClient client = serverConnections.get(instance);
-				logger.info("Disconnecting from: " + instance);
-				client.disconnect();
+				logger.info("Closing connection to server: " + instance);
+				client.closeConnection();
 			}
 			
 			serverConnections.clear();
