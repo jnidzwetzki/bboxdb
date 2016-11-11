@@ -147,7 +147,7 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	protected void createConnection(final DistributedInstance distributedInstance) {
 		
 		if(serverConnections.containsKey(distributedInstance.getInetSocketAddress())) {
-			logger.info("We already have a connection to: " + distributedInstance);
+			logger.info("We have already a connection to: " + distributedInstance);
 			return;
 		}
 		
