@@ -280,18 +280,35 @@ public class ScalephantClient implements Scalephant {
 		
 		closeConnection();
 	}
+	
+	/**
+	 * Kill all pending requests
+	 */
+	protected void killPendingCalls() {
+		synchronized (pendingCalls) {
+			if(! pendingCalls.isEmpty()) {
+				logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
+			
+				for(short requestId : pendingCalls.keySet()) {
+					final ClientOperationFuture future = pendingCalls.get(requestId);
+					future.setFailedState();
+				}
+				
+				pendingCalls.clear();
+				pendingCalls.notifyAll();
+			}
+		}
+	}
 
 	/**
 	 * Close the connection to the server without sending a disconnect package. For a
 	 * reagular disconnect, see the disconnect() method.
 	 */
-	public void closeConnection() {
-		
+	public void closeConnection() {		
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 
-		pendingCalls.clear();
+		killPendingCalls();
 		resultBuffer.clear();
-		
 		closeSocketNE();
 		
 		logger.info("Disconnected from server");
@@ -748,20 +765,7 @@ public class ScalephantClient implements Scalephant {
 		 */
 		protected void handleSocketClosedUnexpected() {
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED_WITH_ERRORS;
-			
-			synchronized (pendingCalls) {
-				if(! pendingCalls.isEmpty()) {
-					logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
-				
-					for(short requestId : pendingCalls.keySet()) {
-						final ClientOperationFuture future = pendingCalls.get(requestId);
-						future.setFailedState();
-					}
-					
-					pendingCalls.clear();
-					pendingCalls.notifyAll();
-				}
-			}
+			killPendingCalls();
 		}
 
 		@Override
