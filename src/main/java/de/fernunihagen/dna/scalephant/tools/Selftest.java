@@ -102,8 +102,9 @@ public class Selftest {
 		while(true) {
 			logger.info("Starting new iteration: " + iteration);
 			insertNewTuples(scalephantClient);
-			queryForTuples(scalephantClient, random);
+			queryForExistingTuples(scalephantClient, random);
 			deleteTuples(scalephantClient);
+			queryForNonExistingTuples(scalephantClient);
 			
 			Thread.sleep(1000);
 			
@@ -140,7 +141,7 @@ public class Selftest {
 	 * @throws ExecutionException
 	 * @throws ScalephantException 
 	 */
-	private static void queryForTuples(final ScalephantCluster scalephantClient, final Random random) throws InterruptedException, ExecutionException, ScalephantException {
+	private static void queryForExistingTuples(final ScalephantCluster scalephantClient, final Random random) throws InterruptedException, ExecutionException, ScalephantException {
 		logger.info("Query for tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(Math.abs(random.nextInt()) % NUMBER_OF_OPERATIONS);
@@ -170,6 +171,36 @@ public class Selftest {
 				logger.error("Query " + i + ": Key " + key + " not found");
 				logger.error("Number of result futures: " + queryResult.getNumberOfResultObjets());
 				System.exit(-1);
+			}
+		}
+	}
+	
+	/**
+	 * Query for non existing tuples and exit, as soon as a tuple is found
+	 * @param scalephantClient
+	 * @throws ScalephantException
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	private static void queryForNonExistingTuples(final ScalephantCluster scalephantClient) throws ScalephantException, InterruptedException, ExecutionException {
+		logger.info("Query for non existing tuples");
+		
+		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
+			final String key = Integer.toString(i);
+			final OperationFuture queryResult = scalephantClient.queryKey(TABLE, key);
+			queryResult.waitForAll();
+			
+			if(queryResult.isFailed()) {
+				logger.error("Query " + i + ": Got failed future, when query for: " + i);
+				System.exit(-1);
+			}
+			
+			for(int result = 0; result < queryResult.getNumberOfResultObjets(); result++) {
+				if(queryResult.get(result) instanceof Tuple) {
+					final Tuple resultTuple = (Tuple) queryResult.get(result);
+					logger.error("Found a tuple which should not exist: " + resultTuple);
+					System.exit(-1);
+				}
 			}
 		}
 	}
