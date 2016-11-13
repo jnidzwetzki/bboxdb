@@ -221,8 +221,8 @@ public class ScalephantCluster implements Scalephant {
 		}
 		
 		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
-			final ClientOperationFuture deleteFuture = client.queryKey(table, key);
-			future.addFuture(deleteFuture);
+			final ClientOperationFuture queryFuture = client.queryKey(table, key);
+			future.addFuture(queryFuture);
 		}
 
 		return future;
