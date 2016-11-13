@@ -63,6 +63,19 @@ public class Selftest {
 		logger.info("Connected to cluster: " + clustername);
 		logger.info("With endpoint(s): " + endpoints);
 		
+		recreateDistributionGroup(scalephantCluster);
+		
+		executeSelftest(scalephantCluster);
+	}
+
+	/**
+	 * Recreate the distribution group	
+	 * @param scalephantCluster
+	 * @throws ScalephantException
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 */
+	private static void recreateDistributionGroup(final ScalephantCluster scalephantCluster) throws ScalephantException, InterruptedException, ExecutionException {
 		logger.info("Delete old distribution group: " + DISTRIBUTION_GROUP);
 		final OperationFuture deleteFuture = scalephantCluster.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteFuture.waitForAll();
@@ -84,8 +97,6 @@ public class Selftest {
 		
 		// Wait for distribution group to appear
 		Thread.sleep(5000);
-		
-		executeSelftest(scalephantCluster);
 	}
 
 	/**
@@ -127,7 +138,7 @@ public class Selftest {
 			final boolean result = deletionResult.waitForAll();
 			
 			if(! result) {
-				logger.error("Got an error when deleting: key");
+				logger.error("Got an error while deleting: " +  key);
 				System.exit(-1);
 			}
 		}
