@@ -713,6 +713,7 @@ public class ScalephantClient implements Scalephant {
 				case NetworkConst.RESPONSE_TYPE_ERROR:
 					if(pendingCall != null) {
 						pendingCall.setOperationResult(0, false);
+						pendingCall.setFailedState();
 					}
 					break;
 					
@@ -722,6 +723,7 @@ public class ScalephantClient implements Scalephant {
 					
 				case NetworkConst.RESPONSE_TYPE_ERROR_WITH_BODY:
 					handleErrorWithBody(encodedPackage, pendingCall);
+					pendingCall.setFailedState();
 					break;
 					
 				case NetworkConst.RESPONSE_TYPE_LIST_TABLES:
