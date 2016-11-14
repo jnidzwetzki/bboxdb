@@ -135,9 +135,9 @@ public class Selftest {
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
 			final OperationFuture deletionResult = scalephantClient.deleteTuple(TABLE, key);
-			final boolean result = deletionResult.waitForAll();
+			deletionResult.waitForAll();
 			
-			if(! result) {
+			if(deletionResult.isFailed() ) {
 				logger.error("Got an error while deleting: " +  key);
 				System.exit(-1);
 			}
@@ -198,6 +198,7 @@ public class Selftest {
 		
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
+	
 			final OperationFuture queryResult = scalephantClient.queryKey(TABLE, key);
 			queryResult.waitForAll();
 			
@@ -209,7 +210,7 @@ public class Selftest {
 			for(int result = 0; result < queryResult.getNumberOfResultObjets(); result++) {
 				if(queryResult.get(result) instanceof Tuple) {
 					final Tuple resultTuple = (Tuple) queryResult.get(result);
-					logger.error("Found a tuple which should not exist: " + resultTuple);
+					logger.error("Found a tuple which should not exist: " + i + " / " + resultTuple);
 					System.exit(-1);
 				}
 			}
