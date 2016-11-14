@@ -7,6 +7,7 @@
 - Bugfix: Removed duplicate logging entries
 - Bugfix: Deadlock on node down event
 - Bugfix: Skip compact operation when only one SSTable exists
+- Bugfix: Set failed state on future when server operation returns an error
 
 ### Version 0.1.2 (Alpha) - 14.09.2016
 - Implemented the recovery service
