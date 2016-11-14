@@ -5,7 +5,7 @@
 - Implemented keep alive packages
 - Added the possibility to log debug messages 
 - Bugfix: Removed duplicate logging entries
-- Bugfix: Deadlock on node down event
+- Bugfix: Removed deadlock on node down event
 - Bugfix: Skip compact operation when only one SSTable exists
 - Bugfix: Set failed state on future when server operation returns an error
 - Bugfix: Flush full memtables also on tuple delete operation
