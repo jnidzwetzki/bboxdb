@@ -4,6 +4,8 @@
 - Fixed logfile output
 - Improved logging
 - Implemented keep alive packages
+- Added the possibility to log debug messages 
+- Fixed deadlock on node down event 
 
 ### Version 0.1.2 (Alpha) - 14.09.2016
 - Implemented the recovery service
