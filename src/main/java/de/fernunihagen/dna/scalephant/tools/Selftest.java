@@ -2,6 +2,7 @@ package de.fernunihagen.dna.scalephant.tools;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -113,13 +114,51 @@ public class Selftest {
 		while(true) {
 			logger.info("Starting new iteration: " + iteration);
 			insertNewTuples(scalephantClient);
-			queryForExistingTuples(scalephantClient, random);
+			queryForExistingTuplesByKey(scalephantClient, random);
+			queryForExistingTuplesByTime(scalephantClient);
 			deleteTuples(scalephantClient);
 			queryForNonExistingTuples(scalephantClient);
 			
 			Thread.sleep(1000);
 			
 			iteration++;
+		}
+	}
+
+	/**
+	 * Execute a time query
+	 * @param scalephantClient
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws ScalephantException 
+	 */
+	private static void queryForExistingTuplesByTime(final ScalephantCluster scalephantClient) throws InterruptedException, ExecutionException, ScalephantException {
+		logger.info("Executing time query");
+		
+		final OperationFuture queryResult = scalephantClient.queryTime(TABLE, 0);
+		queryResult.waitForAll();
+		
+		if(queryResult.isFailed()) {
+			logger.error("Time query result is failed");
+			System.exit(-1);
+		}
+		
+		int totalTuples = 0;
+		
+		for(int requestId = 0; requestId < queryResult.getNumberOfResultObjets(); requestId++) {
+			final Object resultObject = queryResult.get(requestId);
+			if(resultObject instanceof List) {
+				@SuppressWarnings("unchecked")
+				List<Tuple> myList = (List<Tuple>) resultObject;
+				totalTuples = totalTuples + myList.size();
+			} else { 
+				System.out.println("Query failed");
+			} 
+		}
+		
+		if(totalTuples != NUMBER_OF_OPERATIONS) {
+			logger.error("Got " + totalTuples + " tuples back, but expected " + NUMBER_OF_OPERATIONS);
+			System.exit(-1);
 		}
 	}
 
@@ -152,7 +191,7 @@ public class Selftest {
 	 * @throws ExecutionException
 	 * @throws ScalephantException 
 	 */
-	private static void queryForExistingTuples(final ScalephantCluster scalephantClient, final Random random) throws InterruptedException, ExecutionException, ScalephantException {
+	private static void queryForExistingTuplesByKey(final ScalephantCluster scalephantClient, final Random random) throws InterruptedException, ExecutionException, ScalephantException {
 		logger.info("Query for tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(Math.abs(random.nextInt()) % NUMBER_OF_OPERATIONS);
