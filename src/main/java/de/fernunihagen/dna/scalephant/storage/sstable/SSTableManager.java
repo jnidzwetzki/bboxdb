@@ -831,7 +831,14 @@ public class SSTableManager implements ScalephantService, Storage {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
 		
-		memtable.delete(key);
+		// Ensure that only one memtable is newly created
+		synchronized (this) {	
+			if(memtable.isFull()) {
+				flushMemtable();
+			}
+			
+			memtable.delete(key);
+		}
 	}
 
 	@Override

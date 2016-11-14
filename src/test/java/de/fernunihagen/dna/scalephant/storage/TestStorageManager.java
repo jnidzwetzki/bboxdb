@@ -133,6 +133,34 @@ public class TestStorageManager {
 		Assert.assertEquals(null, resultTuple2);
 	}
 	
+	/**
+	 * Test the mass deletion of tuples
+	 * @throws StorageManagerException
+	 * @throws InterruptedException
+	 */
+	@Test
+	public void testDeleteTuple3() throws StorageManagerException, InterruptedException {
+		int MAX_TUPLES = 100000;
+		
+		for(int i = 0; i < MAX_TUPLES; i++) {
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
+			storageManager.put(createdTuple);
+		}
+		
+		for(int i = 0; i < MAX_TUPLES; i++) {
+			storageManager.delete(Integer.toString(i));
+		}
+		
+		// Let the storage manager swap the memtables out
+		Thread.sleep(10000);
+		
+		// Fetch the deleted tuples
+		for(int i = 0; i < MAX_TUPLES; i++) {
+			final Tuple resultTuple2 = storageManager.get(Integer.toString(i));
+			Assert.assertEquals(null, resultTuple2);
+		}
+	}
+	
 	@Test
 	public void testBigInsert() throws Exception {
 
