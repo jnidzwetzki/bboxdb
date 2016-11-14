@@ -1,11 +1,12 @@
 # Changelog
 
 ### Version 0.2.0 (Beta) - TBA
-- Fixed logfile output
 - Improved logging
 - Implemented keep alive packages
 - Added the possibility to log debug messages 
-- Fixed deadlock on node down event 
+- Bugfix: Removed duplicate logging entries
+- Bugfix: Deadlock on node down event
+- Bugfix: Skip compact operation when only one SSTable exists
 
 ### Version 0.1.2 (Alpha) - 14.09.2016
 - Implemented the recovery service
