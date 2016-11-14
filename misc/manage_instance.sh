@@ -106,7 +106,7 @@ scalephant_start() {
 
     if [ ! -z "$SCALEPHANT_DEBUG" ]; then
          echo "Debug startup......"
-         debug_args+="-Dlog4j.configuration=log4j_debug.properties"
+         debug_args+="-Dlog4j.configurationFile=log4j_debug.properties"
     fi
     
     config="$basedir/../conf/scalephant.yaml"
