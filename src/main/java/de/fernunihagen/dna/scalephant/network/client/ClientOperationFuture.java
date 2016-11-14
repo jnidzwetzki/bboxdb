@@ -131,12 +131,14 @@ public class ClientOperationFuture implements OperationFuture {
 	/**
 	 * Set the error flag for the operation
 	 */
-	public void setFailedState() {
+	public void setFailedState(final boolean notify) {
 		failed = true;
 		
-		// Future is failed, wake up all blocked get() calls
-		synchronized (mutex) {
-			mutex.notify();
+		if(notify == true) {
+			// Future is failed, wake up all blocked get() calls
+			synchronized (mutex) {
+				mutex.notify();
+			}
 		}
 	}
 

@@ -33,7 +33,7 @@ public interface OperationFuture {
 	/**
 	 * Set the failed state
 	 */
-	public void setFailedState();
+	public void setFailedState(final boolean notify);
 	
 	/**
 	 * Is the future done

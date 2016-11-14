@@ -291,7 +291,7 @@ public class ScalephantClient implements Scalephant {
 			
 				for(short requestId : pendingCalls.keySet()) {
 					final ClientOperationFuture future = pendingCalls.get(requestId);
-					future.setFailedState();
+					future.setFailedState(true);
 				}
 				
 				pendingCalls.clear();
@@ -339,7 +339,7 @@ public class ScalephantClient implements Scalephant {
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("deleteTable called, but connection not ready: " + this);
-			operationFuture.setFailedState();
+			operationFuture.setFailedState(true);
 			return operationFuture;
 		}
 		
@@ -357,7 +357,7 @@ public class ScalephantClient implements Scalephant {
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("insertTuple called, but connection not ready: " + this);
-			operationFuture.setFailedState();
+			operationFuture.setFailedState(true);
 			return operationFuture;
 		}
 		
@@ -380,7 +380,7 @@ public class ScalephantClient implements Scalephant {
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("insertTuple called, but connection not ready: " + this);
-			operationFuture.setFailedState();
+			operationFuture.setFailedState(true);
 			return operationFuture;
 		}
 		
@@ -398,7 +398,7 @@ public class ScalephantClient implements Scalephant {
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("deleteTuple called, but connection not ready: " + this);
-			operationFuture.setFailedState();
+			operationFuture.setFailedState(true);
 			return operationFuture;
 		}
 		
@@ -602,7 +602,7 @@ public class ScalephantClient implements Scalephant {
 			
 		} catch (IOException | PackageEncodeError e) {
 			logger.warn("Got an exception while sending package to server", e);
-			future.setFailedState();
+			future.setFailedState(true);
 		}
 		
 		return sequenceNumber;
@@ -712,8 +712,8 @@ public class ScalephantClient implements Scalephant {
 					
 				case NetworkConst.RESPONSE_TYPE_ERROR:
 					if(pendingCall != null) {
+						pendingCall.setFailedState(false);
 						pendingCall.setOperationResult(0, false);
-						pendingCall.setFailedState();
 					}
 					break;
 					
@@ -722,8 +722,8 @@ public class ScalephantClient implements Scalephant {
 					break;
 					
 				case NetworkConst.RESPONSE_TYPE_ERROR_WITH_BODY:
+					pendingCall.setFailedState(false);
 					handleErrorWithBody(encodedPackage, pendingCall);
-					pendingCall.setFailedState();
 					break;
 					
 				case NetworkConst.RESPONSE_TYPE_LIST_TABLES:
@@ -749,7 +749,7 @@ public class ScalephantClient implements Scalephant {
 					logger.error("Unknown respose package type: " + packageType);
 					
 					if(pendingCall != null) {
-						pendingCall.setFailedState();
+						pendingCall.setFailedState(true);
 					}
 			}
 			

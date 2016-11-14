@@ -122,7 +122,7 @@ public class ScalephantCluster implements Scalephant {
 		} catch (ZookeeperException e) {
 			logger.warn("Got exception while inserting tuple", e);
 			final ClientOperationFuture future = new ClientOperationFuture();
-			future.setFailedState();
+			future.setFailedState(true);
 			return future;
 		}
 	}
@@ -157,7 +157,7 @@ public class ScalephantCluster implements Scalephant {
 		} catch (ResourceAllocationException e) {
 			logger.warn("listTables called, but no ressoures are available", e);
 			final ClientOperationFuture future = new ClientOperationFuture();
-			future.setFailedState();
+			future.setFailedState(true);
 			return future;
 		}
 	}
@@ -175,7 +175,7 @@ public class ScalephantCluster implements Scalephant {
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);
 			final ClientOperationFuture future = new ClientOperationFuture();
-			future.setFailedState();
+			future.setFailedState(true);
 			return future;
 		}
 	}

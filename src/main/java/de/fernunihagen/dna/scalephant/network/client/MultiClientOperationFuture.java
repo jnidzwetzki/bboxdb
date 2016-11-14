@@ -61,9 +61,9 @@ public class MultiClientOperationFuture implements OperationFuture {
 	}
 
 	@Override
-	public void setFailedState() {
+	public void setFailedState(final boolean notify) {
 		for(ClientOperationFuture future : futures) {
-			future.setFailedState();
+			future.setFailedState(notify);
 		}
 	}
 
