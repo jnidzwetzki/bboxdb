@@ -102,6 +102,13 @@ scalephant_start() {
     debug_flag=""
     #debug_flag="-debug"
  
+    debug_args=""
+
+    if [ ! -z "$SCALEPHANT_DEBUG" ]; then
+         echo "Debug startup......"
+         debug_args+="-Dlog4j.configuration=log4j_debug.properties"
+    fi
+    
     config="$basedir/../conf/scalephant.yaml"
 
     if [ ! -f $config ]; then
@@ -125,8 +132,8 @@ scalephant_start() {
     if [ -f $basedir/logs/scalephant.out.log ]; then
          rm $basedir/logs/scalephant.out.log
     fi
-    
-    ./jsvc $debug_flag -outfile $basedir/logs/scalephant.out.log -pidfile $basedir/scalephant.pid -Dscalephant.log.dir="$basedir/logs" -cwd $basedir -cp $classpath de.fernunihagen.dna.scalephant.ScalephantMain
+
+    ./jsvc $debug_flag $debug_args -outfile $basedir/logs/scalephant.out.log -pidfile $basedir/scalephant.pid -Dscalephant.log.dir="$basedir/logs" -cwd $basedir -cp $classpath de.fernunihagen.dna.scalephant.ScalephantMain
 }
 
 ###
