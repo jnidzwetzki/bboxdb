@@ -75,7 +75,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	public void run() {
 		
 		while(run) {
-			logger.info("Executing checkpoint thread for: " + ssTableManager.getSSTableName());
+			logger.debug("Executing checkpoint thread for: " + ssTableManager.getSSTableName());
 			
 			createCheckpoint();
 		
