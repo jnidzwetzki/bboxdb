@@ -4,6 +4,7 @@
 - New feature: Added a selftest
 - Improvement: Implemented keep alive packages, to keep tcp connections open
 - Improvement: Added the possibility to log debug messages 
+- Improvement: Write geometrical data to server in OSMInsertBenchmark
 - Bugfix: Removed duplicate logging entries
 - Bugfix: Removed deadlock on node down event
 - Bugfix: Skip compact operation when only one SSTable exists
