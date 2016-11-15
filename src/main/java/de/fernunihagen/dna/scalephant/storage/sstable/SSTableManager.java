@@ -539,23 +539,26 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * Get the a collection with the most recent version of the tuples
 	 * DeletedTuples are removed from the result set
 	 * 
-	 * @param memtableTuples
+	 * @param tupleList
 	 * @return
 	 */
-	protected Collection<Tuple> getTheMostRecentTuples(
-			final Collection<Tuple> memtableTuples) {
+	protected Collection<Tuple> getTheMostRecentTuples(final Collection<Tuple> tupleList) {
+		
 		final HashMap<String, Tuple> allTuples = new HashMap<String, Tuple>();
 
 		// Find the most recent version of the tuple
-		for(final Tuple tuple : memtableTuples) {
+		for(final Tuple tuple : tupleList) {
 			
 			final String tupleKey = tuple.getKey();
 			
 			if(! allTuples.containsKey(tupleKey)) {
 				allTuples.put(tupleKey, tuple);
 			} else {
+				final long knownTimestamp = allTuples.get(tupleKey).getTimestamp();
+				final long newTimestamp = tuple.getTimestamp();
+				
 				// Update with an newer version
-				if(allTuples.get(tupleKey).compareTo(tuple) < 0) {
+				if(newTimestamp > knownTimestamp) {
 					allTuples.put(tupleKey, tuple);
 				}
 			}

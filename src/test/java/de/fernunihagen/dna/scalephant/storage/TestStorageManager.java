@@ -1,5 +1,7 @@
 package de.fernunihagen.dna.scalephant.storage;
 
+import java.util.Collection;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,10 +41,51 @@ public class TestStorageManager {
 	}
 	
 	@Test
-	public void testInsertElements() throws Exception {
+	public void testInsertElements1() throws Exception {
 		final Tuple tuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
 		storageManager.put(tuple);
 		Assert.assertEquals(tuple, storageManager.get("1"));
+	}
+	
+	@Test
+	public void testInsertElements2() throws Exception {
+		final Tuple tuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final Tuple tuple2 = new Tuple("1", BoundingBox.EMPTY_BOX, "def".getBytes());
+
+		storageManager.put(tuple1);
+		storageManager.put(tuple2);
+		
+		Assert.assertEquals(tuple2, storageManager.get("1"));
+	}
+	
+	@Test
+	public void testInsertElements3() throws Exception {
+		final Tuple tuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tuple2 = new Tuple("1", BoundingBox.EMPTY_BOX, "def".getBytes(), 2);
+
+		storageManager.put(tuple1);
+		storageManager.put(tuple2);
+		
+		final Collection<Tuple> tuples = storageManager.getTuplesAfterTime(0);
+		
+		System.out.println(tuples);
+		
+		Assert.assertEquals(1, tuples.size());
+		Assert.assertFalse(tuples.contains(tuple1));
+		Assert.assertTrue(tuples.contains(tuple2));
+	}
+	
+	@Test
+	public void testInsertElements4() throws Exception {
+		final Tuple tuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1234);
+		final Tuple tuple2 = new Tuple("1", BoundingBox.EMPTY_BOX, "def".getBytes(), 1234);
+
+		storageManager.put(tuple1);
+		storageManager.put(tuple2);
+		
+		final Collection<Tuple> tuples = storageManager.getTuplesAfterTime(0);
+		
+		Assert.assertEquals(1, tuples.size());
 	}
 	
 	@Test
