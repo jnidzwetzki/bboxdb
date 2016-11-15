@@ -3,6 +3,7 @@ package de.fernunihagen.dna.scalephant.performance;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -17,11 +18,12 @@ import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 import crosby.binary.osmosis.OsmosisReader;
 import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
-import de.fernunihagen.dna.scalephant.performance.osm.OSMMultiPointEntityFilter;
-import de.fernunihagen.dna.scalephant.performance.osm.OSMRoadsEntityFilter;
-import de.fernunihagen.dna.scalephant.performance.osm.OSMSinglePointEntityFilter;
-import de.fernunihagen.dna.scalephant.performance.osm.OSMTrafficSignalEntityFilter;
-import de.fernunihagen.dna.scalephant.performance.osm.OSMTreeEntityFilter;
+import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMMultiPointEntityFilter;
+import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMRoadsEntityFilter;
+import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMSinglePointEntityFilter;
+import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMTrafficSignalEntityFilter;
+import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMTreeEntityFilter;
+import de.fernunihagen.dna.scalephant.performance.osm.util.GeometricalStructure;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -59,7 +61,10 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 				if(entityFilter.forwardNode(node)) {
 					try {
 						final BoundingBox boundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
-						final Tuple tuple = new Tuple(Long.toString(node.getId()), boundingBox, "abc".getBytes());
+						final GeometricalStructure geometricalStructure = new GeometricalStructure();
+						geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
+						final byte[] tupleBytes = geometricalStructure.toByteArray();
+						final Tuple tuple = new Tuple(Long.toString(node.getId()), boundingBox, tupleBytes);
 						final OperationFuture insertFuture = scalephantClient.insertTuple(table, tuple);
 						
 						// register pending future
@@ -67,7 +72,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 						checkForCompletedFutures();
 						
 						insertedTuples.incrementAndGet();
-					} catch (ScalephantException e) {
+					} catch (ScalephantException | IOException e) {
 						e.printStackTrace();
 					}
 				}
@@ -230,6 +235,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 	 */
 	protected boolean insertWay(final Way way, final Map<Long, Node> nodeMap) throws ScalephantException {
 		BoundingBox boundingBox = null;
+		GeometricalStructure geometricalStructure = new GeometricalStructure();
 		
 		for(final WayNode wayNode : way.getWayNodes()) {
 			
@@ -240,6 +246,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 			
 			final Node node = nodeMap.get(wayNode.getNodeId());
 			final BoundingBox nodeBoundingBox = new BoundingBox((float) node.getLatitude(), (float) node.getLatitude(), (float) node.getLongitude(), (float) node.getLongitude());
+			geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
 			
 			if(boundingBox == null) {
 				boundingBox = nodeBoundingBox;
@@ -249,16 +256,22 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		}
 		
 		if(boundingBox != null) {
-			final Tuple tuple = new Tuple(Long.toString(way.getId()), boundingBox, "abc".getBytes());
-			final OperationFuture insertFuture = scalephantClient.insertTuple(table, tuple);
-			
-			// register pending future
-			pendingFutures.add(insertFuture);
-			checkForCompletedFutures();
-			
-			insertedTuples.incrementAndGet();
-			
-			return true;
+			try {
+				final byte[] tupleBytes = geometricalStructure.toByteArray();
+				final Tuple tuple = new Tuple(Long.toString(way.getId()), boundingBox, tupleBytes);
+		
+				final OperationFuture insertFuture = scalephantClient.insertTuple(table, tuple);
+				
+				// register pending future
+				pendingFutures.add(insertFuture);
+				checkForCompletedFutures();
+				
+				insertedTuples.incrementAndGet();
+				
+				return true;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return false;

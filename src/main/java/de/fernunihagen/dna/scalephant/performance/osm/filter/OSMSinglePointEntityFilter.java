@@ -1,4 +1,4 @@
-package de.fernunihagen.dna.scalephant.performance.osm;
+package de.fernunihagen.dna.scalephant.performance.osm.filter;
 
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 

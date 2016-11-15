@@ -1,9 +1,9 @@
-package de.fernunihagen.dna.scalephant.performance.osm;
+package de.fernunihagen.dna.scalephant.performance.osm.filter;
 
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 
-public class OSMTrafficSignalEntityFilter extends OSMSinglePointEntityFilter {
+public class OSMTreeEntityFilter extends OSMSinglePointEntityFilter {
 	
 	public boolean forwardNode(final Node node) {
 		
@@ -11,7 +11,7 @@ public class OSMTrafficSignalEntityFilter extends OSMSinglePointEntityFilter {
 			//System.out.println(node.getId() + " " + tag.getKey() + " " + tag.getValue());	
 			
 			// Filter
-			if(tag.getValue().equals("traffic_signals")) {
+			if(tag.getKey().equals("natural") && tag.getValue().equals("tree")) {
 				return true;
 			}		
 		}
