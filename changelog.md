@@ -1,9 +1,9 @@
 # Changelog
 
 ### Version 0.2.0 (Beta) - TBA
-- Improved logging
-- Implemented keep alive packages
-- Added the possibility to log debug messages 
+- New feature: Added a selftest
+- Improvement: Implemented keep alive packages, to keep tcp connections open
+- Improvement: Added the possibility to log debug messages 
 - Bugfix: Removed duplicate logging entries
 - Bugfix: Removed deadlock on node down event
 - Bugfix: Skip compact operation when only one SSTable exists
