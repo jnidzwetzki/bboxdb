@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,6 +20,7 @@ import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 import crosby.binary.osmosis.OsmosisReader;
 import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
+import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMBuildingsEntityFilter;
 import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMMultiPointEntityFilter;
 import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMRoadsEntityFilter;
 import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMSinglePointEntityFilter;
@@ -178,6 +181,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		singlePointFilter.put("trafficsignals", new OSMTrafficSignalEntityFilter());
 		
 		multiPointFilter.put("roads", new OSMRoadsEntityFilter());
+		multiPointFilter.put("buildings", new OSMBuildingsEntityFilter());
 	}
 
 	public BenchmarkOSMInsertPerformance(final String filename, final String type, final short replicationFactor) {
@@ -352,6 +356,30 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		};
 	}	
 	
+	/**
+	 * Get the names of the available filter
+	 * @return
+	 */
+	public static String getFilterNames() {
+		final StringBuilder sb = new StringBuilder();
+		
+		final Set<String> names = new HashSet<>();
+		names.addAll(singlePointFilter.keySet());
+		names.addAll(multiPointFilter.keySet());
+		
+		for(final String name : names) {
+			sb.append(name);
+			sb.append("|");
+		}
+		
+		// Remove last '|'
+		if (sb.length() > 0) {
+			sb.setLength(sb.length() - 1);
+		}
+		
+		return sb.toString();
+	}
+	
 	/* ====================================================
 	 * Main
 	 * ====================================================
@@ -360,7 +388,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark {
 		
 		// Check parameter
 		if(args.length != 3) {
-			System.err.println("Usage: programm <filename> <tree|trafficsignals|roads> <replication factor>");
+			System.err.println("Usage: programm <filename> <" + getFilterNames() + "> <replication factor>");
 			System.exit(-1);
 		}
 		
