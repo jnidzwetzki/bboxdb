@@ -1,5 +1,7 @@
 # Changelog
 
+### Version 0.2.0 (Beta-2) - TBA
+
 ### Version 0.2.0 (Beta-1) - 17.11.2016
 - New feature: Added a selftest
 - Improvement: Implemented keep alive packages, to keep tcp connections open
