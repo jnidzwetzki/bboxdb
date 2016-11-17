@@ -10,7 +10,7 @@ public class OSMBuildingsEntityFilter extends OSMMultiPointEntityFilter {
 	public boolean forwardNode(final Collection<Tag> tags) {
 		
 		for(final Tag tag : tags) {
-			System.out.println(tag);
+			
 			if(tag.getKey().equals("building") && tag.getValue().equals("yes")) {
 				return true;
 			}
