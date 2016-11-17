@@ -157,7 +157,7 @@ public class OSMFileReader implements Runnable {
 	}
 	
 	/**
-	 * Insert the given way into the scalephant
+	 * Handle the given way
 	 * @param way
 	 * @param nodeMap 
 	 * @throws ScalephantException 
