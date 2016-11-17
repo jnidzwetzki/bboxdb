@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
+
 public class GeometricalStructure implements Serializable {
 
 	/**
@@ -24,6 +26,40 @@ public class GeometricalStructure implements Serializable {
 	public void addPoint(final double d, final double e) {
 		final OSMPoint point = new OSMPoint(d, e);
 		pointList.add(point);
+	}
+	
+	/**
+	 * Get the number of points
+	 * @return 
+	 */
+	public int getNumberOfPoints() {
+		return pointList.size();
+	}
+	
+	/**
+	 * Get the bounding box from the object
+	 * @return
+	 */
+	public BoundingBox getBoundingBox() {
+		
+		if(pointList.isEmpty()) {
+			return BoundingBox.EMPTY_BOX;
+		}
+		
+		final OSMPoint firstPoint = pointList.get(0);
+		double minX = firstPoint.getX();
+		double maxX = firstPoint.getX();
+		double minY = firstPoint.getY();
+		double maxY = firstPoint.getY();
+		
+		for(final OSMPoint osmPoint : pointList) {
+			minX = Math.min(minX, osmPoint.getX());
+			maxX = Math.min(maxX, osmPoint.getX());
+			minY = Math.min(minY, osmPoint.getY());
+			maxY = Math.min(maxY, osmPoint.getY());
+		}
+		
+		return new BoundingBox((float) minX, (float) maxX, (float) minY, (float) maxY);
 	}
 
 	/**
