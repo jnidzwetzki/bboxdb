@@ -373,10 +373,10 @@ public class SSTableManager implements ScalephantService, Storage {
 	public boolean deleteExistingTables() throws StorageManagerException {
 		logger.info("Delete all existing SSTables for relation: " + getSSTableName());
 		
-		memtable.clear();
-		
+		// Reject new writes
 		shutdown();
 		
+		// Wait for in memory data flush
 		while(! isShutdownComplete()) {
 			try {
 				Thread.sleep(100);
@@ -385,6 +385,24 @@ public class SSTableManager implements ScalephantService, Storage {
 			}
 		}
 		
+		if(! memtable.isEmpty()) {
+			logger.warn("Memtable is not empty after shutdown()");
+			memtable.clear();
+		}
+		
+		if(! unflushedMemtables.isEmpty()) {
+			logger.warn("There are unflsuhed memtables after shutdown(): " + unflushedMemtables);
+			unflushedMemtables.clear();
+		}
+		
+		return deletePersistentTableData();
+	}
+
+	/**
+	 * Delete the persistent data of the table
+	 * @return
+	 */
+	protected boolean deletePersistentTableData() {
 		final File directoryHandle = new File(SSTableHelper.getSSTableDir(scalephantConfiguration.getDataDirectory(), sstablename.getFullname()));
 	
 		// Does the directory exist?
