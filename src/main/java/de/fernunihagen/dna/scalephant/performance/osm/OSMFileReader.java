@@ -110,15 +110,14 @@ public class OSMFileReader implements Runnable {
 		/**
 		 * The node map
 		 */
-		private final Map<Long, Node> nodeMap;
+		private final Map<Long, Node> nodeMap = new HashMap<Long, Node>();
 		
 		/**
 		 * The entity filter
 		 */
 		private final OSMMultiPointEntityFilter entityFilter;
 
-		protected OSMMultipointSink(final Map<Long, Node> nodeMap, final OSMMultiPointEntityFilter entityFilter) {
-			this.nodeMap = nodeMap;
+		protected OSMMultipointSink(final OSMMultiPointEntityFilter entityFilter) {
 			this.entityFilter = entityFilter;
 		}
 
@@ -252,9 +251,8 @@ public class OSMFileReader implements Runnable {
 			}
 			
 			if(multiPointFilter.containsKey(type)) {
-				final Map<Long, Node> nodeMap = new HashMap<Long, Node>();
 				final OSMMultiPointEntityFilter entityFilter = multiPointFilter.get(type);			
-				reader.setSink(new OSMMultipointSink(nodeMap, entityFilter));
+				reader.setSink(new OSMMultipointSink(entityFilter));
 			}
 			
 			waitForReaderThread(reader);
