@@ -184,25 +184,6 @@ public class OSMFileReader implements Runnable {
 	
 	
 	/**
-	 * Wait for the reader thread to complete
-	 * 
-	 * @param reader
-	 */
-	protected void waitForReaderThread(final OsmosisReader reader) {
-		final Thread readerThread = new Thread(reader);
-		readerThread.start();
-
-		while (readerThread.isAlive()) {
-		    try {
-		        readerThread.join();
-		        System.out.println("Done");
-		    } catch (InterruptedException e) {
-		        /* do nothing */
-		    }
-		}
-	}
-	
-	/**
 	 * Get the names of the available filter
 	 * @return
 	 */
@@ -255,7 +236,7 @@ public class OSMFileReader implements Runnable {
 				reader.setSink(new OSMMultipointSink(entityFilter));
 			}
 			
-			waitForReaderThread(reader);
+			reader.run();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
