@@ -19,10 +19,20 @@ public class GeometricalStructure implements Serializable {
 	private static final long serialVersionUID = -2119998223400835002L;
 	
 	/**
+	 * The ID of the sttructure
+	 */
+	protected final long id;
+	
+	/**
 	 * The list of our points
 	 */
 	protected List<OSMPoint> pointList = new ArrayList<OSMPoint>();
 	
+	public GeometricalStructure(final long id) {
+		super();
+		this.id = id;
+	}
+
 	public void addPoint(final double d, final double e) {
 		final OSMPoint point = new OSMPoint(d, e);
 		pointList.add(point);
@@ -88,6 +98,10 @@ public class GeometricalStructure implements Serializable {
 		final ByteArrayInputStream bInputStream = new ByteArrayInputStream(bytes);
 		final ObjectInputStream oInputStream = new ObjectInputStream(bInputStream);
 		return (GeometricalStructure) oInputStream.readObject();
+	}
+
+	public long getId() {
+		return id;
 	}
 	
 }
