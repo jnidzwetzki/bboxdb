@@ -27,6 +27,7 @@ import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.performance.osm.OSMFileReader;
 import de.fernunihagen.dna.scalephant.performance.osm.OSMStructureCallback;
 import de.fernunihagen.dna.scalephant.performance.osm.util.GeometricalStructure;
+import de.fernunihagen.dna.scalephant.performance.osm.util.SerializerHelper;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
 public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements OSMStructureCallback  {
@@ -61,6 +62,11 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 	 */
 	protected final String type;
 
+	/**
+	 * The serializer
+	 */
+	protected final SerializerHelper<GeometricalStructure> serializerHelper = new SerializerHelper<>();
+
 	public BenchmarkOSMInsertPerformance(final String filename, final String type, final short replicationFactor) {
 		this.filename = filename;
 		this.type = type;
@@ -93,7 +99,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 	@Override
 	public void processStructure(final GeometricalStructure geometricalStructure) {
 		try {
-			final byte[] tupleBytes = geometricalStructure.toByteArray();
+			final byte[] tupleBytes = serializerHelper.toByteArray(geometricalStructure);
 			final Tuple tuple = new Tuple(Long.toString(geometricalStructure.getId()), geometricalStructure.getBoundingBox(), tupleBytes);
 			final OperationFuture insertFuture = scalephantClient.insertTuple(table, tuple);
 			

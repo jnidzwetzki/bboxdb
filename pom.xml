@@ -50,6 +50,11 @@
     <artifactId>osmosis-pbf</artifactId>
     <version>0.45</version>
    </dependency>
+   <dependency>
+    <groupId>org.mapdb</groupId>
+    <artifactId>mapdb</artifactId>
+    <version>3.0.2</version>
+   </dependency>
   </dependencies>
   
   <licenses>

@@ -17,8 +17,10 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.performance.osm;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +28,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
@@ -40,6 +45,8 @@ import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMSinglePointEntit
 import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMTrafficSignalEntityFilter;
 import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMTreeEntityFilter;
 import de.fernunihagen.dna.scalephant.performance.osm.util.GeometricalStructure;
+import de.fernunihagen.dna.scalephant.performance.osm.util.SerializableNode;
+import de.fernunihagen.dna.scalephant.performance.osm.util.SerializerHelper;
 
 public class OSMFileReader implements Runnable {
 
@@ -124,17 +131,42 @@ public class OSMFileReader implements Runnable {
 	protected class OSMMultipointSink implements Sink {
 		
 		/**
+		 * The db instance
+		 */
+		protected final DB db;
+		
+		/**
 		 * The node map
 		 */
-		private final Map<Long, Node> nodeMap = new HashMap<Long, Node>();
+		protected final Map<Long, byte[]> nodeMap;
 		
 		/**
 		 * The entity filter
 		 */
-		private final OSMMultiPointEntityFilter entityFilter;
+		protected final OSMMultiPointEntityFilter entityFilter;
+		
+		/**
+		 * The node serializer
+		 */
+		protected SerializerHelper<SerializableNode> serializerHelper = new SerializerHelper<>();
 
 		protected OSMMultipointSink(final OSMMultiPointEntityFilter entityFilter) {
 			this.entityFilter = entityFilter;
+	    	
+			try {
+				final File dbFile = File.createTempFile("osm-db", ".tmp");
+				dbFile.delete();
+				
+				// Use a disk backed map, to process files > Memory
+				this.db = DBMaker.fileDB(dbFile).fileMmapEnableIfSupported().fileDeleteAfterClose().make();
+				this.nodeMap = db.hashMap("osm-id-map").keySerializer(Serializer.LONG)
+				        .valueSerializer(Serializer.BYTE_ARRAY)
+				        .create();
+				
+			} catch (IOException e) {
+				throw new IllegalArgumentException(e);
+			}
+			
 		}
 
 		@Override
@@ -154,44 +186,56 @@ public class OSMFileReader implements Runnable {
 
 		@Override
 		public void process(final EntityContainer entityContainer) {
-			if(entityContainer.getEntity() instanceof Node) {
-				final Node node = (Node) entityContainer.getEntity();						
-				nodeMap.put(node.getId(), node);
-			} else if(entityContainer.getEntity() instanceof Way) {
-				final Way way = (Way) entityContainer.getEntity();
-				final boolean forward = entityFilter.forwardNode(way.getTags());
+			try {
+				if(entityContainer.getEntity() instanceof Node) {
+					final Node node = (Node) entityContainer.getEntity();
+					final SerializableNode serializableNode = new SerializableNode(node);
+					nodeMap.put(node.getId(), serializerHelper.toByteArray(serializableNode));
+				} else if(entityContainer.getEntity() instanceof Way) {
+					final Way way = (Way) entityContainer.getEntity();
+					final boolean forward = entityFilter.forwardNode(way.getTags());
 
-				if(forward) {
-					insertWay(way, nodeMap);	
+					if(forward) {
+						insertWay(way, nodeMap);	
+					}
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+		}
+		
+		/**
+		 * Handle the given way
+		 * @param way
+		 * @param nodeMap 
+		 */
+		protected void insertWay(final Way way, final Map<Long, byte[]> nodeMap) {
+			final GeometricalStructure geometricalStructure = new GeometricalStructure(way.getId());
+			
+			try {
+				for(final WayNode wayNode : way.getWayNodes()) {
+					
+					if(! nodeMap.containsKey(wayNode.getNodeId())) {
+						System.err.println("Unable to find node for way: " + wayNode.getNodeId());
+						return;
+					}
+					
+					final byte[] nodeBytes = nodeMap.get(wayNode.getNodeId());
+					final SerializableNode serializableNode = serializerHelper.loadFromByteArray(nodeBytes);
+					geometricalStructure.addPoint(serializableNode.getLatitude(), serializableNode.getLongitude());
+				}
+				
+				if(geometricalStructure.getNumberOfPoints() > 0) {
+						structureCallback.processStructure(geometricalStructure);				
+				}
+			} catch (ClassNotFoundException | IOException e) {
+				e.printStackTrace();
+			}
+			
 		}
 	}
 	
-	/**
-	 * Handle the given way
-	 * @param way
-	 * @param nodeMap 
-	 */
-	protected void insertWay(final Way way, final Map<Long, Node> nodeMap) {
-		final GeometricalStructure geometricalStructure = new GeometricalStructure(way.getId());
-		
-		for(final WayNode wayNode : way.getWayNodes()) {
-			
-			if(! nodeMap.containsKey(wayNode.getNodeId())) {
-				System.err.println("Unable to find node for way: " + wayNode.getNodeId());
-				return;
-			}
-			
-			final Node node = nodeMap.get(wayNode.getNodeId());
-			geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
-		}
-		
-		if(geometricalStructure.getNumberOfPoints() > 0) {
-				structureCallback.processStructure(geometricalStructure);				
-		}
-		
-	}
+	
 	
 	
 	/**
