@@ -1,6 +1,7 @@
 # Changelog
 
 ### Version 0.2.0 (Beta-2) - TBA
+- Improvement: Added missing copyright header to all source files
 
 ### Version 0.2.0 (Beta-1) - 17.11.2016
 - New feature: Added a selftest
