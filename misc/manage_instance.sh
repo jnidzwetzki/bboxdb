@@ -25,6 +25,9 @@ fi
 
 classpath="$basedir/../conf:$libs:$jar"
 
+# Log dir
+logdir=$basedir/../logs
+
 # Zookeeper
 zookeeper_workdir=$basedir/zookeeper
 zookeeper_clientport="2181"
@@ -94,8 +97,8 @@ scalephant_start() {
     fi
     
     # Create log dir if needed
-    if [ ! -d logs/ ]; then
-        mkdir logs
+    if [ ! -d $logdir ]; then
+        mkdir $logdir
     fi
 
     # Activate JVM start debugging
@@ -129,11 +132,11 @@ scalephant_start() {
 
     sed -i "s/zookeepernodes: .*/zookeepernodes: $zookeeper_connect/" $config
 
-    if [ -f $basedir/logs/scalephant.out.log ]; then
-         rm $basedir/logs/scalephant.out.log
+    if [ -f $logdir/scalephant.out.log ]; then
+         rm $logdir/scalephant.out.log
     fi
 
-    ./jsvc $debug_flag $debug_args -outfile $basedir/logs/scalephant.out.log -pidfile $basedir/scalephant.pid -Dscalephant.log.dir="$basedir/logs" -cwd $basedir -cp $classpath de.fernunihagen.dna.scalephant.ScalephantMain
+    ./jsvc $debug_flag $debug_args -outfile $logdir/scalephant.out.log -pidfile $basedir/scalephant.pid -Dscalephant.log.dir="$logdir" -cwd $basedir -cp $classpath de.fernunihagen.dna.scalephant.ScalephantMain
 }
 
 ###
@@ -166,8 +169,8 @@ zookeeper_start() {
 
     echo "Start Zookeeper"
 
-    if [ ! -d logs/ ]; then
-        mkdir logs
+    if [ ! -d $logdir ]; then
+        mkdir $logdir
     fi
 
     # Create work dir
@@ -205,7 +208,7 @@ EOF
     echo $instanceid > $zookeeper_workdir/myid
  
     # Start zookeeper
-    nohup java -cp $classpath -Dzookeeper.log.dir="$basedir/logs" org.apache.zookeeper.server.quorum.QuorumPeerMain $basedir/zoo.cfg > $basedir/logs/zookeeper.log 2>&1 < /dev/null &
+    nohup java -cp $classpath -Dzookeeper.log.dir="$logdir" org.apache.zookeeper.server.quorum.QuorumPeerMain $basedir/zoo.cfg > $logdir/zookeeper.log 2>&1 < /dev/null &
     
     if [ $? -eq 0 ]; then
        # Dump PID into file
