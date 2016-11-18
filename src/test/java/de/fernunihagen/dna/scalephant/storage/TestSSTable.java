@@ -127,7 +127,7 @@ public class TestSSTable {
 		Assert.assertTrue(sstableFile.exists());
 		Assert.assertTrue(sstableIndexFile.exists());
 		
-		final SSTableFacade ssTableFacade = new SSTableFacade(DATA_DIRECTORY, TEST_RELATION, 1);
+		final Acquirable ssTableFacade = new SSTableFacade(DATA_DIRECTORY, TEST_RELATION, 1);
 		ssTableFacade.acquire();
 		ssTableFacade.deleteOnClose();
 		

@@ -7,12 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.ScalephantService;
+import de.fernunihagen.dna.scalephant.storage.Acquirable;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
 
-public class SSTableFacade implements ScalephantService {
+public class SSTableFacade implements ScalephantService, Acquirable {
 	 
 	/**
 	 * The name of the table
@@ -127,18 +128,19 @@ public class SSTableFacade implements ScalephantService {
 	}
 	
 
-	/**
-	 * Delete the underlying file as soon as usage == 0
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.scalephant.storage.sstable.reader.Acquirable#deleteOnClose()
 	 */
+	@Override
 	public void deleteOnClose() {
 		deleteOnClose = true;
 		testFileDelete();
 	}
 	
-	/** 
-	 * Increment the usage counter
-	 * @return
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.scalephant.storage.sstable.reader.Acquirable#acquire()
 	 */
+	@Override
 	public boolean acquire() {
 		
 		// We are closing this instance
@@ -150,9 +152,10 @@ public class SSTableFacade implements ScalephantService {
 		return true;
 	}
 	
-	/**
-	 * Decrement the usage counter
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.scalephant.storage.sstable.reader.Acquirable#release()
 	 */
+	@Override
 	public void release() {
 		usage.decrementAndGet();
 		
