@@ -33,7 +33,6 @@ import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 import crosby.binary.osmosis.OsmosisReader;
-import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMBuildingsEntityFilter;
 import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMMultiPointEntityFilter;
 import de.fernunihagen.dna.scalephant.performance.osm.filter.OSMRoadsEntityFilter;
@@ -163,11 +162,7 @@ public class OSMFileReader implements Runnable {
 				final boolean forward = entityFilter.forwardNode(way.getTags());
 
 				if(forward) {
-					try {
-						insertWay(way, nodeMap);
-					} catch (ScalephantException e) {
-						e.printStackTrace();
-					}
+					insertWay(way, nodeMap);	
 				}
 			}
 		}
@@ -177,9 +172,8 @@ public class OSMFileReader implements Runnable {
 	 * Handle the given way
 	 * @param way
 	 * @param nodeMap 
-	 * @throws ScalephantException 
 	 */
-	protected void insertWay(final Way way, final Map<Long, Node> nodeMap) throws ScalephantException {
+	protected void insertWay(final Way way, final Map<Long, Node> nodeMap) {
 		final GeometricalStructure geometricalStructure = new GeometricalStructure(way.getId());
 		
 		for(final WayNode wayNode : way.getWayNodes()) {
