@@ -70,6 +70,13 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 
 	@Override
 	public void runBenchmark() throws InterruptedException, ExecutionException, ScalephantException {
+		final OSMFileReader osmFileReader = new OSMFileReader(filename, type, this);
+		osmFileReader.run();		
+	}
+	
+	@Override
+	protected void prepare() throws Exception {
+		super.prepare();
 
 		// Remove old data
 		final OperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
@@ -78,9 +85,6 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 		// Create a new distribution group
 		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, replicationFactor);
 		createResult.waitForAll();
-	
-		final OSMFileReader osmFileReader = new OSMFileReader(filename, type, this);
-		osmFileReader.run();		
 	}
 
 	/**
