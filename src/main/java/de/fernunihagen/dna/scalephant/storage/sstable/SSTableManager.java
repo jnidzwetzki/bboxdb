@@ -505,6 +505,25 @@ public class SSTableManager implements ScalephantService, Storage {
 	}
 	
 	/**
+	 * If the tuple is a deleted tuple, return null
+	 * Otherwise, return the given tuple
+	 * @param tuple
+	 * @return
+	 */
+	protected Tuple replaceDeletedTupleWithNull(final Tuple tuple) {
+		
+		if(tuple == null) {
+			return null;
+		}
+		
+		if(tuple instanceof DeletedTuple) {
+			return null;
+		}
+		
+		return tuple;
+	}
+	
+	/**
 	 * Search for the most recent version of the tuple
 	 * @param key
 	 * @return The tuple or null
@@ -518,17 +537,13 @@ public class SSTableManager implements ScalephantService, Storage {
 		
 		// Read from memtable
 		final Tuple memtableTuple = memtable.get(key);
-		
-		if(memtableTuple instanceof DeletedTuple) {
-			return null;
-		}
-		
+
 		if(memtableTuple != null) {
-			return memtableTuple;
+			return replaceDeletedTupleWithNull(memtableTuple);
 		}
 		
 		// Read unflushed memtables first
-		Tuple tuple = getTupleFromMemtable(key);
+		Tuple tuple = getTupleFromUnflushedMemtables(key);
 				
 		boolean readComplete = false;
 		while(! readComplete) {
@@ -562,11 +577,7 @@ public class SSTableManager implements ScalephantService, Storage {
 			}
 		}
 		
-		if(tuple instanceof DeletedTuple) {
-			return null;
-		}
-		
-		return tuple;
+		return replaceDeletedTupleWithNull(memtableTuple);
 	}
 	
 	
@@ -749,7 +760,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	 * @param key
 	 * @return
 	 */
-	protected Tuple getTupleFromMemtable(final String key) {
+	protected Tuple getTupleFromUnflushedMemtables(final String key) {
 		
 		Tuple result = null;
 		
