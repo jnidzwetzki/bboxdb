@@ -5,6 +5,7 @@
 - Improvement: Added missing copyright header to all source files
 - Improvement: OSM import is now executed on a disk backed set, so huge imports (> memory) can be performed
 - Improvement: Speed up 'read by key' operation, by scanning only the relevant SStables
+- Improvement: Switched to SLF4J LOG4J 12 Binding 1.7.21 and Zookeeper 3.4.9
 - Bugfix: Logs now written into $installdir/logs
 - Bugfix: Outdated tuples could be returned from the unflushed memtables
 - Bugfix: Fixed 'node exist exception' during instance registration on fast service restarts
