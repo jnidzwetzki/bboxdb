@@ -26,7 +26,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
-import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
+import de.fernunihagen.dna.scalephant.util.DataEncoderHelper;
 
 public class HelloResponse extends NetworkResponsePackage {
 	

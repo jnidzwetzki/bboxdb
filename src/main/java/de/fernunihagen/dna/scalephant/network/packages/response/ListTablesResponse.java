@@ -30,7 +30,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
-import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
+import de.fernunihagen.dna.scalephant.util.DataEncoderHelper;
 
 public class ListTablesResponse extends NetworkResponsePackage {
 	

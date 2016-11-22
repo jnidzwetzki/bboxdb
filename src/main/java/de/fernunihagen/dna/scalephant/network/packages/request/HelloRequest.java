@@ -27,7 +27,7 @@ import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
-import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
+import de.fernunihagen.dna.scalephant.util.DataEncoderHelper;
 
 public class HelloRequest implements NetworkRequestPackage {
 	

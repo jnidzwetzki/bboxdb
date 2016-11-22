@@ -28,7 +28,7 @@ import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableConst;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
-import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
+import de.fernunihagen.dna.scalephant.util.DataEncoderHelper;
 
 public class SSTableReader extends AbstractTableReader {
 

@@ -29,7 +29,7 @@ import de.fernunihagen.dna.scalephant.network.packages.NetworkTupleEncoderDecode
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.entity.TupleAndTable;
-import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
+import de.fernunihagen.dna.scalephant.util.DataEncoderHelper;
 
 public class TupleResponse extends NetworkResponsePackage {
 	

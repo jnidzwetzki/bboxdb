@@ -31,7 +31,7 @@ import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.tools.DataEncoderHelper;
+import de.fernunihagen.dna.scalephant.util.DataEncoderHelper;
 
 public class SSTableWriter implements AutoCloseable {
 	

@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package de.fernunihagen.dna.scalephant.tools;
+package de.fernunihagen.dna.scalephant.util;
 
 import java.nio.ByteBuffer;
 
