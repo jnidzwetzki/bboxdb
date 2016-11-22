@@ -17,6 +17,7 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.distribution.zookeeper;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -267,7 +268,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		try {
 			return readPathAndReturnString(versionPath, true, null);
 		} catch (ZookeeperException e) {
-			logger.info("Unable to read version for: " + versionPath);
+			logger.info("Unable to read version for: {}", versionPath);
 		}
 		
 		return DistributedInstance.UNKOWN_VERSION;
@@ -349,7 +350,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 				readMembershipAndRegisterWatch();
 			}
 		} else {
-			logger.warn("Got unknown zookeeper event: " + watchedEvent);
+			logger.warn("Got unknown zookeeper event: {}", watchedEvent);
 		}
 	}
 	
@@ -390,7 +391,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			
 			// Delete old state if exists (e.g. caused by a fast restart of the service) 
 			if(zookeeper.exists(statePath, false) != null) {
-				logger.debug("Old path state path {} does exist, deleting", statePath);
+				logger.debug("Old state path {} does exist, deleting", statePath);
 				zookeeper.delete(statePath, -1);
 			}
 			
@@ -530,7 +531,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 				final String partialPath = sb.toString();
 							
 				if(zookeeper.exists(partialPath, false) == null) {
-					logger.info(partialPath + " not found, creating");
+					logger.info("Path '{}' not found, creating", partialPath);
 					
 					zookeeper.create(partialPath, 
 							"".getBytes(), 
@@ -588,7 +589,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			final String path = getDistributionGroupPath(distributionGroup);
 
 			if(zookeeper.exists(path, false) == null) {
-				throw new ZookeeperException("Unable to read: " + distributionGroup + " path " + path + " does not exist");
+				final String exceptionMessage = MessageFormat.format("Unable to read {}. Path '{}' does not exist", distributionGroup, path);
+				throw new ZookeeperException(exceptionMessage);
 			}
 			
 			final DistributionRegion root = DistributionRegionFactory.createRootRegion(distributionGroup);
