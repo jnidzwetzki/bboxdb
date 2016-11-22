@@ -43,7 +43,7 @@ import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.compact.SSTableCompactorThread;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
-import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableReader;
+import de.fernunihagen.dna.scalephant.storage.sstable.reader.TupleByKeyLocator;
 import de.fernunihagen.dna.scalephant.util.State;
 import de.fernunihagen.dna.scalephant.util.Stoppable;
 
@@ -505,25 +505,6 @@ public class SSTableManager implements ScalephantService, Storage {
 	}
 	
 	/**
-	 * If the tuple is a deleted tuple, return null
-	 * Otherwise, return the given tuple
-	 * @param tuple
-	 * @return
-	 */
-	protected Tuple replaceDeletedTupleWithNull(final Tuple tuple) {
-		
-		if(tuple == null) {
-			return null;
-		}
-		
-		if(tuple instanceof DeletedTuple) {
-			return null;
-		}
-		
-		return tuple;
-	}
-	
-	/**
 	 * Search for the most recent version of the tuple
 	 * @param key
 	 * @return The tuple or null
@@ -535,49 +516,17 @@ public class SSTableManager implements ScalephantService, Storage {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
 		
-		// Read from memtable
+		// Is tuple stored in the current memtable?
 		final Tuple memtableTuple = memtable.get(key);
 
+		// If this is true, this is the most recent version
 		if(memtableTuple != null) {
-			return replaceDeletedTupleWithNull(memtableTuple);
+			return SSTableHelper.replaceDeletedTupleWithNull(memtableTuple);
 		}
 		
-		// Read unflushed memtables first
-		Tuple tuple = getTupleFromUnflushedMemtables(key);
-				
-		boolean readComplete = false;
-		while(! readComplete) {
-			readComplete = true;
-		
-			// Read data from the persistent SSTables
-			for(final SSTableFacade facade : sstableFacades) {
-				boolean canBeUsed = facade.acquire();
-				
-				if(! canBeUsed ) {
-					readComplete = false;
-					break;
-				}
-				
-				final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
-				final SSTableReader reader = facade.getSsTableReader();
-				
-				final int position = indexReader.getPositionForTuple(key);
-				
-				// Found a tuple
-				if(position != -1) {
-					final Tuple tableTuple = reader.getTupleAtPosition(position);
-					if(tuple == null) {
-						tuple = tableTuple;
-					} else if(tableTuple.getTimestamp() > tuple.getTimestamp()) {
-						tuple = tableTuple;
-					}
-				}
-				
-				facade.release();
-			}
-		}
-		
-		return replaceDeletedTupleWithNull(memtableTuple);
+		// Otherwise scan unflushed memtables and SStables
+		final TupleByKeyLocator tupleByKeyLocator = new TupleByKeyLocator(this);
+		return tupleByKeyLocator.getMostRecentTuple(key);
 	}
 	
 	
@@ -753,35 +702,6 @@ public class SSTableManager implements ScalephantService, Storage {
 			}
 		}
 		return storedTuples;
-	}
-	
-	/**
-	 * Get the tuple from the unflushed memtables
-	 * @param key
-	 * @return
-	 */
-	protected Tuple getTupleFromUnflushedMemtables(final String key) {
-		
-		Tuple result = null;
-		
-		for(final Memtable unflushedMemtable : unflushedMemtables) {
-			final Tuple tuple = unflushedMemtable.get(key);
-			
-			if(tuple != null) {
-				if(result == null) {
-					result = tuple;
-					continue;
-				}
-				
-				// Get the most recent version of the tuple
-				if(tuple.compareTo(result) < 0) {
-					result = tuple;
-					continue;	
-				}
-			}
-		}
-		
-		return result;
 	}
 	
 	/**
