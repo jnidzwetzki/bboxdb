@@ -49,7 +49,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	@Override
 	public void init() {
 		super.init();
-		logger.info("Opened index for relation: " + name + " with " + getNumberOfEntries() + " entries");
+		logger.info("Opened index for relation: {} with {} entries", name, getNumberOfEntries());
 	}
 
 	/**
@@ -148,7 +148,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	protected int getNumberOfEntries() {
 		try {
 			if(fileChannel == null) {
-				logger.warn("getNumberOfEntries() called on closed sstableindexreader for relation: " + name);
+				logger.warn("getNumberOfEntries() called on closed sstableindexreader for relation: {}", name);
 				return 0;
 			}
 			

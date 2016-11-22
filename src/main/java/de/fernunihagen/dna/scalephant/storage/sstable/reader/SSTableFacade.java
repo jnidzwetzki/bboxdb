@@ -184,7 +184,7 @@ public class SSTableFacade implements ScalephantService, Acquirable {
 	 */
 	protected void testFileDelete() {
 		if(deleteOnClose && usage.get() == 0) {
-			logger.info("Delete service facade for: " + name + " / " + tablenumber);
+			logger.info("Delete service facade for: {} / {}", name, tablenumber);
 			
 			shutdown();
 			
