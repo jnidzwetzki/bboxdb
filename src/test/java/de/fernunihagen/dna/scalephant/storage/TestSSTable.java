@@ -35,6 +35,7 @@ import de.fernunihagen.dna.scalephant.storage.sstable.SSTableWriter;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableReader;
+import de.fernunihagen.dna.scalephant.util.Acquirable;
 
 public class TestSSTable {
 	

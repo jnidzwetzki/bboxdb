@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package de.fernunihagen.dna.scalephant.storage;
+package de.fernunihagen.dna.scalephant.util;
 
 public interface Acquirable {
 

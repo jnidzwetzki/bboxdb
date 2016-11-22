@@ -24,11 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.ScalephantService;
-import de.fernunihagen.dna.scalephant.storage.Acquirable;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
+import de.fernunihagen.dna.scalephant.util.Acquirable;
 
 public class SSTableFacade implements ScalephantService, Acquirable {
 	 
