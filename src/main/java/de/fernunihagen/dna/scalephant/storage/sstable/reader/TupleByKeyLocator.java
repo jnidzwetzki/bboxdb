@@ -67,11 +67,7 @@ public class TupleByKeyLocator {
 				// Found a tuple
 				if(position != -1) {
 					final Tuple tableTuple = reader.getTupleAtPosition(position);
-					if(tuple == null) {
-						tuple = tableTuple;
-					} else if(tableTuple.getTimestamp() > tuple.getTimestamp()) {
-						tuple = tableTuple;
-					}
+					tuple = SSTableHelper.returnMostRecentTuple(tuple, tableTuple);
 				}
 				
 				facade.release();
@@ -88,26 +84,14 @@ public class TupleByKeyLocator {
 	 */
 	protected Tuple getTupleFromUnflushedMemtables(final String key) {
 		
-		Tuple result = null;
+		Tuple mostRecentTuple = null;
 		
 		for(final Memtable unflushedMemtable : sstableManager.getUnflushedMemtables()) {
-			final Tuple tuple = unflushedMemtable.get(key);
-			
-			if(tuple != null) {
-				if(result == null) {
-					result = tuple;
-					continue;
-				}
-				
-				// Get the most recent version of the tuple
-				if(tuple.compareTo(result) < 0) {
-					result = tuple;
-					continue;	
-				}
-			}
+			final Tuple memtableTuple = unflushedMemtable.get(key);
+			mostRecentTuple = SSTableHelper.returnMostRecentTuple(mostRecentTuple, memtableTuple);
 		}
 		
-		return result;
+		return mostRecentTuple;
 	}
 
 }

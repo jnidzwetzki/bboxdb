@@ -136,4 +136,30 @@ public class SSTableHelper {
 		
 		return tuple;
 	}
+	
+	/**
+	 * Return the most recent version of the tuple
+	 * @param tuple1
+	 * @param tuple2
+	 * @return
+	 */
+	public static Tuple returnMostRecentTuple(final Tuple tuple1, final Tuple tuple2) {
+		if(tuple1 == null && tuple2 == null) {
+			return null;
+		}
+		
+		if(tuple1 == null) {
+			return tuple2;
+		}
+		
+		if(tuple2 == null) {
+			return tuple1;
+		}
+		
+		if(tuple1.getTimestamp() > tuple2.getTimestamp()) {
+			return tuple1;
+		}
+		
+		return tuple2;
+	}
 }
