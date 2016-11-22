@@ -9,6 +9,7 @@
 - Bugfix: Logs now written into $installdir/logs
 - Bugfix: Outdated tuples could be returned from the unflushed memtables
 - Bugfix: Fixed 'node exist exception' during instance registration on fast service restarts
+- Bugfix: Removed outdated jars on upgrade from classpath
 
 ### Version 0.2.0 (Beta-1) - 17.11.2016
 - New feature: Added a selftest

@@ -73,9 +73,15 @@ download_jsvc() {
 # Update and build the scalephant
 ###
 scalephant_update() {
-   echo "Upgrade the scalephant"
+   echo "Update the scalephant"
    cd ..
    git pull
+   
+   # Remove old jars
+   if [ -d target/lib/ ]; then
+      rm -r target/lib/
+   fi
+   
    mvn package -DskipTests
 }
 
