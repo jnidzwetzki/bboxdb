@@ -589,7 +589,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			final String path = getDistributionGroupPath(distributionGroup);
 
 			if(zookeeper.exists(path, false) == null) {
-				final String exceptionMessage = MessageFormat.format("Unable to read {0}. Path '{0}' does not exist", distributionGroup, path);
+				final String exceptionMessage = MessageFormat.format("Unable to read {0}. Path '{1}' does not exist", distributionGroup, path);
 				throw new ZookeeperException(exceptionMessage);
 			}
 			
