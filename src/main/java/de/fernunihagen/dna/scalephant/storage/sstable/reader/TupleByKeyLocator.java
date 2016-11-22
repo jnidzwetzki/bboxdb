@@ -83,7 +83,7 @@ public class TupleByKeyLocator {
 	 * @throws StorageManagerException
 	 */
 	protected boolean handleFacade(final SSTableFacade facade) throws StorageManagerException {
-		boolean canBeUsed = facade.acquire();
+		final boolean canBeUsed = facade.acquire();
 		
 		if(! canBeUsed ) {
 			return false;
