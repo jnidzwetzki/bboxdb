@@ -26,14 +26,26 @@ import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 public class TupleByKeyLocator {
 
 	/**
+	 * The key to locate
+	 */
+	protected final String key;
+	
+	/**
 	 * The sstable manager
 	 * @param key
 	 * @param sstableManager
 	 */
 	protected final SSTableManager sstableManager;
 	
-	public TupleByKeyLocator(final SSTableManager sstableManager) {
+	/**
+	 * The most recent version of the tuple
+	 */
+	protected Tuple mostRecentTuple;
+	
+	public TupleByKeyLocator(final String key, final SSTableManager sstableManager) {
+		this.key = key;
 		this.sstableManager = sstableManager;
+		this.mostRecentTuple = null;
 	}
 	
 	/**
@@ -42,9 +54,9 @@ public class TupleByKeyLocator {
 	 * @return
 	 * @throws StorageManagerException 
 	 */
-	public Tuple getMostRecentTuple(final String key) throws StorageManagerException {
+	public Tuple getMostRecentTuple() throws StorageManagerException {
 		// Read unflushed memtables first
-		Tuple tuple = getTupleFromUnflushedMemtables(key);
+		mostRecentTuple = getTupleFromUnflushedMemtables();
 				
 		boolean readComplete = false;
 		while(! readComplete) {
@@ -52,37 +64,90 @@ public class TupleByKeyLocator {
 		
 			// Read data from the persistent SSTables
 			for(final SSTableFacade facade : sstableManager.getSstableFacades()) {
-				boolean canBeUsed = facade.acquire();
 				
-				if(! canBeUsed ) {
+				final boolean couldBeAquired = handleFacade(facade);
+				if(! couldBeAquired) {
 					readComplete = false;
 					break;
 				}
-				
-				final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
-				final SSTableReader reader = facade.getSsTableReader();
-				
-				final int position = indexReader.getPositionForTuple(key);
-				
-				// Found a tuple
-				if(position != -1) {
-					final Tuple tableTuple = reader.getTupleAtPosition(position);
-					tuple = SSTableHelper.returnMostRecentTuple(tuple, tableTuple);
-				}
-				
-				facade.release();
 			}
 		}
 		
-		return SSTableHelper.replaceDeletedTupleWithNull(tuple);
+		return SSTableHelper.replaceDeletedTupleWithNull(mostRecentTuple);
 	}	
+	
+	/**
+	 * Try to aquire the given facade and read the key
+	 * @param facade
+	 * @return
+	 * @throws StorageManagerException
+	 */
+	protected boolean handleFacade(final SSTableFacade facade) throws StorageManagerException {
+		boolean canBeUsed = facade.acquire();
+		
+		if(! canBeUsed ) {
+			return false;
+		}
+		
+		try {
+			if(canContainNewerTuple(facade)) {
+				final Tuple facadeTuple = getTupleFromFacade(key, facade);
+				mostRecentTuple = SSTableHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
+			}
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			facade.release();
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Can the given face contin a more recent version for the tuple?
+	 * @param facade
+	 * @param tuple
+	 * @return
+	 */
+	protected boolean canContainNewerTuple(final SSTableFacade facade) {
+		if(mostRecentTuple == null) {
+			return true;
+		}
+		
+		if(facade.getSsTableMetadata().getNewestTuple() > mostRecentTuple.getTimestamp()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Get the tuple for key from the given facade
+	 * @param key
+	 * @param facade
+	 * @return
+	 * @throws StorageManagerException
+	 */
+	protected Tuple getTupleFromFacade(final String key, final SSTableFacade facade) throws StorageManagerException {
+		final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
+		final SSTableReader reader = facade.getSsTableReader();
+		
+		final int position = indexReader.getPositionForTuple(key);
+		
+		// Does the tuple exist?
+		if(position == -1) {
+			return null;
+		}
+		
+		return reader.getTupleAtPosition(position);
+	}
 	
 	/**
 	 * Get the tuple from the unflushed memtables
 	 * @param key
 	 * @return
 	 */
-	protected Tuple getTupleFromUnflushedMemtables(final String key) {
+	protected Tuple getTupleFromUnflushedMemtables() {
 		
 		Tuple mostRecentTuple = null;
 		

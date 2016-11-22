@@ -525,8 +525,8 @@ public class SSTableManager implements ScalephantService, Storage {
 		}
 		
 		// Otherwise scan unflushed memtables and SStables
-		final TupleByKeyLocator tupleByKeyLocator = new TupleByKeyLocator(this);
-		return tupleByKeyLocator.getMostRecentTuple(key);
+		final TupleByKeyLocator tupleByKeyLocator = new TupleByKeyLocator(key, this);
+		return tupleByKeyLocator.getMostRecentTuple();
 	}
 	
 	
