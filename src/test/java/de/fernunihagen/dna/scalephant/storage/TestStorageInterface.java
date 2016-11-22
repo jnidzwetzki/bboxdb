@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
-import de.fernunihagen.dna.scalephant.storage.StorageFacade;
+import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
@@ -46,11 +46,11 @@ public class TestStorageInterface {
 	 */
 	@Test
 	public void testRegisterAndUnregister() throws StorageManagerException {
-		Assert.assertFalse(StorageFacade.isStorageManagerActive(RELATION_NAME));
-		StorageFacade.getSSTableManager(RELATION_NAME);
-		Assert.assertTrue(StorageFacade.isStorageManagerActive(RELATION_NAME));
-		StorageFacade.shutdown(RELATION_NAME);
-		Assert.assertFalse(StorageFacade.isStorageManagerActive(RELATION_NAME));
+		Assert.assertFalse(StorageRegistry.isStorageManagerActive(RELATION_NAME));
+		StorageRegistry.getSSTableManager(RELATION_NAME);
+		Assert.assertTrue(StorageRegistry.isStorageManagerActive(RELATION_NAME));
+		StorageRegistry.shutdown(RELATION_NAME);
+		Assert.assertFalse(StorageRegistry.isStorageManagerActive(RELATION_NAME));
 	}
 	
 	/**
@@ -61,7 +61,7 @@ public class TestStorageInterface {
 	@Test
 	public void testDeleteTable() throws StorageManagerException, InterruptedException {
 		
-		final SSTableManager storageManager = StorageFacade.getSSTableManager(RELATION_NAME);
+		final SSTableManager storageManager = StorageRegistry.getSSTableManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -71,7 +71,7 @@ public class TestStorageInterface {
 		// Wait for requests to settle
 		Thread.sleep(10000);
 		
-		StorageFacade.deleteTable(RELATION_NAME);
+		StorageRegistry.deleteTable(RELATION_NAME);
 		
 		Assert.assertTrue(storageManager.isShutdownComplete());
 		

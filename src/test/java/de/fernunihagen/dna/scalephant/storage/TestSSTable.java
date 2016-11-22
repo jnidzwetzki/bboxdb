@@ -25,7 +25,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
-import de.fernunihagen.dna.scalephant.storage.StorageFacade;
+import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
@@ -48,7 +48,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testWrittenFiles() throws Exception {
-		final SSTableManager storageManager = StorageFacade.getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	
@@ -71,7 +71,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testIndexIterator() throws Exception {
-		final SSTableManager storageManager = StorageFacade.getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	
@@ -122,7 +122,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testDelayedDeletion() throws Exception {
-		final SSTableManager storageManager = StorageFacade.getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	

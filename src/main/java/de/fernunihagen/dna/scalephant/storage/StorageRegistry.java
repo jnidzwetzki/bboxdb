@@ -34,7 +34,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 
-public class StorageFacade {
+public class StorageRegistry {
 
 	/**
 	 * A map with all created storage instances
@@ -49,7 +49,7 @@ public class StorageFacade {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(StorageFacade.class);
+	private final static Logger logger = LoggerFactory.getLogger(StorageRegistry.class);
 
 	
 	static {

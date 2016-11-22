@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
-import de.fernunihagen.dna.scalephant.storage.StorageFacade;
+import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
@@ -47,7 +47,7 @@ public class TestTableCompactor {
 
 	@Before
 	public void clearData() throws StorageManagerException {
-		final SSTableManager storageManager = StorageFacade.getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	}

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
-import de.fernunihagen.dna.scalephant.storage.StorageFacade;
+import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.FloatInterval;
@@ -41,7 +41,7 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 	@Override
 	protected void performSplit(final DistributionRegion region) {
 		final int splitDimension = region.getSplitDimension();
-		final List<SSTableName> tables = StorageFacade.getAllTablesForDistributionGroup(region.getDistributionGroupName());
+		final List<SSTableName> tables = StorageRegistry.getAllTablesForDistributionGroup(region.getDistributionGroupName());
 	
 		try {
 			final List<FloatInterval> floatIntervals = new ArrayList<FloatInterval>();
@@ -49,7 +49,7 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 			for(final SSTableName ssTableName : tables) {
 				logger.info("Create split samples for table: " + ssTableName.getFullname());
 				
-				final SSTableManager storageInterface = StorageFacade.getSSTableManager(ssTableName);
+				final SSTableManager storageInterface = StorageRegistry.getSSTableManager(ssTableName);
 				final List<SSTableFacade> facades = storageInterface.getSstableFacades();
 				
 				processFacades(facades, splitDimension, floatIntervals);
