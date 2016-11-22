@@ -59,9 +59,9 @@ public class TestTableCheckpoint {
 	public void testInsertWithoutFlush() throws StorageManagerException {
 		
 		// Prepare sstable manager
-		StorageInterface.shutdown(TEST_RELATION);
+		StorageFacade.shutdown(TEST_RELATION);
 		ScalephantConfigurationManager.getConfiguration().setStorageCheckpointInterval(0);
-		final SSTableManager storageManager = StorageInterface.getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageFacade.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 
 		Assert.assertTrue(storageManager.getMemtable().isEmpty());
@@ -83,9 +83,9 @@ public class TestTableCheckpoint {
 		final int CHECKPOINT_INTERVAL = 10;
 
 		// Prepare sstable manager
-		StorageInterface.shutdown(TEST_RELATION);
+		StorageFacade.shutdown(TEST_RELATION);
 		ScalephantConfigurationManager.getConfiguration().setStorageCheckpointInterval(CHECKPOINT_INTERVAL);
-		final SSTableManager storageManager = StorageInterface.getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageFacade.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		
 		Assert.assertTrue(storageManager.getMemtable().isEmpty());

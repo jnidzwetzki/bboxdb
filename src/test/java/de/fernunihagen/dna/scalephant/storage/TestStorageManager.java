@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.PersonEntity;
-import de.fernunihagen.dna.scalephant.storage.StorageInterface;
+import de.fernunihagen.dna.scalephant.storage.StorageFacade;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
@@ -52,7 +52,7 @@ public class TestStorageManager {
 	
 	@Before
 	public void init() throws StorageManagerException {
-		storageManager = StorageInterface.getSSTableManager(TEST_RELATION);
+		storageManager = StorageFacade.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		Assert.assertTrue(storageManager.isReady());
 	}

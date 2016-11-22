@@ -37,7 +37,7 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFact
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
 import de.fernunihagen.dna.scalephant.storage.Memtable;
-import de.fernunihagen.dna.scalephant.storage.StorageInterface;
+import de.fernunihagen.dna.scalephant.storage.StorageFacade;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
@@ -129,7 +129,7 @@ public abstract class RegionSplitStrategy {
 	protected void redistributeData(final DistributionRegion region) {
 		logger.info("Redistributing data for region: " + region);
 		
-		final List<SSTableName> localTables = StorageInterface.getAllTables();
+		final List<SSTableName> localTables = StorageFacade.getAllTables();
 		for(final SSTableName ssTableName : localTables) {
 			if(ssTableName.getDistributionGroupObject().equals(region.getDistributionGroupName())) {
 				redistributeTable(region, ssTableName);
@@ -155,7 +155,7 @@ public abstract class RegionSplitStrategy {
 		logger.info("Redistributing table " + ssTableName.getFullname());
 		
 		try {
-			final SSTableManager ssTableManager = StorageInterface.getSSTableManager(ssTableName);
+			final SSTableManager ssTableManager = StorageFacade.getSSTableManager(ssTableName);
 			
 			// Stop flush thread, so new data remains in memory
 			ssTableManager.stopThreads();

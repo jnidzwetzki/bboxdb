@@ -122,7 +122,7 @@ public class RecoveryService implements ScalephantService {
 			final ScalephantClient connection = MembershipConnectionService.getInstance()
 					.getConnectionForInstance(outdatedDistributionRegion.getNewestInstance());
 			
-			final List<SSTableName> allTables = StorageInterface
+			final List<SSTableName> allTables = StorageFacade
 					.getAllTablesForNameprefix(outdatedDistributionRegion.getDistributedRegion().getNameprefix());
 			
 			for(final SSTableName ssTableName : allTables) {
@@ -150,7 +150,7 @@ public class RecoveryService implements ScalephantService {
 			InterruptedException, ExecutionException {
 		
 		logger.info("Starting recovery for table: " + ssTableName.getFullname());
-		final SSTableManager tableManager = StorageInterface.getSSTableManager(ssTableName);
+		final SSTableManager tableManager = StorageFacade.getSSTableManager(ssTableName);
 		final ClientOperationFuture result = connection.queryTime(ssTableName.getFullname(), outdatedDistributionRegion.getLocalVersion());
 		result.waitForAll();
 		

@@ -72,7 +72,7 @@ import de.fernunihagen.dna.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.scalephant.network.routing.PackageRouter;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeaderParser;
-import de.fernunihagen.dna.scalephant.storage.StorageInterface;
+import de.fernunihagen.dna.scalephant.storage.StorageFacade;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
@@ -368,7 +368,7 @@ public class ClientConnectionHandler implements Runnable {
 			
 			// Delete local stored data
 			final DistributionGroupName distributionGroupName = new DistributionGroupName(deletePackage.getDistributionGroup());
-			StorageInterface.deleteAllTablesInDistributionGroup(distributionGroupName);
+			StorageFacade.deleteAllTablesInDistributionGroup(distributionGroupName);
 			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
@@ -442,7 +442,7 @@ public class ClientConnectionHandler implements Runnable {
 			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
 			
 			for(final SSTableName ssTableName : localTables) {
-				StorageInterface.deleteTable(ssTableName);	
+				StorageFacade.deleteTable(ssTableName);	
 			}
 			
 			writeResultPackage(new SuccessResponse(packageSequence));
@@ -475,7 +475,7 @@ public class ClientConnectionHandler implements Runnable {
 					final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
 					
 					for(final SSTableName ssTableName : localTables) {
-						final SSTableManager storageManager = StorageInterface.getSSTableManager(ssTableName);
+						final SSTableManager storageManager = StorageFacade.getSSTableManager(ssTableName);
 						final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
 						
 						if(tuple != null) {
@@ -528,7 +528,7 @@ public class ClientConnectionHandler implements Runnable {
 					writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 
 					for(final SSTableName ssTableName : localTables) {
-						final SSTableManager storageManager = StorageInterface.getSSTableManager(ssTableName);
+						final SSTableManager storageManager = StorageFacade.getSSTableManager(ssTableName);
 						final Collection<Tuple> resultTuple = storageManager.getTuplesInside(queryRequest.getBoundingBox());
 						
 						for(final Tuple tuple : resultTuple) {
@@ -580,7 +580,7 @@ public class ClientConnectionHandler implements Runnable {
 					writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 
 					for(final SSTableName ssTableName : localTables) {
-						final SSTableManager storageManager = StorageInterface.getSSTableManager(ssTableName);
+						final SSTableManager storageManager = StorageFacade.getSSTableManager(ssTableName);
 						final Collection<Tuple> resultTuple = storageManager.getTuplesAfterTime(queryRequest.getTimestamp());
 
 						for(final Tuple tuple : resultTuple) {
@@ -634,7 +634,7 @@ public class ClientConnectionHandler implements Runnable {
 			final Collection<SSTableName> localTables = nameprefixManager.getNameprefixesForRegionWithTable(boundingBox, requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
-				final SSTableManager storageManager = StorageInterface.getSSTableManager(ssTableName);
+				final SSTableManager storageManager = StorageFacade.getSSTableManager(ssTableName);
 				storageManager.put(tuple);
 			}
 
@@ -655,7 +655,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleListTables(final ByteBuffer encodedPackage, final short packageSequence) {
-		final List<SSTableName> allTables = StorageInterface.getAllTables();
+		final List<SSTableName> allTables = StorageFacade.getAllTables();
 		final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
 		writeResultPackage(listTablesResponse);
 		
@@ -685,7 +685,7 @@ public class ClientConnectionHandler implements Runnable {
 			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
-				final SSTableManager storageManager = StorageInterface.getSSTableManager(ssTableName);
+				final SSTableManager storageManager = StorageFacade.getSSTableManager(ssTableName);
 				storageManager.delete(deleteTupleRequest.getKey());
 			}
 			
