@@ -376,7 +376,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 
 		final String statePath = getActiveInstancesPath(clustername) + "/" + instancename.getStringValue();
 		final String versionPath = getInstancesVersionPath(clustername) + "/" + instancename.getStringValue();
-		logger.info("Register instance on: " + statePath);
+		logger.info("Register instance on: {}", statePath);
 		
 		try {
 			// Version
@@ -388,7 +388,13 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 						CreateMode.PERSISTENT);
 			}
 			
-			// State
+			// Delete old state if exists (e.g. caused by a fast restart of the service) 
+			if(zookeeper.exists(statePath, false) != null) {
+				logger.debug("Old path state path {} does exist, deleting", statePath);
+				zookeeper.delete(statePath, -1);
+			}
+			
+			// Register new state
 			zookeeper.create(statePath, instancename.getState().getZookeeperValue().getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, 
 					CreateMode.EPHEMERAL);
