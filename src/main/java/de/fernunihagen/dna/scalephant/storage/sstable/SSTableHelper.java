@@ -20,9 +20,7 @@ package de.fernunihagen.dna.scalephant.storage.sstable;
 import java.io.File;
 
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
-import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
-import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
 public class SSTableHelper {
 	/**
@@ -116,50 +114,5 @@ public class SSTableHelper {
 	public static String getSSTableMetadataFilename(final String directory, final String name, int tablebumber) {
 		return getSSTableBase(directory, name, tablebumber)
 				+ SSTableConst.SST_META_SUFFIX;
-	}
-	
-	/**
-	 * If the tuple is a deleted tuple, return null
-	 * Otherwise, return the given tuple
-	 * @param tuple
-	 * @return
-	 */
-	public static Tuple replaceDeletedTupleWithNull(final Tuple tuple) {
-		
-		if(tuple == null) {
-			return null;
-		}
-		
-		if(tuple instanceof DeletedTuple) {
-			return null;
-		}
-		
-		return tuple;
-	}
-	
-	/**
-	 * Return the most recent version of the tuple
-	 * @param tuple1
-	 * @param tuple2
-	 * @return
-	 */
-	public static Tuple returnMostRecentTuple(final Tuple tuple1, final Tuple tuple2) {
-		if(tuple1 == null && tuple2 == null) {
-			return null;
-		}
-		
-		if(tuple1 == null) {
-			return tuple2;
-		}
-		
-		if(tuple2 == null) {
-			return tuple1;
-		}
-		
-		if(tuple1.getTimestamp() > tuple2.getTimestamp()) {
-			return tuple1;
-		}
-		
-		return tuple2;
 	}
 }

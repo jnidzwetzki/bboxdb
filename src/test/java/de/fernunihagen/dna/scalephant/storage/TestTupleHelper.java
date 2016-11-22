@@ -22,22 +22,22 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
+import de.fernunihagen.dna.scalephant.storage.sstable.TupleHelper;
 
-public class TestSSTableHelper {
+public class TestTupleHelper {
 
 	@Test
 	public void testGetMostRecentTuple() {
 		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, null, 1);
 		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, null, 2);
 		
-		Assert.assertEquals(null, SSTableHelper.returnMostRecentTuple(null, null));
-		Assert.assertEquals(tupleA, SSTableHelper.returnMostRecentTuple(tupleA, null));
-		Assert.assertEquals(tupleA, SSTableHelper.returnMostRecentTuple(null, tupleA));
+		Assert.assertEquals(null, TupleHelper.returnMostRecentTuple(null, null));
+		Assert.assertEquals(tupleA, TupleHelper.returnMostRecentTuple(tupleA, null));
+		Assert.assertEquals(tupleA, TupleHelper.returnMostRecentTuple(null, tupleA));
 
-		Assert.assertEquals(tupleB, SSTableHelper.returnMostRecentTuple(tupleA, tupleB));
-		Assert.assertEquals(tupleB, SSTableHelper.returnMostRecentTuple(tupleB, tupleA));
-		Assert.assertEquals(tupleB, SSTableHelper.returnMostRecentTuple(tupleB, tupleB));
+		Assert.assertEquals(tupleB, TupleHelper.returnMostRecentTuple(tupleA, tupleB));
+		Assert.assertEquals(tupleB, TupleHelper.returnMostRecentTuple(tupleB, tupleA));
+		Assert.assertEquals(tupleB, TupleHelper.returnMostRecentTuple(tupleB, tupleB));
 	}
 
 }

@@ -521,7 +521,7 @@ public class SSTableManager implements ScalephantService, Storage {
 
 		// If this is true, this is the most recent version
 		if(memtableTuple != null) {
-			return SSTableHelper.replaceDeletedTupleWithNull(memtableTuple);
+			return TupleHelper.replaceDeletedTupleWithNull(memtableTuple);
 		}
 		
 		// Otherwise scan unflushed memtables and SStables

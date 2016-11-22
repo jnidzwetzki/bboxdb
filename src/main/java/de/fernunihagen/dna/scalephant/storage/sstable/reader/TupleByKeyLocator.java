@@ -20,8 +20,8 @@ package de.fernunihagen.dna.scalephant.storage.sstable.reader;
 import de.fernunihagen.dna.scalephant.storage.Memtable;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
+import de.fernunihagen.dna.scalephant.storage.sstable.TupleHelper;
 
 public class TupleByKeyLocator {
 
@@ -73,7 +73,7 @@ public class TupleByKeyLocator {
 			}
 		}
 		
-		return SSTableHelper.replaceDeletedTupleWithNull(mostRecentTuple);
+		return TupleHelper.replaceDeletedTupleWithNull(mostRecentTuple);
 	}	
 	
 	/**
@@ -92,7 +92,7 @@ public class TupleByKeyLocator {
 		try {
 			if(canContainNewerTuple(facade)) {
 				final Tuple facadeTuple = getTupleFromFacade(key, facade);
-				mostRecentTuple = SSTableHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
+				mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
 			}
 		} catch (Exception e) {
 			throw e;
@@ -153,7 +153,7 @@ public class TupleByKeyLocator {
 		
 		for(final Memtable unflushedMemtable : sstableManager.getUnflushedMemtables()) {
 			final Tuple memtableTuple = unflushedMemtable.get(key);
-			mostRecentTuple = SSTableHelper.returnMostRecentTuple(mostRecentTuple, memtableTuple);
+			mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, memtableTuple);
 		}
 		
 		return mostRecentTuple;

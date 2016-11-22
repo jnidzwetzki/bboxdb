@@ -32,7 +32,7 @@ import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
+import de.fernunihagen.dna.scalephant.storage.sstable.TupleHelper;
 
 public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 	
@@ -129,7 +129,7 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 			final Tuple possibleTuple = data[i];
 			
 			if(possibleTuple != null && possibleTuple.getKey().equals(key)) {
-				mostRecentTuple = SSTableHelper.returnMostRecentTuple(mostRecentTuple, possibleTuple);
+				mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, possibleTuple);
 			}
 		}
 		
