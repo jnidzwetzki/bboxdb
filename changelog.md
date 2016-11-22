@@ -5,6 +5,7 @@
 - Improvement: Added missing copyright header to all source files
 - Improvement: OSM import is now executed on a disk backed set, so huge imports (> memory) can be performed
 - Bugfix: Logs now written into $installdir/logs
+- Bugfix: Outdated tuples could be returned from the unflushed memtables
 
 ### Version 0.2.0 (Beta-1) - 17.11.2016
 - New feature: Added a selftest
