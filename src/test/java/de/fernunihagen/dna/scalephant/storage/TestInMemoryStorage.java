@@ -166,13 +166,13 @@ public class TestInMemoryStorage {
 	 */
 	@Test
 	public void testTimeQuery() throws StorageManagerException {
-		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 1);
 		memtable.put(createdTuple1);
 		
-		final Tuple createdTuple2 = new Tuple("2", null, "abc".getBytes());
+		final Tuple createdTuple2 = new Tuple("2", null, "abc".getBytes(), 2);
 		memtable.put(createdTuple2);
 		
-		final Tuple createdTuple3 = new Tuple("3", null, "abc".getBytes());
+		final Tuple createdTuple3 = new Tuple("3", null, "abc".getBytes(), 3);
 		memtable.put(createdTuple3);
 		
 		// Query the memtable
