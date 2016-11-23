@@ -72,6 +72,16 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 	protected long createdTimestamp;
 	
 	/**
+	 * The oldest tuple
+	 */
+	protected long oldestTupleTimestamp;
+	
+	/**
+	 * The newest tuple
+	 */
+	protected long newestTupleTimestamp;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
@@ -86,6 +96,8 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 		this.sizeInMemory = 0;
 		
 		this.createdTimestamp = System.currentTimeMillis();
+		this.oldestTupleTimestamp = -1;
+		this.newestTupleTimestamp = -1;
 	}
 
 	@Override
@@ -114,6 +126,18 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 		data[freePos] = value;
 		freePos++;
 		sizeInMemory = sizeInMemory + value.getSize();
+		
+		if(oldestTupleTimestamp == -1) {
+			oldestTupleTimestamp = value.getTimestamp();
+		} else {
+			oldestTupleTimestamp = Math.min(oldestTupleTimestamp, value.getTimestamp());
+		}
+		
+		if(newestTupleTimestamp == -1) {
+			newestTupleTimestamp = value.getTimestamp();
+		} else {
+			newestTupleTimestamp = Math.max(newestTupleTimestamp, value.getTimestamp());
+		}
 	}
 
 	/**
@@ -322,6 +346,22 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 				throw new IllegalStateException("Remove is not supported");
 			}
 		};
+	}
+
+	/**
+	 * Get the oldest tuple timestamp
+	 * @return
+	 */
+	public long getOldestTupleTimestamp() {
+		return oldestTupleTimestamp;
+	}
+
+	/**
+	 * Get the newest tuple timestamp
+	 * @return
+	 */
+	public long getNewestTupleTimestamp() {
+		return newestTupleTimestamp;
 	}
 
 }
