@@ -206,8 +206,8 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeDeleteTuple() throws IOException, PackageEncodeError {
-				
-		final DeleteTupleRequest deletePackage = new DeleteTupleRequest("test", "key");
+		final long deletionTime = System.currentTimeMillis();
+		final DeleteTupleRequest deletePackage = new DeleteTupleRequest("test", "key", deletionTime);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
 		byte[] encodedVersion = networkPackageToByte(deletePackage, sequenceNumber);
@@ -218,6 +218,7 @@ public class TestNetworkClasses {
 				
 		Assert.assertEquals(deletePackage.getKey(), decodedPackage.getKey());
 		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(deletePackage.getTimestamp(), decodedPackage.getTimestamp());
 		Assert.assertEquals(deletePackage, decodedPackage);
 	}
 	

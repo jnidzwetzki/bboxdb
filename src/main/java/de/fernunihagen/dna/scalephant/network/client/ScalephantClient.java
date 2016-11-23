@@ -410,7 +410,7 @@ public class ScalephantClient implements Scalephant {
 	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#deleteTuple(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public ClientOperationFuture deleteTuple(final String table, final String key) {
+	public ClientOperationFuture deleteTuple(final String table, final String key, final long timestamp) {
 		final ClientOperationFuture operationFuture = new ClientOperationFuture();
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
@@ -419,7 +419,7 @@ public class ScalephantClient implements Scalephant {
 			return operationFuture;
 		}
 		
-		sendPackageToServer(new DeleteTupleRequest(table, key), operationFuture);
+		sendPackageToServer(new DeleteTupleRequest(table, key, timestamp), operationFuture);
 		
 		return operationFuture;
 	}

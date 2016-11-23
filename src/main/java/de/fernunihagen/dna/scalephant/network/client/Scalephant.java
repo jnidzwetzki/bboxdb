@@ -59,9 +59,10 @@ public interface Scalephant {
 	 * Delete the given key from a table
 	 * @param table
 	 * @param key
+	 * @param timestamp
 	 * @return
 	 */
-	public abstract OperationFuture deleteTuple(final String table, final String key) throws ScalephantException;
+	public abstract OperationFuture deleteTuple(final String table, final String key, final long timestamp) throws ScalephantException;
 
 	/**
 	 * List the existing tables

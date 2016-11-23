@@ -58,9 +58,10 @@ public interface Storage {
 	/**
 	 * Delete a tuple
 	 * @param key
+	 * @param timestamp
 	 * @throws StorageManagerException
 	 */
-	public void delete(final String key) throws StorageManagerException;
+	public void delete(final String key, final long timestamp) throws StorageManagerException;
 	
 	/**
 	 * Truncate the stored data

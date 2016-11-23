@@ -787,7 +787,7 @@ public class SSTableManager implements ScalephantService, Storage {
 	}
 
 	@Override
-	public void delete(final String key) throws StorageManagerException {
+	public void delete(final String key, final long timestamp) throws StorageManagerException {
 		if(! storageState.isReady()) {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
@@ -798,7 +798,7 @@ public class SSTableManager implements ScalephantService, Storage {
 				flushMemtable();
 			}
 			
-			memtable.delete(key);
+			memtable.delete(key, timestamp);
 		}
 	}
 

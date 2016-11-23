@@ -234,7 +234,10 @@ This package deletes a tuple from a table. The result could be currently respons
     0         8       16       24       32
 	+---------+--------+--------+--------+
 	|   Table-Length   |   Key-Length    |
-	+------------------+-----------------+
+	+------------------+-----------------+	
+	|              Timestamp             |
+	|                                    |
+	+------------------------------------|
 	|              Tablename             |
 	.                                    .
 	+------------------------------------+

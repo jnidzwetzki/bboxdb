@@ -145,7 +145,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture deleteTuple(final String table, final String key) throws ScalephantException {
+	public OperationFuture deleteTuple(final String table, final String key, final long timestamp) throws ScalephantException {
 		final List<ScalephantClient> connections = membershipConnectionService.getAllConnections();
 		
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
@@ -159,7 +159,7 @@ public class ScalephantCluster implements Scalephant {
 				logger.debug("Send delete call for tuple " + key + " on " + table + " to " + client);
 			}
 			
-			final ClientOperationFuture result = client.deleteTuple(table, key);
+			final ClientOperationFuture result = client.deleteTuple(table, key, timestamp);
 			future.addFuture(result);
 		}
 		

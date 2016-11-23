@@ -114,7 +114,7 @@ public class TestInMemoryStorage {
 		memtable.put(createdTuple);
 		
 		Assert.assertEquals(createdTuple, memtable.get("1"));
-		memtable.delete("1");
+		memtable.delete("1", System.currentTimeMillis());
 		Assert.assertTrue(memtable.get("1") instanceof DeletedTuple);
 	}
 	

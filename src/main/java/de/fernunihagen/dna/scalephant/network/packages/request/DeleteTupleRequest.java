@@ -42,10 +42,16 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 	 * The key to delete
 	 */
 	protected final String key;
+	
+	/**
+	 * The timestmap of the operation
+	 */
+	protected final long timestamp;
 
-	public DeleteTupleRequest(final String table, final String key) {
+	public DeleteTupleRequest(final String table, final String key, final long timestamp) {
 		this.table = new SSTableName(table);
 		this.key = key;
+		this.timestamp = timestamp;
 	}
 
 	/**
@@ -59,10 +65,11 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 			final byte[] tableBytes = table.getFullnameBytes();
 			final byte[] keyBytes = key.getBytes();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(4);
+			final ByteBuffer bb = ByteBuffer.allocate(12);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			bb.putShort((short) tableBytes.length);
 			bb.putShort((short) keyBytes.length);
+			bb.putLong(timestamp);
 			
 			// Write body length
 			final long bodyLength = bb.capacity() + tableBytes.length 
@@ -98,6 +105,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 		
 		final short tableLength = encodedPackage.getShort();
 		final short keyLength = encodedPackage.getShort();
+		final long timestamp = encodedPackage.getLong();
 		
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
@@ -111,7 +119,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new DeleteTupleRequest(table, key);
+		return new DeleteTupleRequest(table, key, timestamp);
 	}
 
 	@Override
@@ -126,6 +134,10 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 	public String getKey() {
 		return key;
 	}
+	
+	public long getTimestamp() {
+		return timestamp;
+	}
 
 	@Override
 	public int hashCode() {
@@ -133,6 +145,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 		int result = 1;
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		result = prime * result + ((table == null) ? 0 : table.hashCode());
+		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
 		return result;
 	}
 
@@ -155,7 +168,8 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 				return false;
 		} else if (!table.equals(other.table))
 			return false;
+		if (timestamp != other.timestamp)
+			return false;
 		return true;
 	}
-
 }

@@ -190,7 +190,7 @@ public class Selftest {
 		logger.info("Deleting tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
-			final OperationFuture deletionResult = scalephantClient.deleteTuple(TABLE, key);
+			final OperationFuture deletionResult = scalephantClient.deleteTuple(TABLE, key, System.currentTimeMillis());
 			deletionResult.waitForAll();
 			
 			if(deletionResult.isFailed() ) {

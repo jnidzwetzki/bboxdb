@@ -205,8 +205,8 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 	 *
 	 */
 	@Override
-	public void delete(final String key) throws StorageManagerException {
-		final Tuple deleteTuple = new DeletedTuple(key);
+	public void delete(final String key, final long timestamp) throws StorageManagerException {
+		final Tuple deleteTuple = new DeletedTuple(key, timestamp);
 		put(deleteTuple);
 	}
 	

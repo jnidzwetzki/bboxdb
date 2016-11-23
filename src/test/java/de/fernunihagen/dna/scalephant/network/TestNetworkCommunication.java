@@ -171,7 +171,7 @@ public class TestNetworkCommunication {
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
-		final ClientOperationFuture deleteResult1 = scalephantClient.deleteTuple(table, key);
+		final ClientOperationFuture deleteResult1 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
 		final Object deleteResult1Object = deleteResult1.get(0);
 		Assert.assertTrue(deleteResult1Object instanceof Boolean);
 		Assert.assertTrue(((Boolean) deleteResult1Object).booleanValue());
@@ -193,7 +193,7 @@ public class TestNetworkCommunication {
 		final Tuple resultTuple = (Tuple) getResult2Object;
 		Assert.assertEquals(tuple, resultTuple);
 
-		final ClientOperationFuture deleteResult2 = scalephantClient.deleteTuple(table, key);
+		final ClientOperationFuture deleteResult2 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
 		final Object deleteResult2Object = deleteResult2.get(0);
 		Assert.assertTrue(deleteResult2Object instanceof Boolean);
 		Assert.assertTrue(((Boolean) deleteResult2Object).booleanValue());

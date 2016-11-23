@@ -686,7 +686,7 @@ public class ClientConnectionHandler implements Runnable {
 
 			for(final SSTableName ssTableName : localTables) {
 				final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
-				storageManager.delete(deleteTupleRequest.getKey());
+				storageManager.delete(deleteTupleRequest.getKey(), deleteTupleRequest.getTimestamp());
 			}
 			
 			writeResultPackage(new SuccessResponse(packageSequence));

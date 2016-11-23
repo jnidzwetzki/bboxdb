@@ -24,6 +24,10 @@ public class DeletedTuple extends Tuple {
 	public DeletedTuple(final String key) {
 		super(key, null, null);
 	}
+	
+	public DeletedTuple(final String key, final long timestamp) {
+		super(key, null, null, timestamp);
+	}
 
 	@Override
 	public String toString() {

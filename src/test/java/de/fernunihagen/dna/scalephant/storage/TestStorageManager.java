@@ -140,7 +140,7 @@ public class TestStorageManager {
 		
 		Assert.assertEquals(createdTuple, storageManager.get("1"));
 		
-		storageManager.delete("1");
+		storageManager.delete("1", System.currentTimeMillis());
 		Assert.assertEquals(null, storageManager.get("1"));
 	}
 	
@@ -154,7 +154,7 @@ public class TestStorageManager {
 			storageManager.put(createdTuple);
 			
 			if(i == SPECIAL_TUPLE) {
-				storageManager.delete(Integer.toString(SPECIAL_TUPLE));
+				storageManager.delete(Integer.toString(SPECIAL_TUPLE), System.currentTimeMillis());
 			}
 		}
 		
@@ -181,7 +181,7 @@ public class TestStorageManager {
 			storageManager.put(createdTuple);
 			
 			if(i == DELETE_AFTER) {
-				storageManager.delete(Integer.toString(SPECIAL_TUPLE));
+				storageManager.delete(Integer.toString(SPECIAL_TUPLE), System.currentTimeMillis());
 			}
 		}
 		
@@ -208,7 +208,7 @@ public class TestStorageManager {
 		}
 		
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			storageManager.delete(Integer.toString(i));
+			storageManager.delete(Integer.toString(i), System.currentTimeMillis());
 		}
 		
 		// Let the storage manager swap the memtables out
