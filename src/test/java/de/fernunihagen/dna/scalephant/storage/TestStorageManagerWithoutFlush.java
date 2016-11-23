@@ -45,6 +45,6 @@ public class TestStorageManagerWithoutFlush extends TestStorageManager {
 	 * @return
 	 */
 	protected int getNumberOfTuplesForBigInsert() {
-		return 100000;
+		return 10000;
 	}
 }

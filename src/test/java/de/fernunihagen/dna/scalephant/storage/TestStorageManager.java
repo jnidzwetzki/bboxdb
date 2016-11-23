@@ -200,7 +200,7 @@ public class TestStorageManager {
 	 */
 	@Test
 	public void testDeleteTuple3() throws StorageManagerException, InterruptedException {
-		int MAX_TUPLES = 100000;
+		int MAX_TUPLES = getNumberOfTuplesForBigInsert();
 		
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
