@@ -33,7 +33,7 @@ public class Tuple implements Comparable<Tuple> {
 		this.boundingBox = boundingBox;
 		this.dataBytes = dataBytes;
 		
-		this.timestamp = System.nanoTime();
+		this.timestamp = System.currentTimeMillis();
 	}
 	
 	public Tuple(final String key, final BoundingBox boundingBox, final byte[] dataBytes, long timestamp) {
