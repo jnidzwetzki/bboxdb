@@ -516,14 +516,6 @@ public class SSTableManager implements ScalephantService, Storage {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
 		
-		// Is tuple stored in the current memtable?
-		final Tuple memtableTuple = memtable.get(key);
-
-		// If this is true, this is the most recent version
-		if(memtableTuple != null) {
-			return TupleHelper.replaceDeletedTupleWithNull(memtableTuple);
-		}
-		
 		// Otherwise scan unflushed memtables and SStables
 		final TupleByKeyLocator tupleByKeyLocator = new TupleByKeyLocator(key, this);
 		return tupleByKeyLocator.getMostRecentTuple();

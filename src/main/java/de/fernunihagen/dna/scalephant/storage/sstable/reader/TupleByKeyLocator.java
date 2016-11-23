@@ -55,8 +55,12 @@ public class TupleByKeyLocator {
 	 * @throws StorageManagerException 
 	 */
 	public Tuple getMostRecentTuple() throws StorageManagerException {
-		// Read unflushed memtables first
-		mostRecentTuple = getTupleFromUnflushedMemtables();
+		
+		// Is tuple stored in the current memtable?
+		mostRecentTuple = sstableManager.getMemtable().get(key);
+		
+		// Check unflushed memtables
+		updateRecentTupleFromUnflushedMemtables();
 				
 		boolean readComplete = false;
 		while(! readComplete) {
@@ -90,7 +94,7 @@ public class TupleByKeyLocator {
 		}
 		
 		try {
-			if(canContainNewerTuple(facade)) {
+			if(canSStableContainNewerTuple(facade)) {
 				final Tuple facadeTuple = getTupleFromFacade(key, facade);
 				mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
 			}
@@ -109,12 +113,29 @@ public class TupleByKeyLocator {
 	 * @param tuple
 	 * @return
 	 */
-	protected boolean canContainNewerTuple(final SSTableFacade facade) {
+	protected boolean canSStableContainNewerTuple(final SSTableFacade facade) {
 		if(mostRecentTuple == null) {
 			return true;
 		}
 		
 		if(facade.getSsTableMetadata().getNewestTuple() > mostRecentTuple.getTimestamp()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Can the given memtable contain a newer tuple than the recent tuple?
+	 * @param memtable
+	 * @return
+	 */
+	protected boolean canMemtableContainNewerTuple(final Memtable memtable) {
+		if(mostRecentTuple == null) {
+			return true;
+		}
+		
+		if(memtable.getNewestTupleTimestamp() > mostRecentTuple.getTimestamp()) {
 			return true;
 		}
 		
@@ -144,19 +165,19 @@ public class TupleByKeyLocator {
 	
 	/**
 	 * Get the tuple from the unflushed memtables
+	 * @param memtableRecentTuple 
 	 * @param key
 	 * @return
 	 */
-	protected Tuple getTupleFromUnflushedMemtables() {
-		
-		Tuple mostRecentTuple = null;
-		
+	protected void updateRecentTupleFromUnflushedMemtables() {
+				
 		for(final Memtable unflushedMemtable : sstableManager.getUnflushedMemtables()) {
-			final Tuple memtableTuple = unflushedMemtable.get(key);
-			mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, memtableTuple);
+			if(canMemtableContainNewerTuple(unflushedMemtable)) {
+				final Tuple unflushedMemtableTuple = unflushedMemtable.get(key);	
+				mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, unflushedMemtableTuple);
+			}
 		}
 		
-		return mostRecentTuple;
 	}
 
 }
