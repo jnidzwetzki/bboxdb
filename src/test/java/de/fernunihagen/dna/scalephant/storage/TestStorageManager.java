@@ -154,7 +154,7 @@ public class TestStorageManager {
 			storageManager.put(createdTuple);
 			
 			if(i == SPECIAL_TUPLE) {
-				storageManager.delete(Integer.toString(SPECIAL_TUPLE), System.currentTimeMillis());
+				storageManager.delete(Integer.toString(SPECIAL_TUPLE), createdTuple.getTimestamp() + 1);
 			}
 		}
 		
