@@ -34,7 +34,7 @@ import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.TupleHelper;
 
-public class Memtable implements ScalephantService, Storage, TupleStorage, Iterable<Tuple> {
+public class Memtable implements ScalephantService, ReadWriteTupleStorage, ReadOnlyTupleStorage, Iterable<Tuple> {
 	
 	/**
 	 * The name of the corresponding table

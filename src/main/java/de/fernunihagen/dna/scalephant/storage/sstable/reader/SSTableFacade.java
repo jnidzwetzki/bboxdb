@@ -24,14 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.ScalephantService;
+import de.fernunihagen.dna.scalephant.storage.ReadOnlyTupleStorage;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
-import de.fernunihagen.dna.scalephant.storage.TupleStorage;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.SStableMetaData;
+import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
 import de.fernunihagen.dna.scalephant.util.Acquirable;
 
-public class SSTableFacade implements ScalephantService, Acquirable, TupleStorage {
+public class SSTableFacade implements ScalephantService, Acquirable, ReadOnlyTupleStorage {
 	 
 	/**
 	 * The name of the table
@@ -231,6 +232,21 @@ public class SSTableFacade implements ScalephantService, Acquirable, TupleStorag
 	@Override
 	public long getNewestTupleTimestamp() {
 		return ssTableMetadata.getNewestTuple();
+	}
+
+	@Override
+	public Tuple get(final String key) throws StorageManagerException {
+		final SSTableKeyIndexReader indexReader = getSsTableKeyIndexReader();
+		final SSTableReader reader = getSsTableReader();
+		
+		final int position = indexReader.getPositionForTuple(key);
+		
+		// Does the tuple exist?
+		if(position == -1) {
+			return null;
+		}
+		
+		return reader.getTupleAtPosition(position);
 	}
 	
 }

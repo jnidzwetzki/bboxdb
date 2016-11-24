@@ -22,7 +22,7 @@ import java.util.Collection;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
-public interface Storage {
+public interface ReadWriteTupleStorage extends ReadOnlyTupleStorage {
 
 	/**
 	 * Store a tuple
@@ -32,12 +32,18 @@ public interface Storage {
 	public void put(final Tuple tuple) throws StorageManagerException;
 
 	/**
-	 * Search for tuple and return the most recent version
+	 * Delete a tuple
 	 * @param key
-	 * @return
+	 * @param timestamp
 	 * @throws StorageManagerException
 	 */
-	public Tuple get(final String key) throws StorageManagerException;
+	public void delete(final String key, final long timestamp) throws StorageManagerException;
+	
+	/**
+	 * Truncate the stored data
+	 * @throws StorageManagerException
+	 */
+	public void clear() throws StorageManagerException;
 	
 	/**
 	 * Search retuns all tuples that are inside the query box
@@ -54,19 +60,5 @@ public interface Storage {
 	 * @throws StorageManagerException
 	 */
 	public Collection<Tuple> getTuplesAfterTime(final long timestamp) throws StorageManagerException;
-	
-	/**
-	 * Delete a tuple
-	 * @param key
-	 * @param timestamp
-	 * @throws StorageManagerException
-	 */
-	public void delete(final String key, final long timestamp) throws StorageManagerException;
-	
-	/**
-	 * Truncate the stored data
-	 * @throws StorageManagerException
-	 */
-	public void clear() throws StorageManagerException;
 
 }

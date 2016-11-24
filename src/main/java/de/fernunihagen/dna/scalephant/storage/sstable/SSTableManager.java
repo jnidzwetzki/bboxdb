@@ -34,7 +34,8 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.scalephant.ScalephantService;
 import de.fernunihagen.dna.scalephant.storage.Memtable;
-import de.fernunihagen.dna.scalephant.storage.Storage;
+import de.fernunihagen.dna.scalephant.storage.ReadOnlyTupleStorage;
+import de.fernunihagen.dna.scalephant.storage.ReadWriteTupleStorage;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
@@ -47,7 +48,7 @@ import de.fernunihagen.dna.scalephant.storage.sstable.reader.TupleByKeyLocator;
 import de.fernunihagen.dna.scalephant.util.State;
 import de.fernunihagen.dna.scalephant.util.Stoppable;
 
-public class SSTableManager implements ScalephantService, Storage {
+public class SSTableManager implements ScalephantService, ReadWriteTupleStorage {
 	
 	/**
 	 * The name of the table
@@ -815,4 +816,35 @@ public class SSTableManager implements ScalephantService, Storage {
 	public Memtable getMemtable() {
 		return memtable;
 	}
+
+	@Override
+	public long getOldestTupleTimestamp() {
+		long result = memtable.getOldestTupleTimestamp();
+		
+		final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
+		storages.addAll(unflushedMemtables);
+		storages.addAll(sstableFacades);
+		
+		for(final ReadOnlyTupleStorage storage : storages) {
+			Math.min(result, storage.getOldestTupleTimestamp());
+		}
+		
+		return result;
+	}
+
+	@Override
+	public long getNewestTupleTimestamp() {
+		long result = memtable.getNewestTupleTimestamp();
+		
+		final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
+		storages.addAll(unflushedMemtables);
+		storages.addAll(sstableFacades);
+		
+		for(final ReadOnlyTupleStorage storage : storages) {
+			Math.max(result, storage.getNewestTupleTimestamp());
+		}
+		
+		return result;
+	}
+
 }

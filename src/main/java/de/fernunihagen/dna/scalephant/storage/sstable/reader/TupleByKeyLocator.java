@@ -95,7 +95,7 @@ public class TupleByKeyLocator {
 		
 		try {
 			if(canSStableContainNewerTuple(facade)) {
-				final Tuple facadeTuple = getTupleFromFacade(key, facade);
+				final Tuple facadeTuple = facade.get(key);
 				mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
 			}
 		} catch (Exception e) {
@@ -142,26 +142,7 @@ public class TupleByKeyLocator {
 		return false;
 	}
 	
-	/**
-	 * Get the tuple for key from the given facade
-	 * @param key
-	 * @param facade
-	 * @return
-	 * @throws StorageManagerException
-	 */
-	protected Tuple getTupleFromFacade(final String key, final SSTableFacade facade) throws StorageManagerException {
-		final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
-		final SSTableReader reader = facade.getSsTableReader();
-		
-		final int position = indexReader.getPositionForTuple(key);
-		
-		// Does the tuple exist?
-		if(position == -1) {
-			return null;
-		}
-		
-		return reader.getTupleAtPosition(position);
-	}
+
 	
 	/**
 	 * Get the tuple from the unflushed memtables
