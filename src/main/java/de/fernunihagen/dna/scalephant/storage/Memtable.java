@@ -18,7 +18,6 @@
 package de.fernunihagen.dna.scalephant.storage;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
@@ -28,10 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.ScalephantService;
-import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.PredicateFilterIterator;
 import de.fernunihagen.dna.scalephant.storage.sstable.TupleHelper;
 
 public class Memtable implements ScalephantService, ReadWriteTupleStorage, ReadOnlyTupleStorage, Iterable<Tuple> {
@@ -158,46 +158,6 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage, ReadO
 		}
 		
 		return mostRecentTuple;
-	}
-	
-	/**
-	 * Get all tuples that are inside of the bounding box. The result list may 
-	 * contain (outdated) tuples with the same key.
-	 * 
-	 */
-	@Override
-	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox)
-			throws StorageManagerException {
-		
-		final List<Tuple> resultList = new ArrayList<Tuple>();
-		
-		for(int i = 0; i < freePos; i++) {
-			final Tuple possibleTuple = data[i];
-			if(possibleTuple.getBoundingBox().overlaps(boundingBox)) {
-				resultList.add(possibleTuple);
-			}
-		}
-		
-		return resultList;
-	}
-	
-	/**
-	 * Returns all tuples that are inserted after a certain time stamp
-	 */
-	@Override
-	public Collection<Tuple> getTuplesAfterTime(final long timestamp)
-			throws StorageManagerException {
-		
-		final List<Tuple> resultList = new ArrayList<Tuple>();
-		
-		for(int i = 0; i < freePos; i++) {
-			final Tuple possibleTuple = data[i];
-			if(possibleTuple.getTimestamp() > timestamp) {
-				resultList.add(possibleTuple);
-			}
-		}
-		
-		return resultList;
 	}
 	
 	/**
@@ -364,6 +324,11 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage, ReadO
 	@Override
 	public long getNewestTupleTimestamp() {
 		return newestTupleTimestamp;
+	}
+
+	@Override
+	public Iterator<Tuple> getMatchingTuples(final Predicate predicate) {
+		return new PredicateFilterIterator(iterator(), predicate);
 	}
 
 }

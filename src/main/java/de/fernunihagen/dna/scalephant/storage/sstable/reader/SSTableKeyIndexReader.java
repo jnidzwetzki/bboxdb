@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.PredicateFilterIterator;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableConst;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
 
@@ -207,6 +209,15 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 				throw new IllegalStateException("Remove is not supported");
 			}
 		};
+	}
+	
+	/**
+	 * Get a iterator for all predicate matching tuples
+	 * @param predicate
+	 * @return
+	 */
+	public Iterator<Tuple> getMatchingTuples(final Predicate predicate) {
+		return new PredicateFilterIterator(iterator(), predicate);
 	}
 
 	@Override

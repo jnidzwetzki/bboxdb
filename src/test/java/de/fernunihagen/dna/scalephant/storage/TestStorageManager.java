@@ -17,18 +17,20 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.storage;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.PersonEntity;
-import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
-import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.NewerAsTimePredicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.scalephant.util.ObjectSerializer;
 
@@ -83,13 +85,24 @@ public class TestStorageManager {
 		storageManager.put(tuple1);
 		storageManager.put(tuple2);
 		
-		final Collection<Tuple> tuples = storageManager.getTuplesAfterTime(0);
+		final Collection<Tuple> tuples = getTuplesFromPredicate(new NewerAsTimePredicate(0));
 		
 		System.out.println(tuples);
 		
 		Assert.assertEquals(1, tuples.size());
 		Assert.assertFalse(tuples.contains(tuple1));
 		Assert.assertTrue(tuples.contains(tuple2));
+	}
+	
+	protected Collection<Tuple> getTuplesFromPredicate(final Predicate predicate) {
+		final Iterator<Tuple> iterator = storageManager.getMatchingTuples(predicate);
+		final Collection<Tuple> result = new ArrayList<>();
+		
+		while(iterator.hasNext()) {
+			result.add(iterator.next());
+		}
+		
+		return result;
 	}
 	
 	@Test
@@ -100,7 +113,7 @@ public class TestStorageManager {
 		storageManager.put(tuple1);
 		storageManager.put(tuple2);
 		
-		final Collection<Tuple> tuples = storageManager.getTuplesAfterTime(0);
+		final Collection<Tuple> tuples = getTuplesFromPredicate(new NewerAsTimePredicate(0));
 		
 		Assert.assertEquals(1, tuples.size());
 	}

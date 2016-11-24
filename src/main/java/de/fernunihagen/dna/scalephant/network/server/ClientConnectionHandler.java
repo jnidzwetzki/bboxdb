@@ -72,11 +72,15 @@ import de.fernunihagen.dna.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.scalephant.network.routing.PackageRouter;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeaderParser;
-import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.CloseableIterator;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.NewerAsTimePredicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.OverlapsBoundingBoxPredicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 
 public class ClientConnectionHandler implements Runnable {
@@ -529,21 +533,37 @@ public class ClientConnectionHandler implements Runnable {
 
 					for(final SSTableName ssTableName : localTables) {
 						final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
-						final Collection<Tuple> resultTuple = storageManager.getTuplesInside(queryRequest.getBoundingBox());
-						
-						for(final Tuple tuple : resultTuple) {
-							writeResultTuple(packageSequence, requestTable, tuple);
-						}
+						final Predicate predicate = new OverlapsBoundingBoxPredicate(queryRequest.getBoundingBox());
+						handleTuples(packageSequence, requestTable, storageManager, predicate);
 					}
 
 					writeResultPackage(new MultipleTupleEndResponse(packageSequence));
 
 					return;
-				} catch (StorageManagerException | PackageEncodeError e) {
+				} catch (Exception e) {
 					logger.warn("Got exception while scanning for bbox", e);
 				}
 				
 				writeResultPackage(new ErrorResponse(packageSequence));				
+			}
+
+			/**
+			 * Handle the tuples of a sstable
+			 * @param packageSequence
+			 * @param requestTable
+			 * @param storageManager
+			 * @param predicate
+			 * @throws Exception
+			 */
+			void handleTuples(final short packageSequence, final SSTableName requestTable, final SSTableManager storageManager, final Predicate predicate) throws Exception {
+				try (final CloseableIterator<Tuple> iterator = storageManager.getMatchingTuples(predicate);) {
+					while(iterator.hasNext()) {
+						final Tuple tuple = iterator.next();
+						writeResultTuple(packageSequence, requestTable, tuple);
+					}
+				} catch(Exception e) {
+					throw e;
+				}
 			}
 		};
 
@@ -581,20 +601,37 @@ public class ClientConnectionHandler implements Runnable {
 
 					for(final SSTableName ssTableName : localTables) {
 						final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
-						final Collection<Tuple> resultTuple = storageManager.getTuplesAfterTime(queryRequest.getTimestamp());
-
-						for(final Tuple tuple : resultTuple) {
-							writeResultTuple(packageSequence, requestTable, tuple);
-						}
+						final Predicate predicate = new NewerAsTimePredicate(queryRequest.getTimestamp());
+						handleTuples(packageSequence, requestTable, storageManager, predicate);
 					}
+					
 					writeResultPackage(new MultipleTupleEndResponse(packageSequence));
 
 					return;
-				} catch (StorageManagerException | PackageEncodeError e) {
+				} catch (Exception e) {
 					logger.warn("Got exception while scanning for time", e);
 				}
 				
 				writeResultPackage(new ErrorResponse(packageSequence));		
+			}
+
+			/**
+			 * Handle the tuples of a sstable
+			 * @param packageSequence
+			 * @param requestTable
+			 * @param storageManager
+			 * @param predicate
+			 * @throws Exception
+			 */
+			void handleTuples(final short packageSequence, final SSTableName requestTable, final SSTableManager storageManager, final Predicate predicate) throws Exception {
+				try(final CloseableIterator<Tuple> iterator = storageManager.getMatchingTuples(predicate);) {
+					while(iterator.hasNext()) {
+						final Tuple tuple = iterator.next();
+						writeResultTuple(packageSequence, requestTable, tuple);
+					}
+				} catch(Exception e) {
+					throw e;
+				}
 			}
 		};
 		

@@ -19,8 +19,6 @@ package de.fernunihagen.dna.scalephant.storage.sstable;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,13 +35,13 @@ import de.fernunihagen.dna.scalephant.storage.Memtable;
 import de.fernunihagen.dna.scalephant.storage.ReadOnlyTupleStorage;
 import de.fernunihagen.dna.scalephant.storage.ReadWriteTupleStorage;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
-import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
-import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.CloseableIterator;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.SSTableQueryProcessor;
 import de.fernunihagen.dna.scalephant.storage.sstable.compact.SSTableCompactorThread;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
-import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.TupleByKeyLocator;
 import de.fernunihagen.dna.scalephant.util.State;
 import de.fernunihagen.dna.scalephant.util.Stoppable;
@@ -523,178 +521,10 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 	}
 	
 	
-	/**
-	 * Get the a collection with the most recent version of the tuples
-	 * DeletedTuples are removed from the result set
-	 * 
-	 * @param tupleList
-	 * @return
-	 */
-	protected Collection<Tuple> getTheMostRecentTuples(final Collection<Tuple> tupleList) {
-		
-		final HashMap<String, Tuple> allTuples = new HashMap<String, Tuple>();
-
-		// Find the most recent version of the tuple
-		for(final Tuple tuple : tupleList) {
-			
-			final String tupleKey = tuple.getKey();
-			
-			if(! allTuples.containsKey(tupleKey)) {
-				allTuples.put(tupleKey, tuple);
-			} else {
-				final long knownTimestamp = allTuples.get(tupleKey).getTimestamp();
-				final long newTimestamp = tuple.getTimestamp();
-				
-				// Update with an newer version
-				if(newTimestamp > knownTimestamp) {
-					allTuples.put(tupleKey, tuple);
-				}
-			}
-		}
-		
-		// Remove deleted tuples from result
-		for(final Tuple tuple : allTuples.values()) {
-			if(tuple instanceof DeletedTuple) {
-				allTuples.remove(tuple.getKey());
-			}
-		}
-		
-		return allTuples.values();
-	}
-	
-	/**
-	 * Get all tuples that are inside of the bounding box
-	 * @param boundingBox
-	 * @return
-	 * @throws StorageManagerException 
-	 */
-	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox) throws StorageManagerException {
-	
-		final List<Tuple> resultList = new ArrayList<Tuple>();
-		
-		// Query memtable
-		final Collection<Tuple> memtableTuples = memtable.getTuplesInside(boundingBox);
-		resultList.addAll(memtableTuples);
-		
-		// Query unflushed memtables
-		for(final Memtable unflushedMemtable : unflushedMemtables) {
-			try {
-				final Collection<Tuple> memtableResult = unflushedMemtable.getTuplesInside(boundingBox);
-				resultList.addAll(memtableResult);
-			} catch (StorageManagerException e) {
-				logger.warn("Got an exception while scanning unflushed memtable: ", e);
-			}
-		}
-		
-		// Query the sstables
-		final List<Tuple> storedTuples = getTuplesInsideFromSStable(boundingBox);
-		resultList.addAll(storedTuples);
-		
-		return getTheMostRecentTuples(resultList);
-	}
-
-	/**
-	 * Get all tuples that are inside the given bounding box from the sstables
-	 * @param timestamp
-	 * @return
-	 */
-	protected List<Tuple> getTuplesInsideFromSStable(final BoundingBox boundingBox) {
-		
-		boolean readComplete = false;
-		final List<Tuple> storedTuples = new ArrayList<Tuple>();
-
-		while(! readComplete) {
-			readComplete = true;
-			storedTuples.clear();
-			
-			// Read data from the persistent SSTables
-			for(final SSTableFacade facade : sstableFacades) {
-				boolean canBeUsed = facade.acquire();
-				
-				if(! canBeUsed ) {
-					readComplete = false;
-					break;
-				}
-				
-				final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
-								
-				for (final Tuple tuple : indexReader) {
-					if(tuple.getBoundingBox().overlaps(boundingBox)) {
-						storedTuples.add(tuple);
-					}
-				}
-				
-				facade.release();
-			}
-		}
-		return storedTuples;
-	}
-
 	@Override
-	public Collection<Tuple> getTuplesAfterTime(final long timestamp)
-			throws StorageManagerException {
-	
-		final List<Tuple> resultList = new ArrayList<Tuple>();
-		
-		// Query active memtable
-		final Collection<Tuple> memtableTuples = memtable.getTuplesAfterTime(timestamp);
-		resultList.addAll(memtableTuples);
-
-		// Query unflushed memtables
-		for(final Memtable unflushedMemtable : unflushedMemtables) {
-			try {
-				final Collection<Tuple> memtableResult = unflushedMemtable.getTuplesAfterTime(timestamp);
-				resultList.addAll(memtableResult);
-			} catch (StorageManagerException e) {
-				logger.warn("Got an exception while scanning unflushed memtable: ", e);
-			}
-		}
-		
-		// Query sstables
-		final List<Tuple> storedTuples = getTuplesAfterTimeFromSSTable(timestamp);
-		resultList.addAll(storedTuples);
-		
-		return getTheMostRecentTuples(resultList);
-	}
-
-	/**
-	 * Get all tuples that are newer than the given timestamp from the sstables
-	 * @param timestamp
-	 * @return
-	 */
-	protected List<Tuple> getTuplesAfterTimeFromSSTable(final long timestamp) {
-		
-		// Scan the sstables
-		boolean readComplete = false;
-		final List<Tuple> storedTuples = new ArrayList<Tuple>();
-
-		while(! readComplete) {
-			readComplete = true;
-			storedTuples.clear();
-			
-			// Read data from the persistent SSTables
-			for(final SSTableFacade facade : sstableFacades) {
-				boolean canBeUsed = facade.acquire();
-				
-				if(! canBeUsed ) {
-					readComplete = false;
-					break;
-				}
-				
-				// Scan only tables that contain newer tuples
-				if(facade.getSsTableMetadata().getNewestTuple() > timestamp) {
-					final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
-					for (final Tuple tuple : indexReader) {
-						if(tuple.getTimestamp() > timestamp) {
-							storedTuples.add(tuple);
-						}
-					}
-				}
-				
-				facade.release();
-			}
-		}
-		return storedTuples;
+	public CloseableIterator<Tuple> getMatchingTuples(final Predicate predicate) {
+		final SSTableQueryProcessor ssTableQueryProcessor = new SSTableQueryProcessor(predicate, this);
+		return ssTableQueryProcessor.iterator();
 	}
 	
 	/**

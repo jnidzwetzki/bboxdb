@@ -25,11 +25,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.PersonEntity;
-import de.fernunihagen.dna.scalephant.storage.Memtable;
-import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.IteratorHelper;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.NewerAsTimePredicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
 import de.fernunihagen.dna.scalephant.util.ObjectSerializer;
 
 public class TestInMemoryStorage {
@@ -176,14 +177,18 @@ public class TestInMemoryStorage {
 		memtable.put(createdTuple3);
 		
 		// Query the memtable
-		Assert.assertEquals(3, memtable.getTuplesAfterTime(0).size());
-		Assert.assertEquals(0, memtable.getTuplesAfterTime(Long.MAX_VALUE).size());
+		Assert.assertEquals(3, countTuplesForPredicate(new NewerAsTimePredicate(0)));
+		Assert.assertEquals(0, countTuplesForPredicate(new NewerAsTimePredicate(Long.MAX_VALUE)));
 		
-		Assert.assertEquals(2, memtable.getTuplesAfterTime(createdTuple1.getTimestamp()).size());
-		Assert.assertEquals(1, memtable.getTuplesAfterTime(createdTuple2.getTimestamp()).size());
-		Assert.assertEquals(0, memtable.getTuplesAfterTime(createdTuple3.getTimestamp()).size());
+		Assert.assertEquals(2, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple1.getTimestamp())));
+		Assert.assertEquals(1, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple2.getTimestamp())));
+		Assert.assertEquals(0, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple3.getTimestamp())));
 	}
 	
+	protected int countTuplesForPredicate(Predicate predicate) {
+		return IteratorHelper.countTuplesForPredicate(memtable.getMatchingTuples(predicate));
+	}
+
 	/**
 	 * Test iterator 1
 	 * @throws Exception
