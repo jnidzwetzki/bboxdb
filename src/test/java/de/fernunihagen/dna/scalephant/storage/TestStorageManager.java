@@ -207,6 +207,8 @@ public class TestStorageManager {
 			storageManager.put(createdTuple);
 		}
 		
+		Thread.sleep(1000);
+		
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			storageManager.delete(Integer.toString(i), System.currentTimeMillis());
 		}
