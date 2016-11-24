@@ -125,7 +125,6 @@ public abstract class AbstractTableReader implements ScalephantService {
 	 * 
 	 * The file channel resource is closed in the shutdown method
 	 */
-	@SuppressWarnings("resource")
 	@Override
 	public void init() {
 		try {
