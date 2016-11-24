@@ -34,7 +34,7 @@ import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.PredicateFilterIterator;
 import de.fernunihagen.dna.scalephant.storage.sstable.TupleHelper;
 
-public class Memtable implements ScalephantService, ReadWriteTupleStorage, ReadOnlyTupleStorage, Iterable<Tuple> {
+public class Memtable implements ScalephantService, ReadWriteTupleStorage, Iterable<Tuple> {
 	
 	/**
 	 * The name of the corresponding table
