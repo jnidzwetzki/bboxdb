@@ -17,9 +17,6 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.storage;
 
-import java.util.Collection;
-
-import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
 public interface ReadWriteTupleStorage extends ReadOnlyTupleStorage {
@@ -45,20 +42,4 @@ public interface ReadWriteTupleStorage extends ReadOnlyTupleStorage {
 	 */
 	public void clear() throws StorageManagerException;
 	
-	/**
-	 * Search retuns all tuples that are inside the query box
-	 * @param boundingBox
-	 * @return
-	 * @throws StorageManagerException
-	 */
-	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox) throws StorageManagerException;
-	
-	/**
-	 * Search all tuples that are insert the given timestamp
-	 * @param timestamp
-	 * @return
-	 * @throws StorageManagerException
-	 */
-	public Collection<Tuple> getTuplesAfterTime(final long timestamp) throws StorageManagerException;
-
 }

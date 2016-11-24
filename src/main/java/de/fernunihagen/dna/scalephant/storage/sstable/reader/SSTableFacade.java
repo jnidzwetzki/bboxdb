@@ -18,6 +18,7 @@
 package de.fernunihagen.dna.scalephant.storage.sstable.reader;
 
 import java.io.File;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
 import de.fernunihagen.dna.scalephant.util.Acquirable;
 
@@ -247,6 +249,11 @@ public class SSTableFacade implements ScalephantService, Acquirable, ReadOnlyTup
 		}
 		
 		return reader.getTupleAtPosition(position);
+	}
+
+	@Override
+	public Iterator<Tuple> getMatchingTuples(final Predicate predicate) {
+		return ssTableKeyIndexReader.getMatchingTuples(predicate);
 	}
 	
 }

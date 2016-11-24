@@ -520,7 +520,9 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 		return tupleByKeyLocator.getMostRecentTuple();
 	}
 	
-	
+	/**
+	 * Get all tuples that match the predicate
+	 */
 	@Override
 	public CloseableIterator<Tuple> getMatchingTuples(final Predicate predicate) {
 		final SSTableQueryProcessor ssTableQueryProcessor = new SSTableQueryProcessor(predicate, this);
