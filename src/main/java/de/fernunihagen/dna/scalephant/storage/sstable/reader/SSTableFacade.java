@@ -25,12 +25,13 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.ScalephantService;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.scalephant.storage.TupleStorage;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
 import de.fernunihagen.dna.scalephant.util.Acquirable;
 
-public class SSTableFacade implements ScalephantService, Acquirable {
+public class SSTableFacade implements ScalephantService, Acquirable, TupleStorage {
 	 
 	/**
 	 * The name of the table
@@ -220,6 +221,16 @@ public class SSTableFacade implements ScalephantService, Acquirable {
 
 	public SStableMetaData getSsTableMetadata() {
 		return ssTableMetadata;
+	}
+
+	@Override
+	public long getOldestTupleTimestamp() {
+		return ssTableMetadata.getOldestTuple();
+	}
+
+	@Override
+	public long getNewestTupleTimestamp() {
+		return ssTableMetadata.getNewestTuple();
 	}
 	
 }

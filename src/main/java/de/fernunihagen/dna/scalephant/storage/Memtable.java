@@ -34,7 +34,7 @@ import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.TupleHelper;
 
-public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
+public class Memtable implements ScalephantService, Storage, TupleStorage, Iterable<Tuple> {
 	
 	/**
 	 * The name of the corresponding table
@@ -352,6 +352,7 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 	 * Get the oldest tuple timestamp
 	 * @return
 	 */
+	@Override
 	public long getOldestTupleTimestamp() {
 		return oldestTupleTimestamp;
 	}
@@ -360,6 +361,7 @@ public class Memtable implements ScalephantService, Storage, Iterable<Tuple> {
 	 * Get the newest tuple timestamp
 	 * @return
 	 */
+	@Override
 	public long getNewestTupleTimestamp() {
 		return newestTupleTimestamp;
 	}
