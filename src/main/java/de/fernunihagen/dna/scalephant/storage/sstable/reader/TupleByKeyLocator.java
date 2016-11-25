@@ -18,6 +18,7 @@
 package de.fernunihagen.dna.scalephant.storage.sstable.reader;
 
 import de.fernunihagen.dna.scalephant.storage.Memtable;
+import de.fernunihagen.dna.scalephant.storage.ReadOnlyTupleStorage;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
@@ -94,7 +95,7 @@ public class TupleByKeyLocator {
 		}
 		
 		try {
-			if(canSStableContainNewerTuple(facade)) {
+			if(canStorageContainNewerTuple(facade)) {
 				final Tuple facadeTuple = facade.get(key);
 				mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
 			}
@@ -107,30 +108,13 @@ public class TupleByKeyLocator {
 		return true;
 	}
 	
-	/**
-	 * Can the given face contin a more recent version for the tuple?
-	 * @param facade
-	 * @param tuple
-	 * @return
-	 */
-	protected boolean canSStableContainNewerTuple(final SSTableFacade facade) {
-		if(mostRecentTuple == null) {
-			return true;
-		}
-		
-		if(facade.getSsTableMetadata().getNewestTuple() > mostRecentTuple.getTimestamp()) {
-			return true;
-		}
-		
-		return false;
-	}
 	
 	/**
-	 * Can the given memtable contain a newer tuple than the recent tuple?
+	 * Can the given storage contain a newer tuple than the recent tuple?
 	 * @param memtable
 	 * @return
 	 */
-	protected boolean canMemtableContainNewerTuple(final Memtable memtable) {
+	protected boolean canStorageContainNewerTuple(final ReadOnlyTupleStorage memtable) {
 		if(mostRecentTuple == null) {
 			return true;
 		}
@@ -153,12 +137,11 @@ public class TupleByKeyLocator {
 	protected void updateRecentTupleFromUnflushedMemtables() {
 				
 		for(final Memtable unflushedMemtable : sstableManager.getUnflushedMemtables()) {
-			if(canMemtableContainNewerTuple(unflushedMemtable)) {
+			if(canStorageContainNewerTuple(unflushedMemtable)) {
 				final Tuple unflushedMemtableTuple = unflushedMemtable.get(key);	
 				mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, unflushedMemtableTuple);
 			}
-		}
-		
+		}	
 	}
 
 }
