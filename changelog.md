@@ -3,7 +3,7 @@
 ### Version 0.2.0 (Beta-2) - TBA
 - New Feature: Java 8 is now required to build the project
 - New Feature: Delete tuple operations now contain a timestamp to order them correctly
-- New Feature: Introduced a bloom filter for memtables
+- New Feature: Introduced a bloom filter for memtables and sstables
 - Improvement: Added missing copyright header to all source files
 - Improvement: OSM import is now executed on a disk backed set, so huge imports (> memory) can be performed
 - Improvement: Speed up 'read by key' operation, by scanning only the relevant SStables

@@ -18,13 +18,17 @@
 package de.fernunihagen.dna.scalephant.storage.sstable.reader;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.hash.BloomFilter;
+
 import de.fernunihagen.dna.scalephant.ScalephantService;
+import de.fernunihagen.dna.scalephant.storage.BloomFilterBuilder;
 import de.fernunihagen.dna.scalephant.storage.ReadOnlyTupleStorage;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
@@ -62,6 +66,11 @@ public class SSTableFacade implements ScalephantService, Acquirable, ReadOnlyTup
 	protected final SStableMetaData ssTableMetadata;
 	
 	/**
+	 * The Bloom filter
+	 */
+	protected BloomFilter<String> bloomfilter;
+	
+	/**
 	 * The number of the table
 	 */
 	protected final int tablenumber;
@@ -91,18 +100,56 @@ public class SSTableFacade implements ScalephantService, Acquirable, ReadOnlyTup
 		ssTableReader = new SSTableReader(directory, tablename, tablenumber);
 		ssTableKeyIndexReader = new SSTableKeyIndexReader(ssTableReader);
 		
+		final File bloomFilterFile = getBloomFilterFile(directory, tablename, tablenumber);
+		loadBloomFilter(bloomFilterFile);
+		
 		final File metadataFile = getMetadataFile(directory, tablename, tablenumber);
 		ssTableMetadata = SStableMetaData.importFromYamlFile(metadataFile);
 		
 		this.usage = new AtomicInteger(0);
 		deleteOnClose = false;
 	}
+	
+	protected void loadBloomFilter(final File bloomFilterFile) {
+		
+		if(! bloomFilterFile.exists()) {
+			logger.warn("Bloom filter file {} does not exist, working without bloom filter");
+			bloomfilter = null;
+			return;
+		}
+	
+		try {
+			bloomfilter = BloomFilterBuilder.loadBloomFilterFromFile(bloomFilterFile);
+		} catch (IOException e) {
+			logger.warn("Unable to load the bloom filter", e);
+			bloomfilter = null;
+		}	
+	}
 
+	/**
+	 * Calculate the name of the metadata file
+	 * @param directory
+	 * @param tablename
+	 * @param tablenumber
+	 * @return
+	 */
 	protected File getMetadataFile(final String directory,
 			final SSTableName tablename, final int tablenumber) {
 		final String metadatafile = SSTableHelper.getSSTableMetadataFilename(directory, tablename.getFullname(), tablenumber);
-		final File metadataFile = new File(metadatafile);
-		return metadataFile;
+		return new File(metadatafile);
+	}
+	
+	/**
+	 * Get the name of the bloom filter file
+	 * @param directory
+	 * @param tablename
+	 * @param tablenumber
+	 * @return
+	 */
+	protected File getBloomFilterFile(final String directory,
+			final SSTableName tablename, final int tablenumber) {
+		final String bloomFilter = SSTableHelper.getSSTableBloomFilterFilename(directory, tablename.getFullname(), tablenumber);
+		return new File(bloomFilter);
 	}
 
 	@Override
@@ -192,13 +239,19 @@ public class SSTableFacade implements ScalephantService, Acquirable, ReadOnlyTup
 			
 			shutdown();
 			
+			// Delete key index reader
 			if(ssTableKeyIndexReader != null) {
 				ssTableKeyIndexReader.delete();
 			}
 			
+			// Delete reader
 			if(ssTableReader != null) {
 				ssTableReader.delete();
 			}
+			
+			// Delete bloom filter
+			final File bloomFilterFile = getBloomFilterFile(directory, name, tablenumber);
+			bloomFilterFile.delete();
 			
 			// Delete metadata
 			final File metadataFile = getMetadataFile(directory, name, tablenumber);
@@ -238,17 +291,24 @@ public class SSTableFacade implements ScalephantService, Acquirable, ReadOnlyTup
 
 	@Override
 	public Tuple get(final String key) throws StorageManagerException {
-		final SSTableKeyIndexReader indexReader = getSsTableKeyIndexReader();
-		final SSTableReader reader = getSsTableReader();
+
+		// Check bloom filter first
+		if(bloomfilter == null) {
+			logger.warn("File {} does not have a bloom filter", name);
+		} else {
+			if(! bloomfilter.mightContain(key)) {
+				return null;
+			}
+		}
 		
-		final int position = indexReader.getPositionForTuple(key);
+		final int position = ssTableKeyIndexReader.getPositionForTuple(key);
 		
 		// Does the tuple exist?
 		if(position == -1) {
 			return null;
 		}
 		
-		return reader.getTupleAtPosition(position);
+		return ssTableReader.getTupleAtPosition(position);
 	}
 
 	@Override
