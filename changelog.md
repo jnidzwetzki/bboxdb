@@ -13,6 +13,7 @@
 - Bugfix: Fixed 'node exist exception' during instance registration on fast service restarts
 - Bugfix: Remove outdated jars on upgrade from classpath
 - Bugfix: Not all relevant tuples are scanned by the 'read by key' operation
+- Bugfix: Set correct (millisecond based) timestamps for tuples on creation
 
 ### Version 0.2.0 (Beta-1) - 17.11.2016
 - New feature: Added a selftest
