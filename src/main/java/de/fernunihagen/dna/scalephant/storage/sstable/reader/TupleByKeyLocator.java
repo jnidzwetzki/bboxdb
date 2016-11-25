@@ -82,7 +82,7 @@ public class TupleByKeyLocator {
 	}	
 	
 	/**
-	 * Try to aquire the given facade and read the key
+	 * Try to acquire the given facade and read the key
 	 * @param facade
 	 * @return
 	 * @throws StorageManagerException

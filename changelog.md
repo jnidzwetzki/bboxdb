@@ -3,11 +3,12 @@
 ### Version 0.2.0 (Beta-2) - TBA
 - New Feature: Java 8 is now required to build the project
 - New Feature: Delete tuple operations now contain a timestamp to order them correctly
+- New Feature: Introduced a bloom filter for memtables
 - Improvement: Added missing copyright header to all source files
 - Improvement: OSM import is now executed on a disk backed set, so huge imports (> memory) can be performed
 - Improvement: Speed up 'read by key' operation, by scanning only the relevant SStables
 - Improvement: Switched to SLF4J LOG4J 12 Binding 1.7.21 and Zookeeper 3.4.9
-- Improvement: The server don't materialize the query results. This allows hughe query results (> memory)
+- Improvement: The server don't materialize the query results. This allows huge query results (> memory)
 - Bugfix: Logs now written into $installdir/logs
 - Bugfix: Outdated tuples could be returned from the unflushed memtables
 - Bugfix: Fixed 'node exist exception' during instance registration on fast service restarts

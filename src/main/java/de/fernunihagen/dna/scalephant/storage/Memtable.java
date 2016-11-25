@@ -26,6 +26,11 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
+import com.google.common.hash.BloomFilter;
+import com.google.common.hash.Funnel;
+import com.google.common.hash.PrimitiveSink;
+
 import de.fernunihagen.dna.scalephant.ScalephantService;
 import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
@@ -45,6 +50,11 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage, Itera
 	 * The memtable
 	 */
 	protected final Tuple[] data;
+	
+	/**
+	 * The bloom filter
+	 */
+	protected final BloomFilter<String> bloomFilter;
 	
 	/**
 	 * The next free position in the data array
@@ -95,6 +105,19 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage, Itera
 		this.freePos = -1;
 		this.sizeInMemory = 0;
 		
+		this.bloomFilter = BloomFilter.create(new Funnel<String>() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -2545258829029691131L;
+
+			@Override
+			public void funnel(final String argument, final PrimitiveSink into) {
+				into.putString(argument, Charsets.UTF_8);
+			}
+		}, entries);
+		
 		this.createdTimestamp = System.currentTimeMillis();
 		this.oldestTupleTimestamp = -1;
 		this.newestTupleTimestamp = -1;
@@ -124,6 +147,8 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage, Itera
 		}
 
 		data[freePos] = value;
+		bloomFilter.put(value.getKey());
+		
 		freePos++;
 		sizeInMemory = sizeInMemory + value.getSize();
 		
@@ -146,6 +171,11 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage, Itera
 	 */
 	@Override
 	public Tuple get(final String key) {
+		
+		// The element is not contained in the bloom filter
+		if(! bloomFilter.mightContain(key)) {
+			return null;
+		}
 		
 		Tuple mostRecentTuple = null;
 		
