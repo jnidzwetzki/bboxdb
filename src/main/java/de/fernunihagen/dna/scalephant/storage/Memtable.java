@@ -26,10 +26,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Charsets;
 import com.google.common.hash.BloomFilter;
-import com.google.common.hash.Funnel;
-import com.google.common.hash.PrimitiveSink;
 
 import de.fernunihagen.dna.scalephant.ScalephantService;
 import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
@@ -105,18 +102,7 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage, Itera
 		this.freePos = -1;
 		this.sizeInMemory = 0;
 		
-		this.bloomFilter = BloomFilter.create(new Funnel<String>() {
-
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = -2545258829029691131L;
-
-			@Override
-			public void funnel(final String argument, final PrimitiveSink into) {
-				into.putString(argument, Charsets.UTF_8);
-			}
-		}, entries);
+		this.bloomFilter = BloomFilterBuilder.buildBloomFilter(entries);
 		
 		this.createdTimestamp = System.currentTimeMillis();
 		this.oldestTupleTimestamp = -1;
