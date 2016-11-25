@@ -19,14 +19,19 @@ package de.fernunihagen.dna.scalephant.storage.queryprocessor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.fernunihagen.dna.scalephant.storage.ReadOnlyTupleStorage;
+import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
+import de.fernunihagen.dna.scalephant.storage.sstable.TupleHelper;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
 
 public class SSTableQueryProcessor {
@@ -42,7 +47,7 @@ public class SSTableQueryProcessor {
 	protected final SSTableManager ssTableManager;
 	
 	/**
-	 * The list of aquired facades
+	 * The list of acquired facades
 	 */
 	protected final List<SSTableFacade> aquiredFacades;
 	
@@ -54,7 +59,12 @@ public class SSTableQueryProcessor {
 	/**
 	 * The seen tuples<Key, Timestamp> map
 	 */
-	protected Map<String, Long> seenTuples = new HashMap<String, Long>();
+	protected final Map<String, Long> seenTuples;
+	
+	/**
+	 * The unprocessed storages
+	 */
+	protected final List<ReadOnlyTupleStorage> unprocessedStorages;
 
 	/**
 	 * The Logger
@@ -67,6 +77,8 @@ public class SSTableQueryProcessor {
 		this.ssTableManager = ssTableManager;
 		this.aquiredFacades = new ArrayList<SSTableFacade>();
 		this.ready = false;
+		this.seenTuples = new HashMap<String, Long>();
+		this.unprocessedStorages = new LinkedList<ReadOnlyTupleStorage>();
 	}
 	
 	public CloseableIterator<Tuple> iterator() {
@@ -75,16 +87,119 @@ public class SSTableQueryProcessor {
 		
 		return new CloseableIterator<Tuple>() {
 
+			/**
+			 * The active iterator
+			 */
+			protected Iterator<Tuple> activeIterator = null;
+			
+			/**
+			 * The active storage
+			 */
+			protected ReadOnlyTupleStorage activeStorage = null;
+			
+			/**
+			 * The next precomputed tuple
+			 */
+			protected Tuple nextTuple;
+			
+			protected void setupNewIterator() {
+				activeIterator = null;
+				activeStorage = null;
+
+				// Find next iterator 
+				while(! unprocessedStorages.isEmpty()) {
+					activeStorage = unprocessedStorages.remove(0);
+					activeIterator = activeStorage.getMatchingTuples(predicate);
+					
+					if(activeIterator.hasNext()) {
+						return;
+					}
+				}
+			}
+			
+			protected void setupNextTuple() throws StorageManagerException {
+				if(ready == false) {
+					throw new IllegalStateException("Iterator is not ready");
+				}
+
+				nextTuple = null;
+				
+				while(nextTuple == null) {
+					if(activeIterator == null || ! activeIterator.hasNext()) {
+						setupNewIterator();
+					}
+					
+					// All iterators are exhausted
+					if(activeIterator == null) {
+						return;
+					}
+					
+					final Tuple possibleTuple = activeIterator.next();
+										
+					if(seenTuples.containsKey(possibleTuple.getKey())) {
+						final long oldTimestamp = seenTuples.get(possibleTuple.getKey());
+						if(oldTimestamp < possibleTuple.getTimestamp()) {
+							logger.warn("Got newer tuple {} than {}", possibleTuple, oldTimestamp);
+							seenTuples.put(possibleTuple.getKey(), possibleTuple.getTimestamp());
+						}
+					} else {
+						// Set nextTuple != null to exit the loop
+						nextTuple = getMostRecentVersionForTuple(possibleTuple);
+						seenTuples.put(possibleTuple.getKey(), possibleTuple.getTimestamp());
+					}
+				}
+			}
+			
+			/**
+			 * Get the most recent version of the tuple
+			 * @param tuple
+			 * @return
+			 * @throws StorageManagerException 
+			 */
+			public Tuple getMostRecentVersionForTuple(final Tuple tuple) throws StorageManagerException {
+				
+				// Get the most recent version of the tuple
+				// e.g. Memtables can contain multiple versions of the key
+				// The iterator can return an outdated version
+				Tuple resultTuple = activeStorage.get(tuple.getKey());
+				
+				for(final ReadOnlyTupleStorage readOnlyTupleStorage : unprocessedStorages) {
+					if(readOnlyTupleStorage.getNewestTupleTimestamp() > resultTuple.getTimestamp()) {
+						final Tuple possibleTuple = readOnlyTupleStorage.get(tuple.getKey());
+						resultTuple = TupleHelper.returnMostRecentTuple(resultTuple, possibleTuple);
+					}
+				}
+				
+				return resultTuple;
+			}
+			
 			@Override
 			public boolean hasNext() {
-				// TODO Auto-generated method stub
-				return false;
+				try {
+					if(nextTuple == null) {
+						setupNextTuple();
+					}
+				} catch (StorageManagerException e) {
+					logger.error("Got an exception while locating next tuple", e);
+				}
+				
+				return nextTuple != null;
 			}
 
 			@Override
 			public Tuple next() {
-				// TODO Auto-generated method stub
-				return null;
+				
+				if(ready == false) {
+					throw new IllegalStateException("Iterator is not ready");
+				}
+				
+				if(nextTuple == null) {
+					throw new IllegalStateException("Next tuple is null, did you really call hasNext() before?");
+				}
+				
+				final Tuple resultTuple = nextTuple;
+				nextTuple = null;
+				return resultTuple;
 			}
 
 			@Override
@@ -96,7 +211,7 @@ public class SSTableQueryProcessor {
 	}
 
 	/**
-	 * Try to aquire all needed tables
+	 * Try to acquire all needed tables
 	 */
 	protected void aquireTables() {
 		final int retrys = 10;
@@ -104,6 +219,10 @@ public class SSTableQueryProcessor {
 		ready = false;
 		
 		for(int execution = 0; execution < retrys; execution++) {
+			
+			// Release the previous acquired tables
+			releaseTables();
+			
 			aquiredFacades.clear();
 			boolean allTablesAquired = true;
 			
@@ -119,6 +238,7 @@ public class SSTableQueryProcessor {
 			}
 			
 			if(allTablesAquired == true) {
+				prepareUnprocessedStorage();
 				ready = true;
 				return;
 			}
@@ -126,9 +246,24 @@ public class SSTableQueryProcessor {
 		 
 		logger.warn("Unable to aquire all sstables with {} retries", retrys);
 	}
+
+	/**
+	 * Prepare the unprocessed storage list
+	 */
+	void prepareUnprocessedStorage() {
+		unprocessedStorages.add(ssTableManager.getMemtable());
+		unprocessedStorages.addAll(ssTableManager.getUnflushedMemtables());
+		unprocessedStorages.addAll(aquiredFacades);
+		
+		// Sort tables regarding the newest tuple timestamp 
+		// The newest storage should be on top of the list
+		unprocessedStorages.sort((storage1, storage2) 
+				-> Long.compare(storage2.getNewestTupleTimestamp(), 
+						        storage1.getNewestTupleTimestamp()));
+	}
 	
 	/**
-	 * Release all aquired tables
+	 * Release all acquired tables
 	 */
 	protected void releaseTables() {
 		ready = false;
@@ -136,183 +271,4 @@ public class SSTableQueryProcessor {
 			facade.release();
 		}
 	}
-
-
-	
-//	/**
-//	 * Get all tuples that are inside of the bounding box
-//	 * @param boundingBox
-//	 * @return
-//	 * @throws StorageManagerException 
-//	 */
-//	public Collection<Tuple> getTuplesInside(final BoundingBox boundingBox) throws StorageManagerException {
-//	
-//		final List<Tuple> resultList = new ArrayList<Tuple>();
-//		
-//		// Query memtable
-//		final Collection<Tuple> memtableTuples = memtable.getTuplesInside(boundingBox);
-//		resultList.addAll(memtableTuples);
-//		
-//		// Query unflushed memtables
-//		for(final Memtable unflushedMemtable : unflushedMemtables) {
-//			try {
-//				final Collection<Tuple> memtableResult = unflushedMemtable.getTuplesInside(boundingBox);
-//				resultList.addAll(memtableResult);
-//			} catch (StorageManagerException e) {
-//				logger.warn("Got an exception while scanning unflushed memtable: ", e);
-//			}
-//		}
-//		
-//		// Query the sstables
-//		final List<Tuple> storedTuples = getTuplesInsideFromSStable(boundingBox);
-//		resultList.addAll(storedTuples);
-//		
-//		return getTheMostRecentTuples(resultList);
-//	}
-//
-//	/**
-//	 * Get all tuples that are inside the given bounding box from the sstables
-//	 * @param timestamp
-//	 * @return
-//	 */
-//	protected List<Tuple> getTuplesInsideFromSStable(final BoundingBox boundingBox) {
-//		
-//		boolean readComplete = false;
-//		final List<Tuple> storedTuples = new ArrayList<Tuple>();
-//
-//		while(! readComplete) {
-//			readComplete = true;
-//			storedTuples.clear();
-//			
-//			// Read data from the persistent SSTables
-//			for(final SSTableFacade facade : sstableFacades) {
-//				boolean canBeUsed = facade.acquire();
-//				
-//				if(! canBeUsed ) {
-//					readComplete = false;
-//					break;
-//				}
-//				
-//				final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
-//								
-//				for (final Tuple tuple : indexReader) {
-//					if(tuple.getBoundingBox().overlaps(boundingBox)) {
-//						storedTuples.add(tuple);
-//					}
-//				}
-//				
-//				facade.release();
-//			}
-//		}
-//		return storedTuples;
-//	}
-//
-//	@Override
-//	public Collection<Tuple> getTuplesAfterTime(final long timestamp)
-//			throws StorageManagerException {
-//	
-//		final List<Tuple> resultList = new ArrayList<Tuple>();
-//		
-//		// Query active memtable
-//		final Collection<Tuple> memtableTuples = memtable.getTuplesAfterTime(timestamp);
-//		resultList.addAll(memtableTuples);
-//
-//		// Query unflushed memtables
-//		for(final Memtable unflushedMemtable : unflushedMemtables) {
-//			try {
-//				final Collection<Tuple> memtableResult = unflushedMemtable.getTuplesAfterTime(timestamp);
-//				resultList.addAll(memtableResult);
-//			} catch (StorageManagerException e) {
-//				logger.warn("Got an exception while scanning unflushed memtable: ", e);
-//			}
-//		}
-//		
-//		// Query sstables
-//		final List<Tuple> storedTuples = getTuplesAfterTimeFromSSTable(timestamp);
-//		resultList.addAll(storedTuples);
-//		
-//		return getTheMostRecentTuples(resultList);
-//	}*/
-//
-//	/**
-//	 * Get all tuples that are newer than the given timestamp from the sstables
-//	 * @param timestamp
-//	 * @return
-//	 */
-//	protected List<Tuple> getTuplesAfterTimeFromSSTable(final long timestamp) {
-//		
-//		// Scan the sstables
-//		boolean readComplete = false;
-//		final List<Tuple> storedTuples = new ArrayList<Tuple>();
-//
-//		while(! readComplete) {
-//			readComplete = true;
-//			storedTuples.clear();
-//			
-//			// Read data from the persistent SSTables
-//			for(final SSTableFacade facade : sstableFacades) {
-//				boolean canBeUsed = facade.acquire();
-//				
-//				if(! canBeUsed ) {
-//					readComplete = false;
-//					break;
-//				}
-//				
-//				// Scan only tables that contain newer tuples
-//				if(facade.getSsTableMetadata().getNewestTuple() > timestamp) {
-//					final SSTableKeyIndexReader indexReader = facade.getSsTableKeyIndexReader();
-//					for (final Tuple tuple : indexReader) {
-//						if(tuple.getTimestamp() > timestamp) {
-//							storedTuples.add(tuple);
-//						}
-//					}
-//				}
-//				
-//				facade.release();
-//			}
-//		}
-//		return storedTuples;
-//	}
-//	
-//	/**
-//	 * Get the a collection with the most recent version of the tuples
-//	 * DeletedTuples are removed from the result set
-//	 * 
-//	 * @param tupleList
-//	 * @return
-//	 */
-//	protected Collection<Tuple> getTheMostRecentTuples(final Collection<Tuple> tupleList) {
-//		
-//		final HashMap<String, Tuple> allTuples = new HashMap<String, Tuple>();
-//
-//		// Find the most recent version of the tuple
-//		for(final Tuple tuple : tupleList) {
-//			
-//			final String tupleKey = tuple.getKey();
-//			
-//			if(! allTuples.containsKey(tupleKey)) {
-//				allTuples.put(tupleKey, tuple);
-//			} else {
-//				final long knownTimestamp = allTuples.get(tupleKey).getTimestamp();
-//				final long newTimestamp = tuple.getTimestamp();
-//				
-//				// Update with an newer version
-//				if(newTimestamp > knownTimestamp) {
-//					allTuples.put(tupleKey, tuple);
-//				}
-//			}
-//		}
-//		
-//		// Remove deleted tuples from result
-//		for(final Tuple tuple : allTuples.values()) {
-//			if(tuple instanceof DeletedTuple) {
-//				allTuples.remove(tuple.getKey());
-//			}
-//		}
-//		
-//		return allTuples.values();
-//	}
-	
-	
-
 }
