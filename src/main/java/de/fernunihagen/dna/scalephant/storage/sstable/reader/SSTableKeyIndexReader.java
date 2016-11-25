@@ -147,7 +147,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	 * Get the total number of entries
 	 * @return
 	 */
-	protected int getNumberOfEntries() {
+	public int getNumberOfEntries() {
 		try {
 			if(fileChannel == null) {
 				logger.warn("getNumberOfEntries() called on closed sstableindexreader for relation: {}", name);

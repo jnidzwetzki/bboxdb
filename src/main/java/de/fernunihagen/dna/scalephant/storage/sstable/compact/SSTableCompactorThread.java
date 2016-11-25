@@ -102,33 +102,48 @@ public class SSTableCompactorThread implements Runnable {
 			logger.error("Error while merging tables", e);
 		}
 	}
+	
+	/**
+	 * Calculate max the number of entries in the output
+	 * @param tables
+	 * @return
+	 */
+	public long calculateNumberOfEntries(final List<SSTableFacade> facades) {
+		long totalEntries = 0;
+		for(final SSTableFacade facade : facades) {
+			totalEntries = totalEntries + facade.getSsTableKeyIndexReader().getNumberOfEntries();
+		}
+		
+		return totalEntries;
+	}
 
 	/**
-	 * Merge two sstables into a new one
+	 * Merge multipe facades into a new one
 	 * @param reader1
 	 * @param reader2
 	 * @throws StorageManagerException
 	 */
-	protected void mergeSSTables(final List<SSTableFacade> tables, final boolean majorCompaction) throws StorageManagerException {
+	protected void mergeSSTables(final List<SSTableFacade> facades, final boolean majorCompaction) throws StorageManagerException {
 	
-		if(tables == null || tables.isEmpty()) {
+		if(facades == null || facades.isEmpty()) {
 			return;
 		}
 		
-		final String directory = tables.get(0).getDirectory();
-		final SSTableName name = tables.get(0).getName();
+		final String directory = facades.get(0).getDirectory();
+		final SSTableName name = facades.get(0).getName();
 		
+		final long estimatedMaxNumberOfEntries = calculateNumberOfEntries(facades);
 		final int tablenumber = sstableManager.increaseTableNumber();
-		final SSTableWriter writer = new SSTableWriter(directory, name, tablenumber);
+		final SSTableWriter writer = new SSTableWriter(directory, name, tablenumber, estimatedMaxNumberOfEntries);
 		
 		final List<SSTableKeyIndexReader> reader = new ArrayList<SSTableKeyIndexReader>();
-		for(final SSTableFacade facade : tables) {
+		for(final SSTableFacade facade : facades) {
 			reader.add(facade.getSsTableKeyIndexReader());
 		}
 		
 		// Log the compact call
 		if(logger.isInfoEnabled()) {
-			writeMergeLog(tables, tablenumber, majorCompaction);
+			writeMergeLog(facades, tablenumber, majorCompaction);
 		}
 		
 		// Run the compact process
@@ -140,12 +155,14 @@ public class SSTableCompactorThread implements Runnable {
 			logger.error("Error during compactation");
 			return;
 		} else {
-			logger.info("Compactation done. Read: " + ssTableCompactor.getReadTuples() 
-				+ " tuple wrote: " + ssTableCompactor.getWrittenTuples() + " tuples. Factor: " 
-				+ ((float) ssTableCompactor.getWrittenTuples() / (float) ssTableCompactor.getReadTuples()));
+			final float mergeFactor = (float) ssTableCompactor.getWrittenTuples() / (float) ssTableCompactor.getReadTuples();
+			
+			logger.info("Compactation done. Read {} tuples, wrote {} tuples (expected {}). Factor {}", 
+					ssTableCompactor.getReadTuples(), ssTableCompactor.getWrittenTuples(), 
+					estimatedMaxNumberOfEntries, mergeFactor);
 		}
 		
-		registerNewFacadeAndDeleteOldInstances(tables, directory, name, tablenumber);
+		registerNewFacadeAndDeleteOldInstances(facades, directory, name, tablenumber);
 		
 		if(majorCompaction) {
 			testAndPerformTableSplit(ssTableCompactor.getWrittenTuples());

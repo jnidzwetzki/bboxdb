@@ -138,7 +138,9 @@ class SSTableFlushThread implements Runnable, Stoppable {
 		int tableNumber = sstableManager.increaseTableNumber();
 		logger.info("Writing new memtable: " + tableNumber);
 		
-		try(final SSTableWriter ssTableWriter = new SSTableWriter(dataDirectory, sstableManager.getSSTableName(), tableNumber)) {
+		try(final SSTableWriter ssTableWriter = new SSTableWriter(dataDirectory, 
+				sstableManager.getSSTableName(), tableNumber, memtable.getMaxEntries())) {
+			
 			ssTableWriter.open();
 			ssTableWriter.getSstableFile();
 			ssTableWriter.addData(memtable.getSortedTupleList());

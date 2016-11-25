@@ -47,6 +47,11 @@ public class SSTableConst {
 	public final static String SST_INDEX_SUFFIX = ".idx";
 	
 	/**
+	 * The suffix for persistent bloom filters
+	 */
+	public final static String SST_BLOOM_SUFFIX = ".blm";
+	
+	/**
 	 * The suffix for the meta files
 	 */
 	public final static String SST_META_SUFFIX = ".meta";

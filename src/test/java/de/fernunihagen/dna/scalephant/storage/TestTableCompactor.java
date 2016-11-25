@@ -41,10 +41,21 @@ import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableReader;
 
 public class TestTableCompactor {
 	
+	/**
+	 * The output relation name
+	 */
 	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_relation1");
 	
+	/**
+	 * The name of the test relation
+	 */
 	protected static final String DATA_DIRECTORY = ScalephantConfigurationManager.getConfiguration().getDataDirectory();
 
+	/**
+	 * The max number of expected tuples in the sstable
+	 */
+	protected final static int EXPECTED_TUPLES = 100;
+	
 	@Before
 	public void clearData() throws StorageManagerException {
 		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
@@ -62,7 +73,7 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
 		boolean compactResult = compactor.executeCompactation();
@@ -87,7 +98,7 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
 		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
 				reader1, reader2, writer, false);
@@ -120,7 +131,7 @@ public class TestTableCompactor {
 		reader2 = addTuplesToFileAndGetReader(tupleList, 2);
 
 		
-		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
 		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
 				reader1, reader2, writer, false);
@@ -150,7 +161,7 @@ public class TestTableCompactor {
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
 		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
 				reader1, reader2, writer, false);
@@ -171,7 +182,7 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
 		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
 				reader1, reader2, writer, false);
@@ -193,7 +204,7 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("1", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
 		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
 				reader1, reader2, writer, false);
@@ -221,7 +232,7 @@ public class TestTableCompactor {
 		tupleList2.add(new DeletedTuple("2"));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
 		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
 				reader1, reader2, writer, false);
@@ -248,7 +259,7 @@ public class TestTableCompactor {
 		tupleList2.add(new DeletedTuple("2"));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
 		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
 				reader1, reader2, writer, false);
@@ -281,7 +292,7 @@ public class TestTableCompactor {
 		tupleList2.add(new DeletedTuple("2"));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3);
+		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
 		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
 				reader1, reader2, writer, true);
@@ -340,7 +351,7 @@ public class TestTableCompactor {
 
 		Collections.sort(tupleList);
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, number);
+		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, number, EXPECTED_TUPLES);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		ssTableWriter.close();

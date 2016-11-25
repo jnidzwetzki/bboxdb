@@ -39,9 +39,20 @@ import de.fernunihagen.dna.scalephant.util.Acquirable;
 
 public class TestSSTable {
 	
+	/**
+	 * The directory for the output
+	 */
 	protected static final String DATA_DIRECTORY = ScalephantConfigurationManager.getConfiguration().getDataDirectory();
 	
+	/**
+	 * The name of the test relation
+	 */
 	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_relation3");
+	
+	/**
+	 * The max number of expected tuples in the sstable
+	 */
+	protected final static int EXPECTED_TUPLES = 100;
 	
 	/**
 	 * Test written files
@@ -55,7 +66,7 @@ public class TestSSTable {
 	
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1);
+		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();
@@ -78,7 +89,7 @@ public class TestSSTable {
 	
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1);
+		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableIndexFile = ssTableWriter.getSstableIndexFile();
@@ -135,7 +146,7 @@ public class TestSSTable {
 		
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1);
+		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();

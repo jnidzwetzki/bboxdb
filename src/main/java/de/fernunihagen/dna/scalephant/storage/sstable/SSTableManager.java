@@ -431,13 +431,16 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 		for(final File file : entries) {
 			final String filename = file.getName();
 			if(isFileNameSSTable(filename)) {
-				logger.info("Deleting file: " + file);
+				logger.info("Deleting file: {} ", file);
 				file.delete();
 			} else if(isFileNameSSTableIndex(filename)) {
-				logger.info("Deleting index file: " + file);
+				logger.info("Deleting index file: {} ", file);
+				file.delete();
+			} else if(isFileNameSSTableBloomFilter(filename)) {
+				logger.info("Deleting bloom filter file: {} ", file);
 				file.delete();
 			} else if(isFileNameSSTableMetadata(filename)) {
-				logger.info("Deleting meta file: " + file);
+				logger.info("Deleting meta file: {}", file);
 				file.delete();
 			}
 		}
@@ -472,6 +475,16 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 	protected boolean isFileNameSSTableIndex(final String filename) {
 		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
 				&& filename.endsWith(SSTableConst.SST_INDEX_SUFFIX);
+	}
+	
+	/**
+	 * Belongs the given filename to a SSTable bloom filter file?
+	 * @param filename
+	 * @return
+	 */
+	protected boolean isFileNameSSTableBloomFilter(final String filename) {
+		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
+				&& filename.endsWith(SSTableConst.SST_BLOOM_SUFFIX);
 	}
 	
 	/**

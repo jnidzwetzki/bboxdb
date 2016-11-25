@@ -104,6 +104,19 @@ public class SSTableHelper {
 	}
 	
 	/**
+	 * The full name of the SSTable bloom filter file for a given relation
+	 * 
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.blm
+	 */
+	public static String getSSTableBloomFilterFilename(final String directory, final String name, int tablebumber) {
+		return getSSTableBase(directory, name, tablebumber)
+				+ SSTableConst.SST_BLOOM_SUFFIX;
+	}
+	
+	/**
 	 * The full name of the SSTable metadata file for a given relation
 	 * 
 	 * @param directory

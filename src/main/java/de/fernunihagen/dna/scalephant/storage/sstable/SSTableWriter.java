@@ -17,16 +17,21 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.storage.sstable;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.hash.BloomFilter;
+
+import de.fernunihagen.dna.scalephant.storage.BloomFilterBuilder;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.SStableMetaData;
@@ -38,7 +43,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * The number of the table
 	 */
-	protected final int tablebumber;
+	protected final int tablenumber;
 	
 	/**
 	 * The name of the table
@@ -58,7 +63,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * SSTable index stream
 	 */
-	protected FileOutputStream sstableIndexOutputStream;
+	protected OutputStream sstableIndexOutputStream;
 	
 	/**
 	 * The SSTable file object
@@ -71,6 +76,11 @@ public class SSTableWriter implements AutoCloseable {
 	protected File sstableIndexFile;
 	
 	/**
+	 * The bloom filter file
+	 */
+	protected File sstableBloomFilterFile;
+	
+	/**
 	 * The meta data file
 	 */
 	protected File metadatafile;
@@ -78,7 +88,12 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * A counter for the written tuples
 	 */
-	protected SSTableMetadataBuilder metadataBuilder;
+	protected final SSTableMetadataBuilder metadataBuilder;
+	
+	/**
+	 * The bloom filter
+	 */
+	protected final BloomFilter<String> bloomFilter;
 	
 	/**
 	 * The error flag
@@ -90,15 +105,21 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableWriter.class);
 	
-	public SSTableWriter(final String directory, final SSTableName name, final int tablenumber) {
+	public SSTableWriter(final String directory, final SSTableName name, final int tablenumber, final long estimatedNumberOfTuples) {
 		this.directory = directory;
 		this.name = name;
-		this.tablebumber = tablenumber;
+		this.tablenumber = tablenumber;
 		
 		this.sstableOutputStream = null;
 		this.metadataBuilder = new SSTableMetadataBuilder();
 		
-		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, name.getFullname(), tablebumber);
+		// Bloom Filter
+		final String sstableBloomFilterFilename = SSTableHelper.getSSTableBloomFilterFilename(directory, name.getFullname(), tablenumber);
+		this.sstableBloomFilterFile = new File(sstableBloomFilterFilename);
+		this.bloomFilter = BloomFilterBuilder.buildBloomFilter(estimatedNumberOfTuples);
+		
+		// Metadata
+		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, name.getFullname(), tablenumber);
 		this.metadatafile = new File(ssTableMetadataFilename);
 		
 		this.exceptionDuringWrite = false;
@@ -118,10 +139,10 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException(error);
 		}
 		
-		final String sstableOutputFileName = SSTableHelper.getSSTableFilename(directory, name.getFullname(), tablebumber);
+		final String sstableOutputFileName = SSTableHelper.getSSTableFilename(directory, name.getFullname(), tablenumber);
 		sstableFile = new File(sstableOutputFileName);
 		
-		final String outputIndexFileName = SSTableHelper.getSSTableIndexFilename(directory, name.getFullname(), tablebumber);
+		final String outputIndexFileName = SSTableHelper.getSSTableIndexFilename(directory, name.getFullname(), tablenumber);
 		sstableIndexFile = new File(outputIndexFileName);
 		
 		// Don't overwrite old data
@@ -133,11 +154,15 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException("Table file already exists: " + sstableIndexFile);
 		}
 		
+		if(sstableBloomFilterFile.exists()) {
+			throw new StorageManagerException("Bloom filter file already exists: " + sstableBloomFilterFile);
+		}
+		
 		try {
 			logger.info("Opening new SSTable for relation: " + name + " file: " + sstableOutputFileName);
 			sstableOutputStream = new FileOutputStream(sstableFile);
 			sstableOutputStream.write(SSTableConst.MAGIC_BYTES);
-			sstableIndexOutputStream = new FileOutputStream(sstableIndexFile);
+			sstableIndexOutputStream = new BufferedOutputStream(new FileOutputStream(sstableIndexFile));
 			sstableIndexOutputStream.write(SSTableConst.MAGIC_BYTES);
 		} catch (FileNotFoundException e) {
 			exceptionDuringWrite = true;
@@ -153,7 +178,7 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	public void close() throws StorageManagerException {
 		try {			
-			logger.info("Closing new SSTable for relation: " + name + " number " + tablebumber + " File: " + sstableFile.getName());
+			logger.info("Closing new SSTable for relation: {} number {}. File: {} ", name, tablenumber, sstableFile.getName());
 
 			if(sstableOutputStream != null) {
 				sstableOutputStream.close();
@@ -165,6 +190,7 @@ public class SSTableWriter implements AutoCloseable {
 				sstableIndexOutputStream = null;
 			}
 			
+			writeBloomFilter();
 			writeMetadata();	
 		} catch (IOException e) {
 			exceptionDuringWrite = true;
@@ -188,10 +214,24 @@ public class SSTableWriter implements AutoCloseable {
 				sstableIndexFile.delete();
 			}
 			
+			if(sstableBloomFilterFile != null && sstableBloomFilterFile.exists()) {
+				sstableBloomFilterFile.delete();
+			}
+			
 			if(metadatafile != null && metadatafile.exists()) {
 				metadatafile.delete();
 			}
 		}
+	}
+	
+	/**
+	 * Write the bloom filter into the filter file
+	 * @throws IOException
+	 */
+	protected void writeBloomFilter() throws IOException {
+		final OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(sstableBloomFilterFile));
+		bloomFilter.writeTo(outputStream);
+		outputStream.close();
 	}
 	
 	/**
@@ -240,15 +280,16 @@ public class SSTableWriter implements AutoCloseable {
 	public void addNextTuple(final Tuple tuple) throws StorageManagerException {
 		try {
 			// Add Tuple to the index
-			long tuplePosition = sstableOutputStream.getChannel().position();
+			final long tuplePosition = sstableOutputStream.getChannel().position();
 			writeIndexEntry((int) tuplePosition);
 			
 			// Add Tuple to the SSTable file
 			writeTupleToFile(tuple);
 			metadataBuilder.addTuple(tuple);
+			bloomFilter.put(tuple.getKey());
 		} catch (IOException e) {
 			exceptionDuringWrite = true;
-			throw new StorageManagerException("Untable to write memtable to SSTable", e);
+			throw new StorageManagerException("Unable to write tuple to SSTable", e);
 		}
 	}
 
@@ -313,7 +354,7 @@ public class SSTableWriter implements AutoCloseable {
 	}
 	
 	/**
-	 * Does an exception during a write operation occured?
+	 * Does an exception during a write operation occurred?
 	 * @return
 	 */
 	public boolean isErrorFlagSet() {
