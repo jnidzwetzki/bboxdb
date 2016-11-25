@@ -109,12 +109,11 @@ public class SSTableCompactorThread implements Runnable {
 	 * @return
 	 */
 	public long calculateNumberOfEntries(final List<SSTableFacade> facades) {
-		long totalEntries = 0;
-		for(final SSTableFacade facade : facades) {
-			totalEntries = totalEntries + facade.getSsTableKeyIndexReader().getNumberOfEntries();
-		}
-		
-		return totalEntries;
+		return facades
+			.stream()
+			.map(SSTableFacade::getSsTableKeyIndexReader)
+			.mapToInt(SSTableKeyIndexReader::getNumberOfEntries)
+			.sum();
 	}
 
 	/**
