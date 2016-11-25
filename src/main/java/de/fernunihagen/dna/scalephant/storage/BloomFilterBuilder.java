@@ -17,6 +17,12 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.storage;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import com.google.common.base.Charsets;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnel;
@@ -24,23 +30,39 @@ import com.google.common.hash.PrimitiveSink;
 
 public class BloomFilterBuilder {
 
+	private static final class TupleKeyFunnel implements Funnel<String> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -2545258829029691131L;
+
+		@Override
+		public void funnel(final String argument, final PrimitiveSink into) {
+			into.putString(argument, Charsets.UTF_8);
+		}
+	}
+
 	/**
 	 * Create a bloom filter for a given number of keys
 	 * @param entries
 	 * @return
 	 */
 	public static BloomFilter<String> buildBloomFilter(final long entries) {
-		return BloomFilter.create(new Funnel<String>() {
-
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = -2545258829029691131L;
-
-			@Override
-			public void funnel(final String argument, final PrimitiveSink into) {
-				into.putString(argument, Charsets.UTF_8);
-			}
-		}, entries);
+		return BloomFilter.create(new TupleKeyFunnel(), entries);
+	}
+	
+	/**
+	 * Load a persistent bloom filter into memory
+	 * @param file
+	 * @return 
+	 * @throws IOException
+	 */
+	public static BloomFilter<String> loadBloomFilterFromFile(final File file) throws IOException {
+		
+		try(final InputStream inputStream = new BufferedInputStream(new FileInputStream(file));) {
+			return BloomFilter.readFrom(inputStream, new TupleKeyFunnel());
+		} catch(IOException e) {
+			throw e;
+		}
 	}
 }
