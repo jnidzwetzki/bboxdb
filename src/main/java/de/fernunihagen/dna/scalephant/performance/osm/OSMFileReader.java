@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -235,29 +236,12 @@ public class OSMFileReader implements Runnable {
 		}
 	}
 	
-	
-	
-	
 	/**
 	 * Get the names of the available filter
 	 * @return
 	 */
 	public static String getFilterNames() {
-		final StringBuilder sb = new StringBuilder();
-		
-		final Set<String> names = getAllFilter();
-		
-		for(final String name : names) {
-			sb.append(name);
-			sb.append("|");
-		}
-		
-		// Remove last '|'
-		if (sb.length() > 0) {
-			sb.setLength(sb.length() - 1);
-		}
-		
-		return sb.toString();
+		return getAllFilter().stream().collect(Collectors.joining("|"));
 	}
 
 	/**
