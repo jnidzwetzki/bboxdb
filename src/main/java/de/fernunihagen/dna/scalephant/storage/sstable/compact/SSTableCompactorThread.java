@@ -19,6 +19,7 @@ package de.fernunihagen.dna.scalephant.storage.sstable.compact;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,26 +212,18 @@ public class SSTableCompactorThread implements Runnable {
 
 	/***
 	 * Write info about the merge run into log
-	 * @param tables
+	 * @param facades
 	 * @param tablenumber
 	 */
-	protected void writeMergeLog(final List<SSTableFacade> tables, final int tablenumber, 
+	protected void writeMergeLog(final List<SSTableFacade> facades, final int tablenumber, 
 			final boolean majorCompaction) {
 		
-		final StringBuilder sb = new StringBuilder("Merging (major: ");
-		sb.append(majorCompaction);
-		sb.append(" [");
+		final String formatedFacades = facades
+				.stream()
+				.mapToInt(SSTableFacade::getTablebumber)
+				.mapToObj(Integer::toString)
+				.collect(Collectors.joining(",", "[", "]"));
 		
-		for(final SSTableFacade facade : tables) {
-			sb.append(facade.getTablebumber());
-			sb.append(", ");
-		}
-		
-		// Remove last ", "
-		sb.delete(sb.length() - 2, sb.length());
-		
-		sb.append("] into ");
-		sb.append(tablenumber);
-		logger.info(sb.toString());
+		logger.info("Merging (major: {}) {} into {}", majorCompaction, formatedFacades, tablenumber);
 	}
 }
