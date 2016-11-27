@@ -35,7 +35,6 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFact
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.storage.Memtable;
-import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.util.Stoppable;
 
 public class SSTableCheckpointThread implements Runnable, Stoppable {
@@ -154,12 +153,8 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			updateCheckpointDate(createdTimestamp);
 			
 			logger.info("Create checkpoint DONE for: " + ssTableManager.getSSTableName() + " timestamp " + createdTimestamp);
-		} catch (StorageManagerException e) {
+		} catch (Exception e) {
 			logger.warn("Got an exception while creating checkpoint", e);
-		} catch (InterruptedException e) {
-			logger.warn("Got an exception while creating checkpoint", e);
-		} catch (ZookeeperException e) {
-			logger.error("Got an exception while updating checkpoint", e);
 		}
 	}
 
