@@ -45,6 +45,7 @@ Request Types:
 * Type 0x09 - Delete distribution group
 * Type 0x10 - Compression envelope
 * Type 0x11 - Keep alive package
+* Type 0x12 - Next page
 
 
 ## The response frame
@@ -77,6 +78,7 @@ Result-Types:
 * Type 0x06 - A result that contains a tuple
 * Type 0x07 - Start multiple tuple result
 * Type 0x08 - End multiple tuple result
+* Type 0x09 - End page 
 * Type 0x10 - Compression envelope
 	
 ### Body for response type = 0x01/0x03 (Success/Error with details)
@@ -121,9 +123,9 @@ This is a response body that contains a tuple.
 	.                                    .
 	+------------------------------------+
 	
-Note: All time stamps are 64 bit long and have a resolution of nano seconds
+Note: All time stamps are 64 bit long and have a resolution of microseconds.
 	
-### Body for response type = 0x06 / 0x07
+### Body for response type = 0x06 / 0x07 / 0x08 / 0x09
 By using the response types 0x06 and 0x07 a set of tuples can be transfered. For example, this could be the result of a query. The begin of the transfer of the tuple set is indicated by the package type 0x06; the end is indicated by the type 0x07. Both package types have an empty body. 
 
 Transferring a set of tuples:
@@ -143,8 +145,29 @@ Transferring a set of tuples:
 	|  0x07 - End multiple tuple result   |
     +-------------------------------------+
     
+Or with paging:
+
+    0         8       16       24       32
+    +-------------------------------------+
+    |  0x06 - Start multiple tuple result |
+    +-------------------------------------+
+    |  0x05 - A result tuple              |
+    +-------------------------------------+
+    |  0x05 - A result tuple              |
+    +-------------------------------------+
+    |  0x09 - End page                    |
+    +-------------------------------------+
+    |  Client: 0x12 - Next tuples         |
+    +-------------------------------------+
+    |               ....                  |
+    +-------------------------------------+
+	|  0x05 - A result tuple              |
+    +-------------------------------------+
+	|  0x07 - End multiple tuple result   |
+    +-------------------------------------+
+    
  ### Body for response type (0x10)
- This is a compression envelope. This package containts another response package in compressed format.
+ This is a compression envelope. This package contains another response package in compressed format.
  
      0         8       16       24       32
     +-------------------------------------+
@@ -305,9 +328,9 @@ The request body of a query consists of the query type and specific data for the
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	| Q-Type  |                          | 
-	+---------+                          |
-	|              Query-Data            |
+	| Q-Type  | Paging |    Page Size    | 
+	+---------+--------+-----------------+
+	|         Query specific data        |
 	.                                    .
 	+------------------------------------+
 
@@ -316,6 +339,13 @@ Query type:
 * Type 0x01 - Key query
 * Type 0x02 - Bounding Box query
 * Type 0x03 - Time query
+
+Paging: 
+* 0x00 - Paging disabled
+* 0x01 - Paging enabled
+
+Page size:
+* Number of results per page
 
 ### Key-Query
 This query asks for a specific key in a particular table.
@@ -470,3 +500,20 @@ The body of the package is empty.
      
 #### Response body
 The result could be currently the response type 0x01.
+
+
+### Next page
+Request the next tuples for a given query.
+
+#### Request body
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	| Query Request ID |      Unused     |
+	+---------+--------+-----------------+
+
+This package requets the next tuples for the given query
+
+#### Response body
+The result could be currently the response types 0x02, 0x03 and 0x06.
+
