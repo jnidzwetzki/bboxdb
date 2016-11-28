@@ -1,6 +1,6 @@
 # Changelog
 
-### Version 0.2.0 (Beta-2) - TBA
+### Version 0.2.0 (Beta-2) - 28.11.2016
 - New Feature: Java 8 is now required to build the project
 - New Feature: Delete tuple operations now contain a timestamp to order them correctly
 - New Feature: Introduced a bloom filter for memtables and sstables
