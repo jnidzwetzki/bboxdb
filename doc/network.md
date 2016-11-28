@@ -375,8 +375,10 @@ This query asks for all tuples, that are covered by the bounding box.
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	|  0x02   | Unused |  Table-Length   |
-	+---------+--------------------------+
+	|  0x02   | Paging |    Page Size    | 
+	+---------+--------+-----------------+
+	|   Table-Length   |     Unused      |
+	+------------------+-----------------+
 	|              BBOX-Length           | 
 	+------------------------------------+ 
 	|              Tablename             |
@@ -396,7 +398,7 @@ This query asks for all tuples, that are inserted after certain time stamp (time
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
-	|  0x03   |          Unused          |
+	|  0x03   | Paging |    Page Size    | 
     +---------+--------------------------+
 	|              Timestamp             |
     |                                    |
