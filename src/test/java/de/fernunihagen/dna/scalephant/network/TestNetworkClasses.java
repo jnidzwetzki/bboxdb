@@ -323,7 +323,7 @@ public class TestNetworkClasses {
 		final String table = "table1";
 		final BoundingBox boundingBox = new BoundingBox(10f, 20f);
 		
-		final QueryBoundingBoxRequest queryRequest = new QueryBoundingBoxRequest(table, boundingBox);
+		final QueryBoundingBoxRequest queryRequest = new QueryBoundingBoxRequest(table, boundingBox, false, (short) 10);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		byte[] encodedPackage = networkPackageToByte(queryRequest, sequenceNumber);
 		Assert.assertNotNull(encodedPackage);
@@ -335,7 +335,8 @@ public class TestNetworkClasses {
 		final QueryBoundingBoxRequest decodedPackage = QueryBoundingBoxRequest.decodeTuple(bb);
 		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
 		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
-		
+		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
+		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 	}
 	
@@ -349,7 +350,7 @@ public class TestNetworkClasses {
 		final String table = "table1";
 		final long timeStamp = 4711;
 		
-		final QueryTimeRequest queryRequest = new QueryTimeRequest(table, timeStamp);
+		final QueryTimeRequest queryRequest = new QueryTimeRequest(table, timeStamp, true, (short) 50);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		byte[] encodedPackage = networkPackageToByte(queryRequest, sequenceNumber);
 		Assert.assertNotNull(encodedPackage);
@@ -361,6 +362,8 @@ public class TestNetworkClasses {
 		final QueryTimeRequest decodedPackage = QueryTimeRequest.decodeTuple(bb);
 		Assert.assertEquals(queryRequest.getTimestamp(), decodedPackage.getTimestamp());
 		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
+		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_TIME, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 	}

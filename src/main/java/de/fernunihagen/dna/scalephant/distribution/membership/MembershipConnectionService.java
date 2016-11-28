@@ -55,6 +55,19 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	 */
 	protected Set<InetSocketAddress> blacklist = new HashSet<>();
 	
+	/**
+	 * Is the paging for queries enabled?
+	 */
+	protected boolean pagingEnabled;
+	
+	/**
+	 * The amount of tuples per page
+	 */
+	protected short tuplesPerPage;
+	
+	/**
+	 * The singleton instance
+	 */
 	protected static MembershipConnectionService instance = null;
 	
 	/**
@@ -68,6 +81,9 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 		
 		final HashMap<InetSocketAddress, DistributedInstance> instanceMap = new HashMap<InetSocketAddress, DistributedInstance>();
 		knownInstances = Collections.synchronizedMap(instanceMap);
+		
+		pagingEnabled = false;
+		tuplesPerPage = 0;
 	}
 	
 	/**
@@ -176,6 +192,8 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 		logger.info("Opening connection to instance: " + distributedInstance);
 		
 		final ScalephantClient client = new ScalephantClient(distributedInstance.getInetSocketAddress());
+		client.setPagingEnabled(pagingEnabled);
+		client.setTuplesPerPage(tuplesPerPage);
 		final boolean result = client.connect();
 		
 		if(! result) {
@@ -252,4 +270,45 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 	public List<DistributedInstance> getAllInstances() {
 		return new ArrayList<DistributedInstance>(knownInstances.values());
 	}
+	
+	/**
+	 * Is the paging for queries enables
+	 * @return
+	 */
+	public boolean isPagingEnabled() {
+		return pagingEnabled;
+	}
+
+	/**
+	 * Enable or disable paging
+	 * @param pagingEnabled
+	 */
+	public void setPagingEnabled(final boolean pagingEnabled) {
+		this.pagingEnabled = pagingEnabled;
+		
+		for(final ScalephantClient scalephantClient : serverConnections.values()) {
+			scalephantClient.setPagingEnabled(pagingEnabled);
+		}
+	}
+
+	/**
+	 * Get the amount of tuples per page
+	 * @return
+	 */
+	public short getTuplesPerPage() {
+		return tuplesPerPage;
+	}
+
+	/**
+	 * Set the tuples per page
+	 * @param tuplesPerPage
+	 */
+	public void setTuplesPerPage(final short tuplesPerPage) {
+		this.tuplesPerPage = tuplesPerPage;
+		
+		for(final ScalephantClient scalephantClient : serverConnections.values()) {
+			scalephantClient.setTuplesPerPage(tuplesPerPage);
+		}
+	}
+	
 }

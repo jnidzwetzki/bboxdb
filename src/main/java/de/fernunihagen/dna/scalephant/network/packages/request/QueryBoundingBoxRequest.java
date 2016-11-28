@@ -42,10 +42,22 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	 * The the query bounding box
 	 */
 	protected final BoundingBox box;
+	
+	/**
+	 * Paging enables
+	 */
+	protected final boolean pagingEnabled;
+	
+	/**
+	 * The max tuples per page
+	 */
+	protected final short tuplesPerPage;
 
-	public QueryBoundingBoxRequest(final String table, final BoundingBox box) {
+	public QueryBoundingBoxRequest(final String table, final BoundingBox box, final boolean pagingEnabled, final short tuplesPerPage) {
 		this.table = new SSTableName(table);
 		this.box = box;
+		this.pagingEnabled = pagingEnabled;
+		this.tuplesPerPage = tuplesPerPage;
 	}
 
 	@Override
@@ -55,13 +67,23 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 			final byte[] tableBytes = table.getFullnameBytes();
 			final byte[] bboxBytes = box.toByteArray();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(6);
+			final ByteBuffer bb = ByteBuffer.allocate(12);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			
 			bb.put(getQueryType());
-			bb.put(NetworkConst.UNUSED_BYTE);
+			
+			if(pagingEnabled) {
+				bb.put((byte) 1);
+			} else {
+				bb.put((byte) 0);
+			}
+			
+			bb.putShort(tuplesPerPage);
+			
 			bb.putShort((short) tableBytes.length);
-			bb.putShort((short) bboxBytes.length);
+			bb.put(NetworkConst.UNUSED_BYTE);
+			bb.put(NetworkConst.UNUSED_BYTE);
+			bb.putInt((int) bboxBytes.length);
 			
 			// Body length
 			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;
@@ -100,12 +122,21 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	    	throw new PackageEncodeError("Wrong query type: " + queryType + " required type is: " + NetworkConst.REQUEST_QUERY_BBOX);
 	    }
 	    
-	    // 1 unused byte
+	    boolean pagingEnabled = false;
+	    if(encodedPackage.get() != 0) {
+	    	pagingEnabled = true;
+	    }
+	    
+	    final short tuplesPerPage = encodedPackage.getShort();
+
+		final short tableLength = encodedPackage.getShort();
+		
+	    // 2 unused bytes
+	    encodedPackage.get();
 	    encodedPackage.get();
 		
-		final short tableLength = encodedPackage.getShort();
-		final short bboxLength = encodedPackage.getShort();
-		
+	    final int bboxLength = encodedPackage.getInt();
+
 		final byte[] tableBytes = new byte[tableLength];
 		encodedPackage.get(tableBytes, 0, tableBytes.length);
 		final String table = new String(tableBytes);
@@ -118,7 +149,7 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new QueryBoundingBoxRequest(table, boundingBox);
+		return new QueryBoundingBoxRequest(table, boundingBox, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override
@@ -137,6 +168,14 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 
 	public BoundingBox getBoundingBox() {
 		return box;
+	}
+	
+	public short getTuplesPerPage() {
+		return tuplesPerPage;
+	}
+
+	public boolean isPagingEnabled() {
+		return pagingEnabled;
 	}
 
 }

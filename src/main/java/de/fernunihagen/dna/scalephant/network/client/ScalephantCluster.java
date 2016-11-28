@@ -322,6 +322,38 @@ public class ScalephantCluster implements Scalephant {
 		this.maxInFlightCalls = maxInFlightCalls;
 	}
 	
+	/**
+	 * Is the paging for queries enables
+	 * @return
+	 */
+	public boolean isPagingEnabled() {
+		return membershipConnectionService.isPagingEnabled();
+	}
+
+	/**
+	 * Enable or disable paging
+	 * @param pagingEnabled
+	 */
+	public void setPagingEnabled(final boolean pagingEnabled) {
+		membershipConnectionService.setPagingEnabled(pagingEnabled);
+	}
+
+	/**
+	 * Get the amount of tuples per page
+	 * @return
+	 */
+	public short getTuplesPerPage() {
+		return membershipConnectionService.getTuplesPerPage();
+	}
+
+	/**
+	 * Set the tuples per page
+	 * @param tuplesPerPage
+	 */
+	public void setTuplesPerPage(final short tuplesPerPage) {
+		membershipConnectionService.setTuplesPerPage(tuplesPerPage);
+	}
+	
 
 	//===============================================================
 	// Test * Test * Test * Test * Test * Test * Test * Test

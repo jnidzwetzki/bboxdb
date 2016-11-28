@@ -166,6 +166,16 @@ public class ScalephantClient implements Scalephant {
 	protected long lastDataSendTimestamp = 0;
 	
 	/**
+	 * Is the paging for queries enabled?
+	 */
+	protected boolean pagingEnabled;
+	
+	/**
+	 * The amount of tuples per page
+	 */
+	protected short tuplesPerPage;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ScalephantClient.class);
@@ -180,6 +190,9 @@ public class ScalephantClient implements Scalephant {
 		
 		// Default: Enable gzip compression
 		clientCapabilities.setGZipCompression();
+		
+		pagingEnabled = false;
+		tuplesPerPage = 0;
 	}
 	
 	public ScalephantClient(final InetSocketAddress address) {
@@ -499,7 +512,7 @@ public class ScalephantClient implements Scalephant {
 		}
 		
 		final ClientOperationFuture future = new ClientOperationFuture();
-		sendPackageToServer(new QueryBoundingBoxRequest(table, boundingBox), future);
+		sendPackageToServer(new QueryBoundingBoxRequest(table, boundingBox, pagingEnabled, tuplesPerPage), future);
 
 		return future;
 	}
@@ -515,7 +528,7 @@ public class ScalephantClient implements Scalephant {
 		}
 
 		final ClientOperationFuture future = new ClientOperationFuture();
-		sendPackageToServer(new QueryTimeRequest(table, timestamp), future);
+		sendPackageToServer(new QueryTimeRequest(table, timestamp, pagingEnabled, tuplesPerPage), future);
 
 		return future;
 	}
@@ -985,4 +998,37 @@ public class ScalephantClient implements Scalephant {
 	public long getLastDataSendTimestamp() {
 		return lastDataSendTimestamp;
 	}
+
+	/**
+	 * Is the paging for queries enables
+	 * @return
+	 */
+	public boolean isPagingEnabled() {
+		return pagingEnabled;
+	}
+
+	/**
+	 * Enable or disable paging
+	 * @param pagingEnabled
+	 */
+	public void setPagingEnabled(final boolean pagingEnabled) {
+		this.pagingEnabled = pagingEnabled;
+	}
+
+	/**
+	 * Get the amount of tuples per page
+	 * @return
+	 */
+	public short getTuplesPerPage() {
+		return tuplesPerPage;
+	}
+
+	/**
+	 * Set the tuples per page
+	 * @param tuplesPerPage
+	 */
+	public void setTuplesPerPage(final short tuplesPerPage) {
+		this.tuplesPerPage = tuplesPerPage;
+	}
+	
 }

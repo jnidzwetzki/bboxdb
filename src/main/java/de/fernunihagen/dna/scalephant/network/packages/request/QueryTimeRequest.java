@@ -41,10 +41,22 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 	 * The timestamp
 	 */
 	protected final long timestamp;
+	
+	/**
+	 * Paging enables
+	 */
+	protected final boolean pagingEnabled;
+	
+	/**
+	 * The max tuples per page
+	 */
+	protected final short tuplesPerPage;
 
-	public QueryTimeRequest(final String table, final long timestamp) {
+	public QueryTimeRequest(final String table, final long timestamp, final boolean pagingEnabled, final short tuplesPerPage) {
 		this.table = new SSTableName(table);
 		this.timestamp = timestamp;
+		this.pagingEnabled = pagingEnabled;
+		this.tuplesPerPage = tuplesPerPage;
 	}
 
 	@Override
@@ -57,9 +69,15 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			
 			bb.put(getQueryType());
-			bb.put(NetworkConst.UNUSED_BYTE);  // Used byte 1
-			bb.put(NetworkConst.UNUSED_BYTE);  // Used byte 2
-			bb.put(NetworkConst.UNUSED_BYTE);  // Used byte 3
+
+			if(pagingEnabled) {
+				bb.put((byte) 1);
+			} else {
+				bb.put((byte) 0);
+			}
+			
+			bb.putShort(tuplesPerPage);
+			
 			bb.putLong(timestamp);
 			bb.putShort((short) tableBytes.length);
 			
@@ -99,12 +117,14 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 	    	throw new PackageEncodeError("Wrong query type: " + queryType);
 	    }
 		
-	    // 3 unused bytes
-	    encodedPackage.get(); 
-	    encodedPackage.get();
-	    encodedPackage.get();
+	    boolean pagingEnabled = false;
+	    if(encodedPackage.get() != 0) {
+	    	pagingEnabled = true;
+	    }
 	    
-	    final long timestmap = encodedPackage.getLong();
+	    final short tuplesPerPage = encodedPackage.getShort();
+	    
+	    final long timestamp = encodedPackage.getLong();
 		final short tableLength = encodedPackage.getShort();
 		
 		final byte[] tableBytes = new byte[tableLength];
@@ -115,7 +135,7 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new QueryTimeRequest(table, timestmap);
+		return new QueryTimeRequest(table, timestamp, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override
@@ -134,6 +154,14 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 
 	public long getTimestamp() {
 		return timestamp;
+	}
+	
+	public short getTuplesPerPage() {
+		return tuplesPerPage;
+	}
+	
+	public boolean isPagingEnabled() {
+		return pagingEnabled;
 	}
 
 }

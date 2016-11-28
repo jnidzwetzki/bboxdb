@@ -33,19 +33,19 @@ public interface Scalephant {
 	 * Connect to the server
 	 * @return true or false, depending on the connection state
 	 */
-	public abstract boolean connect();
+	public boolean connect();
 
 	/**
 	 * Disconnect from the server
 	 */
-	public abstract void disconnect();
+	public void disconnect();
 
 	/**
 	 * Delete a table on the scalephant server
 	 * @param table
 	 * @return
 	 */
-	public abstract OperationFuture deleteTable(final String table) throws ScalephantException;
+	public OperationFuture deleteTable(final String table) throws ScalephantException;
 
 	/**
 	 * Insert a new tuple into the given table
@@ -53,7 +53,7 @@ public interface Scalephant {
 	 * @param table
 	 * @return
 	 */
-	public abstract OperationFuture insertTuple(final String table, final Tuple tuple) throws ScalephantException;
+	public OperationFuture insertTuple(final String table, final Tuple tuple) throws ScalephantException;
 
 	/**
 	 * Delete the given key from a table
@@ -62,20 +62,20 @@ public interface Scalephant {
 	 * @param timestamp
 	 * @return
 	 */
-	public abstract OperationFuture deleteTuple(final String table, final String key, final long timestamp) throws ScalephantException;
+	public OperationFuture deleteTuple(final String table, final String key, final long timestamp) throws ScalephantException;
 
 	/**
 	 * List the existing tables
 	 * @return
 	 */
-	public abstract OperationFuture listTables() throws ScalephantException;
+	public OperationFuture listTables() throws ScalephantException;
 
 	/**
 	 * Create a new distribution group
 	 * @param distributionGroup
 	 * @return
 	 */
-	public abstract OperationFuture createDistributionGroup(
+	public OperationFuture createDistributionGroup(
 			final String distributionGroup, final short replicationFactor) throws ScalephantException;
 
 	/**
@@ -83,7 +83,7 @@ public interface Scalephant {
 	 * @param distributionGroup
 	 * @return
 	 */
-	public abstract OperationFuture deleteDistributionGroup(
+	public OperationFuture deleteDistributionGroup(
 			final String distributionGroup) throws ScalephantException;
 
 	/**
@@ -92,7 +92,7 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public abstract OperationFuture queryKey(final String table, final String key) throws ScalephantException;
+	public OperationFuture queryKey(final String table, final String key) throws ScalephantException;
 
 	/**
 	 * Execute a bounding box query on the given table
@@ -100,7 +100,7 @@ public interface Scalephant {
 	 * @param boundingBox
 	 * @return
 	 */
-	public abstract OperationFuture queryBoundingBox(final String table,
+	public OperationFuture queryBoundingBox(final String table,
 			final BoundingBox boundingBox) throws ScalephantException;
 
 	/**
@@ -109,36 +109,60 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public abstract OperationFuture queryTime(final String table, final long timestamp) throws ScalephantException;
+	public OperationFuture queryTime(final String table, final long timestamp) throws ScalephantException;
 
 	/**
 	 * Is the client connected?
 	 * @return
 	 */
-	public abstract boolean isConnected();
+	public boolean isConnected();
 
 	/**
 	 * Returns the state of the connection
 	 * @return
 	 */
-	public abstract NetworkConnectionState getConnectionState();
+	public NetworkConnectionState getConnectionState();
 
 	/**
 	 * Get the amount of in flight (running) calls
 	 * @return
 	 */
-	public abstract int getInFlightCalls();
+	public int getInFlightCalls();
 
 	/**
 	 * Get the max amount of in flight calls
 	 * @return
 	 */
-	public abstract short getMaxInFlightCalls();
+	public short getMaxInFlightCalls();
 
 	/**
 	 * Set the max amount of in flight calls
 	 * @param maxInFlightCalls
 	 */
-	public abstract void setMaxInFlightCalls(final short maxInFlightCalls);
+	public void setMaxInFlightCalls(final short maxInFlightCalls);
+	
+	/**
+	 * Is the paging for queries enables
+	 * @return
+	 */
+	public boolean isPagingEnabled();
+
+	/**
+	 * Enable or disable paging
+	 * @param pagingEnabled
+	 */
+	public void setPagingEnabled(final boolean pagingEnabled);
+
+	/**
+	 * Get the amount of tuples per page
+	 * @return
+	 */
+	public short getTuplesPerPage();
+
+	/**
+	 * Set the tuples per page
+	 * @param tuplesPerPage
+	 */
+	public void setTuplesPerPage(final short tuplesPerPage);
 
 }
