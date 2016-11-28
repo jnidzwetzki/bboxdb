@@ -89,6 +89,12 @@ public class NetworkConst {
 	 */
 	public static final short REQUEST_TYPE_KEEP_ALIVE = 0x11;
 	
+	/**
+	 * Next page package
+	 */
+	public static final short REQUEST_TYPE_NEXT_PAGE = 0x12;
+	
+	
 	
 	/**
 	 * Query type key
@@ -149,6 +155,11 @@ public class NetworkConst {
 	 * End a multiple tuple result
 	 */
 	public static final short RESPONSE_TYPE_MULTIPLE_TUPLE_END = 0x08;
+	
+	/**
+	 * Page has ended
+	 */
+	public static final short RESPONSE_TYPE_PAGE_END = 0x09;
 	
 	/**
 	 * Compression envelope request
