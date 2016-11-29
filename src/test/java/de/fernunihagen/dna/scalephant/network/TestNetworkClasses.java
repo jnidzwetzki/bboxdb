@@ -45,6 +45,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.HelloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.KeepAliveRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.NextPageRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
@@ -263,6 +264,27 @@ public class TestNetworkClasses {
 				
 		Assert.assertEquals(groupPackage.getDistributionGroup(), decodedPackage.getDistributionGroup());
 		Assert.assertEquals(groupPackage, decodedPackage);
+	}
+	
+	/**
+	 * The the encoding and decoding of an next page package
+	 * @throws IOException 
+	 * @throws PackageEncodeError 
+	 */
+	@Test
+	public void encodeAndDecodeNextPage() throws IOException, PackageEncodeError {
+				
+		final short querySequence = 12;
+		final NextPageRequest nextPageRequest = new NextPageRequest(querySequence);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		byte[] encodedVersion = networkPackageToByte(nextPageRequest, sequenceNumber);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final NextPageRequest decodedPackage = NextPageRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(decodedPackage.getQuerySequence(), querySequence);
 	}
 	
 	/**

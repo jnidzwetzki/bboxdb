@@ -20,6 +20,7 @@ package de.fernunihagen.dna.scalephant.network.packages.request;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
+import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
@@ -29,17 +30,34 @@ import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 
 public class NextPageRequest implements NetworkRequestPackage {
 	
+	/**
+	 * The sequence of the query
+	 */
+	protected final short querySequence;
+	
+	public NextPageRequest(final short querySequence) {
+		this.querySequence = querySequence;
+	}
+
 	@Override
 	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
-			// Write body length
-			final long bodyLength = 0;
+			final ByteBuffer bb = ByteBuffer.allocate(2);
+			bb.order(Const.APPLICATION_BYTE_ORDER);
+			bb.putShort((short) querySequence);
+			
+			// Calculate body length
+			final long bodyLength = bb.capacity();
 			
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
 			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
 					getPackageType(), outputStream);
+			
+			// Write body
+			outputStream.write(bb.array());
+
 		} catch (Exception e) {
 			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}	
@@ -59,11 +77,13 @@ public class NextPageRequest implements NetworkRequestPackage {
 			throw new PackageEncodeError("Unable to decode package");
 		}
 		
+		final short packageSequence = encodedPackage.getShort();
+		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new NextPageRequest();
+		return new NextPageRequest(packageSequence);
 	}
 
 	@Override
@@ -71,12 +91,30 @@ public class NextPageRequest implements NetworkRequestPackage {
 		return NetworkConst.REQUEST_TYPE_NEXT_PAGE;
 	}
 
+	public short getQuerySequence() {
+		return querySequence;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + querySequence;
+		return result;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof NextPageRequest) {
+		if (this == obj)
 			return true;
-		}
-		
-		return false;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		NextPageRequest other = (NextPageRequest) obj;
+		if (querySequence != other.querySequence)
+			return false;
+		return true;
 	}
+
 }
