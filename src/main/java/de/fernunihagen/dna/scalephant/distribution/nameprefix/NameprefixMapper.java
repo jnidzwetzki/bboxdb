@@ -98,7 +98,7 @@ public class NameprefixMapper {
 	 * @param ssTableName
 	 * @return
 	 */
-	public Collection<SSTableName> getAllNameprefixesWithTable(final SSTableName ssTableName) {
+	public List<SSTableName> getAllNameprefixesWithTable(final SSTableName ssTableName) {
 		final Collection<Integer> namprefixes = getAllNamePrefixes();
 		
 		if(namprefixes.isEmpty() && logger.isWarnEnabled()) {
@@ -114,7 +114,7 @@ public class NameprefixMapper {
 	 * @param namprefixes
 	 * @return
 	 */
-	protected Collection<SSTableName> prefixNameprefixIntergerList(final SSTableName ssTableName,
+	protected List<SSTableName> prefixNameprefixIntergerList(final SSTableName ssTableName,
 			final Collection<Integer> namprefixes) {
 		
 		final List<SSTableName> result = new ArrayList<SSTableName>();
