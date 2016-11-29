@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -56,6 +58,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTableReques
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.HelloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.NextPageRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
@@ -65,8 +68,6 @@ import de.fernunihagen.dna.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.HelloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
-import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleEndResponse;
-import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleStartResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.scalephant.network.routing.PackageRouter;
@@ -77,7 +78,6 @@ import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.CloseableIterator;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.NewerAsTimePredicate;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.OverlapsBoundingBoxPredicate;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
@@ -126,6 +126,12 @@ public class ClientConnectionHandler implements Runnable {
 	protected PeerCapabilities connectionCapabilities = new PeerCapabilities();
 	
 	/**
+	 * The open query iterators, i.e., the queries that are not finished and waiting
+	 * to send the next page
+	 */
+	protected final Map<Short, ClientQuery> activeQueries;
+	
+	/**
 	 * Number of pending requests
 	 */
 	public final static int PENDING_REQUESTS = 25;
@@ -155,6 +161,9 @@ public class ClientConnectionHandler implements Runnable {
 		
 		// The package router
 		packageRouter = new PackageRouter(threadPool, this);
+		
+		// The open queries
+		activeQueries = new HashMap<Short, ClientQuery>();
 		
 		try {
 			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
@@ -347,6 +356,27 @@ public class ClientConnectionHandler implements Runnable {
 		
 		return true;
 	}
+	
+	
+	/**
+	 * Handle next page package
+	 * @param packageHeader
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleNextPagePackage(final ByteBuffer encodedPackage, final short packageSequence) {
+
+		try {
+			final NextPageRequest nextPagePackage = NextPageRequest.decodeTuple(encodedPackage);
+			logger.debug("Next page for query {} called", nextPagePackage.getQuerySequence());
+			sendNextResultsForQuery(nextPagePackage.getQuerySequence());
+		} catch (PackageEncodeError e) {
+			logger.warn("Error getting next page for a query", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+		}
+		
+		return true;
+	}
 		
 	
 	/**
@@ -501,7 +531,7 @@ public class ClientConnectionHandler implements Runnable {
 
 		// Submit the runnable to our pool
 		if(threadPool.isTerminating()) {
-			logger.warn("Thread pool is shutting down, don't execute query: " + packageSequence);
+			logger.warn("Thread pool is shutting down, don't execute query: {}", packageSequence);
 			writeResultPackage(new ErrorResponse(packageSequence));
 		} else {
 			threadPool.submit(queryRunable);
@@ -513,68 +543,64 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param encodedPackage
 	 * @param packageSequence
 	 */
-	protected void handleBoundingBoxQuery(final ByteBuffer encodedPackage,
-			final short packageSequence) {
+	protected void handleBoundingBoxQuery(final ByteBuffer encodedPackage, final short packageSequence) {
+
+		try {
+			if(activeQueries.containsKey(packageSequence)) {
+				logger.error("Query sequence {} is allready known, please close old query first", packageSequence);
+				return;
+			}
+			
+			final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
+			final SSTableName requestTable = queryRequest.getTable();
+			final Predicate predicate = new OverlapsBoundingBoxPredicate(queryRequest.getBoundingBox());
+
+			final ClientQuery clientQuery = new ClientQuery(predicate, queryRequest.isPagingEnabled(), 
+					queryRequest.getTuplesPerPage(), this, packageSequence, requestTable);
+			
+			activeQueries.put(packageSequence, clientQuery);
+			sendNextResultsForQuery(packageSequence);
+		} catch (PackageEncodeError e) {
+			logger.warn("Got exception while decoding package", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+		}
+	}
+	
+	/**
+	 * Send next results for the given query
+	 * @param packageSequence
+	 */
+	public void sendNextResultsForQuery(final short packageSequence) {
+		
+		if(! activeQueries.containsKey(packageSequence)) {
+			logger.error("Unable to resume query {} - not found", packageSequence);
+			writeResultPackage(new ErrorResponse(packageSequence));
+			return;
+		}
 		
 		final Runnable queryRunable = new Runnable() {
 
 			@Override
 			public void run() {
-
-				try {
-					final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
-					final SSTableName requestTable = queryRequest.getTable();
-					
-					// Send the call to the storage manager
-					final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-					final Collection<SSTableName> localTables = nameprefixManager.getNameprefixesForRegionWithTable(queryRequest.getBoundingBox(), requestTable);
-
-					writeResultPackage(new MultipleTupleStartResponse(packageSequence));
-
-					for(final SSTableName ssTableName : localTables) {
-						final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
-						final Predicate predicate = new OverlapsBoundingBoxPredicate(queryRequest.getBoundingBox());
-						handleTuples(packageSequence, requestTable, storageManager, predicate);
-					}
-
-					writeResultPackage(new MultipleTupleEndResponse(packageSequence));
-
-					return;
-				} catch (Exception e) {
-					logger.warn("Got exception while scanning for bbox", e);
-				}
+				final ClientQuery clientQuery = activeQueries.get(packageSequence);
+				clientQuery.fetchAndSendNextTuples();
 				
-				writeResultPackage(new ErrorResponse(packageSequence));				
-			}
-
-			/**
-			 * Handle the tuples of a sstable
-			 * @param packageSequence
-			 * @param requestTable
-			 * @param storageManager
-			 * @param predicate
-			 * @throws Exception
-			 */
-			void handleTuples(final short packageSequence, final SSTableName requestTable, final SSTableManager storageManager, final Predicate predicate) throws Exception {
-				try (final CloseableIterator<Tuple> iterator = storageManager.getMatchingTuples(predicate);) {
-					while(iterator.hasNext()) {
-						final Tuple tuple = iterator.next();
-						writeResultTuple(packageSequence, requestTable, tuple);
-					}
-				} catch(Exception e) {
-					throw e;
+				if(clientQuery.isQueryDone()) {
+					logger.debug("Query {} is done, closing and removing iterator", packageSequence);
+					clientQuery.close();
+					activeQueries.remove(packageSequence);
 				}
 			}
+
 		};
 
 		// Submit the runnable to our pool
 		if(threadPool.isTerminating()) {
-			logger.warn("Thread pool is shutting down, don't execute query: " + packageSequence);
+			logger.warn("Thread pool is shutting down, don't execute query: {}", packageSequence);
 			writeResultPackage(new ErrorResponse(packageSequence));
 		} else {
 			threadPool.submit(queryRunable);
 		}
-
 	}
 	
 	/**
@@ -582,65 +608,26 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param encodedPackage
 	 * @param packageSequence
 	 */
-	protected void handleTimeQuery(final ByteBuffer encodedPackage,
-			final short packageSequence) {
+	protected void handleTimeQuery(final ByteBuffer encodedPackage, final short packageSequence) {
 		
-		final Runnable queryRunable = new Runnable() {
+		try {
+			if(activeQueries.containsKey(packageSequence)) {
+				logger.error("Query sequence {} is allready known, please close old query first", packageSequence);
+				return;
+			}
 			
-			@Override
-			public void run() {
+			final QueryTimeRequest queryRequest = QueryTimeRequest.decodeTuple(encodedPackage);
+			final SSTableName requestTable = queryRequest.getTable();
+			final Predicate predicate = new NewerAsTimePredicate(queryRequest.getTimestamp());
 
-				try {
-					final QueryTimeRequest queryRequest = QueryTimeRequest.decodeTuple(encodedPackage);
-					final SSTableName requestTable = queryRequest.getTable();
-					
-					final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-					final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
-					
-					writeResultPackage(new MultipleTupleStartResponse(packageSequence));
-
-					for(final SSTableName ssTableName : localTables) {
-						final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
-						final Predicate predicate = new NewerAsTimePredicate(queryRequest.getTimestamp());
-						handleTuples(packageSequence, requestTable, storageManager, predicate);
-					}
-					
-					writeResultPackage(new MultipleTupleEndResponse(packageSequence));
-
-					return;
-				} catch (Exception e) {
-					logger.warn("Got exception while scanning for time", e);
-				}
-				
-				writeResultPackage(new ErrorResponse(packageSequence));		
-			}
-
-			/**
-			 * Handle the tuples of a sstable
-			 * @param packageSequence
-			 * @param requestTable
-			 * @param storageManager
-			 * @param predicate
-			 * @throws Exception
-			 */
-			void handleTuples(final short packageSequence, final SSTableName requestTable, final SSTableManager storageManager, final Predicate predicate) throws Exception {
-				try(final CloseableIterator<Tuple> iterator = storageManager.getMatchingTuples(predicate);) {
-					while(iterator.hasNext()) {
-						final Tuple tuple = iterator.next();
-						writeResultTuple(packageSequence, requestTable, tuple);
-					}
-				} catch(Exception e) {
-					throw e;
-				}
-			}
-		};
-		
-		// Submit the runnable to our pool
-		if(threadPool.isTerminating()) {
-			logger.warn("Thread pool is shutting down, don't execute query: " + packageSequence);
-			writeResultPackage(new ErrorResponse(packageSequence));
-		} else {
-			threadPool.submit(queryRunable);
+			final ClientQuery clientQuery = new ClientQuery(predicate, queryRequest.isPagingEnabled(), 
+					queryRequest.getTuplesPerPage(), this, packageSequence, requestTable);
+			
+			activeQueries.put(packageSequence, clientQuery);
+			sendNextResultsForQuery(packageSequence);
+		} catch (PackageEncodeError e) {
+			logger.warn("Got exception while decoding package", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
 		}
 		
 	}
@@ -876,6 +863,12 @@ public class ClientConnectionHandler implements Runnable {
 				}
 				return handleKeepAlivePackage(encodedPackage, packageSequence);
 				
+			case NetworkConst.REQUEST_TYPE_NEXT_PAGE:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got next page package");
+				}
+				return handleNextPagePackage(encodedPackage, packageSequence);
+
 			default:
 				logger.warn("Got unknown package type, closing connection: " + packageType);
 				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
@@ -899,6 +892,7 @@ public class ClientConnectionHandler implements Runnable {
 			writeResultPackage(responsePackage);
 		}
 	}
+
 
 
 }
