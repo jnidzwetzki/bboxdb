@@ -237,6 +237,12 @@ public class ClientConnectionHandler implements Runnable {
 		
 		threadPool.shutdown();
 		
+		// Close active query iterators
+		for(final ClientQuery clientQuery : activeQueries.values()) {
+			clientQuery.close();
+		}
+		activeQueries.clear();
+		
 		closeSocketNE();
 	}
 
