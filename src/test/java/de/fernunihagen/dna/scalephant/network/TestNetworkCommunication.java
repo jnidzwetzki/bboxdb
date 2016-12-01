@@ -169,15 +169,18 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultCreate.isFailed());
 		
 		final ClientOperationFuture deleteResult1 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
+		deleteResult1.waitForAll();
 		Assert.assertFalse(deleteResult1.isFailed());
 		Assert.assertTrue(deleteResult1.isDone());
 		
 		final ClientOperationFuture getResult = scalephantClient.queryKey(table, key);
+		getResult.waitForAll();
 		Assert.assertFalse(getResult.isFailed());
 		Assert.assertTrue(getResult.isDone());
 		
 		final Tuple tuple = new Tuple(key, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		final ClientOperationFuture insertResult = scalephantClient.insertTuple(table, tuple);
+		insertResult.waitForAll();
 		Assert.assertFalse(insertResult.isFailed());
 		Assert.assertTrue(insertResult.isDone());
 
@@ -188,10 +191,12 @@ public class TestNetworkCommunication {
 		Assert.assertEquals(tuple, resultTuple);
 
 		final ClientOperationFuture deleteResult2 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
+		deleteResult2.waitForAll();
 		Assert.assertFalse(deleteResult2.isFailed());
 		Assert.assertTrue(deleteResult2.isDone());
 		
 		final ClientOperationFuture getResult3 = scalephantClient.queryKey(table, key);
+		getResult3.waitForAll();
 		Assert.assertFalse(getResult3.isFailed());
 		Assert.assertTrue(getResult3.isDone());
 		
