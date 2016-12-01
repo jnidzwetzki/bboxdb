@@ -265,7 +265,7 @@ public class TestNetworkCommunication {
 	public void sendKeepAlivePackage() throws InterruptedException, ExecutionException {
 		final ScalephantClient scalephantClient = connectToServer();
 		
-		ClientOperationFuture result = scalephantClient.sendKeepAlivePackage();
+		final ClientOperationFuture result = scalephantClient.sendKeepAlivePackage();
 		result.waitForAll();
 		
 		Assert.assertTrue(result.isDone());
