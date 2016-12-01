@@ -148,15 +148,8 @@ public class ClientOperationFuture implements OperationFuture {
 	/**
 	 * Set the error flag for the operation
 	 */
-	public void setFailedState(final boolean notify) {
+	public void setFailedState() {
 		failed = true;
-		
-		if(notify == true) {
-			// Future is failed, wake up all blocked get() calls
-			synchronized (mutex) {
-				mutex.notify();
-			}
-		}
 	}
 
 	@Override
@@ -171,5 +164,12 @@ public class ClientOperationFuture implements OperationFuture {
 		}
 		
 		return true;
+	}
+
+	@Override
+	public void fireCompleteEvent() {
+		synchronized (mutex) {
+			mutex.notifyAll();
+		}
 	}
 }

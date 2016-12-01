@@ -50,7 +50,12 @@ public interface OperationFuture {
 	/**
 	 * Set the failed state
 	 */
-	public void setFailedState(final boolean notify);
+	public void setFailedState();
+	
+	/**
+	 * The future is complete
+	 */
+	public void fireCompleteEvent();
 	
 	/**
 	 * Is the future done
