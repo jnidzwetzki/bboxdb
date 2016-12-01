@@ -46,7 +46,7 @@ public class SuccessResponse extends AbstractBodyResponse {
 	 * @throws PackageEncodeError 
 	 */
 	public static SuccessResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {
-		final String body = decodeMessage(encodedPackage);
+		final String body = decodeMessage(encodedPackage,  NetworkConst.RESPONSE_TYPE_SUCCESS);
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		
 		return new SuccessResponse(requestId, body);

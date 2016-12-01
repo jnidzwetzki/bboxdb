@@ -69,7 +69,7 @@ public class NetworkPackageDecoder {
 		// Check package type
 		final short readPackageType = bb.getShort();
 		if(readPackageType != packageType) {
-			logger.warn("Got wrong package type (" + readPackageType + " / " + packageType + ")");
+			logger.warn("Got wrong package type (got {}, expected {})",  readPackageType, packageType);
 			return false;
 		}
 		
@@ -115,7 +115,7 @@ public class NetworkPackageDecoder {
 		// Check package type
 		final short readPackageType = bb.getShort();
 		if(readPackageType != packageType) {
-			logger.warn("Got wrong package type (got " + readPackageType + " / expected " + packageType + ")");
+			logger.warn("Got wrong package type (got {}, expected {})",  readPackageType, packageType);
 			return false;
 		}
 		

@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.Const;
-import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
@@ -87,8 +86,8 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 	 * @return
 	 * @throws PackageEncodeError 
 	 */
-	protected static String decodeMessage(final ByteBuffer bb) throws PackageEncodeError {
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_TYPE_ERROR);
+	protected static String decodeMessage(final ByteBuffer bb, final short packageType) throws PackageEncodeError {
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, packageType);
 
 		if(decodeResult == false) {
 			throw new PackageEncodeError("Unable to decode package");
