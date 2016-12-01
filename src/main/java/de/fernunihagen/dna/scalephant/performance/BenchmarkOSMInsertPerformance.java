@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
+import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.performance.osm.OSMFileReader;
 import de.fernunihagen.dna.scalephant.performance.osm.OSMStructureCallback;
 import de.fernunihagen.dna.scalephant.performance.osm.util.GeometricalStructure;

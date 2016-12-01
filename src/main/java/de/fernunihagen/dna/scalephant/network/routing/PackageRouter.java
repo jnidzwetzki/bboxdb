@@ -34,8 +34,8 @@ import de.fernunihagen.dna.scalephant.distribution.membership.MembershipConnecti
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
-import de.fernunihagen.dna.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
+import de.fernunihagen.dna.scalephant.network.client.future.ClientOperationFuture;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;

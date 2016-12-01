@@ -38,6 +38,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
+import de.fernunihagen.dna.scalephant.network.client.future.ClientOperationFuture;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;

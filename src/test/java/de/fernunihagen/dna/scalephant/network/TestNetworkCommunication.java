@@ -29,8 +29,8 @@ import org.junit.Test;
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.scalephant.ScalephantMain;
 import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
-import de.fernunihagen.dna.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
+import de.fernunihagen.dna.scalephant.network.client.future.ClientOperationFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 

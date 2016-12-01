@@ -38,6 +38,9 @@ import de.fernunihagen.dna.scalephant.distribution.placement.ResourcePlacementSt
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
+import de.fernunihagen.dna.scalephant.network.client.future.ClientOperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.MultiClientOperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 

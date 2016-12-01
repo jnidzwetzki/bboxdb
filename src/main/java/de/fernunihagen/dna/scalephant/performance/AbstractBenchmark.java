@@ -29,9 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
-import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.Scalephant;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantCluster;
+import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 
 public abstract class AbstractBenchmark implements Runnable {
 	

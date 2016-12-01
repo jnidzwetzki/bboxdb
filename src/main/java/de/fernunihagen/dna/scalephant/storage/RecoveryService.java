@@ -37,8 +37,8 @@ import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedI
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
-import de.fernunihagen.dna.scalephant.network.client.ClientOperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
+import de.fernunihagen.dna.scalephant.network.client.future.ClientOperationFuture;
 import de.fernunihagen.dna.scalephant.network.server.NetworkConnectionService;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;

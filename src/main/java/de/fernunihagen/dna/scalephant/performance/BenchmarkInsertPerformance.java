@@ -21,8 +21,8 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
+import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 

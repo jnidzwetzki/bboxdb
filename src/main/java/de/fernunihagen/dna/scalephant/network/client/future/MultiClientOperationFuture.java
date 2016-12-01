@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package de.fernunihagen.dna.scalephant.network.client;
+package de.fernunihagen.dna.scalephant.network.client.future;
 
 import java.util.ArrayList;
 import java.util.List;

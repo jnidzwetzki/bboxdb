@@ -26,9 +26,9 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantCluster;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
+import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 

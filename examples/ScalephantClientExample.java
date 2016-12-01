@@ -19,10 +19,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import de.fernunihagen.dna.scalephant.network.client.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.Scalephant;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantCluster;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
+import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 

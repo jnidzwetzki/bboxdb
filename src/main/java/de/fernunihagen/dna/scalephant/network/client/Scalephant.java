@@ -18,6 +18,7 @@
 package de.fernunihagen.dna.scalephant.network.client;
 
 import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
+import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
