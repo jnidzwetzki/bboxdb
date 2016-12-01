@@ -56,12 +56,12 @@ import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.AbstractBodyResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.CompressionEnvelopeResponse;
-import de.fernunihagen.dna.scalephant.network.packages.response.ErrorWithBodyResponse;
+import de.fernunihagen.dna.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.HelloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleEndResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleStartResponse;
-import de.fernunihagen.dna.scalephant.network.packages.response.SuccessWithBodyResponse;
+import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
@@ -734,25 +734,12 @@ public class ScalephantClient implements Scalephant {
 				case NetworkConst.RESPONSE_TYPE_HELLO:
 					handleHelo(encodedPackage, pendingCall);
 				break;
-			
+					
 				case NetworkConst.RESPONSE_TYPE_SUCCESS:
-					if(pendingCall != null) {
-						pendingCall.setOperationResult(0, true);
-					}
-					break;
-					
-				case NetworkConst.RESPONSE_TYPE_ERROR:
-					if(pendingCall != null) {
-						pendingCall.setFailedState(false);
-						pendingCall.setOperationResult(0, false);
-					}
-					break;
-					
-				case NetworkConst.RESPONSE_TYPE_SUCCESS_WITH_BODY:
 					handleSuccessWithBody(encodedPackage, pendingCall);
 					break;
 					
-				case NetworkConst.RESPONSE_TYPE_ERROR_WITH_BODY:
+				case NetworkConst.RESPONSE_TYPE_ERROR:
 					pendingCall.setFailedState(false);
 					handleErrorWithBody(encodedPackage, pendingCall);
 					break;
@@ -914,7 +901,7 @@ public class ScalephantClient implements Scalephant {
 	 */
 	protected void handleErrorWithBody(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) throws PackageEncodeError {
-		final AbstractBodyResponse result = ErrorWithBodyResponse.decodePackage(encodedPackage);
+		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
 			pendingCall.setOperationResult(0, result.getBody());
@@ -929,7 +916,7 @@ public class ScalephantClient implements Scalephant {
 	 */
 	protected void handleSuccessWithBody(final ByteBuffer encodedPackage,
 			final ClientOperationFuture pendingCall) throws PackageEncodeError {
-		final SuccessWithBodyResponse result = SuccessWithBodyResponse.decodePackage(encodedPackage);
+		final SuccessResponse result = SuccessResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
 			pendingCall.setOperationResult(0, result.getBody());

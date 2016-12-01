@@ -70,18 +70,16 @@ Request Types:
 Result-Types:
 
 * Type 0x00 - Hello result
-* Type 0x01 - Operation Success - no package body
-* Type 0x02 - Operation Success - with details in the body
-* Type 0x03 - Operation Error - no package body
-* Type 0x04 - Operation Error - with details in the body
-* Type 0x05 - Result of the List tables call
-* Type 0x06 - A result that contains a tuple
-* Type 0x07 - Start multiple tuple result
-* Type 0x08 - End multiple tuple result
-* Type 0x09 - End page 
+* Type 0x01 - Operation Success - with details in the body
+* Type 0x02 - Operation Error - with details in the body
+* Type 0x03 - Result of the List tables call
+* Type 0x04 - A result that contains a tuple
+* Type 0x05 - Start multiple tuple result
+* Type 0x06 - End multiple tuple result
+* Type 0x07 - End page 
 * Type 0x10 - Compression envelope
 	
-### Body for response type = 0x01/0x03 (Success/Error with details)
+### Body for response type = 0x01/0x02 (Success/Error with details)
 
     0         8       16       24       32
 	+---------+--------+--------+--------+
@@ -94,7 +92,7 @@ Result-Types:
 * Message-Length - The length of the error message
 * Message - The error message
 
-### Body for response type = 0x05
+### Body for response type = 0x04
 This is a response body that contains a tuple.
 
     0         8       16       24       32
@@ -125,8 +123,8 @@ This is a response body that contains a tuple.
 	
 Note: All time stamps are 64 bit long and have a resolution of microseconds.
 	
-### Body for response type = 0x06 / 0x07 / 0x08 / 0x09
-By using the response types 0x06 and 0x07 a set of tuples can be transfered. For example, this could be the result of a query. The begin of the transfer of the tuple set is indicated by the package type 0x06; the end is indicated by the type 0x07. Both package types have an empty body. 
+### Body for response type = 0x05 / 0x06 / 0x07 
+By using the response types 0x05 and 0x06 a set of tuples can be transfered. For example, this could be the result of a query. The begin of the transfer of the tuple set is indicated by the package type 0x06; the end is indicated by the type 0x06. Both package types have an empty body. 
 
 Transferring a set of tuples:
 
@@ -218,7 +216,7 @@ Client features:
 Bit 0: GZIP Compression
 
 ### Insert
-This package inserts a new tuple into a given table. The result could be currently response type 0x00, 0x02 and 0x03.
+This package inserts a new tuple into a given table. The result could be currently response type 0x01 or 0x02.
 
 #### Request body
 
@@ -250,7 +248,7 @@ This package inserts a new tuple into a given table. The result could be current
 	
 
 ### Delete Tuple
-This package deletes a tuple from a table. The result could be currently response type 0x00, 0x02 and 0x03.
+This package deletes a tuple from a table. The result could be currently response type 0x01 or 0x02.
 
 #### Request body
 
@@ -269,7 +267,7 @@ This package deletes a tuple from a table. The result could be currently respons
 	+------------------------------------+
 	
 ### Delete Table
-This package deletes a whole table. The result could be currently response type 0x00, 0x02 and 0x03.
+This package deletes a whole table. The result could be currently response type 0x01 or 0x02.
 
 #### Request body
 
@@ -317,7 +315,7 @@ The body of the package is empty
 	+---------+--------+--------+--------+
 
 #### Response body
-The result could be currently only response type 0x00. The server waits until all pending operations are completed successfully. Afterwards, the response type 0x00 is send and the connection is closed. 
+The result could be currently only response type 0x01. The server waits until all pending operations are completed successfully. Afterwards, the response type 0x01 is send and the connection is closed. 
 
 ### Query
 This package represents a query.
@@ -366,7 +364,7 @@ This query asks for a specific key in a particular table.
 
 
 #### Response body
-The result could be currently the response types 0x00, 0x02, 0x03 and 0x05. The result types 0x02, 0x03 indicate an error. The result type 0x00 means, that the query is processed successfully, but no matching tuple was found. The result type 0x05 indicates that one tuple is found.
+The result could be currently the response types 0x01, 0x02, 0x05 and 0x06. The result type 0x02 indicates an error. The result type 0x01 means, that the query is processed successfully, but no matching tuple was found. The result type 0x05 indicates that one tuple is found.
 
 ### Bounding-Box-Query
 This query asks for all tuples, that are covered by the bounding box.

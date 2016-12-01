@@ -17,21 +17,20 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.network.packages.response;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.network.NetworkConst;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
-import de.fernunihagen.dna.scalephant.network.NetworkPackageEncoder;
-import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 
-public class SuccessResponse extends NetworkResponsePackage {
-
+public class SuccessResponse extends AbstractBodyResponse {
+	
 	public SuccessResponse(final short sequenceNumber) {
-		super(sequenceNumber);
+		super(sequenceNumber, "");
+	}
+	
+	public SuccessResponse(final short sequenceNumber, final String body) {
+		super(sequenceNumber, body);
 	}
 
 	@Override
@@ -39,26 +38,6 @@ public class SuccessResponse extends NetworkResponsePackage {
 		return NetworkConst.RESPONSE_TYPE_SUCCESS;
 	}
 
-	@Override
-	public byte[] getByteArray() throws PackageEncodeError {
-		final NetworkPackageEncoder networkPackageEncoder = new NetworkPackageEncoder();
-	
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
-		
-		try {
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
-			bodyLengthBuffer.order(Const.APPLICATION_BYTE_ORDER);
-			bodyLengthBuffer.putLong(0);
-			bos.write(bodyLengthBuffer.array());
-			
-			bos.close();
-		} catch (IOException e) {
-			throw new PackageEncodeError("Got exception while converting package into bytes", e);
-		}
-	
-		return bos.toByteArray();
-	}
-	
 	/**
 	 * Decode the encoded package into a object
 	 * 
@@ -67,19 +46,10 @@ public class SuccessResponse extends NetworkResponsePackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static SuccessResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_SUCCESS);
-		
-		if(decodeResult == false) {
-			throw new PackageEncodeError("Unable to decode package");
-		}
-		
-		if(encodedPackage.remaining() != 0) {
-			throw new PackageEncodeError("Some bytes are left after encoding: " + encodedPackage.remaining());
-		}
-		
+		final String body = decodeMessage(encodedPackage);
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		
-		return new SuccessResponse(requestId);
+		return new SuccessResponse(requestId, body);
 	}
 
 }

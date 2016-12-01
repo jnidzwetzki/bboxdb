@@ -88,7 +88,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 	 * @throws PackageEncodeError 
 	 */
 	protected static String decodeMessage(final ByteBuffer bb) throws PackageEncodeError {
-		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_TYPE_ERROR_WITH_BODY);
+		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, NetworkConst.RESPONSE_TYPE_ERROR);
 
 		if(decodeResult == false) {
 			throw new PackageEncodeError("Unable to decode package");

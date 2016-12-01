@@ -53,7 +53,6 @@ import de.fernunihagen.dna.scalephant.network.packages.response.CompressionEnvel
 import de.fernunihagen.dna.scalephant.network.packages.response.HelloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;
-import de.fernunihagen.dna.scalephant.network.packages.response.SuccessWithBodyResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.scalephant.network.routing.RoutingHeader;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
@@ -589,11 +588,11 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void getPackageTypeFromResponse2() throws PackageEncodeError {
-		final SuccessWithBodyResponse response = new SuccessWithBodyResponse((short) 2, "abc");
+		final SuccessResponse response = new SuccessResponse((short) 2, "abc");
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		Assert.assertEquals(NetworkConst.RESPONSE_TYPE_SUCCESS_WITH_BODY, NetworkPackageDecoder.getPackageTypeFromResponse(bb));
+		Assert.assertEquals(NetworkConst.RESPONSE_TYPE_SUCCESS, NetworkPackageDecoder.getPackageTypeFromResponse(bb));
 	}
 	
 	/**
@@ -603,13 +602,13 @@ public class TestNetworkClasses {
 	@Test
 	public void testGetResultBodyLength1() throws PackageEncodeError {
 		final SuccessResponse response = new SuccessResponse((short) 2);
-		byte[] encodedPackage = response.getByteArray();
+		final byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
 		
-		// 8 Byte package header
-		int calculatedBodyLength = 0;
+		// 2 Bytes message length
+		final int calculatedBodyLength = 2;
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		long bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(bb);
+		final long bodyLength = NetworkPackageDecoder.getBodyLengthFromResponsePackage(bb);
 		
 		Assert.assertEquals(calculatedBodyLength, bodyLength);
 	}
@@ -620,7 +619,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testGetResultBodyLength2() throws PackageEncodeError {
-		final SuccessWithBodyResponse response = new SuccessWithBodyResponse((short) 2, "abc");
+		final SuccessResponse response = new SuccessResponse((short) 2, "abc");
 		byte[] encodedPackage = response.getByteArray();
 		Assert.assertNotNull(encodedPackage);
 		

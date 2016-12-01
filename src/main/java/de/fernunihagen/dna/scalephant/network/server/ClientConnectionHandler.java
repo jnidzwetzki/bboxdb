@@ -65,7 +65,6 @@ import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.TransferSSTableRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.CompressionEnvelopeResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorResponse;
-import de.fernunihagen.dna.scalephant.network.packages.response.ErrorWithBodyResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.HelloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;
@@ -323,7 +322,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
-				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				writeResultPackage(new ErrorResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
 			}
 			
@@ -395,7 +394,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		try {			
 			if(networkConnectionServiceState.isReadonly()) {
-				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				writeResultPackage(new ErrorResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
 			}
 			
@@ -469,7 +468,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
-				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				writeResultPackage(new ErrorResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
 			}
 			
@@ -649,7 +648,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
-				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				writeResultPackage(new ErrorResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
 			}
 			
@@ -703,7 +702,7 @@ public class ClientConnectionHandler implements Runnable {
 
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
-				writeResultPackage(new ErrorWithBodyResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				writeResultPackage(new ErrorResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
 				return true;
 			}
 			

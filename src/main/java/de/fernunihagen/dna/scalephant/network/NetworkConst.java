@@ -111,55 +111,46 @@ public class NetworkConst {
 	 */
 	public static final byte REQUEST_QUERY_TIME = 0x03;
 	
+	
 	/**
 	 * Response type helo
 	 */
 	public static final short RESPONSE_TYPE_HELLO = 0x00;
 	
 	/**
-	 * Response type success
-	 */
-	public static final short RESPONSE_TYPE_SUCCESS = 0x01;
-	
-	/**
 	 * Response type with body
 	 */
-	public static final short RESPONSE_TYPE_SUCCESS_WITH_BODY = 0x02;
-	
-	/**
-	 * Response type error
-	 */
-	public static final short RESPONSE_TYPE_ERROR = 0x03;
-	
+	public static final short RESPONSE_TYPE_SUCCESS = 0x01;
+
 	/**
 	 * Response type error with body
 	 */
-	public static final short RESPONSE_TYPE_ERROR_WITH_BODY = 0x04;
+	public static final short RESPONSE_TYPE_ERROR = 0x02;
 	
 	/**
 	 * Response of the list tables request
 	 */
-	public static final short RESPONSE_TYPE_LIST_TABLES = 0x05;
+	public static final short RESPONSE_TYPE_LIST_TABLES = 0x03;
 	
 	/**
 	 * Response that contains a single tuple
 	 */
-	public static final short RESPONSE_TYPE_TUPLE = 0x06;
+	public static final short RESPONSE_TYPE_TUPLE = 0x04;
 	
 	/**
 	 * Start a multiple tuple result
 	 */
-	public static final short RESPONSE_TYPE_MULTIPLE_TUPLE_START = 0x07;
+	public static final short RESPONSE_TYPE_MULTIPLE_TUPLE_START = 0x05;
 	
 	/**
 	 * End a multiple tuple result
 	 */
-	public static final short RESPONSE_TYPE_MULTIPLE_TUPLE_END = 0x08;
+	public static final short RESPONSE_TYPE_MULTIPLE_TUPLE_END = 0x06;
 	
 	/**
 	 * Page has ended
 	 */
-	public static final short RESPONSE_TYPE_PAGE_END = 0x09;
+	public static final short RESPONSE_TYPE_PAGE_END = 0x07;
 	
 	/**
 	 * Compression envelope request
