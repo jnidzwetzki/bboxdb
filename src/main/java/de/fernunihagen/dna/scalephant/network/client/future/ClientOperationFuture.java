@@ -41,7 +41,12 @@ public class ClientOperationFuture implements OperationFuture {
 	/**
 	 * The error flag for the operation
 	 */
-	protected boolean failed = false;
+	protected volatile boolean failed = false;
+	
+	/**
+	 * The done flag
+	 */
+	protected volatile boolean done = false;
 	
 	/**
 	 * Empty constructor
@@ -59,7 +64,7 @@ public class ClientOperationFuture implements OperationFuture {
 
 	@Override
 	public boolean isDone() {
-		return operationResult != null;
+		return done;
 	}
 
 	@Override
@@ -168,6 +173,9 @@ public class ClientOperationFuture implements OperationFuture {
 
 	@Override
 	public void fireCompleteEvent() {
+		
+		done = true;
+		
 		synchronized (mutex) {
 			mutex.notifyAll();
 		}
