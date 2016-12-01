@@ -683,7 +683,8 @@ public class TestNetworkClasses {
 		final ClientOperationFuture future = new ClientOperationFuture();
 		Assert.assertFalse(future.isFailed());
 		Assert.assertFalse(future.isDone());
-		future.setFailedState(true);
+		future.setFailedState();
+		future.fireCompleteEvent();
 		Assert.assertTrue(future.isFailed());
 		Assert.assertTrue(future.get(0) == null);
 	}

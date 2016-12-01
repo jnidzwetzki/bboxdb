@@ -78,9 +78,9 @@ public class MultiClientOperationFuture implements OperationFuture {
 	}
 
 	@Override
-	public void setFailedState(final boolean notify) {
-		for(ClientOperationFuture future : futures) {
-			future.setFailedState(notify);
+	public void setFailedState() {
+		for(final ClientOperationFuture future : futures) {
+			future.setFailedState();
 		}
 	}
 
@@ -128,6 +128,13 @@ public class MultiClientOperationFuture implements OperationFuture {
 		}
 		
 		return true;
+	}
+
+	@Override
+	public void fireCompleteEvent() {
+		for(ClientOperationFuture future : futures) {
+			future.fireCompleteEvent();
+		}
 	}
 
 }

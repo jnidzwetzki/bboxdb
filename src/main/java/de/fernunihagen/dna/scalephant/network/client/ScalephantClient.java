@@ -322,7 +322,8 @@ public class ScalephantClient implements Scalephant {
 			
 				for(short requestId : pendingCalls.keySet()) {
 					final ClientOperationFuture future = pendingCalls.get(requestId);
-					future.setFailedState(true);
+					future.setFailedState();
+					future.fireCompleteEvent();
 				}
 				
 				pendingCalls.clear();
@@ -370,7 +371,8 @@ public class ScalephantClient implements Scalephant {
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("deleteTable called, but connection not ready: " + this);
-			operationFuture.setFailedState(true);
+			operationFuture.setFailedState();
+			operationFuture.fireCompleteEvent();
 			return operationFuture;
 		}
 		
@@ -388,7 +390,8 @@ public class ScalephantClient implements Scalephant {
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("insertTuple called, but connection not ready: " + this);
-			operationFuture.setFailedState(true);
+			operationFuture.setFailedState();
+			operationFuture.fireCompleteEvent();
 			return operationFuture;
 		}
 		
@@ -411,7 +414,8 @@ public class ScalephantClient implements Scalephant {
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("insertTuple called, but connection not ready: " + this);
-			operationFuture.setFailedState(true);
+			operationFuture.setFailedState();
+			operationFuture.fireCompleteEvent();
 			return operationFuture;
 		}
 		
@@ -429,7 +433,8 @@ public class ScalephantClient implements Scalephant {
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("deleteTuple called, but connection not ready: " + this);
-			operationFuture.setFailedState(true);
+			operationFuture.setFailedState();
+			operationFuture.fireCompleteEvent();
 			return operationFuture;
 		}
 		
@@ -633,7 +638,8 @@ public class ScalephantClient implements Scalephant {
 			
 		} catch (IOException | PackageEncodeError e) {
 			logger.warn("Got an exception while sending package to server", e);
-			future.setFailedState(true);
+			future.setFailedState();
+			future.fireCompleteEvent();
 		}
 		
 		return sequenceNumber;
@@ -740,7 +746,6 @@ public class ScalephantClient implements Scalephant {
 					break;
 					
 				case NetworkConst.RESPONSE_TYPE_ERROR:
-					pendingCall.setFailedState(false);
 					handleErrorWithBody(encodedPackage, pendingCall);
 					break;
 					
@@ -767,7 +772,8 @@ public class ScalephantClient implements Scalephant {
 					logger.error("Unknown respose package type: " + packageType);
 					
 					if(pendingCall != null) {
-						pendingCall.setFailedState(true);
+						pendingCall.setFailedState();
+						pendingCall.fireCompleteEvent();
 					}
 			}
 			
@@ -849,6 +855,7 @@ public class ScalephantClient implements Scalephant {
 		// Single tuple is returned
 		if(pendingCall != null) {
 			pendingCall.setOperationResult(0, singleTupleResponse.getTuple());
+			pendingCall.fireCompleteEvent();
 		}
 		
 		return true;
@@ -866,6 +873,7 @@ public class ScalephantClient implements Scalephant {
 		
 		if(pendingCall != null) {
 			pendingCall.setOperationResult(0, tables.getTables());
+			pendingCall.fireCompleteEvent();
 		}
 	}
 
@@ -890,6 +898,7 @@ public class ScalephantClient implements Scalephant {
 		
 		if(pendingCall != null) {
 			pendingCall.setOperationResult(0, heloResonse);
+			pendingCall.fireCompleteEvent();
 		}
 	}
 	
@@ -905,6 +914,8 @@ public class ScalephantClient implements Scalephant {
 		
 		if(pendingCall != null) {
 			pendingCall.setOperationResult(0, result.getBody());
+			pendingCall.setFailedState();
+			pendingCall.fireCompleteEvent();
 		}
 	}
 
@@ -920,6 +931,7 @@ public class ScalephantClient implements Scalephant {
 		
 		if(pendingCall != null) {
 			pendingCall.setOperationResult(0, result.getBody());
+			pendingCall.fireCompleteEvent();
 		}
 	}	
 	
@@ -956,6 +968,7 @@ public class ScalephantClient implements Scalephant {
 		}
 		
 		pendingCall.setOperationResult(0, resultList);
+		pendingCall.fireCompleteEvent();
 	}
 
 	@Override
