@@ -95,7 +95,6 @@ public class TestNetworkCommunication {
 		
 		Assert.assertTrue(result.isDone());
 		Assert.assertFalse(result.isFailed());
-		Assert.assertTrue((Boolean) result.get(0));
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		
 		disconnectFromServer(scalephantClient);
