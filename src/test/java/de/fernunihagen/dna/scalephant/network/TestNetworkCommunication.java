@@ -130,7 +130,6 @@ public class TestNetworkCommunication {
 		result1.waitForAll();
 		Assert.assertTrue(result1.isDone());
 		Assert.assertFalse(result1.isFailed());
-		Assert.assertTrue((Boolean) result1.get(0));
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		
 		// Wait for command processing
@@ -141,7 +140,6 @@ public class TestNetworkCommunication {
 		result2.waitForAll();
 		Assert.assertTrue(result2.isDone());
 		Assert.assertFalse(result2.isFailed());
-		Assert.assertTrue((Boolean) result2.get(0));
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		
 		disconnectFromServer(scalephantClient);
@@ -172,20 +170,17 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultCreate.isFailed());
 		
 		final ClientOperationFuture deleteResult1 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
-		final Object deleteResult1Object = deleteResult1.get(0);
-		Assert.assertTrue(deleteResult1Object instanceof Boolean);
-		Assert.assertTrue(((Boolean) deleteResult1Object).booleanValue());
+		Assert.assertFalse(deleteResult1.isFailed());
+		Assert.assertTrue(deleteResult1.isDone());
 		
 		final ClientOperationFuture getResult = scalephantClient.queryKey(table, key);
-		final Object getResultObject = getResult.get(0);
-		Assert.assertTrue(getResultObject instanceof Boolean);
-		Assert.assertTrue(((Boolean) getResultObject).booleanValue());
+		Assert.assertFalse(getResult.isFailed());
+		Assert.assertTrue(getResult.isDone());
 		
 		final Tuple tuple = new Tuple(key, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		final ClientOperationFuture insertResult = scalephantClient.insertTuple(table, tuple);
-		final Object insertResultObject = insertResult.get(0);
-		Assert.assertTrue(insertResultObject instanceof Boolean);
-		Assert.assertTrue(((Boolean) insertResultObject).booleanValue());
+		Assert.assertFalse(insertResult.isFailed());
+		Assert.assertTrue(insertResult.isDone());
 
 		final ClientOperationFuture getResult2 = scalephantClient.queryKey(table, key);
 		final Object getResult2Object = getResult2.get(0);
@@ -194,14 +189,12 @@ public class TestNetworkCommunication {
 		Assert.assertEquals(tuple, resultTuple);
 
 		final ClientOperationFuture deleteResult2 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
-		final Object deleteResult2Object = deleteResult2.get(0);
-		Assert.assertTrue(deleteResult2Object instanceof Boolean);
-		Assert.assertTrue(((Boolean) deleteResult2Object).booleanValue());
+		Assert.assertFalse(deleteResult2.isFailed());
+		Assert.assertTrue(deleteResult2.isDone());
 		
 		final ClientOperationFuture getResult3 = scalephantClient.queryKey(table, key);
-		final Object getResult3Object = getResult3.get(0);
-		Assert.assertTrue(getResult3Object instanceof Boolean);
-		Assert.assertTrue(((Boolean) getResult3Object).booleanValue());
+		Assert.assertFalse(getResult3.isFailed());
+		Assert.assertTrue(getResult3.isDone());
 		
 		// Disconnect
 		disconnectFromServer(scalephantClient);
