@@ -894,10 +894,10 @@ public class ScalephantClient implements Scalephant {
 	 * @throws PackageEncodeError 
 	 */
 	protected void handleHelo(final ByteBuffer encodedPackage, final ClientOperationFuture pendingCall) throws PackageEncodeError {
-		final HelloResponse heloResonse = HelloResponse.decodePackage(encodedPackage);
+		final HelloResponse heloResponse = HelloResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
-			pendingCall.setOperationResult(0, heloResonse);
+			pendingCall.setOperationResult(0, heloResponse);
 			pendingCall.fireCompleteEvent();
 		}
 	}

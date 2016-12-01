@@ -75,7 +75,7 @@ public class ClientOperationFuture implements OperationFuture {
 		}
 		
 		synchronized (mutex) {
-			while(operationResult == null && ! failed) {
+			while(operationResult == null && ! done) {
 				mutex.wait();
 			}
 		}
