@@ -81,7 +81,7 @@ public class OperationFuture {
 	 */
 	public boolean isFailed() {
 		
-		for(FutureImplementation future : futures) {
+		for(final FutureImplementation future : futures) {
 			if(future.isFailed()) {
 				return true;
 			}
@@ -103,7 +103,7 @@ public class OperationFuture {
 	 * Is the future done
 	 */
 	public boolean isDone() {
-		for(FutureImplementation future : futures) {
+		for(final FutureImplementation future : futures) {
 			if(! future.isDone()) {
 				return false;
 			}
@@ -166,7 +166,7 @@ public class OperationFuture {
 	 * Fire the completion event
 	 */
 	public void fireCompleteEvent() {
-		for(FutureImplementation future : futures) {
+		for(final FutureImplementation future : futures) {
 			future.fireCompleteEvent();
 		}
 	}
