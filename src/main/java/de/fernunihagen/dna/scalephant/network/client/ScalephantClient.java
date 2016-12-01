@@ -264,7 +264,7 @@ public class ScalephantClient implements Scalephant {
 		clientCapabilities.freeze();
 		sendPackageToServer(new HelloRequest(NetworkConst.PROTOCOL_VERSION, clientCapabilities), operationFuture);
 		
-		operationFuture.wait();
+		operationFuture.waitForAll();
 		
 		final Object operationResult = operationFuture.get(0);
 		if(operationResult instanceof HelloResponse) {
