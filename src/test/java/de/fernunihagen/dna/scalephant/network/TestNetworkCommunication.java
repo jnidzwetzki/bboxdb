@@ -28,9 +28,8 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.scalephant.ScalephantMain;
-import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
-import de.fernunihagen.dna.scalephant.network.client.future.ClientOperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -89,7 +88,7 @@ public class TestNetworkCommunication {
 	public void sendDeletePackage() throws InterruptedException, ExecutionException {
 		final ScalephantClient scalephantClient = connectToServer();
 		
-		ClientOperationFuture result = scalephantClient.deleteTable("1_testgroup1_relation3");
+		OperationFuture result = scalephantClient.deleteTable("1_testgroup1_relation3");
 		
 		result.waitForAll();
 		
@@ -125,7 +124,7 @@ public class TestNetworkCommunication {
 		final ScalephantClient scalephantClient = connectToServer();
 		
 		// First call
-		ClientOperationFuture result1 = scalephantClient.deleteTable("1_testgroup1_relation3");
+		OperationFuture result1 = scalephantClient.deleteTable("1_testgroup1_relation3");
 		result1.waitForAll();
 		Assert.assertTrue(result1.isDone());
 		Assert.assertFalse(result1.isFailed());
@@ -135,7 +134,7 @@ public class TestNetworkCommunication {
 		Thread.sleep(1000);
 		
 		// Second call
-		ClientOperationFuture result2 = scalephantClient.deleteTable("1_testgroup1_relation3");
+		OperationFuture result2 = scalephantClient.deleteTable("1_testgroup1_relation3");
 		result2.waitForAll();
 		Assert.assertTrue(result2.isDone());
 		Assert.assertFalse(result2.isFailed());
@@ -159,43 +158,43 @@ public class TestNetworkCommunication {
 		final ScalephantClient scalephantClient = connectToServer();
 		
 		// Delete distribution group
-		final ClientOperationFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
+		final OperationFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
 		resultDelete.waitForAll();
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
-		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
+		final OperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
-		final ClientOperationFuture deleteResult1 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
+		final OperationFuture deleteResult1 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
 		deleteResult1.waitForAll();
 		Assert.assertFalse(deleteResult1.isFailed());
 		Assert.assertTrue(deleteResult1.isDone());
 		
-		final ClientOperationFuture getResult = scalephantClient.queryKey(table, key);
+		final OperationFuture getResult = scalephantClient.queryKey(table, key);
 		getResult.waitForAll();
 		Assert.assertFalse(getResult.isFailed());
 		Assert.assertTrue(getResult.isDone());
 		
 		final Tuple tuple = new Tuple(key, BoundingBox.EMPTY_BOX, "abc".getBytes());
-		final ClientOperationFuture insertResult = scalephantClient.insertTuple(table, tuple);
+		final OperationFuture insertResult = scalephantClient.insertTuple(table, tuple);
 		insertResult.waitForAll();
 		Assert.assertFalse(insertResult.isFailed());
 		Assert.assertTrue(insertResult.isDone());
 
-		final ClientOperationFuture getResult2 = scalephantClient.queryKey(table, key);
+		final OperationFuture getResult2 = scalephantClient.queryKey(table, key);
 		final Object getResult2Object = getResult2.get(0);
 		Assert.assertTrue(getResult2Object instanceof Tuple);
 		final Tuple resultTuple = (Tuple) getResult2Object;
 		Assert.assertEquals(tuple, resultTuple);
 
-		final ClientOperationFuture deleteResult2 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
+		final OperationFuture deleteResult2 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
 		deleteResult2.waitForAll();
 		Assert.assertFalse(deleteResult2.isFailed());
 		Assert.assertTrue(deleteResult2.isDone());
 		
-		final ClientOperationFuture getResult3 = scalephantClient.queryKey(table, key);
+		final OperationFuture getResult3 = scalephantClient.queryKey(table, key);
 		getResult3.waitForAll();
 		Assert.assertFalse(getResult3.isFailed());
 		Assert.assertTrue(getResult3.isDone());
@@ -217,12 +216,12 @@ public class TestNetworkCommunication {
 		final ScalephantClient scalephantClient = connectToServer();
 		
 		// Delete distribution group
-		final ClientOperationFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
+		final OperationFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
 		resultDelete.waitForAll();
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
-		final ClientOperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
+		final OperationFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
@@ -240,7 +239,7 @@ public class TestNetworkCommunication {
 		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000f, 1001f, 1000f, 1001f), "lmn".getBytes());
 		scalephantClient.insertTuple(table, tuple5);
 
-		final ClientOperationFuture future = scalephantClient.queryBoundingBox(table, new BoundingBox(-1f, 2f, -1f, 2f));
+		final OperationFuture future = scalephantClient.queryBoundingBox(table, new BoundingBox(-1f, 2f, -1f, 2f));
 		final Object result = future.get(0);
 		
 		Assert.assertTrue(result instanceof List);
@@ -265,7 +264,7 @@ public class TestNetworkCommunication {
 	public void sendKeepAlivePackage() throws InterruptedException, ExecutionException {
 		final ScalephantClient scalephantClient = connectToServer();
 		
-		final ClientOperationFuture result = scalephantClient.sendKeepAlivePackage();
+		final OperationFuture result = scalephantClient.sendKeepAlivePackage();
 		result.waitForAll();
 		
 		Assert.assertTrue(result.isDone());

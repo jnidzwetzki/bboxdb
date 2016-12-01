@@ -38,7 +38,7 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
-import de.fernunihagen.dna.scalephant.network.client.future.ClientOperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.server.NetworkConnectionService;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
@@ -151,7 +151,7 @@ public class RecoveryService implements ScalephantService {
 		
 		logger.info("Starting recovery for table: " + ssTableName.getFullname());
 		final SSTableManager tableManager = StorageRegistry.getSSTableManager(ssTableName);
-		final ClientOperationFuture result = connection.queryTime(ssTableName.getFullname(), outdatedDistributionRegion.getLocalVersion());
+		final OperationFuture result = connection.queryTime(ssTableName.getFullname(), outdatedDistributionRegion.getLocalVersion());
 		result.waitForAll();
 		
 		if(result.isFailed()) {

@@ -38,8 +38,7 @@ import de.fernunihagen.dna.scalephant.distribution.placement.ResourcePlacementSt
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
-import de.fernunihagen.dna.scalephant.network.client.future.ClientOperationFuture;
-import de.fernunihagen.dna.scalephant.network.client.future.MultiClientOperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.FutureImplementation;
 import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
@@ -60,7 +59,7 @@ public class ScalephantCluster implements Scalephant {
 	/**
 	 * The pending calls
 	 */
-	protected final Map<Short, ClientOperationFuture> pendingCalls = new HashMap<Short, ClientOperationFuture>();
+	protected final Map<Short, FutureImplementation> pendingCalls = new HashMap<Short, FutureImplementation>();
 
 	/**
 	 * The resource placement strategy
@@ -109,16 +108,17 @@ public class ScalephantCluster implements Scalephant {
 			throw new ScalephantException("deleteTable called, but connection list is empty");
 		}
 		
-		final MultiClientOperationFuture future = new MultiClientOperationFuture();
 		final List<ScalephantClient> connections = membershipConnectionService.getAllConnections();
+		final OperationFuture future = new OperationFuture(0);
+
 		for(final ScalephantClient client : connections) {
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("Send delete call for table " + table + " to " + client);
 			}
 			
-			final ClientOperationFuture result = client.deleteTable(table);
-			future.addFuture(result);
+			final OperationFuture result = client.deleteTable(table);
+			future.merge(result);
 		}
 		
 		return future;
@@ -141,7 +141,7 @@ public class ScalephantCluster implements Scalephant {
 			return connection.insertTuple(table, tuple);
 		} catch (ZookeeperException e) {
 			logger.warn("Got exception while inserting tuple", e);
-			final ClientOperationFuture future = new ClientOperationFuture();
+			final OperationFuture future = new OperationFuture(1);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			return future;
@@ -156,15 +156,15 @@ public class ScalephantCluster implements Scalephant {
 			throw new ScalephantException("deleteTuple called, but connection list is empty");
 		}
 		
-		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		final OperationFuture future = new OperationFuture();
 		
 		for(final ScalephantClient client : connections) {
 			if(logger.isDebugEnabled()) {
 				logger.debug("Send delete call for tuple " + key + " on " + table + " to " + client);
 			}
 			
-			final ClientOperationFuture result = client.deleteTuple(table, key, timestamp);
-			future.addFuture(result);
+			final OperationFuture result = client.deleteTuple(table, key, timestamp);
+			future.merge(result);
 		}
 		
 		return future;
@@ -177,7 +177,7 @@ public class ScalephantCluster implements Scalephant {
 			return scalephantClient.listTables();
 		} catch (ResourceAllocationException e) {
 			logger.warn("listTables called, but no ressoures are available", e);
-			final ClientOperationFuture future = new ClientOperationFuture();
+			final OperationFuture future = new OperationFuture(1);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			return future;
@@ -196,7 +196,7 @@ public class ScalephantCluster implements Scalephant {
 			return scalephantClient.createDistributionGroup(distributionGroup, replicationFactor);
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);
-			final ClientOperationFuture future = new ClientOperationFuture();
+			final OperationFuture future = new OperationFuture(1);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			return future;
@@ -221,11 +221,11 @@ public class ScalephantCluster implements Scalephant {
 			throw new ScalephantException("deleteDistributionGroup called, but connection list is empty");
 		}
 		
-		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		final OperationFuture future = new OperationFuture();
 		
 		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
-			final ClientOperationFuture deleteFuture = client.deleteDistributionGroup(distributionGroup);
-			future.addFuture(deleteFuture);
+			final OperationFuture deleteFuture = client.deleteDistributionGroup(distributionGroup);
+			future.merge(deleteFuture);
 		}
 
 		return future;
@@ -237,15 +237,15 @@ public class ScalephantCluster implements Scalephant {
 			throw new ScalephantException("queryKey called, but connection list is empty");
 		}
 		
-		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		final OperationFuture future = new OperationFuture();
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for key " + key + " in table " + table);
 		}
 		
 		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
-			final ClientOperationFuture queryFuture = client.queryKey(table, key);
-			future.addFuture(queryFuture);
+			final OperationFuture queryFuture = client.queryKey(table, key);
+			future.merge(queryFuture);
 		}
 
 		return future;
@@ -257,7 +257,7 @@ public class ScalephantCluster implements Scalephant {
 			throw new ScalephantException("queryBoundingBox called, but connection list is empty");
 		}
 		
-		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		final OperationFuture future = new OperationFuture();
 		
 		try {
 			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
@@ -269,8 +269,8 @@ public class ScalephantCluster implements Scalephant {
 			
 			for(final DistributedInstance system : systems) {
 				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
-				final ClientOperationFuture result = connection.queryBoundingBox(table, boundingBox);
-				future.addFuture(result);
+				final OperationFuture result = connection.queryBoundingBox(table, boundingBox);
+				future.merge(result);
 			}
 			
 		} catch (ZookeeperException e) {
@@ -291,11 +291,11 @@ public class ScalephantCluster implements Scalephant {
 			logger.debug("Query by for timestamp " + timestamp + " in table " + table);
 		}
 		
-		final MultiClientOperationFuture future = new MultiClientOperationFuture();
+		final OperationFuture future = new OperationFuture();
 		
 		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
-			final ClientOperationFuture deleteFuture = client.queryTime(table, timestamp);
-			future.addFuture(deleteFuture);
+			final OperationFuture deleteFuture = client.queryTime(table, timestamp);
+			future.merge(deleteFuture);
 		}
 
 		return future;

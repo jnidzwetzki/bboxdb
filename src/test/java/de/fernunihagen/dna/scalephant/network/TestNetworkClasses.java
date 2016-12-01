@@ -33,7 +33,7 @@ import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.client.SequenceNumberGenerator;
-import de.fernunihagen.dna.scalephant.network.client.future.ClientOperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
@@ -680,7 +680,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testFutureFailureState() throws InterruptedException, ExecutionException {
-		final ClientOperationFuture future = new ClientOperationFuture();
+		final OperationFuture future = new OperationFuture(1);
 		Assert.assertFalse(future.isFailed());
 		Assert.assertFalse(future.isDone());
 		future.setFailedState();
