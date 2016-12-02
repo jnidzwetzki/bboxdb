@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class FutureImplementation {
+public class FutureImplementation<T> {
 	
 	/**
 	 * The id of the operation
@@ -31,7 +31,7 @@ public class FutureImplementation {
 	/**
 	 * The result of the operation
 	 */
-	protected volatile Object operationResult = null;
+	protected volatile T operationResult = null;
 	
 	/**
 	 * The mutex for sync operations
@@ -47,6 +47,11 @@ public class FutureImplementation {
 	 * The done flag
 	 */
 	protected volatile boolean done = false;
+	
+	/**
+	 * Additionmal message
+	 */
+	protected String message;
 	
 	/**
 	 * Empty constructor
@@ -66,7 +71,7 @@ public class FutureImplementation {
 		return done;
 	}
 
-	public Object get() throws InterruptedException, ExecutionException {
+	public T get() throws InterruptedException, ExecutionException {
 		
 		synchronized (mutex) {
 			while(! done) {
@@ -77,7 +82,7 @@ public class FutureImplementation {
 		return operationResult;
 	}
 
-	public Object get(final long timeout, final TimeUnit unit) throws InterruptedException,
+	public T get(final long timeout, final TimeUnit unit) throws InterruptedException,
 			ExecutionException, TimeoutException {
 		
 		synchronized (mutex) {
@@ -99,7 +104,7 @@ public class FutureImplementation {
 	/**
 	 * Set the result of the operation
 	 */
-	public void setOperationResult(final Object result) {
+	public void setOperationResult(final T result) {
 		
 		synchronized (mutex) {
 			this.operationResult = result;
@@ -151,4 +156,21 @@ public class FutureImplementation {
 			mutex.notifyAll();
 		}
 	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(final String message) {
+		this.message = message;
+	}
+
+	@Override
+	public String toString() {
+		return "FutureImplementation [requestId=" + requestId
+				+ ", operationResult=" + operationResult + ", mutex=" + mutex
+				+ ", failed=" + failed + ", done=" + done + ", message="
+				+ message + "]";
+	}
+	
 }

@@ -44,9 +44,7 @@ public class OperationFuture {
 	 * @return
 	 */
 	public void setRequestId(final int resultId, final short requestId) {
-		if(resultId > futures.size()) {
-			throw new IllegalArgumentException("Unable to access future with id: " + resultId + "(total " + futures.size() + ")");
-		}
+		checkFutureSize(resultId);
 		
 		futures.get(resultId).setRequestId(requestId);
 	}
@@ -56,9 +54,7 @@ public class OperationFuture {
 	 * @return
 	 */
 	public short getRequestId(final int resultId) {
-		if(resultId > futures.size()) {
-			throw new IllegalArgumentException("Unable to access future with id: " + resultId + "(total " + futures.size() + ")");
-		}
+		checkFutureSize(resultId);
 		
 		return futures.get(resultId).getRequestId();
 	}
@@ -68,13 +64,43 @@ public class OperationFuture {
 	 * @param result
 	 */
 	public void setOperationResult(final int resultId, final Object result) {
-		if(resultId > futures.size()) {
-			throw new IllegalArgumentException("Unable to access future with id: " + resultId + "(total " + futures.size() + ")");
-		}
+		checkFutureSize(resultId);
 		
 		futures.get(resultId).setOperationResult(result);
 	}
+	
+	/**
+	 * Set the additional message
+	 * @param resultId
+	 * @param message
+	 */
+	public void setMessage(final int resultId, final String message) {
+		checkFutureSize(resultId);
+		
+		futures.get(resultId).setMessage(message);
+	}
 
+	/**
+	 * Get the additional message
+	 * @param resultId
+	 * @return 
+	 */
+	public String getMessage(final int resultId) {
+		checkFutureSize(resultId);
+		
+		return futures.get(resultId).getMessage();
+	}
+
+	/**
+	 * Throw an exception when the result id is unknown
+	 * @param resultId
+	 */
+	void checkFutureSize(final int resultId) {
+		if(resultId > futures.size()) {
+			throw new IllegalArgumentException("Unable to access future with id: " + resultId + "(total " + futures.size() + ")");
+		}
+	}
+	
 	/**
 	 * Is the future processed successfully or are errors occurred?
 	 * @return
@@ -126,9 +152,7 @@ public class OperationFuture {
 	 */
 	public Object get(final int resultId) throws InterruptedException, ExecutionException {
 		
-		if(resultId > futures.size()) {
-			throw new IllegalArgumentException("Unable to access future with id: " + resultId + "(total " + futures.size() + ")");
-		}
+		checkFutureSize(resultId);
 		
 		return futures.get(resultId).get();
 	}
@@ -141,9 +165,7 @@ public class OperationFuture {
 	public Object get(final int resultId, final long timeout, final TimeUnit unit)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		
-		if(resultId > futures.size()) {
-			throw new IllegalArgumentException("Unable to access future with id: " + resultId + "(total " + futures.size() + ")");
-		}
+		checkFutureSize(resultId);
 		
 		return futures.get(resultId).get(timeout, unit);
 	}

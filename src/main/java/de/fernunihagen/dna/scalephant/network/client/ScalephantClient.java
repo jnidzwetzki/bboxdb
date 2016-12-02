@@ -736,11 +736,11 @@ public class ScalephantClient implements Scalephant {
 				break;
 					
 				case NetworkConst.RESPONSE_TYPE_SUCCESS:
-					handleSuccessWithBody(encodedPackage, pendingCall);
+					handleSuccess(encodedPackage, pendingCall);
 					break;
 					
 				case NetworkConst.RESPONSE_TYPE_ERROR:
-					handleErrorWithBody(encodedPackage, pendingCall);
+					handleError(encodedPackage, pendingCall);
 					break;
 					
 				case NetworkConst.RESPONSE_TYPE_LIST_TABLES:
@@ -902,12 +902,13 @@ public class ScalephantClient implements Scalephant {
 	 * @param pendingCall
 	 * @throws PackageEncodeError 
 	 */
-	protected void handleErrorWithBody(final ByteBuffer encodedPackage,
+	protected void handleError(final ByteBuffer encodedPackage,
 			final OperationFuture pendingCall) throws PackageEncodeError {
+		
 		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
-			pendingCall.setOperationResult(0, result.getBody());
+			pendingCall.setMessage(0, result.getBody());
 			pendingCall.setFailedState();
 			pendingCall.fireCompleteEvent();
 		}
@@ -919,12 +920,13 @@ public class ScalephantClient implements Scalephant {
 	 * @param pendingCall
 	 * @throws PackageEncodeError 
 	 */
-	protected void handleSuccessWithBody(final ByteBuffer encodedPackage,
+	protected void handleSuccess(final ByteBuffer encodedPackage,
 			final OperationFuture pendingCall) throws PackageEncodeError {
-		final SuccessResponse result = SuccessResponse.decodePackage(encodedPackage);
+		
+		final AbstractBodyResponse result = SuccessResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
-			pendingCall.setOperationResult(0, result.getBody());
+			pendingCall.setMessage(0, result.getBody());
 			pendingCall.fireCompleteEvent();
 		}
 	}	
