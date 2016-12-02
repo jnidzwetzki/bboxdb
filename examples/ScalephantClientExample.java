@@ -22,7 +22,9 @@ import java.util.concurrent.ExecutionException;
 import de.fernunihagen.dna.scalephant.network.client.Scalephant;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantCluster;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
-import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -37,7 +39,6 @@ public class ScalephantClientExample {
 	 * @throws InterruptedException 
 	 * @throws ScalephantException 
 	 */
-	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws InterruptedException, ExecutionException, ScalephantException {
 		
 		// A 2 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
@@ -61,7 +62,7 @@ public class ScalephantClientExample {
 		}
 		
 		// Clean the old content of the distribution group
-		final OperationFuture deleteGroupResult = scalephantClient.deleteDistributionGroup(distributionGroup);
+		final EmptyResultFuture deleteGroupResult = scalephantClient.deleteDistributionGroup(distributionGroup);
 		deleteGroupResult.waitForAll();
 		if(deleteGroupResult.isFailed()) {
 			System.err.println("Unable to delete distribution group: " + distributionGroup);
@@ -69,7 +70,7 @@ public class ScalephantClientExample {
 		}
 		
 		// Create a new distribution group
-		final OperationFuture createGroupResult = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
+		final EmptyResultFuture createGroupResult = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
 		createGroupResult.waitForAll();
 		if(createGroupResult.isFailed()) {
 			System.err.println("Unable to create distribution group: " + distributionGroup);
@@ -78,10 +79,10 @@ public class ScalephantClientExample {
 		
 		// Insert two new tuples
 		final Tuple tuple1 = new Tuple("key1", new BoundingBox(0f, 5f, 0f, 1f), "mydata1".getBytes());
-		final OperationFuture insertResult1 = scalephantClient.insertTuple(mytable, tuple1);
+		final EmptyResultFuture insertResult1 = scalephantClient.insertTuple(mytable, tuple1);
 		
 		final Tuple tuple2 = new Tuple("key2", new BoundingBox(-1f, 2f, -1f, 2f), "mydata2".getBytes());
-		final OperationFuture insertResult2 = scalephantClient.insertTuple(mytable, tuple2);
+		final EmptyResultFuture insertResult2 = scalephantClient.insertTuple(mytable, tuple2);
 		
 		// Wait for the insert operations to complete
 		insertResult1.waitForAll();
@@ -93,30 +94,34 @@ public class ScalephantClientExample {
 		}
 		
 		// Query by key
-		final OperationFuture resultFuture1 = scalephantClient.queryKey(mytable, "key");
+		final TupleResultFuture resultFuture1 = scalephantClient.queryKey(mytable, "key");
+		resultFuture1.waitForAll();
+		
+		if(resultFuture1.isFailed()) {
+			System.err.println("Future is failed: " + resultFuture1.getMessage(0));
+			System.exit(-1);
+		}
 		
 		// We got a future object, the search is performed asynchronous
 		// Wait for the result
 		for(int requestId = 0; requestId < resultFuture1.getNumberOfResultObjets(); requestId++) {
-			final Object queryResult = resultFuture1.get(requestId);
-			if(queryResult instanceof Tuple) {
-				System.out.println(queryResult);
-			} else { 
-				System.out.println("Query failed");
-			} 
+			final Tuple queryResult = resultFuture1.get(requestId);
+			System.out.println(queryResult);
 		}
 		
 		// Query by bounding box
-		final OperationFuture resultFuture2 = scalephantClient.queryBoundingBox(mytable, new BoundingBox(-0.5f, 1f, -0.5f, 1f));
+		final TupleListFuture resultFuture2 = scalephantClient.queryBoundingBox(mytable, new BoundingBox(-0.5f, 1f, -0.5f, 1f));
+		resultFuture2.waitForAll();
+		
+		if(resultFuture2.isFailed()) {
+			System.err.println("Future is failed: " + resultFuture2.getMessage(0));
+			System.exit(-1);
+		}
 		
 		// Again, we got a future object, the search is performed asynchronous
 		for(int requestId = 0; requestId < resultFuture2.getNumberOfResultObjets(); requestId++) {
-			final Object queryResult = resultFuture2.get(requestId);
-			if(queryResult instanceof List) {
-				System.out.println("Result list: " + queryResult);
-			} else { 
-				System.out.println("Query failed");
-			} 
+			final List<Tuple> queryResult = resultFuture2.get(requestId);
+			System.out.println("Result list: " + queryResult);
 		}
 
 		scalephantClient.disconnect();
