@@ -7,6 +7,7 @@
 - Improvement: Success and Error messages are now indicated by the getMessage() future method 
 - Bugfix: Group membership watch was not re-established
 - Bugfix: Wrong node state was displayed in the GUI
+- Bugfix: Fixed handling of failed futures in the benchmark
 
 ### Version 0.2.0 (Beta-2) - 28.11.2016
 - New Feature: Java 8 is now required to build the project
