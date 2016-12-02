@@ -21,7 +21,7 @@ import java.util.List;
 
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 
-public class SSTableNameListFuture extends OperationFuture<List<SSTableName>> {
+public class SSTableNameListFuture extends OperationFutureImpl<List<SSTableName>> {
 
 	public SSTableNameListFuture() {
 		super();

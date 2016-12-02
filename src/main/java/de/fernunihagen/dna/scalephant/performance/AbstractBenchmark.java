@@ -58,7 +58,6 @@ public abstract class AbstractBenchmark implements Runnable {
 	/**
 	 * The pending futures
 	 */
-	@SuppressWarnings("rawtypes")
 	protected final List<OperationFuture> pendingFutures;
 	
 	/**
@@ -71,12 +70,10 @@ public abstract class AbstractBenchmark implements Runnable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(AbstractBenchmark.class);
 
-	@SuppressWarnings("rawtypes")
 	public AbstractBenchmark() {
 		pendingFutures = new LinkedList<OperationFuture>();
 	}
 	
-	@SuppressWarnings("rawtypes")
 	protected void checkForCompletedFutures() {
 		if(pendingFutures.size() > MAX_PENDING_FUTURES) {
 			
@@ -192,7 +189,7 @@ public abstract class AbstractBenchmark implements Runnable {
 		if(! pendingFutures.isEmpty()) {
 			System.out.println("Wait for pending futures to settle: " + pendingFutures.size());
 			
-			for(@SuppressWarnings("rawtypes") final OperationFuture future : pendingFutures) {
+			for(final OperationFuture future : pendingFutures) {
 				future.waitForAll();
 				
 				if(future.isFailed()) {

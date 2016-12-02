@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
-public class TupleListFuture extends OperationFuture<List<Tuple>> {
+public class TupleListFuture extends OperationFutureImpl<List<Tuple>> {
 	
 	/**
 	 * Is the result complete or only a page?

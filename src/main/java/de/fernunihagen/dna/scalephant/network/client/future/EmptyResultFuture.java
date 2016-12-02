@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class EmptyResultFuture extends OperationFuture<Boolean> {
+public class EmptyResultFuture extends OperationFutureImpl<Boolean> {
 
 	public EmptyResultFuture() {
 		super();

@@ -109,7 +109,6 @@ public class ScalephantClient implements Scalephant {
 	/**
 	 * The pending calls
 	 */
-	@SuppressWarnings("rawtypes")
 	protected final Map<Short, OperationFuture> pendingCalls = new HashMap<Short, OperationFuture>();
 
 	/**
@@ -328,7 +327,6 @@ public class ScalephantClient implements Scalephant {
 				logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
 			
 				for(short requestId : pendingCalls.keySet()) {
-					@SuppressWarnings("rawtypes")
 					final OperationFuture future = pendingCalls.get(requestId);
 					future.setFailedState();
 					future.fireCompleteEvent();
@@ -630,7 +628,7 @@ public class ScalephantClient implements Scalephant {
 	 * @return
 	 * @throws IOException 
 	 */
-	protected short sendPackageToServer(final NetworkRequestPackage requestPackage, @SuppressWarnings("rawtypes") final OperationFuture future) {
+	protected short sendPackageToServer(final NetworkRequestPackage requestPackage, final OperationFuture future) {
 
 		try {
 			synchronized (pendingCalls) {
@@ -746,7 +744,6 @@ public class ScalephantClient implements Scalephant {
 			final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 			final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
 
-			@SuppressWarnings("rawtypes")
 			OperationFuture pendingCall = null;
 			boolean removeFuture = true;
 			
@@ -938,7 +935,7 @@ public class ScalephantClient implements Scalephant {
 	 * @throws PackageEncodeError 
 	 */
 	protected void handleError(final ByteBuffer encodedPackage,
-			@SuppressWarnings("rawtypes") final OperationFuture pendingCall) throws PackageEncodeError {
+			final OperationFuture pendingCall) throws PackageEncodeError {
 		
 		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
 		
@@ -956,7 +953,7 @@ public class ScalephantClient implements Scalephant {
 	 * @throws PackageEncodeError 
 	 */
 	protected void handleSuccess(final ByteBuffer encodedPackage,
-			@SuppressWarnings("rawtypes") final OperationFuture pendingCall) throws PackageEncodeError {
+			final OperationFuture pendingCall) throws PackageEncodeError {
 		
 		final AbstractBodyResponse result = SuccessResponse.decodePackage(encodedPackage);
 		

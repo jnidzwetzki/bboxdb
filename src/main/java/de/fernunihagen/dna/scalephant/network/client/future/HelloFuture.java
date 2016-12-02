@@ -19,7 +19,7 @@ package de.fernunihagen.dna.scalephant.network.client.future;
 
 import de.fernunihagen.dna.scalephant.network.packages.response.HelloResponse;
 
-public class HelloFuture extends OperationFuture<HelloResponse>{
+public class HelloFuture extends OperationFutureImpl<HelloResponse>{
 
 	public HelloFuture() {
 		super();
