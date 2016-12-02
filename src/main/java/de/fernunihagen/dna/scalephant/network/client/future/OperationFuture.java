@@ -23,19 +23,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class OperationFuture {
+public class OperationFuture<T> {
 
-	public final List<FutureImplementation> futures;
+	public final List<FutureImplementation<T>> futures;
 	
 	public OperationFuture() {
 		this(0);
 	}
 	
 	public OperationFuture(final int numberOfFutures) {
-		futures = new ArrayList<FutureImplementation>(numberOfFutures);
+		futures = new ArrayList<FutureImplementation<T>>(numberOfFutures);
 		
 		for(int i = 0; i < numberOfFutures; i++) {
-			futures.add(new FutureImplementation());
+			futures.add(new FutureImplementation<T>());
 		}
 	}
 	
@@ -63,7 +63,7 @@ public class OperationFuture {
 	 * Set the result of the operation
 	 * @param result
 	 */
-	public void setOperationResult(final int resultId, final Object result) {
+	public void setOperationResult(final int resultId, final T result) {
 		checkFutureSize(resultId);
 		
 		futures.get(resultId).setOperationResult(result);
@@ -107,7 +107,7 @@ public class OperationFuture {
 	 */
 	public boolean isFailed() {
 		
-		for(final FutureImplementation future : futures) {
+		for(final FutureImplementation<T> future : futures) {
 			if(future.isFailed()) {
 				return true;
 			}
@@ -120,7 +120,7 @@ public class OperationFuture {
 	 * Set the failed state
 	 */
 	public void setFailedState() {
-		for(final FutureImplementation future : futures) {
+		for(final FutureImplementation<T> future : futures) {
 			future.setFailedState();
 		}
 	}
@@ -129,7 +129,7 @@ public class OperationFuture {
 	 * Is the future done
 	 */
 	public boolean isDone() {
-		for(final FutureImplementation future : futures) {
+		for(final FutureImplementation<T> future : futures) {
 			if(! future.isDone()) {
 				return false;
 			}
@@ -188,7 +188,7 @@ public class OperationFuture {
 	 * Fire the completion event
 	 */
 	public void fireCompleteEvent() {
-		for(final FutureImplementation future : futures) {
+		for(final FutureImplementation<T> future : futures) {
 			future.fireCompleteEvent();
 		}
 	}
@@ -197,7 +197,7 @@ public class OperationFuture {
 	 * Merge future lists
 	 * @param result
 	 */
-	public void merge(final OperationFuture result) {
+	public void merge(final OperationFuture<T> result) {
 		futures.addAll(result.futures);
 	}
 

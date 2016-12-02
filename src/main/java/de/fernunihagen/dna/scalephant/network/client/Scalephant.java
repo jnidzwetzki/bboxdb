@@ -19,6 +19,7 @@ package de.fernunihagen.dna.scalephant.network.client;
 
 import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -101,7 +102,7 @@ public interface Scalephant {
 	 * @param boundingBox
 	 * @return
 	 */
-	public OperationFuture queryBoundingBox(final String table,
+	public TupleListFuture queryBoundingBox(final String table,
 			final BoundingBox boundingBox) throws ScalephantException;
 
 	/**
@@ -110,7 +111,7 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public OperationFuture queryTime(final String table, final long timestamp) throws ScalephantException;
+	public TupleListFuture queryTime(final String table, final long timestamp) throws ScalephantException;
 
 	/**
 	 * Is the client connected?

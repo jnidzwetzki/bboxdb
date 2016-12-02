@@ -39,6 +39,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
@@ -508,13 +509,13 @@ public class ScalephantClient implements Scalephant {
 	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#queryBoundingBox(java.lang.String, de.fernunihagen.dna.scalephant.storage.entity.BoundingBox)
 	 */
 	@Override
-	public OperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
+	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("queryBoundingBox called, but connection not ready: " + this);
 			return null;
 		}
 		
-		final OperationFuture clientOperationFuture = new OperationFuture(1);
+		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
 		sendPackageToServer(new QueryBoundingBoxRequest(table, boundingBox, pagingEnabled, tuplesPerPage), clientOperationFuture);
 		return clientOperationFuture;
 	}
@@ -523,13 +524,13 @@ public class ScalephantClient implements Scalephant {
 	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#queryTime(java.lang.String, long)
 	 */
 	@Override
-	public OperationFuture queryTime(final String table, final long timestamp) {
+	public TupleListFuture queryTime(final String table, final long timestamp) {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("queryTime called, but connection not ready: " + this);
 			return null;
 		}
 
-		final OperationFuture clientOperationFuture = new OperationFuture(1);
+		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
 		sendPackageToServer(new QueryTimeRequest(table, timestamp, pagingEnabled, tuplesPerPage), clientOperationFuture);
 		return clientOperationFuture;
 	}
@@ -776,11 +777,11 @@ public class ScalephantClient implements Scalephant {
 					break;
 					
 				case NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END:
-					handleMultiTupleEnd(encodedPackage, pendingCall);
+					handleMultiTupleEnd(encodedPackage, (TupleListFuture) pendingCall);
 					break;
 					
 				case NetworkConst.RESPONSE_TYPE_PAGE_END:
-					handlePageEnd(encodedPackage, pendingCall);
+					handlePageEnd(encodedPackage, (TupleListFuture) pendingCall);
 					break;
 					
 				default:
@@ -970,7 +971,7 @@ public class ScalephantClient implements Scalephant {
 	 * @throws PackageEncodeError 
 	 */
 	protected void handleMultiTupleEnd(final ByteBuffer encodedPackage,
-			final OperationFuture pendingCall) throws PackageEncodeError {
+			final TupleListFuture pendingCall) throws PackageEncodeError {
 		final MultipleTupleEndResponse result = MultipleTupleEndResponse.decodePackage(encodedPackage);
 		
 		final List<Tuple> resultList = resultBuffer.remove(result.getSequenceNumber());
@@ -987,7 +988,7 @@ public class ScalephantClient implements Scalephant {
 			return;
 		}
 		
-		//TODO: Mark as complete result
+		pendingCall.setCompleteResult(0, true);
 		pendingCall.setOperationResult(0, resultList);
 		pendingCall.fireCompleteEvent();
 	}
@@ -999,7 +1000,7 @@ public class ScalephantClient implements Scalephant {
 	 * @throws PackageEncodeError
 	 */
 	protected void handlePageEnd(final ByteBuffer encodedPackage,
-			final OperationFuture pendingCall) throws PackageEncodeError {
+			final TupleListFuture pendingCall) throws PackageEncodeError {
 		
 		if(pendingCall == null) {
 			logger.warn("Got handleMultiTupleEnd and pendingCall is empty");
@@ -1019,7 +1020,8 @@ public class ScalephantClient implements Scalephant {
 		// Collect tuples of the next page in new list
 		resultBuffer.put(result.getSequenceNumber(), new ArrayList<Tuple>());
 		 
-		// TODO: Mark as partial result
+		pendingCall.setConnectionForResult(0, this);
+		pendingCall.setCompleteResult(0, false);
 		pendingCall.setOperationResult(0, resultList);
 		pendingCall.fireCompleteEvent();
 	}

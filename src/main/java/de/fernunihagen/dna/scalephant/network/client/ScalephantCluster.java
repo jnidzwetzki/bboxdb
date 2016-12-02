@@ -37,6 +37,7 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -244,12 +245,12 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture queryBoundingBox(final String table, final BoundingBox boundingBox) throws ScalephantException {
+	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) throws ScalephantException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new ScalephantException("queryBoundingBox called, but connection list is empty");
 		}
 		
-		final OperationFuture future = new OperationFuture();
+		final TupleListFuture future = new TupleListFuture();
 		
 		try {
 			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
@@ -261,7 +262,7 @@ public class ScalephantCluster implements Scalephant {
 			
 			for(final DistributedInstance system : systems) {
 				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
-				final OperationFuture result = connection.queryBoundingBox(table, boundingBox);
+				final TupleListFuture result = connection.queryBoundingBox(table, boundingBox);
 				future.merge(result);
 			}
 			
@@ -274,7 +275,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture queryTime(final String table, final long timestamp) throws ScalephantException {
+	public TupleListFuture queryTime(final String table, final long timestamp) throws ScalephantException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new ScalephantException("queryTime called, but connection list is empty");
 		}
@@ -283,10 +284,10 @@ public class ScalephantCluster implements Scalephant {
 			logger.debug("Query by for timestamp " + timestamp + " in table " + table);
 		}
 		
-		final OperationFuture future = new OperationFuture();
+		final TupleListFuture future = new TupleListFuture();
 		
 		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
-			final OperationFuture deleteFuture = client.queryTime(table, timestamp);
+			final TupleListFuture deleteFuture = client.queryTime(table, timestamp);
 			future.merge(deleteFuture);
 		}
 
