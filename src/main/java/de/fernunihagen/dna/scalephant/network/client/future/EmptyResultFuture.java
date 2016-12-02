@@ -35,15 +35,15 @@ public class EmptyResultFuture extends OperationFuture<Boolean> {
 	@Override
 	public Boolean get(int resultId) throws InterruptedException, ExecutionException {
 		
-		// Wait for operation to complete
-		waitForAll();
+		// Wait for the future
+		futures.get(resultId).get();
 		
 		// Return true, when the operation was succesfully
 		return ! isFailed();
 	}
 	
 	@Override
-	public Boolean get(int resultId, long timeout, TimeUnit unit)
+	public Boolean get(final int resultId, final long timeout, final TimeUnit unit)
 			throws InterruptedException, ExecutionException, TimeoutException {
 
 		// Wait for the future
