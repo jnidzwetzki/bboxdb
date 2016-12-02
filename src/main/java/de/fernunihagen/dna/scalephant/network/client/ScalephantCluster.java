@@ -37,6 +37,7 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.StringListFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
@@ -164,13 +165,13 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture listTables() {
+	public StringListFuture listTables() {
 		try {
 			final ScalephantClient scalephantClient = getSystemForNewRessources();
 			return scalephantClient.listTables();
 		} catch (ResourceAllocationException e) {
 			logger.warn("listTables called, but no ressoures are available", e);
-			final OperationFuture future = new OperationFuture(1);
+			final StringListFuture future = new StringListFuture(1);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			return future;

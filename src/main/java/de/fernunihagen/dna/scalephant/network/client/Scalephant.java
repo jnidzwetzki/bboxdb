@@ -19,6 +19,7 @@ package de.fernunihagen.dna.scalephant.network.client;
 
 import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.StringListFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
@@ -70,7 +71,7 @@ public interface Scalephant {
 	 * List the existing tables
 	 * @return
 	 */
-	public OperationFuture listTables() throws ScalephantException;
+	public StringListFuture listTables() throws ScalephantException;
 
 	/**
 	 * Create a new distribution group

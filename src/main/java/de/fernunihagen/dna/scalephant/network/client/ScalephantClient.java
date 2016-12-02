@@ -39,6 +39,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkHelper;
 import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.StringListFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
@@ -449,13 +450,13 @@ public class ScalephantClient implements Scalephant {
 	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#listTables()
 	 */
 	@Override
-	public OperationFuture listTables() {
+	public StringListFuture listTables() {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("listTables called, but connection not ready: " + this);
 			return null;
 		}
 
-		final OperationFuture clientOperationFuture = new OperationFuture(1);
+		final StringListFuture clientOperationFuture = new StringListFuture(1);
 		sendPackageToServer(new ListTablesRequest(), clientOperationFuture);
 		return clientOperationFuture;
 	}
