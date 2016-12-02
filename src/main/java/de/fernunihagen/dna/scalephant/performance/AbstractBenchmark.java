@@ -87,14 +87,14 @@ public abstract class AbstractBenchmark implements Runnable {
 					
 					if(future.isDone()) {
 						futureIterator.remove();
+						
+						if(future.isFailed()) {
+							logger.error("Failed future detected: " + future);
+						}
+						
 						continue;
 					}
-					
-					if(future.isFailed()) {
-						logger.error("Failed future detected: " + future);
-						futureIterator.remove();
-						continue;
-					}
+	
 				}
 
 				// Still to much futures? Wait some time
