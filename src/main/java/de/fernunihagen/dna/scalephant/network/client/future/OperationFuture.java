@@ -95,7 +95,7 @@ public class OperationFuture {
 	 * Throw an exception when the result id is unknown
 	 * @param resultId
 	 */
-	void checkFutureSize(final int resultId) {
+	protected void checkFutureSize(final int resultId) {
 		if(resultId > futures.size()) {
 			throw new IllegalArgumentException("Unable to access future with id: " + resultId + "(total " + futures.size() + ")");
 		}
