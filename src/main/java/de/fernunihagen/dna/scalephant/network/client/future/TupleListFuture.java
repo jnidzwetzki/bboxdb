@@ -92,6 +92,11 @@ public class TupleListFuture extends OperationFuture<List<Tuple>> {
 		connections.put(resultId, scalephantClient);
 	}
 	
+	/**
+	 * Get the ScalephantClient for the given resultId (needed to request next pages)
+	 * @param resultId
+	 * @return
+	 */
 	public ScalephantClient getConnectionForResult(final int resultId) {
 		checkFutureSize(resultId);
 
