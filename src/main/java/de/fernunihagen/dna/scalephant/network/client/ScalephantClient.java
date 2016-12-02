@@ -51,6 +51,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.HelloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.KeepAliveRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.NextPageRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
@@ -61,6 +62,7 @@ import de.fernunihagen.dna.scalephant.network.packages.response.HelloResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.ListTablesResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleEndResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.MultipleTupleStartResponse;
+import de.fernunihagen.dna.scalephant.network.packages.response.PageEndResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.TupleResponse;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
@@ -367,17 +369,25 @@ public class ScalephantClient implements Scalephant {
 	@Override
 	public OperationFuture deleteTable(final String table) {
 		
-		final OperationFuture clientOperationFuture = new OperationFuture(1);
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("deleteTable called, but connection not ready: " + this);
-			clientOperationFuture.setFailedState();
-			clientOperationFuture.fireCompleteEvent();
-			return clientOperationFuture;
+			return createFailedFuture();
 		}
 		
+		final OperationFuture clientOperationFuture = new OperationFuture(1);
 		sendPackageToServer(new DeleteTableRequest(table), clientOperationFuture);
-		
+		return clientOperationFuture;
+	}
+
+	/**
+	 * Create a new failed future object
+	 * @return
+	 */
+	protected OperationFuture createFailedFuture() {
+		final OperationFuture clientOperationFuture = new OperationFuture(1);
+		clientOperationFuture.setFailedState();
+		clientOperationFuture.fireCompleteEvent();
 		return clientOperationFuture;
 	}
 	
@@ -386,17 +396,14 @@ public class ScalephantClient implements Scalephant {
 	 */
 	@Override
 	public OperationFuture insertTuple(final String table, final Tuple tuple) {
-		final OperationFuture clientOperationFuture = new OperationFuture(1);
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("insertTuple called, but connection not ready: " + this);
-			clientOperationFuture.setFailedState();
-			clientOperationFuture.fireCompleteEvent();
-			return clientOperationFuture;
+			return createFailedFuture();
 		}
 		
+		final OperationFuture clientOperationFuture = new OperationFuture(1);
 		final SSTableName ssTableName = new SSTableName(table);
-		
 		final InsertTupleRequest requestPackage = new InsertTupleRequest(ssTableName, tuple);
 		
 		if(connectionCapabilities.hasGZipCompression()) {
@@ -410,17 +417,14 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	public OperationFuture insertTuple(final InsertTupleRequest insertTupleRequest) {
-		final OperationFuture clientOperationFuture = new OperationFuture(1);
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("insertTuple called, but connection not ready: " + this);
-			clientOperationFuture.setFailedState();
-			clientOperationFuture.fireCompleteEvent();
-			return clientOperationFuture;
+			return createFailedFuture();
 		}
 		
+		final OperationFuture clientOperationFuture = new OperationFuture(1);
 		sendPackageToServer(insertTupleRequest, clientOperationFuture);
-		
 		return clientOperationFuture;
 	}
 	
@@ -429,17 +433,14 @@ public class ScalephantClient implements Scalephant {
 	 */
 	@Override
 	public OperationFuture deleteTuple(final String table, final String key, final long timestamp) {
-		final OperationFuture clientOperationFuture = new OperationFuture(1);
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("deleteTuple called, but connection not ready: " + this);
-			clientOperationFuture.setFailedState();
-			clientOperationFuture.fireCompleteEvent();
-			return clientOperationFuture;
+			return createFailedFuture();
 		}
 		
+		final OperationFuture clientOperationFuture = new OperationFuture(1);
 		sendPackageToServer(new DeleteTupleRequest(table, key, timestamp), clientOperationFuture);
-		
 		return clientOperationFuture;
 	}
 	
@@ -547,6 +548,22 @@ public class ScalephantClient implements Scalephant {
 		sendPackageToServer(new KeepAliveRequest(), future);
 
 		return future;
+	}
+	
+	/**
+	 * Get the next page for a given query
+	 * @param queryPackageId
+	 * @return
+	 */
+	public OperationFuture getNextPage(final short queryPackageId) {
+		if(resultBuffer.containsKey(queryPackageId)) {
+			logger.error("Query package {} not found in the result buffer");
+			return createFailedFuture();
+		}
+		
+		final OperationFuture clientOperationFuture = new OperationFuture(1);
+		sendPackageToServer(new NextPageRequest(queryPackageId), clientOperationFuture);
+		return clientOperationFuture;
 	}
 	
 	/* (non-Javadoc)
@@ -762,6 +779,10 @@ public class ScalephantClient implements Scalephant {
 					handleMultiTupleEnd(encodedPackage, pendingCall);
 					break;
 					
+				case NetworkConst.RESPONSE_TYPE_PAGE_END:
+					handlePageEnd(encodedPackage, pendingCall);
+					break;
+					
 				default:
 					logger.error("Unknown respose package type: " + packageType);
 					
@@ -881,6 +902,7 @@ public class ScalephantClient implements Scalephant {
 		final ByteBuffer uncompressedPackageBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage); 
 		serverResponseReader.handleResultPackage(uncompressedPackageBuffer);
 	}
+	
 	/**
 	 * Handle the helo result package
 	 * @param encodedPackage
@@ -951,10 +973,12 @@ public class ScalephantClient implements Scalephant {
 			final OperationFuture pendingCall) throws PackageEncodeError {
 		final MultipleTupleEndResponse result = MultipleTupleEndResponse.decodePackage(encodedPackage);
 		
-		final List<Tuple> resultList = resultBuffer.get(result.getSequenceNumber());
+		final List<Tuple> resultList = resultBuffer.remove(result.getSequenceNumber());
 		
 		if(resultList == null) {
 			logger.warn("Got handleMultiTupleEnd and resultList is empty");
+			pendingCall.setFailedState();
+			pendingCall.fireCompleteEvent();
 			return;
 		}
 		
@@ -963,10 +987,43 @@ public class ScalephantClient implements Scalephant {
 			return;
 		}
 		
+		//TODO: Mark as complete result
 		pendingCall.setOperationResult(0, resultList);
 		pendingCall.fireCompleteEvent();
 	}
-
+	
+	/**
+	 * Handle the end of a page
+	 * @param encodedPackage
+	 * @param pendingCall
+	 * @throws PackageEncodeError
+	 */
+	protected void handlePageEnd(final ByteBuffer encodedPackage,
+			final OperationFuture pendingCall) throws PackageEncodeError {
+		
+		if(pendingCall == null) {
+			logger.warn("Got handleMultiTupleEnd and pendingCall is empty");
+			return;
+		}
+		
+		final PageEndResponse result = PageEndResponse.decodePackage(encodedPackage);
+		final List<Tuple> resultList = resultBuffer.remove(result.getSequenceNumber());
+		
+		if(resultList == null) {
+			logger.warn("Got handleMultiTupleEnd and resultList is empty");
+			pendingCall.setFailedState();
+			pendingCall.fireCompleteEvent();
+			return;
+		}
+		
+		// Collect tuples of the next page in new list
+		resultBuffer.put(result.getSequenceNumber(), new ArrayList<Tuple>());
+		 
+		// TODO: Mark as partial result
+		pendingCall.setOperationResult(0, resultList);
+		pendingCall.fireCompleteEvent();
+	}
+	
 	@Override
 	public String toString() {
 		return "ScalephantClient [serverHostname=" + serverHostname + ", serverPort=" + serverPort + ", pendingCalls="
