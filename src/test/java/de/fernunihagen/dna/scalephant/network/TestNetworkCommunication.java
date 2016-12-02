@@ -31,7 +31,6 @@ import de.fernunihagen.dna.scalephant.ScalephantMain;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
 import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
-import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -174,7 +173,7 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(deleteResult1.isFailed());
 		Assert.assertTrue(deleteResult1.isDone());
 		
-		final TupleResultFuture getResult = scalephantClient.queryKey(table, key);
+		final TupleListFuture getResult = scalephantClient.queryKey(table, key);
 		getResult.waitForAll();
 		Assert.assertFalse(getResult.isFailed());
 		Assert.assertTrue(getResult.isDone());
@@ -185,8 +184,8 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(insertResult.isFailed());
 		Assert.assertTrue(insertResult.isDone());
 
-		final TupleResultFuture getResult2 = scalephantClient.queryKey(table, key);
-		final Tuple resultTuple = getResult2.get(0);
+		final TupleListFuture getResult2 = scalephantClient.queryKey(table, key);
+		final Tuple resultTuple = getResult2.get(0).get(0);
 		Assert.assertEquals(tuple, resultTuple);
 
 		final EmptyResultFuture deleteResult2 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
@@ -194,7 +193,7 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(deleteResult2.isFailed());
 		Assert.assertTrue(deleteResult2.isDone());
 		
-		final TupleResultFuture getResult3 = scalephantClient.queryKey(table, key);
+		final TupleListFuture getResult3 = scalephantClient.queryKey(table, key);
 		getResult3.waitForAll();
 		Assert.assertFalse(getResult3.isFailed());
 		Assert.assertTrue(getResult3.isDone());

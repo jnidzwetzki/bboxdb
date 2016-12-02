@@ -24,7 +24,6 @@ import de.fernunihagen.dna.scalephant.network.client.ScalephantCluster;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
-import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -94,7 +93,7 @@ public class ScalephantClientExample {
 		}
 		
 		// Query by key
-		final TupleResultFuture resultFuture1 = scalephantClient.queryKey(mytable, "key");
+		final TupleListFuture resultFuture1 = scalephantClient.queryKey(mytable, "key");
 		resultFuture1.waitForAll();
 		
 		if(resultFuture1.isFailed()) {
@@ -105,7 +104,7 @@ public class ScalephantClientExample {
 		// We got a future object, the search is performed asynchronous
 		// Wait for the result
 		for(int requestId = 0; requestId < resultFuture1.getNumberOfResultObjets(); requestId++) {
-			final Tuple queryResult = resultFuture1.get(requestId);
+			final Tuple queryResult = resultFuture1.get(requestId).get(0);
 			System.out.println(queryResult);
 		}
 		

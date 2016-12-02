@@ -30,7 +30,6 @@ import de.fernunihagen.dna.scalephant.network.client.ScalephantCluster;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
-import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -208,7 +207,7 @@ public class Selftest {
 		logger.info("Query for tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(Math.abs(random.nextInt()) % NUMBER_OF_OPERATIONS);
-			final TupleResultFuture queryResult = scalephantClient.queryKey(TABLE, key);
+			final TupleListFuture queryResult = scalephantClient.queryKey(TABLE, key);
 			queryResult.waitForAll();
 			
 			if(queryResult.isFailed()) {
@@ -219,12 +218,15 @@ public class Selftest {
 			boolean tupleFound = false;
 			
 			for(int result = 0; result < queryResult.getNumberOfResultObjets(); result++) {
-				final Tuple resultTuple = queryResult.get(result);
+				final List<Tuple> resultTuples = queryResult.get(result);
 				tupleFound = true;
-				if(! resultTuple.getKey().equals(key)) {
-					logger.error("Query " + i + ": Got tuple with wrong key.");
-					logger.error("Expected: " + key + " but got: " + resultTuple.getKey());
-					System.exit(-1);
+				
+				for(final Tuple tuple : resultTuples) {
+					if(! tuple.getKey().equals(key)) {
+						logger.error("Query " + i + ": Got tuple with wrong key.");
+						logger.error("Expected: " + key + " but got: " + tuple.getKey());
+						System.exit(-1);
+					}
 				}
 			}
 			
@@ -249,7 +251,7 @@ public class Selftest {
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
 	
-			final TupleResultFuture queryResult = scalephantClient.queryKey(TABLE, key);
+			final TupleListFuture queryResult = scalephantClient.queryKey(TABLE, key);
 			queryResult.waitForAll();
 			
 			if(queryResult.isFailed()) {
@@ -258,9 +260,8 @@ public class Selftest {
 			}
 			
 			for(int result = 0; result < queryResult.getNumberOfResultObjets(); result++) {
-				if(queryResult.get(result) instanceof Tuple) {
-					final Tuple resultTuple = queryResult.get(result);
-					logger.error("Found a tuple which should not exist: " + i + " / " + resultTuple);
+				if(! queryResult.get(result).isEmpty()) {
+					logger.error("Found a tuple which should not exist: " + i + " / " + queryResult.get(0));
 					System.exit(-1);
 				}
 			}

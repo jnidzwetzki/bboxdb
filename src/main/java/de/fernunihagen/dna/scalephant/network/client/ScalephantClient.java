@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,6 @@ import de.fernunihagen.dna.scalephant.network.client.future.HelloFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.SSTableNameListFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
-import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
@@ -499,14 +499,14 @@ public class ScalephantClient implements Scalephant {
 	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#queryKey(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public TupleResultFuture queryKey(final String table, final String key) {
+	public TupleListFuture queryKey(final String table, final String key) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("queryKey called, but connection not ready: " + this);
 			return null;
 		}
 
-		final TupleResultFuture clientOperationFuture = new TupleResultFuture(1);
+		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
 		sendPackageToServer(new QueryKeyRequest(table, key), clientOperationFuture);
 		return clientOperationFuture;
 	}
@@ -780,7 +780,7 @@ public class ScalephantClient implements Scalephant {
 				case NetworkConst.RESPONSE_TYPE_TUPLE:
 					// The removal of the future depends, if this is a one
 					// tuple result or a multiple tuple result
-					removeFuture = handleTuple(encodedPackage, (TupleResultFuture) pendingCall);
+					removeFuture = handleTuple(encodedPackage, (TupleListFuture) pendingCall);
 					break;
 					
 				case NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_START:
@@ -869,7 +869,7 @@ public class ScalephantClient implements Scalephant {
 	 * @throws PackageEncodeError 
 	 */
 	protected boolean handleTuple(final ByteBuffer encodedPackage,
-			final TupleResultFuture pendingCall) throws PackageEncodeError {
+			final TupleListFuture pendingCall) throws PackageEncodeError {
 		
 		final TupleResponse singleTupleResponse = TupleResponse.decodePackage(encodedPackage);
 		final short sequenceNumber = singleTupleResponse.getSequenceNumber();
@@ -882,7 +882,7 @@ public class ScalephantClient implements Scalephant {
 		
 		// Single tuple is returned
 		if(pendingCall != null) {
-			pendingCall.setOperationResult(0, singleTupleResponse.getTuple());
+			pendingCall.setOperationResult(0, Arrays.asList(singleTupleResponse.getTuple()));
 			pendingCall.fireCompleteEvent();
 		}
 		

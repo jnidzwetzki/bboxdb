@@ -39,7 +39,6 @@ import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.SSTableNameListFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
-import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -227,19 +226,19 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public TupleResultFuture queryKey(final String table, final String key) throws ScalephantException {
+	public TupleListFuture queryKey(final String table, final String key) throws ScalephantException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new ScalephantException("queryKey called, but connection list is empty");
 		}
 		
-		final TupleResultFuture future = new TupleResultFuture();
+		final TupleListFuture future = new TupleListFuture();
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for key " + key + " in table " + table);
 		}
 		
 		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
-			final TupleResultFuture queryFuture = client.queryKey(table, key);
+			final TupleListFuture queryFuture = client.queryKey(table, key);
 			future.merge(queryFuture);
 		}
 

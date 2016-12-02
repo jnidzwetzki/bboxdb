@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
-import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -103,12 +103,13 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	
 		for(int i = 0; i < 100; i++) {
 			final long start = System.nanoTime();
-			final TupleResultFuture result = scalephantClient.queryKey(TABLE, Integer.toString(40));
+			final TupleListFuture result = scalephantClient.queryKey(TABLE, Integer.toString(40));
 			
 			// Wait for request to settle
 			for(int requestId = 0; requestId < result.getNumberOfResultObjets(); requestId++) {
-				final Object queryResult = result.get(requestId);
-				if(! (queryResult instanceof Tuple)) {
+				result.waitForAll();
+				
+				if(result.isFailed()) {
 					logger.warn("Query failed");
 				}
 			}

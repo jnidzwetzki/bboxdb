@@ -21,7 +21,6 @@ import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
 import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.SSTableNameListFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
-import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -96,7 +95,7 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public TupleResultFuture queryKey(final String table, final String key) throws ScalephantException;
+	public TupleListFuture queryKey(final String table, final String key) throws ScalephantException;
 
 	/**
 	 * Execute a bounding box query on the given table
