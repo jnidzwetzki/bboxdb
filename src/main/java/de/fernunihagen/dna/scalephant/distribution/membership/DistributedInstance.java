@@ -148,9 +148,9 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 
 	public String toGUIString() {
 		if(version == UNKOWN_VERSION) {
-			return "DistributedInstance [ip=" + ip + ", port=" + port + ", state=" + state + "]";
+			return "DistributedInstance [ip=" + ip + ", port=" + port + "]";
 		} else {
-			return "DistributedInstance [ip=" + ip + ", port=" + port + ", state=" + state + ", version=" + version + "]";
+			return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + "]";
 		}
 	}
 
