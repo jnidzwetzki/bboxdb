@@ -17,7 +17,12 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.network.client.future;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
@@ -27,8 +32,17 @@ public class TupleListFuture extends OperationFuture<List<Tuple>> {
 	/**
 	 * Is the result complete or only a page?
 	 */
-	protected boolean completeResult;
+	protected final Map<Integer, Boolean> resultComplete = new HashMap<>();
 	
+	/**
+	 * The connections for the paging
+	 */
+	protected final Map<Integer, ScalephantClient> connections = new HashMap<>();
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(TupleListFuture.class);
 
 	public TupleListFuture() {
 		super();
@@ -39,16 +53,54 @@ public class TupleListFuture extends OperationFuture<List<Tuple>> {
 	}
 
 	
+	/**
+	 * Check whether the result is only a page or complete
+	 * 
+	 * @param resultId
+	 * @return
+	 */
 	public boolean isCompleteResult(final int resultId) {
-		return completeResult;
+		checkFutureSize(resultId);
+		
+		if(! resultComplete.containsKey(resultComplete)) {
+			return false;
+		}
+
+		return resultComplete.get(resultComplete);
 	}
 
+	/**
+	 * Set the completed flag for a result
+	 * 
+	 * @param resultId
+	 * @param completeResult
+	 */
 	public void setCompleteResult(final int resultId, final boolean completeResult) {
-		this.completeResult = completeResult;
+		checkFutureSize(resultId);
+
+		resultComplete.put(resultId, completeResult);
 	}
 	
+	/**
+	 * Set the scalephant connection for pagig
+	 * @param resultId
+	 * @param scalephantClient
+	 */
 	public void setConnectionForResult(final int resultId, final ScalephantClient scalephantClient) {
+		checkFutureSize(resultId);
+
+		connections.put(resultId, scalephantClient);
+	}
+	
+	public ScalephantClient getConnectionForResult(final int resultId) {
+		checkFutureSize(resultId);
+
+		if(! connections.containsKey(resultId)) {
+			logger.error("getConnectionForResult() called with id {}, but connection is unknown", resultId);
+			return null;
+		}
 		
+		return connections.get(resultId);
 	}
 	
 }
