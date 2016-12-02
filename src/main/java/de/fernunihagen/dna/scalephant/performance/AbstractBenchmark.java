@@ -203,8 +203,9 @@ public abstract class AbstractBenchmark implements Runnable {
 		// Disconnect from server and shutdown the statistics thread
 		scalephantClient.disconnect();
 		executorService.shutdown();
-			
-		System.out.println("Done in " + (System.currentTimeMillis() - startTime) + " ms");
+		
+		final long executionTime = System.currentTimeMillis() - startTime;
+		System.out.format("Done in %d ms", executionTime);
 		
 		// Set the benchmark flag to finish
 		benchmarkActive = false;
