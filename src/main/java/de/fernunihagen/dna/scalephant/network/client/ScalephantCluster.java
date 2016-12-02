@@ -19,9 +19,7 @@ package de.fernunihagen.dna.scalephant.network.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -38,7 +36,6 @@ import de.fernunihagen.dna.scalephant.distribution.placement.ResourcePlacementSt
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
-import de.fernunihagen.dna.scalephant.network.client.future.FutureImplementation;
 import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
@@ -56,11 +53,6 @@ public class ScalephantCluster implements Scalephant {
 	 */
 	protected volatile short maxInFlightCalls = MAX_IN_FLIGHT_CALLS;
 	
-	/**
-	 * The pending calls
-	 */
-	protected final Map<Short, FutureImplementation> pendingCalls = new HashMap<Short, FutureImplementation>();
-
 	/**
 	 * The resource placement strategy
 	 */
@@ -313,9 +305,11 @@ public class ScalephantCluster implements Scalephant {
 
 	@Override
 	public int getInFlightCalls() {
-		synchronized (pendingCalls) {
-			return pendingCalls.size();
-		}
+		return membershipConnectionService
+				.getAllConnections()
+				.stream()
+				.mapToInt(ScalephantClient::getInFlightCalls)
+				.sum();
 	}
 
 	@Override
