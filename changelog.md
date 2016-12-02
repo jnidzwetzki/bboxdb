@@ -3,6 +3,9 @@
 ### Version 0.2.0 (Beta-3) - TBA
 - New Feature: Introduced paging
 - Improvement: Simplified network protocol by removing the duplicate success and response packages
+- Improvement: Success and Error responses are now indicated by the isFailed() future method 
+- Improvement: Success and Error messages are now indicated by the getMessage() future method 
+- Bugfix: Group membership watch was not re-established
 
 ### Version 0.2.0 (Beta-2) - 28.11.2016
 - New Feature: Java 8 is now required to build the project

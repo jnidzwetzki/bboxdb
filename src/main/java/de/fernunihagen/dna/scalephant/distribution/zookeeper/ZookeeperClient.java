@@ -212,9 +212,14 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			logger.info("Ignore membership event, because observer is not active");
 			return;
 		}
-		
+				
 		try {
-			final String instancesVersionPath = getInstancesVersionPath(clustername);
+			// Reregister watch on membership
+			final String activeNodesPath = getActiveInstancesPath();
+			zookeeper.getChildren(activeNodesPath, this);
+
+			// Read version data
+			final String instancesVersionPath = getInstancesVersionPath();
 			final List<String> instances = zookeeper.getChildren(instancesVersionPath, this);
 			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 			
@@ -239,7 +244,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return
 	 */
 	protected DistributedInstanceState getStateForInstance(final String member) {		
-		final String nodesPath = getActiveInstancesPath(member);
+		final String nodesPath = getActiveInstancesPath();
 		final String statePath = nodesPath + "/" + member;
 
 		try {
@@ -262,7 +267,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return
 	 */
 	protected String getVersionForInstance(final String member) {		
-		final String nodesPath = getInstancesVersionPath(member);
+		final String nodesPath = getInstancesVersionPath();
 		final String versionPath = nodesPath + "/" + member;
 
 		try {
@@ -346,7 +351,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 		// Process events
 		if(watchedEvent.getPath() != null) {
-			if(watchedEvent.getPath().startsWith(getNodesPath(clustername))) {
+			if(watchedEvent.getPath().startsWith(getNodesPath())) {
 				readMembershipAndRegisterWatch();
 			}
 		} else {
@@ -375,8 +380,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			return;
 		}
 
-		final String statePath = getActiveInstancesPath(clustername) + "/" + instancename.getStringValue();
-		final String versionPath = getInstancesVersionPath(clustername) + "/" + instancename.getStringValue();
+		final String statePath = getActiveInstancesPath() + "/" + instancename.getStringValue();
+		final String versionPath = getInstancesVersionPath() + "/" + instancename.getStringValue();
 		logger.info("Register instance on: {}", statePath);
 		
 		try {
@@ -417,7 +422,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			return false;
 		}
 		
-		final String statePath = getActiveInstancesPath(clustername) + "/" + instancename.getStringValue();
+		final String statePath = getActiveInstancesPath() + "/" + instancename.getStringValue();
 
 		try {
 			zookeeper.setData(statePath, 
@@ -438,11 +443,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	protected void createDirectoryStructureIfNeeded() throws ZookeeperException {
 		
 		// Active instances
-		final String activeInstancesPath = getActiveInstancesPath(clustername);
+		final String activeInstancesPath = getActiveInstancesPath();
 		createDirectoryStructureRecursive(activeInstancesPath);
 		
 		// Version of the instances
-		final String instancesVersionPath = getInstancesVersionPath(clustername);
+		final String instancesVersionPath = getInstancesVersionPath();
 		createDirectoryStructureRecursive(instancesVersionPath);		
 	}
 
@@ -460,7 +465,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param clustername
 	 * @return
 	 */
-	protected String getNodesPath(final String clustername) {
+	protected String getNodesPath() {
 		return getClusterPath() + "/nodes";
 	}
 	
@@ -469,8 +474,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param clustername
 	 * @return
 	 */
-	protected String getActiveInstancesPath(final String clustername) {
-		return getNodesPath(clustername) + "/active";
+	protected String getActiveInstancesPath() {
+		return getNodesPath() + "/active";
 	}
 	
 	/**
@@ -478,8 +483,8 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param clustername
 	 * @return
 	 */
-	protected String getInstancesVersionPath(final String clustername) {
-		return getNodesPath(clustername) + "/version";
+	protected String getInstancesVersionPath() {
+		return getNodesPath() + "/version";
 	}
 	
 	/**
