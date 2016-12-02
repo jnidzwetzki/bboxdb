@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
-import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -50,11 +50,11 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 		final int tuples = 5000000;
 				
 		// Remove old data
-		final OperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		final EmptyResultFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
+		final EmptyResultFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
 		createResult.waitForAll();
 		
 		final Random bbBoxRandom = new Random();
@@ -67,7 +67,7 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 			
 			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1, z, z+1);
 			
-			final OperationFuture insertFuture = scalephantClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
+			final EmptyResultFuture insertFuture = scalephantClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
 			
 			// register pending future
 			pendingFutures.add(insertFuture);

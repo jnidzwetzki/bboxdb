@@ -17,16 +17,15 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.network.client.future;
 
-import java.util.List;
+import de.fernunihagen.dna.scalephant.network.packages.response.HelloResponse;
 
-public class StringListFuture extends OperationFuture<List<String>> {
+public class HelloFuture extends OperationFuture<HelloResponse>{
 
-	public StringListFuture() {
+	public HelloFuture() {
 		super();
 	}
 
-	public StringListFuture(final int numberOfFutures) {
+	public HelloFuture(final int numberOfFutures) {
 		super(numberOfFutures);
 	}
-
 }

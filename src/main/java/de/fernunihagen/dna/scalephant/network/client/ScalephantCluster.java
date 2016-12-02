@@ -36,9 +36,10 @@ import de.fernunihagen.dna.scalephant.distribution.placement.ResourcePlacementSt
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
-import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
-import de.fernunihagen.dna.scalephant.network.client.future.StringListFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.SSTableNameListFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -96,14 +97,14 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture deleteTable(final String table) throws ScalephantException {
+	public EmptyResultFuture deleteTable(final String table) throws ScalephantException {
 		
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new ScalephantException("deleteTable called, but connection list is empty");
 		}
 		
 		final List<ScalephantClient> connections = membershipConnectionService.getAllConnections();
-		final OperationFuture future = new OperationFuture(0);
+		final EmptyResultFuture future = new EmptyResultFuture();
 
 		for(final ScalephantClient client : connections) {
 			
@@ -111,7 +112,7 @@ public class ScalephantCluster implements Scalephant {
 				logger.debug("Send delete call for table " + table + " to " + client);
 			}
 			
-			final OperationFuture result = client.deleteTable(table);
+			final EmptyResultFuture result = client.deleteTable(table);
 			future.merge(result);
 		}
 		
@@ -119,7 +120,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture insertTuple(final String table, final Tuple tuple) throws ScalephantException {
+	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws ScalephantException {
 
 		try {
 			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
@@ -135,7 +136,7 @@ public class ScalephantCluster implements Scalephant {
 			return connection.insertTuple(table, tuple);
 		} catch (ZookeeperException e) {
 			logger.warn("Got exception while inserting tuple", e);
-			final OperationFuture future = new OperationFuture(1);
+			final EmptyResultFuture future = new EmptyResultFuture(1);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			return future;
@@ -143,21 +144,21 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture deleteTuple(final String table, final String key, final long timestamp) throws ScalephantException {
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws ScalephantException {
 		final List<ScalephantClient> connections = membershipConnectionService.getAllConnections();
 		
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new ScalephantException("deleteTuple called, but connection list is empty");
 		}
 		
-		final OperationFuture future = new OperationFuture();
+		final EmptyResultFuture future = new EmptyResultFuture();
 		
 		for(final ScalephantClient client : connections) {
 			if(logger.isDebugEnabled()) {
 				logger.debug("Send delete call for tuple " + key + " on " + table + " to " + client);
 			}
 			
-			final OperationFuture result = client.deleteTuple(table, key, timestamp);
+			final EmptyResultFuture result = client.deleteTuple(table, key, timestamp);
 			future.merge(result);
 		}
 		
@@ -165,13 +166,13 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public StringListFuture listTables() {
+	public SSTableNameListFuture listTables() {
 		try {
 			final ScalephantClient scalephantClient = getSystemForNewRessources();
 			return scalephantClient.listTables();
 		} catch (ResourceAllocationException e) {
 			logger.warn("listTables called, but no ressoures are available", e);
-			final StringListFuture future = new StringListFuture(1);
+			final SSTableNameListFuture future = new SSTableNameListFuture(1);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			return future;
@@ -179,7 +180,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) throws ScalephantException {
+	public EmptyResultFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) throws ScalephantException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new ScalephantException("createDistributionGroup called, but connection list is empty");
@@ -190,7 +191,7 @@ public class ScalephantCluster implements Scalephant {
 			return scalephantClient.createDistributionGroup(distributionGroup, replicationFactor);
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);
-			final OperationFuture future = new OperationFuture(1);
+			final EmptyResultFuture future = new EmptyResultFuture(1);
 			future.setFailedState();
 			future.fireCompleteEvent();
 			return future;
@@ -209,16 +210,16 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture deleteDistributionGroup(final String distributionGroup) throws ScalephantException {
+	public EmptyResultFuture deleteDistributionGroup(final String distributionGroup) throws ScalephantException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new ScalephantException("deleteDistributionGroup called, but connection list is empty");
 		}
 		
-		final OperationFuture future = new OperationFuture();
+		final EmptyResultFuture future = new EmptyResultFuture();
 		
 		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
-			final OperationFuture deleteFuture = client.deleteDistributionGroup(distributionGroup);
+			final EmptyResultFuture deleteFuture = client.deleteDistributionGroup(distributionGroup);
 			future.merge(deleteFuture);
 		}
 
@@ -226,19 +227,19 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public OperationFuture queryKey(final String table, final String key) throws ScalephantException {
+	public TupleResultFuture queryKey(final String table, final String key) throws ScalephantException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new ScalephantException("queryKey called, but connection list is empty");
 		}
 		
-		final OperationFuture future = new OperationFuture();
+		final TupleResultFuture future = new TupleResultFuture();
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for key " + key + " in table " + table);
 		}
 		
 		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
-			final OperationFuture queryFuture = client.queryKey(table, key);
+			final TupleResultFuture queryFuture = client.queryKey(table, key);
 			future.merge(queryFuture);
 		}
 
@@ -370,9 +371,9 @@ public class ScalephantCluster implements Scalephant {
 		scalephantCluster.connect();
 		
 		// Recreate distribution group
-		final OperationFuture futureDelete = scalephantCluster.deleteDistributionGroup(GROUP);
+		final EmptyResultFuture futureDelete = scalephantCluster.deleteDistributionGroup(GROUP);
 		futureDelete.waitForAll();
-		final OperationFuture futureCreate = scalephantCluster.createDistributionGroup(GROUP, (short) 2);
+		final EmptyResultFuture futureCreate = scalephantCluster.createDistributionGroup(GROUP, (short) 2);
 		futureCreate.waitForAll();
 		
 		// Insert the tuples
@@ -385,7 +386,7 @@ public class ScalephantCluster implements Scalephant {
 			
 			System.out.println("Inserting Tuple " + i + " : " + boundingBox);
 			
-			final OperationFuture result = scalephantCluster.insertTuple(TABLE, new Tuple(Integer.toString(i), boundingBox, "abcdef".getBytes()));
+			final EmptyResultFuture result = scalephantCluster.insertTuple(TABLE, new Tuple(Integer.toString(i), boundingBox, "abcdef".getBytes()));
 			result.waitForAll();
 		}		
 		

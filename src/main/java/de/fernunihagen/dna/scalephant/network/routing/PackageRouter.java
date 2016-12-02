@@ -35,7 +35,7 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
-import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.ErrorResponse;
 import de.fernunihagen.dna.scalephant.network.packages.response.SuccessResponse;
@@ -187,7 +187,7 @@ public class PackageRouter {
 			return false;
 		} 
 		
-		final OperationFuture insertFuture = connection.insertTuple(insertTupleRequest);
+		final EmptyResultFuture insertFuture = connection.insertTuple(insertTupleRequest);
 		insertFuture.waitForAll();
 		
 		if(insertFuture.isFailed()) {

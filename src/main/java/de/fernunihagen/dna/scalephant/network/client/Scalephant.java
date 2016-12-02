@@ -18,9 +18,10 @@
 package de.fernunihagen.dna.scalephant.network.client;
 
 import de.fernunihagen.dna.scalephant.network.NetworkConnectionState;
-import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
-import de.fernunihagen.dna.scalephant.network.client.future.StringListFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.SSTableNameListFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -48,7 +49,7 @@ public interface Scalephant {
 	 * @param table
 	 * @return
 	 */
-	public OperationFuture deleteTable(final String table) throws ScalephantException;
+	public EmptyResultFuture deleteTable(final String table) throws ScalephantException;
 
 	/**
 	 * Insert a new tuple into the given table
@@ -56,7 +57,7 @@ public interface Scalephant {
 	 * @param table
 	 * @return
 	 */
-	public OperationFuture insertTuple(final String table, final Tuple tuple) throws ScalephantException;
+	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws ScalephantException;
 
 	/**
 	 * Delete the given key from a table
@@ -65,20 +66,20 @@ public interface Scalephant {
 	 * @param timestamp
 	 * @return
 	 */
-	public OperationFuture deleteTuple(final String table, final String key, final long timestamp) throws ScalephantException;
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws ScalephantException;
 
 	/**
 	 * List the existing tables
 	 * @return
 	 */
-	public StringListFuture listTables() throws ScalephantException;
+	public SSTableNameListFuture listTables() throws ScalephantException;
 
 	/**
 	 * Create a new distribution group
 	 * @param distributionGroup
 	 * @return
 	 */
-	public OperationFuture createDistributionGroup(
+	public EmptyResultFuture createDistributionGroup(
 			final String distributionGroup, final short replicationFactor) throws ScalephantException;
 
 	/**
@@ -86,7 +87,7 @@ public interface Scalephant {
 	 * @param distributionGroup
 	 * @return
 	 */
-	public OperationFuture deleteDistributionGroup(
+	public EmptyResultFuture deleteDistributionGroup(
 			final String distributionGroup) throws ScalephantException;
 
 	/**
@@ -95,7 +96,7 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public OperationFuture queryKey(final String table, final String key) throws ScalephantException;
+	public TupleResultFuture queryKey(final String table, final String key) throws ScalephantException;
 
 	/**
 	 * Execute a bounding box query on the given table

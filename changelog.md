@@ -2,6 +2,7 @@
 
 ### Version 0.2.0 (Beta-3) - TBA
 - New Feature: Introduced paging
+- New Frature: Introduced type safe client API
 - Improvement: Simplified network protocol by removing the duplicate success and response packages
 - Improvement: Success and Error responses are now indicated by the isFailed() future method 
 - Improvement: Success and Error messages are now indicated by the getMessage() future method 

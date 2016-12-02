@@ -150,7 +150,7 @@ public class OperationFuture<T> {
 	 * Get the result of the future
 	 * @return
 	 */
-	public Object get(final int resultId) throws InterruptedException, ExecutionException {
+	public T get(final int resultId) throws InterruptedException, ExecutionException {
 		
 		checkFutureSize(resultId);
 		
@@ -162,7 +162,7 @@ public class OperationFuture<T> {
 	 * @return
      * @throws TimeoutException 
 	 */
-	public Object get(final int resultId, final long timeout, final TimeUnit unit)
+	public T get(final int resultId, final long timeout, final TimeUnit unit)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		
 		checkFutureSize(resultId);

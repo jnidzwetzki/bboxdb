@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
-import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
 import de.fernunihagen.dna.scalephant.performance.osm.OSMFileReader;
 import de.fernunihagen.dna.scalephant.performance.osm.OSMStructureCallback;
 import de.fernunihagen.dna.scalephant.performance.osm.util.GeometricalStructure;
@@ -85,11 +85,11 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 		super.prepare();
 
 		// Remove old data
-		final OperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		final EmptyResultFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, replicationFactor);
+		final EmptyResultFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, replicationFactor);
 		createResult.waitForAll();
 	}
 
@@ -101,7 +101,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 		try {
 			final byte[] tupleBytes = serializerHelper.toByteArray(geometricalStructure);
 			final Tuple tuple = new Tuple(Long.toString(geometricalStructure.getId()), geometricalStructure.getBoundingBox(), tupleBytes);
-			final OperationFuture insertFuture = scalephantClient.insertTuple(table, tuple);
+			final EmptyResultFuture insertFuture = scalephantClient.insertTuple(table, tuple);
 			
 			// register pending future
 			pendingFutures.add(insertFuture);

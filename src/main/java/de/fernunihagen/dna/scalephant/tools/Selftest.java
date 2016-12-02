@@ -28,7 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.network.client.ScalephantCluster;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
-import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -95,7 +97,7 @@ public class Selftest {
 	 */
 	private static void recreateDistributionGroup(final ScalephantCluster scalephantCluster) throws ScalephantException, InterruptedException, ExecutionException {
 		logger.info("Delete old distribution group: " + DISTRIBUTION_GROUP);
-		final OperationFuture deleteFuture = scalephantCluster.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		final EmptyResultFuture deleteFuture = scalephantCluster.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteFuture.waitForAll();
 		if(deleteFuture.isFailed()) {
 			logger.error("Unable to delete distribution group: " + DISTRIBUTION_GROUP);
@@ -106,7 +108,7 @@ public class Selftest {
 		Thread.sleep(5000);
 		
 		logger.info("Create new distribution group: " + DISTRIBUTION_GROUP);
-		final OperationFuture createFuture = scalephantCluster.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
+		final EmptyResultFuture createFuture = scalephantCluster.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
 		createFuture.waitForAll();
 		if(createFuture.isFailed()) {
 			logger.error("Unable to create distribution group: " + DISTRIBUTION_GROUP);
@@ -152,7 +154,7 @@ public class Selftest {
 	private static void queryForExistingTuplesByTime(final ScalephantCluster scalephantClient) throws InterruptedException, ExecutionException, ScalephantException {
 		logger.info("Executing time query");
 		
-		final OperationFuture queryResult = scalephantClient.queryTime(TABLE, 0);
+		final TupleListFuture queryResult = scalephantClient.queryTime(TABLE, 0);
 		queryResult.waitForAll();
 		
 		if(queryResult.isFailed()) {
@@ -163,14 +165,8 @@ public class Selftest {
 		int totalTuples = 0;
 		
 		for(int requestId = 0; requestId < queryResult.getNumberOfResultObjets(); requestId++) {
-			final Object resultObject = queryResult.get(requestId);
-			if(resultObject instanceof List) {
-				@SuppressWarnings("unchecked")
-				List<Tuple> myList = (List<Tuple>) resultObject;
-				totalTuples = totalTuples + myList.size();
-			} else { 
-				System.out.println("Query failed");
-			} 
+			final List<Tuple> myList = queryResult.get(requestId);
+			totalTuples = totalTuples + myList.size();
 		}
 		
 		if(totalTuples != NUMBER_OF_OPERATIONS) {
@@ -190,7 +186,7 @@ public class Selftest {
 		logger.info("Deleting tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
-			final OperationFuture deletionResult = scalephantClient.deleteTuple(TABLE, key, System.currentTimeMillis());
+			final EmptyResultFuture deletionResult = scalephantClient.deleteTuple(TABLE, key, System.currentTimeMillis());
 			deletionResult.waitForAll();
 			
 			if(deletionResult.isFailed() ) {
@@ -212,7 +208,7 @@ public class Selftest {
 		logger.info("Query for tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(Math.abs(random.nextInt()) % NUMBER_OF_OPERATIONS);
-			final OperationFuture queryResult = scalephantClient.queryKey(TABLE, key);
+			final TupleResultFuture queryResult = scalephantClient.queryKey(TABLE, key);
 			queryResult.waitForAll();
 			
 			if(queryResult.isFailed()) {
@@ -223,14 +219,12 @@ public class Selftest {
 			boolean tupleFound = false;
 			
 			for(int result = 0; result < queryResult.getNumberOfResultObjets(); result++) {
-				if(queryResult.get(result) instanceof Tuple) {
-					final Tuple resultTuple = (Tuple) queryResult.get(result);
-					tupleFound = true;
-					if(! resultTuple.getKey().equals(key)) {
-						logger.error("Query " + i + ": Got tuple with wrong key.");
-						logger.error("Expected: " + key + " but got: " + resultTuple.getKey());
-						System.exit(-1);
-					}
+				final Tuple resultTuple = queryResult.get(result);
+				tupleFound = true;
+				if(! resultTuple.getKey().equals(key)) {
+					logger.error("Query " + i + ": Got tuple with wrong key.");
+					logger.error("Expected: " + key + " but got: " + resultTuple.getKey());
+					System.exit(-1);
 				}
 			}
 			
@@ -255,7 +249,7 @@ public class Selftest {
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
 	
-			final OperationFuture queryResult = scalephantClient.queryKey(TABLE, key);
+			final TupleResultFuture queryResult = scalephantClient.queryKey(TABLE, key);
 			queryResult.waitForAll();
 			
 			if(queryResult.isFailed()) {
@@ -265,7 +259,7 @@ public class Selftest {
 			
 			for(int result = 0; result < queryResult.getNumberOfResultObjets(); result++) {
 				if(queryResult.get(result) instanceof Tuple) {
-					final Tuple resultTuple = (Tuple) queryResult.get(result);
+					final Tuple resultTuple = queryResult.get(result);
 					logger.error("Found a tuple which should not exist: " + i + " / " + resultTuple);
 					System.exit(-1);
 				}
@@ -286,7 +280,7 @@ public class Selftest {
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
 			final Tuple myTuple = new Tuple(key, new BoundingBox(1.0f, 2.0f, 1.0f, 2.0f), "test".getBytes());
-			final OperationFuture insertResult = scalephantClient.insertTuple(TABLE, myTuple);
+			final EmptyResultFuture insertResult = scalephantClient.insertTuple(TABLE, myTuple);
 			insertResult.waitForAll();
 			
 			if(insertResult.isFailed()) {

@@ -38,7 +38,7 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
-import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
 import de.fernunihagen.dna.scalephant.network.server.NetworkConnectionService;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
@@ -151,7 +151,7 @@ public class RecoveryService implements ScalephantService {
 		
 		logger.info("Starting recovery for table: " + ssTableName.getFullname());
 		final SSTableManager tableManager = StorageRegistry.getSSTableManager(ssTableName);
-		final OperationFuture result = connection.queryTime(ssTableName.getFullname(), outdatedDistributionRegion.getLocalVersion());
+		final TupleListFuture result = connection.queryTime(ssTableName.getFullname(), outdatedDistributionRegion.getLocalVersion());
 		result.waitForAll();
 		
 		if(result.isFailed()) {
@@ -162,14 +162,13 @@ public class RecoveryService implements ScalephantService {
 		for(int resultId = 0; resultId < result.getNumberOfResultObjets(); resultId++) {
 			
 			long insertedTuples = 0;
-			@SuppressWarnings("unchecked")
-			final List<Tuple> queryResult = (List<Tuple>) result.get(resultId);
+			final List<Tuple> queryResult = result.get(resultId);
 			for(final Tuple tuple : queryResult) {
 				tableManager.put(tuple);
 				insertedTuples++;
 			}
 			
-			logger.info("Inserted " + insertedTuples + " tuples into table " + ssTableName.getFullname());
+			logger.info("Inserted {} tuples into table {}", insertedTuples, ssTableName.getFullname());
 		}
 	}
 

@@ -24,7 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
-import de.fernunihagen.dna.scalephant.network.client.future.OperationFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
+import de.fernunihagen.dna.scalephant.network.client.future.TupleResultFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -67,11 +68,11 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 		super.prepare();
 		
 		// Remove old data
-		final OperationFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		final EmptyResultFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final OperationFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
+		final EmptyResultFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
 		createResult.waitForAll();
 		
 		logger.info("Inserting " + tuplesToInsert + " tuples");
@@ -102,7 +103,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	
 		for(int i = 0; i < 100; i++) {
 			final long start = System.nanoTime();
-			final OperationFuture result = scalephantClient.queryKey(TABLE, Integer.toString(40));
+			final TupleResultFuture result = scalephantClient.queryKey(TABLE, Integer.toString(40));
 			
 			// Wait for request to settle
 			for(int requestId = 0; requestId < result.getNumberOfResultObjets(); requestId++) {

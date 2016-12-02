@@ -680,7 +680,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testFutureFailureState() throws InterruptedException, ExecutionException {
-		final OperationFuture future = new OperationFuture(1);
+		final OperationFuture<Object> future = new OperationFuture<Object>(1);
 		Assert.assertFalse(future.isFailed());
 		Assert.assertFalse(future.isDone());
 		future.setFailedState();
