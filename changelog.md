@@ -5,11 +5,11 @@
 - New Frature: Introduced type safe client API
 - Improvement: Simplified network protocol by removing the duplicate success and response packages
 - Improvement: Success and Error responses are now indicated by the isFailed() future method 
-- Improvement: Success and Error messages are now indicated by the getMessage() future method 
+- Improvement: Success and Error messages are now provided by the getMessage() future method 
 - Bugfix: Group membership watch was not re-established
 - Bugfix: Wrong node state was displayed in the GUI
 - Bugfix: Fixed handling of failed futures in the benchmark
-- Bugfix: Fixed calculation of in flight calls for a cluster
+- Bugfix: Fixed calculation of 'in flight calls' for a cluster
 
 ### Version 0.2.0 (Beta-2) - 28.11.2016
 - New Feature: Java 8 is now required to build the project
