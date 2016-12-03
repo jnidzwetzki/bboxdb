@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,7 +32,6 @@ import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.client.SequenceNumberGenerator;
-import de.fernunihagen.dna.scalephant.network.client.future.OperationFutureImpl;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
 import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
@@ -672,23 +670,7 @@ public class TestNetworkClasses {
 		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
 		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());		
 	}
-	
-	/**
-	 * Test the failed operation
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
-	 */
-	@Test
-	public void testFutureFailureState() throws InterruptedException, ExecutionException {
-		final OperationFutureImpl<Object> future = new OperationFutureImpl<Object>(1);
-		Assert.assertFalse(future.isFailed());
-		Assert.assertFalse(future.isDone());
-		future.setFailedState();
-		future.fireCompleteEvent();
-		Assert.assertTrue(future.isFailed());
-		Assert.assertTrue(future.get(0) == null);
-	}
-	
+
 	/**
 	 * Test the decoding and the encoding of an compressed request package
 	 * @throws IOException
