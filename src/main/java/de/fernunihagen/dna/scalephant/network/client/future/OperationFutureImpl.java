@@ -91,6 +91,9 @@ public class OperationFutureImpl<T> implements OperationFuture {
 		return futures.get(resultId).getMessage();
 	}
 
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.scalephant.network.client.future.OperationFuture#getAllMessages()
+	 */
 	@Override
 	public String getAllMessages() {
 		return futures
