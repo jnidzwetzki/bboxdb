@@ -115,14 +115,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 */
 	@Override
 	public boolean isFailed() {
-		
-		for(final FutureImplementation<T> future : futures) {
-			if(future.isFailed()) {
-				return true;
-			}
-		}
-		
-		return false;
+		return futures.stream().anyMatch(f -> f.isFailed());
 	}
 
 	/* (non-Javadoc)
@@ -140,13 +133,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 */
 	@Override
 	public boolean isDone() {
-		for(final FutureImplementation<T> future : futures) {
-			if(! future.isDone()) {
-				return false;
-			}
-		}
-		
-		return true;
+		return futures.stream().allMatch(f -> f.isDone());
 	}
 
 	/* (non-Javadoc)
