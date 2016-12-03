@@ -19,9 +19,11 @@ package de.fernunihagen.dna.scalephant.network.client.future;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 public class OperationFutureImpl<T> implements OperationFuture {
 
@@ -89,6 +91,15 @@ public class OperationFutureImpl<T> implements OperationFuture {
 		return futures.get(resultId).getMessage();
 	}
 
+	@Override
+	public String getAllMessages() {
+		return futures
+		.stream()
+		.map(FutureImplementation::getMessage)
+		.filter(Objects::nonNull)
+		.collect(Collectors.joining(",", "[", "]"));
+	}
+	
 	/**
 	 * Throw an exception when the result id is unknown
 	 * @param resultId

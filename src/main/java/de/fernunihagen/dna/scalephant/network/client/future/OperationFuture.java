@@ -46,6 +46,12 @@ public interface OperationFuture {
 	 * @return 
 	 */
 	public abstract String getMessage(int resultId);
+	
+	/**
+	 * Get the additional messages from all results [message1, message2, ...]
+	 * @return
+	 */
+	public abstract String getAllMessages();
 
 	/**
 	 * Is the future processed successfully or are errors occurred?
