@@ -108,7 +108,7 @@ public class ScalephantCluster implements Scalephant {
 		for(final ScalephantClient client : connections) {
 			
 			if(logger.isDebugEnabled()) {
-				logger.debug("Send delete call for table " + table + " to " + client);
+				logger.debug("Send delete call for table {} to {}", table, client);
 			}
 			
 			final EmptyResultFuture result = client.deleteTable(table);
@@ -154,7 +154,7 @@ public class ScalephantCluster implements Scalephant {
 		
 		for(final ScalephantClient client : connections) {
 			if(logger.isDebugEnabled()) {
-				logger.debug("Send delete call for tuple " + key + " on " + table + " to " + client);
+				logger.debug("Send delete call for tuple {} on {} to {}", key, table, client);
 			}
 			
 			final EmptyResultFuture result = client.deleteTuple(table, key, timestamp);
@@ -258,7 +258,7 @@ public class ScalephantCluster implements Scalephant {
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(boundingBox);
 			
 			if(logger.isDebugEnabled()) {
-				logger.debug("Query by for bounding box " + boundingBox + " in table " + table + " on systems: " + systems);
+				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, systems);
 			}
 			
 			for(final DistributedInstance system : systems) {
@@ -282,7 +282,7 @@ public class ScalephantCluster implements Scalephant {
 		}
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Query by for timestamp " + timestamp + " in table " + table);
+			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
 		
 		final TupleListFuture future = new TupleListFuture();
