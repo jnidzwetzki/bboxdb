@@ -205,7 +205,7 @@ public abstract class AbstractBenchmark implements Runnable {
 		executorService.shutdown();
 		
 		final long executionTime = System.currentTimeMillis() - startTime;
-		System.out.format("Done in %d ms", executionTime);
+		System.out.format("Done in %d ms\n", executionTime);
 		
 		// Set the benchmark flag to finish
 		benchmarkActive = false;
