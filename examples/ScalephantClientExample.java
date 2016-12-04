@@ -111,7 +111,7 @@ public class ScalephantClientExample {
 			System.exit(-1);
 		}
 		
-		// Output all tuple
+		// Output all tuples
 		for(final Tuple tuple : resultFuture1) {
 			System.out.println(tuple);
 		}
@@ -127,7 +127,7 @@ public class ScalephantClientExample {
 			System.exit(-1);
 		}
 		
-		// Output all tuple
+		// Output all tuples
 		for(final Tuple tuple : resultFuture2) {
 			System.out.println("Tuple: " + tuple);
 		}
