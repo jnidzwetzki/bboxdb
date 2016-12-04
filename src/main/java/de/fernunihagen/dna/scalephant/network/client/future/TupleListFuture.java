@@ -109,12 +109,24 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 						}
 						
 						// TODO: Check for paging
-
+						
 					} catch (InterruptedException | ExecutionException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.warn("Got exception while writing data to queue", e);
 					} finally {
+						addTerminalNE();
 						logger.trace("Producer {} is done", resultId);
+					}
+				}
+
+				/**
+				 * Add the terminal to the queue
+				 */
+				protected void addTerminalNE() {
+					try {
+						tupleQueue.put(null);
+					} catch (InterruptedException e) {
+						// Got the interrupted exception while addint the 
+						// terminal, ignoring
 					}
 				}
 			};
