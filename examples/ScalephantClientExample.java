@@ -65,6 +65,7 @@ public class ScalephantClientExample {
 		deleteGroupResult.waitForAll();
 		if(deleteGroupResult.isFailed()) {
 			System.err.println("Unable to delete distribution group: " + distributionGroup);
+			System.err.println(deleteGroupResult.getAllMessages());
 			System.exit(-1);
 		}
 		
@@ -73,6 +74,7 @@ public class ScalephantClientExample {
 		createGroupResult.waitForAll();
 		if(createGroupResult.isFailed()) {
 			System.err.println("Unable to create distribution group: " + distributionGroup);
+			System.err.println(createGroupResult.getAllMessages());
 			System.exit(-1);
 		}
 		
@@ -100,7 +102,7 @@ public class ScalephantClientExample {
 		resultFuture1.waitForAll();
 		
 		if(resultFuture1.isFailed()) {
-			System.err.println("Future is failed: " + resultFuture1.getMessage(0));
+			System.err.println("Future is failed: " + resultFuture1.getAllMessages());
 			System.exit(-1);
 		}
 		
@@ -116,7 +118,7 @@ public class ScalephantClientExample {
 		resultFuture2.waitForAll();
 		
 		if(resultFuture2.isFailed()) {
-			System.err.println("Future is failed: " + resultFuture2.getMessage(0));
+			System.err.println("Future is failed: " + resultFuture2.getAllMessages());
 			System.exit(-1);
 		}
 		
