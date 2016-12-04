@@ -112,17 +112,64 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 
 					try {
 						final List<Tuple> tupleList = tupleListFuture.get(resultId);
-						for(final Tuple tuple : tupleList) {
-							tupleQueue.put(tuple);
-						}
+						
+						addTupleListToQueue(tupleList);
 												
-						// TODO: Handle paging
+						if(! tupleListFuture.isCompleteResult(resultId)) {
+							handleAdditionalPages();
+						}
 						
 					} catch (InterruptedException | ExecutionException e) {
 						logger.warn("Got exception while writing data to queue", e);
 					} finally {
 						addTerminalNE();
 						logger.trace("Producer {} is done", resultId);
+					}
+				}
+				
+				/**
+				 * Request and add the additional pages to the queue
+				 * @throws ExecutionException 
+				 * @throws InterruptedException 
+				 */
+				protected void handleAdditionalPages() throws InterruptedException, ExecutionException {
+					final ScalephantClient scalephantClient = tupleListFuture.getConnectionForResult(resultId);
+					final short queryRequestId = tupleListFuture.getRequestId(resultId);
+					
+					if(scalephantClient == null) {
+						logger.error("Unable to get connection for paging: {}", resultId);
+						return;
+					}
+					
+					TupleListFuture nextPage = null;
+					do {
+						 nextPage = scalephantClient.getNextPage(queryRequestId);
+						 nextPage.waitForAll();
+						 
+						 if(nextPage.isFailed()) {
+							 logger.error("Requesting next page failed! Query result is incomplete: {}", nextPage.getAllMessages());
+							 return;
+						 }
+						 
+						 // Query is send to one server, so the number of
+						 // resupt objects should be 1
+						 if(nextPage.getNumberOfResultObjets() != 1) {
+							 logger.error("Got a non expected number of result objects {}", nextPage.getNumberOfResultObjets());
+						 }
+						 
+						 addTupleListToQueue(nextPage.get(1));
+						 
+					} while(! nextPage.isCompleteResult(1));
+				}
+
+				/**
+				 * Add the tuple list into the queue
+				 * @param tupleList
+				 * @throws InterruptedException
+				 */
+				protected void addTupleListToQueue(final List<Tuple> tupleList) throws InterruptedException {
+					for(final Tuple tuple : tupleList) {
+						tupleQueue.put(tuple);
 					}
 				}
 
@@ -189,6 +236,12 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		public void close() throws Exception {
 			logger.trace("Close called on interator");
 			executor.shutdown();
+		}
+		
+		@Override
+		protected void finalize() throws Throwable {
+			close();
+			super.finalize();
 		}
 	}
 
