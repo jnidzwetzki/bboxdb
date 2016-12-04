@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
+import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.CloseableIterator;
 
@@ -51,6 +52,11 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		 * when all producers are terminated and the queue is empty
 		 */
 		protected int seenTerminals = 0;
+		
+		/**
+		 * The terminal (or poison) element
+		 */
+		protected final static Tuple QUEUE_TERMINAL = new Tuple("", BoundingBox.EMPTY_BOX, "".getBytes());
 		
 		/**
 		 * The next tuple for the next operation
@@ -107,8 +113,8 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 						for(final Tuple tuple : tupleList) {
 							tupleQueue.put(tuple);
 						}
-						
-						// TODO: Check for paging
+												
+						// TODO: Handle paging
 						
 					} catch (InterruptedException | ExecutionException e) {
 						logger.warn("Got exception while writing data to queue", e);
@@ -123,7 +129,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 				 */
 				protected void addTerminalNE() {
 					try {
-						tupleQueue.put(null);
+						tupleQueue.put(QUEUE_TERMINAL);
 					} catch (InterruptedException e) {
 						// Got the interrupted exception while addint the 
 						// terminal, ignoring
@@ -157,8 +163,9 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 					return false;
 				}
 										
-				if(nextTuple == null) {
+				if(nextTuple == QUEUE_TERMINAL) {
 					seenTerminals++;
+					nextTuple = null;
 				}
 			}
 			
