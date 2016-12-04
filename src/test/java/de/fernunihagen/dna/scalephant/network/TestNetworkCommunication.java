@@ -33,6 +33,7 @@ import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.IteratorHelper;
 
 public class TestNetworkCommunication {
 
@@ -185,8 +186,9 @@ public class TestNetworkCommunication {
 		Assert.assertTrue(insertResult.isDone());
 
 		final TupleListFuture getResult2 = scalephantClient.queryKey(table, key);
-		final Tuple resultTuple = getResult2.get(0).get(0);
-		Assert.assertEquals(tuple, resultTuple);
+		getResult2.waitForAll();
+		final List<Tuple> resultList = IteratorHelper.iteratorToList(getResult2.iterator());
+		Assert.assertEquals(tuple, resultList.get(0));
 
 		final EmptyResultFuture deleteResult2 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
 		deleteResult2.waitForAll();
@@ -239,7 +241,8 @@ public class TestNetworkCommunication {
 		scalephantClient.insertTuple(table, tuple5);
 
 		final TupleListFuture future = scalephantClient.queryBoundingBox(table, new BoundingBox(-1f, 2f, -1f, 2f));
-		final List<Tuple> resultList = future.get(0);
+		future.waitForAll();
+		final List<Tuple> resultList = IteratorHelper.iteratorToList(future.iterator());
 		
 		Assert.assertEquals(3, resultList.size());
 		Assert.assertTrue(resultList.contains(tuple1));

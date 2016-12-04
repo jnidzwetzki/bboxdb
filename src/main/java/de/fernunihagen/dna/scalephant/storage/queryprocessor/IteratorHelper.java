@@ -17,7 +17,9 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.storage.queryprocessor;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.google.common.collect.Iterators;
 
@@ -32,6 +34,17 @@ public class IteratorHelper {
 	 */
 	public static int getIteratorSize(final Iterator<Tuple> iterator) {
 		return Iterators.size(iterator);
+	}
+	
+	/**
+	 * Add all elements of an iterator to a result list
+	 * @param iterator
+	 * @return
+	 */
+	public static <T> List<T> iteratorToList(final Iterator<T> iterator) {
+		final List<T> resultList = new ArrayList<T>();
+		iterator.forEachRemaining(resultList::add);
+		return resultList;
 	}
 
 }

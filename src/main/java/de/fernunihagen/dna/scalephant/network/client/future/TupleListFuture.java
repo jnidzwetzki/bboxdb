@@ -20,15 +20,157 @@ package de.fernunihagen.dna.scalephant.network.client.future;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.CloseableIterator;
 
-public class TupleListFuture extends OperationFutureImpl<List<Tuple>> {
+public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements Iterable<Tuple> {
 	
+	private static final class TupleListFutureIterator implements CloseableIterator<Tuple> {
+		/**
+		 * The size of the transfer queue
+		 */
+		protected final static int QUEUE_SIZE = 25;
+		
+		/**
+		 * The transfer queue
+		 */
+		protected final BlockingQueue<Tuple> tupleQueue = new LinkedBlockingQueue<Tuple>(QUEUE_SIZE);
+		
+		/**
+		 * The amount of seen terminals, the iterator is exaustet, 
+		 * when all producers are terminated and the queue is empty
+		 */
+		protected int seenTerminals = 0;
+		
+		/**
+		 * The next tuple for the next operation
+		 */
+		protected Tuple nextTuple = null;
+		
+		/**
+		 * The number of results, that needs to be queired
+		 */
+		protected final int futuresToQuery;
+		
+		/**
+		 * The instance to iterate 
+		 * 
+		 * @param tupleListFuture
+		 */
+		protected final TupleListFuture tupleListFuture;
+		
+		/**
+		 * The executor pool
+		 */
+		protected final ExecutorService executor = Executors.newCachedThreadPool();
+
+		
+		/**
+		 * The Logger
+		 */
+		private final static Logger logger = LoggerFactory.getLogger(TupleListFutureIterator.class);
+
+		
+		public TupleListFutureIterator(final TupleListFuture tupleListFuture) {
+			this.tupleListFuture = tupleListFuture;
+			this.futuresToQuery = tupleListFuture.getNumberOfResultObjets();
+			
+			for(int i = 0; i < tupleListFuture.getNumberOfResultObjets(); i++) {
+				setupProducer(i);
+			}
+		}
+		
+		/**
+		 * Setup the worker that fetches the data from the futures
+		 */
+		public void setupProducer(final int resultId) {
+			
+			logger.trace("Start producer for {}", resultId);
+			
+			final Runnable producer = new Runnable() {
+				
+				@Override
+				public void run() {
+
+					try {
+						final List<Tuple> tupleList = tupleListFuture.get(resultId);
+						for(final Tuple tuple : tupleList) {
+							tupleQueue.put(tuple);
+						}
+						
+						// TODO: Check for paging
+
+					} catch (InterruptedException | ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} finally {
+						logger.trace("Producer {} is done", resultId);
+					}
+				}
+			};
+			
+			executor.submit(producer);
+		}
+
+		@Override
+		public boolean hasNext() {
+			
+			if(nextTuple != null) {
+				logger.warn("Last tuple was not requested, did you call next before?");
+				nextTuple = null;
+			}
+			
+			while(nextTuple == null) {
+				
+				// All worker are done
+				if(seenTerminals == futuresToQuery) {
+					return (nextTuple != null);
+				}
+				
+				try {
+					// Wait until element is available
+					nextTuple = tupleQueue.take(); 
+				} catch (InterruptedException e) {
+					// Ignore exception
+					return false;
+				}
+										
+				if(nextTuple == null) {
+					seenTerminals++;
+				}
+			}
+			
+			return true;
+		}
+
+		@Override
+		public Tuple next() {
+			if(nextTuple == null) {
+				throw new IllegalStateException("Tuple is null, did you called hasNext before?");
+			}
+			
+			final Tuple resultTuple = nextTuple;
+			nextTuple = null;
+			return resultTuple;
+		}
+
+		@Override
+		public void close() throws Exception {
+			logger.trace("Close called on interator");
+			executor.shutdown();
+		}
+	}
+
 	/**
 	 * Is the result complete or only a page?
 	 */
@@ -108,4 +250,20 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> {
 		return connections.get(resultId);
 	}
 	
+	/**
+	 * Return a iterator for all tupes
+	 * @return
+	 */
+	@Override
+	public CloseableIterator<Tuple> iterator() {
+		if(! isDone() ) {
+			throw new IllegalStateException("Future is not done, unable to build iterator");
+		}
+		
+		if( isFailed() ) {
+			throw new IllegalStateException("The future has failed, unable to build iterator");
+		}
+		
+		return new TupleListFutureIterator(this);
+	}
 }

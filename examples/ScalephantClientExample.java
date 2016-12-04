@@ -94,6 +94,9 @@ public class ScalephantClientExample {
 		
 		// Query by key
 		final TupleListFuture resultFuture1 = scalephantClient.queryKey(mytable, "key");
+		
+		// We got a future object, the search is performed asynchronous
+		// Wait for the result
 		resultFuture1.waitForAll();
 		
 		if(resultFuture1.isFailed()) {
@@ -101,15 +104,15 @@ public class ScalephantClientExample {
 			System.exit(-1);
 		}
 		
-		// We got a future object, the search is performed asynchronous
-		// Wait for the result
-		for(int requestId = 0; requestId < resultFuture1.getNumberOfResultObjets(); requestId++) {
-			final Tuple queryResult = resultFuture1.get(requestId).get(0);
-			System.out.println(queryResult);
+		// Output all tuple
+		for(final Tuple tuple : resultFuture1) {
+			System.out.println(tuple);
 		}
 		
 		// Query by bounding box
 		final TupleListFuture resultFuture2 = scalephantClient.queryBoundingBox(mytable, new BoundingBox(-0.5f, 1f, -0.5f, 1f));
+		
+		// Again, we got a future object, the search is performed asynchronous
 		resultFuture2.waitForAll();
 		
 		if(resultFuture2.isFailed()) {
@@ -117,10 +120,9 @@ public class ScalephantClientExample {
 			System.exit(-1);
 		}
 		
-		// Again, we got a future object, the search is performed asynchronous
-		for(int requestId = 0; requestId < resultFuture2.getNumberOfResultObjets(); requestId++) {
-			final List<Tuple> queryResult = resultFuture2.get(requestId);
-			System.out.println("Result list: " + queryResult);
+		// Output all tuple
+		for(final Tuple tuple : resultFuture2) {
+			System.out.println("Tuple: " + tuple);
 		}
 
 		scalephantClient.disconnect();
