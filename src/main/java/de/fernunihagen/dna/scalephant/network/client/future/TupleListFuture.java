@@ -17,7 +17,9 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.network.client.future;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -35,8 +37,8 @@ import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.CloseableIterator;
 
 public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements Iterable<Tuple> {
-	
-	private static final class TupleListFutureIterator implements CloseableIterator<Tuple> {
+
+	private static final class ThreadedTupleListFutureIterator implements CloseableIterator<Tuple> {
 		/**
 		 * The size of the transfer queue
 		 */
@@ -84,10 +86,10 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		/**
 		 * The Logger
 		 */
-		private final static Logger logger = LoggerFactory.getLogger(TupleListFutureIterator.class);
+		private final static Logger logger = LoggerFactory.getLogger(ThreadedTupleListFutureIterator.class);
 
 		
-		public TupleListFutureIterator(final TupleListFuture tupleListFuture) {
+		public ThreadedTupleListFutureIterator(final TupleListFuture tupleListFuture) {
 			this.tupleListFuture = tupleListFuture;
 			this.futuresToQuery = tupleListFuture.getNumberOfResultObjets();
 			
@@ -274,7 +276,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 	 * @return
 	 */
 	@Override
-	public CloseableIterator<Tuple> iterator() {
+	public Iterator<Tuple> iterator() {
 		if(! isDone() ) {
 			throw new IllegalStateException("Future is not done, unable to build iterator");
 		}
@@ -283,6 +285,33 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 			throw new IllegalStateException("The future has failed, unable to build iterator");
 		}
 		
-		return new TupleListFutureIterator(this);
+		// Is at least result paged? So, we use the threaded iterator 
+		// that requets more tuples in the background
+		final boolean pagedResult = resultComplete.values().stream().anyMatch(e -> e == false);
+		
+		if(pagedResult) {
+			return new ThreadedTupleListFutureIterator(this);
+		} else {
+			return createSimpleIterator();
+		}
+		
+	}
+
+	/**
+	 * Returns a simple iterator for non paged results
+	 * @return
+	 */
+	protected Iterator<Tuple> createSimpleIterator() {
+		final List<Tuple> allTuples = new ArrayList<Tuple>();
+		
+		for(int i = 0; i < getNumberOfResultObjets(); i++) {
+			try {
+				allTuples.addAll(get(i));
+			} catch (Exception e) {
+				logger.error("Got exception while iterating", e);
+			}
+		}
+		
+		return allTuples.iterator();
 	}
 }
