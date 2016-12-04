@@ -86,8 +86,9 @@ public class RecoveryService implements ScalephantService {
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
 		final List<DistributionGroupName> distributionGroups = zookeeperClient.getDistributionGroups();
 		for(final DistributionGroupName distributionGroupName : distributionGroups) {
-			logger.info("Running recovery for distribution group: " + distributionGroupName);
+			logger.info("Recovery: running recovery for distribution group: {}", distributionGroupName);
 			runRecoveryForDistributionGroup(distributionGroupName);
+			logger.info("Recovery: recovery for distribution group done: {}", distributionGroupName);
 		}
 	}
 
@@ -149,27 +150,24 @@ public class RecoveryService implements ScalephantService {
 			final ScalephantClient connection) throws StorageManagerException,
 			InterruptedException, ExecutionException {
 		
-		logger.info("Starting recovery for table: " + ssTableName.getFullname());
+		logger.info("Recovery: starting recovery for table {}", ssTableName.getFullname());
 		final SSTableManager tableManager = StorageRegistry.getSSTableManager(ssTableName);
 		final TupleListFuture result = connection.queryTime(ssTableName.getFullname(), outdatedDistributionRegion.getLocalVersion());
 		result.waitForAll();
 		
 		if(result.isFailed()) {
-			logger.warn("Failed result - Some tuples could not be received!");
+			logger.warn("Recovery: Failed result for table {} - Some tuples could not be received!", 
+					ssTableName.getFullname());
 			return;
 		}
 		
-		for(int resultId = 0; resultId < result.getNumberOfResultObjets(); resultId++) {
-			
-			long insertedTuples = 0;
-			final List<Tuple> queryResult = result.get(resultId);
-			for(final Tuple tuple : queryResult) {
-				tableManager.put(tuple);
-				insertedTuples++;
-			}
-			
-			logger.info("Inserted {} tuples into table {}", insertedTuples, ssTableName.getFullname());
+		long insertedTuples = 0;
+		for(final Tuple tuple : result) {
+			tableManager.put(tuple);
+			insertedTuples++;
 		}
+		
+		logger.info("Recovery: successfully inserted {} tuples into table {}", insertedTuples, ssTableName.getFullname());
 	}
 
 	@Override
