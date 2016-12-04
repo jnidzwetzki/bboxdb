@@ -17,11 +17,22 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.network.client.future;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 
-public class SSTableNameListFuture extends OperationFutureImpl<List<SSTableName>> {
+public class SSTableNameListFuture extends OperationFutureImpl<List<SSTableName>> implements Iterable<SSTableName> {
+
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(SSTableNameListFuture.class);
 
 	public SSTableNameListFuture() {
 		super();
@@ -29,6 +40,26 @@ public class SSTableNameListFuture extends OperationFutureImpl<List<SSTableName>
 
 	public SSTableNameListFuture(final int numberOfFutures) {
 		super(numberOfFutures);
+	}
+
+	@Override
+	public Iterator<SSTableName> iterator() {
+		
+		try {
+			waitForAll();
+
+			final List<SSTableName> resultList = new ArrayList<SSTableName>();
+			
+			for(final FutureImplementation<List<SSTableName>> future : futures) {
+				resultList.addAll(future.get());
+			}
+			
+			return resultList.iterator();
+			
+		} catch (InterruptedException | ExecutionException e) {
+			logger.error("Got an exception while creating iterator", e);
+			return new ArrayList<SSTableName>().iterator();
+		}
 	}
 
 }
