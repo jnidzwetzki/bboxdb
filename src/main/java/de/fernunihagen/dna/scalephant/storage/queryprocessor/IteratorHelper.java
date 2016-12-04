@@ -19,6 +19,8 @@ package de.fernunihagen.dna.scalephant.storage.queryprocessor;
 
 import java.util.Iterator;
 
+import com.google.common.collect.Iterators;
+
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
 public class IteratorHelper {
@@ -28,14 +30,8 @@ public class IteratorHelper {
 	 * @param predicate
 	 * @return
 	 */
-	public static int countTuplesForPredicate(final Iterator<Tuple> iterator) {
-		int counter = 0;
-		
-		while(iterator.hasNext()) {
-			counter++;
-		}
-		
-		return counter;
+	public static int getIteratorSize(final Iterator<Tuple> iterator) {
+		return Iterators.size(iterator);
 	}
 
 }

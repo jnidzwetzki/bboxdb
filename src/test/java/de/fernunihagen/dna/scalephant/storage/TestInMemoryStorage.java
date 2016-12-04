@@ -186,7 +186,7 @@ public class TestInMemoryStorage {
 	}
 	
 	protected int countTuplesForPredicate(Predicate predicate) {
-		return IteratorHelper.countTuplesForPredicate(memtable.getMatchingTuples(predicate));
+		return IteratorHelper.getIteratorSize(memtable.getMatchingTuples(predicate));
 	}
 
 	/**
