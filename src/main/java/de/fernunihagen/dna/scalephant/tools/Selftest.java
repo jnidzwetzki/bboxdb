@@ -19,7 +19,6 @@ package de.fernunihagen.dna.scalephant.tools;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -32,6 +31,7 @@ import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.IteratorHelper;
 
 public class Selftest {
 
@@ -161,15 +161,10 @@ public class Selftest {
 			System.exit(-1);
 		}
 		
-		int totalTuples = 0;
-		
-		for(int requestId = 0; requestId < queryResult.getNumberOfResultObjets(); requestId++) {
-			final List<Tuple> myList = queryResult.get(requestId);
-			totalTuples = totalTuples + myList.size();
-		}
+		final int totalTuples = IteratorHelper.getIteratorSize(queryResult.iterator());
 		
 		if(totalTuples != NUMBER_OF_OPERATIONS) {
-			logger.error("Got " + totalTuples + " tuples back, but expected " + NUMBER_OF_OPERATIONS);
+			logger.error("Got {} tuples back, but expected {}", totalTuples, NUMBER_OF_OPERATIONS);
 			System.exit(-1);
 		}
 	}
@@ -189,7 +184,7 @@ public class Selftest {
 			deletionResult.waitForAll();
 			
 			if(deletionResult.isFailed() ) {
-				logger.error("Got an error while deleting: " +  key);
+				logger.error("Got an error while deleting: {} ", key);
 				System.exit(-1);
 			}
 		}
@@ -211,22 +206,17 @@ public class Selftest {
 			queryResult.waitForAll();
 			
 			if(queryResult.isFailed()) {
-				logger.error("Query " + i + ": Got failed future, when query for: " + i);
+				logger.error("Query {} : Got failed future, when query for: {}", i, key);
 				System.exit(-1);
 			}
 
 			boolean tupleFound = false;
 			
-			for(int result = 0; result < queryResult.getNumberOfResultObjets(); result++) {
-				final List<Tuple> resultTuples = queryResult.get(result);
-				tupleFound = true;
-				
-				for(final Tuple tuple : resultTuples) {
-					if(! tuple.getKey().equals(key)) {
-						logger.error("Query " + i + ": Got tuple with wrong key.");
-						logger.error("Expected: " + key + " but got: " + tuple.getKey());
-						System.exit(-1);
-					}
+			for(final Tuple tuple : queryResult) {
+				if(! tuple.getKey().equals(key)) {
+					logger.error("Query {}: Got tuple with wrong key.", i);
+					logger.error("Expected: {} but got: {}", i, tuple.getKey());
+					System.exit(-1);
 				}
 			}
 			
@@ -255,15 +245,13 @@ public class Selftest {
 			queryResult.waitForAll();
 			
 			if(queryResult.isFailed()) {
-				logger.error("Query " + i + ": Got failed future, when query for: " + i);
+				logger.error("Query {}: Got failed future, when query for: {}", i, key);
 				System.exit(-1);
 			}
 			
-			for(int result = 0; result < queryResult.getNumberOfResultObjets(); result++) {
-				if(! queryResult.get(result).isEmpty()) {
-					logger.error("Found a tuple which should not exist: " + i + " / " + queryResult.get(0));
-					System.exit(-1);
-				}
+			for (final Tuple tuple : queryResult) {
+				logger.error("Found a tuple which should not exist: {} / {}", i, tuple);
+				System.exit(-1);
 			}
 		}
 	}
