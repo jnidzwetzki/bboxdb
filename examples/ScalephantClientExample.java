@@ -89,8 +89,13 @@ public class ScalephantClientExample {
 		insertResult1.waitForAll();
 		insertResult2.waitForAll();
 		
-		if(insertResult1.isFailed() || insertResult2.isFailed()) {
-			System.err.println("Unable to insert tuples");
+		if(insertResult1.isFailed()) {
+			System.err.println("Unable to insert tuple: " + insertResult1.getAllMessages());
+			System.exit(-1);
+		}
+		
+		if(insertResult2.isFailed()) {
+			System.err.println("Unable to insert tuple: " + insertResult2.getAllMessages());
 			System.exit(-1);
 		}
 		
