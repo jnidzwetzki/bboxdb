@@ -47,12 +47,13 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 			final List<FloatInterval> floatIntervals = new ArrayList<FloatInterval>();
 
 			for(final SSTableName ssTableName : tables) {
-				logger.info("Create split samples for table: " + ssTableName.getFullname());
+				logger.info("Create split samples for table: {} ", ssTableName.getFullname());
 				
 				final SSTableManager storageInterface = StorageRegistry.getSSTableManager(ssTableName);
 				final List<SSTableFacade> facades = storageInterface.getSstableFacades();
 				
 				processFacades(facades, splitDimension, floatIntervals);
+				logger.info("Create split samples for table: {} DONE", ssTableName.getFullname());
 			}
 			
 			final int midpoint = floatIntervals.size() / 2;
