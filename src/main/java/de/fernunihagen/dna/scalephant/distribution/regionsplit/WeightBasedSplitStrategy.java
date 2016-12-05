@@ -72,7 +72,7 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 	 */
 	protected void processFacades(final List<SSTableFacade> facades, final int splitDimension, final List<FloatInterval> floatIntervals) {
 		
-		final int samplesPerFacade = SAMPLE_SIZE / facades.size();
+		final int samplesPerFacade = Math.max(10, SAMPLE_SIZE / facades.size());
 		
 		for(final SSTableFacade facade : facades) {
 			if(! facade.acquire() ) {
