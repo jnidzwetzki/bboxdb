@@ -66,7 +66,7 @@ public class SSTableCompactorThread implements Runnable {
 
 		try {
 			executeThread();
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			logger.error("Got an uncaught exception", e);
 		}
 		
