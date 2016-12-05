@@ -164,8 +164,13 @@ public class NetworkConnectionService implements ScalephantService {
 				}
 				
 			} catch(IOException e) {
-				logger.error("Got an IO exception while reading from server socket ", e);
-				shutdown = true;
+				
+				// Print exception only if the exception is really unexpected
+				if(shutdown != true) {
+					logger.error("Got an IO exception while reading from server socket ", e);
+					shutdown = true;
+				}
+
 			} finally {
 				closeSocketNE();
 			}
