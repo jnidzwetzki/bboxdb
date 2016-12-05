@@ -49,6 +49,11 @@ class SSTableFlushThread implements Runnable, Stoppable {
 	protected volatile boolean run;
 	
 	/**
+	 * The name of the thread
+	 */
+	protected final String threadname;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableFlushThread.class);
@@ -60,6 +65,7 @@ class SSTableFlushThread implements Runnable, Stoppable {
 		this.sstableManager = sstableManager;
 		this.unflushedMemtables = sstableManager.getUnflushedMemtables();
 		this.dataDirectory = sstableManager.getScalephantConfiguration().getDataDirectory();
+		this.threadname = sstableManager.getSSTableName().getFullname();
 		this.run = true;
 	}
 
@@ -69,6 +75,18 @@ class SSTableFlushThread implements Runnable, Stoppable {
 	 */
 	@Override
 	public void run() {
+		logger.info("Memtable flush thread has started: {} ", threadname);
+
+		try {
+			executeThread();
+		} catch (Throwable e) {
+			logger.error("Got uncought exception", e);
+		}
+		
+		logger.info("Memtable flush thread has stopped: {} ", threadname);
+	}
+
+	protected void executeThread() {
 		while(run) {
 			while(unflushedMemtables.isEmpty()) {
 				try {					
@@ -76,22 +94,20 @@ class SSTableFlushThread implements Runnable, Stoppable {
 						unflushedMemtables.wait();
 					}
 				} catch (InterruptedException e) {
-					logger.info("Memtable flush thread has stopped: " + sstableManager.getSSTableName());
+					logger.info("Memtable flush thread has stopped: " + threadname);
 					return;
 				}
 			}
 			
 			flushAllMemtablesToDisk();
 		}
-		
-		logger.info("Memtable flush thread has stopped: " + sstableManager.getSSTableName());
 	}
 	
 	/**
 	 * Stop the memtable flush thread
 	 */
 	public void stop() {
-		logger.info("Stopping memtable flush thread for: " + sstableManager.getSSTableName());
+		logger.info("Stopping memtable flush thread for: " + threadname);
 		run = false;
 	}
 
@@ -115,7 +131,7 @@ class SSTableFlushThread implements Runnable, Stoppable {
 				if(Thread.currentThread().isInterrupted()) {
 					logger.warn("Got Exception while flushing memtable, but thread was interrupted. Ignoring exception.");
 				} else {
-					logger.warn("Exception while flushing memtable: " + sstableManager.getSSTableName(), e);
+					logger.warn("Exception while flushing memtable: " + threadname, e);
 				}
 			}
 	

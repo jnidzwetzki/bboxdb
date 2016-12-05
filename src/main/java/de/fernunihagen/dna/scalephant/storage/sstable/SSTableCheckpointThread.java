@@ -65,6 +65,11 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	protected DistributionRegion distributionRegion = null;
 	
 	/**
+	 * The name of the thread
+	 */
+	protected final String threadname;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCheckpointThread.class);
@@ -73,6 +78,8 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 		this.maxUncheckpointedMiliseconds = TimeUnit.SECONDS.toMillis(maxUncheckpointedSeconds);
 		this.ssTableManager = ssTableManager;
 		this.run = true;
+		
+		this.threadname = ssTableManager.getSSTableName().getFullname();
 		
 		// Local instance
 		final ScalephantConfiguration scalephantConfiguration = ScalephantConfigurationManager.getConfiguration();
@@ -89,9 +96,20 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 
 	@Override
 	public void run() {
+		logger.info("Memtable flush thread has started: {} ", threadname);
+
+		try {
+			executeThread();
+		} catch (Throwable e) {
+			logger.error("Got uncought exception", e);
+		}
 		
+		logger.info("Memtable flush thread has stopped: {} ", threadname);
+	}
+
+	protected void executeThread() {
 		while(run) {
-			logger.debug("Executing checkpoint thread for: " + ssTableManager.getSSTableName());
+			logger.debug("Executing checkpoint thread for: " + threadname);
 			
 			createCheckpoint();
 		
