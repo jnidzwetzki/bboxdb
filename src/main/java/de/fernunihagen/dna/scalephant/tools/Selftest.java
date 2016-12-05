@@ -209,7 +209,7 @@ public class Selftest {
 				logger.error("Query {} : Got failed future, when query for: {}", i, key);
 				System.exit(-1);
 			}
-
+			
 			boolean tupleFound = false;
 			
 			for(final Tuple tuple : queryResult) {
@@ -218,11 +218,12 @@ public class Selftest {
 					logger.error("Expected: {} but got: {}", i, tuple.getKey());
 					System.exit(-1);
 				}
+				
+				tupleFound = true;
 			}
 			
 			if(tupleFound == false) {
-				logger.error("Query " + i + ": Key " + key + " not found");
-				logger.error("Number of result futures: " + queryResult.getNumberOfResultObjets());
+				logger.error("Query {}: Key {} not found", i, key);
 				System.exit(-1);
 			}
 		}
