@@ -18,6 +18,7 @@
 - Bugfix: Ignore socket exception, when a server shutdown is performed
 - Bugfix: When a dead instance is detected, don't send a disconnect package. Close the network connection instead
 - Bugfix: Fixed division by zero in WeightBasedSplitStrategy
+- Bugfix: Thread names contain the full output of sstablename.toString
 
 ### Version 0.2.0 (Beta-2) - 28.11.2016
 - New Feature: Java 8 is now required to build the project

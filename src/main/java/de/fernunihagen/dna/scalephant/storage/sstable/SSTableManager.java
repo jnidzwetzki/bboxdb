@@ -214,12 +214,12 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 		if(scalephantConfiguration.isStorageRunMemtableFlushThread()) {
 			final SSTableFlushThread ssTableFlushThread = new SSTableFlushThread(this);
 			final Thread flushThread = new Thread(ssTableFlushThread);
-			flushThread.setName("Memtable flush thread for: " + getSSTableName());
+			flushThread.setName("Memtable flush thread for: " + sstablename.getFullname());
 			flushThread.start();
 			runningThreads.add(flushThread);
 			stoppableTasks.add(ssTableFlushThread);
 		} else {
-			logger.info("NOT starting the memtable flush thread for:" + getSSTableName());
+			logger.info("NOT starting the memtable flush thread for:" + sstablename.getFullname());
 		}
 	}
 
@@ -228,7 +228,7 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 	 */
 	@Override
 	public void shutdown() {
-		logger.info("Shuting down the instance for table: " + getSSTableName());
+		logger.info("Shuting down the instance for table: " + sstablename.getFullname());
 		
 		// Set ready to false. The threads will shutdown after completing
 		// the running tasks
