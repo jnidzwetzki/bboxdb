@@ -145,28 +145,29 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	 */
 	protected void createCheckpoint() {
 		try {
-			// Is a new checkpoint needed?
-			if(! isCheckpointNeeded()) {
-				return;
-			}
-			
-			final Memtable activeMemtable = ssTableManager.getMemtable();
-			logger.info("Creating a checkpoint for: {}", threadname);
-			ssTableManager.flushMemtable();
-			
-			final List<Memtable> unflushedMemtables = ssTableManager.getUnflushedMemtables();
-			
-			// Wait until the active memtable is flushed to disk
-			synchronized (unflushedMemtables) {
-				while(unflushedMemtables.contains(activeMemtable)) {
-					unflushedMemtables.wait();
+
+			if(isCheckpointNeeded()) {
+				final Memtable activeMemtable = ssTableManager.getMemtable();
+				logger.info("Creating a checkpoint for: {}", threadname);
+				ssTableManager.flushMemtable();
+				
+				final List<Memtable> unflushedMemtables = ssTableManager.getUnflushedMemtables();
+				
+				// Wait until the active memtable is flushed to disk
+				synchronized (unflushedMemtables) {
+					while(unflushedMemtables.contains(activeMemtable)) {
+						unflushedMemtables.wait();
+					}
 				}
+				
+				logger.info("Create checkpoint DONE for: {}", threadname);
 			}
 			
+			// Update checkpoint date in zookeeper
+			final Memtable activeMemtable = ssTableManager.getMemtable();
 			final long createdTimestamp = activeMemtable.getCreatedTimestamp();
 			updateCheckpointDate(createdTimestamp);
 			
-			logger.info("Create checkpoint DONE for: {} timestamp {}", threadname, createdTimestamp);
 		} catch (Exception e) {
 			logger.warn("Got an exception while creating checkpoint", e);
 		}
@@ -178,6 +179,9 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	 * @throws ZookeeperException 
 	 */
 	protected void updateCheckpointDate(final long checkpointTimestamp) throws ZookeeperException {
+		
+		logger.debug("Updating checkpoint for: {} to {}", threadname, checkpointTimestamp);
+		
 		if(distributionRegion != null) {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			zookeeperClient.setCheckpointForDistributionRegion(distributionRegion, localInstance, checkpointTimestamp);
