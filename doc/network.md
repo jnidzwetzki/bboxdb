@@ -335,8 +335,9 @@ The request body of a query consists of the query type and specific data for the
 Query type:
 
 * Type 0x01 - Key query
-* Type 0x02 - Bounding Box query
+* Type 0x02 - Bounding box query
 * Type 0x03 - Time query
+* Type 0x04 - Time and Bounding box query
 
 Paging: 
 * 0x00 - Paging disabled
@@ -408,6 +409,34 @@ This query asks for all tuples, that are inserted after certain time stamp (time
     
 #### Response body
 The result could be currently the response types 0x02, 0x03 and 0x06.
+
+
+### Time and bounding box query
+This query asks for all tuples, that are covered by the bounding box and newer than time.
+
+#### Request body
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	|  0x04   | Paging |    Page Size    | 
+	+---------+--------+-----------------+
+	|   Table-Length   |     Unused      |
+	+------------------+-----------------+
+	|              BBOX-Length           | 
+	+------------------------------------+ 
+	|              Timestamp             |
+    |                                    |
+	+------------------------------------+ 
+	|              Tablename             |
+	.                                    .
+	+------------------------------------+
+	|                 BBOX               |
+	.                                    .
+	+------------------------------------+
+
+#### Response body
+The result could be currently the response types 0x02, 0x03 and 0x06.
+
 
 ### Transfer SSTable
 This request transfers a whole SSTable from one instance to another. This request is send between two scalephant instances. 

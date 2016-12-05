@@ -45,6 +45,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.KeepAliveRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.NextPageRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.CompressionEnvelopeResponse;
@@ -385,6 +386,38 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_TIME, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+	}
+	
+	
+	/**
+	 * Test decode time query
+	 * @throws IOException 
+	 * @throws PackageEncodeError 
+	 */
+	@Test
+	public void testDecodeBoundingBoxAndTime() throws IOException, PackageEncodeError {
+		final String table = "table1";
+		final long timeStamp = 4711;
+		final BoundingBox boundingBox = new BoundingBox(10f, 20f);
+
+		
+		final QueryBoundingBoxTimeRequest queryRequest = new QueryBoundingBoxTimeRequest(table, boundingBox, timeStamp, true, (short) 50);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		byte[] encodedPackage = networkPackageToByte(queryRequest, sequenceNumber);
+		Assert.assertNotNull(encodedPackage);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
+		Assert.assertTrue(result);
+
+		final QueryBoundingBoxTimeRequest decodedPackage = QueryBoundingBoxTimeRequest.decodeTuple(bb);
+		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
+		Assert.assertEquals(queryRequest.getTimestamp(), decodedPackage.getTimestamp());
+		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
+		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
+		
+		Assert.assertEquals(NetworkConst.REQUEST_QUERY_BBOX_AND_TIME, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 	}
 	
 	/**

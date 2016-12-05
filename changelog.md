@@ -2,7 +2,8 @@
 
 ### Version 0.2.0 (Beta-3) - TBA
 - New Feature: Introduced paging (results > memory could be requested)
-- New Frature: Introduced type safe client API
+- New Feature: Introduced type safe client API
+- New Feature: Added boundingbox with time query type
 - Improvement: Simplified network protocol by removing the duplicate success and response packages
 - Improvement: Success and Error responses are now indicated by the isFailed() future method 
 - Improvement: Success and Error messages are now provided by the getMessage() future method 

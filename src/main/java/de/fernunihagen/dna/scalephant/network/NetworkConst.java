@@ -111,6 +111,11 @@ public class NetworkConst {
 	 */
 	public static final byte REQUEST_QUERY_TIME = 0x03;
 	
+	/**
+	 * Query type bounding box and Time
+	 */
+	public static final byte REQUEST_QUERY_BBOX_AND_TIME = 0x04;
+	
 	
 	/**
 	 * Response type helo
