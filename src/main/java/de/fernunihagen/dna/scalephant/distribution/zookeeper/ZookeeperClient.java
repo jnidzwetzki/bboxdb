@@ -331,8 +331,20 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	@Override
 	public void process(final WatchedEvent watchedEvent) {	
 				
-		logger.debug("Got zookeeper event: " + watchedEvent);
+		try {
+			logger.debug("Got zookeeper event: {} " + watchedEvent);
+			processZookeeperEvent(watchedEvent);
+		} catch(Throwable e) {
+			logger.error("Got uncought exception while processing event", e);
+		}
 		
+	}
+
+	/**
+	 * Process zooekeeper events
+	 * @param watchedEvent
+	 */
+	protected void processZookeeperEvent(final WatchedEvent watchedEvent) {
 		// Ignore null parameter
 		if(watchedEvent == null) {
 			logger.warn("process called with an null argument");
