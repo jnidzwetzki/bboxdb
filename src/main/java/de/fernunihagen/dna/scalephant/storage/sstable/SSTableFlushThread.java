@@ -86,6 +86,9 @@ class SSTableFlushThread implements Runnable, Stoppable {
 		logger.info("Memtable flush thread has stopped: {} ", threadname);
 	}
 
+	/**
+	 * Start the flush thread
+	 */
 	protected void executeThread() {
 		while(run) {
 			while(unflushedMemtables.isEmpty()) {
