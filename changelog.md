@@ -9,6 +9,7 @@
 - Improvement: Success and Error responses are now indicated by the isFailed() future method 
 - Improvement: Success and Error messages are now provided by the getMessage() future method 
 - Improvement: Introduced iterator for list results in client API
+- Improvement: Use the WeightBasedSplitStrategy as default
 - Bugfix: Group membership watch was not re-established
 - Bugfix: Wrong node state was displayed in the GUI
 - Bugfix: Fixed handling of failed futures in the benchmark

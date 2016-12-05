@@ -99,7 +99,7 @@ public class ScalephantConfiguration {
 	/**
 	 * The sstable split strategy
 	 */
-	protected String regionSplitStrategy = "de.fernunihagen.dna.scalephant.distribution.regionsplit.SimpleSplitStrategy";
+	protected String regionSplitStrategy = "de.fernunihagen.dna.scalephant.distribution.regionsplit.WeightBasedSplitStrategy";
 
 	/**
 	 * The resource placement strategy
