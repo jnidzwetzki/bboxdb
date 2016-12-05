@@ -184,12 +184,12 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 			final int maxUncheckpointedSeconds = scalephantConfiguration.getStorageCheckpointInterval();
 			final SSTableCheckpointThread ssTableCheckpointThread = new SSTableCheckpointThread(maxUncheckpointedSeconds, this);
 			final Thread checkpointThread = new Thread(ssTableCheckpointThread);
-			checkpointThread.setName("Checkpoint thread for: " + getSSTableName());
+			checkpointThread.setName("Checkpoint thread for: " + sstablename.getFullname());
 			checkpointThread.start();
 			runningThreads.add(checkpointThread);
 			stoppableTasks.add(ssTableCheckpointThread);
 		} else {
-			logger.info("NOT starting the checkpoint thread for: " + getSSTableName());
+			logger.info("NOT starting the checkpoint thread for: " + sstablename.getFullname());
 		}
 	}
 	
@@ -199,11 +199,11 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 	protected void startCompactThread() {
 		if(scalephantConfiguration.isStorageRunCompactThread()) {
 			final Thread compactThread = new Thread(new SSTableCompactorThread(this));
-			compactThread.setName("Compact thread for: " + getSSTableName());
+			compactThread.setName("Compact thread for: " + sstablename.getFullname());
 			compactThread.start();
 			runningThreads.add(compactThread);
 		} else {
-			logger.info("NOT starting the sstable compact thread for: " + getSSTableName());
+			logger.info("NOT starting the sstable compact thread for: " + sstablename.getFullname());
 		}
 	}
 
