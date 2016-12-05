@@ -116,7 +116,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 				createCheckpoint();
 				Thread.sleep(SSTableConst.CHECKPOINT_THREAD_DELAY);
 			} catch (InterruptedException e) {
-				logger.info("Got interrupted exception, stopping thread for: {}", threadname);
+				logger.info("Got interrupted exception, stopping checkpoint thread for: {}", threadname);
 				Thread.currentThread().interrupt();
 				return;
 			}
@@ -179,8 +179,9 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	 * Update the checkpoint date (e.g. propagate checkpoint to zookeeper)
 	 * @param createdTimestamp
 	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
 	 */
-	protected void updateCheckpointDate(final long checkpointTimestamp) throws ZookeeperException {
+	protected void updateCheckpointDate(final long checkpointTimestamp) throws ZookeeperException, InterruptedException {
 		
 		logger.debug("Updating checkpoint for: {} to {}", threadname, checkpointTimestamp);
 		

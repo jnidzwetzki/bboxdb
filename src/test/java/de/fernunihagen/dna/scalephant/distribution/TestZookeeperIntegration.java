@@ -255,9 +255,10 @@ public class TestZookeeperIntegration {
 	/**
 	 * Test the set and get checkpoint methods
 	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
 	 */
 	@Test
-	public void testSystemCheckpoint1() throws ZookeeperException {
+	public void testSystemCheckpoint1() throws ZookeeperException, InterruptedException {
 		final DistributedInstance systemName1 = new DistributedInstance("192.168.1.10:5050");
 		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
 
@@ -293,9 +294,10 @@ public class TestZookeeperIntegration {
 	/**
 	 * Test the set and get checkpoint methods
 	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
 	 */
 	@Test
-	public void testSystemCheckpoint2() throws ZookeeperException {
+	public void testSystemCheckpoint2() throws ZookeeperException, InterruptedException {
 		final DistributedInstance systemName1 = new DistributedInstance("192.168.1.10:5050");
 		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
 

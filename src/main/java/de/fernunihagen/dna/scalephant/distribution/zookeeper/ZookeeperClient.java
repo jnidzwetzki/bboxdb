@@ -1054,8 +1054,9 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param region
 	 * @param system
 	 * @throws ZookeeperException
+	 * @throws InterruptedException 
 	 */
-	public void setCheckpointForDistributionRegion(final DistributionRegion region, final DistributedInstance system, final long checkpoint) throws ZookeeperException {
+	public void setCheckpointForDistributionRegion(final DistributionRegion region, final DistributedInstance system, final long checkpoint) throws ZookeeperException, InterruptedException {
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
@@ -1071,7 +1072,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			
 			zookeeper.setData(path, Long.toString(checkpoint).getBytes(), -1);
 
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
 			throw new ZookeeperException(e);
 		}
 	}
