@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package de.fernunihagen.dna.scalephant.storage.queryprocessor;
+package de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate;
 
 import java.util.Iterator;
 

@@ -15,17 +15,30 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package de.fernunihagen.dna.scalephant.storage.queryprocessor;
+package de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate;
 
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
-public interface Predicate {
+public class AndPredicate implements Predicate {
 
 	/**
-	 * Does the tuple match the predicate
-	 * @param tuple
-	 * @return
+	 * The first predicate
 	 */
-	public boolean matches(final Tuple tuple);
+	protected Predicate predicate1;
 	
+	/**
+	 * The second predicate
+	 */
+	protected Predicate predicate2;
+
+	public AndPredicate(final Predicate predicate1, final Predicate predicate2) {
+		this.predicate1 = predicate1;
+		this.predicate2 = predicate2;
+	}
+
+	@Override
+	public boolean matches(final Tuple tuple) {
+		return predicate1.matches(tuple) && predicate2.matches(tuple);
+	}
+
 }

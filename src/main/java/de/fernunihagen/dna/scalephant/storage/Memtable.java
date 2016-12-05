@@ -32,8 +32,8 @@ import de.fernunihagen.dna.scalephant.ScalephantService;
 import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.PredicateFilterIterator;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.PredicateFilterIterator;
 import de.fernunihagen.dna.scalephant.storage.sstable.TupleHelper;
 
 public class Memtable implements ScalephantService, ReadWriteTupleStorage, Iterable<Tuple> {

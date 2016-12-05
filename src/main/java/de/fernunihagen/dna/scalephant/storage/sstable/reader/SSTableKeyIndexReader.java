@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.PredicateFilterIterator;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.PredicateFilterIterator;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableConst;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
 

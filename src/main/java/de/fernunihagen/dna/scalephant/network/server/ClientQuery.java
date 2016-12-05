@@ -33,7 +33,7 @@ import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.CloseableIterator;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 
 public class ClientQuery implements Closeable {

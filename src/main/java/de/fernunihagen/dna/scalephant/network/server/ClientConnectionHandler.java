@@ -79,7 +79,7 @@ import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.NewerAsTimePredicate;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.OverlapsBoundingBoxPredicate;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 
 public class ClientConnectionHandler implements Runnable {

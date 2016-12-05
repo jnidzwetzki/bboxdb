@@ -3,7 +3,7 @@ package de.fernunihagen.dna.scalephant.storage;
 import java.util.Iterator;
 
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.Predicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 
 public interface ReadOnlyTupleStorage {
 

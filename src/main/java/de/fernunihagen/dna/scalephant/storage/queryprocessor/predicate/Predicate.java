@@ -15,31 +15,17 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package de.fernunihagen.dna.scalephant.storage.queryprocessor;
+package de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate;
 
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 
-public class NewerAsTimePredicate implements Predicate {
+public interface Predicate {
 
-	protected final long time;
+	/**
+	 * Does the tuple match the predicate
+	 * @param tuple
+	 * @return
+	 */
+	public boolean matches(final Tuple tuple);
 	
-	public NewerAsTimePredicate(final long time) {
-		this.time = time;
-	}
-
-	@Override
-	public boolean matches(final Tuple tuple) {
-		if(tuple.getTimestamp() > time) {
-			return true;
-		}
-		
-		return false;
-	}
-
-	@Override
-	public String toString() {
-		return "NewerAsTimePredicate [time=" + time + "]";
-	}
-
 }
