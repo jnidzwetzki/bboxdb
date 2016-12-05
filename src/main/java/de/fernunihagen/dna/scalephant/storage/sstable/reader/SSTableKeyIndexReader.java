@@ -122,8 +122,20 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	 * @throws IOException
 	 */
 	public String getKeyForIndexEntry(final long entry) throws IOException {
-		int position = convertEntryToPosition(entry);
+		final int position = convertEntryToPosition(entry);
 		return sstableReader.decodeOnlyKeyFromTupleAtPosition(position);
+	}
+	
+	/**
+	 * Get the tuple at the given position
+	 * @param entry
+	 * @return
+	 * @throws IOException
+	 * @throws StorageManagerException 
+	 */
+	public Tuple getTupleForIndexEntry(final long entry) throws IOException, StorageManagerException {
+		final int position = convertEntryToPosition(entry);
+		return sstableReader.getTupleAtPosition(position);
 	}
 
 	/**
