@@ -47,6 +47,11 @@ public class SSTableCompactorThread implements Runnable {
 	protected final MergeStrategy mergeStragegy;
 	
 	/**
+	 * The name of the thread
+	 */
+	protected final String threadname;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactorThread.class);
@@ -54,6 +59,7 @@ public class SSTableCompactorThread implements Runnable {
 	public SSTableCompactorThread(final SSTableManager ssTableManager) {
 		this.sstableManager = ssTableManager;
 		this.mergeStragegy = new SimpleMergeStrategy();
+		this.threadname = sstableManager.getSSTableName().getFullname();
 	}
 
 	/**
@@ -62,7 +68,7 @@ public class SSTableCompactorThread implements Runnable {
 	 */
 	@Override
 	public void run() {
-		logger.info("Starting new compact thread for: " + sstableManager.getSSTableName().getFullname());
+		logger.info("Starting new compact thread for: {}", threadname);
 
 		try {
 			executeThread();
@@ -70,7 +76,7 @@ public class SSTableCompactorThread implements Runnable {
 			logger.error("Got an uncaught exception", e);
 		}
 		
-		logger.info("Compact thread for: " + sstableManager.getSSTableName() + " is done");
+		logger.info("Compact thread for: {} is done", threadname);
 	}
 
 	/**
@@ -81,7 +87,7 @@ public class SSTableCompactorThread implements Runnable {
 
 			try {	
 				Thread.sleep(mergeStragegy.getCompactorDelay());
-				logger.debug("Executing compact thread for: " + sstableManager.getSSTableName().getFullname());
+				logger.debug("Executing compact thread for: {}", threadname);
 
 				// Create a copy to ensure, that the list of facades don't change
 				// during the compact run.
@@ -92,30 +98,16 @@ public class SSTableCompactorThread implements Runnable {
 					mergeSSTables(mergeTask.getMinorCompactTables(), false);
 					mergeSSTables(mergeTask.getMajorCompactTables(), true);				
 				} catch (Exception e) {
-					handleExceptionDuringMerge(e);
+					logger.error("Error while merging tables", e);
 				} 
 			} catch (InterruptedException e) {
-				// Ignore exception
+				Thread.currentThread().interrupt();
 			} 
 		}
 		
-		logger.info("Compact thread for: " + sstableManager.getSSTableName() + " is done");
+		logger.info("Compact thread for: {} is done", threadname);
 	}
 
-	/**
-	 * Handle exceptions during merge, only print the exception
-	 * when the compact thread is not interrupted
-	 * 
-	 * @param e
-	 */
-	protected void handleExceptionDuringMerge(Exception e) {
-		if(Thread.currentThread().isInterrupted()) {
-			logger.info("Compact thread for: " + sstableManager.getSSTableName().getFullname() + " is done");
-		} else {
-			logger.error("Error while merging tables", e);
-		}
-	}
-	
 	/**
 	 * Calculate max the number of entries in the output
 	 * @param tables
@@ -161,9 +153,9 @@ public class SSTableCompactorThread implements Runnable {
 		// Run the compact process
 		final SSTableCompactor ssTableCompactor = new SSTableCompactor(reader, writer);
 		ssTableCompactor.setMajorCompaction(majorCompaction);
-		boolean compactSuccess = ssTableCompactor.executeCompactation();
+		final boolean compactSuccess = ssTableCompactor.executeCompactation();
 		
-		if(!compactSuccess) {
+		if(! compactSuccess) {
 			logger.error("Error during compactation");
 			return;
 		} else {
