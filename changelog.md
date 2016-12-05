@@ -14,6 +14,7 @@
 - Bugfix: Wrong node state was displayed in the GUI
 - Bugfix: Fixed handling of failed futures in the benchmark
 - Bugfix: Fixed calculation of 'in flight calls' for a cluster
+- Bugfix: Fixed calculation of the routing header, don't route packages to local instance
 
 ### Version 0.2.0 (Beta-2) - 28.11.2016
 - New Feature: Java 8 is now required to build the project

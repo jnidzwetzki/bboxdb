@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -222,9 +223,7 @@ public class PackageRouter {
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForGroupName(distributionGroup, zookeeperClient);
 		
-		final Set<DistributionRegion> regions = distributionRegion.getDistributionRegionsForBoundingBox(boundingBox);
-		
-		return regions;
+		return distributionRegion.getDistributionRegionsForBoundingBox(boundingBox);
 	}
 	
 	
@@ -246,8 +245,12 @@ public class PackageRouter {
 		
 		// Remove the local instance
 		final DistributedInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName(ScalephantConfigurationManager.getConfiguration());
-		systems.remove(localInstanceName);
 		
-		return systems;
+		final List<DistributedInstance> systemsWithoutLocalInstance = systems
+			.stream()
+			.filter(i -> ! i.getInetSocketAddress().equals(localInstanceName.getInetSocketAddress()))
+			.collect(Collectors.toList());
+
+		return systemsWithoutLocalInstance;
 	}
 }
