@@ -35,6 +35,7 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFact
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.storage.Memtable;
+import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.util.Stoppable;
 
 public class SSTableCheckpointThread implements Runnable, Stoppable {
@@ -109,14 +110,13 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 
 	protected void executeThread() {
 		while(run) {
-			logger.debug("Executing checkpoint thread for: " + threadname);
-			
-			createCheckpoint();
+			logger.debug("Executing checkpoint thread for: {}", threadname);
 		
 			try {
+				createCheckpoint();
 				Thread.sleep(SSTableConst.CHECKPOINT_THREAD_DELAY);
 			} catch (InterruptedException e) {
-				logger.info("Got interrupted exception, stopping thread");
+				logger.info("Got interrupted exception, stopping thread for: {}", threadname);
 				return;
 			}
 		}
@@ -142,8 +142,9 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 
 	/**
 	 * Create a new checkpoint, this means flush all old memtables to disk
+	 * @throws InterruptedException 
 	 */
-	protected void createCheckpoint() {
+	protected void createCheckpoint() throws InterruptedException {
 		try {
 
 			if(isCheckpointNeeded()) {
@@ -168,7 +169,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			final long createdTimestamp = activeMemtable.getCreatedTimestamp();
 			updateCheckpointDate(createdTimestamp);
 			
-		} catch (Exception e) {
+		} catch (ZookeeperException | StorageManagerException e) {
 			logger.warn("Got an exception while creating checkpoint", e);
 		}
 	}
