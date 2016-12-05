@@ -118,12 +118,6 @@ public class NetworkConnectionService implements ScalephantService {
 		state.setReady(false);
 	}
 	
-	@Override
-	protected void finalize() throws Throwable {
-		shutdown();
-		super.finalize();
-	}
-	
 	/**
 	 * Is the connection handler ready?
 	 * @return
