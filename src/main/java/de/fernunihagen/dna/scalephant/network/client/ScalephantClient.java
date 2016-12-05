@@ -310,6 +310,7 @@ public class ScalephantClient implements Scalephant {
 					pendingCalls.wait(DEFAULT_TIMEOUT);
 				} catch (InterruptedException e) {
 					logger.debug("Got an InterruptedException during pending calls wait.");
+					Thread.currentThread().interrupt();
 					// Close connection immediately
 				}
 			}
@@ -669,6 +670,7 @@ public class ScalephantClient implements Scalephant {
 			}
 		} catch(InterruptedException e) {
 			logger.warn("Got an exception while waiting for pending requests", e);
+			Thread.currentThread().interrupt();
 			return -1;
 		}
 		
@@ -708,7 +710,7 @@ public class ScalephantClient implements Scalephant {
 					try {
 						Thread.sleep(10000);
 					} catch (InterruptedException e) {
-						// Ignore InterruptedException
+						// Handle InterruptedException directly
 						break;
 					}
 				}

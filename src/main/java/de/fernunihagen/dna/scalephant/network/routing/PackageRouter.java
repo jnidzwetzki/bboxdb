@@ -91,8 +91,11 @@ public class PackageRouter {
 					} else {
 						clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence));
 					}
-				} catch (ZookeeperException | InterruptedException | ExecutionException e) {
+				} catch (ZookeeperException | ExecutionException e) {
 					logger.warn("Exception while routing package", e);
+				} catch(InterruptedException e) {
+					logger.warn("Exception while routing package", e);
+					Thread.currentThread().interrupt();
 				}
 			}
 		};

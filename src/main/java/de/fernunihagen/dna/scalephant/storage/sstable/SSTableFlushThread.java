@@ -97,7 +97,8 @@ class SSTableFlushThread implements Runnable, Stoppable {
 						unflushedMemtables.wait();
 					}
 				} catch (InterruptedException e) {
-					logger.info("Memtable flush thread has stopped: " + threadname);
+					logger.info("Memtable flush thread has stopped: {}", threadname);
+					Thread.currentThread().interrupt();
 					return;
 				}
 			}

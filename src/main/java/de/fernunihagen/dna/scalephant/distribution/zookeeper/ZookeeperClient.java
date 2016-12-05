@@ -166,6 +166,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			zookeeper.close();
 		} catch (InterruptedException e) {
 			logger.warn("Got exception while closing zookeeper connection", e);
+			Thread.currentThread().interrupt();
 		}
 		
 		zookeeper = null;

@@ -289,6 +289,7 @@ public abstract class RegionSplitStrategy {
 			logger.warn("Unable to find systems for splitted region: " + region, e);
 		} catch (InterruptedException e) {
 			logger.warn("Got InterruptedException while wait for settle down: " + region, e);
+			Thread.currentThread().interrupt();
 		}
 	}
 }

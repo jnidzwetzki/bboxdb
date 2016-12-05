@@ -271,6 +271,7 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 			try {
 				thread.join(THREAD_WAIT_TIMEOUT);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				logger.warn("Got exception while waiting on thread join: " + thread.getName(), e);
 			}
 		}
@@ -397,6 +398,7 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				return false;
 			}
 		}

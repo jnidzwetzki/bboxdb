@@ -102,6 +102,7 @@ public class SSTableCompactorThread implements Runnable {
 				} 
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
+				break;
 			} 
 		}
 		

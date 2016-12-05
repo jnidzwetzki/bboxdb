@@ -117,6 +117,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 				Thread.sleep(SSTableConst.CHECKPOINT_THREAD_DELAY);
 			} catch (InterruptedException e) {
 				logger.info("Got interrupted exception, stopping thread for: {}", threadname);
+				Thread.currentThread().interrupt();
 				return;
 			}
 		}
