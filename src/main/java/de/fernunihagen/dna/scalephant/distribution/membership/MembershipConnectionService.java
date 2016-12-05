@@ -219,7 +219,7 @@ public class MembershipConnectionService implements ScalephantService, Distribut
 		
 		knownInstances.remove(distributedInstance.getInetSocketAddress());
 		final ScalephantClient client = serverConnections.remove(distributedInstance.getInetSocketAddress());
-		client.disconnect();
+		client.closeConnection();
 	}
 
 	/**
