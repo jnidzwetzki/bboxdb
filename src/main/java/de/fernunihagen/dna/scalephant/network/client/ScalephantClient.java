@@ -303,7 +303,7 @@ public class ScalephantClient implements Scalephant {
 
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
-			logger.info("Waiting for pending requests to settle");		
+			logger.info("Waiting {} seconds for pending requests to settle", DEFAULT_TIMEOUT / 1000);		
 			
 			if(! pendingCalls.keySet().isEmpty()) {
 				try {
@@ -314,7 +314,7 @@ public class ScalephantClient implements Scalephant {
 				}
 			}
 			
-			logger.info("All requests are settled. (Non completed requests: " + pendingCalls.size() + ").");
+			logger.info("Connection is closed. (Non completed requests: " + pendingCalls.size() + ").");
 		}
 		
 		closeConnection();
