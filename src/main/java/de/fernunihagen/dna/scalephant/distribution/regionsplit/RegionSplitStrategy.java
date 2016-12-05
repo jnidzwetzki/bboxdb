@@ -255,7 +255,7 @@ public abstract class RegionSplitStrategy {
 			final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(instance);
 			
 			if(connection == null) {
-				logger.warn("Connection to system is not known, unable to distribute tuple: " + connection);
+				logger.error("No connection for distributed instance {} is known, unable to distribute tuple: " + instance);
 				return false;
 			}
 			
