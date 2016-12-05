@@ -530,7 +530,7 @@ public class ScalephantClient implements Scalephant {
 	 */
 	@Override
 	public TupleListFuture queryBoundingBoxAndTime(final String table,
-			final BoundingBox boundingBox, final long timestamp) throws ScalephantException {
+			final BoundingBox boundingBox, final long timestamp) {
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("queryBoundingBox called, but connection not ready: " + this);

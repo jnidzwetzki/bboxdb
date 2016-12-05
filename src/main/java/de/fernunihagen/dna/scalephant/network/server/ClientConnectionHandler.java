@@ -60,6 +60,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.HelloRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.InsertTupleRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.NextPageRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.TransferSSTableRequest;
@@ -79,6 +80,7 @@ import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.NewerAsTimePredicate;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.OverlapsBoundingBoxPredicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.AndPredicate;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 
@@ -277,6 +279,10 @@ public class ClientConnectionHandler implements Runnable {
 				
 			case NetworkConst.REQUEST_QUERY_TIME:
 				handleTimeQuery(encodedPackage, packageSequence);
+				break;
+				
+			case NetworkConst.REQUEST_QUERY_BBOX_AND_TIME:
+				handleBoundingBoxTimeQuery(encodedPackage, packageSequence);
 				break;
 	
 			default:
@@ -560,6 +566,37 @@ public class ClientConnectionHandler implements Runnable {
 			final SSTableName requestTable = queryRequest.getTable();
 			final Predicate predicate = new OverlapsBoundingBoxPredicate(queryRequest.getBoundingBox());
 
+			final ClientQuery clientQuery = new ClientQuery(predicate, queryRequest.isPagingEnabled(), 
+					queryRequest.getTuplesPerPage(), this, packageSequence, requestTable);
+			
+			activeQueries.put(packageSequence, clientQuery);
+			sendNextResultsForQuery(packageSequence);
+		} catch (PackageEncodeError e) {
+			logger.warn("Got exception while decoding package", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+		}
+	}
+	
+	/**
+	 * Handle a bounding box query
+	 * @param encodedPackage
+	 * @param packageSequence
+	 */
+	protected void handleBoundingBoxTimeQuery(final ByteBuffer encodedPackage, final short packageSequence) {
+
+		try {
+			if(activeQueries.containsKey(packageSequence)) {
+				logger.error("Query sequence {} is allready known, please close old query first", packageSequence);
+				return;
+			}
+			
+			final QueryBoundingBoxTimeRequest queryRequest = QueryBoundingBoxTimeRequest.decodeTuple(encodedPackage);
+			final SSTableName requestTable = queryRequest.getTable();
+	
+			final Predicate bboxPredicate = new OverlapsBoundingBoxPredicate(queryRequest.getBoundingBox());
+			final Predicate timePredicate = new NewerAsTimePredicate(queryRequest.getTimestamp());
+			final Predicate predicate = new AndPredicate(timePredicate, bboxPredicate);
+			
 			final ClientQuery clientQuery = new ClientQuery(predicate, queryRequest.isPagingEnabled(), 
 					queryRequest.getTuplesPerPage(), this, packageSequence, requestTable);
 			

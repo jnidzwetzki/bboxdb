@@ -252,6 +252,54 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultList.contains(tuple5));
 	}
 	
+	/**
+	 * Insert some tuples and start a bounding box query afterwards
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testInsertAndBoundingBoxTimeQuery() throws InterruptedException, ExecutionException {
+		final String distributionGroup = "2_testgroup"; 
+		final String table = distributionGroup + "_relation9999";
+		
+		final ScalephantClient scalephantClient = connectToServer();
+		
+		// Delete distribution group
+		final EmptyResultFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
+		resultDelete.waitForAll();
+		Assert.assertFalse(resultDelete.isFailed());
+		
+		// Create distribution group
+		final EmptyResultFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
+		resultCreate.waitForAll();
+		Assert.assertFalse(resultCreate.isFailed());
+		
+		// Inside our bbox query
+		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0f, 1f, 0f, 1f), "abc".getBytes(), 4);
+		scalephantClient.insertTuple(table, tuple1);
+		final Tuple tuple2 = new Tuple("def", new BoundingBox(0f, 0.5f, 0f, 0.5f), "def".getBytes(), 4);
+		scalephantClient.insertTuple(table, tuple2);
+		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5f, 1.5f, 0.5f, 1.5f), "geh".getBytes(), 1);
+		scalephantClient.insertTuple(table, tuple3);
+		
+		// Outside our bbox query
+		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10f, -9f, -10f, -9f), "ijk".getBytes());
+		scalephantClient.insertTuple(table, tuple4);
+		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000f, 1001f, 1000f, 1001f), "lmn".getBytes());
+		scalephantClient.insertTuple(table, tuple5);
+
+		final TupleListFuture future = scalephantClient.queryBoundingBoxAndTime(table, new BoundingBox(-1f, 2f, -1f, 2f), 2);
+		future.waitForAll();
+		final List<Tuple> resultList = IteratorHelper.iteratorToList(future.iterator());
+		
+		Assert.assertEquals(2, resultList.size());
+		Assert.assertTrue(resultList.contains(tuple1));
+		Assert.assertTrue(resultList.contains(tuple2));
+		Assert.assertFalse(resultList.contains(tuple3));
+		Assert.assertFalse(resultList.contains(tuple4));
+		Assert.assertFalse(resultList.contains(tuple5));
+	}
+	
 	
 	/**
 	 * Send a keep alive package to the server
