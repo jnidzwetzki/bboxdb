@@ -64,6 +64,19 @@ public class SSTableCompactorThread implements Runnable {
 	public void run() {
 		logger.info("Starting new compact thread for: " + sstableManager.getSSTableName().getFullname());
 
+		try {
+			executeThread();
+		} catch(Exception e) {
+			logger.error("Got an uncaught exception", e);
+		}
+		
+		logger.info("Compact thread for: " + sstableManager.getSSTableName() + " is done");
+	}
+
+	/**
+	 * Execute the compactor thread
+	 */
+	protected void executeThread() {
 		while(sstableManager.isReady()) {
 
 			try {	
@@ -82,8 +95,7 @@ public class SSTableCompactorThread implements Runnable {
 					handleExceptionDuringMerge(e);
 				} 
 			} catch (InterruptedException e) {
-				logger.info("Compact thread for: " + sstableManager.getSSTableName() + " is done");
-				return;
+				// Ignore exception
 			} 
 		}
 		
