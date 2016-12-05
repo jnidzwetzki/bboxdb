@@ -17,6 +17,7 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.distribution.regionsplit;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,12 +86,12 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 			
 			try {
 				for (int position = 0; position < numberOfTuples; position = position + sampleOffset) {
-					final Tuple tuple = facade.getSsTableReader().getTupleAtPosition(position);
+					final Tuple tuple = facade.getSsTableKeyIndexReader().getTupleForIndexEntry(position);							
 					final BoundingBox boundingBox = tuple.getBoundingBox();
 					final FloatInterval interval = boundingBox.getIntervalForDimension(splitDimension);
 					floatIntervals.add(interval);
 				}
-			} catch (StorageManagerException e) {
+			} catch (StorageManagerException | IOException e) {
 				logger.error("Got an exception while reading sample tuples", e);
 			}
 	
