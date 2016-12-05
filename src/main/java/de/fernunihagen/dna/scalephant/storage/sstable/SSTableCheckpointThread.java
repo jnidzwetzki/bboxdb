@@ -132,16 +132,12 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 		memtablesToCheck.add(ssTableManager.getMemtable());
 		memtablesToCheck.addAll(ssTableManager.getUnflushedMemtables());
 	
-		for(final Memtable memtable : memtablesToCheck) {
-			long memtableCreated = memtable.getCreatedTimestamp();
-	
-			// Active memtable is to old
-			if(memtableCreated + maxUncheckpointedMiliseconds < System.currentTimeMillis()) {
-				return true;
-			}
-		}
+		final long currentTime = System.currentTimeMillis();
+		final boolean checkpointNeeded = memtablesToCheck
+				.stream()
+				.anyMatch(m -> (m.getCreatedTimestamp() + maxUncheckpointedMiliseconds) < currentTime);
 		
-		return false;
+		return checkpointNeeded;
 	}
 
 	/**
@@ -155,7 +151,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			}
 			
 			final Memtable activeMemtable = ssTableManager.getMemtable();
-			logger.info("Creating a checkpoint for: " + ssTableManager.getSSTableName());
+			logger.info("Creating a checkpoint for: {}", threadname);
 			ssTableManager.flushMemtable();
 			
 			final List<Memtable> unflushedMemtables = ssTableManager.getUnflushedMemtables();
@@ -170,7 +166,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			final long createdTimestamp = activeMemtable.getCreatedTimestamp();
 			updateCheckpointDate(createdTimestamp);
 			
-			logger.info("Create checkpoint DONE for: " + ssTableManager.getSSTableName() + " timestamp " + createdTimestamp);
+			logger.info("Create checkpoint DONE for: {} timestamp {}", threadname, createdTimestamp);
 		} catch (Exception e) {
 			logger.warn("Got an exception while creating checkpoint", e);
 		}
