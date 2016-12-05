@@ -359,7 +359,12 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		
 		for(int i = 0; i < getNumberOfResultObjets(); i++) {
 			try {
-				allTuples.addAll(get(i));
+				final List<Tuple> tupleResult = get(i);
+				
+				if(tupleResult != null) {
+					allTuples.addAll(tupleResult);
+				}
+				
 			} catch (Exception e) {
 				logger.error("Got exception while iterating", e);
 			}
