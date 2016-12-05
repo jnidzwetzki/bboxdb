@@ -94,6 +94,11 @@ public class NetworkConst {
 	 */
 	public static final short REQUEST_TYPE_NEXT_PAGE = 0x12;
 	
+	/**
+	 * Cancel the given query
+	 */
+	public static final short REQUEST_TYPE_CANCEL_QUERY = 0x14;
+	
 	
 	
 	/**

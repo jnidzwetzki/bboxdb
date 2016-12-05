@@ -34,6 +34,7 @@ import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.client.SequenceNumberGenerator;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
+import de.fernunihagen.dna.scalephant.network.packages.request.CancelQueryRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
@@ -265,7 +266,7 @@ public class TestNetworkClasses {
 	}
 	
 	/**
-	 * The the encoding and decoding of an next page package
+	 * The encoding and decoding of an next page package
 	 * @throws IOException 
 	 * @throws PackageEncodeError 
 	 */
@@ -281,6 +282,28 @@ public class TestNetworkClasses {
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
 		final NextPageRequest decodedPackage = NextPageRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(decodedPackage.getQuerySequence(), querySequence);
+	}
+	
+	
+	/**
+	 * The  encoding and decoding of an cancel query package
+	 * @throws IOException 
+	 * @throws PackageEncodeError 
+	 */
+	@Test
+	public void encodeAndDecodeCancelQuery() throws IOException, PackageEncodeError {
+				
+		final short querySequence = 12;
+		final CancelQueryRequest cancelQueryRequest = new CancelQueryRequest(querySequence);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		byte[] encodedVersion = networkPackageToByte(cancelQueryRequest, sequenceNumber);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final CancelQueryRequest decodedPackage = CancelQueryRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(decodedPackage.getQuerySequence(), querySequence);
 	}

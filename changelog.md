@@ -4,6 +4,7 @@
 - New Feature: Introduced paging (results > memory could be requested)
 - New Feature: Introduced type safe client API
 - New Feature: Added boundingbox with time query type
+- New Feature: Added the cancel query server call
 - Improvement: Simplified network protocol by removing the duplicate success and response packages
 - Improvement: Success and Error responses are now indicated by the isFailed() future method 
 - Improvement: Success and Error messages are now provided by the getMessage() future method 

@@ -51,6 +51,7 @@ import de.fernunihagen.dna.scalephant.network.NetworkPackageDecoder;
 import de.fernunihagen.dna.scalephant.network.capabilities.PeerCapabilities;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkResponsePackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
+import de.fernunihagen.dna.scalephant.network.packages.request.CancelQueryRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
@@ -381,6 +382,34 @@ public class ClientConnectionHandler implements Runnable {
 			final NextPageRequest nextPagePackage = NextPageRequest.decodeTuple(encodedPackage);
 			logger.debug("Next page for query {} called", nextPagePackage.getQuerySequence());
 			sendNextResultsForQuery(nextPagePackage.getQuerySequence());
+		} catch (PackageEncodeError e) {
+			logger.warn("Error getting next page for a query", e);
+			writeResultPackage(new ErrorResponse(packageSequence));	
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Cancel the given query
+	 * @param packageHeader
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleCancelQueryPackage(final ByteBuffer encodedPackage, final short packageSequence) {
+
+		try {
+			final CancelQueryRequest nextPagePackage = CancelQueryRequest.decodeTuple(encodedPackage);
+			logger.debug("Cancel query {} requested", nextPagePackage.getQuerySequence());
+			
+			if(! activeQueries.containsKey(packageSequence)) {
+				logger.error("Unable to cancel query {} - not found", packageSequence);
+				writeResultPackage(new ErrorResponse(packageSequence, "Query to cancel not found"));
+			} else {
+				final ClientQuery clientQuery = activeQueries.remove(packageSequence);
+				clientQuery.close();
+				writeResultPackage(new SuccessResponse(packageSequence));
+			}
 		} catch (PackageEncodeError e) {
 			logger.warn("Error getting next page for a query", e);
 			writeResultPackage(new ErrorResponse(packageSequence));	
@@ -910,6 +939,12 @@ public class ClientConnectionHandler implements Runnable {
 					logger.debug("Got next page package");
 				}
 				return handleNextPagePackage(encodedPackage, packageSequence);
+				
+			case NetworkConst.REQUEST_TYPE_CANCEL_QUERY:
+				if(logger.isDebugEnabled()) {
+					logger.debug("Got cancel query package");
+				}
+				return handleCancelQueryPackage(encodedPackage, packageSequence);
 
 			default:
 				logger.warn("Got unknown package type, closing connection: " + packageType);

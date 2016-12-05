@@ -46,6 +46,7 @@ import de.fernunihagen.dna.scalephant.network.client.future.SSTableNameListFutur
 import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
 import de.fernunihagen.dna.scalephant.network.packages.NetworkRequestPackage;
 import de.fernunihagen.dna.scalephant.network.packages.PackageEncodeError;
+import de.fernunihagen.dna.scalephant.network.packages.request.CancelQueryRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CompressionEnvelopeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.CreateDistributionGroupRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.DeleteDistributionGroupRequest;
@@ -591,6 +592,17 @@ public class ScalephantClient implements Scalephant {
 		
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
 		sendPackageToServer(new NextPageRequest(queryPackageId), clientOperationFuture);
+		return clientOperationFuture;
+	}
+	
+	/**
+	 * Cancel the given query on the server
+	 * @param queryPackageId
+	 * @return
+	 */
+	public EmptyResultFuture cancelQuery(final short queryPackageId) {
+		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
+		sendPackageToServer(new CancelQueryRequest(queryPackageId), clientOperationFuture);
 		return clientOperationFuture;
 	}
 	

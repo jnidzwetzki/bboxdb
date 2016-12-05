@@ -46,6 +46,7 @@ Request Types:
 * Type 0x10 - Compression envelope
 * Type 0x11 - Keep alive package
 * Type 0x12 - Next page
+* Type 0x13 - Cancel query
 
 
 ## The response frame
@@ -544,5 +545,18 @@ Request the next tuples for a given query.
 This package requets the next tuples for the given query
 
 #### Response body
-The result could be currently the response types 0x02, 0x03 and 0x06.
+The result could be currently the response types 0x01, 0x02 and 0x05.
+
+### Cancel query
+Cancel the given query.
+
+#### Request body
+
+    0         8       16       24       32
+	+---------+--------+--------+--------+
+	| Query Request ID |      Unused     |
+	+---------+--------+-----------------+
+
+#### Response body
+The result could be currently the response types 0x01 and 0x02.
 
