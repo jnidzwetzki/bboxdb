@@ -58,6 +58,7 @@ import de.fernunihagen.dna.scalephant.network.packages.request.KeepAliveRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.ListTablesRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.NextPageRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxRequest;
+import de.fernunihagen.dna.scalephant.network.packages.request.QueryBoundingBoxTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryKeyRequest;
 import de.fernunihagen.dna.scalephant.network.packages.request.QueryTimeRequest;
 import de.fernunihagen.dna.scalephant.network.packages.response.AbstractBodyResponse;
@@ -521,6 +522,23 @@ public class ScalephantClient implements Scalephant {
 		
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
 		sendPackageToServer(new QueryBoundingBoxRequest(table, boundingBox, pagingEnabled, tuplesPerPage), clientOperationFuture);
+		return clientOperationFuture;
+	}
+	
+	/* (non-Javadoc)
+	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#queryBoundingBoxAndTime(java.lang.String, de.fernunihagen.dna.scalephant.storage.entity.BoundingBox)
+	 */
+	@Override
+	public TupleListFuture queryBoundingBoxAndTime(final String table,
+			final BoundingBox boundingBox, final long timestamp) throws ScalephantException {
+
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			logger.warn("queryBoundingBox called, but connection not ready: " + this);
+			return null;
+		}
+		
+		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
+		sendPackageToServer(new QueryBoundingBoxTimeRequest(table, boundingBox, timestamp, pagingEnabled, tuplesPerPage), clientOperationFuture);
 		return clientOperationFuture;
 	}
 	
@@ -1095,5 +1113,6 @@ public class ScalephantClient implements Scalephant {
 	public void setTuplesPerPage(final short tuplesPerPage) {
 		this.tuplesPerPage = tuplesPerPage;
 	}
+
 	
 }

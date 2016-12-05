@@ -107,12 +107,20 @@ public interface Scalephant {
 			final BoundingBox boundingBox) throws ScalephantException;
 
 	/**
-	 * Query the given table for all tuples newer than
+	 * Query the given table for all tuples newer than timestamp
 	 * @param table
 	 * @param key
 	 * @return
 	 */
 	public TupleListFuture queryTime(final String table, final long timestamp) throws ScalephantException;
+
+	/**
+	 * Query the given table for all tuples newer than timestamp and inside of the bounding box
+	 * @param table
+	 * @param key
+	 * @return
+	 */
+	public TupleListFuture queryBoundingBoxAndTime(final String table, final BoundingBox boundingBox, final long timestamp) throws ScalephantException;
 
 	/**
 	 * Is the client connected?

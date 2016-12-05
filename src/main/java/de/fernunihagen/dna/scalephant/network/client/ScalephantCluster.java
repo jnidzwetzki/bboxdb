@@ -272,7 +272,38 @@ public class ScalephantCluster implements Scalephant {
 		}
 		
 		return future;
+	}
+	
+
+	@Override
+	public TupleListFuture queryBoundingBoxAndTime(final String table,
+			final BoundingBox boundingBox, final long timestamp) throws ScalephantException {
 		
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			throw new ScalephantException("queryBoundingBoxAndTime called, but connection list is empty");
+		}
+		
+		final TupleListFuture future = new TupleListFuture();
+		
+		try {
+			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
+			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(boundingBox);
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, systems);
+			}
+			
+			for(final DistributedInstance system : systems) {
+				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
+				final TupleListFuture result = connection.queryBoundingBoxAndTime(table, boundingBox, timestamp);
+				future.merge(result);
+			}
+			
+		} catch (ZookeeperException e) {
+			e.printStackTrace();
+		}
+		
+		return future;
 	}
 
 	@Override
