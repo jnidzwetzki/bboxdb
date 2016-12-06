@@ -26,7 +26,7 @@ import de.fernunihagen.dna.scalephant.storage.Memtable;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
 import de.fernunihagen.dna.scalephant.util.Stoppable;
 
-class SSTableFlushThread implements Runnable, Stoppable {
+class MemtableFlushThread implements Runnable, Stoppable {
 
 	/**
 	 * The reference to the sstable Manager
@@ -56,12 +56,12 @@ class SSTableFlushThread implements Runnable, Stoppable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableFlushThread.class);
+	private final static Logger logger = LoggerFactory.getLogger(MemtableFlushThread.class);
 
 	/**
 	 * @param ssTableManager
 	 */
-	SSTableFlushThread(final SSTableManager sstableManager) {
+	MemtableFlushThread(final SSTableManager sstableManager) {
 		this.sstableManager = sstableManager;
 		this.unflushedMemtables = sstableManager.getUnflushedMemtables();
 		this.dataDirectory = sstableManager.getScalephantConfiguration().getDataDirectory();
@@ -140,6 +140,8 @@ class SSTableFlushThread implements Runnable, Stoppable {
 			}
 	
 			unflushedMemtables.remove(memtable);
+			memtable.deleteOnClose();
+			memtable.release();
 		}
 		
 		synchronized (unflushedMemtables) {

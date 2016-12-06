@@ -33,7 +33,6 @@ import de.fernunihagen.dna.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.scalephant.ScalephantService;
 import de.fernunihagen.dna.scalephant.storage.Memtable;
 import de.fernunihagen.dna.scalephant.storage.ReadOnlyTupleStorage;
-import de.fernunihagen.dna.scalephant.storage.ReadWriteTupleStorage;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
@@ -46,7 +45,7 @@ import de.fernunihagen.dna.scalephant.storage.sstable.reader.TupleByKeyLocator;
 import de.fernunihagen.dna.scalephant.util.State;
 import de.fernunihagen.dna.scalephant.util.Stoppable;
 
-public class SSTableManager implements ScalephantService, ReadWriteTupleStorage {
+public class SSTableManager implements ScalephantService {
 	
 	/**
 	 * The name of the table
@@ -188,6 +187,7 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 				scalephantConfiguration.getMemtableEntriesMax(), 
 				scalephantConfiguration.getMemtableSizeMax());
 		
+		memtable.acquire();
 		memtable.init();
 	}
 
@@ -227,12 +227,12 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 	 */
 	protected void startMemtableFlushThread() {
 		if(scalephantConfiguration.isStorageRunMemtableFlushThread()) {
-			final SSTableFlushThread ssTableFlushThread = new SSTableFlushThread(this);
-			final Thread flushThread = new Thread(ssTableFlushThread);
+			final MemtableFlushThread memtableFlushThread = new MemtableFlushThread(this);
+			final Thread flushThread = new Thread(memtableFlushThread);
 			flushThread.setName("Memtable flush thread for: " + sstablename.getFullname());
 			flushThread.start();
 			runningThreads.put(MEMTABLE_FLUSH_THREAD, flushThread);
-			stoppableTasks.put(MEMTABLE_FLUSH_THREAD, ssTableFlushThread);
+			stoppableTasks.put(MEMTABLE_FLUSH_THREAD, memtableFlushThread);
 		} else {
 			logger.info("NOT starting the memtable flush thread for:" + sstablename.getFullname());
 		}
@@ -548,7 +548,6 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 	/**
 	 * Get all tuples that match the predicate
 	 */
-	@Override
 	public CloseableIterator<Tuple> getMatchingTuples(final Predicate predicate) {
 		final SSTableQueryProcessor ssTableQueryProcessor = new SSTableQueryProcessor(predicate, this);
 		return ssTableQueryProcessor.iterator();
@@ -628,7 +627,6 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 	}
 
 	// These methods are required by the interface
-	@Override
 	public void put(final Tuple tuple) throws StorageManagerException {
 		if(! storageState.isReady()) {
 			throw new StorageManagerException("Storage manager is not ready");
@@ -644,7 +642,6 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 		}
 	}
 
-	@Override
 	public void delete(final String key, final long timestamp) throws StorageManagerException {
 		if(! storageState.isReady()) {
 			throw new StorageManagerException("Storage manager is not ready");
@@ -660,7 +657,6 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 		}
 	}
 
-	@Override
 	public void clear() throws StorageManagerException {
 		deleteExistingTables();
 		init();
@@ -674,34 +670,41 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 		return memtable;
 	}
 
-	@Override
-	public long getOldestTupleTimestamp() {
-		long result = memtable.getOldestTupleTimestamp();
-		
+	/**
+	 * Get a list with all active storages
+	 * @return
+	 */
+	public List<ReadOnlyTupleStorage> getAllTupleStorages() {
 		final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
+		storages.add(memtable);
 		storages.addAll(unflushedMemtables);
 		storages.addAll(sstableFacades);
 		
-		for(final ReadOnlyTupleStorage storage : storages) {
-			Math.min(result, storage.getOldestTupleTimestamp());
-		}
-		
-		return result;
+		return storages;
+	}
+	
+	/**
+	 * Get the oldest tuple
+	 * @return
+	 */
+	public long getOldestTupleTimestamp() {
+		return getAllTupleStorages()
+				.stream()
+				.mapToLong(ReadOnlyTupleStorage::getOldestTupleTimestamp)
+				.min()
+				.getAsLong();
 	}
 
-	@Override
+	/**
+	 * Get the newest tuple
+	 * @return
+	 */
 	public long getNewestTupleTimestamp() {
-		long result = memtable.getNewestTupleTimestamp();
-		
-		final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
-		storages.addAll(unflushedMemtables);
-		storages.addAll(sstableFacades);
-		
-		for(final ReadOnlyTupleStorage storage : storages) {
-			Math.max(result, storage.getNewestTupleTimestamp());
-		}
-		
-		return result;
+		return getAllTupleStorages()
+				.stream()
+				.mapToLong(ReadOnlyTupleStorage::getNewestTupleTimestamp)
+				.min()
+				.getAsLong();
 	}
 
 }

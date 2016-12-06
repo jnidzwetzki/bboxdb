@@ -36,9 +36,8 @@ import de.fernunihagen.dna.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
-import de.fernunihagen.dna.scalephant.util.Acquirable;
 
-public class SSTableFacade implements ScalephantService, Acquirable, ReadOnlyTupleStorage {
+public class SSTableFacade implements ScalephantService, ReadOnlyTupleStorage {
 	 
 	/**
 	 * The name of the table

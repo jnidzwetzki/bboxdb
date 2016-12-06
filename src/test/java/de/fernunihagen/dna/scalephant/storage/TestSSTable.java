@@ -25,7 +25,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
-import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
@@ -35,7 +34,6 @@ import de.fernunihagen.dna.scalephant.storage.sstable.SSTableWriter;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableReader;
-import de.fernunihagen.dna.scalephant.util.Acquirable;
 
 public class TestSSTable {
 	
@@ -156,7 +154,7 @@ public class TestSSTable {
 		Assert.assertTrue(sstableFile.exists());
 		Assert.assertTrue(sstableIndexFile.exists());
 		
-		final Acquirable ssTableFacade = new SSTableFacade(DATA_DIRECTORY, TEST_RELATION, 1);
+		final ReadOnlyTupleStorage ssTableFacade = new SSTableFacade(DATA_DIRECTORY, TEST_RELATION, 1);
 		ssTableFacade.acquire();
 		ssTableFacade.deleteOnClose();
 		

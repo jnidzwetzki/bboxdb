@@ -26,13 +26,13 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.distribution.regionsplit.RegionSplitStrategy;
 import de.fernunihagen.dna.scalephant.distribution.regionsplit.RegionSplitStrategyFactory;
+import de.fernunihagen.dna.scalephant.storage.ReadOnlyTupleStorage;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableWriter;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
-import de.fernunihagen.dna.scalephant.util.Acquirable;
 
 public class SSTableCompactorThread implements Runnable {
 	
@@ -224,7 +224,7 @@ public class SSTableCompactorThread implements Runnable {
 		sstableManager.getSstableFacades().add(newFacade);
 
 		// Unregister and delete the files
-		for(final Acquirable facade : tables) {
+		for(final ReadOnlyTupleStorage facade : tables) {
 			facade.deleteOnClose();
 			sstableManager.getSstableFacades().remove(facade);
 		}

@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +90,13 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage, Itera
 	protected long newestTupleTimestamp;
 	
 	/**
+	 * The reference counter
+	 */
+	protected final AtomicInteger referenceCounter;
+	
+	protected boolean pendingDelete;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
@@ -107,6 +115,9 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage, Itera
 		this.createdTimestamp = System.currentTimeMillis();
 		this.oldestTupleTimestamp = -1;
 		this.newestTupleTimestamp = -1;
+		
+		this.referenceCounter = new AtomicInteger(0);
+		this.pendingDelete = false;
 	}
 
 	@Override
@@ -345,6 +356,44 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage, Itera
 	@Override
 	public Iterator<Tuple> getMatchingTuples(final Predicate predicate) {
 		return new PredicateFilterIterator(iterator(), predicate);
+	}
+
+	@Override
+	public void deleteOnClose() {
+		logger.debug("deleteOnClose called and we have {} references", referenceCounter.get());
+
+		pendingDelete = true;
+		
+		/*
+		 * Wait for refactoring
+		 */
+		/*if(referenceCounter.get() == 0) {
+			clear();
+		}*/	
+	}
+
+	@Override
+	public boolean acquire() {
+		if(pendingDelete == true) {
+			return false;
+		}
+		
+		referenceCounter.incrementAndGet();
+		return true;
+	}
+
+	@Override
+	public void release() {
+		referenceCounter.decrementAndGet();
+		
+		// Wait for refactoring
+		/*if(pendingDelete) {
+			logger.debug("Release called and we have {} references", referenceCounter.get());
+
+			if(referenceCounter.get() == 0) {
+				clear();
+			}
+		}*/
 	}
 
 }
