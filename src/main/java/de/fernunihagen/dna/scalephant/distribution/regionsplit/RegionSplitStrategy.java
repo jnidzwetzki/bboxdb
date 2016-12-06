@@ -37,20 +37,25 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFact
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
 import de.fernunihagen.dna.scalephant.storage.Memtable;
-import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
+import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
 
-public abstract class RegionSplitStrategy {
+public abstract class RegionSplitStrategy implements Runnable {
 	
 	/**
 	 * The zookeeper client
 	 */
 	protected final ZookeeperClient zookeeperClient;
+
+	/**
+	 * The region to split;
+	 */
+	protected DistributionRegion region;
 	
 	/**
 	 * The Logger
@@ -59,6 +64,32 @@ public abstract class RegionSplitStrategy {
 
 	public RegionSplitStrategy() {
 		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+	}
+		
+	/**
+	 * Set the distribution region
+	 * @param region
+	 */
+	public void initFromSSTablename(final SSTableName ssTableName) {
+		
+		try {
+			final DistributionRegion distributionGroup = DistributionGroupCache.getGroupForGroupName(
+					ssTableName.getDistributionGroup(), zookeeperClient);
+			
+			final DistributionRegion region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
+					distributionGroup, ssTableName.getNameprefix());
+			
+			if(region == null) {
+				throw new IllegalArgumentException("Region is null");
+			}
+			
+			if(! region.isLeafRegion()) {
+				throw new IllegalArgumentException("Region is not a leaf region, unable to split:" + region);
+			}
+		} catch (ZookeeperException e) {
+			logger.error("Got exception while init region splitter", e);
+			region = null;
+		}
 	}
 	
 	/**
@@ -96,37 +127,23 @@ public abstract class RegionSplitStrategy {
 	 * @param ssTableName
 	 * @return Split performed or not
 	 */
-	public boolean performSplit(final SSTableName ssTableName) {
-		logger.info("Performing split for: " + ssTableName);
+	public void run() {
 		
-		if(! ssTableName.isNameprefixValid()) {
-			logger.warn("Unable to split table, nameprefix is invalid: " + ssTableName);
-			return false;
+		if(region == null) {
+			logger.error("Unable to perform split, region is not set");
+			return;
 		}
+		
+		logger.info("Performing split for: {}", region);
 		
 		try {
-			final DistributionRegion distributionGroup = DistributionGroupCache.getGroupForGroupName(ssTableName.getDistributionGroup(), zookeeperClient);
-			
-			final DistributionRegion region = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroup, ssTableName.getNameprefix());
-		
-			if(region == null) {
-				logger.warn("Unable to find nameprefix in distributionGroup: " + ssTableName);
-				return false;
-			}
-			
-			if(! region.isLeafRegion()) {
-				logger.error("Region is not a leaf region, unable to split:" + region);
-				return false;
-			}
-			
 			performSplit(region);
 			redistributeData(region);
-		} catch (ZookeeperException e) {
-			logger.warn("Unable to split sstable: " + ssTableName, e);
-			return false;
+		} catch (Throwable e) {
+			logger.warn("Got uncought exception during split: " + region, e);
 		}
-		
-		return true;
+
+		logger.info("Performing split for: {} is done", region);
 	}
 
 	/**
@@ -165,7 +182,7 @@ public abstract class RegionSplitStrategy {
 			final SSTableManager ssTableManager = StorageRegistry.getSSTableManager(ssTableName);
 			
 			// Stop flush thread, so new data remains in memory
-			ssTableManager.stopMemtableProcessingThreads();
+			ssTableManager.stopThreads();
 			
 			// Spread on disk data
 			final List<SSTableFacade> facades = ssTableManager.getSstableFacades();
@@ -175,9 +192,6 @@ public abstract class RegionSplitStrategy {
 			ssTableManager.flushMemtable();
 			final List<Memtable> unflushedMemtables = ssTableManager.getUnflushedMemtables();
 			spreadUnflushedMemtables(region, ssTableName, unflushedMemtables);
-			
-			// Stop remaining threads (like this one - the compactor thread)
-			ssTableManager.stopThreads();
 			
 		} catch (StorageManagerException e) {
 			logger.warn("Got an exception while distributing tuples for: " + ssTableName, e);
@@ -210,12 +224,22 @@ public abstract class RegionSplitStrategy {
 
 		for(final SSTableFacade facade: facades) {
 			final boolean acquired = facade.acquire();
-			if(acquired) {
-				
-				logger.info("Spread sstable facade: " + facade.getName());
+			
+			if(acquired) {	
+				logger.info("Spread sstable facade: {}", facade.getName().getFullname());
 				
 				final SSTableKeyIndexReader reader = facade.getSsTableKeyIndexReader();
-				spreadTuplesFromIterator(region, ssTableName, reader.iterator());
+				
+				final boolean distributeSuccessfully 
+					= spreadTuplesFromIterator(region, ssTableName, reader.iterator());
+				
+				// Data is spread, so we can delete it
+				if(! distributeSuccessfully) {
+					logger.warn("Distribution of {} was not successfully", facade.getName().getFullname());
+				} else {
+					logger.info("Distribution of {} was successfully, scheduling for deletion", facade.getName().getFullname());
+					facade.deleteOnClose();
+				}
 				
 				facade.release();
 			}
@@ -227,8 +251,9 @@ public abstract class RegionSplitStrategy {
 	 * @param region
 	 * @param ssTableName
 	 * @param tupleIterator
+	 * @return 
 	 */
-	public void spreadTuplesFromIterator(final DistributionRegion region, final SSTableName ssTableName, final Iterator<Tuple> tupleIterator) {
+	public boolean spreadTuplesFromIterator(final DistributionRegion region, final SSTableName ssTableName, final Iterator<Tuple> tupleIterator) {
 		
 		final DistributionRegion leftRegion = region.getLeftChild();
 		final DistributionRegion rightRegion = region.getRightChild();
@@ -243,20 +268,35 @@ public abstract class RegionSplitStrategy {
 				ssTableName.getDistributionGroup(), ssTableName.getTablename(), 
 				rightRegion.getNameprefix());
 		
+		boolean redistributeSuccessfully = true;
+		
 		while(tupleIterator.hasNext()) {
 			
 			final Tuple tuple = tupleIterator.next();
 			
 			// Spread to the left region
 			if(tuple.getBoundingBox().overlaps(leftRegion.getConveringBox())) {
-				spreadTupleToSystems(tablename, leftSStablename, tuple, leftRegion);
+				
+				final boolean tupleDistribute 
+					= spreadTupleToSystems(tablename, leftSStablename, tuple, leftRegion);
+				
+				if(tupleDistribute == false) {
+					redistributeSuccessfully = false;
+				}
 			}
 			
 			// Spread to the right region
 			if(tuple.getBoundingBox().overlaps(rightRegion.getConveringBox())) {
-				spreadTupleToSystems(tablename, rightSStablename, tuple, rightRegion);							
+				final boolean tupleDistribute 
+					= spreadTupleToSystems(tablename, rightSStablename, tuple, rightRegion);
+				
+				if(tupleDistribute == false) {
+					redistributeSuccessfully = false;
+				}
 			}
 		}
+		
+		return redistributeSuccessfully;
 	}
 	
 	/**
@@ -326,4 +366,5 @@ public abstract class RegionSplitStrategy {
 			Thread.currentThread().interrupt();
 		}
 	}
+
 }

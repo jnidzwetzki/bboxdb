@@ -28,7 +28,7 @@ import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanc
 import de.fernunihagen.dna.scalephant.storage.entity.FloatInterval;
 
 public class SimpleSplitStrategy extends RegionSplitStrategy {
-	
+
 	/**
 	 * The Logger
 	 */

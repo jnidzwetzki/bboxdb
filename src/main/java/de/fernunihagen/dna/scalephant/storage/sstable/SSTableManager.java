@@ -19,7 +19,6 @@ package de.fernunihagen.dna.scalephant.storage.sstable;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -294,33 +293,6 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 		
 		stoppableTasks.clear();
 		runningThreads.clear();
-	}
-	
-	/**
-	 * Stop all threads, that flush memtables to disk
-	 */
-	public void stopMemtableProcessingThreads() {
-		final List<String> memtableThreads = Arrays.asList(
-				new String[] {CHECKPOINT_THREAD, MEMTABLE_FLUSH_THREAD});
-		
-		for(final String threadId : memtableThreads) {
-			if(stoppableTasks.containsKey(threadId)) {
-				final Stoppable task = stoppableTasks.remove(threadId);
-				task.stop();
-			}
-			
-			if(runningThreads.containsKey(threadId)) {
-				final Thread thread = runningThreads.remove(threadId);
-				thread.interrupt();
-				try {
-					thread.join(THREAD_WAIT_TIMEOUT);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					logger.warn("Got interrupt exception, while waiting");
-					return;
-				}
-			}
-		}
 	}
 	
 	/**

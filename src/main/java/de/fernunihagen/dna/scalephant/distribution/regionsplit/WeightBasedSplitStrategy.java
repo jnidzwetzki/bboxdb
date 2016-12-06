@@ -34,7 +34,7 @@ import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
 public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 	
 	protected final int SAMPLE_SIZE;
-
+	
 	public WeightBasedSplitStrategy() {
 		SAMPLE_SIZE = maxEntriesPerTable() / 100;
 	}

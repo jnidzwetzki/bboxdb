@@ -52,6 +52,11 @@ public class SSTableCompactorThread implements Runnable {
 	protected final String threadname;
 	
 	/**
+	 * The region splitter
+	 */
+	protected RegionSplitStrategy regionSplitter;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactorThread.class);
@@ -60,6 +65,9 @@ public class SSTableCompactorThread implements Runnable {
 		this.sstableManager = ssTableManager;
 		this.mergeStragegy = new SimpleMergeStrategy();
 		this.threadname = sstableManager.getSSTableName().getFullname();
+		this.regionSplitter = RegionSplitStrategyFactory.getInstance();
+		
+		regionSplitter.initFromSSTablename(sstableManager.getSSTableName());
 	}
 
 	/**
@@ -182,11 +190,13 @@ public class SSTableCompactorThread implements Runnable {
 		
 		logger.info("Test for table split: " + sstableManager.getSSTableName().getFullname() 
 				+ " total tuples: " + totalWrittenTuples);
-		
-		final RegionSplitStrategy splitter = RegionSplitStrategyFactory.getInstance();
-		
-		if(splitter.isSplitNeeded(totalWrittenTuples)) {
-			splitter.performSplit(sstableManager.getSSTableName());
+				
+		if(regionSplitter.isSplitNeeded(totalWrittenTuples)) {
+			// Execute the split operation in an own thread, to survive the sstable manager
+			// stop call. This will stop (this) compact thread
+			final Thread splitThread = new Thread(regionSplitter);
+			splitThread.setName("Split thread for: " + sstableManager.getSSTableName().getFullname());
+			splitThread.start();
 		}
 		
 	}
