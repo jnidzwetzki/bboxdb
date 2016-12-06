@@ -682,29 +682,5 @@ public class SSTableManager implements ScalephantService {
 		
 		return storages;
 	}
-	
-	/**
-	 * Get the oldest tuple
-	 * @return
-	 */
-	public long getOldestTupleTimestamp() {
-		return getAllTupleStorages()
-				.stream()
-				.mapToLong(ReadOnlyTupleStorage::getOldestTupleTimestamp)
-				.min()
-				.getAsLong();
-	}
-
-	/**
-	 * Get the newest tuple
-	 * @return
-	 */
-	public long getNewestTupleTimestamp() {
-		return getAllTupleStorages()
-				.stream()
-				.mapToLong(ReadOnlyTupleStorage::getNewestTupleTimestamp)
-				.min()
-				.getAsLong();
-	}
 
 }
