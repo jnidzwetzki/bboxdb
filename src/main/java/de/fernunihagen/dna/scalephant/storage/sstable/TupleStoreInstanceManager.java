@@ -16,7 +16,7 @@ import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
  * a certain sstable 
  *
  */
-public class TupleStoreInstances {
+public class TupleStoreInstanceManager {
 	
 	/**
 	 * The active memtable
@@ -38,7 +38,7 @@ public class TupleStoreInstances {
 	 */
 	protected final Queue<Memtable> memtablesToFlush;
 	
-	public TupleStoreInstances() {
+	public TupleStoreInstanceManager() {
 		sstableFacades = new ArrayList<SSTableFacade>();
 		unflushedMemtables = new ArrayList<Memtable>();
 		memtablesToFlush = new ConcurrentLinkedQueue<Memtable>();

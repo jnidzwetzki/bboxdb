@@ -51,7 +51,7 @@ public class SSTableManager implements ScalephantService {
 	/**
 	 * The tuple storre instances
 	 */
-	protected final TupleStoreInstances tupleStoreInstances;
+	protected final TupleStoreInstanceManager tupleStoreInstances;
 	
 	/**
 	 * The Storage configuration
@@ -117,7 +117,7 @@ public class SSTableManager implements ScalephantService {
 		this.tableNumber = new AtomicInteger();
 		this.ready = false;
 		
-		this.tupleStoreInstances = new TupleStoreInstances();
+		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		this.runningThreads = new HashMap<String, Thread>();
 		this.stoppableTasks = new HashMap<String, Stoppable>();
 	}
@@ -662,7 +662,7 @@ public class SSTableManager implements ScalephantService {
 	 * Get the tuple storate instance manager
 	 * @return
 	 */
-	public TupleStoreInstances getTupleStoreInstances() {
+	public TupleStoreInstanceManager getTupleStoreInstances() {
 		return tupleStoreInstances;
 	}
 	
