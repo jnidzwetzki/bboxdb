@@ -76,7 +76,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 			final DistributionRegion distributionGroup = DistributionGroupCache.getGroupForGroupName(
 					ssTableName.getDistributionGroup(), zookeeperClient);
 			
-			final DistributionRegion region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
+			region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 					distributionGroup, ssTableName.getNameprefix());
 			
 			if(region == null) {
