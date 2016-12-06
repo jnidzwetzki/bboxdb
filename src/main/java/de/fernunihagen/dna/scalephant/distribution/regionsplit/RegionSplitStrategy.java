@@ -63,7 +63,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitStrategy.class);
 
 	public RegionSplitStrategy() {
-		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
 	}
 		
 	/**
