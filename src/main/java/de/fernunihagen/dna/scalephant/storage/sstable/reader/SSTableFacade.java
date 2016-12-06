@@ -321,13 +321,12 @@ public class SSTableFacade implements ScalephantService, ReadOnlyTupleStorage {
 	}
 
 	@Override
-	public int getNumberOfTuples() {
-		// TODO Auto-generated method stub
-		return 0;
+	public long getNumberOfTuples() {
+		return ssTableMetadata.getTuples();
 	}
 
 	@Override
-	public Tuple getTupleAtPosition(final int position) throws StorageManagerException {
+	public Tuple getTupleAtPosition(final long position) throws StorageManagerException {
 		try {
 			return ssTableKeyIndexReader.getTupleForIndexEntry(position);
 		} catch (IOException e) {

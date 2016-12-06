@@ -32,7 +32,7 @@ public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	 * Get the number of tuples in the storage
 	 * @return
 	 */
-	public int getNumberOfTuples();
+	public long getNumberOfTuples();
 	
 	/**
 	 * Get the n-th tuple
@@ -40,7 +40,7 @@ public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	 * @return
 	 * @throws StorageManagerException 
 	 */
-	public Tuple getTupleAtPosition(final int position) throws StorageManagerException;
+	public Tuple getTupleAtPosition(final long position) throws StorageManagerException;
 	
 	/**
 	 * Get the timestamp of the oldest tuple

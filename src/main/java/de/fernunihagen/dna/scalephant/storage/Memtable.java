@@ -402,13 +402,13 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage {
 	}
 
 	@Override
-	public int getNumberOfTuples() {
+	public long getNumberOfTuples() {
 		return freePos;
 	}
 
 	@Override
-	public Tuple getTupleAtPosition(final int position) {
-		return data[position];
+	public Tuple getTupleAtPosition(final long position) {
+		return data[(int) position];
 	}
 
 }
