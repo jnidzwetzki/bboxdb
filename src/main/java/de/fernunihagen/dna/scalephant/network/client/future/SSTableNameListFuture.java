@@ -56,7 +56,11 @@ public class SSTableNameListFuture extends OperationFutureImpl<List<SSTableName>
 			
 			return resultList.iterator();
 			
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (ExecutionException e) {
+			logger.error("Got an exception while creating iterator", e);
+			return new ArrayList<SSTableName>().iterator();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			logger.error("Got an exception while creating iterator", e);
 			return new ArrayList<SSTableName>().iterator();
 		}

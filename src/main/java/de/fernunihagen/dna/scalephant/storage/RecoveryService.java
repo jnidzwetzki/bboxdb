@@ -129,7 +129,10 @@ public class RecoveryService implements ScalephantService {
 			for(final SSTableName ssTableName : allTables) {
 				try {
 					runRecoveryForTable(ssTableName, outdatedDistributionRegion, connection);
-				} catch (Exception e) {
+				} catch (StorageManagerException | ExecutionException e) {
+					logger.error("Got an exception while performing recovery for table: " + ssTableName.getFullname());
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
 					logger.error("Got an exception while performing recovery for table: " + ssTableName.getFullname());
 				}
 			}

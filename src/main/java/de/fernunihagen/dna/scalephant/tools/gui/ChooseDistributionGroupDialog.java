@@ -213,7 +213,7 @@ public class ChooseDistributionGroupDialog {
 							scalepahntGUI.dispose();				
 							Thread.sleep(1000);
 						} catch (InterruptedException e1) {
-							// Ignore exception
+							Thread.currentThread().interrupt();
 						}
 						
 						zookeeperClient.shutdown();

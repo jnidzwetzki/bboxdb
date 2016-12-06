@@ -119,8 +119,11 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 							handleAdditionalPages();
 						}
 						
-					} catch (InterruptedException | ExecutionException e) {
+					} catch (ExecutionException e) {
 						logger.warn("Got exception while writing data to queue", e);
+					} catch (InterruptedException e) {
+						logger.warn("Got exception while writing data to queue", e);
+						Thread.currentThread().interrupt();
 					} finally {
 						addTerminalNE();
 						logger.trace("Producer {} is done", resultId);
@@ -208,7 +211,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 					// Wait until element is available
 					nextTuple = tupleQueue.take(); 
 				} catch (InterruptedException e) {
-					// Ignore exception
+					Thread.currentThread().interrupt();
 					return false;
 				}
 										
