@@ -158,7 +158,7 @@ public abstract class RegionSplitStrategy {
 			final SSTableManager ssTableManager = StorageRegistry.getSSTableManager(ssTableName);
 			
 			// Stop flush thread, so new data remains in memory
-			ssTableManager.stopThreads();
+			ssTableManager.stopMemtableProcessingThreads();
 			
 			// Spread on disk data
 			final List<SSTableFacade> facades = ssTableManager.getSstableFacades();
@@ -168,6 +168,9 @@ public abstract class RegionSplitStrategy {
 			ssTableManager.flushMemtable();
 			final List<Memtable> unflushedMemtables = ssTableManager.getUnflushedMemtables();
 			spreadUnflushedMemtables(region, ssTableName, unflushedMemtables);
+			
+			// Stop remaining threads (like this one - the compactor thread)
+			ssTableManager.stopThreads();
 			
 		} catch (StorageManagerException e) {
 			logger.warn("Got an exception while distributing tuples for: " + ssTableName, e);
