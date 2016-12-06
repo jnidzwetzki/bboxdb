@@ -399,7 +399,7 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 	 * @throws StorageManagerException 
 	 */
 	public boolean deleteExistingTables() throws StorageManagerException {
-		logger.info("Delete all existing SSTables for relation: " + getSSTableName());
+		logger.info("Delete all existing SSTables for relation: {}", getSSTableName());
 		
 		// Reject new writes
 		shutdown();
@@ -420,7 +420,7 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 		}
 		
 		if(! unflushedMemtables.isEmpty()) {
-			logger.warn("There are unflsuhed memtables after shutdown(): " + unflushedMemtables);
+			logger.warn("There are unflushed memtables after shutdown(): {}", unflushedMemtables);
 			unflushedMemtables.clear();
 		}
 		
