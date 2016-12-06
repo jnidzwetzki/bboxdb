@@ -207,11 +207,11 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * Register a watch on membership changes. A watch is a one-time operation, the watch
 	 * is reregistered on each method call.
 	 */
-	protected void readMembershipAndRegisterWatch() {
+	protected boolean readMembershipAndRegisterWatch() {
 		
 		if(! membershipObserver) {
 			logger.info("Ignore membership event, because observer is not active");
-			return;
+			return false;
 		}
 				
 		try {
@@ -234,9 +234,16 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			}
 			
 			distributedInstanceManager.updateInstanceList(instanceSet);
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
 			logger.warn("Unable to read membership and create a watch", e);
+			return false;
+		} catch(InterruptedException e) {
+			Thread.currentThread().interrupt();
+			logger.warn("Unable to read membership and create a watch", e);
+			return false;
 		}
+		
+		return true;
 	}
 	
 	/**
@@ -295,7 +302,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			}
 			
 			return zookeeper.getChildren(path, watcher);
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -417,9 +427,13 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			zookeeper.create(statePath, instancename.getState().getZookeeperValue().getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, 
 					CreateMode.EPHEMERAL);
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
+		
 	}
 
 	/**
@@ -440,7 +454,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		try {
 			zookeeper.setData(statePath, 
 					distributedInstanceState.getZookeeperValue().getBytes(), -1);
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 		
@@ -557,7 +574,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 							CreateMode.PERSISTENT);
 				}
 			}
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		} 
 	}
@@ -592,7 +612,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 				throw new ZookeeperException(e);
 			}
 			
-		} catch(InterruptedException | KeeperException e) {
+		} catch(KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch(InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -616,7 +639,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			readDistributionGroupRecursive(path, root);
 			
 			return root;
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -697,7 +723,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
 		try {
 			zookeeper.setData(statePath, state.getBytes(), -1);
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -728,7 +757,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			} else {
 				return true;
 			}
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -773,7 +805,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		
 			final byte[] bytes = zookeeper.getData(pathName, watcher, null);
 			return new String(bytes);
-		} catch(InterruptedException | KeeperException e) {
+		} catch(KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch(InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -795,6 +830,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			zookeeper.delete(path, -1);
 			
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		} catch (KeeperException e) {
 			if(e.code() == KeeperException.Code.NONODE) {
@@ -835,7 +871,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_STATE, DistributionRegion.STATE_ACTIVE.getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -884,7 +923,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			}
 			
 			return true;
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -910,7 +952,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			}
 			
 			return groups;
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -933,7 +978,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			} catch (NumberFormatException e) {
 				throw new ZookeeperException("Unable to parse replication factor: " + data + " for " + fullPath);
 			}
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		} 
 	}
@@ -960,7 +1008,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	public String createPersistentNode(final String path, final byte[] bytes) throws ZookeeperException {
 		try {
 			return zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -975,7 +1026,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	public String createPersistentSequencialNode(final String path, final byte[] bytes) throws ZookeeperException {
 		try {
 			return zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -1027,9 +1081,12 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			}
 			
 			return result;
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
 			throw new ZookeeperException(e);
-		}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ZookeeperException(e);
+		} 
 	}
 	
 	/**
@@ -1105,7 +1162,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			}
 			
 			return Long.parseLong(checkpointString);
-		} catch (KeeperException | InterruptedException | NumberFormatException e) {
+		} catch (KeeperException | NumberFormatException e) {
+			throw new ZookeeperException(e);
+		}  catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
@@ -1133,7 +1193,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			zookeeper.delete(path, -1);
 			
 			return true;
-		} catch (KeeperException | InterruptedException e) {
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch(InterruptedException e) {
+			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
 	}
