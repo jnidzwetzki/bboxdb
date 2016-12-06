@@ -32,12 +32,12 @@ class MemtableFlushThread implements Runnable, Stoppable {
 	 * The reference to the sstable Manager
 	 */
 	protected final SSTableManager sstableManager;
-	
+
 	/**
 	 * The data directory
 	 */
 	protected String dataDirectory;
-	
+
 	/**
 	 * The unflushed memtables
 	 */
@@ -47,31 +47,34 @@ class MemtableFlushThread implements Runnable, Stoppable {
 	 * The run variable
 	 */
 	protected volatile boolean run;
-	
+
 	/**
 	 * The name of the thread
 	 */
 	protected final String threadname;
-	
+
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(MemtableFlushThread.class);
+	private final static Logger logger = LoggerFactory
+			.getLogger(MemtableFlushThread.class);
 
 	/**
 	 * @param ssTableManager
 	 */
 	MemtableFlushThread(final SSTableManager ssTableManager) {
 		this.sstableManager = ssTableManager;
-		this.unflushedMemtables = ssTableManager.getTupleStoreInstances().getMemtablesToFlush();
-		this.dataDirectory = sstableManager.getScalephantConfiguration().getDataDirectory();
+		this.unflushedMemtables = ssTableManager.getTupleStoreInstances()
+				.getMemtablesToFlush();
+		this.dataDirectory = sstableManager.getScalephantConfiguration()
+				.getDataDirectory();
 		this.threadname = sstableManager.getSSTableName().getFullname();
 		this.run = true;
 	}
 
 	/**
-	 * Watch the unflushedMemtables list for unflushed memtables and flush 
-	 * them onto disk
+	 * Watch the unflushedMemtables list for unflushed memtables and flush them
+	 * onto disk
 	 */
 	@Override
 	public void run() {
@@ -82,7 +85,7 @@ class MemtableFlushThread implements Runnable, Stoppable {
 		} catch (Throwable e) {
 			logger.error("Got uncought exception", e);
 		}
-		
+
 		logger.info("Memtable flush thread has stopped: {} ", threadname);
 	}
 
@@ -90,23 +93,24 @@ class MemtableFlushThread implements Runnable, Stoppable {
 	 * Start the flush thread
 	 */
 	protected void executeThread() {
-		while(run) {
-			while(unflushedMemtables.isEmpty()) {
-				try {					
+		while (run) {
+			while (unflushedMemtables.isEmpty()) {
+				try {
 					synchronized (unflushedMemtables) {
 						unflushedMemtables.wait();
 					}
 				} catch (InterruptedException e) {
-					logger.info("Memtable flush thread has stopped: {}", threadname);
+					logger.info("Memtable flush thread has stopped: {}",
+							threadname);
 					Thread.currentThread().interrupt();
 					return;
 				}
 			}
-			
+
 			flushAllMemtablesToDisk();
 		}
 	}
-	
+
 	/**
 	 * Stop the memtable flush thread
 	 */
@@ -120,63 +124,67 @@ class MemtableFlushThread implements Runnable, Stoppable {
 	 * 
 	 */
 	protected void flushAllMemtablesToDisk() {
-		while(! unflushedMemtables.isEmpty()) {
+		while (!unflushedMemtables.isEmpty()) {
 			final Memtable memtable = unflushedMemtables.remove();
 
-			if(memtable == null) {
+			if (memtable == null) {
 				continue;
 			}
-			
-			if(memtable.isEmpty()) {
+
+			if (memtable.isEmpty()) {
 				continue;
 			}
-						
+
 			try {
 				final int tableNumber = writeMemtable(memtable);
-				final SSTableFacade facade = new SSTableFacade(dataDirectory, sstableManager.getSSTableName(), tableNumber);
+				final SSTableFacade facade = new SSTableFacade(dataDirectory,
+						sstableManager.getSSTableName(), tableNumber);
 				facade.init();
-				sstableManager.getTupleStoreInstances().replaceMemtableWithSSTable(memtable, facade);
+				sstableManager.getTupleStoreInstances()
+						.replaceMemtableWithSSTable(memtable, facade);
 			} catch (Exception e) {
-				
+
 				sstableManager.storageState.setReady(false);
-				
-				if(Thread.currentThread().isInterrupted()) {
+
+				if (Thread.currentThread().isInterrupted()) {
 					logger.warn("Got Exception while flushing memtable, but thread was interrupted. Ignoring exception.");
 				} else {
-					logger.warn("Exception while flushing memtable: " + threadname, e);
+					logger.warn("Exception while flushing memtable: "
+							+ threadname, e);
 				}
 			}
-	
+
 			unflushedMemtables.remove(memtable);
 			memtable.deleteOnClose();
 			memtable.release();
 		}
-		
+
 		synchronized (unflushedMemtables) {
 			unflushedMemtables.notifyAll();
 		}
 	}
-		
+
 	/**
 	 * Write a memtable to disk and return the file handle of the table
 	 * 
 	 * @param memtable
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	protected int writeMemtable(final Memtable memtable) throws Exception {
 		int tableNumber = sstableManager.increaseTableNumber();
-		logger.info("Writing new memtable: " + tableNumber);
-		
-		try(final SSTableWriter ssTableWriter = new SSTableWriter(dataDirectory, 
-				sstableManager.getSSTableName(), tableNumber, memtable.getMaxEntries())) {
-			
+		logger.info("Writing new memtable number: {} ", tableNumber);
+
+		try (final SSTableWriter ssTableWriter = new SSTableWriter(
+				dataDirectory, sstableManager.getSSTableName(), tableNumber,
+				memtable.getMaxEntries())) {
+
 			ssTableWriter.open();
 			ssTableWriter.getSstableFile();
 			ssTableWriter.addData(memtable.getSortedTupleList());
 			return tableNumber;
 		} catch (Exception e) {
 			throw e;
-		} 
+		}
 	}
 }
