@@ -17,7 +17,6 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.storage.queryprocessor;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -33,7 +32,6 @@ import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.scalephant.storage.sstable.TupleHelper;
-import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
 
 public class SSTableQueryProcessor {
 
@@ -46,12 +44,7 @@ public class SSTableQueryProcessor {
 	 * The sstable manager
 	 */
 	protected final SSTableManager ssTableManager;
-	
-	/**
-	 * The list of acquired facades
-	 */
-	protected final List<SSTableFacade> aquiredFacades;
-	
+
 	/**
 	 * Is the iterator ready?
 	 */
@@ -76,7 +69,6 @@ public class SSTableQueryProcessor {
 	public SSTableQueryProcessor(final Predicate predicate, final SSTableManager ssTableManager) {
 		this.predicate = predicate;
 		this.ssTableManager = ssTableManager;
-		this.aquiredFacades = new ArrayList<SSTableFacade>();
 		this.ready = false;
 		this.seenTuples = new HashMap<String, Long>();
 		this.unprocessedStorages = new LinkedList<ReadOnlyTupleStorage>();
@@ -116,6 +108,9 @@ public class SSTableQueryProcessor {
 						return;
 					}
 				}
+				
+				activeIterator = null;
+				activeStorage = null;
 			}
 			
 			protected void setupNextTuple() throws StorageManagerException {
@@ -134,7 +129,7 @@ public class SSTableQueryProcessor {
 					if(activeIterator == null) {
 						return;
 					}
-					
+		
 					final Tuple possibleTuple = activeIterator.next();
 										
 					if(seenTuples.containsKey(possibleTuple.getKey())) {
@@ -176,6 +171,7 @@ public class SSTableQueryProcessor {
 			
 			@Override
 			public boolean hasNext() {
+		
 				try {
 					if(nextTuple == null) {
 						setupNextTuple();
@@ -189,7 +185,7 @@ public class SSTableQueryProcessor {
 
 			@Override
 			public Tuple next() {
-				
+
 				if(ready == false) {
 					throw new IllegalStateException("Iterator is not ready");
 				}
@@ -219,15 +215,17 @@ public class SSTableQueryProcessor {
 		
 		ready = false;
 		
+
 		for(int execution = 0; execution < retrys; execution++) {
 			
 			// Release the previous acquired tables
 			releaseTables();
 			
-			aquiredFacades.clear();
+			unprocessedStorages.addAll(ssTableManager.getTupleStoreInstances().getAllTupleStorages());
+			
 			boolean allTablesAquired = true;
 			
-			for(final SSTableFacade facade : ssTableManager.getSstableFacades()) {
+			for(final ReadOnlyTupleStorage facade : unprocessedStorages) {
 				boolean canBeUsed = facade.acquire();
 				
 				if(! canBeUsed ) {
@@ -235,7 +233,6 @@ public class SSTableQueryProcessor {
 					break;
 				}
 				
-				aquiredFacades.add(facade);
 			}
 			
 			if(allTablesAquired == true) {
@@ -252,10 +249,7 @@ public class SSTableQueryProcessor {
 	 * Prepare the unprocessed storage list
 	 */
 	void prepareUnprocessedStorage() {
-		unprocessedStorages.add(ssTableManager.getMemtable());
-		unprocessedStorages.addAll(ssTableManager.getUnflushedMemtables());
-		unprocessedStorages.addAll(aquiredFacades);
-		
+
 		// Sort tables regarding the newest tuple timestamp 
 		// The newest storage should be on top of the list
 		unprocessedStorages.sort((storage1, storage2) 
@@ -268,8 +262,11 @@ public class SSTableQueryProcessor {
 	 */
 	protected void releaseTables() {
 		ready = false;
-		for(final SSTableFacade facade : aquiredFacades) {
-			facade.release();
+		for(final ReadOnlyTupleStorage storage : unprocessedStorages) {
+			storage.release();
 		}
+		
+		unprocessedStorages.clear();
+
 	}
 }

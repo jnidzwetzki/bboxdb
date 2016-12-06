@@ -5,7 +5,13 @@ import java.util.Iterator;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 
-public interface ReadOnlyTupleStorage {
+public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
+	
+	/**
+	 * Get the name of the tuple store
+	 * @return
+	 */
+	public String getName();
 
 	/**
 	 * Search for tuple and return the most recent version
@@ -21,6 +27,20 @@ public interface ReadOnlyTupleStorage {
 	 * @return
 	 */
 	public Iterator<Tuple> getMatchingTuples(final Predicate predicate);
+	
+	/**
+	 * Get the number of tuples in the storage
+	 * @return
+	 */
+	public int getNumberOfTuples();
+	
+	/**
+	 * Get the n-th tuple
+	 * @param position
+	 * @return
+	 * @throws StorageManagerException 
+	 */
+	public Tuple getTupleAtPosition(final int position) throws StorageManagerException;
 	
 	/**
 	 * Get the timestamp of the oldest tuple

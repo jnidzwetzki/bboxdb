@@ -42,7 +42,6 @@ public class PredicateFilterIterator implements Iterator<Tuple> {
 
 	@Override
 	public boolean hasNext() {
-		
 		// Search for the next predicate matching tuple
 		while(baseIterator.hasNext()) {
 			final Tuple tuple = baseIterator.next();
@@ -58,6 +57,7 @@ public class PredicateFilterIterator implements Iterator<Tuple> {
 
 	@Override
 	public Tuple next() {
+
 		if(nextTuple == null) {
 			throw new IllegalArgumentException("Invalid state, did you really called hasNext()?");
 		}

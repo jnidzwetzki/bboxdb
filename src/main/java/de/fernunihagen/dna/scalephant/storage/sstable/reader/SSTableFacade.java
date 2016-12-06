@@ -258,8 +258,8 @@ public class SSTableFacade implements ScalephantService, ReadOnlyTupleStorage {
 		}
 	}
 
-	public SSTableName getName() {
-		return name;
+	public String getName() {
+		return name.getFullname();
 	}
 
 	public String getDirectory() {
@@ -313,6 +313,26 @@ public class SSTableFacade implements ScalephantService, ReadOnlyTupleStorage {
 	@Override
 	public Iterator<Tuple> getMatchingTuples(final Predicate predicate) {
 		return ssTableKeyIndexReader.getMatchingTuples(predicate);
+	}
+
+	@Override
+	public Iterator<Tuple> iterator() {
+		return ssTableKeyIndexReader.iterator();
+	}
+
+	@Override
+	public int getNumberOfTuples() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Tuple getTupleAtPosition(final int position) throws StorageManagerException {
+		try {
+			return ssTableKeyIndexReader.getTupleForIndexEntry(position);
+		} catch (IOException e) {
+			throw new StorageManagerException(e);
+		}
 	}
 	
 }

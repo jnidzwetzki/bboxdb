@@ -104,7 +104,7 @@ public class SSTableCompactorThread implements Runnable {
 
 				// Create a copy to ensure, that the list of facades don't change
 				// during the compact run.
-				final List<SSTableFacade> facades = new ArrayList<SSTableFacade>(sstableManager.getSstableFacades());
+				final List<SSTableFacade> facades = new ArrayList<SSTableFacade>(sstableManager.getTupleStoreInstances().getSstableFacades());
 				final MergeTask mergeTask = mergeStragegy.getMergeTask(facades);
 					
 				try {
@@ -148,11 +148,12 @@ public class SSTableCompactorThread implements Runnable {
 		}
 		
 		final String directory = facades.get(0).getDirectory();
-		final SSTableName name = facades.get(0).getName();
+		final String name = facades.get(0).getName();
+		final SSTableName ssTableName = new SSTableName(name);
 		
 		final long estimatedMaxNumberOfEntries = calculateNumberOfEntries(facades);
 		final int tablenumber = sstableManager.increaseTableNumber();
-		final SSTableWriter writer = new SSTableWriter(directory, name, tablenumber, estimatedMaxNumberOfEntries);
+		final SSTableWriter writer = new SSTableWriter(directory, ssTableName, tablenumber, estimatedMaxNumberOfEntries);
 		
 		final List<SSTableKeyIndexReader> reader = new ArrayList<SSTableKeyIndexReader>();
 		for(final SSTableFacade facade : facades) {
@@ -180,7 +181,7 @@ public class SSTableCompactorThread implements Runnable {
 					estimatedMaxNumberOfEntries, mergeFactor);
 		}
 		
-		registerNewFacadeAndDeleteOldInstances(facades, directory, name, tablenumber);
+		registerNewFacadeAndDeleteOldInstances(facades, directory, ssTableName, tablenumber);
 		
 		if(majorCompaction) {
 			testAndPerformTableSplit(ssTableCompactor.getWrittenTuples());
@@ -221,12 +222,11 @@ public class SSTableCompactorThread implements Runnable {
 		newFacade.init();
 		
 		// Register the new sstable reader
-		sstableManager.getSstableFacades().add(newFacade);
+		sstableManager.getTupleStoreInstances().replaceCompactedSStables(newFacade, tables);
 
 		// Unregister and delete the files
 		for(final ReadOnlyTupleStorage facade : tables) {
 			facade.deleteOnClose();
-			sstableManager.getSstableFacades().remove(facade);
 		}
 	}
 

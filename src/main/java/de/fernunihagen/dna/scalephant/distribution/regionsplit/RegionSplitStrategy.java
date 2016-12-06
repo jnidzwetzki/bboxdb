@@ -36,14 +36,12 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantClient;
-import de.fernunihagen.dna.scalephant.storage.Memtable;
+import de.fernunihagen.dna.scalephant.storage.ReadOnlyTupleStorage;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
-import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
-import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableKeyIndexReader;
 
 public abstract class RegionSplitStrategy implements Runnable {
 	
@@ -187,13 +185,8 @@ public abstract class RegionSplitStrategy implements Runnable {
 			ssTableManager.stopThreads();
 			
 			// Spread on disk data
-			final List<SSTableFacade> facades = ssTableManager.getSstableFacades();
-			spreadFacades(region, ssTableName, facades);
-			
-			// Spread in memory data
-			ssTableManager.flushMemtable();
-			final List<Memtable> unflushedMemtables = ssTableManager.getUnflushedMemtables();
-			spreadUnflushedMemtables(region, ssTableName, unflushedMemtables);
+			final Collection<ReadOnlyTupleStorage> storages = ssTableManager.getTupleStoreInstances().getAllTupleStorages();
+			spreadStorages(region, ssTableName, storages);
 			
 		} catch (StorageManagerException e) {
 			logger.warn("Got an exception while distributing tuples for: " + ssTableName, e);
@@ -201,49 +194,33 @@ public abstract class RegionSplitStrategy implements Runnable {
 		
 		logger.info("Redistributing table " + ssTableName.getFullname() + " is DONE");
 	}
-	
-	/**
-	 * Spread the unflushed memtables
-	 * @param region 
-	 * @param ssTableName 
-	 * @param unflushedMemtables
-	 */
-	protected void spreadUnflushedMemtables(DistributionRegion region, SSTableName ssTableName, final List<Memtable> unflushedMemtables) {
-		for(final Memtable memtable : unflushedMemtables) {
-			logger.info("Spread metable for sstable: " + ssTableName + " with a size of " + memtable.getSizeInMemory());
-			
-			spreadTuplesFromIterator(region, ssTableName, memtable.iterator());
-		}
-	}
 
 	/**
-	 * Spread the given sstable facades
+	 * Spread the given storages
 	 * @param region
 	 * @param ssTableName
-	 * @param facades
+	 * @param storages
 	 */
-	protected void spreadFacades(final DistributionRegion region, final SSTableName ssTableName, final List<SSTableFacade> facades) {
+	protected void spreadStorages(final DistributionRegion region, final SSTableName ssTableName, final Collection<ReadOnlyTupleStorage> storages) {
 
-		for(final SSTableFacade facade: facades) {
-			final boolean acquired = facade.acquire();
+		for(final ReadOnlyTupleStorage storage: storages) {
+			final boolean acquired = storage.acquire();
 			
 			if(acquired) {	
-				logger.info("Spread sstable facade: {}", facade.getName().getFullname());
-				
-				final SSTableKeyIndexReader reader = facade.getSsTableKeyIndexReader();
+				logger.info("Spread sstable facade: {}", storage.getName());
 				
 				final boolean distributeSuccessfully 
-					= spreadTuplesFromIterator(region, ssTableName, reader.iterator());
+					= spreadTuplesFromIterator(region, ssTableName, storage.iterator());
 				
 				// Data is spread, so we can delete it
 				if(! distributeSuccessfully) {
-					logger.warn("Distribution of {} was not successfully", facade.getName().getFullname());
+					logger.warn("Distribution of {} was not successfully", storage.getName());
 				} else {
-					logger.info("Distribution of {} was successfully, scheduling for deletion", facade.getName().getFullname());
-					facade.deleteOnClose();
+					logger.info("Distribution of {} was successfully, scheduling for deletion", storage.getName());
+					storage.deleteOnClose();
 				}
 				
-				facade.release();
+				storage.release();
 			}
 		}
 	}

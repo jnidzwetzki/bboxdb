@@ -17,7 +17,7 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.storage.sstable;
 
-import java.util.List;
+import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ class MemtableFlushThread implements Runnable, Stoppable {
 	/**
 	 * The unflushed memtables
 	 */
-	protected final List<Memtable> unflushedMemtables;
+	protected final Queue<Memtable> unflushedMemtables;
 
 	/**
 	 * The run variable
@@ -61,9 +61,9 @@ class MemtableFlushThread implements Runnable, Stoppable {
 	/**
 	 * @param ssTableManager
 	 */
-	MemtableFlushThread(final SSTableManager sstableManager) {
-		this.sstableManager = sstableManager;
-		this.unflushedMemtables = sstableManager.getUnflushedMemtables();
+	MemtableFlushThread(final SSTableManager ssTableManager) {
+		this.sstableManager = ssTableManager;
+		this.unflushedMemtables = ssTableManager.getTupleStoreInstances().getMemtablesToFlush();
 		this.dataDirectory = sstableManager.getScalephantConfiguration().getDataDirectory();
 		this.threadname = sstableManager.getSSTableName().getFullname();
 		this.run = true;
@@ -121,13 +121,21 @@ class MemtableFlushThread implements Runnable, Stoppable {
 	 */
 	protected void flushAllMemtablesToDisk() {
 		while(! unflushedMemtables.isEmpty()) {
-			final Memtable memtable = unflushedMemtables.get(0);
+			final Memtable memtable = unflushedMemtables.remove();
 
+			if(memtable == null) {
+				continue;
+			}
+			
+			if(memtable.isEmpty()) {
+				continue;
+			}
+						
 			try {
 				final int tableNumber = writeMemtable(memtable);
 				final SSTableFacade facade = new SSTableFacade(dataDirectory, sstableManager.getSSTableName(), tableNumber);
 				facade.init();
-				sstableManager.sstableFacades.add(facade);
+				sstableManager.getTupleStoreInstances().replaceMemtableWithSSTable(memtable, facade);
 			} catch (Exception e) {
 				
 				sstableManager.storageState.setReady(false);

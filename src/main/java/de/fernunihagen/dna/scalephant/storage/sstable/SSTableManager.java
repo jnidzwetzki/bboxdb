@@ -18,11 +18,8 @@
 package de.fernunihagen.dna.scalephant.storage.sstable;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,7 +38,6 @@ import de.fernunihagen.dna.scalephant.storage.queryprocessor.SSTableQueryProcess
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 import de.fernunihagen.dna.scalephant.storage.sstable.compact.SSTableCompactorThread;
 import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableFacade;
-import de.fernunihagen.dna.scalephant.storage.sstable.reader.TupleByKeyLocator;
 import de.fernunihagen.dna.scalephant.util.State;
 import de.fernunihagen.dna.scalephant.util.Stoppable;
 
@@ -53,6 +49,11 @@ public class SSTableManager implements ScalephantService {
 	protected final SSTableName sstablename;
 	
 	/**
+	 * The tuple storre instances
+	 */
+	protected final TupleStoreInstances tupleStoreInstances;
+	
+	/**
 	 * The Storage configuration
 	 */
 	protected final ScalephantConfiguration scalephantConfiguration;
@@ -62,21 +63,6 @@ public class SSTableManager implements ScalephantService {
 	 */
 	protected AtomicInteger tableNumber;
 	
-	/**
-	 * The reader for existing SSTables
-	 */
-	protected final List<SSTableFacade> sstableFacades;
-
-	/**
-	 * The active memtable
-	 */
-	protected volatile Memtable memtable;
-	
-	/**
-	 * The unflushed memtables
-	 */
-	protected List<Memtable> unflushedMemtables;
-
 	/**
 	 * Ready flag for flush thread
 	 */
@@ -131,8 +117,7 @@ public class SSTableManager implements ScalephantService {
 		this.tableNumber = new AtomicInteger();
 		this.ready = false;
 		
-		this.unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
-		this.sstableFacades = new CopyOnWriteArrayList<SSTableFacade>();
+		this.tupleStoreInstances = new TupleStoreInstances();
 		this.runningThreads = new HashMap<String, Thread>();
 		this.stoppableTasks = new HashMap<String, Stoppable>();
 	}
@@ -153,8 +138,7 @@ public class SSTableManager implements ScalephantService {
 		
 		logger.info("Init a new instance for the table: " + getSSTableName());
 		
-		unflushedMemtables.clear();
-		sstableFacades.clear();
+		tupleStoreInstances.clear();
 		runningThreads.clear();
 		createSSTableDirIfNeeded();
 		
@@ -183,12 +167,14 @@ public class SSTableManager implements ScalephantService {
 	 * Create a new storage manager
 	 */
 	protected void initNewMemtable() {
-		memtable = new Memtable(sstablename, 
+		final Memtable memtable = new Memtable(sstablename, 
 				scalephantConfiguration.getMemtableEntriesMax(), 
 				scalephantConfiguration.getMemtableSizeMax());
 		
 		memtable.acquire();
 		memtable.init();
+		
+		tupleStoreInstances.activateNewMemtable(memtable);
 	}
 
 	/**
@@ -250,22 +236,25 @@ public class SSTableManager implements ScalephantService {
 		ready = false;
 		storageState.setReady(false);
 		
-		memtable.shutdown();
-		
-		// Flush in memory data
-		try {
-			flushMemtable(memtable);
-		} catch (StorageManagerException e) {
-			logger.warn("Got exception while flushing pending memtable to disk", e);
+		if(tupleStoreInstances.getMemtable() != null) {
+			tupleStoreInstances.getMemtable().shutdown();
+			
+			// Flush in memory data
+			try {
+				flushMemtable();
+			} catch (StorageManagerException e) {
+				logger.warn("Got exception while flushing pending memtable to disk", e);
+			}
 		}
 		
 		stopThreads();
 
 		// Close all sstables
-		for(final SSTableFacade facade : sstableFacades) {
+		for(final SSTableFacade facade : tupleStoreInstances.getSstableFacades()) {
 			facade.shutdown();
 		}
-		sstableFacades.clear();
+		
+		tupleStoreInstances.clear();
 	}
 
 	/**
@@ -341,7 +330,7 @@ public class SSTableManager implements ScalephantService {
 					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(sstablename, filename);
 					final SSTableFacade facade = new SSTableFacade(scalephantConfiguration.getDataDirectory(), sstablename, sequenceNumber);
 					facade.init();
-					sstableFacades.add(facade);
+					tupleStoreInstances.addNewDetectedSSTable(facade);
 				} catch(StorageManagerException e) {
 					logger.warn("Unable to parse sequence number, ignoring file: " + filename, e);
 				}
@@ -359,7 +348,7 @@ public class SSTableManager implements ScalephantService {
 		
 		int number = 0;
 		
-		for(final SSTableFacade facade : sstableFacades) {
+		for(final SSTableFacade facade : tupleStoreInstances.getSstableFacades()) {
 			final int sequenceNumber = facade.getTablebumber();
 			
 			if(sequenceNumber >= number) {
@@ -413,14 +402,13 @@ public class SSTableManager implements ScalephantService {
 			}
 		}
 		
-		if(! memtable.isEmpty()) {
+		if(getMemtable() != null && ! getMemtable().isEmpty()) {
 			logger.warn("Memtable is not empty after shutdown()");
-			memtable.clear();
+			getMemtable().clear();
 		}
 		
-		if(! unflushedMemtables.isEmpty()) {
-			logger.warn("There are unflushed memtables after shutdown(): {}", unflushedMemtables);
-			unflushedMemtables.clear();
+		if(! tupleStoreInstances.getMemtablesToFlush().isEmpty() ) {
+			logger.warn("There are unflushed memtables after shutdown(): {}", tupleStoreInstances.getMemtablesToFlush());
 		}
 		
 		return deletePersistentTableData();
@@ -508,26 +496,7 @@ public class SSTableManager implements ScalephantService {
 		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
 				&& filename.endsWith(SSTableConst.SST_META_SUFFIX);
 	}
-	
-	/**
-	 * Schedule a memtable for flush
-	 * 
-	 * @param memtable
-	 * @throws StorageManagerException
-	 */
-	protected void flushMemtable(final Memtable memtable) throws StorageManagerException {
 		
-		// Empty memtables don't need to be flushed to disk
-		if(memtable.isEmpty()) {
-			return;
-		}
-		
-		synchronized (unflushedMemtables) {
-			unflushedMemtables.add(memtable);
-			unflushedMemtables.notifyAll();
-		}
-	}
-	
 	/**
 	 * Search for the most recent version of the tuple
 	 * @param key
@@ -540,9 +509,53 @@ public class SSTableManager implements ScalephantService {
 			throw new StorageManagerException("Storage manager is not ready");
 		}
 		
-		// Otherwise scan unflushed memtables and SStables
-		final TupleByKeyLocator tupleByKeyLocator = new TupleByKeyLocator(key, this);
-		return tupleByKeyLocator.getMostRecentTuple();
+		Tuple mostRecentTuple = null;
+		boolean readComplete = false;
+		while(! readComplete) {
+			readComplete = true;
+			
+			// Read data from the persistent SSTables
+			for(final ReadOnlyTupleStorage facade : getTupleStoreInstances().getAllTupleStorages()) {
+				
+				final boolean canBeUsed = facade.acquire();
+				
+				if(! canBeUsed) {
+					readComplete = false;
+					break;
+				} else {
+					try {
+						if(canStorageContainNewerTuple(mostRecentTuple, facade)) {
+							final Tuple facadeTuple = facade.get(key);
+							mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
+						}
+					} catch (Exception e) {
+						throw e;
+					} finally {
+						facade.release();
+					}
+				} 
+			}
+		}
+		
+		return TupleHelper.replaceDeletedTupleWithNull(mostRecentTuple);
+	}	
+
+	
+	/**
+	 * Can the given storage contain a newer tuple than the recent tuple?
+	 * @param memtable
+	 * @return
+	 */
+	protected boolean canStorageContainNewerTuple(final Tuple mostRecentTuple, final ReadOnlyTupleStorage memtable) {
+		if(mostRecentTuple == null) {
+			return true;
+		}
+		
+		if(memtable.getNewestTupleTimestamp() > mostRecentTuple.getTimestamp()) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -602,27 +615,10 @@ public class SSTableManager implements ScalephantService {
 	}
 
 	/**
-	 * Get the sstable facades
-	 * @return
-	 */
-	public List<SSTableFacade> getSstableFacades() {
-		return sstableFacades;
-	}
-	
-	/**
-	 * Get the unflushed memtables
-	 * @return
-	 */
-	public List<Memtable> getUnflushedMemtables() {
-		return unflushedMemtables;
-	}
-	
-	/**
 	 * Flush the open memtable to disk
 	 * @throws StorageManagerException
 	 */
 	public void flushMemtable() throws StorageManagerException {
-		flushMemtable(memtable);
 		initNewMemtable();
 	}
 
@@ -634,11 +630,11 @@ public class SSTableManager implements ScalephantService {
 		
 		// Ensure that only one memtable is newly created
 		synchronized (this) {	
-			if(memtable.isFull()) {
+			if(getMemtable().isFull()) {
 				flushMemtable();
 			}
 			
-			memtable.put(tuple);
+			getMemtable().put(tuple);
 		}
 	}
 
@@ -649,11 +645,11 @@ public class SSTableManager implements ScalephantService {
 		
 		// Ensure that only one memtable is newly created
 		synchronized (this) {	
-			if(memtable.isFull()) {
+			if(getMemtable().isFull()) {
 				flushMemtable();
 			}
 			
-			memtable.delete(key, timestamp);
+			getMemtable().delete(key, timestamp);
 		}
 	}
 
@@ -661,26 +657,20 @@ public class SSTableManager implements ScalephantService {
 		deleteExistingTables();
 		init();
 	}
+
+	/**
+	 * Get the tuple storate instance manager
+	 * @return
+	 */
+	public TupleStoreInstances getTupleStoreInstances() {
+		return tupleStoreInstances;
+	}
 	
 	/**
 	 * Get the active memtable
 	 * @return
 	 */
 	public Memtable getMemtable() {
-		return memtable;
+		return tupleStoreInstances.getMemtable();
 	}
-
-	/**
-	 * Get a list with all active storages
-	 * @return
-	 */
-	public List<ReadOnlyTupleStorage> getAllTupleStorages() {
-		final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
-		storages.add(memtable);
-		storages.addAll(unflushedMemtables);
-		storages.addAll(sstableFacades);
-		
-		return storages;
-	}
-
 }

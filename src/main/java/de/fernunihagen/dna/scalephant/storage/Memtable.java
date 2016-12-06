@@ -37,7 +37,7 @@ import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.PredicateFilterIterator;
 import de.fernunihagen.dna.scalephant.storage.sstable.TupleHelper;
 
-public class Memtable implements ScalephantService, ReadWriteTupleStorage, Iterable<Tuple> {
+public class Memtable implements ScalephantService, ReadWriteTupleStorage {
 	
 	/**
 	 * The name of the corresponding table
@@ -394,6 +394,21 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage, Itera
 				clear();
 			}
 		}*/
+	}
+
+	@Override
+	public String getName() {
+		return table.getFullname();
+	}
+
+	@Override
+	public int getNumberOfTuples() {
+		return freePos;
+	}
+
+	@Override
+	public Tuple getTupleAtPosition(final int position) {
+		return data[position];
 	}
 
 }

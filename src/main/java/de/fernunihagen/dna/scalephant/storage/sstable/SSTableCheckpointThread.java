@@ -17,8 +17,8 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.storage.sstable;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -35,6 +35,7 @@ import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFact
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
 import de.fernunihagen.dna.scalephant.storage.Memtable;
+import de.fernunihagen.dna.scalephant.storage.ReadOnlyTupleStorage;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
 import de.fernunihagen.dna.scalephant.util.Stoppable;
 
@@ -129,14 +130,13 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	 */
 	protected boolean isCheckpointNeeded() {
 		
-		final List<Memtable> memtablesToCheck = new ArrayList<Memtable>();
-		memtablesToCheck.add(ssTableManager.getMemtable());
-		memtablesToCheck.addAll(ssTableManager.getUnflushedMemtables());
-	
+		final List<ReadOnlyTupleStorage> inMemoryStores 
+			= ssTableManager.getTupleStoreInstances().getAllInMemoryStorages();
+		
 		final long currentTime = System.currentTimeMillis();
-		final boolean checkpointNeeded = memtablesToCheck
+		final boolean checkpointNeeded = inMemoryStores
 				.stream()
-				.anyMatch(m -> (m.getCreatedTimestamp() + maxUncheckpointedMiliseconds) < currentTime);
+				.anyMatch(m -> (m.getOldestTupleTimestamp() + maxUncheckpointedMiliseconds) < currentTime);
 		
 		return checkpointNeeded;
 	}
@@ -153,7 +153,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 				logger.info("Creating a checkpoint for: {}", threadname);
 				ssTableManager.flushMemtable();
 				
-				final List<Memtable> unflushedMemtables = ssTableManager.getUnflushedMemtables();
+				final Queue<Memtable> unflushedMemtables = ssTableManager.getTupleStoreInstances().getMemtablesToFlush();
 				
 				// Wait until the active memtable is flushed to disk
 				synchronized (unflushedMemtables) {
