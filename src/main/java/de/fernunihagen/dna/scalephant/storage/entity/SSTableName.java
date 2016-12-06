@@ -189,6 +189,14 @@ public class SSTableName {
 	}
 	
 	/**
+	 * Get the name of the table without the nameprefix
+	 * @return
+	 */
+	public String getFullnameWithoutPrefix() {
+		return getDistributionGroup() + "_" + tablename;
+	}
+	
+	/**
 	 * Get the distribution group as object
 	 * @return
 	 */

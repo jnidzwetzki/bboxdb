@@ -48,10 +48,19 @@ import de.fernunihagen.dna.scalephant.storage.sstable.reader.SSTableKeyIndexRead
 public abstract class RegionSplitStrategy {
 	
 	/**
+	 * The zookeeper client
+	 */
+	protected final ZookeeperClient zookeeperClient;
+	
+	/**
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitStrategy.class);
 
+	public RegionSplitStrategy() {
+		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+	}
+	
 	/**
 	 * Is a split needed?
 	 * @param totalTuplesInTable
@@ -96,8 +105,6 @@ public abstract class RegionSplitStrategy {
 		}
 		
 		try {
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			
 			final DistributionRegion distributionGroup = DistributionGroupCache.getGroupForGroupName(ssTableName.getDistributionGroup(), zookeeperClient);
 			
 			final DistributionRegion region = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroup, ssTableName.getNameprefix());
@@ -226,20 +233,28 @@ public abstract class RegionSplitStrategy {
 		final DistributionRegion leftRegion = region.getLeftChild();
 		final DistributionRegion rightRegion = region.getRightChild();
 		
+		final String tablename = ssTableName.getFullnameWithoutPrefix();
+		
+		final SSTableName leftSStablename = new SSTableName(ssTableName.getDimension(), 
+				ssTableName.getDistributionGroup(), ssTableName.getTablename(), 
+				leftRegion.getNameprefix());
+		
+		final SSTableName rightSStablename = new SSTableName(ssTableName.getDimension(), 
+				ssTableName.getDistributionGroup(), ssTableName.getTablename(), 
+				rightRegion.getNameprefix());
+		
 		while(tupleIterator.hasNext()) {
 			
 			final Tuple tuple = tupleIterator.next();
 			
 			// Spread to the left region
 			if(tuple.getBoundingBox().overlaps(leftRegion.getConveringBox())) {
-				final Collection<DistributedInstance> instances = leftRegion.getSystems();
-				spreadTupleToSystems(ssTableName, tuple, instances);
+				spreadTupleToSystems(tablename, leftSStablename, tuple, leftRegion);
 			}
 			
 			// Spread to the right region
 			if(tuple.getBoundingBox().overlaps(rightRegion.getConveringBox())) {
-				final Collection<DistributedInstance> instances = rightRegion.getSystems();
-				spreadTupleToSystems(ssTableName, tuple, instances);							
+				spreadTupleToSystems(tablename, rightSStablename, tuple, rightRegion);							
 			}
 		}
 	}
@@ -248,21 +263,37 @@ public abstract class RegionSplitStrategy {
 	 * Spread the tuple to the given list of systems
 	 * @param ssTableName
 	 * @param tuple
-	 * @param instances
+	 * @param region
 	 * @return 
 	 */
-	protected boolean spreadTupleToSystems(final SSTableName ssTableName, final Tuple tuple, final Collection<DistributedInstance> instances) {
-		final MembershipConnectionService membershipConnectionService = MembershipConnectionService.getInstance();
+	protected boolean spreadTupleToSystems(final String baseTableName, final SSTableName ssTableName, final Tuple tuple, final DistributionRegion region) {
+		
+		final Collection<DistributedInstance> instances = region.getSystems();
+
+		final MembershipConnectionService membershipConnectionService 	
+			= MembershipConnectionService.getInstance();
 		
 		for(final DistributedInstance instance : instances) {
-			final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(instance);
 			
-			if(connection == null) {
-				logger.error("No connection for distributed instance {} is known, unable to distribute tuple: " + instance);
-				return false;
+			// Redistribute tuples locally or via network?
+			if(instance.socketAddressEquals(zookeeperClient.getInstancename())) {
+				try {
+					final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
+					storageManager.put(tuple);
+				} catch (StorageManagerException e) {
+					logger.error("Got exception while inserting tuple", e);
+					return false;
+				}
+			} else {
+				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(instance);
+				
+				if(connection == null) {
+					logger.error("No connection for distributed instance {} is known, unable to distribute tuple.", instance);
+					return false;
+				}
+				
+				connection.insertTuple(baseTableName, tuple);
 			}
-			
-			connection.insertTuple(ssTableName.getFullname(), tuple);
 		}
 		
 		return true;
