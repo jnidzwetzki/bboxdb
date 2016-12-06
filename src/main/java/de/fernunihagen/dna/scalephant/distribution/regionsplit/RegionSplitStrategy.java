@@ -69,8 +69,9 @@ public abstract class RegionSplitStrategy implements Runnable {
 	/**
 	 * Set the distribution region
 	 * @param region
+	 * @throws StorageManagerException 
 	 */
-	public void initFromSSTablename(final SSTableName ssTableName) {
+	public void initFromSSTablename(final SSTableName ssTableName) throws StorageManagerException {
 		
 		try {
 			final DistributionRegion distributionGroup = DistributionGroupCache.getGroupForGroupName(
@@ -80,15 +81,16 @@ public abstract class RegionSplitStrategy implements Runnable {
 					distributionGroup, ssTableName.getNameprefix());
 			
 			if(region == null) {
-				throw new IllegalArgumentException("Region is null");
+				throw new StorageManagerException("Region is null");
 			}
 			
 			if(! region.isLeafRegion()) {
-				throw new IllegalArgumentException("Region is not a leaf region, unable to split:" + region);
+				throw new StorageManagerException("Region is not a leaf region, unable to split:" + region);
 			}
 		} catch (ZookeeperException e) {
 			logger.error("Got exception while init region splitter", e);
 			region = null;
+			throw new StorageManagerException(e);
 		}
 	}
 	

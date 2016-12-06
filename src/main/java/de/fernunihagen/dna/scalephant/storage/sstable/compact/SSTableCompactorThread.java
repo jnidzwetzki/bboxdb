@@ -66,8 +66,6 @@ public class SSTableCompactorThread implements Runnable {
 		this.mergeStragegy = new SimpleMergeStrategy();
 		this.threadname = sstableManager.getSSTableName().getFullname();
 		this.regionSplitter = RegionSplitStrategyFactory.getInstance();
-		
-		regionSplitter.initFromSSTablename(sstableManager.getSSTableName());
 	}
 
 	/**
@@ -91,6 +89,13 @@ public class SSTableCompactorThread implements Runnable {
 	 * Execute the compactor thread
 	 */
 	protected void executeThread() {
+		
+		try {
+			regionSplitter.initFromSSTablename(sstableManager.getSSTableName());
+		} catch (StorageManagerException e) {
+			logger.error("Got exception when init region splitter", e);
+		}
+	
 		while(sstableManager.isReady()) {
 
 			try {	
