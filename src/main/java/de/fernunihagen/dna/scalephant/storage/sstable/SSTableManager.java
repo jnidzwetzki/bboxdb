@@ -19,9 +19,9 @@ package de.fernunihagen.dna.scalephant.storage.sstable;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -91,12 +91,27 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 	/**
 	 * The running threads
 	 */
-	protected final Set<Thread> runningThreads;
+	protected final Map<String, Thread> runningThreads;
 	
 	/**
 	 * The stoppable tasks
 	 */
-	protected final Set<Stoppable> stoppableTasks;
+	protected final Map<String, Stoppable> stoppableTasks;
+	
+	/**
+	 * Id of the memtable flush thread
+	 */
+	protected final static String MEMTABLE_FLUSH_THREAD = "memtable";
+	
+	/**
+	 * Id of the checkpoint thread
+	 */
+	protected final static String CHECKPOINT_THREAD = "checkpoint";
+	
+	/**
+	 * Id of the compact thread
+	 */
+	protected final static String COMPACT_THREAD = "compact";
 	
 	/**
 	 * The timeout for a thread join (10 seconds)
@@ -119,8 +134,8 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 		
 		this.unflushedMemtables = new CopyOnWriteArrayList<Memtable>();
 		this.sstableFacades = new CopyOnWriteArrayList<SSTableFacade>();
-		this.runningThreads = new HashSet<Thread>();
-		this.stoppableTasks = new HashSet<Stoppable>();
+		this.runningThreads = new HashMap<String, Thread>();
+		this.stoppableTasks = new HashMap<String, Stoppable>();
 	}
 
 	/**
@@ -186,8 +201,8 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 			final Thread checkpointThread = new Thread(ssTableCheckpointThread);
 			checkpointThread.setName("Checkpoint thread for: " + sstablename.getFullname());
 			checkpointThread.start();
-			runningThreads.add(checkpointThread);
-			stoppableTasks.add(ssTableCheckpointThread);
+			runningThreads.put(CHECKPOINT_THREAD, checkpointThread);
+			stoppableTasks.put(CHECKPOINT_THREAD, ssTableCheckpointThread);
 		} else {
 			logger.info("NOT starting the checkpoint thread for: " + sstablename.getFullname());
 		}
@@ -201,7 +216,7 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 			final Thread compactThread = new Thread(new SSTableCompactorThread(this));
 			compactThread.setName("Compact thread for: " + sstablename.getFullname());
 			compactThread.start();
-			runningThreads.add(compactThread);
+			runningThreads.put(COMPACT_THREAD, compactThread);
 		} else {
 			logger.info("NOT starting the sstable compact thread for: " + sstablename.getFullname());
 		}
@@ -216,8 +231,8 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 			final Thread flushThread = new Thread(ssTableFlushThread);
 			flushThread.setName("Memtable flush thread for: " + sstablename.getFullname());
 			flushThread.start();
-			runningThreads.add(flushThread);
-			stoppableTasks.add(ssTableFlushThread);
+			runningThreads.put(MEMTABLE_FLUSH_THREAD, flushThread);
+			stoppableTasks.put(MEMTABLE_FLUSH_THREAD, ssTableFlushThread);
 		} else {
 			logger.info("NOT starting the memtable flush thread for:" + sstablename.getFullname());
 		}
@@ -259,12 +274,12 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 	public void stopThreads() {
 		
 		// Stop the running tasks
-		for(final Stoppable stoppable : stoppableTasks) {
+		for(final Stoppable stoppable : stoppableTasks.values()) {
 			stoppable.stop();
 		}
 		
 		// Stop the corresponsing threads
-		for(final Thread thread : runningThreads) {
+		for(final Thread thread : runningThreads.values()) {
 			logger.info("Interrupt and join thread: " + thread.getName());
 			thread.interrupt();
 			
@@ -275,6 +290,9 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 				logger.warn("Got exception while waiting on thread join: " + thread.getName(), e);
 			}
 		}
+		
+		stoppableTasks.clear();
+		runningThreads.clear();
 	}
 	
 	
@@ -284,14 +302,7 @@ public class SSTableManager implements ScalephantService, ReadWriteTupleStorage 
 	 * @return
 	 */
 	public boolean isShutdownComplete() {
-		
-		for(final Thread thread : runningThreads) {
-			if(thread.isAlive()) {
-				return false;
-			}
-		}
-
-		return true;
+		return (stoppableTasks.isEmpty() && runningThreads.isEmpty());
 	}
 	
 	/**
