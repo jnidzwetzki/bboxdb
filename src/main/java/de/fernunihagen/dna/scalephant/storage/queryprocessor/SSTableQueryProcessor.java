@@ -225,8 +225,8 @@ public class SSTableQueryProcessor {
 			
 			boolean allTablesAquired = true;
 			
-			for(final ReadOnlyTupleStorage facade : unprocessedStorages) {
-				boolean canBeUsed = facade.acquire();
+			for(final ReadOnlyTupleStorage tupleStorage : unprocessedStorages) {
+				boolean canBeUsed = tupleStorage.acquire();
 				
 				if(! canBeUsed ) {
 					allTablesAquired = false;
@@ -267,6 +267,5 @@ public class SSTableQueryProcessor {
 		}
 		
 		unprocessedStorages.clear();
-
 	}
 }
