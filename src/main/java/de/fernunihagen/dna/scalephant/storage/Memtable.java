@@ -364,12 +364,9 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage {
 
 		pendingDelete = true;
 		
-		/*
-		 * Wait for refactoring
-		 */
-		/*if(referenceCounter.get() == 0) {
+		if(referenceCounter.get() == 0) {
 			clear();
-		}*/	
+		}
 	}
 
 	@Override
@@ -386,14 +383,13 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage {
 	public void release() {
 		referenceCounter.decrementAndGet();
 		
-		// Wait for refactoring
-		/*if(pendingDelete) {
+		if(pendingDelete) {
 			logger.debug("Release called and we have {} references", referenceCounter.get());
 
 			if(referenceCounter.get() == 0) {
 				clear();
 			}
-		}*/
+		}
 	}
 
 	@Override
