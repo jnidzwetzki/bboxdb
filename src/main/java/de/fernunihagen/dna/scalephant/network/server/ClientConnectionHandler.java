@@ -79,9 +79,9 @@ import de.fernunihagen.dna.scalephant.storage.StorageRegistry;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.NewerAsTimePredicate;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.OverlapsBoundingBoxPredicate;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.AndPredicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.NewerAsTimePredicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.OverlapsBoundingBoxPredicate;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 

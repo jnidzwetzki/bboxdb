@@ -29,7 +29,7 @@ import de.fernunihagen.dna.scalephant.PersonEntity;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.NewerAsTimePredicate;
+import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.NewerAsTimePredicate;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableManager;
 import de.fernunihagen.dna.scalephant.util.ObjectSerializer;

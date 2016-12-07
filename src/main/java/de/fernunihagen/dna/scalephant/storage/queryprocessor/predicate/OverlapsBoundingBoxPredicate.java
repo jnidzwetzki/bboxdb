@@ -15,11 +15,10 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package de.fernunihagen.dna.scalephant.storage.queryprocessor;
+package de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate;
 
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
-import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 
 public class OverlapsBoundingBoxPredicate implements Predicate {
 
