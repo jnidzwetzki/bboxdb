@@ -561,7 +561,7 @@ public class ClientConnectionHandler implements Runnable {
 				    writeResultPackage(new SuccessResponse(packageSequence));
 					return;
 					
-				} catch (StorageManagerException | PackageEncodeError e) {
+				} catch (Throwable e) {
 					logger.warn("Got exception while scanning for key", e);
 				}
 				
