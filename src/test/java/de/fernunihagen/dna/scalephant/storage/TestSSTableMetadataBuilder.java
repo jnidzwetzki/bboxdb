@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.scalephant.storage.entity.SStableMetaData;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableMetadataBuilder;
@@ -150,6 +151,34 @@ public class TestSSTableMetadataBuilder {
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(new float[] {1f, 2f, 1f, 5f}, metadata.getBoundingBoxData(), 0.001f);
 		Assert.assertEquals(2, metadata.getTuples());
+	}
+	
+	
+	/**
+	 * Build index with multiple tuples - check timestamps
+	 */
+	@Test
+	public void testSSTableIndexBuilder8() {
+		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
+		final Tuple tuple1 = new Tuple("0", BoundingBox.EMPTY_BOX, "".getBytes(), 6);
+		ssTableIndexBuilder.addTuple(tuple1);
+		Assert.assertEquals(6, ssTableIndexBuilder.getMetaData().getNewestTuple());
+		Assert.assertEquals(6, ssTableIndexBuilder.getMetaData().getOldestTuple());
+		
+		final Tuple tuple2 = new Tuple("0", BoundingBox.EMPTY_BOX, "".getBytes(), 7);
+		ssTableIndexBuilder.addTuple(tuple2);
+		Assert.assertEquals(7, ssTableIndexBuilder.getMetaData().getNewestTuple());
+		Assert.assertEquals(6, ssTableIndexBuilder.getMetaData().getOldestTuple());
+		
+		final Tuple tuple3 = new Tuple("0", BoundingBox.EMPTY_BOX, "".getBytes(), 2);
+		ssTableIndexBuilder.addTuple(tuple3);
+		Assert.assertEquals(7, ssTableIndexBuilder.getMetaData().getNewestTuple());
+		Assert.assertEquals(2, ssTableIndexBuilder.getMetaData().getOldestTuple());
+		
+		final Tuple tuple4 = new DeletedTuple("0", 22);
+		ssTableIndexBuilder.addTuple(tuple4);
+		Assert.assertEquals(22, ssTableIndexBuilder.getMetaData().getNewestTuple());
+		Assert.assertEquals(2, ssTableIndexBuilder.getMetaData().getOldestTuple());
 	}
 	
 	/**
