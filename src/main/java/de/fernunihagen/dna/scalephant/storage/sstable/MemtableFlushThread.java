@@ -142,6 +142,9 @@ class MemtableFlushThread implements Runnable, Stoppable {
 				facade.init();
 				sstableManager.getTupleStoreInstances()
 						.replaceMemtableWithSSTable(memtable, facade);
+				
+				logger.debug("Replacing memtable {} with sstable {}", memtable, facade);
+				
 			} catch (Exception e) {
 
 				sstableManager.storageState.setReady(false);
