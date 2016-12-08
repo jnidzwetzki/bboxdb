@@ -182,8 +182,10 @@ public class SSTableFacade implements ScalephantService, ReadOnlyTupleStorage {
 
 	@Override
 	public String toString() {
-		return "SSTableFacade [name=" + name + ", directory=" + directory
-				+ ", tablebumber=" + tablenumber + "]";
+		return "SSTableFacade [name=" + name.getFullname() + ", directory=" + directory
+				+ ", tablebumber=" + tablenumber + ", oldestTupleTimestamp="
+				+ getOldestTupleTimestamp() + ", newestTupleTimestamp="
+				+ getNewestTupleTimestamp() + "]";
 	}
 
 	public SSTableReader getSsTableReader() {

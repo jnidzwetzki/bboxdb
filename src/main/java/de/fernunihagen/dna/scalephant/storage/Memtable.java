@@ -407,4 +407,14 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage {
 		return data[(int) position];
 	}
 
+	@Override
+	public String toString() {
+		return "Memtable [table=" + table.getFullname() + ", freePos=" + freePos
+				+ ", sizeInMemory=" + sizeInMemory + ", createdTimestamp="
+				+ createdTimestamp + ", oldestTupleTimestamp="
+				+ oldestTupleTimestamp + ", newestTupleTimestamp="
+				+ newestTupleTimestamp + "]";
+	}
+
+	
 }
