@@ -17,11 +17,12 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.network.client.future;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -76,6 +77,11 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		 * @param tupleListFuture
 		 */
 		protected final TupleListFuture tupleListFuture;
+		
+		/**
+		 * The set is used to eleminate duplicate keys
+		 */
+		protected final Set<String> seenKeys = new HashSet<String>();
 		
 		/**
 		 * The executor pool
@@ -219,6 +225,13 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 					seenTerminals++;
 					nextTuple = null;
 				}
+				
+				// Remove duplicates
+				if(seenKeys.contains(nextTuple.getKey())) {
+					nextTuple = null;
+				} else {
+					seenKeys.add(nextTuple.getKey());
+				}
 			}
 			
 			return true;
@@ -358,14 +371,17 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 	 * @return
 	 */
 	protected Iterator<Tuple> createSimpleIterator() {
-		final List<Tuple> allTuples = new ArrayList<Tuple>();
+		final Map<String, Tuple> allTuples = new HashMap<String, Tuple>();
 		
 		for(int i = 0; i < getNumberOfResultObjets(); i++) {
 			try {
 				final List<Tuple> tupleResult = get(i);
 				
 				if(tupleResult != null) {
-					allTuples.addAll(tupleResult);
+					for(final Tuple tuple : tupleResult) {
+						// Hash map <Key, Tuple> is used to eleminate duplicates
+						allTuples.put(tuple.getKey(), tuple);
+					}
 				}
 				
 			} catch (Exception e) {
@@ -373,6 +389,6 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 			}
 		}
 		
-		return allTuples.iterator();
+		return allTuples.values().iterator();
 	}
 }
