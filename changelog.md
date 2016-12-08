@@ -23,6 +23,7 @@
 - Bugfix: The checkpoint date is not written to zookeper, if no memtable was flushed
 - Bugfix: The tuple redistribution strategy was not able to handle local destinations 
 - Bugfix: Fixed NPE during bounding box creation
+- Bugfix: Deleted tuples were read form SSTables without the original timestamp
 
 ### Version 0.2.0 (Beta-2) - 28.11.2016
 - New Feature: Java 8 is now required to build the project

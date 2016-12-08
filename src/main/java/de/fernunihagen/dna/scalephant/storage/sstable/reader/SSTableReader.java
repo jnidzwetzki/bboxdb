@@ -125,7 +125,7 @@ public class SSTableReader extends AbstractTableReader {
 		final String keyString = new String(keyBytes);
 		
 		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
-			return new DeletedTuple(keyString);
+			return new DeletedTuple(keyString, timestamp);
 		}
 		
 		return new Tuple(keyString, boundingBox, dataBytes, timestamp);

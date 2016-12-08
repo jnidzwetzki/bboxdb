@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
+import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.scalephant.storage.entity.SSTableName;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.sstable.SSTableHelper;
@@ -123,6 +124,7 @@ public class TestSSTable {
 		tupleList.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		tupleList.add(new Tuple("3", BoundingBox.EMPTY_BOX, "geh".getBytes()));
 		tupleList.add(new Tuple("4", BoundingBox.EMPTY_BOX, "ijk".getBytes()));
+		tupleList.add(new DeletedTuple("4"));
 		return tupleList;
 	}
 	
