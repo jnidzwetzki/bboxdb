@@ -169,7 +169,7 @@ public class SSTableQueryProcessor {
 				Tuple resultTuple = activeStorage.get(tuple.getKey());
 				
 				for(final ReadOnlyTupleStorage readOnlyTupleStorage : unprocessedStorages) {
-					if(readOnlyTupleStorage.getNewestTupleTimestamp() > resultTuple.getTimestamp()) {
+					if(TupleHelper.canStorageContainNewerTuple(resultTuple, readOnlyTupleStorage)) {
 						final Tuple possibleTuple = readOnlyTupleStorage.get(tuple.getKey());
 						resultTuple = TupleHelper.returnMostRecentTuple(resultTuple, possibleTuple);
 					}

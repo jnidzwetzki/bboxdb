@@ -17,6 +17,7 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.storage.sstable;
 
+import de.fernunihagen.dna.scalephant.storage.ReadOnlyTupleStorage;
 import de.fernunihagen.dna.scalephant.storage.entity.DeletedTuple;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 
@@ -66,4 +67,23 @@ public class TupleHelper {
 		
 		return tuple;
 	}
+	
+	
+	/**
+	 * Can the given storage contain a newer tuple than the recent tuple?
+	 * @param memtable
+	 * @return
+	 */
+	public static boolean canStorageContainNewerTuple(final Tuple tuple, final ReadOnlyTupleStorage memtable) {
+		if(tuple == null) {
+			return true;
+		}
+		
+		if(memtable.getNewestTupleTimestamp() > tuple.getTimestamp()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
 }

@@ -524,7 +524,7 @@ public class SSTableManager implements ScalephantService {
 					break;
 				} else {
 					try {
-						if(canStorageContainNewerTuple(mostRecentTuple, facade)) {
+						if(TupleHelper.canStorageContainNewerTuple(mostRecentTuple, facade)) {
 							final Tuple facadeTuple = facade.get(key);
 							mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
 						}
@@ -540,24 +540,7 @@ public class SSTableManager implements ScalephantService {
 		return TupleHelper.replaceDeletedTupleWithNull(mostRecentTuple);
 	}	
 
-	
-	/**
-	 * Can the given storage contain a newer tuple than the recent tuple?
-	 * @param memtable
-	 * @return
-	 */
-	protected boolean canStorageContainNewerTuple(final Tuple mostRecentTuple, final ReadOnlyTupleStorage memtable) {
-		if(mostRecentTuple == null) {
-			return true;
-		}
-		
-		if(memtable.getNewestTupleTimestamp() > mostRecentTuple.getTimestamp()) {
-			return true;
-		}
-		
-		return false;
-	}
-	
+
 	/**
 	 * Get all tuples that match the predicate
 	 */
