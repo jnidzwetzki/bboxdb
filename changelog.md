@@ -22,6 +22,7 @@
 - Bugfix: Thread names contain the full output of sstablename.toString
 - Bugfix: The checkpoint date is not written to zookeper, if no memtable was flushed
 - Bugfix: The tuple redistribution strategy was not able to handle local destinations 
+- Bugfix: Fixed NPE during bounding box creation
 
 ### Version 0.2.0 (Beta-2) - 28.11.2016
 - New Feature: Java 8 is now required to build the project

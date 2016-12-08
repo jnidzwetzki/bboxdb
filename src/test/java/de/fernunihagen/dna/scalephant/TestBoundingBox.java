@@ -211,7 +211,7 @@ public class TestBoundingBox {
 		final BoundingBox boundingBox4 = new BoundingBox(-1f, 2f, -1f, 2f, -1f, 2f);
 
 		final BoundingBox boundingBoxResult1 = BoundingBox.getBoundingBox();
-		Assert.assertTrue(boundingBoxResult1 == null);
+		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBoxResult1);
 		
 		Assert.assertEquals(boundingBox1, BoundingBox.getBoundingBox(boundingBox1));
 		Assert.assertEquals(boundingBox2, BoundingBox.getBoundingBox(boundingBox2));
@@ -244,10 +244,30 @@ public class TestBoundingBox {
 	 * Test merge on array
 	 */
 	@Test
-	public void testMergeBoxes() {
+	public void testMergeBoxes0() {
+		final BoundingBox resultBox = BoundingBox.getBoundingBox();
+		Assert.assertEquals(BoundingBox.EMPTY_BOX, resultBox);
+	}
+	
+	/**
+	 * Test merge on array
+	 */
+	@Test
+	public void testMergeBoxes1() {
 		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 1f);
 		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f, 1f, 4f);
 		final BoundingBox resultBox = BoundingBox.getBoundingBox(boundingBox1, boundingBox2);
+		Assert.assertArrayEquals(new float[] {1f, 2f, 1f, 4f}, resultBox.toFloatArray(), EQUALS_DELTA);
+	}
+	
+	/**
+	 * Test merge on array
+	 */
+	@Test
+	public void testMergeBoxes2() {
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 1f);
+		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f, 1f, 4f);
+		final BoundingBox resultBox = BoundingBox.getBoundingBox(boundingBox1, boundingBox2, null);
 		Assert.assertArrayEquals(new float[] {1f, 2f, 1f, 4f}, resultBox.toFloatArray(), EQUALS_DELTA);
 	}
 	

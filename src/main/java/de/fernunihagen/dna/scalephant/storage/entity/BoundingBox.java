@@ -408,7 +408,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		
 		// No argument
 		if(boundingBoxes.length == 0) {
-			return null;
+			return BoundingBox.EMPTY_BOX;
 		}
 		
 		// Only 1 argument
@@ -421,17 +421,17 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		// All bounding boxes need the same dimension
 		for(int i = 1 ; i < boundingBoxes.length; i++) {
 			
-			final BoundingBox curentBox = boundingBoxes[i];
+			final BoundingBox currentBox = boundingBoxes[i];
 			
 			// Bounding box could be null, e.g. for DeletedTuple instances
-			if(curentBox == null) {
+			if(currentBox == null) {
 				continue;
 			}
 			
-			if(dimensions != curentBox.getDimension()) {
-				logger.error("Merging bounding boxes with different dimensions: " + dimensions + "/" + curentBox.getDimension());
+			if(dimensions != currentBox.getDimension()) {
+				logger.error("Merging bounding boxes with different dimensions: " + dimensions + "/" + currentBox.getDimension());
 				logger.error("Box 0: " + boundingBoxes[0]);
-				logger.error("Other box: " + curentBox);
+				logger.error("Other box: " + currentBox);
 				return null;
 			}
 		}
@@ -445,8 +445,14 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			float resultMax = Float.MIN_VALUE;
 			
 			for(int i = 0; i < boundingBoxes.length; i++) {
-				resultMin = Math.min(resultMin, boundingBoxes[i].getCoordinateLow(d));
-				resultMax = Math.max(resultMax, boundingBoxes[i].getCoordinateHigh(d));
+				final BoundingBox currentBox = boundingBoxes[i];
+
+				if(currentBox == null) {
+					continue;
+				}
+				
+				resultMin = Math.min(resultMin, currentBox.getCoordinateLow(d));
+				resultMax = Math.max(resultMax, currentBox.getCoordinateHigh(d));
 			}
 			
 			coverBox[2 * d] = resultMin;     // Begin position
