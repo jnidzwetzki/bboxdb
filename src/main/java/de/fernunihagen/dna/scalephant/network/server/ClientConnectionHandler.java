@@ -541,31 +541,44 @@ public class ClientConnectionHandler implements Runnable {
 			public void run() {
 
 				try {
-					final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
-					final SSTableName requestTable = queryKeyRequest.getTable();
-					
-					// Send the call to the storage manager
-					final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-					final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
-					
-					for(final SSTableName ssTableName : localTables) {
-						final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
-						final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
-						
-						if(tuple != null) {
-							writeResultTuple(packageSequence, requestTable, tuple);
-							return;
-						}
-					}
-
-				    writeResultPackage(new SuccessResponse(packageSequence));
-					return;
-					
+					executeThread(encodedPackage, packageSequence);
 				} catch (Throwable e) {
 					logger.warn("Got exception while scanning for key", e);
+					writeResultPackage(new ErrorResponse(packageSequence));				
+					return;
 				}
 				
-				writeResultPackage(new ErrorResponse(packageSequence));				
+			}
+
+			/**
+			 * Execute the thread
+			 * @param encodedPackage
+			 * @param packageSequence
+			 * @throws PackageEncodeError
+			 * @throws StorageManagerException
+			 */
+			protected void executeThread(final ByteBuffer encodedPackage,
+					final short packageSequence) throws PackageEncodeError,
+					StorageManagerException {
+				final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
+				final SSTableName requestTable = queryKeyRequest.getTable();
+				
+				// Send the call to the storage manager
+				final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+				final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
+				
+				for(final SSTableName ssTableName : localTables) {
+					final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
+					final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
+					
+					if(tuple != null) {
+						writeResultTuple(packageSequence, requestTable, tuple);
+						return;
+					}
+				}
+
+				writeResultPackage(new SuccessResponse(packageSequence));
+				return;
 			}			
 		};
 
@@ -653,6 +666,20 @@ public class ClientConnectionHandler implements Runnable {
 
 			@Override
 			public void run() {
+				try {
+					executeThread(packageSequence);
+				} catch(Throwable e) {
+					logger.error("Got uncought exception in thread", e);
+					writeResultPackage(new ErrorResponse(packageSequence));
+					return;
+				}
+			}
+
+			/**
+			 * Execute the thread
+			 * @param packageSequence
+			 */
+			protected void executeThread(final short packageSequence) {
 				final ClientQuery clientQuery = activeQueries.get(packageSequence);
 				clientQuery.fetchAndSendNextTuples();
 				
@@ -710,7 +737,6 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 */
 	protected boolean handleInsertTuple(final ByteBuffer encodedPackage, final short packageSequence) {
-		
 		
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
