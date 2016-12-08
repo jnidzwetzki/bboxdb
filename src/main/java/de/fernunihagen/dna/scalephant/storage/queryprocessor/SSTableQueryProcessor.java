@@ -61,6 +61,12 @@ public class SSTableQueryProcessor {
 	protected final List<ReadOnlyTupleStorage> unprocessedStorages;
 
 	/**
+	 * The aquired storages
+	 */
+	protected final List<ReadOnlyTupleStorage> aquiredStorages;
+
+	
+	/**
 	 * The Logger
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(SSTableQueryProcessor.class);
@@ -71,6 +77,7 @@ public class SSTableQueryProcessor {
 		this.ssTableManager = ssTableManager;
 		this.ready = false;
 		this.seenTuples = new HashMap<String, Long>();
+		this.aquiredStorages = new LinkedList<ReadOnlyTupleStorage>();
 		this.unprocessedStorages = new LinkedList<ReadOnlyTupleStorage>();
 	}
 	
@@ -135,6 +142,8 @@ public class SSTableQueryProcessor {
 					if(seenTuples.containsKey(possibleTuple.getKey())) {
 						final long oldTimestamp = seenTuples.get(possibleTuple.getKey());
 						if(oldTimestamp < possibleTuple.getTimestamp()) {
+							logger.warn("Unprocessded: {}", unprocessedStorages);
+							logger.warn("Aquired: {}", aquiredStorages);
 							logger.warn("Got newer tuple {} than {}", possibleTuple, oldTimestamp);
 							seenTuples.put(possibleTuple.getKey(), possibleTuple.getTimestamp());
 						}
@@ -221,11 +230,12 @@ public class SSTableQueryProcessor {
 			// Release the previous acquired tables
 			releaseTables();
 			
-			unprocessedStorages.addAll(ssTableManager.getTupleStoreInstances().getAllTupleStorages());
+			aquiredStorages.clear();
+			aquiredStorages.addAll(ssTableManager.getTupleStoreInstances().getAllTupleStorages());
 			
 			boolean allTablesAquired = true;
 			
-			for(final ReadOnlyTupleStorage tupleStorage : unprocessedStorages) {
+			for(final ReadOnlyTupleStorage tupleStorage : aquiredStorages) {
 				boolean canBeUsed = tupleStorage.acquire();
 				
 				if(! canBeUsed ) {
@@ -249,6 +259,8 @@ public class SSTableQueryProcessor {
 	 * Prepare the unprocessed storage list
 	 */
 	void prepareUnprocessedStorage() {
+		unprocessedStorages.clear();
+		unprocessedStorages.addAll(aquiredStorages);
 
 		// Sort tables regarding the newest tuple timestamp 
 		// The newest storage should be on top of the list
@@ -262,10 +274,10 @@ public class SSTableQueryProcessor {
 	 */
 	protected void releaseTables() {
 		ready = false;
-		for(final ReadOnlyTupleStorage storage : unprocessedStorages) {
+		for(final ReadOnlyTupleStorage storage : aquiredStorages) {
 			storage.release();
 		}
 		
-		unprocessedStorages.clear();
+		aquiredStorages.clear();
 	}
 }
