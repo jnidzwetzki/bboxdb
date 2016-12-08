@@ -71,15 +71,15 @@ public class TupleHelper {
 	
 	/**
 	 * Can the given storage contain a newer tuple than the recent tuple?
-	 * @param memtable
+	 * @param storage
 	 * @return
 	 */
-	public static boolean canStorageContainNewerTuple(final Tuple tuple, final ReadOnlyTupleStorage memtable) {
+	public static boolean canStorageContainNewerTuple(final Tuple tuple, final ReadOnlyTupleStorage storage) {
 		if(tuple == null) {
 			return true;
 		}
 		
-		if(memtable.getNewestTupleTimestamp() > tuple.getTimestamp()) {
+		if(storage.getNewestTupleTimestamp() > tuple.getTimestamp()) {
 			return true;
 		}
 		
