@@ -138,6 +138,10 @@ public class SSTableQueryProcessor {
 					}
 		
 					final Tuple possibleTuple = activeIterator.next();
+					
+					if(possibleTuple.getTimestamp() > activeStorage.getNewestTupleTimestamp()) {
+						throw new RuntimeException("Tuple {}, storage {}");
+					}
 										
 					if(seenTuples.containsKey(possibleTuple.getKey())) {
 						final long oldTimestamp = seenTuples.get(possibleTuple.getKey());
