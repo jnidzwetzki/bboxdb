@@ -18,6 +18,8 @@
 package de.fernunihagen.dna.scalephant.storage;
 
 
+import java.util.List;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,12 +35,17 @@ import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.NewerAsTi
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.predicate.Predicate;
 import de.fernunihagen.dna.scalephant.util.ObjectSerializer;
 
-public class TestInMemoryStorage {
+public class TestMemtable {
 	
 	protected static Memtable memtable;
 	
 	@BeforeClass
 	public static void init() {
+		
+		if(memtable != null) {
+			memtable.shutdown();
+		}
+		
 		memtable = new Memtable(new SSTableName("3_mygroup_test"), 1000, 10000);
 		memtable.init();
 	}
@@ -244,6 +251,47 @@ public class TestInMemoryStorage {
 		}
 		
 		Assert.assertEquals(3, tuples);
+	}
+	
+	/**
+	 * Test memtable empty
+	 * @throws StorageManagerException 
+	 */
+	@Test
+	public void testEmptyCall() throws StorageManagerException {
+		init();
+		Assert.assertTrue(memtable.isEmpty());
+		memtable.clear();
+		Assert.assertTrue(memtable.isEmpty());
+		
+		final Tuple createdTuple = new Tuple("3", null, "abc".getBytes());
+		memtable.put(createdTuple);
+		Assert.assertFalse(memtable.isEmpty());
+		
+		memtable.clear();
+		Assert.assertTrue(memtable.isEmpty());
+	}
+	
+	/**
+	 * Test the tuple list generator
+	 * @throws StorageManagerException
+	 */
+	@Test
+	public void testGetTupleListCall() throws StorageManagerException {
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
+		memtable.put(createdTuple1);
+		
+		final Tuple createdTuple2 = new Tuple("2", null, "def".getBytes());
+		memtable.put(createdTuple2);
+		
+		final List<Tuple> tupleList = memtable.getSortedTupleList();
+		Assert.assertTrue(tupleList.contains(createdTuple1));
+		Assert.assertTrue(tupleList.contains(createdTuple2));
+		Assert.assertEquals(tupleList.size(), 2);
+		
+		memtable.clear();
+		final List<Tuple> tupleList2 = memtable.getSortedTupleList();
+		Assert.assertEquals(tupleList2.size(), 0);
 	}
 	
 }
