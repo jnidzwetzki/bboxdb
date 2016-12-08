@@ -319,8 +319,8 @@ public class ScalephantCluster implements Scalephant {
 		final TupleListFuture future = new TupleListFuture();
 		
 		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
-			final TupleListFuture deleteFuture = client.queryTime(table, timestamp);
-			future.merge(deleteFuture);
+			final TupleListFuture queryFuture = client.queryTime(table, timestamp);
+			future.merge(queryFuture);
 		}
 
 		return future;
