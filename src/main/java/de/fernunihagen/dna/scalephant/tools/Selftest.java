@@ -100,6 +100,7 @@ public class Selftest {
 		deleteFuture.waitForAll();
 		if(deleteFuture.isFailed()) {
 			logger.error("Unable to delete distribution group: " + DISTRIBUTION_GROUP);
+			logger.error(deleteFuture.getAllMessages());
 			System.exit(-1);
 		}
 		
@@ -111,6 +112,7 @@ public class Selftest {
 		createFuture.waitForAll();
 		if(createFuture.isFailed()) {
 			logger.error("Unable to create distribution group: " + DISTRIBUTION_GROUP);
+			logger.error(createFuture.getAllMessages());
 			System.exit(-1);
 		}
 		
@@ -158,6 +160,7 @@ public class Selftest {
 		
 		if(queryResult.isFailed()) {
 			logger.error("Time query result is failed");
+			logger.error(queryResult.getAllMessages());
 			System.exit(-1);
 		}
 		
@@ -185,6 +188,7 @@ public class Selftest {
 			
 			if(deletionResult.isFailed() ) {
 				logger.error("Got an error while deleting: {} ", key);
+				logger.error(deletionResult.getAllMessages());
 				System.exit(-1);
 			}
 		}
@@ -207,6 +211,7 @@ public class Selftest {
 			
 			if(queryResult.isFailed()) {
 				logger.error("Query {} : Got failed future, when query for: {}", i, key);
+				logger.error(queryResult.getAllMessages());
 				System.exit(-1);
 			}
 			
@@ -247,6 +252,7 @@ public class Selftest {
 			
 			if(queryResult.isFailed()) {
 				logger.error("Query {}: Got failed future, when query for: {}", i, key);
+				logger.error(queryResult.getAllMessages());
 				System.exit(-1);
 			}
 			
@@ -274,7 +280,7 @@ public class Selftest {
 			insertResult.waitForAll();
 			
 			if(insertResult.isFailed()) {
-				logger.error("Got an error during tuple insert");
+				logger.error("Got an error during tuple insert: ", insertResult.getAllMessages());
 				System.exit(-1);
 			}
 		}
