@@ -1,5 +1,7 @@
 # Changelog
 
+### Version 0.2.0 (Beta-4) - TBA
+
 ### Version 0.2.0 (Beta-3) - 09.12.2016
 - New Feature: Introduced paging (results > memory could be requested)
 - New Feature: Introduced type safe client API
