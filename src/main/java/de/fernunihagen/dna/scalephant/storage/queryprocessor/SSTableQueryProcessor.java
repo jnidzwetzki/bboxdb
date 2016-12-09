@@ -82,8 +82,8 @@ public class SSTableQueryProcessor {
 	}
 	
 	public CloseableIterator<Tuple> iterator() {
-		
-		aquireTables();
+
+		prepareUnprocessedStorage();
 		
 		return new CloseableIterator<Tuple>() {
 
@@ -210,74 +210,46 @@ public class SSTableQueryProcessor {
 
 			@Override
 			public void close() throws Exception {
-				releaseTables();
+				cleanup();
 			}
-			
 		};
 	}
-
+	
 	/**
-	 * Try to acquire all needed tables
+	 * Cleanup all aquired tables
 	 */
-	protected void aquireTables() {
-		final int retrys = 10;
-		
+	protected void cleanup() {
 		ready = false;
-		
-
-		for(int execution = 0; execution < retrys; execution++) {
-			
-			// Release the previous acquired tables
-			releaseTables();
-			
-			aquiredStorages.clear();
-			aquiredStorages.addAll(ssTableManager.getTupleStoreInstances().getAllTupleStorages());
-			
-			boolean allTablesAquired = true;
-			
-			for(final ReadOnlyTupleStorage tupleStorage : aquiredStorages) {
-				boolean canBeUsed = tupleStorage.acquire();
-				
-				if(! canBeUsed ) {
-					allTablesAquired = false;
-					break;
-				}
-				
-			}
-			
-			if(allTablesAquired == true) {
-				prepareUnprocessedStorage();
-				ready = true;
-				return;
-			}
-		}
-		 
-		logger.warn("Unable to aquire all sstables with {} retries", retrys);
+		ssTableManager.releaseStorage(aquiredStorages);
+		aquiredStorages.clear();
+		unprocessedStorages.clear();
 	}
 
 	/**
 	 * Prepare the unprocessed storage list
+	 * @throws StorageManagerException 
 	 */
-	void prepareUnprocessedStorage() {
-		unprocessedStorages.clear();
-		unprocessedStorages.addAll(aquiredStorages);
-
-		// Sort tables regarding the newest tuple timestamp 
-		// The newest storage should be on top of the list
-		unprocessedStorages.sort((storage1, storage2) 
-				-> Long.compare(storage2.getNewestTupleTimestamp(), 
-						        storage1.getNewestTupleTimestamp()));
+	protected void prepareUnprocessedStorage()  {
+		
+		try {
+			aquiredStorages.clear();
+			aquiredStorages.addAll(ssTableManager.aquireStorage());
+			
+			unprocessedStorages.clear();
+			unprocessedStorages.addAll(aquiredStorages);
+	
+			// Sort tables regarding the newest tuple timestamp 
+			// The newest storage should be on top of the list
+			unprocessedStorages.sort((storage1, storage2) 
+					-> Long.compare(storage2.getNewestTupleTimestamp(), 
+							        storage1.getNewestTupleTimestamp()));
+			
+			ready = true;
+		
+		} catch (StorageManagerException e) {
+			logger.error("Unable to aquire tables", e);
+			cleanup();
+		}
 	}
 	
-	/**
-	 * Release all acquired tables
-	 */
-	protected void releaseTables() {
-		ready = false;
-		for(final ReadOnlyTupleStorage storage : aquiredStorages) {
-			storage.release();
-		}
-		
-		aquiredStorages.clear();
-	}
 }

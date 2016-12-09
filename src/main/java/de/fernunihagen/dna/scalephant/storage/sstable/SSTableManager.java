@@ -18,7 +18,9 @@
 package de.fernunihagen.dna.scalephant.storage.sstable;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -510,35 +512,72 @@ public class SSTableManager implements ScalephantService {
 		}
 		
 		Tuple mostRecentTuple = null;
-		boolean readComplete = false;
-		while(! readComplete) {
-			readComplete = true;
+		final List<ReadOnlyTupleStorage> aquiredStorages = new ArrayList<ReadOnlyTupleStorage>();
+		
+		try {
+			aquiredStorages.addAll(aquireStorage());
 			
-			// Read data from the persistent SSTables
-			for(final ReadOnlyTupleStorage facade : getTupleStoreInstances().getAllTupleStorages()) {
-				
-				final boolean canBeUsed = facade.acquire();
-				
-				if(! canBeUsed) {
-					readComplete = false;
-					break;
-				} else {
-					try {
-						if(TupleHelper.canStorageContainNewerTuple(mostRecentTuple, facade)) {
-							final Tuple facadeTuple = facade.get(key);
-							mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
-						}
-					} catch (Exception e) {
-						throw e;
-					} finally {
-						facade.release();
-					}
-				} 
+			for(final ReadOnlyTupleStorage tupleStorage : aquiredStorages) {
+				if(TupleHelper.canStorageContainNewerTuple(mostRecentTuple, tupleStorage)) {
+					final Tuple facadeTuple = tupleStorage.get(key);
+					mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
+				}
 			}
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			releaseStorage(aquiredStorages);
 		}
 		
 		return TupleHelper.replaceDeletedTupleWithNull(mostRecentTuple);
 	}	
+	
+	/**
+	 * Try to acquire all needed tables
+	 * @return 
+	 * @throws StorageManagerException 
+	 */
+	public List<ReadOnlyTupleStorage> aquireStorage() throws StorageManagerException {
+		final int retries = 10;
+
+		final List<ReadOnlyTupleStorage> aquiredStorages = new ArrayList<ReadOnlyTupleStorage>();
+		
+		for(int execution = 0; execution < retries; execution++) {
+			
+			// Release the previous acquired tables
+			releaseStorage(aquiredStorages);
+			
+			aquiredStorages.clear();
+			aquiredStorages.addAll(tupleStoreInstances.getAllTupleStorages());
+			
+			boolean allTablesAquired = true;
+			
+			for(final ReadOnlyTupleStorage tupleStorage : aquiredStorages) {
+				final boolean canBeUsed = tupleStorage.acquire();
+				
+				if(! canBeUsed ) {
+					allTablesAquired = false;
+					break;
+				}
+			}
+			
+			if(allTablesAquired) {
+				return aquiredStorages;
+			}
+		}
+		
+		throw new StorageManagerException("Unable to aquire all sstables in " + retries + " retries");
+	}
+
+	
+	/**
+	 * Release all acquired tables
+	 */
+	public void releaseStorage(List<ReadOnlyTupleStorage> storagesToRelease) {
+		for(final ReadOnlyTupleStorage storage : storagesToRelease) {
+			storage.release();
+		}		
+	}
 
 
 	/**
