@@ -64,12 +64,15 @@ public class DistributionGroupZookeeperAdapter {
 		
 		zookeeperClient.createDirectoryStructureRecursive(distributionGroupIdQueuePath);
 	
+		final String nodePath = distributionGroupIdQueuePath + "/" 
+				+ ZookeeperNodeNames.SEQUENCE_QUEUE_PREFIX;
+		
 		final String nodename = zookeeperClient.createPersistentSequencialNode(
-				distributionGroupIdQueuePath + "/" 
-				+ ZookeeperNodeNames.SEQUENCE_QUEUE_PREFIX, "".getBytes());
+				nodePath, "".getBytes());
 		
 		// Delete the created node
-		logger.debug("Got new table id; deleting node: " + nodename);
+		logger.debug("Got new table id; deleting node: {}", nodename);
+		
 		zookeeperClient.deleteNodesRecursive(nodename);
 		
 		// id-0000000063
@@ -276,7 +279,9 @@ public class DistributionGroupZookeeperAdapter {
 	public Collection<DistributedInstance> getSystemsForDistributionRegion(final DistributionRegion region) throws ZookeeperException {
 	
 		final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
-		final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
+		
+		final String path = getZookeeperPathForDistributionRegion(region) 
+				+ "/" + ZookeeperNodeNames.NAME_SYSTEMS;
 		
 		// Does the requested node exists?
 		if(! zookeeperClient.exists(path)) {
@@ -306,8 +311,11 @@ public class DistributionGroupZookeeperAdapter {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
 	
-		final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
-		logger.debug("Register system under systems node: " + path);
+		final String path = getZookeeperPathForDistributionRegion(region) 
+				+ "/" + ZookeeperNodeNames.NAME_SYSTEMS;
+		
+		logger.debug("Register system under systems node: {}", path);
+		
 		zookeeperClient.createPersistentNode(path + "/" + system.getStringValue(), "".getBytes());
 	}
 	
@@ -323,9 +331,10 @@ public class DistributionGroupZookeeperAdapter {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
 		
-		final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
+		final String path = getZookeeperPathForDistributionRegion(region) 
+				+ "/" + ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
 		
-		logger.debug("Set checkpoint for: " + path + " to " + checkpoint);
+		logger.debug("Set checkpoint for: {} to {}", path, checkpoint);
 		
 		if(! zookeeperClient.exists(path)) {
 			throw new ZookeeperException("Path " + path + " does not exists");
@@ -347,7 +356,8 @@ public class DistributionGroupZookeeperAdapter {
 		}
 		
 		try {
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
+			final String path = getZookeeperPathForDistributionRegion(region) 
+					+ "/" + ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
 		
 			if(! zookeeperClient.exists(path)) {
 				throw new ZookeeperException("Path " + path + " does not exists");
@@ -396,7 +406,8 @@ public class DistributionGroupZookeeperAdapter {
 	 * @return
 	 */
 	public String getDistributionGroupIdQueuePath(final String distributionGroup) {
-		 return getDistributionGroupPath(distributionGroup) + "/" + ZookeeperNodeNames.NAME_PREFIXQUEUE;
+		 return getDistributionGroupPath(distributionGroup) 
+				 + "/" + ZookeeperNodeNames.NAME_PREFIXQUEUE;
 	}
 	
 	/**
@@ -479,7 +490,6 @@ public class DistributionGroupZookeeperAdapter {
 		} catch (NumberFormatException e) {
 			throw new ZookeeperException("Unable to parse replication factor: " + data + " for " + fullPath);
 		}
-
 	}
 	
 	/**
