@@ -33,6 +33,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionFactory;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionWithZookeeperIntegration;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
@@ -43,6 +44,8 @@ public class TestZookeeperIntegration {
 	 * The zookeeper client
 	 */
 	protected static ZookeeperClient zookeeperClient;
+	
+	protected static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The name of the test region
@@ -62,6 +65,8 @@ public class TestZookeeperIntegration {
 	
 		zookeeperClient = new ZookeeperClient(zookeepernodes, clustername);
 		zookeeperClient.init();
+		
+		distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
 	}
 	
 	@AfterClass
@@ -78,7 +83,7 @@ public class TestZookeeperIntegration {
 		final List<Integer> ids = new ArrayList<Integer>();
 		
 		for(int i = 0; i < 10; i++) {
-			int nextId = zookeeperClient.getNextTableIdForDistributionGroup("mygroup1");
+			int nextId = distributionGroupZookeeperAdapter.getNextTableIdForDistributionGroup("mygroup1");
 			System.out.println("The next id is: " + nextId);
 			
 			Assert.assertFalse(ids.contains(nextId));
@@ -94,9 +99,9 @@ public class TestZookeeperIntegration {
 	public void testDistributionGroupCreateDelete() throws ZookeeperException {
 		
 		// Create new group
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
-		final List<DistributionGroupName> groups = zookeeperClient.getDistributionGroups();
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
+		final List<DistributionGroupName> groups = distributionGroupZookeeperAdapter.getDistributionGroups();
 		System.out.println(groups);
 		boolean found = false;
 		for(final DistributionGroupName group : groups) {
@@ -106,11 +111,11 @@ public class TestZookeeperIntegration {
 		}
 		
 		Assert.assertTrue(found);
-		Assert.assertTrue(zookeeperClient.isDistributionGroupRegistered(TEST_GROUP));
+		Assert.assertTrue(distributionGroupZookeeperAdapter.isDistributionGroupRegistered(TEST_GROUP));
 		
 		// Delete group
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		final List<DistributionGroupName> groups2 = zookeeperClient.getDistributionGroups();
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		final List<DistributionGroupName> groups2 = distributionGroupZookeeperAdapter.getDistributionGroups();
 		found = false;
 		for(final DistributionGroupName group : groups2) {
 			if(group.getFullname().equals(TEST_GROUP)) {
@@ -119,7 +124,7 @@ public class TestZookeeperIntegration {
 		}
 		
 		Assert.assertFalse(found);
-		Assert.assertFalse(zookeeperClient.isDistributionGroupRegistered(TEST_GROUP));
+		Assert.assertFalse(distributionGroupZookeeperAdapter.isDistributionGroupRegistered(TEST_GROUP));
 	}
 	
 	/**
@@ -128,9 +133,9 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testDistributionGroupReplicationFactor() throws ZookeeperException {
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
-		Assert.assertEquals(3, zookeeperClient.getReplicationFactorForDistributionGroup(TEST_GROUP));
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
+		Assert.assertEquals(3, distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(TEST_GROUP));
 	}
 	
 	/**
@@ -140,22 +145,22 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testDistributionRegionSplit() throws ZookeeperException, InterruptedException {
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
 		// Split and update
-		final DistributionRegion distributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion distributionGroup = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		Assert.assertEquals(TEST_GROUP, distributionGroup.getName());
 		
-		Assert.assertEquals(NodeState.ACTIVE, zookeeperClient.getStateForDistributionRegion(distributionGroup));
+		Assert.assertEquals(NodeState.ACTIVE, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup));
 		distributionGroup.setSplit(10);
 		
 		Thread.sleep(1000);
 		Assert.assertEquals(10.0, distributionGroup.getSplit(), 0.0001);
-		Assert.assertEquals(NodeState.SPLITTING, zookeeperClient.getStateForDistributionRegion(distributionGroup));
+		Assert.assertEquals(NodeState.SPLITTING, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup));
 
 		// Reread group from zookeeper
-		final DistributionRegion newDistributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion newDistributionGroup = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		Assert.assertEquals(10.0, newDistributionGroup.getSplit(), 0.0001);
 	}
 	
@@ -166,11 +171,11 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testDistributionRegionSplitWithZookeeperPropergate() throws ZookeeperException, InterruptedException {
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion distributionGroup1 = zookeeperClient.readDistributionGroup(TEST_GROUP);
-		final DistributionRegion distributionGroup2 = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion distributionGroup1 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion distributionGroup2 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 
 		// Update object 1
 		distributionGroup1.setSplit(10);
@@ -189,11 +194,11 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testDistributionRegionSplitWithZookeeperPropergate2() throws ZookeeperException, InterruptedException {
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion distributionGroup1 = zookeeperClient.readDistributionGroup(TEST_GROUP);
-		final DistributionRegion distributionGroup2 = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion distributionGroup1 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion distributionGroup2 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 
 		Assert.assertEquals(0, distributionGroup1.getLevel());
 		
@@ -235,21 +240,21 @@ public class TestZookeeperIntegration {
 	public void testSystemRegisterAndUnregister() throws ZookeeperException {
 		final DistributedInstance systemName = new DistributedInstance("192.168.1.10:5050");
 		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
-		final Collection<DistributedInstance> systems1 = zookeeperClient.getSystemsForDistributionRegion(region);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final Collection<DistributedInstance> systems1 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region);
 		Assert.assertEquals(0, systems1.size());
 		
 		// Add a system
-		zookeeperClient.addSystemToDistributionRegion(region, systemName);
-		final Collection<DistributedInstance> systems2 = zookeeperClient.getSystemsForDistributionRegion(region);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName);
+		final Collection<DistributedInstance> systems2 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region);
 		Assert.assertEquals(1, systems2.size());
 		Assert.assertTrue(systems2.contains(systemName));
 		
-		zookeeperClient.deleteSystemFromDistributionRegion(region, systemName);
-		final Collection<DistributedInstance> systems3 = zookeeperClient.getSystemsForDistributionRegion(region);
+		distributionGroupZookeeperAdapter.deleteSystemFromDistributionRegion(region, systemName);
+		final Collection<DistributedInstance> systems3 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region);
 		Assert.assertEquals(0, systems3.size());
 	}
 	
@@ -264,31 +269,31 @@ public class TestZookeeperIntegration {
 		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
 
 		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 
-		zookeeperClient.addSystemToDistributionRegion(region, systemName1);
-		zookeeperClient.addSystemToDistributionRegion(region, systemName2);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName1);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName2);
 
-		final long checkpoint1 = zookeeperClient.getCheckpointForDistributionRegion(region, systemName1);
+		final long checkpoint1 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region, systemName1);
 		Assert.assertEquals(-1, checkpoint1);
 
-		zookeeperClient.setCheckpointForDistributionRegion(region, systemName1, 5000);
-		final long checkpoint2 = zookeeperClient.getCheckpointForDistributionRegion(region, systemName1);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region, systemName1, 5000);
+		final long checkpoint2 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region, systemName1);
 		Assert.assertEquals(5000, checkpoint2);
 		
 		// System 2
-		final long checkpoint3 = zookeeperClient.getCheckpointForDistributionRegion(region, systemName2);
+		final long checkpoint3 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region, systemName2);
 		Assert.assertEquals(-1, checkpoint3);
 
-		zookeeperClient.setCheckpointForDistributionRegion(region, systemName2, 9000);
-		final long checkpoint4 = zookeeperClient.getCheckpointForDistributionRegion(region, systemName2);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region, systemName2, 9000);
+		final long checkpoint4 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region, systemName2);
 		Assert.assertEquals(9000, checkpoint4);
 		
-		zookeeperClient.setCheckpointForDistributionRegion(region, systemName2, 9001);
-		final long checkpoint5 = zookeeperClient.getCheckpointForDistributionRegion(region, systemName2);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region, systemName2, 9001);
+		final long checkpoint5 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region, systemName2);
 		Assert.assertEquals(9001, checkpoint5);
 	}
 	
@@ -303,26 +308,26 @@ public class TestZookeeperIntegration {
 		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
 
 		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		region.setSplit(50);
 		
-		zookeeperClient.addSystemToDistributionRegion(region.getLeftChild(), systemName1);
-		zookeeperClient.addSystemToDistributionRegion(region.getLeftChild(), systemName2);
-		zookeeperClient.addSystemToDistributionRegion(region.getRightChild(), systemName1);
-		zookeeperClient.addSystemToDistributionRegion(region.getRightChild(), systemName2);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getLeftChild(), systemName1);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getLeftChild(), systemName2);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getRightChild(), systemName1);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getRightChild(), systemName2);
 		
-		zookeeperClient.setCheckpointForDistributionRegion(region.getLeftChild(), systemName1, 1);
-		zookeeperClient.setCheckpointForDistributionRegion(region.getLeftChild(), systemName2, 2);
-		zookeeperClient.setCheckpointForDistributionRegion(region.getRightChild(), systemName1, 3);
-		zookeeperClient.setCheckpointForDistributionRegion(region.getRightChild(), systemName2, 4);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getLeftChild(), systemName1, 1);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getLeftChild(), systemName2, 2);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getRightChild(), systemName1, 3);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getRightChild(), systemName2, 4);
 
-		final long checkpoint1 = zookeeperClient.getCheckpointForDistributionRegion(region.getLeftChild(), systemName1);
-		final long checkpoint2 = zookeeperClient.getCheckpointForDistributionRegion(region.getLeftChild(), systemName2);
-		final long checkpoint3 = zookeeperClient.getCheckpointForDistributionRegion(region.getRightChild(), systemName1);
-		final long checkpoint4 = zookeeperClient.getCheckpointForDistributionRegion(region.getRightChild(), systemName2);
+		final long checkpoint1 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getLeftChild(), systemName1);
+		final long checkpoint2 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getLeftChild(), systemName2);
+		final long checkpoint3 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getRightChild(), systemName1);
+		final long checkpoint4 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getRightChild(), systemName2);
 
 		Assert.assertEquals(1, checkpoint1);
 		Assert.assertEquals(2, checkpoint2);
@@ -339,11 +344,11 @@ public class TestZookeeperIntegration {
 	public void testSystems() throws ZookeeperException, InterruptedException {
 		final DistributedInstance systemName = new DistributedInstance("192.168.1.10:5050");
 		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
-		zookeeperClient.addSystemToDistributionRegion(region, systemName);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName);
 		
 		// Sleep 2 seconds to wait for the update
 		Thread.sleep(2000);
@@ -360,10 +365,10 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testNameprefix1() throws ZookeeperException, InterruptedException {
 		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		Assert.assertEquals(0, region.getNameprefix());
 	}
 	
@@ -375,10 +380,10 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testNameprefix2() throws ZookeeperException, InterruptedException {
 		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
-		zookeeperClient.deleteDistributionGroup(TEST_GROUP);
-		zookeeperClient.createDistributionGroup(TEST_GROUP, (short) 3); 
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = zookeeperClient.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		region.setSplit(10);
 		final DistributionRegion leftChild = region.getLeftChild();
 		final DistributionRegion rightChild = region.getRightChild();

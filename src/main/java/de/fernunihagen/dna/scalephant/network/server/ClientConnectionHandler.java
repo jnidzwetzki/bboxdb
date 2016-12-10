@@ -40,6 +40,7 @@ import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
+import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.distribution.nameprefix.NameprefixInstanceManager;
 import de.fernunihagen.dna.scalephant.distribution.nameprefix.NameprefixMapper;
@@ -338,16 +339,18 @@ public class ClientConnectionHandler implements Runnable {
 			logger.info("Create distribution group: " + createPackage.getDistributionGroup());
 			
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			zookeeperClient.createDistributionGroup(createPackage.getDistributionGroup(), createPackage.getReplicationFactor());
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 			
-			final DistributionRegion region = zookeeperClient.readDistributionGroup(createPackage.getDistributionGroup());
+			distributionGroupZookeeperAdapter.createDistributionGroup(createPackage.getDistributionGroup(), createPackage.getReplicationFactor());
+			
+			final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(createPackage.getDistributionGroup());
 			
 			DistributionRegionHelper.allocateSystemsToNewRegion(region, zookeeperClient);
 			
 			// Let the data settle down
 			Thread.sleep(5000);
 			
-			zookeeperClient.setStateForDistributionGroup(region, NodeState.ACTIVE);
+			distributionGroupZookeeperAdapter.setStateForDistributionGroup(region, NodeState.ACTIVE);
 			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
@@ -438,8 +441,8 @@ public class ClientConnectionHandler implements Runnable {
 			logger.info("Delete distribution group: " + deletePackage.getDistributionGroup());
 			
 			// Delete in Zookeeper
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			zookeeperClient.deleteDistributionGroup(deletePackage.getDistributionGroup());
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+			distributionGroupZookeeperAdapter.deleteDistributionGroup(deletePackage.getDistributionGroup());
 			
 			// Delete local stored data
 			final DistributionGroupName distributionGroupName = new DistributionGroupName(deletePackage.getDistributionGroup());

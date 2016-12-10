@@ -34,6 +34,7 @@ import de.fernunihagen.dna.scalephant.distribution.OutdatedDistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.MembershipConnectionService;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceState;
+import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
@@ -83,8 +84,8 @@ public class RecoveryService implements ScalephantService {
 	 * @throws ZookeeperException 
 	 */
 	protected void runRecovery() throws ZookeeperException {
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
-		final List<DistributionGroupName> distributionGroups = zookeeperClient.getDistributionGroups();
+		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		final List<DistributionGroupName> distributionGroups = distributionGroupZookeeperAdapter.getDistributionGroups();
 		for(final DistributionGroupName distributionGroupName : distributionGroups) {
 			logger.info("Recovery: running recovery for distribution group: {}", distributionGroupName);
 			runRecoveryForDistributionGroup(distributionGroupName);

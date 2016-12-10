@@ -17,8 +17,6 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.distribution.zookeeper;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -39,13 +37,10 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.ScalephantService;
-import de.fernunihagen.dna.scalephant.distribution.DistributionGroupName;
-import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionFactory;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanceManager;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceState;
-import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 
 public class ZookeeperClient implements ScalephantService, Watcher {
 	
@@ -393,6 +388,38 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 
 	/**
+	 * Write the given data to zookeeper
+	 * @param path
+	 * @param value
+	 * @throws ZookeeperException
+	 */
+	public void setData(final String path, final String value) throws ZookeeperException {
+		try {
+			zookeeper.setData(path, value.getBytes(), -1);
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ZookeeperException(e);
+		}
+	}
+	
+	/**
+	 * Read the data from the given path
+	 * @throws ZookeeperException 
+	 */
+	public String getData(final String path) throws ZookeeperException {
+		try {
+			return new String(zookeeper.getData(path, false, null));
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ZookeeperException(e);
+		}
+	}
+	
+	/**
 	 * Register the scalephant instance
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
@@ -487,7 +514,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param clustername
 	 * @return
 	 */
-	protected String getClusterPath() {
+	public String getClusterPath() {
 		return "/" + clustername;
 	}
 	
@@ -518,23 +545,6 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		return getNodesPath() + "/version";
 	}
 	
-	/**
-	 * Get the path for the distribution group id queue
-	 * @param distributionGroup
-	 * @return
-	 */
-	protected String getDistributionGroupIdQueuePath(final String distributionGroup) {
-		 return getDistributionGroupPath(distributionGroup) + "/" + ZookeeperNodeNames.NAME_PREFIXQUEUE;
-	}
-	
-	/**
-	 * Get the path for the distribution group
-	 * @param distributionGroup
-	 * @return
-	 */
-	protected String getDistributionGroupPath(final String distributionGroup) {
-		return getClusterPath() + "/" + distributionGroup;
-	}
 
 	@Override
 	public String getServicename() {
@@ -546,7 +556,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param path
 	 * @throws ZookeeperException 
 	 */
-	protected void createDirectoryStructureRecursive(final String path) throws ZookeeperException {
+	public void createDirectoryStructureRecursive(final String path) throws ZookeeperException {
 		
 		try {
 			// Does the full path already exists?
@@ -583,106 +593,14 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		} 
 	}
 	
-	/**
-	 * Get the next table id for a given distribution group
-	 * @return
-	 * @throws ZookeeperException 
-	 */
-	public int getNextTableIdForDistributionGroup(final String distributionGroup) throws ZookeeperException {
-		
-		final String distributionGroupIdQueuePath = getDistributionGroupIdQueuePath(distributionGroup);
-		
-		createDirectoryStructureRecursive(distributionGroupIdQueuePath);
-		
-		try {	
-			final String nodename = createPersistentSequencialNode(distributionGroupIdQueuePath + "/" 
-					+ ZookeeperNodeNames.SEQUENCE_QUEUE_PREFIX, "".getBytes());
-			
-			// Delete the created node
-			logger.debug("Got new table id; deleting node: " + nodename);
-			zookeeper.delete(nodename, -1);
-			
-			// id-0000000063
-			// Element 0: id-
-			// Element 1: The number of the node
-			final String[] splittedName = nodename.split(ZookeeperNodeNames.SEQUENCE_QUEUE_PREFIX);
-			try {
-				return Integer.parseInt(splittedName[1]);
-			} catch(NumberFormatException e) {
-				logger.warn("Unable to parse number: " + splittedName[1], e);
-				throw new ZookeeperException(e);
-			}
-			
-		} catch(KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch(InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
-	}
 	
-	/**
-	 * Read the structure of a distribution group
-	 * @return
-	 * @throws ZookeeperException 
-	 */
-	public DistributionRegion readDistributionGroup(final String distributionGroup) throws ZookeeperException {
-		try {
-			final String path = getDistributionGroupPath(distributionGroup);
-
-			if(zookeeper.exists(path, false) == null) {
-				final String exceptionMessage = MessageFormat.format("Unable to read {0}. Path {1} does not exist", distributionGroup, path);
-				throw new ZookeeperException(exceptionMessage);
-			}
-			
-			final DistributionRegion root = DistributionRegionFactory.createRootRegion(distributionGroup);
-
-			readDistributionGroupRecursive(path, root);
-			
-			return root;
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
-	}
-	
-	/**
-	 * Read the distribution group in a recursive way
-	 * @param path
-	 * @param child
-	 * @throws ZookeeperException 
-	 * @throws InterruptedException 
-	 * @throws KeeperException 
-	 */
-	public void readDistributionGroupRecursive(final String path, final DistributionRegion child) throws ZookeeperException {
-			
-			final int namePrefix = getNamePrefixForPath(path);
-			child.setNameprefix(namePrefix);
-
-			child.setSystems(getSystemsForDistributionRegion(child));
-			child.setState(getStateForDistributionRegion(path));
-
-			// If the node is not split, stop recursion
-			if(! isGroupSplitted(path)) {
-				return;
-			}
-			
-			final float splitFloat = getSplitPositionForPath(path);
-			child.setSplit(splitFloat, false);
-			
-			readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_LEFT, child.getLeftChild());
-			readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, child.getRightChild());
-	}
-
 	/**
 	 * Get the name prefix for a given path
 	 * @param path
 	 * @return
 	 * @throws ZookeeperException 
 	 */
-	protected int getNamePrefixForPath(final String path) throws ZookeeperException {
+	public int getNamePrefixForPath(final String path) throws ZookeeperException {
 		
 		final String namePrefixPath = path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX;
 		String namePrefix = null;
@@ -696,103 +614,12 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 	
 	/**
-	 * Get the state for a given path
-	 * @throws ZookeeperException 
-	 */
-	public NodeState getStateForDistributionRegion(final String path) throws ZookeeperException {
-		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
-		final String state = readPathAndReturnString(statePath, false, null);
-		return NodeState.fromString(state);
-	}
-	
-	/**
-	 * Get the state for a given path
-	 * @return 
-	 * @throws ZookeeperException 
-	 */
-	public NodeState getStateForDistributionRegion(final DistributionRegion region) throws ZookeeperException  {
-		final String path = getZookeeperPathForDistributionRegion(region);
-		return getStateForDistributionRegion(path);
-	}
-	
-	/**
-	 * Set the state for a given path
-	 * @param path
-	 * @param state
-	 * @throws ZookeeperException 
-	 */
-	public void setStateForDistributionGroup(final String path, final NodeState state) throws ZookeeperException  {
-		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
-		try {
-			zookeeper.setData(statePath, state.getStringValue().getBytes(), -1);
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
-	}
-	
-	/**
-	 * Set the state for a given distribution region
-	 * @param region
-	 * @param state
-	 * @throws ZookeeperException
-	 */
-	public void setStateForDistributionGroup(final DistributionRegion region, final NodeState state) throws ZookeeperException  {
-		final String path = getZookeeperPathForDistributionRegion(region);
-		setStateForDistributionGroup(path, state);
-	}
-
-	
-	/**
-	 * Test weather the group path is split or not
-	 * @param path
-	 * @return
-	 * @throws ZookeeperException 
-	 */
-	protected boolean isGroupSplitted(final String path) throws ZookeeperException {
-		try {
-			final String splitPathName = path + "/" + ZookeeperNodeNames.NAME_SPLIT;
-			if(zookeeper.exists(splitPathName, false) == null) {
-				return false;
-			} else {
-				return true;
-			}
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
-	}
-	
-	/**
-	 * Get the split position for a given path
-	 * @param path
-	 * @return
-	 * @throws ZookeeperException
-	 */
-	protected float getSplitPositionForPath(final String path) throws ZookeeperException  {
-		
-		final String splitPathName = path + "/" + ZookeeperNodeNames.NAME_SPLIT;
-		String splitString = null;
-		
-		try {			
-			splitString = readPathAndReturnString(splitPathName, false, null);
-			return Float.parseFloat(splitString);
-		} catch (NumberFormatException e) {
-			throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + splitPathName);
-		}		
-	}
-
-	/**
 	 * Read the given path and returns a string result
 	 * @param pathName
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	protected String readPathAndReturnString(final String pathName, final boolean retry, final Watcher watcher) throws ZookeeperException {
+	public String readPathAndReturnString(final String pathName, final boolean retry, final Watcher watcher) throws ZookeeperException {
 		try {
 			if(zookeeper.exists(pathName, false) == null) {
 				if(retry != true) {
@@ -816,11 +643,32 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 	
 	/**
+	 * Dies the given path exists?
+	 * @param pathName
+	 * @return
+	 * @throws ZookeeperException 
+	 */
+	public boolean exists(final String pathName) throws ZookeeperException {
+		try {
+			if(zookeeper.exists(pathName, false) != null) {
+				return true;
+			}
+		} catch(KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch(InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ZookeeperException(e);
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * Delete the node recursive
 	 * @param path
 	 * @throws ZookeeperException 
 	 */
-	protected void deleteNodesRecursive(final String path) throws ZookeeperException {
+	public void deleteNodesRecursive(final String path) throws ZookeeperException {
 		try {
 			
 			final List<String> childs = zookeeper.getChildren(path, false);
@@ -845,43 +693,6 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	}
 	
 	/**
-	 * Create a new distribution group
-	 * @param distributionGroup
-	 * @param replicationFactor
-	 * @throws ZookeeperException 
-	 */
-	public void createDistributionGroup(final String distributionGroup, final short replicationFactor) throws ZookeeperException {
-		try {
-			final String path = getDistributionGroupPath(distributionGroup);
-			
-			zookeeper.create(path, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			
-			final int nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
-						
-			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, Integer.toString(nameprefix).getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			
-			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_REPLICATION, Short.toString(replicationFactor).getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			
-			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS, "".getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-
-			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_VERSION, Long.toString(System.currentTimeMillis()).getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			
-			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_STATE, NodeState.ACTIVE.getStringValue().getBytes(), 
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-			
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
-	}
-	
-	/**
 	 * Delete all known data about a cluster
 	 * @param distributionGroup
 	 * @throws ZookeeperException 
@@ -893,113 +704,6 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 		deleteNodesRecursive(path);
 	}
 	
-	/**
-	 * Delete an existing distribution group
-	 * @param distributionGroup
-	 * @throws ZookeeperException 
-	 */
-	public void deleteDistributionGroup(final String distributionGroup) throws ZookeeperException {
-		
-		// Does the path not exist? We are done!
-		if(! isDistributionGroupRegistered(distributionGroup)) {
-			return;
-		}
-		
-		final String path = getDistributionGroupPath(distributionGroup);			
-		deleteNodesRecursive(path);
-	}
-	
-	/**
-	 * Does the distribution group exists?
-	 * @param distributionGroup
-	 * @return 
-	 * @throws ZookeeperException
-	 */
-	public boolean isDistributionGroupRegistered(final String distributionGroup) throws ZookeeperException {
-		final String path = getDistributionGroupPath(distributionGroup);
-
-		try {
-			// Does the path not exist? We are done!
-			if(zookeeper.exists(path, false) == null) {
-				return false;
-			}
-			
-			return true;
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
-	}
-	
-	/**
-	 * List all existing distribution groups
-	 * @return
-	 * @throws ZookeeperException 
-	 */
-	public List<DistributionGroupName> getDistributionGroups() throws ZookeeperException {
-		try {
-			final List<DistributionGroupName> groups = new ArrayList<DistributionGroupName>();
-			final String clusterPath = getClusterPath();
-			final List<String> nodes = zookeeper.getChildren(clusterPath, false);
-			
-			for(final String node : nodes) {
-				final DistributionGroupName groupName = new DistributionGroupName(node);
-				if(groupName.isValid()) {
-					groups.add(groupName);
-				} else {
-					logger.warn("Got invalid distribution group name from zookeeper: " + groupName);
-				}
-			}
-			
-			return groups;
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
-	}
-	
-	/**
-	 * Get the replication factor for a distribution group
-	 * @param distributionGroup
-	 * @return
-	 * @throws ZookeeperException
-	 */
-	public short getReplicationFactorForDistributionGroup(final String distributionGroup) throws ZookeeperException {
-		
-		try {
-			final String path = getDistributionGroupPath(distributionGroup);
-			final String fullPath = path + "/" + ZookeeperNodeNames.NAME_REPLICATION;
-			final byte[] data = zookeeper.getData(fullPath, false, null);
-			
-			try {
-				return Short.parseShort(new String(data));
-			} catch (NumberFormatException e) {
-				throw new ZookeeperException("Unable to parse replication factor: " + data + " for " + fullPath);
-			}
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		} 
-	}
-	
-	/**
-	 * Get the version number of the distribution group
-	 * @param distributionGroup
-	 * @return
-	 * @throws ZookeeperException
-	 */
-	public String getVersionForDistributionGroup(final String distributionGroup) throws ZookeeperException {
-		final String path = getDistributionGroupPath(distributionGroup);
-		final String fullPath = path + "/" + ZookeeperNodeNames.NAME_VERSION;
-		return readPathAndReturnString(fullPath, false, null);	 
-	}
-
 	/**
 	 * Create a new persistent node
 	 * @param path
@@ -1035,174 +739,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			throw new ZookeeperException(e);
 		}
 	}
-	
-	/**
-	 * Get the zookeeper path for a distribution region
-	 * @param distributionRegion
-	 * @return
-	 */
-	public String getZookeeperPathForDistributionRegion(final DistributionRegion distributionRegion) {
-		final String name = distributionRegion.getName();
-		final StringBuilder sb = new StringBuilder();
-		
-		DistributionRegion tmpRegion = distributionRegion;
-		while(tmpRegion.getParent() != null) {
-			if(tmpRegion.isLeftChild()) {
-				sb.insert(0, "/" + ZookeeperNodeNames.NAME_LEFT);
-			} else {
-				sb.insert(0, "/" + ZookeeperNodeNames.NAME_RIGHT);
-			}
-			
-			tmpRegion = tmpRegion.getParent();
-		}
-		
-		sb.insert(0, getDistributionGroupPath(name));
-		return sb.toString();
-	}
-	
-	/**
-	 * Get the systems for the distribution region
-	 * @param region
-	 * @return
-	 * @throws ZookeeperException 
-	 */
-	public Collection<DistributedInstance> getSystemsForDistributionRegion(final DistributionRegion region) throws ZookeeperException {
-		try {
-			final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
-			
-			// Does the requested node exists?
-			if(zookeeper.exists(path, false) == null) {
-				return null;
-			}
-			
-			final List<String> childs = zookeeper.getChildren(path, false);
-			
-			for(final String childName : childs) {
-				result.add(new DistributedInstance(childName));
-			}
-			
-			return result;
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		} 
-	}
-	
-	/**
-	 * Add a system to a distribution region
-	 * @param region
-	 * @param system
-	 * @throws ZookeeperException 
-	 */
-	public void addSystemToDistributionRegion(final DistributionRegion region, final DistributedInstance system) throws ZookeeperException {
-		
-		if(system == null) {
-			throw new IllegalArgumentException("Unable to add system with value null");
-		}
-	
-		final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
-		logger.debug("Register system under systems node: " + path);
-		createPersistentNode(path + "/" + system.getStringValue(), "".getBytes());
-	}
-	
-	/**
-	 * Set the checkpoint for the distribution region and system
-	 * @param region
-	 * @param system
-	 * @throws ZookeeperException
-	 * @throws InterruptedException 
-	 */
-	public void setCheckpointForDistributionRegion(final DistributionRegion region, final DistributedInstance system, final long checkpoint) throws ZookeeperException, InterruptedException {
-		if(system == null) {
-			throw new IllegalArgumentException("Unable to add system with value null");
-		}
-		
-		try {
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
-			
-			logger.debug("Set checkpoint for: " + path + " to " + checkpoint);
-			
-			if(zookeeper.exists(path, null) == null) {
-				throw new ZookeeperException("Path " + path + " does not exists");
-			}
-			
-			zookeeper.setData(path, Long.toString(checkpoint).getBytes(), -1);
 
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		}
-	}
-	
-	/**
-	 * Get the checkpoint for the distribution region and system
-	 * @param region
-	 * @param system
-	 * @return 
-	 * @throws ZookeeperException
-	 */
-	public long getCheckpointForDistributionRegion(final DistributionRegion region, final DistributedInstance system) throws ZookeeperException {
-		if(system == null) {
-			throw new IllegalArgumentException("Unable to add system with value null");
-		}
-		
-		try {
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
-		
-			if(zookeeper.exists(path, null) == null) {
-				throw new ZookeeperException("Path " + path + " does not exists");
-			}
-
-			final byte[] bytes = zookeeper.getData(path, false, null);
-			
-			final String checkpointString = new String(bytes);
-			
-			if("".equals(checkpointString)) {
-				return -1;
-			}
-			
-			return Long.parseLong(checkpointString);
-		} catch (KeeperException | NumberFormatException e) {
-			throw new ZookeeperException(e);
-		}  catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
-	}
-			
-	/**
-	 * Delete a system to a distribution region
-	 * @param region
-	 * @param system
-	 * @return 
-	 * @throws ZookeeperException 
-	 */
-	public boolean deleteSystemFromDistributionRegion(final DistributionRegion region, final DistributedInstance system) throws ZookeeperException {
-		
-		if(system == null) {
-			throw new IllegalArgumentException("Unable to delete system with value null");
-		}
-		
-		try {
-			final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
-			
-			if(zookeeper.exists(path, null) == null) {
-				return false;
-			}
-			
-			zookeeper.delete(path, -1);
-			
-			return true;
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch(InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
-	}
-	
 	/**
 	 * Is the zookeeper client connected?
 	 * @return

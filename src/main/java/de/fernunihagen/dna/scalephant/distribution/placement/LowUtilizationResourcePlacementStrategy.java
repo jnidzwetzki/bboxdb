@@ -31,6 +31,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
@@ -109,8 +110,9 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 		// The overall usage
 		final Map<DistributedInstance, Integer> systemUsage = new HashMap<DistributedInstance, Integer>();
 		
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		final List<DistributionGroupName> distributionGroups = zookeeperClient.getDistributionGroups();
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
+		final DistributionGroupZookeeperAdapter zookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		final List<DistributionGroupName> distributionGroups = zookeeperAdapter.getDistributionGroups();
 		
 		// Calculate usage for each distribution group
 		for(final DistributionGroupName groupName : distributionGroups) {

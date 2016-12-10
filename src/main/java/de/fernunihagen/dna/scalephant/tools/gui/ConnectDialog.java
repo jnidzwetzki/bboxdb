@@ -36,6 +36,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 import de.fernunihagen.dna.scalephant.distribution.DistributionGroupName;
+import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 
@@ -162,7 +163,8 @@ public class ConnectDialog {
 				
 				final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeeperHosts, cluster);
 				zookeeperClient.init();
-				
+				final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+
 				if(! zookeeperClient.isConnected()) {
 					JOptionPane.showMessageDialog(mainframe,
 						    "Unable to connect to zookeeper.",
@@ -174,7 +176,7 @@ public class ConnectDialog {
 				try {
 					mainframe.dispose();
 
-					final List<DistributionGroupName> distributionGroups = zookeeperClient.getDistributionGroups();
+					final List<DistributionGroupName> distributionGroups = distributionGroupZookeeperAdapter.getDistributionGroups();
 
 					if(distributionGroups.isEmpty()) {
 						JOptionPane.showMessageDialog(mainframe,

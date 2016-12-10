@@ -29,6 +29,7 @@ import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanc
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanceManager;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceEvent;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceEventCallback;
+import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 
@@ -67,14 +68,19 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	/**
 	 * The zookeeper client
 	 */
-	protected final ZookeeperClient client;
+	protected final ZookeeperClient zookeeperClient;
+	
+	/**
+	 * The distribution group adapter
+	 */
+	protected final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 
 	
 	protected final static Logger logger = LoggerFactory.getLogger(GuiModel.class);
 
-	public GuiModel(final ZookeeperClient client) {
-		super();
-		this.client = client;
+	public GuiModel(final ZookeeperClient zookeeperClient) {
+		this.zookeeperClient = zookeeperClient;
+		this.distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
 		scalephantInstances = new ArrayList<DistributedInstance>();
 		
 		DistributedInstanceManager.getInstance().registerListener(this);
@@ -116,13 +122,13 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 * @throws ZookeeperException 
 	 */
 	public void updateDistributionRegion() throws ZookeeperException {
-		final String currentVersion = client.getVersionForDistributionGroup(distributionGroup);
+		final String currentVersion = distributionGroupZookeeperAdapter.getVersionForDistributionGroup(distributionGroup);
 		
 		if(! currentVersion.equals(rootRegionVersion)) {
 			logger.info("Reread distribution group, version has changed: " + rootRegionVersion + " / " + currentVersion);
-			rootRegion = client.readDistributionGroup(distributionGroup);
+			rootRegion = distributionGroupZookeeperAdapter.readDistributionGroup(distributionGroup);
 			rootRegionVersion = currentVersion;
-			replicationFactor = client.getReplicationFactorForDistributionGroup(distributionGroup);
+			replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroup);
 		}
 	}
 
@@ -164,7 +170,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 * @return
 	 */
 	public String getClustername() {
-		return client.getClustername();
+		return zookeeperClient.getClustername();
 	}
 	
 	/**

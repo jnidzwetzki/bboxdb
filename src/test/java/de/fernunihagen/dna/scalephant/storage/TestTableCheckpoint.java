@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
-import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
+import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
@@ -46,9 +46,9 @@ public class TestTableCheckpoint {
 	 */
 	@Before
 	public void before() throws ZookeeperException {
-		ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
-		zookeeperClient.deleteDistributionGroup(TEST_RELATION.getDistributionGroup());
-		zookeeperClient.createDistributionGroup(TEST_RELATION.getDistributionGroup(), (short) 1);
+		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_RELATION.getDistributionGroup());
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_RELATION.getDistributionGroup(), (short) 1);
 	}
 	
 	/**

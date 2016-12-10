@@ -20,6 +20,7 @@ package de.fernunihagen.dna.scalephant.distribution;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
@@ -44,7 +45,8 @@ public class DistributionGroupCache {
 	 */
 	public static synchronized DistributionRegion getGroupForGroupName(final String groupName, final ZookeeperClient zookeeperClient) throws ZookeeperException {
 		if(! groupGroupMap.containsKey(groupName)) {
-			final DistributionRegion distributionRegion = zookeeperClient.readDistributionGroup(groupName);
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+			final DistributionRegion distributionRegion = distributionGroupZookeeperAdapter.readDistributionGroup(groupName);
 			groupGroupMap.put(groupName, distributionRegion);
 		}
 		

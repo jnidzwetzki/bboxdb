@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanceManager;
+import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.placement.ResourceAllocationException;
 import de.fernunihagen.dna.scalephant.distribution.placement.ResourcePlacementStrategy;
 import de.fernunihagen.dna.scalephant.distribution.placement.ResourcePlacementStrategyFactory;
@@ -54,7 +55,8 @@ public class DistributionRegionHelper {
 	 */
 	public static void allocateSystemsToNewRegion(final DistributionRegion region, final ZookeeperClient zookeeperClient) throws ZookeeperException, ResourceAllocationException {
 		
-		final short replicationFactor = zookeeperClient.getReplicationFactorForDistributionGroup(region.getName());
+		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+		final short replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(region.getName());
 		
 		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 		final List<DistributedInstance> availableSystems = distributedInstanceManager.getInstances();
@@ -73,7 +75,7 @@ public class DistributionRegionHelper {
 		
 		// Resource allocation successfully, write data to zookeeper
 		for(final DistributedInstance instance : allocationSystems) {
-			zookeeperClient.addSystemToDistributionRegion(region, instance);
+			distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, instance);
 		}
 	}
 	
@@ -203,11 +205,11 @@ class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisito
 	 * The result of the operation
 	 */
 	protected final List<OutdatedDistributionRegion> result;
-	
+
 	/**
-	 * The zookeeper client
+	 * The zookeeper adapter
 	 */
-	protected final ZookeeperClient zookeeperClient;
+	protected final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The Logger
@@ -217,7 +219,7 @@ class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisito
 	public DistributionRegionOutdatedRegionFinder(final DistributedInstance instanceToSearch) {
 		this.instanceToSearch = instanceToSearch;
 		this.result = new ArrayList<OutdatedDistributionRegion>();
-		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
+		this.distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 	}
  	
 	@Override
@@ -234,7 +236,7 @@ class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisito
 			for(final DistributedInstance instance : distributionRegion.getSystems()) {
 				if(! instance.socketAddressEquals(instance)) {
 					
-					long version = zookeeperClient.getCheckpointForDistributionRegion(distributionRegion, instance);
+					long version = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(distributionRegion, instance);
 					
 					if(newestVersion < version) {
 						newestInstance = instance;
@@ -243,7 +245,7 @@ class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisito
 				}
 			}
 			
-			final long localVersion = zookeeperClient.getCheckpointForDistributionRegion(distributionRegion, instanceToSearch);
+			final long localVersion = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(distributionRegion, instanceToSearch);
 
 			if(newestVersion > localVersion) {
 				result.add(new OutdatedDistributionRegion(distributionRegion, newestInstance, localVersion));

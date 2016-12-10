@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.distribution.nameprefix.NameprefixInstanceManager;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
@@ -39,6 +40,11 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	 * The zookeeper client
 	 */
 	protected final ZookeeperClient zookeeperClient;
+	
+	/**
+	 * The distribution group adapter
+	 */
+	protected final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The full path to this node
@@ -60,6 +66,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		
 		super(name, parent);
 		this.zookeeperClient = zookeeperClient;
+		this.distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
 	}
 	
 	/**
@@ -68,7 +75,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	public void onNodeComplete() {
 		try {
 			// Update zookeeper path
-			zookeeperPath = zookeeperClient.getZookeeperPathForDistributionRegion(this);
+			zookeeperPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(this);
 			zookeeperSystemsPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
 			
 			logger.info("Register watch for: " + zookeeperPath);
@@ -110,7 +117,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	protected void handleSystemNodeUpdateEvent() {
 		try {
 			logger.debug("Got an system node event for: " + zookeeperSystemsPath);
-			final Collection<DistributedInstance> systemsForDistributionRegion = zookeeperClient.getSystemsForDistributionRegion(this);
+			final Collection<DistributedInstance> systemsForDistributionRegion = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(this);
 
 			if(systemsForDistributionRegion != null) {
 				setSystems(systemsForDistributionRegion);
@@ -162,7 +169,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 			if(leftChild != null || rightChild != null) {
 				logger.debug("Ignore zookeeper split, because we are already splited");
 			} else {
-				zookeeperClient.readDistributionGroupRecursive(zookeeperPath, this);
+				distributionGroupZookeeperAdapter.readDistributionGroupRecursive(zookeeperPath, this);
 			}
 		} catch (ZookeeperException e) {
 			logger.error("Unable read data from zookeeper: ", e);
@@ -223,7 +230,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	protected void updateZookeeperSplit() throws ZookeeperException {	
 		
 		logger.debug("Write split into zookeeper");
-		final String zookeeperPath = zookeeperClient.getZookeeperPathForDistributionRegion(this);
+		final String zookeeperPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(this);
 		
 		// Left child
 		final String leftPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_LEFT;
@@ -239,9 +246,9 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		final String splitPosString = Float.toString(getSplit());
 		zookeeperClient.createPersistentNode(zookeeperPath + "/" + ZookeeperNodeNames.NAME_SPLIT, 
 				splitPosString.getBytes());
-		zookeeperClient.setStateForDistributionGroup(zookeeperPath, NodeState.SPLITTING);
-		zookeeperClient.setStateForDistributionGroup(leftPath, NodeState.ACTIVE);
-		zookeeperClient.setStateForDistributionGroup(rightPath, NodeState.ACTIVE);
+		distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, NodeState.SPLITTING);
+		distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, NodeState.ACTIVE);
+		distributionGroupZookeeperAdapter.setStateForDistributionGroup(rightPath, NodeState.ACTIVE);
 	}
 
 	/**
@@ -252,7 +259,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	protected void createNewChild(final String path, final DistributionRegion child) throws ZookeeperException {
 		zookeeperClient.createPersistentNode(path, "".getBytes());
 		
-		final int namePrefix = zookeeperClient.getNextTableIdForDistributionGroup(getName());
+		final int namePrefix = distributionGroupZookeeperAdapter.getNextTableIdForDistributionGroup(getName());
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
 				Integer.toString(namePrefix).getBytes());
@@ -265,6 +272,6 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		
 		child.setNameprefix(namePrefix);
 		
-		zookeeperClient.setStateForDistributionGroup(path, NodeState.ACTIVE);
+		distributionGroupZookeeperAdapter.setStateForDistributionGroup(path, NodeState.ACTIVE);
 	}
 }

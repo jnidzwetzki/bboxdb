@@ -25,6 +25,7 @@ import de.fernunihagen.dna.scalephant.Const;
 import de.fernunihagen.dna.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
 
 public class ZookeeperClientFactory {
 	
@@ -95,5 +96,13 @@ public class ZookeeperClientFactory {
 		}
 		
 		return zookeeperClient;
+	}
+	
+	/**
+	 * Get a new instance of the DistributionGroupZookeeperAdapter
+	 */
+	public static DistributionGroupZookeeperAdapter getDistributionGroupAdapter() {
+		final ZookeeperClient zookeeperClient = getZookeeperClient();
+		return new DistributionGroupZookeeperAdapter(zookeeperClient);
 	}
 }
