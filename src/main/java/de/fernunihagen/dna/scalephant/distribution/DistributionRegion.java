@@ -58,7 +58,7 @@ public class DistributionRegion {
 	/**
 	 * The parent of this node
 	 */
-	protected DistributionRegion parent = null;
+	protected final DistributionRegion parent;
 	
 	/**
 	 * The level of the node
@@ -102,11 +102,20 @@ public class DistributionRegion {
 	 * @param name
 	 * @param level
 	 */
-	protected DistributionRegion(final DistributionGroupName name, final int level, final AtomicInteger totalLevel) {
+	protected DistributionRegion(final DistributionGroupName name, final DistributionRegion parent) {
 		this.distributionGroupName = name;
-		this.level = level;
-		this.totalLevel = totalLevel;
+		this.parent = parent;
+
 		this.converingBox = BoundingBox.createFullCoveringDimensionBoundingBox(name.getDimension());
+		
+		// The level for the root node is 0
+		if(parent == ROOT_NODE_ROOT_POINTER) {
+			this.level = 0;
+			this.totalLevel = new AtomicInteger(0);
+		} else {
+			this.level = parent.getLevel() + 1;
+			this.totalLevel = parent.getTotalLevelPointer();
+		}
 		
 		// Update thte total amount of levels
 		totalLevel.set(Math.max(totalLevel.get(), level + 1));
@@ -145,15 +154,6 @@ public class DistributionRegion {
 	public DistributionRegion getParent() {
 		return parent;
 	}
-
-	/**
-	 * Set the parent of the node
-	 * @param parent
-	 */
-	public void setParent(final DistributionRegion parent) {
-		this.parent = parent;
-	}
-	
 	
 	/**
 	 * Set the split coordinate
@@ -174,12 +174,9 @@ public class DistributionRegion {
 			throw new IllegalArgumentException("Split called, but left or right node are not empty");
 		}
 		
-		leftChild = createNewInstance();
-		rightChild = createNewInstance();
-		
-		leftChild.setParent(this);
-		rightChild.setParent(this);
-		
+		leftChild = createNewInstance(this);
+		rightChild = createNewInstance(this);
+
 		// Calculate the covering bounding boxes
 		leftChild.setConveringBox(converingBox.splitAndGetLeft(split, getSplitDimension(), true));
 		rightChild.setConveringBox(converingBox.splitAndGetRight(split, getSplitDimension(), false));
@@ -203,8 +200,8 @@ public class DistributionRegion {
 	 * Create a new instance of this type (e.g. for childs)
 	 * @return
 	 */
-	protected DistributionRegion createNewInstance() {
-		return new DistributionRegion(distributionGroupName, level + 1, totalLevel);
+	protected DistributionRegion createNewInstance(final DistributionRegion parent) {
+		return new DistributionRegion(distributionGroupName, parent);
 	}
 	
 	/**
@@ -253,6 +250,14 @@ public class DistributionRegion {
 	 */
 	public int getTotalLevel() {
 		return totalLevel.get();
+	}
+	
+	/**
+	 * Get the total level pointer
+	 * @return
+	 */
+	protected AtomicInteger getTotalLevelPointer() {
+		return totalLevel;
 	}
 	
 	/**

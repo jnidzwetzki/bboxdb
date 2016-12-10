@@ -17,8 +17,6 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.distribution;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 
 public class DistributionRegionFactory {
@@ -27,12 +25,7 @@ public class DistributionRegionFactory {
 	 * The instance to the zookeeper client
 	 */
 	protected static ZookeeperClient zookeeperClient = null;
-	
-	/**
-	 * The base level of a tree
-	 */
-	protected final static int BASE_LEVEL = 0;
-	
+
 	/**
 	 * Factory method for a new root region
 	 * @param name
@@ -49,9 +42,11 @@ public class DistributionRegionFactory {
 		
 		if(zookeeperClient != null) {
 			result = new DistributionRegionWithZookeeperIntegration(distributionGroupName, 
-					BASE_LEVEL, new AtomicInteger(0), zookeeperClient);
+					DistributionRegion.ROOT_NODE_ROOT_POINTER, 
+					zookeeperClient);
 		} else {
-			result = new DistributionRegion(distributionGroupName, BASE_LEVEL, new AtomicInteger(0));
+			result = new DistributionRegion(distributionGroupName, 
+					DistributionRegion.ROOT_NODE_ROOT_POINTER);
 		}	
 		
 		result.onNodeComplete();

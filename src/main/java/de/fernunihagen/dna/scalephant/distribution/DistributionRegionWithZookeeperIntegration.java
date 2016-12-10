@@ -20,7 +20,6 @@ package de.fernunihagen.dna.scalephant.distribution;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -30,9 +29,9 @@ import org.slf4j.LoggerFactory;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.distribution.nameprefix.NameprefixInstanceManager;
-import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperNodeNames;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
+import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperNodeNames;
 
 public class DistributionRegionWithZookeeperIntegration extends DistributionRegion implements Watcher {
 
@@ -56,8 +55,10 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionWithZookeeperIntegration.class);
 
-	public DistributionRegionWithZookeeperIntegration(final DistributionGroupName name, final int level, final AtomicInteger totalLevel, final ZookeeperClient zookeeperClient) {
-		super(name, level, totalLevel);
+	public DistributionRegionWithZookeeperIntegration(final DistributionGroupName name, 
+			final DistributionRegion parent, final ZookeeperClient zookeeperClient) {
+		
+		super(name, parent);
 		this.zookeeperClient = zookeeperClient;
 	}
 	
@@ -172,8 +173,8 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	 * Create a new instance of this type
 	 */
 	@Override
-	protected DistributionRegion createNewInstance() {
-		return new DistributionRegionWithZookeeperIntegration(distributionGroupName, level + 1, totalLevel, zookeeperClient);
+	protected DistributionRegion createNewInstance(final DistributionRegion parent) {
+		return new DistributionRegionWithZookeeperIntegration(distributionGroupName, parent, zookeeperClient);
 	}
 	
 	@Override
