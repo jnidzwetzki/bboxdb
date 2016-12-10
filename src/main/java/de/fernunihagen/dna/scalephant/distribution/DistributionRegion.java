@@ -90,6 +90,11 @@ public class DistributionRegion {
 	 * Is the node initialized or not
 	 */
 	protected volatile boolean ready;
+	
+	/**
+	 * The root pointer of the root element of the tree
+	 */
+	protected final static DistributionRegion ROOT_NODE_ROOT_POINTER = null;
 
 	/**
 	 * Protected constructor, the factory method and the set split methods should
@@ -280,8 +285,8 @@ public class DistributionRegion {
 		DistributionRegion currentElement = this;
 		
 		// Follow the links to the root element
-		while(currentElement.getParent() != null) {
-			currentElement = currentElement.getParent();
+		while(currentElement.parent != ROOT_NODE_ROOT_POINTER) {
+			currentElement = currentElement.parent;
 		}
 		
 		return currentElement;
@@ -302,15 +307,23 @@ public class DistributionRegion {
 	}
 	
 	/**
+	 * Is this the root element?
+	 */
+	public boolean isRootElement() {
+		return (parent == ROOT_NODE_ROOT_POINTER);
+	}
+	
+	/**
 	 * Is this the left child of the parent
 	 * @return
 	 */
 	public boolean isLeftChild() {
-		if(getParent() == null) {
+		// This is the root element
+		if(isRootElement()) {
 			return false;
 		}
 		
-		return (getParent().getLeftChild() == this);
+		return (parent.getLeftChild() == this);
 	}
 	
 	/**
@@ -318,11 +331,11 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public boolean isRightChild() {
-		if(getParent() == null) {
+		if(isRootElement()) {
 			return false;
 		}
 		
-		return (getParent().getRightChild() == this);
+		return (parent.getRightChild() == this);
 	}
 
 	/**
