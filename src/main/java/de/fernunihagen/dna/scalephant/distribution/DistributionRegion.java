@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 
 public class DistributionRegion {
@@ -72,7 +73,7 @@ public class DistributionRegion {
 	/**
 	 * The state of the region
 	 */
-	protected String state = STATE_CREATING;
+	protected NodeState state = NodeState.CREATING;
 	
 	/**
 	 * The systems
@@ -88,27 +89,7 @@ public class DistributionRegion {
 	 * Is the node initialized or not
 	 */
 	protected volatile boolean ready;
-	
-	/**
-	 * State created
-	 */
-	public final static String STATE_CREATING = "creating";
-	
-	/**
-	 * State active
-	 */
-	public final static String STATE_ACTIVE = "active";
-	
-	/**
-	 * State splitting
-	 */
-	public final static String STATE_SPLITTING = "splitting";
-	
-	/**
-	 * State splitted
-	 */
-	public final static String STATE_SPLITTED = "splitted";
-	
+
 	/**
 	 * Protected constructor, the factory method and the set split methods should
 	 * be used to create a tree
@@ -239,7 +220,7 @@ public class DistributionRegion {
 	 * Get the state of the node
 	 * @return
 	 */
-	public String getState() {
+	public NodeState getState() {
 		return state;
 	}
 
@@ -247,7 +228,7 @@ public class DistributionRegion {
 	 * Set the state of the node
 	 * @param state
 	 */
-	public void setState(final String state) {
+	public void setState(final NodeState state) {
 		this.state = state;
 	}
 
@@ -413,7 +394,7 @@ public class DistributionRegion {
 			return;
 		}
 		
-		if(state.equals(STATE_ACTIVE) || state.equals(STATE_SPLITTING)) {
+		if(state == NodeState.ACTIVE || state == NodeState.SPLITTING) {
 			for(final DistributedInstance system : systems) {
 				if(! resultSystems.contains(system)) {
 					resultSystems.add(system);

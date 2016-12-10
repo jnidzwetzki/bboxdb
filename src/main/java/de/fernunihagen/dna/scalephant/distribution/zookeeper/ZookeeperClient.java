@@ -45,6 +45,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionRegionFactory;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanceManager;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceState;
+import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 
 public class ZookeeperClient implements ScalephantService, Watcher {
 	
@@ -698,9 +699,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * Get the state for a given path
 	 * @throws ZookeeperException 
 	 */
-	public String getStateForDistributionRegion(final String path) throws ZookeeperException {
+	public NodeState getStateForDistributionRegion(final String path) throws ZookeeperException {
 		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
-		return readPathAndReturnString(statePath, false, null);
+		final String state = readPathAndReturnString(statePath, false, null);
+		return NodeState.fromString(state);
 	}
 	
 	/**
@@ -708,7 +710,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @return 
 	 * @throws ZookeeperException 
 	 */
-	public String getStateForDistributionRegion(final DistributionRegion region) throws ZookeeperException  {
+	public NodeState getStateForDistributionRegion(final DistributionRegion region) throws ZookeeperException  {
 		final String path = getZookeeperPathForDistributionRegion(region);
 		return getStateForDistributionRegion(path);
 	}
@@ -719,10 +721,10 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param state
 	 * @throws ZookeeperException 
 	 */
-	public void setStateForDistributionGroup(final String path, final String state) throws ZookeeperException  {
+	public void setStateForDistributionGroup(final String path, final NodeState state) throws ZookeeperException  {
 		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
 		try {
-			zookeeper.setData(statePath, state.getBytes(), -1);
+			zookeeper.setData(statePath, state.getStringValue().getBytes(), -1);
 		} catch (KeeperException e) {
 			throw new ZookeeperException(e);
 		} catch (InterruptedException e) {
@@ -737,7 +739,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 	 * @param state
 	 * @throws ZookeeperException
 	 */
-	public void setStateForDistributionGroup(final DistributionRegion region, final String state) throws ZookeeperException  {
+	public void setStateForDistributionGroup(final DistributionRegion region, final NodeState state) throws ZookeeperException  {
 		final String path = getZookeeperPathForDistributionRegion(region);
 		setStateForDistributionGroup(path, state);
 	}
@@ -868,7 +870,7 @@ public class ZookeeperClient implements ScalephantService, Watcher {
 			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_VERSION, Long.toString(System.currentTimeMillis()).getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
-			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_STATE, DistributionRegion.STATE_ACTIVE.getBytes(), 
+			zookeeper.create(path + "/" + ZookeeperNodeNames.NAME_STATE, NodeState.ACTIVE.getStringValue().getBytes(), 
 					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 			
 		} catch (KeeperException e) {

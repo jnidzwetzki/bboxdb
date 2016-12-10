@@ -33,6 +33,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionFactory;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionWithZookeeperIntegration;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 
@@ -146,12 +147,12 @@ public class TestZookeeperIntegration {
 		final DistributionRegion distributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);
 		Assert.assertEquals(TEST_GROUP, distributionGroup.getName());
 		
-		Assert.assertEquals(DistributionRegion.STATE_ACTIVE, zookeeperClient.getStateForDistributionRegion(distributionGroup));
+		Assert.assertEquals(NodeState.ACTIVE, zookeeperClient.getStateForDistributionRegion(distributionGroup));
 		distributionGroup.setSplit(10);
 		
 		Thread.sleep(1000);
 		Assert.assertEquals(10.0, distributionGroup.getSplit(), 0.0001);
-		Assert.assertEquals(DistributionRegion.STATE_SPLITTING, zookeeperClient.getStateForDistributionRegion(distributionGroup));
+		Assert.assertEquals(NodeState.SPLITTING, zookeeperClient.getStateForDistributionRegion(distributionGroup));
 
 		// Reread group from zookeeper
 		final DistributionRegion newDistributionGroup = zookeeperClient.readDistributionGroup(TEST_GROUP);

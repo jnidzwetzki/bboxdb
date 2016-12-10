@@ -40,6 +40,7 @@ import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
+import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.distribution.nameprefix.NameprefixInstanceManager;
 import de.fernunihagen.dna.scalephant.distribution.nameprefix.NameprefixMapper;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
@@ -346,7 +347,7 @@ public class ClientConnectionHandler implements Runnable {
 			// Let the data settle down
 			Thread.sleep(5000);
 			
-			zookeeperClient.setStateForDistributionGroup(region, DistributionRegion.STATE_ACTIVE);
+			zookeeperClient.setStateForDistributionGroup(region, NodeState.ACTIVE);
 			
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {

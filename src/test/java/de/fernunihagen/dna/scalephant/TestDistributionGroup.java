@@ -29,6 +29,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionFactory;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 
@@ -189,9 +190,9 @@ public class TestDistributionGroup {
 		level0.getLeftChild().addSystem(SYSTEM_A);
 		level0.getRightChild().addSystem(SYSTEM_B);
 		
-		level0.setState(DistributionRegion.STATE_SPLITTED);
-		level0.getLeftChild().setState(DistributionRegion.STATE_ACTIVE);
-		level0.getRightChild().setState(DistributionRegion.STATE_ACTIVE);
+		level0.setState(NodeState.SPLITTED);
+		level0.getLeftChild().setState(NodeState.ACTIVE);
+		level0.getRightChild().setState(NodeState.ACTIVE);
 		
 		Assert.assertFalse(level0.getSystemsForBoundingBox(new BoundingBox(100f, 110f)).contains(SYSTEM_A));
 		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 10f)).contains(SYSTEM_A));
@@ -251,9 +252,9 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setNameprefix(2);
 		level0.getRightChild().setNameprefix(3);
 		
-		level0.setState(DistributionRegion.STATE_SPLITTED);
-		level0.getLeftChild().setState(DistributionRegion.STATE_ACTIVE);
-		level0.getRightChild().setState(DistributionRegion.STATE_ACTIVE);
+		level0.setState(NodeState.SPLITTED);
+		level0.getLeftChild().setState(NodeState.ACTIVE);
+		level0.getRightChild().setState(NodeState.ACTIVE);
 		
 		level0.addSystem(new DistributedInstance("node1:123"));
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
@@ -273,9 +274,9 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setNameprefix(2);
 		level0.getRightChild().setNameprefix(3);
 		
-		level0.setState(DistributionRegion.STATE_SPLITTED);
-		level0.getLeftChild().setState(DistributionRegion.STATE_ACTIVE);
-		level0.getRightChild().setState(DistributionRegion.STATE_ACTIVE);
+		level0.setState(NodeState.SPLITTED);
+		level0.getLeftChild().setState(NodeState.ACTIVE);
+		level0.getRightChild().setState(NodeState.ACTIVE);
 		
 		level0.addSystem(new DistributedInstance("node1:123"));
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));

@@ -31,6 +31,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.MembershipConnectionService;
+import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.distribution.placement.ResourceAllocationException;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
@@ -162,7 +163,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 		
 		try {
 			final ZookeeperClient zookeperClient = ZookeeperClientFactory.getZookeeperClient();
-			zookeperClient.setStateForDistributionGroup(region, DistributionRegion.STATE_SPLITTED);
+			zookeperClient.setStateForDistributionGroup(region, NodeState.SPLITTED);
 		} catch (ZookeeperException e) {
 			logger.error("Got an exception while setting region state to splitted", e);
 		}

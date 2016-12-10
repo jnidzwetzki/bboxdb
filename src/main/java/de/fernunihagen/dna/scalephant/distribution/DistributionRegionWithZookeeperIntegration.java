@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
+import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.distribution.nameprefix.NameprefixInstanceManager;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperNodeNames;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
@@ -236,9 +237,9 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		final String splitPosString = Float.toString(getSplit());
 		zookeeperClient.createPersistentNode(zookeeperPath + "/" + ZookeeperNodeNames.NAME_SPLIT, 
 				splitPosString.getBytes());
-		zookeeperClient.setStateForDistributionGroup(zookeeperPath, STATE_SPLITTING);
-		zookeeperClient.setStateForDistributionGroup(leftPath, STATE_ACTIVE);
-		zookeeperClient.setStateForDistributionGroup(rightPath, STATE_ACTIVE);
+		zookeeperClient.setStateForDistributionGroup(zookeeperPath, NodeState.SPLITTING);
+		zookeeperClient.setStateForDistributionGroup(leftPath, NodeState.ACTIVE);
+		zookeeperClient.setStateForDistributionGroup(rightPath, NodeState.ACTIVE);
 	}
 
 	/**
@@ -258,10 +259,10 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 				"".getBytes());
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_STATE, 
-				STATE_CREATING.getBytes());
+				NodeState.CREATING.getStringValue().getBytes());
 		
 		child.setNameprefix(namePrefix);
 		
-		zookeeperClient.setStateForDistributionGroup(path, STATE_ACTIVE);
+		zookeeperClient.setStateForDistributionGroup(path, NodeState.ACTIVE);
 	}
 }
