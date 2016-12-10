@@ -20,6 +20,7 @@ package de.fernunihagen.dna.scalephant.distribution;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -55,7 +56,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionWithZookeeperIntegration.class);
 
-	public DistributionRegionWithZookeeperIntegration(final DistributionGroupName name, final int level, final TotalLevel totalLevel, final ZookeeperClient zookeeperClient) {
+	public DistributionRegionWithZookeeperIntegration(final DistributionGroupName name, final int level, final AtomicInteger totalLevel, final ZookeeperClient zookeeperClient) {
 		super(name, level, totalLevel);
 		this.zookeeperClient = zookeeperClient;
 	}

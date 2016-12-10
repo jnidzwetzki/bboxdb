@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
@@ -37,7 +38,7 @@ public class DistributionRegion {
 	/**
 	 * A pointer that points to the total number of levels
 	 */
-	protected final TotalLevel totalLevel;
+	protected final AtomicInteger totalLevel;
 	
 	/**
 	 * The split position
@@ -96,13 +97,14 @@ public class DistributionRegion {
 	 * @param name
 	 * @param level
 	 */
-	protected DistributionRegion(final DistributionGroupName name, final int level, final TotalLevel totalLevel) {
+	protected DistributionRegion(final DistributionGroupName name, final int level, final AtomicInteger totalLevel) {
 		this.distributionGroupName = name;
 		this.level = level;
 		this.totalLevel = totalLevel;
 		this.converingBox = BoundingBox.createFullCoveringDimensionBoundingBox(name.getDimension());
 		
-		totalLevel.registerNewLevel(level + 1);
+		// Update thte total amount of levels
+		totalLevel.set(Math.max(totalLevel.get(), level + 1));
 		
 		systems = new ArrayList<DistributedInstance>();
 		ready = false;
@@ -245,7 +247,7 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public int getTotalLevel() {
-		return totalLevel.getMaxLevel();
+		return totalLevel.get();
 	}
 	
 	/**
@@ -483,24 +485,3 @@ public class DistributionRegion {
 	
 }
 
-/**
- * A class that represents the max number of levels
- *
- */
-class TotalLevel {
-	protected int maxLevel = 0;
-	
-	public void registerNewLevel(final int level) {
-		maxLevel = Math.max(maxLevel, level);
-	}
-	
-	public int getMaxLevel() {
-		return maxLevel;
-	}
-
-	@Override
-	public String toString() {
-		return "TotalLevel [maxLevel=" + maxLevel + "]";
-	}
-	
-}
