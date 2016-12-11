@@ -33,7 +33,7 @@ import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
 import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
 import de.fernunihagen.dna.scalephant.storage.queryprocessor.IteratorHelper;
 
-public class Selftest {
+public class DistributedSelftest {
 
 	/**
 	 * The name of the distribution group
@@ -53,13 +53,13 @@ public class Selftest {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(Selftest.class);
+	private final static Logger logger = LoggerFactory.getLogger(DistributedSelftest.class);
 
 
 	public static void main(final String[] args) throws InterruptedException, ExecutionException, ScalephantException {
 		
 		if(args.length < 2) {
-			logger.error("Usage: Selftest <Cluster-Name> <Cluster-Endpoint1> <Cluster-EndpointN>");
+			logger.error("Usage: DistributedSelftest <Cluster-Name> <Cluster-Endpoint1> <Cluster-EndpointN>");
 			System.exit(-1);
 		}
 
