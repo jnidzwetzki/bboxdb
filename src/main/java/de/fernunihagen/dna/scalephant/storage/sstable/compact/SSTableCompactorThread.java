@@ -203,14 +203,13 @@ public class SSTableCompactorThread implements Runnable {
 	 */
 	protected void testAndPerformTableSplit(final int totalWrittenTuples) {
 		
-		logger.info("Test for table split: " + sstableManager.getSSTableName().getFullname() 
-				+ " total tuples: " + totalWrittenTuples);
+		logger.info("Test for table split: {} total tuples {}", threadname, totalWrittenTuples);
 				
 		if(regionSplitter.isSplitNeeded(totalWrittenTuples)) {
 			// Execute the split operation in an own thread, to survive the sstable manager
 			// stop call. This will stop (this) compact thread
 			final Thread splitThread = new Thread(regionSplitter);
-			splitThread.setName("Split thread for: " + sstableManager.getSSTableName().getFullname());
+			splitThread.setName("Split thread for: {}" + threadname);
 			splitThread.start();
 		}
 		
