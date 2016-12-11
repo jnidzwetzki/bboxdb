@@ -44,27 +44,22 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	public MergeTask getMergeTask(final List<SSTableFacade> sstables) {
 		
 		if(sstables.size() > BIG_TABLE_THRESHOLD) {
-			return generateBigCompactTask(sstables);
+			return generateMajorCompactTask(sstables);
 		}
 		
-		return generateSmallCompactTask(sstables);
+		return generateMinorCompactTask(sstables);
 	}
 
 	/**
-	 * Generate a big compact task
+	 * Generate a major compact task
 	 * @param sstables
 	 * @return
 	 */
-	protected MergeTask generateBigCompactTask(final List<SSTableFacade> sstables) {
+	protected MergeTask generateMajorCompactTask(final List<SSTableFacade> sstables) {
 		
+		// In a major compact, all tables needs to be merged
 		final List<SSTableFacade> bigCompacts = new ArrayList<SSTableFacade>();
-		for(SSTableFacade ssTableFacade : sstables) {
-			bigCompacts.add(ssTableFacade);
-			
-			if(bigCompacts.size() >= MAX_MERGE_TABLES_PER_JOB) {
-				break;
-			}
-		}
+		bigCompacts.addAll(sstables);
 
 		final MergeTask mergeTask = new MergeTask();
 		
@@ -77,11 +72,11 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	}
 
 	/**
-	 * Generate a small compact task
+	 * Generate a minor compact task
 	 * @param sstables
 	 * @return
 	 */
-	protected MergeTask generateSmallCompactTask(final List<SSTableFacade> sstables) {
+	protected MergeTask generateMinorCompactTask(final List<SSTableFacade> sstables) {
 		
 		final List<SSTableFacade> smallCompacts = new ArrayList<SSTableFacade>();
 		
