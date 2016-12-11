@@ -155,6 +155,14 @@ public class SSTableName {
 	public boolean isValid() {
 		return valid;
 	}
+	
+	/**
+	 * Is this a local or a distribution version of a sstable
+	 * @return
+	 */
+	public boolean isDistributedTable() {
+		return nameprefix != INVALID_NAMEPEFIX;
+	}
 
 	/**
 	 * Get the dimension from the tablename
