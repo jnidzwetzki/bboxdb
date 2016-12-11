@@ -90,11 +90,7 @@ public class SSTableCompactorThread implements Runnable {
 	 */
 	protected void executeThread() {
 		
-		try {
-			regionSplitter.initFromSSTablename(sstableManager.getSSTableName());
-		} catch (StorageManagerException e) {
-			logger.error("Got exception when init region splitter", e);
-		}
+		initRegionSplitter();
 	
 		while(sstableManager.isReady()) {
 
@@ -120,6 +116,19 @@ public class SSTableCompactorThread implements Runnable {
 		}
 		
 		logger.info("Compact thread for: {} is done", threadname);
+	}
+
+	/**
+	 * Init the region spliter, if needed (distributed version if a table)
+	 */
+	protected void initRegionSplitter() {
+		try {
+			if(sstableManager.getSSTableName().isDistributedTable()) {
+				regionSplitter.initFromSSTablename(sstableManager.getSSTableName());
+			}
+		} catch (StorageManagerException e) {
+			logger.error("Got exception when init region splitter", e);
+		}
 	}
 
 	/**

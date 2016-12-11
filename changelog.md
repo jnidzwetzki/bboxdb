@@ -2,6 +2,7 @@
 
 ### Version 0.2.0 (Beta-4) - TBA
 - Improvement: Unified tuple store aquire code
+- Bugfix: Init table splitter only in distributed mode
 
 ### Version 0.2.0 (Beta-3) - 09.12.2016
 - New Feature: Introduced paging (results > memory could be requested)
