@@ -3,7 +3,7 @@
 ## Distributed Selftest
 Warning: The selftest will recreate the distribution group `2_testgroup`
 
-Usage: DistributedSelftest <Cluster-Name> <Cluster-Endpoint1> <Cluster-EndpointN>
+Usage: `DistributedSelftest <Cluster-Name> <Cluster-Endpoint1> <Cluster-EndpointN>`
 
 Example:
 
@@ -12,8 +12,17 @@ Example:
 ## Local Selftest
 Warning: The selftest will recreate the table `2_testgroup_testtable`
 
-Usage: LocalSelftest <Iterations>
+Usage: `LocalSelftest <Iterations>`
 
 Example:
 
     java -classpath "target/*":"target/lib/*":"conf":"." de.fernunihagen.dna.scalephant.tools.LocalSelftest 10
+    
+## SSTableExaminer
+The SSTableExaminer dumps a tuple for given key from a SSTable.
+
+Usage: `SSTableExaminer <Tablename> <Tablenumber> <Key>` 
+
+Example:
+
+    java -classpath "target/*":"target/lib/*":"conf":"." de.fernunihagen.dna.scalephant.tools.SSTableExaminer 2_testgroup_testtable 200 951920
