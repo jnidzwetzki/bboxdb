@@ -235,7 +235,7 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage {
 	 */
 	@Override
 	public void clear() {
-		logger.info("Clear on memtable " + table + " called");
+		logger.debug("Clear on memtable {} called", table);
 		
 		for(int i = 0; i < data.length; i++) {
 			data[i] = null;
