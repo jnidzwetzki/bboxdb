@@ -236,7 +236,7 @@ public class SSTableFacade implements ScalephantService, ReadOnlyTupleStorage {
 	 */
 	protected void testFileDelete() {
 		if(deleteOnClose && usage.get() == 0) {
-			logger.info("Delete service facade for: {} / {}", name, tablenumber);
+			logger.info("Delete service facade for: {} / {}", name.getFullname(), tablenumber);
 			
 			shutdown();
 			
