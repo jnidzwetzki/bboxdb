@@ -3,6 +3,7 @@
 ### Version 0.2.0 (Beta-4) - TBA
 - Improvement: Unified tuple store aquire code
 - Improvement: Introduced the local selftest
+- Improvement: Added CLI parameter to the SSTableExaminer
 - Bugfix: Init table splitter only in distributed mode
 
 ### Version 0.2.0 (Beta-3) - 09.12.2016

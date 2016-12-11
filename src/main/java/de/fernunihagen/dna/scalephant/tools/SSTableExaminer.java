@@ -20,6 +20,9 @@ package de.fernunihagen.dna.scalephant.tools;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.fernunihagen.dna.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
 import de.fernunihagen.dna.scalephant.storage.StorageManagerException;
@@ -34,20 +37,25 @@ public class SSTableExaminer implements Runnable {
 	/**
 	 * The number of the table
 	 */
-	protected int tableNumber;
+	protected final int tableNumber;
 	
 	/**
 	 * The name of the relation
 	 */
-	protected SSTableName relationname;
+	protected final SSTableName relationname;
 	
 	/**
 	 * The key to examine
 	 */
-	protected String examineKey;
+	protected final String examineKey;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(SSTableExaminer.class);
+	
 	
 	public SSTableExaminer(final SSTableName relationname, final int tableNumber, final String examineKey) {
-		super();
 		this.tableNumber = tableNumber;
 		this.relationname = relationname;
 		this.examineKey = examineKey;
@@ -146,11 +154,29 @@ public class SSTableExaminer implements Runnable {
 	 * 
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		final SSTableName relationname = new SSTableName("2_mygroup_testrelation");
-		final int tableNumber = 78;
-		final String examineKey = "2555";
-		final SSTableExaminer dumper = new SSTableExaminer(relationname, tableNumber, examineKey);
-		dumper.run();
+	public static void main(final String[] args) {
+		
+		if(args.length != 3) {
+			logger.error("Usage: SSTableExaminer <Tablename> <Tablenumber> <Key>");
+			System.exit(-1);
+		}
+		
+		final SSTableName relationname = new SSTableName(args[0]);
+		if(! relationname.isValid()) {
+			logger.error("Relationname {} is invalid, exiting", args[0]);
+			System.exit(-1);
+		}
+		
+		try {
+			final int tableNumber = Integer.parseInt(args[1]);
+			
+			final String examineKey = args[2];
+			
+			final SSTableExaminer dumper = new SSTableExaminer(relationname, tableNumber, examineKey);
+			dumper.run();
+		} catch (NumberFormatException e) {
+			logger.error("Unable to parse {} as tablenumber", args[1]);
+			System.exit(-1);
+		}
 	}
 }
