@@ -192,7 +192,7 @@ public class SSTableCompactorThread implements Runnable {
 		
 		registerNewFacadeAndDeleteOldInstances(facades, directory, ssTableName, tablenumber);
 		
-		if(majorCompaction) {
+		if(majorCompaction && ssTableName.isDistributedTable()) {
 			testAndPerformTableSplit(ssTableCompactor.getWrittenTuples());
 		}
 	}
