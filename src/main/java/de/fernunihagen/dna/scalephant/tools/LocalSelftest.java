@@ -108,8 +108,8 @@ public class LocalSelftest {
 		logger.info("Query deleted keys...");
 		// Fetch the deleted tuples
 		for(int i = 0; i < TUPLES; i++) {
-			final Tuple resultTuple2 = storageManager.get(Integer.toString(i));
-			Assert.assertEquals(null, resultTuple2);
+			final Tuple resultTuple = storageManager.get(Integer.toString(i));
+			Assert.assertEquals(null, resultTuple);
 		}
 		
 		Thread.sleep(1000);
