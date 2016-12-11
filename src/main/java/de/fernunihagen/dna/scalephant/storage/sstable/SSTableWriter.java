@@ -159,7 +159,7 @@ public class SSTableWriter implements AutoCloseable {
 		}
 		
 		try {
-			logger.info("Opening new SSTable for relation: " + name + " file: " + sstableOutputFileName);
+			logger.info("Writing new SSTable for relation: {} file: {}", name.getFullname(), sstableOutputFileName);
 			sstableOutputStream = new FileOutputStream(sstableFile);
 			sstableOutputStream.write(SSTableConst.MAGIC_BYTES);
 			sstableIndexOutputStream = new BufferedOutputStream(new FileOutputStream(sstableIndexFile));
@@ -178,7 +178,8 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	public void close() throws StorageManagerException {
 		try {			
-			logger.info("Closing new SSTable for relation: {} number {}. File: {} ", name, tablenumber, sstableFile.getName());
+			logger.debug("Closing new written SSTable for relation: {} number {}. File: {} ", 
+					name.getFullname(), tablenumber, sstableFile.getName());
 
 			if(sstableOutputStream != null) {
 				sstableOutputStream.close();

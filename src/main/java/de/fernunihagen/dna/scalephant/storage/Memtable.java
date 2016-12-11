@@ -127,7 +127,7 @@ public class Memtable implements ScalephantService, ReadWriteTupleStorage {
 			return;
 		}
 		
-		logger.info("Initializing a new memtable for table: " + table.getFullname());
+		logger.debug("Initializing a new memtable for table: {}", table.getFullname());
 		freePos = 0;
 	}
 
