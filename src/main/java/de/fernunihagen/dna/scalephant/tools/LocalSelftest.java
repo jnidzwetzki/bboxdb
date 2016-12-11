@@ -102,16 +102,14 @@ public class LocalSelftest {
 			storageManager.delete(Integer.toString(i), System.currentTimeMillis());
 		}
 		
-		// Let the storage manager swap the memtables out
-		Thread.sleep(10000);
-		
-		logger.info("Query deleted keys...");
-		// Fetch the deleted tuples
-		for(int i = 0; i < TUPLES; i++) {
-			final Tuple resultTuple = storageManager.get(Integer.toString(i));
-			Assert.assertEquals(null, resultTuple);
+		for(int iteration = 0; iteration < 4; iteration++) {
+			logger.info("Query deleted keys ({})...", iteration);
+			// Fetch the deleted tuples
+			for(int i = 0; i < TUPLES; i++) {
+				final Tuple resultTuple = storageManager.get(Integer.toString(i));
+				Assert.assertEquals(null, resultTuple);
+			}
 		}
-		
 		Thread.sleep(1000);
 	}
 }
