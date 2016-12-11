@@ -196,7 +196,7 @@ public abstract class AbstractTableReader implements ScalephantService {
 
 		synchronized (this) {
 			if(file != null) {
-				logger.info("Delete file: " + file);
+				logger.debug("Delete file: {}", file);
 				file.delete();
 				file = null;
 			}
