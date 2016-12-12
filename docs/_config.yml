@@ -11,5 +11,3 @@ sections: [
     ['tools', 'Tools'],
     ['post', 'Posts']
 ]
-
-highlighter: 'pygments'
