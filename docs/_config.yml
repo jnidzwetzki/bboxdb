@@ -1,1 +1,9 @@
 theme: minima
+
+navigable-pages:
+  - title: home
+    url: /index.html
+  - title: network protocol
+    url: /network.html
+  - title: sstables
+    url: /sstables.html
