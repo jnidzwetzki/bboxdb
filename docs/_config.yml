@@ -5,6 +5,8 @@ navigation: 2
 
 permalink: none
 
+site.codeurl: 'https://github.com/jnidzwetzki/bboxdb'
+
 sections: [
     ['doc', 'Documentation'],
     ['examples', 'Examples'],
