@@ -19,13 +19,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import de.fernunihagen.dna.scalephant.network.client.Scalephant;
-import de.fernunihagen.dna.scalephant.network.client.ScalephantCluster;
-import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
-import de.fernunihagen.dna.scalephant.network.client.future.EmptyResultFuture;
-import de.fernunihagen.dna.scalephant.network.client.future.TupleListFuture;
-import de.fernunihagen.dna.scalephant.storage.entity.BoundingBox;
-import de.fernunihagen.dna.scalephant.storage.entity.Tuple;
+import org.bboxdb.network.client.Scalephant;
+import org.bboxdb.network.client.ScalephantCluster;
+import org.bboxdb.network.client.ScalephantException;
+import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.Tuple;
 
 
 public class ScalephantClientExample {

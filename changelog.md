@@ -1,6 +1,7 @@
 # Changelog
 
 ### Version 0.2.0 (Beta-4) - TBA
+- New Feature: Renamed from 'scalephant' to 'bboxdb'
 - Improvement: Unified tuple store aquire code
 - Improvement: Introduced the local selftest
 - Improvement: Added CLI parameter to the SSTableExaminer
