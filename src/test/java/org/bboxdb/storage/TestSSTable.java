@@ -21,7 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -42,7 +42,7 @@ public class TestSSTable {
 	/**
 	 * The directory for the output
 	 */
-	protected static final String DATA_DIRECTORY = ScalephantConfigurationManager.getConfiguration().getDataDirectory();
+	protected static final String DATA_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getDataDirectory();
 	
 	/**
 	 * The name of the test relation

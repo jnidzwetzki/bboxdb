@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Manage the Scalephant cluster
+# Manage the BBoxDB cluster
 #
 #########################################
 
@@ -51,44 +51,44 @@ function execute_parallel() {
 }
 
 # Nodes
-scalephant_nodes="${SCALEPHANT_SN}"
-zookeeper_nodes="${SCALEPHANT_ZN}"
+bboxdb_nodes="${BBOXDB_SN}"
+zookeeper_nodes="${BBOXDB_ZN}"
 
-if [ -z "$scalephant_nodes" ]; then
-   echo "Your environment variable \$(SCALEPHANT_SN) is empty. Please check your .scalephantrc"
+if [ -z "$bboxdb_nodes" ]; then
+   echo "Your environment variable \$(BBOXDB_SN) is empty. Please check your .bboxdbrc"
    exit -1
 fi
 
 if [ -z "$zookeeper_nodes" ]; then
-   echo "Your environment variable \$(SCALEPHANT_ZN) is empty. Please check your .scalephantrc"
+   echo "Your environment variable \$(BBOXDB_ZN) is empty. Please check your .bboxdbrc"
    exit -1
 fi
 
 # Overwrite nodes by cli argument
 if [ $# -eq 2 ]; then
-   scalephant_nodes=$2
+   bboxdb_nodes=$2
    zookeeper_nodes=$2
 fi
 
 ###
-# Start the scalephant
+# Start the bboxdb
 ###
-scalephant_start() {
-   execute_parallel "cd $basedir; ./manage_instance.sh scalephant_start" "Starting Scalephant" "$scalephant_nodes" $max_pending
+bboxdb_start() {
+   execute_parallel "cd $basedir; ./manage_instance.sh bboxdb_start" "Starting BBoxDB" "$bboxdb_nodes" $max_pending
 }
 
 ###
-# Stop the scalephant
+# Stop the bboxdb
 ###
-scalephant_stop() {
-   execute_parallel "cd $basedir; ./manage_instance.sh scalephant_stop" "Stopping Scalephant" "$scalephant_nodes" $max_pending
+bboxdb_stop() {
+   execute_parallel "cd $basedir; ./manage_instance.sh bboxdb_stop" "Stopping BBoxDB" "$bboxdb_nodes" $max_pending
 }
 
 ###
-# Update the scalephant
+# Update the bboxdb
 ###
-scalephant_update() {
-   execute_parallel "cd $basedir; ./manage_instance.sh scalephant_update" "Update Scalephant" "$scalephant_nodes" $max_pending
+bboxdb_update() {
+   execute_parallel "cd $basedir; ./manage_instance.sh bboxdb_update" "Update BBoxDB" "$bboxdb_nodes" $max_pending
 }
 
 ###
@@ -114,14 +114,14 @@ zookeeper_drop() {
 
 case "$1" in  
 
-scalephant_start)
-   scalephant_start
+bboxdb_start)
+   bboxdb_start
    ;;  
-scalephant_stop)
-   scalephant_stop
+bboxdb_stop)
+   bboxdb_stop
    ;;  
-scalephant_update)
-   scalephant_update
+bboxdb_update)
+   bboxdb_update
    ;;  
 zookeeper_start)
    zookeeper_start
@@ -133,7 +133,7 @@ zookeeper_drop)
    zookeeper_drop
    ;;
 *)
-   echo "Usage: $0 {scalephant_start | scalephant_stop | scalephant_update | zookeeper_start | zookeeper_stop | zookeeper_drop}"
+   echo "Usage: $0 {bboxdb_start | bboxdb_stop | bboxdb_update | zookeeper_start | zookeeper_stop | zookeeper_drop}"
    ;;  
 esac
 

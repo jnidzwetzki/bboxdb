@@ -20,8 +20,8 @@ package org.bboxdb.distribution;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.DistributedInstanceManager;
 import org.bboxdb.distribution.membership.event.DistributedInstanceAddEvent;
@@ -311,8 +311,8 @@ public class TestDistributedInstanceManager {
 	 */
 	private static ZookeeperClient getNewZookeeperClient(final DistributedInstance instance) {
 		
-		final ScalephantConfiguration scalephantConfiguration = 
-				ScalephantConfigurationManager.getConfiguration();
+		final BBoxDBConfiguration scalephantConfiguration = 
+				BBoxDBConfigurationManager.getConfiguration();
 		
 		final Collection<String> zookeepernodes = scalephantConfiguration.getZookeepernodes();
 

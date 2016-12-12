@@ -17,8 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class SpatialIndexStrategyFactory {
 			return cachedInstance;
 		}
 		
-		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
+		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 		final String factoryClass = configuration.getStorageSpatialIndexerFactory();
 		
 		if("none".equals(factoryClass)) {

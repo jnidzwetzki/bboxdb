@@ -32,8 +32,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
@@ -311,7 +311,7 @@ public class ClientConnectionHandler implements Runnable {
 	protected boolean handleTransfer(final ByteBuffer packageHeader, final short packageSequence) throws PackageEncodeError {
 		
 		final long bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
-		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
+		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 		
 		try {
 			TransferSSTableRequest.decodeTuple(packageHeader, bodyLength, configuration, inputStream);

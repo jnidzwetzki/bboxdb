@@ -19,8 +19,8 @@ package org.bboxdb.storage;
 
 import java.io.File;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -75,7 +75,7 @@ public class TestStorageInterface {
 		Assert.assertTrue(storageManager.isShutdownComplete());
 		
 		// Check the removal of the directory
-		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
+		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 		final String pathname = configuration.getDataDirectory() + File.separator + RELATION_NAME;
 		final File directory = new File(pathname);
 		Assert.assertFalse(directory.exists());

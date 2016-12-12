@@ -33,17 +33,17 @@ import org.bboxdb.storage.RecoveryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ScalephantMain implements Daemon {
+public class BBoxDBMain implements Daemon {
 
 	/**
 	 * The instances to manage
 	 */
-	protected final List<ScalephantService> services = new ArrayList<ScalephantService>();
+	protected final List<BBoxDBService> services = new ArrayList<BBoxDBService>();
 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ScalephantMain.class);
+	private final static Logger logger = LoggerFactory.getLogger(BBoxDBMain.class);
 
 	@Override
 	public void init(final DaemonContext ctx) throws DaemonInitException, Exception {
@@ -76,7 +76,7 @@ public class ScalephantMain implements Daemon {
 		final MembershipConnectionService membershipService = MembershipConnectionService.getInstance();
 		
 		// Prevent network connections to ourself
-		final DistributedInstance localhost = ZookeeperClientFactory.getLocalInstanceName(ScalephantConfigurationManager.getConfiguration());
+		final DistributedInstance localhost = ZookeeperClientFactory.getLocalInstanceName(BBoxDBConfigurationManager.getConfiguration());
 		membershipService.addSystemToBlacklist(localhost);
 		
 		return membershipService;
@@ -100,7 +100,7 @@ public class ScalephantMain implements Daemon {
 		}
 		
 		// Init all services
-		for(ScalephantService service : services) {
+		for(BBoxDBService service : services) {
 			logger.info("Starting service: " + service.getServicename());
 			service.init();
 		}
@@ -114,7 +114,7 @@ public class ScalephantMain implements Daemon {
 	 * @return
 	 */
 	protected boolean runBaseChecks() {
-		final String dataDir = ScalephantConfigurationManager.getConfiguration().getDataDirectory();
+		final String dataDir = BBoxDBConfigurationManager.getConfiguration().getDataDirectory();
 		final File dataDirHandle = new File(dataDir);
 		
 		// Ensure that the server main dir does exist
@@ -131,7 +131,7 @@ public class ScalephantMain implements Daemon {
 		logger.info("Stopping the scalephant");
 		
 		// Stop all services
-		for(ScalephantService service : services) {
+		for(BBoxDBService service : services) {
 			logger.info("Stopping service: " + service.getServicename());
 			service.shutdown();
 		}
@@ -147,7 +147,7 @@ public class ScalephantMain implements Daemon {
 	// Test method
 	//===========================================
 	public static void main(String[] args) throws DaemonInitException, Exception {
-		final ScalephantMain main = new ScalephantMain();
+		final BBoxDBMain main = new BBoxDBMain();
 		main.init(null);
 		main.start();
 	}

@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.SSTableManager;
@@ -43,7 +43,7 @@ public class StorageRegistry {
 	/**
 	 * The used storage configuration
 	 */
-	protected static ScalephantConfiguration configuration;
+	protected static BBoxDBConfiguration configuration;
 	
 	/**
 	 * The logger
@@ -52,7 +52,7 @@ public class StorageRegistry {
 
 	
 	static {
-		configuration = ScalephantConfigurationManager.getConfiguration();
+		configuration = BBoxDBConfigurationManager.getConfiguration();
 		instances = new HashMap<SSTableName, SSTableManager>();
 	}
 	

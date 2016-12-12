@@ -29,7 +29,7 @@ public class Const {
 	/**
 	 * The name of the configuration file
 	 */
-	public final static String CONFIG_FILE = "scalephant.yaml";
+	public final static String CONFIG_FILE = "bboxdb.yaml";
 	
 	/**
 	 * If an operation is retried, this is the max amount

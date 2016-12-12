@@ -24,22 +24,22 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ScalephantConfiguration {
+public class BBoxDBConfiguration {
 	
 	/**
 	 * The root directory of the application
 	 */
-	protected String rootDirectory = "/tmp/scalephant_test";
+	protected String rootDirectory = "/tmp/bboxdb_test";
 	
 	/**
 	 *  The directory to store data
 	 */
-	protected String dataDirectory = "/tmp/scalephant_test/data";
+	protected String dataDirectory = "/tmp/bboxdb_test/data";
 	
 	/**
 	 * The commit log dir
 	 */
-	protected String commitlogDir = "/tmp/scalephant_test/commitlog";
+	protected String commitlogDir = "/tmp/bboxdb_test/commitlog";
 	
 	/**
 	 *  Number of entries per memtable
@@ -114,9 +114,9 @@ public class ScalephantConfiguration {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ScalephantConfiguration.class);
+	private final static Logger logger = LoggerFactory.getLogger(BBoxDBConfiguration.class);
 
-	public ScalephantConfiguration() {
+	public BBoxDBConfiguration() {
 		try {
 			localip = InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {

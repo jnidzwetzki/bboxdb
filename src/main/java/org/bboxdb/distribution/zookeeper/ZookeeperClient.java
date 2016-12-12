@@ -33,7 +33,7 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
 import org.bboxdb.Const;
-import org.bboxdb.ScalephantService;
+import org.bboxdb.BBoxDBService;
 import org.bboxdb.distribution.DistributionRegionFactory;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.DistributedInstanceManager;
@@ -41,7 +41,7 @@ import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ZookeeperClient implements ScalephantService, Watcher {
+public class ZookeeperClient implements BBoxDBService, Watcher {
 	
 	/**
 	 * The list of the zookeeper hosts

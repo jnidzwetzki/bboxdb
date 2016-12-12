@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.bboxdb.ScalephantService;
+import org.bboxdb.BBoxDBService;
 import org.bboxdb.distribution.membership.event.DistributedInstanceAddEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceChangedEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceDeleteEvent;
@@ -37,7 +37,7 @@ import org.bboxdb.network.client.ScalephantClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MembershipConnectionService implements ScalephantService, DistributedInstanceEventCallback {
+public class MembershipConnectionService implements BBoxDBService, DistributedInstanceEventCallback {
 	
 	/**
 	 * The server connections

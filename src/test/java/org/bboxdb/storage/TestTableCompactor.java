@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -48,7 +48,7 @@ public class TestTableCompactor {
 	/**
 	 * The name of the test relation
 	 */
-	protected static final String DATA_DIRECTORY = ScalephantConfigurationManager.getConfiguration().getDataDirectory();
+	protected static final String DATA_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getDataDirectory();
 
 	/**
 	 * The max number of expected tuples in the sstable

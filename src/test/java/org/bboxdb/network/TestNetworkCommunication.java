@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.daemon.DaemonInitException;
-import org.bboxdb.ScalephantConfigurationManager;
-import org.bboxdb.ScalephantMain;
+import org.bboxdb.BBoxDBConfigurationManager;
+import org.bboxdb.BBoxDBMain;
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.client.ScalephantClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
@@ -40,7 +40,7 @@ public class TestNetworkCommunication {
 	/**
 	 * The instance of the software
 	 */
-	protected static ScalephantMain scalephantMain;
+	protected static BBoxDBMain scalephantMain;
 	
 	/**
 	 * The replication factor for the unit tests
@@ -49,7 +49,7 @@ public class TestNetworkCommunication {
 	
 	@BeforeClass
 	public static void init() throws DaemonInitException, Exception {
-		scalephantMain = new ScalephantMain();
+		scalephantMain = new BBoxDBMain();
 		scalephantMain.init(null);
 		scalephantMain.start();
 		
@@ -107,7 +107,7 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testConnectionState() {
-		final int port = ScalephantConfigurationManager.getConfiguration().getNetworkListenPort();
+		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
 		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1", port);
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, scalephantClient.getConnectionState());
 		scalephantClient.connect();
@@ -328,7 +328,7 @@ public class TestNetworkCommunication {
 	 * @return
 	 */
 	protected ScalephantClient connectToServer() {
-		final int port = ScalephantConfigurationManager.getConfiguration().getNetworkListenPort();
+		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
 		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1", port);
 		
 		if(compressPackages()) {

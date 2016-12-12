@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionFactory;
@@ -53,8 +53,8 @@ public class TestZookeeperIntegration {
 	
 	@BeforeClass
 	public static void before() {
-		final ScalephantConfiguration scalephantConfiguration 
-			= ScalephantConfigurationManager.getConfiguration();
+		final BBoxDBConfiguration scalephantConfiguration 
+			= BBoxDBConfigurationManager.getConfiguration();
 	
 		final Collection<String> zookeepernodes = scalephantConfiguration.getZookeepernodes();
 		final String clustername = scalephantConfiguration.getClustername();

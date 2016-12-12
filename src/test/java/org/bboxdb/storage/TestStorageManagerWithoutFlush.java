@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage;
 
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -31,12 +31,12 @@ public class TestStorageManagerWithoutFlush extends TestStorageManager {
 
 	@BeforeClass
 	public static void changeConfigToMemory() {
-		ScalephantConfigurationManager.getConfiguration().setStorageRunMemtableFlushThread(false);
+		BBoxDBConfigurationManager.getConfiguration().setStorageRunMemtableFlushThread(false);
 	}
 	
 	@AfterClass
 	public static void changeConfigToPersistent() {
-		ScalephantConfigurationManager.getConfiguration().setStorageRunMemtableFlushThread(true);
+		BBoxDBConfigurationManager.getConfiguration().setStorageRunMemtableFlushThread(true);
 	}
 	
 	/**

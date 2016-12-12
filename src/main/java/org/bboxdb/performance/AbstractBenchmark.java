@@ -25,7 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.Scalephant;
 import org.bboxdb.network.client.ScalephantCluster;
 import org.bboxdb.network.client.future.OperationFuture;
@@ -132,8 +132,8 @@ public abstract class AbstractBenchmark implements Runnable {
 		benchmarkActive = true;
 		
 		// Connect to the scalephant cluster
-		final Collection<String> zookeeperNodes = ScalephantConfigurationManager.getConfiguration().getZookeepernodes();
-		final String clustername = ScalephantConfigurationManager.getConfiguration().getClustername();
+		final Collection<String> zookeeperNodes = BBoxDBConfigurationManager.getConfiguration().getZookeepernodes();
+		final String clustername = BBoxDBConfigurationManager.getConfiguration().getClustername();
 		scalephantClient = new ScalephantCluster(zookeeperNodes, clustername);
 		scalephantClient.connect();
 		

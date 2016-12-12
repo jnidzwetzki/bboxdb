@@ -25,14 +25,14 @@ import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
 import org.bboxdb.Const;
-import org.bboxdb.ScalephantService;
+import org.bboxdb.BBoxDBService;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractTableReader implements ScalephantService {
+public abstract class AbstractTableReader implements BBoxDBService {
 
 	/**
 	 * The number of the table

@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
@@ -116,7 +116,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 	 * @return
 	 */
 	protected int maxEntriesPerTable() {
-		final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
+		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 		return configuration.getSstableMaxEntries();
 	}
 	

@@ -24,7 +24,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.ScalephantService;
+import org.bboxdb.BBoxDBService;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.BloomFilter;
 
-public class Memtable implements ScalephantService, ReadWriteTupleStorage {
+public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	
 	/**
 	 * The name of the corresponding table

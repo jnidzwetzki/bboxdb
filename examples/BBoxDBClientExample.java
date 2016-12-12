@@ -28,7 +28,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 
 
-public class ScalephantClientExample {
+public class BBoxDBClientExample {
 
 	/**
 	 * Connect to the Scalephant Server at localhost and insert some tuples

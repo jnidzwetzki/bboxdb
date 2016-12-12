@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantService;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBService;
 import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
@@ -42,7 +42,7 @@ import org.bboxdb.util.Stoppable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableManager implements ScalephantService {
+public class SSTableManager implements BBoxDBService {
 	
 	/**
 	 * The name of the table
@@ -57,7 +57,7 @@ public class SSTableManager implements ScalephantService {
 	/**
 	 * The Storage configuration
 	 */
-	protected final ScalephantConfiguration scalephantConfiguration;
+	protected final BBoxDBConfiguration scalephantConfiguration;
 	
 	/**
 	 * The number of the table
@@ -109,7 +109,7 @@ public class SSTableManager implements ScalephantService {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final SSTableName sstablename, final ScalephantConfiguration scalephantConfiguration) {
+	public SSTableManager(final SSTableName sstablename, final BBoxDBConfiguration scalephantConfiguration) {
 		super();
 
 		this.scalephantConfiguration = scalephantConfiguration;
@@ -623,7 +623,7 @@ public class SSTableManager implements ScalephantService {
 	 * Returns the configuration
 	 * @return
 	 */
-	public ScalephantConfiguration getScalephantConfiguration() {
+	public BBoxDBConfiguration getScalephantConfiguration() {
 		return scalephantConfiguration;
 	}
 

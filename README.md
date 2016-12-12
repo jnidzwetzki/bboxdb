@@ -1,4 +1,4 @@
-# bboxdb - a distributed and highly scalable Key-Value Store based on SSTables
+# BBoxDB - a distributed and highly scalable Key-Value Store based on SSTables
 
 ![Scalephant Logo](doc/scalephant.png)
 

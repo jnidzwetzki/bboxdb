@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Manage the local scalephant instance
+# Manage the local BBoxDB instance
 #
 #
 #########################################
@@ -20,7 +20,7 @@ cd $basedir
 # Does a build exists? 
 if [ -d ../target ]; then
    libs=$(find ../target/lib -name '*.jar' | xargs echo | tr ' ' ':')
-   jar=$(ls -1 ../target/scalephant*.jar | tail -1)
+   jar=$(ls -1 ../target/bboxdb*.jar | tail -1)
 fi 
 
 classpath="$basedir/../conf:$libs:$jar"
@@ -36,7 +36,7 @@ zookeeper_clientport="2181"
 zookeeper_nodes="${SCALEPHANT_ZN}"
 
 if [ -z "$zookeeper_nodes" ]; then
-   echo "Your environment variable \$(SCALEPHANT_ZN) is empty. Please check your .scalephantrc"
+   echo "Your environment variable \$(SCALEPHANT_ZN) is empty. Please check your .bboxdbrc"
    exit -1
 fi
 
@@ -70,10 +70,10 @@ download_jsvc() {
 }
 
 ###
-# Update and build the scalephant
+# Update and build the bboxdb
 ###
-scalephant_update() {
-   echo "Update the scalephant"
+bboxdb_update() {
+   echo "Update the bboxdb"
    cd ..
    git pull
    
@@ -86,18 +86,18 @@ scalephant_update() {
 }
 
 ###
-# Start the scalephant
+# Start the bboxdb
 ###
-scalephant_start() {
-    echo "Start the scalephant"
+bboxdb_start() {
+    echo "Start the bboxdb"
     download_jsvc
     cd $basedir
 
     # Is already running?
-    if [ -f $basedir/scalephant.pid ]; then
-        pid=$(cat $basedir/scalephant.pid)
+    if [ -f $basedir/bboxdb.pid ]; then
+        pid=$(cat $basedir/bboxdb.pid)
         if [ -d /proc/$pid ]; then
-            echo "Scalephant is already running PID ($pid)"
+            echo "BBoxDB is already running PID ($pid)"
             return
         fi
     fi
@@ -118,10 +118,10 @@ scalephant_start() {
          debug_args+="-Dlog4j.configuration=log4j_debug.properties"
     fi
     
-    config="$basedir/../conf/scalephant.yaml"
+    config="$basedir/../conf/bboxdb.yaml"
 
     if [ ! -f $config ]; then
-        echo "Unable to locate scalephant config $config"
+        echo "Unable to locate bboxdb config $config"
         exit -1
     fi
 
@@ -138,24 +138,24 @@ scalephant_start() {
 
     sed -i "s/zookeepernodes: .*/zookeepernodes: $zookeeper_connect/" $config
 
-    if [ -f $logdir/scalephant.out.log ]; then
-         rm $logdir/scalephant.out.log
+    if [ -f $logdir/bboxdb.out.log ]; then
+         rm $logdir/bboxdb.out.log
     fi
 
-    ./jsvc $debug_flag $debug_args -outfile $logdir/scalephant.out.log -pidfile $basedir/scalephant.pid -Dscalephant.log.dir="$logdir" -cwd $basedir -cp $classpath de.fernunihagen.dna.scalephant.ScalephantMain
+    ./jsvc $debug_flag $debug_args -outfile $logdir/bboxdb.out.log -pidfile $basedir/bboxdb.pid -Dbboxdb.log.dir="$logdir" -cwd $basedir -cp $classpath org.bboxdb.BBoxDBMain
 }
 
 ###
-# Stop the scalephant
+# Stop the bboxdb
 ###
-scalephant_stop() {
-    echo "Stop the scalephant"
+bboxdb_stop() {
+    echo "Stop the bboxdb"
     cd $basedir
-    ./jsvc -pidfile $basedir/scalephant.pid -stop -cwd $basedir -cp $classpath de.fernunihagen.dna.scalephant.ScalephantMain
+    ./jsvc -pidfile $basedir/bboxdb.pid -stop -cwd $basedir -cp $classpath org.bboxdb.BBoxDBMain
 
     # Was stop successfully?
-    if [ -f $basedir/scalephant.pid ]; then
-        pid=$(cat $basedir/scalephant.pid)
+    if [ -f $basedir/bboxdb.pid ]; then
+        pid=$(cat $basedir/bboxdb.pid)
         if [ -d /proc/$pid ]; then
             echo "Normal shutdown was not successfully, killing process...."
             kill -9 $pid
@@ -267,14 +267,14 @@ zookeeper_drop() {
 
 case "$1" in  
 
-scalephant_start)
-   scalephant_start
+bboxdb_start)
+   bboxdb_start
    ;;  
-scalephant_stop)
-   scalephant_stop
+bboxdb_stop)
+   bboxdb_stop
    ;;  
-scalephant_update)
-   scalephant_update
+bboxdb_update)
+   bboxdb_update
    ;;  
 zookeeper_start)
    zookeeper_start
@@ -289,7 +289,7 @@ zookeeper_drop)
    zookeeper_drop
    ;;
 *)
-   echo "Usage: $0 {scalephant_start | scalephant_stop | scalephant_update | zookeeper_start | zookeeper_stop | zookeeper_client | zookeeper_drop}"
+   echo "Usage: $0 {bboxdb_start | bboxdb_stop | bboxdb_update | zookeeper_start | zookeeper_stop | zookeeper_client | zookeeper_drop}"
    ;;  
 esac
 

@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
@@ -85,7 +85,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 		this.threadname = ssTableManager.getSSTableName().getFullname();
 		
 		// Local instance
-		final ScalephantConfiguration scalephantConfiguration = ScalephantConfigurationManager.getConfiguration();
+		final BBoxDBConfiguration scalephantConfiguration = BBoxDBConfigurationManager.getConfiguration();
 		this.localInstance = ZookeeperClientFactory.getLocalInstanceName(scalephantConfiguration);
 	
 		try {

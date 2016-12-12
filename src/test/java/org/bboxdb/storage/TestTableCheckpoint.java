@@ -19,7 +19,7 @@ package org.bboxdb.storage;
 
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -61,7 +61,7 @@ public class TestTableCheckpoint {
 		
 		// Prepare sstable manager
 		StorageRegistry.shutdown(TEST_RELATION);
-		ScalephantConfigurationManager.getConfiguration().setStorageCheckpointInterval(0);
+		BBoxDBConfigurationManager.getConfiguration().setStorageCheckpointInterval(0);
 		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 
@@ -85,7 +85,7 @@ public class TestTableCheckpoint {
 
 		// Prepare sstable manager
 		StorageRegistry.shutdown(TEST_RELATION);
-		ScalephantConfigurationManager.getConfiguration().setStorageCheckpointInterval(CHECKPOINT_INTERVAL);
+		BBoxDBConfigurationManager.getConfiguration().setStorageCheckpointInterval(CHECKPOINT_INTERVAL);
 		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		

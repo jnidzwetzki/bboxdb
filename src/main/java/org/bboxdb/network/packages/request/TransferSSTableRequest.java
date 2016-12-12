@@ -29,7 +29,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.Const;
-import org.bboxdb.ScalephantConfiguration;
+import org.bboxdb.BBoxDBConfiguration;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.NetworkPackageEncoder;
@@ -156,7 +156,7 @@ public class TransferSSTableRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static boolean decodeTuple(final ByteBuffer packageHeader, final long bodyLength, 
-			final ScalephantConfiguration configuration, final InputStream inputStream) throws IOException, PackageEncodeError {
+			final BBoxDBConfiguration configuration, final InputStream inputStream) throws IOException, PackageEncodeError {
 		
 		// Read the package until the data streams (4 byte table name, 3x8 byte data length = 28 bytes)
 		final int partialBodyLength = packageHeader.limit() + 28;

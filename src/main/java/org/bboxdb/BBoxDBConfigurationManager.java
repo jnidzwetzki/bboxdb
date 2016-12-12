@@ -25,24 +25,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-public class ScalephantConfigurationManager {
+public class BBoxDBConfigurationManager {
 
 	/**
 	 * The configuration of the software
 	 */
-	protected static ScalephantConfiguration scalephantConfiguration;
+	protected static BBoxDBConfiguration scalephantConfiguration;
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ScalephantConfigurationManager.class);
+	private final static Logger logger = LoggerFactory.getLogger(BBoxDBConfigurationManager.class);
 
 	
 	/**
 	 * Get the configuration of the scalephant
 	 * @return
 	 */
-	public static synchronized ScalephantConfiguration getConfiguration() {
+	public static synchronized BBoxDBConfiguration getConfiguration() {
 		
 		if(scalephantConfiguration == null) {
 			loadConfiguration();
@@ -59,7 +59,7 @@ public class ScalephantConfigurationManager {
 		final URL inputFile = classLoader.getResource(Const.CONFIG_FILE);
 		
 		if(inputFile == null) {
-			scalephantConfiguration = new ScalephantConfiguration();
+			scalephantConfiguration = new BBoxDBConfiguration();
 			logger.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			logger.warn("!! No configuration file found, using default values !!");
 			logger.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -70,7 +70,7 @@ public class ScalephantConfigurationManager {
 			logger.info("Loading configuration from: " + inputFile); 
 			
 	        final Yaml yaml = new Yaml(); 
-	        scalephantConfiguration = yaml.loadAs(inputStream, ScalephantConfiguration.class);
+	        scalephantConfiguration = yaml.loadAs(inputStream, BBoxDBConfiguration.class);
 		} catch(IOException e) {
 			logger.error("Exception while loading configuration", e);
 			throw new RuntimeException(e);

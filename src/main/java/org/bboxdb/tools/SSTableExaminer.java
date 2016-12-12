@@ -20,8 +20,8 @@ package org.bboxdb.tools;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -63,7 +63,7 @@ public class SSTableExaminer implements Runnable {
 	@Override
 	public void run() {
 		try {
-			final ScalephantConfiguration storageConfiguration = ScalephantConfigurationManager.getConfiguration();
+			final BBoxDBConfiguration storageConfiguration = BBoxDBConfigurationManager.getConfiguration();
 			
 			final SSTableFacade sstableFacade = new SSTableFacade(storageConfiguration.getDataDirectory(), relationname, tableNumber);
 			sstableFacade.init();

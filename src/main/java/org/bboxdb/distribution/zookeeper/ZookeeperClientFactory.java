@@ -22,17 +22,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bboxdb.Const;
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 
 public class ZookeeperClientFactory {
 	
-	protected final static Map<ScalephantConfiguration, ZookeeperClient> instances;
+	protected final static Map<BBoxDBConfiguration, ZookeeperClient> instances;
 	
 	static {
-		instances = new HashMap<ScalephantConfiguration, ZookeeperClient>();
+		instances = new HashMap<BBoxDBConfiguration, ZookeeperClient>();
 	}
 	
 	/**
@@ -40,8 +40,8 @@ public class ZookeeperClientFactory {
 	 * @return
 	 */
 	public static ZookeeperClient getZookeeperClient() {
-		final ScalephantConfiguration scalephantConfiguration = 
-				ScalephantConfigurationManager.getConfiguration();
+		final BBoxDBConfiguration scalephantConfiguration = 
+				BBoxDBConfigurationManager.getConfiguration();
 		
 		return getZookeeperClient(scalephantConfiguration);
 	}
@@ -52,7 +52,7 @@ public class ZookeeperClientFactory {
 	 * @return
 	 */
 	public static ZookeeperClient getZookeeperClient(
-			final ScalephantConfiguration scalephantConfiguration) {
+			final BBoxDBConfiguration scalephantConfiguration) {
 		
 		// Is an instance for the configuration known?
 		if(instances.containsKey(scalephantConfiguration)) {
@@ -77,7 +77,7 @@ public class ZookeeperClientFactory {
 	 * @param scalephantConfiguration
 	 * @return
 	 */
-	public static DistributedInstance getLocalInstanceName(final ScalephantConfiguration scalephantConfiguration) {
+	public static DistributedInstance getLocalInstanceName(final BBoxDBConfiguration scalephantConfiguration) {
 		final String localIp = scalephantConfiguration.getLocalip();
 		final int localPort = scalephantConfiguration.getNetworkListenPort();
 		final DistributedInstance instance = new DistributedInstance(localIp, localPort, Const.VERSION);

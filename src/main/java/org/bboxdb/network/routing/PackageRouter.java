@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
-import org.bboxdb.ScalephantConfigurationManager;
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
@@ -251,7 +251,7 @@ public class PackageRouter {
 		}
 		
 		// Remove the local instance
-		final DistributedInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName(ScalephantConfigurationManager.getConfiguration());
+		final DistributedInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName(BBoxDBConfigurationManager.getConfiguration());
 		
 		final List<DistributedInstance> systemsWithoutLocalInstance = systems
 			.stream()

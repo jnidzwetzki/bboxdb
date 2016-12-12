@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.ScalephantService;
+import org.bboxdb.BBoxDBService;
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.BloomFilter;
 
-public class SSTableFacade implements ScalephantService, ReadOnlyTupleStorage {
+public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	 
 	/**
 	 * The name of the table

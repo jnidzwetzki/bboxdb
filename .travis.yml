@@ -13,14 +13,14 @@ before_install:
   - cp /tmp/zookeeper/zookeeper-3.4.8/conf/zoo_sample.cfg /tmp/zookeeper/zookeeper-3.4.8/conf/zoo.cfg
   - /tmp/zookeeper/zookeeper-3.4.8/bin/zkServer.sh start
   # Change config
-  - sed -i "s/zookeepernodes:.*/zookeepernodes:\ ['localhost:2181']/" conf/scalephant.yaml
-  - sed -i "s|rootDirectory:.*|rootDirectory:\ /tmp/scalephant_test|" conf/scalephant.yaml
-  - sed -i "s|dataDirectory:.*|dataDirectory:\ /tmp/scalephant_test/data|" conf/scalephant.yaml
+  - sed -i "s/zookeepernodes:.*/zookeepernodes:\ ['localhost:2181']/" conf/bboxdb.yaml
+  - sed -i "s|rootDirectory:.*|rootDirectory:\ /tmp/bboxdb_test|" conf/bboxdb.yaml
+  - sed -i "s|dataDirectory:.*|dataDirectory:\ /tmp/bboxdb_test/data|" conf/bboxdb.yaml
   - echo "#####################################################################"
-  - cat conf/scalephant.yaml
+  - cat conf/bboxdb.yaml
   - echo "#####################################################################"
   # Create required directories
-  - mkdir -p /tmp/scalephant_test/data
+  - mkdir -p /tmp/bboxdb_test/data
 
 cache:
   directories:

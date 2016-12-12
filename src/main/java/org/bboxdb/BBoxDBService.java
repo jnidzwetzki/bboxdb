@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb;
 
-public interface ScalephantService {
+public interface BBoxDBService {
 	
 	/**
 	 * Init the service

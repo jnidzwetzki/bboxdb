@@ -1,5 +1,5 @@
 ######
-# Scalephant configuration YAML 
+# BBoxDB configuration YAML 
 ######
 
 ###
@@ -7,12 +7,12 @@
 ###
 
 # The directory for data
-# Default: /tmp/scalephant_test
-rootDirectory: /tmp/scalephant_production
+# Default: /tmp/bboxdb_test
+rootDirectory: /tmp/bboxdb_production
 
 # The directory for the tables
-# Default: /tmp/scalephant_test/data
-dataDirectory: /tmp/scalephant_production/data
+# Default: /tmp/bboxdb_test/data
+dataDirectory: /tmp/bboxdb_production/data
 
 # Max entries per memtable 
 # Default: 10000 entries
@@ -79,7 +79,7 @@ zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
 
 # The IP address of the local node. This IP address 
 # is published in zookeeper and is used for incoming 
-# connections from other scalephant instances.
+# connections from other bboxdb instances.
 #
 # Default: the first IP address of the local node
 # localip: 10.10.10.10

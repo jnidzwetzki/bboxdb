@@ -20,9 +20,9 @@ package org.bboxdb.storage;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
-import org.bboxdb.ScalephantService;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
+import org.bboxdb.BBoxDBService;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
@@ -45,7 +45,7 @@ import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RecoveryService implements ScalephantService {
+public class RecoveryService implements BBoxDBService {
 	
 	/**
 	 * The Logger
@@ -101,7 +101,7 @@ public class RecoveryService implements ScalephantService {
 	protected void runRecoveryForDistributionGroup(final DistributionGroupName distributionGroupName) {
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
-			final ScalephantConfiguration scalephantConfiguration = ScalephantConfigurationManager.getConfiguration();
+			final BBoxDBConfiguration scalephantConfiguration = BBoxDBConfigurationManager.getConfiguration();
 			final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName(scalephantConfiguration);
 			
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(

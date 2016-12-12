@@ -23,19 +23,19 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.bboxdb.ScalephantConfiguration;
-import org.bboxdb.ScalephantConfigurationManager;
-import org.bboxdb.ScalephantService;
+import org.bboxdb.BBoxDBConfiguration;
+import org.bboxdb.BBoxDBConfigurationManager;
+import org.bboxdb.BBoxDBService;
 import org.bboxdb.util.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NetworkConnectionService implements ScalephantService {
+public class NetworkConnectionService implements BBoxDBService {
 	
 	/**
 	 * The configuration
 	 */
-	protected final ScalephantConfiguration configuration = ScalephantConfigurationManager.getConfiguration();
+	protected final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 
 	/**
 	 * Our thread pool to handle connections
