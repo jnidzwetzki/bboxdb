@@ -5,7 +5,7 @@ navigation: 2
 
 permalink: none
 
-site.codeurl: 'https://github.com/jnidzwetzki/bboxdb'
+codeurl: 'https://github.com/jnidzwetzki/bboxdb'
 
 baseurl: ''
 
