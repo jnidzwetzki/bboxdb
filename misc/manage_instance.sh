@@ -33,7 +33,7 @@ zookeeper_workdir=$basedir/zookeeper
 zookeeper_clientport="2181"
 
 # Nodes
-zookeeper_nodes="${SCALEPHANT_ZN}"
+zookeeper_nodes="${BBOXDB_ZN}"
 
 if [ -z "$zookeeper_nodes" ]; then
    echo "Your environment variable \$(SCALEPHANT_ZN) is empty. Please check your .bboxdbrc"
