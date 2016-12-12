@@ -1,0 +1,2 @@
+# Documentation of the BBoxDB
+
