@@ -17,9 +17,12 @@
  *******************************************************************************/
 package de.fernunihagen.dna.scalephant.distribution.mode;
 
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 
-public class KDtreeZookeeperAdapter {
+public class KDtreeZookeeperAdapter implements Watcher {
 		
 	/**
 	 * The distribution group adapter
@@ -42,6 +45,11 @@ public class KDtreeZookeeperAdapter {
 	 */
 	public DistributionRegion getRootNode() {
 		return rootNode;
+	}
+
+	@Override
+	public void process(final WatchedEvent event) {
+
 	}
 
 }
