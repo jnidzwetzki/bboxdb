@@ -149,7 +149,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
 		// Split and update
-		final DistributionRegion distributionGroup = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion distributionGroup = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 		Assert.assertEquals(TEST_GROUP, distributionGroup.getName());
 		
 		Assert.assertEquals(NodeState.ACTIVE, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup));
@@ -160,7 +160,7 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(NodeState.SPLITTING, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup));
 
 		// Reread group from zookeeper
-		final DistributionRegion newDistributionGroup = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion newDistributionGroup = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 		Assert.assertEquals(10.0, newDistributionGroup.getSplit(), 0.0001);
 	}
 	
@@ -174,8 +174,8 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion distributionGroup1 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
-		final DistributionRegion distributionGroup2 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion distributionGroup1 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
+		final DistributionRegion distributionGroup2 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 
 		// Update object 1
 		distributionGroup1.setSplit(10);
@@ -197,8 +197,8 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion distributionGroup1 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
-		final DistributionRegion distributionGroup2 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion distributionGroup1 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
+		final DistributionRegion distributionGroup2 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 
 		Assert.assertEquals(0, distributionGroup1.getLevel());
 		
@@ -243,7 +243,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 		final Collection<DistributedInstance> systems1 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region);
 		Assert.assertEquals(0, systems1.size());
 		
@@ -272,7 +272,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName1);
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName2);
@@ -311,7 +311,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 		region.setSplit(50);
 		
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getLeftChild(), systemName1);
@@ -347,7 +347,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName);
 		
 		// Sleep 2 seconds to wait for the update
@@ -368,7 +368,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 		Assert.assertEquals(0, region.getNameprefix());
 	}
 	
@@ -383,7 +383,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
-		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 		region.setSplit(10);
 		final DistributionRegion leftChild = region.getLeftChild();
 		final DistributionRegion rightChild = region.getRightChild();

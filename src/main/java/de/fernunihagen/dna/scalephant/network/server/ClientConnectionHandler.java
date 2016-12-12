@@ -37,10 +37,12 @@ import org.slf4j.LoggerFactory;
 
 import de.fernunihagen.dna.scalephant.ScalephantConfiguration;
 import de.fernunihagen.dna.scalephant.ScalephantConfigurationManager;
+import de.fernunihagen.dna.scalephant.distribution.DistributionGroupCache;
 import de.fernunihagen.dna.scalephant.distribution.DistributionGroupName;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
+import de.fernunihagen.dna.scalephant.distribution.mode.KDtreeZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.distribution.nameprefix.NameprefixInstanceManager;
 import de.fernunihagen.dna.scalephant.distribution.nameprefix.NameprefixMapper;
@@ -343,7 +345,10 @@ public class ClientConnectionHandler implements Runnable {
 			
 			distributionGroupZookeeperAdapter.createDistributionGroup(createPackage.getDistributionGroup(), createPackage.getReplicationFactor());
 			
-			final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(createPackage.getDistributionGroup());
+			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+					createPackage.getDistributionGroup(), zookeeperClient);
+
+			final DistributionRegion region = distributionAdapter.getRootNode();
 			
 			DistributionRegionHelper.allocateSystemsToNewRegion(region, zookeeperClient);
 			

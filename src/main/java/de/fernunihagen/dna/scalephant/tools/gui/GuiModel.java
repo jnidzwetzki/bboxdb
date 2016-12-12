@@ -30,6 +30,7 @@ import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanc
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceEvent;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceEventCallback;
 import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
+import de.fernunihagen.dna.scalephant.distribution.mode.KDtreeZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 
@@ -126,7 +127,8 @@ public class GuiModel implements DistributedInstanceEventCallback {
 		
 		if(! currentVersion.equals(rootRegionVersion)) {
 			logger.info("Reread distribution group, version has changed: " + rootRegionVersion + " / " + currentVersion);
-			rootRegion = distributionGroupZookeeperAdapter.readDistributionGroup(distributionGroup);
+			final KDtreeZookeeperAdapter adapter = distributionGroupZookeeperAdapter.readDistributionGroup(distributionGroup);
+			rootRegion = adapter.getRootNode();
 			rootRegionVersion = currentVersion;
 			replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroup);
 		}

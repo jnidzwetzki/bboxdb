@@ -31,6 +31,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
+import de.fernunihagen.dna.scalephant.distribution.mode.KDtreeZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
@@ -90,7 +91,12 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
-			final DistributionRegion distributionGroupRoot = DistributionGroupCache.getGroupForTableName(ssTableManager.getSSTableName().getFullname(), zookeeperClient);
+			
+			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
+					ssTableManager.getSSTableName().getFullname(), zookeeperClient);
+
+			final DistributionRegion distributionGroupRoot = distributionAdapter.getRootNode();
+			
 			distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableManager.getSSTableName().getNameprefix());
 		} catch (ZookeeperException | ScalephantException e) {
 			logger.warn("Unable to find distribution region: " , e);

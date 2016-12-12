@@ -93,7 +93,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @return
 	 * @throws ZookeeperException 
 	 */
-	public DistributionRegion readDistributionGroup(final String distributionGroup) throws ZookeeperException {
+	public KDtreeZookeeperAdapter readDistributionGroup(final String distributionGroup) throws ZookeeperException {
 		final String path = getDistributionGroupPath(distributionGroup);
 
 		if(! zookeeperClient.exists(path)) {
@@ -105,7 +105,9 @@ public class DistributionGroupZookeeperAdapter {
 
 		readDistributionGroupRecursive(path, root);
 		
-		return root;
+		final KDtreeZookeeperAdapter kDtreeZookeeperAdapter = new KDtreeZookeeperAdapter(this, root);
+		
+		return kDtreeZookeeperAdapter;
 	}
 	
 	/**

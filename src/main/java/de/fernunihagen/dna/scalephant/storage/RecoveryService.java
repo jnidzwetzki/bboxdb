@@ -35,6 +35,7 @@ import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstanc
 import de.fernunihagen.dna.scalephant.distribution.membership.MembershipConnectionService;
 import de.fernunihagen.dna.scalephant.distribution.membership.event.DistributedInstanceState;
 import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
+import de.fernunihagen.dna.scalephant.distribution.mode.KDtreeZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
@@ -103,7 +104,11 @@ public class RecoveryService implements ScalephantService {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
 			final ScalephantConfiguration scalephantConfiguration = ScalephantConfigurationManager.getConfiguration();
 			final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName(scalephantConfiguration);
-			final DistributionRegion distributionGroup = DistributionGroupCache.getGroupForGroupName(distributionGroupName.getFullname(), zookeeperClient);
+			
+			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+					distributionGroupName.getFullname(), zookeeperClient);
+			
+			final DistributionRegion distributionGroup = distributionAdapter.getRootNode();
 		
 			final List<OutdatedDistributionRegion> outdatedRegions = DistributionRegionHelper.getOutdatedRegions(distributionGroup, localInstance);
 			handleOutdatedRegions(distributionGroupName, outdatedRegions);

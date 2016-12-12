@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
+import de.fernunihagen.dna.scalephant.distribution.mode.KDtreeZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
 import de.fernunihagen.dna.scalephant.network.client.ScalephantException;
@@ -31,10 +32,10 @@ public class DistributionGroupCache {
 	/**
 	 * Mapping between the string group and the group object
 	 */
-	protected final static Map<String, DistributionRegion> groupGroupMap;
+	protected final static Map<String, KDtreeZookeeperAdapter> groupGroupMap;
 
 	static {
-		groupGroupMap = new HashMap<String, DistributionRegion>();
+		groupGroupMap = new HashMap<String, KDtreeZookeeperAdapter>();
 	}
 	
 	/**
@@ -43,11 +44,11 @@ public class DistributionGroupCache {
 	 * @return
 	 * @throws ZookeeperException 
 	 */
-	public static synchronized DistributionRegion getGroupForGroupName(final String groupName, final ZookeeperClient zookeeperClient) throws ZookeeperException {
+	public static synchronized KDtreeZookeeperAdapter getGroupForGroupName(final String groupName, final ZookeeperClient zookeeperClient) throws ZookeeperException {
 		if(! groupGroupMap.containsKey(groupName)) {
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
-			final DistributionRegion distributionRegion = distributionGroupZookeeperAdapter.readDistributionGroup(groupName);
-			groupGroupMap.put(groupName, distributionRegion);
+			final KDtreeZookeeperAdapter adapter = distributionGroupZookeeperAdapter.readDistributionGroup(groupName);
+			groupGroupMap.put(groupName, adapter);
 		}
 		
 		return groupGroupMap.get(groupName);
@@ -60,7 +61,7 @@ public class DistributionGroupCache {
 	 * @throws ZookeeperException 
 	 * @throws ScalephantException 
 	 */
-	public static synchronized DistributionRegion getGroupForTableName(final String tableName, final ZookeeperClient zookeeperClient) throws ZookeeperException, ScalephantException {
+	public static synchronized KDtreeZookeeperAdapter getGroupForTableName(final String tableName, final ZookeeperClient zookeeperClient) throws ZookeeperException, ScalephantException {
 		final SSTableName ssTableName = new SSTableName(tableName);
 		
 		if(! ssTableName.isValid()) {

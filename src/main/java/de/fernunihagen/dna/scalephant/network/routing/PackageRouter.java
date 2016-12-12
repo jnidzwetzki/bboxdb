@@ -32,6 +32,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionGroupCache;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.MembershipConnectionService;
+import de.fernunihagen.dna.scalephant.distribution.mode.KDtreeZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClientFactory;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperException;
@@ -224,7 +225,11 @@ public class PackageRouter {
 		
 		final String distributionGroup = insertTupleRequest.getTable().getDistributionGroup();
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForGroupName(distributionGroup, zookeeperClient);
+		
+		final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+				distributionGroup, zookeeperClient);
+
+		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 		
 		return distributionRegion.getDistributionRegionsForBoundingBox(boundingBox);
 	}

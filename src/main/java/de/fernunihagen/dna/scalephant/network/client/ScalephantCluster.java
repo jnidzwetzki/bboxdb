@@ -30,6 +30,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionGroupCache;
 import de.fernunihagen.dna.scalephant.distribution.DistributionRegion;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.MembershipConnectionService;
+import de.fernunihagen.dna.scalephant.distribution.mode.KDtreeZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.placement.RandomResourcePlacementStrategy;
 import de.fernunihagen.dna.scalephant.distribution.placement.ResourceAllocationException;
 import de.fernunihagen.dna.scalephant.distribution.placement.ResourcePlacementStrategy;
@@ -122,7 +123,11 @@ public class ScalephantCluster implements Scalephant {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws ScalephantException {
 
 		try {
-			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
+			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+					table, zookeeperClient);
+
+			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+			
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
 
 			if(systems.isEmpty()) {
@@ -254,7 +259,10 @@ public class ScalephantCluster implements Scalephant {
 		final TupleListFuture future = new TupleListFuture();
 		
 		try {
-			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
+			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+					table, zookeeperClient);
+
+			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(boundingBox);
 			
 			if(logger.isDebugEnabled()) {
@@ -286,7 +294,10 @@ public class ScalephantCluster implements Scalephant {
 		final TupleListFuture future = new TupleListFuture();
 		
 		try {
-			final DistributionRegion distributionRegion = DistributionGroupCache.getGroupForTableName(table, zookeeperClient);
+			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+					table, zookeeperClient);
+
+			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(boundingBox);
 			
 			if(logger.isDebugEnabled()) {

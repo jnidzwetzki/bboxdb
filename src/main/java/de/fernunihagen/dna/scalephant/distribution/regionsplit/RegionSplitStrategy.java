@@ -32,6 +32,7 @@ import de.fernunihagen.dna.scalephant.distribution.DistributionRegionHelper;
 import de.fernunihagen.dna.scalephant.distribution.membership.DistributedInstance;
 import de.fernunihagen.dna.scalephant.distribution.membership.MembershipConnectionService;
 import de.fernunihagen.dna.scalephant.distribution.mode.DistributionGroupZookeeperAdapter;
+import de.fernunihagen.dna.scalephant.distribution.mode.KDtreeZookeeperAdapter;
 import de.fernunihagen.dna.scalephant.distribution.mode.NodeState;
 import de.fernunihagen.dna.scalephant.distribution.placement.ResourceAllocationException;
 import de.fernunihagen.dna.scalephant.distribution.zookeeper.ZookeeperClient;
@@ -74,8 +75,10 @@ public abstract class RegionSplitStrategy implements Runnable {
 	public void initFromSSTablename(final SSTableName ssTableName) throws StorageManagerException {
 		
 		try {
-			final DistributionRegion distributionGroup = DistributionGroupCache.getGroupForGroupName(
+			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
 					ssTableName.getDistributionGroup(), zookeeperClient);
+
+			final DistributionRegion distributionGroup = distributionAdapter.getRootNode();
 			
 			region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 					distributionGroup, ssTableName.getNameprefix());
