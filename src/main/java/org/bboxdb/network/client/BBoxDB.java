@@ -24,7 +24,7 @@ import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 
-public interface Scalephant {
+public interface BBoxDB {
 	
 	/**
 	 * The maximum amount of in flight requests. Needs to be lower than Short.MAX_VALUE to
@@ -44,11 +44,11 @@ public interface Scalephant {
 	public void disconnect();
 
 	/**
-	 * Delete a table on the scalephant server
+	 * Delete a table on the bboxdb server
 	 * @param table
 	 * @return
 	 */
-	public EmptyResultFuture deleteTable(final String table) throws ScalephantException;
+	public EmptyResultFuture deleteTable(final String table) throws BBoxDBException;
 
 	/**
 	 * Insert a new tuple into the given table
@@ -56,7 +56,7 @@ public interface Scalephant {
 	 * @param table
 	 * @return
 	 */
-	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws ScalephantException;
+	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException;
 
 	/**
 	 * Delete the given key from a table
@@ -65,13 +65,13 @@ public interface Scalephant {
 	 * @param timestamp
 	 * @return
 	 */
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws ScalephantException;
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws BBoxDBException;
 
 	/**
 	 * List the existing tables
 	 * @return
 	 */
-	public SSTableNameListFuture listTables() throws ScalephantException;
+	public SSTableNameListFuture listTables() throws BBoxDBException;
 
 	/**
 	 * Create a new distribution group
@@ -79,7 +79,7 @@ public interface Scalephant {
 	 * @return
 	 */
 	public EmptyResultFuture createDistributionGroup(
-			final String distributionGroup, final short replicationFactor) throws ScalephantException;
+			final String distributionGroup, final short replicationFactor) throws BBoxDBException;
 
 	/**
 	 * Delete a distribution group
@@ -87,7 +87,7 @@ public interface Scalephant {
 	 * @return
 	 */
 	public EmptyResultFuture deleteDistributionGroup(
-			final String distributionGroup) throws ScalephantException;
+			final String distributionGroup) throws BBoxDBException;
 
 	/**
 	 * Query the given table for a specific key
@@ -95,7 +95,7 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public TupleListFuture queryKey(final String table, final String key) throws ScalephantException;
+	public TupleListFuture queryKey(final String table, final String key) throws BBoxDBException;
 
 	/**
 	 * Execute a bounding box query on the given table
@@ -104,7 +104,7 @@ public interface Scalephant {
 	 * @return
 	 */
 	public TupleListFuture queryBoundingBox(final String table,
-			final BoundingBox boundingBox) throws ScalephantException;
+			final BoundingBox boundingBox) throws BBoxDBException;
 
 	/**
 	 * Query the given table for all tuples newer than timestamp
@@ -112,7 +112,7 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public TupleListFuture queryTime(final String table, final long timestamp) throws ScalephantException;
+	public TupleListFuture queryTime(final String table, final long timestamp) throws BBoxDBException;
 
 	/**
 	 * Query the given table for all tuples newer than timestamp and inside of the bounding box
@@ -120,7 +120,7 @@ public interface Scalephant {
 	 * @param key
 	 * @return
 	 */
-	public TupleListFuture queryBoundingBoxAndTime(final String table, final BoundingBox boundingBox, final long timestamp) throws ScalephantException;
+	public TupleListFuture queryBoundingBoxAndTime(final String table, final BoundingBox boundingBox, final long timestamp) throws BBoxDBException;
 
 	/**
 	 * Is the client connected?

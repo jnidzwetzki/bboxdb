@@ -35,7 +35,7 @@ import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.client.ScalephantClient;
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
@@ -308,7 +308,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 					return false;
 				}
 			} else {
-				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(instance);
+				final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(instance);
 				
 				if(connection == null) {
 					logger.error("No connection for distributed instance {} is known, unable to distribute tuple.", instance);

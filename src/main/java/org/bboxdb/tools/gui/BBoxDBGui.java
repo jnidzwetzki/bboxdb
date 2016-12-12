@@ -45,7 +45,7 @@ import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ScalephantGui {
+public class BBoxDBGui {
 	
 	/**
 	 * The main frame
@@ -65,7 +65,7 @@ public class ScalephantGui {
 	/**
 	 * The table Model
 	 */
-	protected ScalepahntInstanceTableModel tableModel;
+	protected BBoxDBInstanceTableModel tableModel;
 
 	/**
 	 * The GUI Model
@@ -77,9 +77,9 @@ public class ScalephantGui {
 	 */
 	public volatile boolean shutdown = false;
 	
-	protected final static Logger logger = LoggerFactory.getLogger(ScalephantGui.class);
+	protected final static Logger logger = LoggerFactory.getLogger(BBoxDBGui.class);
 	
-	public ScalephantGui(final GuiModel guiModel) {
+	public BBoxDBGui(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 	}
 
@@ -157,9 +157,9 @@ public class ScalephantGui {
 	 * Get the table model for the schedules queries
 	 * @return The table model
 	 */
-	private ScalepahntInstanceTableModel getTableModel() {
-		final List<DistributedInstance> scalepahntInstances = guiModel.getScalephantInstances();
-		return new ScalepahntInstanceTableModel(scalepahntInstances);
+	private BBoxDBInstanceTableModel getTableModel() {
+		final List<DistributedInstance> scalepahntInstances = guiModel.getBBoxDBInstances();
+		return new BBoxDBInstanceTableModel(scalepahntInstances);
 	}
 
 	/**

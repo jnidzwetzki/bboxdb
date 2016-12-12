@@ -33,7 +33,7 @@ import org.bboxdb.distribution.membership.event.DistributedInstanceDeleteEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
-import org.bboxdb.network.client.ScalephantClient;
+import org.bboxdb.network.client.BBoxDBClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	/**
 	 * The server connections
 	 */
-	protected final Map<InetSocketAddress, ScalephantClient> serverConnections;
+	protected final Map<InetSocketAddress, BBoxDBClient> serverConnections;
 	
 	/**
 	 * The known instances
@@ -75,7 +75,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	private final static Logger logger = LoggerFactory.getLogger(MembershipConnectionService.class);
 	
 	private MembershipConnectionService() {
-		final HashMap<InetSocketAddress, ScalephantClient> connectionMap = new HashMap<InetSocketAddress, ScalephantClient>();
+		final HashMap<InetSocketAddress, BBoxDBClient> connectionMap = new HashMap<InetSocketAddress, BBoxDBClient>();
 		serverConnections = Collections.synchronizedMap(connectionMap);
 		
 		final HashMap<InetSocketAddress, DistributedInstance> instanceMap = new HashMap<InetSocketAddress, DistributedInstance>();
@@ -139,7 +139,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 		// Close all connections
 		synchronized (serverConnections) {
 			for(final InetSocketAddress instance : serverConnections.keySet()) {
-				final ScalephantClient client = serverConnections.get(instance);
+				final BBoxDBClient client = serverConnections.get(instance);
 				logger.info("Closing connection to server: " + instance);
 				client.closeConnection();
 			}
@@ -158,7 +158,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	}
 	
 	/**
-	 * Add a new connection to a scalephant system
+	 * Add a new connection to a bboxdb system
 	 * @param distributedInstance
 	 */
 	protected synchronized void createOrTerminateConnetion(final DistributedInstance distributedInstance) {
@@ -190,7 +190,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 		
 		logger.info("Opening connection to instance: " + distributedInstance);
 		
-		final ScalephantClient client = new ScalephantClient(distributedInstance.getInetSocketAddress());
+		final BBoxDBClient client = new BBoxDBClient(distributedInstance.getInetSocketAddress());
 		client.setPagingEnabled(pagingEnabled);
 		client.setTuplesPerPage(tuplesPerPage);
 		final boolean result = client.connect();
@@ -205,7 +205,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	}
 	
 	/**
-	 * Terminate the connection to a missing scalephant system
+	 * Terminate the connection to a missing bboxdb system
 	 * @param distributedInstance 
 	 */
 	protected synchronized void terminateConnection(final DistributedInstance distributedInstance) {
@@ -217,7 +217,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 		logger.info("Closing connection to dead instance: " + distributedInstance);
 		
 		knownInstances.remove(distributedInstance.getInetSocketAddress());
-		final ScalephantClient client = serverConnections.remove(distributedInstance.getInetSocketAddress());
+		final BBoxDBClient client = serverConnections.remove(distributedInstance.getInetSocketAddress());
 		client.closeConnection();
 	}
 
@@ -242,7 +242,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 * @param instance
 	 * @return
 	 */
-	public ScalephantClient getConnectionForInstance(final DistributedInstance instance) {
+	public BBoxDBClient getConnectionForInstance(final DistributedInstance instance) {
 		return serverConnections.get(instance.getInetSocketAddress());
 	}
 	
@@ -258,8 +258,8 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 * Get all connections
 	 * @return 
 	 */
-	public List<ScalephantClient> getAllConnections() {
-		return new ArrayList<ScalephantClient>(serverConnections.values());
+	public List<BBoxDBClient> getAllConnections() {
+		return new ArrayList<BBoxDBClient>(serverConnections.values());
 	}
 	
 	/**
@@ -285,8 +285,8 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	public void setPagingEnabled(final boolean pagingEnabled) {
 		this.pagingEnabled = pagingEnabled;
 		
-		for(final ScalephantClient scalephantClient : serverConnections.values()) {
-			scalephantClient.setPagingEnabled(pagingEnabled);
+		for(final BBoxDBClient bboxdbClient : serverConnections.values()) {
+			bboxdbClient.setPagingEnabled(pagingEnabled);
 		}
 	}
 
@@ -305,8 +305,8 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	public void setTuplesPerPage(final short tuplesPerPage) {
 		this.tuplesPerPage = tuplesPerPage;
 		
-		for(final ScalephantClient scalephantClient : serverConnections.values()) {
-			scalephantClient.setTuplesPerPage(tuplesPerPage);
+		for(final BBoxDBClient bboxdbClient : serverConnections.values()) {
+			bboxdbClient.setTuplesPerPage(tuplesPerPage);
 		}
 	}
 	

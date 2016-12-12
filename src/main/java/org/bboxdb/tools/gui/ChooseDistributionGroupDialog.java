@@ -174,8 +174,8 @@ public class ChooseDistributionGroupDialog {
 					final ZookeeperClient zookeeperClient) {
 				
 				final GuiModel guiModel = new GuiModel(zookeeperClient);		
-				final ScalephantGui scalepahntGUI = new ScalephantGui(guiModel);
-				guiModel.setScalephantGui(scalepahntGUI);
+				final BBoxDBGui scalepahntGUI = new BBoxDBGui(guiModel);
+				guiModel.setBBoxDBGui(scalepahntGUI);
 				scalepahntGUI.run();
 				guiModel.setDistributionGroup(distributionGroup);
 				
@@ -190,7 +190,7 @@ public class ChooseDistributionGroupDialog {
 			 */
 			protected void startNewMainThread(
 					final ZookeeperClient zookeeperClient,
-					final ScalephantGui scalepahntGUI,
+					final BBoxDBGui scalepahntGUI,
 					final GuiModel guiModel) {
 				
 				// Start a new update thread

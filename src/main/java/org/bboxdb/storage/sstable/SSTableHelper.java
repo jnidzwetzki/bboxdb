@@ -52,7 +52,7 @@ public class SSTableHelper {
 	 * @param directory
 	 * @param name
 	 * 
-	 * @return e.g. /tmp/scalephant/data/relation1 
+	 * @return e.g. /tmp/bboxdb/data/relation1 
 	 */
 	public static String getSSTableDir(final String directory, final String name) {
 		return directory 
@@ -66,7 +66,7 @@ public class SSTableHelper {
 	 * @param directory
 	 * @param name
 	 * 
-	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2
+	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2
 	 */
 	public static String getSSTableBase(final String directory, final String name, int tablebumber) {
 		return getSSTableDir(directory, name)
@@ -83,7 +83,7 @@ public class SSTableHelper {
 	 * @param directory
 	 * @param name
 	 * 
-	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.sst
+	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.sst
 	 */
 	public static String getSSTableFilename(final String directory, final String name, int tablebumber) {
 		return getSSTableBase(directory, name, tablebumber)
@@ -96,7 +96,7 @@ public class SSTableHelper {
 	 * @param directory
 	 * @param name
 	 * 
-	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.idx
+	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.idx
 	 */
 	public static String getSSTableIndexFilename(final String directory, final String name, int tablebumber) {
 		return getSSTableBase(directory, name, tablebumber)
@@ -109,7 +109,7 @@ public class SSTableHelper {
 	 * @param directory
 	 * @param name
 	 * 
-	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.blm
+	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.blm
 	 */
 	public static String getSSTableBloomFilterFilename(final String directory, final String name, int tablebumber) {
 		return getSSTableBase(directory, name, tablebumber)
@@ -122,7 +122,7 @@ public class SSTableHelper {
 	 * @param directory
 	 * @param name
 	 * 
-	 * @return e.g. /tmp/scalephant/data/relation1/sstable_relation1_2.meta
+	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.meta
 	 */
 	public static String getSSTableMetadataFilename(final String directory, final String name, int tablebumber) {
 		return getSSTableBase(directory, name, tablebumber)

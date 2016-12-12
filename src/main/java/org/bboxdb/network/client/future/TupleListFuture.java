@@ -29,7 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.bboxdb.network.client.ScalephantClient;
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
@@ -141,17 +141,17 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 				 * @throws InterruptedException 
 				 */
 				protected void handleAdditionalPages() throws InterruptedException, ExecutionException {
-					final ScalephantClient scalephantClient = tupleListFuture.getConnectionForResult(resultId);
+					final BBoxDBClient bboxdbClient = tupleListFuture.getConnectionForResult(resultId);
 					final short queryRequestId = tupleListFuture.getRequestId(resultId);
 					
-					if(scalephantClient == null) {
+					if(bboxdbClient == null) {
 						logger.error("Unable to get connection for paging: {}", resultId);
 						return;
 					}
 					
 					TupleListFuture nextPage = null;
 					do {
-						 nextPage = scalephantClient.getNextPage(queryRequestId);
+						 nextPage = bboxdbClient.getNextPage(queryRequestId);
 						 nextPage.waitForAll();
 						 
 						 if(nextPage.isFailed()) {
@@ -268,7 +268,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 	/**
 	 * The connections for the paging
 	 */
-	protected final Map<Integer, ScalephantClient> connections = new HashMap<>();
+	protected final Map<Integer, BBoxDBClient> connections = new HashMap<>();
 	
 	/**
 	 * The Logger
@@ -313,22 +313,22 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 	}
 	
 	/**
-	 * Set the scalephant connection for pagig
+	 * Set the BBoxDB connection for paging
 	 * @param resultId
-	 * @param scalephantClient
+	 * @param bboxdbClient
 	 */
-	public void setConnectionForResult(final int resultId, final ScalephantClient scalephantClient) {
+	public void setConnectionForResult(final int resultId, final BBoxDBClient bboxdbClient) {
 		checkFutureSize(resultId);
 
-		connections.put(resultId, scalephantClient);
+		connections.put(resultId, bboxdbClient);
 	}
 	
 	/**
-	 * Get the ScalephantClient for the given resultId (needed to request next pages)
+	 * Get the bboxdbClient for the given resultId (needed to request next pages)
 	 * @param resultId
 	 * @return
 	 */
-	public ScalephantClient getConnectionForResult(final int resultId) {
+	public BBoxDBClient getConnectionForResult(final int resultId) {
 		checkFutureSize(resultId);
 
 		if(! connections.containsKey(resultId)) {
@@ -340,7 +340,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 	}
 	
 	/**
-	 * Return a iterator for all tupes
+	 * Return a iterator for all tuples
 	 * @return
 	 */
 	@Override

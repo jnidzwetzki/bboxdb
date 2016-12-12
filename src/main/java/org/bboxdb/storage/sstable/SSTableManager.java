@@ -57,7 +57,7 @@ public class SSTableManager implements BBoxDBService {
 	/**
 	 * The Storage configuration
 	 */
-	protected final BBoxDBConfiguration scalephantConfiguration;
+	protected final BBoxDBConfiguration configuration;
 	
 	/**
 	 * The number of the table
@@ -109,10 +109,10 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final SSTableName sstablename, final BBoxDBConfiguration scalephantConfiguration) {
+	public SSTableManager(final SSTableName sstablename, final BBoxDBConfiguration configuration) {
 		super();
 
-		this.scalephantConfiguration = scalephantConfiguration;
+		this.configuration = configuration;
 		this.storageState = new State(false); 
 		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
@@ -169,8 +169,8 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	protected void initNewMemtable() {
 		final Memtable memtable = new Memtable(sstablename, 
-				scalephantConfiguration.getMemtableEntriesMax(), 
-				scalephantConfiguration.getMemtableSizeMax());
+				configuration.getMemtableEntriesMax(), 
+				configuration.getMemtableSizeMax());
 		
 		memtable.acquire();
 		memtable.init();
@@ -182,8 +182,8 @@ public class SSTableManager implements BBoxDBService {
 	 * Start the checkpoint thread if needed
 	 */
 	protected void startCheckpointThread() {
-		if(scalephantConfiguration.getStorageCheckpointInterval() > 0) {
-			final int maxUncheckpointedSeconds = scalephantConfiguration.getStorageCheckpointInterval();
+		if(configuration.getStorageCheckpointInterval() > 0) {
+			final int maxUncheckpointedSeconds = configuration.getStorageCheckpointInterval();
 			final SSTableCheckpointThread ssTableCheckpointThread = new SSTableCheckpointThread(maxUncheckpointedSeconds, this);
 			final Thread checkpointThread = new Thread(ssTableCheckpointThread);
 			checkpointThread.setName("Checkpoint thread for: " + sstablename.getFullname());
@@ -199,7 +199,7 @@ public class SSTableManager implements BBoxDBService {
 	 * Start the compact thread if needed
 	 */
 	protected void startCompactThread() {
-		if(scalephantConfiguration.isStorageRunCompactThread()) {
+		if(configuration.isStorageRunCompactThread()) {
 			final Thread compactThread = new Thread(new SSTableCompactorThread(this));
 			compactThread.setName("Compact thread for: " + sstablename.getFullname());
 			compactThread.start();
@@ -213,7 +213,7 @@ public class SSTableManager implements BBoxDBService {
 	 * Start the memtable flush thread if needed
 	 */
 	protected void startMemtableFlushThread() {
-		if(scalephantConfiguration.isStorageRunMemtableFlushThread()) {
+		if(configuration.isStorageRunMemtableFlushThread()) {
 			final MemtableFlushThread memtableFlushThread = new MemtableFlushThread(this);
 			final Thread flushThread = new Thread(memtableFlushThread);
 			flushThread.setName("Memtable flush thread for: " + sstablename.getFullname());
@@ -299,8 +299,8 @@ public class SSTableManager implements BBoxDBService {
 	 * 
 	 */
 	protected void createSSTableDirIfNeeded() {
-		final File rootDir = new File(scalephantConfiguration.getDataDirectory());		
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(scalephantConfiguration.getDataDirectory(), sstablename.getFullname()));
+		final File rootDir = new File(configuration.getDataDirectory());		
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(configuration.getDataDirectory(), sstablename.getFullname()));
 		
 		if(rootDir.exists() && ! directoryHandle.exists()) {
 			logger.info("Create a new dir for table: " + getSSTableName());
@@ -316,7 +316,7 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	protected void scanForExistingTables() throws StorageManagerException {
 		logger.info("Scan for existing SSTables: " + getSSTableName());
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(scalephantConfiguration.getDataDirectory(), sstablename.getFullname()));
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(configuration.getDataDirectory(), sstablename.getFullname()));
 		
 	    checkSSTableDir(directoryHandle);
 	
@@ -329,7 +329,7 @@ public class SSTableManager implements BBoxDBService {
 				
 				try {
 					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(sstablename, filename);
-					final SSTableFacade facade = new SSTableFacade(scalephantConfiguration.getDataDirectory(), sstablename, sequenceNumber);
+					final SSTableFacade facade = new SSTableFacade(configuration.getDataDirectory(), sstablename, sequenceNumber);
 					facade.init();
 					tupleStoreInstances.addNewDetectedSSTable(facade);
 				} catch(StorageManagerException e) {
@@ -420,7 +420,7 @@ public class SSTableManager implements BBoxDBService {
 	 * @return
 	 */
 	protected boolean deletePersistentTableData() {
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(scalephantConfiguration.getDataDirectory(), sstablename.getFullname()));
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(configuration.getDataDirectory(), sstablename.getFullname()));
 	
 		// Does the directory exist?
 		if(! directoryHandle.isDirectory()) {
@@ -624,7 +624,7 @@ public class SSTableManager implements BBoxDBService {
 	 * @return
 	 */
 	public BBoxDBConfiguration getScalephantConfiguration() {
-		return scalephantConfiguration;
+		return configuration;
 	}
 
 	/**

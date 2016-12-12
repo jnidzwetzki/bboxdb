@@ -42,7 +42,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ScalephantCluster implements Scalephant {
+public class BBoxDBCluster implements BBoxDB {
 	
 	/**
 	 * The zookeeper connection
@@ -68,14 +68,14 @@ public class ScalephantCluster implements Scalephant {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ScalephantCluster.class);
+	private final static Logger logger = LoggerFactory.getLogger(BBoxDBCluster.class);
 
 	/**
-	 * Create a new instance of the ScalepahntCluster 
+	 * Create a new instance of the BBoxDB cluster
 	 * @param zookeeperNodes
 	 * @param clustername
 	 */
-	public ScalephantCluster(final Collection<String> zookeeperNodes, final String clustername) {
+	public BBoxDBCluster(final Collection<String> zookeeperNodes, final String clustername) {
 		zookeeperClient = new ZookeeperClient(zookeeperNodes, clustername);
 		resourcePlacementStrategy = new RandomResourcePlacementStrategy();
 		membershipConnectionService = MembershipConnectionService.getInstance();
@@ -96,16 +96,16 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public EmptyResultFuture deleteTable(final String table) throws ScalephantException {
+	public EmptyResultFuture deleteTable(final String table) throws BBoxDBException {
 		
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			throw new ScalephantException("deleteTable called, but connection list is empty");
+			throw new BBoxDBException("deleteTable called, but connection list is empty");
 		}
 		
-		final List<ScalephantClient> connections = membershipConnectionService.getAllConnections();
+		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();
 		final EmptyResultFuture future = new EmptyResultFuture();
 
-		for(final ScalephantClient client : connections) {
+		for(final BBoxDBClient client : connections) {
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("Send delete call for table {} to {}", table, client);
@@ -119,7 +119,7 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws ScalephantException {
+	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
 		try {
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
@@ -130,12 +130,12 @@ public class ScalephantCluster implements Scalephant {
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
 
 			if(systems.isEmpty()) {
-				throw new ScalephantException("Insert tuple called, but system list for bounding box is empty: " + tuple.getBoundingBox());
+				throw new BBoxDBException("Insert tuple called, but system list for bounding box is empty: " + tuple.getBoundingBox());
 			}
 			
 			// Determine the first system, it will route the request to the remaining systems
 			final DistributedInstance system = systems.iterator().next();
-			final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
+			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 			return connection.insertTuple(table, tuple);
 		} catch (ZookeeperException e) {
 			logger.warn("Got exception while inserting tuple", e);
@@ -147,16 +147,16 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws ScalephantException {
-		final List<ScalephantClient> connections = membershipConnectionService.getAllConnections();
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws BBoxDBException {
+		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();
 		
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			throw new ScalephantException("deleteTuple called, but connection list is empty");
+			throw new BBoxDBException("deleteTuple called, but connection list is empty");
 		}
 		
 		final EmptyResultFuture future = new EmptyResultFuture();
 		
-		for(final ScalephantClient client : connections) {
+		for(final BBoxDBClient client : connections) {
 			if(logger.isDebugEnabled()) {
 				logger.debug("Send delete call for tuple {} on {} to {}", key, table, client);
 			}
@@ -171,8 +171,8 @@ public class ScalephantCluster implements Scalephant {
 	@Override
 	public SSTableNameListFuture listTables() {
 		try {
-			final ScalephantClient scalephantClient = getSystemForNewRessources();
-			return scalephantClient.listTables();
+			final BBoxDBClient bboxDBClient = getSystemForNewRessources();
+			return bboxDBClient.listTables();
 		} catch (ResourceAllocationException e) {
 			logger.warn("listTables called, but no ressoures are available", e);
 			final SSTableNameListFuture future = new SSTableNameListFuture(1);
@@ -183,15 +183,15 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public EmptyResultFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) throws ScalephantException {
+	public EmptyResultFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			throw new ScalephantException("createDistributionGroup called, but connection list is empty");
+			throw new BBoxDBException("createDistributionGroup called, but connection list is empty");
 		}
 
 		try {
-			final ScalephantClient scalephantClient = getSystemForNewRessources();
-			return scalephantClient.createDistributionGroup(distributionGroup, replicationFactor);
+			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
+			return bboxdbClient.createDistributionGroup(distributionGroup, replicationFactor);
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);
 			final EmptyResultFuture future = new EmptyResultFuture(1);
@@ -206,22 +206,22 @@ public class ScalephantCluster implements Scalephant {
 	 * @return
 	 * @throws ResourceAllocationException 
 	 */
-	protected ScalephantClient getSystemForNewRessources() throws ResourceAllocationException {
+	protected BBoxDBClient getSystemForNewRessources() throws ResourceAllocationException {
 		final List<DistributedInstance> serverConnections = membershipConnectionService.getAllInstances();
 		final DistributedInstance system = resourcePlacementStrategy.getInstancesForNewRessource(serverConnections);
 		return membershipConnectionService.getConnectionForInstance(system);
 	}
 
 	@Override
-	public EmptyResultFuture deleteDistributionGroup(final String distributionGroup) throws ScalephantException {
+	public EmptyResultFuture deleteDistributionGroup(final String distributionGroup) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			throw new ScalephantException("deleteDistributionGroup called, but connection list is empty");
+			throw new BBoxDBException("deleteDistributionGroup called, but connection list is empty");
 		}
 		
 		final EmptyResultFuture future = new EmptyResultFuture();
 		
-		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
+		for(final BBoxDBClient client : membershipConnectionService.getAllConnections()) {
 			final EmptyResultFuture deleteFuture = client.deleteDistributionGroup(distributionGroup);
 			future.merge(deleteFuture);
 		}
@@ -230,9 +230,9 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public TupleListFuture queryKey(final String table, final String key) throws ScalephantException {
+	public TupleListFuture queryKey(final String table, final String key) throws BBoxDBException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			throw new ScalephantException("queryKey called, but connection list is empty");
+			throw new BBoxDBException("queryKey called, but connection list is empty");
 		}
 		
 		final TupleListFuture future = new TupleListFuture();
@@ -241,7 +241,7 @@ public class ScalephantCluster implements Scalephant {
 			logger.debug("Query by for key " + key + " in table " + table);
 		}
 		
-		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
+		for(final BBoxDBClient client : membershipConnectionService.getAllConnections()) {
 			final TupleListFuture queryFuture = client.queryKey(table, key);
 			future.merge(queryFuture);
 		}
@@ -250,9 +250,9 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) throws ScalephantException {
+	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) throws BBoxDBException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			throw new ScalephantException("queryBoundingBox called, but connection list is empty");
+			throw new BBoxDBException("queryBoundingBox called, but connection list is empty");
 		}
 		
 		final TupleListFuture future = new TupleListFuture();
@@ -269,7 +269,7 @@ public class ScalephantCluster implements Scalephant {
 			}
 			
 			for(final DistributedInstance system : systems) {
-				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
+				final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 				final TupleListFuture result = connection.queryBoundingBox(table, boundingBox);
 				future.merge(result);
 			}
@@ -284,10 +284,10 @@ public class ScalephantCluster implements Scalephant {
 
 	@Override
 	public TupleListFuture queryBoundingBoxAndTime(final String table,
-			final BoundingBox boundingBox, final long timestamp) throws ScalephantException {
+			final BoundingBox boundingBox, final long timestamp) throws BBoxDBException {
 		
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			throw new ScalephantException("queryBoundingBoxAndTime called, but connection list is empty");
+			throw new BBoxDBException("queryBoundingBoxAndTime called, but connection list is empty");
 		}
 		
 		final TupleListFuture future = new TupleListFuture();
@@ -304,7 +304,7 @@ public class ScalephantCluster implements Scalephant {
 			}
 			
 			for(final DistributedInstance system : systems) {
-				final ScalephantClient connection = membershipConnectionService.getConnectionForInstance(system);
+				final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 				final TupleListFuture result = connection.queryBoundingBoxAndTime(table, boundingBox, timestamp);
 				future.merge(result);
 			}
@@ -317,9 +317,9 @@ public class ScalephantCluster implements Scalephant {
 	}
 
 	@Override
-	public TupleListFuture queryTime(final String table, final long timestamp) throws ScalephantException {
+	public TupleListFuture queryTime(final String table, final long timestamp) throws BBoxDBException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			throw new ScalephantException("queryTime called, but connection list is empty");
+			throw new BBoxDBException("queryTime called, but connection list is empty");
 		}
 		
 		if(logger.isDebugEnabled()) {
@@ -328,7 +328,7 @@ public class ScalephantCluster implements Scalephant {
 		
 		final TupleListFuture future = new TupleListFuture();
 		
-		for(final ScalephantClient client : membershipConnectionService.getAllConnections()) {
+		for(final BBoxDBClient client : membershipConnectionService.getAllConnections()) {
 			final TupleListFuture queryFuture = client.queryTime(table, timestamp);
 			future.merge(queryFuture);
 		}
@@ -351,7 +351,7 @@ public class ScalephantCluster implements Scalephant {
 		return membershipConnectionService
 				.getAllConnections()
 				.stream()
-				.mapToInt(ScalephantClient::getInFlightCalls)
+				.mapToInt(BBoxDBClient::getInFlightCalls)
 				.sum();
 	}
 
@@ -401,19 +401,19 @@ public class ScalephantCluster implements Scalephant {
 	//===============================================================
 	// Test * Test * Test * Test * Test * Test * Test * Test
 	//===============================================================
-	public static void main(final String[] args) throws InterruptedException, ExecutionException, ScalephantException {
+	public static void main(final String[] args) throws InterruptedException, ExecutionException, BBoxDBException {
 		final String GROUP = "2_TESTGROUP";
 		final String TABLE = "2_TESTGROUP_DATA";
 		
 		final Collection<String> zookeeperNodes = new ArrayList<String>();
 		zookeeperNodes.add("node1:2181");
-		final ScalephantCluster scalephantCluster = new ScalephantCluster(zookeeperNodes, "mycluster");
-		scalephantCluster.connect();
+		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster(zookeeperNodes, "mycluster");
+		bboxdbCluster.connect();
 		
 		// Recreate distribution group
-		final EmptyResultFuture futureDelete = scalephantCluster.deleteDistributionGroup(GROUP);
+		final EmptyResultFuture futureDelete = bboxdbCluster.deleteDistributionGroup(GROUP);
 		futureDelete.waitForAll();
-		final EmptyResultFuture futureCreate = scalephantCluster.createDistributionGroup(GROUP, (short) 2);
+		final EmptyResultFuture futureCreate = bboxdbCluster.createDistributionGroup(GROUP, (short) 2);
 		futureCreate.waitForAll();
 		
 		// Insert the tuples
@@ -426,11 +426,11 @@ public class ScalephantCluster implements Scalephant {
 			
 			System.out.println("Inserting Tuple " + i + " : " + boundingBox);
 			
-			final EmptyResultFuture result = scalephantCluster.insertTuple(TABLE, new Tuple(Integer.toString(i), boundingBox, "abcdef".getBytes()));
+			final EmptyResultFuture result = bboxdbCluster.insertTuple(TABLE, new Tuple(Integer.toString(i), boundingBox, "abcdef".getBytes()));
 			result.waitForAll();
 		}		
 		
-		scalephantCluster.disconnect();
+		bboxdbCluster.disconnect();
 	}
 
 }

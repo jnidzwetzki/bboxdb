@@ -319,7 +319,7 @@ public class TestDistributedInstanceManager {
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, CLUSTER_NAME);
 		
 		if(instance != null) {
-			zookeeperClient.registerScalephantInstanceAfterConnect(instance);
+			zookeeperClient.registerInstanceAfterConnect(instance);
 		}
 		
 		zookeeperClient.init();

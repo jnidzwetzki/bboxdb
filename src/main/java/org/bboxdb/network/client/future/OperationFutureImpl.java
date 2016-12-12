@@ -42,7 +42,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.future.OperationFuture#setRequestId(int, short)
+	 * @see org.bboxdb.network.client.future.OperationFuture#setRequestId(int, short)
 	 */
 	@Override
 	public void setRequestId(final int resultId, final short requestId) {
@@ -52,7 +52,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.future.OperationFuture#getRequestId(int)
+	 * @see org.bboxdb.network.client.future.OperationFuture#getRequestId(int)
 	 */
 	@Override
 	public short getRequestId(final int resultId) {
@@ -72,7 +72,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.future.OperationFuture#setMessage(int, java.lang.String)
+	 * @see org.bboxdb.network.client.future.OperationFuture#setMessage(int, java.lang.String)
 	 */
 	@Override
 	public void setMessage(final int resultId, final String message) {
@@ -82,7 +82,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.future.OperationFuture#getMessage(int)
+	 * @see org.bboxdb.network.client.future.OperationFuture#getMessage(int)
 	 */
 	@Override
 	public String getMessage(final int resultId) {
@@ -92,7 +92,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.future.OperationFuture#getAllMessages()
+	 * @see org.bboxdb.network.client.future.OperationFuture#getAllMessages()
 	 */
 	@Override
 	public String getAllMessages() {
@@ -114,7 +114,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.future.OperationFuture#isFailed()
+	 * @see org.bboxdb.network.client.future.OperationFuture#isFailed()
 	 */
 	@Override
 	public boolean isFailed() {
@@ -122,7 +122,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.future.OperationFuture#setFailedState()
+	 * @see org.bboxdb.network.client.future.OperationFuture#setFailedState()
 	 */
 	@Override
 	public void setFailedState() {
@@ -132,7 +132,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.future.OperationFuture#isDone()
+	 * @see org.bboxdb.network.client.future.OperationFuture#isDone()
 	 */
 	@Override
 	public boolean isDone() {
@@ -140,7 +140,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.future.OperationFuture#getNumberOfResultObjets()
+	 * @see org.bboxdb.network.client.future.OperationFuture#getNumberOfResultObjets()
 	 */
 	@Override
 	public int getNumberOfResultObjets() {
@@ -172,7 +172,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	}
 	
     /* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.future.OperationFuture#waitForAll()
+	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
 	 */
 	@Override
 	public boolean waitForAll() throws InterruptedException, ExecutionException {

@@ -75,7 +75,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ScalephantClient implements Scalephant {
+public class BBoxDBClient implements BBoxDB {
 	
 	/**
 	 * The sequence number generator
@@ -187,10 +187,10 @@ public class ScalephantClient implements Scalephant {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ScalephantClient.class);
+	private final static Logger logger = LoggerFactory.getLogger(BBoxDBClient.class);
 
 
-	public ScalephantClient(final String serverHostname, final int serverPort) {
+	public BBoxDBClient(final String serverHostname, final int serverPort) {
 		super();
 		this.serverHostname = serverHostname;
 		this.serverPort = serverPort;
@@ -204,12 +204,12 @@ public class ScalephantClient implements Scalephant {
 		tuplesPerPage = 0;
 	}
 	
-	public ScalephantClient(final InetSocketAddress address) {
+	public BBoxDBClient(final InetSocketAddress address) {
 		this(address.getHostString(), address.getPort());
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#connect()
+	 * @see org.bboxdb.network.client.Scalephant#connect()
 	 */
 	@Override
 	public boolean connect() {
@@ -291,7 +291,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#disconnect()
+	 * @see org.bboxdb.network.client.Scalephant#disconnect()
 	 */
 	@Override
 	public void disconnect() {
@@ -370,7 +370,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#deleteTable(java.lang.String)
+	 * @see org.bboxdb.network.client.Scalephant#deleteTable(java.lang.String)
 	 */
 	@Override
 	public EmptyResultFuture deleteTable(final String table) {
@@ -397,7 +397,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#insertTuple(java.lang.String, de.fernunihagen.dna.scalephant.storage.entity.Tuple)
+	 * @see org.bboxdb.network.client.Scalephant#insertTuple(java.lang.String, org.bboxdb.storage.entity.Tuple)
 	 */
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) {
@@ -435,7 +435,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#deleteTuple(java.lang.String, java.lang.String)
+	 * @see org.bboxdb.network.client.Scalephant#deleteTuple(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
@@ -451,7 +451,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#listTables()
+	 * @see org.bboxdb.network.client.Scalephant#listTables()
 	 */
 	@Override
 	public SSTableNameListFuture listTables() {
@@ -466,7 +466,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#createDistributionGroup(java.lang.String, short)
+	 * @see org.bboxdb.network.client.Scalephant#createDistributionGroup(java.lang.String, short)
 	 */
 	@Override
 	public EmptyResultFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) {
@@ -481,7 +481,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#deleteDistributionGroup(java.lang.String)
+	 * @see org.bboxdb.network.client.Scalephant#deleteDistributionGroup(java.lang.String)
 	 */
 	@Override
 	public EmptyResultFuture deleteDistributionGroup(final String distributionGroup) {
@@ -496,7 +496,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#queryKey(java.lang.String, java.lang.String)
+	 * @see org.bboxdb.network.client.Scalephant#queryKey(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public TupleListFuture queryKey(final String table, final String key) {
@@ -512,7 +512,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#queryBoundingBox(java.lang.String, de.fernunihagen.dna.scalephant.storage.entity.BoundingBox)
+	 * @see org.bboxdb.network.client.Scalephant#queryBoundingBox(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
 	 */
 	@Override
 	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
@@ -527,7 +527,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#queryBoundingBoxAndTime(java.lang.String, de.fernunihagen.dna.scalephant.storage.entity.BoundingBox)
+	 * @see org.bboxdb.network.client.Scalephant#queryBoundingBoxAndTime(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
 	 */
 	@Override
 	public TupleListFuture queryBoundingBoxAndTime(final String table,
@@ -544,7 +544,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#queryTime(java.lang.String, long)
+	 * @see org.bboxdb.network.client.Scalephant#queryTime(java.lang.String, long)
 	 */
 	@Override
 	public TupleListFuture queryTime(final String table, final long timestamp) {
@@ -607,7 +607,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#isConnected()
+	 * @see org.bboxdb.network.client.Scalephant#isConnected()
 	 */
 	@Override
 	public boolean isConnected() {
@@ -619,7 +619,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#getConnectionState()
+	 * @see org.bboxdb.network.client.Scalephant#getConnectionState()
 	 */
 	@Override
 	public NetworkConnectionState getConnectionState() {
@@ -627,7 +627,7 @@ public class ScalephantClient implements Scalephant {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#getInFlightCalls()
+	 * @see org.bboxdb.network.client.Scalephant#getInFlightCalls()
 	 */
 	@Override
 	public int getInFlightCalls() {
@@ -637,7 +637,7 @@ public class ScalephantClient implements Scalephant {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#getMaxInFlightCalls()
+	 * @see org.bboxdb.network.client.Scalephant#getMaxInFlightCalls()
 	 */
 	@Override
 	public short getMaxInFlightCalls() {
@@ -645,7 +645,7 @@ public class ScalephantClient implements Scalephant {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.network.client.Scalephant#setMaxInFlightCalls(short)
+	 * @see org.bboxdb.network.client.Scalephant#setMaxInFlightCalls(short)
 	 */
 	@Override
 	public void setMaxInFlightCalls(short maxInFlightCalls) {

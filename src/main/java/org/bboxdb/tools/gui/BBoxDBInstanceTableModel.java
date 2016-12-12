@@ -23,17 +23,17 @@ import javax.swing.table.AbstractTableModel;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
 
-final class ScalepahntInstanceTableModel extends AbstractTableModel {
+final class BBoxDBInstanceTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 8593512480994197794L;
 
 
 	/**
-	 * The running scalephant instances
+	 * The running bboxdb instances
 	 */
 	protected final List<DistributedInstance> instances;
 	
-	public ScalepahntInstanceTableModel(final List<DistributedInstance> scalepahntInstances) {
+	public BBoxDBInstanceTableModel(final List<DistributedInstance> scalepahntInstances) {
 		this.instances = scalepahntInstances;
 	}
 

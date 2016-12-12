@@ -20,7 +20,7 @@ package org.bboxdb.performance;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.network.client.ScalephantException;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -67,24 +67,24 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 		super.prepare();
 		
 		// Remove old data
-		final EmptyResultFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		final EmptyResultFuture deleteResult = bboxdbClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final EmptyResultFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
+		final EmptyResultFuture createResult = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
 		createResult.waitForAll();
 		
 		logger.info("Inserting " + tuplesToInsert + " tuples");
 	
 		// Insert the tuples
 		for(; insertedTuples.get() < tuplesToInsert; insertedTuples.incrementAndGet()) {
-			scalephantClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), BoundingBox.EMPTY_BOX, "abcdef".getBytes()));
+			bboxdbClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), BoundingBox.EMPTY_BOX, "abcdef".getBytes()));
 		}
 		
 		// Wait for requests to settle
 		logger.info("Wait for insert requests to settle");
-		while(scalephantClient.getInFlightCalls() != 0) {
-			logger.info(scalephantClient.getInFlightCalls() + " are pending");
+		while(bboxdbClient.getInFlightCalls() != 0) {
+			logger.info(bboxdbClient.getInFlightCalls() + " are pending");
 			Thread.sleep(1000);
 		}
 		logger.info("All insert requests are settled");
@@ -98,11 +98,11 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	}
 	
 	@Override
-	public void runBenchmark() throws InterruptedException, ExecutionException, ScalephantException {
+	public void runBenchmark() throws InterruptedException, ExecutionException, BBoxDBException {
 	
 		for(int i = 0; i < 100; i++) {
 			final long start = System.nanoTime();
-			final TupleListFuture result = scalephantClient.queryKey(TABLE, Integer.toString(40));
+			final TupleListFuture result = bboxdbClient.queryKey(TABLE, Integer.toString(40));
 			
 			result.waitForAll();
 

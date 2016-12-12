@@ -24,7 +24,7 @@ import org.apache.commons.daemon.DaemonInitException;
 import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.network.NetworkConnectionState;
-import org.bboxdb.network.client.ScalephantClient;
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -76,7 +76,7 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testSendDisconnectPackage() {
-		final ScalephantClient scalephantClient = connectToServer();
+		final BBoxDBClient scalephantClient = connectToServer();
 		disconnectFromServer(scalephantClient);
 		Assert.assertFalse(scalephantClient.isConnected());
 	}
@@ -88,7 +88,7 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void sendDeletePackage() throws InterruptedException, ExecutionException {
-		final ScalephantClient scalephantClient = connectToServer();
+		final BBoxDBClient scalephantClient = connectToServer();
 		
 		final EmptyResultFuture result = scalephantClient.deleteTable("1_testgroup1_relation3");
 		
@@ -108,7 +108,7 @@ public class TestNetworkCommunication {
 	@Test
 	public void testConnectionState() {
 		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
-		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1", port);
+		final BBoxDBClient scalephantClient = new BBoxDBClient("127.0.0.1", port);
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, scalephantClient.getConnectionState());
 		scalephantClient.connect();
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
@@ -123,7 +123,7 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void sendDeletePackage2() throws InterruptedException, ExecutionException {
-		final ScalephantClient scalephantClient = connectToServer();
+		final BBoxDBClient scalephantClient = connectToServer();
 		
 		// First call
 		final EmptyResultFuture result1 = scalephantClient.deleteTable("1_testgroup1_relation3");
@@ -157,7 +157,7 @@ public class TestNetworkCommunication {
 		final String table = distributionGroup + "_relation4";
 		final String key = "key12";
 		
-		final ScalephantClient scalephantClient = connectToServer();
+		final BBoxDBClient scalephantClient = connectToServer();
 		
 		// Delete distribution group
 		final EmptyResultFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
@@ -214,7 +214,7 @@ public class TestNetworkCommunication {
 		final String distributionGroup = "2_testgroup"; 
 		final String table = distributionGroup + "_relation9999";
 		
-		final ScalephantClient scalephantClient = connectToServer();
+		final BBoxDBClient scalephantClient = connectToServer();
 		
 		// Delete distribution group
 		final EmptyResultFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
@@ -262,7 +262,7 @@ public class TestNetworkCommunication {
 		final String distributionGroup = "2_testgroup"; 
 		final String table = distributionGroup + "_relation9999";
 		
-		final ScalephantClient scalephantClient = connectToServer();
+		final BBoxDBClient scalephantClient = connectToServer();
 		
 		// Delete distribution group
 		final EmptyResultFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
@@ -308,7 +308,7 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void sendKeepAlivePackage() throws InterruptedException, ExecutionException {
-		final ScalephantClient scalephantClient = connectToServer();
+		final BBoxDBClient scalephantClient = connectToServer();
 		
 		final EmptyResultFuture result = scalephantClient.sendKeepAlivePackage();
 		result.waitForAll();
@@ -327,9 +327,9 @@ public class TestNetworkCommunication {
 	 * 
 	 * @return
 	 */
-	protected ScalephantClient connectToServer() {
+	protected BBoxDBClient connectToServer() {
 		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
-		final ScalephantClient scalephantClient = new ScalephantClient("127.0.0.1", port);
+		final BBoxDBClient scalephantClient = new BBoxDBClient("127.0.0.1", port);
 		
 		if(compressPackages()) {
 			scalephantClient.getClientCapabilities().setGZipCompression();
@@ -365,7 +365,7 @@ public class TestNetworkCommunication {
 	 * Disconnect from server
 	 * @param scalephantClient
 	 */
-	protected void disconnectFromServer(final ScalephantClient scalephantClient) {
+	protected void disconnectFromServer(final BBoxDBClient scalephantClient) {
 		scalephantClient.disconnect();
 		Assert.assertFalse(scalephantClient.isConnected());
 		Assert.assertEquals(0, scalephantClient.getInFlightCalls());

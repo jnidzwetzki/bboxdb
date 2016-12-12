@@ -1,6 +1,6 @@
 # The format of the SStables
 
-The Scalephant uses two persistent data structures. SSTables and SStableIndex files. Each file begins with a 'magic' byte sequence which is currently 'scalephant'. Files without this byte sequene are classified as invalid and not processed further.
+BBoxDB uses two persistent data structures. SSTables and SStableIndex files. Each file begins with a 'magic' byte sequence which is currently 'scalephant'. Files without this byte sequene are classified as invalid and not processed further.
 
 ## SStable
 

@@ -47,7 +47,7 @@ public class BBoxDBMain implements Daemon {
 
 	@Override
 	public void init(final DaemonContext ctx) throws DaemonInitException, Exception {
-		logger.info("Init the scalephant");
+		logger.info("Init the BBoxDB");
 		
 		services.clear();
 		
@@ -92,7 +92,7 @@ public class BBoxDBMain implements Daemon {
 
 	@Override
 	public void start() throws Exception {
-		logger.info("Starting up the scalephant - version: " + Const.VERSION);	
+		logger.info("Starting up the BBoxDB - version: " + Const.VERSION);	
 		
 		if (! runBaseChecks() ) {
 			logger.warn("Some of the base checks have failed, exiting");
@@ -128,7 +128,7 @@ public class BBoxDBMain implements Daemon {
 
 	@Override
 	public void stop() throws Exception {
-		logger.info("Stopping the scalephant");
+		logger.info("Stopping the BBoxDB");
 		
 		// Stop all services
 		for(BBoxDBService service : services) {
@@ -139,8 +139,9 @@ public class BBoxDBMain implements Daemon {
 	
 	@Override
 	public void destroy() {
-		logger.info("Destroy the instance of the scalephant");
+		logger.info("Destroy the instance of the BBoxDB");
 		services.clear();
+		logger.info("Shutdown complete");
 	}
 	
 	//===========================================

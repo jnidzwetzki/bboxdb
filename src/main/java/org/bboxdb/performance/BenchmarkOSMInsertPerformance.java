@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.network.client.ScalephantException;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.performance.osm.OSMFileReader;
 import org.bboxdb.performance.osm.OSMStructureCallback;
@@ -75,7 +75,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 	}
 
 	@Override
-	public void runBenchmark() throws InterruptedException, ExecutionException, ScalephantException {
+	public void runBenchmark() throws InterruptedException, ExecutionException, BBoxDBException {
 		final OSMFileReader osmFileReader = new OSMFileReader(filename, type, this);
 		osmFileReader.run();		
 	}
@@ -85,11 +85,11 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 		super.prepare();
 
 		// Remove old data
-		final EmptyResultFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		final EmptyResultFuture deleteResult = bboxdbClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final EmptyResultFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, replicationFactor);
+		final EmptyResultFuture createResult = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, replicationFactor);
 		createResult.waitForAll();
 	}
 
@@ -101,14 +101,14 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 		try {
 			final byte[] tupleBytes = serializerHelper.toByteArray(geometricalStructure);
 			final Tuple tuple = new Tuple(Long.toString(geometricalStructure.getId()), geometricalStructure.getBoundingBox(), tupleBytes);
-			final EmptyResultFuture insertFuture = scalephantClient.insertTuple(table, tuple);
+			final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
 			
 			// register pending future
 			pendingFutures.add(insertFuture);
 			checkForCompletedFutures();
 			
 			insertedTuples.incrementAndGet();
-		} catch (IOException | ScalephantException e) {
+		} catch (IOException | BBoxDBException e) {
 			e.printStackTrace();
 		}
 	}

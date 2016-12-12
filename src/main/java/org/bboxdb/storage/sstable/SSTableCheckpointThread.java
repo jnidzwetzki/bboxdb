@@ -32,7 +32,7 @@ import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.client.ScalephantException;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
@@ -85,8 +85,8 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 		this.threadname = ssTableManager.getSSTableName().getFullname();
 		
 		// Local instance
-		final BBoxDBConfiguration scalephantConfiguration = BBoxDBConfigurationManager.getConfiguration();
-		this.localInstance = ZookeeperClientFactory.getLocalInstanceName(scalephantConfiguration);
+		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
+		this.localInstance = ZookeeperClientFactory.getLocalInstanceName(configuration);
 	
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
@@ -97,7 +97,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			final DistributionRegion distributionGroupRoot = distributionAdapter.getRootNode();
 			
 			distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableManager.getSSTableName().getNameprefix());
-		} catch (ZookeeperException | ScalephantException e) {
+		} catch (ZookeeperException | BBoxDBException e) {
 			logger.warn("Unable to find distribution region: " , e);
 		}
 	}

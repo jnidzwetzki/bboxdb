@@ -40,46 +40,46 @@ public class ZookeeperClientFactory {
 	 * @return
 	 */
 	public static ZookeeperClient getZookeeperClient() {
-		final BBoxDBConfiguration scalephantConfiguration = 
+		final BBoxDBConfiguration configuration = 
 				BBoxDBConfigurationManager.getConfiguration();
 		
-		return getZookeeperClient(scalephantConfiguration);
+		return getZookeeperClient(configuration);
 	}
 
 	/**
 	 * Returns a new instance of the zookeeper client (with a specific configuration)
-	 * @param scalephantConfiguration
+	 * @param bboxdbConfiguration
 	 * @return
 	 */
 	public static ZookeeperClient getZookeeperClient(
-			final BBoxDBConfiguration scalephantConfiguration) {
+			final BBoxDBConfiguration bboxdbConfiguration) {
 		
 		// Is an instance for the configuration known?
-		if(instances.containsKey(scalephantConfiguration)) {
-			return instances.get(scalephantConfiguration);
+		if(instances.containsKey(bboxdbConfiguration)) {
+			return instances.get(bboxdbConfiguration);
 		}
 		
-		final Collection<String> zookeepernodes = scalephantConfiguration.getZookeepernodes();
-		final String clustername = scalephantConfiguration.getClustername();
+		final Collection<String> zookeepernodes = bboxdbConfiguration.getZookeepernodes();
+		final String clustername = bboxdbConfiguration.getClustername();
 
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, clustername);
-		final DistributedInstance instance = getLocalInstanceName(scalephantConfiguration);
-		zookeeperClient.registerScalephantInstanceAfterConnect(instance);
+		final DistributedInstance instance = getLocalInstanceName(bboxdbConfiguration);
+		zookeeperClient.registerInstanceAfterConnect(instance);
 		
 		// Register instance
-		instances.put(scalephantConfiguration, zookeeperClient);
+		instances.put(bboxdbConfiguration, zookeeperClient);
 		
 		return zookeeperClient;
 	}
 
 	/**
 	 * Get the name of the local instance
-	 * @param scalephantConfiguration
+	 * @param bboxdbConfiguration
 	 * @return
 	 */
-	public static DistributedInstance getLocalInstanceName(final BBoxDBConfiguration scalephantConfiguration) {
-		final String localIp = scalephantConfiguration.getLocalip();
-		final int localPort = scalephantConfiguration.getNetworkListenPort();
+	public static DistributedInstance getLocalInstanceName(final BBoxDBConfiguration bboxdbConfiguration) {
+		final String localIp = bboxdbConfiguration.getLocalip();
+		final int localPort = bboxdbConfiguration.getNetworkListenPort();
 		final DistributedInstance instance = new DistributedInstance(localIp, localPort, Const.VERSION);
 		return instance;
 	}

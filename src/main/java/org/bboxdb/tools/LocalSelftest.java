@@ -19,7 +19,7 @@ package org.bboxdb.tools;
 
 import java.util.concurrent.ExecutionException;
 
-import org.bboxdb.network.client.ScalephantException;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -49,7 +49,7 @@ public class LocalSelftest {
 	
 
 
-	public static void main(final String[] args) throws InterruptedException, ExecutionException, ScalephantException, StorageManagerException {
+	public static void main(final String[] args) throws InterruptedException, ExecutionException, BBoxDBException, StorageManagerException {
 		
 		if(args.length != 1) {
 			logger.error("Usage: LocalSelftest <Iterations>");

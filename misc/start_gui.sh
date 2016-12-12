@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Start the GUI of the scalephant 
+# Start the GUI of the BBoxDB 
 #
 #
 #########################################
@@ -21,13 +21,13 @@ cd $basedir
 # Does a build exists? 
 if [ -d ../target ]; then
    libs=$(find ../target/lib -name '*.jar' | xargs echo | tr ' ' ':')
-   jar=$(ls -1 ../target/scalephant*.jar | tail -1)
+   jar=$(ls -1 ../target/bboxdb*.jar | tail -1)
 fi 
 
 classpath="$basedir/../conf:$libs:$jar"
 
 echo "Start the GUI"
 
-java -cp $classpath de.fernunihagen.dna.scalephant.tools.gui.Main
+java -cp $classpath org.bboxdb.tools.gui.Main
 
 exit 0

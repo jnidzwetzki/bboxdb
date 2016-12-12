@@ -21,7 +21,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.network.client.ScalephantException;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
@@ -44,17 +44,17 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 	protected final static String TABLE = DISTRIBUTION_GROUP + "_testdata";
 
 	@Override
-	public void runBenchmark() throws InterruptedException, ExecutionException, ScalephantException {
+	public void runBenchmark() throws InterruptedException, ExecutionException, BBoxDBException {
 
 		// Number of tuples
 		final int tuples = 5000000;
 				
 		// Remove old data
-		final EmptyResultFuture deleteResult = scalephantClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		final EmptyResultFuture deleteResult = bboxdbClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final EmptyResultFuture createResult = scalephantClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
+		final EmptyResultFuture createResult = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, (short) 3);
 		createResult.waitForAll();
 		
 		final Random bbBoxRandom = new Random();
@@ -67,7 +67,7 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 			
 			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1, z, z+1);
 			
-			final EmptyResultFuture insertFuture = scalephantClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
+			final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
 			
 			// register pending future
 			pendingFutures.add(insertFuture);

@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
 public class GuiModel implements DistributedInstanceEventCallback {
 	
 	/**
-	 * The scalephant instances
+	 * The BBoxDB instances
 	 */
-	protected final List<DistributedInstance> scalephantInstances;
+	protected final List<DistributedInstance> bboxdbInstances;
 	
 	/**
 	 * The distribution group to display
@@ -63,7 +63,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	/**
 	 * The reference to the gui window
 	 */
-	protected ScalephantGui scalephantGui;
+	protected BBoxDBGui bboxdbGui;
 	
 	/**
 	 * The zookeeper client
@@ -81,7 +81,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	public GuiModel(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
 		this.distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
-		scalephantInstances = new ArrayList<DistributedInstance>();
+		bboxdbInstances = new ArrayList<DistributedInstance>();
 		
 		DistributedInstanceManager.getInstance().registerListener(this);
 	}
@@ -98,8 +98,8 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 */
 	public void updateModel() {
 		try {
-			updateScalepahntInstances();
-			scalephantGui.updateView();
+			updateBBoxDBInstances();
+			bboxdbGui.updateView();
 		} catch(Exception e) {
 			logger.info("Exception while updating the view", e);
 		}
@@ -109,11 +109,11 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	/**
 	 * Update the system state
 	 */
-	protected void updateScalepahntInstances() {
-		synchronized (scalephantInstances) {		
-			scalephantInstances.clear();
-			scalephantInstances.addAll(DistributedInstanceManager.getInstance().getInstances());
-			Collections.sort(scalephantInstances);
+	protected void updateBBoxDBInstances() {
+		synchronized (bboxdbInstances) {		
+			bboxdbInstances.clear();
+			bboxdbInstances.addAll(DistributedInstanceManager.getInstance().getInstances());
+			Collections.sort(bboxdbInstances);
 		}
 	}
 	
@@ -138,23 +138,23 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 */
 	@Override
 	public void distributedInstanceEvent(final DistributedInstanceEvent event) {
-		updateScalepahntInstances();
+		updateBBoxDBInstances();
 	}
 
 	/**
-	 * Get the scalephant instances
+	 * Get the bboxdb instances
 	 * @return
 	 */
-	public List<DistributedInstance> getScalephantInstances() {
-		return scalephantInstances;
+	public List<DistributedInstance> getBBoxDBInstances() {
+		return bboxdbInstances;
 	}
 
 	/**
 	 * Set the gui component
-	 * @param scalephantGui
+	 * @param bboxDBGui
 	 */
-	public void setScalephantGui(final ScalephantGui scalephantGui) {
-		this.scalephantGui = scalephantGui;
+	public void setBBoxDBGui(final BBoxDBGui bboxDBGui) {
+		this.bboxdbGui = bboxDBGui;
 	}
 
 	/**

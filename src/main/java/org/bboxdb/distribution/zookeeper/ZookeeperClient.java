@@ -49,7 +49,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	protected final Collection<String> zookeeperHosts;
 	
 	/**
-	 * The name of the scalephant cluster
+	 * The name of the bboxdb cluster
 	 */
 	protected final String clustername;
 	
@@ -378,11 +378,11 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	}
 	
 	/**
-	 * Register this instance of the scalephant
+	 * Register this instance of the bboxdb
 	 * @param localIp
 	 * @param localPort
 	 */
-	public void registerScalephantInstanceAfterConnect(final DistributedInstance instance) {
+	public void registerInstanceAfterConnect(final DistributedInstance instance) {
 		this.instancename = instance;
 	}
 
@@ -419,7 +419,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	}
 	
 	/**
-	 * Register the scalephant instance
+	 * Register the bboxdb instance
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
 	 * @throws KeeperException 

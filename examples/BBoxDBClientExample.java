@@ -19,9 +19,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.bboxdb.network.client.Scalephant;
-import org.bboxdb.network.client.ScalephantCluster;
-import org.bboxdb.network.client.ScalephantException;
+import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -31,14 +31,14 @@ import org.bboxdb.storage.entity.Tuple;
 public class BBoxDBClientExample {
 
 	/**
-	 * Connect to the Scalephant Server at localhost and insert some tuples
+	 * Connect to the BBoxDB Server at localhost and insert some tuples
 	 * 
 	 * @param args
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
-	 * @throws ScalephantException 
+	 * @throws BBoxDBException 
 	 */
-	public static void main(String[] args) throws InterruptedException, ExecutionException, ScalephantException {
+	public static void main(String[] args) throws InterruptedException, ExecutionException, BBoxDBException {
 		
 		// A 2 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
 		final String distributionGroup = "2_mygroup3"; 
@@ -51,17 +51,17 @@ public class BBoxDBClientExample {
 		final List<String> connectPoints = Arrays.asList("localhost:2181");
 		
 		// Connect to the server
-		final Scalephant scalephantClient = new ScalephantCluster(connectPoints, clustername);
-		scalephantClient.connect();
+		final BBoxDB bboxdbClient = new BBoxDBCluster(connectPoints, clustername);
+		bboxdbClient.connect();
 		
 		// Check the connection state
-		if (! scalephantClient.isConnected() ) {
-			System.out.println("Error while connecting to the scalephant");
+		if (! bboxdbClient.isConnected() ) {
+			System.out.println("Error while connecting to the BBoxDB cluster");
 			System.exit(-1);
 		}
 		
 		// Clean the old content of the distribution group
-		final EmptyResultFuture deleteGroupResult = scalephantClient.deleteDistributionGroup(distributionGroup);
+		final EmptyResultFuture deleteGroupResult = bboxdbClient.deleteDistributionGroup(distributionGroup);
 		deleteGroupResult.waitForAll();
 		if(deleteGroupResult.isFailed()) {
 			System.err.println("Unable to delete distribution group: " + distributionGroup);
@@ -70,7 +70,7 @@ public class BBoxDBClientExample {
 		}
 		
 		// Create a new distribution group
-		final EmptyResultFuture createGroupResult = scalephantClient.createDistributionGroup(distributionGroup, (short) 3);
+		final EmptyResultFuture createGroupResult = bboxdbClient.createDistributionGroup(distributionGroup, (short) 3);
 		createGroupResult.waitForAll();
 		if(createGroupResult.isFailed()) {
 			System.err.println("Unable to create distribution group: " + distributionGroup);
@@ -80,10 +80,10 @@ public class BBoxDBClientExample {
 		
 		// Insert two new tuples
 		final Tuple tuple1 = new Tuple("key1", new BoundingBox(0f, 5f, 0f, 1f), "mydata1".getBytes());
-		final EmptyResultFuture insertResult1 = scalephantClient.insertTuple(mytable, tuple1);
+		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(mytable, tuple1);
 		
 		final Tuple tuple2 = new Tuple("key2", new BoundingBox(-1f, 2f, -1f, 2f), "mydata2".getBytes());
-		final EmptyResultFuture insertResult2 = scalephantClient.insertTuple(mytable, tuple2);
+		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(mytable, tuple2);
 		
 		// Wait for the insert operations to complete
 		insertResult1.waitForAll();
@@ -100,7 +100,7 @@ public class BBoxDBClientExample {
 		}
 		
 		// Query by key
-		final TupleListFuture resultFuture1 = scalephantClient.queryKey(mytable, "key");
+		final TupleListFuture resultFuture1 = bboxdbClient.queryKey(mytable, "key");
 		
 		// We got a future object, the search is performed asynchronous
 		// Wait for the result
@@ -117,7 +117,7 @@ public class BBoxDBClientExample {
 		}
 		
 		// Query by bounding box
-		final TupleListFuture resultFuture2 = scalephantClient.queryBoundingBox(mytable, new BoundingBox(-0.5f, 1f, -0.5f, 1f));
+		final TupleListFuture resultFuture2 = bboxdbClient.queryBoundingBox(mytable, new BoundingBox(-0.5f, 1f, -0.5f, 1f));
 		
 		// Again, we got a future object, the search is performed asynchronous
 		resultFuture2.waitForAll();
@@ -132,7 +132,7 @@ public class BBoxDBClientExample {
 			System.out.println("Tuple: " + tuple);
 		}
 
-		scalephantClient.disconnect();
+		bboxdbClient.disconnect();
 	}
 	
 }

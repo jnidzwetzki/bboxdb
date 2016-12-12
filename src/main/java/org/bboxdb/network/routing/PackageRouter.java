@@ -33,7 +33,7 @@ import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.client.ScalephantClient;
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -184,7 +184,7 @@ public class PackageRouter {
 		} 
 		
 		final DistributedInstance receiver = insertTupleRequest.getRoutingHeader().getHopInstance();
-		final ScalephantClient connection = MembershipConnectionService.getInstance().getConnectionForInstance(receiver);
+		final BBoxDBClient connection = MembershipConnectionService.getInstance().getConnectionForInstance(receiver);
 		
 		if(connection == null) {
 			logger.error("Unable to get a connection to system: " + receiver);

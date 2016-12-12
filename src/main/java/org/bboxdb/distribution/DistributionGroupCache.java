@@ -24,7 +24,7 @@ import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.client.ScalephantException;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.SSTableName;
 
 public class DistributionGroupCache {
@@ -59,13 +59,13 @@ public class DistributionGroupCache {
 	 * @param groupName
 	 * @return
 	 * @throws ZookeeperException 
-	 * @throws ScalephantException 
+	 * @throws BBoxDBException 
 	 */
-	public static synchronized KDtreeZookeeperAdapter getGroupForTableName(final String tableName, final ZookeeperClient zookeeperClient) throws ZookeeperException, ScalephantException {
+	public static synchronized KDtreeZookeeperAdapter getGroupForTableName(final String tableName, final ZookeeperClient zookeeperClient) throws ZookeeperException, BBoxDBException {
 		final SSTableName ssTableName = new SSTableName(tableName);
 		
 		if(! ssTableName.isValid()) {
-			throw new ScalephantException("Invalid tablename: " + tableName);
+			throw new BBoxDBException("Invalid tablename: " + tableName);
 		}
 		
 		return getGroupForGroupName(ssTableName.getDistributionGroup(), zookeeperClient);

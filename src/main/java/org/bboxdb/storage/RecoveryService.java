@@ -36,7 +36,7 @@ import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.client.ScalephantClient;
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.server.NetworkConnectionService;
 import org.bboxdb.storage.entity.SSTableName;
@@ -101,8 +101,8 @@ public class RecoveryService implements BBoxDBService {
 	protected void runRecoveryForDistributionGroup(final DistributionGroupName distributionGroupName) {
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
-			final BBoxDBConfiguration scalephantConfiguration = BBoxDBConfigurationManager.getConfiguration();
-			final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName(scalephantConfiguration);
+			final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
+			final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName(configuration);
 			
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
 					distributionGroupName.getFullname(), zookeeperClient);
@@ -125,7 +125,7 @@ public class RecoveryService implements BBoxDBService {
 	protected void handleOutdatedRegions(final DistributionGroupName distributionGroupName, final List<OutdatedDistributionRegion> outdatedRegions) {
 		for(final OutdatedDistributionRegion outdatedDistributionRegion : outdatedRegions) {
 			
-			final ScalephantClient connection = MembershipConnectionService.getInstance()
+			final BBoxDBClient connection = MembershipConnectionService.getInstance()
 					.getConnectionForInstance(outdatedDistributionRegion.getNewestInstance());
 			
 			final List<SSTableName> allTables = StorageRegistry
@@ -155,7 +155,7 @@ public class RecoveryService implements BBoxDBService {
 	 */
 	protected void runRecoveryForTable(final SSTableName ssTableName,
 			final OutdatedDistributionRegion outdatedDistributionRegion,
-			final ScalephantClient connection) throws StorageManagerException,
+			final BBoxDBClient connection) throws StorageManagerException,
 			InterruptedException, ExecutionException {
 		
 		logger.info("Recovery: starting recovery for table {}", ssTableName.getFullname());

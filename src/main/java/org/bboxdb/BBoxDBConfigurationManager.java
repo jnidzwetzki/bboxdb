@@ -30,7 +30,7 @@ public class BBoxDBConfigurationManager {
 	/**
 	 * The configuration of the software
 	 */
-	protected static BBoxDBConfiguration scalephantConfiguration;
+	protected static BBoxDBConfiguration configuration;
 	
 	/**
 	 * The Logger
@@ -39,27 +39,27 @@ public class BBoxDBConfigurationManager {
 
 	
 	/**
-	 * Get the configuration of the scalephant
+	 * Get the configuration of the BBoxDB
 	 * @return
 	 */
 	public static synchronized BBoxDBConfiguration getConfiguration() {
 		
-		if(scalephantConfiguration == null) {
+		if(configuration == null) {
 			loadConfiguration();
 		}
 		
-		return scalephantConfiguration;
+		return configuration;
 	}
 
 	/**
-	 * Load the configuration of the scalephant from the classpath
+	 * Load the configuration of the BBoxDB from the classpath
 	 */
 	public static void loadConfiguration() {
 		final ClassLoader classLoader = Thread.currentThread().getContextClassLoader(); 
 		final URL inputFile = classLoader.getResource(Const.CONFIG_FILE);
 		
 		if(inputFile == null) {
-			scalephantConfiguration = new BBoxDBConfiguration();
+			configuration = new BBoxDBConfiguration();
 			logger.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			logger.warn("!! No configuration file found, using default values !!");
 			logger.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -70,7 +70,7 @@ public class BBoxDBConfigurationManager {
 			logger.info("Loading configuration from: " + inputFile); 
 			
 	        final Yaml yaml = new Yaml(); 
-	        scalephantConfiguration = yaml.loadAs(inputStream, BBoxDBConfiguration.class);
+	        configuration = yaml.loadAs(inputStream, BBoxDBConfiguration.class);
 		} catch(IOException e) {
 			logger.error("Exception while loading configuration", e);
 			throw new RuntimeException(e);

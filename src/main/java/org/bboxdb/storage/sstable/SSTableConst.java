@@ -24,7 +24,7 @@ public class SSTableConst {
 	/**
 	 * The magic bytes at the beginning of every SSTable
 	 */
-	public final static byte[] MAGIC_BYTES = "scalephant".getBytes();
+	public final static byte[] MAGIC_BYTES = "bboxdb".getBytes();
 	
 	/**
 	 * The current version of the SSTable layout format

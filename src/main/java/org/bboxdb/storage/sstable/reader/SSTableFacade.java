@@ -197,7 +197,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	
 
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.storage.sstable.reader.Acquirable#deleteOnClose()
+	 * @see org.bboxdb.storage.sstable.reader.Acquirable#deleteOnClose()
 	 */
 	@Override
 	public void deleteOnClose() {
@@ -206,7 +206,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.storage.sstable.reader.Acquirable#acquire()
+	 * @see org.bboxdb.storage.sstable.reader.Acquirable#acquire()
 	 */
 	@Override
 	public boolean acquire() {
@@ -221,7 +221,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.fernunihagen.dna.scalephant.storage.sstable.reader.Acquirable#release()
+	 * @see org.bboxdb.storage.sstable.reader.Acquirable#release()
 	 */
 	@Override
 	public void release() {

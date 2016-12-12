@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-import org.bboxdb.network.client.ScalephantCluster;
-import org.bboxdb.network.client.ScalephantException;
+import org.bboxdb.network.client.BBoxDBCluster;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -55,7 +55,7 @@ public class DistributedSelftest {
 	private final static Logger logger = LoggerFactory.getLogger(DistributedSelftest.class);
 
 
-	public static void main(final String[] args) throws InterruptedException, ExecutionException, ScalephantException {
+	public static void main(final String[] args) throws InterruptedException, ExecutionException, BBoxDBException {
 		
 		if(args.length < 2) {
 			logger.error("Usage: DistributedSelftest <Cluster-Name> <Cluster-Endpoint1> <Cluster-EndpointN>");
@@ -70,10 +70,10 @@ public class DistributedSelftest {
 			endpoints.add(args[i]);
 		}
 	
-		final ScalephantCluster scalephantCluster = new ScalephantCluster(endpoints, clustername); 
-		scalephantCluster.connect();
+		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster(endpoints, clustername); 
+		bboxdbCluster.connect();
 		
-		if(! scalephantCluster.isConnected()) {
+		if(! bboxdbCluster.isConnected()) {
 			logger.error("Connection could not be established");
 			System.exit(-1);
 		}
@@ -81,21 +81,21 @@ public class DistributedSelftest {
 		logger.info("Connected to cluster: " + clustername);
 		logger.info("With endpoint(s): " + endpoints);
 		
-		recreateDistributionGroup(scalephantCluster);
+		recreateDistributionGroup(bboxdbCluster);
 		
-		executeSelftest(scalephantCluster);
+		executeSelftest(bboxdbCluster);
 	}
 
 	/**
 	 * Recreate the distribution group	
-	 * @param scalephantCluster
-	 * @throws ScalephantException
+	 * @param bboxdbCluster
+	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	private static void recreateDistributionGroup(final ScalephantCluster scalephantCluster) throws ScalephantException, InterruptedException, ExecutionException {
+	private static void recreateDistributionGroup(final BBoxDBCluster bboxdbCluster) throws BBoxDBException, InterruptedException, ExecutionException {
 		logger.info("Delete old distribution group: " + DISTRIBUTION_GROUP);
-		final EmptyResultFuture deleteFuture = scalephantCluster.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		final EmptyResultFuture deleteFuture = bboxdbCluster.deleteDistributionGroup(DISTRIBUTION_GROUP);
 		deleteFuture.waitForAll();
 		if(deleteFuture.isFailed()) {
 			logger.error("Unable to delete distribution group: " + DISTRIBUTION_GROUP);
@@ -107,7 +107,7 @@ public class DistributedSelftest {
 		Thread.sleep(5000);
 		
 		logger.info("Create new distribution group: " + DISTRIBUTION_GROUP);
-		final EmptyResultFuture createFuture = scalephantCluster.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
+		final EmptyResultFuture createFuture = bboxdbCluster.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
 		createFuture.waitForAll();
 		if(createFuture.isFailed()) {
 			logger.error("Unable to create distribution group: " + DISTRIBUTION_GROUP);
@@ -121,22 +121,22 @@ public class DistributedSelftest {
 
 	/**
 	 * Execute the selftest
-	 * @param scalephantClient
+	 * @param bboxdbClient
 	 * @throws InterruptedException
 	 * @throws ExecutionException
-	 * @throws ScalephantException 
+	 * @throws BBoxDBException 
 	 */
-	private static void executeSelftest(final ScalephantCluster scalephantClient) throws InterruptedException, ExecutionException, ScalephantException {
+	private static void executeSelftest(final BBoxDBCluster bboxdbClient) throws InterruptedException, ExecutionException, BBoxDBException {
 		final Random random = new Random();
 		long iteration = 1;
 		
 		while(true) {
 			logger.info("Starting new iteration: " + iteration);
-			insertNewTuples(scalephantClient);
-			queryForExistingTuplesByKey(scalephantClient, random);
-			queryForExistingTuplesByTime(scalephantClient);
-			deleteTuples(scalephantClient);
-			queryForNonExistingTuples(scalephantClient);
+			insertNewTuples(bboxdbClient);
+			queryForExistingTuplesByKey(bboxdbClient, random);
+			queryForExistingTuplesByTime(bboxdbClient);
+			deleteTuples(bboxdbClient);
+			queryForNonExistingTuples(bboxdbClient);
 			
 			Thread.sleep(1000);
 			
@@ -146,15 +146,15 @@ public class DistributedSelftest {
 
 	/**
 	 * Execute a time query
-	 * @param scalephantClient
+	 * @param bboxdbClient
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
-	 * @throws ScalephantException 
+	 * @throws BBoxDBException 
 	 */
-	private static void queryForExistingTuplesByTime(final ScalephantCluster scalephantClient) throws InterruptedException, ExecutionException, ScalephantException {
+	private static void queryForExistingTuplesByTime(final BBoxDBCluster bboxdbClient) throws InterruptedException, ExecutionException, BBoxDBException {
 		logger.info("Executing time query");
 		
-		final TupleListFuture queryResult = scalephantClient.queryTime(TABLE, 0);
+		final TupleListFuture queryResult = bboxdbClient.queryTime(TABLE, 0);
 		queryResult.waitForAll();
 		
 		if(queryResult.isFailed()) {
@@ -173,16 +173,16 @@ public class DistributedSelftest {
 
 	/**
 	 * Delete the stored tuples
-	 * @param scalephantClient
+	 * @param bboxdbClient
 	 * @throws InterruptedException
-	 * @throws ScalephantException 
+	 * @throws BBoxDBException 
 	 * @throws ExecutionException 
 	 */
-	private static void deleteTuples(final ScalephantCluster scalephantClient) throws InterruptedException, ScalephantException, ExecutionException {
+	private static void deleteTuples(final BBoxDBCluster bboxdbClient) throws InterruptedException, BBoxDBException, ExecutionException {
 		logger.info("Deleting tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
-			final EmptyResultFuture deletionResult = scalephantClient.deleteTuple(TABLE, key, System.currentTimeMillis());
+			final EmptyResultFuture deletionResult = bboxdbClient.deleteTuple(TABLE, key, System.currentTimeMillis());
 			deletionResult.waitForAll();
 			
 			if(deletionResult.isFailed() ) {
@@ -195,17 +195,17 @@ public class DistributedSelftest {
 
 	/**
 	 * Query for the stored tuples
-	 * @param scalephantClient
+	 * @param bboxdbClient
 	 * @param random
 	 * @throws InterruptedException
 	 * @throws ExecutionException
-	 * @throws ScalephantException 
+	 * @throws BBoxDBException 
 	 */
-	private static void queryForExistingTuplesByKey(final ScalephantCluster scalephantClient, final Random random) throws InterruptedException, ExecutionException, ScalephantException {
+	private static void queryForExistingTuplesByKey(final BBoxDBCluster bboxdbClient, final Random random) throws InterruptedException, ExecutionException, BBoxDBException {
 		logger.info("Query for tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(Math.abs(random.nextInt()) % NUMBER_OF_OPERATIONS);
-			final TupleListFuture queryResult = scalephantClient.queryKey(TABLE, key);
+			final TupleListFuture queryResult = bboxdbClient.queryKey(TABLE, key);
 			queryResult.waitForAll();
 			
 			if(queryResult.isFailed()) {
@@ -235,18 +235,18 @@ public class DistributedSelftest {
 	
 	/**
 	 * Query for non existing tuples and exit, as soon as a tuple is found
-	 * @param scalephantClient
-	 * @throws ScalephantException
+	 * @param bboxdbClient
+	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	private static void queryForNonExistingTuples(final ScalephantCluster scalephantClient) throws ScalephantException, InterruptedException, ExecutionException {
+	private static void queryForNonExistingTuples(final BBoxDBCluster bboxdbClient) throws BBoxDBException, InterruptedException, ExecutionException {
 		logger.info("Query for non existing tuples");
 		
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
 	
-			final TupleListFuture queryResult = scalephantClient.queryKey(TABLE, key);
+			final TupleListFuture queryResult = bboxdbClient.queryKey(TABLE, key);
 			queryResult.waitForAll();
 			
 			if(queryResult.isFailed()) {
@@ -264,18 +264,18 @@ public class DistributedSelftest {
 
 	/**
 	 * Insert new tuples
-	 * @param scalephantClient
+	 * @param bboxdbClient
 	 * @throws InterruptedException
 	 * @throws ExecutionException
-	 * @throws ScalephantException 
+	 * @throws BBoxDBException 
 	 */
-	private static void insertNewTuples(final ScalephantCluster scalephantClient) throws InterruptedException, ExecutionException, ScalephantException {
+	private static void insertNewTuples(final BBoxDBCluster bboxdbClient) throws InterruptedException, ExecutionException, BBoxDBException {
 		logger.info("Inserting new tuples");
 		
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
 			final Tuple myTuple = new Tuple(key, new BoundingBox(1.0f, 2.0f, 1.0f, 2.0f), "test".getBytes());
-			final EmptyResultFuture insertResult = scalephantClient.insertTuple(TABLE, myTuple);
+			final EmptyResultFuture insertResult = bboxdbClient.insertTuple(TABLE, myTuple);
 			insertResult.waitForAll();
 			
 			if(insertResult.isFailed()) {

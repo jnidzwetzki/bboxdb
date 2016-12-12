@@ -26,8 +26,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.BBoxDBConfigurationManager;
-import org.bboxdb.network.client.Scalephant;
-import org.bboxdb.network.client.ScalephantCluster;
+import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +40,9 @@ public abstract class AbstractBenchmark implements Runnable {
 	protected long startTime = 0;
 	
 	/**
-	 * The scalephant client
+	 * The BBoxDB client
 	 */
-	protected Scalephant scalephantClient;
+	protected BBoxDB bboxdbClient;
 	
 	/**
 	 * The executor service
@@ -131,13 +131,13 @@ public abstract class AbstractBenchmark implements Runnable {
 		// Set the benchmark flag to active
 		benchmarkActive = true;
 		
-		// Connect to the scalephant cluster
+		// Connect to the BBoxDB cluster
 		final Collection<String> zookeeperNodes = BBoxDBConfigurationManager.getConfiguration().getZookeepernodes();
 		final String clustername = BBoxDBConfigurationManager.getConfiguration().getClustername();
-		scalephantClient = new ScalephantCluster(zookeeperNodes, clustername);
-		scalephantClient.connect();
+		bboxdbClient = new BBoxDBCluster(zookeeperNodes, clustername);
+		bboxdbClient.connect();
 		
-		if(! scalephantClient.isConnected()) {
+		if(! bboxdbClient.isConnected()) {
 			throw new Exception("Connection could not be established: " + zookeeperNodes);
 		}
 		
@@ -200,7 +200,7 @@ public abstract class AbstractBenchmark implements Runnable {
 		}
 		
 		// Disconnect from server and shutdown the statistics thread
-		scalephantClient.disconnect();
+		bboxdbClient.disconnect();
 		executorService.shutdown();
 		
 		final long executionTime = System.currentTimeMillis() - startTime;
