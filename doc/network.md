@@ -1,6 +1,6 @@
-# The network protocol of the scalephant
+# The network protocol of the bboxdb
 
-The protocol of the scalephant is based on frames. Each frame consists of a header and a body. The header has a fixed size, the body has a variable size. It exists two types of frames: request and response frames. The request frame is send from the client to the scalephant, the response frame is send from the scalephant to the client.
+The protocol of the bboxdb is based on frames. Each frame consists of a header and a body. The header has a fixed size, the body has a variable size. It exists two types of frames: request and response frames. The request frame is send from the client to the bboxdb, the response frame is send from the bboxdb to the client.
 
 ## The request frame
 
@@ -440,7 +440,7 @@ The result could be currently the response types 0x02, 0x03 and 0x06.
 
 
 ### Transfer SSTable
-This request transfers a whole SSTable from one instance to another. This request is send between two scalephant instances. 
+This request transfers a whole SSTable from one instance to another. This request is send between two bboxdb instances. 
 
 #### Request body
 
