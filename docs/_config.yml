@@ -1,1 +1,4 @@
 theme: minima
+
+title: 'BBoxDB'
+subtitle: 'BBoxDB - The database for multidimensional big data'
