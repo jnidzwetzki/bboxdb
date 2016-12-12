@@ -197,11 +197,11 @@ public class TestTableCompactor {
 	@Test
 	public void testCompactTestSameKey() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
-		tupleList1.add(new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes()));
+		tupleList1.add(new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
 		
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
-		tupleList2.add(new Tuple("1", BoundingBox.EMPTY_BOX, "def".getBytes()));
+		tupleList2.add(new Tuple("1", BoundingBox.EMPTY_BOX, "def".getBytes(), 2));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
 		final SSTableWriter writer = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
