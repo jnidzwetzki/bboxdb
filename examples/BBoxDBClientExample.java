@@ -55,7 +55,7 @@ public class BBoxDBClientExample {
 		bboxdbClient.connect();
 		
 		// Check the connection state
-		if (! bboxdbClient.isConnected() ) {
+		if (! bboxdbClient.isConnected()) {
 			System.out.println("Error while connecting to the BBoxDB cluster");
 			System.exit(-1);
 		}
