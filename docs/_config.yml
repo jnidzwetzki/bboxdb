@@ -13,5 +13,5 @@ sections: [
     ['doc', 'Documentation'],
     ['examples', 'Examples'],
     ['tools', 'Tools'],
-    ['post', 'Posts']
+    ['dev', 'Developer'],
 ]
