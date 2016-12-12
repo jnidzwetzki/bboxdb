@@ -36,7 +36,7 @@ zookeeper_clientport="2181"
 zookeeper_nodes="${BBOXDB_ZN}"
 
 if [ -z "$zookeeper_nodes" ]; then
-   echo "Your environment variable \$(SCALEPHANT_ZN) is empty. Please check your .bboxdbrc"
+   echo "Your environment variable \$(BBOXDB_ZN) is empty. Please check your .bboxdbrc"
    exit -1
 fi
 
@@ -113,7 +113,7 @@ bboxdb_start() {
  
     debug_args=""
 
-    if [ ! -z "$SCALEPHANT_DEBUG" ]; then
+    if [ ! -z "$BBOXDB_DEBUG" ]; then
          echo "Debug startup......"
          debug_args+="-Dlog4j.configuration=log4j_debug.properties"
     fi
