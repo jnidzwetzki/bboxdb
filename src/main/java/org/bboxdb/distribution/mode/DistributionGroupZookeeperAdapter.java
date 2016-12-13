@@ -155,6 +155,18 @@ public class DistributionGroupZookeeperAdapter {
 			throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + splitPathName);
 		}		
 	}
+	
+	/**
+	 * Set the split position for the given path
+	 * @param path
+	 * @param position
+	 * @throws ZookeeperException 
+	 */
+	public void setSplitPositionForPath(final String path, final float position) throws ZookeeperException {
+		final String splitPosString = Float.toString(position);
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SPLIT, 
+				splitPosString.getBytes());
+	}
 
 	/**
 	 * Test weather the group path is split or not

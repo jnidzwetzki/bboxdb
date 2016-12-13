@@ -242,9 +242,7 @@ public class DistributionRegionWithZookeeperIntegration extends DistributionRegi
 		createNewChild(rightPath, rightChild);
 		
 		// Write split position and update state
-		final String splitPosString = Float.toString(getSplit());
-		zookeeperClient.createPersistentNode(zookeeperPath + "/" + ZookeeperNodeNames.NAME_SPLIT, 
-				splitPosString.getBytes());
+		distributionGroupZookeeperAdapter.setSplitPositionForPath(zookeeperPath, getSplit());
 		distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, NodeState.SPLITTING);
 		distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, NodeState.ACTIVE);
 		distributionGroupZookeeperAdapter.setStateForDistributionGroup(rightPath, NodeState.ACTIVE);
