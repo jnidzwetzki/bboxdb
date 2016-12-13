@@ -5,8 +5,9 @@
 - Improvement: Unified tuple store aquire code
 - Improvement: Introduced the local selftest
 - Improvement: Added CLI parameter to the SSTableExaminer
+- Improvement: The documentation is now pushed to git hub pages
 - Bugfix: Init table splitter only in distributed mode
-- Bugfix: In a major compact, not all tables are processed
+- Bugfix: In a major compact, not all tables were processed. 
 
 ### Version 0.2.0 (Beta-3) - 09.12.2016
 - New Feature: Introduced paging (results > memory could be requested)
