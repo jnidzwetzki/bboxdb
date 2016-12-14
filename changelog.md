@@ -6,6 +6,7 @@
 - Improvement: Introduced the local selftest
 - Improvement: Added CLI parameter to the SSTableExaminer
 - Improvement: The documentation is now pushed to git hub pages
+- Improvement: Rewrote the KD-Tree zookeeper integration code
 - Bugfix: Init table splitter only in distributed mode
 - Bugfix: In a major compact, not all tables were processed. 
 
