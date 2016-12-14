@@ -24,10 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.Watcher;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionFactory;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -100,43 +99,13 @@ public class DistributionGroupZookeeperAdapter {
 			throw new ZookeeperException(exceptionMessage);
 		}
 		
-		final DistributionRegion root = DistributionRegionFactory.createRootRegion(distributionGroup);
-
-		readDistributionGroupRecursive(path, root);
+		final DistributionRegion root = DistributionRegion.createRootElement(distributionGroup);
 		
-		final KDtreeZookeeperAdapter kDtreeZookeeperAdapter = new KDtreeZookeeperAdapter(this, root);
+		final KDtreeZookeeperAdapter kDtreeZookeeperAdapter = new KDtreeZookeeperAdapter(zookeeperClient, this, root);
 		
 		return kDtreeZookeeperAdapter;
 	}
 	
-	/**
-	 * Read the distribution group in a recursive way
-	 * @param path
-	 * @param child
-	 * @throws ZookeeperException 
-	 * @throws InterruptedException 
-	 * @throws KeeperException 
-	 */
-	public void readDistributionGroupRecursive(final String path, final DistributionRegion child) throws ZookeeperException {
-			
-			final int namePrefix = zookeeperClient.getNamePrefixForPath(path);
-			child.setNameprefix(namePrefix);
-
-			child.setSystems(getSystemsForDistributionRegion(child));
-			child.setState(getStateForDistributionRegion(path));
-
-			// If the node is not split, stop recursion
-			if(! isGroupSplitted(path)) {
-				return;
-			}
-			
-			final float splitFloat = getSplitPositionForPath(path);
-			child.setSplit(splitFloat, false);
-			
-			readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_LEFT, child.getLeftChild());
-			readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, child.getRightChild());
-	}
-
 	/**
 	 * Get the split position for a given path
 	 * @param path
@@ -189,9 +158,11 @@ public class DistributionGroupZookeeperAdapter {
 	 * Get the state for a given path
 	 * @throws ZookeeperException 
 	 */
-	public NodeState getStateForDistributionRegion(final String path) throws ZookeeperException {
+	public NodeState getStateForDistributionRegion(final String path, 
+			final Watcher callback) throws ZookeeperException {
+		
 		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
-		final String state = zookeeperClient.readPathAndReturnString(statePath, false, null);
+		final String state = zookeeperClient.readPathAndReturnString(statePath, false, callback);
 		return NodeState.fromString(state);
 	}
 	
@@ -200,9 +171,11 @@ public class DistributionGroupZookeeperAdapter {
 	 * @return 
 	 * @throws ZookeeperException 
 	 */
-	public NodeState getStateForDistributionRegion(final DistributionRegion region) throws ZookeeperException  {
+	public NodeState getStateForDistributionRegion(final DistributionRegion region, 
+			final Watcher callback) throws ZookeeperException  {
+		
 		final String path = getZookeeperPathForDistributionRegion(region);
-		return getStateForDistributionRegion(path);
+		return getStateForDistributionRegion(path, callback);
 	}
 	
 	/**
@@ -263,12 +236,15 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param distributionRegion
 	 * @return
 	 */
-	public String getZookeeperPathForDistributionRegion(final DistributionRegion distributionRegion) {
+	public String getZookeeperPathForDistributionRegion(
+			final DistributionRegion distributionRegion) {
+		
 		final String name = distributionRegion.getName();
 		final StringBuilder sb = new StringBuilder();
 		
 		DistributionRegion tmpRegion = distributionRegion;
-		while(tmpRegion.getParent() != null) {
+		
+		while(tmpRegion.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
 			if(tmpRegion.isLeftChild()) {
 				sb.insert(0, "/" + ZookeeperNodeNames.NAME_LEFT);
 			} else {
@@ -282,14 +258,64 @@ public class DistributionGroupZookeeperAdapter {
 		return sb.toString();
 	}
 	
+	/**
+	 * Get the node for the given zookeeper path
+	 * @param distributionRegion
+	 * @param path
+	 * @return
+	 */
+	public DistributionRegion getNodeForPath(final DistributionRegion distributionRegion, 
+			final String path) {
+		
+		final String name = distributionRegion.getName();
+		final String distributionGroupPath = getDistributionGroupPath(name);
+		
+		if(! path.startsWith(distributionGroupPath)) {
+			throw new IllegalArgumentException("Path " + path + " does not start with " + distributionGroupPath);
+		}
+		
+		final StringBuilder sb = new StringBuilder(path);
+		sb.delete(0, distributionGroupPath.length());
+		
+		DistributionRegion resultElement = distributionRegion;
+		
+		while(sb.length() > 0) {
+			
+			// Remove '/'
+			if(sb.length() > 0) {
+				sb.delete(0, 1);
+			}
+			
+			if(resultElement.isLeafRegion()) {
+				throw new IllegalArgumentException(
+						"Unable to go to child at path, node is leaf region: " + sb 
+						+ " and path is: " + path);
+			}
+			
+			if(sb.indexOf(ZookeeperNodeNames.NAME_LEFT) == 0) {
+				resultElement = resultElement.getLeftChild();
+				sb.delete(0, ZookeeperNodeNames.NAME_LEFT.length());
+			} else if(sb.indexOf(ZookeeperNodeNames.NAME_RIGHT) == 0) {
+				resultElement = resultElement.getRightChild();
+				sb.delete(0, ZookeeperNodeNames.NAME_RIGHT.length());
+			} else {
+				throw new IllegalArgumentException("Unable to decode " + sb);
+			}
+		}
+		
+		return resultElement;
+	}
+	
 	
 	/**
 	 * Get the systems for the distribution region
 	 * @param region
+	 * @param callback 
 	 * @return
 	 * @throws ZookeeperException 
 	 */
-	public Collection<DistributedInstance> getSystemsForDistributionRegion(final DistributionRegion region) throws ZookeeperException {
+	public Collection<DistributedInstance> getSystemsForDistributionRegion(
+			final DistributionRegion region, final Watcher callback) throws ZookeeperException {
 	
 		final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
 		
@@ -301,7 +327,7 @@ public class DistributionGroupZookeeperAdapter {
 			return null;
 		}
 		
-		final List<String> childs = zookeeperClient.getChildren(path, null);
+		final List<String> childs = zookeeperClient.getChildren(path, callback);
 		
 		for(final String childName : childs) {
 			result.add(new DistributedInstance(childName));

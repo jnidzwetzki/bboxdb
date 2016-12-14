@@ -32,9 +32,8 @@ import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
-import org.bboxdb.Const;
 import org.bboxdb.BBoxDBService;
-import org.bboxdb.distribution.DistributionRegionFactory;
+import org.bboxdb.Const;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.DistributedInstanceManager;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
@@ -93,9 +92,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		super();
 		this.zookeeperHosts = zookeeperHosts;
 		this.clustername = clustername;
-		
-		// Set the zookeeper instance for self updating data structures
-		DistributionRegionFactory.setZookeeperClient(this);
 	}
 
 	/**
@@ -618,7 +614,9 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	public String readPathAndReturnString(final String pathName, final boolean retry, final Watcher watcher) throws ZookeeperException {
+	public String readPathAndReturnString(final String pathName, final boolean retry, 
+			final Watcher watcher) throws ZookeeperException {
+		
 		try {
 			if(zookeeper.exists(pathName, false) == null) {
 				if(retry != true) {

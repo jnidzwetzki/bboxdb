@@ -51,6 +51,11 @@ public abstract class RegionSplitStrategy implements Runnable {
 	 * The zookeeper client
 	 */
 	protected final ZookeeperClient zookeeperClient;
+	
+	/**
+	 * The distribution group adapter
+	 */
+	private KDtreeZookeeperAdapter distributionAdapter;
 
 	/**
 	 * The region to split;
@@ -61,6 +66,8 @@ public abstract class RegionSplitStrategy implements Runnable {
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitStrategy.class);
+
+
 
 	public RegionSplitStrategy() {
 		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
@@ -74,7 +81,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 	public void initFromSSTablename(final SSTableName ssTableName) throws StorageManagerException {
 		
 		try {
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+			distributionAdapter = DistributionGroupCache.getGroupForGroupName(
 					ssTableName.getDistributionGroup(), zookeeperClient);
 
 			final DistributionRegion distributionGroup = distributionAdapter.getRootNode();
@@ -328,10 +335,11 @@ public abstract class RegionSplitStrategy implements Runnable {
 	 * @param splitPosition
 	 */
 	protected void performSplitAtPosition(final DistributionRegion region, final float splitPosition) {
-		logger.info("Set split at:" + splitPosition);
-		region.setSplit(splitPosition);
-	
+
 		try {
+			logger.info("Set split at:" + splitPosition);
+			distributionAdapter.splitNode(region, splitPosition);
+		
 			// Allocate systems 
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			DistributionRegionHelper.allocateSystemsToNewRegion(region.getLeftChild(), zookeeperClient);
@@ -340,10 +348,8 @@ public abstract class RegionSplitStrategy implements Runnable {
 			// Let the data settle down
 			Thread.sleep(5000);
 			
-		} catch (ZookeeperException e) {
-			logger.warn("Unable to assign systems to splitted region: " + region, e);
-		} catch (ResourceAllocationException e) {
-			logger.warn("Unable to find systems for splitted region: " + region, e);
+		} catch (ZookeeperException | ResourceAllocationException e) {
+			logger.warn("Unable to split region " + region + " at " + splitPosition, e);
 		} catch (InterruptedException e) {
 			logger.warn("Got InterruptedException while wait for settle down: " + region, e);
 			Thread.currentThread().interrupt();

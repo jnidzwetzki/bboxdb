@@ -21,47 +21,25 @@ import java.util.List;
 import java.util.Set;
 
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionFactory;
 import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.mode.NodeState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestDistributionGroup {
 
 	protected static ZookeeperClient zookeeperClient;
-	
-	/**
-	 * Store and restore the zookeeper client. The test is executed
-	 * without the zookeeper integration
-	 */
-	@BeforeClass
-	public static void beforeClass() {
-		zookeeperClient = DistributionRegionFactory.getZookeeperClient();
-		DistributionRegionFactory.setZookeeperClient(null);
-	}
-	
-	/**
-	 * Store and restore the zookeeper client. The test is executed
-	 * without the zookeeper integration
-	 */
-	@AfterClass
-	public static void afterClass() {
-		DistributionRegionFactory.setZookeeperClient(zookeeperClient);
-	}
-	
+
 	/**
 	 * Create an illegal distribution group
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void createInvalidDistributionGroup1() {
 		@SuppressWarnings("unused")
-		final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("foo");
+		final DistributionRegion distributionRegion = DistributionRegion.createRootElement("foo");
 	}
 	
 	/**
@@ -70,7 +48,7 @@ public class TestDistributionGroup {
 	@Test(expected=IllegalArgumentException.class)
 	public void createInvalidDistributionGroup2() {
 		@SuppressWarnings("unused")
-		final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("12_foo_bar");
+		final DistributionRegion distributionRegion = DistributionRegion.createRootElement("12_foo_bar");
 	}
 	
 	/**
@@ -78,7 +56,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testLeafNode() {
-		final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("3_foo");
+		final DistributionRegion distributionRegion = DistributionRegion.createRootElement("3_foo");
 		Assert.assertTrue(distributionRegion.isLeafRegion());
 		Assert.assertEquals(3, distributionRegion.getDimension());
 		Assert.assertEquals(0, distributionRegion.getLevel());
@@ -91,7 +69,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testTwoLevel() {
-		final DistributionRegion distributionRegion = DistributionRegionFactory.createRootRegion("3_foo");
+		final DistributionRegion distributionRegion = DistributionRegion.createRootElement("3_foo");
 		Assert.assertTrue(distributionRegion.isLeafRegion());
 		distributionRegion.setSplit(0);
 		Assert.assertFalse(distributionRegion.isLeafRegion());
@@ -113,7 +91,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testSplitDimension1() {
-		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("2_foo");
+		final DistributionRegion level0 = DistributionRegion.createRootElement("2_foo");
 		level0.setSplit(50);
 		final DistributionRegion level1 = level0.getLeftChild();
 		level1.setSplit(40);
@@ -135,7 +113,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testSplitDimension2() {
-		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("3_foo");
+		final DistributionRegion level0 = DistributionRegion.createRootElement("3_foo");
 		level0.setSplit(50);
 		final DistributionRegion level1 = level0.getLeftChild();
 		level1.setSplit(40);
@@ -163,7 +141,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testLeftOrRightChild() {
-		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("3_foo");
+		final DistributionRegion level0 = DistributionRegion.createRootElement("3_foo");
 		Assert.assertFalse(level0.isLeftChild());
 		Assert.assertFalse(level0.isRightChild());
 		
@@ -183,7 +161,7 @@ public class TestDistributionGroup {
 		final DistributedInstance SYSTEM_A = new DistributedInstance("192.168.1.200:5050");
 		final DistributedInstance SYSTEM_B = new DistributedInstance("192.168.1.201:5050");
 		
-		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("1_foo");
+		final DistributionRegion level0 = DistributionRegion.createRootElement("1_foo");
 		level0.setSplit(50);
 
 		level0.getLeftChild().addSystem(SYSTEM_A);
@@ -208,7 +186,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testNameprefixSearch() {
-		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("2_foo");
+		final DistributionRegion level0 = DistributionRegion.createRootElement("2_foo");
 		level0.setNameprefix(1);
 		level0.setSplit(50);
 		level0.getLeftChild().setNameprefix(2);
@@ -246,7 +224,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testGetSystemsForDistributionGroup1() {
-		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("2_foo");
+		final DistributionRegion level0 = DistributionRegion.createRootElement("2_foo");
 		level0.setSplit(50);
 		level0.getLeftChild().setNameprefix(2);
 		level0.getRightChild().setNameprefix(3);
@@ -268,7 +246,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testGetSystemsForDistributionGroup2() {
-		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("2_foo");
+		final DistributionRegion level0 = DistributionRegion.createRootElement("2_foo");
 		level0.setSplit(50);
 		level0.getLeftChild().setNameprefix(2);
 		level0.getRightChild().setNameprefix(3);
@@ -290,7 +268,7 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testGetDistributionGroupsForDistributionGroup() {
-		final DistributionRegion level0 = DistributionRegionFactory.createRootRegion("2_foo");
+		final DistributionRegion level0 = DistributionRegion.createRootElement("2_foo");
 		level0.setSplit(50);
 		level0.getLeftChild().setNameprefix(2);
 		level0.getRightChild().setNameprefix(3);
@@ -302,4 +280,5 @@ public class TestDistributionGroup {
 		final Set<DistributionRegion> regions = level0.getDistributionRegionsForBoundingBox(BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(3, regions.size());
 	}
+	
 }

@@ -85,16 +85,11 @@ public class DistributionRegion {
 	 * The nameprefix of the region
 	 */
 	protected int nameprefix;
-	
-	/**
-	 * Is the node initialized or not
-	 */
-	protected volatile boolean ready;
-	
+
 	/**
 	 * The root pointer of the root element of the tree
 	 */
-	protected final static DistributionRegion ROOT_NODE_ROOT_POINTER = null;
+	public final static DistributionRegion ROOT_NODE_ROOT_POINTER = null;
 
 	/**
 	 * Protected constructor, the factory method and the set split methods should
@@ -121,14 +116,6 @@ public class DistributionRegion {
 		totalLevel.set(Math.max(totalLevel.get(), level + 1));
 		
 		systems = new ArrayList<DistributedInstance>();
-		ready = false;
-	}
-
-	/**
-	 * The node complete event
-	 */
-	public void onNodeComplete() {
-		ready = true;
 	}
 	
 	/**
@@ -154,56 +141,26 @@ public class DistributionRegion {
 	public DistributionRegion getParent() {
 		return parent;
 	}
-	
+
 	/**
 	 * Set the split coordinate
 	 * @param split
 	 */
 	public void setSplit(final float split) {
-		setSplit(split, true);
-	}
-	
-	/**
-	 * Set the split coordinate
-	 * @param split
-	 */
-	public void setSplit(final float split, final boolean sendNotify) {
 		this.split = split;
 		
 		if(leftChild != null || rightChild != null) {
 			throw new IllegalArgumentException("Split called, but left or right node are not empty");
 		}
 		
-		leftChild = createNewInstance(this);
-		rightChild = createNewInstance(this);
+		leftChild = new DistributionRegion(distributionGroupName, this);
+		rightChild = new DistributionRegion(distributionGroupName, this);
 
 		// Calculate the covering bounding boxes
 		leftChild.setConveringBox(converingBox.splitAndGetLeft(split, getSplitDimension(), true));
 		rightChild.setConveringBox(converingBox.splitAndGetRight(split, getSplitDimension(), false));
-		
-		afterSplitHook(sendNotify);
-		
-		// Send the on node complete event
-		leftChild.onNodeComplete();
-		rightChild.onNodeComplete();
 	}
 
-	/**
-	 * A hook that is called after the nodes are split
-	 * @param sendNotify
-	 */
-	protected void afterSplitHook(final boolean sendNotify) {
-		
-	}
-
-	/**
-	 * Create a new instance of this type (e.g. for childs)
-	 * @return
-	 */
-	protected DistributionRegion createNewInstance(final DistributionRegion parent) {
-		return new DistributionRegion(distributionGroupName, parent);
-	}
-	
 	/**
 	 * Get the split coordinate
 	 * @return
@@ -280,7 +237,7 @@ public class DistributionRegion {
 	public String toString() {
 		return "DistributionRegion [distributionGroupName=" + distributionGroupName + ", totalLevel=" + totalLevel
 				+ ", split=" + split + ", level=" + level + ", converingBox=" + converingBox + ", state=" + state
-				+ ", systems=" + systems + ", nameprefix=" + nameprefix + ", ready=" + ready + "]";
+				+ ", systems=" + systems + ", nameprefix=" + nameprefix + "]";
 	}
 
 	/**
@@ -303,9 +260,7 @@ public class DistributionRegion {
 	 */
 	public boolean isLeafRegion() {
 		if(leftChild != null && rightChild != null) {
-			if(leftChild.isReady() && rightChild.isReady()) {
-				return false;
-			}
+			return false;	
 		}
 		
 		return true;
@@ -389,7 +344,10 @@ public class DistributionRegion {
 	 */
 	public void setSystems(final Collection<DistributedInstance> systems) {
 		this.systems.clear();
-		this.systems.addAll(systems);
+		
+		if(systems != null && ! systems.isEmpty()) {
+			this.systems.addAll(systems);
+		}
 	}
 	
 	/**
@@ -476,14 +434,6 @@ public class DistributionRegion {
 		leftChild.visit(distributionRegionVisitor);
 		rightChild.visit(distributionRegionVisitor);
 	}
-	
-	/**
-	 * Is the region ready (initialized)
-	 * @return
-	 */
-	public boolean isReady() {
-		return ready;
-	}
 
 	/**
 	 * Get the nameprefix of the node
@@ -501,5 +451,19 @@ public class DistributionRegion {
 		this.nameprefix = nameprefix;
 	}
 	
+	/**
+	 * Create a new root element
+	 * @param distributionGroup
+	 * @return
+	 */
+	public static DistributionRegion createRootElement(final String distributionGroup) {
+		final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
+
+		final DistributionRegion rootElement = new DistributionRegion(distributionGroupName, 
+				ROOT_NODE_ROOT_POINTER);
+		
+		return rootElement;
+	}
+
 }
 
