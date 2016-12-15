@@ -87,8 +87,6 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		if(event == null || event.getPath() == null) {
 			return;
 		}
-		
-		logger.info("-----> Got event: {}", event);
 
 		if(event.getPath().endsWith(ZookeeperNodeNames.NAME_SYSTEMS)) {
 			handleSystemNodeUpdateEvent(event);
