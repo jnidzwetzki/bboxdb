@@ -89,7 +89,7 @@ bboxdb_update() {
 # Start the bboxdb
 ###
 bboxdb_start() {
-    echo "Start the bboxdb"
+    echo "Starting the BBoxDB"
     download_jsvc
     cd $basedir
 
@@ -149,7 +149,7 @@ bboxdb_start() {
 # Stop the bboxdb
 ###
 bboxdb_stop() {
-    echo "Stop the bboxdb"
+    echo "Stopping the BBoxDB"
     cd $basedir
     ./jsvc -pidfile $basedir/bboxdb.pid -stop -cwd $basedir -cp $classpath org.bboxdb.BBoxDBMain
 
@@ -173,7 +173,7 @@ zookeeper_start() {
        exit 2
     fi
 
-    echo "Start Zookeeper"
+    echo "Starting Zookeeper"
 
     if [ ! -d $logdir ]; then
         mkdir $logdir
@@ -231,7 +231,7 @@ zookeeper_stop() {
     if [ ! -f $basedir/zookeeper.pid ]; then
        echo "Unable to locate PID file"
     else
-       echo "Stop Zookeeper"
+       echo "Stopping Zookeeper"
        kill -9 $(cat $basedir/zookeeper.pid)
        rm $basedir/zookeeper.pid
     fi
