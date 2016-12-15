@@ -122,7 +122,7 @@ public class BBoxDBCluster implements BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
 		try {
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					table, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
