@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.KeeperException.Code;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
@@ -225,7 +226,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			}
 			
 			distributedInstanceManager.updateInstanceList(instanceSet);
-		} catch (KeeperException e) {
+		} catch (KeeperException | ZookeeperNotFoundException e) {
 			logger.warn("Unable to read membership and create a watch", e);
 			return false;
 		} catch(InterruptedException e) {
@@ -241,8 +242,9 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * Read the state for the given instance
 	 * @param member
 	 * @return
+	 * @throws ZookeeperNotFoundException 
 	 */
-	protected DistributedInstanceState getStateForInstance(final String member) {		
+	protected DistributedInstanceState getStateForInstance(final String member) throws ZookeeperNotFoundException {		
 		final String nodesPath = getActiveInstancesPath();
 		final String statePath = nodesPath + "/" + member;
 
@@ -264,8 +266,9 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * Read the version for the given instance
 	 * @param member
 	 * @return
+	 * @throws ZookeeperNotFoundException 
 	 */
-	protected String getVersionForInstance(final String member) {		
+	protected String getVersionForInstance(final String member) throws ZookeeperNotFoundException {		
 		final String nodesPath = getInstancesVersionPath();
 		final String versionPath = nodesPath + "/" + member;
 
@@ -284,8 +287,11 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @param watcher
 	 * @return
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public List<String> getChildren(final String path, final Watcher watcher) throws ZookeeperException {
+	public List<String> getChildren(final String path, final Watcher watcher) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
 		try {
 			
 			if(zookeeper.exists(path, false) == null) {
@@ -294,7 +300,14 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			
 			return zookeeper.getChildren(path, watcher);
 		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
+			
+			// Was node deleted between exists and getData call?
+			if(e.code() == Code.NONODE) {
+				throw new ZookeeperNotFoundException("The path does not exist: " + path, e);
+			} else {
+				throw new ZookeeperException(e);
+			}
+			
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
@@ -594,8 +607,9 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @param path
 	 * @return
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public int getNamePrefixForPath(final String path) throws ZookeeperException {
+	public int getNamePrefixForPath(final String path) throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String namePrefixPath = path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX;
 		String namePrefix = null;
@@ -613,18 +627,19 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @param pathName
 	 * @return
 	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException 
 	 */
 	public String readPathAndReturnString(final String pathName, final boolean retry, 
-			final Watcher watcher) throws ZookeeperException {
+			final Watcher watcher) throws ZookeeperException, ZookeeperNotFoundException {
 		
 		try {
 			if(zookeeper.exists(pathName, false) == null) {
 				if(retry != true) {
-					throw new ZookeeperException("The path does not exist: " + pathName);
+					throw new ZookeeperNotFoundException("The path does not exist: " + pathName);
 				} else {
 					Thread.sleep(500);
 					if(zookeeper.exists(pathName, false) == null) {
-						throw new ZookeeperException("The path does not exist: " + pathName);
+						throw new ZookeeperNotFoundException("The path does not exist: " + pathName);
 					}
 				}
 			}
@@ -632,7 +647,14 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			final byte[] bytes = zookeeper.getData(pathName, watcher, null);
 			return new String(bytes);
 		} catch(KeeperException e) {
-			throw new ZookeeperException(e);
+			
+			// Was node deleted between exists and getData call?
+			if(e.code() == Code.NONODE) {
+				throw new ZookeeperNotFoundException("The path does not exist: " + pathName, e);
+			} else {
+				throw new ZookeeperException(e);
+			}
+			
 		} catch(InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);

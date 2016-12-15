@@ -36,6 +36,7 @@ import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.server.NetworkConnectionService;
@@ -74,7 +75,7 @@ public class RecoveryService implements BBoxDBService {
 			connectionHandler.setReadonly(false);
 			
 			zookeeperClient.setLocalInstanceState(DistributedInstanceState.READWRITE);
-		} catch (ZookeeperException e) {
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			logger.error("Got an exception during recovery: ", e);
 		}
 	}
@@ -82,8 +83,9 @@ public class RecoveryService implements BBoxDBService {
 	/**
 	 * Run the recovery
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
-	protected void runRecovery() throws ZookeeperException {
+	protected void runRecovery() throws ZookeeperException, ZookeeperNotFoundException {
 		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 		final List<DistributionGroupName> distributionGroups = distributionGroupZookeeperAdapter.getDistributionGroups();
 		for(final DistributionGroupName distributionGroupName : distributionGroups) {

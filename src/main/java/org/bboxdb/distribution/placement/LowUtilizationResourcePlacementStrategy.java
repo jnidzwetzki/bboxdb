@@ -33,6 +33,7 @@ import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,7 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 		try {
 			final Map<DistributedInstance, Integer> systemUsage = calculateSystemUsage();
 			return getSystemWithLowestUsage(availableSystems, systemUsage);
-		} catch (ZookeeperException e) {
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new ResourceAllocationException("Got an zookeeper exception while ressource allocation", e);
 		}		
 	}
@@ -104,8 +105,9 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 	 * 
 	 * @return
 	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException 
 	 */
-	protected Map<DistributedInstance, Integer> calculateSystemUsage() throws ZookeeperException {
+	protected Map<DistributedInstance, Integer> calculateSystemUsage() throws ZookeeperException, ZookeeperNotFoundException {
 		
 		// The overall usage
 		final Map<DistributedInstance, Integer> systemUsage = new HashMap<DistributedInstance, Integer>();

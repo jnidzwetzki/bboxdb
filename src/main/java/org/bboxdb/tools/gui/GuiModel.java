@@ -30,6 +30,7 @@ import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,8 +121,9 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	/**
 	 * Update the distribution region
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public void updateDistributionRegion() throws ZookeeperException {
+	public void updateDistributionRegion() throws ZookeeperException, ZookeeperNotFoundException {
 		final String currentVersion = distributionGroupZookeeperAdapter.getVersionForDistributionGroup(distributionGroup);
 		
 		if(! currentVersion.equals(rootRegionVersion)) {

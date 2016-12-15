@@ -28,6 +28,7 @@ import org.bboxdb.distribution.nameprefix.NameprefixInstanceManager;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -230,23 +231,30 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			
 			logger.debug("Reading path: {}", path);
 			
-			final int namePrefix = zookeeperClient.getNamePrefixForPath(path);
-			region.setNameprefix(namePrefix);
+			try {
+				final int namePrefix = zookeeperClient.getNamePrefixForPath(path);
+				region.setNameprefix(namePrefix);
 
-			// Handle systems and mappings
-			updateSystemsForRegion(region);
-			
-			// Handle state
-			final NodeState stateForDistributionRegion = distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
-			region.setState(stateForDistributionRegion);
-
-			// If the node is not split, stop recursion
-			if(distributionGroupZookeeperAdapter.isGroupSplitted(path)) {
-				final float splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
-				region.setSplit(splitFloat);
+				// Handle systems and mappings
+				updateSystemsForRegion(region);
 				
-				readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_LEFT, region.getLeftChild());
-				readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, region.getRightChild());
+				// Handle state
+				final NodeState stateForDistributionRegion = distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
+				region.setState(stateForDistributionRegion);
+
+				// If the node is not split, stop recursion
+				if(distributionGroupZookeeperAdapter.isGroupSplitted(path)) {
+					final float splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
+					region.setSplit(splitFloat);
+					
+					readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_LEFT, region.getLeftChild());
+					readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, region.getRightChild());
+				}
+			} catch (ZookeeperNotFoundException e) {
+				// Node is deleted in zookeeper, remove from in memory structure
+				if(region.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
+					region.getParent().merge();
+				}
 			}
 	
 			// Wake up all pending waiters
@@ -259,16 +267,33 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * Read and update systems for region
 	 * @param region
 	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException 
 	 */
 	protected void updateSystemsForRegion(final DistributionRegion region)
 			throws ZookeeperException {
-		final Collection<DistributedInstance> systemsForDistributionRegion 
-			= distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, this);
 		
-		region.setSystems(systemsForDistributionRegion);
-		updateLocalMappings(region, systemsForDistributionRegion);
+		try {
+			final Collection<DistributedInstance> systemsForDistributionRegion 
+				= distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, this);
+			
+			region.setSystems(systemsForDistributionRegion);
+			updateLocalMappings(region, systemsForDistributionRegion);
+		} catch (ZookeeperNotFoundException e) {
+			removeLocalMappings(region);
+		}
 	}
 	
+	/**
+	 * Remove the local mappings for a given regions
+	 * @param region
+	 */
+	protected void removeLocalMappings(DistributionRegion region) {
+		// Remove the mapping from the nameprefix mapper	
+		final int nameprefix = region.getNameprefix();		
+		logger.info("Remove local mapping for: {} / nameprefix {}", region, nameprefix);
+		NameprefixInstanceManager.getInstance(region.getDistributionGroupName()).removeMapping(nameprefix);
+	}
+
 	/**
 	 * Update the local mappings with the systems for region
 	 * @param region

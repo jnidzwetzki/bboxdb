@@ -31,6 +31,7 @@ import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,8 +112,9 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param path
 	 * @return
 	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException 
 	 */
-	protected float getSplitPositionForPath(final String path) throws ZookeeperException  {
+	protected float getSplitPositionForPath(final String path) throws ZookeeperException, ZookeeperNotFoundException  {
 		
 		final String splitPathName = path + "/" + ZookeeperNodeNames.NAME_SPLIT;
 		String splitString = null;
@@ -157,9 +159,10 @@ public class DistributionGroupZookeeperAdapter {
 	/**
 	 * Get the state for a given path
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
 	public NodeState getStateForDistributionRegion(final String path, 
-			final Watcher callback) throws ZookeeperException {
+			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
 		final String state = zookeeperClient.readPathAndReturnString(statePath, false, callback);
@@ -170,9 +173,10 @@ public class DistributionGroupZookeeperAdapter {
 	 * Get the state for a given path
 	 * @return 
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
 	public NodeState getStateForDistributionRegion(final DistributionRegion region, 
-			final Watcher callback) throws ZookeeperException  {
+			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException  {
 		
 		final String path = getZookeeperPathForDistributionRegion(region);
 		return getStateForDistributionRegion(path, callback);
@@ -313,9 +317,10 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param callback 
 	 * @return
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
 	public Collection<DistributedInstance> getSystemsForDistributionRegion(
-			final DistributionRegion region, final Watcher callback) throws ZookeeperException {
+			final DistributionRegion region, final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
 	
 		final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
 		
@@ -494,8 +499,9 @@ public class DistributionGroupZookeeperAdapter {
 	 * List all existing distribution groups
 	 * @return
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public List<DistributionGroupName> getDistributionGroups() throws ZookeeperException {
+	public List<DistributionGroupName> getDistributionGroups() throws ZookeeperException, ZookeeperNotFoundException {
 		final List<DistributionGroupName> groups = new ArrayList<DistributionGroupName>();
 		final String clusterPath = zookeeperClient.getClusterPath();
 		final List<String> nodes = zookeeperClient.getChildren(clusterPath, null);
@@ -536,8 +542,9 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param distributionGroup
 	 * @return
 	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public String getVersionForDistributionGroup(final String distributionGroup) throws ZookeeperException {
+	public String getVersionForDistributionGroup(final String distributionGroup) throws ZookeeperException, ZookeeperNotFoundException {
 		final String path = getDistributionGroupPath(distributionGroup);
 		final String fullPath = path + "/" + ZookeeperNodeNames.NAME_VERSION;
 		return zookeeperClient.readPathAndReturnString(fullPath, false, null);	 

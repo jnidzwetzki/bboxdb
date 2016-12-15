@@ -162,6 +162,15 @@ public class DistributionRegion {
 	}
 
 	/**
+	 * Merge the distibution group
+	 */
+	public void merge() {
+		split = Float.MIN_VALUE;
+		leftChild = null;
+		rightChild = null;
+	}
+	
+	/**
 	 * Get the split coordinate
 	 * @return
 	 */

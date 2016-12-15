@@ -29,6 +29,7 @@ import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.mode.NodeState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -90,9 +91,10 @@ public class TestZookeeperIntegration {
 	/**
 	 * Test the creation and the deletion of a distribution group
 	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException 
 	 */
 	@Test
-	public void testDistributionGroupCreateDelete() throws ZookeeperException {
+	public void testDistributionGroupCreateDelete() throws ZookeeperException, ZookeeperNotFoundException {
 		
 		// Create new group
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
@@ -138,9 +140,10 @@ public class TestZookeeperIntegration {
 	 * Test the split of a distribution region
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
+	 * @throws ZookeeperNotFoundException 
 	 */
 	@Test
-	public void testDistributionRegionSplit() throws ZookeeperException, InterruptedException {
+	public void testDistributionRegionSplit() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
@@ -223,9 +226,10 @@ public class TestZookeeperIntegration {
 	/**
 	 * Test the system register and unregister methods
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
 	@Test
-	public void testSystemRegisterAndUnregister() throws ZookeeperException {
+	public void testSystemRegisterAndUnregister() throws ZookeeperException, ZookeeperNotFoundException {
 		final DistributedInstance systemName = new DistributedInstance("192.168.1.10:5050");
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 

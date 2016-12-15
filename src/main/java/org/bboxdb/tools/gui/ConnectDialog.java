@@ -32,6 +32,7 @@ import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,7 +191,7 @@ public class ConnectDialog {
 					
 					chooseDistributionGroupDialog.showDialog();
 					
-				} catch (ZookeeperException e1) {
+				} catch (ZookeeperException | ZookeeperNotFoundException e1) {
 					logger.error("Got an exception", e1);
 				}
 			}
