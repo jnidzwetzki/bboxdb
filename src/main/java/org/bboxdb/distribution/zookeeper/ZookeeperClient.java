@@ -244,7 +244,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 * @throws ZookeeperNotFoundException 
 	 */
-	protected DistributedInstanceState getStateForInstance(final String member) throws ZookeeperNotFoundException {		
+	protected DistributedInstanceState getStateForInstance(final String member) {		
 		final String nodesPath = getActiveInstancesPath();
 		final String statePath = nodesPath + "/" + member;
 
@@ -255,7 +255,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
 				return DistributedInstanceState.READWRITE;
 			}
-		} catch (ZookeeperException e) {
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			// Ignore exception, instance state is unknown
 		}
 
