@@ -304,6 +304,10 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			return;
 		}
 		
+		if(systems == null) {
+			return;
+		}
+		
 		final DistributedInstance localInstance = zookeeperClient.getInstancename();
 		
 		// Add the mapping to the nameprefix mapper
