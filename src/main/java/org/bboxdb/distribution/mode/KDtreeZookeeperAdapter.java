@@ -251,10 +251,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 					readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, region.getRightChild());
 				}
 			} catch (ZookeeperNotFoundException e) {
-				// Node is deleted in zookeeper, remove from in memory structure
-				if(region.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
-					region.getParent().merge();
-				}
+				// TODO: Node is deleted in zookeeper, remove from in memory structure
 			}
 	
 			// Wake up all pending waiters
