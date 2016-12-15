@@ -82,7 +82,7 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 			}
 			
 			final long numberOfTuples = storage.getNumberOfTuples();
-			final int sampleOffset = (int) (numberOfTuples / samplesPerFacade);
+			final int sampleOffset = Math.max(10, (int) (numberOfTuples / samplesPerFacade));
 			
 			for (int position = 0; position < numberOfTuples; position = position + sampleOffset) {
 				final Tuple tuple = storage.getTupleAtPosition(position);							
