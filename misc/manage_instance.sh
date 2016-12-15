@@ -73,7 +73,7 @@ download_jsvc() {
 # Update and build the bboxdb
 ###
 bboxdb_update() {
-   echo "Update the bboxdb"
+   echo "Update the BBoxDB"
    cd ..
    git pull
    
