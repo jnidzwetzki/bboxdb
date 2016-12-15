@@ -124,7 +124,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	public void updateDistributionRegion() throws ZookeeperException, ZookeeperNotFoundException {
-		final String currentVersion = distributionGroupZookeeperAdapter.getVersionForDistributionGroup(distributionGroup);
+		final String currentVersion = distributionGroupZookeeperAdapter.getVersionForDistributionGroup(distributionGroup, null);
 		
 		if(! currentVersion.equals(rootRegionVersion)) {
 			logger.info("Reread distribution group, version has changed: " + rootRegionVersion + " / " + currentVersion);

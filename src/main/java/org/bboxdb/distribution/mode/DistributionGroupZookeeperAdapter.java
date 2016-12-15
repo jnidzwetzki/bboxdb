@@ -544,10 +544,12 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public String getVersionForDistributionGroup(final String distributionGroup) throws ZookeeperException, ZookeeperNotFoundException {
+	public String getVersionForDistributionGroup(final String distributionGroup, 
+			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
+		
 		final String path = getDistributionGroupPath(distributionGroup);
 		final String fullPath = path + "/" + ZookeeperNodeNames.NAME_VERSION;
-		return zookeeperClient.readPathAndReturnString(fullPath, false, null);	 
+		return zookeeperClient.readPathAndReturnString(fullPath, false, callback);	 
 	}
 	
 }
