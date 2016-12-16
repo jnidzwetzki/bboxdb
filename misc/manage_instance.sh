@@ -14,6 +14,9 @@ if [ -z "$BBOXDB_HOME" ]; then
    exit -1
 fi
 
+# Include functions
+source $BBOXDB_HOME/misc/functions.sh
+
 # Find all jars
 cd $BBOXDB_HOME 
 
@@ -35,10 +38,10 @@ logdir=$BBOXDB_HOME/logs
 zookeeper_workdir=$BBOXDB_HOME/misc/zookeeper
 zookeeper_pid=$BBOXDB_HOME/misc/zookeeper.pid
 zookeeper_clientport="2181"
-zookeeper_nodes="${BBOXDB_ZN}"
 
+zookeeper_nodes=$(read_nodes_file $zookeeper_node_file)
 if [ -z "$zookeeper_nodes" ]; then
-   echo "Your environment variable \$(BBOXDB_ZN) is empty. Please check your .bboxdbrc"
+   echo "Your zzokeeper nodes ($zookeeper_node_file) are empty, please check your configuration" 
    exit -1
 fi
 

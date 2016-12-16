@@ -1,0 +1,11 @@
+###
+# The node names for Zookeeper
+#
+# Each line contains a hostname or an IP address 
+#
+###
+
+node1
+node2
+node3
+

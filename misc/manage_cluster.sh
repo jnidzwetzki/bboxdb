@@ -16,11 +16,12 @@ if [ -z "$BBOXDB_HOME" ]; then
    exit -1
 fi
 
+# Include functions
+source $BBOXDB_HOME/misc/functions.sh
 
-# Max pending tasks
-max_pending=3
-
+###
 # Execute command parallel on multiple nodes
+###
 function execute_parallel() {
    command=$1
    task=$2
@@ -52,16 +53,16 @@ function execute_parallel() {
 }
 
 # Nodes
-bboxdb_nodes="${BBOXDB_SN}"
-zookeeper_nodes="${BBOXDB_ZN}"
+bboxdb_nodes=$(read_nodes_file $bboxdb_node_file)
 
 if [ -z "$bboxdb_nodes" ]; then
-   echo "Your environment variable \$(BBOXDB_SN) is empty. Please check your .bboxdbrc"
+   echo "Your BBoxDB nodes ($bboxdb_node_file) are empty, please check your configuration" 
    exit -1
 fi
 
+zookeeper_nodes=$(read_nodes_file $zookeeper_node_file)
 if [ -z "$zookeeper_nodes" ]; then
-   echo "Your environment variable \$(BBOXDB_ZN) is empty. Please check your .bboxdbrc"
+   echo "Your zzokeeper nodes ($zookeeper_node_file) are empty, please check your configuration" 
    exit -1
 fi
 
