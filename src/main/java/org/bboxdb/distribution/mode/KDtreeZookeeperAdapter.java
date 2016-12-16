@@ -118,30 +118,43 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			final List<DistributionGroupName> distributionGroups = distributionGroupZookeeperAdapter.getDistributionGroups(this);
 			
 			// Is group already in creation?
-			if(rootNode == null && distributionGroups.contains(new DistributionGroupName(distributionGroup))) {
-			
-				final String dgroupPath = distributionGroupZookeeperAdapter.getDistributionGroupPath(distributionGroup);
-				
-				// Wait for state node to appear
-				for(int retry = 0; retry < 10; retry++) {
-					try {
-						distributionGroupZookeeperAdapter.getStateForDistributionRegion(dgroupPath, null);
-						handleNewRootElement();
-						break;
-					} catch (ZookeeperNotFoundException e) {
-						Thread.sleep(1000);
-					}
-				}
-				
-				if(rootNode == null) {
-					logger.error("DGroup was created but state field does not appear..");
-				}
+			final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
+			if(rootNode == null && distributionGroups.contains(distributionGroupName)) {
+				waitForGroupToAppear();
 			}
 			
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			logger.warn("Got exception while registering event lister for distribution group changes");
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
+		}
+	}
+
+	/**
+	 * Wait for the state node of the new distribution group
+	 * @throws ZookeeperException
+	 */
+	protected void waitForGroupToAppear() throws ZookeeperException{
+		final String dgroupPath = distributionGroupZookeeperAdapter.getDistributionGroupPath(distributionGroup);
+		
+		// Wait for state node to appear
+		for(int retry = 0; retry < 10; retry++) {
+			try {
+				distributionGroupZookeeperAdapter.getStateForDistributionRegion(dgroupPath, null);
+				handleNewRootElement();
+				break;
+			} catch (ZookeeperNotFoundException e) {
+				
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					Thread.currentThread().interrupt();
+					return;
+				}
+				
+			}
+		}
+		
+		if(rootNode == null) {
+			logger.error("DGroup was created but state field does not appear...");
 		}
 	}
 	
