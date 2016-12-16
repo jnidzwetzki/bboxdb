@@ -81,19 +81,19 @@ public class DistributionGroupName implements Comparable<DistributionGroupName> 
 		final String[] parts = fullname.split("_");
 		
 		if(parts.length != 2) {
-			logger.warn("Got invalid groupname: "+ fullname);
+			logger.debug("Got invalid groupname: "+ fullname);
 			return;
 		}
 		
 		try {
 			dimension = Short.parseShort(parts[0]);
 		} catch(NumberFormatException e) {
-			logger.warn("Invalid dimension: " + parts[0]);
+			logger.debug("Invalid dimension: " + parts[0]);
 			return;
 		}
 		
 		if(dimension <= 0) {
-			logger.warn("Got invalid dimension: " + dimension);
+			logger.debug("Got invalid dimension: " + dimension);
 			return;
 		}
 		
