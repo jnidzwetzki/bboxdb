@@ -167,6 +167,13 @@ public class NameprefixMapper {
 		return false;
 	}
 	
+	/**
+	 * Remove all mappings
+	 */
+	public void clear() {
+		regions.clear();
+	}
+	
 }
 
 class RegionTablenameEntry {

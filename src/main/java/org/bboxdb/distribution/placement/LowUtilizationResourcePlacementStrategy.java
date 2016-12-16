@@ -114,7 +114,7 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 		
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
 		final DistributionGroupZookeeperAdapter zookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-		final List<DistributionGroupName> distributionGroups = zookeeperAdapter.getDistributionGroups();
+		final List<DistributionGroupName> distributionGroups = zookeeperAdapter.getDistributionGroups(null);
 		
 		// Calculate usage for each distribution group
 		for(final DistributionGroupName groupName : distributionGroups) {

@@ -9,7 +9,8 @@
 - Improvement: Rewrote the KD-Tree zookeeper integration code
 - Improvement: Improved handling of deleted nodes in zookeeper
 - Bugfix: Init table splitter only in distributed mode
-- Bugfix: In a major compact, not all tables were processed. 
+- Bugfix: In a major compact, not all tables were processed
+- Bugfix: After distribution group delete / create the DistributionGroupCache can become inconsistent
 
 ### Version 0.2.0 (Beta-3) - 09.12.2016
 - New Feature: Introduced paging (results > memory could be requested)

@@ -99,10 +99,9 @@ public class DistributionGroupZookeeperAdapter {
 			final String exceptionMessage = MessageFormat.format("Unable to read {0}. Path {1} does not exist", distributionGroup, path);
 			throw new ZookeeperException(exceptionMessage);
 		}
-		
-		final DistributionRegion root = DistributionRegion.createRootElement(distributionGroup);
-		
-		final KDtreeZookeeperAdapter kDtreeZookeeperAdapter = new KDtreeZookeeperAdapter(zookeeperClient, this, root);
+				
+		final KDtreeZookeeperAdapter kDtreeZookeeperAdapter 
+			= new KDtreeZookeeperAdapter(zookeeperClient, this, distributionGroup);
 		
 		return kDtreeZookeeperAdapter;
 	}
@@ -462,6 +461,14 @@ public class DistributionGroupZookeeperAdapter {
 	public String getDistributionGroupPath(final String distributionGroup) {
 		return zookeeperClient.getClusterPath() + "/" + distributionGroup;
 	}
+	
+	/**
+	 * Return the path for the cluster
+	 * @return
+	 */
+	public String getClusterPath() {
+		return zookeeperClient.getClusterPath();
+	}
 
 	/**
 	 * Delete an existing distribution group
@@ -477,6 +484,13 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final String path = getDistributionGroupPath(distributionGroup);			
 		zookeeperClient.deleteNodesRecursive(path);
+		
+		// Wait for event settling
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 	}
 	
 	/**
@@ -501,17 +515,41 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public List<DistributionGroupName> getDistributionGroups() throws ZookeeperException, ZookeeperNotFoundException {
+	public List<DistributionGroupName> getDistributionGroups() 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		return getDistributionGroups(null);
+	}
+	
+	/**
+	 * List all existing distribution groups
+	 * @return
+	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
+	 */
+	public List<DistributionGroupName> getDistributionGroups(final Watcher watcher) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
 		final List<DistributionGroupName> groups = new ArrayList<DistributionGroupName>();
 		final String clusterPath = zookeeperClient.getClusterPath();
-		final List<String> nodes = zookeeperClient.getChildren(clusterPath, null);
+		final List<String> nodes = zookeeperClient.getChildren(clusterPath, watcher);
 		
 		for(final String node : nodes) {
+			
+			// Ignore systems
+			if(ZookeeperNodeNames.NAME_SYSTEMS.equals(node)) {
+				continue;
+			}
+			
+			if("nodes".equals(node)) {
+				continue;
+			}
+			
 			final DistributionGroupName groupName = new DistributionGroupName(node);
 			if(groupName.isValid()) {
 				groups.add(groupName);
 			} else {
-				logger.warn("Got invalid distribution group name from zookeeper: " + groupName);
+				logger.debug("Got invalid distribution group name from zookeeper: {}", groupName);
 			}
 		}
 		

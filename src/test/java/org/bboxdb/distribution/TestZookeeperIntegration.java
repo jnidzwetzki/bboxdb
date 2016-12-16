@@ -431,6 +431,43 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(level2lr, distributionGroupZookeeperAdapter.getNodeForPath(level0, path5));
 		Assert.assertEquals(level2rr, distributionGroupZookeeperAdapter.getNodeForPath(level0, path6));
 		Assert.assertEquals(level3lll, distributionGroupZookeeperAdapter.getNodeForPath(level0, path7));
+	}
+	
+	
+	/**
+	 * Test the deletion and the creation of an instance
+	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testCreateAndDeleteDistributionGroup() throws ZookeeperException, InterruptedException {
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
+		final KDtreeZookeeperAdapter cacheGroup = DistributionGroupCache.getGroupForGroupName(TEST_GROUP, zookeeperClient);
+		Assert.assertTrue(cacheGroup.getRootNode().isLeafRegion());
 
+		System.out.println("---> Delete");
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		System.out.println("---> Create");
+
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
+
+		System.out.println("---> Split");
+
+		final KDtreeZookeeperAdapter kdTreeAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		kdTreeAdapter.splitNode(kdTreeAdapter.getRootNode(), (float) 20.0); 
+		
+		Thread.sleep(10000);
+		
+		System.out.println("---> Split done");
+
+		// Test fresh copy
+		final KDtreeZookeeperAdapter freshGroup = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		Assert.assertFalse(freshGroup.getRootNode().isLeafRegion());
+		Assert.assertEquals((float) 20.0, freshGroup.getRootNode().getSplit(), 0.00001);
+		
+		// Test cached instance
+		Assert.assertFalse(cacheGroup.getRootNode().isLeafRegion());
+		Assert.assertEquals((float) 20.0, cacheGroup.getRootNode().getSplit(), 0.00001);	
 	}
 }

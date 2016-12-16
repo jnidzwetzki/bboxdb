@@ -18,10 +18,12 @@
 package org.bboxdb.distribution.mode;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.nameprefix.NameprefixInstanceManager;
@@ -46,9 +48,19 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	protected final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 	
 	/**
+	 * The name of the distribution group
+	 */
+	protected final String distributionGroup;
+	
+	/**
 	 * The root node of the K-D-Tree
 	 */
-	protected final DistributionRegion rootNode;
+	protected DistributionRegion rootNode;
+	
+	/**
+	 * The version of the distribution group
+	 */
+	protected String version;
 	
 	/**
 	 * The mutex for sync operations
@@ -61,16 +73,112 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	private final static Logger logger = LoggerFactory.getLogger(KDtreeZookeeperAdapter.class);
 
 	public KDtreeZookeeperAdapter(final ZookeeperClient zookeeperClient,
-			final DistributionGroupZookeeperAdapter distributionGroupAdapter, 
-			final DistributionRegion rootNode) throws ZookeeperException {
+			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
+			final String distributionGroup) throws ZookeeperException {
 		
 		this.zookeeperClient = zookeeperClient;
 		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
-		this.rootNode = rootNode;
+		this.distributionGroup = distributionGroup;
+		
+		readAndHandleVersion();
+	}
+	
 
-		final String path = distributionGroupZookeeperAdapter.getDistributionGroupPath(rootNode.getDistributionGroupName().getFullname());
+	/**
+	 * Reread and handle the dgroup version
+	 * @param distributionGroupName
+	 * @throws ZookeeperException
+	 */
+	protected void readAndHandleVersion() throws ZookeeperException {
+		
+		try {
+			final String zookeeperVersion 
+				= distributionGroupZookeeperAdapter.getVersionForDistributionGroup(
+					distributionGroup, this);
+			
+			if(version == null || ! zookeeperVersion.equals(version)) {
+				// First read after start
+				version = zookeeperVersion;
+				handleNewRootElement();
+			} 
+			
+		} catch (ZookeeperNotFoundException e) {
+			logger.info("Version for {} not found, deleting in memory version", distributionGroup);
+			handleRootElementDeleted();
+		}
+		
+		registerDistributionGroupChangeListener();
+	}
+	
+	/**
+	 * Register a listener for distribution group changes
+	 */
+	protected void registerDistributionGroupChangeListener() {
+		try {
+			final List<DistributionGroupName> distributionGroups = distributionGroupZookeeperAdapter.getDistributionGroups(this);
+			
+			// Is group already in creation?
+			if(rootNode == null && distributionGroups.contains(new DistributionGroupName(distributionGroup))) {
+			
+				final String dgroupPath = distributionGroupZookeeperAdapter.getDistributionGroupPath(distributionGroup);
+				
+				// Wait for state node to appear
+				for(int retry = 0; retry < 10; retry++) {
+					try {
+						distributionGroupZookeeperAdapter.getStateForDistributionRegion(dgroupPath, null);
+						handleNewRootElement();
+						break;
+					} catch (ZookeeperNotFoundException e) {
+						Thread.sleep(1000);
+					}
+				}
+				
+				if(rootNode == null) {
+					logger.error("DGroup was created but state field does not appear..");
+				}
+			}
+			
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
+			logger.warn("Got exception while registering event lister for distribution group changes");
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+	}
+	
+	/**
+	 * Reread and handle the dgroup version
+	 */
+	protected void readAndHandleVersionNE() {
+		try {
+			readAndHandleVersion();
+		} catch (ZookeeperException e) {
+			logger.warn("Got zookeeper exception", e);
+		}
+	}
+	
+	/**
+	 * Create and reread the distribution group
+	 * @throws ZookeeperException
+	 */
+	protected void handleNewRootElement() throws ZookeeperException {
 
+		// Delete old mappings
+		handleRootElementDeleted();
+		
+		logger.info("Create new root element for {}", distributionGroup);
+		rootNode = DistributionRegion.createRootElement(distributionGroup);
+			
+		final String path = distributionGroupZookeeperAdapter.getDistributionGroupPath(distributionGroup);
 		readDistributionGroupRecursive(path, rootNode);
+	}
+	
+	/**
+	 * The root element is deleted
+	 */
+	public void handleRootElementDeleted() {
+		logger.info("Root element for {} is deleted", distributionGroup);
+		NameprefixInstanceManager.getInstance(new DistributionGroupName(distributionGroup)).clear();
+		rootNode = null;
 	}
 	
 	/**
@@ -88,13 +196,20 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		if(event == null || event.getPath() == null) {
 			return;
 		}
+		
+		final String path = event.getPath();
 
-		if(event.getPath().endsWith(ZookeeperNodeNames.NAME_SYSTEMS)) {
+		if(path.equals(distributionGroupZookeeperAdapter.getClusterPath())) {
+			// Amount of distribution groups have changed
+			readAndHandleVersionNE();
+		} else if(path.endsWith(ZookeeperNodeNames.NAME_SYSTEMS)) {
+			// Some systems were added or deleted
 			handleSystemNodeUpdateEvent(event);
-		} else if(event.getPath().endsWith(ZookeeperNodeNames.NAME_STATE)) {
+		} else if(path.endsWith(ZookeeperNodeNames.NAME_STATE)) {
+			// The state of one has changed
 			handleNodeUpdateEvent(event);
 		} else {
-			logger.info("Ingoring event for path: {}" , event.getPath());
+			logger.info("Ingoring event for path: {}" , path);
 		}
 	}
 	
@@ -103,7 +218,15 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * @param event
 	 */
 	protected void handleNodeUpdateEvent(final WatchedEvent event) {
+	
+		if(rootNode == null) {
+			logger.debug("Ignore systems update event, because root not node is null: {}", distributionGroup);
+			return;
+		}
+		
+		// Remove state node from path
 		final String path = event.getPath().replace("/" + ZookeeperNodeNames.NAME_STATE, "");
+		
 		final DistributionRegion nodeToUpdate = distributionGroupZookeeperAdapter.getNodeForPath(rootNode, path);
 		
 		try {
@@ -123,6 +246,12 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * @param event
 	 */
 	protected void handleSystemNodeUpdateEvent(final WatchedEvent event) {
+		
+		if(rootNode == null) {
+			logger.debug("Ignore systems update event, because root not node is null: {}", distributionGroup);
+			return;
+		}
+		
 		final String path = event.getPath().replace("/" + ZookeeperNodeNames.NAME_SYSTEMS, "");
 		
 		final DistributionRegion nodeToUpdate = distributionGroupZookeeperAdapter.getNodeForPath(rootNode, path);
@@ -251,7 +380,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 					readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, region.getRightChild());
 				}
 			} catch (ZookeeperNotFoundException e) {
-				// TODO: Node is deleted in zookeeper, remove from in memory structure
+				handleRootElementDeleted();
 			}
 	
 			// Wake up all pending waiters

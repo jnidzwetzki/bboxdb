@@ -176,7 +176,8 @@ public class ConnectDialog {
 				try {
 					mainframe.dispose();
 
-					final List<DistributionGroupName> distributionGroups = distributionGroupZookeeperAdapter.getDistributionGroups();
+					final List<DistributionGroupName> distributionGroups 
+						= distributionGroupZookeeperAdapter.getDistributionGroups();
 
 					if(distributionGroups.isEmpty()) {
 						JOptionPane.showMessageDialog(mainframe,
