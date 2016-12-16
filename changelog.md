@@ -2,12 +2,14 @@
 
 ### Version 0.2.0 (Beta-4) - TBA
 - New Feature: Renamed from 'scalephant' to 'BBoxDB'
+- New Feature: Introduced the new $BBOXDB_HOME environment variable
 - Improvement: Unified tuple store aquire code
 - Improvement: Introduced the local selftest
 - Improvement: Added CLI parameter to the SSTableExaminer
 - Improvement: The documentation is now pushed to 'GitHub pages'
 - Improvement: Rewrote the KD-Tree zookeeper integration code
 - Improvement: Improved handling of deleted nodes in zookeeper
+- Improvement: Node configuration is now done via files (not via environment variables)
 - Bugfix: Init table splitter only in distributed mode
 - Bugfix: In a major compact, not all tables were processed
 - Bugfix: After distribution group delete / create the DistributionGroupCache can become inconsistent
