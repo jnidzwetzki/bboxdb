@@ -347,7 +347,7 @@ public class ClientConnectionHandler implements Runnable {
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
 					createPackage.getDistributionGroup(), zookeeperClient);
 
-			final DistributionRegion region = distributionAdapter.getRootNode();
+			final DistributionRegion region = distributionAdapter.getAndWaitForRootNode();
 			
 			DistributionRegionHelper.allocateSystemsToNewRegion(region, zookeeperClient);
 			

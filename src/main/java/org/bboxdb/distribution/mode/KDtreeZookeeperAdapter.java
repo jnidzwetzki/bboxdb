@@ -201,6 +201,24 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	public DistributionRegion getRootNode() {
 		return rootNode;
 	}
+	
+	/**
+	 * Wait until the root node is created
+	 * @return
+	 */
+	public DistributionRegion getAndWaitForRootNode() {
+		synchronized (MUXTEX) {
+			while(rootNode == null) {
+				try {
+					MUXTEX.wait();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			}
+		}
+		
+		return rootNode;
+	}
 
 	@Override
 	public void process(final WatchedEvent event) {
