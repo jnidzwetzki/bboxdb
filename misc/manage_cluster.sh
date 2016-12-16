@@ -4,12 +4,6 @@
 #
 #########################################
 
-##
-# variables
-##
-done=" \x1b[33;32m[ Done ]\x1b[39;49;00m"
-failed=" \x1b[31;31m[ Failed ]\x1b[39;49;00m"
-
 # Home dir
 if [ -z "$BBOXDB_HOME" ]; then
    echo "Your environment variable \$(BBOXDB_HOME) is empty. Please check your .bboxdbrc"
