@@ -378,7 +378,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		
 		// Process events
 		if(watchedEvent.getPath() != null) {
-			if(watchedEvent.getPath().startsWith(getNodesPath())) {
+			if(watchedEvent.getPath().startsWith(getInstancesPath())) {
 				readMembershipAndRegisterWatch();
 			}
 		} else {
@@ -527,12 +527,12 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	}
 	
 	/**
-	 * Get the path for the nodes
+	 * Get the path for the systems
 	 * @param clustername
 	 * @return
 	 */
-	protected String getNodesPath() {
-		return getClusterPath() + "/nodes";
+	protected String getInstancesPath() {
+		return getClusterPath() + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
 	}
 	
 	/**
@@ -541,7 +541,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 */
 	protected String getActiveInstancesPath() {
-		return getNodesPath() + "/active";
+		return getInstancesPath() + "/active";
 	}
 	
 	/**
@@ -550,7 +550,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 */
 	protected String getInstancesVersionPath() {
-		return getNodesPath() + "/version";
+		return getInstancesPath() + "/version";
 	}
 	
 

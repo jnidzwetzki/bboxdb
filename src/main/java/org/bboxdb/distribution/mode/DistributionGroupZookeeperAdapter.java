@@ -541,10 +541,6 @@ public class DistributionGroupZookeeperAdapter {
 				continue;
 			}
 			
-			if("nodes".equals(node)) {
-				continue;
-			}
-			
 			final DistributionGroupName groupName = new DistributionGroupName(node);
 			if(groupName.isValid()) {
 				groups.add(groupName);
