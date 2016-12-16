@@ -85,7 +85,10 @@ public class DistributionRegionHelper {
 	 */
 	public static DistributionRegion getDistributionRegionForNamePrefix(final DistributionRegion region, final int searchNameprefix) {
 		final DistributionRegionNameprefixFinder distributionRegionNameprefixFinder = new DistributionRegionNameprefixFinder(searchNameprefix);
-		region.visit(distributionRegionNameprefixFinder);
+		
+		if(region != null) {
+			region.visit(distributionRegionNameprefixFinder);
+		}
 		
 		return distributionRegionNameprefixFinder.getResult();
 	}
@@ -97,7 +100,10 @@ public class DistributionRegionHelper {
 	 */
 	public static Map<DistributedInstance, Integer> getSystemUtilization(final DistributionRegion region) {
 		final CalculateSystemUtilization calculateSystemUtilization = new CalculateSystemUtilization();
-		region.visit(calculateSystemUtilization);
+		
+		if(region != null) {
+			region.visit(calculateSystemUtilization);
+		}
 		
 		return calculateSystemUtilization.getResult();
 	}
@@ -110,7 +116,10 @@ public class DistributionRegionHelper {
 	 */
 	public static List<OutdatedDistributionRegion> getOutdatedRegions(final DistributionRegion region, final DistributedInstance distributedInstance) {
 		final DistributionRegionOutdatedRegionFinder distributionRegionOutdatedRegionFinder = new DistributionRegionOutdatedRegionFinder(distributedInstance);
-		region.visit(distributionRegionOutdatedRegionFinder);
+		
+		if(region != null) {
+			region.visit(distributionRegionOutdatedRegionFinder);
+		}
 		
 		return distributionRegionOutdatedRegionFinder.getResult();
 	}
