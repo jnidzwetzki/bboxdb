@@ -4,17 +4,18 @@
 #
 #########################################
 
-# Scriptname and Path 
-pushd `dirname $0` > /dev/null
-basedir=`pwd`
-fullpath=$(basename $0)
-popd > /dev/null
-
 ##
 # variables
 ##
 done=" \x1b[33;32m[ Done ]\x1b[39;49;00m"
 failed=" \x1b[31;31m[ Failed ]\x1b[39;49;00m"
+
+# Home dir
+if [ -z "$BBOXDB_HOME" ]; then
+   echo "Your environment variable \$(BBOXDB_HOME) is empty. Please check your .bboxdbrc"
+   exit -1
+fi
+
 
 # Max pending tasks
 max_pending=3
@@ -74,42 +75,42 @@ fi
 # Start the bboxdb
 ###
 bboxdb_start() {
-   execute_parallel "cd $basedir; ./manage_instance.sh bboxdb_start" "Starting BBoxDB" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start" "Starting BBoxDB" "$bboxdb_nodes" $max_pending
 }
 
 ###
 # Stop the bboxdb
 ###
 bboxdb_stop() {
-   execute_parallel "cd $basedir; ./manage_instance.sh bboxdb_stop" "Stopping BBoxDB" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_stop" "Stopping BBoxDB" "$bboxdb_nodes" $max_pending
 }
 
 ###
 # Update the bboxdb
 ###
 bboxdb_update() {
-   execute_parallel "cd $basedir; ./manage_instance.sh bboxdb_update" "Update BBoxDB" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_update" "Update BBoxDB" "$bboxdb_nodes" $max_pending
 }
 
 ###
 # Start zookeeper
 ###
 zookeeper_start() {
-   execute_parallel "cd $basedir; ./manage_instance.sh zookeeper_start > /dev/null" "Starting Zookeeper" "$zookeeper_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh zookeeper_start > /dev/null" "Starting Zookeeper" "$zookeeper_nodes" $max_pending
 }
 
 ###
 # Stop zookeeper
 ###
 zookeeper_stop() {
-   execute_parallel "cd $basedir; ./manage_instance.sh zookeeper_stop > /dev/null" "Stopping Zookeeper" "$zookeeper_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh zookeeper_stop > /dev/null" "Stopping Zookeeper" "$zookeeper_nodes" $max_pending
 }
 
 ###
 # Drop zookeeper
 ###
 zookeeper_drop() {
-   execute_parallel "cd $basedir; ./manage_instance.sh zookeeper_drop > /dev/null" "Dropping Zookeeper database" "$zookeeper_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh zookeeper_drop > /dev/null" "Dropping Zookeeper database" "$zookeeper_nodes" $max_pending
 }
 
 case "$1" in  

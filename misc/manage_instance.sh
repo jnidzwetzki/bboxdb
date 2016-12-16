@@ -8,31 +8,33 @@
 jsvc_file="commons-daemon-1.0.15-native-src.tar.gz"
 jsvc_url="http://www.apache.org/dist/commons/daemon/source/$jsvc_file"
 
-# Scriptname and Path 
-pushd `dirname $0` > /dev/null
-basedir=`pwd`
-fullpath=$(basename $0)
-popd > /dev/null
+# Home dir
+if [ -z "$BBOXDB_HOME" ]; then
+   echo "Your environment variable \$(BBOXDB_HOME) is empty. Please check your .bboxdbrc"
+   exit -1
+fi
 
 # Find all jars
-cd $basedir
+cd $BBOXDB_HOME 
 
 # Does a build exists? 
-if [ -d ../target ]; then
-   libs=$(find ../target/lib -name '*.jar' | xargs echo | tr ' ' ':')
-   jar=$(ls -1 ../target/bboxdb*.jar | tail -1)
+if [ -d $BBOXDB_HOME/target ]; then
+   libs=$(find $BBOXDB_HOME/target/lib -name '*.jar' | xargs echo | tr ' ' ':')
+   jar=$(ls -1 $BBOXDB_HOME/target/bboxdb*.jar | tail -1)
 fi 
 
-classpath="$basedir/../conf:$libs:$jar"
+classpath="$BBOXDB_HOME/conf:$libs:$jar"
+
+# BBoxDB
+bboxdb_pid=$BBOXDB_HOME/misc/bboxdb.pid
 
 # Log dir
-logdir=$basedir/../logs
+logdir=$BBOXDB_HOME/logs
 
 # Zookeeper
-zookeeper_workdir=$basedir/zookeeper
+zookeeper_workdir=$BBOXDB_HOME/misc/zookeeper
+zookeeper_pid=$BBOXDB_HOME/misc/zookeeper.pid
 zookeeper_clientport="2181"
-
-# Nodes
 zookeeper_nodes="${BBOXDB_ZN}"
 
 if [ -z "$zookeeper_nodes" ]; then
@@ -44,7 +46,8 @@ fi
 # Download and compile jsvc if not installed
 ###
 download_jsvc() {
-   cd $basedir
+   cd $BBOXDB_HOME/misc
+
    if [ ! -x ./jsvc ]; then
        echo "JSVC not found, downloading"
        wget $jsvc_url
@@ -64,8 +67,8 @@ download_jsvc() {
            exit 2
        fi
 
-       mv jsvc $basedir
-       cd $basedir
+       mv jsvc $BBOXDB_HOME/misc
+       cd $BBOXDB_HOME/misc
    fi
 }
 
@@ -74,7 +77,7 @@ download_jsvc() {
 ###
 bboxdb_update() {
    echo "Update the BBoxDB"
-   cd ..
+   
    git pull
    
    # Remove old jars
@@ -91,11 +94,11 @@ bboxdb_update() {
 bboxdb_start() {
     echo "Starting the BBoxDB"
     download_jsvc
-    cd $basedir
+    cd $BBOXDB_HOME
 
     # Is already running?
-    if [ -f $basedir/bboxdb.pid ]; then
-        pid=$(cat $basedir/bboxdb.pid)
+    if [ -f $bboxdb_pid ]; then
+        pid=$(cat $bboxdb_pid)
         if [ -d /proc/$pid ]; then
             echo "BBoxDB is already running PID ($pid)"
             return
@@ -118,7 +121,7 @@ bboxdb_start() {
          debug_args+="-Dlog4j.configuration=log4j_debug.properties"
     fi
     
-    config="$basedir/../conf/bboxdb.yaml"
+    config="$BBOXDB_HOME/conf/bboxdb.yaml"
 
     if [ ! -f $config ]; then
         echo "Unable to locate bboxdb config $config"
@@ -142,7 +145,8 @@ bboxdb_start() {
          rm $logdir/bboxdb.out.log
     fi
 
-    ./jsvc $debug_flag $debug_args -outfile $logdir/bboxdb.out.log -pidfile $basedir/bboxdb.pid -Dbboxdb.log.dir="$logdir" -cwd $basedir -cp $classpath org.bboxdb.BBoxDBMain
+    cd $BBOXDB_HOME/misc
+    ./jsvc $debug_flag $debug_args -outfile $logdir/bboxdb.out.log -pidfile $bboxdb_pid -Dbboxdb.log.dir="$logdir" -cwd $BBOXDB_HOME/misc -cp $classpath org.bboxdb.BBoxDBMain
 }
 
 ###
@@ -150,12 +154,12 @@ bboxdb_start() {
 ###
 bboxdb_stop() {
     echo "Stopping the BBoxDB"
-    cd $basedir
-    ./jsvc -pidfile $basedir/bboxdb.pid -stop -cwd $basedir -cp $classpath org.bboxdb.BBoxDBMain
+    cd $BBOXDB_HOME/misc
+    ./jsvc -pidfile $bboxdb_pid -stop -cwd $BBOXDB_HOME/misc -cp $classpath org.bboxdb.BBoxDBMain
 
     # Was stop successfully?
-    if [ -f $basedir/bboxdb.pid ]; then
-        pid=$(cat $basedir/bboxdb.pid)
+    if [ -f $bboxdb_pid ]; then
+        pid=$(cat $bboxdb_pid)
         if [ -d /proc/$pid ]; then
             echo "Normal shutdown was not successfully, killing process...."
             kill -9 $pid
@@ -168,7 +172,7 @@ bboxdb_stop() {
 ###
 zookeeper_start() {
     # Check for running instance
-    if [ -f $basedir/zookeeper.pid ]; then
+    if [ -f $zookeeper_pid ]; then
        echo "Found old zookeeper pid, check process list or remove pid"
        exit 2
     fi
@@ -185,7 +189,7 @@ zookeeper_start() {
     fi
    
     # Write zookeeper config
-cat << EOF > $basedir/zoo.cfg
+cat << EOF > $BBOXDB_HOME/misc/zoo.cfg
 tickTime=2000
 dataDir=$zookeeper_workdir
 clientPort=$zookeeper_clientport
@@ -200,7 +204,7 @@ EOF
     localip=$(hostname --ip-address)
 
     for i in $zookeeper_nodes; do
-       echo "server.$serverid=$i:2888:3888" >> $basedir/zoo.cfg
+       echo "server.$serverid=$i:2888:3888" >> $BBOXDB_HOME/misc/zoo.cfg
 
        # Store the id of this node
        if [ "$hostname" == "$i" ] || [ "$localip" == "$i" ]; then
@@ -214,11 +218,11 @@ EOF
     echo $instanceid > $zookeeper_workdir/myid
  
     # Start zookeeper
-    nohup java -cp $classpath -Dzookeeper.log.dir="$logdir" org.apache.zookeeper.server.quorum.QuorumPeerMain $basedir/zoo.cfg > $logdir/zookeeper.log 2>&1 < /dev/null &
+    nohup java -cp $classpath -Dzookeeper.log.dir="$logdir" org.apache.zookeeper.server.quorum.QuorumPeerMain $BBOXDB_HOME/misc/zoo.cfg > $logdir/zookeeper.log 2>&1 < /dev/null &
     
     if [ $? -eq 0 ]; then
        # Dump PID into file
-       echo -n $! > $basedir/zookeeper.pid
+       echo -n $! > $zookeeper_pid 
     else
        echo "Unable to start zookeeper, check the logfiles for further information"
     fi
@@ -228,12 +232,12 @@ EOF
 # Zookeeper stop
 ###
 zookeeper_stop() {
-    if [ ! -f $basedir/zookeeper.pid ]; then
+    if [ ! -f $zookeeper_pid ]; then
        echo "Unable to locate PID file"
     else
        echo "Stopping Zookeeper"
-       kill -9 $(cat $basedir/zookeeper.pid)
-       rm $basedir/zookeeper.pid
+       kill -9 $(cat $zookeeper_pid)
+       rm $zookeeper_pid 
     fi
 }
 
