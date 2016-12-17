@@ -10,6 +10,7 @@
 - Improvement: Rewrote the KD-Tree zookeeper integration code
 - Improvement: Improved handling of deleted nodes in zookeeper
 - Improvement: Node configuration is now done via files (not via environment variables)
+- Improvement: Ensure that only one node splits a distribution region (new state ACTIVE_FULL)
 - Bugfix: Init table splitter only in distributed mode
 - Bugfix: In a major compact, not all tables were processed
 - Bugfix: After distribution group delete / create the DistributionGroupCache can become inconsistent

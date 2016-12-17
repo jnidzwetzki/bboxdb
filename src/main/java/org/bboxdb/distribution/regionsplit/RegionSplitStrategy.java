@@ -53,9 +53,14 @@ public abstract class RegionSplitStrategy implements Runnable {
 	protected final ZookeeperClient zookeeperClient;
 	
 	/**
-	 * The distribution group adapter
+	 * The tree adapter
 	 */
-	private KDtreeZookeeperAdapter distributionAdapter;
+	protected KDtreeZookeeperAdapter treeAdapter;
+	
+	/**
+	 * The distribution group adapter 
+	 */
+	protected DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 
 	/**
 	 * The region to split;
@@ -67,10 +72,9 @@ public abstract class RegionSplitStrategy implements Runnable {
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitStrategy.class);
 
-
-
 	public RegionSplitStrategy() {
 		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
+		this.distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 	}
 		
 	/**
@@ -81,10 +85,10 @@ public abstract class RegionSplitStrategy implements Runnable {
 	public void initFromSSTablename(final SSTableName ssTableName) throws StorageManagerException {
 		
 		try {
-			distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+			treeAdapter = DistributionGroupCache.getGroupForGroupName(
 					ssTableName.getDistributionGroup(), zookeeperClient);
 
-			final DistributionRegion distributionGroup = distributionAdapter.getRootNode();
+			final DistributionRegion distributionGroup = treeAdapter.getRootNode();
 			
 			region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 					distributionGroup, ssTableName.getNameprefix());
@@ -148,6 +152,15 @@ public abstract class RegionSplitStrategy implements Runnable {
 		logger.info("Performing split for: {}", region);
 		
 		try {
+			
+			// Try to set region state to full. If this fails, another node is already 
+			// splits the region
+			final boolean setToFullResult = distributionGroupZookeeperAdapter.setToFull(region);
+			if(! setToFullResult) {
+				logger.info("Unable to set state to full for region: {}, stopping split", region);
+				return;
+			}
+			
 			performSplit(region);
 			redistributeData(region);
 		} catch (Throwable e) {
@@ -338,7 +351,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 
 		try {
 			logger.info("Set split at:" + splitPosition);
-			distributionAdapter.splitNode(region, splitPosition);
+			treeAdapter.splitNode(region, splitPosition);
 		
 			// Allocate systems 
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();

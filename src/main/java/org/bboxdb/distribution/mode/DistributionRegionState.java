@@ -22,6 +22,7 @@ public enum DistributionRegionState {
 	
 	CREATING("creating"),
 	ACTIVE("active"),
+	ACTIVE_FULL("active-full"),
 	SPLITTING("splitting"),
 	SPLITTED("splitted");
 

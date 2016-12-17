@@ -168,6 +168,31 @@ public class DistributionGroupZookeeperAdapter {
 		return DistributionRegionState.fromString(state);
 	}
 	
+	
+	/**
+	 * Set the given region to full (if possible)
+	 * @param region
+	 * @return
+	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
+	 */
+	public boolean setToFull(final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		logger.debug("Set state for {} to full", region);
+		final String zookeeperPath = getZookeeperPathForDistributionRegion(region);
+		final DistributionRegionState oldState = getStateForDistributionRegion(region, null);
+		
+		if(oldState != DistributionRegionState.ACTIVE) {
+			logger.debug("Old state is not active (old value {})" , oldState);
+			return false;
+		}
+		
+		return zookeeperClient.testAndReplaceValue(zookeeperPath, 
+				DistributionRegionState.ACTIVE.getStringValue(), 
+				DistributionRegionState.ACTIVE_FULL.getStringValue());
+	}
+
 	/**
 	 * Get the state for a given path
 	 * @return 
