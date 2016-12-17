@@ -26,7 +26,7 @@ import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
-import org.bboxdb.distribution.mode.NodeState;
+import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -177,12 +177,12 @@ public class TestZookeeperIntegration {
 		final DistributionRegion distributionGroup = distributionGroupAdapter.getRootNode();
 		Assert.assertEquals(TEST_GROUP, distributionGroup.getName());
 		
-		Assert.assertEquals(NodeState.ACTIVE, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup, null));
+		Assert.assertEquals(DistributionRegionState.ACTIVE, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup, null));
 		distributionGroupAdapter.splitNode(distributionGroup, 10);
 		
 		Thread.sleep(1000);
 		Assert.assertEquals(10.0, distributionGroup.getSplit(), 0.0001);
-		Assert.assertEquals(NodeState.SPLITTING, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup, null));
+		Assert.assertEquals(DistributionRegionState.SPLITTING, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup, null));
 
 		// Reread group from zookeeper
 		final DistributionRegion newDistributionGroup = distributionGroupAdapter.getRootNode();

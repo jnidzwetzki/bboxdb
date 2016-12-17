@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.distribution.mode.NodeState;
+import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.storage.entity.BoundingBox;
 
 public class DistributionRegion {
@@ -74,7 +74,7 @@ public class DistributionRegion {
 	/**
 	 * The state of the region
 	 */
-	protected NodeState state = NodeState.CREATING;
+	protected DistributionRegionState state = DistributionRegionState.CREATING;
 	
 	/**
 	 * The systems
@@ -190,7 +190,7 @@ public class DistributionRegion {
 	 * Get the state of the node
 	 * @return
 	 */
-	public NodeState getState() {
+	public DistributionRegionState getState() {
 		return state;
 	}
 
@@ -198,7 +198,7 @@ public class DistributionRegion {
 	 * Set the state of the node
 	 * @param state
 	 */
-	public void setState(final NodeState state) {
+	public void setState(final DistributionRegionState state) {
 		this.state = state;
 	}
 
@@ -381,7 +381,7 @@ public class DistributionRegion {
 			return;
 		}
 		
-		if(state == NodeState.ACTIVE || state == NodeState.SPLITTING) {
+		if(state == DistributionRegionState.ACTIVE || state == DistributionRegionState.SPLITTING) {
 			for(final DistributedInstance system : systems) {
 				if(! resultSystems.contains(system)) {
 					resultSystems.add(system);

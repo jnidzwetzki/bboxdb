@@ -160,12 +160,12 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public NodeState getStateForDistributionRegion(final String path, 
+	public DistributionRegionState getStateForDistributionRegion(final String path, 
 			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
 		final String state = zookeeperClient.readPathAndReturnString(statePath, false, callback);
-		return NodeState.fromString(state);
+		return DistributionRegionState.fromString(state);
 	}
 	
 	/**
@@ -174,7 +174,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public NodeState getStateForDistributionRegion(final DistributionRegion region, 
+	public DistributionRegionState getStateForDistributionRegion(final DistributionRegion region, 
 			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException  {
 		
 		final String path = getZookeeperPathForDistributionRegion(region);
@@ -187,7 +187,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param state
 	 * @throws ZookeeperException 
 	 */
-	public void setStateForDistributionGroup(final String path, final NodeState state) throws ZookeeperException  {
+	public void setStateForDistributionGroup(final String path, final DistributionRegionState state) throws ZookeeperException  {
 		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
 		zookeeperClient.setData(statePath, state.getStringValue());
 	}
@@ -198,7 +198,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param state
 	 * @throws ZookeeperException
 	 */
-	public void setStateForDistributionGroup(final DistributionRegion region, final NodeState state) throws ZookeeperException  {
+	public void setStateForDistributionGroup(final DistributionRegion region, final DistributionRegionState state) throws ZookeeperException  {
 		final String path = getZookeeperPathForDistributionRegion(region);
 		setStateForDistributionGroup(path, state);
 	}
@@ -230,7 +230,7 @@ public class DistributionGroupZookeeperAdapter {
 				Long.toString(System.currentTimeMillis()).getBytes());
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_STATE, 
-				NodeState.ACTIVE.getStringValue().getBytes());
+				DistributionRegionState.ACTIVE.getStringValue().getBytes());
 
 	}
 	

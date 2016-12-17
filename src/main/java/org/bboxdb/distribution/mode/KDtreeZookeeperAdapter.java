@@ -312,9 +312,9 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		
 		// Write split position and update state
 		distributionGroupZookeeperAdapter.setSplitPositionForPath(zookeeperPath, splitPosition);
-		distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, NodeState.SPLITTING);
-		distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, NodeState.ACTIVE);
-		distributionGroupZookeeperAdapter.setStateForDistributionGroup(rightPath, NodeState.ACTIVE);
+		distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, DistributionRegionState.SPLITTING);
+		distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
+		distributionGroupZookeeperAdapter.setStateForDistributionGroup(rightPath, DistributionRegionState.ACTIVE);
 		
 		// Wait for zookeeper callback
 		while(! isSplitForNodeComplete(regionToSplit)) {
@@ -344,11 +344,11 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			return false;
 		}
 		
-		if(region.getLeftChild().getState() != NodeState.ACTIVE) {
+		if(region.getLeftChild().getState() != DistributionRegionState.ACTIVE) {
 			return false;
 		}
 		
-		if(region.getRightChild().getState() != NodeState.ACTIVE) {
+		if(region.getRightChild().getState() != DistributionRegionState.ACTIVE) {
 			return false;
 		}
 		
@@ -374,9 +374,9 @@ public class KDtreeZookeeperAdapter implements Watcher {
 				"".getBytes());
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_STATE, 
-				NodeState.CREATING.getStringValue().getBytes());
+				DistributionRegionState.CREATING.getStringValue().getBytes());
 
-		distributionGroupZookeeperAdapter.setStateForDistributionGroup(path, NodeState.ACTIVE);
+		distributionGroupZookeeperAdapter.setStateForDistributionGroup(path, DistributionRegionState.ACTIVE);
 	}
 	
 	/**
@@ -399,7 +399,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 				updateSystemsForRegion(region);
 				
 				// Handle state
-				final NodeState stateForDistributionRegion = distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
+				final DistributionRegionState stateForDistributionRegion = distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
 				region.setState(stateForDistributionRegion);
 
 				// If the node is not split, stop recursion

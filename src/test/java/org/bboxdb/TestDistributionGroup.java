@@ -23,7 +23,7 @@ import java.util.Set;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.distribution.mode.NodeState;
+import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.junit.Assert;
@@ -167,9 +167,9 @@ public class TestDistributionGroup {
 		level0.getLeftChild().addSystem(SYSTEM_A);
 		level0.getRightChild().addSystem(SYSTEM_B);
 		
-		level0.setState(NodeState.SPLITTED);
-		level0.getLeftChild().setState(NodeState.ACTIVE);
-		level0.getRightChild().setState(NodeState.ACTIVE);
+		level0.setState(DistributionRegionState.SPLITTED);
+		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
+		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
 		
 		Assert.assertFalse(level0.getSystemsForBoundingBox(new BoundingBox(100f, 110f)).contains(SYSTEM_A));
 		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 10f)).contains(SYSTEM_A));
@@ -229,9 +229,9 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setNameprefix(2);
 		level0.getRightChild().setNameprefix(3);
 		
-		level0.setState(NodeState.SPLITTED);
-		level0.getLeftChild().setState(NodeState.ACTIVE);
-		level0.getRightChild().setState(NodeState.ACTIVE);
+		level0.setState(DistributionRegionState.SPLITTED);
+		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
+		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
 		
 		level0.addSystem(new DistributedInstance("node1:123"));
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
@@ -251,9 +251,9 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setNameprefix(2);
 		level0.getRightChild().setNameprefix(3);
 		
-		level0.setState(NodeState.SPLITTED);
-		level0.getLeftChild().setState(NodeState.ACTIVE);
-		level0.getRightChild().setState(NodeState.ACTIVE);
+		level0.setState(DistributionRegionState.SPLITTED);
+		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
+		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
 		
 		level0.addSystem(new DistributedInstance("node1:123"));
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));

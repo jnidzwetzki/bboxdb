@@ -18,7 +18,7 @@
 package org.bboxdb.distribution.mode;
 
 
-public enum NodeState {
+public enum DistributionRegionState {
 	
 	CREATING("creating"),
 	ACTIVE("active"),
@@ -30,7 +30,7 @@ public enum NodeState {
 	 */
 	protected final String stringValue;
 	
-	private NodeState(final String stringValue) {
+	private DistributionRegionState(final String stringValue) {
 		this.stringValue = stringValue;
 	}
 	
@@ -47,12 +47,12 @@ public enum NodeState {
 	 * @param stringValue
 	 * @return
 	 */
-	public static NodeState fromString(final String stringValue) {
+	public static DistributionRegionState fromString(final String stringValue) {
 		if (stringValue == null) {
 			throw new RuntimeException("stringValue is null");
 		}
     
-		for(final NodeState nodeState : NodeState.values()) {
+		for(final DistributionRegionState nodeState : DistributionRegionState.values()) {
 			if(stringValue.equals(nodeState.getStringValue())) {
 				return nodeState;
 			}

@@ -30,7 +30,7 @@ import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
-import org.bboxdb.distribution.mode.NodeState;
+import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -173,7 +173,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 		
 		try {
 			final DistributionGroupZookeeperAdapter zookeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			zookeperAdapter.setStateForDistributionGroup(region, NodeState.SPLITTED);
+			zookeperAdapter.setStateForDistributionGroup(region, DistributionRegionState.SPLITTED);
 		} catch (ZookeeperException e) {
 			logger.error("Got an exception while setting region state to splitted", e);
 		}
