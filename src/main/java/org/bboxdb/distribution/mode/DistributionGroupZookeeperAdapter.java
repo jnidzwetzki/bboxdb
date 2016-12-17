@@ -586,4 +586,23 @@ public class DistributionGroupZookeeperAdapter {
 		return zookeeperClient.readPathAndReturnString(fullPath, false, callback);	 
 	}
 	
+	/**
+	 * Get the name prefix for a given path
+	 * @param path
+	 * @return
+	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
+	 */
+	public int getNamePrefixForPath(final String path) throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final String namePrefixPath = path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX;
+		String namePrefix = null;
+		
+		try {
+			namePrefix = zookeeperClient.readPathAndReturnString(namePrefixPath, false, null);
+			return Integer.parseInt(namePrefix);
+		} catch (NumberFormatException e) {
+			throw new ZookeeperException("Unable to parse name prefix '" + namePrefix + "' for " + namePrefixPath);
+		}		
+	}
 }

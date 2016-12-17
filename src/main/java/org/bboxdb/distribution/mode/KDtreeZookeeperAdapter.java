@@ -392,7 +392,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			logger.debug("Reading path: {}", path);
 			
 			try {
-				final int namePrefix = zookeeperClient.getNamePrefixForPath(path);
+				final int namePrefix = distributionGroupZookeeperAdapter.getNamePrefixForPath(path);
 				region.setNameprefix(namePrefix);
 
 				// Handle systems and mappings
