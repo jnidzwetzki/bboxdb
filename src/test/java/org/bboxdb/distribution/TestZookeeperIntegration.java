@@ -89,6 +89,31 @@ public class TestZookeeperIntegration {
 	}
 	
 	/**
+	 * Test the replace with test method
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 */
+	@Test
+	public void testAndReplaceValue() throws ZookeeperException, ZookeeperNotFoundException {
+		final String path = "/testnode";
+		zookeeperClient.createPersistentNode(path, "value1".getBytes());
+		
+		Assert.assertTrue(zookeeperClient.exists(path));
+		
+		final boolean result1 = zookeeperClient.testAndReplaceValue(path, "value1", "value2");
+		Assert.assertTrue(result1);
+		Assert.assertEquals("value2", zookeeperClient.readPathAndReturnString(path, true, null));
+		
+		// Set new value with wrong old value => value should not change
+		final boolean result2 = zookeeperClient.testAndReplaceValue(path, "abc", "value3");
+		Assert.assertFalse(result2);
+		Assert.assertEquals("value2", zookeeperClient.readPathAndReturnString(path, true, null));
+		
+		zookeeperClient.deleteNodesRecursive(path);
+		Assert.assertFalse(zookeeperClient.exists(path));
+	}
+	
+	/**
 	 * Test the creation and the deletion of a distribution group
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException 

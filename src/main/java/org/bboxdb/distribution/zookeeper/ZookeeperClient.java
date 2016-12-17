@@ -33,6 +33,7 @@ import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
+import org.apache.zookeeper.data.Stat;
 import org.bboxdb.BBoxDBService;
 import org.bboxdb.Const;
 import org.bboxdb.distribution.membership.DistributedInstance;
@@ -401,9 +402,45 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @param value
 	 * @throws ZookeeperException
 	 */
-	public void setData(final String path, final String value) throws ZookeeperException {
+	public boolean setData(final String path, final String value) throws ZookeeperException {
+		return setData(path, value, -1);
+	}
+	
+	/**
+	 * Write the given data to zookeeper if the version matches
+	 * @param path
+	 * @param value
+	 * @throws ZookeeperException
+	 */
+	public boolean setData(final String path, final String value, final int version) 
+			throws ZookeeperException {
+		
 		try {
 			zookeeper.setData(path, value.getBytes(), -1);
+			
+			return true;
+		} catch (KeeperException e) {
+			
+			// Version does not match
+			if(e.code() == Code.BADVERSION) {
+				return false;
+			}
+			
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ZookeeperException(e);
+		}
+	}
+	
+	/**
+	 * Read the data and the stat from the given path
+	 * 
+	 * @throws ZookeeperException 
+	 */
+	public String getData(final String path, final Stat stat) throws ZookeeperException {
+		try {
+			return new String(zookeeper.getData(path, false, stat));
 		} catch (KeeperException e) {
 			throw new ZookeeperException(e);
 		} catch (InterruptedException e) {
@@ -414,17 +451,13 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	
 	/**
 	 * Read the data from the given path
-	 * @throws ZookeeperException 
+	 * 
+	 * @param path
+	 * @return
+	 * @throws ZookeeperException
 	 */
 	public String getData(final String path) throws ZookeeperException {
-		try {
-			return new String(zookeeper.getData(path, false, null));
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
+		return getData(path, null);
 	}
 	
 	/**
@@ -739,6 +772,47 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
+	}
+	
+	/**
+	 * Replace the value for the given path, only if the old value matches. This operation
+	 * is perfomed atomic.
+	 * @param path
+	 * @param oldValue
+	 * @param newValue
+	 * @return
+	 * @throws ZookeeperException 
+	 */
+	public boolean testAndReplaceValue(final String path, final String oldValue, 
+			final String newValue) throws ZookeeperException {
+		
+		if(oldValue == null || newValue == null) {
+			throw new IllegalArgumentException("Invalid parameter null for old or new value");
+		}
+		
+		if(! exists(path)) {
+			return false;
+		}
+		
+		// Retry value assignment
+		for(int retry = 0; retry < 10; retry++) {
+			final Stat stat = new Stat();
+			final String zookeeperValue = getData(path, stat);
+			
+			// Old value does not match
+			if(! oldValue.equals(zookeeperValue)) {
+				return false;
+			}
+			
+			// Replace only if version of the read matches
+			final boolean result = setData(path, newValue, stat.getVersion());
+			
+			if(result == true) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	/**
