@@ -44,4 +44,10 @@ vi $BBOXDB_HOME/conf/zookeeper-nodes
 vi $BBOXDB_HOME/conf/bboxdb-nodes
 ```
 
+## Clock synchronization
+BBoxDB uses timestamps to order opertions. So, it is useful to have a reliable time source on all systems. We strongly recommend to synchronize the local clock with an NTP server. You can accomplish this by executing:
+
+```bash
+apt-get install ntp
+``` 
 
