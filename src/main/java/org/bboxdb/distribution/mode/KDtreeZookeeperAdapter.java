@@ -407,7 +407,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 				if(distributionGroupZookeeperAdapter.isGroupSplitted(path)) {
 					final float splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
 					
-					if(! region.isLeafRegion()) {
+					if(region.isLeafRegion()) {
 						region.setSplit(splitFloat); 
 					} else {
 						if(region.getSplit() != splitFloat) {
