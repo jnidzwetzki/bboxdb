@@ -22,6 +22,13 @@ On Debian and Ubuntu, you can install them by typing:
 apt-get install openjdk-8-jdk ant maven git
 ```
 
+### Clock synchronization
+BBoxDB uses timestamps to order opertions. So, it is useful to have a reliable time source on all systems. We strongly recommend to synchronize the local clock with an NTP server. You can accomplish this by executing:
+
+```bash
+apt-get install ntp
+``` 
+
 ## Setup the environment
 Let the environment variable BBOXDB_HOME point to the installation directory. For example /opt/bboxdb:
 
@@ -44,10 +51,5 @@ vi $BBOXDB_HOME/conf/zookeeper-nodes
 vi $BBOXDB_HOME/conf/bboxdb-nodes
 ```
 
-## Clock synchronization
-BBoxDB uses timestamps to order opertions. So, it is useful to have a reliable time source on all systems. We strongly recommend to synchronize the local clock with an NTP server. You can accomplish this by executing:
 
-```bash
-apt-get install ntp
-``` 
 
