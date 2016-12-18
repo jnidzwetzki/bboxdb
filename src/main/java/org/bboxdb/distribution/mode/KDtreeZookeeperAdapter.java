@@ -399,16 +399,28 @@ public class KDtreeZookeeperAdapter implements Watcher {
 				updateSystemsForRegion(region);
 				
 				// Handle state
-				final DistributionRegionState stateForDistributionRegion = distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
+				final DistributionRegionState stateForDistributionRegion 
+					= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
 				region.setState(stateForDistributionRegion);
 
 				// If the node is not split, stop recursion
 				if(distributionGroupZookeeperAdapter.isGroupSplitted(path)) {
 					final float splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
-					region.setSplit(splitFloat);
 					
-					readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_LEFT, region.getLeftChild());
-					readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, region.getRightChild());
+					if(! region.isLeafRegion()) {
+						region.setSplit(splitFloat); 
+					} else {
+						if(region.getSplit() != splitFloat) {
+							logger.warn("Got different split positions: memory {}, zk {} for {}", 
+									region.getSplit(), splitFloat, path);
+						}
+					}
+					
+					readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_LEFT, 
+							region.getLeftChild());
+					
+					readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, 
+							region.getRightChild());
 				}
 			} catch (ZookeeperNotFoundException e) {
 				handleRootElementDeleted();
