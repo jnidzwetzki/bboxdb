@@ -812,6 +812,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			}
 		}
 		
+		logger.debug("Unable to replace {} with {} in path", oldValue, newValue, path);
+		
 		return false;
 	}
 
