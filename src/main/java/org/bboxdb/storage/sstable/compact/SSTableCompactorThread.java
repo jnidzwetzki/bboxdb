@@ -208,7 +208,7 @@ public class SSTableCompactorThread implements Runnable {
 			// Execute the split operation in an own thread, to survive the sstable manager
 			// stop call. This will stop (this) compact thread
 			final Thread splitThread = new Thread(regionSplitter);
-			splitThread.setName("Split thread for: {}" + threadname);
+			splitThread.setName("Split thread for: " + threadname);
 			splitThread.start();
 		}
 		
