@@ -89,6 +89,8 @@ bboxdb_update() {
    fi
    
    mvn package -DskipTests
+   
+   echo -e "BBoxDB data is successfully updated $done"
 }
 
 ###
