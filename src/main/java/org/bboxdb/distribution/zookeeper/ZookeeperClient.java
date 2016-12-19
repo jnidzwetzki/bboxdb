@@ -802,8 +802,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			
 			// Old value does not match
 			if(! oldValue.equals(zookeeperValue)) {
-				logger.debug("Unable to replace value, zk value {} does not match expected value {}", 
-						zookeeperValue, oldValue);
+				logger.debug("Unable to replace value, zk value {} for path {} does not match expected value {}", 
+						zookeeperValue, path, oldValue);
 				
 				
 				return false;
