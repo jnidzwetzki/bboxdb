@@ -41,7 +41,7 @@ zookeeper_clientport="2181"
 
 zookeeper_nodes=$(read_nodes_file $zookeeper_node_file)
 if [ -z "$zookeeper_nodes" ]; then
-   echo "Your zzokeeper nodes ($zookeeper_node_file) are empty, please check your configuration" 
+   echo -e "Your zzokeeper nodes ($zookeeper_node_file) are empty, please check your configuration $failed" 
    exit -1
 fi
 
@@ -56,7 +56,7 @@ download_jsvc() {
        wget $jsvc_url
     
        if [ ! -f $jsvc_file ]; then
-          echo "Error: unable to download commons-daemon, exiting"
+          echo -e "Error: unable to download commons-daemon, exiting $failed"
           exit 2
        fi
 
@@ -66,7 +66,7 @@ download_jsvc() {
        make
 
        if [ ! -x jsvc ]; then
-           echo "Error: unable to compile jsvc, exiting"
+           echo -e "Error: unable to compile jsvc, exiting $failed"
            exit 2
        fi
 
@@ -127,7 +127,7 @@ bboxdb_start() {
     config="$BBOXDB_HOME/conf/bboxdb.yaml"
 
     if [ ! -f $config ]; then
-        echo "Unable to locate bboxdb config $config"
+        echo -e "Unable to locate bboxdb config $config $failed"
         exit -1
     fi
 
@@ -150,6 +150,9 @@ bboxdb_start() {
 
     cd $BBOXDB_HOME/misc
     ./jsvc $debug_flag $debug_args -outfile $logdir/bboxdb.out.log -pidfile $bboxdb_pid -Dbboxdb.log.dir="$logdir" -cwd $BBOXDB_HOME/misc -cp $classpath org.bboxdb.BBoxDBMain
+
+	echo -e "BBoxDB is successfully started $done"
+	
 }
 
 ###
@@ -168,6 +171,8 @@ bboxdb_stop() {
             kill -9 $pid
         fi
     fi
+    
+    echo -e "BBoxDB is successfully stopped $done"
 }
 
 ###
@@ -176,7 +181,7 @@ bboxdb_stop() {
 zookeeper_start() {
     # Check for running instance
     if [ -f $zookeeper_pid ]; then
-       echo "Found old zookeeper pid, check process list or remove pid"
+       echo -e "Found old zookeeper pid, check process list or remove pid $failed"
        exit 2
     fi
 
@@ -229,6 +234,8 @@ EOF
     else
        echo "Unable to start zookeeper, check the logfiles for further information"
     fi
+   
+  	echo -e "Zookeeper is successfully started $done"
 }
 
 ###
@@ -241,7 +248,8 @@ zookeeper_stop() {
        echo "Stopping Zookeeper"
        kill -9 $(cat $zookeeper_pid)
        rm $zookeeper_pid 
-    fi
+       echo -e "Zookeeper is successfully stopped $done"
+    fi  
 }
 
 ###
@@ -264,12 +272,14 @@ zookeeper_drop() {
    # Drop zookeeper work dir
    if [ -d $zookeeper_workdir ]; then
       if [ ! -f $zookeeper_workdir/myid ]; then 
-           echo "File $zookeeper_workdir/myid not found, skipping delete. Maybe $zookeeper_workdir is not a zookeeper workdir"
+           echo -e "File $zookeeper_workdir/myid not found, skipping delete. Maybe $zookeeper_workdir is not a zookeeper workdir $failed"
            exit -1
       fi
 
       rm -r $zookeeper_workdir
    fi
+   
+   echo -e "Zookeeper data is deleted $done"
 }
 
 case "$1" in  
