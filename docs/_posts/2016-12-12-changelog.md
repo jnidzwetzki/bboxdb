@@ -18,6 +18,7 @@ order: 1
 - Improvement: Improved handling of deleted distribution groups
 - Improvement: Node configuration is now performed via files (not via environment variables)
 - Improvement: Ensure that only one node splits a distribution region at the same time (new state ACTIVE_FULL)
+- Improvement: Introduced server error messages
 - Bugfix: Init table splitter only in distributed mode
 - Bugfix: In a major compact, not all tables were processed
 - Bugfix: After distribution group delete / create the DistributionGroupCache can become inconsistent

@@ -142,11 +142,6 @@ public class ClientConnectionHandler implements Runnable {
 	public final static int PENDING_REQUESTS = 25;
 	
 	/**
-	 * Readony node error message
-	 */
-	protected final static String INSTANCE_IS_READ_ONLY_MSG = "Instance is read only";
-
-	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
@@ -291,7 +286,10 @@ public class ClientConnectionHandler implements Runnable {
 	
 			default:
 				logger.warn("Unsupported query type: " + queryType);
-				writeResultPackage(new ErrorResponse(packageSequence));
+				
+				writeResultPackage(new ErrorResponse(packageSequence, 
+						ErrorMessages.ERROR_UNSUPPORTED_PACKAGE_TYPE));
+				
 				return true;
 		}
 
@@ -332,7 +330,9 @@ public class ClientConnectionHandler implements Runnable {
 		
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
-				writeResultPackage(new ErrorResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				writeResultPackage(new ErrorResponse(packageSequence, 
+						ErrorMessages.ERROR_INSTANCE_IS_READ_ONLY));
+				
 				return true;
 			}
 			
@@ -359,7 +359,7 @@ public class ClientConnectionHandler implements Runnable {
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while create distribution group", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
 		
 		return true;
@@ -392,7 +392,7 @@ public class ClientConnectionHandler implements Runnable {
 			sendNextResultsForQuery(nextPagePackage.getQuerySequence());
 		} catch (PackageEncodeError e) {
 			logger.warn("Error getting next page for a query", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
 		
 		return true;
@@ -412,7 +412,7 @@ public class ClientConnectionHandler implements Runnable {
 			
 			if(! activeQueries.containsKey(packageSequence)) {
 				logger.error("Unable to cancel query {} - not found", packageSequence);
-				writeResultPackage(new ErrorResponse(packageSequence, "Query to cancel not found"));
+				writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
 			} else {
 				final ClientQuery clientQuery = activeQueries.remove(packageSequence);
 				clientQuery.close();
@@ -420,7 +420,7 @@ public class ClientConnectionHandler implements Runnable {
 			}
 		} catch (PackageEncodeError e) {
 			logger.warn("Error getting next page for a query", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
 		
 		return true;
@@ -437,7 +437,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		try {			
 			if(networkConnectionServiceState.isReadonly()) {
-				writeResultPackage(new ErrorResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_INSTANCE_IS_READ_ONLY));
 				return true;
 			}
 			
@@ -455,7 +455,7 @@ public class ClientConnectionHandler implements Runnable {
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while delete distribution group", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
 		
 		return true;
@@ -477,7 +477,7 @@ public class ClientConnectionHandler implements Runnable {
 			return true;
 		} catch(Exception e) {
 			logger.warn("Error while reading network package", e);
-			writeResultPackage(new ErrorResponse(packageSequence));
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
 			return false;
 		}
 	}
@@ -511,7 +511,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
-				writeResultPackage(new ErrorResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_INSTANCE_IS_READ_ONLY));
 				return true;
 			}
 			
@@ -530,7 +530,7 @@ public class ClientConnectionHandler implements Runnable {
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (StorageManagerException e) {
 			logger.warn("Error while delete tuple", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
 		
 		return true;
@@ -552,7 +552,7 @@ public class ClientConnectionHandler implements Runnable {
 					executeThread(encodedPackage, packageSequence);
 				} catch (Throwable e) {
 					logger.warn("Got exception while scanning for key", e);
-					writeResultPackage(new ErrorResponse(packageSequence));				
+					writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));				
 					return;
 				}
 				
@@ -593,7 +593,7 @@ public class ClientConnectionHandler implements Runnable {
 		// Submit the runnable to our pool
 		if(threadPool.isTerminating()) {
 			logger.warn("Thread pool is shutting down, don't execute query: {}", packageSequence);
-			writeResultPackage(new ErrorResponse(packageSequence));
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_SHUTDOWN));
 		} else {
 			threadPool.submit(queryRunable);
 		}
@@ -623,7 +623,7 @@ public class ClientConnectionHandler implements Runnable {
 			sendNextResultsForQuery(packageSequence);
 		} catch (PackageEncodeError e) {
 			logger.warn("Got exception while decoding package", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
 	}
 	
@@ -654,7 +654,7 @@ public class ClientConnectionHandler implements Runnable {
 			sendNextResultsForQuery(packageSequence);
 		} catch (PackageEncodeError e) {
 			logger.warn("Got exception while decoding package", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
 	}
 	
@@ -666,7 +666,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		if(! activeQueries.containsKey(packageSequence)) {
 			logger.error("Unable to resume query {} - not found", packageSequence);
-			writeResultPackage(new ErrorResponse(packageSequence));
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
 			return;
 		}
 		
@@ -678,7 +678,7 @@ public class ClientConnectionHandler implements Runnable {
 					executeThread(packageSequence);
 				} catch(Throwable e) {
 					logger.error("Got uncought exception in thread", e);
-					writeResultPackage(new ErrorResponse(packageSequence));
+					writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
 					return;
 				}
 			}
@@ -703,7 +703,7 @@ public class ClientConnectionHandler implements Runnable {
 		// Submit the runnable to our pool
 		if(threadPool.isTerminating()) {
 			logger.warn("Thread pool is shutting down, don't execute query: {}", packageSequence);
-			writeResultPackage(new ErrorResponse(packageSequence));
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
 		} else {
 			threadPool.submit(queryRunable);
 		}
@@ -733,7 +733,7 @@ public class ClientConnectionHandler implements Runnable {
 			sendNextResultsForQuery(packageSequence);
 		} catch (PackageEncodeError e) {
 			logger.warn("Got exception while decoding package", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
 		
 	}
@@ -748,7 +748,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
-				writeResultPackage(new ErrorResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_INSTANCE_IS_READ_ONLY));
 				return true;
 			}
 			
@@ -771,7 +771,7 @@ public class ClientConnectionHandler implements Runnable {
 			
 		} catch (Exception e) {
 			logger.warn("Error while insert tuple", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
 		
 		return true;
@@ -802,7 +802,7 @@ public class ClientConnectionHandler implements Runnable {
 
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
-				writeResultPackage(new ErrorResponse(packageSequence, INSTANCE_IS_READ_ONLY_MSG));
+				writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_INSTANCE_IS_READ_ONLY));
 				return true;
 			}
 			
@@ -821,7 +821,7 @@ public class ClientConnectionHandler implements Runnable {
 			writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (StorageManagerException e) {
 			logger.warn("Error while delete tuple", e);
-			writeResultPackage(new ErrorResponse(packageSequence));	
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		} 
 
 		return true;
