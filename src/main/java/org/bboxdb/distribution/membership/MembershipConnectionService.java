@@ -184,7 +184,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 		}
 		
 		if(blacklist.contains(distributedInstance.getInetSocketAddress())) {
-			logger.info("Not creating a connection to the blacklisted sysetm: " + distributedInstance);
+			logger.info("Not creating a connection to the blacklisted system: " + distributedInstance);
 			return;
 		}
 		
