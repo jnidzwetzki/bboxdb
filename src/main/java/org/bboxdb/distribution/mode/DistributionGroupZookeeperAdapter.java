@@ -181,10 +181,9 @@ public class DistributionGroupZookeeperAdapter {
 		
 		logger.debug("Set state for {} to full", region.getName());
 		
-		final String zookeeperPath = getZookeeperPathForDistributionRegion(region) 
-				+ "/" + ZookeeperNodeNames.NAME_STATE;
+		final String zookeeperPath = getZookeeperPathForDistributionRegionState(region);
 				
-		final DistributionRegionState oldState = getStateForDistributionRegion(region, null);
+		final DistributionRegionState oldState = getStateForDistributionRegion(region);
 		
 		if(oldState != DistributionRegionState.ACTIVE) {
 			logger.debug("Old state is not active (old value {})" , oldState);
@@ -241,6 +240,17 @@ public class DistributionGroupZookeeperAdapter {
 	public void setStateForDistributionGroup(final DistributionRegion region, final DistributionRegionState state) throws ZookeeperException  {
 		final String path = getZookeeperPathForDistributionRegion(region);
 		setStateForDistributionGroup(path, state);
+	}
+	
+	/**
+	 * Get the path for the distribution region state
+	 * @param region
+	 * @return
+	 */
+	protected String getZookeeperPathForDistributionRegionState(final DistributionRegion region) {
+		
+		return getZookeeperPathForDistributionRegion(region) 
+				+ "/" + ZookeeperNodeNames.NAME_STATE;
 	}
 
 	/**
