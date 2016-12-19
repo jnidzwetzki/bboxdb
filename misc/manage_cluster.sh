@@ -35,14 +35,14 @@ function execute_parallel() {
          echo "Waiting for pending commands to finish..."  
          wait
          pending=0
-         echo -e " $done"
+         echo -e "Pending commands complete $done"
        fi
    done
 
    if [ $pending -gt 0 ]; then
       echo "Waiting for pending commands to finish..."  
       wait
-      echo -e " $done"
+      echo -e "Pending commands complete $done"
    fi
 }
 
