@@ -180,7 +180,10 @@ public class DistributionGroupZookeeperAdapter {
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		logger.debug("Set state for {} to full", region.getName());
-		final String zookeeperPath = getZookeeperPathForDistributionRegion(region);
+		
+		final String zookeeperPath = getZookeeperPathForDistributionRegion(region) 
+				+ "/" + ZookeeperNodeNames.NAME_STATE;
+				
 		final DistributionRegionState oldState = getStateForDistributionRegion(region, null);
 		
 		if(oldState != DistributionRegionState.ACTIVE) {
