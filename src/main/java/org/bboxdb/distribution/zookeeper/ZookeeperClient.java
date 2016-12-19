@@ -791,6 +791,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		}
 		
 		if(! exists(path)) {
+			logger.debug("Unable to replace value, path {} does not exists", path);
 			return false;
 		}
 		
