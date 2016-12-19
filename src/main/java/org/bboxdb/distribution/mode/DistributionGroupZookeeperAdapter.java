@@ -192,6 +192,18 @@ public class DistributionGroupZookeeperAdapter {
 				DistributionRegionState.ACTIVE.getStringValue(), 
 				DistributionRegionState.ACTIVE_FULL.getStringValue());
 	}
+	
+	/**
+	 * Get the state for a given path - without watcher
+	 * @return 
+	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
+	 */
+	public DistributionRegionState getStateForDistributionRegion(final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException  {
+		
+		return getStateForDistributionRegion(region, null);
+	}
 
 	/**
 	 * Get the state for a given path
