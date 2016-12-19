@@ -157,7 +157,8 @@ public abstract class RegionSplitStrategy implements Runnable {
 			// splits the region
 			final boolean setToFullResult = distributionGroupZookeeperAdapter.setToFull(region);
 			if(! setToFullResult) {
-				logger.info("Unable to set state to full for region: {}, stopping split", region);
+				logger.info("Unable to set state to full for region: {}, stopping split", region.getName());
+				logger.info("Old state {}", distributionGroupZookeeperAdapter.getStateForDistributionRegion(region));
 				return;
 			}
 			
