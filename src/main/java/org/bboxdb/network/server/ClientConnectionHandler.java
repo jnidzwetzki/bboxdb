@@ -910,7 +910,7 @@ public class ClientConnectionHandler implements Runnable {
 				
 		switch (packageType) {
 			case NetworkConst.REQUEST_TYPE_HELLO:
-				logger.info("Handskaking with: " + clientSocket.getInetAddress());
+				logger.info("Handshaking with: " + clientSocket.getInetAddress());
 				return runHandshake(encodedPackage, packageSequence);
 				
 			case NetworkConst.REQUEST_TYPE_COMPRESSION:
