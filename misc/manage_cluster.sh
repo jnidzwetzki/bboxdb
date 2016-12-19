@@ -74,6 +74,13 @@ bboxdb_start() {
 }
 
 ###
+# Start the bboxdb in debug mode
+###
+bboxdb_start_debug() {
+   execute_parallel "export BBOXDB_DEBUG=1; \$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start" "Starting BBoxDB" "$bboxdb_nodes" $max_pending
+}
+
+###
 # Stop the bboxdb
 ###
 bboxdb_stop() {
@@ -113,6 +120,9 @@ case "$1" in
 bboxdb_start)
    bboxdb_start
    ;;  
+bboxdb_start_debug)
+   bboxdb_start_debug
+   ;;  
 bboxdb_stop)
    bboxdb_stop
    ;;  
@@ -129,7 +139,7 @@ zookeeper_drop)
    zookeeper_drop
    ;;
 *)
-   echo "Usage: $0 {bboxdb_start | bboxdb_stop | bboxdb_update | zookeeper_start | zookeeper_stop | zookeeper_drop}"
+   echo "Usage: $0 {bboxdb_start | bboxdb_start_debug | bboxdb_stop | bboxdb_update | zookeeper_start | zookeeper_stop | zookeeper_drop}"
    ;;  
 esac
 

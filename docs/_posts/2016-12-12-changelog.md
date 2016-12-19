@@ -9,6 +9,7 @@ order: 1
 ### Version 0.2.0 (Beta-4) - TBA
 - New Feature: Renamed project from 'scalephant' to 'BBoxDB'
 - New Feature: Introduced the new $BBOXDB_HOME environment variable
+- New Feature: Added cluster debug startup to manage_cluster.sh script 
 - Improvement: Unified tuple store aquire code
 - Improvement: Introduced the local selftest
 - Improvement: Added CLI parameter to the SSTableExaminer
