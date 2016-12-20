@@ -44,6 +44,9 @@ mv bboxdb $BBOXDB_HOME
 ```
 
 # Initial Setup
+The following sections are covering the initial setup of the BBoxDB.
+
+## Nodes of the system
 BBoxDB employs [Apache Zookeeper](https://zookeeper.apache.org/) to coordinate the distributed system. Thefore, a BBoxDB installation consists of two different node types: BBoxDB nodes and Zookeeper nodes. You have to specify the names of the BBoxDB nodes in the file ```$BBOXDB_HOME/conf/bboxdb-nodes``` and the names of the Zookeeper nodes in the file ```$BBOXDB_HOME/conf/zookeeper-nodes```:
 
 ```bash
@@ -51,5 +54,12 @@ vi $BBOXDB_HOME/conf/zookeeper-nodes
 vi $BBOXDB_HOME/conf/bboxdb-nodes
 ```
 
+## Ports and JVM parameter
+The file `$BBOXDB_HOME/misc/bboxdb-env.sh` contains the configuration options for the BBoxDB service and the JVM parameter. You should open the file and adjust the settings to your preferences. 
 
+__Notice:__ At least, the parameter `jmx_password` should be customized. Otherwise unauthorized attackers could connect to the JMX interface of the JVM and perform operations like a shutdown of the BBoxDB.
+
+```bash
+vi $BBOXDB_HOME/misc/bboxdb-env.sh
+```
 
