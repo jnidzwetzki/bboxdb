@@ -141,10 +141,19 @@ bboxdb_start() {
     fi
 
     cd $BBOXDB_HOME/misc
-    ./jsvc $debug_flag $debug_args $jvm_ops -outfile $logdir/bboxdb.out.log -pidfile $bboxdb_pid -Dbboxdb.log.dir="$logdir" -cwd $BBOXDB_HOME/misc -cp $classpath org.bboxdb.BBoxDBMain
-
+    
+    # Start zookeeper
+    nohup java $debug_flag $debug_args $jvm_ops -cp $classpath -Dbboxdb.log.dir="$logdir" org.bboxdb.BBoxDBMain > $logdir/bboxdb.out.log 2>&1 < /dev/null &
+    
+    if [ $? -eq 0 ]; then
+       # Dump PID into file
+       echo -n $! > $bboxdb_pid
+    else
+       echo "Unable to start BBoxDB, check the logfiles for further information  $failed"
+       exit -1
+    fi
+    
 	echo -e "BBoxDB is successfully started $done"
-	
 }
 
 ###
@@ -164,9 +173,9 @@ bboxdb_stop() {
             echo "Normal shutdown was not successfully, killing process...."
             kill -9 $pid
         fi
+        
+        rm $bboxdb_pid
     fi
-    
-    rm $bboxdb_pid
     
     echo -e "BBoxDB is successfully stopped $done"
 }
@@ -228,7 +237,8 @@ EOF
        # Dump PID into file
        echo -n $! > $zookeeper_pid 
     else
-       echo "Unable to start zookeeper, check the logfiles for further information"
+       echo "Unable to start zookeeper, check the logfiles for further information $failed"
+       exit -1
     fi
    
   	echo -e "Zookeeper is successfully started $done"
