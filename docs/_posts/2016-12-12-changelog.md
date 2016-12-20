@@ -5,6 +5,7 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
+### Version 0.2.0 (Beta-5) - TBA
 
 ### Version 0.2.0 (Beta-4) - 20.12.2016
 - New Feature: Renamed project from 'scalephant' to 'BBoxDB'
