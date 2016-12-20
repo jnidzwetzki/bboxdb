@@ -29,7 +29,11 @@ import org.slf4j.LoggerFactory;
 
 public class JMXService implements BBoxDBService {
 
-	
+	/**
+	 * The name of the lifecycle mbean
+	 */
+	public static final String MBEAN_LIFECYCLE = "org.bboxdb:type=LifecycleManager";
+
 	/**
 	 * The instance of the application
 	 */
@@ -51,7 +55,7 @@ public class JMXService implements BBoxDBService {
 			// Register lifecycle mbean
 			final LifecycleMBean monitor = new Lifecycle(bBoxDBMain);
 			final MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-			final ObjectName name = new ObjectName("org.bboxdb:type=LifecycleManager");
+			final ObjectName name = new ObjectName(MBEAN_LIFECYCLE);
 
 			server.registerMBean(monitor, name);
 		} catch (Exception e) {
