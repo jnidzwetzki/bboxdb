@@ -64,9 +64,14 @@ public class Shutdown {
 		final LifecycleMBean mbeanProxy = JMX.newMBeanProxy(mbsc, mbeanName,
 				LifecycleMBean.class, true);
 
-		mbeanProxy.shutdown();
-
-		jmxc.close();
+		try {
+			mbeanProxy.shutdown();
+			jmxc.close();
+		} catch (Exception e) {
+			// Server performs shutdown, JMX connection will be terminated
+			// So, ignore exception
+		}
+		
 		System.out.println("Done.");
 	}
 }
