@@ -16,7 +16,7 @@ logdir=$BBOXDB_HOME/logs
 # Port for JMX connetions
 jmx_port=10999
 
-# Default password is bboxdbMonitor - !!change them!!
+# Default password is 'bboxdbMonitor' - !!change it!!!
 jmx_password="bboxdbMonitor"
 
 echo "monitorRoleUser  $jmx_password" > $BBOXDB_HOME/conf/jmxremote.password
