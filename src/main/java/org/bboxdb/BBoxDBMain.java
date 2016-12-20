@@ -21,9 +21,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.daemon.Daemon;
-import org.apache.commons.daemon.DaemonContext;
-import org.apache.commons.daemon.DaemonInitException;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -34,7 +31,7 @@ import org.bboxdb.storage.RecoveryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BBoxDBMain implements Daemon {
+public class BBoxDBMain {
 
 	/**
 	 * The instances to manage
@@ -46,8 +43,7 @@ public class BBoxDBMain implements Daemon {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBMain.class);
 
-	@Override
-	public void init(final DaemonContext ctx) throws DaemonInitException, Exception {
+	public void init() throws Exception {
 		logger.info("Init the BBoxDB");
 		
 		services.clear();
@@ -95,7 +91,6 @@ public class BBoxDBMain implements Daemon {
 		return new NetworkConnectionService();
 	}
 
-	@Override
 	public void start() throws Exception {
 		logger.info("Starting up the BBoxDB - version: " + Const.VERSION);	
 		
@@ -131,7 +126,6 @@ public class BBoxDBMain implements Daemon {
 		return true;
 	}
 
-	@Override
 	public void stop() throws Exception {
 		logger.info("Stopping the BBoxDB");
 		
@@ -142,7 +136,6 @@ public class BBoxDBMain implements Daemon {
 		}
 	}
 	
-	@Override
 	public void destroy() {
 		logger.info("Destroy the instance of the BBoxDB");
 		services.clear();
@@ -152,9 +145,9 @@ public class BBoxDBMain implements Daemon {
 	//===========================================
 	// Test method
 	//===========================================
-	public static void main(String[] args) throws DaemonInitException, Exception {
+	public static void main(String[] args) throws Exception {
 		final BBoxDBMain main = new BBoxDBMain();
-		main.init(null);
+		main.init();
 		main.start();
 	}
 }

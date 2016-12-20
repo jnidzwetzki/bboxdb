@@ -20,10 +20,8 @@ package org.bboxdb.network;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.commons.daemon.DaemonInitException;
 import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.BBoxDBMain;
-import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
@@ -48,9 +46,9 @@ public class TestNetworkCommunication {
 	public final static short REPLICATION_FACTOR = 1;
 	
 	@BeforeClass
-	public static void init() throws DaemonInitException, Exception {
+	public static void init() throws Exception {
 		scalephantMain = new BBoxDBMain();
-		scalephantMain.init(null);
+		scalephantMain.init();
 		scalephantMain.start();
 		
 		Thread.currentThread();
