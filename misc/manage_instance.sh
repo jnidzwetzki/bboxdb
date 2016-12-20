@@ -114,7 +114,7 @@ bboxdb_start() {
        # Dump PID into file
        echo -n $! > $bboxdb_pid
     else
-       echo "Unable to start BBoxDB, check the logfiles for further information  $failed"
+       echo "Unable to start BBoxDB, check the logfiles for further information $failed"
        exit -1
     fi
     
@@ -127,6 +127,11 @@ bboxdb_start() {
 bboxdb_stop() {
     echo "Stopping the BBoxDB"
     cd $BBOXDB_HOME/misc
+    
+    if [ ! -f $bboxdb_pid ]; then
+       echo "No PID file $bboxdb_pid found, BBoxDB seems to be already down $failed"
+       exit -1
+    fi
     
     # Call shutdown MBean
     java -cp $classpath org.bboxdb.Shutdown $jmx_port $jmx_password
