@@ -129,7 +129,7 @@ bboxdb_stop() {
     cd $BBOXDB_HOME/misc
     
     if [ ! -f $bboxdb_pid ]; then
-       echo -e "No PID file $bboxdb_pid found, BBoxDB seems to be already down $failed"
+       echo -e "PID file $bboxdb_pid not found, BBoxDB seems to be already down $failed"
        exit -1
     fi
     
