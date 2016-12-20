@@ -37,10 +37,9 @@ import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionState;
+import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.nameprefix.NameprefixInstanceManager;
 import org.bboxdb.distribution.nameprefix.NameprefixMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -349,7 +348,7 @@ public class ClientConnectionHandler implements Runnable {
 
 			final DistributionRegion region = distributionAdapter.getAndWaitForRootNode();
 			
-			DistributionRegionHelper.allocateSystemsToNewRegion(region, zookeeperClient);
+			distributionAdapter.allocateSystemsToNewRegion(region);
 			
 			// Let the data settle down
 			Thread.sleep(5000);

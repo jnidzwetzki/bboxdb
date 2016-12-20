@@ -18,19 +18,22 @@
 package org.bboxdb.distribution.mode;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.DistributedInstanceManager;
 import org.bboxdb.distribution.nameprefix.NameprefixInstanceManager;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
+import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
+import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -314,17 +317,20 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		final String rightPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_RIGHT;
 		createNewChild(rightPath);
 		
-		// Allocate systems 
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		DistributionRegionHelper.allocateSystemsToNewRegion(regionToSplit.getLeftChild(), zookeeperClient);
-		DistributionRegionHelper.allocateSystemsToNewRegion(regionToSplit.getRightChild(), zookeeperClient);
-		
-		// Write split position and update state
+		// Write split position
 		distributionGroupZookeeperAdapter.setSplitPositionForPath(zookeeperPath, splitPosition);
 		distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, DistributionRegionState.SPLITTING);
-		distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
-		distributionGroupZookeeperAdapter.setStateForDistributionGroup(rightPath, DistributionRegionState.ACTIVE);
 		
+		waitForChildCreateZookeeperCallback(regionToSplit);
+
+		// Allocate systems 
+		allocateSystemsToNewRegion(regionToSplit.getLeftChild());
+		allocateSystemsToNewRegion(regionToSplit.getRightChild());
+		
+		// update state
+		distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
+		distributionGroupZookeeperAdapter.setStateForDistributionGroup(rightPath, DistributionRegionState.ACTIVE);	
+	
 		waitForSplitZookeeperCallback(regionToSplit);
 	}
 
@@ -332,7 +338,27 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * Wait for zookeeper split callback
 	 * @param regionToSplit
 	 */
-	protected void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit) {
+	public void waitForChildCreateZookeeperCallback(final DistributionRegion regionToSplit) {
+		
+		// Wait for zookeeper callback
+		while(regionToSplit.isLeafRegion()) {
+			logger.debug("Wait for zookeeper callback for split for: {}", regionToSplit);
+			synchronized (MUXTEX) {
+				try {
+					MUXTEX.wait();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					logger.warn("Unable to wait for split for); {}", regionToSplit);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Wait for zookeeper split callback
+	 * @param regionToSplit
+	 */
+	public void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit) {
 		
 		// Wait for zookeeper callback
 		while(! isSplitForNodeComplete(regionToSplit)) {
@@ -349,11 +375,49 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	}
 	
 	/**
+	 * Allocate the required amount of systems to the given region
+	 * 
+	 * @param region
+	 * @param zookeeperClient
+	 * @throws ZookeeperException
+	 * @throws ResourceAllocationException
+	 */
+	public void allocateSystemsToNewRegion(final DistributionRegion region) throws ZookeeperException, ResourceAllocationException {
+		
+		final short replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(region.getName());
+		
+		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
+		final List<DistributedInstance> availableSystems = distributedInstanceManager.getInstances();
+		
+		final ResourcePlacementStrategy resourcePlacementStrategy = ResourcePlacementStrategyFactory.getInstance();
+
+		// The blacklist, to prevent duplicate allocations
+		final Set<DistributedInstance> allocationSystems = new HashSet<DistributedInstance>();
+		
+		for(short i = 0; i < replicationFactor; i++) {
+			final DistributedInstance instance = resourcePlacementStrategy.getInstancesForNewRessource(availableSystems, allocationSystems);
+			allocationSystems.add(instance);
+		}
+		
+		logger.info("Allocating region " + region.getName() + " to " + allocationSystems);
+		
+		// Resource allocation successfully, write data to zookeeper
+		for(final DistributedInstance instance : allocationSystems) {
+			distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, instance);
+		}
+	}
+	
+	/**
 	 * Is the split for the given node complete?
 	 * @param region
 	 * @return
 	 */
 	protected boolean isSplitForNodeComplete(final DistributionRegion region) {
+		
+		if(region.getSplit() == Float.MIN_VALUE) {
+			return false;
+		}
+		
 		if(region.getLeftChild() == null) {
 			return false;
 		}

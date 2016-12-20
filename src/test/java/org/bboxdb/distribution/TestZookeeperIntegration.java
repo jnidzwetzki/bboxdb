@@ -170,7 +170,7 @@ public class TestZookeeperIntegration {
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testDistributionRegionSplit() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, ResourceAllocationException {
+	public void testDistributionRegionSplit() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
@@ -180,9 +180,13 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(TEST_GROUP, distributionGroup.getName());
 		
 		Assert.assertEquals(DistributionRegionState.ACTIVE, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup, null));
-		distributionGroupAdapter.splitNode(distributionGroup, 10);
+		try {
+			distributionGroupAdapter.splitNode(distributionGroup, 10);
+		} catch (ResourceAllocationException e) {
+			// Ignore this for the unit test
+		}
 		
-		Thread.sleep(1000);
+		Thread.sleep(5000);
 		Assert.assertEquals(10.0, distributionGroup.getSplit(), 0.0001);
 		Assert.assertEquals(DistributionRegionState.SPLITTING, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup, null));
 
@@ -198,7 +202,7 @@ public class TestZookeeperIntegration {
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testDistributionRegionSplitWithZookeeperPropergate() throws ZookeeperException, InterruptedException, ResourceAllocationException {
+	public void testDistributionRegionSplitWithZookeeperPropergate() throws ZookeeperException, InterruptedException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
@@ -209,10 +213,14 @@ public class TestZookeeperIntegration {
 		final DistributionRegion distributionGroup2 = adapter2.getRootNode();
 
 		// Update object 1
-		adapter1.splitNode(distributionGroup1, 10);
+		try {
+			adapter1.splitNode(distributionGroup1, 10);
+		} catch (ResourceAllocationException e) {
+			// Ignore in unit test
+		}
 		
-		// Sleep 2 seconds to wait for the update
-		Thread.sleep(2000);
+		// Sleep some seconds to wait for the update
+		Thread.sleep(5000);
 
 		// Read update from the second object
 		Assert.assertEquals(10.0, distributionGroup2.getSplit(), 0.0001);
@@ -225,7 +233,7 @@ public class TestZookeeperIntegration {
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testDistributionRegionSplitWithZookeeperPropergate2() throws ZookeeperException, InterruptedException, ResourceAllocationException {
+	public void testDistributionRegionSplitWithZookeeperPropergate2() throws ZookeeperException, InterruptedException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
@@ -238,11 +246,21 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(0, distributionGroup1.getLevel());
 		
 		// Update object 1
-		adapter1.splitNode(distributionGroup1, 10);
+		try {
+			adapter1.splitNode(distributionGroup1, 10);
+		} catch (ResourceAllocationException e) {
+			// Ignore in unit test
+		}
+		
 		final DistributionRegion leftChild = distributionGroup1.getLeftChild();
 		Assert.assertEquals(1, leftChild.getLevel());
 		Assert.assertEquals(1, leftChild.getSplitDimension());
-		adapter1.splitNode(leftChild, 50);
+		
+		try {
+			adapter1.splitNode(leftChild, 50);
+		} catch (ResourceAllocationException e) {
+			// Ignore in unit test
+		}
 
 		// Sleep 2 seconds to wait for the update
 		Thread.sleep(2000);
@@ -323,7 +341,7 @@ public class TestZookeeperIntegration {
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testSystemCheckpoint2() throws ZookeeperException, InterruptedException, ResourceAllocationException {
+	public void testSystemCheckpoint2() throws ZookeeperException, InterruptedException {
 		final DistributedInstance systemName1 = new DistributedInstance("192.168.1.10:5050");
 		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
 
@@ -332,7 +350,11 @@ public class TestZookeeperIntegration {
 		
 		final KDtreeZookeeperAdapter distributionGroupAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		final DistributionRegion region = distributionGroupAdapter.getRootNode();
-		distributionGroupAdapter.splitNode(region, 50);
+		try {
+			distributionGroupAdapter.splitNode(region, 50);
+		} catch (ResourceAllocationException e) {
+			// Ignore in unit test
+		}
 		
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getLeftChild(), systemName1);
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getLeftChild(), systemName2);
@@ -397,17 +419,23 @@ public class TestZookeeperIntegration {
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testNameprefix2() throws ZookeeperException, InterruptedException, ResourceAllocationException {
+	public void testNameprefix2() throws ZookeeperException, InterruptedException {
  		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
 		final KDtreeZookeeperAdapter distributionGroupAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		final DistributionRegion region = distributionGroupAdapter.getRootNode();
-		distributionGroupAdapter.splitNode(region, 10);
+		try {
+			distributionGroupAdapter.splitNode(region, 10);
+		} catch (ResourceAllocationException e) {
+			// Ignore in unit test
+		}
 		
 		final DistributionRegion leftChild = region.getLeftChild();
 		final DistributionRegion rightChild = region.getRightChild();
-		
+
+		distributionGroupAdapter.waitForSplitZookeeperCallback(region);
+
 		Assert.assertEquals(0, region.getNameprefix());
 		Assert.assertEquals(1, leftChild.getNameprefix());
 		Assert.assertEquals(2, rightChild.getNameprefix());
@@ -472,7 +500,7 @@ public class TestZookeeperIntegration {
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testCreateAndDeleteDistributionGroup() throws ZookeeperException, InterruptedException, ResourceAllocationException {
+	public void testCreateAndDeleteDistributionGroup() throws ZookeeperException, InterruptedException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		final KDtreeZookeeperAdapter cacheGroup = DistributionGroupCache.getGroupForGroupName(TEST_GROUP, zookeeperClient);
@@ -487,7 +515,11 @@ public class TestZookeeperIntegration {
 		System.out.println("---> Split");
 
 		final KDtreeZookeeperAdapter kdTreeAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
-		kdTreeAdapter.splitNode(kdTreeAdapter.getRootNode(), (float) 20.0); 
+		try {
+			kdTreeAdapter.splitNode(kdTreeAdapter.getRootNode(), (float) 20.0);
+		} catch (ResourceAllocationException e) {
+			// Ignore in unit test
+		} 
 		
 		Thread.sleep(10000);
 		
