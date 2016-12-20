@@ -27,5 +27,5 @@ jvm_ops="$jvm_ops -ea"
 # Enable JMX
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.port=$jmx_port"
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.rmi.port=$jmx_port"
-jvm_ops="$jvm_ops-Dcom.sun.management.jmxremote.ssl=false"
+jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.ssl=false"
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.authenticate=false"
