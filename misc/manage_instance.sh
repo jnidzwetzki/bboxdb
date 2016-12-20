@@ -36,36 +36,6 @@ if [ -z "$zookeeper_nodes" ]; then
 fi
 
 ###
-# Download and compile jsvc if not installed
-###
-download_jsvc() {
-   cd $BBOXDB_HOME/misc
-
-   if [ ! -x ./jsvc ]; then
-       echo "JSVC not found, downloading"
-       wget $jsvc_url
-    
-       if [ ! -f $jsvc_file ]; then
-          echo -e "Error: unable to download commons-daemon, exiting $failed"
-          exit 2
-       fi
-
-       tar zxvf $jsvc_file > /dev/null
-       cd commons-daemon-1.0.15-native-src/unix 
-       ./configure
-       make
-
-       if [ ! -x jsvc ]; then
-           echo -e "Error: unable to compile jsvc, exiting $failed"
-           exit 2
-       fi
-
-       mv jsvc $BBOXDB_HOME/misc
-       cd $BBOXDB_HOME/misc
-   fi
-}
-
-###
 # Update and build the bboxdb
 ###
 bboxdb_update() {
@@ -88,7 +58,6 @@ bboxdb_update() {
 ###
 bboxdb_start() {
     echo "Starting the BBoxDB"
-    download_jsvc
     cd $BBOXDB_HOME
 
     # Is already running?
@@ -105,10 +74,6 @@ bboxdb_start() {
         mkdir $logdir
     fi
 
-    # Activate JVM start debugging
-    debug_flag=""
-    #debug_flag="-debug"
- 
     debug_args=""
 
     if [ ! -z "$BBOXDB_DEBUG" ]; then
@@ -143,7 +108,7 @@ bboxdb_start() {
     cd $BBOXDB_HOME/misc
     
     # Start zookeeper
-    nohup java $debug_flag $debug_args $jvm_ops -cp $classpath -Dbboxdb.log.dir="$logdir" org.bboxdb.BBoxDBMain > $logdir/bboxdb.out.log 2>&1 < /dev/null &
+    nohup java $debug_args $jvm_ops -cp $classpath -Dbboxdb.log.dir="$logdir" org.bboxdb.BBoxDBMain > $logdir/bboxdb.out.log 2>&1 < /dev/null &
     
     if [ $? -eq 0 ]; then
        # Dump PID into file
