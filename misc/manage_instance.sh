@@ -153,7 +153,9 @@ bboxdb_start() {
 bboxdb_stop() {
     echo "Stopping the BBoxDB"
     cd $BBOXDB_HOME/misc
-    ./jsvc -pidfile $bboxdb_pid -stop -cwd $BBOXDB_HOME/misc -cp $classpath org.bboxdb.BBoxDBMain
+    
+    # Call shutdown MBean
+    java -cp $classpath org.bboxdb.Shutdown $jmx_port $jmx_password
 
     # Was stop successfully?
     if [ -f $bboxdb_pid ]; then
@@ -163,6 +165,8 @@ bboxdb_stop() {
             kill -9 $pid
         fi
     fi
+    
+    rm $bboxdb_pid
     
     echo -e "BBoxDB is successfully stopped $done"
 }
