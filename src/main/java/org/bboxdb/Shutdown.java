@@ -70,8 +70,6 @@ public class Shutdown {
 		} catch (Exception e) {
 			// Server performs shutdown, JMX connection will be terminated
 			// So, ignore exception
-		}
-		
-		System.out.println("Done.");
+		}		
 	}
 }
