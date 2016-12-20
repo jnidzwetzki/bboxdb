@@ -114,7 +114,7 @@ bboxdb_start() {
        # Dump PID into file
        echo -n $! > $bboxdb_pid
     else
-       echo "Unable to start BBoxDB, check the logfiles for further information $failed"
+       echo -e "Unable to start BBoxDB, check the logfiles for further information $failed"
        exit -1
     fi
     
@@ -129,7 +129,7 @@ bboxdb_stop() {
     cd $BBOXDB_HOME/misc
     
     if [ ! -f $bboxdb_pid ]; then
-       echo "No PID file $bboxdb_pid found, BBoxDB seems to be already down $failed"
+       echo -e "No PID file $bboxdb_pid found, BBoxDB seems to be already down $failed"
        exit -1
     fi
     
@@ -207,7 +207,7 @@ EOF
        # Dump PID into file
        echo -n $! > $zookeeper_pid 
     else
-       echo "Unable to start zookeeper, check the logfiles for further information $failed"
+       echo -e "Unable to start zookeeper, check the logfiles for further information $failed"
        exit -1
     fi
    
