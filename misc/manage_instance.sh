@@ -15,7 +15,7 @@ if [ -z "$BBOXDB_HOME" ]; then
 fi
 
 # Include functions
-source $BBOXDB_HOME/misc/bbox-env.sh
+source $BBOXDB_HOME/misc/bboxdb-env.sh
 source $BBOXDB_HOME/misc/functions.sh
 
 # Find all jars
