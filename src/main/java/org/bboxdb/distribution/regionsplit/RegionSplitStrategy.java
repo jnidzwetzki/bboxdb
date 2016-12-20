@@ -349,25 +349,12 @@ public abstract class RegionSplitStrategy implements Runnable {
 	 * @param splitPosition
 	 */
 	protected void performSplitAtPosition(final DistributionRegion region, final float splitPosition) {
-
 		try {
 			logger.info("Set split at:" + splitPosition);
 			treeAdapter.splitNode(region, splitPosition);
-		
-			// Allocate systems 
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			DistributionRegionHelper.allocateSystemsToNewRegion(region.getLeftChild(), zookeeperClient);
-			DistributionRegionHelper.allocateSystemsToNewRegion(region.getRightChild(), zookeeperClient);
-		
-			// Let the data settle down
-			Thread.sleep(5000);
-			
 		} catch (ZookeeperException | ResourceAllocationException e) {
 			logger.warn("Unable to split region " + region + " at " + splitPosition, e);
-		} catch (InterruptedException e) {
-			logger.warn("Got InterruptedException while wait for settle down: " + region, e);
-			Thread.currentThread().interrupt();
-		}
+		} 
 	}
 
 }

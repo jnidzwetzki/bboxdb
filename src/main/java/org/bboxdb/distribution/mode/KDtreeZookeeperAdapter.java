@@ -25,9 +25,12 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.nameprefix.NameprefixInstanceManager;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -299,8 +302,9 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * @param regionToSplit
 	 * @param splitPosition
 	 * @throws ZookeeperException
+	 * @throws ResourceAllocationException 
 	 */
-	public void splitNode(final DistributionRegion regionToSplit, final float splitPosition) throws ZookeeperException {
+	public void splitNode(final DistributionRegion regionToSplit, final float splitPosition) throws ZookeeperException, ResourceAllocationException {
 		logger.debug("Write split at pos {} into zookeeper", splitPosition);
 		final String zookeeperPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
 		
@@ -310,11 +314,25 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		final String rightPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_RIGHT;
 		createNewChild(rightPath);
 		
+		// Allocate systems 
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		DistributionRegionHelper.allocateSystemsToNewRegion(regionToSplit.getLeftChild(), zookeeperClient);
+		DistributionRegionHelper.allocateSystemsToNewRegion(regionToSplit.getRightChild(), zookeeperClient);
+		
 		// Write split position and update state
 		distributionGroupZookeeperAdapter.setSplitPositionForPath(zookeeperPath, splitPosition);
 		distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, DistributionRegionState.SPLITTING);
 		distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
 		distributionGroupZookeeperAdapter.setStateForDistributionGroup(rightPath, DistributionRegionState.ACTIVE);
+		
+		waitForSplitZookeeperCallback(regionToSplit);
+	}
+
+	/**
+	 * Wait for zookeeper split callback
+	 * @param regionToSplit
+	 */
+	protected void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit) {
 		
 		// Wait for zookeeper callback
 		while(! isSplitForNodeComplete(regionToSplit)) {
