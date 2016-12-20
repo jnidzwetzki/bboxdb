@@ -6,6 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.2.0 (Beta-5) - TBA
+- Improvement: Introduced JVM parameter
 - Bugfix: Allocate systems to new distribution regions, before then come ready
 
 ### Version 0.2.0 (Beta-4) - 20.12.2016

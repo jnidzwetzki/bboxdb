@@ -15,6 +15,7 @@ if [ -z "$BBOXDB_HOME" ]; then
 fi
 
 # Include functions
+source $BBOXDB_HOME/misc/bbox-env.sh
 source $BBOXDB_HOME/misc/functions.sh
 
 # Find all jars
@@ -27,17 +28,6 @@ if [ -d $BBOXDB_HOME/target ]; then
 fi 
 
 classpath="$BBOXDB_HOME/conf:$libs:$jar"
-
-# BBoxDB
-bboxdb_pid=$BBOXDB_HOME/misc/bboxdb.pid
-
-# Log dir
-logdir=$BBOXDB_HOME/logs
-
-# Zookeeper
-zookeeper_workdir=$BBOXDB_HOME/misc/zookeeper
-zookeeper_pid=$BBOXDB_HOME/misc/zookeeper.pid
-zookeeper_clientport="2181"
 
 zookeeper_nodes=$(read_nodes_file $zookeeper_node_file)
 if [ -z "$zookeeper_nodes" ]; then
@@ -151,7 +141,7 @@ bboxdb_start() {
     fi
 
     cd $BBOXDB_HOME/misc
-    ./jsvc $debug_flag $debug_args -outfile $logdir/bboxdb.out.log -pidfile $bboxdb_pid -Dbboxdb.log.dir="$logdir" -cwd $BBOXDB_HOME/misc -cp $classpath org.bboxdb.BBoxDBMain
+    ./jsvc $debug_flag $debug_args $jvm_ops -outfile $logdir/bboxdb.out.log -pidfile $bboxdb_pid -Dbboxdb.log.dir="$logdir" -cwd $BBOXDB_HOME/misc -cp $classpath org.bboxdb.BBoxDBMain
 
 	echo -e "BBoxDB is successfully started $done"
 	
