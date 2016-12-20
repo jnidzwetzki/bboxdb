@@ -28,6 +28,7 @@ import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.jmx.JMXService;
 import org.bboxdb.network.server.NetworkConnectionService;
 import org.bboxdb.storage.RecoveryService;
 import org.slf4j.Logger;
@@ -66,6 +67,10 @@ public class BBoxDBMain implements Daemon {
 		// The recovery service
 		final RecoveryService recoveryService = new RecoveryService(connectionHandler);
 		services.add(recoveryService);
+		
+		// The JMX service
+		final JMXService jmxService = new JMXService(this);
+		services.add(jmxService);
 	}
 
 	/**
