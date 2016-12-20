@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.2.0 (Beta-4) - TBA
+### Version 0.2.0 (Beta-4) - 20.12.2016
 - New Feature: Renamed project from 'scalephant' to 'BBoxDB'
 - New Feature: Introduced the new $BBOXDB_HOME environment variable
 - New Feature: Added cluster debug startup to manage_cluster.sh script 
