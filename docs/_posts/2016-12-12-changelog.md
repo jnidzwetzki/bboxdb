@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.2.0 (Beta-5) - TBA
 - Improvement: Introduced JVM parameter
+- Improvement: Enabled the JMX server
 - Improvement: Replaced 'apache commons deamon' BBoxDB process management with native java solution
 - Bugfix: Allocate systems to new distribution regions, before then come ready
 
