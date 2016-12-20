@@ -21,6 +21,7 @@ jmx_password="bboxdbMonitor"
 
 echo "monitorRoleUser  $jmx_password" > $BBOXDB_HOME/conf/jmxremote.password
 echo "controlRoleUser  $jmx_password" >> $BBOXDB_HOME/conf/jmxremote.password
+chmod 600 $BBOXDB_HOME/conf/jmxremote.password
 
 ################################
 #JVM options
