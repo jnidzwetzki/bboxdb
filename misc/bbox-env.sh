@@ -16,6 +16,12 @@ logdir=$BBOXDB_HOME/logs
 # Port for JMX connetions
 jmx_port=10999
 
+# Default password is bboxdbMonitor - !!change them!!
+jmx_password="bboxdbMonitor"
+
+echo "monitorRoleUser  $jmx_password" > $BBOXDB_HOME/conf/jmxremote.password
+echo "controlRoleUser  $jmx_password" >> $BBOXDB_HOME/conf/jmxremote.password
+
 ################################
 #JVM options
 ################################
@@ -29,5 +35,5 @@ jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.port=$jmx_port"
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.rmi.port=$jmx_port"
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.ssl=false"
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.authenticate=true"
-jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.access.file=$BBOXDB_HOME/misc/jmxremote.access"
-jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.password.file=$BBOXDB_HOME/misc/jmxremote.password"
+jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.access.file=$BBOXDB_HOME/conf/jmxremote.access"
+jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.password.file=$BBOXDB_HOME/conf/jmxremote.password"
