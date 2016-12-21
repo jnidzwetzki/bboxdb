@@ -30,7 +30,7 @@ apt-get install ntp
 ``` 
 
 ## Setup the environment
-Let the environment variable BBOXDB_HOME point to the installation directory. For example /opt/bboxdb:
+Let the environment variable BBOXDB_HOME point to the installation directory. For example ```/opt/bboxdb```:
 
 ```bash
 export BBOXDB_HOME=/opt/bboxdb
