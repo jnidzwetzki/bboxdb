@@ -167,6 +167,7 @@ public class BBoxDBGui {
 	 * 
 	 */
 	protected void setupMainPanel() {
+        
 		mainPanel = new JPanel() {
 		
 			private static final long serialVersionUID = -248493308846818192L;
@@ -198,9 +199,19 @@ public class BBoxDBGui {
 	            graphics2D.setRenderingHint(
 	                    RenderingHints.KEY_ANTIALIASING, 
 	                    RenderingHints.VALUE_ANTIALIAS_ON);
-				
+	            
+	    		final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
+
+    			final int totalLevel = distributionRegion.getTotalLevel();
+    			
+    			final int totalWidth = DistributionRegionComponent.WIDTH 
+    					+ (DistributionRegionComponent.LEFT_RIGHT_OFFSET * totalLevel) * 2;
+    			final int totalHeight = DistributionRegionComponent.HEIGHT 
+    					+ (totalLevel * DistributionRegionComponent.LEVEL_DISTANCE);
+    			
+    			mainPanel.setPreferredSize(new Dimension(totalWidth, totalHeight));
+    			
 	            regions.clear();
-	            final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
 	            drawDistributionRegion(graphics2D, distributionRegion);
 	            
 				g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);
@@ -226,7 +237,7 @@ public class BBoxDBGui {
 
 		mainPanel.setBackground(Color.WHITE);
 		mainPanel.setToolTipText("");
-		mainPanel.setPreferredSize(new Dimension(800, 500));
+		mainPanel.setPreferredSize(new Dimension(800, 600));
 	}
 
 	/**

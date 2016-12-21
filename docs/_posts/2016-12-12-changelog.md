@@ -11,6 +11,7 @@ order: 1
 - Improvement: Replaced 'apache commons deamon' BBoxDB process management with native java solution
 - Bugfix: Allocate systems to new distribution regions, before then come ready
 - Bugfix: GUI is repainted when a distribution region is recreated
+- Bugfix: Size of the GUI tree component was not dynamically calculated 
 
 ### Version 0.2.0 (Beta-4) - 20.12.2016
 - New Feature: Renamed project from 'scalephant' to 'BBoxDB'
