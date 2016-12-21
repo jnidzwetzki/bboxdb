@@ -51,7 +51,7 @@ public class DistributionRegionComponent {
 	protected final static int LEVEL_DISTANCE = 100;
 
 	/**
-	 * The hight of the box
+	 * The height of the box
 	 */
 	protected final static int HEIGHT = 50;
 	
