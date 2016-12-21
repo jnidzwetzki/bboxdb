@@ -90,15 +90,18 @@ public abstract class RegionSplitStrategy implements Runnable {
 
 			final DistributionRegion distributionGroup = treeAdapter.getRootNode();
 			
+			final int nameprefix = ssTableName.getNameprefix();
+			
 			region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
-					distributionGroup, ssTableName.getNameprefix());
+					distributionGroup, nameprefix);
 			
 			if(region == null) {
-				throw new StorageManagerException("Region is null");
+				throw new StorageManagerException("Region for nameprefix " + nameprefix + " is not found");
 			}
 			
 			if(! region.isLeafRegion()) {
-				throw new StorageManagerException("Region is not a leaf region, unable to split:" + region);
+				throw new StorageManagerException("Region is not a leaf region, unable to split:" 
+						+ region.getName());
 			}
 		} catch (ZookeeperException e) {
 			logger.error("Got exception while init region splitter", e);
