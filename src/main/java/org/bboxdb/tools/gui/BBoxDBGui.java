@@ -200,7 +200,7 @@ public class BBoxDBGui {
 	                    RenderingHints.VALUE_ANTIALIAS_ON);
 				
 	            regions.clear();
-	            final DistributionRegion distributionRegion = guiModel.getRootRegion();
+	            final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
 	            drawDistributionRegion(graphics2D, distributionRegion);
 	            
 				g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);

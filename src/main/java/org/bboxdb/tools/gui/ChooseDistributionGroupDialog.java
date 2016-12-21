@@ -30,8 +30,6 @@ import javax.swing.JFrame;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,11 +198,6 @@ public class ChooseDistributionGroupDialog {
 					public void run() {
 						try {
 							while(! scalepahntGUI.shutdown) {
-								try {
-									guiModel.updateDistributionRegion();
-								} catch (ZookeeperException | ZookeeperNotFoundException e) {
-									logger.warn("Got exception: ", e);
-								}
 								scalepahntGUI.updateView();
 								Thread.sleep(1000);
 							}

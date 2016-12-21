@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.DistributedInstanceManager;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
@@ -47,20 +46,10 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	protected String distributionGroup;
 	
 	/**
-	 * The distribution region
-	 */
-	protected DistributionRegion rootRegion;
-	
-	/**
 	 * The replication factor for the distribution group
 	 */
 	protected short replicationFactor;
-	
-	/**
-	 * The version of the root region
-	 */
-	protected String rootRegionVersion;
-	
+
 	/**
 	 * The reference to the gui window
 	 */
@@ -72,12 +61,20 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	protected final ZookeeperClient zookeeperClient;
 	
 	/**
+	 * The tree adapter
+	 */
+	private KDtreeZookeeperAdapter treeAdapter;
+	
+	/**
 	 * The distribution group adapter
 	 */
 	protected final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 
-	
+	/**
+	 * The logger
+	 */
 	protected final static Logger logger = LoggerFactory.getLogger(GuiModel.class);
+
 
 	public GuiModel(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
@@ -124,15 +121,9 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	public void updateDistributionRegion() throws ZookeeperException, ZookeeperNotFoundException {
-		final String currentVersion = distributionGroupZookeeperAdapter.getVersionForDistributionGroup(distributionGroup, null);
-		
-		if(! currentVersion.equals(rootRegionVersion)) {
-			logger.info("Reread distribution group, version has changed: " + rootRegionVersion + " / " + currentVersion);
-			final KDtreeZookeeperAdapter adapter = distributionGroupZookeeperAdapter.readDistributionGroup(distributionGroup);
-			rootRegion = adapter.getRootNode();
-			rootRegionVersion = currentVersion;
-			replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroup);
-		}
+		logger.info("Reread distribution group");
+		treeAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(distributionGroup);
+		replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroup);
 	}
 
 	/**
@@ -209,13 +200,13 @@ public class GuiModel implements DistributedInstanceEventCallback {
 		// Display the new distribution group
 		updateModel();
 	}
-	
+
 	/**
-	 * Get the root region
+	 * Returns the tree adapter
 	 * @return
 	 */
-	public DistributionRegion getRootRegion() {
-		return rootRegion;
+	public KDtreeZookeeperAdapter getTreeAdapter() {
+		return treeAdapter;
 	}
 
 }
