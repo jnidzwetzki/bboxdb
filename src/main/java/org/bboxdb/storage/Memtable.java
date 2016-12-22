@@ -91,8 +91,11 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	/**
 	 * The reference counter
 	 */
-	protected final AtomicInteger referenceCounter;
+	protected final AtomicInteger usage;
 	
+	/**
+	 * Is a deletion performed after (usage == 0)
+	 */
 	protected boolean pendingDelete;
 	
 	/**
@@ -115,7 +118,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 		this.oldestTupleTimestamp = -1;
 		this.newestTupleTimestamp = -1;
 		
-		this.referenceCounter = new AtomicInteger(0);
+		this.usage = new AtomicInteger(0);
 		this.pendingDelete = false;
 	}
 
@@ -137,6 +140,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 
 	@Override
 	public void put(final Tuple value) throws StorageManagerException {
+		
+		assert (usage.get() > 0);
 		
 		if(freePos >= maxEntries) {
 			throw new StorageManagerException("Unable to store a new tuple, all memtable slots are full");
@@ -168,6 +173,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	@Override
 	public Tuple get(final String key) {
 		
+		assert (usage.get() > 0);
+		
 		// The element is not contained in the bloom filter
 		if(! bloomFilter.mightContain(key)) {
 			return null;
@@ -192,10 +199,11 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	 */
 	@Override
 	public void delete(final String key, final long timestamp) throws StorageManagerException {
+		assert (usage.get() > 0);
+
 		final Tuple deleteTuple = new DeletedTuple(key, timestamp);
 		put(deleteTuple);
 	}
-	
 
 	/**
 	 * Get a sorted list with all recent tuples
@@ -203,6 +211,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	 * 
 	 */
 	public List<Tuple> getSortedTupleList() {
+		assert (usage.get() > 0);
+
 		final SortedMap<String, Tuple> allTuples = new TreeMap<String, Tuple>();
 		
 		for(int i = 0; i < freePos; i++) {
@@ -305,6 +315,9 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 
 	@Override
 	public Iterator<Tuple> iterator() {
+
+		assert (usage.get() > 0);
+
 		return new Iterator<Tuple>() {
 
 			protected int entry = 0;
@@ -354,16 +367,18 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 
 	@Override
 	public Iterator<Tuple> getMatchingTuples(final Predicate predicate) {
+		assert (usage.get() > 0);
+
 		return new PredicateFilterIterator(iterator(), predicate);
 	}
 
 	@Override
 	public void deleteOnClose() {
-		logger.debug("deleteOnClose called and we have {} references", referenceCounter.get());
+		logger.debug("deleteOnClose called and we have {} references", usage.get());
 
 		pendingDelete = true;
 		
-		if(referenceCounter.get() == 0) {
+		if(usage.get() == 0) {
 			clear();
 		}
 	}
@@ -374,18 +389,20 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 			return false;
 		}
 		
-		referenceCounter.incrementAndGet();
+		usage.incrementAndGet();
 		return true;
 	}
 
 	@Override
 	public void release() {
-		referenceCounter.decrementAndGet();
+		assert (usage.get() > 0);
+
+		usage.decrementAndGet();
 		
 		if(pendingDelete) {
-			logger.debug("Release called and we have {} references", referenceCounter.get());
+			logger.debug("Release called and we have {} references", usage.get());
 
-			if(referenceCounter.get() == 0) {
+			if(usage.get() == 0) {
 				clear();
 			}
 		}
@@ -398,11 +415,15 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 
 	@Override
 	public long getNumberOfTuples() {
+		assert (usage.get() > 0);
+
 		return freePos;
 	}
 
 	@Override
-	public Tuple getTupleAtPosition(final long position) {
+	public Tuple getTupleAtPosition(final long position) {		
+		assert (usage.get() > 0);
+
 		return data[(int) position];
 	}
 
