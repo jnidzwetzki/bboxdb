@@ -49,10 +49,12 @@ public class TestMemtable {
 		
 		memtable = new Memtable(new SSTableName("3_mygroup_test"), 1000, 10000);
 		memtable.init();
+		memtable.acquire();
 	}
 	
 	@AfterClass
 	public static void shutdown() {
+		memtable.release();
 		memtable.shutdown();
 	}
 	
