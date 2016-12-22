@@ -216,6 +216,7 @@ public class TestStorageManager {
 	public void testDeleteTuple3() throws StorageManagerException, InterruptedException {
 		int MAX_TUPLES = getNumberOfTuplesForBigInsert();
 		
+		System.out.println("Inserting tuples...");
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
@@ -223,6 +224,7 @@ public class TestStorageManager {
 		
 		Thread.sleep(1000);
 		
+		System.out.println("Deleting tuples...");
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			storageManager.delete(Integer.toString(i), System.currentTimeMillis());
 		}
@@ -230,6 +232,7 @@ public class TestStorageManager {
 		// Let the storage manager swap the memtables out
 		Thread.sleep(10000);
 		
+		System.out.println("Reading tuples...");
 		// Fetch the deleted tuples
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final Tuple resultTuple2 = storageManager.get(Integer.toString(i));
