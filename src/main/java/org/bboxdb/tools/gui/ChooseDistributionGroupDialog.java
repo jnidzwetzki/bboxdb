@@ -75,7 +75,7 @@ public class ChooseDistributionGroupDialog {
 	 * Show the connect dialog
 	 */
 	public void showDialog() {
-		mainframe = new JFrame("Scalephant - Connection Settings");
+		mainframe = new JFrame("BBoxDB - Connection Settings");
 		distributionGroupBox = new JComboBox<String>();
 		
 		for(final DistributionGroupName distributionGroupName : distributionGroups ) {
@@ -173,23 +173,23 @@ public class ChooseDistributionGroupDialog {
 					final ZookeeperClient zookeeperClient) {
 				
 				final GuiModel guiModel = new GuiModel(zookeeperClient);		
-				final BBoxDBGui scalepahntGUI = new BBoxDBGui(guiModel);
-				guiModel.setBBoxDBGui(scalepahntGUI);
-				scalepahntGUI.run();
+				final BBoxDBGui bboxDBGUI = new BBoxDBGui(guiModel);
+				guiModel.setBBoxDBGui(bboxDBGUI);
+				bboxDBGUI.run();
 				guiModel.setDistributionGroup(distributionGroup);
 				
-				startNewMainThread(zookeeperClient, scalepahntGUI, guiModel);
+				startNewMainThread(zookeeperClient, bboxDBGUI, guiModel);
 			}
 
 			/**
 			 * The main thread
 			 * @param zookeeperClient
-			 * @param scalepahntGUI
+			 * @param bboxdbGUI
 			 * @param guiModel 
 			 */
 			protected void startNewMainThread(
 					final ZookeeperClient zookeeperClient,
-					final BBoxDBGui scalepahntGUI,
+					final BBoxDBGui bboxdbGUI,
 					final GuiModel guiModel) {
 				
 				// Start a new update thread
@@ -197,13 +197,13 @@ public class ChooseDistributionGroupDialog {
 					@Override
 					public void run() {
 						try {
-							while(! scalepahntGUI.shutdown) {
-								scalepahntGUI.updateView();
+							while(! bboxdbGUI.shutdown) {
+								bboxdbGUI.updateView();
 								Thread.sleep(1000);
 							}
 							
 							// Wait for pending gui updates to complete
-							scalepahntGUI.dispose();				
+							bboxdbGUI.dispose();				
 							Thread.sleep(1000);
 						} catch (InterruptedException e1) {
 							Thread.currentThread().interrupt();

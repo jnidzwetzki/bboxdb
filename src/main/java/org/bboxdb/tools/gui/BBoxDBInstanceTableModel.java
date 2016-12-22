@@ -33,8 +33,8 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 	 */
 	protected final List<DistributedInstance> instances;
 	
-	public BBoxDBInstanceTableModel(final List<DistributedInstance> scalepahntInstances) {
-		this.instances = scalepahntInstances;
+	public BBoxDBInstanceTableModel(final List<DistributedInstance> distributedInstances) {
+		this.instances = distributedInstances;
 	}
 
 	/**

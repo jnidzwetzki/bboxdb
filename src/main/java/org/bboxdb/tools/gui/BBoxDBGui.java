@@ -84,12 +84,12 @@ public class BBoxDBGui {
 	}
 
 	/**
-	 * Build the DSECONDO dialog, init GUI components
+	 * Build the BBoxDB dialog, init GUI components
 	 * and assemble the dialog
 	 */
 	public void run() {
 		
-		mainframe = new JFrame("Scalephant - Data Distribution");
+		mainframe = new JFrame("BBoxDB - Data Distribution");
 		
 		setupMenu();
 		setupMainPanel();
@@ -158,8 +158,8 @@ public class BBoxDBGui {
 	 * @return The table model
 	 */
 	private BBoxDBInstanceTableModel getTableModel() {
-		final List<DistributedInstance> scalepahntInstances = guiModel.getBBoxDBInstances();
-		return new BBoxDBInstanceTableModel(scalepahntInstances);
+		final List<DistributedInstance> bboxDBInstances = guiModel.getBBoxDBInstances();
+		return new BBoxDBInstanceTableModel(bboxDBInstances);
 	}
 
 	/**

@@ -77,7 +77,7 @@ public class ConnectDialog {
 	 * Show the connect dialog
 	 */
 	public void showDialog() {
-		mainframe = new JFrame("Scalephant - Connection Settings");
+		mainframe = new JFrame("BBoxDB - Connection Settings");
 		hosts = new JTextField(DEFAULT_NODE);
 		clustername = new JTextField(DEFAULT_CLUSTER);
 		
