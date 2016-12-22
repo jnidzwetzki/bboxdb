@@ -27,18 +27,26 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
@@ -55,7 +63,7 @@ public class BBoxDBGui {
 	/**
 	 * The main panel
 	 */
-	protected JPanel mainPanel;
+	protected JSplitPane mainPanel;
 	
 	/**
 	 * The Menu bar
@@ -133,12 +141,10 @@ public class BBoxDBGui {
 		
 		tableScrollPane.setPreferredSize(
 		    new Dimension(d.width,table.getRowHeight()*7));
-		
-		final JScrollPane mainScrollPane = new JScrollPane(mainPanel);
-		
+				
 		mainframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainframe.setLayout(new BorderLayout());
-		mainframe.add(mainScrollPane, BorderLayout.CENTER);
+		mainframe.add(mainPanel, BorderLayout.CENTER);
 		mainframe.add(tableScrollPane, BorderLayout.SOUTH);
 
 		mainframe.pack();
@@ -168,7 +174,8 @@ public class BBoxDBGui {
 	 */
 	protected void setupMainPanel() {
         
-		mainPanel = new JPanel() {
+		
+		final JPanel rightPanel = new JPanel() {
 		
 			private static final long serialVersionUID = -248493308846818192L;
 			
@@ -200,6 +207,11 @@ public class BBoxDBGui {
 	                    RenderingHints.KEY_ANTIALIASING, 
 	                    RenderingHints.VALUE_ANTIALIAS_ON);
 	            
+	            // Group is not set
+	            if(guiModel.getTreeAdapter() == null) {
+	            	return;
+	            }
+	            
 	    		final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
 
     			final int totalLevel = distributionRegion.getTotalLevel();
@@ -209,7 +221,7 @@ public class BBoxDBGui {
     			final int totalHeight = DistributionRegionComponent.HEIGHT 
     					+ (totalLevel * DistributionRegionComponent.LEVEL_DISTANCE);
     			
-    			mainPanel.setPreferredSize(new Dimension(totalWidth, totalHeight));
+    			setPreferredSize(new Dimension(totalWidth, totalHeight));
     			
 	            regions.clear();
 	            drawDistributionRegion(graphics2D, distributionRegion);
@@ -235,9 +247,54 @@ public class BBoxDBGui {
 			}
 		};
 
-		mainPanel.setBackground(Color.WHITE);
-		mainPanel.setToolTipText("");
+		rightPanel.setBackground(Color.WHITE);
+		rightPanel.setToolTipText("");
+		
+		final JScrollPane rightScrollPanel = new JScrollPane(rightPanel);
+		
+		final JList<String> leftPanel = getLeftPanel();
+		
+		mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightScrollPanel);
+		mainPanel.setOneTouchExpandable(true);
+		mainPanel.setDividerLocation(150);
 		mainPanel.setPreferredSize(new Dimension(800, 600));
+
+	}
+
+	/**
+	 * Generate the left panel
+	 * @return
+	 */
+	protected JList<String> getLeftPanel() {
+		
+		final DefaultListModel<String> listModel = new DefaultListModel<String>();
+		List<DistributionGroupName> distributionGroups = new ArrayList<DistributionGroupName>();
+		
+		try {
+			distributionGroups = guiModel.getDistributionGroups();
+		} catch (Exception e) {
+			logger.error("Got an exception while loading distribution groups");
+		}
+		
+		Collections.sort(distributionGroups);
+
+		for(final DistributionGroupName distributionGroupName : distributionGroups) {
+			listModel.addElement(distributionGroupName.getFullname());
+		}
+		
+		final JList<String> leftList = new JList<String>(listModel);
+		leftList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		leftList.addListSelectionListener(new ListSelectionListener() {
+			
+			@Override
+			public void valueChanged(final ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+	                  guiModel.setDistributionGroup(leftList.getSelectedValue());
+                }
+			}
+		});
+
+		return leftList;
 	}
 
 	/**

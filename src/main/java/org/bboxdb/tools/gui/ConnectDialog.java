@@ -25,14 +25,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,6 +142,10 @@ public class ConnectDialog {
 	 * Get the connect action
 	 * @return
 	 */
+	/**
+	 * Get the connect action
+	 * @return
+	 */
 	protected Action getConnectAction() {
 		final AbstractAction connectAction = new AbstractAction() {
 			
@@ -157,46 +156,66 @@ public class ConnectDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
 				final List<String> zookeeperHosts = Arrays.asList(hosts.getText().split(","));
 				final String cluster = clustername.getText();
 				
 				final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeeperHosts, cluster);
 				zookeeperClient.init();
-				final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
-
-				if(! zookeeperClient.isConnected()) {
-					JOptionPane.showMessageDialog(mainframe,
-						    "Unable to connect to zookeeper.",
-						    "Error",
-						    JOptionPane.ERROR_MESSAGE);
-					return;
-				}
 				
-				try {
-					mainframe.dispose();
-
-					final List<DistributionGroupName> distributionGroups 
-						= distributionGroupZookeeperAdapter.getDistributionGroups();
-
-					if(distributionGroups.isEmpty()) {
-						JOptionPane.showMessageDialog(mainframe,
-							    "No distribution groups are found. Please create them first.",
-							    "Distribution Groups",
-							    JOptionPane.ERROR_MESSAGE);
-						System.exit(0);
-					}
-					
-					final ChooseDistributionGroupDialog chooseDistributionGroupDialog = 
-							new ChooseDistributionGroupDialog(distributionGroups, zookeeperClient);
-					
-					chooseDistributionGroupDialog.showDialog();
-					
-				} catch (ZookeeperException | ZookeeperNotFoundException e1) {
-					logger.error("Got an exception", e1);
-				}
+				showMainDialog(zookeeperClient);
+				
+				zookeeperClient.startMembershipObserver();
+				mainframe.dispose();
 			}
-			
+
+			/**
+			 * Show the main dialog
+			 * 
+			 * @param distributionGroup
+			 * @param zookeeperClient
+			 */
+			protected void showMainDialog(final ZookeeperClient zookeeperClient) {
+				
+				final GuiModel guiModel = new GuiModel(zookeeperClient);		
+				final BBoxDBGui bboxDBGUI = new BBoxDBGui(guiModel);
+				guiModel.setBBoxDBGui(bboxDBGUI);
+				bboxDBGUI.run();
+				
+				startNewMainThread(zookeeperClient, bboxDBGUI, guiModel);
+			}
+
+			/**
+			 * The main thread
+			 * @param zookeeperClient
+			 * @param bboxdbGUI
+			 * @param guiModel 
+			 */
+			protected void startNewMainThread(
+					final ZookeeperClient zookeeperClient,
+					final BBoxDBGui bboxdbGUI,
+					final GuiModel guiModel) {
+				
+				// Start a new update thread
+				(new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							while(! bboxdbGUI.shutdown) {
+								bboxdbGUI.updateView();
+								Thread.sleep(1000);
+							}
+							
+							// Wait for pending gui updates to complete
+							bboxdbGUI.dispose();				
+							Thread.sleep(1000);
+						} catch (InterruptedException e1) {
+							Thread.currentThread().interrupt();
+						}
+						
+						zookeeperClient.shutdown();
+					}
+				})).start();
+			}
 		};
 		return connectAction;
 	}

@@ -10,6 +10,7 @@ order: 1
 - Improvement: Enabled the JMX server
 - Improvement: Replaced 'apache commons deamon' BBoxDB process management with native java solution
 - Improvement: Assertions are now enabled during unit tests and in server mode
+- Improvement: Allow switching distribution groups in GUI
 - Bugfix: Allocate systems to new distribution regions, before then come ready
 - Bugfix: GUI is repainted when a distribution region is recreated
 - Bugfix: Size of the GUI tree component was not dynamically calculated 

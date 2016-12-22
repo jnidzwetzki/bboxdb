@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.DistributedInstanceManager;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
@@ -207,6 +208,16 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 */
 	public KDtreeZookeeperAdapter getTreeAdapter() {
 		return treeAdapter;
+	}
+	
+	/**
+	 * Get a list with all distribution groups
+	 * @return
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 */
+	public List<DistributionGroupName> getDistributionGroups() throws ZookeeperException, ZookeeperNotFoundException {
+		return distributionGroupZookeeperAdapter.getDistributionGroups();
 	}
 
 }
