@@ -14,6 +14,7 @@ order: 1
 - Bugfix: Allocate systems to new distribution regions, before then come ready
 - Bugfix: GUI is repainted when a distribution region is recreated
 - Bugfix: Size of the GUI tree component was not dynamically calculated 
+- Bugfix: The acquire storages code releases all (not only the already acquired) storages on failure, this leads to wrong usage counting
 
 ### Version 0.2.0 (Beta-4) - 20.12.2016
 - New Feature: Renamed project from 'scalephant' to 'BBoxDB'

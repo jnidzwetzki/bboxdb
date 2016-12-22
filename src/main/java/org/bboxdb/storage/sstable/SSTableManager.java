@@ -539,29 +539,27 @@ public class SSTableManager implements BBoxDBService {
 	public List<ReadOnlyTupleStorage> aquireStorage() throws StorageManagerException {
 		final int retries = 10;
 
-		final List<ReadOnlyTupleStorage> aquiredStorages = new ArrayList<ReadOnlyTupleStorage>();
-		
 		for(int execution = 0; execution < retries; execution++) {
 			
-			// Release the previous acquired tables
-			releaseStorage(aquiredStorages);
-			
-			aquiredStorages.clear();
-			aquiredStorages.addAll(tupleStoreInstances.getAllTupleStorages());
-			
-			boolean allTablesAquired = true;
-			
-			for(final ReadOnlyTupleStorage tupleStorage : aquiredStorages) {
+			final List<ReadOnlyTupleStorage> aquiredStorages = new ArrayList<ReadOnlyTupleStorage>();
+			final List<ReadOnlyTupleStorage> knownStorages = tupleStoreInstances.getAllTupleStorages();
+						
+			for(final ReadOnlyTupleStorage tupleStorage : knownStorages) {
 				final boolean canBeUsed = tupleStorage.acquire();
 				
 				if(! canBeUsed ) {
-					allTablesAquired = false;
 					break;
+				} else {
+					aquiredStorages.add(tupleStorage);
 				}
 			}
 			
-			if(allTablesAquired) {
+			if(knownStorages.size() == aquiredStorages.size()) {
 				return aquiredStorages;
+			} else {
+				// one or more storages could not be acquired
+				// release storages and retry
+				releaseStorage(aquiredStorages);
 			}
 		}
 		
