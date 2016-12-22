@@ -136,19 +136,19 @@ public class SSTableReader extends AbstractTableReader {
 	 * @return
 	 * @throws IOException 
 	 */
-	public synchronized String decodeOnlyKeyFromTupleAtPosition(int position) throws IOException {
+	public synchronized String decodeOnlyKeyFromTupleAtPosition(final int position) throws IOException {
 		
 		memory.position(position);
 		
 		final short keyLength = memory.getShort();
 
-		final int remainingTupleSize = DataEncoderHelper.INT_BYTES  // BBOX-Length
+		final int sizeToSkip = DataEncoderHelper.INT_BYTES          // BBOX-Length
 				+ DataEncoderHelper.INT_BYTES 						// Data-Length
 				+ DataEncoderHelper.LONG_BYTES;						// Timestamp
 		
-		memory.position(memory.position() + remainingTupleSize);
+		memory.position(memory.position() + sizeToSkip);
 		
-		byte[] keyBytes = new byte[keyLength];
+		final byte[] keyBytes = new byte[keyLength];
 		memory.get(keyBytes, 0, keyBytes.length);
 		
 		return new String(keyBytes);
