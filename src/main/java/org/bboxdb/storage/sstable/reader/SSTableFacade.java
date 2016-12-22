@@ -225,6 +225,9 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	 */
 	@Override
 	public void release() {
+		
+		assert (usage.get() > 0);
+		
 		usage.decrementAndGet();
 		
 		testFileDelete();
@@ -291,6 +294,8 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 
 	@Override
 	public Tuple get(final String key) throws StorageManagerException {
+		
+		assert (usage.get() > 0);
 
 		// Check bloom filter first
 		if(bloomfilter == null) {
@@ -313,21 +318,33 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 
 	@Override
 	public Iterator<Tuple> getMatchingTuples(final Predicate predicate) {
+
+		assert (usage.get() > 0);
+
 		return ssTableKeyIndexReader.getMatchingTuples(predicate);
 	}
 
 	@Override
 	public Iterator<Tuple> iterator() {
+		
+		assert (usage.get() > 0);
+
 		return ssTableKeyIndexReader.iterator();
 	}
 
 	@Override
 	public long getNumberOfTuples() {
+
+		assert (usage.get() > 0);
+		
 		return ssTableMetadata.getTuples();
 	}
 
 	@Override
 	public Tuple getTupleAtPosition(final long position) throws StorageManagerException {
+		
+		assert (usage.get() > 0);
+		
 		try {
 			return ssTableKeyIndexReader.getTupleForIndexEntry(position);
 		} catch (IOException e) {
