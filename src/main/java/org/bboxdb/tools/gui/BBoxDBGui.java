@@ -289,7 +289,7 @@ public class BBoxDBGui {
 			@Override
 			public void valueChanged(final ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
-	                  guiModel.setDistributionGroup(leftList.getSelectedValue());
+	                guiModel.setDistributionGroup(leftList.getSelectedValue());
                 }
 			}
 		});

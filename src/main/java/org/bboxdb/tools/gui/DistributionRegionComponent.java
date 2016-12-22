@@ -139,12 +139,12 @@ public class DistributionRegionComponent {
 		
 		// Draw the node
 		final Color oldColor = g.getColor();
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(getColorForRegion(distributionRegion));
 		g.fillRect(xOffset, yOffset, WIDTH, HEIGHT);
 		g.setColor(oldColor);
 		g.drawRect(xOffset, yOffset, WIDTH, HEIGHT);
 
-		// Write node text
+		// Write the split position
 		String nodeText = Float.toString(distributionRegion.getSplit());
 		if(distributionRegion.isLeafRegion()) {
 			nodeText = "-";
@@ -152,11 +152,38 @@ public class DistributionRegionComponent {
 		
 		final Rectangle2D bounds = g.getFontMetrics().getStringBounds(nodeText, g);
 		int stringWidth = (int) bounds.getWidth();
-		
-		g.drawString(nodeText, xOffset + (WIDTH / 2) - (stringWidth / 2), yOffset + HEIGHT / 2);
+		g.drawString(nodeText, xOffset + (WIDTH / 2) - (stringWidth / 2), yOffset + (int) (HEIGHT * 0.7));
 
+		// Draw the state
+		final String nodeState = distributionRegion.getState().getStringValue();
+		final Rectangle2D boundsState = g.getFontMetrics().getStringBounds(nodeState, g);
+		int stringWidthStage = (int) boundsState.getWidth();
+		g.drawString(nodeState, xOffset + (WIDTH / 2) - (stringWidthStage / 2), yOffset + (int) (HEIGHT * 0.3));
+		
 		// Draw the line to the parent node
 		drawParentNodeLine(g, xOffset, yOffset);
+	}
+
+	/**
+	 * Get the color for the distribution region
+	 * @param distributionRegion
+	 * @return
+	 */
+	protected Color getColorForRegion(final DistributionRegion distributionRegion) {
+		switch (distributionRegion.getState()) {
+		case ACTIVE:
+		case ACTIVE_FULL:
+			return Color.GREEN;
+			
+		case SPLITTED:
+			return Color.GRAY;
+			
+		case SPLITTING:
+			return Color.YELLOW;
+			
+		default:
+			return Color.LIGHT_GRAY;
+		}
 	}
 
 	/**
@@ -211,8 +238,6 @@ public class DistributionRegionComponent {
 		
 		sb.append("<br>");
 		sb.append("Nameprefix: " + distributionRegion.getNameprefix());
-		sb.append("<br>");
-		sb.append("State: " + distributionRegion.getState());
 		
 		sb.append("</html>");
 		return sb.toString();
