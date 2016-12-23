@@ -74,4 +74,22 @@ Both scripts accept the following parameter. Depending on the script, the task i
 | zookeeper_stop     | Stop zookeeper                    |
 | zookeeper_drop     | Stop zookeeper and drop the stored data |
 | zookeeper_client   | Connect to the local zookeeper process and open an interactive shell. _This parameter is only available with the manage_instance.sh script_ |
+| bboxdb_start       | Start the BBoxDB process          | 
+| bboxdb_stop        | Stop the BBoxDB process           |
+| bboxdb_upgrade     | Download the last version from github and compile the source |
+
+__For example:__ to start a whole cluster, simply type:
+
+```bash
+$BBOXDB_HOME/misc/manage_cluster.sh zookeeper_start
+$BBOXDB_HOME/misc/manage_cluster.sh bboxdb_start
+```
+
+To stop the whole cluster, type:
+
+
+```bash
+$BBOXDB_HOME/misc/manage_cluster.sh bboxdb_stop
+$BBOXDB_HOME/misc/manage_cluster.sh zookeeper_stop
+```
 
