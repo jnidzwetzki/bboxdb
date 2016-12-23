@@ -384,9 +384,12 @@ public class DistributionRegion {
 		if(state == DistributionRegionState.ACTIVE 
 				|| state == DistributionRegionState.ACTIVE_FULL
 				|| state == DistributionRegionState.SPLITTING) {
-			for(final DistributedInstance system : systems) {
-				if(! resultSystems.contains(system)) {
-					resultSystems.add(system);
+			
+			if(! systems.isEmpty()) {
+				for(final DistributedInstance system : systems) {
+					if(! resultSystems.contains(system)) {
+						resultSystems.add(system);
+					}
 				}
 			}
 		} else {
