@@ -162,7 +162,7 @@ public class DistributionRegion {
 	}
 
 	/**
-	 * Merge the distibution group
+	 * Merge the distribution group
 	 */
 	public void merge() {
 		split = Float.MIN_VALUE;
