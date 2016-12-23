@@ -216,16 +216,18 @@ public class BBoxDBGui {
 
     			final int totalLevel = distributionRegion.getTotalLevel();
     			
-    			final int totalWidth = DistributionRegionComponent.WIDTH 
-    					+ (DistributionRegionComponent.LEFT_RIGHT_OFFSET * totalLevel) * 2;
+    			final int totalWidth =  
+    					+ ((DistributionRegionComponent.LEFT_RIGHT_OFFSET 
+    							+ DistributionRegionComponent.WIDTH) * totalLevel) * 2;
     			final int totalHeight = DistributionRegionComponent.HEIGHT 
     					+ (totalLevel * DistributionRegionComponent.LEVEL_DISTANCE);
-    			
-    			setPreferredSize(new Dimension(totalWidth, totalHeight));
-    			
+
 	            regions.clear();
 	            drawDistributionRegion(graphics2D, distributionRegion);
 	            
+    			setPreferredSize(new Dimension(totalWidth, totalHeight));
+    			setSize(new Dimension(totalWidth, totalHeight));
+    			
 				g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);
 				g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 40);
 				g.drawString("Replication factor: " + guiModel.getReplicationFactor(), 10, 60);
