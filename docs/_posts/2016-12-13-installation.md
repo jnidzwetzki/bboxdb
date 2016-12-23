@@ -64,7 +64,7 @@ vi $BBOXDB_HOME/misc/bboxdb-env.sh
 ```
 
 ## Starting and Stopping the system
-To manage the processes of BBoxDB, two scripts are provided: ```$BBOXDB_HOME/misc/manage_instance.sh`` is used to start and stop the processes on the local node. ```$BBOXDB_HOME/misc/manage_cluster.sh``` is used to managed a whole cluster of nodes.
+To manage the processes of BBoxDB, two scripts are provided: ```$BBOXDB_HOME/misc/manage_instance.sh``` is used to start and stop the processes on the local node. ```$BBOXDB_HOME/misc/manage_cluster.sh``` is used to managed a whole cluster of nodes.
 
 Both scripts accept the following parameter. Depending on the script, the task is performed on the local system or on the whole cluster.
 
