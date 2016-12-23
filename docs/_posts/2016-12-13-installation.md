@@ -78,14 +78,14 @@ Both scripts accept the following parameter. Depending on the script, the task i
 | bboxdb_stop        | Stop the BBoxDB process           |
 | bboxdb_upgrade     | Download the last version from github and compile the source |
 
-__For example:__ to start a whole cluster, simply type:
+__Example:__ Start a whole cluster:
 
 ```bash
 $BBOXDB_HOME/misc/manage_cluster.sh zookeeper_start
 $BBOXDB_HOME/misc/manage_cluster.sh bboxdb_start
 ```
 
-To stop the whole cluster, type:
+__Example:__ Stop a whole cluster:
 
 
 ```bash
