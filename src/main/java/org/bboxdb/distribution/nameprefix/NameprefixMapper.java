@@ -155,11 +155,12 @@ public class NameprefixMapper {
 	 * @return
 	 */
 	public boolean removeMapping(final int nameprefix) {
+		
 		for (final Iterator<RegionTablenameEntry> iterator = regions.iterator(); iterator.hasNext(); ) {
 			final RegionTablenameEntry regionTablenameEntry = (RegionTablenameEntry) iterator.next();
 			
 			if(regionTablenameEntry.getNameprefix() == nameprefix) {
-				iterator.remove();
+				regions.remove(regionTablenameEntry);
 				return true;
 			}
 		}
