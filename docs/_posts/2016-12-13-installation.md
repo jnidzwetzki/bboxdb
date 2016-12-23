@@ -73,5 +73,5 @@ Both scripts accept the following parameter. Depending on the script, the task i
 | zookeeper_start    | Configure and start zookeeper     |
 | zookeeper_stop     | Stop zookeeper                    |
 | zookeeper_drop     | Stop zookeeper and drop the stored data |
-| zookeeper_client   | Connect to the local zookeeper process and open an interactive shell. __This parameter is only available with the manage_instance.sh script__ |
+| zookeeper_client   | Connect to the local zookeeper process and open an interactive shell. _This parameter is only available with the manage_instance.sh script_ |
 
