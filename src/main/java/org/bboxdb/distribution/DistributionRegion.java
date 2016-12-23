@@ -381,7 +381,9 @@ public class DistributionRegion {
 			return;
 		}
 		
-		if(state == DistributionRegionState.ACTIVE || state == DistributionRegionState.SPLITTING) {
+		if(state == DistributionRegionState.ACTIVE 
+				|| state == DistributionRegionState.ACTIVE_FULL
+				|| state == DistributionRegionState.SPLITTING) {
 			for(final DistributedInstance system : systems) {
 				if(! resultSystems.contains(system)) {
 					resultSystems.add(system);
