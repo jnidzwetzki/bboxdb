@@ -93,3 +93,11 @@ $BBOXDB_HOME/misc/manage_cluster.sh bboxdb_stop
 $BBOXDB_HOME/misc/manage_cluster.sh zookeeper_stop
 ```
 
+## Logfiles
+Zookeeper and BBoxDB messages are written into logfiles. In case of trouble, have a look into the logfile file.
+
+|    Logfile                  |            Content                |
+|-----------------------------|-----------------------------------|
+| $BBOXDB_HOME/zookeeper.log  | Details about the operation of Zookeeper     |
+| $BBOXDB_HOME/bboxdb.log     | Details about the operation of BBoxDB        |
+
