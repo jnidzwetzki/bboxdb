@@ -130,7 +130,8 @@ public class BBoxDBCluster implements BBoxDB {
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
 
 			if(systems.isEmpty()) {
-				throw new BBoxDBException("Insert tuple called, but system list for bounding box is empty: " + tuple.getBoundingBox());
+				throw new BBoxDBException("Insert tuple called, but system list for bounding box is empty: " 
+						+ tuple.getBoundingBox() + ". State is: " + distributionRegion.getState());
 			}
 			
 			// Determine the first system, it will route the request to the remaining systems
