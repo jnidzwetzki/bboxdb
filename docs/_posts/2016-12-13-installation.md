@@ -96,7 +96,7 @@ $BBOXDB_HOME/misc/manage_cluster.sh zookeeper_stop
 ```
 
 ## Logfiles
-Zookeeper and BBoxDB messages are written into logfiles. In case of trouble, have a look into the logfile file.
+Zookeeper and BBoxDB messages are written into logfiles. Depending on the start parameter of the server ```bboxdb_start```, ```bboxdb_start_debug``` or ```bboxdb_start_trace```, a different amount of details are written into the log files.
 
 |    Logfile                  |            Content                |
 |-----------------------------|-----------------------------------|
