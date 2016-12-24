@@ -76,14 +76,16 @@ bboxdb_start() {
 
     debug_args=""
 
-    if [ "$BBOXDB_LOG" -eq "debug" ]; then
-         echo "Debug startup......"
-         debug_args+="-Dlog4j.configuration=log4j_debug.properties"
-    fi
-    
-    if [ "$BBOXDB_LOG" -eq "trace" ]; then
-         echo "Trace startup......"
-         debug_args+="-Dlog4j.configuration=log4j_trace.properties"
+	if [ ! -z "$BBOXDB_LOG"]; then
+	    if [ "$BBOXDB_LOG" -eq "debug" ]; then
+	         echo "Debug startup......"
+	         debug_args+="-Dlog4j.configuration=log4j_debug.properties"
+	    fi
+	    
+	    if [ "$BBOXDB_LOG" -eq "trace" ]; then
+	         echo "Trace startup......"
+	         debug_args+="-Dlog4j.configuration=log4j_trace.properties"
+	    fi
     fi
     
     config="$BBOXDB_HOME/conf/bboxdb.yaml"
