@@ -77,12 +77,12 @@ bboxdb_start() {
     debug_args=""
 
 	if [ ! -z "$BBOXDB_LOG" ]; then
-	    if [ "$BBOXDB_LOG" -eq "debug" ]; then
+	    if [ "$BBOXDB_LOG" == "debug" ]; then
 	         echo "Debug startup......"
 	         debug_args+="-Dlog4j.configuration=log4j_debug.properties"
 	    fi
 	    
-	    if [ "$BBOXDB_LOG" -eq "trace" ]; then
+	    if [ "$BBOXDB_LOG" == "trace" ]; then
 	         echo "Trace startup......"
 	         debug_args+="-Dlog4j.configuration=log4j_trace.properties"
 	    fi
