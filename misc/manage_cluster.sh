@@ -57,7 +57,7 @@ fi
 
 zookeeper_nodes=$(read_nodes_file $zookeeper_node_file)
 if [ -z "$zookeeper_nodes" ]; then
-   echo "Your zzokeeper nodes ($zookeeper_node_file) are empty, please check your configuration" 
+   echo "Your zookeeper nodes ($zookeeper_node_file) are empty, please check your configuration" 
    exit -1
 fi
 
@@ -78,7 +78,7 @@ bboxdb_start() {
 # Start the bboxdb in debug mode
 ###
 bboxdb_start_debug() {
-   execute_parallel "export BBOXDB_DEBUG=1; \$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start" "Starting BBoxDB" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start_debug" "Starting BBoxDB" "$bboxdb_nodes" $max_pending
 }
 
 ###

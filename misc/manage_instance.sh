@@ -76,9 +76,14 @@ bboxdb_start() {
 
     debug_args=""
 
-    if [ ! -z "$BBOXDB_DEBUG" ]; then
+    if [ "$BBOXDB_LOG" -eq "debug" ]; then
          echo "Debug startup......"
          debug_args+="-Dlog4j.configuration=log4j_debug.properties"
+    fi
+    
+    if [ "$BBOXDB_LOG" -eq "trace" ]; then
+         echo "Trace startup......"
+         debug_args+="-Dlog4j.configuration=log4j_trace.properties"
     fi
     
     config="$BBOXDB_HOME/conf/bboxdb.yaml"
@@ -263,6 +268,14 @@ case "$1" in
 bboxdb_start)
    bboxdb_start
    ;;  
+bboxdb_start_debug)
+   BBOXDB_LOG="debug"
+   bboxdb_start
+   ;;
+bboxdb_start_trace)
+   BBOXDB_LOG="trace"
+   bboxdb_start
+   ;;
 bboxdb_stop)
    bboxdb_stop
    ;;  
@@ -271,7 +284,6 @@ bboxdb_update)
    ;;  
 zookeeper_start)
    zookeeper_start
-   ;;
 zookeeper_stop)
    zookeeper_stop
    ;;
