@@ -78,7 +78,14 @@ bboxdb_start() {
 # Start the bboxdb in debug mode
 ###
 bboxdb_start_debug() {
-   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start_debug" "Starting BBoxDB" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start_debug" "Starting BBoxDB in debug mode" "$bboxdb_nodes" $max_pending
+}
+
+###
+# Start the bboxdb in trace mode
+###
+bboxdb_start_trace() {
+   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start_trace" "Starting BBoxDB in trace mode" "$bboxdb_nodes" $max_pending
 }
 
 ###
@@ -124,6 +131,9 @@ bboxdb_start)
 bboxdb_start_debug)
    bboxdb_start_debug
    ;;  
+bboxdb_start_trace)
+   bboxdb_start_trace
+   ;;  
 bboxdb_stop)
    bboxdb_stop
    ;;  
@@ -140,7 +150,7 @@ zookeeper_drop)
    zookeeper_drop
    ;;
 *)
-   echo "Usage: $0 {bboxdb_start | bboxdb_start_debug | bboxdb_stop | bboxdb_update | zookeeper_start | zookeeper_stop | zookeeper_drop}"
+   echo "Usage: $0 {bboxdb_start | bboxdb_start_debug | bboxdb_start_trace | bboxdb_stop | bboxdb_update | zookeeper_start | zookeeper_stop | zookeeper_drop}"
    ;;  
 esac
 
