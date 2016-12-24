@@ -284,6 +284,7 @@ bboxdb_update)
    ;;  
 zookeeper_start)
    zookeeper_start
+   ;;
 zookeeper_stop)
    zookeeper_stop
    ;;
