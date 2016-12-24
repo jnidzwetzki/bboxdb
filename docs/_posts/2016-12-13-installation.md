@@ -68,14 +68,16 @@ To manage the processes of BBoxDB, two scripts are provided: ```$BBOXDB_HOME/mis
 
 Both scripts accept the following parameter. Depending on the script, the task is performed on the local system or on the whole cluster.
 
-|    Parameter       |            Description            |
-|--------------------|-----------------------------------|
-| zookeeper_start    | Configure and start zookeeper     |
-| zookeeper_stop     | Stop zookeeper                    |
-| zookeeper_drop     | Stop zookeeper and drop the stored data |
-| zookeeper_client   | Connect to the local zookeeper process and open an interactive shell. _This parameter is only available with the manage_instance.sh script_ |
-| bboxdb_start       | Start the BBoxDB process          | 
-| bboxdb_stop        | Stop the BBoxDB process           |
+|    Parameter       |                Description                |
+|--------------------|-------------------------------------------|
+| zookeeper_start    | Configure and start zookeeper             |
+| zookeeper_stop     | Stop zookeeper                            |
+| zookeeper_drop     | Stop zookeeper and drop the stored data   |
+| zookeeper_client   | Connect to the local zookeeper process and open an interactive shell. _This parameter is only available with the manage_instance.sh script_  |
+| bboxdb_start       | Start the BBoxDB process                  | 
+| bboxdb_start_debug | Start the BBoxDB process in debug mode    | 
+| bboxdb_start_trace | Start the BBoxDB process  in trace mode   | 
+| bboxdb_stop        | Stop the BBoxDB process                   |
 | bboxdb_upgrade     | Download the last version from github and compile the source |
 
 __Example:__ Start a whole cluster:
