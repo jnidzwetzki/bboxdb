@@ -76,7 +76,7 @@ bboxdb_start() {
 
     debug_args=""
 
-	if [ ! -z "$BBOXDB_LOG"]; then
+	if [ ! -z "$BBOXDB_LOG" ]; then
 	    if [ "$BBOXDB_LOG" -eq "debug" ]; then
 	         echo "Debug startup......"
 	         debug_args+="-Dlog4j.configuration=log4j_debug.properties"
