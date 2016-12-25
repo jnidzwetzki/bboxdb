@@ -74,7 +74,9 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 	 */
 	protected void processFacades(final List<ReadOnlyTupleStorage> storages, final int splitDimension, final List<FloatInterval> floatIntervals) throws StorageManagerException {
 		
-		final int samplesPerFacade = Math.max(10, SAMPLE_SIZE / storages.size());
+		final int samplesPerStorage = Math.max(10, SAMPLE_SIZE / storages.size());
+		
+		logger.debug("Using {} samples per storage", samplesPerStorage);
 		
 		for(final ReadOnlyTupleStorage storage : storages) {
 			if(! storage.acquire() ) {
@@ -82,8 +84,8 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 			}
 			
 			final long numberOfTuples = storage.getNumberOfTuples();
-			final int sampleOffset = Math.max(10, (int) (numberOfTuples / samplesPerFacade));
-			
+			final int sampleOffset = Math.max(10, (int) (numberOfTuples / samplesPerStorage));
+						
 			for (int position = 0; position < numberOfTuples; position = position + sampleOffset) {
 				final Tuple tuple = storage.getTupleAtPosition(position);							
 				final BoundingBox boundingBox = tuple.getBoundingBox();
