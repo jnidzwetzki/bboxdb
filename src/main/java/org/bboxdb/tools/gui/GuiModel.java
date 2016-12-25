@@ -123,6 +123,12 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 */
 	public void updateDistributionRegion() throws ZookeeperException, ZookeeperNotFoundException {
 		logger.info("Reread distribution group");
+		
+		if(distributionGroup == null) {
+			treeAdapter = null;
+			return;
+		}
+		
 		treeAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(distributionGroup);
 		replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroup);
 	}

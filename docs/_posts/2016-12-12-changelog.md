@@ -12,6 +12,7 @@ order: 1
 - Improvement: Assertions are now enabled during unit tests and in server mode
 - Improvement: Introduced distribution group selection in GUI
 - Improvement: Added trace start to bboxdb
+- Improvement: Added the ability to reread distribution group list in GUI
 - Bugfix: Allocate systems to new distribution regions, before then come ready
 - Bugfix: GUI is repainted when a distribution region is recreated
 - Bugfix: Size of the GUI tree component was not dynamically calculated 

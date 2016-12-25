@@ -66,6 +66,16 @@ public class BBoxDBGui {
 	protected JSplitPane mainPanel;
 	
 	/**
+	 * The list model for the distribution groups
+	 */
+	protected DefaultListModel<String> listModel;
+	
+	/**
+	 * The left menu list
+	 */
+	protected JList<String> leftList;
+	
+	/**
 	 * The Menu bar
 	 */
 	protected JMenuBar menuBar;
@@ -85,6 +95,9 @@ public class BBoxDBGui {
 	 */
 	public volatile boolean shutdown = false;
 	
+	/**
+	 * The Logger
+	 */
 	protected final static Logger logger = LoggerFactory.getLogger(BBoxDBGui.class);
 	
 	public BBoxDBGui(final GuiModel guiModel) {
@@ -260,7 +273,6 @@ public class BBoxDBGui {
 		mainPanel.setOneTouchExpandable(true);
 		mainPanel.setDividerLocation(150);
 		mainPanel.setPreferredSize(new Dimension(800, 600));
-
 	}
 
 	/**
@@ -268,23 +280,13 @@ public class BBoxDBGui {
 	 * @return
 	 */
 	protected JList<String> getLeftPanel() {
+	
+		listModel = new DefaultListModel<String>();
 		
-		final DefaultListModel<String> listModel = new DefaultListModel<String>();
-		List<DistributionGroupName> distributionGroups = new ArrayList<DistributionGroupName>();
+		leftList = new JList<String>(listModel);
 		
-		try {
-			distributionGroups = guiModel.getDistributionGroups();
-		} catch (Exception e) {
-			logger.error("Got an exception while loading distribution groups");
-		}
-		
-		Collections.sort(distributionGroups);
-
-		for(final DistributionGroupName distributionGroupName : distributionGroups) {
-			listModel.addElement(distributionGroupName.getFullname());
-		}
-		
-		final JList<String> leftList = new JList<String>(listModel);
+		refreshDistributionGroups(listModel);
+	
 		leftList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		leftList.addListSelectionListener(new ListSelectionListener() {
 			
@@ -300,6 +302,26 @@ public class BBoxDBGui {
 	}
 
 	/**
+	 * Refresh the distributions groups
+	 * @param listModel
+	 */
+	protected void refreshDistributionGroups(final DefaultListModel<String> listModel) {
+		final List<DistributionGroupName> distributionGroups = new ArrayList<DistributionGroupName>();
+		
+		try {
+			distributionGroups.addAll(guiModel.getDistributionGroups());
+		} catch (Exception e) {
+			logger.error("Got an exception while loading distribution groups");
+		}
+		
+		Collections.sort(distributionGroups);
+		listModel.clear();
+		for(final DistributionGroupName distributionGroupName : distributionGroups) {
+			listModel.addElement(distributionGroupName.getFullname());
+		}
+	}
+
+	/**
 	 * Create the menu of the main window
 	 */
 	protected void setupMenu() {
@@ -307,17 +329,31 @@ public class BBoxDBGui {
 		final JMenu menu = new JMenu("File");
 		menuBar.add(menu);
 		
-		final JMenuItem menuItem = new JMenuItem("Close");
-		menuItem.addActionListener(new AbstractAction() {
+		final JMenuItem reloadItem = new JMenuItem("Reload Distribution Groups");
+		reloadItem.addActionListener(new AbstractAction() {
 			
 			private static final long serialVersionUID = -5380326547117916348L;
 
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(final ActionEvent e) {
+				refreshDistributionGroups(listModel);
+			}
+			
+		});
+		menu.add(reloadItem);
+		
+		final JMenuItem closeItem = new JMenuItem("Close");
+		closeItem.addActionListener(new AbstractAction() {
+			
+			private static final long serialVersionUID = -5380326547117916348L;
+
+			public void actionPerformed(final ActionEvent e) {
 				shutdown = true;
 			}
 			
 		});
-		menu.add(menuItem);
+		menu.add(closeItem);
+		
+		
         mainframe.setJMenuBar(menuBar);
 	}
 	
