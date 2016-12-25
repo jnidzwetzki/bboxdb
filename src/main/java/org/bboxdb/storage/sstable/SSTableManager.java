@@ -66,11 +66,6 @@ public class SSTableManager implements BBoxDBService {
 	protected AtomicInteger tableNumber;
 	
 	/**
-	 * Ready flag for flush thread
-	 */
-	protected volatile boolean ready;
-	
-	/**
 	 * The corresponding storage manager state
 	 */
 	protected State storageState;
@@ -117,7 +112,6 @@ public class SSTableManager implements BBoxDBService {
 		this.storageState = new State(false); 
 		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
-		this.ready = false;
 		
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		this.runningThreads = new HashMap<String, Thread>();
@@ -131,14 +125,12 @@ public class SSTableManager implements BBoxDBService {
 	@Override
 	public void init() {
 		
-		if(ready == true) {
+		if(storageState.isReady()) {
 			logger.warn("SSTable manager is active and init() is called");
 			return;
 		}
 		
-		storageState.setReady(true);
-		
-		logger.info("Init a new instance for the table: " + getSSTableName());
+		logger.info("Init a new instance for the table: {}", getSSTableName());
 		
 		tupleStoreInstances.clear();
 		runningThreads.clear();
@@ -158,7 +150,7 @@ public class SSTableManager implements BBoxDBService {
 		tableNumber.set(getLastSequencenumberFromReader() + 1);
 
 		// Set to ready before the threads are started
-		ready = true;
+		storageState.setReady(true);
 
 		startMemtableFlushThread();
 		startCompactThread();
@@ -201,10 +193,12 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	protected void startCompactThread() {
 		if(configuration.isStorageRunCompactThread()) {
-			final Thread compactThread = new Thread(new SSTableCompactorThread(this));
+			final SSTableCompactorThread sstableCompactor = new SSTableCompactorThread(this);
+			final Thread compactThread = new Thread(sstableCompactor);
 			compactThread.setName("Compact thread for: " + sstablename.getFullname());
 			compactThread.start();
 			runningThreads.put(COMPACT_THREAD, compactThread);
+			stoppableTasks.put(COMPACT_THREAD, sstableCompactor);
 		} else {
 			logger.info("NOT starting the sstable compact thread for: " + sstablename.getFullname());
 		}
@@ -235,7 +229,6 @@ public class SSTableManager implements BBoxDBService {
 		
 		// Set ready to false. The threads will shutdown after completing
 		// the running tasks
-		ready = false;
 		storageState.setReady(false);
 		
 		if(tupleStoreInstances.getMemtable() != null) {
@@ -587,22 +580,6 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	public int increaseTableNumber() {
 		return tableNumber.getAndIncrement();
-	}
-
-	/**
-	 * Is the instance ready?
-	 * @return
-	 */
-	public boolean isReady() {
-		return ready;
-	}
-
-	/**
-	 * Set ready flag
-	 * @param ready
-	 */
-	public void setReady(final boolean ready) {
-		this.ready = ready;
 	}
 
 	/**
