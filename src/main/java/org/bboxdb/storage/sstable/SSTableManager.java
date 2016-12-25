@@ -227,8 +227,7 @@ public class SSTableManager implements BBoxDBService {
 	public void shutdown() {
 		logger.info("Shuting down the instance for table: " + sstablename.getFullname());
 		
-		// Set ready to false. The threads will shutdown after completing
-		// the running tasks
+		// Set ready to false and reject write requests
 		storageState.setReady(false);
 		
 		if(tupleStoreInstances.getMemtable() != null) {
