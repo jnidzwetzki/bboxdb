@@ -665,4 +665,12 @@ public class SSTableManager implements BBoxDBService {
 	public Memtable getMemtable() {
 		return tupleStoreInstances.getMemtable();
 	}
+
+	/**
+	 * Is the storage manager ready?
+	 * @return
+	 */
+	public boolean isReady() {
+		return storageState.isReady();
+	}
 }
