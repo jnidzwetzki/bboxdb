@@ -35,7 +35,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
-import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.util.Stoppable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,7 +156,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			if(isCheckpointNeeded()) {
 				final Memtable activeMemtable = ssTableManager.getMemtable();
 				logger.info("Creating a checkpoint for: {}", threadname);
-				ssTableManager.flushMemtable();
+				ssTableManager.flushAndInitMemtable();
 				
 				final Queue<Memtable> unflushedMemtables = ssTableManager.getTupleStoreInstances().getMemtablesToFlush();
 				
@@ -176,7 +175,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			final long createdTimestamp = activeMemtable.getCreatedTimestamp();
 			updateCheckpointDate(createdTimestamp);
 			
-		} catch (ZookeeperException | StorageManagerException e) {
+		} catch (ZookeeperException e) {
 			logger.warn("Got an exception while creating checkpoint", e);
 		}
 	}

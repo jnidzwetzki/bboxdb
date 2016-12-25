@@ -138,7 +138,7 @@ public class SSTableManager implements BBoxDBService {
 		
 		// Init the memtable before the sstablemanager. This ensures, that the
 		// sstable recovery can put entries into the memtable
-		initNewMemtable();
+		flushAndInitMemtable();
 		
 		try {
 			scanForExistingTables();
@@ -155,20 +155,6 @@ public class SSTableManager implements BBoxDBService {
 		startMemtableFlushThread();
 		startCompactThread();
 		startCheckpointThread();
-	}
-	
-	/**
-	 * Create a new storage manager
-	 */
-	protected void initNewMemtable() {
-		final Memtable memtable = new Memtable(sstablename, 
-				configuration.getMemtableEntriesMax(), 
-				configuration.getMemtableSizeMax());
-		
-		memtable.acquire();
-		memtable.init();
-		
-		tupleStoreInstances.activateNewMemtable(memtable);
 	}
 
 	/**
@@ -233,12 +219,8 @@ public class SSTableManager implements BBoxDBService {
 		if(tupleStoreInstances.getMemtable() != null) {
 			tupleStoreInstances.getMemtable().shutdown();
 			
-			// Flush in memory data
-			try {
-				flushMemtable();
-			} catch (StorageManagerException e) {
-				logger.warn("Got exception while flushing pending memtable to disk", e);
-			}
+			// Flush in memory data	
+			flushAndInitMemtable();
 		}
 		
 		stopThreads();
@@ -609,8 +591,15 @@ public class SSTableManager implements BBoxDBService {
 	 * Flush the open memtable to disk
 	 * @throws StorageManagerException
 	 */
-	public void flushMemtable() throws StorageManagerException {
-		initNewMemtable();
+	public void flushAndInitMemtable() {
+		final Memtable memtable = new Memtable(sstablename, 
+				configuration.getMemtableEntriesMax(), 
+				configuration.getMemtableSizeMax());
+		
+		memtable.acquire();
+		memtable.init();
+		
+		tupleStoreInstances.activateNewMemtable(memtable);
 	}
 
 	// These methods are required by the interface
@@ -622,7 +611,7 @@ public class SSTableManager implements BBoxDBService {
 		// Ensure that only one memtable is newly created
 		synchronized (this) {	
 			if(getMemtable().isFull()) {
-				flushMemtable();
+				flushAndInitMemtable();
 			}
 			
 			getMemtable().put(tuple);
@@ -637,7 +626,7 @@ public class SSTableManager implements BBoxDBService {
 		// Ensure that only one memtable is newly created
 		synchronized (this) {	
 			if(getMemtable().isFull()) {
-				flushMemtable();
+				flushAndInitMemtable();
 			}
 			
 			getMemtable().delete(key, timestamp);
