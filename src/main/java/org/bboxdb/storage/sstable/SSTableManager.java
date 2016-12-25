@@ -154,7 +154,7 @@ public class SSTableManager implements BBoxDBService {
 			return;
 		}
 		
-		tableNumber.set(getLastSequencenumberFromReader());
+		tableNumber.set(getLastSequencenumberFromReader() + 1);
 
 		// Set to ready before the threads are started
 		ready = true;
@@ -347,17 +347,12 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	protected int getLastSequencenumberFromReader() {
 		
-		int number = 0;
-		
-		for(final SSTableFacade facade : tupleStoreInstances.getSstableFacades()) {
-			final int sequenceNumber = facade.getTablebumber();
-			
-			if(sequenceNumber >= number) {
-				number = sequenceNumber + 1;
-			}
-		}
-		
-		return number;
+		return tupleStoreInstances
+			.getSstableFacades()
+			.stream()
+			.mapToInt(f -> f.getTablebumber())
+			.max()
+			.orElse(0);
 	}
 
 	/**
