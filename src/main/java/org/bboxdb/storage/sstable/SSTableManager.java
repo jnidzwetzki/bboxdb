@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.BBoxDBConfiguration;
 import org.bboxdb.BBoxDBService;
+import org.bboxdb.Const;
 import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
@@ -532,9 +533,8 @@ public class SSTableManager implements BBoxDBService {
 	 * @throws StorageManagerException 
 	 */
 	public List<ReadOnlyTupleStorage> aquireStorage() throws StorageManagerException {
-		final int retries = 10;
 
-		for(int execution = 0; execution < retries; execution++) {
+		for(int execution = 0; execution < Const.OPERATION_RETRY; execution++) {
 			
 			final List<ReadOnlyTupleStorage> aquiredStorages = new ArrayList<ReadOnlyTupleStorage>();
 			final List<ReadOnlyTupleStorage> knownStorages = tupleStoreInstances.getAllTupleStorages();
@@ -558,7 +558,8 @@ public class SSTableManager implements BBoxDBService {
 			}
 		}
 		
-		throw new StorageManagerException("Unable to aquire all sstables in " + retries + " retries");
+		throw new StorageManagerException("Unable to aquire all sstables in " 
+				+ Const.OPERATION_RETRY + " retries");
 	}
 
 	
