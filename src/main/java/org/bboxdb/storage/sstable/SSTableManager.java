@@ -52,7 +52,7 @@ public class SSTableManager implements BBoxDBService {
 	protected final SSTableName sstablename;
 	
 	/**
-	 * The tuple storre instances
+	 * The tuple store instances
 	 */
 	protected final TupleStoreInstanceManager tupleStoreInstances;
 	
