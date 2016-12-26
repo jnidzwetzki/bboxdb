@@ -383,8 +383,10 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final List<String> childs = zookeeperClient.getChildren(path, callback);
 		
-		for(final String childName : childs) {
-			result.add(new DistributedInstance(childName));
+		if(childs != null && !childs.isEmpty()) {
+			for(final String childName : childs) {
+				result.add(new DistributedInstance(childName));
+			}
 		}
 		
 		return result;
