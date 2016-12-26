@@ -107,8 +107,6 @@ public class SSTableManager implements BBoxDBService {
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
 	public SSTableManager(final SSTableName sstablename, final BBoxDBConfiguration configuration) {
-		super();
-
 		this.configuration = configuration;
 		this.storageState = new State(false); 
 		this.sstablename = sstablename;
@@ -135,10 +133,8 @@ public class SSTableManager implements BBoxDBService {
 		
 		tupleStoreInstances.clear();
 		runningThreads.clear();
-		createSSTableDirIfNeeded();
 		
-		// Init the memtable before the sstablemanager. This ensures, that the
-		// sstable recovery can put entries into the memtable
+		createSSTableDirIfNeeded();
 		flushAndInitMemtable();
 		
 		try {
