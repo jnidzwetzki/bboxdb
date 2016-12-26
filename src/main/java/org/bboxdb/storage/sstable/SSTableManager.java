@@ -233,7 +233,7 @@ public class SSTableManager implements BBoxDBService {
 	/**
 	 * Wait for the shutdown to complete
 	 */
-	protected void waitForShutdownToComplete() {
+	public void waitForShutdownToComplete() {
 		
 		if(storageState.isReady()) {
 			throw new IllegalStateException("waitForShutdownToComplete called but no shutdown is active");
@@ -378,36 +378,15 @@ public class SSTableManager implements BBoxDBService {
 			throw new StorageManagerException(message);
 		}		
 	}
-	
-	/**
-	 * Delete all existing data
-	 * 
-	 * 1) Reject new writes to this table 
-	 * 2) Clear the memtable
-	 * 3) Shutdown the sstable flush service
-	 * 4) Wait for shutdown complete
-	 * 5) Delete all persistent sstables
-	 * 
-	 * @return Directory was deleted or not
-	 * @throws StorageManagerException 
-	 */
-	public boolean deleteExistingTables() throws StorageManagerException {
-		logger.info("Delete all existing SSTables for relation: {}", getSSTableName());
-		
-		// Reject new writes
-		shutdown();
-		
-		waitForShutdownToComplete();
-		
-		return deletePersistentTableData();
-	}
 
 	/**
 	 * Delete the persistent data of the table
 	 * @return
 	 */
-	protected boolean deletePersistentTableData() {
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(configuration.getDataDirectory(), sstablename.getFullname()));
+	public static boolean deletePersistentTableData(final String dataDirectory, final String sstableName) {
+		logger.info("Delete all existing SSTables for relation: {}", sstableName);
+
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(dataDirectory, sstableName));
 	
 		// Does the directory exist?
 		if(! directoryHandle.isDirectory()) {
@@ -623,7 +602,7 @@ public class SSTableManager implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public void clear() throws StorageManagerException {
-		deleteExistingTables();
+		deletePersistentTableData(configuration.getDataDirectory(), getSSTableName().getFullname());
 		init();
 	}
 

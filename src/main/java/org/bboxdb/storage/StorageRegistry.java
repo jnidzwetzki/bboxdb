@@ -109,10 +109,16 @@ public class StorageRegistry {
 			throw new StorageManagerException("Invalid tablename: " + table);
 		}
 		
-		final SSTableManager sstableManager = getSSTableManager(table);
-		instances.remove(table);
+		if(instances.containsKey(table)) {
+			final SSTableManager sstableManager = getSSTableManager(table);
+			sstableManager.shutdown();
+			sstableManager.waitForShutdownToComplete();
 
-		sstableManager.deleteExistingTables();
+			instances.remove(table);
+
+		}
+
+		SSTableManager.deletePersistentTableData(configuration.getDataDirectory(), table.getFullname());
 	}
 	
 	/**
