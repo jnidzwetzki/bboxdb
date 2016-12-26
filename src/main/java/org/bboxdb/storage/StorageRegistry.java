@@ -93,7 +93,8 @@ public class StorageRegistry {
 		
 		logger.info("Shuting down storage interface for: " + table);
 		final SSTableManager sstableManager = instances.remove(table);
-		sstableManager.shutdown();		
+		sstableManager.shutdown();	
+		sstableManager.waitForShutdownToComplete();
 		
 		return true;
 	}
@@ -110,12 +111,7 @@ public class StorageRegistry {
 		}
 		
 		if(instances.containsKey(table)) {
-			final SSTableManager sstableManager = getSSTableManager(table);
-			sstableManager.shutdown();
-			sstableManager.waitForShutdownToComplete();
-
-			instances.remove(table);
-
+			shutdown(table);
 		}
 
 		SSTableManager.deletePersistentTableData(configuration.getDataDirectory(), table.getFullname());
