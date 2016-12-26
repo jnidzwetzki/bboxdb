@@ -13,6 +13,7 @@ order: 1
 - Improvement: Introduced distribution group selection in GUI
 - Improvement: Added trace start to bboxdb
 - Improvement: Added the ability to reread distribution group list in GUI
+- Improvement: Unflushed memtables are now flushed on shutdown
 - Bugfix: Allocate systems to new distribution regions, before then come ready
 - Bugfix: GUI is repainted when a distribution region is recreated
 - Bugfix: Size of the GUI tree component was not dynamically calculated 

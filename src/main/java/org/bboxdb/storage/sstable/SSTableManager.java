@@ -232,6 +232,38 @@ public class SSTableManager implements BBoxDBService {
 		
 		tupleStoreInstances.clear();
 	}
+	
+	/**
+	 * Wait for the shutdown to complete
+	 */
+	protected void waitForShutdownToComplete() {
+		
+		if(storageState.isReady()) {
+			throw new IllegalStateException("waitForShutdownToComplete called but no shutdown is active");
+		}
+		
+		// New waites are rejected, so we wait for the unflushed memtables
+		// to get flushed..
+		while(! tupleStoreInstances.getMemtablesToFlush().isEmpty()) {
+			try {
+				tupleStoreInstances.getMemtablesToFlush().wait();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
+			}
+		}
+		
+		if(getMemtable() != null && ! getMemtable().isEmpty()) {
+			logger.warn("Memtable is not empty after shutdown()");
+			getMemtable().clear();
+		}
+		
+		if(! tupleStoreInstances.getMemtablesToFlush().isEmpty() ) {
+			logger.warn("There are unflushed memtables after shutdown(): {}", 
+					tupleStoreInstances.getMemtablesToFlush());
+		}
+	}
+
 
 	/**
 	 * Shutdown all running service threads
@@ -266,6 +298,11 @@ public class SSTableManager implements BBoxDBService {
 	 * @return
 	 */
 	public boolean isShutdownComplete() {
+		
+		if(storageState.isReady()) {
+			return false;
+		}
+		
 		return (stoppableTasks.isEmpty() && runningThreads.isEmpty());
 	}
 	
@@ -363,24 +400,7 @@ public class SSTableManager implements BBoxDBService {
 		// Reject new writes
 		shutdown();
 		
-		// Wait for in memory data flush
-		while(! isShutdownComplete()) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				return false;
-			}
-		}
-		
-		if(getMemtable() != null && ! getMemtable().isEmpty()) {
-			logger.warn("Memtable is not empty after shutdown()");
-			getMemtable().clear();
-		}
-		
-		if(! tupleStoreInstances.getMemtablesToFlush().isEmpty() ) {
-			logger.warn("There are unflushed memtables after shutdown(): {}", tupleStoreInstances.getMemtablesToFlush());
-		}
+		waitForShutdownToComplete();
 		
 		return deletePersistentTableData();
 	}
