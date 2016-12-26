@@ -245,7 +245,7 @@ public class SSTableManager implements BBoxDBService {
 		
 		final Queue<Memtable> memtablesToFlush = tupleStoreInstances.getMemtablesToFlush();
 		
-		// New waites are rejected, so we wait for the unflushed memtables
+		// New writes are rejected, so we wait for the unflushed memtables
 		// to get flushed..
 		while(! memtablesToFlush.isEmpty()) {
 			try {
