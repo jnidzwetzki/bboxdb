@@ -128,4 +128,46 @@ public class SSTableHelper {
 		return getSSTableBase(directory, name, tablebumber)
 				+ SSTableConst.SST_META_SUFFIX;
 	}
+	
+	/**
+	 * Belongs the given filename to a SSTable?
+	 * 
+	 * @param filename
+	 * @return
+	 */
+	public static boolean isFileNameSSTable(final String filename) {
+		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
+				&& filename.endsWith(SSTableConst.SST_FILE_SUFFIX);
+	}
+	
+	/**
+	 * Belongs the given filename to a SSTable index?
+	 * 
+	 * @param filename
+	 * @return
+	 */
+	public static boolean isFileNameSSTableIndex(final String filename) {
+		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
+				&& filename.endsWith(SSTableConst.SST_INDEX_SUFFIX);
+	}
+	
+	/**
+	 * Belongs the given filename to a SSTable bloom filter file?
+	 * @param filename
+	 * @return
+	 */
+	public static boolean isFileNameSSTableBloomFilter(final String filename) {
+		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
+				&& filename.endsWith(SSTableConst.SST_BLOOM_SUFFIX);
+	}
+	
+	/**
+	 * Belongs the given filename to a SSTable meta file?
+	 * @param filename
+	 * @return
+	 */
+	public static boolean isFileNameSSTableMetadata(final String filename) {
+		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
+				&& filename.endsWith(SSTableConst.SST_META_SUFFIX);
+	}
 }

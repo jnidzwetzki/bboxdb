@@ -337,7 +337,7 @@ public class SSTableManager implements BBoxDBService {
 				
 		for(final File file : entries) {
 			final String filename = file.getName();
-			if(isFileNameSSTable(filename)) {
+			if(SSTableHelper.isFileNameSSTable(filename)) {
 				logger.info("Found sstable: " + filename);
 				
 				try {
@@ -422,16 +422,16 @@ public class SSTableManager implements BBoxDBService {
 				
 		for(final File file : entries) {
 			final String filename = file.getName();
-			if(isFileNameSSTable(filename)) {
+			if(SSTableHelper.isFileNameSSTable(filename)) {
 				logger.info("Deleting file: {} ", file);
 				file.delete();
-			} else if(isFileNameSSTableIndex(filename)) {
+			} else if(SSTableHelper.isFileNameSSTableIndex(filename)) {
 				logger.info("Deleting index file: {} ", file);
 				file.delete();
-			} else if(isFileNameSSTableBloomFilter(filename)) {
+			} else if(SSTableHelper.isFileNameSSTableBloomFilter(filename)) {
 				logger.info("Deleting bloom filter file: {} ", file);
 				file.delete();
-			} else if(isFileNameSSTableMetadata(filename)) {
+			} else if(SSTableHelper.isFileNameSSTableMetadata(filename)) {
 				logger.info("Deleting meta file: {}", file);
 				file.delete();
 			}
@@ -446,49 +446,7 @@ public class SSTableManager implements BBoxDBService {
 			return true;
 		}
 	}
-
-	/**
-	 * Belongs the given filename to a SSTable?
-	 * 
-	 * @param filename
-	 * @return
-	 */
-	protected boolean isFileNameSSTable(final String filename) {
-		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
-				&& filename.endsWith(SSTableConst.SST_FILE_SUFFIX);
-	}
 	
-	/**
-	 * Belongs the given filename to a SSTable index?
-	 * 
-	 * @param filename
-	 * @return
-	 */
-	protected boolean isFileNameSSTableIndex(final String filename) {
-		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
-				&& filename.endsWith(SSTableConst.SST_INDEX_SUFFIX);
-	}
-	
-	/**
-	 * Belongs the given filename to a SSTable bloom filter file?
-	 * @param filename
-	 * @return
-	 */
-	protected boolean isFileNameSSTableBloomFilter(final String filename) {
-		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
-				&& filename.endsWith(SSTableConst.SST_BLOOM_SUFFIX);
-	}
-	
-	/**
-	 * Belongs the given filename to a SSTable meta file?
-	 * @param filename
-	 * @return
-	 */
-	protected boolean isFileNameSSTableMetadata(final String filename) {
-		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
-				&& filename.endsWith(SSTableConst.SST_META_SUFFIX);
-	}
-		
 	/**
 	 * Search for the most recent version of the tuple
 	 * @param key
@@ -674,7 +632,7 @@ public class SSTableManager implements BBoxDBService {
 	}
 
 	/**
-	 * Get the tuple storate instance manager
+	 * Get the tuple storage instance manager
 	 * @return
 	 */
 	public TupleStoreInstanceManager getTupleStoreInstances() {
