@@ -602,6 +602,9 @@ public class SSTableManager implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public void clear() throws StorageManagerException {
+		shutdown();
+		waitForShutdownToComplete();
+		
 		deletePersistentTableData(configuration.getDataDirectory(), getSSTableName().getFullname());
 		init();
 	}
