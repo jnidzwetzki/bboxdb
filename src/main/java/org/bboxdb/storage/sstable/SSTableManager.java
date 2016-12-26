@@ -254,8 +254,7 @@ public class SSTableManager implements BBoxDBService {
 		}
 		
 		if(getMemtable() != null && ! getMemtable().isEmpty()) {
-			logger.warn("Memtable is not empty after shutdown()");
-			getMemtable().clear();
+			logger.warn("Memtable is not empty after shutdown().");
 		}
 		
 		if(! tupleStoreInstances.getMemtablesToFlush().isEmpty() ) {
