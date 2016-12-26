@@ -54,7 +54,6 @@ public class Lifecycle implements LifecycleMBean {
 			logger.warn("Got an exception while stopping application");
 		}
 		
-		bBoxDBMain.destroy();
 		System.exit(0);
 	}
 

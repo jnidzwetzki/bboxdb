@@ -60,7 +60,6 @@ public class TestNetworkCommunication {
 	public static void shutdown() throws Exception {
 		if(scalephantMain != null) {
 			scalephantMain.stop();
-			scalephantMain.destroy();
 			scalephantMain = null;
 		}
 		
