@@ -275,6 +275,9 @@ public abstract class RegionSplitStrategy implements Runnable {
 				ssTableName.getDistributionGroup(), ssTableName.getTablename(), 
 				rightRegion.getNameprefix());
 		
+		assert rightSStablename.isValid();
+		assert leftSStablename.isValid();
+		
 		boolean redistributeSuccessfully = true;
 		
 		while(tupleIterator.hasNext()) {
