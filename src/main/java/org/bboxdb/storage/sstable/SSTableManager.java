@@ -623,7 +623,11 @@ public class SSTableManager implements BBoxDBService {
 		tupleStoreInstances.activateNewMemtable(memtable);
 	}
 
-	// These methods are required by the interface
+	/**
+	 * Store a new tuple
+	 * @param tuple
+	 * @throws StorageManagerException
+	 */
 	public void put(final Tuple tuple) throws StorageManagerException {
 		if(! storageState.isReady()) {
 			throw new StorageManagerException("Storage manager is not ready");
@@ -639,6 +643,12 @@ public class SSTableManager implements BBoxDBService {
 		}
 	}
 
+	/**
+	 * Delete the given tuple
+	 * @param key
+	 * @param timestamp
+	 * @throws StorageManagerException
+	 */
 	public void delete(final String key, final long timestamp) throws StorageManagerException {
 		if(! storageState.isReady()) {
 			throw new StorageManagerException("Storage manager is not ready");
@@ -654,6 +664,10 @@ public class SSTableManager implements BBoxDBService {
 		}
 	}
 
+	/**
+	 * Delete all transient and persistent data
+	 * @throws StorageManagerException
+	 */
 	public void clear() throws StorageManagerException {
 		deleteExistingTables();
 		init();
