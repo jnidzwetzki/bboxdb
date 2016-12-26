@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -242,11 +243,13 @@ public class SSTableManager implements BBoxDBService {
 			throw new IllegalStateException("waitForShutdownToComplete called but no shutdown is active");
 		}
 		
+		final Queue<Memtable> memtablesToFlush = tupleStoreInstances.getMemtablesToFlush();
+		
 		// New waites are rejected, so we wait for the unflushed memtables
 		// to get flushed..
-		while(! tupleStoreInstances.getMemtablesToFlush().isEmpty()) {
+		while(! memtablesToFlush.isEmpty()) {
 			try {
-				tupleStoreInstances.getMemtablesToFlush().wait();
+				memtablesToFlush.wait();
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				return;
@@ -257,9 +260,8 @@ public class SSTableManager implements BBoxDBService {
 			logger.warn("Memtable is not empty after shutdown().");
 		}
 		
-		if(! tupleStoreInstances.getMemtablesToFlush().isEmpty() ) {
-			logger.warn("There are unflushed memtables after shutdown(): {}", 
-					tupleStoreInstances.getMemtablesToFlush());
+		if(! memtablesToFlush.isEmpty() ) {
+			logger.warn("There are unflushed memtables after shutdown(): {}",  memtablesToFlush);
 		}
 	}
 
