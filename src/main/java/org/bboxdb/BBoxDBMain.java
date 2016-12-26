@@ -108,7 +108,7 @@ public class BBoxDBMain {
 				logger.info("Starting service: " + service.getServicename());
 				service.init();
 			} catch (Throwable e) {
-				logger.error("Got exception while init service {}", service.getServicename());
+				logger.error("Got exception while init service:" + service.getServicename(), e);
 			}
 		}
 		
@@ -145,7 +145,7 @@ public class BBoxDBMain {
 				logger.info("Stopping service: " + service.getServicename());
 				service.shutdown();
 			} catch (Throwable e) {
-				logger.error("Got exception while stopping service {}", service.getServicename());
+				logger.error("Got exception while stopping service:" + service.getServicename(), e);
 			}
 		}
 		
