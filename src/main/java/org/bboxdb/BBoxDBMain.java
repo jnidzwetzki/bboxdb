@@ -91,7 +91,10 @@ public class BBoxDBMain {
 		return new NetworkConnectionService();
 	}
 
-	public void start() throws Exception {
+	/**
+	 * Start all services
+	 */
+	public void start() {
 		logger.info("Starting up the BBoxDB - version: " + Const.VERSION);	
 		
 		if (! runBaseChecks() ) {
@@ -100,9 +103,13 @@ public class BBoxDBMain {
 		}
 		
 		// Init all services
-		for(BBoxDBService service : services) {
-			logger.info("Starting service: " + service.getServicename());
-			service.init();
+		for(final BBoxDBService service : services) {
+			try {
+				logger.info("Starting service: " + service.getServicename());
+				service.init();
+			} catch (Throwable e) {
+				logger.error("Got exception while init service {}", service.getServicename());
+			}
 		}
 		
 		// Read membership
@@ -126,22 +133,26 @@ public class BBoxDBMain {
 		return true;
 	}
 
-	public void stop() throws Exception {
+	/**
+	 * Stop all services
+	 */
+	public void stop() {
 		logger.info("Stopping the BBoxDB");
 		
 		// Stop all services
-		for(BBoxDBService service : services) {
-			logger.info("Stopping service: " + service.getServicename());
-			service.shutdown();
+		for(final BBoxDBService service : services) {
+			try {
+				logger.info("Stopping service: " + service.getServicename());
+				service.shutdown();
+			} catch (Throwable e) {
+				logger.error("Got exception while stopping service {}", service.getServicename());
+			}
 		}
-	}
-	
-	public void destroy() {
-		logger.info("Destroy the instance of the BBoxDB");
+		
 		services.clear();
 		logger.info("Shutdown complete");
 	}
-	
+
 	//===========================================
 	// Test method
 	//===========================================
