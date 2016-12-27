@@ -38,6 +38,7 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,8 +123,10 @@ public class BBoxDBCluster implements BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
 		try {
+			final SSTableName ssTableName = new SSTableName(table);
+			
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
-					table, zookeeperClient);
+					ssTableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			

@@ -91,7 +91,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
 			
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
-					ssTableManager.getSSTableName().getFullname(), zookeeperClient);
+					ssTableManager.getSSTableName(), zookeeperClient);
 
 			final DistributionRegion distributionGroupRoot = distributionAdapter.getRootNode();
 			

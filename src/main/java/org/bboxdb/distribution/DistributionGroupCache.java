@@ -61,11 +61,10 @@ public class DistributionGroupCache {
 	 * @throws ZookeeperException 
 	 * @throws BBoxDBException 
 	 */
-	public static synchronized KDtreeZookeeperAdapter getGroupForTableName(final String tableName, final ZookeeperClient zookeeperClient) throws ZookeeperException, BBoxDBException {
-		final SSTableName ssTableName = new SSTableName(tableName);
+	public static synchronized KDtreeZookeeperAdapter getGroupForTableName(final SSTableName ssTableName, final ZookeeperClient zookeeperClient) throws ZookeeperException, BBoxDBException {
 		
 		if(! ssTableName.isValid()) {
-			throw new BBoxDBException("Invalid tablename: " + tableName);
+			throw new BBoxDBException("Invalid tablename: " + ssTableName);
 		}
 		
 		return getGroupForGroupName(ssTableName.getDistributionGroup(), zookeeperClient);
