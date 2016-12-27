@@ -95,7 +95,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 
 			final DistributionRegion distributionGroupRoot = distributionAdapter.getRootNode();
 			
-			distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableManager.getSSTableName().getTablenumber());
+			distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableManager.getSSTableName().getRegionId());
 		} catch (ZookeeperException | BBoxDBException e) {
 			logger.warn("Unable to find distribution region: " , e);
 		}

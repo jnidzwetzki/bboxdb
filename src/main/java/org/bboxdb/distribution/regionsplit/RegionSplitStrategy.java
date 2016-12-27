@@ -90,7 +90,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 
 			final DistributionRegion distributionGroup = treeAdapter.getRootNode();
 			
-			final int nameprefix = ssTableName.getTablenumber();
+			final int nameprefix = ssTableName.getRegionId();
 			
 			region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 					distributionGroup, nameprefix);
@@ -275,10 +275,10 @@ public abstract class RegionSplitStrategy implements Runnable {
 		
 		final String tablename = ssTableName.getFullnameWithoutPrefix();
 		
-		final SSTableName leftSStablename = ssTableName.cloneWithDifferntTableNumber(
+		final SSTableName leftSStablename = ssTableName.cloneWithDifferntRegionId(
 				leftRegion.getNameprefix());
 		
-		final SSTableName rightSStablename = ssTableName.cloneWithDifferntTableNumber(
+		final SSTableName rightSStablename = ssTableName.cloneWithDifferntRegionId(
 				rightRegion.getNameprefix());
 		
 		assert rightSStablename.isValid();

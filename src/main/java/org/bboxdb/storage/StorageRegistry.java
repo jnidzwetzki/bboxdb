@@ -186,7 +186,7 @@ public class StorageRegistry {
 		final List<SSTableName> resultTables = new ArrayList<SSTableName>();
 
 		for(final SSTableName ssTableName : allTables) {
-			if(ssTableName.getTablenumber() == nameprefix) {
+			if(ssTableName.getRegionId() == nameprefix) {
 				resultTables.add(ssTableName);
 			}
 		}

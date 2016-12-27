@@ -54,9 +54,9 @@ public class SSTableName {
 	protected String tablename;
 	
 	/**
-	 * The tablenumber
+	 * The region id
 	 */
-	protected int tablenumber;
+	protected int regionid;
 	
 	/**
 	 * The value for an invalid dimension
@@ -76,7 +76,7 @@ public class SSTableName {
 	/**
 	 * The value for an invalid name prefix
 	 */
-	public final static short INVALID_TABLENUMBER = -1;
+	public final static short INVALID_REGIONID = -1;
 	
 	/**
 	 * The Logger
@@ -90,25 +90,25 @@ public class SSTableName {
 	}
 	
 	public SSTableName(final short dimension, final String distributionGroup, 
-			final String tablename, final int tablenumber) {
+			final String tablename, final int regionid) {
 		super();
 		
-		this.fullname = dimension + "_" + distributionGroup + "_" + tablename + "_" + tablenumber;
+		this.fullname = dimension + "_" + distributionGroup + "_" + tablename + "_" + regionid;
 		this.valid = true;
 
 		this.dimension = dimension;
 		this.group = distributionGroup;
 		this.tablename = tablename;
-		this.tablenumber = tablenumber;
+		this.regionid = regionid;
 	}
 	
 	/**
-	 * Clone this sstable name with another tablenumber
-	 * @param tablenumber
+	 * Clone this sstable name with another region id
+	 * @param regionId
 	 * @return
 	 */
-	public SSTableName cloneWithDifferntTableNumber(final int tablenumber) {
-		return new SSTableName(dimension, group, tablename, tablenumber);
+	public SSTableName cloneWithDifferntRegionId(final int regionId) {
+		return new SSTableName(dimension, group, tablename, regionId);
 	}
 	
 	/**
@@ -151,13 +151,13 @@ public class SSTableName {
 		
 		if(parts.length == 4) {
 			try {
-				tablenumber = Short.parseShort(parts[3]);
+				regionid = Short.parseShort(parts[3]);
 			} catch(NumberFormatException e) {
 				logger.warn("Invalid tablenumber: " + parts[3]);
 				return false;
 			}			
 		} else {
-			tablenumber = INVALID_TABLENUMBER;
+			regionid = INVALID_REGIONID;
 		}
 		
 		return true;
@@ -176,7 +176,7 @@ public class SSTableName {
 	 * @return
 	 */
 	public boolean isDistributedTable() {
-		return tablenumber != INVALID_TABLENUMBER;
+		return regionid != INVALID_REGIONID;
 	}
 
 	/**
@@ -240,19 +240,19 @@ public class SSTableName {
 	}
 	
 	/**
-	 * Get the tablenumber of the table
+	 * Get the region id of the table
 	 * @return
 	 */
-	public int getTablenumber() {
-		return tablenumber;
+	public int getRegionId() {
+		return regionid;
 	}
 	
 	/**
-	 * Is the tablenumber valid?
+	 * Is the region id valid?
 	 * @return
 	 */
-	public boolean isTablenumberValid() {
-		return tablenumber != INVALID_TABLENUMBER;
+	public boolean isRegionIdValid() {
+		return regionid != INVALID_REGIONID;
 	}
 	
 	/**
@@ -274,7 +274,7 @@ public class SSTableName {
 	@Override
 	public String toString() {
 		return "SSTableName [fullname=" + fullname + ", valid=" + valid + ", dimension=" + dimension + ", group="
-				+ group + ", tablename=" + tablename + ", tablenumber=" + tablenumber + "]";
+				+ group + ", tablename=" + tablename + ", regionid=" + regionid + "]";
 	}
 
 	@Override
