@@ -90,7 +90,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 
 			final DistributionRegion distributionGroup = treeAdapter.getRootNode();
 			
-			final int nameprefix = ssTableName.getNameprefix();
+			final int nameprefix = ssTableName.getTablenumber();
 			
 			region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 					distributionGroup, nameprefix);

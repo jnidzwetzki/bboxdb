@@ -54,9 +54,9 @@ public class SSTableName {
 	protected String tablename;
 	
 	/**
-	 * The nameprefix
+	 * The tablenumber
 	 */
-	protected int nameprefix;
+	protected int tablenumber;
 	
 	/**
 	 * The value for an invalid dimension
@@ -76,7 +76,7 @@ public class SSTableName {
 	/**
 	 * The value for an invalid name prefix
 	 */
-	public final static short INVALID_NAMEPEFIX = -1;
+	public final static short INVALID_TABLENUMBER = -1;
 	
 	/**
 	 * The Logger
@@ -89,16 +89,17 @@ public class SSTableName {
 		this.valid = splitTablename();
 	}
 	
-	public SSTableName(final short dimension, final String distributionGroup, final String tablename, final int nameprefix) {
+	public SSTableName(final short dimension, final String distributionGroup, 
+			final String tablename, final int tablenumber) {
 		super();
 		
-		this.fullname = dimension + "_" + distributionGroup + "_" + tablename + "_" + nameprefix;
+		this.fullname = dimension + "_" + distributionGroup + "_" + tablename + "_" + tablenumber;
 		this.valid = true;
 
 		this.dimension = dimension;
 		this.group = distributionGroup;
 		this.tablename = tablename;
-		this.nameprefix = nameprefix;
+		this.tablenumber = tablenumber;
 	}
 	
 	/**
@@ -144,13 +145,13 @@ public class SSTableName {
 		
 		if(parts.length == 4) {
 			try {
-				nameprefix = Short.parseShort(parts[3]);
+				tablenumber = Short.parseShort(parts[3]);
 			} catch(NumberFormatException e) {
-				logger.warn("Invalid name prefix: " + parts[3]);
+				logger.warn("Invalid tablenumber: " + parts[3]);
 				return false;
 			}			
 		} else {
-			nameprefix = INVALID_NAMEPEFIX;
+			tablenumber = INVALID_TABLENUMBER;
 		}
 		
 		return true;
@@ -169,7 +170,7 @@ public class SSTableName {
 	 * @return
 	 */
 	public boolean isDistributedTable() {
-		return nameprefix != INVALID_NAMEPEFIX;
+		return tablenumber != INVALID_TABLENUMBER;
 	}
 
 	/**
@@ -233,19 +234,19 @@ public class SSTableName {
 	}
 	
 	/**
-	 * Get the nameprefix of the table
+	 * Get the tablenumber of the table
 	 * @return
 	 */
-	public int getNameprefix() {
-		return nameprefix;
+	public int getTablenumber() {
+		return tablenumber;
 	}
 	
 	/**
-	 * Is the nameprefix valid?
+	 * Is the tablenumber valid?
 	 * @return
 	 */
-	public boolean isNameprefixValid() {
-		return nameprefix != INVALID_NAMEPEFIX;
+	public boolean isTablenumberValid() {
+		return tablenumber != INVALID_TABLENUMBER;
 	}
 	
 	/**
@@ -267,7 +268,7 @@ public class SSTableName {
 	@Override
 	public String toString() {
 		return "SSTableName [fullname=" + fullname + ", valid=" + valid + ", dimension=" + dimension + ", group="
-				+ group + ", tablename=" + tablename + ", nameprefix=" + nameprefix + "]";
+				+ group + ", tablename=" + tablename + ", tablenumber=" + tablenumber + "]";
 	}
 
 	@Override
