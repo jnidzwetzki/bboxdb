@@ -301,4 +301,15 @@ public class TestFloatInterval {
 		Assert.assertEquals(floatInterval2, floatInterval1.getIntersection(floatInterval2));
 	}
 	
+	/**
+	 * Test intersection calculation
+	 */
+	@Test
+	public void testIntersection6() {
+		final FloatInterval floatInterval2 = new FloatInterval(16, 20, true, true);
+		final FloatInterval floatInterval1 = new FloatInterval(1, 11, true, true);
+		Assert.assertTrue(floatInterval2.getIntersection(floatInterval1) == null);
+		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) == null);
+	}
+	
 }

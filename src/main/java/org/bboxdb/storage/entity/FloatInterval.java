@@ -235,6 +235,11 @@ public class FloatInterval implements Comparable<FloatInterval> {
 			return this;
 		}
 		
+		// Not overlapping
+		if(! isOverlappingWith(otherInterval)) {
+			return null;
+		}
+		
 		// Left overlapping
 		if(getBegin() < otherInterval.getBegin()) {
 			

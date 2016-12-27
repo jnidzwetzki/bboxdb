@@ -398,5 +398,17 @@ public class TestBoundingBox {
 		Assert.assertEquals(boundingBoxResult, boundingBox1.getIntersection(boundingBox2));
 		Assert.assertEquals(boundingBoxResult, boundingBox2.getIntersection(boundingBox1));
 	}
+	
+	/**
+	 * Test the intersection of two bounding boxes
+	 */
+	@Test
+	public void testIntersection5() {
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 5f);	
+		final BoundingBox boundingBox2 = new BoundingBox(6f, 9f, 6f, 9f);	
+		
+		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBox1.getIntersection(boundingBox2));
+		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBox2.getIntersection(boundingBox1));
+	}
 
 }
