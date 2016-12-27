@@ -39,9 +39,9 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 	}
 
 	@Override
-	protected void performSplit(final DistributionRegion region) {
-		final int splitDimension = region.getSplitDimension();
-		final List<SSTableName> tables = StorageRegistry.getAllTablesForDistributionGroup(region.getDistributionGroupName());
+	protected void performSplit(final DistributionRegion regionToSplit) {
+		final int splitDimension = regionToSplit.getSplitDimension();
+		final List<SSTableName> tables = StorageRegistry.getAllTablesForDistributionGroup(regionToSplit.getDistributionGroupName());
 	
 		try {
 			final List<FloatInterval> floatIntervals = new ArrayList<FloatInterval>();
@@ -52,14 +52,14 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 				final SSTableManager storageInterface = StorageRegistry.getSSTableManager(ssTableName);
 				final List<ReadOnlyTupleStorage> facades = storageInterface.getTupleStoreInstances().getAllTupleStorages();
 				
-				processFacades(facades, splitDimension, region, floatIntervals);
+				processFacades(facades, splitDimension, regionToSplit, floatIntervals);
 				logger.info("Create split samples for table: {} DONE", ssTableName.getFullname());
 			}
 			
 			final int midpoint = floatIntervals.size() / 2;
 			final FloatInterval splitInterval = floatIntervals.get(midpoint);
 
-			performSplitAtPosition(region, splitInterval.getBegin());
+			performSplitAtPosition(regionToSplit, splitInterval.getBegin());
 		} catch (StorageManagerException e) {
 			logger.error("Got exception while performing split", e);
 		}
@@ -69,11 +69,13 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 	 * Process the facades for the table and create samples
 	 * @param storages
 	 * @param splitDimension 
-	 * @param region 
+	 * @param regionToSplit 
 	 * @param floatIntervals 
 	 * @throws StorageManagerException 
 	 */
-	protected void processFacades(final List<ReadOnlyTupleStorage> storages, final int splitDimension, DistributionRegion region, final List<FloatInterval> floatIntervals) throws StorageManagerException {
+	protected void processFacades(final List<ReadOnlyTupleStorage> storages, final int splitDimension, 
+			final DistributionRegion regionToSplit, final List<FloatInterval> floatIntervals) 
+					throws StorageManagerException {
 		
 		final int samplesPerStorage = Math.max(10, SAMPLE_SIZE / storages.size());
 		
@@ -92,10 +94,14 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 				final BoundingBox tupleBoundingBox = tuple.getBoundingBox();
 				
 				// Only the in the region contained part of the tuple is relevant
-				final BoundingBox groupBox = region.getConveringBox().getIntersection(tupleBoundingBox);
+				final BoundingBox groupBox = regionToSplit.getConveringBox().getIntersection(tupleBoundingBox);
 				
-				final FloatInterval interval = groupBox.getIntervalForDimension(splitDimension);
-				floatIntervals.add(interval);
+				if(groupBox.equals(BoundingBox.EMPTY_BOX)) {
+					logger.warn("RegionBox {} does not cover TupleBox {}", regionToSplit.getConveringBox(), tupleBoundingBox);
+				} else {	
+					final FloatInterval interval = groupBox.getIntervalForDimension(splitDimension);
+					floatIntervals.add(interval);
+				}
 			}
 	
 			storage.release();
