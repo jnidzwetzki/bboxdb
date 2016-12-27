@@ -52,7 +52,7 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 				final SSTableManager storageInterface = StorageRegistry.getSSTableManager(ssTableName);
 				final List<ReadOnlyTupleStorage> facades = storageInterface.getTupleStoreInstances().getAllTupleStorages();
 				
-				processFacades(facades, splitDimension, floatIntervals);
+				processFacades(facades, splitDimension, region, floatIntervals);
 				logger.info("Create split samples for table: {} DONE", ssTableName.getFullname());
 			}
 			
@@ -69,10 +69,11 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 	 * Process the facades for the table and create samples
 	 * @param storages
 	 * @param splitDimension 
+	 * @param region 
 	 * @param floatIntervals 
 	 * @throws StorageManagerException 
 	 */
-	protected void processFacades(final List<ReadOnlyTupleStorage> storages, final int splitDimension, final List<FloatInterval> floatIntervals) throws StorageManagerException {
+	protected void processFacades(final List<ReadOnlyTupleStorage> storages, final int splitDimension, DistributionRegion region, final List<FloatInterval> floatIntervals) throws StorageManagerException {
 		
 		final int samplesPerStorage = Math.max(10, SAMPLE_SIZE / storages.size());
 		
@@ -88,8 +89,12 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 						
 			for (int position = 0; position < numberOfTuples; position = position + sampleOffset) {
 				final Tuple tuple = storage.getTupleAtPosition(position);							
-				final BoundingBox boundingBox = tuple.getBoundingBox();
-				final FloatInterval interval = boundingBox.getIntervalForDimension(splitDimension);
+				final BoundingBox tupleBoundingBox = tuple.getBoundingBox();
+				
+				// Only the in the region contained part of the tuple is relevant
+				final BoundingBox groupBox = region.getConveringBox().getIntersection(tupleBoundingBox);
+				
+				final FloatInterval interval = groupBox.getIntervalForDimension(splitDimension);
 				floatIntervals.add(interval);
 			}
 	
