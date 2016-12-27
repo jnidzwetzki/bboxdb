@@ -124,7 +124,8 @@ public class SSTableName {
 		final String[] parts = fullname.split("_");
 		
 		if(parts.length != 3 && parts.length != 4) {
-			logger.warn("Got invalid tablename: "+ fullname);
+			logger.warn("Got invalid tablename: " + fullname);
+			logger.warn(Thread.currentThread().getStackTrace().toString());
 			return false;
 		}
 		
