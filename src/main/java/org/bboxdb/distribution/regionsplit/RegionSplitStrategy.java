@@ -267,12 +267,10 @@ public abstract class RegionSplitStrategy implements Runnable {
 		
 		final String tablename = ssTableName.getFullnameWithoutPrefix();
 		
-		final SSTableName leftSStablename = new SSTableName(ssTableName.getDimension(), 
-				ssTableName.getDistributionGroup(), ssTableName.getTablename(), 
+		final SSTableName leftSStablename = ssTableName.cloneWithDifferntTableNumber(
 				leftRegion.getNameprefix());
 		
-		final SSTableName rightSStablename = new SSTableName(ssTableName.getDimension(), 
-				ssTableName.getDistributionGroup(), ssTableName.getTablename(), 
+		final SSTableName rightSStablename = ssTableName.cloneWithDifferntTableNumber(
 				rightRegion.getNameprefix());
 		
 		assert rightSStablename.isValid();

@@ -102,6 +102,15 @@ public class SSTableName {
 	}
 	
 	/**
+	 * Clone this sstable name with another tablenumber
+	 * @param tablenumber
+	 * @return
+	 */
+	public SSTableName cloneWithDifferntTableNumber(final int tablenumber) {
+		return new SSTableName(dimension, group, tablename, tablenumber);
+	}
+	
+	/**
 	 * Split the tablename into the three components
 	 * @return
 	 */
