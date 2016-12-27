@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage;
+package org.bboxdb;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.FloatInterval;
