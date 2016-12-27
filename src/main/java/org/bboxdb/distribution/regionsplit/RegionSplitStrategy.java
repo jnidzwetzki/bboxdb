@@ -137,8 +137,9 @@ public abstract class RegionSplitStrategy implements Runnable {
 	/**
 	 * Perform a split of the given region
 	 * @param region
+	 * @return 
 	 */
-	protected abstract void performSplit(final DistributionRegion region);
+	protected abstract boolean performSplit(final DistributionRegion region);
 
 	/**
 	 * Perform a SSTable split
@@ -165,8 +166,13 @@ public abstract class RegionSplitStrategy implements Runnable {
 				return;
 			}
 			
-			performSplit(region);
-			redistributeData(region);
+			final boolean splitResult = performSplit(region);
+			
+			if(splitResult == false) {
+				logger.error("Unable to split region {}, stopping split!", region);
+			} else {
+				redistributeData(region);
+			}
 		} catch (Throwable e) {
 			logger.warn("Got uncought exception during split: " + region, e);
 		}
@@ -261,6 +267,8 @@ public abstract class RegionSplitStrategy implements Runnable {
 	 * @return 
 	 */
 	public boolean spreadTuplesFromIterator(final DistributionRegion region, final SSTableName ssTableName, final Iterator<Tuple> tupleIterator) {
+		
+		assert (! region.isLeafRegion());
 		
 		final DistributionRegion leftRegion = region.getLeftChild();
 		final DistributionRegion rightRegion = region.getRightChild();

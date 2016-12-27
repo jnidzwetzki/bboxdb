@@ -37,14 +37,14 @@ public class SimpleSplitStrategy extends RegionSplitStrategy {
 	 * Perform a split of the given distribution region
 	 */
 	@Override
-	protected void performSplit(final DistributionRegion region) {
+	protected boolean performSplit(final DistributionRegion region) {
 		
 		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 		final List<DistributedInstance> systems = distributedInstanceManager.getInstances();
 		
 		if(systems.isEmpty()) {
 			logger.warn("Unable to split region, no ressources are avilable: " + region);
-			return;
+			return false;
 		}
 		
 		logger.info("Performing split of region: " + region);
@@ -57,5 +57,7 @@ public class SimpleSplitStrategy extends RegionSplitStrategy {
 		float midpoint = interval.getMidpoint();
 		
 		performSplitAtPosition(region, midpoint);
+		
+		return true;
 	}
 }

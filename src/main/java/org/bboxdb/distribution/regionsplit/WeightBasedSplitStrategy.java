@@ -39,7 +39,7 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 	}
 
 	@Override
-	protected void performSplit(final DistributionRegion regionToSplit) {
+	protected boolean performSplit(final DistributionRegion regionToSplit) {
 		final int splitDimension = regionToSplit.getSplitDimension();
 		final List<SSTableName> tables = StorageRegistry.getAllTablesForDistributionGroup(regionToSplit.getDistributionGroupName());
 	
@@ -60,8 +60,11 @@ public class WeightBasedSplitStrategy extends RegionSplitStrategy {
 			final FloatInterval splitInterval = floatIntervals.get(midpoint);
 
 			performSplitAtPosition(regionToSplit, splitInterval.getBegin());
+			
+			return true;
 		} catch (StorageManagerException e) {
 			logger.error("Got exception while performing split", e);
+			return false;
 		}
 	}
 
