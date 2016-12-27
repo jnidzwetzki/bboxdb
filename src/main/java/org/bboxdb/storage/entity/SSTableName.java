@@ -26,7 +26,7 @@ public class SSTableName {
 	/**
 	 * The full name of the table
 	 * 
-	 * Format: dimension_groupname_identifier
+	 * Format: dimension_groupname_tablename_tablenumber
 	 * 
 	 * e.g. 3_mydata_mytable2
 	 * 
