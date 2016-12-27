@@ -239,4 +239,66 @@ public class TestFloatInterval {
 		Assert.assertEquals(0, interval1.getMidpoint(), 0.0001f);
 	}
 	
+	/**
+	 * Test intersection calculation
+	 */
+	@Test
+	public void testIntersection1() {
+		final FloatInterval floatInterval = new FloatInterval(1, 2);
+		Assert.assertTrue(floatInterval.getIntersection(null) == null);
+		Assert.assertEquals(floatInterval.getIntersection(floatInterval), floatInterval);
+	}
+	
+	/**
+	 * Test intersection calculation
+	 */
+	@Test
+	public void testIntersection2() {
+		final FloatInterval floatInterval1 = new FloatInterval(1, 2, false, false);
+		final FloatInterval floatInterval2 = new FloatInterval(2, 3, false, false);
+		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) == null);
+	}
+	
+	/**
+	 * Test intersection calculation
+	 */
+	@Test
+	public void testIntersection3() {
+		final FloatInterval floatInterval1 = new FloatInterval(1, 2, true, true);
+		final FloatInterval floatInterval2 = new FloatInterval(2, 3, true, true);
+		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) != null);
+		Assert.assertTrue(floatInterval2.getIntersection(floatInterval1) != null);
+
+		final FloatInterval floatIntervalResult = new FloatInterval(2, 2, true, true);
+		Assert.assertEquals(floatIntervalResult, floatInterval1.getIntersection(floatInterval2));
+		Assert.assertEquals(floatIntervalResult, floatInterval2.getIntersection(floatInterval1));
+
+	}
+	
+	/**
+	 * Test intersection calculation
+	 */
+	@Test
+	public void testIntersection4() {
+		final FloatInterval floatInterval1 = new FloatInterval(5, 10, true, true);
+		final FloatInterval floatInterval2 = new FloatInterval(1, 11, true, true);
+		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) != null);
+		Assert.assertEquals(floatInterval1, floatInterval1.getIntersection(floatInterval2));
+		Assert.assertTrue(floatInterval2.getIntersection(floatInterval1) != null);
+		Assert.assertEquals(floatInterval1, floatInterval2.getIntersection(floatInterval1));
+	}
+	
+	/**
+	 * Test intersection calculation
+	 */
+	@Test
+	public void testIntersection5() {
+		final FloatInterval floatInterval2 = new FloatInterval(5, 10, true, true);
+		final FloatInterval floatInterval1 = new FloatInterval(1, 11, true, true);
+		Assert.assertTrue(floatInterval2.getIntersection(floatInterval1) != null);
+		Assert.assertEquals(floatInterval2, floatInterval2.getIntersection(floatInterval1));
+		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) != null);
+		Assert.assertEquals(floatInterval2, floatInterval1.getIntersection(floatInterval2));
+	}
+	
 }

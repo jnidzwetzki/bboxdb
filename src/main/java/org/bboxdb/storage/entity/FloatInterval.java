@@ -209,6 +209,55 @@ public class FloatInterval implements Comparable<FloatInterval> {
 	}
 	
 	/**
+	 * Returns the overlapping interval or null, if both
+	 * intervals does not overlap
+	 * 
+	 * @param otherInterval
+	 * @return 
+	 */
+	public FloatInterval getIntersection(final FloatInterval otherInterval) {
+		
+		if(otherInterval == null) {
+			return null;
+		}
+		
+		if(equals(otherInterval)) {
+			return this;
+		}
+		
+		// We are overlapping the complete interval
+		if(getBegin() < otherInterval.getBegin() && getEnd() > otherInterval.getEnd()) {
+			return otherInterval;
+		}
+		
+		// The other interval overlaps us
+		if(otherInterval.getBegin() < getBegin() && otherInterval.getEnd() > getEnd()) {
+			return this;
+		}
+		
+		// Left overlapping
+		if(getBegin() < otherInterval.getBegin()) {
+			
+			if(otherInterval.getBegin() == end 
+					&& otherInterval.isBeginIncluded() == false 
+					&& endIncluded == false) {
+				return null;
+			}
+			
+			return new FloatInterval(otherInterval.getBegin(), end, otherInterval.isBeginIncluded(), endIncluded);
+		}
+		
+		if(begin == otherInterval.getEnd() 
+				&& beginIncluded == false 
+				&& otherInterval.isEndIncluded() == false) {
+			return null;
+		}
+		
+		// Right overlapping
+		return new FloatInterval(begin, otherInterval.getEnd(), beginIncluded, otherInterval.isEndIncluded());
+	}
+	
+	/**
 	 * Split the interval at the given position and return the left part
 	 * @return
 	 */

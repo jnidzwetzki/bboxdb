@@ -352,5 +352,51 @@ public class TestBoundingBox {
 		Assert.assertTrue(boundingBox.overlaps(boundingBoxRight));
 		
 	}
+	
+	/**
+	 * Test the intersection of two bounding boxes
+	 */
+	@Test
+	public void testIntersection1() {
+		final BoundingBox boundingBox = new BoundingBox(1f, 3f, 3f, 7f);
+		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBox.getIntersection(BoundingBox.EMPTY_BOX));
+		Assert.assertEquals(BoundingBox.EMPTY_BOX, BoundingBox.EMPTY_BOX.getIntersection(boundingBox));
+	}
+	
+	/**
+	 * Test the intersection of two bounding boxes
+	 */
+	@Test
+	public void testIntersection2() {
+		final BoundingBox boundingBox = new BoundingBox(1f, 3f, 3f, 7f);		
+		Assert.assertEquals(boundingBox, boundingBox.getIntersection(boundingBox));
+	}
+	
+	
+	/**
+	 * Test the intersection of two bounding boxes
+	 */
+	@Test
+	public void testIntersection3() {
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 5f, 1f, 5f);	
+		final BoundingBox boundingBox2 = new BoundingBox(2f, 4f, 2f, 4f);		
+
+		Assert.assertEquals(boundingBox2, boundingBox1.getIntersection(boundingBox2));
+		Assert.assertEquals(boundingBox2, boundingBox2.getIntersection(boundingBox1));
+	}
+	
+	/**
+	 * Test the intersection of two bounding boxes
+	 */
+	@Test
+	public void testIntersection4() {
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 5f, 1f, 5f);	
+		final BoundingBox boundingBox2 = new BoundingBox(2f, 6f, 2f, 6f);	
+		
+		final BoundingBox boundingBoxResult = new BoundingBox(2f, 5f, 2f, 5f);		
+
+		Assert.assertEquals(boundingBoxResult, boundingBox1.getIntersection(boundingBox2));
+		Assert.assertEquals(boundingBoxResult, boundingBox2.getIntersection(boundingBox1));
+	}
 
 }

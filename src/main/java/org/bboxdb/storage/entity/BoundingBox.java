@@ -461,4 +461,39 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		return new BoundingBox(coverBox);
 	}
 	
+	/**
+	 * Get the intersection of this and another bounding box
+	 * @param otherBox
+	 * @return 
+	 */
+	public BoundingBox getIntersection(final BoundingBox otherBox) {
+		
+		if(getDimension() == 0 || otherBox.getDimension() == 0) {
+			return EMPTY_BOX;
+		}
+		
+		if(getDimension() != otherBox.getDimension()) {
+			throw new IllegalArgumentException(
+					"Unable to calculate intersection for boundig boxes with differnet dimensions: "
+					+ getDimension() + " " + otherBox.getDimension());
+		}
+		
+		final List<FloatInterval> intervalList = new ArrayList<FloatInterval>();
+		
+		// Process dimensions
+		for(int d = 0; d < getDimension(); d++) {
+			final FloatInterval ourInterval = getIntervalForDimension(d);
+			final FloatInterval otherInterval = otherBox.getIntervalForDimension(d);
+			final FloatInterval intersection = ourInterval.getIntersection(otherInterval);
+			
+			if(intersection == null) {
+				return EMPTY_BOX;
+			}
+			
+			intervalList.add(intersection);
+		}
+		
+		return new BoundingBox(intervalList);
+	}
+	
 }
