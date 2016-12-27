@@ -15,31 +15,29 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.nameprefix;
+package org.bboxdb.distribution;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bboxdb.distribution.DistributionGroupName;
-
-public class NameprefixInstanceManager {
+public class RegionIdMapperInstanceManager {
 	
 	/**
 	 * The local mappings for a distribution group
 	 */
-	protected final static Map<DistributionGroupName, NameprefixMapper> instances;
+	protected final static Map<DistributionGroupName, RegionIdMapper> instances;
 	
 	static {
-		instances = new HashMap<DistributionGroupName, NameprefixMapper>();
+		instances = new HashMap<DistributionGroupName, RegionIdMapper>();
 	}
 	
 	/**
 	 * Get the instance 
 	 * @param distributionGroupName
 	 */
-	public static synchronized NameprefixMapper getInstance(final DistributionGroupName distributionGroupName) {
+	public static synchronized RegionIdMapper getInstance(final DistributionGroupName distributionGroupName) {
 		if(! instances.containsKey(distributionGroupName)) {
-			instances.put(distributionGroupName, new NameprefixMapper());
+			instances.put(distributionGroupName, new RegionIdMapper());
 		}
 		
 		return instances.get(distributionGroupName);

@@ -20,8 +20,8 @@ package org.bboxdb.network.server;
 import java.io.Closeable;
 import java.util.List;
 
-import org.bboxdb.distribution.nameprefix.NameprefixInstanceManager;
-import org.bboxdb.distribution.nameprefix.NameprefixMapper;
+import org.bboxdb.distribution.RegionIdMapper;
+import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
@@ -99,8 +99,8 @@ public class ClientQuery implements Closeable {
 		this.packageSequence = packageSequence;
 		this.requestTable = requestTable;
 
-		final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-		this.localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
+		final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+		this.localTables = nameprefixManager.getAllRegionIdsWithTableName(requestTable);
 		
 		this.totalSendTuples = 0;
 	}

@@ -27,9 +27,9 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.DistributedInstanceManager;
-import org.bboxdb.distribution.nameprefix.NameprefixInstanceManager;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
@@ -196,7 +196,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 */
 	public void handleRootElementDeleted() {
 		logger.info("Root element for {} is deleted", distributionGroup);
-		NameprefixInstanceManager.getInstance(new DistributionGroupName(distributionGroup)).clear();
+		RegionIdMapperInstanceManager.getInstance(new DistributionGroupName(distributionGroup)).clear();
 		rootNode = null;
 	}
 	
@@ -542,7 +542,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		// Remove the mapping from the nameprefix mapper	
 		final int nameprefix = region.getNameprefix();		
 		logger.info("Remove local mapping for: {} / nameprefix {}", region, nameprefix);
-		NameprefixInstanceManager.getInstance(region.getDistributionGroupName()).removeMapping(nameprefix);
+		RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName()).removeMapping(nameprefix);
 	}
 
 	/**
@@ -571,7 +571,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 				final BoundingBox converingBox = region.getConveringBox();
 				
 				logger.info("Add local mapping for: {} / nameprefix {}", region, nameprefix);
-				NameprefixInstanceManager.getInstance(region.getDistributionGroupName()).addMapping(nameprefix, converingBox);
+				RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName()).addMapping(nameprefix, converingBox);
 			}
 		}
 	}

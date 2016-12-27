@@ -15,20 +15,21 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.nameprefix;
+package org.bboxdb.distribution;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NameprefixMapper {
+public class RegionIdMapper {
 
 	/**
 	 * The mappings
@@ -38,10 +39,10 @@ public class NameprefixMapper {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(NameprefixMapper.class);
+	private final static Logger logger = LoggerFactory.getLogger(RegionIdMapper.class);
 	
 	
-	public NameprefixMapper() {
+	public RegionIdMapper() {
 		super();
 	}
 
@@ -54,7 +55,7 @@ public class NameprefixMapper {
 		
 		for(final RegionTablenameEntry regionTablenameEntry : regions) {
 			if(regionTablenameEntry.getBoundingBox().overlaps(region)) {
-				result.add(regionTablenameEntry.getNameprefix());
+				result.add(regionTablenameEntry.getRegionId());
 			}
 		}
 		
@@ -65,11 +66,11 @@ public class NameprefixMapper {
 	 * Get all name prefixes
 	 * @return
 	 */
-	public Collection<Integer> getAllNamePrefixes() {
+	public Collection<Integer> getAllRegionIds() {
 		final List<Integer> result = new ArrayList<Integer>(regions.size());
 		
 		for(final RegionTablenameEntry regionTablenameEntry : regions) {
-			result.add(regionTablenameEntry.getNameprefix());
+			result.add(regionTablenameEntry.getRegionId());
 		}
 		
 		return result;
@@ -81,14 +82,16 @@ public class NameprefixMapper {
 	 * @param ssTableName
 	 * @return
 	 */
-	public Collection<SSTableName> getNameprefixesForRegionWithTable(final BoundingBox region, final SSTableName ssTableName) {
+	public Collection<SSTableName> getRegionIdsForRegionWithTable(final BoundingBox region, 
+			final SSTableName ssTableName) {
+		
 		final Collection<Integer> namprefixes = getNameprefixesForRegion(region);
 		
 		if(namprefixes.isEmpty() && logger.isWarnEnabled()) {
 			logger.warn("Got an empty result list by query region: " + region);
 		}
 		
-		return prefixNameprefixIntergerList(ssTableName, namprefixes);
+		return prefixRegionIdIntergerList(ssTableName, namprefixes);
 	}
 	
 	
@@ -97,39 +100,29 @@ public class NameprefixMapper {
 	 * @param ssTableName
 	 * @return
 	 */
-	public List<SSTableName> getAllNameprefixesWithTable(final SSTableName ssTableName) {
-		final Collection<Integer> namprefixes = getAllNamePrefixes();
+	public List<SSTableName> getAllRegionIdsWithTableName(final SSTableName ssTableName) {
+		final Collection<Integer> namprefixes = getAllRegionIds();
 		
 		if(namprefixes.isEmpty() && logger.isWarnEnabled()) {
 			logger.warn("Got an empty result list by query all regions");
 		}
 		
-		return prefixNameprefixIntergerList(ssTableName, namprefixes);		
+		return prefixRegionIdIntergerList(ssTableName, namprefixes);		
 	}
 
 	/**
 	 * Prefix all entries of the given list with the name of the sstable
 	 * @param ssTableName
-	 * @param namprefixes
+	 * @param regionIds
 	 * @return
 	 */
-	protected List<SSTableName> prefixNameprefixIntergerList(final SSTableName ssTableName,
-			final Collection<Integer> namprefixes) {
+	protected List<SSTableName> prefixRegionIdIntergerList(final SSTableName ssTableName,
+			final Collection<Integer> regionIds) {
 		
-		final List<SSTableName> result = new ArrayList<SSTableName>();
-		
-		for(final Integer nameprefix : namprefixes) {
-			
-			final SSTableName fullTableName = new SSTableName(
-					ssTableName.getDimension(), 
-					ssTableName.getGroup(), 
-					ssTableName.getTablename(), 
-					nameprefix);
-			
-			result.add(fullTableName);
-		}
-		
-		return result;
+		return regionIds
+				.stream()
+				.map(i -> ssTableName.cloneWithDifferntRegionId(i))
+				.collect(Collectors.toList());
 	}
 	
 	/**
@@ -137,16 +130,16 @@ public class NameprefixMapper {
 	 * @param tablename
 	 * @param boundingBox
 	 */
-	public boolean addMapping(final int nameprefix, final BoundingBox boundingBox) {
+	public boolean addMapping(final int regionId, final BoundingBox boundingBox) {
 				
 		for(final RegionTablenameEntry regionTablenameEntry : regions) {
 			// Mapping is known
-			if(regionTablenameEntry.getNameprefix() == nameprefix) {
+			if(regionTablenameEntry.getRegionId() == regionId) {
 				return false;
 			}
 		}
 		
-		regions.add(new RegionTablenameEntry(boundingBox, nameprefix));
+		regions.add(new RegionTablenameEntry(boundingBox, regionId));
 		return true;
 	}
 	
@@ -154,12 +147,12 @@ public class NameprefixMapper {
 	 * Remove a mapping
 	 * @return
 	 */
-	public boolean removeMapping(final int nameprefix) {
+	public boolean removeMapping(final int regionId) {
 		
 		for (final Iterator<RegionTablenameEntry> iterator = regions.iterator(); iterator.hasNext(); ) {
 			final RegionTablenameEntry regionTablenameEntry = (RegionTablenameEntry) iterator.next();
 			
-			if(regionTablenameEntry.getNameprefix() == nameprefix) {
+			if(regionTablenameEntry.getRegionId() == regionId) {
 				regions.remove(regionTablenameEntry);
 				return true;
 			}
@@ -179,24 +172,24 @@ public class NameprefixMapper {
 
 class RegionTablenameEntry {
 	protected final BoundingBox boundingBox;
-	protected final int nameprefix;
+	protected final int regionId;
 	
-	public RegionTablenameEntry(final BoundingBox boundingBox, final int nameprefix) {
+	public RegionTablenameEntry(final BoundingBox boundingBox, final int regionId) {
 		super();
 		this.boundingBox = boundingBox;
-		this.nameprefix = nameprefix;
+		this.regionId = regionId;
 	}
 
 	public BoundingBox getBoundingBox() {
 		return boundingBox;
 	}
 
-	public int getNameprefix() {
-		return nameprefix;
+	public int getRegionId() {
+		return regionId;
 	}
 	
 	@Override
 	public String toString() {
-		return "RegionTablenameEntry [boundingBox=" + boundingBox + ", nameprefix=" + nameprefix + "]";
+		return "RegionTablenameEntry [boundingBox=" + boundingBox + ", regionId=" + regionId + "]";
 	}
 }

@@ -37,11 +37,11 @@ import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.RegionIdMapper;
+import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
-import org.bboxdb.distribution.nameprefix.NameprefixInstanceManager;
-import org.bboxdb.distribution.nameprefix.NameprefixMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.NetworkConnectionState;
@@ -519,8 +519,8 @@ public class ClientConnectionHandler implements Runnable {
 			logger.info("Got delete call for table: " + requestTable);
 			
 			// Send the call to the storage manager
-			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
+			final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final Collection<SSTableName> localTables = nameprefixManager.getAllRegionIdsWithTableName(requestTable);
 			
 			for(final SSTableName ssTableName : localTables) {
 				StorageRegistry.deleteTable(ssTableName);	
@@ -571,8 +571,8 @@ public class ClientConnectionHandler implements Runnable {
 				final SSTableName requestTable = queryKeyRequest.getTable();
 				
 				// Send the call to the storage manager
-				final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-				final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
+				final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+				final Collection<SSTableName> localTables = nameprefixManager.getAllRegionIdsWithTableName(requestTable);
 				
 				for(final SSTableName ssTableName : localTables) {
 					final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
@@ -757,9 +757,9 @@ public class ClientConnectionHandler implements Runnable {
 			final Tuple tuple = insertTupleRequest.getTuple();			
 			final SSTableName requestTable = insertTupleRequest.getTable();
 			
-			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
 			final BoundingBox boundingBox = insertTupleRequest.getTuple().getBoundingBox();
-			final Collection<SSTableName> localTables = nameprefixManager.getNameprefixesForRegionWithTable(boundingBox, requestTable);
+			final Collection<SSTableName> localTables = nameprefixManager.getRegionIdsForRegionWithTable(boundingBox, requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
 				final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
@@ -809,8 +809,8 @@ public class ClientConnectionHandler implements Runnable {
 			final SSTableName requestTable = deleteTupleRequest.getTable();
 
 			// Send the call to the storage manager
-			final NameprefixMapper nameprefixManager = NameprefixInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = nameprefixManager.getAllNameprefixesWithTable(requestTable);
+			final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final Collection<SSTableName> localTables = nameprefixManager.getAllRegionIdsWithTableName(requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
 				final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
