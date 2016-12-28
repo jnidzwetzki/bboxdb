@@ -99,7 +99,7 @@ class DistributionRegionNameprefixFinder implements DistributionRegionVisitor {
 	@Override
 	public boolean visitRegion(final DistributionRegion distributionRegion) {
 		
-		if(distributionRegion.getNameprefix() == nameprefix) {
+		if(distributionRegion.getRegionId() == nameprefix) {
 			result = distributionRegion;
 		}
 		

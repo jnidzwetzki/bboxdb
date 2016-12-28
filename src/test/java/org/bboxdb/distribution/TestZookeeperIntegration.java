@@ -409,7 +409,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
 		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
-		Assert.assertEquals(0, region.getNameprefix());
+		Assert.assertEquals(0, region.getRegionId());
 	}
 	
 	/**
@@ -436,9 +436,9 @@ public class TestZookeeperIntegration {
 
 		distributionGroupAdapter.waitForSplitZookeeperCallback(region);
 
-		Assert.assertEquals(0, region.getNameprefix());
-		Assert.assertEquals(1, leftChild.getNameprefix());
-		Assert.assertEquals(2, rightChild.getNameprefix());
+		Assert.assertEquals(0, region.getRegionId());
+		Assert.assertEquals(1, leftChild.getRegionId());
+		Assert.assertEquals(2, rightChild.getRegionId());
 	}
 	
 	/**
@@ -448,7 +448,7 @@ public class TestZookeeperIntegration {
 	public void testPathDecodeAndEncode() {
 
 		final DistributionRegion level0 = DistributionRegion.createRootElement("2_foo");
-		level0.setNameprefix(1);
+		level0.setRegionId(1);
 		level0.setSplit(50);
 
 		// Level 1

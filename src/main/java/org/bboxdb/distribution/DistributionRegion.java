@@ -82,9 +82,9 @@ public class DistributionRegion {
 	protected final Collection<DistributedInstance> systems;
 	
 	/**
-	 * The nameprefix of the region
+	 * The id of the region
 	 */
-	protected int nameprefix;
+	protected int regionid;
 
 	/**
 	 * The root pointer of the root element of the tree
@@ -246,7 +246,7 @@ public class DistributionRegion {
 	public String toString() {
 		return "DistributionRegion [distributionGroupName=" + distributionGroupName + ", totalLevel=" + totalLevel
 				+ ", split=" + split + ", level=" + level + ", converingBox=" + converingBox + ", state=" + state
-				+ ", systems=" + systems + ", nameprefix=" + nameprefix + "]";
+				+ ", systems=" + systems + ", nameprefix=" + regionid + "]";
 	}
 
 	/**
@@ -450,19 +450,19 @@ public class DistributionRegion {
 	}
 
 	/**
-	 * Get the nameprefix of the node
+	 * Get the region id of the node
 	 * @return
 	 */
-	public int getNameprefix() {
-		return nameprefix;
+	public int getRegionId() {
+		return regionid;
 	}
 
 	/**
-	 * Set a new nameprefix
-	 * @param nameprefix
+	 * Set a new region id
+	 * @param regionid
 	 */
-	public void setNameprefix(final int nameprefix) {
-		this.nameprefix = nameprefix;
+	public void setRegionId(final int regionid) {
+		this.regionid = regionid;
 	}
 	
 	/**

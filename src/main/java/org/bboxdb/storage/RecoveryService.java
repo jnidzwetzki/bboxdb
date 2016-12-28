@@ -136,7 +136,7 @@ public class RecoveryService implements BBoxDBService {
 					.getConnectionForInstance(outdatedDistributionRegion.getNewestInstance());
 			
 			final List<SSTableName> allTables = StorageRegistry
-					.getAllTablesForNameprefix(outdatedDistributionRegion.getDistributedRegion().getNameprefix());
+					.getAllTablesForNameprefix(outdatedDistributionRegion.getDistributedRegion().getRegionId());
 			
 			for(final SSTableName ssTableName : allTables) {
 				try {

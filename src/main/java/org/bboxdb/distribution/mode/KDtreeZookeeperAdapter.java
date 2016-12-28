@@ -475,7 +475,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			
 			try {
 				final int namePrefix = distributionGroupZookeeperAdapter.getNamePrefixForPath(path);
-				region.setNameprefix(namePrefix);
+				region.setRegionId(namePrefix);
 
 				// Handle systems and mappings
 				updateSystemsForRegion(region);
@@ -540,7 +540,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 */
 	protected void removeLocalMappings(DistributionRegion region) {
 		// Remove the mapping from the nameprefix mapper	
-		final int nameprefix = region.getNameprefix();		
+		final int nameprefix = region.getRegionId();		
 		logger.info("Remove local mapping for: {} / nameprefix {}", region, nameprefix);
 		RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName()).removeMapping(nameprefix);
 	}
@@ -567,7 +567,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		// Add the mapping to the nameprefix mapper
 		for(final DistributedInstance instance : systems) {
 			if(instance.socketAddressEquals(localInstance)) {
-				final int nameprefix = region.getNameprefix();
+				final int nameprefix = region.getRegionId();
 				final BoundingBox converingBox = region.getConveringBox();
 				
 				logger.info("Add local mapping for: {} / nameprefix {}", region, nameprefix);

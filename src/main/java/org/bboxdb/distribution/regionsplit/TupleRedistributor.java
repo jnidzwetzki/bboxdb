@@ -65,7 +65,7 @@ public class TupleRedistributor {
 			if(instance.socketAddressEquals(zookeeperClient.getInstancename())) {
 				
 				final SSTableName localTableName = sstableName.cloneWithDifferntRegionId(
-						distributionRegion.getNameprefix());
+						distributionRegion.getRegionId());
 				
 				final SSTableManager storageManager = StorageRegistry.getSSTableManager(localTableName);
 				regionMap.get(distributionRegion).add(new LocalTupleSink(sstableName, storageManager));
@@ -103,15 +103,14 @@ public class TupleRedistributor {
 		
 		sb.append("Total redistributed tuples: " + redistributedTuples);
 
-		
 		for(final DistributionRegion region : regionMap.keySet()) {
 			if(regionMap.get(region).isEmpty()) {
-				sb.append(", no systems for " + region.getName());
+				sb.append(", no systems for regionid " + region.getRegionId());
 			} else {
 				final long forwarededTuples = regionMap.get(region).get(0).getSinkedTuples();
-				final int percent = (int) ((float) redistributedTuples / (float) forwarededTuples);
-				sb.append(", forwared " + forwarededTuples + " to region ");
-				sb.append(region.getName() + "(" + percent + ")");
+				final float percent = ((float) redistributedTuples / (float) forwarededTuples * 100);
+				sb.append(", forwared "+ forwarededTuples + " to regionid " + region.getRegionId());
+				sb.append(String.format(region.getRegionId() + "(%.2f %)", percent));
 			}
 		}
 		
