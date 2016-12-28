@@ -26,7 +26,7 @@ import org.bboxdb.storage.entity.FloatInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SimpleSplitStrategy extends RegionSplitStrategy {
+public class SimpleSplitStrategy extends AbstractRegionSplitStrategy {
 
 	/**
 	 * The Logger

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bboxdb.distribution.regionsplit.RegionSplitStrategy;
+import org.bboxdb.distribution.regionsplit.AbstractRegionSplitStrategy;
 import org.bboxdb.distribution.regionsplit.RegionSplitStrategyFactory;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
@@ -54,7 +54,7 @@ public class SSTableCompactorThread implements Runnable, Stoppable {
 	/**
 	 * The region splitter
 	 */
-	protected RegionSplitStrategy regionSplitter;
+	protected AbstractRegionSplitStrategy regionSplitter;
 	
 	/**
 	 * The run variable

@@ -45,7 +45,7 @@ import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class RegionSplitStrategy implements Runnable {
+public abstract class AbstractRegionSplitStrategy implements Runnable {
 	
 	/**
 	 * The zookeeper client
@@ -70,9 +70,9 @@ public abstract class RegionSplitStrategy implements Runnable {
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitStrategy.class);
+	protected final static Logger logger = LoggerFactory.getLogger(AbstractRegionSplitStrategy.class);
 
-	public RegionSplitStrategy() {
+	public AbstractRegionSplitStrategy() {
 		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
 		this.distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 	}
@@ -210,7 +210,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 	 * @param ssTableName
 	 */
 	protected void redistributeTable(final DistributionRegion region, final SSTableName ssTableName) {
-		logger.info("Redistributing table " + ssTableName.getFullname());
+		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
 		try {
 			final SSTableManager ssTableManager = StorageRegistry.getSSTableManager(ssTableName);
@@ -219,8 +219,7 @@ public abstract class RegionSplitStrategy implements Runnable {
 			ssTableManager.stopThreads();
 			
 			// Spread on disk data
-			final Collection<ReadOnlyTupleStorage> storages = ssTableManager.getTupleStoreInstances().getAllTupleStorages();
-			spreadStorages(region, ssTableName, storages);
+			spreadPersistantStorages(region, ssTableName, ssTableManager);
 			
 		} catch (StorageManagerException e) {
 			logger.warn("Got an exception while distributing tuples for: " + ssTableName, e);
@@ -233,10 +232,14 @@ public abstract class RegionSplitStrategy implements Runnable {
 	 * Spread the given storages
 	 * @param region
 	 * @param ssTableName
+	 * @param ssTableManager 
 	 * @param storages
 	 */
-	protected void spreadStorages(final DistributionRegion region, final SSTableName ssTableName, final Collection<ReadOnlyTupleStorage> storages) {
+	protected void spreadPersistantStorages(final DistributionRegion region, 
+			final SSTableName ssTableName, final SSTableManager ssTableManager) {
 
+		final Collection<ReadOnlyTupleStorage> storages = ssTableManager.getTupleStoreInstances().getAllTupleStorages();
+		
 		for(final ReadOnlyTupleStorage storage: storages) {
 			final boolean acquired = storage.acquire();
 			
@@ -274,12 +277,8 @@ public abstract class RegionSplitStrategy implements Runnable {
 		final DistributionRegion rightRegion = region.getRightChild();
 		
 		final String tablename = ssTableName.getFullnameWithoutPrefix();
-		
-		final SSTableName leftSStablename = ssTableName.cloneWithDifferntRegionId(
-				leftRegion.getNameprefix());
-		
-		final SSTableName rightSStablename = ssTableName.cloneWithDifferntRegionId(
-				rightRegion.getNameprefix());
+		final SSTableName leftSStablename = ssTableName.cloneWithDifferntRegionId(leftRegion.getNameprefix());
+		final SSTableName rightSStablename = ssTableName.cloneWithDifferntRegionId(rightRegion.getNameprefix());
 		
 		assert rightSStablename.isValid();
 		assert leftSStablename.isValid();

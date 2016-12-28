@@ -27,7 +27,7 @@ public class RegionSplitStrategyFactory {
 	/**
 	 * The cached instance of the factory
 	 */
-	protected static RegionSplitStrategy cachedInstance = null;
+	protected static AbstractRegionSplitStrategy cachedInstance = null;
 	
 	/**
 	 * The Logger
@@ -38,7 +38,7 @@ public class RegionSplitStrategyFactory {
 	 * Get an instance of the configured factory
 	 * @return
 	 */
-	public static RegionSplitStrategy getInstance() {
+	public static AbstractRegionSplitStrategy getInstance() {
 		
 		if(cachedInstance != null) {
 			return cachedInstance;
@@ -61,11 +61,11 @@ public class RegionSplitStrategyFactory {
 			
 			final Object factoryObject = classObject.newInstance();
 			
-			if(! (factoryObject instanceof RegionSplitStrategy)) {
+			if(! (factoryObject instanceof AbstractRegionSplitStrategy)) {
 				throw new ClassNotFoundException(factoryClass + " is not a instance of RegionSplitter");
 			}
 			
-			cachedInstance = (RegionSplitStrategy) factoryObject;
+			cachedInstance = (AbstractRegionSplitStrategy) factoryObject;
 			
 			return cachedInstance;
 			

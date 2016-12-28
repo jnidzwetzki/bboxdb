@@ -30,7 +30,7 @@ import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableManager;
 
-public class WeightBasedSplitStrategy extends RegionSplitStrategy {
+public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	
 	protected final int SAMPLE_SIZE;
 	
