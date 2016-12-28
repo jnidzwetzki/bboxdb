@@ -16,6 +16,7 @@ order: 1
 - Improvement: Unflushed memtables are now flushed on shutdown
 - Improvement: Improved exception handling during server start/stop
 - Improvement: SSTables can be deleted without init the sstable manager
+- Improvement: Create statistics about redistributed tuples
 - Bugfix: Allocate systems to new distribution regions, before then come ready
 - Bugfix: GUI is repainted when a distribution region is recreated
 - Bugfix: Size of the GUI tree component was not dynamically calculated 
