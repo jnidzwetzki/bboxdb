@@ -250,6 +250,13 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 
 	}
 
+	/**
+	 * Spread a given tuple store onto new systems
+	 * @param region
+	 * @param ssTableName
+	 * @param ssTableManager
+	 * @param tupleRedistributor
+	 */
 	protected void spreadTupleStores(final DistributionRegion region,
 			final SSTableName ssTableName, final SSTableManager ssTableManager, 
 			final TupleRedistributor tupleRedistributor) {
