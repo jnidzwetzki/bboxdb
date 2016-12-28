@@ -71,7 +71,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	/**
 	 * The mutex for sync operations
 	 */
-	protected final Object MUXTEX = new Object();
+	protected final Object MUTEX = new Object();
 	
 	/**
 	 * The logger
@@ -213,10 +213,10 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * @return
 	 */
 	public DistributionRegion getAndWaitForRootNode() {
-		synchronized (MUXTEX) {
+		synchronized (MUTEX) {
 			while(rootNode == null) {
 				try {
-					MUXTEX.wait();
+					MUTEX.wait();
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 				}
@@ -341,11 +341,11 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	public void waitForChildCreateZookeeperCallback(final DistributionRegion regionToSplit) {
 		
 		// Wait for zookeeper callback
-		while(regionToSplit.isLeafRegion()) {
-			logger.debug("Wait for zookeeper callback for split for: {}", regionToSplit);
-			synchronized (MUXTEX) {
+		synchronized (MUTEX) {
+			while(regionToSplit.isLeafRegion()) {
+				logger.debug("Wait for zookeeper callback for split for: {}", regionToSplit);
 				try {
-					MUXTEX.wait();
+					MUTEX.wait();
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 					logger.warn("Unable to wait for split for); {}", regionToSplit);
@@ -361,11 +361,11 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	public void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit) {
 		
 		// Wait for zookeeper callback
-		while(! isSplitForNodeComplete(regionToSplit)) {
-			logger.debug("Wait for zookeeper callback for split for: {}", regionToSplit);
-			synchronized (MUXTEX) {
+		synchronized (MUTEX) {
+			while(! isSplitForNodeComplete(regionToSplit)) {
+				logger.debug("Wait for zookeeper callback for split for: {}", regionToSplit);
 				try {
-					MUXTEX.wait();
+					MUTEX.wait();
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 					logger.warn("Unable to wait for split for); {}", regionToSplit);
@@ -509,8 +509,8 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			}
 	
 			// Wake up all pending waiters
-			synchronized (MUXTEX) {
-				MUXTEX.notifyAll();
+			synchronized (MUTEX) {
+				MUTEX.notifyAll();
 			}
 	}
 
