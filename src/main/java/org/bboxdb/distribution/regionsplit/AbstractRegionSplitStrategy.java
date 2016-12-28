@@ -303,6 +303,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		try {
 			logger.info("Set split at:" + splitPosition);
 			treeAdapter.splitNode(region, splitPosition);
+			treeAdapter.waitForChildCreateZookeeperCallback(region);
 		} catch (ZookeeperException | ResourceAllocationException e) {
 			logger.warn("Unable to split region " + region + " at " + splitPosition, e);
 		} 
