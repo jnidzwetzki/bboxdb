@@ -144,10 +144,8 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 */
 	public void run() {
 		
-		if(region == null) {
-			logger.error("Unable to perform split, region is not set");
-			return;
-		}
+		assert(region != null);
+		assert(region.isLeafRegion());
 		
 		logger.info("Performing split for: {}", region);
 		
@@ -182,6 +180,8 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 */
 	protected void redistributeData(final DistributionRegion region) {
 		logger.info("Redistributing data for region: " + region);
+		
+		assert (! region.isLeafRegion()) : "Region " + region.getRegionId() + " is leaf region";
 		
 		final List<SSTableName> localTables = StorageRegistry.getAllTables();
 		for(final SSTableName ssTableName : localTables) {
