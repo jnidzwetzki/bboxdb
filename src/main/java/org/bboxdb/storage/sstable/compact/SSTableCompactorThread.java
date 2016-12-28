@@ -163,8 +163,7 @@ public class SSTableCompactorThread implements Runnable, Stoppable {
 		}
 		
 		final String directory = facades.get(0).getDirectory();
-		final String name = facades.get(0).getName();
-		final SSTableName ssTableName = new SSTableName(name);
+		final SSTableName ssTableName = facades.get(0).getSStableName();
 		
 		final long estimatedMaxNumberOfEntries = calculateNumberOfEntries(facades);
 		final int tablenumber = sstableManager.increaseTableNumber();

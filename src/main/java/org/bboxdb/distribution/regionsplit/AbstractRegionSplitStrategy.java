@@ -267,7 +267,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			final boolean acquired = storage.acquire();
 			
 			if(acquired) {	
-				logger.info("Spread sstable facade: {}", storage.getName());
+				logger.info("Spread sstable facade: {}", storage.getInternalName());
 				boolean distributeSuccessfully = true;
 				
 				for(final Tuple tuple : storage) {
@@ -281,9 +281,9 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 				
 				// Data is spread, so we can delete it
 				if(! distributeSuccessfully) {
-					logger.warn("Distribution of {} was not successfully", storage.getName());
+					logger.warn("Distribution of {} was not successfully", storage.getInternalName());
 				} else {
-					logger.info("Distribution of {} was successfully, scheduling for deletion", storage.getName());
+					logger.info("Distribution of {} was successfully, scheduling for deletion", storage.getInternalName());
 					storage.deleteOnClose();
 				}
 				

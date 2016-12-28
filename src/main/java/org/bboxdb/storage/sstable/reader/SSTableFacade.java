@@ -44,7 +44,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	protected final SSTableName name;
 	
 	/**
-	 * The Directoy for the SSTables
+	 * The Directory for the SSTables
 	 */
 	protected final String directory;
 	
@@ -262,10 +262,16 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		}
 	}
 
-	public String getName() {
-		return name.getFullname();
+	@Override
+	public String getInternalName() {
+		return name.getFullname() + " / " + tablenumber;
 	}
 
+	@Override
+	public SSTableName getSStableName() {
+		return name;
+	}
+	
 	public String getDirectory() {
 		return directory;
 	}

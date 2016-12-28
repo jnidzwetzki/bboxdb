@@ -2,17 +2,24 @@ package org.bboxdb.storage;
 
 import java.util.Iterator;
 
+import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 
 public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	
 	/**
-	 * Get the name of the tuple store
+	 * Get the internal name of the tuple store
 	 * @return
 	 */
-	public String getName();
+	public String getInternalName();
 
+	/**
+	 * Get the sstable name
+	 * @return
+	 */
+	public SSTableName getSStableName();
+	
 	/**
 	 * Search for tuple and return the most recent version
 	 * @param key

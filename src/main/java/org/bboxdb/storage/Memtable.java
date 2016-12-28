@@ -409,10 +409,15 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	}
 
 	@Override
-	public String getName() {
-		return table.getFullname();
+	public String getInternalName() {
+		return table.getFullname() + " / " + createdTimestamp;
 	}
-
+	
+	@Override
+	public SSTableName getSStableName() {
+		return table;
+	}
+	
 	@Override
 	public long getNumberOfTuples() {
 		assert (usage.get() > 0);
