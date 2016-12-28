@@ -24,6 +24,7 @@ order: 1
 - Bugfix: Regions couldn't be removed from the nameprefix manager
 - Bugfix: No data is written to ACTIVE_FULL regions
 - Bugfix: For splits, only the part of the tuple is analyzed, that is covered by the region
+- Bugfix: State updates of the tree are applied after reading the child nodes. Otherwise, a region could be set to splitted before the child nodes are ready 
 
 ### Version 0.2.0 (Beta-4) - 20.12.2016
 - New Feature: Renamed project from 'scalephant' to 'BBoxDB'
