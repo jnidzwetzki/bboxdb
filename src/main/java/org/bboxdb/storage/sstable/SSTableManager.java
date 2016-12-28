@@ -431,7 +431,7 @@ public class SSTableManager implements BBoxDBService {
 	public Tuple get(final String key) throws StorageManagerException {
 			
 		if(! storageState.isReady()) {
-			throw new StorageManagerException("Storage manager is not ready");
+			throw new StorageManagerException("Storage manager is not ready: " + sstablename.getFullname());
 		}
 		
 		Tuple mostRecentTuple = null;
@@ -563,7 +563,7 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	public void put(final Tuple tuple) throws StorageManagerException {
 		if(! storageState.isReady()) {
-			throw new StorageManagerException("Storage manager is not ready");
+			throw new StorageManagerException("Storage manager is not ready: " + sstablename.getFullname());
 		}
 		
 		// Ensure that only one memtable is newly created
@@ -584,7 +584,7 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	public void delete(final String key, final long timestamp) throws StorageManagerException {
 		if(! storageState.isReady()) {
-			throw new StorageManagerException("Storage manager is not ready");
+			throw new StorageManagerException("Storage manager is not ready: " + sstablename.getFullname());
 		}
 		
 		// Ensure that only one memtable is newly created
