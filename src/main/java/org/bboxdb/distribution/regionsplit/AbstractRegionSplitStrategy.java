@@ -18,7 +18,6 @@
 package org.bboxdb.distribution.regionsplit;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.BBoxDBConfiguration;
@@ -26,16 +25,13 @@ import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
-import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionState;
+import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
@@ -238,6 +234,26 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	protected void spreadPersistantStorages(final DistributionRegion region, 
 			final SSTableName ssTableName, final SSTableManager ssTableManager) {
 
+		assert (! region.isLeafRegion());
+		final DistributionRegion leftRegion = region.getLeftChild();
+		final DistributionRegion rightRegion = region.getRightChild();
+		
+		try {
+			final TupleRedistributor tupleRedistributor = new TupleRedistributor(ssTableName);
+			tupleRedistributor.registerRegion(leftRegion);
+			tupleRedistributor.registerRegion(rightRegion);
+			
+			spreadTupleStores(region, ssTableName, ssTableManager, tupleRedistributor);
+		} catch (StorageManagerException e) {
+			logger.error("Got an exception while redistributing tuples");
+		}
+
+	}
+
+	protected void spreadTupleStores(final DistributionRegion region,
+			final SSTableName ssTableName, final SSTableManager ssTableManager, 
+			final TupleRedistributor tupleRedistributor) {
+		
 		final Collection<ReadOnlyTupleStorage> storages = ssTableManager.getTupleStoreInstances().getAllTupleStorages();
 		
 		for(final ReadOnlyTupleStorage storage: storages) {
@@ -245,9 +261,16 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			
 			if(acquired) {	
 				logger.info("Spread sstable facade: {}", storage.getName());
+				boolean distributeSuccessfully = true;
 				
-				final boolean distributeSuccessfully 
-					= spreadTuplesFromIterator(region, ssTableName, storage.iterator());
+				for(final Tuple tuple : storage) {
+					try {
+						tupleRedistributor.redistributeTuple(tuple);
+					} catch (Exception e) {
+						logger.error("Got exeption while redistributing tuples", e);
+						distributeSuccessfully = false;
+					}
+				}
 				
 				// Data is spread, so we can delete it
 				if(! distributeSuccessfully) {
@@ -257,101 +280,11 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 					storage.deleteOnClose();
 				}
 				
+				logger.info("Statistics for spread: " + tupleRedistributor.getStatistics());
+				
 				storage.release();
 			}
 		}
-	}
-
-	/**
-	 * Spread the tuples from the given iterator
-	 * @param region
-	 * @param ssTableName
-	 * @param tupleIterator
-	 * @return 
-	 */
-	public boolean spreadTuplesFromIterator(final DistributionRegion region, final SSTableName ssTableName, final Iterator<Tuple> tupleIterator) {
-		
-		assert (! region.isLeafRegion());
-		
-		final DistributionRegion leftRegion = region.getLeftChild();
-		final DistributionRegion rightRegion = region.getRightChild();
-		
-		final String tablename = ssTableName.getFullnameWithoutPrefix();
-		final SSTableName leftSStablename = ssTableName.cloneWithDifferntRegionId(leftRegion.getNameprefix());
-		final SSTableName rightSStablename = ssTableName.cloneWithDifferntRegionId(rightRegion.getNameprefix());
-		
-		assert rightSStablename.isValid();
-		assert leftSStablename.isValid();
-		
-		boolean redistributeSuccessfully = true;
-		
-		while(tupleIterator.hasNext()) {
-			
-			final Tuple tuple = tupleIterator.next();
-			
-			// Spread to the left region
-			if(tuple.getBoundingBox().overlaps(leftRegion.getConveringBox())) {
-				
-				final boolean tupleDistribute 
-					= spreadTupleToSystems(tablename, leftSStablename, tuple, leftRegion);
-				
-				if(tupleDistribute == false) {
-					redistributeSuccessfully = false;
-				}
-			}
-			
-			// Spread to the right region
-			if(tuple.getBoundingBox().overlaps(rightRegion.getConveringBox())) {
-				final boolean tupleDistribute 
-					= spreadTupleToSystems(tablename, rightSStablename, tuple, rightRegion);
-				
-				if(tupleDistribute == false) {
-					redistributeSuccessfully = false;
-				}
-			}
-		}
-		
-		return redistributeSuccessfully;
-	}
-	
-	/**
-	 * Spread the tuple to the given list of systems
-	 * @param ssTableName
-	 * @param tuple
-	 * @param region
-	 * @return 
-	 */
-	protected boolean spreadTupleToSystems(final String baseTableName, final SSTableName ssTableName, final Tuple tuple, final DistributionRegion region) {
-		
-		final Collection<DistributedInstance> instances = region.getSystems();
-
-		final MembershipConnectionService membershipConnectionService 	
-			= MembershipConnectionService.getInstance();
-		
-		for(final DistributedInstance instance : instances) {
-			
-			// Redistribute tuples locally or via network?
-			if(instance.socketAddressEquals(zookeeperClient.getInstancename())) {
-				try {
-					final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
-					storageManager.put(tuple);
-				} catch (StorageManagerException e) {
-					logger.error("Got exception while inserting tuple", e);
-					return false;
-				}
-			} else {
-				final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(instance);
-				
-				if(connection == null) {
-					logger.error("No connection for distributed instance {} is known, unable to distribute tuple.", instance);
-					return false;
-				}
-				
-				connection.insertTuple(baseTableName, tuple);
-			}
-		}
-		
-		return true;
 	}
 
 	/**

@@ -1,0 +1,191 @@
+package org.bboxdb.distribution.regionsplit;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.StorageRegistry;
+import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.SSTableManager;
+
+public class TupleRedistributor {
+	
+	/**
+	 * The sstable name for data redistribution
+	 */
+	protected final SSTableName sstableName;
+	
+	/**
+	 * The list with the distribution regions
+	 */
+	protected final Map<DistributionRegion, List<TupleSink>> regionMap;
+	
+	/**
+	 * The amount of total redistributed tuples
+	 */
+	protected long redistributedTuples;
+	
+	public TupleRedistributor(final SSTableName ssTableName) {
+		this.sstableName = ssTableName;
+		this.regionMap = new HashMap<DistributionRegion, List<TupleSink>>();
+		this.redistributedTuples = 0;
+		
+		assert(ssTableName.isValid());
+	}
+
+	/**
+	 * Register a new region for distribution
+	 * @param distributionRegion
+	 * @throws StorageManagerException 
+	 */
+	public void registerRegion(final DistributionRegion distributionRegion) 
+			throws StorageManagerException {
+		
+		regionMap.put(distributionRegion, new ArrayList<TupleSink>());
+		
+		final Collection<DistributedInstance> instances = distributionRegion.getSystems();
+
+		final MembershipConnectionService membershipConnectionService 	
+			= MembershipConnectionService.getInstance();
+		
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
+		
+		for(final DistributedInstance instance : instances) {
+			
+			if(instance.socketAddressEquals(zookeeperClient.getInstancename())) {
+				
+				final SSTableName localTableName = sstableName.cloneWithDifferntRegionId(
+						distributionRegion.getNameprefix());
+				
+				final SSTableManager storageManager = StorageRegistry.getSSTableManager(localTableName);
+				regionMap.get(distributionRegion).add(new LocalTupleSink(sstableName, storageManager));
+			} else {
+				final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(instance);
+				regionMap.get(distributionRegion).add(new NetworkTupleSink(sstableName, connection));
+			}
+			
+		}
+	}
+	
+	/**
+	 * Redistribute a new tuple
+	 * @param tuple
+	 * @throws Exception 
+	 */
+	public void redistributeTuple(final Tuple tuple) throws Exception {
+		redistributedTuples++;
+		
+		for(final DistributionRegion region : regionMap.keySet()) {
+			if(region.getConveringBox().overlaps(tuple.getBoundingBox())) {
+				for(final TupleSink tupleSink : regionMap.get(region)) {
+					tupleSink.sinkTuple(tuple);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Get the statistics for the redistribution
+	 * @return
+	 */
+	public String getStatistics() {
+		final StringBuilder sb = new StringBuilder();
+		
+		sb.append("Total redistributed tuples: " + redistributedTuples);
+
+		
+		for(final DistributionRegion region : regionMap.keySet()) {
+			if(regionMap.get(region).isEmpty()) {
+				sb.append(", no systems for " + region.getName());
+			} else {
+				final long forwarededTuples = regionMap.get(region).get(0).getSinkedTuples();
+				final int percent = (int) ((float) redistributedTuples / (float) forwarededTuples);
+				sb.append(", forwared " + forwarededTuples + " to region ");
+				sb.append(region.getName() + "(" + percent + ")");
+			}
+		}
+		
+		
+		return sb.toString();
+	}
+	
+}
+
+abstract class TupleSink {
+	
+	/**
+	 * The table name for the sink
+	 */
+	protected final String tablename;
+	
+	/**
+	 * The amount of sinked tuples
+	 */
+	public long sinkedTuples;
+	
+	public TupleSink(final SSTableName tablename) {
+		this.tablename = tablename.getFullname();
+		this.sinkedTuples = 0;
+	}
+	
+	/**
+	 * Get the amount of sinked tuples
+	 * @return
+	 */
+	public long getSinkedTuples() {
+		return sinkedTuples;
+	}
+	
+	public abstract void sinkTuple(final Tuple tuple) throws Exception;
+}
+
+class NetworkTupleSink extends TupleSink {
+	
+	/**
+	 * The connection to spread data too
+	 */
+	protected final BBoxDBClient connection;
+	
+	public NetworkTupleSink(final SSTableName tablename, final BBoxDBClient connection) {
+		super(tablename);
+		this.connection = connection;
+	}
+
+	@Override
+	public void sinkTuple(final Tuple tuple) {
+		sinkedTuples++;
+		connection.insertTuple(tablename, tuple);
+	}
+	
+}
+
+class LocalTupleSink extends TupleSink {
+
+	/**
+	 * The storage manager to store the tuple
+	 */
+	protected final SSTableManager storageManager;
+	
+	public LocalTupleSink(final SSTableName tablename, final SSTableManager storageManager) {
+		super(tablename);
+		this.storageManager = storageManager;
+	}
+
+	@Override
+	public void sinkTuple(final Tuple tuple) throws Exception {
+		sinkedTuples++;
+		storageManager.put(tuple);
+	}
+}
+
+
