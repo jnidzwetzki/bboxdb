@@ -25,6 +25,7 @@ order: 1
 - Bugfix: No data is written to ACTIVE_FULL regions
 - Bugfix: For splits, only the part of the tuple is analyzed, that is covered by the region
 - Bugfix: State updates of the tree are applied after reading the child nodes. Otherwise, a region could be set to splitted before the child nodes are ready 
+- Bugfix: Nodes in state 'creating' are not considered as real child nodes in isLeafNode() method
 
 ### Version 0.2.0 (Beta-4) - 20.12.2016
 - New Feature: Renamed project from 'scalephant' to 'BBoxDB'

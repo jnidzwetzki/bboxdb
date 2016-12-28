@@ -268,11 +268,16 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public boolean isLeafRegion() {
-		if(leftChild != null && rightChild != null) {
-			return false;	
+		
+		if(leftChild == null || leftChild.getState() == DistributionRegionState.CREATING) {
+			return true;
 		}
 		
-		return true;
+		if(rightChild == null || rightChild.getState() == DistributionRegionState.CREATING) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
