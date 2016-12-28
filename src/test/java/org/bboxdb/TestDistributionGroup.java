@@ -72,6 +72,10 @@ public class TestDistributionGroup {
 		final DistributionRegion distributionRegion = DistributionRegion.createRootElement("3_foo");
 		Assert.assertTrue(distributionRegion.isLeafRegion());
 		distributionRegion.setSplit(0);
+		Assert.assertTrue(distributionRegion.isLeafRegion());
+		
+		distributionRegion.getRightChild().setState(DistributionRegionState.ACTIVE);
+		distributionRegion.getLeftChild().setState(DistributionRegionState.ACTIVE);
 		Assert.assertFalse(distributionRegion.isLeafRegion());
 
 		Assert.assertEquals(distributionRegion, distributionRegion.getLeftChild().getRootRegion());
@@ -191,21 +195,25 @@ public class TestDistributionGroup {
 		level0.setSplit(50);
 		level0.getLeftChild().setRegionId(2);
 		level0.getRightChild().setRegionId(3);
+		level0.makeChildsActive();
 		
 		final DistributionRegion level1 = level0.getLeftChild();
 		level1.setSplit(40);
 		level1.getLeftChild().setRegionId(4);
 		level1.getRightChild().setRegionId(5);
+		level1.makeChildsActive();
 		
 		final DistributionRegion level2 = level1.getLeftChild();
 		level2.setSplit(30);
 		level2.getLeftChild().setRegionId(6);
 		level2.getRightChild().setRegionId(7);
+		level2.makeChildsActive();
 		
 		final DistributionRegion level3 = level2.getLeftChild();
 		level3.setSplit(35);
 		level3.getLeftChild().setRegionId(8);
 		level3.getRightChild().setRegionId(9);
+		level3.makeChildsActive();
 
 		Assert.assertTrue(DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 4711) == null);
 		
@@ -230,8 +238,7 @@ public class TestDistributionGroup {
 		level0.getRightChild().setRegionId(3);
 		
 		level0.setState(DistributionRegionState.SPLITTED);
-		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
-		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
+		level0.makeChildsActive();
 		
 		level0.addSystem(new DistributedInstance("node1:123"));
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
@@ -252,8 +259,7 @@ public class TestDistributionGroup {
 		level0.getRightChild().setRegionId(3);
 		
 		level0.setState(DistributionRegionState.SPLITTED);
-		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
-		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
+		level0.makeChildsActive();
 		
 		level0.addSystem(new DistributedInstance("node1:123"));
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
@@ -271,8 +277,10 @@ public class TestDistributionGroup {
 		final DistributionRegion level0 = DistributionRegion.createRootElement("2_foo");
 		level0.setSplit(50);
 		level0.getLeftChild().setRegionId(2);
+		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
 		level0.getRightChild().setRegionId(3);
-		
+		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
+
 		level0.addSystem(new DistributedInstance("node1:123"));
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
 		level0.getRightChild().addSystem(new DistributedInstance("node2:123"));

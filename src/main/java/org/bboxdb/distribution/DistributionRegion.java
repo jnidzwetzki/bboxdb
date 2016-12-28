@@ -160,6 +160,18 @@ public class DistributionRegion {
 		leftChild.setConveringBox(converingBox.splitAndGetLeft(split, getSplitDimension(), true));
 		rightChild.setConveringBox(converingBox.splitAndGetRight(split, getSplitDimension(), false));
 	}
+	
+	/**
+	 * Set the childs to state active
+	 */
+	public void makeChildsActive() {
+		if(leftChild == null || rightChild == null) {
+			return;
+		}
+		
+		leftChild.setState(DistributionRegionState.ACTIVE);
+		rightChild.setState(DistributionRegionState.ACTIVE);
+	}
 
 	/**
 	 * Merge the distribution group

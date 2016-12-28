@@ -450,26 +450,40 @@ public class TestZookeeperIntegration {
 		final DistributionRegion level0 = DistributionRegion.createRootElement("2_foo");
 		level0.setRegionId(1);
 		level0.setSplit(50);
+		level0.makeChildsActive();
 
 		// Level 1
 		final DistributionRegion level1l = level0.getLeftChild();
 		level1l.setSplit(40);
+		level1l.makeChildsActive();
+		
 		final DistributionRegion level1r = level0.getRightChild();
 		level1r.setSplit(50);
+		level1r.makeChildsActive();
 
 		// Level 2
 		final DistributionRegion level2ll = level1l.getLeftChild();
 		level2ll.setSplit(30);
+		level2ll.makeChildsActive();
+
 		final DistributionRegion level2rl = level1r.getLeftChild();
 		level2rl.setSplit(60);
+		level2rl.makeChildsActive();
+
 		final DistributionRegion level2lr = level1l.getRightChild();
 		level2lr.setSplit(30);
+		level2lr.makeChildsActive();
+
 		final DistributionRegion level2rr = level1r.getRightChild();
 		level2rr.setSplit(60);
+		level2rr.makeChildsActive();
+
 
 		// Level 3
 		final DistributionRegion level3lll = level2ll.getLeftChild();
 		level3lll.setSplit(35);
+		level3lll.makeChildsActive();
+
 
 		final DistributionGroupZookeeperAdapter zookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
 		
