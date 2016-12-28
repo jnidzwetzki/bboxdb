@@ -110,7 +110,7 @@ public class TupleRedistributor {
 				final long forwarededTuples = regionMap.get(region).get(0).getSinkedTuples();
 				final float percent = ((float) redistributedTuples / (float) forwarededTuples * 100);
 				sb.append(", forwared "+ forwarededTuples + " to regionid " + region.getRegionId());
-				sb.append(String.format(region.getRegionId() + "(%.2f %)", percent));
+				sb.append(String.format(region.getRegionId() + "(%.2f %%)", percent));
 			}
 		}
 		
