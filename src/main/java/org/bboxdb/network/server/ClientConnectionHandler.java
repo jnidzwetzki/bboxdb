@@ -520,7 +520,7 @@ public class ClientConnectionHandler implements Runnable {
 			
 			// Send the call to the storage manager
 			final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = nameprefixManager.getAllRegionIdsWithTableName(requestTable);
+			final Collection<SSTableName> localTables = nameprefixManager.getAllLocalTables(requestTable);
 			
 			for(final SSTableName ssTableName : localTables) {
 				StorageRegistry.deleteTable(ssTableName);	
@@ -572,7 +572,7 @@ public class ClientConnectionHandler implements Runnable {
 				
 				// Send the call to the storage manager
 				final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-				final Collection<SSTableName> localTables = nameprefixManager.getAllRegionIdsWithTableName(requestTable);
+				final Collection<SSTableName> localTables = nameprefixManager.getAllLocalTables(requestTable);
 				
 				for(final SSTableName ssTableName : localTables) {
 					final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
@@ -759,7 +759,7 @@ public class ClientConnectionHandler implements Runnable {
 			
 			final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
 			final BoundingBox boundingBox = insertTupleRequest.getTuple().getBoundingBox();
-			final Collection<SSTableName> localTables = nameprefixManager.getRegionIdsForRegionWithTable(boundingBox, requestTable);
+			final Collection<SSTableName> localTables = nameprefixManager.getLocalTablesForRegion(boundingBox, requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
 				final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
@@ -810,7 +810,7 @@ public class ClientConnectionHandler implements Runnable {
 
 			// Send the call to the storage manager
 			final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = nameprefixManager.getAllRegionIdsWithTableName(requestTable);
+			final Collection<SSTableName> localTables = nameprefixManager.getAllLocalTables(requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
 				final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);

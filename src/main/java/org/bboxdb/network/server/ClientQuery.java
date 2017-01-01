@@ -100,7 +100,7 @@ public class ClientQuery implements Closeable {
 		this.requestTable = requestTable;
 
 		final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-		this.localTables = nameprefixManager.getAllRegionIdsWithTableName(requestTable);
+		this.localTables = nameprefixManager.getAllLocalTables(requestTable);
 		
 		this.totalSendTuples = 0;
 	}

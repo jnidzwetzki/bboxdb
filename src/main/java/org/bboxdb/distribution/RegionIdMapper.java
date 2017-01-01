@@ -68,7 +68,7 @@ public class RegionIdMapper {
 	 * @param ssTableName
 	 * @return
 	 */
-	public Collection<SSTableName> getRegionIdsForRegionWithTable(final BoundingBox region, 
+	public Collection<SSTableName> getLocalTablesForRegion(final BoundingBox region, 
 			final SSTableName ssTableName) {
 		
 		final Collection<Integer> namprefixes = getNameprefixesForRegion(region);
@@ -86,7 +86,7 @@ public class RegionIdMapper {
 	 * @param ssTableName
 	 * @return
 	 */
-	public List<SSTableName> getAllRegionIdsWithTableName(final SSTableName ssTableName) {
+	public List<SSTableName> getAllLocalTables(final SSTableName ssTableName) {
 		final Collection<Integer> namprefixes = getAllRegionIds();
 		
 		if(namprefixes.isEmpty() && logger.isWarnEnabled()) {
