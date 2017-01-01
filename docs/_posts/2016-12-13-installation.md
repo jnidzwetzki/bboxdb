@@ -23,7 +23,7 @@ apt-get install openjdk-8-jdk ant maven git
 ```
 
 ### Clock synchronization
-BBoxDB uses timestamps to order opertions. So, it is useful to have a reliable time source on all systems. We strongly recommend to synchronize the local clock with an NTP server. You can accomplish this by executing:
+BBoxDB uses timestamps to order operations. So, it is useful to have a reliable time source on all systems. We strongly recommend to synchronize the local clock with an NTP server. You can accomplish this by executing:
 
 ```bash
 apt-get install ntp
