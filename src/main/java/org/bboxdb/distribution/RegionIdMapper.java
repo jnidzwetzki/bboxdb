@@ -41,9 +41,9 @@ public class RegionIdMapper {
 	private final static Logger logger = LoggerFactory.getLogger(RegionIdMapper.class);
 	
 	/**
-	 * Search the name prefixes that are overlapped by the bounding box
+	 * Search the region ids that are overlapped by the bounding box
 	 */
-	public Collection<Integer> getNameprefixesForRegion(final BoundingBox region) {
+	public Collection<Integer> getRegionIdsForRegion(final BoundingBox region) {
 		return regions
 			.stream()
 			.filter(r -> r.getBoundingBox().overlaps(region))
@@ -52,7 +52,7 @@ public class RegionIdMapper {
 	}
 	
 	/**
-	 * Get all name prefixes
+	 * Get all region ids
 	 * @return
 	 */
 	public Collection<Integer> getAllRegionIds() {
@@ -71,7 +71,7 @@ public class RegionIdMapper {
 	public Collection<SSTableName> getLocalTablesForRegion(final BoundingBox region, 
 			final SSTableName ssTableName) {
 		
-		final Collection<Integer> namprefixes = getNameprefixesForRegion(region);
+		final Collection<Integer> namprefixes = getRegionIdsForRegion(region);
 		
 		if(namprefixes.isEmpty() && logger.isWarnEnabled()) {
 			logger.warn("Got an empty result list by query region: " + region);
