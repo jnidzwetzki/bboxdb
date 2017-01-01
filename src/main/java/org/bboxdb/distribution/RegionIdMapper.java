@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -41,25 +40,15 @@ public class RegionIdMapper {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(RegionIdMapper.class);
 	
-	
-	public RegionIdMapper() {
-		super();
-	}
-
 	/**
 	 * Search the name prefixes that are overlapped by the bounding box
 	 */
 	public Collection<Integer> getNameprefixesForRegion(final BoundingBox region) {
-
-		final List<Integer> result = new ArrayList<Integer>();
-		
-		for(final RegionTablenameEntry regionTablenameEntry : regions) {
-			if(regionTablenameEntry.getBoundingBox().overlaps(region)) {
-				result.add(regionTablenameEntry.getRegionId());
-			}
-		}
-		
-		return result;
+		return regions
+			.stream()
+			.filter(r -> r.getBoundingBox().overlaps(region))
+			.map(r -> r.getRegionId())
+			.collect(Collectors.toList());
 	}
 	
 	/**
@@ -67,13 +56,10 @@ public class RegionIdMapper {
 	 * @return
 	 */
 	public Collection<Integer> getAllRegionIds() {
-		final List<Integer> result = new ArrayList<Integer>(regions.size());
-		
-		for(final RegionTablenameEntry regionTablenameEntry : regions) {
-			result.add(regionTablenameEntry.getRegionId());
-		}
-		
-		return result;
+		return regions
+				.stream()
+				.map(r -> r.getRegionId())
+				.collect(Collectors.toList());
 	}
 	
 	/**
@@ -91,7 +77,7 @@ public class RegionIdMapper {
 			logger.warn("Got an empty result list by query region: " + region);
 		}
 		
-		return prefixRegionIdIntergerList(ssTableName, namprefixes);
+		return convertRegionIdToTableNames(ssTableName, namprefixes);
 	}
 	
 	
@@ -107,7 +93,7 @@ public class RegionIdMapper {
 			logger.warn("Got an empty result list by query all regions");
 		}
 		
-		return prefixRegionIdIntergerList(ssTableName, namprefixes);		
+		return convertRegionIdToTableNames(ssTableName, namprefixes);		
 	}
 
 	/**
@@ -116,7 +102,7 @@ public class RegionIdMapper {
 	 * @param regionIds
 	 * @return
 	 */
-	protected List<SSTableName> prefixRegionIdIntergerList(final SSTableName ssTableName,
+	protected List<SSTableName> convertRegionIdToTableNames(final SSTableName ssTableName,
 			final Collection<Integer> regionIds) {
 		
 		return regionIds
