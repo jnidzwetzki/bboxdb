@@ -384,7 +384,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 */
 	public void allocateSystemsToNewRegion(final DistributionRegion region) throws ZookeeperException, ResourceAllocationException {
 		
-		final short replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(region.getName());
+		final short replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(region.getDistributionGroupName().getFullname());
 		
 		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 		final List<DistributedInstance> availableSystems = distributedInstanceManager.getInstances();
@@ -399,7 +399,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			allocationSystems.add(instance);
 		}
 		
-		logger.info("Allocating region " + region.getName() + " to " + allocationSystems);
+		logger.info("Allocating region {} to {}", region.getIdentifier(), allocationSystems);
 		
 		// Resource allocation successfully, write data to zookeeper
 		for(final DistributedInstance instance : allocationSystems) {
@@ -447,7 +447,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 
 		zookeeperClient.createPersistentNode(path, "".getBytes());
 		
-		final int namePrefix = distributionGroupZookeeperAdapter.getNextTableIdForDistributionGroup(rootNode.getName());
+		final int namePrefix = distributionGroupZookeeperAdapter.getNextTableIdForDistributionGroup(rootNode.getDistributionGroupName().getFullname());
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
 				Integer.toString(namePrefix).getBytes());

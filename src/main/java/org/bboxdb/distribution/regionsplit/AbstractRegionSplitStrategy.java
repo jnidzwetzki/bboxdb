@@ -97,7 +97,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			
 			if(! region.isLeafRegion()) {
 				throw new StorageManagerException("Region is not a leaf region, unable to split:" 
-						+ region.getName());
+						+ region.getIdentifier());
 			}
 		} catch (ZookeeperException e) {
 			logger.error("Got exception while init region splitter", e);
@@ -155,7 +155,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			// splits the region
 			final boolean setToFullResult = distributionGroupZookeeperAdapter.setToFull(region);
 			if(! setToFullResult) {
-				logger.info("Unable to set state to full for region: {}, stopping split", region.getName());
+				logger.info("Unable to set state to full for region: {}, stopping split", region.getIdentifier());
 				logger.info("Old state {}", distributionGroupZookeeperAdapter.getStateForDistributionRegion(region));
 				return;
 			}

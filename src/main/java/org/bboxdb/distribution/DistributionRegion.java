@@ -191,14 +191,6 @@ public class DistributionRegion {
 	}
 	
 	/**
-	 * Get the name
-	 * @return
-	 */
-	public String getName() {
-		return distributionGroupName.getFullname();
-	}
-	
-	/**
 	 * Get the state of the node
 	 * @return
 	 */
@@ -346,6 +338,14 @@ public class DistributionRegion {
 	 */
 	public DistributionGroupName getDistributionGroupName() {
 		return distributionGroupName;
+	}
+	
+	/**
+	 * Get a unique identifier for this region
+	 * @return
+	 */
+	public String getIdentifier() {
+		return distributionGroupName.getFullname() + " namepefix: " + regionid;
 	}
 	
 	/**

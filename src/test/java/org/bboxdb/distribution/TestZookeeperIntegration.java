@@ -177,7 +177,7 @@ public class TestZookeeperIntegration {
 		// Split and update
 		final KDtreeZookeeperAdapter distributionGroupAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		final DistributionRegion distributionGroup = distributionGroupAdapter.getRootNode();
-		Assert.assertEquals(TEST_GROUP, distributionGroup.getName());
+		Assert.assertEquals(TEST_GROUP, distributionGroup.getDistributionGroupName().getFullname());
 		
 		Assert.assertEquals(DistributionRegionState.ACTIVE, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup, null));
 		try {

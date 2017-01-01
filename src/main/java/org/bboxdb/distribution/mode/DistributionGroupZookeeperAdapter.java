@@ -179,7 +179,7 @@ public class DistributionGroupZookeeperAdapter {
 	public boolean setToFull(final DistributionRegion region) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		logger.debug("Set state for {} to full", region.getName());
+		logger.debug("Set state for {} to full", region.getIdentifier());
 		
 		final String zookeeperPath = getZookeeperPathForDistributionRegionState(region);
 				
@@ -292,7 +292,6 @@ public class DistributionGroupZookeeperAdapter {
 	public String getZookeeperPathForDistributionRegion(
 			final DistributionRegion distributionRegion) {
 		
-		final String name = distributionRegion.getName();
 		final StringBuilder sb = new StringBuilder();
 		
 		DistributionRegion tmpRegion = distributionRegion;
@@ -307,6 +306,7 @@ public class DistributionGroupZookeeperAdapter {
 			tmpRegion = tmpRegion.getParent();
 		}
 		
+		final String name = distributionRegion.getDistributionGroupName().getFullname();
 		sb.insert(0, getDistributionGroupPath(name));
 		return sb.toString();
 	}
@@ -320,7 +320,7 @@ public class DistributionGroupZookeeperAdapter {
 	public DistributionRegion getNodeForPath(final DistributionRegion distributionRegion, 
 			final String path) {
 		
-		final String name = distributionRegion.getName();
+		final String name = distributionRegion.getDistributionGroupName().getFullname();
 		final String distributionGroupPath = getDistributionGroupPath(name);
 		
 		if(! path.startsWith(distributionGroupPath)) {
