@@ -5,6 +5,8 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
+### Version 0.2.0 (Stable) - TBA
+
 ### Version 0.2.0 (Beta-5) - 01.01.2017
 - Improvement: Introduced JVM parameter
 - Improvement: Enabled the JMX server
