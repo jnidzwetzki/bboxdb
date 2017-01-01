@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bboxdb.Const;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -38,13 +39,32 @@ public class DistributionRegionHelper {
 	 * @return
 	 */
 	public static DistributionRegion getDistributionRegionForNamePrefix(final DistributionRegion region, final int searchNameprefix) {
-		final DistributionRegionNameprefixFinder distributionRegionNameprefixFinder = new DistributionRegionNameprefixFinder(searchNameprefix);
 		
-		if(region != null) {
-			region.visit(distributionRegionNameprefixFinder);
+		if(region == null) {
+			return null;
 		}
 		
-		return distributionRegionNameprefixFinder.getResult();
+		for(int retry = 0; retry < Const.OPERATION_RETRY; retry++) {
+			final DistributionRegionNameprefixFinder distributionRegionNameprefixFinder 
+				= new DistributionRegionNameprefixFinder(searchNameprefix);
+
+			region.visit(distributionRegionNameprefixFinder);
+				
+			final DistributionRegion result = distributionRegionNameprefixFinder.getResult();
+			
+			if(result != null) {
+				return result;
+			}
+			
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return null;
+			}
+		}
+		
+		return null;
 	}
 	
 	/**

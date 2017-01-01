@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.2.0 (Stable) - TBA
 - Bugfix: The wrong split interval was taken
+- Bugfix: Fixed a race condition on compact thread init
 
 ### Version 0.2.0 (Beta-5) - 01.01.2017
 - Improvement: Introduced JVM parameter
