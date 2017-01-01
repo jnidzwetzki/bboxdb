@@ -57,7 +57,7 @@ vi $BBOXDB_HOME/conf/bboxdb-nodes
 ## Ports and JVM parameter
 The file `$BBOXDB_HOME/misc/bboxdb-env.sh` contains the configuration options for the BBoxDB service and the JVM parameter. You should open the file and adjust the settings to your preferences. 
 
-__Notice:__ At least, the parameter `jmx_password` should be customized. Otherwise unauthorized attackers could connect to the JMX interface of the JVM and perform operations like a shutdown of the BBoxDB.
+__Notice:__ At least, the parameter `jmx_password` should be customized. Otherwise, unauthorized attackers could connect to the JMX interface of the JVM and perform operations like a shutdown of the BBoxDB.
 
 ```bash
 vi $BBOXDB_HOME/misc/bboxdb-env.sh
@@ -66,7 +66,7 @@ vi $BBOXDB_HOME/misc/bboxdb-env.sh
 ## Starting and Stopping the system
 To manage the processes of BBoxDB, two scripts are provided: ```$BBOXDB_HOME/misc/manage_instance.sh``` is used to start and stop the processes on the local node. ```$BBOXDB_HOME/misc/manage_cluster.sh``` is used to managed a whole cluster of nodes.
 
-Both scripts accept the following parameter. Depending on the script, the task is performed on the local system or on the whole cluster.
+Both scripts require one parameter. This parameter determines the operation of the script. Depending on the script, the task is performed only on the local system or on the whole cluster.
 
 |    Parameter       |                Description                |
 |--------------------|-------------------------------------------|
