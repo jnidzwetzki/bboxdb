@@ -84,7 +84,7 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 		
 		final int samplesPerStorage = Math.max(10, SAMPLE_SIZE / storages.size());
 		
-		logger.debug("Fetiching {} samples per storage", samplesPerStorage);
+		logger.debug("Fetching {} samples per storage", samplesPerStorage);
 		
 		for(final ReadOnlyTupleStorage storage : storages) {
 			if(! storage.acquire() ) {
