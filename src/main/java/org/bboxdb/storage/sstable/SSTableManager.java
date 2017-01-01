@@ -129,7 +129,7 @@ public class SSTableManager implements BBoxDBService {
 			return;
 		}
 		
-		logger.info("Init a new instance for the table: {}", getSSTableName());
+		logger.info("Init a new instance for the table: {}", sstablename.getFullname());
 		
 		tupleStoreInstances.clear();
 		runningThreads.clear();
@@ -140,7 +140,7 @@ public class SSTableManager implements BBoxDBService {
 		try {
 			scanForExistingTables();
 		} catch (StorageManagerException e) {
-			logger.error("Unable to init the instance: " + getSSTableName(), e);
+			logger.error("Unable to init the instance: " +  sstablename.getFullname(), e);
 			return;
 		}
 		
