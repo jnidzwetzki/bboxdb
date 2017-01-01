@@ -57,9 +57,9 @@ public class RegionIdMapper {
 	 */
 	public Collection<Integer> getAllRegionIds() {
 		return regions
-				.stream()
-				.map(r -> r.getRegionId())
-				.collect(Collectors.toList());
+			.stream()
+			.map(r -> r.getRegionId())
+			.collect(Collectors.toList());
 	}
 	
 	/**
