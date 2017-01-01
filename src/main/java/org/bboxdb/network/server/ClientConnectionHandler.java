@@ -519,8 +519,8 @@ public class ClientConnectionHandler implements Runnable {
 			logger.info("Got delete call for table: " + requestTable);
 			
 			// Send the call to the storage manager
-			final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = nameprefixManager.getAllLocalTables(requestTable);
+			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 			
 			for(final SSTableName ssTableName : localTables) {
 				StorageRegistry.deleteTable(ssTableName);	
@@ -571,8 +571,8 @@ public class ClientConnectionHandler implements Runnable {
 				final SSTableName requestTable = queryKeyRequest.getTable();
 				
 				// Send the call to the storage manager
-				final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-				final Collection<SSTableName> localTables = nameprefixManager.getAllLocalTables(requestTable);
+				final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+				final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 				
 				for(final SSTableName ssTableName : localTables) {
 					final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
@@ -757,9 +757,9 @@ public class ClientConnectionHandler implements Runnable {
 			final Tuple tuple = insertTupleRequest.getTuple();			
 			final SSTableName requestTable = insertTupleRequest.getTable();
 			
-			final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
 			final BoundingBox boundingBox = insertTupleRequest.getTuple().getBoundingBox();
-			final Collection<SSTableName> localTables = nameprefixManager.getLocalTablesForRegion(boundingBox, requestTable);
+			final Collection<SSTableName> localTables = regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
 				final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
@@ -809,8 +809,8 @@ public class ClientConnectionHandler implements Runnable {
 			final SSTableName requestTable = deleteTupleRequest.getTable();
 
 			// Send the call to the storage manager
-			final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = nameprefixManager.getAllLocalTables(requestTable);
+			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
 				final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
