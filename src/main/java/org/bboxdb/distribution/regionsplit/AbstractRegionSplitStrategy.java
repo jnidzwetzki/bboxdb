@@ -147,31 +147,30 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		assert(region != null);
 		assert(region.isLeafRegion());
 		
-		logger.info("Performing split for: {}", region);
+		logger.info("Performing split for: {}", region.getIdentifier());
 		
 		try {
-			
 			// Try to set region state to full. If this fails, another node is already 
 			// splits the region
 			final boolean setToFullResult = distributionGroupZookeeperAdapter.setToFull(region);
 			if(! setToFullResult) {
 				logger.info("Unable to set state to full for region: {}, stopping split", region.getIdentifier());
-				logger.info("Old state {}", distributionGroupZookeeperAdapter.getStateForDistributionRegion(region));
+				logger.info("Old state was {}", distributionGroupZookeeperAdapter.getStateForDistributionRegion(region));
 				return;
 			}
 			
 			final boolean splitResult = performSplit(region);
 			
 			if(splitResult == false) {
-				logger.error("Unable to split region {}, stopping split!", region);
+				logger.error("Unable to split region {}, stopping split!", region.getIdentifier());
 			} else {
 				redistributeData(region);
 			}
 		} catch (Throwable e) {
-			logger.warn("Got uncought exception during split: " + region, e);
+			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
 		}
 
-		logger.info("Performing split for: {} is done", region);
+		logger.info("Performing split for: {} is done", region.getIdentifier());
 	}
 
 	/**
@@ -179,9 +178,9 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param region
 	 */
 	protected void redistributeData(final DistributionRegion region) {
-		logger.info("Redistributing data for region: " + region);
+		logger.info("Redistributing data for region: " + region.getIdentifier());
 		
-		assert (! region.isLeafRegion()) : "Region " + region.getRegionId() + " is leaf region";
+		assert (! region.isLeafRegion()) : "Region " + region.getIdentifier() + " is leaf region";
 		
 		final List<SSTableName> localTables = StorageRegistry.getAllTables();
 		for(final SSTableName ssTableName : localTables) {
@@ -197,7 +196,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			logger.error("Got an exception while setting region state to splitted", e);
 		}
 		
-		logger.info("Redistributing data for region: " + region + " DONE");
+		logger.info("Redistributing data for region: " + region.getIdentifier() + " DONE");
 	}
 
 	/**
