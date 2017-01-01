@@ -267,7 +267,9 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		final DistributionRegion nodeToUpdate = distributionGroupZookeeperAdapter.getNodeForPath(rootNode, path);
 		
 		try {
-			if(! distributionGroupZookeeperAdapter.isDistributionGroupRegistered(rootNode.getDistributionGroupName().getFullname())) {
+			final String distributionGroupName = rootNode.getDistributionGroupName().getFullname();
+			
+			if(! distributionGroupZookeeperAdapter.isDistributionGroupRegistered(distributionGroupName)) {
 				logger.info("Distribution group was unregistered, ignore event");
 				return;
 			}
@@ -384,7 +386,8 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 */
 	public void allocateSystemsToNewRegion(final DistributionRegion region) throws ZookeeperException, ResourceAllocationException {
 		
-		final short replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(region.getDistributionGroupName().getFullname());
+		final String distributionGroupName = region.getDistributionGroupName().getFullname();
+		final short replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroupName);
 		
 		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 		final List<DistributedInstance> availableSystems = distributedInstanceManager.getInstances();
@@ -447,7 +450,8 @@ public class KDtreeZookeeperAdapter implements Watcher {
 
 		zookeeperClient.createPersistentNode(path, "".getBytes());
 		
-		final int namePrefix = distributionGroupZookeeperAdapter.getNextTableIdForDistributionGroup(rootNode.getDistributionGroupName().getFullname());
+		final String distributionGroupName = rootNode.getDistributionGroupName().getFullname();
+		final int namePrefix = distributionGroupZookeeperAdapter.getNextTableIdForDistributionGroup(distributionGroupName);
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
 				Integer.toString(namePrefix).getBytes());
