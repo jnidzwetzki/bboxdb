@@ -50,12 +50,14 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 				logger.info("Create split samples for table: {} ", ssTableName.getFullname());
 				
 				final SSTableManager storageInterface = StorageRegistry.getSSTableManager(ssTableName);
-				final List<ReadOnlyTupleStorage> facades = storageInterface.getTupleStoreInstances().getAllTupleStorages();
+				final List<ReadOnlyTupleStorage> tupleStores = storageInterface.getTupleStoreInstances().getAllTupleStorages();
 				
-				processFacades(facades, splitDimension, regionToSplit, floatIntervals);
+				processTupleStores(tupleStores, splitDimension, regionToSplit, floatIntervals);
 				logger.info("Create split samples for table: {} DONE", ssTableName.getFullname());
 			}
 			
+			// Sort intervals and take the middle element as split interval
+			floatIntervals.sort((i1, i2) -> Float.compare(i1.getBegin(),i2.getBegin()));
 			final int midpoint = floatIntervals.size() / 2;
 			final FloatInterval splitInterval = floatIntervals.get(midpoint);
 
@@ -76,13 +78,13 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	 * @param floatIntervals 
 	 * @throws StorageManagerException 
 	 */
-	protected void processFacades(final List<ReadOnlyTupleStorage> storages, final int splitDimension, 
+	protected void processTupleStores(final List<ReadOnlyTupleStorage> storages, final int splitDimension, 
 			final DistributionRegion regionToSplit, final List<FloatInterval> floatIntervals) 
 					throws StorageManagerException {
 		
 		final int samplesPerStorage = Math.max(10, SAMPLE_SIZE / storages.size());
 		
-		logger.debug("Using {} samples per storage", samplesPerStorage);
+		logger.debug("Fetiching {} samples per storage", samplesPerStorage);
 		
 		for(final ReadOnlyTupleStorage storage : storages) {
 			if(! storage.acquire() ) {
@@ -91,7 +93,7 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 			
 			final long numberOfTuples = storage.getNumberOfTuples();
 			final int sampleOffset = Math.max(10, (int) (numberOfTuples / samplesPerStorage));
-						
+			
 			for (int position = 0; position < numberOfTuples; position = position + sampleOffset) {
 				final Tuple tuple = storage.getTupleAtPosition(position);							
 				final BoundingBox tupleBoundingBox = tuple.getBoundingBox();
@@ -99,12 +101,13 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 				// Only the in the region contained part of the tuple is relevant
 				final BoundingBox groupBox = regionToSplit.getConveringBox().getIntersection(tupleBoundingBox);
 				
+				// Ignore tuples with an empty box (e.g. deleted tuples)
 				if(groupBox.equals(BoundingBox.EMPTY_BOX)) {
-					logger.warn("RegionBox {} does not cover TupleBox {}", regionToSplit.getConveringBox(), tupleBoundingBox);
-				} else {	
-					final FloatInterval interval = groupBox.getIntervalForDimension(splitDimension);
-					floatIntervals.add(interval);
+					continue;
 				}
+					
+				final FloatInterval interval = groupBox.getIntervalForDimension(splitDimension);
+				floatIntervals.add(interval);
 			}
 	
 			storage.release();
