@@ -57,7 +57,7 @@ public class TupleRedistributor {
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(AbstractRegionSplitStrategy.class);
+	protected final static Logger logger = LoggerFactory.getLogger(TupleRedistributor.class);
 	
 	public TupleRedistributor(final SSTableName ssTableName) {
 		this.sstableName = ssTableName;
