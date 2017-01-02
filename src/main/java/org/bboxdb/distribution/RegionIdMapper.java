@@ -121,7 +121,7 @@ public class RegionIdMapper {
 		for(final RegionTablenameEntry regionTablenameEntry : regions) {
 			// Mapping is known
 			if(regionTablenameEntry.getRegionId() == regionId) {
-				logger.warn("Mapping for region {} already exists, ignoring", regionId);
+				logger.debug("Mapping for region {} already exists, ignoring", regionId);
 				return false;
 			}
 		}
