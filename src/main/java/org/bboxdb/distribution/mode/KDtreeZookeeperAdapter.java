@@ -27,6 +27,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.DistributedInstanceManager;
@@ -575,10 +576,12 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		for(final DistributedInstance instance : systems) {
 			if(instance.socketAddressEquals(localInstance)) {
 				final int nameprefix = region.getRegionId();
-				final BoundingBox converingBox = region.getConveringBox();
+				final BoundingBox converingBox = region.getConveringBox();	
 				
-				logger.info("Add local mapping for: {} / nameprefix {}", region, nameprefix);
-				RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName()).addMapping(nameprefix, converingBox);
+				logger.info("Add local mapping for: {}", region.getIdentifier());
+
+				final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName());
+				regionIdMapper.addMapping(nameprefix, converingBox);
 			}
 		}
 	}
