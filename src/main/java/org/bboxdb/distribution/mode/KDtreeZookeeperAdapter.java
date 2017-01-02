@@ -480,6 +480,12 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			
 			try {
 				final int regionId = distributionGroupZookeeperAdapter.getRegionIdForPath(path);
+				
+				if(region.getRegionId() != DistributionRegion.INVALID_REGION_ID) {
+					assert (region.getRegionId() == regionId) 
+						: "Replacing region id " + region.getRegionId() + " with " + regionId;
+				}
+				
 				region.setRegionId(regionId);
 
 				// Handle systems and mappings
