@@ -113,9 +113,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 */
 	public boolean isSplitNeeded(final int totalTuplesInTable) {
 		
-		if(region.getParent() != null 
-				&& region.getParent().getState() != DistributionRegionState.SPLITTED) {
-			
+		if(! isParentDataRedistributed()) {
 			return false;
 		}
 		
@@ -126,6 +124,21 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		} else {
 			return false;
 		}
+	}
+	
+	/**
+	 * Is the data of the region parent completely redistributed, 
+	 * if not, wait with local split
+	 * @return
+	 */
+	protected boolean isParentDataRedistributed() {
+		
+		// Root region
+		if(region.getParent() == DistributionRegion.ROOT_NODE_ROOT_POINTER) {
+			return true;
+		}
+		
+		return region.getParent().getState() == DistributionRegionState.SPLITTED;
 	}
 
 	/**
