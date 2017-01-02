@@ -47,9 +47,9 @@ public class BBoxDBConfiguration {
 	protected int memtableEntriesMax = 10000;
 	
 	/**
-	 * Size of the memtable in KB
+	 * Size of the memtable in bytes
 	 */
-	protected int memtableSizeMax = 128 * 1024;
+	protected int memtableSizeMax = 128 * 1024 * 1014;
 	
 	/**
 	 * Start compact thread (can be disabled for tests)
