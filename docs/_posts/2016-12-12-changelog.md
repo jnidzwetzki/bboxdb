@@ -11,6 +11,7 @@ order: 1
 - Bugfix: The wrong split interval was taken
 - Bugfix: Fixed a race condition on compact thread init
 - Bugfix: The max size of a memtable was treated as kilobytes not bytes
+- Bugfix: Ensure that the data of the parent region is redistributed completely until child region is splitted
 
 ### Version 0.2.0 (Beta-5) - 01.01.2017
 - Improvement: Introduced JVM parameter

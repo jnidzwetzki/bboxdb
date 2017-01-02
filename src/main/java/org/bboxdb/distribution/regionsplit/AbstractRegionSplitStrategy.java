@@ -112,6 +112,13 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @return
 	 */
 	public boolean isSplitNeeded(final int totalTuplesInTable) {
+		
+		if(region.getParent() != null 
+				&& region.getParent().getState() != DistributionRegionState.SPLITTED) {
+			
+			return false;
+		}
+		
 		final int maxEntries = maxEntriesPerTable();
 		
 		if(totalTuplesInTable > maxEntries) {
