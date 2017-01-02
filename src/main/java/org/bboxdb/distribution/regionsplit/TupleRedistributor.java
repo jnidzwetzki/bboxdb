@@ -34,6 +34,8 @@ import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TupleRedistributor {
 	
@@ -51,6 +53,11 @@ public class TupleRedistributor {
 	 * The amount of total redistributed tuples
 	 */
 	protected long redistributedTuples;
+	
+	/**
+	 * The Logger
+	 */
+	protected final static Logger logger = LoggerFactory.getLogger(AbstractRegionSplitStrategy.class);
 	
 	public TupleRedistributor(final SSTableName ssTableName) {
 		this.sstableName = ssTableName;
@@ -86,11 +93,14 @@ public class TupleRedistributor {
 				
 				final SSTableManager storageManager = StorageRegistry.getSSTableManager(localTableName);
 				regionMap.get(distributionRegion).add(new LocalTupleSink(sstableName, storageManager));
+			
+				logger.info("Redistributing data to local table {}", localTableName.getFullname());
 			} else {
 				final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(instance);
 				regionMap.get(distributionRegion).add(new NetworkTupleSink(sstableName, connection));
-			}
 			
+				logger.info("Redistributing data to remote system {}", instance.getInetSocketAddress());
+			}
 		}
 	}
 	
