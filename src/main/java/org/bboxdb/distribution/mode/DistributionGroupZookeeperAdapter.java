@@ -645,7 +645,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public int getNamePrefixForPath(final String path) throws ZookeeperException, ZookeeperNotFoundException {
+	public int getRegionIdForPath(final String path) throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String namePrefixPath = path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX;
 		String namePrefix = null;

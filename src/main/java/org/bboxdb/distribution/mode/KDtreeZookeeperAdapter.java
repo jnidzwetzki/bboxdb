@@ -478,8 +478,8 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			logger.debug("Reading path: {}", path);
 			
 			try {
-				final int namePrefix = distributionGroupZookeeperAdapter.getNamePrefixForPath(path);
-				region.setRegionId(namePrefix);
+				final int regionId = distributionGroupZookeeperAdapter.getRegionIdForPath(path);
+				region.setRegionId(regionId);
 
 				// Handle systems and mappings
 				updateSystemsForRegion(region);
