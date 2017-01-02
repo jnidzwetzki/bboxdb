@@ -6,6 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.2.0 (Stable) - TBA
+- Improvement: Shortened socket close exception
 - Bugfix: The wrong split interval was taken
 - Bugfix: Fixed a race condition on compact thread init
 

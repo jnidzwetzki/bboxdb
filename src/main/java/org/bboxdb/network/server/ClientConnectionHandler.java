@@ -224,11 +224,15 @@ public class ClientConnectionHandler implements Runnable {
 			}
 			
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
-			logger.info("Closing connection to: " + clientSocket.getInetAddress());
+			logger.info("Closing connection to: {}", clientSocket.getInetAddress());
 		} catch (IOException e) {
 			// Ignore exception on closing sockets
 			if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-				logger.error("Socket closed unexpectly (state: " + connectionState + "), closing connection", e);
+				
+				logger.error("Socket to {} closed unexpectly (state: {}), closing connection",
+						clientSocket.getInetAddress(), connectionState);
+				
+				logger.debug("Socket exception", e);
 			}
 		} catch(Throwable e) {
 			logger.error("Got an exception during connection handling: ", e);
