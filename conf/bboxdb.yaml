@@ -18,9 +18,9 @@ dataDirectory: /tmp/bboxdb_production/data
 # Default: 10000 entries
 # memtableEntriesMax: 10000
 
-# Max size per memtable in KB 
+# Max size per memtable in bytes
 # Default: 128 MB
-# memtableSizeMax: 131072
+# memtableSizeMax: 134217728
 
 # Start a thread to compact SSTables
 # Default: true
