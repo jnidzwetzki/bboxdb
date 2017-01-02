@@ -84,7 +84,7 @@ public class DistributionRegion {
 	/**
 	 * The id of the region
 	 */
-	protected int regionid;
+	protected volatile int regionid;
 
 	/**
 	 * The root pointer of the root element of the tree
