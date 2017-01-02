@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.2.0 (Stable) - TBA
 - Improvement: Shortened socket close exception
+- Improvement: Write statistical data about flushed memtables
 - Bugfix: The wrong split interval was taken
 - Bugfix: Fixed a race condition on compact thread init
 - Bugfix: The max size of a memtable was treated as kilobytes not bytes
