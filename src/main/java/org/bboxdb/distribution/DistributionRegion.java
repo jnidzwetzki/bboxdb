@@ -84,8 +84,13 @@ public class DistributionRegion {
 	/**
 	 * The id of the region
 	 */
-	protected volatile int regionid;
+	protected volatile int regionid = INVALID_REGION_ID;
 
+	/**
+	 * The invalid value for the region id
+	 */
+	public final static int INVALID_REGION_ID = -1;
+	
 	/**
 	 * The root pointer of the root element of the tree
 	 */
