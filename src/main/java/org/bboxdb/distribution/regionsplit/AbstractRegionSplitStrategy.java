@@ -180,7 +180,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	protected void redistributeData(final DistributionRegion region) {
 		logger.info("Redistributing data for region: " + region.getIdentifier());
 		
-		assert (! region.isLeafRegion()) : "Region " + region.getIdentifier() + " is leaf region";
+		assert (! region.isLeafRegion()) : "Region " + region.getIdentifier() + " is a leaf region";
 		
 		final List<SSTableName> localTables = StorageRegistry.getAllTables();
 		for(final SSTableName ssTableName : localTables) {
@@ -300,11 +300,13 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 */
 	protected void performSplitAtPosition(final DistributionRegion region, final float splitPosition) {
 		try {
-			logger.info("Set split at:" + splitPosition);
+			logger.info("Set split for {} at: {}", region.getIdentifier(), splitPosition);
 			treeAdapter.splitNode(region, splitPosition);
-			treeAdapter.waitForChildCreateZookeeperCallback(region);
+			
+			assert (! region.isLeafRegion()) : "Region " + region.getIdentifier() + " is a leaf region after split";
+
 		} catch (ZookeeperException | ResourceAllocationException e) {
-			logger.warn("Unable to split region " + region + " at " + splitPosition, e);
+			logger.warn("Unable to split region " + region.getIdentifier() + " at " + splitPosition, e);
 		} 
 	}
 
