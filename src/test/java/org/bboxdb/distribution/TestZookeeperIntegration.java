@@ -224,6 +224,11 @@ public class TestZookeeperIntegration {
 
 		// Read update from the second object
 		Assert.assertEquals(10.0, distributionGroup2.getSplit(), 0.0001);
+		
+		// Check region ids
+		Assert.assertEquals(1, distributionGroup2.getRegionId());
+		Assert.assertEquals(2, distributionGroup2.getLeftChild().getRegionId());
+		Assert.assertEquals(3, distributionGroup2.getRightChild().getRegionId());
 	}
 	
 	/**
