@@ -201,7 +201,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		logger.info("Redistributing data for region: " + region.getIdentifier());
 		
 		assert (! region.isLeafRegion()) : "Region " + region.getIdentifier() 
-			+ " is a leaf region. Left child: " + region.getLeftChild() + " right child " 
+			+ " is a leaf region. Left child: " + region.getLeftChild() + " right child: " 
 			+ region.getRightChild();
 		
 		final List<SSTableName> localTables = StorageRegistry.getAllTables();
