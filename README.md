@@ -20,5 +20,5 @@ Some examples and benchmarks are located in the [examples](examples/) directory.
 [@BBoxDB](https://twitter.com/BBoxDB)
 
 ## License
-BBoxDB is under the Apache 2.0 license. See the [LICENSE](./LICENSE) file for details.
+BBoxDB is licensed under the Apache 2.0 license. See the [LICENSE](./LICENSE) file for details.
 
