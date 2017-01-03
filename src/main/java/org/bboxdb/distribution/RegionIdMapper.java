@@ -158,6 +158,7 @@ public class RegionIdMapper {
 	 * Remove all mappings
 	 */
 	public void clear() {
+		logger.info("Clear all local mappings");
 		regions.clear();
 	}
 	
