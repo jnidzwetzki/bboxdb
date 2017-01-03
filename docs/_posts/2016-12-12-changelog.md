@@ -6,6 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.2.0 (Stable) - TBA
+- Improvement: New logo
 - Improvement: Shortened socket close exception
 - Improvement: Write statistical data about flushed memtables
 - Bugfix: The wrong split interval was taken
