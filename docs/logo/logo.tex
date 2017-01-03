@@ -1,0 +1,54 @@
+%\documentclass[10pt,a4paper]{article}
+%\documentclass[crop,tikz,convert={outext=.svg,command=\unexpanded{pdf2svg \infile\space\outfile}},multi=false]{standalone}[2012/04/13]
+\documentclass[tikz]{standalone}
+\usepackage[latin1]{inputenc}
+\usepackage[german]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage{graphicx,float,wrapfig}
+
+
+\usepackage{graphicx}
+
+
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{shadows}
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes}
+\usetikzlibrary{shadows}
+\usetikzlibrary{3d}
+\usetikzlibrary{arrows}
+\usetikzlibrary{decorations.pathreplacing}
+
+\newcommand{\SECONDO}{\textsc{Secondo}}
+\newcommand{\PSECONDO}{\textsc{Parallel Secondo}}
+\newcommand{\DSECONDO}{\textsc{Distributed Secondo}}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\author{Jan Kristof Nidzwetzki}
+\begin{document}
+
+\begin{tikzpicture}[scale=1]
+
+%\node at(-8.8,0) [anchor=base west, fill=black, minimum width=0.2cm,minimum height=2.4cm] {};
+
+%\fill[blue!40!white] (0,0) rectangle (1,1);
+%\fill[red!40!white] (1,1) rectangle (2,2);
+\filldraw[black!50!white, draw=black] (0.5,0.5) rectangle (2,2);
+\filldraw[black!60!white, draw=black] (1.5,1.5) rectangle (2.3,2.3);
+\filldraw[black!60!white, draw=black] (0.2,0.2) rectangle (1,1);
+
+\node at(2.8,1.2) [anchor=base west, text=red] {\textsc{\textbf{\Huge{BBoxDB}}}};
+\node at(2.8,0.6) [anchor=base west, text=black] {\large A Key-BoundingBox-Value Store};
+
+
+\end{tikzpicture}
+
+
+\end{document}
