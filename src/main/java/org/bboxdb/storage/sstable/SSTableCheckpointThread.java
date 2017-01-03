@@ -155,7 +155,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 
 			if(isCheckpointNeeded()) {
 				final Memtable activeMemtable = ssTableManager.getMemtable();
-				logger.info("Creating a checkpoint for: {}", threadname);
+				logger.debug("Create a checkpoint for: {}", threadname);
 				ssTableManager.flushAndInitMemtable();
 				
 				final Queue<Memtable> unflushedMemtables = ssTableManager.getTupleStoreInstances().getMemtablesToFlush();
