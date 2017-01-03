@@ -1,6 +1,6 @@
 # BBoxDB - a distributed and highly scalable Key-Value Store based on SSTables
 
-![BBoxDB Logo](docs/scalephant.png)
+<img src="docs/logo/logo.png" width="400">
 
 SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like Cassandra or LevelDB. SSTables provide a high throughput for read and write operations. Scalephant is a java implementation of SSTables. I wrote this software for research purposes and to understand some of the techniques that are used in other implementations.
 
