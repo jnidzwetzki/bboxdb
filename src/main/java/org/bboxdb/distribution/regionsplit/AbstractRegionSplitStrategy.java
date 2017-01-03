@@ -51,17 +51,17 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	/**
 	 * The tree adapter
 	 */
-	protected KDtreeZookeeperAdapter treeAdapter;
+	protected KDtreeZookeeperAdapter treeAdapter = null;
 	
 	/**
 	 * The distribution group adapter 
 	 */
-	protected DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	protected DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = null;
 
 	/**
 	 * The region to split;
 	 */
-	protected DistributionRegion region;
+	protected DistributionRegion region = null;
 	
 	/**
 	 * The Logger
@@ -80,6 +80,9 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 */
 	public void initFromSSTablename(final SSTableName ssTableName) throws StorageManagerException {
 		
+		assert (treeAdapter == null) : "Unable to reinit instance";
+		assert (region == null) : "Unable to reinit instance";
+
 		try {
 			treeAdapter = DistributionGroupCache.getGroupForGroupName(
 					ssTableName.getDistributionGroup(), zookeeperClient);
