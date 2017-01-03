@@ -130,13 +130,16 @@ public class RecoveryService implements BBoxDBService {
 	 * @param outdatedRegions
 	 */
 	protected void handleOutdatedRegions(final DistributionGroupName distributionGroupName, final List<OutdatedDistributionRegion> outdatedRegions) {
+		
 		for(final OutdatedDistributionRegion outdatedDistributionRegion : outdatedRegions) {
 			
 			final BBoxDBClient connection = MembershipConnectionService.getInstance()
 					.getConnectionForInstance(outdatedDistributionRegion.getNewestInstance());
 			
+			final int regionId = outdatedDistributionRegion.getDistributedRegion().getRegionId();
+			
 			final List<SSTableName> allTables = StorageRegistry
-					.getAllTablesForNameprefix(outdatedDistributionRegion.getDistributedRegion().getRegionId());
+					.getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
 			
 			for(final SSTableName ssTableName : allTables) {
 				try {

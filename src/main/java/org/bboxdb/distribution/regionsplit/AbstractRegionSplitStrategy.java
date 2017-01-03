@@ -207,7 +207,9 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			+ " is a leaf region. Left child: " + region.getLeftChild() + " right child: " 
 			+ region.getRightChild();
 		
-		final List<SSTableName> localTables = StorageRegistry.getAllTables();
+		final List<SSTableName> localTables = StorageRegistry.getAllTablesForDistributionGroupAndRegionId
+				(region.getDistributionGroupName(), region.getRegionId());
+		
 		for(final SSTableName ssTableName : localTables) {
 			if(ssTableName.getDistributionGroupObject().equals(region.getDistributionGroupName())) {
 				redistributeTable(region, ssTableName);

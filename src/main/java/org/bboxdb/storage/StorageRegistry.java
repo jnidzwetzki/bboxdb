@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.bboxdb.BBoxDBConfiguration;
 import org.bboxdb.BBoxDBConfigurationManager;
@@ -177,38 +178,35 @@ public class StorageRegistry {
 	}
 	
 	/**
-	 * Get all tables for the given nameprefix
-	 * @param nameprefix
+	 * Get all tables for the given distribution group and region id
+	 * @param distributionGroupName 
+	 * @param regionId
 	 * @return
 	 */
-	public static List<SSTableName> getAllTablesForNameprefix(final int nameprefix) {
-		final List<SSTableName> allTables = getAllTables();
-		final List<SSTableName> resultTables = new ArrayList<SSTableName>();
-
-		for(final SSTableName ssTableName : allTables) {
-			if(ssTableName.getRegionId() == nameprefix) {
-				resultTables.add(ssTableName);
-			}
-		}
+	public static List<SSTableName> getAllTablesForDistributionGroupAndRegionId
+		(final DistributionGroupName distributionGroupName, final int regionId) {
 		
-		return resultTables;
+		final List<SSTableName> groupTables = getAllTablesForDistributionGroup(distributionGroupName);
+		
+		return groupTables
+			.stream()
+			.filter(s -> s.getRegionId() == regionId)
+			.collect(Collectors.toList());
 	}
 	
 	/**
 	 * Get all tables for a given distribution group
 	 * @return
 	 */
-	public static List<SSTableName> getAllTablesForDistributionGroup(final DistributionGroupName distributionGroupName) {
+	public static List<SSTableName> getAllTablesForDistributionGroup
+		(final DistributionGroupName distributionGroupName) {
+		
 		final List<SSTableName> allTables = getAllTables();
-		final List<SSTableName> resultTables = new ArrayList<SSTableName>();
 		
-		for(final SSTableName ssTableName : allTables) {
-			if(ssTableName.getDistributionGroup().equals(distributionGroupName.getFullname())) {
-				resultTables.add(ssTableName);
-			}
-		}
-		
-		return resultTables;
+		return allTables
+			.stream()
+			.filter(s -> s.getDistributionGroupObject().equals(distributionGroupName))
+			.collect(Collectors.toList());
 	}
 	
 	/**
