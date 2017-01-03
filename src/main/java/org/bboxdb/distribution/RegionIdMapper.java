@@ -116,8 +116,11 @@ public class RegionIdMapper {
 	 * @param tablename
 	 * @param boundingBox
 	 */
-	public boolean addMapping(final int regionId, final BoundingBox boundingBox) {
+	public boolean addMapping(final DistributionRegion region) {
 				
+		final int regionId = region.getRegionId();
+		final BoundingBox converingBox = region.getConveringBox();	
+		
 		for(final RegionTablenameEntry regionTablenameEntry : regions) {
 			// Mapping is known
 			if(regionTablenameEntry.getRegionId() == regionId) {
@@ -126,7 +129,9 @@ public class RegionIdMapper {
 			}
 		}
 		
-		regions.add(new RegionTablenameEntry(boundingBox, regionId));
+		logger.info("Add local mapping for: {}", region.getIdentifier());
+		regions.add(new RegionTablenameEntry(converingBox, regionId));
+		
 		return true;
 	}
 	

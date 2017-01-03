@@ -14,6 +14,7 @@ order: 1
 - Bugfix: Ensure that the data of the parent region is redistributed completely until child region is splitted
 - Bugfix: The same instance of the RegionSplitStrategy was used for all Tables, which leads to wrong data redistribution
 - Bugfix: Ensure that the RessourcePlacementStrategyFactory create new instances
+- Bugfix: Removed repeated log messages about adding local region mappings
 
 ### Version 0.2.0 (Beta-5) - 01.01.2017
 - Improvement: Introduced JVM parameter

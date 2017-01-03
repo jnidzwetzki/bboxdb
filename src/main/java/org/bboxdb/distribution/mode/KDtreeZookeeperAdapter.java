@@ -38,7 +38,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -581,13 +580,8 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		// Add the mapping to the nameprefix mapper
 		for(final DistributedInstance instance : systems) {
 			if(instance.socketAddressEquals(localInstance)) {
-				final int nameprefix = region.getRegionId();
-				final BoundingBox converingBox = region.getConveringBox();	
-				
-				logger.info("Add local mapping for: {}", region.getIdentifier());
-
 				final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName());
-				regionIdMapper.addMapping(nameprefix, converingBox);
+				regionIdMapper.addMapping(region);
 			}
 		}
 	}

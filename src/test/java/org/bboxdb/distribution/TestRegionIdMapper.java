@@ -54,8 +54,11 @@ public class TestRegionIdMapper {
 	@Test
 	public void testOneMapping() {
 		final RegionIdMapper regionIdMapper = new RegionIdMapper();
-		regionIdMapper.addMapping(1, new BoundingBox(1f, 2f, 1f, 2f));
-		
+		final DistributionRegion region = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region.setRegionId(1);
+		region.setConveringBox(new BoundingBox(1f, 2f, 1f, 2f));
+		regionIdMapper.addMapping(region);
+				
 		Assert.assertEquals(0, regionIdMapper.getLocalTablesForRegion(
 				new BoundingBox(2.5f, 2.5f, 1.5f, 1.5f), DEFAULT_SSTABLE_NAME).size());
 		
@@ -75,8 +78,16 @@ public class TestRegionIdMapper {
 	@Test
 	public void testTwoMapping() {
 		final RegionIdMapper regionIdMapper = new RegionIdMapper();
-		regionIdMapper.addMapping(1, new BoundingBox(1f, 2f, 1f, 2f));
-		regionIdMapper.addMapping(2, new BoundingBox(10f, 20f, 10f, 20f));
+		
+		final DistributionRegion region1 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region1.setRegionId(1);
+		region1.setConveringBox(new BoundingBox(1f, 2f, 1f, 2f));
+		regionIdMapper.addMapping(region1);
+		
+		final DistributionRegion region2 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region2.setRegionId(2);
+		region2.setConveringBox(new BoundingBox(10f, 20f, 10f, 20f));
+		regionIdMapper.addMapping(region2);
 
 		Assert.assertEquals(0, regionIdMapper.getLocalTablesForRegion(
 				new BoundingBox(2.5f, 2.5f, 1.5f, 1.5f), DEFAULT_SSTABLE_NAME).size());
@@ -99,10 +110,22 @@ public class TestRegionIdMapper {
 	@Test
 	public void testThreeMapping() {
 		final RegionIdMapper regionIdMapper = new RegionIdMapper();
-		regionIdMapper.addMapping(1, new BoundingBox(1f, 2f, 1f, 2f));
-		regionIdMapper.addMapping(2, new BoundingBox(10f, 20f, 10f, 20f));
-		regionIdMapper.addMapping(3, new BoundingBox(15f, 18f, 15f, 18f));
 		
+		final DistributionRegion region1 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region1.setRegionId(1);
+		region1.setConveringBox(new BoundingBox(1f, 2f, 1f, 2f));
+		regionIdMapper.addMapping(region1);
+		
+		final DistributionRegion region2 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region2.setRegionId(2);
+		region2.setConveringBox(new BoundingBox(10f, 20f, 10f, 20f));
+		regionIdMapper.addMapping(region2);
+		
+		final DistributionRegion region3 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region3.setRegionId(3);
+		region3.setConveringBox(new BoundingBox(15f, 18f, 15f, 18f));
+		regionIdMapper.addMapping(region3);
+
 		Assert.assertEquals(3, regionIdMapper.getLocalTablesForRegion(
 				new BoundingBox(1.5f, 55f, 1.5f, 55f), DEFAULT_SSTABLE_NAME).size());
 	}
@@ -113,10 +136,22 @@ public class TestRegionIdMapper {
 	@Test
 	public void testGetTableNames1() {
 		final RegionIdMapper regionIdMapper = new RegionIdMapper();
-		regionIdMapper.addMapping(1, new BoundingBox(1f, 2f, 1f, 2f));
-		regionIdMapper.addMapping(2, new BoundingBox(10f, 20f, 10f, 20f));
-		regionIdMapper.addMapping(3, new BoundingBox(15f, 18f, 15f, 18f));
 		
+		final DistributionRegion region1 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region1.setRegionId(1);
+		region1.setConveringBox(new BoundingBox(1f, 2f, 1f, 2f));
+		regionIdMapper.addMapping(region1);
+		
+		final DistributionRegion region2 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region2.setRegionId(2);
+		region2.setConveringBox(new BoundingBox(10f, 20f, 10f, 20f));
+		regionIdMapper.addMapping(region2);
+		
+		final DistributionRegion region3 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region3.setRegionId(3);
+		region3.setConveringBox(new BoundingBox(15f, 18f, 15f, 18f));
+		regionIdMapper.addMapping(region3);
+
 		final Collection<SSTableName> mappingResult = regionIdMapper.getLocalTablesForRegion(
 				new BoundingBox(1.5f, 55f, 1.5f, 55f), DEFAULT_SSTABLE_NAME);
 		
@@ -132,10 +167,22 @@ public class TestRegionIdMapper {
 	@Test
 	public void testGetTableNames2() {
 		final RegionIdMapper regionIdMapper = new RegionIdMapper();
-		regionIdMapper.addMapping(1, new BoundingBox(1f, 2f, 1f, 2f));
-		regionIdMapper.addMapping(2, new BoundingBox(10f, 20f, 10f, 20f));
-		regionIdMapper.addMapping(3, new BoundingBox(15f, 18f, 15f, 18f));
 		
+		final DistributionRegion region1 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region1.setRegionId(1);
+		region1.setConveringBox(new BoundingBox(1f, 2f, 1f, 2f));
+		regionIdMapper.addMapping(region1);
+		
+		final DistributionRegion region2 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region2.setRegionId(2);
+		region2.setConveringBox(new BoundingBox(10f, 20f, 10f, 20f));
+		regionIdMapper.addMapping(region2);
+		
+		final DistributionRegion region3 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region3.setRegionId(3);
+		region3.setConveringBox(new BoundingBox(15f, 18f, 15f, 18f));
+		regionIdMapper.addMapping(region3);
+
 		final Collection<SSTableName> mappingResult = regionIdMapper.getLocalTablesForRegion(
 				new BoundingBox(1.5f, 1.5f, 1.5f, 1.5f), DEFAULT_SSTABLE_NAME);
 		
@@ -151,10 +198,22 @@ public class TestRegionIdMapper {
 	@Test
 	public void testGetAll() {
 		final RegionIdMapper regionIdMapper = new RegionIdMapper();
-		regionIdMapper.addMapping(1, new BoundingBox(1f, 2f, 1f, 2f));
-		regionIdMapper.addMapping(2, new BoundingBox(10f, 20f, 10f, 20f));
-		regionIdMapper.addMapping(3, new BoundingBox(15f, 18f, 15f, 18f));
 		
+		final DistributionRegion region1 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region1.setRegionId(1);
+		region1.setConveringBox(new BoundingBox(1f, 2f, 1f, 2f));
+		regionIdMapper.addMapping(region1);
+		
+		final DistributionRegion region2 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region2.setRegionId(2);
+		region2.setConveringBox(new BoundingBox(10f, 20f, 10f, 20f));
+		regionIdMapper.addMapping(region2);
+		
+		final DistributionRegion region3 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region3.setRegionId(3);
+		region3.setConveringBox(new BoundingBox(15f, 18f, 15f, 18f));
+		regionIdMapper.addMapping(region3);
+
 		final List<SSTableName> mappingResult = regionIdMapper.getAllLocalTables(DEFAULT_SSTABLE_NAME);
 		Assert.assertEquals(3, mappingResult.size());
 	}
