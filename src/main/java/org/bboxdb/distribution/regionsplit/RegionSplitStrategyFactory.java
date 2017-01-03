@@ -23,12 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RegionSplitStrategyFactory {
-	
-	/**
-	 * The cached instance of the factory
-	 */
-	protected static AbstractRegionSplitStrategy cachedInstance = null;
-	
+
 	/**
 	 * The Logger
 	 */
@@ -39,10 +34,6 @@ public class RegionSplitStrategyFactory {
 	 * @return
 	 */
 	public static AbstractRegionSplitStrategy getInstance() {
-		
-		if(cachedInstance != null) {
-			return cachedInstance;
-		}
 		
 		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 		final String factoryClass = configuration.getRegionSplitStrategy();
@@ -65,21 +56,11 @@ public class RegionSplitStrategyFactory {
 				throw new ClassNotFoundException(factoryClass + " is not a instance of RegionSplitter");
 			}
 			
-			cachedInstance = (AbstractRegionSplitStrategy) factoryObject;
-			
-			return cachedInstance;
-			
+			return (AbstractRegionSplitStrategy) factoryObject;
+						
 		} catch (Exception e) {
 			logger.warn("Unable to instance class: " + factoryClass, e);
 			throw new RuntimeException(e);
 		} 
 	}
-	
-	/**
-	 * Clear the cached instance
-	 */
-	public static void clearCache() {
-		cachedInstance = null;
-	}
-	
 }
