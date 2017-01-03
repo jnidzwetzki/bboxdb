@@ -13,6 +13,7 @@ order: 1
 - Bugfix: The max size of a memtable was treated as kilobytes not bytes
 - Bugfix: Ensure that the data of the parent region is redistributed completely until child region is splitted
 - Bugfix: The same instance of the RegionSplitStrategy was used for all Tables, which leads to wrong data redistribution
+- Bufix: Ensure that the RessourcePlacementStrategyFactory create new instances
 
 ### Version 0.2.0 (Beta-5) - 01.01.2017
 - Improvement: Introduced JVM parameter

@@ -23,12 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ResourcePlacementStrategyFactory {
-	
-	/**
-	 * The cached instance of the factory
-	 */
-	protected static ResourcePlacementStrategy cachedInstance = null;
-	
+
 	/**
 	 * The Logger
 	 */
@@ -39,10 +34,6 @@ public class ResourcePlacementStrategyFactory {
 	 * @return
 	 */
 	public static ResourcePlacementStrategy getInstance() {
-		
-		if(cachedInstance != null) {
-			return cachedInstance;
-		}
 		
 		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 		final String factoryClass = configuration.getResourcePlacementStrategy();
@@ -65,21 +56,11 @@ public class ResourcePlacementStrategyFactory {
 				throw new ClassNotFoundException(factoryClass + " is not a instance of ReplicationStrategy");
 			}
 			
-			cachedInstance = (ResourcePlacementStrategy) factoryObject;
-			
-			return cachedInstance;
-			
+			return (ResourcePlacementStrategy) factoryObject;			
 		} catch (Exception e) {
 			logger.warn("Unable to instance class: " + factoryClass, e);
 			throw new RuntimeException(e);
 		} 
-	}
-	
-	/**
-	 * Clear the cached instance
-	 */
-	public static void clearCache() {
-		cachedInstance = null;
 	}
 	
 }
