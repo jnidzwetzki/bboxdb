@@ -18,4 +18,3 @@ Some examples and benchmarks are located in the [examples](examples/) directory.
 
 ## License
 BBoxDB is licensed under the Apache 2.0 license. See the [LICENSE](./LICENSE) file for details.
-
