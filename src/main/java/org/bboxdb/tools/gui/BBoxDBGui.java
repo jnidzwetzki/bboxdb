@@ -358,19 +358,13 @@ public class BBoxDBGui {
 	}
 	
 	/**
-	 * Update the gui model
-	 */
-	public synchronized void updateStatus() {
-		if(tableModel != null) {
-			tableModel.fireTableDataChanged();
-		}
-	}
-	
-	/**
 	 * Update the view. This method should be called periodically
 	 */
 	public void updateView() {
-		updateStatus();
+		if(tableModel != null) {
+			tableModel.fireTableDataChanged();
+		}
+		
 		mainframe.repaint();
 	}
 	
