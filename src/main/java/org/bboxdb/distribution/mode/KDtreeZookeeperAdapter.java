@@ -478,53 +478,105 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			logger.debug("Reading path: {}", path);
 			
 			try {
-				final int regionId = distributionGroupZookeeperAdapter.getRegionIdForPath(path);
-				
-				if(region.getRegionId() != DistributionRegion.INVALID_REGION_ID) {
-					assert (region.getRegionId() == regionId) 
-						: "Replacing region id " + region.getRegionId() + " with " + regionId;
-				}
-				
-				region.setRegionId(regionId);
+				// Read region id
+				updateIdForRegion(path, region);
 
 				// Handle systems and mappings
 				updateSystemsForRegion(region);
 				
-				// If the node is not split, stop recursion
-				if(distributionGroupZookeeperAdapter.isGroupSplitted(path)) {
-					final float splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
-					
-					if(region.isLeafRegion()) {
-						region.setSplit(splitFloat); 
-					} else {
-						if(region.getSplit() != splitFloat) {
-							logger.warn("Got different split positions: memory {}, zk {} for {}", 
-									region.getSplit(), splitFloat, path);
-						}
-					}
-					
-					readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_LEFT, 
-							region.getLeftChild());
-					
-					readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, 
-							region.getRightChild());
-				}
+				// Update split position and read childs
+				updateSplitAndChildsForRegion(path, region);
 				
 				// Handle state updates at the end.
 				// Otherwise, we could set the region to splitted 
 				// and the child regions are not ready
-				final DistributionRegionState stateForDistributionRegion 
-					= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
-				region.setState(stateForDistributionRegion);
+				updateStateForRegion(path, region);
 
 			} catch (ZookeeperNotFoundException e) {
 				handleRootElementDeleted();
 			}
 	
-			// Wake up all pending waiters
-			synchronized (MUTEX) {
-				MUTEX.notifyAll();
-			}
+			fireDataChanged();
+	}
+
+	/**
+	 * Read split position and read childs
+	 * @param path
+	 * @param region
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 */
+	protected void updateSplitAndChildsForRegion(final String path, final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		if(! distributionGroupZookeeperAdapter.isGroupSplitted(path)) {
+			return;
+		}
+		
+		final float splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
+		
+		if(region.getSplit() != splitFloat) {
+			logger.warn("Got different split positions: memory {}, zk {} for {}", 
+					region.getSplit(), splitFloat, path);
+		}
+	
+		region.setSplit(splitFloat); 
+		
+		readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_LEFT, 
+				region.getLeftChild());
+		
+		readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, 
+				region.getRightChild());
+	}
+
+
+	/**
+	 * Update path for region
+	 * @param path
+	 * @param region
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 */
+	protected void updateStateForRegion(final String path, final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final DistributionRegionState stateForDistributionRegion 
+			= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
+		
+		region.setState(stateForDistributionRegion);
+	}
+
+
+	/**
+	 * Read and update region id
+	 * @param path
+	 * @param region
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 */
+	protected void updateIdForRegion(final String path, final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final int regionId = distributionGroupZookeeperAdapter.getRegionIdForPath(path);
+		
+		if(region.getRegionId() != DistributionRegion.INVALID_REGION_ID) {
+			assert (region.getRegionId() == regionId) 
+				: "Replacing region id " + region.getRegionId() + " with " + regionId;
+		}
+		
+		region.setRegionId(regionId);
+	}
+
+
+	/**
+	 * Fire data changed event
+	 */
+	protected void fireDataChanged() {
+		
+		// Wake up all pending waiters
+		synchronized (MUTEX) {
+			MUTEX.notifyAll();
+		}
 	}
 
 	/**
