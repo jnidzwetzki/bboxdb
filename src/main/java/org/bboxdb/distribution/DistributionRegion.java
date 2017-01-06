@@ -492,9 +492,7 @@ public class DistributionRegion {
 	 * @param distributionGroup
 	 * @return
 	 */
-	public static DistributionRegion createRootElement(final String distributionGroup) {
-		final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
-
+	public static DistributionRegion createRootElement(final DistributionGroupName distributionGroupName) {
 		final DistributionRegion rootElement = new DistributionRegion(distributionGroupName, 
 				ROOT_NODE_ROOT_POINTER);
 		

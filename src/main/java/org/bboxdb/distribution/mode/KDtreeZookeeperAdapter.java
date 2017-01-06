@@ -56,7 +56,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	/**
 	 * The name of the distribution group
 	 */
-	protected final String distributionGroup;
+	protected final DistributionGroupName distributionGroupName;
 	
 	/**
 	 * The root node of the K-D-Tree
@@ -84,7 +84,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		
 		this.zookeeperClient = zookeeperClient;
 		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
-		this.distributionGroup = distributionGroup;
+		this.distributionGroupName = new DistributionGroupName(distributionGroup);
 		
 		readAndHandleVersion();
 	}
@@ -100,7 +100,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		try {
 			final String zookeeperVersion 
 				= distributionGroupZookeeperAdapter.getVersionForDistributionGroup(
-					distributionGroup, this);
+					distributionGroupName.getFullname(), this);
 			
 			if(version == null || ! zookeeperVersion.equals(version)) {
 				// First read after start
@@ -109,7 +109,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			} 
 			
 		} catch (ZookeeperNotFoundException e) {
-			logger.info("Version for {} not found, deleting in memory version", distributionGroup);
+			logger.info("Version for {} not found, deleting in memory version", distributionGroupName);
 			handleRootElementDeleted();
 		}
 		
@@ -124,7 +124,6 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			final List<DistributionGroupName> distributionGroups = distributionGroupZookeeperAdapter.getDistributionGroups(this);
 			
 			// Is group already in creation?
-			final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
 			if(rootNode == null && distributionGroups.contains(distributionGroupName)) {
 				waitForGroupToAppear();
 			}
@@ -139,7 +138,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * @throws ZookeeperException
 	 */
 	protected void waitForGroupToAppear() throws ZookeeperException{
-		final String dgroupPath = distributionGroupZookeeperAdapter.getDistributionGroupPath(distributionGroup);
+		final String dgroupPath = distributionGroupZookeeperAdapter.getDistributionGroupPath(distributionGroupName.getFullname());
 		
 		// Wait for state node to appear
 		for(int retry = 0; retry < 10; retry++) {
@@ -184,10 +183,10 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		// Delete old mappings
 		handleRootElementDeleted();
 		
-		logger.info("Create new root element for {}", distributionGroup);
-		rootNode = DistributionRegion.createRootElement(distributionGroup);
+		logger.info("Create new root element for {}", distributionGroupName);
+		rootNode = DistributionRegion.createRootElement(distributionGroupName);
 			
-		final String path = distributionGroupZookeeperAdapter.getDistributionGroupPath(distributionGroup);
+		final String path = distributionGroupZookeeperAdapter.getDistributionGroupPath(distributionGroupName.getFullname());
 		readDistributionGroupRecursive(path, rootNode);
 	}
 	
@@ -195,8 +194,8 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * The root element is deleted
 	 */
 	public void handleRootElementDeleted() {
-		logger.info("Root element for {} is deleted", distributionGroup);
-		RegionIdMapperInstanceManager.getInstance(new DistributionGroupName(distributionGroup)).clear();
+		logger.info("Root element for {} is deleted", distributionGroupName);
+		RegionIdMapperInstanceManager.getInstance(distributionGroupName).clear();
 		rootNode = null;
 	}
 	
@@ -257,7 +256,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	protected void handleNodeUpdateEvent(final WatchedEvent event) {
 	
 		if(rootNode == null) {
-			logger.debug("Ignore systems update event, because root not node is null: {}", distributionGroup);
+			logger.debug("Ignore systems update event, because root not node is null: {}", distributionGroupName);
 			return;
 		}
 		
@@ -287,7 +286,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	protected void handleSystemNodeUpdateEvent(final WatchedEvent event) {
 		
 		if(rootNode == null) {
-			logger.debug("Ignore systems update event, because root not node is null: {}", distributionGroup);
+			logger.debug("Ignore systems update event, because root not node is null: {}", distributionGroupName);
 			return;
 		}
 		

@@ -452,7 +452,8 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testPathDecodeAndEncode() {
 
-		final DistributionRegion level0 = DistributionRegion.createRootElement("2_foo");
+		final DistributionGroupName distributionGroupName = new DistributionGroupName("2_foo");
+		final DistributionRegion level0 = DistributionRegion.createRootElement(distributionGroupName);
 		level0.setRegionId(1);
 		level0.setSplit(50);
 		level0.makeChildsActive();

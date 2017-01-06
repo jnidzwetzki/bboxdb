@@ -114,8 +114,7 @@ public class DistributionGroupName implements Comparable<DistributionGroupName> 
 
 	@Override
 	public String toString() {
-		return "DistributionGroupName [fullname=" + fullname + ", dimension="
-				+ dimension + ", groupname=" + groupname + "]";
+		return fullname;
 	}
 
 	@Override
