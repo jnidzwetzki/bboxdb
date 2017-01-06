@@ -365,7 +365,7 @@ public class BBoxDBGui {
 			tableModel.fireTableDataChanged();
 		}
 		
-		mainframe.repaint();
+		mainPanel.repaint();
 	}
 	
 }
