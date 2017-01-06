@@ -520,12 +520,14 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		
 		final float splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
 		
-		if(region.getSplit() != splitFloat) {
-			logger.warn("Got different split positions: memory {}, zk {} for {}", 
-					region.getSplit(), splitFloat, path);
+		if(region.isLeafRegion()) {		
+			region.setSplit(splitFloat); 
+		} else {
+			if(region.getSplit() != splitFloat) {
+				logger.error("Got different split positions: memory {}, zk {} for {}", 
+						region.getSplit(), splitFloat, path);
+			}
 		}
-	
-		region.setSplit(splitFloat); 
 		
 		readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_LEFT, 
 				region.getLeftChild());
