@@ -110,15 +110,21 @@ public class TupleRedistributor {
 	 * @throws Exception 
 	 */
 	public void redistributeTuple(final Tuple tuple) throws Exception {
+		
+		boolean tupleRedistributed = false;
+		
 		redistributedTuples++;
 		
 		for(final DistributionRegion region : regionMap.keySet()) {
 			if(region.getConveringBox().overlaps(tuple.getBoundingBox())) {
 				for(final TupleSink tupleSink : regionMap.get(region)) {
 					tupleSink.sinkTuple(tuple);
+					tupleRedistributed = true;
 				}
 			}
 		}
+		
+		assert (tupleRedistributed == true) : "Tuple " + tuple + " was not redistribured";
 	}
 	
 	/**
