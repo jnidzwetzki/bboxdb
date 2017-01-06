@@ -69,6 +69,11 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	protected String version;
 	
 	/**
+	 * The callbacls
+	 */
+	protected final Set<DistributionRegionChangedCallback> callbacks;
+	
+	/**
 	 * The mutex for sync operations
 	 */
 	protected final Object MUTEX = new Object();
@@ -85,6 +90,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		this.zookeeperClient = zookeeperClient;
 		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
 		this.distributionGroupName = new DistributionGroupName(distributionGroup);
+		this.callbacks = new HashSet<DistributionRegionChangedCallback>();
 		
 		readAndHandleVersion();
 	}
@@ -495,7 +501,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 				handleRootElementDeleted();
 			}
 	
-			fireDataChanged();
+			fireDataChanged(region);
 	}
 
 	/**
@@ -569,13 +575,37 @@ public class KDtreeZookeeperAdapter implements Watcher {
 
 	/**
 	 * Fire data changed event
+	 * @param region 
 	 */
-	protected void fireDataChanged() {
+	protected void fireDataChanged(final DistributionRegion region) {
 		
 		// Wake up all pending waiters
 		synchronized (MUTEX) {
 			MUTEX.notifyAll();
 		}
+		
+		// Notify callbacks
+		for(final DistributionRegionChangedCallback callback : callbacks) {
+			callback.regionChanged(region);
+		}
+	}
+	
+	/**
+	 * Register a new callbacl
+	 * @param callback
+	 * @return
+	 */
+	public boolean registerCallback(final DistributionRegionChangedCallback callback) {
+		return callbacks.add(callback);
+	}
+	
+	/**
+	 * Unregister a callback
+	 * @param callback
+	 * @return 
+	 */
+	public boolean unregisterCallback(final DistributionRegionChangedCallback callback) {
+		return callbacks.remove(callback);
 	}
 
 	/**
