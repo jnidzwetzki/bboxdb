@@ -10,6 +10,7 @@ order: 1
 - Improvement: Shortened socket close exception
 - Improvement: Write statistical data about flushed memtables
 - Improvement: Added callbacks for distribution region changes
+- Improvement: Reduced GUI CPU usage
 - Bugfix: The wrong split interval was taken
 - Bugfix: Fixed a race condition on compact thread init
 - Bugfix: The max size of a memtable was treated as kilobytes not bytes

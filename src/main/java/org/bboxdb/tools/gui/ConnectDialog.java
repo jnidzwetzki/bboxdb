@@ -179,43 +179,9 @@ public class ConnectDialog {
 				final GuiModel guiModel = new GuiModel(zookeeperClient);		
 				final BBoxDBGui bboxDBGUI = new BBoxDBGui(guiModel);
 				guiModel.setBBoxDBGui(bboxDBGUI);
-				bboxDBGUI.run();
-				
-				startNewMainThread(zookeeperClient, bboxDBGUI, guiModel);
+				bboxDBGUI.run();				
 			}
-
-			/**
-			 * The main thread
-			 * @param zookeeperClient
-			 * @param bboxdbGUI
-			 * @param guiModel 
-			 */
-			protected void startNewMainThread(
-					final ZookeeperClient zookeeperClient,
-					final BBoxDBGui bboxdbGUI,
-					final GuiModel guiModel) {
-				
-				// Start a new update thread
-				(new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							while(! bboxdbGUI.shutdown) {
-								bboxdbGUI.updateView();
-								Thread.sleep(1000);
-							}
-							
-							// Wait for pending gui updates to complete
-							bboxdbGUI.dispose();				
-							Thread.sleep(1000);
-						} catch (InterruptedException e1) {
-							Thread.currentThread().interrupt();
-						}
-						
-						zookeeperClient.shutdown();
-					}
-				})).start();
-			}
+			
 		};
 		return connectAction;
 	}

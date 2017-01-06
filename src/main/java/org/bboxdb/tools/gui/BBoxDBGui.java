@@ -192,7 +192,15 @@ public class BBoxDBGui {
 		
 			private static final long serialVersionUID = -248493308846818192L;
 			
-			protected List<DistributionRegionComponent> regions = new ArrayList<DistributionRegionComponent>();
+			/**
+			 * The regions
+			 */
+			protected final List<DistributionRegionComponent> regions = new ArrayList<DistributionRegionComponent>();
+			
+			/**
+			 * The curent size of the component
+			 */
+			protected Dimension componentSize;
 			
 			protected void drawDistributionRegion(final Graphics2D graphics2d, final DistributionRegion distributionRegion) {
 
@@ -215,7 +223,8 @@ public class BBoxDBGui {
 			@Override
 			protected void paintComponent(final Graphics g) {
 				super.paintComponent(g);
-	            final Graphics2D graphics2D = (Graphics2D) g;
+
+				final Graphics2D graphics2D = (Graphics2D) g;
 	            graphics2D.setRenderingHint(
 	                    RenderingHints.KEY_ANTIALIASING, 
 	                    RenderingHints.VALUE_ANTIALIAS_ON);
@@ -225,9 +234,24 @@ public class BBoxDBGui {
 	            	return;
 	            }
 	            
-	    		final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
+				final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
 
-    			final int totalLevel = distributionRegion.getTotalLevel();
+	            regions.clear();
+	            drawDistributionRegion(graphics2D, distributionRegion);
+    			
+				g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);
+				g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 40);
+				g.drawString("Replication factor: " + guiModel.getReplicationFactor(), 10, 60);
+				
+	            updateComponentSize(distributionRegion);
+			}
+
+			/**
+			 * Update the size of the component
+			 * @param distributionRegion
+			 */
+			protected void updateComponentSize(final DistributionRegion distributionRegion) {
+				final int totalLevel = distributionRegion.getTotalLevel();
     			
     			final int totalWidth =  
     					+ ((DistributionRegionComponent.LEFT_RIGHT_OFFSET 
@@ -235,15 +259,14 @@ public class BBoxDBGui {
     			final int totalHeight = DistributionRegionComponent.HEIGHT 
     					+ (totalLevel * DistributionRegionComponent.LEVEL_DISTANCE);
 
-	            regions.clear();
-	            drawDistributionRegion(graphics2D, distributionRegion);
-	            
-    			setPreferredSize(new Dimension(totalWidth, totalHeight));
-    			setSize(new Dimension(totalWidth, totalHeight));
+    			final Dimension curentSize = new Dimension(totalWidth, totalHeight);
     			
-				g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);
-				g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 40);
-				g.drawString("Replication factor: " + guiModel.getReplicationFactor(), 10, 60);
+    			// Size has changed, update
+    			if(! curentSize.equals(componentSize)) {
+    				componentSize = curentSize;
+    				setPreferredSize(curentSize);
+        			setSize(curentSize);
+    			}
 			}
 			
 			/**

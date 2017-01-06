@@ -22,11 +22,13 @@ import java.util.Collections;
 import java.util.List;
 
 import org.bboxdb.distribution.DistributionGroupName;
+import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.DistributedInstanceManager;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.mode.DistributionRegionChangedCallback;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -34,7 +36,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GuiModel implements DistributedInstanceEventCallback {
+public class GuiModel implements DistributedInstanceEventCallback, DistributionRegionChangedCallback {
 	
 	/**
 	 * The BBoxDB instances
@@ -90,6 +92,10 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	 */
 	public void shutdown() {
 		DistributedInstanceManager.getInstance().removeListener(this);
+		
+		if(treeAdapter != null) {
+			treeAdapter.unregisterCallback(this);
+		}
 	}
 	
 	/**
@@ -131,6 +137,8 @@ public class GuiModel implements DistributedInstanceEventCallback {
 		
 		treeAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(distributionGroup);
 		replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroup);
+	
+		treeAdapter.registerCallback(this);
 	}
 
 	/**
@@ -139,6 +147,16 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	@Override
 	public void distributedInstanceEvent(final DistributedInstanceEvent event) {
 		updateBBoxDBInstances();
+		
+		updateModel();
+	}
+	
+	/**
+	 * One of the regions was changed
+	 */
+	@Override
+	public void regionChanged(DistributionRegion distributionRegion) {
+		updateModel();
 	}
 
 	/**
@@ -225,5 +243,7 @@ public class GuiModel implements DistributedInstanceEventCallback {
 	public List<DistributionGroupName> getDistributionGroups() throws ZookeeperException, ZookeeperNotFoundException {
 		return distributionGroupZookeeperAdapter.getDistributionGroups();
 	}
+
+
 
 }
