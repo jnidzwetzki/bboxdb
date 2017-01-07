@@ -240,8 +240,8 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			// Stop flush thread, so new data remains in memory
 			ssTableManager.stopThreads();
 			
-			// Spread on disk data
-			spreadPersistantStorages(region, ssTableName, ssTableManager);
+			// Spread data
+			spreadStorages(region, ssTableName, ssTableManager);
 			
 		} catch (StorageManagerException e) {
 			logger.warn("Got an exception while distributing tuples for: " + ssTableName, e);
@@ -257,10 +257,13 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param ssTableManager 
 	 * @param storages
 	 */
-	protected void spreadPersistantStorages(final DistributionRegion region, 
+	protected void spreadStorages(final DistributionRegion region, 
 			final SSTableName ssTableName, final SSTableManager ssTableManager) {
 
 		assert (! region.isLeafRegion());
+		assert (! region.getLeftChild().getSystems().isEmpty());
+		assert (! region.getRightChild().getSystems().isEmpty());
+		
 		final DistributionRegion leftRegion = region.getLeftChild();
 		final DistributionRegion rightRegion = region.getRightChild();
 		
@@ -273,7 +276,6 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		} catch (StorageManagerException e) {
 			logger.error("Got an exception while redistributing tuples");
 		}
-
 	}
 
 	/**
@@ -292,31 +294,33 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		for(final ReadOnlyTupleStorage storage: storages) {
 			final boolean acquired = storage.acquire();
 			
-			if(acquired) {	
-				logger.info("Spread sstable facade: {}", storage.getInternalName());
-				boolean distributeSuccessfully = true;
-				
-				for(final Tuple tuple : storage) {
-					try {
-						tupleRedistributor.redistributeTuple(tuple);
-					} catch (Exception e) {
-						logger.error("Got exeption while redistributing tuples", e);
-						distributeSuccessfully = false;
-					}
-				}
-				
-				// Data is spread, so we can delete it
-				if(! distributeSuccessfully) {
-					logger.warn("Distribution of {} was not successfully", storage.getInternalName());
-				} else {
-					logger.info("Distribution of {} was successfully, scheduling for deletion", storage.getInternalName());
-					storage.deleteOnClose();
-				}
-				
-				logger.info("Statistics for spread: " + tupleRedistributor.getStatistics());
-				
-				storage.release();
+			if(! acquired) {	
+				continue;
 			}
+			
+			logger.info("Spread sstable facade: {}", storage.getInternalName());
+			boolean distributeSuccessfully = true;
+			
+			for(final Tuple tuple : storage) {
+				try {
+					tupleRedistributor.redistributeTuple(tuple);
+				} catch (Exception e) {
+					logger.error("Got exeption while redistributing tuples", e);
+					distributeSuccessfully = false;
+				}
+			}
+			
+			// Data is spread, so we can delete it
+			if(! distributeSuccessfully) {
+				logger.warn("Distribution of {} was not successfully", storage.getInternalName());
+			} else {
+				logger.info("Distribution of {} was successfully, scheduling for deletion", storage.getInternalName());
+				storage.deleteOnClose();
+			}
+			
+			logger.info("Statistics for spread: " + tupleRedistributor.getStatistics());
+			
+			storage.release();
 		}
 	}
 
