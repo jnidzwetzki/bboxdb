@@ -36,18 +36,19 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GuiModel implements DistributedInstanceEventCallback, DistributionRegionChangedCallback {
-	
+public class GuiModel implements DistributedInstanceEventCallback,
+		DistributionRegionChangedCallback {
+
 	/**
 	 * The BBoxDB instances
 	 */
 	protected final List<DistributedInstance> bboxdbInstances;
-	
+
 	/**
 	 * The distribution group to display
 	 */
 	protected String distributionGroup;
-	
+
 	/**
 	 * The replication factor for the distribution group
 	 */
@@ -57,17 +58,17 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 	 * The reference to the gui window
 	 */
 	protected BBoxDBGui bboxdbGui;
-	
+
 	/**
 	 * The zookeeper client
 	 */
 	protected final ZookeeperClient zookeeperClient;
-	
+
 	/**
 	 * The tree adapter
 	 */
 	private KDtreeZookeeperAdapter treeAdapter;
-	
+
 	/**
 	 * The distribution group adapter
 	 */
@@ -76,14 +77,15 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 	/**
 	 * The logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(GuiModel.class);
-
+	protected final static Logger logger = LoggerFactory
+			.getLogger(GuiModel.class);
 
 	public GuiModel(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
-		this.distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+		this.distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(
+				zookeeperClient);
 		bboxdbInstances = new ArrayList<DistributedInstance>();
-		
+
 		DistributedInstanceManager.getInstance().registerListener(this);
 	}
 
@@ -99,11 +101,11 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 	 * Unregister the tree change listener
 	 */
 	protected void unregisterTreeChangeListener() {
-		if(treeAdapter != null) {
+		if (treeAdapter != null) {
 			treeAdapter.unregisterCallback(this);
 		}
 	}
-	
+
 	/**
 	 * Update the GUI model
 	 */
@@ -111,41 +113,45 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 		try {
 			updateBBoxDBInstances();
 			bboxdbGui.updateView();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.info("Exception while updating the view", e);
 		}
 	}
-	
 
 	/**
 	 * Update the system state
 	 */
 	protected void updateBBoxDBInstances() {
-		synchronized (bboxdbInstances) {		
+		synchronized (bboxdbInstances) {
 			bboxdbInstances.clear();
-			bboxdbInstances.addAll(DistributedInstanceManager.getInstance().getInstances());
+			bboxdbInstances.addAll(DistributedInstanceManager.getInstance()
+					.getInstances());
 			Collections.sort(bboxdbInstances);
 		}
 	}
-	
+
 	/**
 	 * Update the distribution region
-	 * @throws ZookeeperException 
-	 * @throws ZookeeperNotFoundException 
+	 * 
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
 	 */
-	public void updateDistributionRegion() throws ZookeeperException, ZookeeperNotFoundException {
+	public void updateDistributionRegion() throws ZookeeperException,
+			ZookeeperNotFoundException {
 		logger.info("Reread distribution group");
-		
+
 		unregisterTreeChangeListener();
-		
-		if(distributionGroup == null) {
+
+		if (distributionGroup == null) {
 			treeAdapter = null;
 			return;
 		}
-		
-		treeAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(distributionGroup);
-		replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroup);
-	
+
+		treeAdapter = distributionGroupZookeeperAdapter
+				.readDistributionGroup(distributionGroup);
+		replicationFactor = distributionGroupZookeeperAdapter
+				.getReplicationFactorForDistributionGroup(distributionGroup);
+
 		treeAdapter.registerCallback(this);
 	}
 
@@ -155,10 +161,10 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 	@Override
 	public void distributedInstanceEvent(final DistributedInstanceEvent event) {
 		updateBBoxDBInstances();
-		
+
 		updateModel();
 	}
-	
+
 	/**
 	 * One of the regions was changed
 	 */
@@ -169,6 +175,7 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 
 	/**
 	 * Get the bboxdb instances
+	 * 
 	 * @return
 	 */
 	public List<DistributedInstance> getBBoxDBInstances() {
@@ -177,6 +184,7 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 
 	/**
 	 * Set the gui component
+	 * 
 	 * @param bboxDBGui
 	 */
 	public void setBBoxDBGui(final BBoxDBGui bboxDBGui) {
@@ -191,17 +199,19 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 	public String getDistributionGroup() {
 		return distributionGroup;
 	}
-	
+
 	/**
 	 * Get the name of the cluster
+	 * 
 	 * @return
 	 */
 	public String getClustername() {
 		return zookeeperClient.getClustername();
 	}
-	
+
 	/**
 	 * Get the replication factor
+	 * 
 	 * @return
 	 */
 	public short getReplicationFactor() {
@@ -210,6 +220,7 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 
 	/**
 	 * Set the replication factor
+	 * 
 	 * @param replicationFactor
 	 */
 	public void setReplicationFactor(final short replicationFactor) {
@@ -223,35 +234,36 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 	 */
 	public void setDistributionGroup(final String distributionGroup) {
 		this.distributionGroup = distributionGroup;
-	
+
 		try {
 			updateDistributionRegion();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			logger.info("Exception while updating the view", e);
 		}
-		
+
 		// Display the new distribution group
 		updateModel();
 	}
 
 	/**
 	 * Returns the tree adapter
+	 * 
 	 * @return
 	 */
 	public KDtreeZookeeperAdapter getTreeAdapter() {
 		return treeAdapter;
 	}
-	
+
 	/**
 	 * Get a list with all distribution groups
+	 * 
 	 * @return
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 */
-	public List<DistributionGroupName> getDistributionGroups() throws ZookeeperException, ZookeeperNotFoundException {
+	public List<DistributionGroupName> getDistributionGroups()
+			throws ZookeeperException, ZookeeperNotFoundException {
 		return distributionGroupZookeeperAdapter.getDistributionGroups();
 	}
-
-
 
 }

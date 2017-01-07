@@ -54,32 +54,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BBoxDBGui {
-	
+
 	/**
 	 * The main frame
 	 */
 	protected JFrame mainframe;
-	
+
 	/**
 	 * The main panel
 	 */
 	protected JSplitPane mainPanel;
-	
+
 	/**
 	 * The list model for the distribution groups
 	 */
 	protected DefaultListModel<String> listModel;
-	
+
 	/**
 	 * The left menu list
 	 */
 	protected JList<String> leftList;
-	
+
 	/**
 	 * The Menu bar
 	 */
 	protected JMenuBar menuBar;
-	
+
 	/**
 	 * The table Model
 	 */
@@ -94,12 +94,12 @@ public class BBoxDBGui {
 	 * Shutdown the GUI ?
 	 */
 	public volatile boolean shutdown = false;
-	
+
 	/**
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(BBoxDBGui.class);
-	
+
 	public BBoxDBGui(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 	}
@@ -109,20 +109,20 @@ public class BBoxDBGui {
 	 * and assemble the dialog
 	 */
 	public void run() {
-		
+
 		mainframe = new JFrame("BBoxDB - Data Distribution");
-		
+
 		setupMenu();
 		setupMainPanel();
-		
+
 		tableModel = getTableModel();
 		final JTable table = new JTable(tableModel);
 		table.getColumnModel().getColumn(0).setMaxWidth(40);
 		table.getColumnModel().getColumn(2).setMinWidth(100);
 		table.getColumnModel().getColumn(2).setMaxWidth(100);
-		
+
 		table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-			
+
 			/**
 			 * 
 			 */
@@ -132,29 +132,29 @@ public class BBoxDBGui {
 			public Component getTableCellRendererComponent(JTable table,
 					Object value, boolean isSelected, boolean hasFocus,
 					int row, int column) {
-				
+
 				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				
-		        final String state = (String) table.getModel().getValueAt(row, 4);
-		        
-		        if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
-		        	setBackground(Color.YELLOW);
-		        } else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
-		        	setBackground(Color.GREEN);
-		        } else {
-		        	setBackground(table.getBackground());
-		        }
-				
+
+				final String state = (String) table.getModel().getValueAt(row, 4);
+
+				if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
+					setBackground(Color.YELLOW);
+				} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
+					setBackground(Color.GREEN);
+				} else {
+					setBackground(table.getBackground());
+				}
+
 				return this;
 			}
 		});
 
 		final JScrollPane tableScrollPane = new JScrollPane(table);		
 		final Dimension d = table.getPreferredSize();
-		
+
 		tableScrollPane.setPreferredSize(
-		    new Dimension(d.width,table.getRowHeight()*7));
-				
+				new Dimension(d.width,table.getRowHeight()*7));
+
 		mainframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainframe.setLayout(new BorderLayout());
 		mainframe.add(mainPanel, BorderLayout.CENTER);
@@ -171,7 +171,7 @@ public class BBoxDBGui {
 	public void dispose() {
 		mainframe.dispose();
 	}
-	
+
 	/**
 	 * Get the table model for the schedules queries
 	 * @return The table model
@@ -186,36 +186,36 @@ public class BBoxDBGui {
 	 * 
 	 */
 	protected void setupMainPanel() {
-        
-		
+
+
 		final JPanel rightPanel = new JPanel() {
-		
+
 			private static final long serialVersionUID = -248493308846818192L;
-			
+
 			/**
 			 * The regions
 			 */
 			protected final List<DistributionRegionComponent> regions = new ArrayList<DistributionRegionComponent>();
-			
+
 			/**
 			 * The curent size of the component
 			 */
 			protected Dimension componentSize;
-			
+
 			protected void drawDistributionRegion(final Graphics2D graphics2d, final DistributionRegion distributionRegion) {
 
 				if(distributionRegion == null) {
 					return;
 				}
-				
+
 				// The position of the root node
 				final int rootPosX = getWidth() / 2;
 				final int rootPosY = 30;
-				
+
 				final DistributionRegionComponent distributionRegionComponent = new DistributionRegionComponent(distributionRegion, rootPosX, rootPosY);
 				distributionRegionComponent.drawComponent(graphics2d);
 				regions.add(distributionRegionComponent);
-				
+
 				drawDistributionRegion(graphics2d, distributionRegion.getLeftChild());
 				drawDistributionRegion(graphics2d, distributionRegion.getRightChild());
 			}
@@ -225,25 +225,25 @@ public class BBoxDBGui {
 				super.paintComponent(g);
 
 				final Graphics2D graphics2D = (Graphics2D) g;
-	            graphics2D.setRenderingHint(
-	                    RenderingHints.KEY_ANTIALIASING, 
-	                    RenderingHints.VALUE_ANTIALIAS_ON);
-	            
-	            // Group is not set
-	            if(guiModel.getTreeAdapter() == null) {
-	            	return;
-	            }
-	            
+				graphics2D.setRenderingHint(
+						RenderingHints.KEY_ANTIALIASING, 
+						RenderingHints.VALUE_ANTIALIAS_ON);
+
+				// Group is not set
+				if(guiModel.getTreeAdapter() == null) {
+					return;
+				}
+
 				final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
 
-	            regions.clear();
-	            drawDistributionRegion(graphics2D, distributionRegion);
-    			
+				regions.clear();
+				drawDistributionRegion(graphics2D, distributionRegion);
+
 				g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);
 				g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 40);
 				g.drawString("Replication factor: " + guiModel.getReplicationFactor(), 10, 60);
-				
-	            updateComponentSize(distributionRegion);
+
+				updateComponentSize(distributionRegion);
 			}
 
 			/**
@@ -252,46 +252,46 @@ public class BBoxDBGui {
 			 */
 			protected void updateComponentSize(final DistributionRegion distributionRegion) {
 				final int totalLevel = distributionRegion.getTotalLevel();
-    			
-    			final int totalWidth =  
-    					+ ((DistributionRegionComponent.LEFT_RIGHT_OFFSET 
-    							+ DistributionRegionComponent.WIDTH) * totalLevel) * 2;
-    			final int totalHeight = DistributionRegionComponent.HEIGHT 
-    					+ (totalLevel * DistributionRegionComponent.LEVEL_DISTANCE);
 
-    			final Dimension curentSize = new Dimension(totalWidth, totalHeight);
-    			
-    			// Size has changed, update
-    			if(! curentSize.equals(componentSize)) {
-    				componentSize = curentSize;
-    				setPreferredSize(curentSize);
-        			setSize(curentSize);
-    			}
+				final int totalWidth =  
+						+ ((DistributionRegionComponent.LEFT_RIGHT_OFFSET 
+								+ DistributionRegionComponent.WIDTH) * totalLevel) * 2;
+				final int totalHeight = DistributionRegionComponent.HEIGHT 
+						+ (totalLevel * DistributionRegionComponent.LEVEL_DISTANCE);
+
+				final Dimension curentSize = new Dimension(totalWidth, totalHeight);
+
+				// Size has changed, update
+				if(! curentSize.equals(componentSize)) {
+					componentSize = curentSize;
+					setPreferredSize(curentSize);
+					setSize(curentSize);
+				}
 			}
-			
+
 			/**
 			 * Get the text for the tool tip
 			 */
 			@Override
 			public String getToolTipText(final MouseEvent event) {
 
-	            for(final DistributionRegionComponent component : regions) {
-	            	if(component.isMouseOver(event)) {
-	            		return component.getToolTipText();
-	            	}
-	            }
-	            
-	            return "";
+				for(final DistributionRegionComponent component : regions) {
+					if(component.isMouseOver(event)) {
+						return component.getToolTipText();
+					}
+				}
+
+				return "";
 			}
 		};
 
 		rightPanel.setBackground(Color.WHITE);
 		rightPanel.setToolTipText("");
-		
+
 		final JScrollPane rightScrollPanel = new JScrollPane(rightPanel);
-		
+
 		final JList<String> leftPanel = getLeftPanel();
-		
+
 		mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightScrollPanel);
 		mainPanel.setOneTouchExpandable(true);
 		mainPanel.setDividerLocation(150);
@@ -303,21 +303,21 @@ public class BBoxDBGui {
 	 * @return
 	 */
 	protected JList<String> getLeftPanel() {
-	
+
 		listModel = new DefaultListModel<String>();
-		
+
 		leftList = new JList<String>(listModel);
-		
+
 		refreshDistributionGroups(listModel);
-	
+
 		leftList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		leftList.addListSelectionListener(new ListSelectionListener() {
-			
+
 			@Override
 			public void valueChanged(final ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
-	                guiModel.setDistributionGroup(leftList.getSelectedValue());
-                }
+					guiModel.setDistributionGroup(leftList.getSelectedValue());
+				}
 			}
 		});
 
@@ -330,13 +330,13 @@ public class BBoxDBGui {
 	 */
 	protected void refreshDistributionGroups(final DefaultListModel<String> listModel) {
 		final List<DistributionGroupName> distributionGroups = new ArrayList<DistributionGroupName>();
-		
+
 		try {
 			distributionGroups.addAll(guiModel.getDistributionGroups());
 		} catch (Exception e) {
 			logger.error("Got an exception while loading distribution groups");
 		}
-		
+
 		Collections.sort(distributionGroups);
 		listModel.clear();
 		for(final DistributionGroupName distributionGroupName : distributionGroups) {
@@ -351,35 +351,35 @@ public class BBoxDBGui {
 		menuBar = new JMenuBar();
 		final JMenu menu = new JMenu("File");
 		menuBar.add(menu);
-		
+
 		final JMenuItem reloadItem = new JMenuItem("Reload Distribution Groups");
 		reloadItem.addActionListener(new AbstractAction() {
-			
+
 			private static final long serialVersionUID = -5380326547117916348L;
 
 			public void actionPerformed(final ActionEvent e) {
 				refreshDistributionGroups(listModel);
 			}
-			
+
 		});
 		menu.add(reloadItem);
-		
+
 		final JMenuItem closeItem = new JMenuItem("Close");
 		closeItem.addActionListener(new AbstractAction() {
-			
+
 			private static final long serialVersionUID = -5380326547117916348L;
 
 			public void actionPerformed(final ActionEvent e) {
 				shutdown = true;
 			}
-			
+
 		});
 		menu.add(closeItem);
-		
-		
-        mainframe.setJMenuBar(menuBar);
+
+
+		mainframe.setJMenuBar(menuBar);
 	}
-	
+
 	/**
 	 * Update the view. This method should be called periodically
 	 */
@@ -387,8 +387,8 @@ public class BBoxDBGui {
 		if(tableModel != null) {
 			tableModel.fireTableDataChanged();
 		}
-		
+
 		mainPanel.repaint();
 	}
-	
+
 }
