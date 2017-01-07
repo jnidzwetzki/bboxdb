@@ -176,6 +176,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			// Try to set region state to full. If this fails, another node is already 
 			// splits the region
 			final boolean setToFullResult = distributionGroupZookeeperAdapter.setToFull(region);
+			
 			if(! setToFullResult) {
 				logger.info("Unable to set state to full for region: {}, stopping split", region.getIdentifier());
 				logger.info("Old state was {}", distributionGroupZookeeperAdapter.getStateForDistributionRegion(region));
@@ -299,16 +300,8 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			}
 			
 			logger.info("Spread sstable facade: {}", storage.getInternalName());
-			boolean distributeSuccessfully = true;
 			
-			for(final Tuple tuple : storage) {
-				try {
-					tupleRedistributor.redistributeTuple(tuple);
-				} catch (Exception e) {
-					logger.error("Got exeption while redistributing tuples", e);
-					distributeSuccessfully = false;
-				}
-			}
+			final boolean distributeSuccessfully = spreadStorage(tupleRedistributor, storage);
 			
 			// Data is spread, so we can delete it
 			if(! distributeSuccessfully) {
@@ -325,6 +318,28 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	}
 
 	/**
+	 * Spread the tuple storage
+	 * @param tupleRedistributor
+	 * @param storage
+	 * @param distributeSuccessfully
+	 * @return
+	 */
+	protected boolean spreadStorage(final TupleRedistributor tupleRedistributor,
+			final ReadOnlyTupleStorage storage) {
+		
+		for(final Tuple tuple : storage) {
+			try {
+				tupleRedistributor.redistributeTuple(tuple);
+			} catch (Exception e) {
+				logger.error("Got exeption while redistributing tuples", e);
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	/**
 	 * Perform a split at the given position
 	 * @param region
 	 * @param splitPosition
@@ -332,9 +347,11 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	protected void performSplitAtPosition(final DistributionRegion region, final float splitPosition) {
 		try {
 			logger.info("Set split for {} at: {}", region.getIdentifier(), splitPosition);
+			
 			treeAdapter.splitNode(region, splitPosition);
 			
-			assert (! region.isLeafRegion()) : "Region " + region.getIdentifier() + " is a leaf region after split";
+			assert (! region.isLeafRegion()) : "Region " + region.getIdentifier() 
+				+ " is a leaf region after split";
 
 		} catch (ZookeeperException | ResourceAllocationException e) {
 			logger.warn("Unable to split region " + region.getIdentifier() + " at " + splitPosition, e);
