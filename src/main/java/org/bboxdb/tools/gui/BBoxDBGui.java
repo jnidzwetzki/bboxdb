@@ -261,6 +261,7 @@ public class BBoxDBGui {
 			}
 
 		});
+		
 		menu.add(reloadItem);
 
 		final JMenuItem closeItem = new JMenuItem("Close");
@@ -273,8 +274,8 @@ public class BBoxDBGui {
 			}
 
 		});
+		
 		menu.add(closeItem);
-
 
 		mainframe.setJMenuBar(menuBar);
 	}
@@ -289,5 +290,4 @@ public class BBoxDBGui {
 
 		mainPanel.repaint();
 	}
-
 }
