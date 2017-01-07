@@ -21,11 +21,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +43,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 import org.slf4j.Logger;
@@ -187,103 +182,7 @@ public class BBoxDBGui {
 	 */
 	protected void setupMainPanel() {
 
-
-		final JPanel rightPanel = new JPanel() {
-
-			private static final long serialVersionUID = -248493308846818192L;
-
-			/**
-			 * The regions
-			 */
-			protected final List<DistributionRegionComponent> regions = new ArrayList<DistributionRegionComponent>();
-
-			/**
-			 * The curent size of the component
-			 */
-			protected Dimension componentSize;
-
-			protected void drawDistributionRegion(final Graphics2D graphics2d, final DistributionRegion distributionRegion) {
-
-				if(distributionRegion == null) {
-					return;
-				}
-
-				// The position of the root node
-				final int rootPosX = getWidth() / 2;
-				final int rootPosY = 30;
-
-				final DistributionRegionComponent distributionRegionComponent = new DistributionRegionComponent(distributionRegion, rootPosX, rootPosY);
-				distributionRegionComponent.drawComponent(graphics2d);
-				regions.add(distributionRegionComponent);
-
-				drawDistributionRegion(graphics2d, distributionRegion.getLeftChild());
-				drawDistributionRegion(graphics2d, distributionRegion.getRightChild());
-			}
-
-			@Override
-			protected void paintComponent(final Graphics g) {
-				super.paintComponent(g);
-
-				final Graphics2D graphics2D = (Graphics2D) g;
-				graphics2D.setRenderingHint(
-						RenderingHints.KEY_ANTIALIASING, 
-						RenderingHints.VALUE_ANTIALIAS_ON);
-
-				// Group is not set
-				if(guiModel.getTreeAdapter() == null) {
-					return;
-				}
-
-				final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
-
-				regions.clear();
-				drawDistributionRegion(graphics2D, distributionRegion);
-
-				g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);
-				g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 40);
-				g.drawString("Replication factor: " + guiModel.getReplicationFactor(), 10, 60);
-
-				updateComponentSize(distributionRegion);
-			}
-
-			/**
-			 * Update the size of the component
-			 * @param distributionRegion
-			 */
-			protected void updateComponentSize(final DistributionRegion distributionRegion) {
-				final int totalLevel = distributionRegion.getTotalLevel();
-
-				final int totalWidth =  
-						+ ((DistributionRegionComponent.LEFT_RIGHT_OFFSET 
-								+ DistributionRegionComponent.WIDTH) * totalLevel) * 2;
-				final int totalHeight = DistributionRegionComponent.HEIGHT 
-						+ (totalLevel * DistributionRegionComponent.LEVEL_DISTANCE);
-
-				final Dimension curentSize = new Dimension(totalWidth, totalHeight);
-
-				// Size has changed, update
-				if(! curentSize.equals(componentSize)) {
-					componentSize = curentSize;
-					setPreferredSize(curentSize);
-					setSize(curentSize);
-				}
-			}
-
-			/**
-			 * Get the text for the tool tip
-			 */
-			@Override
-			public String getToolTipText(final MouseEvent event) {
-
-				for(final DistributionRegionComponent component : regions) {
-					if(component.isMouseOver(event)) {
-						return component.getToolTipText();
-					}
-				}
-
-				return "";
-			}
-		};
+		final JPanel rightPanel = new DistributionGroupJPanel(guiModel);
 
 		rightPanel.setBackground(Color.WHITE);
 		rightPanel.setToolTipText("");
@@ -315,7 +214,7 @@ public class BBoxDBGui {
 
 			@Override
 			public void valueChanged(final ListSelectionEvent e) {
-				if (!e.getValueIsAdjusting()) {
+				if (! e.getValueIsAdjusting()) {
 					guiModel.setDistributionGroup(leftList.getSelectedValue());
 				}
 			}
