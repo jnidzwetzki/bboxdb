@@ -92,7 +92,13 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 	 */
 	public void shutdown() {
 		DistributedInstanceManager.getInstance().removeListener(this);
-		
+		unregisterTreeChangeListener();
+	}
+
+	/**
+	 * Unregister the tree change listener
+	 */
+	protected void unregisterTreeChangeListener() {
 		if(treeAdapter != null) {
 			treeAdapter.unregisterCallback(this);
 		}
@@ -129,6 +135,8 @@ public class GuiModel implements DistributedInstanceEventCallback, DistributionR
 	 */
 	public void updateDistributionRegion() throws ZookeeperException, ZookeeperNotFoundException {
 		logger.info("Reread distribution group");
+		
+		unregisterTreeChangeListener();
 		
 		if(distributionGroup == null) {
 			treeAdapter = null;
