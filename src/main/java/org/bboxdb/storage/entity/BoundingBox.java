@@ -427,6 +427,11 @@ public class BoundingBox implements Comparable<BoundingBox> {
 				continue;
 			}
 			
+			// Don't merge the empty box
+			if(currentBox == EMPTY_BOX) {
+				continue;
+			}
+			
 			if(dimensions != currentBox.getDimension()) {
 				logger.error("Merging bounding boxes with different dimensions: " + dimensions + "/" + currentBox.getDimension());
 				logger.error("Box 0: " + boundingBoxes[0]);
