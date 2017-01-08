@@ -455,6 +455,11 @@ public class BoundingBox implements Comparable<BoundingBox> {
 					continue;
 				}
 				
+				// Don't merge the empty box
+				if(currentBox == EMPTY_BOX) {
+					continue;
+				}
+				
 				resultMin = Math.min(resultMin, currentBox.getCoordinateLow(d));
 				resultMax = Math.max(resultMax, currentBox.getCoordinateHigh(d));
 			}
