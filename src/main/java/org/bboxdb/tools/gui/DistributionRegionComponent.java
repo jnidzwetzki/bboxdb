@@ -65,11 +65,25 @@ public class DistributionRegionComponent {
 	 */
 	protected final DistributionRegion distributionRegion;
 
-	public DistributionRegionComponent(DistributionRegion distributionRegion, final int posRootX, final int posRootY) {
-		super();
+	/**
+	 * The x offset
+	 */
+	protected final int xOffset;
+
+	/**
+	 * The y offset
+	 */
+	protected final int yOffset;
+
+	public DistributionRegionComponent(final DistributionRegion distributionRegion, 
+			final int posRootX, final int posRootY) {
+		
 		this.distributionRegion = distributionRegion;
 		this.posRootX = posRootX;
 		this.posRootY = posRootY;
+		
+		this.xOffset = calculateXOffset();
+		this.yOffset = calculateYOffset();
 	}
 	
 	/**
@@ -117,9 +131,7 @@ public class DistributionRegionComponent {
 	 * @return
 	 */
 	protected boolean isMouseOver(final MouseEvent event) {
-		final int xOffset = calculateXOffset();
-		final int yOffset = calculateYOffset();
-				
+	
 		if(event.getX() >= xOffset && event.getX() <= xOffset + WIDTH) {
 			if(event.getY() >= yOffset && event.getY() <= yOffset + HEIGHT) {
 				return true;
@@ -134,9 +146,6 @@ public class DistributionRegionComponent {
 	 * @param g
 	 */
 	public void drawComponent(final Graphics2D g) {
-		final int xOffset = calculateXOffset();
-		final int yOffset = calculateYOffset();
-		
 		// Draw the node
 		final Color oldColor = g.getColor();
 		g.setColor(getColorForRegion(distributionRegion));
@@ -161,7 +170,7 @@ public class DistributionRegionComponent {
 		g.drawString(nodeState, xOffset + (WIDTH / 2) - (stringWidthStage / 2), yOffset + (int) (HEIGHT * 0.3));
 		
 		// Draw the line to the parent node
-		drawParentNodeLine(g, xOffset, yOffset);
+		drawParentNodeLine(g);
 	}
 
 	/**
@@ -192,7 +201,7 @@ public class DistributionRegionComponent {
 	 * @param xOffset
 	 * @param yOffset
 	 */
-	protected void drawParentNodeLine(final Graphics2D g, final int xOffset, final int yOffset) {
+	protected void drawParentNodeLine(final Graphics2D g) {
 		
 		// The root element don't have a parent
 		if(distributionRegion.getParent() == null) {
