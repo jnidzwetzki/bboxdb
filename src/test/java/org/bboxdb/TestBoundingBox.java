@@ -271,6 +271,32 @@ public class TestBoundingBox {
 	}
 	
 	/**
+	 * Test merge on array
+	 */
+	@Test
+	public void testMergeBoxes3() {
+		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 1f);
+		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f, 1f, 4f);
+		final BoundingBox resultBox = BoundingBox.getCoveringBox(boundingBox1, boundingBox2, BoundingBox.EMPTY_BOX);
+		Assert.assertArrayEquals(new float[] {1f, 2f, 1f, 4f}, resultBox.toFloatArray(), EQUALS_DELTA);
+	}
+	
+	/**
+	 * Test merge on array
+	 */
+	@Test
+	public void testMergeBoxes4() {
+		final BoundingBox resultBox1 = BoundingBox.getCoveringBox();
+		Assert.assertEquals(BoundingBox.EMPTY_BOX, resultBox1);
+
+		final BoundingBox resultBox2 = BoundingBox.getCoveringBox(BoundingBox.EMPTY_BOX);
+		Assert.assertEquals(BoundingBox.EMPTY_BOX, resultBox2);
+
+		final BoundingBox resultBox3 = BoundingBox.getCoveringBox(BoundingBox.EMPTY_BOX, BoundingBox.EMPTY_BOX);
+		Assert.assertEquals(BoundingBox.EMPTY_BOX, resultBox3);
+	}
+	
+	/**
 	 * Test the comparable interface of the bounding box
 	 */
 	@Test
