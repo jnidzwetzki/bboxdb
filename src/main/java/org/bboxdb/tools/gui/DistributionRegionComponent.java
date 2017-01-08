@@ -144,8 +144,9 @@ public class DistributionRegionComponent {
 	/**
 	 * Draw this component
 	 * @param g
+	 * @return 
 	 */
-	public void drawComponent(final Graphics2D g) {
+	public BoundingBox drawComponent(final Graphics2D g) {
 		// Draw the node
 		final Color oldColor = g.getColor();
 		g.setColor(getColorForRegion(distributionRegion));
@@ -171,6 +172,11 @@ public class DistributionRegionComponent {
 		
 		// Draw the line to the parent node
 		drawParentNodeLine(g);
+		
+		final BoundingBox boundingBox = new BoundingBox((float) xOffset, 
+				(float) xOffset + WIDTH, (float) yOffset, (float) yOffset + HEIGHT);
+				
+		return boundingBox;
 	}
 
 	/**

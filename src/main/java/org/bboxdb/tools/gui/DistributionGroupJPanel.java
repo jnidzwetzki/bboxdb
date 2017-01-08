@@ -28,6 +28,7 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.storage.entity.BoundingBox;
 
 public class DistributionGroupJPanel extends JPanel {
 	
@@ -47,6 +48,13 @@ public class DistributionGroupJPanel extends JPanel {
 	 * The GUI model
 	 */
 	protected final GuiModel guiModel;
+	
+	/**
+	 * The margin for bounding boxes 
+	 * (adds a litte bit empty space around the components)
+	 */
+	protected static final int SCROLL_MARGIN = 10;
+
 
 	public DistributionGroupJPanel(final GuiModel guiModel) {
 		this.guiModel = guiModel;
@@ -56,11 +64,13 @@ public class DistributionGroupJPanel extends JPanel {
 	 * Draw the given distribution region
 	 * @param graphics2d
 	 * @param distributionRegion
+	 * @return 
 	 */
-	protected void drawDistributionRegion(final Graphics2D graphics2d, final DistributionRegion distributionRegion) {
+	protected BoundingBox drawDistributionRegion(final Graphics2D graphics2d, 
+			final DistributionRegion distributionRegion) {
 
 		if(distributionRegion == null) {
-			return;
+			return BoundingBox.EMPTY_BOX;
 		}
 
 		// The position of the root node
@@ -68,11 +78,15 @@ public class DistributionGroupJPanel extends JPanel {
 		final int rootPosY = 30;
 
 		final DistributionRegionComponent distributionRegionComponent = new DistributionRegionComponent(distributionRegion, rootPosX, rootPosY);
-		distributionRegionComponent.drawComponent(graphics2d);
+		final BoundingBox boundingBox = distributionRegionComponent.drawComponent(graphics2d);
 		regions.add(distributionRegionComponent);
 
-		drawDistributionRegion(graphics2d, distributionRegion.getLeftChild());
-		drawDistributionRegion(graphics2d, distributionRegion.getRightChild());
+		final BoundingBox boundingBoxLeft 
+			= drawDistributionRegion(graphics2d, distributionRegion.getLeftChild());
+		final BoundingBox boundingBoxRight 
+			= drawDistributionRegion(graphics2d, distributionRegion.getRightChild());
+		
+		return BoundingBox.getBoundingBox(boundingBox, boundingBoxLeft, boundingBoxRight);
 	}
 
 	@Override
@@ -83,44 +97,42 @@ public class DistributionGroupJPanel extends JPanel {
 		graphics2D.setRenderingHint(
 				RenderingHints.KEY_ANTIALIASING, 
 				RenderingHints.VALUE_ANTIALIAS_ON);
+		
+		regions.clear();
 
 		// Group is not set
 		if(guiModel.getTreeAdapter() == null) {
 			return;
 		}
-
 		final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
 
-		regions.clear();
-		drawDistributionRegion(graphics2D, distributionRegion);
+		final BoundingBox boundingBoxRegion = drawDistributionRegion(graphics2D, distributionRegion);
 
 		g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);
 		g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 40);
 		g.drawString("Replication factor: " + guiModel.getReplicationFactor(), 10, 60);
-
-		updateComponentSize(distributionRegion);
+		final BoundingBox boundingBoxText = new BoundingBox(0f, 400f, 0f, 200f);
+		final BoundingBox boundingBoxTotal = BoundingBox.getBoundingBox(boundingBoxRegion, boundingBoxText);
+		
+		updateComponentSize(boundingBoxTotal);
 	}
 
 	/**
 	 * Update the size of the component
 	 * @param distributionRegion
+	 * @param boundingBox 
 	 */
-	protected void updateComponentSize(final DistributionRegion distributionRegion) {
-		final int totalLevel = distributionRegion.getTotalLevel();
+	protected void updateComponentSize(final BoundingBox boundingBox) {
 
-		final int totalWidth =  
-				+ ((DistributionRegionComponent.LEFT_RIGHT_OFFSET 
-						+ DistributionRegionComponent.WIDTH) * totalLevel) * 2;
-		final int totalHeight = DistributionRegionComponent.HEIGHT 
-				+ (totalLevel * DistributionRegionComponent.LEVEL_DISTANCE);
-
-		final Dimension curentSize = new Dimension(totalWidth, totalHeight);
+		final Dimension boundingBoxSize = new Dimension(
+				(int) boundingBox.getExtent(0) + SCROLL_MARGIN, 
+				(int) boundingBox.getExtent(1) + SCROLL_MARGIN);
 
 		// Size has changed, update
-		if(! curentSize.equals(componentSize)) {
-			componentSize = curentSize;
-			setPreferredSize(curentSize);
-			setSize(curentSize);
+		if(! boundingBoxSize.equals(componentSize)) {
+			componentSize = boundingBoxSize;
+			setPreferredSize(boundingBoxSize);
+			setSize(boundingBoxSize);
 		}
 	}
 

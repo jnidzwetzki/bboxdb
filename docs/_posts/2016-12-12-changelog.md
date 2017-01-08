@@ -12,6 +12,7 @@ order: 1
 - Improvement: Added callbacks for distribution region changes
 - Improvement: Reduced GUI CPU usage
 - Improvement: The GUI now shows a waiting cursor, when the distribution group is loaded
+- Improvement: The component size of the main panel matches now the shown components
 - Bugfix: The wrong split interval was taken
 - Bugfix: Fixed a race condition on compact thread init
 - Bugfix: The max size of a memtable was treated as kilobytes not bytes
