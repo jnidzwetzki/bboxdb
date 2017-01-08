@@ -403,7 +403,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param boundingBox2
 	 * @return
 	 */
-	public static BoundingBox getBoundingBox(final BoundingBox... boundingBoxes) {
+	public static BoundingBox getCoveringBox(final BoundingBox... boundingBoxes) {
 		
 		// No argument
 		if(boundingBoxes.length == 0) {

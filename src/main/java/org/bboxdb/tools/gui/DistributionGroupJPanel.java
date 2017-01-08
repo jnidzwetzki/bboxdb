@@ -86,7 +86,7 @@ public class DistributionGroupJPanel extends JPanel {
 		final BoundingBox boundingBoxRight 
 			= drawDistributionRegion(graphics2d, distributionRegion.getRightChild());
 		
-		return BoundingBox.getBoundingBox(boundingBox, boundingBoxLeft, boundingBoxRight);
+		return BoundingBox.getCoveringBox(boundingBox, boundingBoxLeft, boundingBoxRight);
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class DistributionGroupJPanel extends JPanel {
 		g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 40);
 		g.drawString("Replication factor: " + guiModel.getReplicationFactor(), 10, 60);
 		final BoundingBox boundingBoxText = new BoundingBox(0f, 400f, 0f, 200f);
-		final BoundingBox boundingBoxTotal = BoundingBox.getBoundingBox(boundingBoxRegion, boundingBoxText);
+		final BoundingBox boundingBoxTotal = BoundingBox.getCoveringBox(boundingBoxRegion, boundingBoxText);
 		
 		updateComponentSize(boundingBoxTotal);
 	}

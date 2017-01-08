@@ -69,14 +69,14 @@ public class BoxSortSpatialIndexStrategy implements SpatialIndexStrategy {
 		
 		if(! smaller.isEmpty()) {
 			subtreeRootnode.leftChild = partition(smaller, (dimension + 1) % (dimensions - 1));
-			subtreeRootnode.subtreeBoundingBox = BoundingBox.getBoundingBox(subtreeRootnode.subtreeBoundingBox, subtreeRootnode.leftChild.subtreeBoundingBox);
+			subtreeRootnode.subtreeBoundingBox = BoundingBox.getCoveringBox(subtreeRootnode.subtreeBoundingBox, subtreeRootnode.leftChild.subtreeBoundingBox);
 		} else {
 			subtreeRootnode.leftChild = null;
 		}
 		
 		if(! bigger.isEmpty()) {
 			subtreeRootnode.rightChild = partition(bigger, (dimension + 1) % (dimensions - 1));
-			subtreeRootnode.subtreeBoundingBox = BoundingBox.getBoundingBox(subtreeRootnode.subtreeBoundingBox, subtreeRootnode.rightChild.subtreeBoundingBox);
+			subtreeRootnode.subtreeBoundingBox = BoundingBox.getCoveringBox(subtreeRootnode.subtreeBoundingBox, subtreeRootnode.rightChild.subtreeBoundingBox);
 		} else {
 			subtreeRootnode.rightChild = null;
 		}

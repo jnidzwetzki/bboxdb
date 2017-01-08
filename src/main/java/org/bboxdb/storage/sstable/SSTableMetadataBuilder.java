@@ -54,7 +54,7 @@ public class SSTableMetadataBuilder {
 		} else {
 			// Calculate the bounding box of the current bounding box and
 			// the bounding box of the tuple
-			boundingBox = BoundingBox.getBoundingBox(boundingBox, tuple.getBoundingBox());
+			boundingBox = BoundingBox.getCoveringBox(boundingBox, tuple.getBoundingBox());
 		}
 				
 		// Update the newest and the oldest tuple

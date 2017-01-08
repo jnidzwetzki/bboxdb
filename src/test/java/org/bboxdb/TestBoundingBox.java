@@ -209,23 +209,23 @@ public class TestBoundingBox {
 		final BoundingBox boundingBox3 = new BoundingBox(1f, 4f, 1f, 4f, 1f, 4f);
 		final BoundingBox boundingBox4 = new BoundingBox(-1f, 2f, -1f, 2f, -1f, 2f);
 
-		final BoundingBox boundingBoxResult1 = BoundingBox.getBoundingBox();
+		final BoundingBox boundingBoxResult1 = BoundingBox.getCoveringBox();
 		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBoxResult1);
 		
-		Assert.assertEquals(boundingBox1, BoundingBox.getBoundingBox(boundingBox1));
-		Assert.assertEquals(boundingBox2, BoundingBox.getBoundingBox(boundingBox2));
-		Assert.assertEquals(boundingBox3, BoundingBox.getBoundingBox(boundingBox3));
-		Assert.assertEquals(boundingBox4, BoundingBox.getBoundingBox(boundingBox4));
+		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1));
+		Assert.assertEquals(boundingBox2, BoundingBox.getCoveringBox(boundingBox2));
+		Assert.assertEquals(boundingBox3, BoundingBox.getCoveringBox(boundingBox3));
+		Assert.assertEquals(boundingBox4, BoundingBox.getCoveringBox(boundingBox4));
 		
-		final BoundingBox boundingBoxResult2 = BoundingBox.getBoundingBox(boundingBox1, boundingBox2);
+		final BoundingBox boundingBoxResult2 = BoundingBox.getCoveringBox(boundingBox1, boundingBox2);
 		Assert.assertEquals(2, boundingBoxResult2.getDimension());
 		Assert.assertEquals(boundingBoxResult2, boundingBox2);
 		
 		// Wrong dimensions
-		final BoundingBox boundingBoxResult3 = BoundingBox.getBoundingBox(boundingBox1, boundingBox3);
+		final BoundingBox boundingBoxResult3 = BoundingBox.getCoveringBox(boundingBox1, boundingBox3);
 		Assert.assertTrue(boundingBoxResult3 == null);
 
-		final BoundingBox boundingBoxResult4 = BoundingBox.getBoundingBox(boundingBox3, boundingBox4);
+		final BoundingBox boundingBoxResult4 = BoundingBox.getCoveringBox(boundingBox3, boundingBox4);
 		Assert.assertEquals(3, boundingBoxResult4.getDimension());		
 		Assert.assertEquals(-1.0f, boundingBoxResult4.getCoordinateLow(0), EQUALS_DELTA);
 		Assert.assertEquals(4.0f, boundingBoxResult4.getCoordinateHigh(0), EQUALS_DELTA);
@@ -235,7 +235,7 @@ public class TestBoundingBox {
 		Assert.assertEquals(4.0f, boundingBoxResult4.getCoordinateHigh(2), EQUALS_DELTA);
 		
 		// Wrong dimensions
-		final BoundingBox boundingBoxResult5 = BoundingBox.getBoundingBox(boundingBox1, boundingBox2, boundingBox3, boundingBox4);
+		final BoundingBox boundingBoxResult5 = BoundingBox.getCoveringBox(boundingBox1, boundingBox2, boundingBox3, boundingBox4);
 		Assert.assertTrue(boundingBoxResult5 == null);
 	}
 	
@@ -244,7 +244,7 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testMergeBoxes0() {
-		final BoundingBox resultBox = BoundingBox.getBoundingBox();
+		final BoundingBox resultBox = BoundingBox.getCoveringBox();
 		Assert.assertEquals(BoundingBox.EMPTY_BOX, resultBox);
 	}
 	
@@ -255,7 +255,7 @@ public class TestBoundingBox {
 	public void testMergeBoxes1() {
 		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 1f);
 		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f, 1f, 4f);
-		final BoundingBox resultBox = BoundingBox.getBoundingBox(boundingBox1, boundingBox2);
+		final BoundingBox resultBox = BoundingBox.getCoveringBox(boundingBox1, boundingBox2);
 		Assert.assertArrayEquals(new float[] {1f, 2f, 1f, 4f}, resultBox.toFloatArray(), EQUALS_DELTA);
 	}
 	
@@ -266,7 +266,7 @@ public class TestBoundingBox {
 	public void testMergeBoxes2() {
 		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 1f);
 		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f, 1f, 4f);
-		final BoundingBox resultBox = BoundingBox.getBoundingBox(boundingBox1, boundingBox2, null);
+		final BoundingBox resultBox = BoundingBox.getCoveringBox(boundingBox1, boundingBox2, null);
 		Assert.assertArrayEquals(new float[] {1f, 2f, 1f, 4f}, resultBox.toFloatArray(), EQUALS_DELTA);
 	}
 	
