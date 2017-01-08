@@ -12,10 +12,10 @@ order: 1
 - Improvement: Added callbacks for distribution region changes
 - Improvement: Reduced GUI CPU usage
 - Improvement: The GUI now shows a waiting cursor, when the distribution group is loaded
-- Improvement: The component size of the main panel matches now the shown components
+- Improvement: The component size of the main panel now consider only the shown components
 - Bugfix: The wrong split interval was taken
 - Bugfix: Fixed a race condition on compact thread init
-- Bugfix: The max size of a memtable was treated as kilobytes not bytes
+- Bugfix: The max size of a memtable was treated as kilobytes, not bytes
 - Bugfix: Ensure that the data of the parent region is redistributed completely until child region is splitted
 - Bugfix: The same instance of the RegionSplitStrategy was used for all Tables, which leads to wrong data redistribution
 - Bugfix: Ensure that the RessourcePlacementStrategyFactory create new instances
@@ -26,7 +26,7 @@ order: 1
 ### Version 0.2.0 (Beta-5) - 01.01.2017
 - Improvement: Introduced JVM parameter
 - Improvement: Enabled the JMX server
-- Improvement: Replaced 'apache commons deamon' BBoxDB process management with native java solution
+- Improvement: Replaced 'apache commons daemon' BBoxDB process management with native Java solution
 - Improvement: Assertions are now enabled during unit tests and in server mode
 - Improvement: Introduced distribution group selection in GUI
 - Improvement: Added trace start to bboxdb
@@ -39,7 +39,7 @@ order: 1
 - Bugfix: GUI is repainted when a distribution region is recreated
 - Bugfix: Size of the GUI tree component was not dynamically calculated 
 - Bugfix: The acquire storages code releases all (not only the already acquired) storages on failure, this leads to wrong usage counting
-- Bugfix: Regions couldn't be removed from the nameprefix manager
+- Bugfix: Regions couldn't be removed from the name prefix manager
 - Bugfix: No data is written to ACTIVE_FULL regions
 - Bugfix: For splits, only the part of the tuple is analyzed, that is covered by the region
 - Bugfix: State updates of the tree are applied after reading the child nodes. Otherwise, a region could be set to splitted before the child nodes are ready 
@@ -76,7 +76,7 @@ order: 1
 - Bugfix: Group membership watch was not re-established
 - Bugfix: Wrong node state was displayed in the GUI
 - Bugfix: Fixed handling of failed futures in the benchmark
-- Bugfix: Fixed calculation of 'in flight calls' for a cluster
+- Bugfix: Fixed calculation of 'in-flight calls' for a cluster
 - Bugfix: Fixed calculation of the routing header, don't route packages to local instance
 - Bugfix: Ignore socket exception, when a server shutdown is performed
 - Bugfix: When a dead instance is detected, don't send a disconnect package. Close the network connection instead
@@ -96,7 +96,7 @@ order: 1
 - Improvement: OSM import is now executed on a disk backed set, so huge imports (> memory) can be performed
 - Improvement: Speed up 'read by key' operation, by scanning only the relevant SStables
 - Improvement: Switched to SLF4J LOG4J 12 Binding 1.7.21 and Zookeeper 3.4.9
-- Improvement: The server don't materialize the query results. This allows huge query results (> memory)
+- Improvement: The server does not materialize the query results. This allows huge query results (> memory)
 - Bugfix: Logs now written into $installdir/logs
 - Bugfix: Outdated tuples could be returned from the unflushed memtables
 - Bugfix: Fixed 'node exist exception' during instance registration on fast service restarts
@@ -106,7 +106,7 @@ order: 1
 
 ### Version 0.2.0 (Beta-1) - 17.11.2016
 - New feature: Added a selftest
-- Improvement: Implemented keep alive packages, to keep tcp connections open
+- Improvement: Implemented keep alive packages, to keep TCP connections open
 - Improvement: Added the possibility to log debug messages 
 - Improvement: Write geometrical data to server in OSMInsertBenchmark
 - Improvement: Moved OSM importer code to own class
@@ -139,7 +139,7 @@ order: 1
 - Added first version of the OSM data import benchmark
 - Added routing header to network packages 
 - First version with working ClusterClient
-- Changed client API (Introduced multi result futures)
+- Changed client API (Introduced multi-result futures)
 - Implemented insert request routing
 - Changed the structure of the list tables response package
 - Spread existing data on region split
@@ -156,10 +156,10 @@ order: 1
 ### Version 0.0.8 (Alpha) - 22.06.2016
 - Store Distribution Region assignment in zookeeper
 - Improved exception handling and prevent half written sstables
-- Introduced the multi server client "ScalephantCluster"
+- Introduced the multi-server client "ScalephantCluster"
 - Made GUI settings (ZookeeperHost, Clustername) configurable
 - The GUI now uses data fetched from zookeeper instead of mockup data
-- The nameprefix of the distribution regions is now stored in zookeeper
+- The name prefix of the distribution regions is now stored in zookeeper
 - Introduced a simple resource allocation strategy
 
 ### Version 0.0.7 (Alpha) - 05.06.2016
@@ -168,15 +168,15 @@ order: 1
 - Added create and delete distribution group network packages
 - Replication factor is now configurable per distribution group
 - Added logic to store distribution groups in zookeeper
-- Added a in memory structure for distribution groups (updated by zookeeper) 
-- Added zookeeper to travis ci environment
+- Added an in-memory structure for distribution groups (updated by zookeeper) 
+- Added zookeeper to Travis CI environment
 - Added zookeeper integration tests
 
 ### Version 0.0.6 (Alpha) - 13.05.2016
 - Added timestamp queries
 - Implemented the table transfer network package
 - Changed the requestid of the network protocol to int, to handle more parallel requests
-- Removed a lot of buffers in the network implementation (less memory is needed)
+- Removed many buffers in the network implementation (less memory is needed)
 - Implemented distributed instance discovery via zookeeper 
 - Added a basic GUI
 - The zookeeper database can be now deleted with the cluster management script
@@ -204,13 +204,13 @@ order: 1
 - Implemented a network client
 - First network protocol specification (see doc/network.md)
 - Implemented a server service
-- Integrated travis-ci
+- Integrated Travis CI
 
 ### Version 0.0.2 (Alpha) - 26.01.2016
 - Implemented a SSTable/SSTableIndex examiner for debugging
 - Introduced a simple compactification strategy
 - Introduced SSTable indices  
-- Implemented index binary search, to locate tuples
+- Implemented binary index search, to locate tuples
 - Implemented a tuple iterator to perform full table scans
 - Handle deleted tuples correctly 
 - Implemented SSTable compactification
