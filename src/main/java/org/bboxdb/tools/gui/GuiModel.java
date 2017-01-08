@@ -17,9 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui;
 
+import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.swing.SwingUtilities;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
@@ -138,21 +141,43 @@ public class GuiModel implements DistributedInstanceEventCallback,
 	 */
 	public void updateDistributionRegion() throws ZookeeperException,
 			ZookeeperNotFoundException {
-		logger.info("Reread distribution group");
+		
+		logger.info("Reread distribution group: {}", distributionGroup);
+		
+		// Show wait cursor
+		SwingUtilities.invokeLater(() -> {
+			bboxdbGui.getGlassPane().setVisible(true);
+			bboxdbGui.getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		});
 
-		unregisterTreeChangeListener();
+		// Read distribution group async
+		(new Thread(() -> {
+			unregisterTreeChangeListener();
 
-		if (distributionGroup == null) {
-			treeAdapter = null;
-			return;
-		}
+			if (distributionGroup == null) {
+				treeAdapter = null;
+				return;
+			}
 
-		treeAdapter = distributionGroupZookeeperAdapter
-				.readDistributionGroup(distributionGroup);
-		replicationFactor = distributionGroupZookeeperAdapter
-				.getReplicationFactorForDistributionGroup(distributionGroup);
+			try {
+				treeAdapter = distributionGroupZookeeperAdapter
+						.readDistributionGroup(distributionGroup);
+				
+				replicationFactor = distributionGroupZookeeperAdapter
+						.getReplicationFactorForDistributionGroup(distributionGroup);
+			} catch (Exception e) {
+				logger.warn("Got exception", e);
+			}
 
-		treeAdapter.registerCallback(this);
+			treeAdapter.registerCallback(GuiModel.this);
+			
+			// Reset cursor
+			SwingUtilities.invokeLater(() -> {
+					updateModel();
+					bboxdbGui.getGlassPane().setVisible(false);
+					bboxdbGui.getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			});
+		})).start();
 	}
 
 	/**
@@ -240,9 +265,6 @@ public class GuiModel implements DistributedInstanceEventCallback,
 		} catch (Exception e) {
 			logger.info("Exception while updating the view", e);
 		}
-
-		// Display the new distribution group
-		updateModel();
 	}
 
 	/**

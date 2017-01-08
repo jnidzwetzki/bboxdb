@@ -290,4 +290,17 @@ public class BBoxDBGui {
 
 		mainPanel.repaint();
 	}
+	
+	/**
+	 * Get the glass pane of the main panel
+	 * @return
+	 */
+	public Component getGlassPane() {
+		
+		if(mainframe == null) {
+			return null;
+		}
+		
+		return mainframe.getGlassPane();
+	}
 }
