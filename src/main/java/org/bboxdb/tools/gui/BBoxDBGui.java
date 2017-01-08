@@ -38,6 +38,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.RootPaneContainer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -288,7 +289,7 @@ public class BBoxDBGui {
 			tableModel.fireTableDataChanged();
 		}
 
-		mainPanel.repaint();
+		mainframe.repaint();
 	}
 	
 	/**
@@ -297,10 +298,13 @@ public class BBoxDBGui {
 	 */
 	public Component getGlassPane() {
 		
-		if(mainframe == null) {
+		if(mainPanel == null) {
 			return null;
 		}
 		
-		return mainframe.getGlassPane();
+		final RootPaneContainer root = 
+				(RootPaneContainer) mainPanel.getTopLevelAncestor();
+		   
+		return root.getGlassPane();
 	}
 }

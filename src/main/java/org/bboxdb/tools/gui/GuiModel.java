@@ -171,11 +171,13 @@ public class GuiModel implements DistributedInstanceEventCallback,
 
 			treeAdapter.registerCallback(GuiModel.this);
 			
+			logger.info("Read distribution group {} done", distributionGroup);
+			
 			// Reset cursor
 			SwingUtilities.invokeLater(() -> {
 					updateModel();
-					bboxdbGui.getGlassPane().setVisible(false);
 					bboxdbGui.getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+					bboxdbGui.getGlassPane().setVisible(false);
 			});
 		})).start();
 	}
