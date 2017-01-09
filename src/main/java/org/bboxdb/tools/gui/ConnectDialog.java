@@ -80,7 +80,7 @@ public class ConnectDialog {
 		
 		mainframe.add(builder.getPanel());
 		mainframe.pack();
-		GuiHelper.setCenterPosition(mainframe);
+		mainframe.setLocationRelativeTo(null);
 		mainframe.setVisible(true);
 	}
 

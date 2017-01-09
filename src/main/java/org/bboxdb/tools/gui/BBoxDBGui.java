@@ -178,7 +178,7 @@ public class BBoxDBGui {
 		mainframe.add(southPanel, BorderLayout.SOUTH);
 		
 		mainframe.pack();
-		GuiHelper.setCenterPosition(mainframe);
+		mainframe.setLocationRelativeTo(null);
 		mainframe.setVisible(true);
 	}
 
