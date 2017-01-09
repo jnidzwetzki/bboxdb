@@ -159,21 +159,21 @@ public class DistributionRegionComponent {
 		g.setColor(oldColor);
 		g.drawRect(xOffset, yOffset, WIDTH, HEIGHT);
 
-		// Write the split position
-		String nodeText = Float.toString(distributionRegion.getSplit());
-		if(distributionRegion.isLeafRegion()) {
-			nodeText = "-";
-		}
+		// Write the region id
+		final String regionId = "Region: " + Integer.toString(distributionRegion.getRegionId());
+		writeStringCentered(g, regionId, 0.3);
 		
-		final Rectangle2D bounds = g.getFontMetrics().getStringBounds(nodeText, g);
-		int stringWidth = (int) bounds.getWidth();
-		g.drawString(nodeText, xOffset + (WIDTH / 2) - (stringWidth / 2), yOffset + (int) (HEIGHT * 0.7));
-
-		// Draw the state
+		// Write the state
 		final String nodeState = distributionRegion.getState().getStringValue();
-		final Rectangle2D boundsState = g.getFontMetrics().getStringBounds(nodeState, g);
-		int stringWidthStage = (int) boundsState.getWidth();
-		g.drawString(nodeState, xOffset + (WIDTH / 2) - (stringWidthStage / 2), yOffset + (int) (HEIGHT * 0.3));
+		writeStringCentered(g, nodeState, 0.6);
+		
+		// Write the split position
+		if(distributionRegion.isLeafRegion()) {
+			writeStringCentered(g, "-", 0.9);
+		} else {
+			String nodeText = Float.toString(distributionRegion.getSplit());
+			writeStringCentered(g, nodeText, 0.9);
+		}
 		
 		// Draw the line to the parent node
 		drawParentNodeLine(g);
@@ -182,6 +182,18 @@ public class DistributionRegionComponent {
 				(float) xOffset + WIDTH, (float) yOffset, (float) yOffset + HEIGHT);
 				
 		return boundingBox;
+	}
+
+	/**
+	 * Write the given string centered
+	 * @param g
+	 * @param nodeState
+	 * @param pos
+	 */
+	protected void writeStringCentered(final Graphics2D g, final String nodeState, final double pos) {
+		final Rectangle2D boundsState = g.getFontMetrics().getStringBounds(nodeState, g);
+		int stringWidthStage = (int) boundsState.getWidth();
+		g.drawString(nodeState, xOffset + (WIDTH / 2) - (stringWidthStage / 2), yOffset + (int) (HEIGHT * pos));
 	}
 
 	/**
@@ -255,9 +267,6 @@ public class DistributionRegionComponent {
 				sb.append(", ");
 			}
 		}
-		
-		sb.append("<br>");
-		sb.append("Nameprefix: " + distributionRegion.getRegionId());
 		
 		sb.append("</html>");
 		return sb.toString();

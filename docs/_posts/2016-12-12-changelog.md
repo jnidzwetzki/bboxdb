@@ -15,6 +15,7 @@ order: 1
 - Improvement: The component size of the main panel now consider only the shown components
 - Improvement: Introduced a status bar in the GUI main view
 - Improvement: Switched GUI to Nimbus look and feel
+- Improvement: The region id of a distribution group is now printed in the GUI
 - Bugfix: The wrong split interval was taken
 - Bugfix: Fixed a race condition on compact thread init
 - Bugfix: The max size of a memtable was treated as kilobytes, not bytes
