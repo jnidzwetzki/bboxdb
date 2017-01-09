@@ -43,7 +43,7 @@ public class DistributionRegionComponent {
 	/**
 	 * The x offset of a child (- if left child / + if right child)
 	 */
-	protected final static int LEFT_RIGHT_OFFSET = 60;
+	protected final static int LEFT_RIGHT_OFFSET = 30;
 	
 	/**
 	 * The distance between two levels
@@ -58,7 +58,7 @@ public class DistributionRegionComponent {
 	/**
 	 * The width of the box
 	 */
-	protected final static int WIDTH = 100;
+	protected final static int WIDTH = 90;
 	
 	/**
 	 * The distribution region to paint
@@ -115,7 +115,12 @@ public class DistributionRegionComponent {
 	 * @return
 	 */
 	protected int calculateLevelXOffset(final int level) {
-		return (LEFT_RIGHT_OFFSET * (distributionRegion.getTotalLevel() - level));
+		
+		final int offsetLastLevel = (LEFT_RIGHT_OFFSET + WIDTH) / 2;
+		
+		final int curentLevel = distributionRegion.getTotalLevel() - level - 1;
+		
+		return (int) (offsetLastLevel * Math.pow(2, curentLevel));
 	}
 	
 	/**
