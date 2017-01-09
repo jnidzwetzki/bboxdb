@@ -171,6 +171,11 @@ public class GuiModel implements DistributedInstanceEventCallback,
 
 			treeAdapter.registerCallback(GuiModel.this);
 			
+			final StringBuilder sb = new StringBuilder();
+			sb.append("Cluster name: " + getClustername());
+			sb.append(", Replication factor: " + replicationFactor);
+			bboxdbGui.getStatusLabel().setText(sb.toString());
+
 			logger.info("Read distribution group {} done", distributionGroup);
 			
 			// Reset cursor

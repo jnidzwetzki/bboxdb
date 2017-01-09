@@ -104,15 +104,12 @@ public class DistributionGroupJPanel extends JPanel {
 		if(guiModel.getTreeAdapter() == null) {
 			return;
 		}
+		
 		final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
 
 		final BoundingBox boundingBoxRegion = drawDistributionRegion(graphics2D, distributionRegion);
-
-		g.drawString("Cluster name: " + guiModel.getClustername(), 10, 20);
-		g.drawString("Distribution group: " + guiModel.getDistributionGroup(), 10, 40);
-		g.drawString("Replication factor: " + guiModel.getReplicationFactor(), 10, 60);
-		final BoundingBox boundingBoxText = new BoundingBox(0f, 400f, 0f, 200f);
-		final BoundingBox boundingBoxTotal = BoundingBox.getCoveringBox(boundingBoxRegion, boundingBoxText);
+		final BoundingBox baseDimension = new BoundingBox(0f, 400f, 0f, 200f);
+		final BoundingBox boundingBoxTotal = BoundingBox.getCoveringBox(boundingBoxRegion, baseDimension);
 		
 		updateComponentSize(boundingBoxTotal);
 	}

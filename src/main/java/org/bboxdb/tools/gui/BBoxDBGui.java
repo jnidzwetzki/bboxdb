@@ -21,14 +21,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.AbstractAction;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -39,8 +39,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RootPaneContainer;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.bboxdb.distribution.DistributionGroupName;
@@ -50,6 +50,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BBoxDBGui {
+
+	protected class InstanceTableModel extends DefaultTableCellRenderer {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -2405592763548531423L;
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus,
+				int row, int column) {
+
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+			final String state = (String) table.getModel().getValueAt(row, 4);
+
+			if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
+				setBackground(Color.YELLOW);
+			} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
+				setBackground(Color.GREEN);
+			} else {
+				setBackground(table.getBackground());
+			}
+
+			return this;
+		}
+	}
 
 	/**
 	 * The main frame
@@ -75,6 +102,11 @@ public class BBoxDBGui {
 	 * The Menu bar
 	 */
 	protected JMenuBar menuBar;
+	
+	/**
+	 * The status label
+	 */
+	protected JLabel statusLabel;
 
 	/**
 	 * The table Model
@@ -117,33 +149,7 @@ public class BBoxDBGui {
 		table.getColumnModel().getColumn(2).setMinWidth(100);
 		table.getColumnModel().getColumn(2).setMaxWidth(100);
 
-		table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = -2405592763548531423L;
-
-			@Override
-			public Component getTableCellRendererComponent(JTable table,
-					Object value, boolean isSelected, boolean hasFocus,
-					int row, int column) {
-
-				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-				final String state = (String) table.getModel().getValueAt(row, 4);
-
-				if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
-					setBackground(Color.YELLOW);
-				} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
-					setBackground(Color.GREEN);
-				} else {
-					setBackground(table.getBackground());
-				}
-
-				return this;
-			}
-		});
+		table.setDefaultRenderer(Object.class, new InstanceTableModel());
 
 		final JScrollPane tableScrollPane = new JScrollPane(table);		
 		final Dimension d = table.getPreferredSize();
@@ -154,8 +160,23 @@ public class BBoxDBGui {
 		mainframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainframe.setLayout(new BorderLayout());
 		mainframe.add(mainPanel, BorderLayout.CENTER);
-		mainframe.add(tableScrollPane, BorderLayout.SOUTH);
+		
+		final JPanel southPanel = new JPanel();
 
+		final JPanel statusPanel = new JPanel();
+		statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
+		statusPanel.setPreferredSize(new Dimension(southPanel.getWidth(), 20));
+		statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
+		statusLabel = new JLabel("No Distribution Group selected");
+		statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		statusPanel.add(statusLabel);
+		
+		southPanel.setLayout(new BorderLayout());
+		southPanel.add(tableScrollPane, BorderLayout.CENTER);
+		southPanel.add(statusPanel, BorderLayout.SOUTH);
+
+		mainframe.add(southPanel, BorderLayout.SOUTH);
+		
 		mainframe.pack();
 		GuiHelper.setCenterPosition(mainframe);
 		mainframe.setVisible(true);
@@ -211,13 +232,9 @@ public class BBoxDBGui {
 		refreshDistributionGroups(listModel);
 
 		leftList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		leftList.addListSelectionListener(new ListSelectionListener() {
-
-			@Override
-			public void valueChanged(final ListSelectionEvent e) {
-				if (! e.getValueIsAdjusting()) {
-					guiModel.setDistributionGroup(leftList.getSelectedValue());
-				}
+		leftList.addListSelectionListener(e -> {
+			if (! e.getValueIsAdjusting()) {
+				guiModel.setDistributionGroup(leftList.getSelectedValue());
 			}
 		});
 
@@ -253,27 +270,15 @@ public class BBoxDBGui {
 		menuBar.add(menu);
 
 		final JMenuItem reloadItem = new JMenuItem("Reload Distribution Groups");
-		reloadItem.addActionListener(new AbstractAction() {
-
-			private static final long serialVersionUID = -5380326547117916348L;
-
-			public void actionPerformed(final ActionEvent e) {
+		reloadItem.addActionListener((e) ->  {
 				refreshDistributionGroups(listModel);
-			}
-
 		});
 		
 		menu.add(reloadItem);
 
 		final JMenuItem closeItem = new JMenuItem("Close");
-		closeItem.addActionListener(new AbstractAction() {
-
-			private static final long serialVersionUID = -5380326547117916348L;
-
-			public void actionPerformed(final ActionEvent e) {
+		closeItem.addActionListener((e) -> {
 				shutdown = true;
-			}
-
 		});
 		
 		menu.add(closeItem);
@@ -306,5 +311,13 @@ public class BBoxDBGui {
 				(RootPaneContainer) mainPanel.getTopLevelAncestor();
 		   
 		return root.getGlassPane();
+	}
+	
+	/**
+	 * Returns the status label
+	 * @return
+	 */
+	public JLabel getStatusLabel() {
+		return statusLabel;
 	}
 }
