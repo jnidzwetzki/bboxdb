@@ -167,7 +167,7 @@ public class BBoxDBGui {
 		statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		statusPanel.setPreferredSize(new Dimension(southPanel.getWidth(), 20));
 		statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
-		statusLabel = new JLabel("No Distribution Group selected");
+		statusLabel = new JLabel("");
 		statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		statusPanel.add(statusLabel);
 		
@@ -256,8 +256,13 @@ public class BBoxDBGui {
 
 		Collections.sort(distributionGroups);
 		listModel.clear();
+		
 		for(final DistributionGroupName distributionGroupName : distributionGroups) {
 			listModel.addElement(distributionGroupName.getFullname());
+		}
+		
+		if(statusLabel != null) {
+			statusLabel.setText("");
 		}
 	}
 
