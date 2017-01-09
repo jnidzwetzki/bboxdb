@@ -119,11 +119,6 @@ public class BBoxDBGui {
 	protected GuiModel guiModel;
 
 	/**
-	 * Shutdown the GUI ?
-	 */
-	public volatile boolean shutdown = false;
-
-	/**
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(BBoxDBGui.class);
@@ -283,7 +278,7 @@ public class BBoxDBGui {
 
 		final JMenuItem closeItem = new JMenuItem("Close");
 		closeItem.addActionListener((e) -> {
-				shutdown = true;
+				System.exit(0);
 		});
 		
 		menu.add(closeItem);
