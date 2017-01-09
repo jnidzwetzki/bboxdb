@@ -24,6 +24,7 @@ order: 1
 - Bugfix: Removed repeated log messages about adding local region mappings
 - Bugfix: All local tables (not only the tables of a certain region) have been redistributed
 - Bugfix: Removed warning when merging an empty bounding box
+- Bugfix: Fixed handling of empty tooltips
 
 ### Version 0.2.0 (Beta-5) - 01.01.2017
 - Improvement: Introduced JVM parameter

@@ -144,7 +144,8 @@ public class DistributionGroupJPanel extends JPanel {
 				return component.getToolTipText();
 			}
 		}
-
-		return "";
+		
+        setToolTipText(null);
+		return super.getToolTipText(event);
 	}
 }
