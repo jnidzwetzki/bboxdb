@@ -17,6 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui;
 
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+
 
 public class Main {
 	
@@ -26,7 +29,30 @@ public class Main {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
+		
+		setLookAndFeel();
+		
 		final ConnectDialog connectDialog = new ConnectDialog();
 		connectDialog.showDialog();
+	}
+
+	/**
+	 * Try to set the new Nimbus L&F
+	 */
+	protected static void setLookAndFeel() {
+		try {
+		    for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		        if ("Nimbus".equals(info.getName())) {
+		            UIManager.setLookAndFeel(info.getClassName());
+		            return;
+		        }
+		    }
+		} catch (Exception e) {
+		    try {
+		        UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+		    } catch (Exception e1) {
+		    	
+		    }
+		}
 	}
 }
