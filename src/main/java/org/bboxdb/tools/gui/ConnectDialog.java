@@ -89,10 +89,13 @@ public class ConnectDialog {
 	 * @return
 	 */
 	protected PanelBuilder buildDialog() {
+		
 		// Close
-		final Action closeAction = getCloseAction();
-		final JButton closeButton = new JButton(closeAction);
+		final JButton closeButton = new JButton();
 		closeButton.setText("Close");
+		closeButton.addActionListener((e) -> {
+			System.exit(0);
+		});
 		
 		// Connect
 		final Action connectAction = getConnectAction();
@@ -116,26 +119,6 @@ public class ConnectDialog {
 		builder.add(connectButton, cc.xy(1, 7));
 		builder.add(closeButton, cc.xy(3, 7));
 		return builder;
-	}
-
-	/**
-	 * Returns the close action
-	 * @return
-	 */
-	protected AbstractAction getCloseAction() {
-		return new AbstractAction() {
-			
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = -1349800056154800682L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-			
-		};
 	}
 
 	/**
@@ -175,7 +158,6 @@ public class ConnectDialog {
 			 * @param zookeeperClient
 			 */
 			protected void showMainDialog(final ZookeeperClient zookeeperClient) {
-				
 				final GuiModel guiModel = new GuiModel(zookeeperClient);		
 				final BBoxDBGui bboxDBGUI = new BBoxDBGui(guiModel);
 				guiModel.setBBoxDBGui(bboxDBGUI);
