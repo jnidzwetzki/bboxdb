@@ -51,6 +51,17 @@ import org.slf4j.LoggerFactory;
 
 public class BBoxDBGui {
 
+	/**
+	 * Color green
+	 */
+	private static final Color OUR_GREEN = new Color(0, 192, 0);
+	
+	/**
+	 * Color gray
+	 */
+	private static final Color OUR_GRAY = new Color(64, 64, 64);
+
+	
 	protected class InstanceTableModel extends DefaultTableCellRenderer {
 		/**
 		 * 
@@ -72,9 +83,9 @@ public class BBoxDBGui {
 				if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
 					setForeground(Color.YELLOW);
 				} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
-					setForeground(Color.GREEN);
+					setForeground(OUR_GREEN);
 				} else {
-					setForeground(table.getForeground());
+					setForeground(OUR_GRAY);
 				}
 			}
 
