@@ -66,12 +66,16 @@ public class BBoxDBGui {
 
 			final String state = (String) table.getModel().getValueAt(row, 4);
 
-			if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
-				setBackground(Color.YELLOW);
-			} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
-				setBackground(Color.GREEN);
+			if(column != 4) {
+				setForeground(table.getForeground());
 			} else {
-				setBackground(table.getBackground());
+				if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
+					setForeground(Color.YELLOW);
+				} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
+					setForeground(Color.GREEN);
+				} else {
+					setForeground(table.getForeground());
+				}
 			}
 
 			return this;
