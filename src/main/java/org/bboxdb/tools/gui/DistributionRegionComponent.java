@@ -43,7 +43,7 @@ public class DistributionRegionComponent {
 	/**
 	 * The x offset of a child (- if left child / + if right child)
 	 */
-	protected final static int LEFT_RIGHT_OFFSET = 30;
+	protected final static int LEFT_RIGHT_OFFSET = 15;
 	
 	/**
 	 * The distance between two levels
@@ -208,7 +208,7 @@ public class DistributionRegionComponent {
 			return Color.GREEN;
 			
 		case SPLITTED:
-			return Color.GRAY;
+			return new Color(144, 144, 144);
 			
 		case SPLITTING:
 			return Color.YELLOW;
