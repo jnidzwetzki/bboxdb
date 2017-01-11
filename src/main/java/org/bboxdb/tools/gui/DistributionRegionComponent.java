@@ -316,4 +316,11 @@ public class DistributionRegionComponent {
 		return sb.toString();
 	}
 
+	/**
+	 * Return the distribution region
+	 * @return
+	 */
+	public DistributionRegion getDistributionRegion() {
+		return distributionRegion;
+	}
 }

@@ -158,14 +158,13 @@ public class DistributionGroupJPanel extends JPanel {
 		for(DistributionRegionComponent component : regions) {
 			minBoundingBox = BoundingBox.getCoveringBox(component.getBoundingBox(), minBoundingBox);
 		}
-				
-		
+						
 		final float rootCoordinateLow = regions.get(0).getBoundingBox().getCoordinateLow(0);
 		final float bboxCoordinateLow = minBoundingBox.getCoordinateLow(0);
 		
 		final int rootOffsetBBox = (int) (rootCoordinateLow - bboxCoordinateLow) + PADDING_LEFT_RIGHT;
 
-		final int rootOffsetWindowSize = (getWidth() - DistributionRegionComponent.WIDTH) / 2;
+		final int rootOffsetWindowSize = (int) ((getVisibleRect().getWidth() - DistributionRegionComponent.WIDTH) / 2);
 		
 		// If the screen is bigger as the bounding box, use the screen width
 		rootPosX = Math.max(rootOffsetBBox, rootOffsetWindowSize);	
