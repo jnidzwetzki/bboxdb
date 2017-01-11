@@ -208,6 +208,12 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			+ " is a leaf region. Left child: " + region.getLeftChild() + " right child: " 
 			+ region.getRightChild();
 		
+		assert (! region.getLeftChild().getSystems().isEmpty()) : "Region " +  region.getLeftChild().getIdentifier() 
+			+ " state " +  region.getLeftChild().getState();
+		
+		assert (! region.getRightChild().getSystems().isEmpty()) : "Region " +  region.getRightChild().getIdentifier() 
+		+ " state " +  region.getRightChild().getState();
+		
 		final List<SSTableName> localTables = StorageRegistry.getAllTablesForDistributionGroupAndRegionId
 				(region.getDistributionGroupName(), region.getRegionId());
 		
@@ -261,10 +267,6 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	protected void spreadStorages(final DistributionRegion region, 
 			final SSTableName ssTableName, final SSTableManager ssTableManager) {
 
-		assert (! region.isLeafRegion());
-		assert (! region.getLeftChild().getSystems().isEmpty());
-		assert (! region.getRightChild().getSystems().isEmpty());
-		
 		final DistributionRegion leftRegion = region.getLeftChild();
 		final DistributionRegion rightRegion = region.getRightChild();
 		
