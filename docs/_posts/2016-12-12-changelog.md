@@ -5,6 +5,10 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
+
+### Version 0.2.1 (Stable) - TBA
+
+
 ### Version 0.2.0 (Stable) - 11.01.2017
 - Improvement: New logo
 - Improvement: Shortened socket close exception
