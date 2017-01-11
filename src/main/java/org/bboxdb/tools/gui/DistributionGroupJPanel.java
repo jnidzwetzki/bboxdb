@@ -159,7 +159,13 @@ public class DistributionGroupJPanel extends JPanel {
 			minBoundingBox = BoundingBox.getCoveringBox(component.getBoundingBox(), minBoundingBox);
 		}
 		
-		rootPosX = (int) (minBoundingBox.getExtent(0) / 2) + PADDING_LEFT;
+		final int boundingBoxCenter = (int) (minBoundingBox.getExtent(0) / 2);
+		
+		// If the screen is bigger as the bounding box, use the screen width
+		final int realCenter = Math.max(boundingBoxCenter, getWidth() / 2);
+		
+		// Center the root node
+		rootPosX = realCenter - DistributionRegionComponent.WIDTH / 2;
 	}
 
 	/**
