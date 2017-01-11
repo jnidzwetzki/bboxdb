@@ -142,6 +142,17 @@ public class DistributionGroupJPanel extends JPanel {
 		rootPosX = 100000;
 		createDistribtionRegionComponents(distributionRegion);
 		
+		calculateRootNodeXPos();
+		
+		final BoundingBox drawBox = drawDistributionRegion(graphics2D);
+	
+		updateComponentSize(drawBox);
+	}
+
+	/**
+	 * Calculate the root node X postion
+	 */
+	protected void calculateRootNodeXPos() {
 		BoundingBox minBoundingBox = BoundingBox.EMPTY_BOX;
 		
 		for(DistributionRegionComponent component : regions) {
@@ -149,11 +160,6 @@ public class DistributionGroupJPanel extends JPanel {
 		}
 		
 		rootPosX = (int) (minBoundingBox.getExtent(0) / 2) + PADDING_LEFT;
-		System.out.println("New pos: " + rootPosX);
-		
-		final BoundingBox drawBox = drawDistributionRegion(graphics2D);
-	
-		updateComponentSize(drawBox);
 	}
 
 	/**
