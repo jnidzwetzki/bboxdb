@@ -377,6 +377,7 @@ public class DistributionRegion {
 		
 		final ArrayList<DistributedInstance> newInstances 
 			= new ArrayList<DistributedInstance>(systems.size());
+		
 		newInstances.addAll(systems);
 		
 		this.systems = newInstances;
