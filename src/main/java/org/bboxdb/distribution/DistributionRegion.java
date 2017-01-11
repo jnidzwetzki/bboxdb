@@ -371,21 +371,21 @@ public class DistributionRegion {
 	
 	/**
 	 * Set the systems for this DistributionRegion
-	 * @param systems
+	 * @param newSystems
 	 */
-	public void setSystems(final Collection<DistributedInstance> systems) {
+	public void setSystems(final Collection<DistributedInstance> newSystems) {
 		
-		if(systems == null || systems.isEmpty()) {
-			systems.clear();
+		if(newSystems == null || newSystems.isEmpty()) {
+			this.systems.clear();
 			return;
 		}
 		
-		final ArrayList<DistributedInstance> newInstances 
-			= new ArrayList<DistributedInstance>(systems.size());
+		final ArrayList<DistributedInstance> newSystemsList 
+			= new ArrayList<DistributedInstance>(newSystems.size());
 		
-		newInstances.addAll(systems);
+		newSystemsList.addAll(newSystems);
 		
-		this.systems = newInstances;
+		this.systems = newSystemsList;
 	}
 	
 	/**
