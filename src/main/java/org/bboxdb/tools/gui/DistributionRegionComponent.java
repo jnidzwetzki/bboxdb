@@ -187,6 +187,7 @@ public class DistributionRegionComponent {
 	public BoundingBox getBoundingBox() {
 		final BoundingBox boundingBox = new BoundingBox((float) xOffset, 
 				(float) xOffset + WIDTH, (float) yOffset, (float) yOffset + HEIGHT);
+				
 		return boundingBox;
 	}
 

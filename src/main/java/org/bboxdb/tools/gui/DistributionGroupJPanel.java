@@ -53,13 +53,13 @@ public class DistributionGroupJPanel extends JPanel {
 	 * The margin for bounding boxes 
 	 * (adds a litte bit empty space around the components)
 	 */
-	protected static final int SCROLL_MARGIN = 10;
+	protected static final int PADDING_TOP_BOTTOM = 10;
 
 	/**
-	 * The padding on the left side
+	 * The padding on the left and right side
 	 */
-	protected static final int PADDING_LEFT = 200;
-
+	protected static final int PADDING_LEFT_RIGHT = 40;
+	
 	/**
 	 * The x-position of the root-node
 	 */
@@ -158,9 +158,10 @@ public class DistributionGroupJPanel extends JPanel {
 		for(DistributionRegionComponent component : regions) {
 			minBoundingBox = BoundingBox.getCoveringBox(component.getBoundingBox(), minBoundingBox);
 		}
-		
-		final int boundingBoxCenter = (int) (minBoundingBox.getExtent(0) / 2);
-		
+				
+		final int boundingBoxCenter = (int) (minBoundingBox.getExtent(0) / 2) 
+				+ PADDING_LEFT_RIGHT + DistributionRegionComponent.WIDTH / 2;
+
 		// If the screen is bigger as the bounding box, use the screen width
 		final int realCenter = Math.max(boundingBoxCenter, getWidth() / 2);
 		
@@ -180,8 +181,8 @@ public class DistributionGroupJPanel extends JPanel {
 		}
 
 		final Dimension boundingBoxSize = new Dimension(
-				(int) boundingBox.getExtent(0) + SCROLL_MARGIN + PADDING_LEFT, 
-				(int) boundingBox.getExtent(1) + SCROLL_MARGIN + rootPosY);
+				(int) boundingBox.getExtent(0) + (2 * PADDING_LEFT_RIGHT), 
+				(int) boundingBox.getExtent(1) + (2 * PADDING_TOP_BOTTOM) + rootPosY);
 
 		// Size has changed, update
 		if(! boundingBoxSize.equals(componentSize)) {
