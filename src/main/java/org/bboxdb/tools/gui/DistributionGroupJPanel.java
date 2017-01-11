@@ -120,6 +120,10 @@ public class DistributionGroupJPanel extends JPanel {
 	 * @param boundingBox 
 	 */
 	protected void updateComponentSize(final BoundingBox boundingBox) {
+		
+		if(boundingBox == BoundingBox.EMPTY_BOX) {
+			return;
+		}
 
 		final Dimension boundingBoxSize = new Dimension(
 				(int) boundingBox.getExtent(0) + SCROLL_MARGIN, 
