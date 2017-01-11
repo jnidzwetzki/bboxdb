@@ -483,6 +483,9 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			logger.debug("Reading path: {}", path);
 			
 			try {
+				final DistributionRegionState regionState 
+					= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
+				
 				// Read region id
 				updateIdForRegion(path, region);
 
@@ -495,7 +498,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 				// Handle state updates at the end.
 				// Otherwise, we could set the region to splitted 
 				// and the child regions are not ready
-				updateStateForRegion(path, region);
+				region.setState(regionState);
 
 			} catch (ZookeeperNotFoundException e) {
 				handleRootElementDeleted();
@@ -535,24 +538,6 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, 
 				region.getRightChild());
 	}
-
-
-	/**
-	 * Update path for region
-	 * @param path
-	 * @param region
-	 * @throws ZookeeperException
-	 * @throws ZookeeperNotFoundException
-	 */
-	protected void updateStateForRegion(final String path, final DistributionRegion region) 
-			throws ZookeeperException, ZookeeperNotFoundException {
-		
-		final DistributionRegionState stateForDistributionRegion 
-			= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
-		
-		region.setState(stateForDistributionRegion);
-	}
-
 
 	/**
 	 * Read and update region id
