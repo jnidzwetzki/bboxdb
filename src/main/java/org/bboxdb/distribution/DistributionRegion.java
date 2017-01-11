@@ -375,6 +375,11 @@ public class DistributionRegion {
 	 */
 	public void setSystems(final Collection<DistributedInstance> systems) {
 		
+		if(systems == null || systems.isEmpty()) {
+			systems.clear();
+			return;
+		}
+		
 		final ArrayList<DistributedInstance> newInstances 
 			= new ArrayList<DistributedInstance>(systems.size());
 		
