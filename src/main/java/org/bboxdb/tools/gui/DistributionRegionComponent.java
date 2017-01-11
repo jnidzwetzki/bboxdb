@@ -31,16 +31,6 @@ import org.bboxdb.storage.entity.FloatInterval;
 public class DistributionRegionComponent {
 	
 	/**
-	 * The x position of the root element
-	 */
-	protected final int posRootX;
-	
-	/**
-	 * The y position of the root element
-	 */
-	protected final int posRootY;
-	
-	/**
 	 * The x offset of a child (- if left child / + if right child)
 	 */
 	protected final static int LEFT_RIGHT_OFFSET = 15;
@@ -68,20 +58,24 @@ public class DistributionRegionComponent {
 	/**
 	 * The x offset
 	 */
-	protected final int xOffset;
+	protected int xOffset;
 
 	/**
 	 * The y offset
 	 */
-	protected final int yOffset;
+	protected int yOffset;
+	
+	/**
+	 * The panel
+	 */
+	protected final DistributionGroupJPanel panel;
 
 	public DistributionRegionComponent(final DistributionRegion distributionRegion, 
-			final int posRootX, final int posRootY) {
+			final DistributionGroupJPanel distributionGroupJPanel) {
 		
 		this.distributionRegion = distributionRegion;
-		this.posRootX = posRootX;
-		this.posRootY = posRootY;
-		
+		this.panel = distributionGroupJPanel;
+
 		this.xOffset = calculateXOffset();
 		this.yOffset = calculateYOffset();
 	}
@@ -91,7 +85,7 @@ public class DistributionRegionComponent {
 	 * @return
 	 */
 	protected int calculateXOffset() {
-		int offset = posRootX;
+		int offset = panel.getRootPosX();
 		
 		DistributionRegion level = distributionRegion;
 		
@@ -128,7 +122,7 @@ public class DistributionRegionComponent {
 	 * @return
 	 */
 	protected int calculateYOffset() {
-		return (distributionRegion.getLevel() * LEVEL_DISTANCE) + posRootY;
+		return (distributionRegion.getLevel() * LEVEL_DISTANCE) + panel.getRootPosY();
 	}
 	
 	/**
@@ -152,6 +146,11 @@ public class DistributionRegionComponent {
 	 * @return 
 	 */
 	public BoundingBox drawComponent(final Graphics2D g) {
+		
+		// Recalculate the offsets
+		this.xOffset = calculateXOffset();
+		this.yOffset = calculateYOffset();
+		
 		// Draw the node
 		final Color oldColor = g.getColor();
 		g.setColor(getColorForRegion(distributionRegion));
@@ -178,9 +177,16 @@ public class DistributionRegionComponent {
 		// Draw the line to the parent node
 		drawParentNodeLine(g);
 		
+		return getBoundingBox();				
+	}
+
+	/**
+	 * Returns the bounding box of the component
+	 * @return
+	 */
+	public BoundingBox getBoundingBox() {
 		final BoundingBox boundingBox = new BoundingBox((float) xOffset, 
 				(float) xOffset + WIDTH, (float) yOffset, (float) yOffset + HEIGHT);
-				
 		return boundingBox;
 	}
 

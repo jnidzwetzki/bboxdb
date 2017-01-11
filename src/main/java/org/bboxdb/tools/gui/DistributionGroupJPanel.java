@@ -55,9 +55,25 @@ public class DistributionGroupJPanel extends JPanel {
 	 */
 	protected static final int SCROLL_MARGIN = 10;
 
+	/**
+	 * The padding on the left side
+	 */
+	protected static final int PADDING_LEFT = 200;
+
+	/**
+	 * The x-position of the root-node
+	 */
+	protected int rootPosX;
+
+	/**
+	 * The y-position of the root-node
+	 */
+	protected final int rootPosY;
 
 	public DistributionGroupJPanel(final GuiModel guiModel) {
 		this.guiModel = guiModel;
+		this.rootPosX = 1000;
+		this.rootPosY = 30;
 	}
 
 	/**
@@ -66,52 +82,78 @@ public class DistributionGroupJPanel extends JPanel {
 	 * @param distributionRegion
 	 * @return 
 	 */
-	protected BoundingBox drawDistributionRegion(final Graphics2D graphics2d, 
-			final DistributionRegion distributionRegion) {
+	protected BoundingBox drawDistributionRegion(final Graphics2D graphics2d) {
 
-		if(distributionRegion == null) {
-			return BoundingBox.EMPTY_BOX;
-		}
-
-		// The position of the root node
-		final int rootPosX = getWidth() / 2;
-		final int rootPosY = 30;
-
-		final DistributionRegionComponent distributionRegionComponent = new DistributionRegionComponent(distributionRegion, rootPosX, rootPosY);
-		final BoundingBox boundingBox = distributionRegionComponent.drawComponent(graphics2d);
-		regions.add(distributionRegionComponent);
-
-		final BoundingBox boundingBoxLeft 
-			= drawDistributionRegion(graphics2d, distributionRegion.getLeftChild());
-		final BoundingBox boundingBoxRight 
-			= drawDistributionRegion(graphics2d, distributionRegion.getRightChild());
+		BoundingBox minBoundingBox = BoundingBox.EMPTY_BOX;
 		
-		return BoundingBox.getCoveringBox(boundingBox, boundingBoxLeft, boundingBoxRight);
+		for(DistributionRegionComponent component : regions) {
+			final BoundingBox boundingBox = component.drawComponent(graphics2d);
+			minBoundingBox = BoundingBox.getCoveringBox(boundingBox, minBoundingBox);
+		}
+		
+		return minBoundingBox;
 	}
 
+	/**
+	 * Get the minimal bounding bix for this component
+	 * @return
+	 */
+	protected BoundingBox getMinimalBoundingBox() {
+		return new BoundingBox(0f, 400f, 0f, 200f);
+	}
+	
+	/**
+	 * Create the distribution region components
+	 * @param distributionRegion
+	 */
+	protected void createDistribtionRegionComponents(final DistributionRegion distributionRegion) {
+		
+		if(distributionRegion == null) {
+			return;
+		}
+		
+		final DistributionRegionComponent distributionRegionComponent = new DistributionRegionComponent(distributionRegion, this);
+		regions.add(distributionRegionComponent);
+				
+		createDistribtionRegionComponents(distributionRegion.getLeftChild());
+		createDistribtionRegionComponents(distributionRegion.getRightChild());
+	}
+	
 	@Override
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
+		
+		// Group is not set
+		if(guiModel.getTreeAdapter() == null) {
+			return;
+		}
 
 		final Graphics2D graphics2D = (Graphics2D) g;
 		graphics2D.setRenderingHint(
 				RenderingHints.KEY_ANTIALIASING, 
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
-		regions.clear();
 
-		// Group is not set
-		if(guiModel.getTreeAdapter() == null) {
-			return;
+		final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
+		
+		regions.clear();
+		
+		// Fake position to calculate the real width
+		rootPosX = 100000;
+		createDistribtionRegionComponents(distributionRegion);
+		
+		BoundingBox minBoundingBox = BoundingBox.EMPTY_BOX;
+		
+		for(DistributionRegionComponent component : regions) {
+			minBoundingBox = BoundingBox.getCoveringBox(component.getBoundingBox(), minBoundingBox);
 		}
 		
-		final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
-
-		final BoundingBox boundingBoxRegion = drawDistributionRegion(graphics2D, distributionRegion);
-		final BoundingBox baseDimension = new BoundingBox(0f, 400f, 0f, 200f);
-		final BoundingBox boundingBoxTotal = BoundingBox.getCoveringBox(boundingBoxRegion, baseDimension);
+		rootPosX = (int) (minBoundingBox.getExtent(0) / 2) + PADDING_LEFT;
+		System.out.println("New pos: " + rootPosX);
 		
-		updateComponentSize(boundingBoxTotal);
+		final BoundingBox drawBox = drawDistributionRegion(graphics2D);
+	
+		updateComponentSize(drawBox);
 	}
 
 	/**
@@ -126,8 +168,8 @@ public class DistributionGroupJPanel extends JPanel {
 		}
 
 		final Dimension boundingBoxSize = new Dimension(
-				(int) boundingBox.getExtent(0) + SCROLL_MARGIN, 
-				(int) boundingBox.getExtent(1) + SCROLL_MARGIN);
+				(int) boundingBox.getExtent(0) + SCROLL_MARGIN + PADDING_LEFT, 
+				(int) boundingBox.getExtent(1) + SCROLL_MARGIN + rootPosY);
 
 		// Size has changed, update
 		if(! boundingBoxSize.equals(componentSize)) {
@@ -151,5 +193,21 @@ public class DistributionGroupJPanel extends JPanel {
 		
         setToolTipText(null);
 		return super.getToolTipText(event);
+	}
+
+	/**
+	 * Get the x pos of the root node
+	 * @return
+	 */
+	public int getRootPosX() {
+		return rootPosX;
+	}
+
+	/**
+	 * Get the y pos of the root node
+	 * @return
+	 */
+	public int getRootPosY() {
+		return rootPosY;
 	}
 }

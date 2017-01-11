@@ -28,6 +28,7 @@ order: 1
 - Bugfix: Fixed handling of empty tooltips in the GUI
 - Bugfix: Non-overlapping placement of distribution groups in the GUI
 - Bugfix: New distribution regions in zookeeper was set to READY instead of CREATING before system where added
+- Bugfix: Fixed calculation of the root node pos in the GUI
 
 ### Version 0.2.0 (Beta-5) - 01.01.2017
 - Improvement: Introduced JVM parameter
