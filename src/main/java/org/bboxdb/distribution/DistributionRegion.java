@@ -79,7 +79,7 @@ public class DistributionRegion {
 	/**
 	 * The systems
 	 */
-	protected final Collection<DistributedInstance> systems;
+	protected Collection<DistributedInstance> systems;
 	
 	/**
 	 * The id of the region
@@ -374,11 +374,12 @@ public class DistributionRegion {
 	 * @param systems
 	 */
 	public void setSystems(final Collection<DistributedInstance> systems) {
-		this.systems.clear();
 		
-		if(systems != null && ! systems.isEmpty()) {
-			this.systems.addAll(systems);
-		}
+		final ArrayList<DistributedInstance> newInstances 
+			= new ArrayList<DistributedInstance>(systems.size());
+		newInstances.addAll(systems);
+		
+		this.systems = newInstances;
 	}
 	
 	/**
