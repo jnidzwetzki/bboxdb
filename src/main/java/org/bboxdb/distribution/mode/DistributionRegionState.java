@@ -20,6 +20,7 @@ package org.bboxdb.distribution.mode;
 
 public enum DistributionRegionState {
 	
+	UNKNOWN("unknown"),
 	CREATING("creating"),
 	ACTIVE("active"),
 	ACTIVE_FULL("active-full"),

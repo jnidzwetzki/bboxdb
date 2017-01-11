@@ -77,6 +77,7 @@ public class TestDistributionGroup {
 		
 		distributionRegion.getRightChild().setState(DistributionRegionState.ACTIVE);
 		distributionRegion.getLeftChild().setState(DistributionRegionState.ACTIVE);
+
 		Assert.assertFalse(distributionRegion.isLeafRegion());
 
 		Assert.assertEquals(distributionRegion, distributionRegion.getLeftChild().getRootRegion());

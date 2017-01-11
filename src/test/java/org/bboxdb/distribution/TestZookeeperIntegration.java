@@ -433,14 +433,16 @@ public class TestZookeeperIntegration {
 		try {
 			distributionGroupAdapter.splitNode(region, 10);
 		} catch (ResourceAllocationException e) {
-			// Ignore in unit test
+			// Ignore systems exception
 		}
 		
 		final DistributionRegion leftChild = region.getLeftChild();
 		final DistributionRegion rightChild = region.getRightChild();
 
-		distributionGroupAdapter.waitForSplitZookeeperCallback(region);
-
+		// No systems can be assigned, so the nodes remain in CREATING state
+		Assert.assertEquals(DistributionRegionState.CREATING, leftChild.getState());
+		Assert.assertEquals(DistributionRegionState.CREATING, rightChild.getState());
+		
 		Assert.assertEquals(0, region.getRegionId());
 		Assert.assertEquals(1, leftChild.getRegionId());
 		Assert.assertEquals(2, rightChild.getRegionId());
@@ -540,18 +542,14 @@ public class TestZookeeperIntegration {
 		} catch (ResourceAllocationException e) {
 			// Ignore in unit test
 		} 
-		
-		Thread.sleep(10000);
-		
+				
 		System.out.println("---> Split done");
 
 		// Test fresh copy
 		final KDtreeZookeeperAdapter freshGroup = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
-		Assert.assertFalse(freshGroup.getRootNode().isLeafRegion());
 		Assert.assertEquals((float) 20.0, freshGroup.getRootNode().getSplit(), 0.00001);
 		
 		// Test cached instance
-		Assert.assertFalse(cacheGroup.getRootNode().isLeafRegion());
 		Assert.assertEquals((float) 20.0, cacheGroup.getRootNode().getSplit(), 0.00001);	
 	}
 }

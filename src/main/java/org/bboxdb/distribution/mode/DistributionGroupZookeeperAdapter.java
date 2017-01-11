@@ -339,7 +339,7 @@ public class DistributionGroupZookeeperAdapter {
 				sb.delete(0, 1);
 			}
 			
-			if(resultElement.isLeafRegion()) {
+			if(resultElement.getLeftChild() == null || resultElement.getRightChild() == null) {
 				throw new IllegalArgumentException(
 						"Unable to go to child at path, node is leaf region: " + sb 
 						+ " and path is: " + path);

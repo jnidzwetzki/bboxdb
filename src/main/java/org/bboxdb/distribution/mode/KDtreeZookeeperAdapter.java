@@ -349,7 +349,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		
 		// Wait for zookeeper callback
 		synchronized (MUTEX) {
-			while(regionToSplit.isLeafRegion()) {
+			while(! regionToSplit.isChildNodesInCreatingState()) {
 				logger.debug("Wait for zookeeper callback for split for: {}", regionToSplit);
 				try {
 					MUTEX.wait();
@@ -466,8 +466,6 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_STATE, 
 				DistributionRegionState.CREATING.getStringValue().getBytes());
-
-		distributionGroupZookeeperAdapter.setStateForDistributionGroup(path, DistributionRegionState.ACTIVE);
 	}
 	
 	/**
@@ -523,7 +521,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		
 		final float splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
 		
-		if(region.isLeafRegion()) {		
+		if(region.isLeafRegion() && ! region.isChildNodesInCreatingState()) {		
 			region.setSplit(splitFloat); 
 		} else {
 			if(region.getSplit() != splitFloat) {

@@ -27,6 +27,7 @@ order: 1
 - Bugfix: Removed warning when merging an empty bounding box
 - Bugfix: Fixed handling of empty tooltips in the GUI
 - Bugfix: Non-overlapping placement of distribution groups in the GUI
+- Bugfix: New distribution regions in zookeeper was set to READY instead of CREATING before system where added
 
 ### Version 0.2.0 (Beta-5) - 01.01.2017
 - Improvement: Introduced JVM parameter

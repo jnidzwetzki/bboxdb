@@ -74,7 +74,7 @@ public class DistributionRegion {
 	/**
 	 * The state of the region
 	 */
-	protected DistributionRegionState state = DistributionRegionState.CREATING;
+	protected DistributionRegionState state = DistributionRegionState.UNKNOWN;
 	
 	/**
 	 * The systems
@@ -278,12 +278,31 @@ public class DistributionRegion {
 	 */
 	public boolean isLeafRegion() {
 		
-		if(leftChild == null || leftChild.getState() == DistributionRegionState.CREATING) {
+		if(leftChild == null 
+				|| leftChild.getState() == DistributionRegionState.CREATING
+				|| leftChild.getState() == DistributionRegionState.UNKNOWN) {
 			return true;
 		}
 		
-		if(rightChild == null || rightChild.getState() == DistributionRegionState.CREATING) {
+		if(rightChild == null 
+				|| rightChild.getState() == DistributionRegionState.CREATING
+				|| rightChild.getState() == DistributionRegionState.UNKNOWN) {
 			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Child nodes are in creation?
+	 * @return
+	 */
+	public boolean isChildNodesInCreatingState() {
+		
+		if(leftChild != null && leftChild.getState() == DistributionRegionState.CREATING) {
+			if(rightChild != null && rightChild.getState() == DistributionRegionState.CREATING) {
+				return true;
+			}
 		}
 		
 		return false;
