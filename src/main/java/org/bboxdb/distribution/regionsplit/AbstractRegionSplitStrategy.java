@@ -204,15 +204,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	protected void redistributeData(final DistributionRegion region) {
 		logger.info("Redistributing data for region: " + region.getIdentifier());
 		
-		assert (! region.isLeafRegion()) : "Region " + region.getIdentifier() 
-			+ " is a leaf region. Left child: " + region.getLeftChild() + " right child: " 
-			+ region.getRightChild();
-		
-		assert (! region.getLeftChild().getSystems().isEmpty()) : "Region " +  region.getLeftChild().getIdentifier() 
-			+ " state " +  region.getLeftChild().getState();
-		
-		assert (! region.getRightChild().getSystems().isEmpty()) : "Region " +  region.getRightChild().getIdentifier() 
-		+ " state " +  region.getRightChild().getState();
+		assertChildIsReady(region);
 		
 		final List<SSTableName> localTables = StorageRegistry.getAllTablesForDistributionGroupAndRegionId
 				(region.getDistributionGroupName(), region.getRegionId());
@@ -231,6 +223,26 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		}
 		
 		logger.info("Redistributing data for region: " + region.getIdentifier() + " DONE");
+	}
+
+	/**
+	 * Assert child is ready
+	 * @param region
+	 */
+	protected void assertChildIsReady(final DistributionRegion region) {
+		
+		final DistributionRegion leftChild = region.getLeftChild();
+		final DistributionRegion rightChild = region.getRightChild();
+		
+		assert (! region.isLeafRegion()) : "Region " + region.getIdentifier() 
+			+ " is a leaf region. Left child: " + leftChild + " right child: " 
+			+ rightChild;
+		
+		assert (! leftChild.getSystems().isEmpty()) : "Region " +  leftChild.getIdentifier() 
+			+ " state " +  leftChild.getState() + " systems " + leftChild.getSystems();
+		
+		assert (! rightChild.getSystems().isEmpty()) : "Region " +  rightChild.getIdentifier() 
+		+ " state " +  rightChild.getState() + " systems " + rightChild.getSystems();
 	}
 
 	/**
@@ -352,8 +364,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			
 			treeAdapter.splitNode(region, splitPosition);
 			
-			assert (! region.isLeafRegion()) : "Region " + region.getIdentifier() 
-				+ " is a leaf region after split";
+			assertChildIsReady(region);
 
 		} catch (ZookeeperException | ResourceAllocationException e) {
 			logger.warn("Unable to split region " + region.getIdentifier() + " at " + splitPosition, e);
