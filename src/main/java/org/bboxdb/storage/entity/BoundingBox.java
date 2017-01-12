@@ -41,12 +41,12 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	/**
 	 * The min value
 	 */
-	public final static double MIN_VALUE = Double.NEGATIVE_INFINITY ;
+	public final static double MIN_VALUE = -Float.MAX_VALUE;
 	
 	/**
 	 * The max value
 	 */
-	public final static double MAX_VALUE = Double.POSITIVE_INFINITY ;
+	public final static double MAX_VALUE = Float.MAX_VALUE;
 	
 	/**
 	 * The Logger
