@@ -47,7 +47,8 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 		super();
 		
 		if(begin > end) {
-			throw new IllegalArgumentException("Failed to construct an interval with: begin > end");
+			throw new IllegalArgumentException("Failed to construct an interval with: begin " 
+					+ begin + " > end " + end);
 		}
 		
 		if(begin == end) {
