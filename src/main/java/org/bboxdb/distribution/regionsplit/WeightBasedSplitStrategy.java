@@ -61,7 +61,10 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 			final int midpoint = doubleIntervals.size() / 2;
 			final DoubleInterval splitInterval = doubleIntervals.get(midpoint);
 
-			performSplitAtPosition(regionToSplit, splitInterval.getBegin());
+			final double splitPosition = splitInterval.getBegin();
+			final double splitPositonRound = round(splitPosition, 7);
+			
+			performSplitAtPosition(regionToSplit, splitPositonRound);
 			
 			return true;
 		} catch (StorageManagerException e) {
@@ -69,6 +72,18 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 			return false;
 		}
 	}
+	
+	/**
+	 * Round the given number of fractions
+	 * @param value
+	 * @param frac
+	 * @return
+	 */
+    protected double round(final double value, final int frac) {
+        final double pow = Math.pow(10.0, frac);
+        
+		return Math.round(pow * value) / pow;
+    }
 
 	/**
 	 * Process the facades for the table and create samples
