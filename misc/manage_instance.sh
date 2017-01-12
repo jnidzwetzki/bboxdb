@@ -48,6 +48,8 @@ bboxdb_update() {
       rm -r target/lib/
    fi
    
+   rm target/*.jar
+   
    mvn package -DskipTests
    
    echo -e "BBoxDB data is successfully updated $done"
