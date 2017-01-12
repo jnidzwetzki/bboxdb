@@ -154,7 +154,7 @@ public class DistributionRegion {
 	public void setSplit(final double split) {
 		this.split = split;
 		
-		if(leftChild != null || rightChild != null) {
+		if(hasChilds()) {
 			throw new IllegalArgumentException("Split called, but left or right node are not empty");
 		}
 		
@@ -291,6 +291,14 @@ public class DistributionRegion {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Has this node childs?
+	 * @return
+	 */
+	public boolean hasChilds() {
+		return (leftChild != null && rightChild != null);
 	}
 	
 	/**
