@@ -153,6 +153,11 @@ public class DistributionGroupJPanel extends JPanel {
 	 * Calculate the root node X postion
 	 */
 	protected void calculateRootNodeXPos() {
+		
+		if(regions.isEmpty()) {
+			return;
+		}
+		
 		BoundingBox minBoundingBox = BoundingBox.EMPTY_BOX;
 		
 		for(DistributionRegionComponent component : regions) {
