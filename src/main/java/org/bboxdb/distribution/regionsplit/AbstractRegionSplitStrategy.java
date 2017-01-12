@@ -358,7 +358,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param region
 	 * @param splitPosition
 	 */
-	protected void performSplitAtPosition(final DistributionRegion region, final float splitPosition) {
+	protected void performSplitAtPosition(final DistributionRegion region, final double splitPosition) {
 		try {
 			logger.info("Set split for {} at: {}", region.getIdentifier(), splitPosition);
 			

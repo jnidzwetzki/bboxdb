@@ -35,7 +35,7 @@ public class TestBoundingBox {
 	@SuppressWarnings("unused")
 	@Test(expected=IllegalArgumentException.class)
 	public void testBoundingBoxCreateInvalid1() {
-		final BoundingBox bb1 = new BoundingBox(1f, 2f, 3f, 4f, 5f);
+		final BoundingBox bb1 = new BoundingBox(1d, 2d, 3d, 4d, 5d);
 	}
 	
 	/**
@@ -45,7 +45,7 @@ public class TestBoundingBox {
 	@Test(expected=IllegalArgumentException.class)
 	public void testBoundingBoxCreateInvalid2() {
 		// Dimension 1 error
-		final BoundingBox bb2 = new BoundingBox(2f, -2f, 3f, 4f);
+		final BoundingBox bb2 = new BoundingBox(2d, -2d, 3d, 4d);
 	}
 	
 	/**
@@ -55,7 +55,7 @@ public class TestBoundingBox {
 	@Test(expected=IllegalArgumentException.class)
 	public void testBoundingBoxCreateInvalid3() {	
 		// Dimension 2 error
-		final BoundingBox bb3 = new BoundingBox(1f, 2f, 3f, -4f);
+		final BoundingBox bb3 = new BoundingBox(1d, 2d, 3d, -4d);
 	}
 	
 	/**
@@ -64,10 +64,10 @@ public class TestBoundingBox {
 	@SuppressWarnings("unused")
 	@Test
 	public void testBoundingBoxCreateValid() {
-		final BoundingBox bb1 = new BoundingBox(1f, 10f);
-		final BoundingBox bb2 = new BoundingBox(-10f, 10f);
-		final BoundingBox bb3 = new BoundingBox(1f, 20f, -50f, 50f);
-		final BoundingBox bb4 = new BoundingBox(1f, 20f, -50f, 50f, -100f, 10f);
+		final BoundingBox bb1 = new BoundingBox(1d, 10d);
+		final BoundingBox bb2 = new BoundingBox(-10d, 10d);
+		final BoundingBox bb3 = new BoundingBox(1d, 20d, -50d, 50d);
+		final BoundingBox bb4 = new BoundingBox(1d, 20d, -50d, 50d, -100d, 10d);
 	}
 	
 	/**
@@ -75,17 +75,17 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testGetValues() {
-		final BoundingBox bb1 = new BoundingBox(1f, 11f);
-		Assert.assertEquals(1f, bb1.getCoordinateLow(0), EQUALS_DELTA);
-		Assert.assertEquals(10f, bb1.getExtent(0), EQUALS_DELTA);
+		final BoundingBox bb1 = new BoundingBox(1d, 11d);
+		Assert.assertEquals(1d, bb1.getCoordinateLow(0), EQUALS_DELTA);
+		Assert.assertEquals(10d, bb1.getExtent(0), EQUALS_DELTA);
 		
-		final BoundingBox bb2 = new BoundingBox(1f, 21f, -50f, 0f, -100f, -90f);
-		Assert.assertEquals(1f, bb2.getCoordinateLow(0), EQUALS_DELTA);
-		Assert.assertEquals(20f, bb2.getExtent(0), EQUALS_DELTA);
-		Assert.assertEquals(-50f, bb2.getCoordinateLow(1), EQUALS_DELTA);
-		Assert.assertEquals(50f, bb2.getExtent(1), EQUALS_DELTA);
-		Assert.assertEquals(-100f, bb2.getCoordinateLow(2), EQUALS_DELTA);
-		Assert.assertEquals(10f, bb2.getExtent(2), EQUALS_DELTA);
+		final BoundingBox bb2 = new BoundingBox(1d, 21d, -50d, 0d, -100d, -90d);
+		Assert.assertEquals(1d, bb2.getCoordinateLow(0), EQUALS_DELTA);
+		Assert.assertEquals(20d, bb2.getExtent(0), EQUALS_DELTA);
+		Assert.assertEquals(-50d, bb2.getCoordinateLow(1), EQUALS_DELTA);
+		Assert.assertEquals(50d, bb2.getExtent(1), EQUALS_DELTA);
+		Assert.assertEquals(-100d, bb2.getCoordinateLow(2), EQUALS_DELTA);
+		Assert.assertEquals(10d, bb2.getExtent(2), EQUALS_DELTA);
 	}
 	
 	/**
@@ -93,15 +93,15 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testLowHigh() {
-		final BoundingBox bb1 = new BoundingBox(1f, 11f);
-		Assert.assertEquals(1f, bb1.getCoordinateLow(0), EQUALS_DELTA);
-		Assert.assertEquals(11f, bb1.getCoordinateHigh(0), EQUALS_DELTA);
+		final BoundingBox bb1 = new BoundingBox(1d, 11d);
+		Assert.assertEquals(1d, bb1.getCoordinateLow(0), EQUALS_DELTA);
+		Assert.assertEquals(11d, bb1.getCoordinateHigh(0), EQUALS_DELTA);
 
-		final BoundingBox bb2 = new BoundingBox(1f, 11f, 10f, 60f);
-		Assert.assertEquals(1f, bb2.getCoordinateLow(0), EQUALS_DELTA);
-		Assert.assertEquals(11f, bb2.getCoordinateHigh(0), EQUALS_DELTA);
-		Assert.assertEquals(10f, bb2.getCoordinateLow(1), EQUALS_DELTA);
-		Assert.assertEquals(60f, bb2.getCoordinateHigh(1), EQUALS_DELTA);
+		final BoundingBox bb2 = new BoundingBox(1d, 11d, 10d, 60d);
+		Assert.assertEquals(1d, bb2.getCoordinateLow(0), EQUALS_DELTA);
+		Assert.assertEquals(11d, bb2.getCoordinateHigh(0), EQUALS_DELTA);
+		Assert.assertEquals(10d, bb2.getCoordinateLow(1), EQUALS_DELTA);
+		Assert.assertEquals(60d, bb2.getCoordinateHigh(1), EQUALS_DELTA);
 	}
 	
 	/**
@@ -112,13 +112,13 @@ public class TestBoundingBox {
 		final BoundingBox bb1 = new BoundingBox();
 		Assert.assertEquals(0, bb1.getDimension());
 		
-		final BoundingBox bb2 = new BoundingBox(1f, 10f);
+		final BoundingBox bb2 = new BoundingBox(1d, 10d);
 		Assert.assertEquals(1, bb2.getDimension());
 		
-		final BoundingBox bb3 = new BoundingBox(1f, 10f, 10f, 50f);
+		final BoundingBox bb3 = new BoundingBox(1d, 10d, 10d, 50d);
 		Assert.assertEquals(2, bb3.getDimension());
 		
-		final BoundingBox bb4 = new BoundingBox(1f, 10f, 10f, 50f, 10f, 10f);
+		final BoundingBox bb4 = new BoundingBox(1d, 10d, 10d, 50d, 10d, 10d);
 		Assert.assertEquals(3, bb4.getDimension());
 	}
 	
@@ -127,9 +127,9 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testOverlapping1D() {
-		final BoundingBox bb1left = new BoundingBox(0f, 10f);
-		final BoundingBox bb1middle = new BoundingBox(5f, 15f);
-		final BoundingBox bb1right = new BoundingBox(10.1f, 20.1f);
+		final BoundingBox bb1left = new BoundingBox(0d, 10d);
+		final BoundingBox bb1middle = new BoundingBox(5d, 15d);
+		final BoundingBox bb1right = new BoundingBox(10.1d, 20.1d);
 		
 		Assert.assertTrue(bb1left.overlaps(bb1left));
 		Assert.assertTrue(bb1middle.overlaps(bb1middle));
@@ -154,17 +154,17 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testOverlapping2D() {
-		final BoundingBox bb1left = new BoundingBox(0f, 1f, 0f, 1f);
-		final BoundingBox bb1leftinside = new BoundingBox(0.5f, 0.7f, 0.5f, 0.7f);
+		final BoundingBox bb1left = new BoundingBox(0d, 1d, 0d, 1d);
+		final BoundingBox bb1leftinside = new BoundingBox(0.5d, 0.7d, 0.5d, 0.7d);
 		
 		Assert.assertTrue(bb1left.overlaps(bb1leftinside));
 		Assert.assertTrue(bb1leftinside.overlaps(bb1left));
 
-		final BoundingBox bb1middle = new BoundingBox(0.5f, 1.5f, 0.5f, 1.5f);
+		final BoundingBox bb1middle = new BoundingBox(0.5d, 1.5d, 0.5d, 1.5d);
 		Assert.assertTrue(bb1left.overlaps(bb1middle));
 		Assert.assertTrue(bb1middle.overlaps(bb1left));
 
-		final BoundingBox bb1right = new BoundingBox(1f, 2f, 10f, 11f);
+		final BoundingBox bb1right = new BoundingBox(1d, 2d, 10d, 11d);
 		Assert.assertFalse(bb1left.overlaps(bb1right));
 		Assert.assertFalse(bb1right.overlaps(bb1left));
 	}
@@ -174,16 +174,16 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testOverlapping3D() {
-		final BoundingBox bb1left = new BoundingBox(0f, 1f, 0f, 1f, 0f, 1f);
-		final BoundingBox bb1leftinside = new BoundingBox(0.5f, 0.7f, 0.5f, 0.7f, 0.5f, 0.7f);
+		final BoundingBox bb1left = new BoundingBox(0d, 1d, 0d, 1d, 0d, 1d);
+		final BoundingBox bb1leftinside = new BoundingBox(0.5d, 0.7d, 0.5d, 0.7d, 0.5d, 0.7d);
 		Assert.assertTrue(bb1left.overlaps(bb1leftinside));
 		Assert.assertTrue(bb1leftinside.overlaps(bb1left));
 		
-		final BoundingBox bb1middle = new BoundingBox(0.5f, 1.5f, 0.5f, 1.5f, 0.5f, 1.5f);
+		final BoundingBox bb1middle = new BoundingBox(0.5d, 1.5d, 0.5d, 1.5d, 0.5d, 1.5d);
 		Assert.assertTrue(bb1left.overlaps(bb1middle));
 		Assert.assertTrue(bb1middle.overlaps(bb1left));
 
-		final BoundingBox bb1right = new BoundingBox(10f, 11f, 10f, 11f, 10f, 11f);
+		final BoundingBox bb1right = new BoundingBox(10d, 11d, 10d, 11d, 10d, 11d);
 		Assert.assertFalse(bb1left.overlaps(bb1right));
 		Assert.assertFalse(bb1right.overlaps(bb1left));
 	}
@@ -193,7 +193,7 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testOverlapEmptyBoundingBox() {
-		final BoundingBox bb1left = new BoundingBox(0f, 1f, 0f, 1f, 0f, 1f);
+		final BoundingBox bb1left = new BoundingBox(0d, 1d, 0d, 1d, 0d, 1d);
 		Assert.assertTrue(bb1left.overlaps(BoundingBox.EMPTY_BOX));
 		Assert.assertTrue(BoundingBox.EMPTY_BOX.overlaps(BoundingBox.EMPTY_BOX));
 	}
@@ -203,11 +203,11 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testCoverBoundingBox() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 3f, 1f, 3f);
-		final BoundingBox boundingBox2 = new BoundingBox(1f, 4f, 1f, 4f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 1d, 3d);
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 4d, 1d, 4d);
 		
-		final BoundingBox boundingBox3 = new BoundingBox(1f, 4f, 1f, 4f, 1f, 4f);
-		final BoundingBox boundingBox4 = new BoundingBox(-1f, 2f, -1f, 2f, -1f, 2f);
+		final BoundingBox boundingBox3 = new BoundingBox(1d, 4d, 1d, 4d, 1d, 4d);
+		final BoundingBox boundingBox4 = new BoundingBox(-1d, 2d, -1d, 2d, -1d, 2d);
 
 		final BoundingBox boundingBoxResult1 = BoundingBox.getCoveringBox();
 		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBoxResult1);
@@ -227,12 +227,12 @@ public class TestBoundingBox {
 
 		final BoundingBox boundingBoxResult4 = BoundingBox.getCoveringBox(boundingBox3, boundingBox4);
 		Assert.assertEquals(3, boundingBoxResult4.getDimension());		
-		Assert.assertEquals(-1.0f, boundingBoxResult4.getCoordinateLow(0), EQUALS_DELTA);
-		Assert.assertEquals(4.0f, boundingBoxResult4.getCoordinateHigh(0), EQUALS_DELTA);
-		Assert.assertEquals(-1.0f, boundingBoxResult4.getCoordinateLow(1), EQUALS_DELTA);
-		Assert.assertEquals(4.0f, boundingBoxResult4.getCoordinateHigh(1), EQUALS_DELTA);
-		Assert.assertEquals(-1.0f, boundingBoxResult4.getCoordinateLow(2), EQUALS_DELTA);
-		Assert.assertEquals(4.0f, boundingBoxResult4.getCoordinateHigh(2), EQUALS_DELTA);
+		Assert.assertEquals(-1.0d, boundingBoxResult4.getCoordinateLow(0), EQUALS_DELTA);
+		Assert.assertEquals(4.0d, boundingBoxResult4.getCoordinateHigh(0), EQUALS_DELTA);
+		Assert.assertEquals(-1.0d, boundingBoxResult4.getCoordinateLow(1), EQUALS_DELTA);
+		Assert.assertEquals(4.0d, boundingBoxResult4.getCoordinateHigh(1), EQUALS_DELTA);
+		Assert.assertEquals(-1.0d, boundingBoxResult4.getCoordinateLow(2), EQUALS_DELTA);
+		Assert.assertEquals(4.0d, boundingBoxResult4.getCoordinateHigh(2), EQUALS_DELTA);
 		
 		// Wrong dimensions
 		final BoundingBox boundingBoxResult5 = BoundingBox.getCoveringBox(boundingBox1, boundingBox2, boundingBox3, boundingBox4);
@@ -253,10 +253,10 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testMergeBoxes1() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 1f);
-		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f, 1f, 4f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 1d);
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 1.1d, 1d, 4d);
 		final BoundingBox resultBox = BoundingBox.getCoveringBox(boundingBox1, boundingBox2);
-		Assert.assertArrayEquals(new float[] {1f, 2f, 1f, 4f}, resultBox.toFloatArray(), EQUALS_DELTA);
+		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 4f}, resultBox.toDoubleArray(), EQUALS_DELTA);
 	}
 	
 	/**
@@ -264,10 +264,10 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testMergeBoxes2() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 1f);
-		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f, 1f, 4f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 1d);
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 1.1d, 1d, 4d);
 		final BoundingBox resultBox = BoundingBox.getCoveringBox(boundingBox1, boundingBox2, null);
-		Assert.assertArrayEquals(new float[] {1f, 2f, 1f, 4f}, resultBox.toFloatArray(), EQUALS_DELTA);
+		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 4f}, resultBox.toDoubleArray(), EQUALS_DELTA);
 	}
 	
 	/**
@@ -275,10 +275,10 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testMergeBoxes3() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 1f);
-		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f, 1f, 4f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 1d);
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 1.1d, 1d, 4d);
 		final BoundingBox resultBox = BoundingBox.getCoveringBox(boundingBox1, boundingBox2, BoundingBox.EMPTY_BOX);
-		Assert.assertArrayEquals(new float[] {1f, 2f, 1f, 4f}, resultBox.toFloatArray(), EQUALS_DELTA);
+		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 4f}, resultBox.toDoubleArray(), EQUALS_DELTA);
 	}
 	
 	/**
@@ -301,11 +301,11 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testBoundingBoxSorting() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 3f, 3f, 7f);
-		final BoundingBox boundingBox2 = new BoundingBox(-1f, 1f, 3f, 7f);
-		final BoundingBox boundingBox3 = new BoundingBox(5f, 7f, 3f, 7f);
-		final BoundingBox boundingBox4 = new BoundingBox(-11f, -9f, 3f, 7f);
-		final BoundingBox boundingBox5 = new BoundingBox(-11f, -9f, -1f, 3f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 3d, 7d);
+		final BoundingBox boundingBox2 = new BoundingBox(-1d, 1d, 3d, 7d);
+		final BoundingBox boundingBox3 = new BoundingBox(5d, 7d, 3d, 7d);
+		final BoundingBox boundingBox4 = new BoundingBox(-11d, -9d, 3d, 7d);
+		final BoundingBox boundingBox5 = new BoundingBox(-11d, -9d, -1d, 3d);
 		
 		final List<BoundingBox> boundingBoxList = new ArrayList<BoundingBox>();
 		boundingBoxList.add(boundingBox1);
@@ -328,9 +328,9 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testBoundingBoxSplit1() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 3f, 3f, 7f);
-		final BoundingBox resultBox = boundingBox1.splitAndGetLeft(2f, 0, true);
-		Assert.assertArrayEquals(new float[] {1f, 2f, 3f, 7f}, resultBox.toFloatArray(), EQUALS_DELTA);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 3d, 7d);
+		final BoundingBox resultBox = boundingBox1.splitAndGetLeft(2d, 0, true);
+		Assert.assertArrayEquals(new double[] {1d, 2d, 3d, 7f}, resultBox.toDoubleArray(), EQUALS_DELTA);
 	}
 	
 	/**
@@ -338,8 +338,8 @@ public class TestBoundingBox {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testBoundingBoxSplit2() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 3f, 3f, 7f);
-		boundingBox1.splitAndGetLeft(4f, 0, true);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 3d, 7d);
+		boundingBox1.splitAndGetLeft(4d, 0, true);
 	}
 	
 	/**
@@ -347,8 +347,8 @@ public class TestBoundingBox {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testBoundingBoxSplit3() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 3f, 3f, 7f);
-		boundingBox1.splitAndGetLeft(1f, 2, true);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 3d, 7d);
+		boundingBox1.splitAndGetLeft(1d, 2, true);
 	}
 	
 	/**
@@ -356,7 +356,7 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testBoundingBoxSplit4() {
-		final BoundingBox boundingBox = new BoundingBox(1f, 3f, 3f, 7f);
+		final BoundingBox boundingBox = new BoundingBox(1d, 3d, 3d, 7d);
 		final BoundingBox leftBox = boundingBox.splitAndGetLeft(2, 0, false);
 		final BoundingBox rightBox = boundingBox.splitAndGetRight(2, 0, false);
 		
@@ -384,7 +384,7 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testIntersection1() {
-		final BoundingBox boundingBox = new BoundingBox(1f, 3f, 3f, 7f);
+		final BoundingBox boundingBox = new BoundingBox(1d, 3d, 3d, 7d);
 		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBox.getIntersection(BoundingBox.EMPTY_BOX));
 		Assert.assertEquals(BoundingBox.EMPTY_BOX, BoundingBox.EMPTY_BOX.getIntersection(boundingBox));
 	}
@@ -394,7 +394,7 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testIntersection2() {
-		final BoundingBox boundingBox = new BoundingBox(1f, 3f, 3f, 7f);		
+		final BoundingBox boundingBox = new BoundingBox(1d, 3d, 3d, 7d);		
 		Assert.assertEquals(boundingBox, boundingBox.getIntersection(boundingBox));
 	}
 	
@@ -404,8 +404,8 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testIntersection3() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 5f, 1f, 5f);	
-		final BoundingBox boundingBox2 = new BoundingBox(2f, 4f, 2f, 4f);		
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 5d, 1d, 5d);	
+		final BoundingBox boundingBox2 = new BoundingBox(2d, 4d, 2d, 4d);		
 
 		Assert.assertEquals(boundingBox2, boundingBox1.getIntersection(boundingBox2));
 		Assert.assertEquals(boundingBox2, boundingBox2.getIntersection(boundingBox1));
@@ -416,10 +416,10 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testIntersection4() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 5f, 1f, 5f);	
-		final BoundingBox boundingBox2 = new BoundingBox(2f, 6f, 2f, 6f);	
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 5d, 1d, 5d);	
+		final BoundingBox boundingBox2 = new BoundingBox(2d, 6d, 2d, 6d);	
 		
-		final BoundingBox boundingBoxResult = new BoundingBox(2f, 5f, 2f, 5f);		
+		final BoundingBox boundingBoxResult = new BoundingBox(2d, 5d, 2d, 5d);		
 
 		Assert.assertEquals(boundingBoxResult, boundingBox1.getIntersection(boundingBox2));
 		Assert.assertEquals(boundingBoxResult, boundingBox2.getIntersection(boundingBox1));
@@ -430,8 +430,8 @@ public class TestBoundingBox {
 	 */
 	@Test
 	public void testIntersection5() {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 5f);	
-		final BoundingBox boundingBox2 = new BoundingBox(6f, 9f, 6f, 9f);	
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 5d);	
+		final BoundingBox boundingBox2 = new BoundingBox(6d, 9d, 6d, 9d);	
 		
 		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBox1.getIntersection(boundingBox2));
 		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBox2.getIntersection(boundingBox1));

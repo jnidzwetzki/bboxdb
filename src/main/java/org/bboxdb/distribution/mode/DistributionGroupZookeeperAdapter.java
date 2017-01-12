@@ -113,14 +113,14 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException 
 	 */
-	protected float getSplitPositionForPath(final String path) throws ZookeeperException, ZookeeperNotFoundException  {
+	protected double getSplitPositionForPath(final String path) throws ZookeeperException, ZookeeperNotFoundException  {
 		
 		final String splitPathName = path + "/" + ZookeeperNodeNames.NAME_SPLIT;
 		String splitString = null;
 		
 		try {			
 			splitString = zookeeperClient.readPathAndReturnString(splitPathName, false, null);
-			return Float.parseFloat(splitString);
+			return Double.parseDouble(splitString);
 		} catch (NumberFormatException e) {
 			throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + splitPathName);
 		}		
@@ -132,8 +132,8 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param position
 	 * @throws ZookeeperException 
 	 */
-	public void setSplitPositionForPath(final String path, final float position) throws ZookeeperException {
-		final String splitPosString = Float.toString(position);
+	public void setSplitPositionForPath(final String path, final double position) throws ZookeeperException {
+		final String splitPosString = Double.toString(position);
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SPLIT, 
 				splitPosString.getBytes());
 	}

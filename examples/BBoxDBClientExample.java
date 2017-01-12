@@ -79,10 +79,10 @@ public class BBoxDBClientExample {
 		}
 		
 		// Insert two new tuples
-		final Tuple tuple1 = new Tuple("key1", new BoundingBox(0f, 5f, 0f, 1f), "mydata1".getBytes());
+		final Tuple tuple1 = new Tuple("key1", new BoundingBox(0d, 5d, 0d, 1d), "mydata1".getBytes());
 		final EmptyResultFuture insertResult1 = bboxdbClient.insertTuple(mytable, tuple1);
 		
-		final Tuple tuple2 = new Tuple("key2", new BoundingBox(-1f, 2f, -1f, 2f), "mydata2".getBytes());
+		final Tuple tuple2 = new Tuple("key2", new BoundingBox(-1d, 2d, -1d, 2d), "mydata2".getBytes());
 		final EmptyResultFuture insertResult2 = bboxdbClient.insertTuple(mytable, tuple2);
 		
 		// Wait for the insert operations to complete
@@ -117,7 +117,7 @@ public class BBoxDBClientExample {
 		}
 		
 		// Query by bounding box
-		final TupleListFuture resultFuture2 = bboxdbClient.queryBoundingBox(mytable, new BoundingBox(-0.5f, 1f, -0.5f, 1f));
+		final TupleListFuture resultFuture2 = bboxdbClient.queryBoundingBox(mytable, new BoundingBox(-0.5d, 1d, -0.5d, 1d));
 		
 		// Again, we got a future object, the search is performed asynchronous
 		resultFuture2.waitForAll();

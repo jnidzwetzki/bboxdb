@@ -314,7 +314,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * @throws ZookeeperException
 	 * @throws ResourceAllocationException 
 	 */
-	public void splitNode(final DistributionRegion regionToSplit, final float splitPosition) throws ZookeeperException, ResourceAllocationException {
+	public void splitNode(final DistributionRegion regionToSplit, final double splitPosition) throws ZookeeperException, ResourceAllocationException {
 		logger.debug("Write split at pos {} into zookeeper", splitPosition);
 		final String zookeeperPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
 		
@@ -519,7 +519,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			return;
 		}
 		
-		final float splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
+		final double splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
 		
 		if(region.isLeafRegion() && ! region.isChildNodesInCreatingState()) {		
 			region.setSplit(splitFloat); 

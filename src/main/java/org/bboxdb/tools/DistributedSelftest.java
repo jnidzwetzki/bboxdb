@@ -274,7 +274,7 @@ public class DistributedSelftest {
 		
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
-			final Tuple myTuple = new Tuple(key, new BoundingBox(1.0f, 2.0f, 1.0f, 2.0f), "test".getBytes());
+			final Tuple myTuple = new Tuple(key, new BoundingBox(1.0d, 2.0d, 1.0d, 2.0d), "test".getBytes());
 			final EmptyResultFuture insertResult = bboxdbClient.insertTuple(TABLE, myTuple);
 			insertResult.waitForAll();
 			

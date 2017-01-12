@@ -177,14 +177,14 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
 		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
 		
-		Assert.assertFalse(level0.getSystemsForBoundingBox(new BoundingBox(100f, 110f)).contains(SYSTEM_A));
-		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 10f)).contains(SYSTEM_A));
+		Assert.assertFalse(level0.getSystemsForBoundingBox(new BoundingBox(100d, 110d)).contains(SYSTEM_A));
+		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0d, 10d)).contains(SYSTEM_A));
 		
-		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 10f)).contains(SYSTEM_A));
-		Assert.assertFalse(level0.getSystemsForBoundingBox(new BoundingBox(100f, 110f)).contains(SYSTEM_A));
+		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0d, 10d)).contains(SYSTEM_A));
+		Assert.assertFalse(level0.getSystemsForBoundingBox(new BoundingBox(100d, 110d)).contains(SYSTEM_A));
 		
-		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 100f)).contains(SYSTEM_A));
-		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0f, 100f)).contains(SYSTEM_B));
+		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0d, 100d)).contains(SYSTEM_A));
+		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0d, 100d)).contains(SYSTEM_B));
 	}
 	
 	/**
@@ -309,17 +309,17 @@ public class TestDistributionGroup {
 		level0.setSplit(50);
 		level0.makeChildsActive();
 		
-		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(1.0f, 1.0f, 1.0f, 1.0f)));
-		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(1.0f, 10.0f, 1.0f, 10.0f)));
-		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(1.0f, 50.0f, 1.0f, 10.0f)));
+		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(1.0d, 1.0d, 1.0d, 1.0d)));
+		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(1.0d, 10.0d, 1.0d, 10.0d)));
+		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(1.0d, 50.0d, 1.0d, 10.0d)));
 
-		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(50.0f, 50.0f, 1.0f, 1.0f)));
-		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(50.0f, 51.0f, 1.0f, 10.0f)));
-		Assert.assertFalse(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(50.1f, 51.0f, 1.0f, 10.0f)));
+		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(50.0d, 50.0d, 1.0d, 1.0d)));
+		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(50.0d, 51.0d, 1.0d, 10.0d)));
+		Assert.assertFalse(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(50.1d, 51.0d, 1.0d, 10.0d)));
 
-		Assert.assertTrue(level0.getRightChild().getConveringBox().overlaps(new BoundingBox(50.1f, 50.1f, 1.0f, 1.0f)));
-		Assert.assertTrue(level0.getRightChild().getConveringBox().overlaps(new BoundingBox(50.1f, 51.0f, 1.0f, 10.0f)));
-		Assert.assertTrue(level0.getRightChild().getConveringBox().overlaps(new BoundingBox(50f, 51.0f, 1.0f, 10.0f)));
+		Assert.assertTrue(level0.getRightChild().getConveringBox().overlaps(new BoundingBox(50.1d, 50.1d, 1.0d, 1.0d)));
+		Assert.assertTrue(level0.getRightChild().getConveringBox().overlaps(new BoundingBox(50.1d, 51.0d, 1.0d, 10.0d)));
+		Assert.assertTrue(level0.getRightChild().getConveringBox().overlaps(new BoundingBox(50d, 51.0d, 1.0d, 10.0d)));
 		
 		level0.getLeftChild().setSplit(10);
 		level0.getLeftChild().makeChildsActive();
@@ -332,22 +332,22 @@ public class TestDistributionGroup {
 		final DistributionRegion lr = level0.getRightChild().getLeftChild();
 		final DistributionRegion ur = level0.getRightChild().getRightChild();
 		
-		Assert.assertTrue(ll.getConveringBox().overlaps(new BoundingBox(1f, 1f, 1f, 1f)));
-		Assert.assertTrue(ll.getConveringBox().overlaps(new BoundingBox(50f, 52f, 1f, 1f)));
-		Assert.assertFalse(ll.getConveringBox().overlaps(new BoundingBox(51f, 52f, 1f, 1f)));
-		Assert.assertTrue(ll.getConveringBox().overlaps(new BoundingBox(49.99f, 52f, 1f, 1f)));
-		Assert.assertFalse(ll.getConveringBox().overlaps(new BoundingBox(50.1f, 52f, 1f, 1f)));
+		Assert.assertTrue(ll.getConveringBox().overlaps(new BoundingBox(1d, 1d, 1d, 1d)));
+		Assert.assertTrue(ll.getConveringBox().overlaps(new BoundingBox(50d, 52d, 1d, 1d)));
+		Assert.assertFalse(ll.getConveringBox().overlaps(new BoundingBox(51d, 52d, 1d, 1d)));
+		Assert.assertTrue(ll.getConveringBox().overlaps(new BoundingBox(49.99d, 52d, 1d, 1d)));
+		Assert.assertFalse(ll.getConveringBox().overlaps(new BoundingBox(50.1d, 52d, 1d, 1d)));
 
-		Assert.assertFalse(lr.getConveringBox().overlaps(new BoundingBox(1f, 1f, 1f, 1f)));
-		Assert.assertTrue(lr.getConveringBox().overlaps(new BoundingBox(50f, 52f, 1f, 1f)));
-		Assert.assertTrue(lr.getConveringBox().overlaps(new BoundingBox(51f, 52f, 1f, 1f)));
-		Assert.assertTrue(lr.getConveringBox().overlaps(new BoundingBox(49.99f, 52f, 1f, 1f)));
-		Assert.assertTrue(lr.getConveringBox().overlaps(new BoundingBox(50.1f, 52f, 1f, 1f)));
+		Assert.assertFalse(lr.getConveringBox().overlaps(new BoundingBox(1d, 1d, 1d, 1d)));
+		Assert.assertTrue(lr.getConveringBox().overlaps(new BoundingBox(50d, 52d, 1d, 1d)));
+		Assert.assertTrue(lr.getConveringBox().overlaps(new BoundingBox(51d, 52d, 1d, 1d)));
+		Assert.assertTrue(lr.getConveringBox().overlaps(new BoundingBox(49.99d, 52d, 1d, 1d)));
+		Assert.assertTrue(lr.getConveringBox().overlaps(new BoundingBox(50.1d, 52d, 1d, 1d)));
 
-		Assert.assertTrue(ll.getConveringBox().overlaps(new BoundingBox(20.0f, 60.0f, 5.0f, 25.0f)));
-		Assert.assertTrue(lr.getConveringBox().overlaps(new BoundingBox(20.0f, 60.0f, 5.0f, 25.0f)));
-		Assert.assertTrue(ul.getConveringBox().overlaps(new BoundingBox(20.0f, 60.0f, 5.0f, 25.0f)));
-		Assert.assertTrue(ur.getConveringBox().overlaps(new BoundingBox(20.0f, 60.0f, 5.0f, 25.0f)));
+		Assert.assertTrue(ll.getConveringBox().overlaps(new BoundingBox(20.0d, 60.0d, 5.0d, 25.0d)));
+		Assert.assertTrue(lr.getConveringBox().overlaps(new BoundingBox(20.0d, 60.0d, 5.0d, 25.0d)));
+		Assert.assertTrue(ul.getConveringBox().overlaps(new BoundingBox(20.0d, 60.0d, 5.0d, 25.0d)));
+		Assert.assertTrue(ur.getConveringBox().overlaps(new BoundingBox(20.0d, 60.0d, 5.0d, 25.0d)));
 	}
 	
 }

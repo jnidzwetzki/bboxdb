@@ -43,7 +43,7 @@ public class DistributionRegion {
 	/**
 	 * The split position
 	 */
-	protected float split = Float.MIN_VALUE;
+	protected double split = Double.MIN_VALUE;
 	
 	/**
 	 * The left child
@@ -151,7 +151,7 @@ public class DistributionRegion {
 	 * Set the split coordinate
 	 * @param split
 	 */
-	public void setSplit(final float split) {
+	public void setSplit(final double split) {
 		this.split = split;
 		
 		if(leftChild != null || rightChild != null) {
@@ -182,7 +182,7 @@ public class DistributionRegion {
 	 * Merge the distribution group
 	 */
 	public void merge() {
-		split = Float.MIN_VALUE;
+		split = Double.MIN_VALUE;
 		leftChild = null;
 		rightChild = null;
 	}
@@ -191,7 +191,7 @@ public class DistributionRegion {
 	 * Get the split coordinate
 	 * @return
 	 */
-	public float getSplit() {
+	public double getSplit() {
 		return split;
 	}
 	

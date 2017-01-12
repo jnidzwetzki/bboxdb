@@ -99,7 +99,7 @@ public class DistributionGroupJPanel extends JPanel {
 	 * @return
 	 */
 	protected BoundingBox getMinimalBoundingBox() {
-		return new BoundingBox(0f, 400f, 0f, 200f);
+		return new BoundingBox(0.0, 400.0, 0.0, 200.0);
 	}
 	
 	/**
@@ -159,8 +159,8 @@ public class DistributionGroupJPanel extends JPanel {
 			minBoundingBox = BoundingBox.getCoveringBox(component.getBoundingBox(), minBoundingBox);
 		}
 						
-		final float rootCoordinateLow = regions.get(0).getBoundingBox().getCoordinateLow(0);
-		final float bboxCoordinateLow = minBoundingBox.getCoordinateLow(0);
+		final double rootCoordinateLow = regions.get(0).getBoundingBox().getCoordinateLow(0);
+		final double bboxCoordinateLow = minBoundingBox.getCoordinateLow(0);
 		
 		final int rootOffsetBBox = (int) (rootCoordinateLow - bboxCoordinateLow) + PADDING_LEFT_RIGHT;
 

@@ -22,7 +22,7 @@ import java.util.List;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.DistributedInstanceManager;
-import org.bboxdb.storage.entity.FloatInterval;
+import org.bboxdb.storage.entity.DoubleInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,10 +51,10 @@ public class SimpleSplitStrategy extends AbstractRegionSplitStrategy {
 		
 		// Split region
 		final int splitDimension = region.getSplitDimension();
-		final FloatInterval interval = region.getConveringBox().getIntervalForDimension(splitDimension);
+		final DoubleInterval interval = region.getConveringBox().getIntervalForDimension(splitDimension);
 		
 		logger.info("Split at dimension:" + splitDimension + " interval: " + interval);
-		float midpoint = interval.getMidpoint();
+		final double midpoint = interval.getMidpoint();
 		
 		performSplitAtPosition(region, midpoint);
 		

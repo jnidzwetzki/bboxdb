@@ -26,7 +26,7 @@ import java.util.Iterator;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.FloatInterval;
+import org.bboxdb.storage.entity.DoubleInterval;
 
 public class DistributionRegionComponent {
 	
@@ -170,7 +170,7 @@ public class DistributionRegionComponent {
 		if(distributionRegion.isLeafRegion()) {
 			writeStringCentered(g, "-", 0.9);
 		} else {
-			String nodeText = Float.toString(distributionRegion.getSplit());
+			String nodeText = Double.toString(distributionRegion.getSplit());
 			writeStringCentered(g, nodeText, 0.9);
 		}
 		
@@ -185,8 +185,8 @@ public class DistributionRegionComponent {
 	 * @return
 	 */
 	public BoundingBox getBoundingBox() {
-		final BoundingBox boundingBox = new BoundingBox((float) xOffset, 
-				(float) xOffset + WIDTH, (float) yOffset, (float) yOffset + HEIGHT);
+		final BoundingBox boundingBox = new BoundingBox((double) xOffset, 
+				(double) xOffset + WIDTH, (double) yOffset, (double) yOffset + HEIGHT);
 				
 		return boundingBox;
 	}
@@ -260,7 +260,7 @@ public class DistributionRegionComponent {
 		final StringBuilder sb = new StringBuilder("<html>");
 		
 		for(int i = 0; i < boundingBox.getDimension(); i++) {
-			final FloatInterval floatInterval = boundingBox.getIntervalForDimension(i);
+			final DoubleInterval floatInterval = boundingBox.getIntervalForDimension(i);
 			sb.append("Dimension: " + i + " ");
 			sb.append(intervalToString(floatInterval));
 			sb.append("<br>");
@@ -284,7 +284,7 @@ public class DistributionRegionComponent {
 	 * @param floatInterval
 	 * @return
 	 */
-	protected String intervalToString(final FloatInterval floatInterval) {
+	protected String intervalToString(final DoubleInterval floatInterval) {
 		final StringBuilder sb = new StringBuilder();
 		
 		if(floatInterval.isBeginIncluded()) {

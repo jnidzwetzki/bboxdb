@@ -43,7 +43,7 @@ public class TestBoxSearchIndex {
 	@Test
 	public void testQueryOnEmptytree() {
 		final BoxSortSpatialIndexStrategy boxSortIndex = new BoxSortSpatialIndexStrategy();
-		final List<String> result = boxSortIndex.query(new BoundingBox(1f, 1f, 2f, 2f));
+		final List<String> result = boxSortIndex.query(new BoundingBox(1d, 1d, 2d, 2d));
 		Assert.assertTrue(result.isEmpty());
 	}
 	
@@ -144,16 +144,16 @@ public class TestBoxSearchIndex {
 	 */
 	protected List<Tuple> getTupleList() {
 		final List<Tuple> tupleList = new ArrayList<Tuple>();
-		tupleList.add(new Tuple("abc", new BoundingBox(0f, 1f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("def", new BoundingBox(1f, 2f, 1f, 3f), "abc".getBytes()));
-		tupleList.add(new Tuple("fgh", new BoundingBox(2f, 3f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("ijk", new BoundingBox(3f, 4f, 3f, 7f), "abc".getBytes()));
-		tupleList.add(new Tuple("lmn", new BoundingBox(1.2f, 2.2f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("ijk", new BoundingBox(4.6f, 5.6f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("dwe", new BoundingBox(5.2f, 6.2f, 4f, 5f), "abc".getBytes()));
-		tupleList.add(new Tuple("gwd", new BoundingBox(5.1f, 6.1f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("fs3", new BoundingBox(6.1f, 7.1f, 0f, 1f), "abc".getBytes()));
-		tupleList.add(new Tuple("xyz", new BoundingBox(8.1f, 9.1f, 2f, 5f), "abc".getBytes()));
+		tupleList.add(new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes()));
+		tupleList.add(new Tuple("def", new BoundingBox(1d, 2d, 1d, 3d), "abc".getBytes()));
+		tupleList.add(new Tuple("fgh", new BoundingBox(2d, 3d, 0d, 1d), "abc".getBytes()));
+		tupleList.add(new Tuple("ijk", new BoundingBox(3d, 4d, 3d, 7d), "abc".getBytes()));
+		tupleList.add(new Tuple("lmn", new BoundingBox(1.2d, 2.2d, 0d, 1d), "abc".getBytes()));
+		tupleList.add(new Tuple("ijk", new BoundingBox(4.6d, 5.6d, 0d, 1d), "abc".getBytes()));
+		tupleList.add(new Tuple("dwe", new BoundingBox(5.2d, 6.2d, 4d, 5d), "abc".getBytes()));
+		tupleList.add(new Tuple("gwd", new BoundingBox(5.1d, 6.1d, 0d, 1d), "abc".getBytes()));
+		tupleList.add(new Tuple("fs3", new BoundingBox(6.1d, 7.1d, 0d, 1d), "abc".getBytes()));
+		tupleList.add(new Tuple("xyz", new BoundingBox(8.1d, 9.1d, 2d, 5d), "abc".getBytes()));
 		return tupleList;
 	}
 	
@@ -166,11 +166,11 @@ public class TestBoxSearchIndex {
 		final Random random = new Random();
 		
 		for(int i = 0; i < 5000; i++) {
-			final float[] boundingBoxData = new float[dimensions * 2];
+			final double[] boundingBoxData = new double[dimensions * 2];
 			
 			for(int d = 0; d < dimensions; d++) {
-				final float begin = random.nextInt() % 1000;
-				final float extent = Math.abs(random.nextInt() % 1000);
+				final double begin = random.nextInt() % 1000;
+				final double extent = Math.abs(random.nextInt() % 1000);
 				boundingBoxData[2 * d] = begin;            // Start coordinate
 				boundingBoxData[2 * d + 1] = begin+extent; // End coordinate
 			}

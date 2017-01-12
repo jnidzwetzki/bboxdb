@@ -7,7 +7,7 @@ order: 1
 ---
 
 ### Version 0.2.1 (Stable) - TBA
-
+- Improvement: Changed bounding box precision from float to double
 
 ### Version 0.2.0 (Stable) - 11.01.2017
 - Improvement: New logo

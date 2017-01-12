@@ -81,7 +81,7 @@ public class GeometricalStructure implements Serializable {
 			maxY = Math.min(maxY, osmPoint.getY());
 		}
 		
-		return new BoundingBox((float) minX, (float) maxX, (float) minY, (float) maxY);
+		return new BoundingBox(minX, maxX, minY, maxY);
 	}
 
 

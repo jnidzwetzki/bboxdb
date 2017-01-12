@@ -37,7 +37,7 @@ public class TestSSTableMetadataBuilder {
 	public void testSSTableIndexBuilder1() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
-		Assert.assertArrayEquals(new float[] {}, metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertArrayEquals(new double[] {}, metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(0, metadata.getTuples());
 	}
 
@@ -48,12 +48,12 @@ public class TestSSTableMetadataBuilder {
 	public void testSSTableIndexBuilder2() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		
 		ssTableIndexBuilder.addTuple(tuple1);
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
-		Assert.assertArrayEquals(boundingBox1.toFloatArray(), metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertArrayEquals(boundingBox1.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(metadata.getOldestTuple(), metadata.getNewestTuple());
 		Assert.assertEquals(1, metadata.getTuples());
 	}
@@ -65,7 +65,7 @@ public class TestSSTableMetadataBuilder {
 	public void testSSTableIndexBuilder3() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		final Tuple tuple2 = new Tuple("def", boundingBox1, "".getBytes());
 
@@ -73,7 +73,7 @@ public class TestSSTableMetadataBuilder {
 		ssTableIndexBuilder.addTuple(tuple2);
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
-		Assert.assertArrayEquals(boundingBox1.toFloatArray(), metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertArrayEquals(boundingBox1.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
 	
@@ -84,16 +84,16 @@ public class TestSSTableMetadataBuilder {
 	public void testSSTableIndexBuilder4() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
-		final BoundingBox boundingBox2 = new BoundingBox(1f, 3f);
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 3d);
 		final Tuple tuple2 = new Tuple("def", boundingBox2, "".getBytes());
 
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
-		Assert.assertArrayEquals(boundingBox2.toFloatArray(), metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertArrayEquals(boundingBox2.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
 	
@@ -104,16 +104,16 @@ public class TestSSTableMetadataBuilder {
 	public void testSSTableIndexBuilder5() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
-		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f);
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 1.1d);
 		final Tuple tuple2 = new Tuple("def", boundingBox2, "".getBytes());
 
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
-		Assert.assertArrayEquals(boundingBox1.toFloatArray(), metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertArrayEquals(boundingBox1.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
 	
@@ -124,16 +124,16 @@ public class TestSSTableMetadataBuilder {
 	public void testSSTableIndexBuilder6() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 2f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
-		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f);
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 1.1d);
 		final Tuple tuple2 = new Tuple("def", boundingBox2, "".getBytes());
 
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
-		Assert.assertArrayEquals(new float[] {}, metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertArrayEquals(new double[] {}, metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
 	
@@ -148,7 +148,7 @@ public class TestSSTableMetadataBuilder {
 		addTwoTuples(ssTableIndexBuilder);
 		
 		final SStableMetaData metadata = ssTableIndexBuilder.getMetaData();
-		Assert.assertArrayEquals(new float[] {1f, 2f, 1f, 5f}, metadata.getBoundingBoxData(), 0.001f);
+		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 5f}, metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
 	
@@ -197,7 +197,7 @@ public class TestSSTableMetadataBuilder {
 	public void testDumpToYaml2() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 2f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		ssTableIndexBuilder.addTuple(tuple1);
 
@@ -212,7 +212,7 @@ public class TestSSTableMetadataBuilder {
 	public void testDumpAndReadFromYamlString1() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 2f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		ssTableIndexBuilder.addTuple(tuple1);
 
@@ -283,9 +283,9 @@ public class TestSSTableMetadataBuilder {
 	 * @param ssTableIndexBuilder
 	 */
 	protected void addTwoTuples(final SSTableMetadataBuilder ssTableIndexBuilder) {
-		final BoundingBox boundingBox1 = new BoundingBox(1f, 2f, 1f, 2f);
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 2d);
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
-		final BoundingBox boundingBox2 = new BoundingBox(1f, 1.1f, 1f, 5f);
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 1.1d, 1d, 5d);
 		final Tuple tuple2 = new Tuple("def", boundingBox2, "".getBytes());
 		
 		ssTableIndexBuilder.addTuple(tuple1);

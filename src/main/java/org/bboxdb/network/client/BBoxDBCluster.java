@@ -423,8 +423,8 @@ public class BBoxDBCluster implements BBoxDB {
 		// Insert the tuples
 		final Random bbBoxRandom = new Random();
 		for(int i = 0; i < 100000; i++) {
-			final float x = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
-			final float y = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
+			final double x = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
+			final double y = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
 			
 			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1);
 			

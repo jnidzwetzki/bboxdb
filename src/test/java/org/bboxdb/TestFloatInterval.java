@@ -18,7 +18,7 @@
 package org.bboxdb;
 
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.FloatInterval;
+import org.bboxdb.storage.entity.DoubleInterval;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ public class TestFloatInterval {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void invalidInterval1() {
-		final FloatInterval floatInterval = new FloatInterval(-5, -10);
+		final DoubleInterval floatInterval = new DoubleInterval(-5, -10);
 	}
 
 	/**
@@ -39,7 +39,7 @@ public class TestFloatInterval {
 	@SuppressWarnings("unused")
 	@Test(expected = IllegalArgumentException.class)
 	public void invalidInterval2() {
-		final FloatInterval floatInterval = new FloatInterval(-5, -5, false, false);
+		final DoubleInterval floatInterval = new DoubleInterval(-5, -5, false, false);
 	}
 	
 	/**
@@ -47,7 +47,7 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void coveredPoint1() {
-		final FloatInterval floatInterval = new FloatInterval(1, 100);
+		final DoubleInterval floatInterval = new DoubleInterval(1, 100);
 		Assert.assertTrue(floatInterval.isBeginIncluded());
 		Assert.assertTrue(floatInterval.isEndIncluded());
 		Assert.assertTrue(floatInterval.overlapsWith(floatInterval.getBegin(), true));
@@ -66,7 +66,7 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void coveredPoint2() {
-		final FloatInterval floatInterval = new FloatInterval(1, 100, false, false);
+		final DoubleInterval floatInterval = new DoubleInterval(1, 100, false, false);
 		Assert.assertFalse(floatInterval.isBeginIncluded());
 		Assert.assertFalse(floatInterval.isEndIncluded());
 		Assert.assertFalse(floatInterval.overlapsWith(floatInterval.getBegin(), true));
@@ -85,10 +85,10 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void intervalCovered1() {
-		final FloatInterval floatInterval1 = new FloatInterval(1, 100);
-		final FloatInterval floatInterval2 = new FloatInterval(50, 150);
-		final FloatInterval floatInterval3 = new FloatInterval(500, 900);
-		final FloatInterval floatInterval4 = new FloatInterval(100, 101);
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 100);
+		final DoubleInterval floatInterval2 = new DoubleInterval(50, 150);
+		final DoubleInterval floatInterval3 = new DoubleInterval(500, 900);
+		final DoubleInterval floatInterval4 = new DoubleInterval(100, 101);
 
 		Assert.assertTrue(floatInterval1.isOverlappingWith(floatInterval2));
 		Assert.assertTrue(floatInterval2.isOverlappingWith(floatInterval1));
@@ -108,10 +108,10 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void intervalCovered2() {
-		final FloatInterval floatInterval1 = new FloatInterval(1, 100, false, false);
-		final FloatInterval floatInterval2 = new FloatInterval(50, 150, false, false);
-		final FloatInterval floatInterval3 = new FloatInterval(0, 101, false, false);
-		final FloatInterval floatInterval4 = new FloatInterval(100, 101, false, false);
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 100, false, false);
+		final DoubleInterval floatInterval2 = new DoubleInterval(50, 150, false, false);
+		final DoubleInterval floatInterval3 = new DoubleInterval(0, 101, false, false);
+		final DoubleInterval floatInterval4 = new DoubleInterval(100, 101, false, false);
 
 		Assert.assertTrue(floatInterval1.isOverlappingWith(floatInterval2));
 		Assert.assertTrue(floatInterval2.isOverlappingWith(floatInterval1));
@@ -130,10 +130,10 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void intervalConvered3() {
-		final FloatInterval floatInterval1 = new FloatInterval(1, 100, false, true);
-		final FloatInterval floatInterval2 = new FloatInterval(50, 150, false, true);
-		final FloatInterval floatInterval3 = new FloatInterval(0, 101, false, true);
-		final FloatInterval floatInterval4 = new FloatInterval(100, 101, false, true);
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 100, false, true);
+		final DoubleInterval floatInterval2 = new DoubleInterval(50, 150, false, true);
+		final DoubleInterval floatInterval3 = new DoubleInterval(0, 101, false, true);
+		final DoubleInterval floatInterval4 = new DoubleInterval(100, 101, false, true);
 
 		Assert.assertTrue(floatInterval1.isOverlappingWith(floatInterval2));
 		Assert.assertTrue(floatInterval2.isOverlappingWith(floatInterval1));
@@ -152,10 +152,10 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void intervalConvered4() {
-		final FloatInterval floatInterval1 = new FloatInterval(1, 100, true, false);
-		final FloatInterval floatInterval2 = new FloatInterval(50, 150, true, false);
-		final FloatInterval floatInterval3 = new FloatInterval(0, 101, true, false);
-		final FloatInterval floatInterval4 = new FloatInterval(100, 101, true, false);
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 100, true, false);
+		final DoubleInterval floatInterval2 = new DoubleInterval(50, 150, true, false);
+		final DoubleInterval floatInterval3 = new DoubleInterval(0, 101, true, false);
+		final DoubleInterval floatInterval4 = new DoubleInterval(100, 101, true, false);
 
 		Assert.assertTrue(floatInterval1.isOverlappingWith(floatInterval2));
 		Assert.assertTrue(floatInterval2.isOverlappingWith(floatInterval1));
@@ -174,9 +174,9 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void testIntervalSplit1() {
-		final FloatInterval interval1 = new FloatInterval(0, 100);
-		final FloatInterval leftPart = interval1.splitAndGetLeftPart(50, true);
-		final FloatInterval rightPart = interval1.splitAndGetRightPart(50, true);
+		final DoubleInterval interval1 = new DoubleInterval(0, 100);
+		final DoubleInterval leftPart = interval1.splitAndGetLeftPart(50, true);
+		final DoubleInterval rightPart = interval1.splitAndGetRightPart(50, true);
 		
 		Assert.assertTrue(interval1.isBeginIncluded());
 		Assert.assertTrue(interval1.isEndIncluded());
@@ -199,7 +199,7 @@ public class TestFloatInterval {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testIntervalSplit2() {
-		final FloatInterval interval1 = new FloatInterval(0, 100);
+		final DoubleInterval interval1 = new DoubleInterval(0, 100);
 		interval1.splitAndGetLeftPart(-10, false);
 	}
 	
@@ -208,7 +208,7 @@ public class TestFloatInterval {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testIntervalSplit3() {
-		final FloatInterval interval1 = new FloatInterval(0, 100);
+		final DoubleInterval interval1 = new DoubleInterval(0, 100);
 		interval1.splitAndGetLeftPart(101, false);
 	}
 	
@@ -217,7 +217,7 @@ public class TestFloatInterval {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testIntervalSplit4() {
-		final FloatInterval interval1 = new FloatInterval(0, 100, false, false);
+		final DoubleInterval interval1 = new DoubleInterval(0, 100, false, false);
 		interval1.splitAndGetLeftPart(0, false);
 	}
 	
@@ -226,7 +226,7 @@ public class TestFloatInterval {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testIntervalSplit5() {
-		final FloatInterval interval1 = new FloatInterval(0, 100, false, false);
+		final DoubleInterval interval1 = new DoubleInterval(0, 100, false, false);
 		interval1.splitAndGetLeftPart(0, false);
 	}
 	
@@ -235,7 +235,7 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void testMidpoint1() {
-		final FloatInterval interval1 = new FloatInterval(BoundingBox.MIN_VALUE, BoundingBox.MAX_VALUE);
+		final DoubleInterval interval1 = new DoubleInterval(BoundingBox.MIN_VALUE, BoundingBox.MAX_VALUE);
 		Assert.assertEquals(0, interval1.getMidpoint(), 0.0001f);
 	}
 	
@@ -244,7 +244,7 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void testIntersection1() {
-		final FloatInterval floatInterval = new FloatInterval(1, 2);
+		final DoubleInterval floatInterval = new DoubleInterval(1, 2);
 		Assert.assertTrue(floatInterval.getIntersection(null) == null);
 		Assert.assertEquals(floatInterval.getIntersection(floatInterval), floatInterval);
 	}
@@ -254,8 +254,8 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void testIntersection2() {
-		final FloatInterval floatInterval1 = new FloatInterval(1, 2, false, false);
-		final FloatInterval floatInterval2 = new FloatInterval(2, 3, false, false);
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, false, false);
+		final DoubleInterval floatInterval2 = new DoubleInterval(2, 3, false, false);
 		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) == null);
 	}
 	
@@ -264,12 +264,12 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void testIntersection3() {
-		final FloatInterval floatInterval1 = new FloatInterval(1, 2, true, true);
-		final FloatInterval floatInterval2 = new FloatInterval(2, 3, true, true);
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, true, true);
+		final DoubleInterval floatInterval2 = new DoubleInterval(2, 3, true, true);
 		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) != null);
 		Assert.assertTrue(floatInterval2.getIntersection(floatInterval1) != null);
 
-		final FloatInterval floatIntervalResult = new FloatInterval(2, 2, true, true);
+		final DoubleInterval floatIntervalResult = new DoubleInterval(2, 2, true, true);
 		Assert.assertEquals(floatIntervalResult, floatInterval1.getIntersection(floatInterval2));
 		Assert.assertEquals(floatIntervalResult, floatInterval2.getIntersection(floatInterval1));
 
@@ -280,8 +280,8 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void testIntersection4() {
-		final FloatInterval floatInterval1 = new FloatInterval(5, 10, true, true);
-		final FloatInterval floatInterval2 = new FloatInterval(1, 11, true, true);
+		final DoubleInterval floatInterval1 = new DoubleInterval(5, 10, true, true);
+		final DoubleInterval floatInterval2 = new DoubleInterval(1, 11, true, true);
 		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) != null);
 		Assert.assertEquals(floatInterval1, floatInterval1.getIntersection(floatInterval2));
 		Assert.assertTrue(floatInterval2.getIntersection(floatInterval1) != null);
@@ -293,8 +293,8 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void testIntersection5() {
-		final FloatInterval floatInterval2 = new FloatInterval(5, 10, true, true);
-		final FloatInterval floatInterval1 = new FloatInterval(1, 11, true, true);
+		final DoubleInterval floatInterval2 = new DoubleInterval(5, 10, true, true);
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 11, true, true);
 		Assert.assertTrue(floatInterval2.getIntersection(floatInterval1) != null);
 		Assert.assertEquals(floatInterval2, floatInterval2.getIntersection(floatInterval1));
 		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) != null);
@@ -306,8 +306,8 @@ public class TestFloatInterval {
 	 */
 	@Test
 	public void testIntersection6() {
-		final FloatInterval floatInterval2 = new FloatInterval(16, 20, true, true);
-		final FloatInterval floatInterval1 = new FloatInterval(1, 11, true, true);
+		final DoubleInterval floatInterval2 = new DoubleInterval(16, 20, true, true);
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 11, true, true);
 		Assert.assertTrue(floatInterval2.getIntersection(floatInterval1) == null);
 		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) == null);
 	}

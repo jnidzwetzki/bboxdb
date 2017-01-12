@@ -25,7 +25,7 @@ import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.FloatInterval;
+import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableManager;
@@ -44,7 +44,7 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 		final List<SSTableName> tables = StorageRegistry.getAllTablesForDistributionGroup(regionToSplit.getDistributionGroupName());
 	
 		try {
-			final List<FloatInterval> floatIntervals = new ArrayList<FloatInterval>();
+			final List<DoubleInterval> doubleIntervals = new ArrayList<DoubleInterval>();
 
 			for(final SSTableName ssTableName : tables) {
 				logger.info("Create split samples for table: {} ", ssTableName.getFullname());
@@ -52,14 +52,14 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 				final SSTableManager storageInterface = StorageRegistry.getSSTableManager(ssTableName);
 				final List<ReadOnlyTupleStorage> tupleStores = storageInterface.getTupleStoreInstances().getAllTupleStorages();
 				
-				processTupleStores(tupleStores, splitDimension, regionToSplit, floatIntervals);
+				processTupleStores(tupleStores, splitDimension, regionToSplit, doubleIntervals);
 				logger.info("Create split samples for table: {} DONE", ssTableName.getFullname());
 			}
 			
 			// Sort intervals and take the middle element as split interval
-			floatIntervals.sort((i1, i2) -> Float.compare(i1.getBegin(),i2.getBegin()));
-			final int midpoint = floatIntervals.size() / 2;
-			final FloatInterval splitInterval = floatIntervals.get(midpoint);
+			doubleIntervals.sort((i1, i2) -> Double.compare(i1.getBegin(),i2.getBegin()));
+			final int midpoint = doubleIntervals.size() / 2;
+			final DoubleInterval splitInterval = doubleIntervals.get(midpoint);
 
 			performSplitAtPosition(regionToSplit, splitInterval.getBegin());
 			
@@ -79,7 +79,7 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	 * @throws StorageManagerException 
 	 */
 	protected void processTupleStores(final List<ReadOnlyTupleStorage> storages, final int splitDimension, 
-			final DistributionRegion regionToSplit, final List<FloatInterval> floatIntervals) 
+			final DistributionRegion regionToSplit, final List<DoubleInterval> floatIntervals) 
 					throws StorageManagerException {
 		
 		final int samplesPerStorage = Math.max(10, SAMPLE_SIZE / storages.size());
@@ -106,7 +106,7 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 					continue;
 				}
 					
-				final FloatInterval interval = groupBox.getIntervalForDimension(splitDimension);
+				final DoubleInterval interval = groupBox.getIntervalForDimension(splitDimension);
 				floatIntervals.add(interval);
 			}
 	

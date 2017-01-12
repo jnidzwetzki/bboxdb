@@ -50,7 +50,7 @@ public class SStableMetaData {
 	/**
 	 * The bounding box of all tuples
 	 */
-	protected float[] boundingBoxData;
+	protected double[] boundingBoxData;
 	
 	/**
 	 * The dimensions of the bounding box
@@ -67,7 +67,7 @@ public class SStableMetaData {
 		
 	}
 	
-	public SStableMetaData(final long tuples, final long oldestTuple, final long newestTuple, final float[] boundingBoxData) {
+	public SStableMetaData(final long tuples, final long oldestTuple, final long newestTuple, final double[] boundingBoxData) {
 		super();
 		this.tuples = tuples;
 		this.oldestTuple = oldestTuple;
@@ -164,11 +164,11 @@ public class SStableMetaData {
 		this.newestTuple = newestTuple;
 	}
 
-	public float[] getBoundingBoxData() {
+	public double[] getBoundingBoxData() {
 		return boundingBoxData;
 	}
 
-	public void setBoundingBoxData(final float[] boundingBoxData) {
+	public void setBoundingBoxData(final double[] boundingBoxData) {
 		this.boundingBoxData = boundingBoxData;
 	}
 

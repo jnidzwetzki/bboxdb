@@ -121,8 +121,8 @@ public class BoxSortSpatialIndexStrategy implements SpatialIndexStrategy {
 			@Override
 			public int compare(final Tuple tuple1, final Tuple tuple2) {
 								
-				final float coordinateLowTuple1 = tuple1.getBoundingBox().getCoordinateLow(dimension);
-				final float coordinateLowTuple2 = tuple2.getBoundingBox().getCoordinateLow(dimension);
+				final double coordinateLowTuple1 = tuple1.getBoundingBox().getCoordinateLow(dimension);
+				final double coordinateLowTuple2 = tuple2.getBoundingBox().getCoordinateLow(dimension);
 				
 				if(coordinateLowTuple1 == coordinateLowTuple2) {
 					return 0;

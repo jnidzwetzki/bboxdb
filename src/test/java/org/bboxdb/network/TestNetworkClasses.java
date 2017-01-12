@@ -366,7 +366,7 @@ public class TestNetworkClasses {
 	@Test
 	public void testDecodeBoundingBoxQuery() throws IOException, PackageEncodeError {
 		final String table = "table1";
-		final BoundingBox boundingBox = new BoundingBox(10f, 20f);
+		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
 		
 		final QueryBoundingBoxRequest queryRequest = new QueryBoundingBoxRequest(table, boundingBox, false, (short) 10);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
@@ -423,7 +423,7 @@ public class TestNetworkClasses {
 	public void testDecodeBoundingBoxAndTime() throws IOException, PackageEncodeError {
 		final String table = "table1";
 		final long timeStamp = 4711;
-		final BoundingBox boundingBox = new BoundingBox(10f, 20f);
+		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
 
 		
 		final QueryBoundingBoxTimeRequest queryRequest = new QueryBoundingBoxTimeRequest(table, boundingBox, timeStamp, true, (short) 50);

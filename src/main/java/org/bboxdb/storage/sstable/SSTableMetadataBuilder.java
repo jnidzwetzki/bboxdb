@@ -67,10 +67,10 @@ public class SSTableMetadataBuilder {
 	 * @return
 	 */
 	public SStableMetaData getMetaData() {
-		float[] boundingBoxArray = {};
+		double[] boundingBoxArray = {};
 		
 		if(boundingBox != null) {
-			boundingBoxArray = boundingBox.toFloatArray();
+			boundingBoxArray = boundingBox.toDoubleArray();
 		}
 		
 		return new SStableMetaData(tuples, oldestTuple, newestTuple, boundingBoxArray);

@@ -17,17 +17,17 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
-public class FloatInterval implements Comparable<FloatInterval> {
+public class DoubleInterval implements Comparable<DoubleInterval> {
 	
 	/**
 	 * The begin of the interval
 	 */
-	protected final float begin;
+	protected final double begin;
 	
 	/**
 	 * The end of the interval
 	 */
-	protected final float end;
+	protected final double end;
 	
 	/**
 	 * Begin point included
@@ -39,11 +39,11 @@ public class FloatInterval implements Comparable<FloatInterval> {
 	 */
 	protected final boolean endIncluded;
 	
-	public FloatInterval(final float begin, final float end) {
+	public DoubleInterval(final double begin, final double end) {
 		this(begin, end, true, true);
 	}
 
-	public FloatInterval(final float begin, final float end, final boolean beginIncluded, final boolean endIncluded) {
+	public DoubleInterval(final double begin, final double end, final boolean beginIncluded, final boolean endIncluded) {
 		super();
 		
 		if(begin > end) {
@@ -82,7 +82,7 @@ public class FloatInterval implements Comparable<FloatInterval> {
 	 * Get the begin of the interval
 	 * @return
 	 */
-	public float getBegin() {
+	public double getBegin() {
 		return begin;
 	}
 
@@ -90,7 +90,7 @@ public class FloatInterval implements Comparable<FloatInterval> {
 	 * Get the end of the interval
 	 * @return
 	 */
-	public float getEnd() {
+	public double getEnd() {
 		return end;
 	}
 	
@@ -98,8 +98,8 @@ public class FloatInterval implements Comparable<FloatInterval> {
 	 * Get the middle point of the interval
 	 * @return
 	 */
-	public float getMidpoint() {
-		return (float) (((double) end - (double) begin) / 2.0) + begin;
+	public double getMidpoint() {
+		return ((end - begin) / 2.0) + begin;
 	}
 	
 	/**
@@ -107,7 +107,7 @@ public class FloatInterval implements Comparable<FloatInterval> {
 	 * @param number
 	 * @return
 	 */
-	public boolean isNumberIncluded(final float number) {
+	public boolean isNumberIncluded(final double number) {
 		return overlapsWith(number, true);
 	}
 	
@@ -116,7 +116,7 @@ public class FloatInterval implements Comparable<FloatInterval> {
 	 * @param number
 	 * @return
 	 */
-	public boolean overlapsWith(final float number, final boolean numberIncluded) {
+	public boolean overlapsWith(final double number, final boolean numberIncluded) {
 		
 		boolean betweenBeginAndEnd = (number >= begin && number <= end);
 		
@@ -183,7 +183,7 @@ public class FloatInterval implements Comparable<FloatInterval> {
 	 * @param otherInterval
 	 * @return
 	 */
-	public boolean isOverlappingWith(final FloatInterval otherInterval) {
+	public boolean isOverlappingWith(final DoubleInterval otherInterval) {
 		
 		// Case 1 and 6
 		if(overlapsWith(otherInterval.getBegin(), otherInterval.isBeginIncluded())) {
@@ -215,7 +215,7 @@ public class FloatInterval implements Comparable<FloatInterval> {
 	 * @param otherInterval
 	 * @return 
 	 */
-	public FloatInterval getIntersection(final FloatInterval otherInterval) {
+	public DoubleInterval getIntersection(final DoubleInterval otherInterval) {
 		
 		if(otherInterval == null) {
 			return null;
@@ -249,7 +249,7 @@ public class FloatInterval implements Comparable<FloatInterval> {
 				return null;
 			}
 			
-			return new FloatInterval(otherInterval.getBegin(), end, otherInterval.isBeginIncluded(), endIncluded);
+			return new DoubleInterval(otherInterval.getBegin(), end, otherInterval.isBeginIncluded(), endIncluded);
 		}
 		
 		if(begin == otherInterval.getEnd() 
@@ -259,37 +259,37 @@ public class FloatInterval implements Comparable<FloatInterval> {
 		}
 		
 		// Right overlapping
-		return new FloatInterval(begin, otherInterval.getEnd(), beginIncluded, otherInterval.isEndIncluded());
+		return new DoubleInterval(begin, otherInterval.getEnd(), beginIncluded, otherInterval.isEndIncluded());
 	}
 	
 	/**
 	 * Split the interval at the given position and return the left part
 	 * @return
 	 */
-	public FloatInterval splitAndGetLeftPart(final float splitPosition, final boolean splitPositionIncluded) {
+	public DoubleInterval splitAndGetLeftPart(final double splitPosition, final boolean splitPositionIncluded) {
 		if(! overlapsWith(splitPosition, true)) {
 			throw new IllegalArgumentException("Split position is not included: " + toString() + " / " + splitPosition);
 		}
 		
-		return new FloatInterval(begin, splitPosition, beginIncluded, splitPositionIncluded);
+		return new DoubleInterval(begin, splitPosition, beginIncluded, splitPositionIncluded);
 	} 
 	
 	/**
 	 * Split the interval at the given position and return the right part
 	 * @return
 	 */
-	public FloatInterval splitAndGetRightPart(final float splitPosition, final boolean splitPositionIncluded) {
+	public DoubleInterval splitAndGetRightPart(final double splitPosition, final boolean splitPositionIncluded) {
 		if(! overlapsWith(splitPosition, true)) {
 			throw new IllegalArgumentException("Split position is not included: " + toString() + " / " + splitPosition);
 		}
 		
-		return new FloatInterval(splitPosition, end, splitPositionIncluded, endIncluded);
+		return new DoubleInterval(splitPosition, end, splitPositionIncluded, endIncluded);
 	} 
 
 	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer();
-		sb.append("FloatInterval ");
+		sb.append("DoubleInterval ");
 		
 		if(beginIncluded) {
 			sb.append("[");
@@ -314,53 +314,44 @@ public class FloatInterval implements Comparable<FloatInterval> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Float.floatToIntBits(begin);
+		long temp;
+		temp = Double.doubleToLongBits(begin);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + (beginIncluded ? 1231 : 1237);
-		result = prime * result + Float.floatToIntBits(end);
+		temp = Double.doubleToLongBits(end);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + (endIncluded ? 1231 : 1237);
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
-		
-		final FloatInterval other = (FloatInterval) obj;
-		
-		if(other.isBeginIncluded() != isBeginIncluded()) {
+		DoubleInterval other = (DoubleInterval) obj;
+		if (Double.doubleToLongBits(begin) != Double
+				.doubleToLongBits(other.begin))
 			return false;
-		}
-		
-		if(other.isEndIncluded() != isEndIncluded()) {
+		if (beginIncluded != other.beginIncluded)
 			return false;
-		}
-		
-		if(other.getBegin() != getBegin()) {
+		if (Double.doubleToLongBits(end) != Double.doubleToLongBits(other.end))
 			return false;
-		}
-		
-		if(other.getEnd() != getEnd()) {
+		if (endIncluded != other.endIncluded)
 			return false;
-		}
-		
 		return true;
 	}
 
 	@Override
-	public int compareTo(final FloatInterval otherInterval) {
+	public int compareTo(final DoubleInterval otherInterval) {
 		if(getBegin() != otherInterval.getBegin()) {
-			return Float.compare(getBegin(), otherInterval.getBegin());
+			return Double.compare(getBegin(), otherInterval.getBegin());
 		}
 		
-		return Float.compare(getEnd(), otherInterval.getEnd());
+		return Double.compare(getEnd(), otherInterval.getEnd());
 	}
 	
 }
