@@ -103,7 +103,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 
 	@Override
 	public void run() {
-		logger.info("Memtable flush thread has started: {} ", threadname);
+		logger.info("Checkpoint thread has started: {} ", threadname);
 
 		try {
 			executeThread();
@@ -111,7 +111,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			logger.error("Got uncought exception", e);
 		}
 		
-		logger.info("Memtable flush thread has stopped: {} ", threadname);
+		logger.info("Checkpoint thread has stopped: {} ", threadname);
 	}
 
 	protected void executeThread() {
@@ -122,7 +122,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 				createCheckpoint();
 				Thread.sleep(SSTableConst.CHECKPOINT_THREAD_DELAY);
 			} catch (InterruptedException e) {
-				logger.info("Got interrupted exception, stopping checkpoint thread for: {}", threadname);
+				logger.debug("Got interrupted exception, stopping checkpoint thread for: {}", threadname);
 				Thread.currentThread().interrupt();
 				return;
 			}
@@ -151,8 +151,8 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	 * @throws InterruptedException 
 	 */
 	protected void createCheckpoint() throws InterruptedException {
+		
 		try {
-
 			if(isCheckpointNeeded()) {
 				final Memtable activeMemtable = ssTableManager.getMemtable();
 				logger.debug("Create a checkpoint for: {}", threadname);
@@ -176,7 +176,11 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			updateCheckpointDate(createdTimestamp);
 			
 		} catch (ZookeeperException e) {
-			logger.warn("Got an exception while creating checkpoint", e);
+			if(Thread.currentThread().isInterrupted()) {
+				logger.trace("Got an exception while creating checkpoint", e);
+			} else {
+				logger.warn("Got an exception while creating checkpoint", e);
+			}
 		}
 	}
 
