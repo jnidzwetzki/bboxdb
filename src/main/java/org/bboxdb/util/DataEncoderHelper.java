@@ -29,16 +29,6 @@ public class DataEncoderHelper {
 	public final static int DOUBLE_BYTES = Double.SIZE / Byte.SIZE;
 	
 	/**
-	 * Size of a float in bytes
-	 */
-	public final static int FLOAT_BYTES = Float.SIZE / Byte.SIZE;
-	
-	/**
-	 * Size of a IEEE 754 encoded float in bytes
-	 */
-	public final static int FLOAT_IEEE754_BYTES = Integer.SIZE / Byte.SIZE;
-	
-	/**
 	 * Size of a long in bytes
 	 */
 	public final static int LONG_BYTES = Long.SIZE / Byte.SIZE;
@@ -80,38 +70,6 @@ public class DataEncoderHelper {
 		
 		for(int i = 0; i < longValues.length; i++) {
 			byteBuffer.putLong(longValues[i]);
-		}
-		
-		return byteBuffer;
-	}
-	
-	/** 
-	 * Convert a array of float values into a byte buffer (in IEEE 754 notation)
-	 * @param longValues
-	 * @return
-	 */
-	public static ByteBuffer floatArrayToIEEE754ByteBuffer(final float floatValues[]) {
-		final ByteBuffer byteBuffer = ByteBuffer.allocate(FLOAT_IEEE754_BYTES * floatValues.length);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
-		
-		for(int i = 0; i < floatValues.length; i++) {
-			byteBuffer.putInt(Float.floatToIntBits(floatValues[i]));
-		}
-		
-		return byteBuffer;
-	}
-	
-	/** 
-	 * Convert a array of float values into a byte buffer (in java notation)
-	 * @param longValues
-	 * @return
-	 */
-	public static ByteBuffer floatArrayToByteBuffer(final float floatValues[]) {
-		final ByteBuffer byteBuffer = ByteBuffer.allocate(FLOAT_BYTES * floatValues.length);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
-		
-		for(int i = 0; i < floatValues.length; i++) {
-			byteBuffer.putFloat(floatValues[i]);
 		}
 		
 		return byteBuffer;
@@ -186,47 +144,11 @@ public class DataEncoderHelper {
 		return values;
 	}
 	
-	/**
-	 * Decode a IEEE 754 encoded float array from a byte buffer
-	 * @param buffer
-	 * @return the float value
-	 */
-	public static float[] readIEEE754FloatArrayFromByte(final byte[] buffer) {
-		final int totalValues = buffer.length / FLOAT_IEEE754_BYTES;
-		float values[] = new float[totalValues];
-		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
-		
-		for(int i = 0; i < totalValues; i++) {
-			final int value = byteBuffer.getInt(i * FLOAT_IEEE754_BYTES);
-			values[i] = Float.intBitsToFloat(value);
-		}
-		
-		return values;
-	}
-	
-	/**
-	 * Decode a java encoded float array from a byte buffer
-	 * @param buffer
-	 * @return the float value
-	 */
-	public static float[] readFloatArrayFromByte(final byte[] buffer) {
-		final int totalValues = buffer.length / FLOAT_BYTES;
-		float values[] = new float[totalValues];
-		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
-		
-		for(int i = 0; i < totalValues; i++) {
-			values[i] = byteBuffer.getFloat(i * FLOAT_BYTES);
-		}
-		
-		return values;
-	}
 	
 	/**
 	 * Decode a java encoded double array from a byte buffer
 	 * @param buffer
-	 * @return the float value
+	 * @return the double value
 	 */
 	public static double[] readDoubleArrayFromByte(final byte[] buffer) {
 		final int totalValues = buffer.length / DOUBLE_BYTES;
