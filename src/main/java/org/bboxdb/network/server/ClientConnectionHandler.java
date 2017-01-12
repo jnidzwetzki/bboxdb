@@ -765,9 +765,8 @@ public class ClientConnectionHandler implements Runnable {
 			final BoundingBox boundingBox = insertTupleRequest.getTuple().getBoundingBox();
 			final Collection<SSTableName> localTables = regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);
 
-			for(final SSTableName ssTableName : localTables) {
-				final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
-				storageManager.put(tuple);
+			for(final SSTableName ssTableName : localTables) {	
+				insertTupleNE(tuple, ssTableName);
 			}
 
 			packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest, boundingBox);
@@ -778,6 +777,42 @@ public class ClientConnectionHandler implements Runnable {
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Insert an tuple with proper exception handling
+	 * @param tuple
+	 * @param ssTableName
+	 * @return
+	 */
+	protected boolean insertTupleNE(final Tuple tuple, final SSTableName ssTableName) {
+		
+		SSTableManager storageManager = null;
+		
+		try {
+			storageManager = StorageRegistry.getSSTableManager(ssTableName);
+		} catch (StorageManagerException e) {
+			logger.warn("Got an exception while inserting", e);
+			return false;
+		}
+
+		try {
+			if(! storageManager.isReady()) {
+				return false;
+			}
+			
+			storageManager.put(tuple);
+			return true;
+			
+		} catch (StorageManagerException e) {
+			if(storageManager.isReady()) {
+				logger.warn("Got an exception while inserting", e);
+			} else {
+				logger.debug("Got an exception while inserting", e);
+			}
+		}
+		
+		return false;
 	}
 
 	/**
