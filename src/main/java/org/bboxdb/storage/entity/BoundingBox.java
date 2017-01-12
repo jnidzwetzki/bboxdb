@@ -41,12 +41,12 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	/**
 	 * The min value
 	 */
-	public final static float MIN_VALUE = -Float.MAX_VALUE;
+	public final static double MIN_VALUE = Double.NEGATIVE_INFINITY ;
 	
 	/**
 	 * The max value
 	 */
-	public final static float MAX_VALUE = Float.MAX_VALUE;
+	public final static double MAX_VALUE = Double.POSITIVE_INFINITY ;
 	
 	/**
 	 * The Logger
@@ -54,7 +54,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	protected static final Logger logger = LoggerFactory.getLogger(BoundingBox.class);
 	
 	/**
-	 * Create from Float
+	 * Create from Double
 	 * @param args
 	 */
 	public BoundingBox(final Double... args) {
@@ -72,7 +72,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	}
 	
 	/**
-	 * Create from float[]
+	 * Create from double[]
 	 * @param args
 	 */
 	public BoundingBox(final double[] values) {
@@ -90,7 +90,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	}
 	
 	/**
-	 * Create from List<FloatInterval>
+	 * Create from List<DoubleInterval>
 	 * @param args
 	 */
 	public BoundingBox(final List<DoubleInterval> values) {
@@ -237,7 +237,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	}
 	
 	/**
-	 * Get the float interval for the given dimension
+	 * Get the double interval for the given dimension
 	 * @param dimension
 	 * @return
 	 */
