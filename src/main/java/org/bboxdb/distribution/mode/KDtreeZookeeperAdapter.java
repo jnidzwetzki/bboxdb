@@ -521,7 +521,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		
 		final double splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
 		
-		if(region.isLeafRegion() && ! region.isChildNodesInCreatingState()) {		
+		if(region.getLeftChild() == null && region.getRightChild() == null) {		
 			region.setSplit(splitFloat); 
 		} else {
 			if(region.getSplit() != splitFloat) {
