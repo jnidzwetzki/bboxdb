@@ -65,22 +65,22 @@ public class NetworkConst {
 	public static final short REQUEST_TYPE_QUERY = 0x06;
 	
 	/**
-	 * Request type transfer SSTable
-	 */
-	public static final short REQUEST_TYPE_TRANSFER = 0x07;
-	
-	/**
 	 * Request type create distribution group
 	 */
-	public static final short REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP = 0x08;
+	public static final short REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP = 0x07;
 	
 	/**
 	 * Request type delete distribution group
 	 */
-	public static final short REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP = 0x09;
+	public static final short REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP = 0x08;
 	
 	/**
-	 * Compression
+	 * Request type package envelope
+	 */
+	public static final short REQUEST_TYPE_ENVELOPE = 0x09;
+	
+	/**
+	 * Compression envelope
 	 */
 	public static final short REQUEST_TYPE_COMPRESSION = 0x10;
 	

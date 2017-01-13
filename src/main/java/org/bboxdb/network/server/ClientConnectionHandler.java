@@ -64,7 +64,7 @@ import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.request.QueryTimeRequest;
-import org.bboxdb.network.packages.request.TransferSSTableRequest;
+import org.bboxdb.network.packages.request.PackageEnvelope;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.HelloResponse;
@@ -315,7 +315,7 @@ public class ClientConnectionHandler implements Runnable {
 		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 		
 		try {
-			TransferSSTableRequest.decodeTuple(packageHeader, bodyLength, configuration, inputStream);
+			PackageEnvelope.decodeTuple(packageHeader, bodyLength, configuration, inputStream);
 		} catch (IOException e) {
 			logger.warn("Exception while handling sstable transfer", e);
 		}
@@ -920,7 +920,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		boolean readFurtherPackages = true;
 		
-		if(packageType == NetworkConst.REQUEST_TYPE_TRANSFER) {
+		if(packageType == NetworkConst.REQUEST_TYPE_ENVELOPE) {
 			if(logger.isDebugEnabled()) {
 				logger.debug("Got transfer package");
 			}
