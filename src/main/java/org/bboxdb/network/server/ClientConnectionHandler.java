@@ -401,19 +401,7 @@ public class ClientConnectionHandler implements Runnable {
 		
 		return true;
 	}
-	
-	/**
-	 * Handle and decode an envelope
-	 * @param packageHeader
-	 * @param packageSequence
-	 * @return
-	 */
-	private boolean handleEnvelope(final ByteBuffer packageHeader, final short packageSequence) {
-		// TODO:
-		
-		return false;
-	}
-	
+
 	/**
 	 * Delete an existing distribution group
 	 * @param packageHeader
@@ -902,19 +890,9 @@ public class ClientConnectionHandler implements Runnable {
 			}
 		}
 		
-		boolean readFurtherPackages = true;
-		
-		if(packageType == NetworkConst.REQUEST_TYPE_ENVELOPE) {
-			if(logger.isDebugEnabled()) {
-				logger.debug("Got transfer package");
-			}
-			
-			readFurtherPackages = handleEnvelope(packageHeader, packageSequence);
-		} else {	
-			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
-			readFurtherPackages = handleBufferedPackage(encodedPackage, packageSequence, packageType);
-		}
-		
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+		final boolean readFurtherPackages = handleBufferedPackage(encodedPackage, packageSequence, packageType);
+	
 		if(readFurtherPackages == false) {
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 		}	

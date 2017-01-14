@@ -73,31 +73,26 @@ public class NetworkConst {
 	 * Request type delete distribution group
 	 */
 	public static final short REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP = 0x08;
-	
-	/**
-	 * Request type package envelope
-	 */
-	public static final short REQUEST_TYPE_ENVELOPE = 0x09;
-	
+
 	/**
 	 * Compression envelope
 	 */
-	public static final short REQUEST_TYPE_COMPRESSION = 0x10;
+	public static final short REQUEST_TYPE_COMPRESSION = 0x09;
 	
 	/**
 	 * Keep alive package
 	 */
-	public static final short REQUEST_TYPE_KEEP_ALIVE = 0x11;
+	public static final short REQUEST_TYPE_KEEP_ALIVE = 0x10;
 	
 	/**
 	 * Next page package
 	 */
-	public static final short REQUEST_TYPE_NEXT_PAGE = 0x12;
+	public static final short REQUEST_TYPE_NEXT_PAGE = 0x11;
 	
 	/**
 	 * Cancel the given query
 	 */
-	public static final short REQUEST_TYPE_CANCEL_QUERY = 0x14;
+	public static final short REQUEST_TYPE_CANCEL_QUERY = 0x12;
 	
 	
 	
