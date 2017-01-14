@@ -25,7 +25,7 @@ import org.bboxdb.Const;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
-import org.bboxdb.network.packages.PackageEncodeError;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 		
 		try {
 			final byte[] bodyBytes = body.getBytes();
@@ -65,7 +65,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 			outputStream.write(bodyBytes);
 						
 		} catch (IOException e) {
-			throw new PackageEncodeError("Got exception while converting package into bytes", e);
+			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}	
 	}
 	
@@ -74,13 +74,13 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 	 * Decode the message of the answer
 	 * @param bb
 	 * @return
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	protected static String decodeMessage(final ByteBuffer bb, final short packageType) throws PackageEncodeError {
+	protected static String decodeMessage(final ByteBuffer bb, final short packageType) throws PackageEncodeException {
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(bb, packageType);
 
 		if(decodeResult == false) {
-			throw new PackageEncodeError("Unable to decode package");
+			throw new PackageEncodeException("Unable to decode package");
 		}
 		
 		final short bodyLength = bb.getShort();
@@ -90,7 +90,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 		final String body = new String(bodyBytes);
 		
 		if(bb.remaining() != 0) {
-			throw new PackageEncodeError("Some bytes are left after encoding: " + bb.remaining());
+			throw new PackageEncodeException("Some bytes are left after encoding: " + bb.remaining());
 		}
 		
 		return body;

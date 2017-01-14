@@ -30,7 +30,7 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
-import org.bboxdb.network.packages.PackageEncodeError;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 
 public class CompressionEnvelopeRequest extends NetworkRequestPackage {
@@ -54,10 +54,10 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 		this.compressionType = compressionType;
 	}
 
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 		try {
 			if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
-				throw new PackageEncodeError("Unknown compression method: " + compressionType);
+				throw new PackageEncodeException("Unknown compression method: " + compressionType);
 			}
 			
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -83,7 +83,7 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 			outputStream.write(compressedBytes);
 
 		} catch (IOException e) {
-			throw new PackageEncodeError("Got an IO Exception while writing compressed data");
+			throw new PackageEncodeException("Got an IO Exception while writing compressed data");
 		}
 	}
 
@@ -93,19 +93,19 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 * @throws IOException 
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	public static byte[] decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {
+	public static byte[] decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_COMPRESSION);
 		
 		if(decodeResult == false) {
-			throw new PackageEncodeError("Unable to decode package");
+			throw new PackageEncodeException("Unable to decode package");
 		}
 		
 		final byte compressionType = encodedPackage.get();
 		
 		if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
-			throw new PackageEncodeError("Unknown compression type: " + compressionType);
+			throw new PackageEncodeException("Unknown compression type: " + compressionType);
 		}
 		
 		final byte[] compressedBytes = new byte[encodedPackage.remaining()];
@@ -126,7 +126,7 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 			baos.close();
 			return baos.toByteArray();
 		} catch (IOException e) {
-			throw new PackageEncodeError(e);
+			throw new PackageEncodeException(e);
 		}
 		
 	}

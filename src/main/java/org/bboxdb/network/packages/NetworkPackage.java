@@ -49,8 +49,8 @@ public abstract class NetworkPackage {
 	 * Encode the package
 	 * 
 	 * @param outputStream 
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	public abstract void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError;
+	public abstract void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException;
 
 }

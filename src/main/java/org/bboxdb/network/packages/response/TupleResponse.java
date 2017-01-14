@@ -26,7 +26,7 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.NetworkTupleEncoderDecoder;
-import org.bboxdb.network.packages.PackageEncodeError;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleAndTable;
 
@@ -54,7 +54,7 @@ public class TupleResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 		
 
 		try {
@@ -67,7 +67,7 @@ public class TupleResponse extends NetworkResponsePackage {
 
 			outputStream.write(encodedBytes);
 		} catch (IOException e) {
-			throw new PackageEncodeError("Got exception while converting package into bytes", e);
+			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}	
 	}
 	
@@ -76,21 +76,21 @@ public class TupleResponse extends NetworkResponsePackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	public static TupleResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {		
+	public static TupleResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeException {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_TUPLE);
 
 		if(decodeResult == false) {
-			throw new PackageEncodeError("Unable to decode package");
+			throw new PackageEncodeException("Unable to decode package");
 		}
 		
 		final TupleAndTable tupleAndTable = NetworkTupleEncoderDecoder.decode(encodedPackage);
 		
 		if(encodedPackage.remaining() != 0) {
-			throw new PackageEncodeError("Some bytes are left after encoding: " + encodedPackage.remaining());
+			throw new PackageEncodeException("Some bytes are left after encoding: " + encodedPackage.remaining());
 		}
 		
 		return new TupleResponse(requestId, tupleAndTable.getTable(), tupleAndTable.getTuple());

@@ -24,7 +24,7 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
-import org.bboxdb.network.packages.PackageEncodeError;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 
 public class ListTablesRequest extends NetworkRequestPackage {
@@ -34,7 +34,7 @@ public class ListTablesRequest extends NetworkRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
 			// Write body length
@@ -45,7 +45,7 @@ public class ListTablesRequest extends NetworkRequestPackage {
 			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
 					getPackageType(), outputStream);
 		} catch (Exception e) {
-			throw new PackageEncodeError("Got exception while converting package into bytes", e);
+			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}	
 	}
 	
@@ -54,19 +54,19 @@ public class ListTablesRequest extends NetworkRequestPackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	public static ListTablesRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+	public static ListTablesRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_LIST_TABLES);
 		
 		if(decodeResult == false) {
-			throw new PackageEncodeError("Unable to decode package");
+			throw new PackageEncodeException("Unable to decode package");
 		}
 		
 		if(encodedPackage.remaining() != 0) {
-			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new ListTablesRequest(sequenceNumber);

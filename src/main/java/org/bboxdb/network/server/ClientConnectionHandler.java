@@ -48,7 +48,7 @@ import org.bboxdb.network.NetworkHelper;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.packages.NetworkResponsePackage;
-import org.bboxdb.network.packages.PackageEncodeError;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CancelQueryRequest;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
@@ -202,7 +202,7 @@ public class ClientConnectionHandler implements Runnable {
 			outputStream.flush();
 			
 			return true;
-		} catch (IOException | PackageEncodeError e) {
+		} catch (IOException | PackageEncodeException e) {
 			logger.warn("Unable to write result package", e);
 		}
 
@@ -365,7 +365,7 @@ public class ClientConnectionHandler implements Runnable {
 			final NextPageRequest nextPagePackage = NextPageRequest.decodeTuple(encodedPackage);
 			logger.debug("Next page for query {} called", nextPagePackage.getQuerySequence());
 			sendNextResultsForQuery(nextPagePackage.getQuerySequence());
-		} catch (PackageEncodeError e) {
+		} catch (PackageEncodeException e) {
 			logger.warn("Error getting next page for a query", e);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
@@ -393,7 +393,7 @@ public class ClientConnectionHandler implements Runnable {
 				clientQuery.close();
 				writeResultPackage(new SuccessResponse(packageSequence));
 			}
-		} catch (PackageEncodeError e) {
+		} catch (PackageEncodeException e) {
 			logger.warn("Error getting next page for a query", e);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
@@ -461,9 +461,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param encodedPackage
 	 * @param packageSequence
 	 * @return
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	protected boolean handleCompression(final ByteBuffer encodedPackage, final short packageSequence) throws PackageEncodeError {
+	protected boolean handleCompression(final ByteBuffer encodedPackage, final short packageSequence) throws PackageEncodeException {
 
 		final byte[] uncompressedPackage = CompressionEnvelopeRequest.decodePackage(encodedPackage);
 		
@@ -479,9 +479,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * Handle the delete table call
 	 * @param packageSequence 
 	 * @return
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	protected boolean handleDeleteTable(final ByteBuffer encodedPackage, final short packageSequence) throws PackageEncodeError {
+	protected boolean handleDeleteTable(final ByteBuffer encodedPackage, final short packageSequence) throws PackageEncodeException {
 		
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
@@ -536,11 +536,11 @@ public class ClientConnectionHandler implements Runnable {
 			 * Execute the thread
 			 * @param encodedPackage
 			 * @param packageSequence
-			 * @throws PackageEncodeError
+			 * @throws PackageEncodeException
 			 * @throws StorageManagerException
 			 */
 			protected void executeThread(final ByteBuffer encodedPackage,
-					final short packageSequence) throws PackageEncodeError,
+					final short packageSequence) throws PackageEncodeException,
 					StorageManagerException {
 				final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
 				final SSTableName requestTable = queryKeyRequest.getTable();
@@ -595,7 +595,7 @@ public class ClientConnectionHandler implements Runnable {
 			
 			activeQueries.put(packageSequence, clientQuery);
 			sendNextResultsForQuery(packageSequence);
-		} catch (PackageEncodeError e) {
+		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
@@ -626,7 +626,7 @@ public class ClientConnectionHandler implements Runnable {
 			
 			activeQueries.put(packageSequence, clientQuery);
 			sendNextResultsForQuery(packageSequence);
-		} catch (PackageEncodeError e) {
+		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
@@ -705,7 +705,7 @@ public class ClientConnectionHandler implements Runnable {
 			
 			activeQueries.put(packageSequence, clientQuery);
 			sendNextResultsForQuery(packageSequence);
-		} catch (PackageEncodeError e) {
+		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}
@@ -805,9 +805,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param bb
 	 * @param packageSequence
 	 * @return
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	protected boolean handleDeleteTuple(final ByteBuffer encodedPackage, final short packageSequence) throws PackageEncodeError {
+	protected boolean handleDeleteTuple(final ByteBuffer encodedPackage, final short packageSequence) throws PackageEncodeException {
 
 		try {
 			if(networkConnectionServiceState.isReadonly()) {
@@ -873,9 +873,9 @@ public class ClientConnectionHandler implements Runnable {
 	/**
 	 * Handle the next request package
 	 * @throws IOException
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	protected void handleNextPackage() throws IOException, PackageEncodeError {
+	protected void handleNextPackage() throws IOException, PackageEncodeException {
 		final ByteBuffer packageHeader = readNextPackageHeader();
 
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);
@@ -904,9 +904,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @param packageType
 	 * @return
 	 * @throws IOException
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, final short packageSequence, final short packageType) throws PackageEncodeError {
+	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, final short packageSequence, final short packageType) throws PackageEncodeException {
 				
 		switch (packageType) {
 			case NetworkConst.REQUEST_TYPE_HELLO:

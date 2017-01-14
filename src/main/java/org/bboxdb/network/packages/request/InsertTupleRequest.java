@@ -26,7 +26,7 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.NetworkTupleEncoderDecoder;
-import org.bboxdb.network.packages.PackageEncodeError;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -83,22 +83,22 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 * @throws IOException 
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	public static InsertTupleRequest decodeTuple(final ByteBuffer encodedPackage) throws IOException, PackageEncodeError {
+	public static InsertTupleRequest decodeTuple(final ByteBuffer encodedPackage) throws IOException, PackageEncodeException {
 
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		
 		if(decodeResult == false) {
-			throw new PackageEncodeError("Unable to decode package");
+			throw new PackageEncodeException("Unable to decode package");
 		}
 		
 		final TupleAndTable tupleAndTable = NetworkTupleEncoderDecoder.decode(encodedPackage);
 
 		if(encodedPackage.remaining() != 0) {
-			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
@@ -108,7 +108,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
 			final byte[] tupleAsByte = NetworkTupleEncoderDecoder.encode(tuple, table.getFullname());
@@ -123,7 +123,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 			// Write tuple
 			outputStream.write(tupleAsByte);
 		} catch (IOException e) {
-			throw new PackageEncodeError("Got exception while converting package into bytes", e);
+			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}		
 	}
 	

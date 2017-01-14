@@ -26,7 +26,7 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkQueryRequestPackage;
-import org.bboxdb.network.packages.PackageEncodeError;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.SSTableName;
 
@@ -64,7 +64,7 @@ public class QueryTimeRequest extends NetworkQueryRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -97,7 +97,7 @@ public class QueryTimeRequest extends NetworkQueryRequestPackage {
 			outputStream.write(bb.array());
 			outputStream.write(tableBytes);
 		} catch (IOException e) {
-			throw new PackageEncodeError("Got exception while converting package into bytes", e);
+			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}	
 	}
 	
@@ -106,21 +106,21 @@ public class QueryTimeRequest extends NetworkQueryRequestPackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	public static QueryTimeRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+	public static QueryTimeRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
 		
 		if(decodeResult == false) {
-			throw new PackageEncodeError("Unable to decode package");
+			throw new PackageEncodeException("Unable to decode package");
 		}
 		
 	    final byte queryType = encodedPackage.get();
 	    
 	    if(queryType != NetworkConst.REQUEST_QUERY_TIME) {
-	    	throw new PackageEncodeError("Wrong query type: " + queryType);
+	    	throw new PackageEncodeException("Wrong query type: " + queryType);
 	    }
 		
 	    boolean pagingEnabled = false;
@@ -138,7 +138,7 @@ public class QueryTimeRequest extends NetworkQueryRequestPackage {
 		final String table = new String(tableBytes);
 		
 		if(encodedPackage.remaining() != 0) {
-			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		return new QueryTimeRequest(sequenceNumber, table, timestamp, pagingEnabled, tuplesPerPage);

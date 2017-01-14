@@ -42,7 +42,7 @@ import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.packages.NetworkRequestPackage;
-import org.bboxdb.network.packages.PackageEncodeError;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CancelQueryRequest;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
@@ -747,7 +747,7 @@ public class BBoxDBClient implements BBoxDB {
 			
 			lastDataSendTimestamp = System.currentTimeMillis();
 			
-		} catch (IOException | PackageEncodeError e) {
+		} catch (IOException | PackageEncodeException e) {
 			logger.warn("Got an exception while sending package to server", e);
 			future.setFailedState();
 			future.fireCompleteEvent();
@@ -813,7 +813,7 @@ public class BBoxDBClient implements BBoxDB {
 				final ByteBuffer encodedPackage = readFullPackage(bb);
 				handleResultPackage(encodedPackage);
 				
-			} catch (IOException | PackageEncodeError e) {
+			} catch (IOException | PackageEncodeException e) {
 				
 				// Ignore exceptions when connection is closing
 				if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
@@ -828,9 +828,9 @@ public class BBoxDBClient implements BBoxDB {
 		/**
 		 * Handle the next result package
 		 * @param packageHeader
-		 * @throws PackageEncodeError 
+		 * @throws PackageEncodeException 
 		 */
-		protected void handleResultPackage(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		protected void handleResultPackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
 			final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 			final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
 
@@ -953,10 +953,10 @@ public class BBoxDBClient implements BBoxDB {
 	 * Handle a single tuple as result
 	 * @param encodedPackage
 	 * @param pendingCall
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
 	protected boolean handleTuple(final ByteBuffer encodedPackage,
-			final TupleListFuture pendingCall) throws PackageEncodeError {
+			final TupleListFuture pendingCall) throws PackageEncodeException {
 		
 		final TupleResponse singleTupleResponse = TupleResponse.decodePackage(encodedPackage);
 		final short sequenceNumber = singleTupleResponse.getSequenceNumber();
@@ -980,10 +980,10 @@ public class BBoxDBClient implements BBoxDB {
 	 * Handle List table result
 	 * @param encodedPackage
 	 * @param pendingCall
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
 	protected void handleListTables(final ByteBuffer encodedPackage,
-			final SSTableNameListFuture pendingCall) throws PackageEncodeError {
+			final SSTableNameListFuture pendingCall) throws PackageEncodeException {
 		final ListTablesResponse tables = ListTablesResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
@@ -995,9 +995,9 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * Handle the compressed package
 	 * @param encodedPackage
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	protected void handleCompression(final ByteBuffer encodedPackage) throws PackageEncodeError {
+	protected void handleCompression(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final byte[] uncompressedPackage = CompressionEnvelopeResponse.decodePackage(encodedPackage);
 		final ByteBuffer uncompressedPackageBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage); 
 		serverResponseReader.handleResultPackage(uncompressedPackageBuffer);
@@ -1007,9 +1007,9 @@ public class BBoxDBClient implements BBoxDB {
 	 * Handle the helo result package
 	 * @param encodedPackage
 	 * @param pendingCall
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	protected void handleHello(final ByteBuffer encodedPackage, final HelloFuture pendingCall) throws PackageEncodeError {
+	protected void handleHello(final ByteBuffer encodedPackage, final HelloFuture pendingCall) throws PackageEncodeException {
 		final HelloResponse helloResponse = HelloResponse.decodePackage(encodedPackage);
 		
 		if(pendingCall != null) {
@@ -1022,10 +1022,10 @@ public class BBoxDBClient implements BBoxDB {
 	 * Handle error with body result
 	 * @param encodedPackage
 	 * @param pendingCall
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
 	protected void handleError(final ByteBuffer encodedPackage,
-			final OperationFuture pendingCall) throws PackageEncodeError {
+			final OperationFuture pendingCall) throws PackageEncodeException {
 		
 		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
 		
@@ -1040,10 +1040,10 @@ public class BBoxDBClient implements BBoxDB {
 	 * Handle success with body result
 	 * @param encodedPackage
 	 * @param pendingCall
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
 	protected void handleSuccess(final ByteBuffer encodedPackage,
-			final OperationFuture pendingCall) throws PackageEncodeError {
+			final OperationFuture pendingCall) throws PackageEncodeException {
 		
 		final AbstractBodyResponse result = SuccessResponse.decodePackage(encodedPackage);
 		
@@ -1056,9 +1056,9 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * Handle the multiple tuple start package
 	 * @param encodedPackage
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	protected void handleMultiTupleStart(final ByteBuffer encodedPackage) throws PackageEncodeError {
+	protected void handleMultiTupleStart(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final MultipleTupleStartResponse result = MultipleTupleStartResponse.decodePackage(encodedPackage);
 		resultBuffer.put(result.getSequenceNumber(), new ArrayList<Tuple>());
 	}
@@ -1067,10 +1067,10 @@ public class BBoxDBClient implements BBoxDB {
 	 * Handle the multiple tuple end package
 	 * @param encodedPackage
 	 * @param pendingCall
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
 	protected void handleMultiTupleEnd(final ByteBuffer encodedPackage,
-			final TupleListFuture pendingCall) throws PackageEncodeError {
+			final TupleListFuture pendingCall) throws PackageEncodeException {
 		final MultipleTupleEndResponse result = MultipleTupleEndResponse.decodePackage(encodedPackage);
 		
 		final List<Tuple> resultList = resultBuffer.remove(result.getSequenceNumber());
@@ -1096,10 +1096,10 @@ public class BBoxDBClient implements BBoxDB {
 	 * Handle the end of a page
 	 * @param encodedPackage
 	 * @param pendingCall
-	 * @throws PackageEncodeError
+	 * @throws PackageEncodeException
 	 */
 	protected void handlePageEnd(final ByteBuffer encodedPackage,
-			final TupleListFuture pendingCall) throws PackageEncodeError {
+			final TupleListFuture pendingCall) throws PackageEncodeException {
 		
 		if(pendingCall == null) {
 			logger.warn("Got handleMultiTupleEnd and pendingCall is empty");

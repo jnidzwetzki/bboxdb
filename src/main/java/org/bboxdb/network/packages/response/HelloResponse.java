@@ -25,7 +25,7 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.packages.NetworkResponsePackage;
-import org.bboxdb.network.packages.PackageEncodeError;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.util.DataEncoderHelper;
 
 public class HelloResponse extends NetworkResponsePackage {
@@ -49,7 +49,7 @@ public class HelloResponse extends NetworkResponsePackage {
 	}
 	
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 		
 		try {
 			final ByteBuffer bb = DataEncoderHelper.intToByteBuffer(protocolVersion);
@@ -66,7 +66,7 @@ public class HelloResponse extends NetworkResponsePackage {
 			outputStream.write(peerCapabilitiesBytes);
 			
 		} catch (Exception e) {
-			throw new PackageEncodeError("Got exception while converting package into bytes", e);
+			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}			
 	}
 
@@ -75,15 +75,15 @@ public class HelloResponse extends NetworkResponsePackage {
 	 * 
 	 * @param encodedPackage
 	 * @return
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	public static HelloResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {		
+	public static HelloResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeException {		
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_HELLO);
 
 		if(decodeResult == false) {
-			throw new PackageEncodeError("Unable to decode package");
+			throw new PackageEncodeException("Unable to decode package");
 		}
 		
 		final int protocolVersion = encodedPackage.getInt();
@@ -91,7 +91,7 @@ public class HelloResponse extends NetworkResponsePackage {
 		encodedPackage.get(capabilityBytes, 0, capabilityBytes.length);
 
 		if(encodedPackage.remaining() != 0) {
-			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
+			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
 		final PeerCapabilities peerCapabilities = new PeerCapabilities(capabilityBytes);

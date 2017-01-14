@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.packages.PackageEncodeError;
+import org.bboxdb.network.packages.PackageEncodeException;
 
 public class ErrorResponse extends AbstractBodyResponse {
 	
@@ -43,9 +43,9 @@ public class ErrorResponse extends AbstractBodyResponse {
 	 * 
 	 * @param encodedPackage
 	 * @return
-	 * @throws PackageEncodeError 
+	 * @throws PackageEncodeException 
 	 */
-	public static ErrorResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeError {
+	public static ErrorResponse decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final String body = decodeMessage(encodedPackage, NetworkConst.RESPONSE_TYPE_ERROR);
 		final short requestId = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		
