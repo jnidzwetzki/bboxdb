@@ -28,7 +28,6 @@ import java.util.zip.GZIPOutputStream;
 import org.bboxdb.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
@@ -75,7 +74,7 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
-			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, 
+			appendRequestPackageHeader(sequenceNumber, bodyLength, 
 					routingHeader, getPackageType(), outputStream);
 			
 			// Write body

@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
@@ -42,7 +41,7 @@ public class KeepAliveRequest extends NetworkRequestPackage {
 			
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
-			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
+			appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
 					getPackageType(), outputStream);
 		} catch (Exception e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);

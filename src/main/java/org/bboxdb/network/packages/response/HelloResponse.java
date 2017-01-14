@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -58,7 +57,7 @@ public class HelloResponse extends NetworkResponsePackage {
 			// Body length
 			final long bodyLength = bb.capacity() + peerCapabilitiesBytes.length;
 			
-			NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, bodyLength, 
+			appendResponsePackageHeader(sequenceNumber, bodyLength, 
 					getPackageType(), outputStream);
 
 			// Write body

@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.Const;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.slf4j.Logger;
@@ -57,7 +56,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 			
 			// Write body length
 			final long bodyLength = bb.capacity() + bodyBytes.length;			
-			NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, bodyLength, 
+			appendResponsePackageHeader(sequenceNumber, bodyLength, 
 					getPackageType(), outputStream);
 	
 			// Write body

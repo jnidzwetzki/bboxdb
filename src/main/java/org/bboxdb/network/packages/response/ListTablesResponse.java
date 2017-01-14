@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.storage.entity.SSTableName;
@@ -60,7 +59,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 			// Calculate and write body length
 			final int bodyLength = bodyBytes.length;			
 
-			NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, bodyLength, 
+			appendResponsePackageHeader(sequenceNumber, bodyLength, 
 					getPackageType(), outputStream);
 
 			// Write body

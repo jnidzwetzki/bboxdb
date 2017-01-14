@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.NetworkTupleEncoderDecoder;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -117,7 +116,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 			final long bodyLength = tupleAsByte.length;
 			
 			// Unrouted package
-			NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
+			appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
 					getPackageType(), outputStream);
 
 			// Write tuple

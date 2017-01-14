@@ -125,16 +125,17 @@ public class TestNetworkClasses {
 	/**
 	 * Test the encoding of the request package header
 	 * @throws IOException 
+	 * @throws PackageEncodeException 
 	 */
 	@Test
-	public void testRequestPackageHeader() throws IOException {
+	public void testRequestPackageHeader() throws IOException, PackageEncodeException {
 		final short currentSequenceNumber = sequenceNumberGenerator.getSequeneNumberWithoutIncrement();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		final ListTablesRequest listTablesRequest = new ListTablesRequest(sequenceNumber);
+		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		
-		NetworkPackageEncoder.appendRequestPackageHeader(sequenceNumber, 10, new RoutingHeader(false),
-				NetworkConst.REQUEST_TYPE_INSERT_TUPLE, bos);
-		
+		listTablesRequest.writeToOutputStream(bos);
 		bos.flush();
 		bos.close();
 
@@ -147,7 +148,7 @@ public class TestNetworkClasses {
 		
 		// Check fields
 		Assert.assertEquals(currentSequenceNumber, bb.getShort());
-		Assert.assertEquals(NetworkConst.REQUEST_TYPE_INSERT_TUPLE, bb.getShort());
+		Assert.assertEquals(NetworkConst.REQUEST_TYPE_LIST_TABLES, bb.getShort());
 	}
 	
 	/**

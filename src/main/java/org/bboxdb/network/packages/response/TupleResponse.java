@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.NetworkTupleEncoderDecoder;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -62,7 +61,7 @@ public class TupleResponse extends NetworkResponsePackage {
 			
 			final int bodyLength = encodedBytes.length;
 			
-			NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, bodyLength,
+			appendResponsePackageHeader(sequenceNumber, bodyLength,
 					getPackageType(), outputStream);
 
 			outputStream.write(encodedBytes);

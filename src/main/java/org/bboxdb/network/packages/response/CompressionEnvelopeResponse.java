@@ -28,7 +28,6 @@ import java.util.zip.GZIPOutputStream;
 import org.bboxdb.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 
@@ -80,7 +79,7 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 			final long bodyLength = bb.capacity() + compressedBytes.length;
 
 			// Write body length
-			NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, bodyLength, 
+			appendResponsePackageHeader(sequenceNumber, bodyLength, 
 					getPackageType(), outputStream);
 			
 			// Write body

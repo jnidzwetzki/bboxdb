@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 
@@ -39,10 +38,7 @@ public class MultipleTupleStartResponse extends NetworkResponsePackage {
 
 	@Override
 	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
-		
-		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, 0, 
-				getPackageType(), outputStream);
-		
+		appendResponsePackageHeader(sequenceNumber, 0, getPackageType(), outputStream);
 	}
 	
 	/**
