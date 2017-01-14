@@ -49,8 +49,6 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 	@Override
 	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		
-		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, getPackageType(), outputStream);
-
 		try {
 			final byte[] bodyBytes = body.getBytes();
 			final ByteBuffer bb = ByteBuffer.allocate(2);
@@ -58,11 +56,9 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 			bb.putShort((short) bodyBytes.length);
 			
 			// Write body length
-			final long bodyLength = bb.capacity() + bodyBytes.length;
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
-			bodyLengthBuffer.order(Const.APPLICATION_BYTE_ORDER);
-			bodyLengthBuffer.putLong(bodyLength);
-			outputStream.write(bodyLengthBuffer.array());
+			final long bodyLength = bb.capacity() + bodyBytes.length;			
+			NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, bodyLength, 
+					getPackageType(), outputStream);
 	
 			// Write body
 			outputStream.write(bb.array());

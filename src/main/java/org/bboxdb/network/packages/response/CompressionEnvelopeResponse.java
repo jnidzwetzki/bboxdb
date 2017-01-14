@@ -59,7 +59,6 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 	@Override
 	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		
-		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, getPackageType(), outputStream);
 
 		try {
 			if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
@@ -81,10 +80,8 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 			final long bodyLength = bb.capacity() + compressedBytes.length;
 
 			// Write body length
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
-			bodyLengthBuffer.order(Const.APPLICATION_BYTE_ORDER);
-			bodyLengthBuffer.putLong(bodyLength);
-			outputStream.write(bodyLengthBuffer.array());
+			NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, bodyLength, 
+					getPackageType(), outputStream);
 			
 			// Write body
 			outputStream.write(bb.array());

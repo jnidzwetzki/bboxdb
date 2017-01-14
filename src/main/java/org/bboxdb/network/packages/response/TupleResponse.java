@@ -29,7 +29,6 @@ import org.bboxdb.network.packages.NetworkTupleEncoderDecoder;
 import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleAndTable;
-import org.bboxdb.util.DataEncoderHelper;
 
 public class TupleResponse extends NetworkResponsePackage {
 	
@@ -57,12 +56,15 @@ public class TupleResponse extends NetworkResponsePackage {
 	@Override
 	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		
-		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, getPackageType(), outputStream);
 
 		try {
 			final byte[] encodedBytes = NetworkTupleEncoderDecoder.encode(tuple, table);
-			final ByteBuffer lengthBytes = DataEncoderHelper.longToByteBuffer(encodedBytes.length);
-			outputStream.write(lengthBytes.array());
+			
+			final int bodyLength = encodedBytes.length;
+			
+			NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, bodyLength,
+					getPackageType(), outputStream);
+
 			outputStream.write(encodedBytes);
 		} catch (IOException e) {
 			throw new PackageEncodeError("Got exception while converting package into bytes", e);

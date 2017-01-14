@@ -53,15 +53,15 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	@Override
 	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		
-		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, getPackageType(), outputStream);
 
 		try {
 			final byte[] bodyBytes = createBody();
 			
 			// Calculate and write body length
 			final int bodyLength = bodyBytes.length;			
-			final ByteBuffer bodyLengthBuffer = DataEncoderHelper.longToByteBuffer(bodyLength);			
-			outputStream.write(bodyLengthBuffer.array());
+
+			NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, bodyLength, 
+					getPackageType(), outputStream);
 
 			// Write body
 			outputStream.write(bodyBytes);

@@ -51,8 +51,6 @@ public class HelloResponse extends NetworkResponsePackage {
 	@Override
 	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		
-		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, getPackageType(), outputStream);
-
 		try {
 			final ByteBuffer bb = DataEncoderHelper.intToByteBuffer(protocolVersion);
 			final byte[] peerCapabilitiesBytes = peerCapabilities.toByteArray();
@@ -60,8 +58,8 @@ public class HelloResponse extends NetworkResponsePackage {
 			// Body length
 			final long bodyLength = bb.capacity() + peerCapabilitiesBytes.length;
 			
-			final ByteBuffer bodyLengthBuffer = DataEncoderHelper.longToByteBuffer(bodyLength);			
-			outputStream.write(bodyLengthBuffer.array());
+			NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, bodyLength, 
+					getPackageType(), outputStream);
 
 			// Write body
 			outputStream.write(bb.array());

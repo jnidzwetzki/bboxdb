@@ -64,17 +64,18 @@ public class NetworkPackageEncoder {
 	
 	/**
 	 * Append the response package header to the output stream
-	 * @param requestId
+	 * @param sequenceNumber
 	 * @param packageType 
 	 * @param bos
 	 */
-	public static void appendResponsePackageHeader(final short requestId, final short packageType, 
-			final OutputStream bos) {
+	public static void appendResponsePackageHeader(final short sequenceNumber, final long bodyLength,
+			final short packageType, final OutputStream bos) {
 		
-		final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(12);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
-		byteBuffer.putShort(requestId);
+		byteBuffer.putShort(sequenceNumber);
 		byteBuffer.putShort(packageType);
+		byteBuffer.putLong(bodyLength);
 
 		try {
 			bos.write(byteBuffer.array());

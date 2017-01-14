@@ -17,11 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.network.packages.response;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.NetworkPackageEncoder;
@@ -42,17 +40,9 @@ public class MultipleTupleStartResponse extends NetworkResponsePackage {
 	@Override
 	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		
-		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, getPackageType(), outputStream);
-
-		try {
-			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
-			bodyLengthBuffer.order(Const.APPLICATION_BYTE_ORDER);
-			bodyLengthBuffer.putLong(0);
-			outputStream.write(bodyLengthBuffer.array());
-			
-		} catch (IOException e) {
-			throw new PackageEncodeError("Got exception while converting package into bytes", e);
-		}	
+		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, 0, 
+				getPackageType(), outputStream);
+		
 	}
 	
 	/**
