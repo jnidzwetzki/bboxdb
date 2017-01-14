@@ -25,7 +25,6 @@ import java.nio.ByteBuffer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.bboxdb.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
@@ -65,19 +64,15 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 			os.close();
 			final byte[] compressedBytes = baos.toByteArray();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(1);
-			bb.order(Const.APPLICATION_BYTE_ORDER);
-			bb.put(compressionType);
-			
 			// Body length
-			final long bodyLength = bb.capacity() + compressedBytes.length;
+			final long bodyLength = 1 + compressedBytes.length;
 
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
 			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 			
 			// Write body
-			outputStream.write(bb.array());
+			outputStream.write(compressionType);
 			outputStream.write(compressedBytes);
 
 		} catch (IOException e) {
