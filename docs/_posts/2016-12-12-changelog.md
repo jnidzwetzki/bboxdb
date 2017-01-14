@@ -9,7 +9,7 @@ order: 1
 ### Version 0.2.1 (Stable) - TBA
 - Improvement: Changed bounding box precision from float to double
 - Improvement: Reduced memory usage of the network stack by removing the response buffering
-- Improvement: Switched from MapDB 3.0.2 to 3.0.3, and vom guava 20.0 to 21.0
+- Improvement: Switched from MapDB 3.0.2 to 3.0.3, and from guava 20.0 to 21.0
 - Bugfix: Outdated jars are removed on bboxdb_update
 
 ### Version 0.2.0 (Stable) - 11.01.2017
