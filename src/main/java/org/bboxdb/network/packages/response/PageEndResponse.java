@@ -17,8 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.network.packages.response;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.Const;
@@ -40,24 +40,19 @@ public class PageEndResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public byte[] getByteArray() throws PackageEncodeError {
-		final NetworkPackageEncoder networkPackageEncoder 
-			= new NetworkPackageEncoder();
-	
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		
+		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, getPackageType(), outputStream);
+
 		try {
 			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
 			bodyLengthBuffer.order(Const.APPLICATION_BYTE_ORDER);
 			bodyLengthBuffer.putLong(0);
-			bos.write(bodyLengthBuffer.array());
+			outputStream.write(bodyLengthBuffer.array());
 			
-			bos.close();
 		} catch (IOException e) {
 			throw new PackageEncodeError("Got exception while converting package into bytes", e);
-		}
-	
-		return bos.toByteArray();
+		}	
 	}
 	
 	/**

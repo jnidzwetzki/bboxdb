@@ -198,10 +198,9 @@ public class ClientConnectionHandler implements Runnable {
 	public synchronized boolean writeResultPackage(final NetworkResponsePackage responsePackage) {
 		
 		try {
-			final byte[] outputData = responsePackage.getByteArray();
-
-			outputStream.write(outputData, 0, outputData.length);
+			responsePackage.writeToOutputStream(outputStream);
 			outputStream.flush();
+			
 			return true;
 		} catch (IOException | PackageEncodeError e) {
 			logger.warn("Unable to write result package", e);

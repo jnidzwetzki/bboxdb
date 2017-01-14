@@ -17,8 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.network.packages.response;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.Const;
@@ -47,12 +47,10 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public byte[] getByteArray() throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		
-		final NetworkPackageEncoder networkPackageEncoder = new NetworkPackageEncoder();
-	
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
-		
+		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, getPackageType(), outputStream);
+
 		try {
 			final byte[] bodyBytes = body.getBytes();
 			final ByteBuffer bb = ByteBuffer.allocate(2);
@@ -64,18 +62,15 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
 			bodyLengthBuffer.order(Const.APPLICATION_BYTE_ORDER);
 			bodyLengthBuffer.putLong(bodyLength);
-			bos.write(bodyLengthBuffer.array());
+			outputStream.write(bodyLengthBuffer.array());
 	
 			// Write body
-			bos.write(bb.array());
-			bos.write(bodyBytes);
-			
-			bos.close();
+			outputStream.write(bb.array());
+			outputStream.write(bodyBytes);
+						
 		} catch (IOException e) {
 			throw new PackageEncodeError("Got exception while converting package into bytes", e);
-		}
-	
-		return bos.toByteArray();
+		}	
 	}
 	
 

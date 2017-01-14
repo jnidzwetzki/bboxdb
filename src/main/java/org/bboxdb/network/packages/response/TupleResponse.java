@@ -17,8 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.network.packages.response;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkConst;
@@ -55,23 +55,18 @@ public class TupleResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public byte[] getByteArray() throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		
-		final NetworkPackageEncoder networkPackageEncoder = new NetworkPackageEncoder();
-		
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
+		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, getPackageType(), outputStream);
 
-			try {
-				final byte[] encodedBytes = NetworkTupleEncoderDecoder.encode(tuple, table);
-				final ByteBuffer lengthBytes = DataEncoderHelper.longToByteBuffer(encodedBytes.length);
-				bos.write(lengthBytes.array());
-				bos.write(encodedBytes);
-				bos.close();
-			} catch (IOException e) {
-				throw new PackageEncodeError("Got exception while converting package into bytes", e);
-			}
-	
-		return bos.toByteArray();
+		try {
+			final byte[] encodedBytes = NetworkTupleEncoderDecoder.encode(tuple, table);
+			final ByteBuffer lengthBytes = DataEncoderHelper.longToByteBuffer(encodedBytes.length);
+			outputStream.write(lengthBytes.array());
+			outputStream.write(encodedBytes);
+		} catch (IOException e) {
+			throw new PackageEncodeError("Got exception while converting package into bytes", e);
+		}	
 	}
 	
 	/**

@@ -57,12 +57,10 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public byte[] getByteArray() throws PackageEncodeError {
-		final NetworkPackageEncoder networkPackageEncoder 
-			= new NetworkPackageEncoder();
-	
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		
+		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, getPackageType(), outputStream);
+
 		try {
 			if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
 				throw new PackageEncodeError("Unknown compression method: " + compressionType);
@@ -70,8 +68,7 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 			
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			final OutputStream os = new GZIPOutputStream(baos);
-			final byte[] uncompressedBytes = networkResponsePackage.getByteArray();
-			os.write(uncompressedBytes);
+			networkResponsePackage.writeToOutputStream(os);
 			os.close();
 			final byte[] compressedBytes = baos.toByteArray();
 			
@@ -87,18 +84,15 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 			final ByteBuffer bodyLengthBuffer = ByteBuffer.allocate(8);
 			bodyLengthBuffer.order(Const.APPLICATION_BYTE_ORDER);
 			bodyLengthBuffer.putLong(bodyLength);
-			bos.write(bodyLengthBuffer.array());
+			outputStream.write(bodyLengthBuffer.array());
 			
 			// Write body
-			bos.write(bb.array());
-			bos.write(compressedBytes);
+			outputStream.write(bb.array());
+			outputStream.write(compressedBytes);
 			
-			bos.close();
 		} catch (IOException e) {
 			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}
-	
-		return bos.toByteArray();
 	}
 	
 	/**

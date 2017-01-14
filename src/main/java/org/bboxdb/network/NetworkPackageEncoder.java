@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.network;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -69,7 +68,9 @@ public class NetworkPackageEncoder {
 	 * @param packageType 
 	 * @param bos
 	 */
-	protected void appendResponsePackageHeader(final short requestId, final short packageType, final ByteArrayOutputStream bos) {
+	public static void appendResponsePackageHeader(final short requestId, final short packageType, 
+			final OutputStream bos) {
+		
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(4);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		byteBuffer.putShort(requestId);
@@ -81,19 +82,5 @@ public class NetworkPackageEncoder {
 			logger.error("Exception while writing", e);
 		}
 	}
-	
-	/**
-	 * Return a byte array output stream for response packages that contains
-	 * the header of the package
-	 * @param packageType
-	 * @return
-	 */
-	public ByteArrayOutputStream getOutputStreamForResponsePackage(final short requestId, final short packageType) {
-		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		
-		// Append the frame header to the package
-		appendResponsePackageHeader(requestId, packageType, bos);
-		
-		return bos;
-	}
+
 }

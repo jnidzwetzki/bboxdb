@@ -23,11 +23,4 @@ public abstract class NetworkResponsePackage extends NetworkPackage {
 		super(sequenceNumber);
 	}
 
-	/**
-	 * Encode the package
-	 * @return 
-	 * @throws PackageEncodeError 
-	 */
-	public abstract byte[] getByteArray() throws PackageEncodeError;
-	
 }

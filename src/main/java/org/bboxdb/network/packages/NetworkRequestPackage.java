@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.network.packages;
 
-import java.io.OutputStream;
 
 public abstract class NetworkRequestPackage extends NetworkPackage {
 
@@ -25,12 +24,4 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 		super(sequenceNumber);
 	}
 
-	/**
-	 * Encode the package
-	 * 
-	 * @param outputStream 
-	 * @throws PackageEncodeError 
-	 */
-	public abstract void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError;
-	
 }

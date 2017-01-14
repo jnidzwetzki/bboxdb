@@ -27,12 +27,9 @@ import java.util.List;
 
 import org.bboxdb.Const;
 import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.network.NetworkConst;
-import org.bboxdb.network.NetworkPackageDecoder;
-import org.bboxdb.network.NetworkPackageEncoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.client.SequenceNumberGenerator;
-import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.bboxdb.network.packages.NetworkPackage;
 import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.packages.request.CancelQueryRequest;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
@@ -76,7 +73,7 @@ public class TestNetworkClasses {
 	 * @throws IOException 
 	 * @throws PackageEncodeError 
 	 */
-	protected byte[] networkPackageToByte(final NetworkRequestPackage networkPackage) 
+	protected byte[] networkPackageToByte(final NetworkPackage networkPackage) 
 			throws IOException, PackageEncodeError {
 		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -554,7 +551,7 @@ public class TestNetworkClasses {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		final HelloResponse helloPackage = new HelloResponse(sequenceNumber, 2, peerCapabilities);
 		
-		byte[] encodedVersion = helloPackage.getByteArray();
+		byte[] encodedVersion = networkPackageToByte(helloPackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -578,7 +575,7 @@ public class TestNetworkClasses {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		final HelloResponse helloPackage = new HelloResponse(sequenceNumber, 2, peerCapabilities);
 		
-		byte[] encodedVersion = helloPackage.getByteArray();
+		byte[] encodedVersion = networkPackageToByte(helloPackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -660,11 +657,13 @@ public class TestNetworkClasses {
 	/**
 	 * Get the package type from the response
 	 * @throws PackageEncodeError 
+	 * @throws IOException 
 	 */
 	@Test
-	public void getPackageTypeFromResponse1() throws PackageEncodeError {
+	public void getPackageTypeFromResponse1() throws PackageEncodeError, IOException {
 		final SuccessResponse response = new SuccessResponse((short) 2);
-		byte[] encodedPackage = response.getByteArray();
+		final byte[] encodedPackage = networkPackageToByte(response);
+
 		Assert.assertNotNull(encodedPackage);
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		Assert.assertEquals(NetworkConst.RESPONSE_TYPE_SUCCESS, NetworkPackageDecoder.getPackageTypeFromResponse(bb));
@@ -673,11 +672,13 @@ public class TestNetworkClasses {
 	/**
 	 * Get the package type from the response
 	 * @throws PackageEncodeError 
+	 * @throws IOException 
 	 */
 	@Test
-	public void getPackageTypeFromResponse2() throws PackageEncodeError {
+	public void getPackageTypeFromResponse2() throws PackageEncodeError, IOException {
 		final SuccessResponse response = new SuccessResponse((short) 2, "abc");
-		byte[] encodedPackage = response.getByteArray();
+		final byte[] encodedPackage = networkPackageToByte(response);
+		
 		Assert.assertNotNull(encodedPackage);
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		Assert.assertEquals(NetworkConst.RESPONSE_TYPE_SUCCESS, NetworkPackageDecoder.getPackageTypeFromResponse(bb));
@@ -686,11 +687,13 @@ public class TestNetworkClasses {
 	/**
 	 * Read the body length from a result package
 	 * @throws PackageEncodeError 
+	 * @throws IOException 
 	 */
 	@Test
-	public void testGetResultBodyLength1() throws PackageEncodeError {
+	public void testGetResultBodyLength1() throws PackageEncodeError, IOException {
 		final SuccessResponse response = new SuccessResponse((short) 2);
-		final byte[] encodedPackage = response.getByteArray();
+		final byte[] encodedPackage = networkPackageToByte(response);
+		
 		Assert.assertNotNull(encodedPackage);
 		
 		// 2 Bytes message length
@@ -704,11 +707,12 @@ public class TestNetworkClasses {
 	/**
 	 * Read the body length from a result package
 	 * @throws PackageEncodeError 
+	 * @throws IOException 
 	 */
 	@Test
-	public void testGetResultBodyLength2() throws PackageEncodeError {
+	public void testGetResultBodyLength2() throws PackageEncodeError, IOException {
 		final SuccessResponse response = new SuccessResponse((short) 2, "abc");
-		byte[] encodedPackage = response.getByteArray();
+		final byte[] encodedPackage = networkPackageToByte(response);
 		Assert.assertNotNull(encodedPackage);
 		
 		// 2 Byte (short) data length
@@ -722,9 +726,10 @@ public class TestNetworkClasses {
 	/**
 	 * Try to encode and decode the list tables response
 	 * @throws PackageEncodeError 
+	 * @throws IOException 
 	 */
 	@Test
-	public void testListTablesResponse() throws PackageEncodeError {
+	public void testListTablesResponse() throws PackageEncodeError, IOException {
 		final List<SSTableName> tables = new ArrayList<SSTableName>();
 		tables.add(new SSTableName("3_group1_table1"));
 		tables.add(new SSTableName("3_group1_testtable"));
@@ -732,7 +737,7 @@ public class TestNetworkClasses {
 		tables.add(new SSTableName("3_group1_mytest57"));
 		
 		final ListTablesResponse response = new ListTablesResponse((short) 3, tables);
-		byte[] encodedPackage = response.getByteArray();
+		final byte[] encodedPackage = networkPackageToByte(response);
 		Assert.assertNotNull(encodedPackage);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
@@ -745,14 +750,16 @@ public class TestNetworkClasses {
 	/**
 	 * Try to encode and decode the single tuple response 
 	 * @throws PackageEncodeError 
+	 * @throws IOException 
 	 */
 	@Test
-	public void testSingleTupleResponse() throws PackageEncodeError {
+	public void testSingleTupleResponse() throws PackageEncodeError, IOException {
 		final String tablename = "table1";
 		final Tuple tuple = new Tuple("abc", BoundingBox.EMPTY_BOX, "databytes".getBytes());
 		
 		final TupleResponse singleTupleResponse = new TupleResponse((short) 4, tablename, tuple);
-		byte[] encodedPackage = singleTupleResponse.getByteArray();
+		final byte[] encodedPackage = networkPackageToByte(singleTupleResponse);
+		
 		Assert.assertNotNull(encodedPackage);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
@@ -849,7 +856,7 @@ public class TestNetworkClasses {
 		
 		final TupleResponse singleTupleResponse = new TupleResponse((short) 4, tablename, tuple);
 		final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(singleTupleResponse, NetworkConst.COMPRESSION_TYPE_GZIP);
-		final byte[] encodedPackage = compressionEnvelopeResponse.getByteArray();
+		final byte[] encodedPackage = networkPackageToByte(compressionEnvelopeResponse);
 		Assert.assertNotNull(encodedPackage);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
@@ -876,7 +883,7 @@ public class TestNetworkClasses {
 		final HelloResponse helloPackage = new HelloResponse(sequenceNumber, 2, peerCapabilities);
 		
 		final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(helloPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
-		final byte[] encodedPackage = compressionEnvelopeResponse.getByteArray();
+		final byte[] encodedPackage = networkPackageToByte(compressionEnvelopeResponse);
 		Assert.assertNotNull(encodedPackage);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);

@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.packages.response;
 
-import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkConst;
@@ -49,11 +49,10 @@ public class HelloResponse extends NetworkResponsePackage {
 	}
 	
 	@Override
-	public byte[] getByteArray() throws PackageEncodeError {
-		final NetworkPackageEncoder networkPackageEncoder = new NetworkPackageEncoder();
-	
-		final ByteArrayOutputStream bos = networkPackageEncoder.getOutputStreamForResponsePackage(sequenceNumber, getPackageType());
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		
+		NetworkPackageEncoder.appendResponsePackageHeader(sequenceNumber, getPackageType(), outputStream);
+
 		try {
 			final ByteBuffer bb = DataEncoderHelper.intToByteBuffer(protocolVersion);
 			final byte[] peerCapabilitiesBytes = peerCapabilities.toByteArray();
@@ -62,17 +61,15 @@ public class HelloResponse extends NetworkResponsePackage {
 			final long bodyLength = bb.capacity() + peerCapabilitiesBytes.length;
 			
 			final ByteBuffer bodyLengthBuffer = DataEncoderHelper.longToByteBuffer(bodyLength);			
-			bos.write(bodyLengthBuffer.array());
+			outputStream.write(bodyLengthBuffer.array());
 
 			// Write body
-			bos.write(bb.array());
-			bos.write(peerCapabilitiesBytes);
-			bos.close();
+			outputStream.write(bb.array());
+			outputStream.write(peerCapabilitiesBytes);
+			
 		} catch (Exception e) {
 			throw new PackageEncodeError("Got exception while converting package into bytes", e);
-		}	
-		
-		return bos.toByteArray();
+		}			
 	}
 
 	/**
