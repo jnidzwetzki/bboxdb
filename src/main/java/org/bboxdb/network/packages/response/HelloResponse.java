@@ -56,9 +56,7 @@ public class HelloResponse extends NetworkResponsePackage {
 			
 			// Body length
 			final long bodyLength = bb.capacity() + peerCapabilitiesBytes.length;
-			
-			appendResponsePackageHeader(sequenceNumber, bodyLength, 
-					getPackageType(), outputStream);
+			appendResponsePackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());

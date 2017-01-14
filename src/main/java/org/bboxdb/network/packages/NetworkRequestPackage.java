@@ -47,13 +47,13 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 	 * @param packageType
 	 * @param bos
 	 */
-	protected void appendRequestPackageHeader(final short sequenceNumber, final long bodyLength, 
-			final RoutingHeader routingHeader, final short packageType, final OutputStream bos) {
+	protected void appendRequestPackageHeader(final long bodyLength, final RoutingHeader routingHeader, 
+			final OutputStream bos) {
 		
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(12);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		byteBuffer.putShort(sequenceNumber);
-		byteBuffer.putShort(packageType);
+		byteBuffer.putShort(getPackageType());
 		byteBuffer.putLong(bodyLength);
 
 		try {

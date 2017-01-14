@@ -116,8 +116,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 			final long bodyLength = tupleAsByte.length;
 			
 			// Unrouted package
-			appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
-					getPackageType(), outputStream);
+			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 
 			// Write tuple
 			outputStream.write(tupleAsByte);

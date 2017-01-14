@@ -54,9 +54,8 @@ public class DeleteTableRequest extends NetworkRequestPackage {
 			
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
-			appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
-					getPackageType(), outputStream);
-			
+			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+
 			// Write body
 			outputStream.write(bb.array());
 			outputStream.write(tableBytes);			

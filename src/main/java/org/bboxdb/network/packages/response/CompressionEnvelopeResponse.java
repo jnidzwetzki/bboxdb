@@ -79,8 +79,7 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 			final long bodyLength = bb.capacity() + compressedBytes.length;
 
 			// Write body length
-			appendResponsePackageHeader(sequenceNumber, bodyLength, 
-					getPackageType(), outputStream);
+			appendResponsePackageHeader(bodyLength, outputStream);
 			
 			// Write body
 			outputStream.write(bb.array());

@@ -61,9 +61,8 @@ public class HelloRequest extends NetworkRequestPackage {
 			
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
-			appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader, 
-					getPackageType(), outputStream);
-			
+			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+
 			outputStream.write(bb.array());
 			outputStream.write(peerCapabilitiesBytes);
 		} catch (Exception e) {

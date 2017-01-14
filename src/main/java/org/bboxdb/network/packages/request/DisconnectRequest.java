@@ -41,8 +41,7 @@ public class DisconnectRequest extends NetworkRequestPackage {
 			
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
-			appendRequestPackageHeader(sequenceNumber, bodyLength, routingHeader,
-					getPackageType(), outputStream);
+			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 
 		} catch (Exception e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);

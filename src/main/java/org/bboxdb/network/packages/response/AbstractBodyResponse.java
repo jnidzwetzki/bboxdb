@@ -56,8 +56,7 @@ public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 			
 			// Write body length
 			final long bodyLength = bb.capacity() + bodyBytes.length;			
-			appendResponsePackageHeader(sequenceNumber, bodyLength, 
-					getPackageType(), outputStream);
+			appendResponsePackageHeader(bodyLength, outputStream);
 	
 			// Write body
 			outputStream.write(bb.array());

@@ -42,13 +42,12 @@ public abstract class NetworkResponsePackage extends NetworkPackage {
 	 * @param packageType 
 	 * @param bos
 	 */
-	protected void appendResponsePackageHeader(final short sequenceNumber, final long bodyLength,
-			final short packageType, final OutputStream bos) {
+	protected void appendResponsePackageHeader(final long bodyLength, final OutputStream bos) {
 		
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(12);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		byteBuffer.putShort(sequenceNumber);
-		byteBuffer.putShort(packageType);
+		byteBuffer.putShort(getPackageType());
 		byteBuffer.putLong(bodyLength);
 
 		try {

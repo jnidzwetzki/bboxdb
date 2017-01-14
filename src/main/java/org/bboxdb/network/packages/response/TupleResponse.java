@@ -55,15 +55,9 @@ public class TupleResponse extends NetworkResponsePackage {
 	@Override
 	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 		
-
 		try {
 			final byte[] encodedBytes = NetworkTupleEncoderDecoder.encode(tuple, table);
-			
-			final int bodyLength = encodedBytes.length;
-			
-			appendResponsePackageHeader(sequenceNumber, bodyLength,
-					getPackageType(), outputStream);
-
+			appendResponsePackageHeader(encodedBytes.length, outputStream);
 			outputStream.write(encodedBytes);
 		} catch (IOException e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
