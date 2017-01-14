@@ -17,15 +17,14 @@
  *******************************************************************************/
 package org.bboxdb.network.packages.response;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.bboxdb.network.NetworkConst;
+import org.bboxdb.network.NetworkHelper;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -109,23 +108,7 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 		final byte[] compressedBytes = new byte[encodedPackage.remaining()];
 		encodedPackage.get(compressedBytes, 0, encodedPackage.remaining());
 		
-		try {
-			final ByteArrayInputStream bais = new ByteArrayInputStream(compressedBytes);
-			final GZIPInputStream inputStream = new GZIPInputStream(bais);
-			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-			final byte[] buffer = new byte[10240];
-			for (int length = 0; (length = inputStream.read(buffer)) > 0; ) {
-				baos.write(buffer, 0, length);
-			}
-
-			inputStream.close();
-			baos.close();
-			
-			return baos.toByteArray();
-		} catch (IOException e) {
-			throw new PackageEncodeException(e);
-		}
+		return NetworkHelper.uncompressBytes(compressionType, compressedBytes);
 	}
 
 }
