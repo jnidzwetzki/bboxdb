@@ -8,7 +8,7 @@ order: 1
 
 ### Version 0.2.1 (Stable) - TBA
 - Improvement: Changed bounding box precision from float to double
-- Improvement: Reduced memory usage by removing the response buffering
+- Improvement: Reduced memory usage of the network stack by removing the response buffering
 - Bugfix: Outdated jars are removed on bboxdb_update
 
 ### Version 0.2.0 (Stable) - 11.01.2017
