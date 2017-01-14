@@ -70,9 +70,8 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 			os.close();
 			final byte[] compressedBytes = baos.toByteArray();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(5);
+			final ByteBuffer bb = ByteBuffer.allocate(1);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
-			bb.putInt(compressedBytes.length);
 			bb.put(compressionType);
 			
 			// Body length
@@ -106,19 +105,14 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 			throw new PackageEncodeException("Unable to decode package");
 		}
 		
-		final int compressedDataLength = encodedPackage.getInt();
 		final byte compressionType = encodedPackage.get();
 		
 		if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
 			throw new PackageEncodeException("Unknown compression type: " + compressionType);
 		}
-		
-		if(compressedDataLength != encodedPackage.remaining()) {
-			throw new PackageEncodeException("Remaning : " + encodedPackage.remaining() + " bytes. But compressed data should have: " + compressedDataLength + " bytes");
-		}
-		
-		final byte[] compressedBytes = new byte[compressedDataLength];
-		encodedPackage.get(compressedBytes, 0, compressedDataLength);
+
+		final byte[] compressedBytes = new byte[encodedPackage.remaining()];
+		encodedPackage.get(compressedBytes, 0, encodedPackage.remaining());
 		
 		try {
 			final ByteArrayInputStream bais = new ByteArrayInputStream(compressedBytes);
