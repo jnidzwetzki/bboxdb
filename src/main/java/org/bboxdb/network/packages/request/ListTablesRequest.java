@@ -27,10 +27,14 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.routing.RoutingHeader;
 
-public class ListTablesRequest implements NetworkRequestPackage {
-	
+public class ListTablesRequest extends NetworkRequestPackage {
+		
+	public ListTablesRequest(final short sequenceNumber) {
+		super(sequenceNumber);
+	}
+
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			// Write body length
@@ -53,6 +57,8 @@ public class ListTablesRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static ListTablesRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_LIST_TABLES);
 		
 		if(decodeResult == false) {
@@ -63,7 +69,7 @@ public class ListTablesRequest implements NetworkRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new ListTablesRequest();
+		return new ListTablesRequest(sequenceNumber);
 	}
 
 	@Override

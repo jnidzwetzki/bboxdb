@@ -29,19 +29,20 @@ import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.util.DataEncoderHelper;
 
-public class DeleteDistributionGroupRequest implements NetworkRequestPackage {
+public class DeleteDistributionGroupRequest extends NetworkRequestPackage {
 	
 	/**
 	 * The name of the table
 	 */
 	protected final String distributionGroup;
 
-	public DeleteDistributionGroupRequest(final String distributionGroup) {
+	public DeleteDistributionGroupRequest(final short sequenceNumber, final String distributionGroup) {
+		super(sequenceNumber);
 		this.distributionGroup = distributionGroup;
 	}
 	
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] groupBytes = distributionGroup.getBytes();
@@ -71,6 +72,8 @@ public class DeleteDistributionGroupRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static DeleteDistributionGroupRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP);
 		
 		if(decodeResult == false) {
@@ -87,7 +90,7 @@ public class DeleteDistributionGroupRequest implements NetworkRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new DeleteDistributionGroupRequest(distributionGroup);
+		return new DeleteDistributionGroupRequest(sequenceNumber, distributionGroup);
 	}
 
 	@Override

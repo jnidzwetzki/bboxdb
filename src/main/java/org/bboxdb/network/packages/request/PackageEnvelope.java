@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class PackageEnvelope implements NetworkRequestPackage {
+public class PackageEnvelope extends NetworkRequestPackage {
 
 	protected final List<NetworkRequestPackage> packages;
 	
@@ -44,7 +44,9 @@ public class PackageEnvelope implements NetworkRequestPackage {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(PackageEnvelope.class);
 
-	public PackageEnvelope(final List<NetworkRequestPackage> packages) {
+	public PackageEnvelope(final short sequenceNumber, final List<NetworkRequestPackage> packages) {
+		super(sequenceNumber);
+		
 		this.packages = packages;
 	}
 
@@ -53,13 +55,13 @@ public class PackageEnvelope implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			
 			for(final NetworkRequestPackage networkRequestPackage : packages) {
-				networkRequestPackage.writeToOutputStream(sequenceNumber, baos);
+				networkRequestPackage.writeToOutputStream(baos);
 			}
 			
 			baos.close();
@@ -84,26 +86,6 @@ public class PackageEnvelope implements NetworkRequestPackage {
 		} catch (IOException e) {
 			throw new PackageEncodeError("Got exception while converting package into bytes", e);
 		}		
-	}
-
-
-	
-	/**
-	 * Decode the encoded package into an object
-	 * 
-	 * @param encodedPackage
-	 * @param bodyLength 
-	 * @param inputStream 
-	 * @return
-	 * @throws IOException 
-	 * @throws PackageEncodeError 
-	 */
-	public static boolean decodeTuple(final ByteBuffer packageHeader, final long bodyLength, 
-			final BBoxDBConfiguration configuration, final InputStream inputStream) throws IOException, PackageEncodeError {
-		
-		// TODO:
-		
-		return true;
 	}
 
 	@Override

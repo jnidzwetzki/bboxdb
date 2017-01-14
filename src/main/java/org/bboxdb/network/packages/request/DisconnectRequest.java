@@ -27,10 +27,14 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.routing.RoutingHeader;
 
-public class DisconnectRequest implements NetworkRequestPackage {
+public class DisconnectRequest extends NetworkRequestPackage {
 	
+	public DisconnectRequest(final short sequenceNumber) {
+		super(sequenceNumber);
+	}
+
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			// Write body length
@@ -54,6 +58,8 @@ public class DisconnectRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static DisconnectRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_DISCONNECT);
 		
 		if(decodeResult == false) {
@@ -64,7 +70,7 @@ public class DisconnectRequest implements NetworkRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new DisconnectRequest();
+		return new DisconnectRequest(sequenceNumber);
 	}
 
 	@Override

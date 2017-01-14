@@ -31,7 +31,7 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.SSTableName;
 
 
-public class DeleteTupleRequest implements NetworkRequestPackage {
+public class DeleteTupleRequest extends NetworkRequestPackage {
 
 	/**
 	 * The name of the table
@@ -48,7 +48,11 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 	 */
 	protected final long timestamp;
 
-	public DeleteTupleRequest(final String table, final String key, final long timestamp) {
+	public DeleteTupleRequest(final short sequenceNumber, final String table, 
+			final String key, final long timestamp) {
+		
+		super(sequenceNumber);
+		
 		this.table = new SSTableName(table);
 		this.key = key;
 		this.timestamp = timestamp;
@@ -59,7 +63,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -97,6 +101,8 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static DeleteTupleRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_DELETE_TUPLE);
 		
 		if(decodeResult == false) {
@@ -119,7 +125,7 @@ public class DeleteTupleRequest implements NetworkRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new DeleteTupleRequest(table, key, timestamp);
+		return new DeleteTupleRequest(sequenceNumber, table, key, timestamp);
 	}
 
 	@Override

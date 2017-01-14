@@ -30,7 +30,7 @@ import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.SSTableName;
 
-public class QueryTimeRequest implements NetworkQueryRequestPackage {
+public class QueryTimeRequest extends NetworkQueryRequestPackage {
 	
 	/**
 	 * The name of the table
@@ -52,7 +52,11 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 	 */
 	protected final short tuplesPerPage;
 
-	public QueryTimeRequest(final String table, final long timestamp, final boolean pagingEnabled, final short tuplesPerPage) {
+	public QueryTimeRequest(final short packageSequene, final String table, final long timestamp, 
+			final boolean pagingEnabled, final short tuplesPerPage) {
+		
+		super(packageSequene);
+		
 		this.table = new SSTableName(table);
 		this.timestamp = timestamp;
 		this.pagingEnabled = pagingEnabled;
@@ -60,7 +64,7 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -105,6 +109,8 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static QueryTimeRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
 		
 		if(decodeResult == false) {
@@ -135,7 +141,7 @@ public class QueryTimeRequest implements NetworkQueryRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new QueryTimeRequest(table, timestamp, pagingEnabled, tuplesPerPage);
+		return new QueryTimeRequest(sequenceNumber, table, timestamp, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override

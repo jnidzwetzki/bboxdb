@@ -32,7 +32,7 @@ import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleAndTable;
 
-public class InsertTupleRequest implements NetworkRequestPackage {
+public class InsertTupleRequest extends NetworkRequestPackage {
 
 	/**
 	 * The name of the table
@@ -58,14 +58,23 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	 * @param bbox
 	 * @param data
 	 */
-	public InsertTupleRequest(final RoutingHeader routingHeader, final SSTableName table, final Tuple tuple) {
+	public InsertTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
+			final SSTableName table, final Tuple tuple) {
+		
+		super(sequenceNumber);
+		
 		this.routingHeader = routingHeader;
 		this.table = table;
 		this.tuple = tuple;
 	}
 	
-	public InsertTupleRequest(final SSTableName table, final Tuple tuple) { 
-		this(new RoutingHeader(false), table, tuple);
+	public InsertTupleRequest(final short sequenceNumber, final SSTableName table, final Tuple tuple) { 
+		
+		super(sequenceNumber);
+			
+		this.routingHeader = new RoutingHeader(false);
+		this.table = table;
+		this.tuple = tuple;		
 	}
 	
 	/**
@@ -78,6 +87,8 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 	 */
 	public static InsertTupleRequest decodeTuple(final ByteBuffer encodedPackage) throws IOException, PackageEncodeError {
 
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_INSERT_TUPLE);
 		
 		if(decodeResult == false) {
@@ -93,11 +104,11 @@ public class InsertTupleRequest implements NetworkRequestPackage {
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 		
 		final SSTableName ssTableName = new SSTableName(tupleAndTable.getTable());
-		return new InsertTupleRequest(routingHeader, ssTableName, tupleAndTable.getTuple());
+		return new InsertTupleRequest(sequenceNumber, routingHeader, ssTableName, tupleAndTable.getTuple());
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tupleAsByte = NetworkTupleEncoderDecoder.encode(tuple, table.getFullname());

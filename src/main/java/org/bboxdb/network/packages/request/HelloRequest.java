@@ -29,7 +29,7 @@ import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.util.DataEncoderHelper;
 
-public class HelloRequest implements NetworkRequestPackage {
+public class HelloRequest extends NetworkRequestPackage {
 	
 	/**
 	 * The supported protocol version
@@ -41,13 +41,17 @@ public class HelloRequest implements NetworkRequestPackage {
 	 */
 	protected final PeerCapabilities peerCapabilities;
 	
-	public HelloRequest(final int protocolVersion, final PeerCapabilities peerCapabilities) {
+	public HelloRequest(final short sequenceNumber, final int protocolVersion, 
+			final PeerCapabilities peerCapabilities) {
+		
+		super(sequenceNumber);
+		
 		this.protocolVersion = protocolVersion;
 		this.peerCapabilities = peerCapabilities;
 	}
 	
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final ByteBuffer bb = DataEncoderHelper.intToByteBuffer(protocolVersion);
@@ -76,6 +80,8 @@ public class HelloRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static HelloRequest decodeRequest(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_HELLO);
 		
 		if(decodeResult == false) {
@@ -92,7 +98,7 @@ public class HelloRequest implements NetworkRequestPackage {
 		
 		final PeerCapabilities peerCapabilities = new PeerCapabilities(capabilityBytes);
 		
-		return new HelloRequest(protocolVersion, peerCapabilities);
+		return new HelloRequest(sequenceNumber, protocolVersion, peerCapabilities);
 	}
 	
 	/**

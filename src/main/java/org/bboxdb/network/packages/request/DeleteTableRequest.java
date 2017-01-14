@@ -30,19 +30,21 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.util.DataEncoderHelper;
 
-public class DeleteTableRequest implements NetworkRequestPackage {
+public class DeleteTableRequest extends NetworkRequestPackage {
 	
 	/**
 	 * The name of the table
 	 */
 	protected final SSTableName table;
 
-	public DeleteTableRequest(final String table) {
+	public DeleteTableRequest(final short sequenceNumber, final String table) {
+		super(sequenceNumber);
+		
 		this.table = new SSTableName(table);
 	}
 	
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -72,6 +74,8 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static DeleteTableRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_DELETE_TABLE);
 		
 		if(decodeResult == false) {
@@ -88,7 +92,7 @@ public class DeleteTableRequest implements NetworkRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new DeleteTableRequest(table);
+		return new DeleteTableRequest(sequenceNumber, table);
 	}
 
 	@Override

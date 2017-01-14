@@ -33,7 +33,7 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.routing.RoutingHeader;
 
-public class CompressionEnvelopeRequest implements NetworkRequestPackage {
+public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 	
 	/**
 	 * The package to encode
@@ -45,12 +45,16 @@ public class CompressionEnvelopeRequest implements NetworkRequestPackage {
 	 */
 	protected byte compressionType;
 
-	public CompressionEnvelopeRequest(final NetworkRequestPackage networkRequestPackage, final byte compressionType) {
+	public CompressionEnvelopeRequest(final short sequenceNumber,
+			final NetworkRequestPackage networkRequestPackage, final byte compressionType) {
+		
+		super(sequenceNumber);
+		
 		this.networkRequestPackage = networkRequestPackage;
 		this.compressionType = compressionType;
 	}
 
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 		try {
 			if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
 				throw new PackageEncodeError("Unknown compression method: " + compressionType);
@@ -58,7 +62,7 @@ public class CompressionEnvelopeRequest implements NetworkRequestPackage {
 			
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			final OutputStream os = new GZIPOutputStream(baos);
-			networkRequestPackage.writeToOutputStream(sequenceNumber, os);
+			networkRequestPackage.writeToOutputStream(os);
 			os.close();
 			final byte[] compressedBytes = baos.toByteArray();
 			

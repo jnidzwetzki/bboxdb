@@ -27,10 +27,14 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.routing.RoutingHeader;
 
-public class KeepAliveRequest implements NetworkRequestPackage {
+public class KeepAliveRequest extends NetworkRequestPackage {
 	
+	public KeepAliveRequest(final short sequenceNumber) {
+		super(sequenceNumber);
+	}
+
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			// Write body length
@@ -53,6 +57,9 @@ public class KeepAliveRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static KeepAliveRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_KEEP_ALIVE);
 		
 		if(decodeResult == false) {
@@ -63,7 +70,7 @@ public class KeepAliveRequest implements NetworkRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new KeepAliveRequest();
+		return new KeepAliveRequest(sequenceNumber);
 	}
 
 	@Override

@@ -32,8 +32,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.BBoxDBConfiguration;
-import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
@@ -64,7 +62,6 @@ import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.request.QueryTimeRequest;
-import org.bboxdb.network.packages.request.PackageEnvelope;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.HelloResponse;
@@ -298,31 +295,7 @@ public class ClientConnectionHandler implements Runnable {
 
 		return true;
 	}
-	
-	/**
-	 * Handle the transfer package. In contrast to other packages, this package
-	 * type can become very large. Therefore, the data is not buffered into a byte 
-	 * buffer. The network stream is directly passed to the decoder.
-	 * 
-	 * @param bb
-	 * @param packageSequence
-	 * @return
-	 * @throws PackageEncodeError 
-	 */
-	protected boolean handleTransfer(final ByteBuffer packageHeader, final short packageSequence) throws PackageEncodeError {
-		
-		final long bodyLength = NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
-		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-		
-		try {
-			PackageEnvelope.decodeTuple(packageHeader, bodyLength, configuration, inputStream);
-		} catch (IOException e) {
-			logger.warn("Exception while handling sstable transfer", e);
-		}
-		
-		return true;
-	}
-	
+
 	/**
 	 * Create a new distribution group
 	 * @param packageHeader
@@ -428,7 +401,18 @@ public class ClientConnectionHandler implements Runnable {
 		
 		return true;
 	}
+	
+	/**
+	 * Handle and decode an envelope
+	 * @param packageHeader
+	 * @param packageSequence
+	 * @return
+	 */
+	private boolean handleEnvelope(final ByteBuffer packageHeader, final short packageSequence) {
+		// TODO:
 		
+		return false;
+	}
 	
 	/**
 	 * Delete an existing distribution group
@@ -924,7 +908,8 @@ public class ClientConnectionHandler implements Runnable {
 			if(logger.isDebugEnabled()) {
 				logger.debug("Got transfer package");
 			}
-			readFurtherPackages = handleTransfer(packageHeader, packageSequence);
+			
+			readFurtherPackages = handleEnvelope(packageHeader, packageSequence);
 		} else {	
 			final ByteBuffer encodedPackage = readFullPackage(packageHeader);
 			readFurtherPackages = handleBufferedPackage(encodedPackage, packageSequence, packageType);

@@ -18,7 +18,11 @@
 package org.bboxdb.network.packages;
 
 
-public interface NetworkQueryRequestPackage extends NetworkRequestPackage {
+public abstract class NetworkQueryRequestPackage extends NetworkRequestPackage {
+
+	public NetworkQueryRequestPackage(final short sequenceNumber) {
+		super(sequenceNumber);
+	}
 
 	/**
 	 * Returns the query type of the package as a byte

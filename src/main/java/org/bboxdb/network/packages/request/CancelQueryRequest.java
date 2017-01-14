@@ -28,24 +28,25 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.routing.RoutingHeader;
 
-public class CancelQueryRequest implements NetworkRequestPackage {
+public class CancelQueryRequest extends NetworkRequestPackage {
 	
 	/**
 	 * The sequence of the query
 	 */
-	protected final short querySequence;
+	protected final short querySequenceNumber;
 	
-	public CancelQueryRequest(final short querySequence) {
-		this.querySequence = querySequence;
+	public CancelQueryRequest(final short sequenceNumber, final short querySequenceNumber) {
+		super(sequenceNumber);
+		this.querySequenceNumber = querySequenceNumber;
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final ByteBuffer bb = ByteBuffer.allocate(2);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
-			bb.putShort((short) querySequence);
+			bb.putShort((short) querySequenceNumber);
 			
 			// Calculate body length
 			final long bodyLength = bb.capacity();
@@ -71,8 +72,10 @@ public class CancelQueryRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static CancelQueryRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
-		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_CANCEL_QUERY);
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
+		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_CANCEL_QUERY);
+
 		if(decodeResult == false) {
 			throw new PackageEncodeError("Unable to decode package");
 		}
@@ -83,7 +86,7 @@ public class CancelQueryRequest implements NetworkRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new CancelQueryRequest(packageSequence);
+		return new CancelQueryRequest(sequenceNumber, packageSequence);
 	}
 
 	@Override
@@ -92,14 +95,14 @@ public class CancelQueryRequest implements NetworkRequestPackage {
 	}
 
 	public short getQuerySequence() {
-		return querySequence;
+		return querySequenceNumber;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + querySequence;
+		result = prime * result + querySequenceNumber;
 		return result;
 	}
 
@@ -112,7 +115,7 @@ public class CancelQueryRequest implements NetworkRequestPackage {
 		if (getClass() != obj.getClass())
 			return false;
 		CancelQueryRequest other = (CancelQueryRequest) obj;
-		if (querySequence != other.querySequence)
+		if (querySequenceNumber != other.querySequenceNumber)
 			return false;
 		return true;
 	}

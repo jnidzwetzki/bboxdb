@@ -31,7 +31,7 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 
-public class QueryBoundingBoxTimeRequest implements NetworkQueryRequestPackage {
+public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 	
 	/**
 	 * The name of the table
@@ -58,7 +58,12 @@ public class QueryBoundingBoxTimeRequest implements NetworkQueryRequestPackage {
 	 */
 	protected final short tuplesPerPage;
 
-	public QueryBoundingBoxTimeRequest(final String table, final BoundingBox box, final long timestamp, final boolean pagingEnabled, final short tuplesPerPage) {
+	public QueryBoundingBoxTimeRequest(final short sequenceNumber, final String table, 
+			final BoundingBox box, final long timestamp, final boolean pagingEnabled, 
+			final short tuplesPerPage) {
+		
+		super(sequenceNumber);
+		
 		this.table = new SSTableName(table);
 		this.box = box;
 		this.timestamp = timestamp;
@@ -67,7 +72,7 @@ public class QueryBoundingBoxTimeRequest implements NetworkQueryRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -117,6 +122,8 @@ public class QueryBoundingBoxTimeRequest implements NetworkQueryRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static QueryBoundingBoxTimeRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
 		
 		if(decodeResult == false) {
@@ -157,7 +164,8 @@ public class QueryBoundingBoxTimeRequest implements NetworkQueryRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new QueryBoundingBoxTimeRequest(table, boundingBox, timestamp, pagingEnabled, tuplesPerPage);
+		return new QueryBoundingBoxTimeRequest(sequenceNumber, table, boundingBox, 
+				timestamp, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override

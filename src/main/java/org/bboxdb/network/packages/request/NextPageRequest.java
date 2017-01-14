@@ -28,19 +28,20 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.routing.RoutingHeader;
 
-public class NextPageRequest implements NetworkRequestPackage {
+public class NextPageRequest extends NetworkRequestPackage {
 	
 	/**
 	 * The sequence of the query
 	 */
 	protected final short querySequence;
 	
-	public NextPageRequest(final short querySequence) {
+	public NextPageRequest(final short packageSequence, final short querySequence) {
+		super(packageSequence);
 		this.querySequence = querySequence;
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final ByteBuffer bb = ByteBuffer.allocate(2);
@@ -71,6 +72,9 @@ public class NextPageRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static NextPageRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_NEXT_PAGE);
 		
 		if(decodeResult == false) {
@@ -83,7 +87,7 @@ public class NextPageRequest implements NetworkRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new NextPageRequest(packageSequence);
+		return new NextPageRequest(sequenceNumber, packageSequence);
 	}
 
 	@Override

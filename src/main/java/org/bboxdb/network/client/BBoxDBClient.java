@@ -256,6 +256,14 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/**
+	 * Get the next sequence number
+	 * @return
+	 */
+	protected short getNextSequenceNumber() {
+		return sequenceNumberGenerator.getNextSequenceNummber();
+	}
+	
+	/**
 	 * Run the handshake with the server
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
@@ -270,7 +278,10 @@ public class BBoxDBClient implements BBoxDB {
 		
 		// Capabilies are reported to server. Make client capabilies read only. 
 		clientCapabilities.freeze();
-		sendPackageToServer(new HelloRequest(NetworkConst.PROTOCOL_VERSION, clientCapabilities), operationFuture);
+		final HelloRequest requestPackage = new HelloRequest(getNextSequenceNumber(), 
+				NetworkConst.PROTOCOL_VERSION, clientCapabilities);
+		
+		sendPackageToServer(requestPackage, operationFuture);
 		
 		operationFuture.waitForAll();
 		
@@ -298,7 +309,7 @@ public class BBoxDBClient implements BBoxDB {
 		
 		logger.info("Disconnecting from server: " + serverHostname + " port " + serverPort);
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
-		sendPackageToServer(new DisconnectRequest(), new EmptyResultFuture(1));
+		sendPackageToServer(new DisconnectRequest(getNextSequenceNumber()), new EmptyResultFuture(1));
 
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
@@ -381,7 +392,8 @@ public class BBoxDBClient implements BBoxDB {
 		}
 		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		sendPackageToServer(new DeleteTableRequest(table), clientOperationFuture);
+		final DeleteTableRequest requestPackage = new DeleteTableRequest(getNextSequenceNumber(), table);
+		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
 	}
 
@@ -409,10 +421,15 @@ public class BBoxDBClient implements BBoxDB {
 		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 		final SSTableName ssTableName = new SSTableName(table);
-		final InsertTupleRequest requestPackage = new InsertTupleRequest(ssTableName, tuple);
+		final short sequenceNumber = getNextSequenceNumber();
+		
+		final InsertTupleRequest requestPackage = new InsertTupleRequest(sequenceNumber, ssTableName, tuple);
 		
 		if(connectionCapabilities.hasGZipCompression()) {
-			final CompressionEnvelopeRequest compressionEnvelopeRequest = new CompressionEnvelopeRequest(requestPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
+			final CompressionEnvelopeRequest compressionEnvelopeRequest 
+				= new CompressionEnvelopeRequest(sequenceNumber, requestPackage, 
+						NetworkConst.COMPRESSION_TYPE_GZIP);
+			
 			sendPackageToServer(compressionEnvelopeRequest, clientOperationFuture);
 		} else {
 			sendPackageToServer(requestPackage, clientOperationFuture);
@@ -446,7 +463,10 @@ public class BBoxDBClient implements BBoxDB {
 		}
 		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		sendPackageToServer(new DeleteTupleRequest(table, key, timestamp), clientOperationFuture);
+		final DeleteTupleRequest requestPackage = new DeleteTupleRequest(getNextSequenceNumber(), 
+				table, key, timestamp);
+		
+		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
 	}
 	
@@ -455,13 +475,14 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public SSTableNameListFuture listTables() {
+		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("listTables called, but connection not ready: " + this);
 			return null;
 		}
 
 		final SSTableNameListFuture clientOperationFuture = new SSTableNameListFuture(1);
-		sendPackageToServer(new ListTablesRequest(), clientOperationFuture);
+		sendPackageToServer(new ListTablesRequest(getNextSequenceNumber()), clientOperationFuture);
 		return clientOperationFuture;
 	}
 	
@@ -469,14 +490,19 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.Scalephant#createDistributionGroup(java.lang.String, short)
 	 */
 	@Override
-	public EmptyResultFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) {
+	public EmptyResultFuture createDistributionGroup(final String distributionGroup, 
+			final short replicationFactor) {
+		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("listTables called, but connection not ready: " + this);
 			return null;
 		}
 
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		sendPackageToServer(new CreateDistributionGroupRequest(distributionGroup, replicationFactor), clientOperationFuture);
+		final CreateDistributionGroupRequest requestPackage = new CreateDistributionGroupRequest(
+				getNextSequenceNumber(), distributionGroup, replicationFactor);
+		
+		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
 	}
 	
@@ -485,13 +511,18 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture deleteDistributionGroup(final String distributionGroup) {
+		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("listTables called, but connection not ready: " + this);
 			return null;
 		}
 
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		sendPackageToServer(new DeleteDistributionGroupRequest(distributionGroup), clientOperationFuture);
+		final DeleteDistributionGroupRequest requestPackage = new DeleteDistributionGroupRequest(
+				getNextSequenceNumber(), distributionGroup);
+		
+		sendPackageToServer(requestPackage, clientOperationFuture);
+		
 		return clientOperationFuture;
 	}
 	
@@ -507,7 +538,9 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
-		sendPackageToServer(new QueryKeyRequest(table, key), clientOperationFuture);
+		final QueryKeyRequest requestPackage = new QueryKeyRequest(getNextSequenceNumber(), table, key);
+		sendPackageToServer(requestPackage, clientOperationFuture);
+		
 		return clientOperationFuture;
 	}
 	
@@ -516,13 +549,18 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
+		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("queryBoundingBox called, but connection not ready: " + this);
 			return null;
 		}
 		
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
-		sendPackageToServer(new QueryBoundingBoxRequest(table, boundingBox, pagingEnabled, tuplesPerPage), clientOperationFuture);
+		final QueryBoundingBoxRequest requestPackage = new QueryBoundingBoxRequest(getNextSequenceNumber(), 
+				table, boundingBox, pagingEnabled, tuplesPerPage);
+		
+		sendPackageToServer(requestPackage, clientOperationFuture);
+		
 		return clientOperationFuture;
 	}
 	
@@ -539,7 +577,11 @@ public class BBoxDBClient implements BBoxDB {
 		}
 		
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
-		sendPackageToServer(new QueryBoundingBoxTimeRequest(table, boundingBox, timestamp, pagingEnabled, tuplesPerPage), clientOperationFuture);
+		final QueryBoundingBoxTimeRequest requestPackage = new QueryBoundingBoxTimeRequest(getNextSequenceNumber(), 
+				table, boundingBox, timestamp, pagingEnabled, tuplesPerPage);
+		
+		sendPackageToServer(requestPackage, clientOperationFuture);
+		
 		return clientOperationFuture;
 	}
 	
@@ -548,13 +590,18 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public TupleListFuture queryTime(final String table, final long timestamp) {
+		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("queryTime called, but connection not ready: " + this);
 			return null;
 		}
 
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
-		sendPackageToServer(new QueryTimeRequest(table, timestamp, pagingEnabled, tuplesPerPage), clientOperationFuture);
+		final QueryTimeRequest requestPackage = new QueryTimeRequest(getNextSequenceNumber(), 
+				table, timestamp, pagingEnabled, tuplesPerPage);
+		
+		sendPackageToServer(requestPackage, clientOperationFuture);
+		
 		return clientOperationFuture;
 	}
 	
@@ -563,13 +610,14 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public EmptyResultFuture sendKeepAlivePackage() {
+		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			logger.warn("sendKeepAlivePackage called, but connection not ready: " + this);
 			return createFailedFuture();
 		}
 		
 		final EmptyResultFuture future = new EmptyResultFuture(1);
-		sendPackageToServer(new KeepAliveRequest(), future);
+		sendPackageToServer(new KeepAliveRequest(getNextSequenceNumber()), future);
 
 		return future;
 	}
@@ -580,6 +628,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public TupleListFuture getNextPage(final short queryPackageId) {
+		
 		if(resultBuffer.containsKey(queryPackageId)) {
 			logger.error("Query package {} not found in the result buffer", queryPackageId);
 			
@@ -591,7 +640,12 @@ public class BBoxDBClient implements BBoxDB {
 		}
 		
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
-		sendPackageToServer(new NextPageRequest(queryPackageId), clientOperationFuture);
+		
+		final NextPageRequest requestPackage = new NextPageRequest(
+				getNextSequenceNumber(), queryPackageId);
+		
+		sendPackageToServer(requestPackage, clientOperationFuture);
+		
 		return clientOperationFuture;
 	}
 	
@@ -602,7 +656,11 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public EmptyResultFuture cancelQuery(final short queryPackageId) {
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		sendPackageToServer(new CancelQueryRequest(queryPackageId), clientOperationFuture);
+		
+		final CancelQueryRequest requestPackage = new CancelQueryRequest(getNextSequenceNumber(), queryPackageId);
+		
+		sendPackageToServer(requestPackage, clientOperationFuture);
+		
 		return clientOperationFuture;
 	}
 	
@@ -673,7 +731,8 @@ public class BBoxDBClient implements BBoxDB {
 			return -1;
 		}
 		
-		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		final short sequenceNumber = requestPackage.getSequenceNumber();
+		
 		future.setRequestId(0, sequenceNumber);
 		
 		try {		
@@ -682,7 +741,7 @@ public class BBoxDBClient implements BBoxDB {
 			}
 			
 			synchronized (outputStream) {
-				requestPackage.writeToOutputStream(sequenceNumber, outputStream);
+				requestPackage.writeToOutputStream(outputStream);
 				outputStream.flush();
 			}
 			

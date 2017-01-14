@@ -76,9 +76,11 @@ public class TestNetworkClasses {
 	 * @throws IOException 
 	 * @throws PackageEncodeError 
 	 */
-	protected byte[] networkPackageToByte(final NetworkRequestPackage networkPackage, final short sequenceNumber) throws IOException, PackageEncodeError {
+	protected byte[] networkPackageToByte(final NetworkRequestPackage networkPackage) 
+			throws IOException, PackageEncodeError {
+		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		networkPackage.writeToOutputStream(sequenceNumber, bos);
+		networkPackage.writeToOutputStream(bos);
 		bos.flush();
 		bos.close();
 		return bos.toByteArray();
@@ -159,10 +161,11 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeInsertTuple1() throws IOException, PackageEncodeError {
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(new SSTableName("test"), tuple);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, new SSTableName("test"), tuple);
 		
-		byte[] encodedVersion = networkPackageToByte(insertPackage, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(insertPackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -182,10 +185,11 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeInsertTuple2() throws IOException, PackageEncodeError {
 		final Tuple tuple = new Tuple("key", new BoundingBox(1.3244343224, 232.232333343, 34324.343, 343243.0), "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(new SSTableName("test"), tuple);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, new SSTableName("test"), tuple);
 		
-		byte[] encodedVersion = networkPackageToByte(insertPackage, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(insertPackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -206,11 +210,12 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeInsertTupleWithCustomHeader() throws IOException, PackageEncodeError {
 		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(routingHeader, new SSTableName("test"), tuple);
-		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, routingHeader, new SSTableName("test"), tuple);
+		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		
-		byte[] encodedVersion = networkPackageToByte(insertPackage, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(insertPackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -232,10 +237,11 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeDeleteTuple() throws IOException, PackageEncodeError {
 		final long deletionTime = System.currentTimeMillis();
-		final DeleteTupleRequest deletePackage = new DeleteTupleRequest("test", "key", deletionTime);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final DeleteTupleRequest deletePackage = new DeleteTupleRequest(sequenceNumber, "test", "key", deletionTime);
 		
-		byte[] encodedVersion = networkPackageToByte(deletePackage, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(deletePackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -254,11 +260,11 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeCreateDistributionGroup() throws IOException, PackageEncodeError {
-				
-		final CreateDistributionGroupRequest groupPackage = new CreateDistributionGroupRequest("test", (short) 3);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final CreateDistributionGroupRequest groupPackage = new CreateDistributionGroupRequest(sequenceNumber, "test", (short) 3);
 		
-		byte[] encodedVersion = networkPackageToByte(groupPackage, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(groupPackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -276,11 +282,11 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeDeleteDistributionGroup() throws IOException, PackageEncodeError {
-				
-		final DeleteDistributionGroupRequest groupPackage = new DeleteDistributionGroupRequest("test");
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final DeleteDistributionGroupRequest groupPackage = new DeleteDistributionGroupRequest(sequenceNumber, "test");
 		
-		byte[] encodedVersion = networkPackageToByte(groupPackage, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(groupPackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -297,12 +303,12 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeNextPage() throws IOException, PackageEncodeError {
-				
-		final short querySequence = 12;
-		final NextPageRequest nextPageRequest = new NextPageRequest(querySequence);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final short querySequence = 12;
+		final NextPageRequest nextPageRequest = new NextPageRequest(sequenceNumber, querySequence);
 		
-		byte[] encodedVersion = networkPackageToByte(nextPageRequest, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(nextPageRequest);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -319,12 +325,12 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeCancelQuery() throws IOException, PackageEncodeError {
-				
-		final short querySequence = 12;
-		final CancelQueryRequest cancelQueryRequest = new CancelQueryRequest(querySequence);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final short querySequence = 12;
+		final CancelQueryRequest cancelQueryRequest = new CancelQueryRequest(sequenceNumber, querySequence);
 		
-		byte[] encodedVersion = networkPackageToByte(cancelQueryRequest, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(cancelQueryRequest);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -340,11 +346,11 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeDeleteTable() throws IOException, PackageEncodeError {
-				
-		final DeleteTableRequest deletePackage = new DeleteTableRequest("test");
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final DeleteTableRequest deletePackage = new DeleteTableRequest(sequenceNumber, "test");
 		
-		byte[] encodedVersion = networkPackageToByte(deletePackage, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(deletePackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -364,10 +370,10 @@ public class TestNetworkClasses {
 	public void testDecodeKeyQuery() throws IOException, PackageEncodeError {
 		final String table = "1_mygroup_table1";
 		final String key = "key1";
-		
-		final QueryKeyRequest queryKeyRequest = new QueryKeyRequest(table, key);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		final byte[] encodedPackage = networkPackageToByte(queryKeyRequest, sequenceNumber);
+
+		final QueryKeyRequest queryKeyRequest = new QueryKeyRequest(sequenceNumber, table, key);
+		final byte[] encodedPackage = networkPackageToByte(queryKeyRequest);
 		Assert.assertNotNull(encodedPackage);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
@@ -390,10 +396,10 @@ public class TestNetworkClasses {
 	public void testDecodeBoundingBoxQuery() throws IOException, PackageEncodeError {
 		final String table = "table1";
 		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
-		
-		final QueryBoundingBoxRequest queryRequest = new QueryBoundingBoxRequest(table, boundingBox, false, (short) 10);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		byte[] encodedPackage = networkPackageToByte(queryRequest, sequenceNumber);
+
+		final QueryBoundingBoxRequest queryRequest = new QueryBoundingBoxRequest(sequenceNumber, table, boundingBox, false, (short) 10);
+		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
@@ -417,10 +423,10 @@ public class TestNetworkClasses {
 	public void testDecodeTimeQuery() throws IOException, PackageEncodeError {
 		final String table = "table1";
 		final long timeStamp = 4711;
-		
-		final QueryTimeRequest queryRequest = new QueryTimeRequest(table, timeStamp, true, (short) 50);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		byte[] encodedPackage = networkPackageToByte(queryRequest, sequenceNumber);
+
+		final QueryTimeRequest queryRequest = new QueryTimeRequest(sequenceNumber, table, timeStamp, true, (short) 50);
+		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
@@ -448,10 +454,10 @@ public class TestNetworkClasses {
 		final long timeStamp = 4711;
 		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
 
-		
-		final QueryBoundingBoxTimeRequest queryRequest = new QueryBoundingBoxTimeRequest(table, boundingBox, timeStamp, true, (short) 50);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		byte[] encodedPackage = networkPackageToByte(queryRequest, sequenceNumber);
+
+		final QueryBoundingBoxTimeRequest queryRequest = new QueryBoundingBoxTimeRequest(sequenceNumber, table, boundingBox, timeStamp, true, (short) 50);
+		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
@@ -475,11 +481,11 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeListTable() throws IOException, PackageEncodeError {
-				
-		final ListTablesRequest listPackage = new ListTablesRequest();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final ListTablesRequest listPackage = new ListTablesRequest(sequenceNumber);
 		
-		byte[] encodedVersion = networkPackageToByte(listPackage, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(listPackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -496,11 +502,11 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeHeloRequest1() throws IOException, PackageEncodeError {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
-		
-		final HelloRequest helloPackage = new HelloRequest(2, peerCapabilities);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final HelloRequest helloPackage = new HelloRequest(sequenceNumber, 2, peerCapabilities);
 		
-		byte[] encodedVersion = networkPackageToByte(helloPackage, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(helloPackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -521,10 +527,11 @@ public class TestNetworkClasses {
 		final PeerCapabilities peerCapabilities = new PeerCapabilities();
 		peerCapabilities.setGZipCompression();
 		
-		final HelloRequest helloPackage = new HelloRequest(2, peerCapabilities);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final HelloRequest helloPackage = new HelloRequest(sequenceNumber, 2, peerCapabilities);
 		
-		byte[] encodedVersion = networkPackageToByte(helloPackage, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(helloPackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
@@ -591,10 +598,11 @@ public class TestNetworkClasses {
 	@Test
 	public void testDecodePackage() throws IOException, PackageEncodeError {
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(new SSTableName("test"), tuple);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, new SSTableName("test"), tuple);
 		
-		byte[] encodedPackage = networkPackageToByte(insertPackage, sequenceNumber);
+		byte[] encodedPackage = networkPackageToByte(insertPackage);
 		Assert.assertNotNull(encodedPackage);
 				
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
@@ -610,15 +618,15 @@ public class TestNetworkClasses {
 	@Test
 	public void testGetSequenceNumber() throws IOException, PackageEncodeError {
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(new SSTableName("test"), tuple);
 		
 		// Increment to avoid sequenceNumber = 0
 		sequenceNumberGenerator.getNextSequenceNummber();
 		sequenceNumberGenerator.getNextSequenceNummber();
 		
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		
-		byte[] encodedPackage = networkPackageToByte(insertPackage, sequenceNumber);
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, new SSTableName("test"), tuple);
+
+		byte[] encodedPackage = networkPackageToByte(insertPackage);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		short packageSequencenUmber = NetworkPackageDecoder.getRequestIDFromRequestPackage(bb);
@@ -634,10 +642,11 @@ public class TestNetworkClasses {
 	@Test
 	public void testGetRequestBodyLength() throws IOException, PackageEncodeError {
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(new SSTableName("test"), tuple);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, new SSTableName("test"), tuple);
 		
-		byte[] encodedPackage = networkPackageToByte(insertPackage, sequenceNumber);
+		byte[] encodedPackage = networkPackageToByte(insertPackage);
 		Assert.assertNotNull(encodedPackage);
 		
 		// 18 Byte package header
@@ -761,14 +770,15 @@ public class TestNetworkClasses {
 	public void testCompression1Request() throws IOException, PackageEncodeError {
 		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(routingHeader, new SSTableName("test"), tuple);
-		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, routingHeader, new SSTableName("test"), tuple);
+		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		
-		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(insertPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
+		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(sequenceNumber, insertPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
 		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		compressionPackage.writeToOutputStream(sequenceNumber, bos);
+		compressionPackage.writeToOutputStream(bos);
 		bos.close();
 		final byte[] encodedVersion = bos.toByteArray();
 		
@@ -798,14 +808,15 @@ public class TestNetworkClasses {
 	public void testCompression2Request() throws IOException, PackageEncodeError {
 		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
 		final Tuple tuple = new Tuple("abcdefghijklmopqrstuvxyz", BoundingBox.EMPTY_BOX, "abcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyz".getBytes(), 12);
-		final InsertTupleRequest insertPackage = new InsertTupleRequest(routingHeader, new SSTableName("test"), tuple);
-		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, routingHeader, new SSTableName("test"), tuple);
+		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		
-		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(insertPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
+		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(sequenceNumber, insertPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
 		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		compressionPackage.writeToOutputStream(sequenceNumber, bos);
+		compressionPackage.writeToOutputStream(bos);
 		bos.close();
 		final byte[] encodedVersion = bos.toByteArray();
 		
@@ -887,11 +898,11 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeKeepAlive() throws IOException, PackageEncodeError {
-				
-		final KeepAliveRequest keepAlivePackage = new KeepAliveRequest();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final KeepAliveRequest keepAlivePackage = new KeepAliveRequest(sequenceNumber);
 		
-		byte[] encodedVersion = networkPackageToByte(keepAlivePackage, sequenceNumber);
+		byte[] encodedVersion = networkPackageToByte(keepAlivePackage);
 		Assert.assertNotNull(encodedVersion);
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);

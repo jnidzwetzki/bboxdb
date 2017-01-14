@@ -18,12 +18,29 @@
 package org.bboxdb.network.packages;
 
 
-public interface NetworkPackage {
+public abstract class NetworkPackage {
+	
+	/**
+	 * The sequence number of the package
+	 */
+	protected final short sequenceNumber;
+	
+	public NetworkPackage(final short sequenceNumber) {
+		this.sequenceNumber = sequenceNumber;
+	}
 
 	/**
 	 * Returns the type of the package as a byte
 	 * @return
 	 */
 	public abstract byte getPackageType();
+
+	/**
+	 * Get the sequence number
+	 * @return
+	 */
+	public short getSequenceNumber() {
+		return sequenceNumber;
+	}
 
 }

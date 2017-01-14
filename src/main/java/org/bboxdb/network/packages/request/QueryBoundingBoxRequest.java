@@ -31,8 +31,8 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 
-public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
-	
+public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
+
 	/**
 	 * The name of the table
 	 */
@@ -53,7 +53,11 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	 */
 	protected final short tuplesPerPage;
 
-	public QueryBoundingBoxRequest(final String table, final BoundingBox box, final boolean pagingEnabled, final short tuplesPerPage) {
+	public QueryBoundingBoxRequest(final short sequenceNumber, final String table, 
+			final BoundingBox box, final boolean pagingEnabled, final short tuplesPerPage) {
+		
+		super(sequenceNumber);
+		
 		this.table = new SSTableName(table);
 		this.box = box;
 		this.pagingEnabled = pagingEnabled;
@@ -61,7 +65,7 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -110,6 +114,8 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static QueryBoundingBoxRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
 		
 		if(decodeResult == false) {
@@ -128,7 +134,6 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 	    }
 	    
 	    final short tuplesPerPage = encodedPackage.getShort();
-
 		final short tableLength = encodedPackage.getShort();
 		
 	    // 2 unused bytes
@@ -149,7 +154,8 @@ public class QueryBoundingBoxRequest implements NetworkQueryRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new QueryBoundingBoxRequest(table, boundingBox, pagingEnabled, tuplesPerPage);
+		return new QueryBoundingBoxRequest(sequenceNumber, table, boundingBox, 
+				pagingEnabled, tuplesPerPage);
 	}
 
 	@Override

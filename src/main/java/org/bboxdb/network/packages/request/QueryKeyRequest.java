@@ -30,7 +30,7 @@ import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.SSTableName;
 
-public class QueryKeyRequest implements NetworkQueryRequestPackage {
+public class QueryKeyRequest extends NetworkQueryRequestPackage {
 	
 	/**
 	 * The name of the table
@@ -42,13 +42,16 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 	 */
 	protected final String key;
 
-	public QueryKeyRequest(final String table, final String key) {
+	public QueryKeyRequest(final short sequenceNumber, final String table, final String key) {
+		
+		super(sequenceNumber);
+		
 		this.table = new SSTableName(table);
 		this.key = key;
 	}
 
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -86,6 +89,9 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static QueryKeyRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
 		
 		if(decodeResult == false) {
@@ -113,7 +119,7 @@ public class QueryKeyRequest implements NetworkQueryRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new QueryKeyRequest(table, key);
+		return new QueryKeyRequest(sequenceNumber, table, key);
 	}
 
 	@Override

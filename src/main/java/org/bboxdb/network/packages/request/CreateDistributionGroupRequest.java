@@ -29,7 +29,7 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeError;
 import org.bboxdb.network.routing.RoutingHeader;
 
-public class CreateDistributionGroupRequest implements NetworkRequestPackage {
+public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 	
 	/**
 	 * The name of the table
@@ -41,13 +41,17 @@ public class CreateDistributionGroupRequest implements NetworkRequestPackage {
 	 */
 	protected final short replicationFactor;
 
-	public CreateDistributionGroupRequest(final String distributionGroup, final short replicationFactor) {
+	public CreateDistributionGroupRequest(final short sequencNumber,
+			final String distributionGroup, final short replicationFactor) {
+		
+		super(sequencNumber);
+		
 		this.distributionGroup = distributionGroup;
 		this.replicationFactor = replicationFactor;
 	}
 	
 	@Override
-	public void writeToOutputStream(final short sequenceNumber, final OutputStream outputStream) throws PackageEncodeError {
+	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeError {
 
 		try {
 			final byte[] groupBytes = distributionGroup.getBytes();
@@ -81,6 +85,8 @@ public class CreateDistributionGroupRequest implements NetworkRequestPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public static CreateDistributionGroupRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeError {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
+
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP);
 		
 		if(decodeResult == false) {
@@ -98,7 +104,7 @@ public class CreateDistributionGroupRequest implements NetworkRequestPackage {
 			throw new PackageEncodeError("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new CreateDistributionGroupRequest(distributionGroup, replicationFactor);
+		return new CreateDistributionGroupRequest(sequenceNumber, distributionGroup, replicationFactor);
 	}
 
 	@Override

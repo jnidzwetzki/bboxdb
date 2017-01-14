@@ -17,17 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.network.packages;
 
-public abstract class NetworkResponsePackage implements NetworkPackage {
-	
-	/**
-	 * The sequence number of the package
-	 */
-	protected final short sequenceNumber;
-	
+public abstract class NetworkResponsePackage extends NetworkPackage {
 
 	public NetworkResponsePackage(final short sequenceNumber) {
-		super();
-		this.sequenceNumber = sequenceNumber;
+		super(sequenceNumber);
 	}
 
 	/**
@@ -36,14 +29,6 @@ public abstract class NetworkResponsePackage implements NetworkPackage {
 	 * @throws PackageEncodeError 
 	 */
 	public abstract byte[] getByteArray() throws PackageEncodeError;
-
-	/**
-	 * Get the sequence number of the package
-	 * @return
-	 */
-	public short getSequenceNumber() {
-		return sequenceNumber;
-	}
 
 	@Override
 	public int hashCode() {
