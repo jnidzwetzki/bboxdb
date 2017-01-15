@@ -9,6 +9,8 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 </a> <a href="https://scan.coverity.com/projects/jnidzwetzki-bboxdb">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/11479/badge.svg"/>
+</a> <a href="https://codecov.io/gh/jnidzwetzki/bboxdb">
+  <img src="https://codecov.io/gh/jnidzwetzki/bboxdb/branch/master/graph/badge.svg" alt="Codecov" />
 </a>
 
 ## Documentation 
