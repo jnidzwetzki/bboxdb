@@ -1,5 +1,5 @@
 coverage:
-  range: "30..75"
+  range: "30..80"
   round: down
   precision: 2
 
