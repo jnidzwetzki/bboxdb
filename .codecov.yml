@@ -1,0 +1,4 @@
+ignore:
+   - "/src/main/java/org/bboxdb/performance"
+
+   
