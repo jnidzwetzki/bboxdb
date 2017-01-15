@@ -7,10 +7,11 @@ order: 1
 ---
 
 ### Version 0.2.1 (Stable) - TBA
+- New Feature: Using Coverity for static code analyses
 - Improvement: Changed bounding box precision from float to double
 - Improvement: Reduced memory usage of the network stack by removing the response buffering
 - Improvement: Switched from MapDB 3.0.2 to 3.0.3, and from guava 20.0 to 21.0
-- Bugfix: Outdated jars are removed on bboxdb_update
+- Bugfix: Outdated jars are new removed on bboxdb_update
 
 ### Version 0.2.0 (Stable) - 11.01.2017
 - Improvement: New logo
