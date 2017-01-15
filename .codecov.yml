@@ -1,4 +1,5 @@
 ignore:
    - "/src/main/java/org/bboxdb/performance"
+   - "/src/main/java/org/bboxdb/tools"
 
    
