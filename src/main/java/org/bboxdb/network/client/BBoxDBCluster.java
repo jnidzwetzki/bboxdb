@@ -242,12 +242,16 @@ public class BBoxDBCluster implements BBoxDB {
 		final TupleListFuture future = new TupleListFuture();
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Query by for key " + key + " in table " + table);
+			logger.debug("Query by for key {} in table {}", key, table);
 		}
 		
 		for(final BBoxDBClient client : membershipConnectionService.getAllConnections()) {
 			final TupleListFuture queryFuture = client.queryKey(table, key);
-			future.merge(queryFuture);
+			
+			if(queryFuture != null) {
+				future.merge(queryFuture);
+			}
+			
 		}
 
 		return future;
