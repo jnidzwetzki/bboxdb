@@ -100,7 +100,7 @@ public class RoutingHeaderParser {
 		final short hop = DataEncoderHelper.readShortFromByte(hopBuffer);
 		
 		// Skip one unused byte
-		inputStream.skip(1);
+		NetworkHelper.skipBytesExcactly(inputStream, 1);
 
 		// Routing list list length
 		final byte[] routingListLengthBuffer = new byte[2];
