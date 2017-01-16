@@ -93,16 +93,15 @@ class MemtableFlushThread implements Runnable, Stoppable {
 	 */
 	protected void executeThread() {
 		while (run) {
-			while (unflushedMemtables.isEmpty()) {
+			synchronized (unflushedMemtables) {
+				while (unflushedMemtables.isEmpty()) {
 				try {
-					synchronized (unflushedMemtables) {
 						unflushedMemtables.wait();
+					} catch (InterruptedException e) {
+						logger.info("Memtable flush thread has stopped: {}", threadname);
+						Thread.currentThread().interrupt();
+						return;
 					}
-				} catch (InterruptedException e) {
-					logger.info("Memtable flush thread has stopped: {}",
-							threadname);
-					Thread.currentThread().interrupt();
-					return;
 				}
 			}
 
