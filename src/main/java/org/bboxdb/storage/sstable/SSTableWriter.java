@@ -229,9 +229,11 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws IOException
 	 */
 	protected void writeBloomFilter() throws IOException {
-		final OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(sstableBloomFilterFile));
-		bloomFilter.writeTo(outputStream);
-		outputStream.close();
+		try (final OutputStream outputStream 
+				= new BufferedOutputStream(new FileOutputStream(sstableBloomFilterFile));) {
+			bloomFilter.writeTo(outputStream);
+			outputStream.close();
+		}
 	}
 	
 	/**
