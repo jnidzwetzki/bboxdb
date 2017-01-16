@@ -43,8 +43,8 @@ public class RoutingHeaderParser {
 	 */
 	public static RoutingHeader decodeRoutingHeader(final InputStream inputStream) throws IOException {
 		
-		final byte[] routedOrDirect = new byte[1];
-		inputStream.read(routedOrDirect, 0, 1);
+		final byte[] routedOrDirect = new byte[1];		
+		NetworkHelper.readExactlyBytes(inputStream, routedOrDirect, 0, routedOrDirect.length);
 		
 		if(        (routedOrDirect[0] != RoutingHeader.DIRECT_PACKAGE) 
 				&& (routedOrDirect[0] != RoutingHeader.ROUTED_PACKAGE)) {
