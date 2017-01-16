@@ -183,7 +183,6 @@ class MemtableFlushThread implements Runnable, Stoppable {
 				memtable.getMaxEntries())) {
 
 			ssTableWriter.open();
-			ssTableWriter.getSstableFile();
 			ssTableWriter.addData(memtable.getSortedTupleList());
 			return tableNumber;
 		} catch (Exception e) {
