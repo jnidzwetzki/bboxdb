@@ -279,7 +279,10 @@ public class BBoxDBCluster implements BBoxDB {
 			for(final DistributedInstance system : systems) {
 				final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 				final TupleListFuture result = connection.queryBoundingBox(table, boundingBox);
-				future.merge(result);
+				
+				if(result != null) {
+					future.merge(result);
+				}
 			}
 			
 		} catch (ZookeeperException e) {
@@ -314,7 +317,10 @@ public class BBoxDBCluster implements BBoxDB {
 			for(final DistributedInstance system : systems) {
 				final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 				final TupleListFuture result = connection.queryBoundingBoxAndTime(table, boundingBox, timestamp);
-				future.merge(result);
+				
+				if(result != null) {
+					future.merge(result);
+				}
 			}
 			
 		} catch (ZookeeperException e) {
@@ -338,7 +344,10 @@ public class BBoxDBCluster implements BBoxDB {
 		
 		for(final BBoxDBClient client : membershipConnectionService.getAllConnections()) {
 			final TupleListFuture queryFuture = client.queryTime(table, timestamp);
-			future.merge(queryFuture);
+			
+			if(queryFuture != null) {
+				future.merge(queryFuture);
+			}
 		}
 
 		return future;
