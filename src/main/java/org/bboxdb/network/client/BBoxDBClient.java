@@ -227,7 +227,11 @@ public class BBoxDBClient implements BBoxDB {
 			
 			inputStream = new BufferedInputStream(clientSocket.getInputStream());
 			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
-			pendingCalls.clear();
+			
+			synchronized (pendingCalls) {
+				pendingCalls.clear();
+			}
+			
 			resultBuffer.clear();
 			
 			// Start up the response reader
