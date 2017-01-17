@@ -112,33 +112,40 @@ public class Polygon {
 	 */
 	public String toGeoJson() {
 
-		String type = "Point";
-		if(pointList.size() > 1) {
-			type = "Polygon";
-		}
-
-		final JSONArray coordinateJson = new JSONArray();
-		for(OSMPoint point : pointList) {
-			final JSONArray coordinatesJson = new JSONArray();
-			coordinatesJson.put(point.getX());
-			coordinatesJson.put(point.getY());
-			coordinateJson.put(coordinatesJson);
-		}
-
-		final JSONObject propertiesJson = new JSONObject();
-		for(final String key : properties.keySet()) {
-			propertiesJson.put(key, properties.get(key));
-		}
-		
-		final JSONObject geometryJson = new JSONObject();
-		geometryJson.put("type", type);
-		geometryJson.put("coordinates", coordinateJson);
-
 		final JSONObject featureJson = new JSONObject();
 		featureJson.put("type", "Feature");
 		featureJson.put("id", id);
-		featureJson.put("properties", propertiesJson);
+
+		final JSONObject geometryJson = new JSONObject();
+
+		final JSONArray coordinateJson = new JSONArray();
+		geometryJson.put("coordinates", coordinateJson);
 		featureJson.put("geometry", geometryJson);
+
+		if(pointList.isEmpty()) {
+			// Nothing to add
+		} else if(pointList.size() == 1) {
+			geometryJson.put("type", "Point");
+			coordinateJson.put(pointList.get(0).getX());
+			coordinateJson.put(pointList.get(0).getY());
+		} else {
+			geometryJson.put("type", "Polygon");
+			
+			for(OSMPoint point : pointList) {
+				final JSONArray coordinatesJson = new JSONArray();
+				coordinateJson.put(coordinatesJson);
+
+				coordinatesJson.put(point.getX());
+				coordinatesJson.put(point.getY());
+			}
+		}
+
+		final JSONObject propertiesJson = new JSONObject();
+		featureJson.put("properties", propertiesJson);
+		for(final String key : properties.keySet()) {
+			propertiesJson.put(key, properties.get(key));
+		}
+
 		return featureJson.toString(3);
 	}
 
@@ -146,14 +153,20 @@ public class Polygon {
 	// Test * Test * Test * Test * Test
 	//=====================================================
 	public static void main(final String[] args) {
+		System.out.println("=====================");
 		final Polygon polygon = new Polygon(12);
 		polygon.addPoint(23.1, 23.1);
 		polygon.addPoint(21.1, 23.0);
 		polygon.addPoint(3.1, 9.9);
 		System.out.println(polygon.toGeoJson());
 
+		System.out.println("=====================");
 		final Polygon polygon2 = new Polygon(14);
 		polygon2.addPoint(23.1, 23.1);
 		System.out.println(polygon2.toGeoJson());
+		
+		System.out.println("=====================");
+		final Polygon polygon3 = new Polygon(15);
+		System.out.println(polygon3.toGeoJson());
 	}
 }
