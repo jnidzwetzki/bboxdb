@@ -24,24 +24,19 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkHelper;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.util.DataEncoderHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RoutingHeaderParser {
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(RoutingHeaderParser.class);
-	
+
 	/**
 	 * Decode the routing header from a input stream
 	 * @param bb
 	 * @return
 	 * @throws IOException 
+	 * @throws PackageEncodeException 
 	 */
-	public static RoutingHeader decodeRoutingHeader(final InputStream inputStream) throws IOException {
+	public static RoutingHeader decodeRoutingHeader(final InputStream inputStream) throws IOException, PackageEncodeException {
 		
 		final byte[] routedOrDirect = new byte[1];		
 		NetworkHelper.readExactlyBytes(inputStream, routedOrDirect, 0, routedOrDirect.length);
@@ -49,8 +44,8 @@ public class RoutingHeaderParser {
 		if(        (routedOrDirect[0] != RoutingHeader.DIRECT_PACKAGE) 
 				&& (routedOrDirect[0] != RoutingHeader.ROUTED_PACKAGE)) {
 			
-			logger.error("Invalid package type, unable to decode package header: " + routedOrDirect);
-			return null;
+			throw new PackageEncodeException("Invalid package routing type, unable to decode package "
+					+ "header: " + routedOrDirect);
 		}
 		
 		if(routedOrDirect[0] == RoutingHeader.DIRECT_PACKAGE) {
@@ -65,8 +60,9 @@ public class RoutingHeaderParser {
 	 * @param bb
 	 * @return
 	 * @throws IOException
+	 * @throws PackageEncodeException 
 	 */
-	public static RoutingHeader decodeRoutingHeader(final ByteBuffer bb) throws IOException {
+	public static RoutingHeader decodeRoutingHeader(final ByteBuffer bb) throws IOException, PackageEncodeException {
 		final ByteArrayInputStream bis = new ByteArrayInputStream(bb.array(), bb.position(), bb.remaining());
 				
 		final RoutingHeader routingHeader = decodeRoutingHeader(bis);

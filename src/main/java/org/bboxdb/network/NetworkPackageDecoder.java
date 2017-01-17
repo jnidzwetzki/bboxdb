@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.Const;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
 import org.slf4j.Logger;
@@ -145,8 +146,9 @@ public class NetworkPackageDecoder {
 	 * @param bb
 	 * @return
 	 * @throws IOException 
+	 * @throws PackageEncodeException 
 	 */
-	public static RoutingHeader getRoutingHeaderFromRequestPackage(final ByteBuffer bb) throws IOException {
+	public static RoutingHeader getRoutingHeaderFromRequestPackage(final ByteBuffer bb) throws IOException, PackageEncodeException {
 		bb.position(12);
 		return RoutingHeaderParser.decodeRoutingHeader(bb);
 	}

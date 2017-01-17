@@ -176,8 +176,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * Read the next package header from the socket
 	 * @return The package header, wrapped in a ByteBuffer
 	 * @throws IOException
+	 * @throws PackageEncodeException 
 	 */
-	protected ByteBuffer readNextPackageHeader() throws IOException {
+	protected ByteBuffer readNextPackageHeader() throws IOException, PackageEncodeException {
 		final ByteBuffer bb = ByteBuffer.allocate(12);
 		NetworkHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
 		
