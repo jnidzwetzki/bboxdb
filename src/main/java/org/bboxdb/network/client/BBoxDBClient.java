@@ -935,21 +935,17 @@ public class BBoxDBClient implements BBoxDB {
 	 * Read the full package
 	 * @param packageHeader
 	 * @return
+	 * @throws IOException 
 	 */
-	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) {
+	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) throws IOException {
 		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromResponsePackage(packageHeader);
 		final int headerLength = packageHeader.limit();
 		final ByteBuffer encodedPackage = ByteBuffer.allocate(headerLength + bodyLength);
 		
-		try {
-			//System.out.println("Trying to read: " + bodyLength + " avail " + inputStream.available());
-			encodedPackage.put(packageHeader.array());
-			NetworkHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
-		} catch (IOException e) {
-			logger.error("IO-Exception while reading package", e);
-			return null;
-		}
-		
+		//System.out.println("Trying to read: " + bodyLength + " avail " + inputStream.available());
+		encodedPackage.put(packageHeader.array());
+		NetworkHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
+
 		return encodedPackage;
 	}
 
