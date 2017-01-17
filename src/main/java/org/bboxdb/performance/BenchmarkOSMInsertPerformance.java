@@ -18,7 +18,6 @@
 package org.bboxdb.performance;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,7 +25,7 @@ import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.performance.osm.OSMFileReader;
 import org.bboxdb.performance.osm.OSMStructureCallback;
-import org.bboxdb.performance.osm.util.GeometricalStructure;
+import org.bboxdb.performance.osm.util.Polygon;
 import org.bboxdb.performance.osm.util.SerializerHelper;
 import org.bboxdb.storage.entity.Tuple;
 
@@ -65,7 +64,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 	/**
 	 * The serializer
 	 */
-	protected final SerializerHelper<GeometricalStructure> serializerHelper = new SerializerHelper<>();
+	protected final SerializerHelper<Polygon> serializerHelper = new SerializerHelper<>();
 
 	public BenchmarkOSMInsertPerformance(final String filename, final String type, final short replicationFactor) {
 		this.filename = filename;
@@ -97,10 +96,10 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 	 * Callback from OSM reader
 	 */
 	@Override
-	public void processStructure(final GeometricalStructure geometricalStructure) {
+	public void processStructure(final Polygon polygon) {
 		try {
-			final byte[] tupleBytes = serializerHelper.toByteArray(geometricalStructure);
-			final Tuple tuple = new Tuple(Long.toString(geometricalStructure.getId()), geometricalStructure.getBoundingBox(), tupleBytes);
+			final byte[] tupleBytes = polygon.toGeoJson().getBytes();
+			final Tuple tuple = new Tuple(Long.toString(polygon.getId()), polygon.getBoundingBox(), tupleBytes);
 			final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
 			
 			// register pending future
@@ -108,7 +107,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 			checkForCompletedFutures();
 			
 			insertedTuples.incrementAndGet();
-		} catch (IOException | BBoxDBException e) {
+		} catch (BBoxDBException e) {
 			e.printStackTrace();
 		}
 	}
@@ -194,7 +193,4 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 		final BenchmarkOSMInsertPerformance benchmarkInsertPerformance = new BenchmarkOSMInsertPerformance(filename, type, replicationFactor);
 		benchmarkInsertPerformance.run();
 	}
-
-
-	
 }

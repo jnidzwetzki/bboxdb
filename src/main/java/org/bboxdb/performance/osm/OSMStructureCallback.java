@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.performance.osm;
 
-import org.bboxdb.performance.osm.util.GeometricalStructure;
+import org.bboxdb.performance.osm.util.Polygon;
 
 public interface OSMStructureCallback {
 
@@ -25,6 +25,6 @@ public interface OSMStructureCallback {
 	 * Process the given geometrical structure
 	 * @param geometricalStructure
 	 */
-	public void processStructure(final GeometricalStructure geometricalStructure);
+	public void processStructure(final Polygon geometricalStructure);
 	
 }

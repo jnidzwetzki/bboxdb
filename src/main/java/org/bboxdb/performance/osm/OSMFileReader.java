@@ -35,7 +35,7 @@ import org.bboxdb.performance.osm.filter.OSMRoadsEntityFilter;
 import org.bboxdb.performance.osm.filter.OSMSinglePointEntityFilter;
 import org.bboxdb.performance.osm.filter.OSMTrafficSignalEntityFilter;
 import org.bboxdb.performance.osm.filter.OSMTreeEntityFilter;
-import org.bboxdb.performance.osm.util.GeometricalStructure;
+import org.bboxdb.performance.osm.util.Polygon;
 import org.bboxdb.performance.osm.util.SerializableNode;
 import org.bboxdb.performance.osm.util.SerializerHelper;
 import org.mapdb.DB;
@@ -121,7 +121,7 @@ public class OSMFileReader implements Runnable {
 				final Node node = (Node) entityContainer.getEntity();						
 				
 				if(entityFilter.forwardNode(node)) {
-					final GeometricalStructure geometricalStructure = new GeometricalStructure(node.getId());
+					final Polygon geometricalStructure = new Polygon(node.getId());
 					geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
 					structureCallback.processStructure(geometricalStructure);
 				}
@@ -211,7 +211,7 @@ public class OSMFileReader implements Runnable {
 		 * @param nodeMap 
 		 */
 		protected void insertWay(final Way way, final Map<Long, byte[]> nodeMap) {
-			final GeometricalStructure geometricalStructure = new GeometricalStructure(way.getId());
+			final Polygon geometricalStructure = new Polygon(way.getId());
 			
 			try {
 				for(final WayNode wayNode : way.getWayNodes()) {
