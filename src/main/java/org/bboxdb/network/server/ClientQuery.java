@@ -135,6 +135,11 @@ public class ClientQuery implements Closeable {
 				setupNewIterator();
 			}
 			
+			// Unable to set up a new iterator
+			if(currentIterator == null) {
+				break;
+			}
+			
 			while(currentIterator.hasNext()) {
 				
 				// Handle page end
