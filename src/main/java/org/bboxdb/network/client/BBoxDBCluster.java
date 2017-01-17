@@ -212,6 +212,11 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	protected BBoxDBClient getSystemForNewRessources() throws ResourceAllocationException {
 		final List<DistributedInstance> serverConnections = membershipConnectionService.getAllInstances();
+		
+		if(serverConnections == null) {
+			throw new ResourceAllocationException("Server connections are null");
+		}
+		
 		final DistributedInstance system = resourcePlacementStrategy.getInstancesForNewRessource(serverConnections);
 		return membershipConnectionService.getConnectionForInstance(system);
 	}
