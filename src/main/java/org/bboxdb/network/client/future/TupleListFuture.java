@@ -223,6 +223,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 				if(nextTuple == QUEUE_TERMINAL) {
 					seenTerminals++;
 					nextTuple = null;
+					continue;
 				}
 				
 				// Remove duplicates
