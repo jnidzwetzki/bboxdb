@@ -150,6 +150,12 @@ public abstract class AbstractBenchmark implements Runnable {
 	protected void startBenchmarkTimer() {
 		// Init the data table
 		final DataTable dataTable = getDataTable();
+		
+		if(dataTable == null) {
+			System.err.println("Unable to construct data table");
+			return;
+		}
+		
 		System.out.println(dataTable.getTableHeader());
 		
 		// Set the benchmark time
