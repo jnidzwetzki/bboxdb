@@ -139,7 +139,14 @@ public class ConnectDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				final List<String> zookeeperHosts = Arrays.asList(hosts.getText().split(","));
+				final String guiHosts = hosts.getText();
+				
+				if(guiHosts == null) {
+					return;
+				}
+				
+				final String[] hostList = guiHosts.split(",");
+				final List<String> zookeeperHosts = Arrays.asList(hostList);
 				final String cluster = clustername.getText();
 				
 				final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeeperHosts, cluster);
