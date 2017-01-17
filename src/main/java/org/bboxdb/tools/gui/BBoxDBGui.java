@@ -325,6 +325,10 @@ public class BBoxDBGui {
 		final RootPaneContainer root = 
 				(RootPaneContainer) mainPanel.getTopLevelAncestor();
 		   
+		if(root == null) {
+			return null;
+		}
+		
 		return root.getGlassPane();
 	}
 	
