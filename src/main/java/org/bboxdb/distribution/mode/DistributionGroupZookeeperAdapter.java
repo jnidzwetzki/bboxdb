@@ -586,6 +586,10 @@ public class DistributionGroupZookeeperAdapter {
 		final String clusterPath = zookeeperClient.getClusterPath();
 		final List<String> nodes = zookeeperClient.getChildren(clusterPath, watcher);
 		
+		if(nodes == null) {
+			return groups;
+		}
+		
 		for(final String node : nodes) {
 			
 			// Ignore systems
