@@ -162,10 +162,12 @@ public class BBoxDBGui {
 		table.setDefaultRenderer(Object.class, new InstanceTableModel());
 
 		final JScrollPane tableScrollPane = new JScrollPane(table);		
-		final Dimension d = table.getPreferredSize();
+		final Dimension dimension = table.getPreferredSize();
 
-		tableScrollPane.setPreferredSize(
-				new Dimension(d.width,table.getRowHeight()*7));
+		if(dimension != null) {
+			tableScrollPane.setPreferredSize(
+					new Dimension(dimension.width, table.getRowHeight() * 7));
+		}
 
 		mainframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainframe.setLayout(new BorderLayout());
