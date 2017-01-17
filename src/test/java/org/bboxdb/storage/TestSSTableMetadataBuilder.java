@@ -120,7 +120,7 @@ public class TestSSTableMetadataBuilder {
 	/**
 	 * Build index with two tuples - bounding boxes are differ in the dimension
 	 */
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void testSSTableIndexBuilder6() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
 		

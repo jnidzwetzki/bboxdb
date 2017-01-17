@@ -220,10 +220,6 @@ public class TestBoundingBox {
 		final BoundingBox boundingBoxResult2 = BoundingBox.getCoveringBox(boundingBox1, boundingBox2);
 		Assert.assertEquals(2, boundingBoxResult2.getDimension());
 		Assert.assertEquals(boundingBoxResult2, boundingBox2);
-		
-		// Wrong dimensions
-		final BoundingBox boundingBoxResult3 = BoundingBox.getCoveringBox(boundingBox1, boundingBox3);
-		Assert.assertTrue(boundingBoxResult3 == null);
 
 		final BoundingBox boundingBoxResult4 = BoundingBox.getCoveringBox(boundingBox3, boundingBox4);
 		Assert.assertEquals(3, boundingBoxResult4.getDimension());		
@@ -233,12 +229,37 @@ public class TestBoundingBox {
 		Assert.assertEquals(4.0d, boundingBoxResult4.getCoordinateHigh(1), EQUALS_DELTA);
 		Assert.assertEquals(-1.0d, boundingBoxResult4.getCoordinateLow(2), EQUALS_DELTA);
 		Assert.assertEquals(4.0d, boundingBoxResult4.getCoordinateHigh(2), EQUALS_DELTA);
+	}
+	
+	/**
+	 * Merge two boxes with wrong dimension
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void mergeBoxesWithWrongDimension1() {
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 1d, 3d);		
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 4d, 1d, 4d, 1d, 4d);
+		
+		final BoundingBox boundingBoxResult3 = BoundingBox.getCoveringBox(boundingBox1, boundingBox2);
+		Assert.assertTrue(boundingBoxResult3 == null);
+	}
+	
+	/**
+	 * Merge two boxes with wrong dimension
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void mergeBoxesWithWrongDimension2() {
+		
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 1d, 3d);
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 4d, 1d, 4d);
+		
+		final BoundingBox boundingBox3 = new BoundingBox(1d, 4d, 1d, 4d, 1d, 4d);
+		final BoundingBox boundingBox4 = new BoundingBox(-1d, 2d, -1d, 2d, -1d, 2d);
 		
 		// Wrong dimensions
 		final BoundingBox boundingBoxResult5 = BoundingBox.getCoveringBox(boundingBox1, boundingBox2, boundingBox3, boundingBox4);
 		Assert.assertTrue(boundingBoxResult5 == null);
 	}
-	
+
 	/**
 	 * Test merge on array
 	 */
