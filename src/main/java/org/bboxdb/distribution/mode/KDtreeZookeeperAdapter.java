@@ -399,6 +399,11 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		
 		final ResourcePlacementStrategy resourcePlacementStrategy = ResourcePlacementStrategyFactory.getInstance();
 
+		if(resourcePlacementStrategy == null) {
+			throw new ResourceAllocationException("Unable to instanciate the ressource "
+					+ "placement strategy");
+		}
+		
 		// The blacklist, to prevent duplicate allocations
 		final Set<DistributedInstance> allocationSystems = new HashSet<DistributedInstance>();
 		
