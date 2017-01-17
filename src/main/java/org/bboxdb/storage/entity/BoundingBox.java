@@ -435,10 +435,12 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			}
 			
 			if(dimensions != currentBox.getDimension()) {
-				logger.error("Merging bounding boxes with different dimensions: " + dimensions + "/" + currentBox.getDimension());
-				logger.error("Box 0: " + boundingBoxes[0]);
-				logger.error("Other box: " + currentBox);
-				return null;
+				final String errorMessage = "Merging bounding boxes with different dimensions: " 
+						+ dimensions + "/" + currentBox.getDimension()
+						+ " Box 0: " + boundingBoxes[0]
+						+ " Other box: " + currentBox;
+				
+				throw new IllegalArgumentException(errorMessage);
 			}
 		}
 		
