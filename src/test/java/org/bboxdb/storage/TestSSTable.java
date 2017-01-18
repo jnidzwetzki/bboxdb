@@ -104,6 +104,9 @@ public class TestSSTable {
 		Assert.assertEquals(1, ssTableIndexReader.getTablebumber());
 		Assert.assertEquals(sstableIndexFile, ssTableIndexReader.getFile());
 		
+		Assert.assertTrue(ssTableIndexReader.getSize() > 0);
+		Assert.assertTrue(sstableReader.getSize() > 0);
+		
 		int tupleCounter = 0;
 		
 		for(Tuple tuple : ssTableIndexReader) {

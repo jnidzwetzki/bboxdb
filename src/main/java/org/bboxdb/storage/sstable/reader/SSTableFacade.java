@@ -358,4 +358,11 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		}
 	}
 	
+	/**
+	 * Get the size on disk of the facade 
+	 * @return
+	 */
+	public long getSize() {
+		return ssTableKeyIndexReader.getSize() + ssTableReader.getSize();
+	}
 }

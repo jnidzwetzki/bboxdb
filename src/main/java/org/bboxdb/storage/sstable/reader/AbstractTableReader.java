@@ -218,4 +218,12 @@ public abstract class AbstractTableReader implements BBoxDBService {
 			}
 		}
 	}
+	
+	/**
+	 * Get the size of the file
+	 * @return
+	 */
+	public long getSize() {
+		return file.length();
+	}
 }
