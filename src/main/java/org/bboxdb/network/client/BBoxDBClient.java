@@ -384,6 +384,42 @@ public class BBoxDBClient implements BBoxDB {
 		}
 	}
 	
+	/**
+	 * Create a failed SSTableNameListFuture
+	 * @return
+	 */
+	protected SSTableNameListFuture createFailedSStableNameFuture(final String errorMessage) {
+		final SSTableNameListFuture clientOperationFuture = new SSTableNameListFuture(1);
+		clientOperationFuture.setMessage(0, errorMessage);
+		clientOperationFuture.setFailedState();
+		clientOperationFuture.fireCompleteEvent(); 
+		return clientOperationFuture;
+	}
+	
+	/**
+	 * Create a failed tuple list future
+	 * @return
+	 */
+	protected TupleListFuture createFailedTupleListFuture(final String errorMessage) {
+		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
+		clientOperationFuture.setMessage(0, errorMessage);
+		clientOperationFuture.setFailedState();
+		clientOperationFuture.fireCompleteEvent(); 
+		return clientOperationFuture;
+	}
+	
+	/**
+	 * Create a new failed future object
+	 * @return
+	 */
+	protected EmptyResultFuture createFailedFuture(final String errorMessage) {
+		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
+		clientOperationFuture.setMessage(0, errorMessage);
+		clientOperationFuture.setFailedState();
+		clientOperationFuture.fireCompleteEvent();
+		return clientOperationFuture;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.Scalephant#deleteTable(java.lang.String)
 	 */
@@ -391,24 +427,12 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture deleteTable(final String table) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("deleteTable called, but connection not ready: " + this);
-			return createFailedFuture();
+			return createFailedFuture("deleteTable called, but connection not ready: " + this);
 		}
 		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 		final DeleteTableRequest requestPackage = new DeleteTableRequest(getNextSequenceNumber(), table);
 		sendPackageToServer(requestPackage, clientOperationFuture);
-		return clientOperationFuture;
-	}
-
-	/**
-	 * Create a new failed future object
-	 * @return
-	 */
-	protected EmptyResultFuture createFailedFuture() {
-		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		clientOperationFuture.setFailedState();
-		clientOperationFuture.fireCompleteEvent();
 		return clientOperationFuture;
 	}
 	
@@ -419,8 +443,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("insertTuple called, but connection not ready: " + this);
-			return createFailedFuture();
+			return createFailedFuture("insertTuple called, but connection not ready: " + this);
 		}
 		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
@@ -446,8 +469,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture insertTuple(final InsertTupleRequest insertTupleRequest) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("insertTuple called, but connection not ready: " + this);
-			return createFailedFuture();
+			return createFailedFuture("insertTuple called, but connection not ready: " + this);
 		}
 		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
@@ -462,8 +484,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("deleteTuple called, but connection not ready: " + this);
-			return createFailedFuture();
+			return createFailedFuture("deleteTuple called, but connection not ready: " + this);
 		}
 		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
@@ -481,12 +502,7 @@ public class BBoxDBClient implements BBoxDB {
 	public SSTableNameListFuture listTables() {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("listTables called, but connection not ready: " + this);
-			
-			final SSTableNameListFuture clientOperationFuture = new SSTableNameListFuture(1);
-			clientOperationFuture.setFailedState();
-			clientOperationFuture.fireCompleteEvent(); 
-			return clientOperationFuture;
+			return createFailedSStableNameFuture("listTables called, but connection not ready: " + this);
 		}
 
 		final SSTableNameListFuture clientOperationFuture = new SSTableNameListFuture(1);
@@ -502,8 +518,7 @@ public class BBoxDBClient implements BBoxDB {
 			final short replicationFactor) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("listTables called, but connection not ready: " + this);
-			return createFailedFuture();
+			return createFailedFuture("listTables called, but connection not ready: " + this);
 		}
 
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
@@ -521,8 +536,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture deleteDistributionGroup(final String distributionGroup) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("delete distribution group called, but connection not ready: " + this);
-			return createFailedFuture();
+			return createFailedFuture("delete distribution group called, but connection not ready: " + this);
 		}
 
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
@@ -541,25 +555,13 @@ public class BBoxDBClient implements BBoxDB {
 	public TupleListFuture queryKey(final String table, final String key) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("queryKey called, but connection not ready: " + this);
-			return createFailedTupleListFuture();
+			return createFailedTupleListFuture("queryKey called, but connection not ready: " + this);
 		}
 
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
 		final QueryKeyRequest requestPackage = new QueryKeyRequest(getNextSequenceNumber(), table, key);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		
-		return clientOperationFuture;
-	}
-
-	/**
-	 * Create a failed tuple list future
-	 * @return
-	 */
-	protected TupleListFuture createFailedTupleListFuture() {
-		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
-		clientOperationFuture.setFailedState();
-		clientOperationFuture.fireCompleteEvent(); 
 		return clientOperationFuture;
 	}
 	
@@ -570,8 +572,7 @@ public class BBoxDBClient implements BBoxDB {
 	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("queryBoundingBox called, but connection not ready: " + this);
-			return createFailedTupleListFuture();
+			return createFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this);
 		}
 		
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
@@ -591,8 +592,7 @@ public class BBoxDBClient implements BBoxDB {
 			final BoundingBox boundingBox, final long timestamp) {
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("queryBoundingBox called, but connection not ready: " + this);
-			return createFailedTupleListFuture();
+			return createFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this);
 		}
 		
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
@@ -611,8 +611,7 @@ public class BBoxDBClient implements BBoxDB {
 	public TupleListFuture queryTime(final String table, final long timestamp) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("queryTime called, but connection not ready: " + this);
-			return createFailedTupleListFuture();
+			return createFailedTupleListFuture("queryTime called, but connection not ready: " + this);
 		}
 
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
@@ -631,8 +630,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture sendKeepAlivePackage() {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			logger.warn("sendKeepAlivePackage called, but connection not ready: " + this);
-			return createFailedFuture();
+			return createFailedFuture("sendKeepAlivePackage called, but connection not ready: " + this);
 		}
 		
 		final EmptyResultFuture future = new EmptyResultFuture(1);
@@ -649,8 +647,11 @@ public class BBoxDBClient implements BBoxDB {
 	public TupleListFuture getNextPage(final short queryPackageId) {
 		
 		if(resultBuffer.containsKey(queryPackageId)) {
-			logger.error("Query package {} not found in the result buffer", queryPackageId);
-			return createFailedTupleListFuture();
+			final String errorMessage = "Query package " + queryPackageId 
+					+ "not found in the result buffer";
+			
+			logger.error(errorMessage);
+			return createFailedTupleListFuture(errorMessage);
 		}
 		
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
@@ -1195,6 +1196,4 @@ public class BBoxDBClient implements BBoxDB {
 	public void setTuplesPerPage(final short tuplesPerPage) {
 		this.tuplesPerPage = tuplesPerPage;
 	}
-
-	
 }
