@@ -13,6 +13,7 @@ order: 1
 - Improvement: Reduced memory usage of the network stack by removing the response buffering
 - Improvement: Switched from MapDB 3.0.2 to 3.0.3, and from guava 20.0 to 21.0
 - Improvement: Fixed a lot of small bugs, found by Coverity code scan
+- Improvement: Region splits are now based on the size of the region
 - Bugfix: Outdated jars are new removed on bboxdb_update
 - Bugfix: Removed implementation and specification of the unused TransferSSTable network package
 
