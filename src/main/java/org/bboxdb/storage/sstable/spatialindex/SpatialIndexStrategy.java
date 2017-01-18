@@ -17,9 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
-import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.BoundingBox;
 
 
 public interface SpatialIndexStrategy {
@@ -29,6 +32,27 @@ public interface SpatialIndexStrategy {
 	 * 
 	 * @param tuples
 	 */
-	public void constructFromTuples(final List<Tuple> tuples);
+	public void insertTuples(final Map<String, BoundingBox> elements);
+	
+	/**
+	 * Persist the index 
+	 * 
+	 * @param inputStream
+	 */
+	public void readFromStream(final InputStream inputStream);
+	
+	/**
+	 * Read the index from a data stream
+	 * 
+	 * @param outputStream
+	 */
+	public void writeToStream(final OutputStream outputStream);
+	
+	/**
+	 * Find the keys for the given region
+	 * @param boundingBox
+	 * @return
+	 */
+	public List<String> getKeysForRegion(final BoundingBox boundingBox);
 
 }
