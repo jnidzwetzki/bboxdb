@@ -64,14 +64,14 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	protected final int maxEntries;
 	
 	/**
-	 * Maximal size of memtable in KB
+	 * Maximal size of memtable in bytes
 	 */
-	protected final int maxSizeInMemory;
+	protected final long maxSizeInMemory;
 	
 	/**
-	 * Current memory size in KB
+	 * Current memory size in bytes
 	 */
-	protected int sizeInMemory;
+	protected long sizeInMemory;
 	
 	/**
 	 * The timestamp when the memtable is created
@@ -103,7 +103,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
 	
-	public Memtable(final SSTableName table, final int entries, final int maxSizeInMemory) {
+	public Memtable(final SSTableName table, final int entries, final long maxSizeInMemory) {
 		this.table = table;
 		this.maxEntries = entries;
 		this.maxSizeInMemory = maxSizeInMemory;
@@ -304,7 +304,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	 * The size of the memtable in memory
 	 * @return
 	 */
-	public int getSizeInMemory() {
+	@Override
+	public long getSize() {
 		return sizeInMemory;
 	}
 	

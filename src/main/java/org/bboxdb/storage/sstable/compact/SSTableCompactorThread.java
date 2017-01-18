@@ -21,10 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.regionsplit.AbstractRegionSplitStrategy;
 import org.bboxdb.distribution.regionsplit.RegionSplitStrategyFactory;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
@@ -198,19 +200,29 @@ public class SSTableCompactorThread implements Runnable, Stoppable {
 		registerNewFacadeAndDeleteOldInstances(facades, directory, ssTableName, tablenumber);
 		
 		if(majorCompaction && ssTableName.isDistributedTable()) {
-			testAndPerformTableSplit(ssTableCompactor.getWrittenTuples());
+			testForRegionSplit();
 		}
 	}
 
 	/**
 	 * Test and perform an table split if needed
 	 * @param totalWrittenTuples 
+	 * @throws StorageManagerException 
 	 */
-	protected void testAndPerformTableSplit(final int totalWrittenTuples) {
+	protected void testForRegionSplit() throws StorageManagerException {
 		
-		logger.info("Test for table split: {} total tuples {}", threadname, totalWrittenTuples);
-				
-		if(regionSplitter.isSplitNeeded(totalWrittenTuples)) {
+		final SSTableName ssTableName = sstableManager.getSSTableName();
+		
+		final DistributionGroupName distributionGroup = ssTableName.getDistributionGroupObject();
+		final int regionId = ssTableName.getRegionId();
+		
+		final long totalSize = StorageRegistry.getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
+		
+		final long totalSizeInMb = totalSize / (1024 * 1024);
+		logger.info("Test for region split: {}. Size in MB: {}", distributionGroup, totalSizeInMb);
+						
+		if(regionSplitter.isSplitNeeded(totalSize)) {
+			
 			// Execute the split operation in an own thread, to survive the sstable manager
 			// stop call. This will stop (this) compact thread
 			final Thread splitThread = new Thread(regionSplitter);

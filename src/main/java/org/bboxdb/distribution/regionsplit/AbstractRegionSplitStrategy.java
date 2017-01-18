@@ -114,15 +114,16 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param totalTuplesInTable
 	 * @return
 	 */
-	public boolean isSplitNeeded(final int totalTuplesInTable) {
+	public boolean isSplitNeeded(final long sizeOfRegion) {
 		
+		// Is the data of the parent completely distributed?
 		if(! isParentDataRedistributed()) {
 			return false;
 		}
 		
-		final int maxEntries = maxEntriesPerTable();
+		final long maxSize = getRegionMaxSize();
 		
-		if(totalTuplesInTable > maxEntries) {
+		if(sizeOfRegion > maxSize) {
 			return true;
 		} else {
 			return false;
@@ -145,12 +146,12 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	}
 
 	/**
-	 * Get the number of entries per table
+	 * Get maximal size of a region
 	 * @return
 	 */
-	protected int maxEntriesPerTable() {
+	protected long getRegionMaxSize() {
 		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-		return configuration.getSstableMaxEntries();
+		return configuration.getRegionMaxSize();
 	}
 	
 	/**

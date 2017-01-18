@@ -49,7 +49,12 @@ public class BBoxDBConfiguration {
 	/**
 	 * Size of the memtable in bytes
 	 */
-	protected int memtableSizeMax = 128 * 1024 * 1014;
+	protected long memtableSizeMax = 128 * 1024 * 1014;
+	
+	/**
+	 * The maximum size of a region in bytes
+	 */
+	protected long regionMaxSize = 256 * 1024 * 1014;
 	
 	/**
 	 * Start compact thread (can be disabled for tests)
@@ -105,12 +110,7 @@ public class BBoxDBConfiguration {
 	 * The resource placement strategy
 	 */
 	protected String resourcePlacementStrategy = "org.bboxdb.distribution.placement.RandomResourcePlacementStrategy";
-	
-	/**
-	 * The maximum number of entries per SSTable
-	 */
-	protected int sstableMaxEntries = 1000;
-	
+
 	/**
 	 * The Logger
 	 */
@@ -156,11 +156,11 @@ public class BBoxDBConfiguration {
 		this.memtableEntriesMax = memtableEntriesMax;
 	}
 
-	public int getMemtableSizeMax() {
+	public long getMemtableSizeMax() {
 		return memtableSizeMax;
 	}
 
-	public void setMemtableSizeMax(final int memtableSizeMax) {
+	public void setMemtableSizeMax(final long memtableSizeMax) {
 		this.memtableSizeMax = memtableSizeMax;
 	}
 
@@ -229,14 +229,6 @@ public class BBoxDBConfiguration {
 		this.localip = localip;
 	}
 
-	public int getSstableMaxEntries() {
-		return sstableMaxEntries;
-	}
-
-	public void setSstableMaxEntries(final int sstableMaxEntries) {
-		this.sstableMaxEntries = sstableMaxEntries;
-	}
-
 	public String getRegionSplitStrategy() {
 		return regionSplitStrategy;
 	}
@@ -261,4 +253,12 @@ public class BBoxDBConfiguration {
 		this.storageCheckpointInterval = storageCheckpointInterval;
 	}
 
+	public long getRegionMaxSize() {
+		return regionMaxSize;
+	}
+
+	public void setRegionMaxSize(final long regionMaxSize) {
+		this.regionMaxSize = regionMaxSize;
+	}
+	
 }

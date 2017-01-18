@@ -32,12 +32,6 @@ import org.bboxdb.storage.sstable.SSTableManager;
 
 public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	
-	protected final int SAMPLE_SIZE;
-	
-	public WeightBasedSplitStrategy() {
-		SAMPLE_SIZE = maxEntriesPerTable() / 100;
-	}
-
 	@Override
 	protected boolean performSplit(final DistributionRegion regionToSplit) {
 		final int splitDimension = regionToSplit.getSplitDimension();
@@ -97,7 +91,7 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 			final DistributionRegion regionToSplit, final List<DoubleInterval> floatIntervals) 
 					throws StorageManagerException {
 		
-		final int samplesPerStorage = Math.max(10, SAMPLE_SIZE / storages.size());
+		final int samplesPerStorage = 100;
 		
 		logger.debug("Fetching {} samples per storage", samplesPerStorage);
 		

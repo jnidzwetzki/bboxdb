@@ -94,4 +94,10 @@ public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	 */
 	public abstract void release();
 	
+	/**
+	 * Get the size of the storage
+	 * @return
+	 */
+	public long getSize();
+	
 }

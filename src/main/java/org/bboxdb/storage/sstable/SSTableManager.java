@@ -632,4 +632,27 @@ public class SSTableManager implements BBoxDBService {
 	public boolean isReady() {
 		return storageState.isReady();
 	}
+	
+	/**
+	 * Get the size of all storages
+	 * @return
+	 * @throws StorageManagerException
+	 */
+	public long getSize() throws StorageManagerException {
+		List<ReadOnlyTupleStorage> storages = null;
+		
+		try {
+			storages = aquireStorage();
+			
+			return storages
+					.stream()
+					.mapToLong(s -> s.getSize())
+					.sum();
+			
+		} finally {
+			if(storages != null) {
+				releaseStorage(storages);
+			}
+		}
+	}
 }

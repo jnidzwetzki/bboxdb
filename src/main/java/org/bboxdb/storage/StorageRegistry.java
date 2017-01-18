@@ -195,6 +195,29 @@ public class StorageRegistry {
 	}
 	
 	/**
+	 * Get the size of all sstables in the distribution group and region id
+	 * @param distributionGroupName
+	 * @param regionId
+	 * @return
+	 * @throws StorageManagerException
+	 */
+	public static long getSizeOfDistributionGroupAndRegionId
+		(final DistributionGroupName distributionGroupName, final int regionId) 
+				throws StorageManagerException {
+		
+		final List<SSTableName> tables 
+			= getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
+		
+		long totalSize = 0;
+		
+		for(SSTableName ssTableName : tables) {
+			totalSize = totalSize + getSSTableManager(ssTableName).getSize();
+		}
+		
+		return totalSize;
+	}
+	
+	/**
 	 * Get all tables for a given distribution group
 	 * @return
 	 */
