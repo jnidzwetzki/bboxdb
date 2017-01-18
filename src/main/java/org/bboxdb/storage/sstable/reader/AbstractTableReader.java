@@ -60,6 +60,11 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	protected MappedByteBuffer memory;
 
 	/**
+	 * The file to read
+	 */
+	protected RandomAccessFile randomAccessFile;
+	
+	/**
 	 * The corresponding fileChanel
 	 */
 	protected FileChannel fileChannel;
@@ -127,7 +132,8 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	@Override
 	public void init() {
 		try {
-			fileChannel = new RandomAccessFile(file, "r").getChannel();
+			randomAccessFile = new RandomAccessFile(file, "r");
+			fileChannel = randomAccessFile.getChannel();
 			memory = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size());
 			memory.order(Const.APPLICATION_BYTE_ORDER);
 			validateFile();
@@ -153,6 +159,17 @@ public abstract class AbstractTableReader implements BBoxDBService {
 					logger.error("Error during an IO operation", e);
 				}
 			}
+		}
+		
+		if(randomAccessFile != null) {
+			try {
+				randomAccessFile.close();
+			} catch (IOException e) {
+				if(! Thread.currentThread().isInterrupted()) {
+					logger.error("Error during an IO operation", e);
+				}
+			}
+			randomAccessFile = null;
 		}
 	}
 	
