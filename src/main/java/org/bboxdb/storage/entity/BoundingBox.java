@@ -474,6 +474,28 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		
 		return new BoundingBox(coverBox);
 	}
+
+	
+	/**
+	 * Is the bounding box fully covered by this bounding box?
+	 * @param otherBox
+	 * @return
+	 */
+	public boolean isCovering(final BoundingBox otherBox) {
+		if(this == EMPTY_BOX || otherBox == EMPTY_BOX) {
+			return true;
+		}
+	
+		throwExceptionIfDimensionNotMatch(otherBox);
+		
+		for(int d = 0; d < getDimension(); d++) {
+			if(! getIntervalForDimension(d).isCovering(otherBox.getIntervalForDimension(d))) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
 	
 	/**
 	 * Get the intersection of this and another bounding box
@@ -486,11 +508,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			return EMPTY_BOX;
 		}
 		
-		if(getDimension() != otherBox.getDimension()) {
-			throw new IllegalArgumentException(
-					"Unable to calculate intersection for boundig boxes with differnet dimensions: "
-					+ getDimension() + " " + otherBox.getDimension());
-		}
+		throwExceptionIfDimensionNotMatch(otherBox);
 		
 		final List<DoubleInterval> intervalList = new ArrayList<DoubleInterval>();
 		
@@ -508,6 +526,20 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		}
 		
 		return new BoundingBox(intervalList);
+	}
+
+	/**
+	 * Throw an exception of the dimensiuon of the other box don't match
+	 * @param otherBox
+	 */
+	protected void throwExceptionIfDimensionNotMatch(final BoundingBox otherBox) {
+		
+		if(getDimension() != otherBox.getDimension()) {
+			throw new IllegalArgumentException(
+					"Unable to calculate intersection for boundig boxes with differnet dimensions: "
+					+ getDimension() + " " + otherBox.getDimension());
+		}
+		
 	}
 	
 }

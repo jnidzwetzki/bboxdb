@@ -457,5 +457,46 @@ public class TestBoundingBox {
 		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBox1.getIntersection(boundingBox2));
 		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBox2.getIntersection(boundingBox1));
 	}
+	
+	/**
+	 * Test the is covered method
+	 */
+	@Test
+	public void testIsFullyCovered1() {
+		final BoundingBox boundingBox1 = new BoundingBox(0d, 10d, 0d, 10d);	
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 5d, 1d, 5d);	
+		final BoundingBox boundingBox3 = new BoundingBox(1d, 11d, 1d, 11d);	
 
+		Assert.assertTrue(boundingBox1.isCovering(boundingBox1));
+		Assert.assertTrue(boundingBox1.isCovering(boundingBox2));
+		Assert.assertFalse(boundingBox1.isCovering(boundingBox3));
+		
+		Assert.assertFalse(boundingBox2.isCovering(boundingBox1));
+		Assert.assertTrue(boundingBox2.isCovering(boundingBox2));
+		Assert.assertFalse(boundingBox2.isCovering(boundingBox3));
+		
+		Assert.assertFalse(boundingBox3.isCovering(boundingBox1));
+		Assert.assertTrue(boundingBox3.isCovering(boundingBox2));
+		Assert.assertTrue(boundingBox3.isCovering(boundingBox3));
+	}
+
+	/**
+	 * Test the is covered method
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testIsFullyCovered2() {
+		final BoundingBox boundingBox1 = new BoundingBox(0d, 10d, 0d, 10d);	
+		final BoundingBox boundingBox2 = new BoundingBox(0d, 10d, 0d, 10d, 0d, 10d);	
+		
+		Assert.assertFalse(boundingBox1.isCovering(boundingBox2));
+	}
+	
+	/**
+	 * Test the is covered method
+	 */
+	@Test
+	public void testIsFullyCovered3() {
+		final BoundingBox boundingBox1 = new BoundingBox(0d, 10d, 0d, 10d);	
+		Assert.assertTrue(boundingBox1.isCovering(BoundingBox.EMPTY_BOX));
+	}
 }
