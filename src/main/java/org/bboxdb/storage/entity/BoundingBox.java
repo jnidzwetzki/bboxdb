@@ -498,6 +498,46 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	}
 	
 	/**
+	 * Calculated the needed space for the enlargement to cover the other box
+	 * @param otherBox
+	 * @return
+	 */
+	public double calculateEnlargement(final BoundingBox otherBox) {
+		if(this == EMPTY_BOX || otherBox == EMPTY_BOX) {
+			return 0;
+		}
+		
+		throwExceptionIfDimensionNotMatch(otherBox);
+
+		if(isCovering(otherBox)) {
+			return 0;
+		}
+		
+		final double ourVolume = getVolume();
+		
+		final BoundingBox mergedBox = BoundingBox.getCoveringBox(this, otherBox);
+		
+		return mergedBox.getVolume() - ourVolume;
+	}
+	
+	/**
+	 * Get the volume of the box
+	 * @return
+	 */
+	public double getVolume() {
+		
+		double volume = 1;
+		
+		for(int d = 0; d < getDimension(); d++) {
+			final DoubleInterval dimension = getIntervalForDimension(d);
+			final double extend = dimension.getEnd() - dimension.getBegin();
+			volume = volume * extend;
+		}
+		
+		return volume;
+	}
+	
+	/**
 	 * Get the intersection of this and another bounding box
 	 * @param otherBox
 	 * @return 

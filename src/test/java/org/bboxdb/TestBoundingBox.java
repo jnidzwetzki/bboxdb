@@ -499,4 +499,33 @@ public class TestBoundingBox {
 		final BoundingBox boundingBox1 = new BoundingBox(0d, 10d, 0d, 10d);	
 		Assert.assertTrue(boundingBox1.isCovering(BoundingBox.EMPTY_BOX));
 	}
+	
+	/**
+	 * Test the volume of the bounding box
+	 */
+	@Test
+	public void testVolume() {
+		final BoundingBox boundingBox1 = new BoundingBox(0d, 1d, 0d, 1d);	
+		final BoundingBox boundingBox2 = new BoundingBox(0d, 10d, 0d, 10d);	
+		final BoundingBox boundingBox3 = new BoundingBox(-5d, 5d, -5d, 5d);	
+
+		Assert.assertEquals(1.0, boundingBox1.getVolume(), EQUALS_DELTA);
+		Assert.assertEquals(100.0, boundingBox2.getVolume(), EQUALS_DELTA);
+		Assert.assertEquals(100.0, boundingBox3.getVolume(), EQUALS_DELTA);
+	}
+	
+	/**
+	 * Test the volume of the bounding box
+	 */
+	@Test
+	public void testEnlargement() {
+		final BoundingBox boundingBox1 = new BoundingBox(0d, 1d, 0d, 1d);	
+		final BoundingBox boundingBox2 = new BoundingBox(0d, 10d, 0d, 10d);	
+		final BoundingBox boundingBox3 = new BoundingBox(-5d, 5d, -5d, 5d);	
+
+		Assert.assertEquals(99.0, boundingBox1.calculateEnlargement(boundingBox2), EQUALS_DELTA);
+		Assert.assertEquals(99.0, boundingBox1.calculateEnlargement(boundingBox3), EQUALS_DELTA);
+		Assert.assertEquals(125.0, boundingBox2.calculateEnlargement(boundingBox3), EQUALS_DELTA);
+
+	}
 }
