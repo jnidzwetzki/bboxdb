@@ -52,4 +52,35 @@ public class SpatialIndexEntry {
 		return boundingBox;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((boundingBox == null) ? 0 : boundingBox.hashCode());
+		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SpatialIndexEntry other = (SpatialIndexEntry) obj;
+		if (boundingBox == null) {
+			if (other.boundingBox != null)
+				return false;
+		} else if (!boundingBox.equals(other.boundingBox))
+			return false;
+		if (key == null) {
+			if (other.key != null)
+				return false;
+		} else if (!key.equals(other.key))
+			return false;
+		return true;
+	}
+	
 }
