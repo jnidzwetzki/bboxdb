@@ -75,6 +75,16 @@
 		<url>https://github.com/jnidzwetzki/bboxdb</url>
 	</scm>
 
+	<ciManagement>
+		<system>Travis</system>
+		<url>https://travis-ci.org/jnidzwetzki/bboxdb</url>
+	</ciManagement>
+
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/jnidzwetzki/bboxdb/issues</url>
+	</issueManagement>
+
 	<build>
 
 		<resources>
