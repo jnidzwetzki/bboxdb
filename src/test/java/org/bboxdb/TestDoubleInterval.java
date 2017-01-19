@@ -22,7 +22,7 @@ import org.bboxdb.storage.entity.DoubleInterval;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestFloatInterval {
+public class TestDoubleInterval {
 	
 	/**
 	 * Create an invalid interval
@@ -310,6 +310,49 @@ public class TestFloatInterval {
 		final DoubleInterval floatInterval1 = new DoubleInterval(1, 11, true, true);
 		Assert.assertTrue(floatInterval2.getIntersection(floatInterval1) == null);
 		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) == null);
+	}
+	
+	/**
+	 * The the covering method
+	 */
+	@Test
+	public void testIsCovered1() {
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, true, true);
+		final DoubleInterval floatInterval2 = new DoubleInterval(1.5, 3, true, true);
+		final DoubleInterval floatInterval3 = new DoubleInterval(0, 3, true, true);
+
+		Assert.assertFalse(floatInterval1.isCovering(floatInterval2));
+		Assert.assertFalse(floatInterval1.isCovering(floatInterval3));
+		
+		Assert.assertTrue(floatInterval3.isCovering(floatInterval1));
+		Assert.assertTrue(floatInterval3.isCovering(floatInterval2));
+	}
+	
+	/**
+	 * The the covering method
+	 */
+	@Test
+	public void testIsCovered2() {
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, true, true);
+		final DoubleInterval floatInterval2 = new DoubleInterval(1, 2, false, false);
+		final DoubleInterval floatInterval3 = new DoubleInterval(1, 2, false, true);
+		final DoubleInterval floatInterval4 = new DoubleInterval(1, 2, true, false);
+
+		Assert.assertTrue(floatInterval1.isCovering(floatInterval2));
+		Assert.assertTrue(floatInterval1.isCovering(floatInterval3));
+		Assert.assertTrue(floatInterval1.isCovering(floatInterval4));
+		
+		Assert.assertFalse(floatInterval2.isCovering(floatInterval1));
+		Assert.assertFalse(floatInterval2.isCovering(floatInterval3));
+		Assert.assertFalse(floatInterval2.isCovering(floatInterval4));
+		
+		Assert.assertFalse(floatInterval3.isCovering(floatInterval1));
+		Assert.assertTrue(floatInterval3.isCovering(floatInterval2));
+		Assert.assertFalse(floatInterval3.isCovering(floatInterval4));
+
+		Assert.assertFalse(floatInterval4.isCovering(floatInterval1));
+		Assert.assertTrue(floatInterval4.isCovering(floatInterval2));
+		Assert.assertFalse(floatInterval4.isCovering(floatInterval3));
 	}
 	
 }

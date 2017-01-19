@@ -210,6 +210,35 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 	}
 	
 	/**
+	 * Is the other interval completeply covered by this interval?
+	 * @param otherInterval
+	 * @return
+	 */
+	public boolean isCovering(final DoubleInterval otherInterval) {
+		if(otherInterval.getBegin() < getBegin()) {
+			return false;
+		}
+		
+		if(otherInterval.getEnd() > getEnd()) {
+			return false;
+		}
+		
+		if(otherInterval.getBegin() == getBegin()) {
+			if(isBeginIncluded() == false && otherInterval.isBeginIncluded() == true) {
+				return false;
+			}
+		}
+		
+		if(otherInterval.getEnd() == getEnd()) {
+			if(isEndIncluded() == false && otherInterval.isEndIncluded() == true) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
 	 * Returns the overlapping interval or null, if both
 	 * intervals does not overlap
 	 * 
