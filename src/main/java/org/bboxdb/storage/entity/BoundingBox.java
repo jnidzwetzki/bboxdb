@@ -417,7 +417,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			return boundingBoxes[0];
 		}
 		
-		int dimensions = boundingBoxes[0].getDimension();
+		final int dimensions = boundingBoxes[0].getDimension();
 		
 		// All bounding boxes need the same dimension
 		for(int i = 1 ; i < boundingBoxes.length; i++) {
