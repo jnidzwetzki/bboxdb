@@ -338,21 +338,25 @@ public class TestDoubleInterval {
 		final DoubleInterval floatInterval3 = new DoubleInterval(1, 2, false, true);
 		final DoubleInterval floatInterval4 = new DoubleInterval(1, 2, true, false);
 
+		Assert.assertTrue(floatInterval1.isCovering(floatInterval1));
 		Assert.assertTrue(floatInterval1.isCovering(floatInterval2));
 		Assert.assertTrue(floatInterval1.isCovering(floatInterval3));
 		Assert.assertTrue(floatInterval1.isCovering(floatInterval4));
 		
 		Assert.assertFalse(floatInterval2.isCovering(floatInterval1));
+		Assert.assertTrue(floatInterval2.isCovering(floatInterval2));
 		Assert.assertFalse(floatInterval2.isCovering(floatInterval3));
 		Assert.assertFalse(floatInterval2.isCovering(floatInterval4));
 		
 		Assert.assertFalse(floatInterval3.isCovering(floatInterval1));
 		Assert.assertTrue(floatInterval3.isCovering(floatInterval2));
+		Assert.assertTrue(floatInterval1.isCovering(floatInterval3));
 		Assert.assertFalse(floatInterval3.isCovering(floatInterval4));
 
 		Assert.assertFalse(floatInterval4.isCovering(floatInterval1));
 		Assert.assertTrue(floatInterval4.isCovering(floatInterval2));
 		Assert.assertFalse(floatInterval4.isCovering(floatInterval3));
+		Assert.assertTrue(floatInterval1.isCovering(floatInterval4));
 	}
 	
 }
