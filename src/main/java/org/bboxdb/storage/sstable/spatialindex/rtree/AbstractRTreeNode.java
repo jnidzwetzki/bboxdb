@@ -15,50 +15,28 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.sstable.spatialindex;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
+package org.bboxdb.storage.sstable.spatialindex.rtree;
 
 import org.bboxdb.storage.entity.BoundingBox;
 
+public abstract class AbstractRTreeNode {
 
-public interface SpatialIndexStrategy {
+	/**
+	 * The maximal size of a node
+	 */
+	protected final int MAX_NODE_SIZE;
 	
 	/**
-	 * Construct the index from a list of tuples
-	 * 
-	 * @param tuples
+	 * The bounding box of the node
 	 */
-	public void bulkInsert(final List<SpatialIndexEntry> elements);
+	protected BoundingBox boundingBox;
 	
-	/**
-	 * Insert one element into the index
-	 * 
-	 * @param element
-	 */
-	public void insert(final SpatialIndexEntry element);
-	
-	/**
-	 * Persist the index 
-	 * 
-	 * @param inputStream
-	 */
-	public void readFromStream(final InputStream inputStream);
-	
-	/**
-	 * Read the index from a data stream
-	 * 
-	 * @param outputStream
-	 */
-	public void writeToStream(final OutputStream outputStream);
-	
-	/**
-	 * Find the keys for the given region
-	 * @param boundingBox
-	 * @return
-	 */
-	public List<SpatialIndexEntry> getKeysForRegion(final BoundingBox boundingBox);
+	public AbstractRTreeNode(final int maxNodeSize) {
+		this.MAX_NODE_SIZE = maxNodeSize;
+	}
 
+	public BoundingBox getBoundingBox() {
+		return boundingBox;
+	}
+	
 }
