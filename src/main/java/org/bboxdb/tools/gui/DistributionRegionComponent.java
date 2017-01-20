@@ -214,7 +214,7 @@ public class DistributionRegionComponent {
 		case ACTIVE_FULL:
 			return Color.GREEN;
 			
-		case SPLITTED:
+		case SPLIT:
 			return new Color(144, 144, 144);
 			
 		case SPLITTING:

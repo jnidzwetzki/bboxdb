@@ -173,7 +173,7 @@ public class TestDistributionGroup {
 		level0.getLeftChild().addSystem(SYSTEM_A);
 		level0.getRightChild().addSystem(SYSTEM_B);
 		
-		level0.setState(DistributionRegionState.SPLITTED);
+		level0.setState(DistributionRegionState.SPLIT);
 		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
 		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
 		
@@ -239,7 +239,7 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setRegionId(2);
 		level0.getRightChild().setRegionId(3);
 		
-		level0.setState(DistributionRegionState.SPLITTED);
+		level0.setState(DistributionRegionState.SPLIT);
 		level0.makeChildsActive();
 		
 		level0.addSystem(new DistributedInstance("node1:123"));
@@ -260,7 +260,7 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setRegionId(2);
 		level0.getRightChild().setRegionId(3);
 		
-		level0.setState(DistributionRegionState.SPLITTED);
+		level0.setState(DistributionRegionState.SPLIT);
 		level0.makeChildsActive();
 		
 		level0.addSystem(new DistributedInstance("node1:123"));

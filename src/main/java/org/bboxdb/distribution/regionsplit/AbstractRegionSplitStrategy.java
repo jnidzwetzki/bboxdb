@@ -142,7 +142,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			return true;
 		}
 		
-		return region.getParent().getState() == DistributionRegionState.SPLITTED;
+		return region.getParent().getState() == DistributionRegionState.SPLIT;
 	}
 
 	/**
@@ -218,7 +218,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		
 		try {
 			final DistributionGroupZookeeperAdapter zookeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			zookeperAdapter.setStateForDistributionGroup(region, DistributionRegionState.SPLITTED);
+			zookeperAdapter.setStateForDistributionGroup(region, DistributionRegionState.SPLIT);
 		} catch (ZookeeperException e) {
 			logger.error("Got an exception while setting region state to splitted", e);
 		}
