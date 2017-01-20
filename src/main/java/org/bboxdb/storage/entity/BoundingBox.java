@@ -18,6 +18,7 @@
 package org.bboxdb.storage.entity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bboxdb.util.DataEncoderHelper;
@@ -406,24 +407,31 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @return
 	 */
 	public static BoundingBox getCoveringBox(final BoundingBox... boundingBoxes) {
-		
+		return getCoveringBox(Arrays.asList(boundingBoxes));
+	}
+	
+	/**
+	 * Get the bounding box of two bounding boxes
+	 * @param boundingBox1
+	 * @param boundingBox2
+	 * @return
+	 */
+	public static BoundingBox getCoveringBox(final List<BoundingBox> boundingBoxes) {
+
 		// No argument
-		if(boundingBoxes.length == 0) {
+		if(boundingBoxes.isEmpty()) {
 			return BoundingBox.EMPTY_BOX;
 		}
 		
 		// Only 1 argument
-		if(boundingBoxes.length == 1) {
-			return boundingBoxes[0];
+		if(boundingBoxes.size() == 1) {
+			return boundingBoxes.get(0);
 		}
 		
-		final int dimensions = boundingBoxes[0].getDimension();
+		final int dimensions = boundingBoxes.get(0).getDimension();
 		
 		// All bounding boxes need the same dimension
-		for(int i = 1 ; i < boundingBoxes.length; i++) {
-			
-			final BoundingBox currentBox = boundingBoxes[i];
-			
+		for(final BoundingBox currentBox : boundingBoxes) {
 			// Bounding box could be null, e.g. for DeletedTuple instances
 			if(currentBox == null) {
 				continue;
@@ -436,25 +444,22 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			
 			if(dimensions != currentBox.getDimension()) {
 				final String errorMessage = "Merging bounding boxes with different dimensions: " 
-						+ dimensions + "/" + currentBox.getDimension()
-						+ " Box 0: " + boundingBoxes[0]
-						+ " Other box: " + currentBox;
+						+ dimensions + "/" + currentBox.getDimension();
 				
 				throw new IllegalArgumentException(errorMessage);
 			}
 		}
 		
 		// Array with data for the result box
-		final double[] coverBox = new double[boundingBoxes[0].getDimension() * 2];
+		final double[] coverBox = new double[dimensions * 2];
 		
 		// Construct the covering bounding box
 		for(int d = 0; d < dimensions; d++) {
 			double resultMin = Double.MAX_VALUE;
 			double resultMax = Double.MIN_VALUE;
 			
-			for(int i = 0; i < boundingBoxes.length; i++) {
-				final BoundingBox currentBox = boundingBoxes[i];
-
+			for(final BoundingBox currentBox : boundingBoxes) {
+				
 				if(currentBox == null) {
 					continue;
 				}
