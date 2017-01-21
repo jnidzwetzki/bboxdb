@@ -20,21 +20,25 @@ package org.bboxdb.storage.sstable.spatialindex.rtree;
 import org.bboxdb.storage.entity.BoundingBox;
 
 public abstract class AbstractRTreeNode {
-
+	
 	/**
 	 * The maximal size of a node
 	 */
 	protected final int MAX_NODE_SIZE;
-	
+
 	/**
 	 * The bounding box of the node
 	 */
 	protected BoundingBox boundingBox;
 	
-	public AbstractRTreeNode(final int maxNodeSize) {
-		this.MAX_NODE_SIZE = maxNodeSize;
+	public AbstractRTreeNode(final int nodeSize) {
+		this.MAX_NODE_SIZE = nodeSize;
 	}
 
+	/**
+	 * Return the bounding box of the node
+	 * @return
+	 */
 	public BoundingBox getBoundingBox() {
 		return boundingBox;
 	}

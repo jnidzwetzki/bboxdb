@@ -28,9 +28,9 @@ import org.bboxdb.storage.sstable.spatialindex.SpatialIndexStrategy;
 public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 
 	/**
-	 * The maximal size of a node
+	 * The node factory
 	 */
-	protected final int MAX_NODE_SIZE;
+	protected final RTreeNodeFactory nodeFactory;
 	
 	/**
 	 * The root node of the tree
@@ -38,13 +38,8 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 	protected AbstractRTreeNode rootNode;
 
 	public RTreeSpatialIndexStrategy() {
-		this(32);
+		this.nodeFactory = new RTreeNodeFactory();
 	}
-	
-	public RTreeSpatialIndexStrategy(final int maxNodeSize) {
-		this.MAX_NODE_SIZE = maxNodeSize;
-	}
-
 
 	@Override
 	public void readFromStream(final InputStream inputStream) {
