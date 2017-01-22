@@ -55,10 +55,10 @@ public interface SpatialIndexStrategy {
 	public void writeToStream(final OutputStream outputStream);
 	
 	/**
-	 * Find the keys for the given region
+	 * Find the entries for the given region
 	 * @param boundingBox
 	 * @return
 	 */
-	public List<SpatialIndexEntry> getKeysForRegion(final BoundingBox boundingBox);
+	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox);
 
 }

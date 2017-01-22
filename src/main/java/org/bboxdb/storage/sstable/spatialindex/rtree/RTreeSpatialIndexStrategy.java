@@ -39,6 +39,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 
 	public RTreeSpatialIndexStrategy() {
 		this.nodeFactory = new RTreeNodeFactory();
+		this.rootNode = nodeFactory.buildLeafNode();
 	}
 
 	@Override
@@ -54,21 +55,20 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 	}
 
 	@Override
-	public List<SpatialIndexEntry> getKeysForRegion(final BoundingBox boundingBox) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
+		return rootNode.getEntriesForRegion(boundingBox);
 	}
 
 	@Override
 	public void bulkInsert(final List<SpatialIndexEntry> elements) {
-		// TODO Auto-generated method stub
-		
+		for(final SpatialIndexEntry entry : elements) {
+			insert(entry);
+		}
 	}
 
 	@Override
-	public void insert(final SpatialIndexEntry element) {
-		// TODO Auto-generated method stub
-		
+	public void insert(final SpatialIndexEntry entry) {
+		rootNode.insertIndexEntry(entry);
 	}
 
 }

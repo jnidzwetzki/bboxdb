@@ -20,6 +20,9 @@ package org.bboxdb.storage.sstable.spatialindex.rtree;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
+
 public class RTreeDirectoryNode extends AbstractRTreeNode {
 	
 	/**
@@ -70,5 +73,17 @@ public class RTreeDirectoryNode extends AbstractRTreeNode {
 	 */
 	public boolean removeLeafNodeChild(final RTreeLeafNode rTreeLeafNode) {
 		return leafNodeChilds.remove(rTreeLeafNode);
+	}
+
+	@Override
+	public void insertIndexEntry(SpatialIndexEntry entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

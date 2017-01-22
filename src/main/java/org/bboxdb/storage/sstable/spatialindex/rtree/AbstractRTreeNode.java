@@ -17,7 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
+import java.util.List;
+
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 
 public abstract class AbstractRTreeNode {
 	
@@ -42,5 +45,18 @@ public abstract class AbstractRTreeNode {
 	public BoundingBox getBoundingBox() {
 		return boundingBox;
 	}
+	
+	/**
+	 * Insert a new index entry
+	 * @param entry
+	 */
+	public abstract void insertIndexEntry(final SpatialIndexEntry entry);
+	
+	/**
+	 * Get the entries for the given region
+	 * @param boundingBox
+	 * @return 
+	 */
+	public abstract List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox);
 	
 }

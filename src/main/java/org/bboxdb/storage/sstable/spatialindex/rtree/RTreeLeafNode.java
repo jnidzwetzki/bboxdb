@@ -19,7 +19,9 @@ package org.bboxdb.storage.sstable.spatialindex.rtree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 
 public class RTreeLeafNode extends AbstractRTreeNode {
@@ -38,7 +40,19 @@ public class RTreeLeafNode extends AbstractRTreeNode {
 	 * Add an entry to the leaf node
 	 * @param spatialIndexEntry
 	 */
-	public void addEntry(final SpatialIndexEntry spatialIndexEntry) {
-		childs.add(spatialIndexEntry);
+	@Override
+	public void insertIndexEntry(final SpatialIndexEntry entry) {
+		childs.add(entry);
+		
+		// Enlarge bounding box
+		this.boundingBox = BoundingBox.getCoveringBox(boundingBox, entry.getBoundingBox());
+	}
+
+	@Override
+	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
+		return childs
+			.stream()
+			.filter(c -> c.getBoundingBox().overlaps(boundingBox))
+			.collect(Collectors.toList());
 	}
 }
