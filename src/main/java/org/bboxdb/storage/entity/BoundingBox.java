@@ -419,8 +419,8 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 */
 	public static BoundingBox getCoveringBox(final List<BoundingBox> argumentBoundingBoxes) {
 
-		// Bounding box could be null, e.g. for DeletedTuple instances
-		// and don't merge the empty box
+		// Bounding box could be null, e.g. for DeletedTuple instances.
+		// And don't merge empty boxes
 		final List<BoundingBox> boundingBoxes = argumentBoundingBoxes
 				.stream()
 				.filter(b -> b != null)
