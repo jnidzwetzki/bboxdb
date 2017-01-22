@@ -202,7 +202,7 @@ public class TestBoundingBox {
 	 * Test the creation of the covering bounding box 
 	 */
 	@Test
-	public void testCoverBoundingBox() {
+	public void testCoverBoundingBox1() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 1d, 3d);
 		final BoundingBox boundingBox2 = new BoundingBox(1d, 4d, 1d, 4d);
 		
@@ -229,6 +229,17 @@ public class TestBoundingBox {
 		Assert.assertEquals(4.0d, boundingBoxResult4.getCoordinateHigh(1), EQUALS_DELTA);
 		Assert.assertEquals(-1.0d, boundingBoxResult4.getCoordinateLow(2), EQUALS_DELTA);
 		Assert.assertEquals(4.0d, boundingBoxResult4.getCoordinateHigh(2), EQUALS_DELTA);
+	}
+	
+	/**
+	 * Test the creation of the covering bounding box 
+	 */
+	@Test
+	public void testCoverBoundingBox2() {
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 3d, 1d, 3d);
+		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1));
+		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1, null));
+		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(null, boundingBox1));
 	}
 	
 	/**

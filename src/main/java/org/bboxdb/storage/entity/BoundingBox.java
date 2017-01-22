@@ -20,6 +20,7 @@ package org.bboxdb.storage.entity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bboxdb.util.DataEncoderHelper;
 import org.slf4j.Logger;
@@ -416,8 +417,14 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param boundingBox2
 	 * @return
 	 */
-	public static BoundingBox getCoveringBox(final List<BoundingBox> boundingBoxes) {
+	public static BoundingBox getCoveringBox(final List<BoundingBox> argumentBoundingBoxes) {
 
+		// Bounding box could be null, e.g. for DeletedTuple instances
+		final List<BoundingBox> boundingBoxes = argumentBoundingBoxes
+				.stream()
+				.filter(b -> b != null)
+				.collect(Collectors.toList());
+		
 		// No argument
 		if(boundingBoxes.isEmpty()) {
 			return BoundingBox.EMPTY_BOX;
@@ -432,10 +439,6 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		
 		// All bounding boxes need the same dimension
 		for(final BoundingBox currentBox : boundingBoxes) {
-			// Bounding box could be null, e.g. for DeletedTuple instances
-			if(currentBox == null) {
-				continue;
-			}
 			
 			// Don't merge the empty box
 			if(currentBox == EMPTY_BOX) {
@@ -459,11 +462,6 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			double resultMax = Double.MIN_VALUE;
 			
 			for(final BoundingBox currentBox : boundingBoxes) {
-				
-				if(currentBox == null) {
-					continue;
-				}
-				
 				// Don't merge the empty box
 				if(currentBox == EMPTY_BOX) {
 					continue;
