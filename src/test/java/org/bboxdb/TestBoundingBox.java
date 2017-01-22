@@ -240,6 +240,9 @@ public class TestBoundingBox {
 		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1));
 		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1, null));
 		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(null, boundingBox1));
+		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1, BoundingBox.EMPTY_BOX));
+		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(BoundingBox.EMPTY_BOX, boundingBox1, BoundingBox.EMPTY_BOX));
+		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(BoundingBox.EMPTY_BOX, null, boundingBox1, BoundingBox.EMPTY_BOX));
 	}
 	
 	/**

@@ -420,9 +420,11 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	public static BoundingBox getCoveringBox(final List<BoundingBox> argumentBoundingBoxes) {
 
 		// Bounding box could be null, e.g. for DeletedTuple instances
+		// and don't merge the empty box
 		final List<BoundingBox> boundingBoxes = argumentBoundingBoxes
 				.stream()
 				.filter(b -> b != null)
+				.filter(b -> b != EMPTY_BOX)
 				.collect(Collectors.toList());
 		
 		// No argument
@@ -439,12 +441,6 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		
 		// All bounding boxes need the same dimension
 		for(final BoundingBox currentBox : boundingBoxes) {
-			
-			// Don't merge the empty box
-			if(currentBox == EMPTY_BOX) {
-				continue;
-			}
-			
 			if(dimensions != currentBox.getDimension()) {
 				final String errorMessage = "Merging bounding boxes with different dimensions: " 
 						+ dimensions + "/" + currentBox.getDimension();
@@ -462,11 +458,6 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			double resultMax = Double.MIN_VALUE;
 			
 			for(final BoundingBox currentBox : boundingBoxes) {
-				// Don't merge the empty box
-				if(currentBox == EMPTY_BOX) {
-					continue;
-				}
-				
 				resultMin = Math.min(resultMin, currentBox.getCoordinateLow(d));
 				resultMax = Math.max(resultMax, currentBox.getCoordinateHigh(d));
 			}
