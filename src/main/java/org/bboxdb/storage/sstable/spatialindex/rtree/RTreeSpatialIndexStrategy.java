@@ -36,10 +36,15 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 	 * The root node of the tree
 	 */
 	protected AbstractRTreeNode rootNode;
+	
+	/**
+	 * The max size of a child node
+	 */
+	protected int MAX_SIZE = 32;
 
 	public RTreeSpatialIndexStrategy() {
 		this.nodeFactory = new RTreeNodeFactory();
-		this.rootNode = nodeFactory.buildLeafNode();
+		this.rootNode = nodeFactory.buildDirectoryNode();
 	}
 
 	@Override
@@ -68,7 +73,20 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 
 	@Override
 	public void insert(final SpatialIndexEntry entry) {
-		rootNode.insertIndexEntry(entry);
+		final RTreeDirectoryNode insertedNode = rootNode.insertIndexEntry(entry);
+		
+		if(insertedNode.getSize() > MAX_SIZE) {
+			splitNode(insertedNode);
+		}
 	}
 
+	/**
+	 * Split the given node
+	 * @param insertedNode
+	 */
+	protected void splitNode(RTreeDirectoryNode insertedNode) {
+		
+	}
+
+	
 }

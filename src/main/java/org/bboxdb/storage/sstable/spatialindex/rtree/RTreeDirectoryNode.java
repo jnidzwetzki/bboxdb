@@ -19,6 +19,7 @@ package org.bboxdb.storage.sstable.spatialindex.rtree;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -33,12 +34,17 @@ public class RTreeDirectoryNode extends AbstractRTreeNode {
 	/**
 	 * The leaf node childs
 	 */
-	protected final List<RTreeLeafNode> leafNodeChilds;
+	protected final List<SpatialIndexEntry> indexEntries;
 	
-	public RTreeDirectoryNode(final int maxNodeSize) {
-		super(maxNodeSize);
+	/**
+	 * The id of the node
+	 */
+	protected final int nodeId;
+	
+	public RTreeDirectoryNode(final int nodeId) {
 		this.directoryNodeChilds = new ArrayList<>();
-		this.leafNodeChilds = new ArrayList<>();
+		this.indexEntries = new ArrayList<>();
+		this.nodeId = nodeId;
 	}
 	
 	/**
@@ -46,6 +52,10 @@ public class RTreeDirectoryNode extends AbstractRTreeNode {
 	 * @param rTreeDirectoryNode
 	 */
 	public void addDirectoryNodeChild(final RTreeDirectoryNode rTreeDirectoryNode) {
+		
+		// We can carry directory nodes or index entries
+		assert (indexEntries.isEmpty());
+		
 		directoryNodeChilds.add(rTreeDirectoryNode);
 	}
 	
@@ -59,31 +69,55 @@ public class RTreeDirectoryNode extends AbstractRTreeNode {
 	}
 	
 	/**
-	 * Add a lead node as child
-	 * @param rTreeLeafNode
-	 */
-	public void addLeafNodeChild(final RTreeLeafNode rTreeLeafNode) {
-		leafNodeChilds.add(rTreeLeafNode);
-	}
-	
-	/**
 	 * Remove child leaf node 
 	 * @param rTreeLeafNode
 	 * @return
 	 */
-	public boolean removeLeafNodeChild(final RTreeLeafNode rTreeLeafNode) {
-		return leafNodeChilds.remove(rTreeLeafNode);
+	public boolean removeIndexEntry(final SpatialIndexEntry entry) {
+		
+		// We can carry directory nodes or index entries
+		assert (directoryNodeChilds.isEmpty());
+		
+		return indexEntries.remove(entry);
 	}
 
+	
+	/**
+	 * Add an entry to the leaf node
+	 * @param spatialIndexEntry
+	 * @return 
+	 */
 	@Override
-	public void insertIndexEntry(SpatialIndexEntry entry) {
-		// TODO Auto-generated method stub
+	public RTreeDirectoryNode insertIndexEntry(final SpatialIndexEntry entry) {
+		indexEntries.add(entry);
 		
+		// Enlarge bounding box
+		this.boundingBox = BoundingBox.getCoveringBox(boundingBox, entry.getBoundingBox());
+		
+		// Return the leaf node that has stored the data
+		return this;
 	}
 
 	@Override
 	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
-		// TODO Auto-generated method stub
-		return null;
+		return indexEntries
+			.stream()
+			.filter(c -> c.getBoundingBox().overlaps(boundingBox))
+			.collect(Collectors.toList());
+	}
+	
+	/**
+	 * Get the size of the node
+	 * @return
+	 */
+	public int getSize() {
+		return indexEntries.size() + directoryNodeChilds.size();
+	}
+	
+	/**
+	 * Is this a leaf node
+	 */
+	public boolean isLeafNode() {
+		return indexEntries.isEmpty();
 	}
 }

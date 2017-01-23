@@ -25,17 +25,22 @@ import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 public abstract class AbstractRTreeNode {
 	
 	/**
-	 * The maximal size of a node
+	 * The root node 'root' reference
 	 */
-	protected final int MAX_NODE_SIZE;
-
+	protected final static RTreeDirectoryNode PARENT_ROOT = null;
+	
 	/**
 	 * The bounding box of the node
 	 */
 	protected BoundingBox boundingBox;
 	
-	public AbstractRTreeNode(final int nodeSize) {
-		this.MAX_NODE_SIZE = nodeSize;
+	/**
+	 * The parent node
+	 */
+	protected RTreeDirectoryNode parentNode;
+	
+	public AbstractRTreeNode() {
+		this.parentNode = PARENT_ROOT;
 	}
 
 	/**
@@ -47,10 +52,27 @@ public abstract class AbstractRTreeNode {
 	}
 	
 	/**
+	 * Get the parent node
+	 * @return
+	 */
+	public RTreeDirectoryNode getParentNode() {
+		return parentNode;
+	}
+	
+	/**
+	 * Set a new parent node
+	 * @param parentNode
+	 */
+	public void setParentNode(final RTreeDirectoryNode parentNode) {
+		this.parentNode = parentNode;
+	}
+	
+	/**
 	 * Insert a new index entry
 	 * @param entry
+	 * @return 
 	 */
-	public abstract void insertIndexEntry(final SpatialIndexEntry entry);
+	public abstract RTreeDirectoryNode insertIndexEntry(final SpatialIndexEntry entry);
 	
 	/**
 	 * Get the entries for the given region
