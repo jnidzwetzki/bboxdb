@@ -19,7 +19,7 @@ package org.bboxdb.storage.sstable.spatialindex;
 
 import org.bboxdb.storage.entity.BoundingBox;
 
-public class SpatialIndexEntry {
+public class SpatialIndexEntry implements BoundingBoxEntity {
 
 	/**
 	 * The key
@@ -44,10 +44,10 @@ public class SpatialIndexEntry {
 		return key;
 	}
 	
-	/**
-	 * Get the bounding box
-	 * @return
+	/* (non-Javadoc)
+	 * @see org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity#getBoundingBox()
 	 */
+	@Override
 	public BoundingBox getBoundingBox() {
 		return boundingBox;
 	}
