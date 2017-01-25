@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexStrategy;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy;
@@ -132,7 +133,7 @@ public class TestSpatialRTreeIndex {
 	 */
 	protected void queryIndex(final List<SpatialIndexEntry> entries, final SpatialIndexStrategy index) {
 		
-		for(final SpatialIndexEntry entry: entries) {
+		for(final BoundingBoxEntity entry: entries) {
 			final List<SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
 			Assert.assertTrue(resultList.size() >= 1);
 			Assert.assertTrue(resultList.contains(entry));
