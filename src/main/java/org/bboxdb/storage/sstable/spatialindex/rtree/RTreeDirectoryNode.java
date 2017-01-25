@@ -140,6 +140,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 		
 		if(isLeafNode()) {
 			indexEntries.add(entry);
+			updateBoundingBox();
 			
 			// Return the leaf node that has stored the data
 			return this;
@@ -149,8 +150,10 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 			}
 		
 			final RTreeDirectoryNode bestNode = findBestNodeForInsert(entryBox);
-			
-			return bestNode.insertEntryIntoIndex(entry);
+
+			final RTreeDirectoryNode result = bestNode.insertEntryIntoIndex(entry);
+			updateBoundingBox();
+			return result;
 		}
 	}
 	
@@ -158,7 +161,17 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * Recalculate the bounding box of all entries
 	 */
 	public void updateBoundingBox() {
+		final List<BoundingBox> boundingBoxes = getAllChildBoundingBoxes();
 		
+		// Calculate bounding box
+		this.boundingBox = BoundingBox.getCoveringBox(boundingBoxes);
+	}
+
+	/**
+	 * Get the bounding boxes of all childs
+	 * @return
+	 */
+	public List<BoundingBox> getAllChildBoundingBoxes() {
 		// Merge all childs
 		final List<BoundingBoxEntity> allEntries 
 			= new ArrayList<>(directoryNodeChilds.size() + indexEntries.size());
@@ -169,16 +182,12 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 		assert (! allEntries.isEmpty());
 		
 		// Get all Bounding boxes
-		final List<BoundingBox> boundingBoxes = 
-				allEntries
+		return allEntries
 				.stream()
 				.map(b -> b.getBoundingBox())
 				.collect(Collectors.toList());
-		
-		// Calculate bounding box
-		this.boundingBox = BoundingBox.getCoveringBox(boundingBoxes);
 	}
-
+	
 	/**
 	 * Find the best node for insert 
 	 * @param entryBox
@@ -229,7 +238,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 		
 		final List<SpatialIndexEntry> childMatches = directoryNodeChilds
 			.stream()
-	//		.filter(c -> c.getBoundingBox().overlaps(boundingBox))
+			.filter(c -> c.getBoundingBox().overlaps(boundingBox))
 			.map(c -> c.getEntriesForRegion(boundingBox))
 			.flatMap(List::stream)
 			.collect(Collectors.toList());
@@ -241,6 +250,44 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 		result.addAll(childMatches);
 		
 		return result;
+	}
+	
+	/**
+	 * Test the bounding box covering (usefull for test purposes)
+	 */
+	public void testCovering() {
+		
+		for(final SpatialIndexEntry entry : indexEntries) {
+			if(! boundingBox.isCovering(entry.getBoundingBox())) {
+				System.err.println("Error 1");
+			}
+			
+			if(! boundingBox.overlaps(entry.getBoundingBox())) {
+				System.err.println("Error 2");
+			}
+		}
+		
+		for(final RTreeDirectoryNode entry : directoryNodeChilds) {
+			
+			if(! boundingBox.isCovering(entry.getBoundingBox())) {
+				System.err.println("Error 3a: " + boundingBox + " does not cover" + entry.getBoundingBox());
+				entry.updateBoundingBox();
+				updateBoundingBox();
+				
+				if(! boundingBox.isCovering(entry.getBoundingBox())) {
+
+					System.err.println("Error 3b: " + boundingBox + " does not cover" + entry.getBoundingBox());
+
+					System.err.println(getAllChildBoundingBoxes());
+				}
+			}
+			
+			if(! boundingBox.overlaps(entry.getBoundingBox())) {
+				System.err.println("Error 4");
+			}
+			
+			entry.testCovering();
+		}
 	}
 	
 	/**

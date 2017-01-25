@@ -82,5 +82,10 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "SpatialIndexEntry [key=" + key + ", boundingBox=" + boundingBox + "]";
+	}
 	
 }

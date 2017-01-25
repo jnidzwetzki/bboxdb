@@ -75,7 +75,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 	@Override
 	public void insert(final SpatialIndexEntry entry) {
 		final RTreeDirectoryNode insertedNode = rootNode.insertEntryIntoIndex(entry);
-		adjustTree(insertedNode);
+		adjustTree(insertedNode);		
 	}
 
 	/**
@@ -92,7 +92,6 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 		
 		// Adjust beginning from the bottom
 		do {
-			nodeToCheck.updateBoundingBox();
 			
 			if(nodeToCheck.getSize() > MAX_SIZE) {
 				nodeToCheck = splitNode(insertedNode);
@@ -114,7 +113,6 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 		
 		// Root node is full
 		if(nodeToSplit.getParentNode() == null) {
-			System.out.println("Bounding new root node");
 			rootNode = nodeFactory.buildDirectoryNode();
 			newParent = rootNode;
 		} else {
@@ -139,6 +137,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 		// Recalculate the bounding boxes
 		newNode1.updateBoundingBox();
 		newNode2.updateBoundingBox();
+		newParent.updateBoundingBox();
 		
 		return newNode1;
 	}

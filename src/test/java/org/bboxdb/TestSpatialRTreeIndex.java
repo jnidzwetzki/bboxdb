@@ -53,7 +53,7 @@ public class TestSpatialRTreeIndex {
 	 * Test to query the index
 	 */
 	@Test
-	public void testBoxQuery1() {
+	public void testBoxQuery1d() {
 		final List<SpatialIndexEntry> tupleList = getEntryList();
 		
 		final SpatialIndexStrategy index = new RTreeSpatialIndexStrategy();
@@ -65,7 +65,7 @@ public class TestSpatialRTreeIndex {
 	 * Test to query the index
 	 */
 	@Test
-	public void testBoxQuery2() {
+	public void testBoxQuery2d() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(2);
 		
 		final SpatialIndexStrategy index = new RTreeSpatialIndexStrategy();
@@ -77,7 +77,7 @@ public class TestSpatialRTreeIndex {
 	 * Test to query the index
 	 */
 	@Test
-	public void testBoxQuery3() {
+	public void testBoxQuery3d() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(3);
 		
 		final SpatialIndexStrategy index = new RTreeSpatialIndexStrategy();
@@ -90,7 +90,7 @@ public class TestSpatialRTreeIndex {
 	 * Test to query the index
 	 */
 	@Test
-	public void testBoxQuery4() {
+	public void testBoxQuery4d() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(4);
 		
 		final SpatialIndexStrategy index = new RTreeSpatialIndexStrategy();
@@ -103,7 +103,7 @@ public class TestSpatialRTreeIndex {
 	 * Test to query the index
 	 */
 	@Test
-	public void testBoxQuery5() {
+	public void testBoxQuery5d() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(5);
 		
 		final SpatialIndexStrategy index = new RTreeSpatialIndexStrategy();
@@ -116,7 +116,7 @@ public class TestSpatialRTreeIndex {
 	 * Test to query the index
 	 */
 	@Test
-	public void testBoxQuery6() {
+	public void testBoxQuery6d() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(10);
 		
 		final SpatialIndexStrategy index = new RTreeSpatialIndexStrategy();
@@ -136,7 +136,7 @@ public class TestSpatialRTreeIndex {
 		for(final BoundingBoxEntity entry: entries) {
 			final List<SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
 			Assert.assertTrue(resultList.size() >= 1);
-			Assert.assertTrue(resultList.contains(entry));
+			Assert.assertTrue("Searching for: " + entry, resultList.contains(entry));
 		}
 	}
 
