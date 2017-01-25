@@ -20,6 +20,7 @@ package org.bboxdb.storage.sstable.spatialindex.rtree;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity;
@@ -172,18 +173,9 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * @return
 	 */
 	public List<BoundingBox> getAllChildBoundingBoxes() {
-		// Merge all childs
-		final List<BoundingBoxEntity> allEntries 
-			= new ArrayList<>(directoryNodeChilds.size() + indexEntries.size());
-		
-		allEntries.addAll(directoryNodeChilds);
-		allEntries.addAll(indexEntries);
-		
-		assert (! allEntries.isEmpty());
-		
+
 		// Get all Bounding boxes
-		return allEntries
-				.stream()
+		return Stream.concat(directoryNodeChilds.stream(), indexEntries.stream())
 				.map(b -> b.getBoundingBox())
 				.collect(Collectors.toList());
 	}
@@ -243,13 +235,8 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 			.flatMap(List::stream)
 			.collect(Collectors.toList());
 
-		final ArrayList<SpatialIndexEntry> result = new ArrayList<SpatialIndexEntry>(nodeMatches.size() 
-				+ childMatches.size());
-		
-		result.addAll(nodeMatches);
-		result.addAll(childMatches);
-		
-		return result;
+		return Stream.concat(nodeMatches.stream(), childMatches.stream())
+				.collect(Collectors.toList());
 	}
 	
 	/**
