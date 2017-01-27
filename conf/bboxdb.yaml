@@ -39,11 +39,11 @@ dataDirectory: /tmp/bboxdb_production/data
 #       can lead to unexpected behavior.
 #
 # Possible values: 
-# none
-# org.bboxdb.storage.sstable.spatialindex.BoxSortSpatialIndexStrategy
 #
-# Default: none 
-# storageSpatialIndexerFactory: none
+# org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy
+#
+# Default: org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy
+# storageSpatialIndexerFactory: org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy
 
 # Checkpoint interval in seconds . After this interval, still open in 
 # memory tables will be written to disk.

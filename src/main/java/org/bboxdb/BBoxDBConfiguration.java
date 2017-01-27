@@ -69,7 +69,7 @@ public class BBoxDBConfiguration {
 	/**
 	 * The classname of the spatial indexer
 	 */
-	protected String storageSpatialIndexerFactory = "none";
+	protected String storageSpatialIndexerFactory = "org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy";
 	
 	/**
 	 * The checkpoint interval
