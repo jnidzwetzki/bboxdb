@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexStrategy;
@@ -49,7 +50,7 @@ public class TestSpatialRTreeIndex {
 	@Test
 	public void testQueryOnEmptytree() {
 		final SpatialIndexStrategy index = new RTreeSpatialIndexStrategy();
-		final List<SpatialIndexEntry> result = index.getEntriesForRegion(new BoundingBox(1d, 1d, 2d, 2d));
+		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(new BoundingBox(1d, 1d, 2d, 2d));
 		Assert.assertTrue(result.isEmpty());
 	}
 	
@@ -120,7 +121,7 @@ public class TestSpatialRTreeIndex {
 	 * Test to query the index
 	 */
 	@Test
-	public void testBoxQuery6d() {
+	public void testBoxQuery10d() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(10);
 		
 		final SpatialIndexStrategy index = new RTreeSpatialIndexStrategy();
@@ -138,7 +139,7 @@ public class TestSpatialRTreeIndex {
 	protected void queryIndex(final List<SpatialIndexEntry> entries, final SpatialIndexStrategy index) {
 		
 		for(final SpatialIndexEntry entry: entries) {
-			final List<SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
+			final List<? extends SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
 			Assert.assertTrue(resultList.size() >= 1);
 			
 			final List<String> keyResult = resultList
@@ -149,7 +150,6 @@ public class TestSpatialRTreeIndex {
 
 			Assert.assertTrue("Searching for: " + entry, keyResult.size() == 1);
 		}
-		
 	}
 
 	/**
@@ -211,11 +211,47 @@ public class TestSpatialRTreeIndex {
 		
 		final byte[] bytes = bos.toByteArray();
 		final ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+		
+		Assert.assertTrue(bis.available() > 0);
 		final RTreeSpatialIndexEntry readEntry = RTreeSpatialIndexEntry.readFromStream(bis);
+		Assert.assertTrue(bis.available() == 0);
+
+		bis.close();
 		
 		Assert.assertEquals(rTreeSpatialIndexEntry.getKey(), readEntry.getKey());
 		Assert.assertEquals(rTreeSpatialIndexEntry.getNodeId(), readEntry.getNodeId());
 		Assert.assertEquals(rTreeSpatialIndexEntry.getBoundingBox(), readEntry.getBoundingBox());
 	}
 
+	/**
+	 * Test the encoding and the decoding of the index
+	 * @throws StorageManagerException 
+	 * @throws IOException 
+	 */
+	@Test
+	public void testSerializeIndex() throws StorageManagerException, IOException {
+		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(3);
+		
+		final SpatialIndexStrategy index = new RTreeSpatialIndexStrategy();
+		index.bulkInsert(tupleList);
+		
+		queryIndex(tupleList, index);
+		
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		index.writeToStream(bos);
+		bos.close();
+		
+		final byte[] bytes = bos.toByteArray();
+		final ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+		RTreeSpatialIndexStrategy indexRead = new RTreeSpatialIndexStrategy();
+		
+		Assert.assertTrue(bis.available() > 0);
+		indexRead.readFromStream(bis);
+		Assert.assertTrue(bis.available() == 0);
+		
+		bis.close();
+		
+		queryIndex(tupleList, indexRead);
+	}
+	
 }

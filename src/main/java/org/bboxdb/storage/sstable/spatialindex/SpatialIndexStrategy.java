@@ -61,6 +61,6 @@ public interface SpatialIndexStrategy {
 	 * @param boundingBox
 	 * @return
 	 */
-	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox);
+	public List<? extends SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox);
 
 }

@@ -20,6 +20,7 @@ package org.bboxdb.storage.sstable.spatialindex.rtree;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +30,8 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexStrategy;
+import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.util.StreamHelper;
 
 public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 
@@ -73,13 +76,25 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 	@Override
 	public void readFromStream(final InputStream inputStream) throws StorageManagerException {
 		
+		assert (rootNode.getDirectoryNodeChilds().isEmpty());
+		assert (rootNode.getIndexEntries().isEmpty());
+		
 		try {
-		// Validate the magic bytes
-		validateStream(inputStream);
+			// Validate the magic bytes
+			validateStream(inputStream);
+			
+			final byte[] elementBytes = new byte[DataEncoderHelper.INT_BYTES];
+			StreamHelper.readExactlyBytes(inputStream, elementBytes, 0, elementBytes.length);
+			final int elements = DataEncoderHelper.readIntFromByte(elementBytes);
+		
+			for(int i = 0; i < elements; i++) {
+				final RTreeSpatialIndexEntry entry = RTreeSpatialIndexEntry.readFromStream(inputStream);
+				insert(entry);
+			}
+			
 		} catch (IOException e) {
 			throw new StorageManagerException(e);
 		}
-		
 	}
 
 	@Override
@@ -92,14 +107,22 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 			// Write only index entries.
 			// The index structure is reconstructed in memory
 			// with a bulk insert.
+			final List<RTreeSpatialIndexEntry> entries = rootNode.getEntriesForRegion(BoundingBox.EMPTY_BOX);
+			
+			final ByteBuffer nodes = DataEncoderHelper.intToByteBuffer(entries.size());
+			outputStream.write(nodes.array());
+			
+			for(final RTreeSpatialIndexEntry entry : entries) {
+				entry.writeToStream(outputStream);
+			}
+			
 		} catch (IOException e) {
 			throw new StorageManagerException(e);
 		}
-		
 	}
 
 	@Override
-	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
+	public List<? extends SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
 		return rootNode.getEntriesForRegion(boundingBox);
 	}
 
@@ -113,7 +136,15 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 	@Override
 	public void insert(final SpatialIndexEntry entry) {
 		final RTreeSpatialIndexEntry treeEntry = nodeFactory.buildRTreeIndex(entry);
-		final RTreeDirectoryNode insertedNode = rootNode.insertEntryIntoIndex(treeEntry);
+		insert(treeEntry);
+	}
+	
+	/**
+	 * Insert the given RTreeSpatialIndexEntry into the tree
+	 * @param entry
+	 */
+	protected void insert(final RTreeSpatialIndexEntry entry) {
+		final RTreeDirectoryNode insertedNode = rootNode.insertEntryIntoIndex(entry);
 		adjustTree(insertedNode);		
 	}
 

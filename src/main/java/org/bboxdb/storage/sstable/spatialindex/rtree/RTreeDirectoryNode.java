@@ -222,13 +222,13 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * @param boundingBox
 	 * @return
 	 */
-	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
-		final List<SpatialIndexEntry> nodeMatches = indexEntries
+	public List<RTreeSpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
+		final List<RTreeSpatialIndexEntry> nodeMatches = indexEntries
 			.stream()
 			.filter(c -> c.getBoundingBox().overlaps(boundingBox))
 			.collect(Collectors.toList());
 		
-		final List<SpatialIndexEntry> childMatches = directoryNodeChilds
+		final List<RTreeSpatialIndexEntry> childMatches = directoryNodeChilds
 			.stream()
 			.filter(c -> c.getBoundingBox().overlaps(boundingBox))
 			.map(c -> c.getEntriesForRegion(boundingBox))
