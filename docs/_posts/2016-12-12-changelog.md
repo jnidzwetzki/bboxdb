@@ -16,6 +16,7 @@ order: 1
 - Improvement: Region splits are now based on the size of the region
 - Bugfix: Outdated jars are new removed on bboxdb_update
 - Bugfix: Removed implementation and specification of the unused TransferSSTable network package
+- Bugfix: Removed the non working BoxSearch spatial index
 
 ### Version 0.2.0 (Stable) - 11.01.2017
 - Improvement: New logo
