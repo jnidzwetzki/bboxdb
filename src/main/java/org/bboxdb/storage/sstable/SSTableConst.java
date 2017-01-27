@@ -22,12 +22,12 @@ import java.util.concurrent.TimeUnit;
 public class SSTableConst {
 	
 	/**
-	 * The magic bytes at the beginning of every SSTable
+	 * The magic bytes at the beginning of every SSTable file
 	 */
 	public final static byte[] MAGIC_BYTES = "bboxdb".getBytes();
 	
 	/**
-	 * The magic bytes at the beginning of every SSTable
+	 * The magic bytes at the beginning of every spatial index file
 	 */
 	public final static byte[] MAGIC_BYTES_SPATIAL_INDEX = "bboxdb-sidx".getBytes();
 	
