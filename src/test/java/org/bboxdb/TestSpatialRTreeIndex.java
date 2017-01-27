@@ -17,6 +17,9 @@
  *******************************************************************************/
 package org.bboxdb;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexStrategy;
+import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy;
 import org.junit.Assert;
 import org.junit.Test;
@@ -190,6 +194,28 @@ public class TestSpatialRTreeIndex {
 		}
 
 		return entryList;
+	}
+	
+	/**
+	 * Test the decoding an encoding of an rtree entry
+	 * @throws IOException 
+	 */
+	@Test
+	public void testEncodeDecodeRTreeEntry() throws IOException {
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		final BoundingBox boundingBox = new BoundingBox(4.1, 8.1, 4.2, 8.8);
+		
+		final RTreeSpatialIndexEntry rTreeSpatialIndexEntry = new RTreeSpatialIndexEntry(3, "abc", boundingBox);
+		rTreeSpatialIndexEntry.writeToStream(bos);
+		bos.close();
+		
+		final byte[] bytes = bos.toByteArray();
+		final ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+		final RTreeSpatialIndexEntry readEntry = RTreeSpatialIndexEntry.readFromStream(bis);
+		
+		Assert.assertEquals(rTreeSpatialIndexEntry.getKey(), readEntry.getKey());
+		Assert.assertEquals(rTreeSpatialIndexEntry.getNodeId(), readEntry.getNodeId());
+		Assert.assertEquals(rTreeSpatialIndexEntry.getBoundingBox(), readEntry.getBoundingBox());
 	}
 
 }

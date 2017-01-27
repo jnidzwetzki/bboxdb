@@ -17,7 +17,15 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
+import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.util.StreamHelper;
 
 public class RTreeSpatialIndexEntry extends SpatialIndexEntry {
 
@@ -31,10 +39,65 @@ public class RTreeSpatialIndexEntry extends SpatialIndexEntry {
 		this.nodeId = nodeId;
 	}
 	
+	public RTreeSpatialIndexEntry(final int nodeId, final String key, final BoundingBox boundingBox) {
+		super(key, boundingBox);
+		this.nodeId = nodeId;
+	}
+
 	public int getNodeId() {
 		return nodeId;
 	}
 	
+	/**
+	 * Write the node to a stream
+	 * @param outputStream
+	 * @throws IOException
+	 */
+	public void writeToStream(final OutputStream outputStream) throws IOException {
+		final byte[] keyBytes = getKey().getBytes();
+
+		final byte[] boundingBoxBytes = boundingBox.toByteArray();
+		
+	    final ByteBuffer nodeIdBytes = DataEncoderHelper.intToByteBuffer(nodeId);
+		final ByteBuffer keyLengthBytes = DataEncoderHelper.shortToByteBuffer((short) keyBytes.length);
+		final ByteBuffer boxLengthBytes = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
+	    
+		outputStream.write(nodeIdBytes.array());
+		outputStream.write(keyLengthBytes.array());
+		outputStream.write(boxLengthBytes.array());
+		outputStream.write(keyBytes);
+		outputStream.write(boundingBoxBytes);
+	}
 	
+	/**
+	 * Read the node from a stream
+	 * @param inputStream
+	 * @return
+	 * @throws IOException 
+	 */
+	public static RTreeSpatialIndexEntry readFromStream(final InputStream inputStream) throws IOException {
+		final byte[] nodeIdBytes = new byte[4];
+		final byte[] keyLengthBytes = new byte[2];
+		final byte[] boxLengthBytes = new byte[4];
+		
+		StreamHelper.readExactlyBytes(inputStream, nodeIdBytes, 0, nodeIdBytes.length);
+		StreamHelper.readExactlyBytes(inputStream, keyLengthBytes, 0, keyLengthBytes.length);
+		StreamHelper.readExactlyBytes(inputStream, boxLengthBytes, 0, boxLengthBytes.length);
+
+		final int nodeId = DataEncoderHelper.readIntFromByte(nodeIdBytes);
+		final short keyLength = DataEncoderHelper.readShortFromByte(keyLengthBytes);
+		final int bboxLength = DataEncoderHelper.readIntFromByte(boxLengthBytes);
+
+		final byte[] keyBytes = new byte[keyLength];
+		final byte[] bboxBytes = new byte[bboxLength];
+		
+		StreamHelper.readExactlyBytes(inputStream, keyBytes, 0, keyBytes.length);
+		StreamHelper.readExactlyBytes(inputStream, bboxBytes, 0, bboxBytes.length);
+
+		final String key = new String(keyBytes);
+		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);
+		
+		return new RTreeSpatialIndexEntry(nodeId, key, boundingBox);
+	}
 
 }
