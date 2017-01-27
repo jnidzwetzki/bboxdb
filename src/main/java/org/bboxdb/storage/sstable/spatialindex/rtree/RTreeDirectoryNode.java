@@ -36,7 +36,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	/**
 	 * The leaf node childs
 	 */
-	protected final List<SpatialIndexEntry> indexEntries;
+	protected final List<RTreeSpatialIndexEntry> indexEntries;
 	
 	/**
 	 * The root node 'root' reference
@@ -135,7 +135,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * @param spatialIndexEntry
 	 * @return 
 	 */
-	public RTreeDirectoryNode insertEntryIntoIndex(final SpatialIndexEntry entry) {
+	public RTreeDirectoryNode insertEntryIntoIndex(final RTreeSpatialIndexEntry entry) {
 		
 		final BoundingBox entryBox = entry.getBoundingBox();
 		
@@ -304,7 +304,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * Get the index entries
 	 * @return
 	 */
-	public List<SpatialIndexEntry> getIndexEntries() {
+	public List<RTreeSpatialIndexEntry> getIndexEntries() {
 		return indexEntries;
 	}
 

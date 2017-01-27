@@ -20,9 +20,9 @@ package org.bboxdb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexStrategy;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy;
@@ -133,11 +133,19 @@ public class TestSpatialRTreeIndex {
 	 */
 	protected void queryIndex(final List<SpatialIndexEntry> entries, final SpatialIndexStrategy index) {
 		
-		for(final BoundingBoxEntity entry: entries) {
+		for(final SpatialIndexEntry entry: entries) {
 			final List<SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
 			Assert.assertTrue(resultList.size() >= 1);
-			Assert.assertTrue("Searching for: " + entry, resultList.contains(entry));
+			
+			final List<String> keyResult = resultList
+					.stream()
+					.map(e -> e.getKey())
+					.filter(k -> k.equals(entry.getKey()))
+					.collect(Collectors.toList());
+
+			Assert.assertTrue("Searching for: " + entry, keyResult.size() == 1);
 		}
+		
 	}
 
 	/**

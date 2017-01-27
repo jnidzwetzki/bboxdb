@@ -17,43 +17,24 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 
-public class RTreeNodeFactory {
+public class RTreeSpatialIndexEntry extends SpatialIndexEntry {
 
 	/**
-	 * The node id generator
+	 * The id of the node
 	 */
-	protected final AtomicInteger nodeIdInteger;
-
-	public RTreeNodeFactory() {
-		this.nodeIdInteger = new AtomicInteger(0);
+	protected final int nodeId;
+	
+	public RTreeSpatialIndexEntry(final int nodeId, final SpatialIndexEntry spatialIndexEntry) {
+		super(spatialIndexEntry.getKey(), spatialIndexEntry.getBoundingBox());
+		this.nodeId = nodeId;
 	}
 	
-	/**
-	 * Build a new directory node
-	 * @return 
-	 */
-	public RTreeDirectoryNode buildDirectoryNode() {
-		return new RTreeDirectoryNode(getNextNodeId());
+	public int getNodeId() {
+		return nodeId;
 	}
 	
-	/**
-	 * Build a new r tree index entry
-	 * @return
-	 */
-	public RTreeSpatialIndexEntry buildRTreeIndex(final SpatialIndexEntry spatialIndexEntry) {
-		return new RTreeSpatialIndexEntry(getNextNodeId(), spatialIndexEntry);
-	}
-
-	/**
-	 * Get the next available node id
-	 * @return
-	 */
-	protected int getNextNodeId() {
-		return nodeIdInteger.getAndIncrement();
-	}
+	
 
 }

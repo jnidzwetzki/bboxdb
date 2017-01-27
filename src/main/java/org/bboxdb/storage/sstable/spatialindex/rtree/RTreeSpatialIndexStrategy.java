@@ -74,7 +74,8 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 
 	@Override
 	public void insert(final SpatialIndexEntry entry) {
-		final RTreeDirectoryNode insertedNode = rootNode.insertEntryIntoIndex(entry);
+		final RTreeSpatialIndexEntry treeEntry = nodeFactory.buildRTreeIndex(entry);
+		final RTreeDirectoryNode insertedNode = rootNode.insertEntryIntoIndex(treeEntry);
 		adjustTree(insertedNode);		
 	}
 
@@ -209,10 +210,10 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 	protected void distributeLeafData(final RTreeDirectoryNode nodeToSplit, final RTreeDirectoryNode newNode1,
 			final RTreeDirectoryNode newNode2) {
 		
-		final List<SpatialIndexEntry> dataToDistribute = nodeToSplit.getIndexEntries();
-		final List<SpatialIndexEntry> seeds = new ArrayList<>();
+		final List<RTreeSpatialIndexEntry> dataToDistribute = nodeToSplit.getIndexEntries();
+		final List<RTreeSpatialIndexEntry> seeds = new ArrayList<>();
 		
-		final QuadraticSeedPicker<SpatialIndexEntry> seedPicker = new QuadraticSeedPicker<>();
+		final QuadraticSeedPicker<RTreeSpatialIndexEntry> seedPicker = new QuadraticSeedPicker<>();
 		seedPicker.quadraticPickSeeds(dataToDistribute, seeds);
 
 		newNode1.insertEntryIntoIndex(seeds.get(0));
@@ -223,7 +224,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 			newNode2.updateBoundingBox();
 
 			final int remainingObjects = dataToDistribute.size() - i;
-			final SpatialIndexEntry entry = dataToDistribute.get(i);
+			final RTreeSpatialIndexEntry entry = dataToDistribute.get(i);
 			
 			if(newNode1.getIndexEntries().size() + remainingObjects <= MAX_SIZE / 2) {
 				newNode1.insertEntryIntoIndex(entry);
