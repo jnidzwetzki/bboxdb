@@ -149,7 +149,9 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 			return -1;
 		}
 		
-		memory.position((int) ((entry * SSTableConst.INDEX_ENTRY_BYTES) + SSTableConst.MAGIC_BYTES.length));
+		final byte[] magicBytes = getMagicBytes();
+		
+		memory.position((int) ((entry * SSTableConst.INDEX_ENTRY_BYTES) + magicBytes.length));
 		int position = memory.getInt();
 		return position;
 	}
@@ -165,7 +167,9 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 				return 0;
 			}
 			
-			return (int) ((fileChannel.size() - SSTableConst.MAGIC_BYTES.length) / SSTableConst.INDEX_ENTRY_BYTES);
+			final byte[] magicBytes = getMagicBytes();
+			
+			return (int) ((fileChannel.size() - magicBytes.length) / SSTableConst.INDEX_ENTRY_BYTES);
 		} catch (IOException e) {
 			logger.error("IO Exception while reading from index", e);
 		}

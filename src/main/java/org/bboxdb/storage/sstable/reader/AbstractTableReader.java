@@ -24,11 +24,10 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
-import org.bboxdb.Const;
 import org.bboxdb.BBoxDBService;
+import org.bboxdb.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.sstable.SSTableConst;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,7 +129,10 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	 * Reset the position to the first element
 	 */
 	protected void resetPosition() {
-		memory.position(SSTableConst.MAGIC_BYTES.length);
+		
+		final byte[] magicBytes = getMagicBytes();
+		
+		memory.position(magicBytes.length);
 	}
 
 	/**
