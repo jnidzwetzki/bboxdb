@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
-import org.bboxdb.network.NetworkHelper;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.client.future.EmptyResultFuture;
@@ -72,6 +71,7 @@ import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.StreamHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -806,7 +806,7 @@ public class BBoxDBClient implements BBoxDB {
 		 */
 		protected ByteBuffer readNextResponsePackageHeader() throws IOException {
 			final ByteBuffer bb = ByteBuffer.allocate(12);
-			NetworkHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
+			StreamHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
 			return bb;
 		}
 		
@@ -955,7 +955,7 @@ public class BBoxDBClient implements BBoxDB {
 		
 		//System.out.println("Trying to read: " + bodyLength + " avail " + inputStream.available());
 		encodedPackage.put(packageHeader.array());
-		NetworkHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
+		StreamHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
 
 		return encodedPackage;
 	}

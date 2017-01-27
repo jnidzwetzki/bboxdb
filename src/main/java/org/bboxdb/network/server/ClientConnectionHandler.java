@@ -44,7 +44,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
-import org.bboxdb.network.NetworkHelper;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.packages.NetworkResponsePackage;
@@ -81,6 +80,7 @@ import org.bboxdb.storage.queryprocessor.predicate.NewerAsTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.OverlapsBoundingBoxPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.StreamHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,7 +180,7 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected ByteBuffer readNextPackageHeader() throws IOException, PackageEncodeException {
 		final ByteBuffer bb = ByteBuffer.allocate(12);
-		NetworkHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
+		StreamHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
 		
 		final RoutingHeader routingHeader = RoutingHeaderParser.decodeRoutingHeader(inputStream);
 		final byte[] routingHeaderBytes = RoutingHeaderParser.encodeHeader(routingHeader);
@@ -862,7 +862,7 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());			
 			encodedPackage.put(packageHeader.array());
-			NetworkHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
+			StreamHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
 		} catch (IOException e) {
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 			throw e;
