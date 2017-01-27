@@ -47,6 +47,11 @@ public class SSTableConst {
 	public final static String SST_INDEX_SUFFIX = ".idx";
 	
 	/**
+	 * The suffix for every spatial index file
+	 */
+	public final static String SST_SPATIAL_INDEX_SUFFIX = ".sidx";
+
+	/**
 	 * The suffix for persistent bloom filters
 	 */
 	public final static String SST_BLOOM_SUFFIX = ".blm";

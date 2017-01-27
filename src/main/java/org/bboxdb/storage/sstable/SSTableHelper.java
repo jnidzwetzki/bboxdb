@@ -117,6 +117,19 @@ public class SSTableHelper {
 	}
 	
 	/**
+	 * The full name of the spatial index file for a given relation
+	 * 
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.sidx
+	 */
+	public static String getSSTableSpatialIndexFilename(final String directory, final String name, int tablebumber) {
+		return getSSTableBase(directory, name, tablebumber)
+				+ SSTableConst.SST_SPATIAL_INDEX_SUFFIX;
+	}
+	
+	/**
 	 * The full name of the SSTable metadata file for a given relation
 	 * 
 	 * @param directory
@@ -161,6 +174,16 @@ public class SSTableHelper {
 				&& filename.endsWith(SSTableConst.SST_BLOOM_SUFFIX);
 	}
 	
+	/**
+	 * Belongs the given filename to a spatial index file?
+	 * @param filename
+	 * @return
+	 */
+	public static boolean isFileNameSpatialIndex(final String filename) {
+		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
+				&& filename.endsWith(SSTableConst.SST_SPATIAL_INDEX_SUFFIX);
+	}
+
 	/**
 	 * Belongs the given filename to a SSTable meta file?
 	 * @param filename

@@ -397,6 +397,7 @@ public class SSTableManager implements BBoxDBService {
 				
 		for(final File file : entries) {
 			final String filename = file.getName();
+			
 			if(SSTableHelper.isFileNameSSTable(filename)) {
 				logger.info("Deleting file: {} ", file);
 				file.delete();
@@ -408,6 +409,9 @@ public class SSTableManager implements BBoxDBService {
 				file.delete();
 			} else if(SSTableHelper.isFileNameSSTableMetadata(filename)) {
 				logger.info("Deleting meta file: {}", file);
+				file.delete();
+			} else if(SSTableHelper.isFileNameSpatialIndex(filename)) {
+				logger.info("Deleting spatial index file: {}", file);
 				file.delete();
 			}
 		}
