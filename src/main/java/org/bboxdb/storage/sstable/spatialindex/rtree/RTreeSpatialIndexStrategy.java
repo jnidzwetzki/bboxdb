@@ -17,12 +17,16 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexStrategy;
 
@@ -47,16 +51,50 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 		this.nodeFactory = new RTreeNodeFactory();
 		this.rootNode = nodeFactory.buildDirectoryNode();
 	}
+	
+	/**
+	 * Validate the magic bytes of a stream
+	 * 
+	 * @return a InputStream or null
+	 * @throws StorageManagerException
+	 * @throws IOException 
+	 */
+	protected void validateStream(final InputStream inputStream) throws IOException, StorageManagerException {
+		
+		// Validate file - read the magic from the beginning
+		final byte[] magicBytes = new byte[SSTableConst.MAGIC_BYTES_SPATIAL_INDEX.length];
+		inputStream.read(magicBytes, 0, SSTableConst.MAGIC_BYTES_SPATIAL_INDEX.length);
+
+		if(! Arrays.equals(magicBytes, SSTableConst.MAGIC_BYTES_SPATIAL_INDEX)) {
+			throw new StorageManagerException("Spatial index file does not contain the magic bytes");
+		}
+	}
 
 	@Override
-	public void readFromStream(final InputStream inputStream) {
-		// TODO Auto-generated method stub
+	public void readFromStream(final InputStream inputStream) throws StorageManagerException {
+		
+		try {
+		// Validate the magic bytes
+		validateStream(inputStream);
+		} catch (IOException e) {
+			throw new StorageManagerException(e);
+		}
 		
 	}
 
 	@Override
-	public void writeToStream(final OutputStream outputStream) {
-		// TODO Auto-generated method stub
+	public void writeToStream(final OutputStream outputStream) throws StorageManagerException {
+		
+		try {
+			// Write the magic bytes
+			outputStream.write(SSTableConst.MAGIC_BYTES_SPATIAL_INDEX);
+			
+			// Write only index entries.
+			// The index structure is reconstructed in memory
+			// with a bulk insert.
+		} catch (IOException e) {
+			throw new StorageManagerException(e);
+		}
 		
 	}
 

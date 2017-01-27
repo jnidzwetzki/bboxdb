@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 
 
@@ -45,14 +46,15 @@ public interface SpatialIndexStrategy {
 	 * 
 	 * @param inputStream
 	 */
-	public void readFromStream(final InputStream inputStream);
+	public void readFromStream(final InputStream inputStream) throws StorageManagerException;
 	
 	/**
 	 * Read the index from a data stream
 	 * 
 	 * @param outputStream
+	 * @throws StorageManagerException 
 	 */
-	public void writeToStream(final OutputStream outputStream);
+	public void writeToStream(final OutputStream outputStream) throws StorageManagerException;
 	
 	/**
 	 * Find the entries for the given region
