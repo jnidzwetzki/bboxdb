@@ -27,6 +27,11 @@ public class SSTableConst {
 	public final static byte[] MAGIC_BYTES = "bboxdb".getBytes();
 	
 	/**
+	 * The magic bytes at the beginning of every SSTable index file
+	 */
+	public final static byte[] MAGIC_BYTES_INDEX = "bboxdb-idx".getBytes();
+	
+	/**
 	 * The magic bytes at the beginning of every spatial index file
 	 */
 	public final static byte[] MAGIC_BYTES_SPATIAL_INDEX = "bboxdb-sidx".getBytes();

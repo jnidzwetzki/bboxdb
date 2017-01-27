@@ -246,4 +246,9 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 		final String filename = SSTableHelper.getSSTableIndexFilename(directory, name.getFullname(), tablebumber);
 		return new File(filename);
 	}
+
+	@Override
+	protected byte[] getMagicBytes() {
+		return SSTableConst.MAGIC_BYTES_INDEX;
+	}
 }

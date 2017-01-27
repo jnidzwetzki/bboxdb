@@ -108,14 +108,23 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	 */
 	protected void validateFile() throws StorageManagerException {
 		
+		final byte[] expectedMagicBytes = getMagicBytes();
+		
 		// Validate file - read the magic from the beginning
-		final byte[] magicBytes = new byte[SSTableConst.MAGIC_BYTES.length];
-		memory.get(magicBytes, 0, SSTableConst.MAGIC_BYTES.length);
+		final byte[] magicBytes = new byte[expectedMagicBytes.length];
+		
+		memory.get(magicBytes, 0, expectedMagicBytes.length);
 
-		if(! Arrays.equals(magicBytes, SSTableConst.MAGIC_BYTES)) {
+		if(! Arrays.equals(magicBytes, expectedMagicBytes)) {
 			throw new StorageManagerException("File " + file + " does not contain the magic bytes");
 		}
 	}
+	
+	/**
+	 * Get the magic bytes for the file
+	 * @return
+	 */
+	protected abstract byte[] getMagicBytes();
 	
 	/**
 	 * Reset the position to the first element

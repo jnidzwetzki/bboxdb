@@ -176,4 +176,9 @@ public class SSTableReader extends AbstractTableReader {
 		final String filename = SSTableHelper.getSSTableFilename(directory, name.getFullname(), tablebumber);
 		return new File(filename);
 	}
+
+	@Override
+	protected byte[] getMagicBytes() {
+		return SSTableConst.MAGIC_BYTES;
+	}
 }

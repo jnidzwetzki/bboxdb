@@ -162,7 +162,7 @@ public class SSTableWriter implements AutoCloseable {
 			sstableOutputStream = new FileOutputStream(sstableFile);
 			sstableOutputStream.write(SSTableConst.MAGIC_BYTES);
 			sstableIndexOutputStream = new BufferedOutputStream(new FileOutputStream(sstableIndexFile));
-			sstableIndexOutputStream.write(SSTableConst.MAGIC_BYTES);
+			sstableIndexOutputStream.write(SSTableConst.MAGIC_BYTES_INDEX);
 		} catch (FileNotFoundException e) {
 			exceptionDuringWrite = true;
 			throw new StorageManagerException("Unable to open output file", e);
