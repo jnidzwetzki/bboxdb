@@ -76,9 +76,9 @@ public class RTreeSpatialIndexEntry extends SpatialIndexEntry {
 	 * @throws IOException 
 	 */
 	public static RTreeSpatialIndexEntry readFromStream(final InputStream inputStream) throws IOException {
-		final byte[] nodeIdBytes = new byte[4];
-		final byte[] keyLengthBytes = new byte[2];
-		final byte[] boxLengthBytes = new byte[4];
+		final byte[] nodeIdBytes = new byte[DataEncoderHelper.INT_BYTES];
+		final byte[] keyLengthBytes = new byte[DataEncoderHelper.SHORT_BYTES];
+		final byte[] boxLengthBytes = new byte[DataEncoderHelper.INT_BYTES];
 		
 		StreamHelper.readExactlyBytes(inputStream, nodeIdBytes, 0, nodeIdBytes.length);
 		StreamHelper.readExactlyBytes(inputStream, keyLengthBytes, 0, keyLengthBytes.length);
