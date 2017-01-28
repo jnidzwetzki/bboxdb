@@ -29,11 +29,11 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndexStrategy;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
 import org.bboxdb.util.DataEncoderHelper;
 import org.bboxdb.util.StreamHelper;
 
-public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
+public class RTreeSpatialIndex implements SpatialIndex {
 
 	/**
 	 * The node factory
@@ -50,7 +50,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndexStrategy {
 	 */
 	protected int MAX_SIZE = 32;
 
-	public RTreeSpatialIndexStrategy() {
+	public RTreeSpatialIndex() {
 		this.nodeFactory = new RTreeNodeFactory();
 		this.rootNode = nodeFactory.buildDirectoryNode();
 	}

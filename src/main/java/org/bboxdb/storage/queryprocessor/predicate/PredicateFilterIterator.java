@@ -33,6 +33,9 @@ public class PredicateFilterIterator implements Iterator<Tuple> {
 	 */
 	protected final Predicate predicate;
 	
+	/**
+	 * The next available tuple
+	 */
 	protected Tuple nextTuple = null;
 	
 	public PredicateFilterIterator(final Iterator<Tuple> baseIterator, final Predicate predicate) {

@@ -31,6 +31,9 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
 import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +55,11 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	 * The bloom filter
 	 */
 	protected final BloomFilter<String> bloomFilter;
+	
+	/**
+	 * The spatial index
+	 */
+	protected final SpatialIndex spatialIndex;
 	
 	/**
 	 * The next free position in the data array
@@ -113,6 +121,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 		this.sizeInMemory = 0;
 		
 		this.bloomFilter = BloomFilterBuilder.buildBloomFilter(entries);
+		this.spatialIndex = SpatialIndexFactory.getInstance();
 		
 		this.createdTimestamp = System.currentTimeMillis();
 		this.oldestTupleTimestamp = -1;
@@ -149,6 +158,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 
 		data[freePos] = value;
 		bloomFilter.put(value.getKey());
+		spatialIndex.insert(new SpatialIndexEntry(value.getKey(), value.getBoundingBox()));
 		
 		freePos++;
 		sizeInMemory = sizeInMemory + value.getSize();

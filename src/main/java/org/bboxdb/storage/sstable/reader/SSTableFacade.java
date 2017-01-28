@@ -17,7 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.reader;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,6 +33,8 @@ import org.bboxdb.storage.entity.SStableMetaData;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.sstable.SSTableHelper;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +66,11 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	 * The metadata of the sstable
 	 */
 	protected final SStableMetaData ssTableMetadata;
+	
+	/**
+	 * The spatial index
+	 */
+	protected SpatialIndex spatialIndex;
 	
 	/**
 	 * The Bloom filter
@@ -97,17 +106,75 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		
 		ssTableReader = new SSTableReader(directory, tablename, tablenumber);
 		ssTableKeyIndexReader = new SSTableKeyIndexReader(ssTableReader);
+				
+		// Spatial index
+		final File spatialIndexFile = getSpatialIndexFile(directory, tablename, tablenumber);
+		loadSpatialIndex(spatialIndexFile); 
 		
+		// Bloom filter
 		final File bloomFilterFile = getBloomFilterFile(directory, tablename, tablenumber);
 		loadBloomFilter(bloomFilterFile);
 		
+		// Meta data
 		final File metadataFile = getMetadataFile(directory, tablename, tablenumber);
 		ssTableMetadata = SStableMetaData.importFromYamlFile(metadataFile);
 		
 		this.usage = new AtomicInteger(0);
 		deleteOnClose = false;
 	}
+
+	/**
+	 * Get the spatial index file
+	 * @param directory
+	 * @param tablename
+	 * @param tablenumber
+	 * @return
+	 */
+	protected File getSpatialIndexFile(final String directory, final SSTableName tablename, final int tablenumber) {
+		final String sstableName = tablename.getFullname();
+		final String spatialIndexFileName = SSTableHelper.getSSTableSpatialIndexFilename(directory, sstableName, tablenumber);
+		final File spatialIndexFile = new File(spatialIndexFileName);
+		return spatialIndexFile;
+	}
+
+	/**
+	 * Get the bloomfilter file
+	 * @param directory
+	 * @param tablename
+	 * @param tablenumber
+	 * @return
+	 */
+	protected File getBloomFilterFile(final String directory, final SSTableName tablename, final int tablenumber) {
+		final String sstableName = tablename.getFullname();
+		final String bloomFilterFileName = SSTableHelper.getSSTableBloomFilterFilename(directory, sstableName, tablenumber);
+		final File bloomFilterFile = new File(bloomFilterFileName);
+		return bloomFilterFile;
+	}
 	
+	/**
+	 * Load the spatial index from file
+	 * @throws StorageManagerException 
+	 */
+	protected void loadSpatialIndex(final File spatialIndexFile) throws StorageManagerException {
+		if(! spatialIndexFile.exists()) {
+			throw new StorageManagerException("The spatial index does not exists: " + spatialIndexFile);
+		}
+		
+		try (    final FileInputStream fis = new FileInputStream(spatialIndexFile);
+				 final BufferedInputStream inputStream = new BufferedInputStream(fis);) {
+			
+			spatialIndex = SpatialIndexFactory.getInstance();
+			spatialIndex.readFromStream(inputStream);
+			
+		} catch (Exception e) {
+			throw new StorageManagerException(e);
+		}
+	}
+	
+	/**
+	 * Load the boom filter from file
+	 * @param bloomFilterFile
+	 */
 	protected void loadBloomFilter(final File bloomFilterFile) {
 		
 		if(! bloomFilterFile.exists()) {
@@ -137,19 +204,6 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		return new File(metadatafile);
 	}
 	
-	/**
-	 * Get the name of the bloom filter file
-	 * @param directory
-	 * @param tablename
-	 * @param tablenumber
-	 * @return
-	 */
-	protected File getBloomFilterFile(final String directory,
-			final SSTableName tablename, final int tablenumber) {
-		final String bloomFilter = SSTableHelper.getSSTableBloomFilterFilename(directory, tablename.getFullname(), tablenumber);
-		return new File(bloomFilter);
-	}
-
 	@Override
 	public void init() {
 		
@@ -251,6 +305,10 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 			if(ssTableReader != null) {
 				ssTableReader.delete();
 			}
+			
+			// Delete spatial index
+			final File spatialIndexFile = getSpatialIndexFile(directory, name, tablenumber);
+			spatialIndexFile.delete();
 			
 			// Delete bloom filter
 			final File bloomFilterFile = getBloomFilterFile(directory, name, tablenumber);

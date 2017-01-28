@@ -25,12 +25,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.SStableMetaData;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexFactory;
 import org.bboxdb.util.DataEncoderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +84,11 @@ public class SSTableWriter implements AutoCloseable {
 	protected File sstableBloomFilterFile;
 	
 	/**
+	 * The spatial index file
+	 */
+	protected File spatialIndexFile;
+	
+	/**
 	 * The meta data file
 	 */
 	protected File metadatafile;
@@ -93,6 +102,11 @@ public class SSTableWriter implements AutoCloseable {
 	 * The bloom filter
 	 */
 	protected final BloomFilter<String> bloomFilter;
+	
+	/**
+	 * The spatial index
+	 */
+	protected final SpatialIndex spatialIndex;
 	
 	/**
 	 * The error flag
@@ -111,17 +125,24 @@ public class SSTableWriter implements AutoCloseable {
 		
 		this.sstableOutputStream = null;
 		this.metadataBuilder = new SSTableMetadataBuilder();
+
+		this.exceptionDuringWrite = false;
 		
+		final String sstableName = name.getFullname();
+
 		// Bloom Filter
-		final String sstableBloomFilterFilename = SSTableHelper.getSSTableBloomFilterFilename(directory, name.getFullname(), tablenumber);
+		final String sstableBloomFilterFilename = SSTableHelper.getSSTableBloomFilterFilename(directory, sstableName, tablenumber);
 		this.sstableBloomFilterFile = new File(sstableBloomFilterFilename);
 		this.bloomFilter = BloomFilterBuilder.buildBloomFilter(estimatedNumberOfTuples);
 		
-		// Metadata
-		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, name.getFullname(), tablenumber);
-		this.metadatafile = new File(ssTableMetadataFilename);
+		// Spatial index
+		final String spatialIndexFilename =  SSTableHelper.getSSTableSpatialIndexFilename(directory, sstableName, tablenumber);
+		this.spatialIndexFile = new File(spatialIndexFilename);
+		this.spatialIndex = SpatialIndexFactory.getInstance();
 		
-		this.exceptionDuringWrite = false;
+		// Metadata
+		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, sstableName, tablenumber);
+		this.metadatafile = new File(ssTableMetadataFilename);
 	}
 	
 	/**
@@ -190,8 +211,10 @@ public class SSTableWriter implements AutoCloseable {
 				sstableIndexOutputStream = null;
 			}
 			
+			writeSpatialIndex();
 			writeBloomFilter();
-			writeMetadata();	
+			writeMetadata();
+			
 		} catch (IOException e) {
 			exceptionDuringWrite = true;
 			throw new StorageManagerException("Exception while closing streams", e);
@@ -218,9 +241,27 @@ public class SSTableWriter implements AutoCloseable {
 				sstableBloomFilterFile.delete();
 			}
 			
+			if(spatialIndexFile != null && spatialIndexFile.exists()) {
+				spatialIndexFile.delete();
+			}
+			
 			if(metadatafile != null && metadatafile.exists()) {
 				metadatafile.delete();
 			}
+		}
+	}
+	
+	/**
+	 * Write the spatial index to file
+	 * @throws IOException
+	 * @throws StorageManagerException 
+	 */
+	protected void writeSpatialIndex() throws IOException, StorageManagerException {
+		try (   final FileOutputStream fos = new FileOutputStream(spatialIndexFile);
+				final OutputStream outputStream = new BufferedOutputStream(fos);
+			) {
+			spatialIndex.writeToStream(outputStream);
+			outputStream.close();
 		}
 	}
 	
@@ -229,8 +270,11 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws IOException
 	 */
 	protected void writeBloomFilter() throws IOException {
-		try (final OutputStream outputStream 
-				= new BufferedOutputStream(new FileOutputStream(sstableBloomFilterFile));) {
+		
+		try (   final FileOutputStream fos = new FileOutputStream(sstableBloomFilterFile);
+				final OutputStream outputStream = new BufferedOutputStream(fos);
+			) {
+			
 			bloomFilter.writeTo(outputStream);
 			outputStream.close();
 		}
@@ -262,6 +306,13 @@ public class SSTableWriter implements AutoCloseable {
 			logger.error(error);
 			throw new StorageManagerException(error);
 		}
+		
+		final List<SpatialIndexEntry> indexEntries = tuples
+				.stream()
+				.map(t -> new SpatialIndexEntry(t.getKey(), t.getBoundingBox()))
+				.collect(Collectors.toList());
+		
+		spatialIndex.bulkInsert(indexEntries);
 		
 		try {
 			for(final Tuple tuple : tuples) {

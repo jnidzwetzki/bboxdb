@@ -25,7 +25,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 
 
-public interface SpatialIndexStrategy {
+public interface SpatialIndex {
 	
 	/**
 	 * Construct the index from a list of tuples
