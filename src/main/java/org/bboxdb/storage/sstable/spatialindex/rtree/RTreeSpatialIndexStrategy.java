@@ -127,10 +127,18 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 	}
 
 	@Override
-	public void bulkInsert(final List<SpatialIndexEntry> elements) {
+	public boolean bulkInsert(final List<SpatialIndexEntry> elements) {
+		boolean result = true;
+		
 		for(final SpatialIndexEntry entry : elements) {
-			insert(entry);
+			final boolean insertResult = insert(entry);
+			
+			if(! insertResult) {
+				result = false;
+			}
 		}
+		
+		return result;
 	}
 
 	@Override

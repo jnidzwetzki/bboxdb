@@ -31,8 +31,9 @@ public interface SpatialIndex {
 	 * Construct the index from a list of tuples
 	 * 
 	 * @param tuples
+	 * @return 
 	 */
-	public void bulkInsert(final List<SpatialIndexEntry> elements);
+	public boolean bulkInsert(final List<SpatialIndexEntry> elements);
 	
 	/**
 	 * Insert one element into the index
