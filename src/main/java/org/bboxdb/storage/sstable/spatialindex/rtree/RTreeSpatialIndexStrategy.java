@@ -33,7 +33,7 @@ import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
 import org.bboxdb.util.DataEncoderHelper;
 import org.bboxdb.util.StreamHelper;
 
-public class RTreeSpatialIndex implements SpatialIndex {
+public class RTreeSpatialIndexStrategy implements SpatialIndex {
 
 	/**
 	 * The node factory
@@ -50,7 +50,7 @@ public class RTreeSpatialIndex implements SpatialIndex {
 	 */
 	protected int MAX_SIZE = 32;
 
-	public RTreeSpatialIndex() {
+	public RTreeSpatialIndexStrategy() {
 		this.nodeFactory = new RTreeNodeFactory();
 		this.rootNode = nodeFactory.buildDirectoryNode();
 	}
