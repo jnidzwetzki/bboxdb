@@ -134,18 +134,26 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 	}
 
 	@Override
-	public void insert(final SpatialIndexEntry entry) {
+	public boolean insert(final SpatialIndexEntry entry) {
 		final RTreeSpatialIndexEntry treeEntry = nodeFactory.buildRTreeIndex(entry);
-		insert(treeEntry);
+		return insert(treeEntry);
 	}
 	
 	/**
 	 * Insert the given RTreeSpatialIndexEntry into the tree
 	 * @param entry
+	 * @return 
 	 */
-	protected void insert(final RTreeSpatialIndexEntry entry) {
+	protected boolean insert(final RTreeSpatialIndexEntry entry) {
+
+		if(entry.getBoundingBox() == null || entry.getBoundingBox() == BoundingBox.EMPTY_BOX) {
+			return false;
+		}
+
 		final RTreeDirectoryNode insertedNode = rootNode.insertEntryIntoIndex(entry);
-		adjustTree(insertedNode);		
+		adjustTree(insertedNode);	
+		
+		return true;
 	}
 
 	/**

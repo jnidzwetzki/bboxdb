@@ -38,8 +38,9 @@ public interface SpatialIndex {
 	 * Insert one element into the index
 	 * 
 	 * @param element
+	 * @return 
 	 */
-	public void insert(final SpatialIndexEntry element);
+	public boolean insert(final SpatialIndexEntry element);
 	
 	/**
 	 * Persist the index 

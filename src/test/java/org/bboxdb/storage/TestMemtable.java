@@ -23,6 +23,7 @@ import java.util.List;
 import org.bboxdb.PersonEntity;
 import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -139,7 +140,7 @@ public class TestMemtable {
 		final int MAX_TUPLES = memtable.getMaxEntries() * 10;
 
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), null, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
 			memtable.put(createdTuple);
 		}
 	}
