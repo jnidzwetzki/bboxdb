@@ -151,6 +151,10 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 			}
 		
 			final RTreeDirectoryNode bestNode = findBestNodeForInsert(entryBox);
+			
+			if(bestNode == null) {
+				throw new RuntimeException("Unable to find a node for insert");
+			}
 
 			final RTreeDirectoryNode result = bestNode.insertEntryIntoIndex(entry);
 			updateBoundingBox();
