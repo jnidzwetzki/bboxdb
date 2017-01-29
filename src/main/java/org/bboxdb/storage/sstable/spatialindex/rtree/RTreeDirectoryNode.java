@@ -146,7 +146,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 			// Return the leaf node that has stored the data
 			return this;
 		} else {
-			if(directoryNodeChilds == null || directoryNodeChilds.isEmpty()) {
+			if(directoryNodeChilds.isEmpty()) {
 				throw new RuntimeException("This is a !leaf node with no childs?");
 			}
 		
