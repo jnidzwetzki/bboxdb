@@ -66,7 +66,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		
 		// Validate file - read the magic from the beginning
 		final byte[] magicBytes = new byte[SSTableConst.MAGIC_BYTES_SPATIAL_INDEX.length];
-		inputStream.read(magicBytes, 0, SSTableConst.MAGIC_BYTES_SPATIAL_INDEX.length);
+		StreamHelper.readExactlyBytes(inputStream, magicBytes, 0, SSTableConst.MAGIC_BYTES_SPATIAL_INDEX.length);
 
 		if(! Arrays.equals(magicBytes, SSTableConst.MAGIC_BYTES_SPATIAL_INDEX)) {
 			throw new StorageManagerException("Spatial index file does not contain the magic bytes");
