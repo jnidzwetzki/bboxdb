@@ -75,10 +75,10 @@ import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.predicate.AndPredicate;
-import org.bboxdb.storage.queryprocessor.predicate.NewerAsTimePredicate;
-import org.bboxdb.storage.queryprocessor.predicate.OverlapsBoundingBoxPredicate;
-import org.bboxdb.storage.queryprocessor.predicate.Predicate;
+import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxAndTimeQueryPlan;
+import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
+import org.bboxdb.storage.queryprocessor.queryplan.NewerAsTimeQueryPlan;
+import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.StreamHelper;
 import org.slf4j.Logger;
@@ -589,9 +589,9 @@ public class ClientConnectionHandler implements Runnable {
 			
 			final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
 			final SSTableName requestTable = queryRequest.getTable();
-			final Predicate predicate = new OverlapsBoundingBoxPredicate(queryRequest.getBoundingBox());
-
-			final ClientQuery clientQuery = new ClientQuery(predicate, queryRequest.isPagingEnabled(), 
+			final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryRequest.getBoundingBox());
+			
+			final ClientQuery clientQuery = new ClientQuery(queryPlan, queryRequest.isPagingEnabled(), 
 					queryRequest.getTuplesPerPage(), this, packageSequence, requestTable);
 			
 			activeQueries.put(packageSequence, clientQuery);
@@ -618,11 +618,10 @@ public class ClientConnectionHandler implements Runnable {
 			final QueryBoundingBoxTimeRequest queryRequest = QueryBoundingBoxTimeRequest.decodeTuple(encodedPackage);
 			final SSTableName requestTable = queryRequest.getTable();
 	
-			final Predicate bboxPredicate = new OverlapsBoundingBoxPredicate(queryRequest.getBoundingBox());
-			final Predicate timePredicate = new NewerAsTimePredicate(queryRequest.getTimestamp());
-			final Predicate predicate = new AndPredicate(timePredicate, bboxPredicate);
-			
-			final ClientQuery clientQuery = new ClientQuery(predicate, queryRequest.isPagingEnabled(), 
+			final QueryPlan queryPlan = new BoundingBoxAndTimeQueryPlan(queryRequest.getBoundingBox(), 
+					queryRequest.getTimestamp());
+	
+			final ClientQuery clientQuery = new ClientQuery(queryPlan, queryRequest.isPagingEnabled(), 
 					queryRequest.getTuplesPerPage(), this, packageSequence, requestTable);
 			
 			activeQueries.put(packageSequence, clientQuery);
@@ -699,9 +698,9 @@ public class ClientConnectionHandler implements Runnable {
 			
 			final QueryTimeRequest queryRequest = QueryTimeRequest.decodeTuple(encodedPackage);
 			final SSTableName requestTable = queryRequest.getTable();
-			final Predicate predicate = new NewerAsTimePredicate(queryRequest.getTimestamp());
-
-			final ClientQuery clientQuery = new ClientQuery(predicate, queryRequest.isPagingEnabled(), 
+			final QueryPlan queryPlan = new NewerAsTimeQueryPlan(queryRequest.getTimestamp());
+			
+			final ClientQuery clientQuery = new ClientQuery(queryPlan, queryRequest.isPagingEnabled(), 
 					queryRequest.getTuplesPerPage(), this, packageSequence, requestTable);
 			
 			activeQueries.put(packageSequence, clientQuery);

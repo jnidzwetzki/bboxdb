@@ -10,10 +10,12 @@ order: 1
 - New Feature: Using Coverity scan and codecov.io to improve source code quality
 - New Feature: OSM Data is now stored as GeoJSON, instead of a java serialized byte stream
 - New Feature: Introduced the R-Tree spatial indexer
+- New Feature: Added index support to the query processor
+- New Feature: Introduced query plans
 - Improvement: Changed bounding box precision from float to double
 - Improvement: Reduced memory usage of the network stack by removing the response buffering
 - Improvement: Switched from MapDB 3.0.2 to 3.0.3, and from guava 20.0 to 21.0
-- Improvement: Fixed a lot of small bugs, found by Coverity code scan
+- Improvement: Fixed a lot of small bugs, found by 'Coverity code' scan
 - Improvement: Region splits are now based on the size of the region
 - Improvement: SSTables and SSTable-Index files are using now different magic bytes
 - Bugfix: Outdated jars are new removed on bboxdb_update

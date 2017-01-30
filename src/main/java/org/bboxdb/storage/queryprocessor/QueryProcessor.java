@@ -26,8 +26,7 @@ import java.util.Map;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.predicate.Predicate;
-import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
+import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.slf4j.Logger;
@@ -36,9 +35,9 @@ import org.slf4j.LoggerFactory;
 public class QueryProcessor {
 
 	/**
-	 * The predicate to evaluate
+	 * The query plan to evaluate
 	 */
-	protected final Predicate predicate;
+	protected final QueryPlan queryplan;
 	
 	/**
 	 * The sstable manager
@@ -72,8 +71,8 @@ public class QueryProcessor {
 	protected static final Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
 	
 	
-	public QueryProcessor(final Predicate predicate, final SSTableManager ssTableManager) {
-		this.predicate = predicate;
+	public QueryProcessor(final QueryPlan queryplan, final SSTableManager ssTableManager) {
+		this.queryplan = queryplan;
 		this.ssTableManager = ssTableManager;
 		this.ready = false;
 		this.seenTuples = new HashMap<String, Long>();
@@ -109,7 +108,7 @@ public class QueryProcessor {
 				// Find next iterator 
 				while(! unprocessedStorages.isEmpty()) {
 					activeStorage = unprocessedStorages.remove(0);
-					activeIterator = new PredicateFilterIterator(activeStorage.iterator(), predicate);
+					activeIterator = queryplan.execute(activeStorage);
 					
 					if(activeIterator.hasNext()) {
 						return;

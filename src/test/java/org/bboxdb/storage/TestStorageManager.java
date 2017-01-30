@@ -17,18 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.storage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-
 import org.bboxdb.PersonEntity;
-import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.predicate.NewerAsTimePredicate;
-import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.ObjectSerializer;
 import org.junit.Assert;
@@ -76,47 +68,6 @@ public class TestStorageManager {
 		storageManager.put(tuple2);
 		
 		Assert.assertEquals(tuple2, storageManager.get("1"));
-	}
-	
-	@Test
-	public void testInsertElements3() throws Exception {
-		final Tuple tuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tuple2 = new Tuple("1", BoundingBox.EMPTY_BOX, "def".getBytes(), 2);
-
-		storageManager.put(tuple1);
-		storageManager.put(tuple2);
-		
-		final Collection<Tuple> tuples = getTuplesFromPredicate(new NewerAsTimePredicate(0));
-		
-		System.out.println(tuples);
-		
-		Assert.assertEquals(1, tuples.size());
-		Assert.assertFalse(tuples.contains(tuple1));
-		Assert.assertTrue(tuples.contains(tuple2));
-	}
-	
-	protected Collection<Tuple> getTuplesFromPredicate(final Predicate predicate) {
-		final Iterator<Tuple> iterator = storageManager.getMatchingTuples(predicate);
-		final Collection<Tuple> result = new ArrayList<>();
-		
-		while(iterator.hasNext()) {
-			result.add(iterator.next());
-		}
-		
-		return result;
-	}
-	
-	@Test
-	public void testInsertElements4() throws Exception {
-		final Tuple tuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1234);
-		final Tuple tuple2 = new Tuple("1", BoundingBox.EMPTY_BOX, "def".getBytes(), 1234);
-
-		storageManager.put(tuple1);
-		storageManager.put(tuple2);
-		
-		final Collection<Tuple> tuples = getTuplesFromPredicate(new NewerAsTimePredicate(0));
-		
-		Assert.assertEquals(1, tuples.size());
 	}
 	
 	@Test

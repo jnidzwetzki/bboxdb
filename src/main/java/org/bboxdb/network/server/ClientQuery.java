@@ -30,7 +30,8 @@ import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
-import org.bboxdb.storage.queryprocessor.predicate.Predicate;
+import org.bboxdb.storage.queryprocessor.QueryProcessor;
+import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +39,9 @@ import org.slf4j.LoggerFactory;
 public class ClientQuery implements Closeable {
 
 	/**
-	 * The predicate to execute
+	 * The query plan to execute
 	 */
-	protected final Predicate predicate;
+	protected final QueryPlan queryPlan;
 	
 	/**
 	 * Page the result
@@ -88,11 +89,11 @@ public class ClientQuery implements Closeable {
 	private final static Logger logger = LoggerFactory.getLogger(ClientQuery.class);
 
 
-	public ClientQuery(final Predicate predicate, final boolean pageResult,
+	public ClientQuery(final QueryPlan queryPlan, final boolean pageResult,
 			final short tuplesPerPage, final ClientConnectionHandler clientConnectionHandler, 
 			final short packageSequence, final SSTableName requestTable) {
 
-		this.predicate = predicate;
+		this.queryPlan = queryPlan;
 		this.pageResult = pageResult;
 		this.tuplesPerPage = tuplesPerPage;
 		this.clientConnectionHandler = clientConnectionHandler;
@@ -179,7 +180,8 @@ public class ClientQuery implements Closeable {
 		try {
 			final SSTableName sstableName = localTables.remove(0);
 			final SSTableManager storageManager = StorageRegistry.getSSTableManager(sstableName);
-			currentIterator = storageManager.getMatchingTuples(predicate);
+			final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
+			currentIterator = queryProcessor.iterator();
 			return true;
 		} catch (StorageManagerException e) {
 			logger.warn("Got exception while fetching tuples", e);
