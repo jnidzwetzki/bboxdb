@@ -21,6 +21,7 @@ order: 1
 - Bugfix: Outdated jars are new removed on bboxdb_update
 - Bugfix: Removed implementation and specification of the unused TransferSSTable network package
 - Bugfix: Removed the non working BoxSearch spatial index
+- Bugfix: The weight based split strategy was analyzing all local regions of a distribution group
 
 ### Version 0.2.0 (Stable) - 11.01.2017
 - Improvement: New logo

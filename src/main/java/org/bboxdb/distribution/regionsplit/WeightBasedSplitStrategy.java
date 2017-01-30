@@ -35,8 +35,10 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	@Override
 	protected boolean performSplit(final DistributionRegion regionToSplit) {
 		final int splitDimension = regionToSplit.getSplitDimension();
-		final List<SSTableName> tables = StorageRegistry.getAllTablesForDistributionGroup(regionToSplit.getDistributionGroupName());
 	
+		final List<SSTableName> tables = StorageRegistry.getAllTablesForDistributionGroupAndRegionId
+				(region.getDistributionGroupName(), region.getRegionId());
+		
 		try {
 			final List<DoubleInterval> doubleIntervals = new ArrayList<DoubleInterval>();
 
