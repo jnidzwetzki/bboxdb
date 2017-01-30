@@ -25,11 +25,10 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.BBoxDBService;
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.predicate.Predicate;
-import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -385,13 +384,6 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	}
 
 	@Override
-	public Iterator<Tuple> getMatchingTuples(final Predicate predicate) {
-		assert (usage.get() > 0);
-
-		return new PredicateFilterIterator(iterator(), predicate);
-	}
-
-	@Override
 	public void deleteOnClose() {
 		logger.debug("deleteOnClose called and we have {} references", usage.get());
 
@@ -458,6 +450,30 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 				+ createdTimestamp + ", oldestTupleTimestamp="
 				+ oldestTupleTimestamp + ", newestTupleTimestamp="
 				+ newestTupleTimestamp + "]";
+	}
+
+	@Override
+	public Iterator<Tuple> getAllTuplesInBoundingBox(final BoundingBox boundingBox) {
+		assert (usage.get() > 0);
+
+		final List<? extends SpatialIndexEntry> matchingKeys = spatialIndex.getEntriesForRegion(boundingBox);
+		@SuppressWarnings("rawtypes")
+		final Iterator keyIterator = matchingKeys.iterator();
+		
+		return new Iterator<Tuple>() {
+
+			@Override
+			public boolean hasNext() {
+				return keyIterator.hasNext();
+			}
+
+			@Override
+			public Tuple next() {
+				final SpatialIndexEntry entry = (SpatialIndexEntry) keyIterator.next();
+				final String key = entry.getKey();
+				return get(key);
+			}
+		};
 	}
 
 	

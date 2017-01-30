@@ -18,6 +18,7 @@
 package org.bboxdb.storage;
 
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.PersonEntity;
@@ -30,6 +31,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.IteratorHelper;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
+import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
 import org.bboxdb.util.ObjectSerializer;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -197,7 +199,8 @@ public class TestMemtable {
 	}
 	
 	protected int countTuplesForPredicate(Predicate predicate) {
-		return IteratorHelper.getIteratorSize(memtable.getMatchingTuples(predicate));
+		final Iterator<Tuple> iterator = new PredicateFilterIterator(memtable.iterator(), predicate);
+		return IteratorHelper.getIteratorSize(iterator);
 	}
 
 	/**

@@ -19,9 +19,9 @@ package org.bboxdb.storage;
 
 import java.util.Iterator;
 
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 
 public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	
@@ -44,13 +44,13 @@ public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	 * @throws StorageManagerException
 	 */
 	public Tuple get(final String key) throws StorageManagerException;
-	
+
 	/**
-	 * Get all tuples that match the given predicate
-	 * @param predicate
+	 * Get all tuples that are inside the bounding box
+	 * @param boundingBox
 	 * @return
 	 */
-	public Iterator<Tuple> getMatchingTuples(final Predicate predicate);
+	public Iterator<Tuple> getAllTuplesInBoundingBox(final BoundingBox boundingBox);
 	
 	/**
 	 * Get the number of tuples in the storage

@@ -27,6 +27,7 @@ import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
+import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.slf4j.Logger;
@@ -108,7 +109,7 @@ public class SSTableQueryProcessor {
 				// Find next iterator 
 				while(! unprocessedStorages.isEmpty()) {
 					activeStorage = unprocessedStorages.remove(0);
-					activeIterator = activeStorage.getMatchingTuples(predicate);
+					activeIterator = new PredicateFilterIterator(activeStorage.iterator(), predicate);
 					
 					if(activeIterator.hasNext()) {
 						return;

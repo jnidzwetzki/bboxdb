@@ -22,18 +22,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.BBoxDBService;
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.SStableMetaData;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -381,14 +383,6 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	}
 
 	@Override
-	public Iterator<Tuple> getMatchingTuples(final Predicate predicate) {
-
-		assert (usage.get() > 0);
-
-		return ssTableKeyIndexReader.getMatchingTuples(predicate);
-	}
-
-	@Override
 	public Iterator<Tuple> iterator() {
 		
 		assert (usage.get() > 0);
@@ -423,4 +417,34 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	public long getSize() {
 		return ssTableKeyIndexReader.getSize() + ssTableReader.getSize();
 	}
+
+	@Override
+	public Iterator<Tuple> getAllTuplesInBoundingBox(final BoundingBox boundingBox) {
+		assert (usage.get() > 0);
+
+		List<? extends SpatialIndexEntry> entries = spatialIndex.getEntriesForRegion(boundingBox);
+		@SuppressWarnings("rawtypes")
+		final Iterator entryIterator = entries.iterator();
+		
+		return new Iterator<Tuple>() {
+
+			@Override
+			public boolean hasNext() {
+				return entryIterator.hasNext();
+			}
+
+			@Override
+			public Tuple next() {
+				final SpatialIndexEntry entry = (SpatialIndexEntry) entryIterator.next();
+				final String key = entry.getKey();
+				
+				try {
+					return get(key);
+				} catch (StorageManagerException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		};
+	}
+	
 }
