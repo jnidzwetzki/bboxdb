@@ -35,7 +35,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
-import org.bboxdb.storage.queryprocessor.SSTableQueryProcessor;
+import org.bboxdb.storage.queryprocessor.QueryProcessor;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
@@ -509,7 +509,7 @@ public class SSTableManager implements BBoxDBService {
 	 * Get all tuples that match the predicate
 	 */
 	public CloseableIterator<Tuple> getMatchingTuples(final Predicate predicate) {
-		final SSTableQueryProcessor ssTableQueryProcessor = new SSTableQueryProcessor(predicate, this);
+		final QueryProcessor ssTableQueryProcessor = new QueryProcessor(predicate, this);
 		return ssTableQueryProcessor.iterator();
 	}
 	

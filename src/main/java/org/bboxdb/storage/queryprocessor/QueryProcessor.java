@@ -33,7 +33,7 @@ import org.bboxdb.storage.sstable.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableQueryProcessor {
+public class QueryProcessor {
 
 	/**
 	 * The predicate to evaluate
@@ -69,10 +69,10 @@ public class SSTableQueryProcessor {
 	/**
 	 * The Logger
 	 */
-	protected static final Logger logger = LoggerFactory.getLogger(SSTableQueryProcessor.class);
+	protected static final Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
 	
 	
-	public SSTableQueryProcessor(final Predicate predicate, final SSTableManager ssTableManager) {
+	public QueryProcessor(final Predicate predicate, final SSTableManager ssTableManager) {
 		this.predicate = predicate;
 		this.ssTableManager = ssTableManager;
 		this.ready = false;
