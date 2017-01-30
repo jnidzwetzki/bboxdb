@@ -19,7 +19,6 @@ package org.bboxdb.network.client.future;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class FutureImplementation<T> {
 	
@@ -57,6 +56,7 @@ public class FutureImplementation<T> {
 	 * Empty constructor
 	 */
 	public FutureImplementation() {
+		
 	}
 	
 	/**
@@ -71,7 +71,7 @@ public class FutureImplementation<T> {
 		return done;
 	}
 
-	public T get() throws InterruptedException, ExecutionException {
+	public T get() throws InterruptedException {
 		
 		synchronized (mutex) {
 			while(! done) {
@@ -82,8 +82,7 @@ public class FutureImplementation<T> {
 		return operationResult;
 	}
 
-	public T get(final long timeout, final TimeUnit unit) throws InterruptedException,
-			ExecutionException, TimeoutException {
+	public T get(final long timeout, final TimeUnit unit) throws InterruptedException {
 		
 		synchronized (mutex) {
 			while(! done) {
@@ -140,7 +139,7 @@ public class FutureImplementation<T> {
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	public boolean waitForCompletion() throws InterruptedException, ExecutionException {
+	public boolean waitForCompletion() throws InterruptedException {
 		get();
 		return true;
 	}
