@@ -164,7 +164,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
      * @throws TimeoutException 
 	 */
 	public T get(final int resultId, final long timeout, final TimeUnit unit)
-			throws InterruptedException, ExecutionException, TimeoutException {
+			throws InterruptedException, TimeoutException {
 		
 		checkFutureSize(resultId);
 		

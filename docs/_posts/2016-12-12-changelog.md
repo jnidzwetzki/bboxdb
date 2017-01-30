@@ -12,6 +12,7 @@ order: 1
 - New Feature: Introduced the R-Tree spatial indexer
 - New Feature: Added index support to the query processor
 - New Feature: Introduced query plans
+- New Feature: Implemented timeout for futures
 - Improvement: Changed bounding box precision from float to double
 - Improvement: Reduced memory usage of the network stack by removing the response buffering
 - Improvement: Switched from MapDB 3.0.2 to 3.0.3, and from guava 20.0 to 21.0

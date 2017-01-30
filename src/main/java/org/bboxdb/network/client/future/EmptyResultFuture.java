@@ -44,7 +44,7 @@ public class EmptyResultFuture extends OperationFutureImpl<Boolean> {
 	
 	@Override
 	public Boolean get(final int resultId, final long timeout, final TimeUnit unit)
-			throws InterruptedException, ExecutionException, TimeoutException {
+			throws InterruptedException, TimeoutException {
 
 		// Wait for the future
 		futures.get(resultId).get(timeout, unit);

@@ -18,6 +18,8 @@
 package org.bboxdb;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.OperationFutureImpl;
@@ -159,6 +161,19 @@ public class TestFuture {
 
 		Assert.assertTrue(future2.isFailed());
 		Assert.assertTrue(future2.isDone());
+	}
+	
+	/**
+	 * Test the timeout method
+	 * 
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @throws TimeoutException
+	 */
+	@Test(timeout=3000, expected=TimeoutException.class)
+	public void testTimeout() throws InterruptedException, ExecutionException, TimeoutException {
+		final OperationFutureImpl<Object> future1 = new OperationFutureImpl<Object>(1);
+		future1.get(0, 1, TimeUnit.SECONDS);
 	}
 	
 }

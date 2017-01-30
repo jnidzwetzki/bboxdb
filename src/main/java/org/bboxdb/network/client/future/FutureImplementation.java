@@ -19,6 +19,7 @@ package org.bboxdb.network.client.future;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class FutureImplementation<T> {
 	
@@ -97,12 +98,23 @@ public class FutureImplementation<T> {
 	 * @param unit
 	 * @return
 	 * @throws InterruptedException
+	 * @throws TimeoutException 
 	 */
-	public T get(final long timeout, final TimeUnit unit) throws InterruptedException {
+	public T get(final long timeout, final TimeUnit unit) throws InterruptedException, TimeoutException {
 		
+		final long waitBegin = System.currentTimeMillis();
+		final long waitTimeInMilis = unit.toMillis(timeout);
+
 		synchronized (mutex) {
 			while(! done) {
-				mutex.wait(unit.toMillis(timeout));
+				mutex.wait(waitTimeInMilis);
+				final long waitNow = System.currentTimeMillis();
+				
+				final long passedTime = waitNow - waitBegin;
+				
+				if(passedTime > waitTimeInMilis) {
+					throw new TimeoutException("Unable to receive data in " + passedTime + " ms");
+				}
 			}
 		}
 				
