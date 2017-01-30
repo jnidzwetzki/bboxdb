@@ -67,10 +67,19 @@ public class FutureImplementation<T> {
 		this.requestId = requestId;
 	}
 
+	/**
+	 * Is the operation done?
+	 * @return
+	 */
 	public boolean isDone() {
 		return done;
 	}
 
+	/**
+	 * Get (and wait) for the result
+	 * @return
+	 * @throws InterruptedException
+	 */
 	public T get() throws InterruptedException {
 		
 		synchronized (mutex) {
@@ -82,6 +91,13 @@ public class FutureImplementation<T> {
 		return operationResult;
 	}
 
+	/**
+	 * Get (and wait) for the result
+	 * @param timeout
+	 * @param unit
+	 * @return
+	 * @throws InterruptedException
+	 */
 	public T get(final long timeout, final TimeUnit unit) throws InterruptedException {
 		
 		synchronized (mutex) {
@@ -156,10 +172,18 @@ public class FutureImplementation<T> {
 		}
 	}
 
+	/**
+	 * Get the message of the result
+	 * @return
+	 */
 	public String getMessage() {
 		return message;
 	}
 
+	/**
+	 * Set the message of the result
+	 * @param message
+	 */
 	public void setMessage(final String message) {
 		this.message = message;
 	}
