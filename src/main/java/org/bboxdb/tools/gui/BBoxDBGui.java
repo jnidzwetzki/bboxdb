@@ -59,7 +59,7 @@ public class BBoxDBGui {
 	/**
 	 * Color gray
 	 */
-	private static final Color OUR_GRAY = new Color(64, 64, 64);
+	private static final Color OUR_RED = new Color(164, 0, 0);
 
 	
 	protected class InstanceTableModel extends DefaultTableCellRenderer {
@@ -85,7 +85,7 @@ public class BBoxDBGui {
 				} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
 					setForeground(OUR_GREEN);
 				} else {
-					setForeground(OUR_GRAY);
+					setForeground(OUR_RED);
 				}
 			}
 
