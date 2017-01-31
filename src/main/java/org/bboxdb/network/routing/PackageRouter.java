@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.bboxdb.BBoxDBConfigurationManager;
@@ -61,6 +63,11 @@ public class PackageRouter {
 	 */
 	public final static short ROUTING_RETRY = 3;
 	
+	/**
+	 * Routing timeout
+	 */
+	protected final int ROUTING_TIMEOUT_IN_SEC = 10;
+	
 	
 	/**
 	 * The Logger
@@ -84,32 +91,48 @@ public class PackageRouter {
 			final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) {
 	
 		final Runnable routeRunable = new Runnable() {
+			
 			@Override
 			public void run() {
-				boolean routeResult;
 				try {
-					routeResult = routeInsertPackage(packageSequence, insertTupleRequest, boundingBox);
+					runThread(packageSequence, insertTupleRequest, boundingBox);
+				} catch(Throwable e) {
+					logger.error("Got exception during package routing", e);
+				}
+			}
+
+			protected void runThread(final short packageSequence, 
+					final InsertTupleRequest insertTupleRequest,
+					final BoundingBox boundingBox) {
+				
+				try {
+					final boolean routeResult 
+						= routeInsertPackage(packageSequence, insertTupleRequest, boundingBox);
 					
 					if(routeResult) {
 						final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
 						clientConnectionHandler.writeResultPackage(responsePackage);
-					} else {
-						final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_ROUTING_FAILED);
-						clientConnectionHandler.writeResultPackage(responsePackage);
-					}
-				} catch (ZookeeperException e) {
-					logger.warn("Exception while routing package", e);
-				} catch(InterruptedException e) {
-					logger.warn("Exception while routing package", e);
+						return;
+					} 
+					
+				}  catch(InterruptedException e) {
+					logger.error("Exception while routing package", e);
 					Thread.currentThread().interrupt();
+				} catch (ZookeeperException e) {
+					logger.error("Exception while routing package", e);
 				}
+				
+				
+				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_ROUTING_FAILED);
+				clientConnectionHandler.writeResultPackage(responsePackage);
 			}
 		};
 		
 		// Submit the runnable to our pool
 		if(threadPool.isTerminating()) {
 			logger.warn("Thread pool is shutting down, don't route package: " + packageSequence);
-			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_SHUTDOWN));
+			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_SHUTDOWN);
+			clientConnectionHandler.writeResultPackage(responsePackage);
 		} else {
 			threadPool.submit(routeRunable);
 		}
@@ -123,7 +146,6 @@ public class PackageRouter {
 	 * @return
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
-	 * @throws ExecutionException
 	 */
 	protected boolean routeInsertPackage(final short packageSequence, final InsertTupleRequest insertTupleRequest,
 			final BoundingBox boundingBox) throws ZookeeperException, InterruptedException {
@@ -145,7 +167,7 @@ public class PackageRouter {
 	 * @return
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
-	 * @throws ExecutionException
+	 * @throws TimeoutException 
 	 */
 	protected boolean handleUnroutedPackage(final InsertTupleRequest insertTupleRequest, 
 			final BoundingBox boundingBox) throws ZookeeperException, InterruptedException {
@@ -160,6 +182,7 @@ public class PackageRouter {
 			final List<DistributedInstance> systemList = convertRegionsToDistributedInstances(instancesBeforeRouting);
 			setInsertRoutingHeader(insertTupleRequest, systemList);
 			
+	
 			final boolean sendResult = sendInsertPackage(insertTupleRequest);
 			
 			if(sendResult == false) {
@@ -184,6 +207,7 @@ public class PackageRouter {
 	 * @param insertTupleRequest
 	 * @return
 	 * @throws InterruptedException
+	 * @throws TimeoutException 
 	 * @throws ExecutionException
 	 */
 	protected boolean sendInsertPackage(final InsertTupleRequest insertTupleRequest) 
@@ -202,7 +226,13 @@ public class PackageRouter {
 		} 
 		
 		final EmptyResultFuture insertFuture = connection.insertTuple(insertTupleRequest);
-		insertFuture.waitForAll();
+		
+		try {
+			insertFuture.waitForAll(ROUTING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
+		} catch (TimeoutException e) {
+			logger.warn("Routing timeout, retry routing: " + connection);
+			return false;
+		}
 		
 		if(insertFuture.isFailed()) {
 			return false;
