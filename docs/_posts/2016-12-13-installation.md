@@ -47,7 +47,7 @@ mv bboxdb $BBOXDB_HOME
 The following sections are covering the initial setup of the BBoxDB.
 
 ## Nodes of the system
-BBoxDB employs [Apache Zookeeper](https://zookeeper.apache.org/) to coordinate the distributed system. Thefore, a BBoxDB installation consists of two different node types: BBoxDB nodes and Zookeeper nodes. You have to specify the names of the BBoxDB nodes in the file ```$BBOXDB_HOME/conf/bboxdb-nodes``` and the names of the Zookeeper nodes in the file ```$BBOXDB_HOME/conf/zookeeper-nodes```:
+BBoxDB employs [Apache Zookeeper](https://zookeeper.apache.org/) to coordinate the distributed system. Therefore, a BBoxDB installation consists of two different node types: BBoxDB nodes and Zookeeper nodes. You have to specify the names of the BBoxDB nodes in the file ```$BBOXDB_HOME/conf/bboxdb-nodes``` and the names of the Zookeeper nodes in the file ```$BBOXDB_HOME/conf/zookeeper-nodes```:
 
 ```bash
 vi $BBOXDB_HOME/conf/zookeeper-nodes
