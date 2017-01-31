@@ -543,6 +543,11 @@ public class ClientConnectionHandler implements Runnable {
 				writeResultPackage(new SuccessResponse(packageSequence));
 				return;
 			}			
+			
+			@Override
+			protected void afterExceptionHook() {
+				writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
+			}
 		};
 
 		// Submit the runnable to our pool
@@ -637,7 +642,13 @@ public class ClientConnectionHandler implements Runnable {
 					activeQueries.remove(packageSequence);
 				}
 			}
+			
+			@Override
+			protected void afterExceptionHook() {
+				writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
+			}
 		};
+		
 
 		// Submit the runnable to our pool
 		if(threadPool.isTerminating()) {

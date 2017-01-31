@@ -37,9 +37,18 @@ public abstract class ExceptionSafeThread implements Runnable {
 			runThread();
 		} catch(Throwable e) {
 			logger.error("Got exception during thread execution", e);
+			afterExceptionHook();
 		}
 	}
 
+	/**
+	 * The after exception hook. Will be called when after exception 
+	 * is occurred.
+	 */
+	protected void afterExceptionHook() {
+		// Default: Do nothing
+	}
+	
 	/**
 	 * The real run method
 	 * @throws Exception 
