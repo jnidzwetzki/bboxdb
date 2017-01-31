@@ -43,6 +43,7 @@ import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.util.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,20 +91,10 @@ public class PackageRouter {
 	public void performInsertPackageRoutingAsync(final short packageSequence, 
 			final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) {
 	
-		final Runnable routeRunable = new Runnable() {
-			
-			@Override
-			public void run() {
-				try {
-					runThread(packageSequence, insertTupleRequest, boundingBox);
-				} catch(Throwable e) {
-					logger.error("Got exception during package routing", e);
-				}
-			}
+		final Runnable routeRunable = new ExceptionSafeThread()  {
 
-			protected void runThread(final short packageSequence, 
-					final InsertTupleRequest insertTupleRequest,
-					final BoundingBox boundingBox) {
+			@Override
+			protected void runThread() {
 				
 				try {
 					final boolean routeResult 
