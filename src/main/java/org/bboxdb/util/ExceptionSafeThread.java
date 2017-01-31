@@ -42,7 +42,8 @@ public abstract class ExceptionSafeThread implements Runnable {
 
 	/**
 	 * The real run method
+	 * @throws Exception 
 	 */
-	protected abstract void runThread();
+	protected abstract void runThread() throws Exception;
 
 }

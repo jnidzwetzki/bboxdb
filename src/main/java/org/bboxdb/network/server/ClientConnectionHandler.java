@@ -80,6 +80,7 @@ import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
 import org.bboxdb.storage.queryprocessor.queryplan.NewerAsTimeQueryPlan;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.ExceptionSafeThread;
 import org.bboxdb.util.StreamHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -518,31 +519,10 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected void handleKeyQuery(final ByteBuffer encodedPackage, final short packageSequence) {
 
-		final Runnable queryRunable = new Runnable() {
+		final Runnable queryRunable = new ExceptionSafeThread() {
 
 			@Override
-			public void run() {
-
-				try {
-					executeThread(encodedPackage, packageSequence);
-				} catch (Throwable e) {
-					logger.warn("Got exception while scanning for key", e);
-					writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));				
-					return;
-				}
-				
-			}
-
-			/**
-			 * Execute the thread
-			 * @param encodedPackage
-			 * @param packageSequence
-			 * @throws PackageEncodeException
-			 * @throws StorageManagerException
-			 */
-			protected void executeThread(final ByteBuffer encodedPackage,
-					final short packageSequence) throws PackageEncodeException,
-					StorageManagerException {
+			public void runThread() throws Exception {
 				final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
 				final SSTableName requestTable = queryKeyRequest.getTable();
 				
@@ -644,24 +624,10 @@ public class ClientConnectionHandler implements Runnable {
 			return;
 		}
 		
-		final Runnable queryRunable = new Runnable() {
+		final Runnable queryRunable = new ExceptionSafeThread() {
 
 			@Override
-			public void run() {
-				try {
-					executeThread(packageSequence);
-				} catch(Throwable e) {
-					logger.error("Got uncought exception in thread", e);
-					writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
-					return;
-				}
-			}
-
-			/**
-			 * Execute the thread
-			 * @param packageSequence
-			 */
-			protected void executeThread(final short packageSequence) {
+			protected void runThread() {
 				final ClientQuery clientQuery = activeQueries.get(packageSequence);
 				clientQuery.fetchAndSendNextTuples();
 				
@@ -671,7 +637,6 @@ public class ClientConnectionHandler implements Runnable {
 					activeQueries.remove(packageSequence);
 				}
 			}
-
 		};
 
 		// Submit the runnable to our pool
@@ -1003,7 +968,4 @@ public class ClientConnectionHandler implements Runnable {
 			writeResultPackage(responsePackage);
 		}
 	}
-
-
-
 }
