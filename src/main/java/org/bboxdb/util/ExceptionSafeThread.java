@@ -42,8 +42,7 @@ public abstract class ExceptionSafeThread implements Runnable {
 	}
 
 	/**
-	 * The after exception hook. Will be called when after exception 
-	 * is occurred.
+	 * The after exception hook. Will be called after an exception.
 	 */
 	protected void afterExceptionHook() {
 		// Default: Do nothing
