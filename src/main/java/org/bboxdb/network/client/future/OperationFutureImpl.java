@@ -20,7 +20,6 @@ package org.bboxdb.network.client.future;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -151,7 +150,7 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 * Get the result of the future
 	 * @return
 	 */
-	public T get(final int resultId) throws InterruptedException, ExecutionException {
+	public T get(final int resultId) throws InterruptedException {
 		
 		checkFutureSize(resultId);
 		
@@ -175,9 +174,23 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
 	 */
 	@Override
-	public boolean waitForAll() throws InterruptedException, ExecutionException {
+	public boolean waitForAll() throws InterruptedException {
 		for(int i = 0; i < getNumberOfResultObjets(); i++) {
 			get(i);
+		}
+		
+		return true;
+	}
+	
+    /* (non-Javadoc)
+	 * @see org.bboxdb.network.client.future.OperationFuture#waitForAll()
+	 */
+	@Override
+	public boolean waitForAll(final long timeout, final TimeUnit unit) 
+			throws InterruptedException, TimeoutException {
+		
+		for(int i = 0; i < getNumberOfResultObjets(); i++) {
+			get(i, timeout, unit);
 		}
 		
 		return true;

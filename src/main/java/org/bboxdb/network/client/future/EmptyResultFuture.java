@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -33,7 +32,7 @@ public class EmptyResultFuture extends OperationFutureImpl<Boolean> {
 	
 	
 	@Override
-	public Boolean get(int resultId) throws InterruptedException, ExecutionException {
+	public Boolean get(int resultId) throws InterruptedException {
 		
 		// Wait for the future
 		futures.get(resultId).get();

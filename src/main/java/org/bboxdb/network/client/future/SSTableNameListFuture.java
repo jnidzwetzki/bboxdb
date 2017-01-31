@@ -20,7 +20,6 @@ package org.bboxdb.network.client.future;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.storage.entity.SSTableName;
 import org.slf4j.Logger;
@@ -55,9 +54,6 @@ public class SSTableNameListFuture extends OperationFutureImpl<List<SSTableName>
 			
 			return resultList.iterator();
 			
-		} catch (ExecutionException e) {
-			logger.error("Got an exception while creating iterator", e);
-			return new ArrayList<SSTableName>().iterator();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			logger.error("Got an exception while creating iterator", e);

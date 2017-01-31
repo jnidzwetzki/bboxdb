@@ -18,6 +18,8 @@
 package org.bboxdb.network.client.future;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public interface OperationFuture {
 
@@ -81,11 +83,23 @@ public interface OperationFuture {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	public abstract boolean waitForAll() throws InterruptedException,
-			ExecutionException;
+	public abstract boolean waitForAll() throws InterruptedException;
 	
+	/**
+	 * Wait for the future to complete (with timeout)
+	 * @param timeout
+	 * @param unit
+	 * @return
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @throws TimeoutException 
+	 */
+	public boolean waitForAll(final long timeout, final TimeUnit unit) 
+			throws InterruptedException, TimeoutException;
+
 	/**
 	 * Fire the completion event
 	 */
 	public void fireCompleteEvent();
+
 }
