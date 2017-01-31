@@ -39,6 +39,7 @@ import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
+import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,9 @@ public class PackageRouter {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(PackageRouter.class);
 
-	public PackageRouter(final ThreadPoolExecutor threadPool, final ClientConnectionHandler clientConnectionHandler) {
+	public PackageRouter(final ThreadPoolExecutor threadPool, 
+			final ClientConnectionHandler clientConnectionHandler) {
+		
 		this.threadPool = threadPool;
 		this.clientConnectionHandler = clientConnectionHandler;
 	}
@@ -77,7 +80,8 @@ public class PackageRouter {
 	 * @param insertTupleRequest
 	 * @param boundingBox
 	 */
-	public void performInsertPackageRoutingAsync(final short packageSequence, final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) {
+	public void performInsertPackageRoutingAsync(final short packageSequence, 
+			final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) {
 	
 		final Runnable routeRunable = new Runnable() {
 			@Override
@@ -87,11 +91,13 @@ public class PackageRouter {
 					routeResult = routeInsertPackage(packageSequence, insertTupleRequest, boundingBox);
 					
 					if(routeResult) {
-						clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
+						final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
+						clientConnectionHandler.writeResultPackage(responsePackage);
 					} else {
-						clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence));
+						final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_ROUTING_FAILED);
+						clientConnectionHandler.writeResultPackage(responsePackage);
 					}
-				} catch (ZookeeperException | ExecutionException e) {
+				} catch (ZookeeperException e) {
 					logger.warn("Exception while routing package", e);
 				} catch(InterruptedException e) {
 					logger.warn("Exception while routing package", e);
@@ -103,7 +109,7 @@ public class PackageRouter {
 		// Submit the runnable to our pool
 		if(threadPool.isTerminating()) {
 			logger.warn("Thread pool is shutting down, don't route package: " + packageSequence);
-			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence));
+			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_SHUTDOWN));
 		} else {
 			threadPool.submit(routeRunable);
 		}
@@ -120,7 +126,7 @@ public class PackageRouter {
 	 * @throws ExecutionException
 	 */
 	protected boolean routeInsertPackage(final short packageSequence, final InsertTupleRequest insertTupleRequest,
-			final BoundingBox boundingBox) throws ZookeeperException, InterruptedException, ExecutionException {
+			final BoundingBox boundingBox) throws ZookeeperException, InterruptedException {
 		
 		if(insertTupleRequest.getRoutingHeader().isRoutedPackage()) {
 			// Routed package: dispatch to next hop
@@ -141,7 +147,9 @@ public class PackageRouter {
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	protected boolean handleUnroutedPackage(final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) throws ZookeeperException, InterruptedException, ExecutionException {
+	protected boolean handleUnroutedPackage(final InsertTupleRequest insertTupleRequest, 
+			final BoundingBox boundingBox) throws ZookeeperException, InterruptedException {
+		
 		int tryCounter = 0;
 		
 		while(tryCounter < ROUTING_RETRY) {
@@ -178,7 +186,9 @@ public class PackageRouter {
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 */
-	protected boolean sendInsertPackage(final InsertTupleRequest insertTupleRequest) throws InterruptedException, ExecutionException {
+	protected boolean sendInsertPackage(final InsertTupleRequest insertTupleRequest) 
+			throws InterruptedException {
+		
 		if(insertTupleRequest.getRoutingHeader().reachedFinalInstance()) {
 			return true;
 		} 
@@ -208,7 +218,9 @@ public class PackageRouter {
 	 * @return 
 	 * @throws ZookeeperException
 	 */
-	protected void setInsertRoutingHeader(final InsertTupleRequest insertTupleRequest, final List<DistributedInstance> systems) throws ZookeeperException {
+	protected void setInsertRoutingHeader(final InsertTupleRequest insertTupleRequest, 
+			final List<DistributedInstance> systems) throws ZookeeperException {
+		
 		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 0, systems);
 		insertTupleRequest.replaceRoutingHeader(routingHeader);
 	}
@@ -220,7 +232,9 @@ public class PackageRouter {
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	protected Set<DistributionRegion> getRoutingDestinations(final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) throws ZookeeperException {
+	protected Set<DistributionRegion> getRoutingDestinations(
+			final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) 
+					throws ZookeeperException {
 		
 		final String distributionGroup = insertTupleRequest.getTable().getDistributionGroup();
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
@@ -239,7 +253,9 @@ public class PackageRouter {
 	 * @param regions
 	 * @return
 	 */
-	protected List<DistributedInstance> convertRegionsToDistributedInstances(final Set<DistributionRegion> regions) {
+	protected List<DistributedInstance> convertRegionsToDistributedInstances(
+			final Set<DistributionRegion> regions) {
+		
 		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
 
 		for(final DistributionRegion region : regions) {

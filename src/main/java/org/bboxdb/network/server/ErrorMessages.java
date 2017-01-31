@@ -43,4 +43,9 @@ public class ErrorMessages {
 	 * Server shutdown
 	 */
 	public final static String ERROR_QUERY_SHUTDOWN = "Unable to execute query, server started shutdown";
+
+	/**
+	 * Rounting failed
+	 */
+	public final static String ERROR_ROUTING_FAILED = "Package routing faield";
 }
