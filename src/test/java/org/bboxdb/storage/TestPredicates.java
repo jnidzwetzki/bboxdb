@@ -24,7 +24,9 @@ import java.util.List;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.queryprocessor.predicate.AndPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsTimePredicate;
+import org.bboxdb.storage.queryprocessor.predicate.OverlapsBoundingBoxPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
 import org.junit.Assert;
@@ -32,6 +34,10 @@ import org.junit.Test;
 
 public class TestPredicates {
 
+	/**
+	 * Test the newer as predicate
+	 * @throws Exception
+	 */
 	@Test
 	public void testNewerAsPredicate1() throws Exception {
 		final Tuple tuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
@@ -41,7 +47,7 @@ public class TestPredicates {
 		tupleList.add(tuple1);
 		tupleList.add(tuple2);
 		
-		final NewerAsTimePredicate predicate = new NewerAsTimePredicate(0);
+		final Predicate predicate = new NewerAsTimePredicate(0);
 		final Collection<Tuple> tuples = getTuplesFromPredicate(tupleList, predicate);
 		
 		System.out.println(tuples);
@@ -51,6 +57,10 @@ public class TestPredicates {
 		Assert.assertTrue(tuples.contains(tuple2));
 	}
 	
+	/**
+	 * Test the newer as predicate
+	 * @throws Exception
+	 */
 	@Test
 	public void testNewerAsPredicate2() throws Exception {
 		final Tuple tuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes(), 50);
@@ -60,7 +70,7 @@ public class TestPredicates {
 		tupleList.add(tuple1);
 		tupleList.add(tuple2);
 		
-		final NewerAsTimePredicate predicate = new NewerAsTimePredicate(51);
+		final Predicate predicate = new NewerAsTimePredicate(51);
 		final Collection<Tuple> tuples = getTuplesFromPredicate(tupleList, predicate);
 		
 		Assert.assertEquals(1, tuples.size());
@@ -68,6 +78,63 @@ public class TestPredicates {
 		Assert.assertTrue(tuples.contains(tuple2));
 	}
 	
+	/**
+	 * Test the bounding box predicate
+	 * @throws Exception
+	 */
+	@Test
+	public void boundingBoxPredicate() {
+		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 10.0, 1.0, 10.9), "abc".getBytes(), 50);
+		final Tuple tuple2 = new Tuple("2", new BoundingBox(-11.0, 0.0, -11.0, 0.9), "def".getBytes(), 1234);
+
+		final List<Tuple> tupleList = new ArrayList<>();
+		tupleList.add(tuple1);
+		tupleList.add(tuple2);
+		
+		final Predicate predicate1 = new OverlapsBoundingBoxPredicate(new BoundingBox(-100.0, 100.0, -100.0, 100.0));
+		final Collection<Tuple> tuples1 = getTuplesFromPredicate(tupleList, predicate1);
+		
+		Assert.assertEquals(2, tuples1.size());
+		Assert.assertTrue(tuples1.contains(tuple1));
+		Assert.assertTrue(tuples1.contains(tuple2));
+		
+		final Predicate predicate2 = new OverlapsBoundingBoxPredicate(new BoundingBox(2.0, 100.0, 2.0, 100.0));
+		final Collection<Tuple> tuples2 = getTuplesFromPredicate(tupleList, predicate2);
+		
+		Assert.assertEquals(1, tuples2.size());
+		Assert.assertTrue(tuples2.contains(tuple1));
+		Assert.assertFalse(tuples2.contains(tuple2));
+	}
+	
+	/**
+	 * Test the and predicate
+	 * @throws Exception
+	 */
+	@Test
+	public void boundingAndPredicate() {
+		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 10.0, 1.0, 10.9), "abc".getBytes(), 50);
+		final Tuple tuple2 = new Tuple("2", new BoundingBox(-11.0, 0.0, -11.0, 0.9), "def".getBytes(), 1234);
+
+		final List<Tuple> tupleList = new ArrayList<>();
+		tupleList.add(tuple1);
+		tupleList.add(tuple2);
+		
+		final Predicate predicate1 = new OverlapsBoundingBoxPredicate(new BoundingBox(2.0, 100.0, 2.0, 100.0));
+		final Predicate predicate2 = new NewerAsTimePredicate(51);
+		
+		final Predicate predicate = new AndPredicate(predicate1, predicate2);
+		
+		final Collection<Tuple> tuples = getTuplesFromPredicate(tupleList, predicate);
+
+		Assert.assertTrue(tuples.isEmpty());
+	}
+		
+	/**
+	 * Get all tuples that matches the given predicate
+	 * @param tupleList
+	 * @param predicate
+	 * @return
+	 */
 	protected Collection<Tuple> getTuplesFromPredicate(final List<Tuple> tupleList, 
 			final Predicate predicate) {
 		
