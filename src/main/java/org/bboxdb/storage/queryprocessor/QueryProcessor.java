@@ -101,6 +101,9 @@ public class QueryProcessor {
 			 */
 			protected Tuple nextTuple;
 			
+			/**
+			 * Setup the next iterator
+			 */
 			protected void setupNewIterator() {
 				activeIterator = null;
 				activeStorage = null;
@@ -109,6 +112,10 @@ public class QueryProcessor {
 				while(! unprocessedStorages.isEmpty()) {
 					activeStorage = unprocessedStorages.remove(0);
 					activeIterator = queryplan.execute(activeStorage);
+					
+					if(activeIterator == null) {
+						continue;
+					}
 					
 					if(activeIterator.hasNext()) {
 						return;
@@ -119,6 +126,10 @@ public class QueryProcessor {
 				activeStorage = null;
 			}
 			
+			/**
+			 * Fetch the next tuple from the iterator
+			 * @throws StorageManagerException
+			 */
 			protected void setupNextTuple() throws StorageManagerException {
 				if(ready == false) {
 					throw new IllegalStateException("Iterator is not ready");
@@ -156,15 +167,15 @@ public class QueryProcessor {
 			
 			/**
 			 * Get the most recent version of the tuple
+			 * e.g. Memtables can contain multiple versions of the key
+		 	 * The iterator can return an outdated version
+		 	 * 
 			 * @param tuple
 			 * @return
 			 * @throws StorageManagerException 
 			 */
 			public Tuple getMostRecentVersionForTuple(final Tuple tuple) throws StorageManagerException {
 				
-				// Get the most recent version of the tuple
-				// e.g. Memtables can contain multiple versions of the key
-				// The iterator can return an outdated version
 				Tuple resultTuple = activeStorage.get(tuple.getKey());
 				
 				for(final ReadOnlyTupleStorage readOnlyTupleStorage : unprocessedStorages) {
