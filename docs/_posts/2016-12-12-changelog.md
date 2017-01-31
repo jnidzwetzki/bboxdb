@@ -6,6 +6,8 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
+### Version 0.2.2 (Stable) - TBA
+
 ### Version 0.2.1 (Stable) - 31.01.2017
 - New Feature: Using Coverity scan and codecov.io to improve source code quality
 - New Feature: OSM Data is now stored as GeoJSON, instead of a java serialized byte stream
