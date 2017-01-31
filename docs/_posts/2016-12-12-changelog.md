@@ -20,6 +20,7 @@ order: 1
 - Improvement: Region splits are now based on the size of the region
 - Improvement: SSTables and SSTable-Index files are using now different magic bytes
 - Improvement: The timestamp query only reads tuple stores which contain tuples for this timestamp
+- Improvement: Added timeout to routing requests
 - Bugfix: Outdated jars are new removed on bboxdb_update
 - Bugfix: Removed implementation and specification of the unused TransferSSTable network package
 - Bugfix: Removed the non working BoxSearch spatial index
