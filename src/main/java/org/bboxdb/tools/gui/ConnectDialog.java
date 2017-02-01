@@ -103,7 +103,7 @@ public class ConnectDialog {
 		connectButton.setText("Connect");
 
 		final FormLayout layout = new FormLayout(
-			    "right:pref, 3dlu, pref", 			// columns
+			    "right:pref, 3dlu, 60dlu", 			// columns
 			    "p, 3dlu, p, 3dlu, p, 9dlu, p");	// rows
 		
 		final PanelBuilder builder = new PanelBuilder(layout);
