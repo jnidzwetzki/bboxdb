@@ -7,6 +7,8 @@ order: 1
 ---
 
 ### Version 0.2.2 (Stable) - TBA
+- Bugfix: A synchronisation issue in the memtable flush thread is fixed
+- Bugfix: The connect dialog in the GUI is now big enough to show full IP-Addresses
 
 ### Version 0.2.1 (Stable) - 31.01.2017
 - New Feature: Using Coverity scan and codecov.io to improve source code quality
