@@ -173,7 +173,9 @@ class MemtableFlushThread implements Runnable, Stoppable {
 	 * @throws Exception
 	 */
 	protected int writeMemtable(final Memtable memtable) throws Exception {
-		int tableNumber = sstableManager.increaseTableNumber();
+		
+		final int tableNumber = sstableManager.increaseTableNumber();
+		
 		logger.info("Writing new memtable number: {} with {} entries and a size of {} KB", 
 				tableNumber, memtable.getTotalEntries(), memtable.getSize() / 1024);
 
