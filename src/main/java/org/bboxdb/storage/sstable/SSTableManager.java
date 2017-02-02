@@ -545,7 +545,9 @@ public class SSTableManager implements BBoxDBService {
 		memtable.acquire();
 		memtable.init();
 		
-		tupleStoreInstances.activateNewMemtable(memtable);
+		tupleStoreInstances.activateNewMemtable(memtable);	
+		
+		logger.debug("Activated a new memtable: " + memtable.getInternalName());
 	}
 
 	/**
