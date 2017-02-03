@@ -131,10 +131,9 @@ public class SSTableManager implements BBoxDBService {
 		tupleStoreInstances.clear();
 		runningThreads.clear();
 		
-		createSSTableDirIfNeeded();
-		flushAndInitMemtable();
-		
 		try {
+			createSSTableDirIfNeeded();
+			flushAndInitMemtable();
 			scanForExistingTables();
 		} catch (StorageManagerException e) {
 			logger.error("Unable to init the instance: " +  sstablename.getFullname(), e);
@@ -302,14 +301,20 @@ public class SSTableManager implements BBoxDBService {
 	
 	/**
 	 * Ensure that the directory for the given table exists
+	 * @throws StorageManagerException 
 	 * 
 	 */
-	protected void createSSTableDirIfNeeded() {
-		final File rootDir = new File(configuration.getDataDirectory());		
+	protected void createSSTableDirIfNeeded() throws StorageManagerException {
+		final File rootDir = new File(configuration.getDataDirectory());
+		
+		if(! rootDir.exists()) {
+			throw new StorageManagerException("Root dir does not exist: " + rootDir);
+		}
+		
 		final String ssTableDir = SSTableHelper.getSSTableDir(configuration.getDataDirectory(), sstablename.getFullname());
 		final File directoryHandle = new File(ssTableDir);
 		
-		if(rootDir.exists() && ! directoryHandle.exists()) {
+		if(! directoryHandle.exists()) {
 			logger.info("Create a new dir for table: " + getSSTableName());
 			directoryHandle.mkdir();
 		}
