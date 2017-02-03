@@ -306,7 +306,8 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	protected void createSSTableDirIfNeeded() {
 		final File rootDir = new File(configuration.getDataDirectory());		
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(configuration.getDataDirectory(), sstablename.getFullname()));
+		final String ssTableDir = SSTableHelper.getSSTableDir(configuration.getDataDirectory(), sstablename.getFullname());
+		final File directoryHandle = new File(ssTableDir);
 		
 		if(rootDir.exists() && ! directoryHandle.exists()) {
 			logger.info("Create a new dir for table: " + getSSTableName());
