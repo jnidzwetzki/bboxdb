@@ -89,6 +89,13 @@ bboxdb_start_trace() {
 }
 
 ###
+# Start the bboxdb in remote debug mode
+###
+bboxdb_start_remote_debug() {
+   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start_remote_debug" "Starting BBoxDB in remote debug mode" "$bboxdb_nodes" $max_pending
+}
+
+###
 # Stop the bboxdb
 ###
 bboxdb_stop() {
@@ -133,7 +140,10 @@ bboxdb_start_debug)
    ;;  
 bboxdb_start_trace)
    bboxdb_start_trace
-   ;;  
+   ;; 
+bboxdb_start_remote_debug)
+   bboxdb_start_remote_debug
+   ;; 
 bboxdb_stop)
    bboxdb_stop
    ;;  

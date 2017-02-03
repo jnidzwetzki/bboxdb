@@ -78,7 +78,8 @@ bboxdb_start() {
 
     debug_args=""
 
-	if [ ! -z "$BBOXDB_LOG" ]; then
+    # Logging
+    if [ ! -z "$BBOXDB_LOG" ]; then
 	    if [ "$BBOXDB_LOG" == "debug" ]; then
 	         echo "Debug startup......"
 	         debug_args+="-Dlog4j.configuration=log4j_debug.properties"
@@ -88,6 +89,12 @@ bboxdb_start() {
 	         echo "Trace startup......"
 	         debug_args+="-Dlog4j.configuration=log4j_trace.properties"
 	    fi
+    fi
+
+    # Remote debug
+    if [ ! -z "$BBOXDB_REMOTE_DEBUG" ]; then
+        echo "Enabling remote debuging on port $jvm_debug_port"
+        debug_args+="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=$jvm_debug_port,suspend=n"
     fi
     
     config="$BBOXDB_HOME/conf/bboxdb.yaml"
@@ -278,6 +285,10 @@ bboxdb_start_debug)
    ;;
 bboxdb_start_trace)
    BBOXDB_LOG="trace"
+   bboxdb_start
+   ;;
+bboxdb_start_remote_debug)
+   BBOXDB_REMOTE_DEBUG="true"
    bboxdb_start
    ;;
 bboxdb_stop)

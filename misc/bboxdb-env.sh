@@ -38,3 +38,7 @@ jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.ssl=false"
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.authenticate=true"
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.access.file=$BBOXDB_HOME/conf/jmxremote.access"
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.password.file=$BBOXDB_HOME/conf/jmxremote.password"
+
+# Port for the remote debuger
+jvm_debug_port=40010
+
