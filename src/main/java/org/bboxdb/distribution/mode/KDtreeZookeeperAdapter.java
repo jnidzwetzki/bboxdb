@@ -622,7 +622,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * Remove the local mappings for a given regions
 	 * @param region
 	 */
-	protected void removeLocalMappings(DistributionRegion region) {
+	protected void removeLocalMappings(final DistributionRegion region) {
 		// Remove the mapping from the nameprefix mapper	
 		final int nameprefix = region.getRegionId();		
 		logger.info("Remove local mapping for: {} / nameprefix {}", region, nameprefix);
