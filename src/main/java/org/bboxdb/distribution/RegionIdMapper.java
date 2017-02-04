@@ -146,7 +146,7 @@ public class RegionIdMapper {
 			
 			if(regionTablenameEntry.getRegionId() == regionId) {
 				logger.info("Mapping for region id {} removed", regionId);
-				regions.remove(regionTablenameEntry);
+				iterator.remove();
 				return true;
 			}
 		}
