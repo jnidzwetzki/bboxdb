@@ -193,11 +193,13 @@ public class StorageRegistry {
 	        	assert(distributionGroupName.isValid());
 	        	
 	        	// Tables
-		        if (fileEntry.isDirectory()) {
-		        	final String tablename = fileEntry.getName();
-		        	final String fullname = distributionGroupName.getFullname() + "_" + tablename;
-		        	allTables.add(new SSTableName(fullname));
-		        }
+	    		for (final File tableEntry : fileEntry.listFiles()) {
+			        if (tableEntry.isDirectory()) {
+			        	final String tablename = tableEntry.getName();
+			        	final String fullname = distributionGroupName.getFullname() + "_" + tablename;
+			        	allTables.add(new SSTableName(fullname));
+			        }
+	    		}
 	        } 
 	    }
 		
