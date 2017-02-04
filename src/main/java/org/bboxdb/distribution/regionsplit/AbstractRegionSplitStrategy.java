@@ -339,32 +339,44 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		try {
 			final List<ReadOnlyTupleStorage> aquiredStorages = ssTableManager.aquireStorage();
 			storages.addAll(aquiredStorages);
-			
-			for(final ReadOnlyTupleStorage storage: storages) {
-				
-				// Skip persistent data, if needed
-				if(onlyInMemoryData && storage.isPersistent()) {
-					continue;
-				}
-				
-				logger.info("Spread sstable facade: {}", storage.getInternalName());
-				
-				final boolean distributeSuccessfully = spreadStorage(tupleRedistributor, storage);
-				
-				// Data is spread, so we can delete it
-				if(! distributeSuccessfully) {
-					logger.warn("Distribution of {} was not successfully", storage.getInternalName());
-				} else {
-					logger.info("Distribution of {} was successfully, scheduling for deletion", storage.getInternalName());
-					storage.deleteOnClose();
-				}
-				
-				logger.info("Statistics for spread: " + tupleRedistributor.getStatistics());			
-			}
+			spreadTupleStore(tupleRedistributor, onlyInMemoryData, storages);
 		} catch (StorageManagerException e) {
 			throw e;
 		} finally {
 			ssTableManager.releaseStorage(storages);
+		}
+	}
+
+	/**
+	 * Spread a tuple store
+	 * @param tupleRedistributor
+	 * @param onlyInMemoryData
+	 * @param storages
+	 */
+	protected void spreadTupleStore(final TupleRedistributor tupleRedistributor, 
+			final boolean onlyInMemoryData,
+			final List<ReadOnlyTupleStorage> storages) {
+		
+		for(final ReadOnlyTupleStorage storage: storages) {
+			
+			// Skip persistent data, if needed
+			if(onlyInMemoryData && storage.isPersistent()) {
+				continue;
+			}
+			
+			logger.info("Spread sstable facade: {}", storage.getInternalName());
+			
+			final boolean distributeSuccessfully = spreadStorage(tupleRedistributor, storage);
+			
+			// Data is spread, so we can delete it
+			if(! distributeSuccessfully) {
+				logger.warn("Distribution of {} was not successfully", storage.getInternalName());
+			} else {
+				logger.info("Distribution of {} was successfully, scheduling for deletion", storage.getInternalName());
+				storage.deleteOnClose();
+			}
+			
+			logger.info("Statistics for spread: " + tupleRedistributor.getStatistics());			
 		}
 	}
 
