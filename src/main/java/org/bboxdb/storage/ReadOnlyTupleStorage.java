@@ -100,4 +100,10 @@ public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	 */
 	public long getSize();
 	
+	/**
+	 * Is the tuple store persistent or transient
+	 * @return
+	 */
+	public boolean isPersistent();
+	
 }

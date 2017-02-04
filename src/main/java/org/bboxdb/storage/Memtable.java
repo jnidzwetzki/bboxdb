@@ -476,5 +476,9 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 		};
 	}
 
-	
+	@Override
+	public boolean isPersistent() {
+		return false;
+	}
+
 }

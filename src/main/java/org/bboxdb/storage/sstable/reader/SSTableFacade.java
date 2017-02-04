@@ -444,5 +444,10 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 			}
 		};
 	}
+
+	@Override
+	public boolean isPersistent() {
+		return true;
+	}
 	
 }
