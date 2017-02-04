@@ -648,8 +648,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		
 		// Don't add local mapping for inactive regions
 		if(        region.getState() == DistributionRegionState.SPLITTING
-				|| region.getState() == DistributionRegionState.SPLIT 
-				|| region.getState() == DistributionRegionState.UNKNOWN) {
+				|| region.getState() == DistributionRegionState.SPLIT) {
 			return;
 		}
 		
