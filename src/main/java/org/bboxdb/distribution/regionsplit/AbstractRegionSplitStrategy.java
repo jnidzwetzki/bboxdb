@@ -25,6 +25,8 @@ import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
+import org.bboxdb.distribution.RegionIdMapper;
+import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
@@ -212,7 +214,21 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		
 		for(final SSTableName ssTableName : localTables) {
 			if(ssTableName.getDistributionGroupObject().equals(region.getDistributionGroupName())) {
-				redistributeTable(region, ssTableName);
+				redistributePersistentData(region, ssTableName);
+			}
+		}
+		
+		// Remove the mapping
+		final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName());
+		mapper.removeMapping(region.getRegionId());
+		
+		// Remove old data
+		for(final SSTableName ssTableName : localTables) {
+			// TODO: Redistribute in memory data
+			try {
+				StorageRegistry.deleteTable(ssTableName);
+			} catch (StorageManagerException e) {
+				logger.error("Deleting table failed", e);
 			}
 		}
 		
@@ -251,7 +267,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param region
 	 * @param ssTableName
 	 */
-	protected void redistributeTable(final DistributionRegion region, final SSTableName ssTableName) {
+	protected void redistributePersistentData(final DistributionRegion region, final SSTableName ssTableName) {
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
 		try {
@@ -305,7 +321,6 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			final SSTableManager ssTableManager, final TupleRedistributor tupleRedistributor) {
 		
 		final Collection<ReadOnlyTupleStorage> storages = ssTableManager.getTupleStoreInstances().getAllTupleStorages();
-		boolean totalSpreadResult = true;
 		
 		for(final ReadOnlyTupleStorage storage: storages) {
 			final boolean acquired = storage.acquire();
@@ -321,7 +336,6 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			// Data is spread, so we can delete it
 			if(! distributeSuccessfully) {
 				logger.warn("Distribution of {} was not successfully", storage.getInternalName());
-				totalSpreadResult = false;
 			} else {
 				logger.info("Distribution of {} was successfully, scheduling for deletion", storage.getInternalName());
 				storage.deleteOnClose();
@@ -331,17 +345,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			
 			storage.release();
 		}
-	
-		// All tables are redistributed successfully
-		if(totalSpreadResult) {
-			try {
-				StorageRegistry.deleteTable(ssTableManager.getSSTableName());
-			} catch (StorageManagerException e) {
-				logger.error("Deleting table failed", e);
-			}
-		}
 	}
-	
 
 	/**
 	 * Spread the tuple storage
