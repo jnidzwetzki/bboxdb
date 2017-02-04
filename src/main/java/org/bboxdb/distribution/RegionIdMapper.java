@@ -18,7 +18,6 @@
 package org.bboxdb.distribution;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -141,12 +140,13 @@ public class RegionIdMapper {
 	 */
 	public boolean removeMapping(final int regionId) {
 		
-		for (final Iterator<RegionTablenameEntry> iterator = regions.iterator(); iterator.hasNext(); ) {
-			final RegionTablenameEntry regionTablenameEntry = (RegionTablenameEntry) iterator.next();
-			
-			if(regionTablenameEntry.getRegionId() == regionId) {
+		for (final RegionTablenameEntry region : regions) {
+			if(region.getRegionId() == regionId) {
 				logger.info("Mapping for region id {} removed", regionId);
-				iterator.remove();
+				
+				// Remove is supported by COW array list
+				regions.remove(region);
+				
 				return true;
 			}
 		}
