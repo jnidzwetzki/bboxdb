@@ -155,13 +155,15 @@ public class StorageRegistry {
 		final File groupDir = new File(groupDirName);
 		final String[] childs = groupDir.list();
 		
-		if(childs.length > 0) {
+		if(childs != null && childs.length > 0) {
 			final List<String> childList = Arrays.asList(childs);
 			throw new StorageManagerException("Unable to delete non empty dir: " 
 					+ groupDirName + " / " + childList);
 		}
 		
-		groupDir.delete();
+		if(groupDir.exists()) {
+			groupDir.delete();
+		}
 	}
 	
 	/**
