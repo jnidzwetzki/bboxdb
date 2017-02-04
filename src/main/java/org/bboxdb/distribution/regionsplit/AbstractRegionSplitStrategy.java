@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.regionsplit;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.BBoxDBConfiguration;
@@ -205,7 +205,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param region
 	 */
 	protected void redistributeData(final DistributionRegion region) {
-		logger.info("Redistributing data for region: " + region.getIdentifier());
+		logger.info("Redistributing all data for region: " + region.getIdentifier());
 		
 		assertChildIsReady(region);
 		
@@ -213,20 +213,27 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 				(region.getDistributionGroupName(), region.getRegionId());
 		
 		for(final SSTableName ssTableName : localTables) {
-			if(ssTableName.getDistributionGroupObject().equals(region.getDistributionGroupName())) {
-				redistributePersistentData(region, ssTableName);
+			try {
+				// Redistribute all data, new data is kept in memory
+				stopFlushToDisk(ssTableName);
+				distributeData(region, ssTableName, false);	
+			} catch (StorageManagerException e) {
+				logger.warn("Got an exception while distributing tuples for: " + ssTableName, e);
 			}
 		}
 		
-		// Remove the mapping
+		// Remove the local mapping, no new data is written to the region
 		final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName());
 		mapper.removeMapping(region.getRegionId());
 		
+		logger.info("Redistributing in-memory data for region: " + region.getIdentifier());
+
 		// Remove old data
 		for(final SSTableName ssTableName : localTables) {
-			// TODO: Redistribute in memory data
 			try {
-				StorageRegistry.deleteTable(ssTableName);
+				// Redistribute only in memory data
+				distributeData(region, ssTableName, true);	
+				StorageRegistry.deleteTable(ssTableName);	
 			} catch (StorageManagerException e) {
 				logger.error("Deleting table failed", e);
 			}
@@ -266,48 +273,52 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * Redistribute the given sstable
 	 * @param region
 	 * @param ssTableName
+	 * @throws StorageManagerException 
 	 */
-	protected void redistributePersistentData(final DistributionRegion region, final SSTableName ssTableName) {
+	protected void distributeData(final DistributionRegion region, 
+			final SSTableName ssTableName, final boolean onlyInMemoryData) throws StorageManagerException {
+		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
-		try {
-			final SSTableManager ssTableManager = StorageRegistry.getSSTableManager(ssTableName);
-			
-			// Stop flush thread, so new data remains in memory
-			ssTableManager.stopThreads();
-			
-			// Spread data
-			spreadStorages(region, ssTableName, ssTableManager);
-			
-		} catch (StorageManagerException e) {
-			logger.warn("Got an exception while distributing tuples for: " + ssTableName, e);
-		}
+		final SSTableManager ssTableManager = StorageRegistry.getSSTableManager(ssTableName);
+		
+		// Spread data
+		final TupleRedistributor tupleRedistributor = getTupleRedistributor(region, ssTableName);
+		spreadTupleStores(region, ssTableManager, tupleRedistributor, onlyInMemoryData);			
 		
 		logger.info("Redistributing table " + ssTableName.getFullname() + " is DONE");
 	}
 
 	/**
-	 * Spread the given storages
+	 * Stop the to disk flushing
+	 * @param ssTableName
+	 * @throws StorageManagerException
+	 */
+	protected void stopFlushToDisk(final SSTableName ssTableName) throws StorageManagerException {
+		final SSTableManager ssTableManager = StorageRegistry.getSSTableManager(ssTableName);
+		
+		// Stop flush thread, so new data remains in memory
+		ssTableManager.stopThreads();
+	}
+
+	/**
+	 * Get a new instance of the tuple redistributor
 	 * @param region
 	 * @param ssTableName
-	 * @param ssTableManager 
-	 * @param storages
+	 * @return
+	 * @throws StorageManagerException
 	 */
-	protected void spreadStorages(final DistributionRegion region, 
-			final SSTableName ssTableName, final SSTableManager ssTableManager) {
-
+	protected TupleRedistributor getTupleRedistributor(final DistributionRegion region, final SSTableName ssTableName)
+			throws StorageManagerException {
+		
 		final DistributionRegion leftRegion = region.getLeftChild();
 		final DistributionRegion rightRegion = region.getRightChild();
 		
-		try {
-			final TupleRedistributor tupleRedistributor = new TupleRedistributor(ssTableName);
-			tupleRedistributor.registerRegion(leftRegion);
-			tupleRedistributor.registerRegion(rightRegion);
-			
-			spreadTupleStores(region, ssTableManager, tupleRedistributor);
-		} catch (StorageManagerException e) {
-			logger.error("Got an exception while redistributing tuples");
-		}
+		final TupleRedistributor tupleRedistributor = new TupleRedistributor(ssTableName);
+		tupleRedistributor.registerRegion(leftRegion);
+		tupleRedistributor.registerRegion(rightRegion);
+		
+		return tupleRedistributor;
 	}
 
 	/**
@@ -316,34 +327,44 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param ssTableName
 	 * @param ssTableManager
 	 * @param tupleRedistributor
+	 * @param onlyInMemoryData 
+	 * @throws StorageManagerException 
 	 */
 	protected void spreadTupleStores(final DistributionRegion region,
-			final SSTableManager ssTableManager, final TupleRedistributor tupleRedistributor) {
+			final SSTableManager ssTableManager, final TupleRedistributor tupleRedistributor, 
+			final boolean onlyInMemoryData) throws StorageManagerException {
 		
-		final Collection<ReadOnlyTupleStorage> storages = ssTableManager.getTupleStoreInstances().getAllTupleStorages();
+		final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
 		
-		for(final ReadOnlyTupleStorage storage: storages) {
-			final boolean acquired = storage.acquire();
+		try {
+			final List<ReadOnlyTupleStorage> aquiredStorages = ssTableManager.aquireStorage();
+			storages.addAll(aquiredStorages);
 			
-			if(! acquired) {	
-				continue;
+			for(final ReadOnlyTupleStorage storage: storages) {
+				
+				// Skip persistent data, if needed
+				if(onlyInMemoryData && storage.isPersistent()) {
+					continue;
+				}
+				
+				logger.info("Spread sstable facade: {}", storage.getInternalName());
+				
+				final boolean distributeSuccessfully = spreadStorage(tupleRedistributor, storage);
+				
+				// Data is spread, so we can delete it
+				if(! distributeSuccessfully) {
+					logger.warn("Distribution of {} was not successfully", storage.getInternalName());
+				} else {
+					logger.info("Distribution of {} was successfully, scheduling for deletion", storage.getInternalName());
+					storage.deleteOnClose();
+				}
+				
+				logger.info("Statistics for spread: " + tupleRedistributor.getStatistics());			
 			}
-			
-			logger.info("Spread sstable facade: {}", storage.getInternalName());
-			
-			final boolean distributeSuccessfully = spreadStorage(tupleRedistributor, storage);
-			
-			// Data is spread, so we can delete it
-			if(! distributeSuccessfully) {
-				logger.warn("Distribution of {} was not successfully", storage.getInternalName());
-			} else {
-				logger.info("Distribution of {} was successfully, scheduling for deletion", storage.getInternalName());
-				storage.deleteOnClose();
-			}
-			
-			logger.info("Statistics for spread: " + tupleRedistributor.getStatistics());
-			
-			storage.release();
+		} catch (StorageManagerException e) {
+			throw e;
+		} finally {
+			ssTableManager.releaseStorage(storages);
 		}
 	}
 
@@ -386,5 +407,4 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			logger.warn("Unable to split region " + region.getIdentifier() + " at " + splitPosition, e);
 		} 
 	}
-
 }
