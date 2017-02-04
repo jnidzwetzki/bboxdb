@@ -30,12 +30,12 @@ import org.bboxdb.storage.sstable.SSTableManager;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestStorageInterface {
+public class TestStorageRegistry {
 	
 	/**
 	 * The name of the test relation
 	 */
-	protected static final SSTableName RELATION_NAME = new SSTableName("3_grouptest1_table1");
+	protected static final SSTableName RELATION_NAME = new SSTableName("3_grouptest1_table1_2");
 
 	/**
 	 * Test registering and unregistering the storage manager
@@ -80,4 +80,42 @@ public class TestStorageInterface {
 		final File directory = new File(pathname);
 		Assert.assertFalse(directory.exists());
 	}
+	
+	/**
+	 * Calculate the size of a distribution group
+	 * @throws StorageManagerException
+	 * @throws InterruptedException
+	 */
+	@Test
+	public void testCalculateSize() throws StorageManagerException, InterruptedException {
+		
+		final SSTableManager storageManager = StorageRegistry.getSSTableManager(RELATION_NAME);
+		
+		for(int i = 0; i < 50000; i++) {
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
+			storageManager.put(createdTuple);
+		}
+		
+		// Wait for requests to settle
+		Thread.sleep(10000);
+		
+		System.out.println(StorageRegistry.getAllTables());
+		Assert.assertTrue(StorageRegistry.getAllTables().contains(RELATION_NAME));
+		
+		final long size1 = 
+				StorageRegistry.getSizeOfDistributionGroupAndRegionId(
+						RELATION_NAME.getDistributionGroupObject(), 2);
+		
+		Assert.assertTrue(size1 > 0);
+		
+		StorageRegistry.deleteTable(RELATION_NAME);
+		Assert.assertFalse(StorageRegistry.getAllTables().contains(RELATION_NAME));
+		
+		final long size2 = 
+				StorageRegistry.getSizeOfDistributionGroupAndRegionId(
+						RELATION_NAME.getDistributionGroupObject(), 2);
+		
+		Assert.assertTrue(size2 == 0);
+	}
+	
 }

@@ -32,16 +32,16 @@ public class SSTableHelper {
 	 */
 	public static int extractSequenceFromFilename(final SSTableName tablename, final String filename)
 			throws StorageManagerException {
-		try {
-			final String sequence = filename
-				.replace(SSTableConst.SST_FILE_PREFIX + tablename.getFullname() + "_", "")
+		
+		final String sequence = filename
+				.replace(SSTableConst.SST_FILE_PREFIX, "")
 				.replace(SSTableConst.SST_FILE_SUFFIX, "")
 				.replace(SSTableConst.SST_INDEX_SUFFIX, "");
-			
-			return Integer.parseInt(sequence);
 		
+		try {
+			return Integer.parseInt(sequence);
 		} catch (NumberFormatException e) {
-			String error = "Unable to parse sequence number: " + filename;
+			final String error = "Unable to parse sequence number: " + filename + " / " + sequence;
 			throw new StorageManagerException(error, e);
 		}
 	}
@@ -81,7 +81,9 @@ public class SSTableHelper {
 	public static String getSSTableDir(final String directory, final SSTableName name) {
 		return getDistributionGroupDir(directory, name)
 				+ File.separator
-				+ name.getTablename();
+				+ name.getTablename()
+				+ "_"
+				+ name.getRegionId();
 	}
 	
 	/**
