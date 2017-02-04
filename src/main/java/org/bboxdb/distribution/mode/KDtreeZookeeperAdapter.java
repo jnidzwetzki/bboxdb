@@ -623,10 +623,10 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * @param region
 	 */
 	protected void removeLocalMappings(final DistributionRegion region) {
-		// Remove the mapping from the nameprefix mapper	
-		final int nameprefix = region.getRegionId();		
-		logger.info("Remove local mapping for: {} / nameprefix {}", region, nameprefix);
-		RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName()).removeMapping(nameprefix);
+		// Remove the mapping from the regionid mapper	
+		final int regionId = region.getRegionId();		
+		logger.info("Remove local mapping for: {} / nameprefix {}", region, regionId);
+		RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName()).removeMapping(regionId);
 	}
 
 	/**
