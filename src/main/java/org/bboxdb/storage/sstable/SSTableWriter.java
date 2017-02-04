@@ -128,20 +128,18 @@ public class SSTableWriter implements AutoCloseable {
 
 		this.exceptionDuringWrite = false;
 		
-		final String sstableName = name.getFullname();
-
 		// Bloom Filter
-		final String sstableBloomFilterFilename = SSTableHelper.getSSTableBloomFilterFilename(directory, sstableName, tablenumber);
+		final String sstableBloomFilterFilename = SSTableHelper.getSSTableBloomFilterFilename(directory, name, tablenumber);
 		this.sstableBloomFilterFile = new File(sstableBloomFilterFilename);
 		this.bloomFilter = BloomFilterBuilder.buildBloomFilter(estimatedNumberOfTuples);
 		
 		// Spatial index
-		final String spatialIndexFilename =  SSTableHelper.getSSTableSpatialIndexFilename(directory, sstableName, tablenumber);
+		final String spatialIndexFilename =  SSTableHelper.getSSTableSpatialIndexFilename(directory, name, tablenumber);
 		this.spatialIndexFile = new File(spatialIndexFilename);
 		this.spatialIndex = SpatialIndexFactory.getInstance();
 		
 		// Metadata
-		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, sstableName, tablenumber);
+		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, name, tablenumber);
 		this.metadatafile = new File(ssTableMetadataFilename);
 	}
 	
@@ -150,7 +148,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws StorageManagerException
 	 */
 	public void open() throws StorageManagerException {
-		final String directoryName = SSTableHelper.getSSTableDir(directory, name.getFullname());
+		final String directoryName = SSTableHelper.getSSTableDir(directory, name);
 		final File directoryHandle = new File(directoryName);
 		
 		if(! directoryHandle.isDirectory()) {
@@ -159,10 +157,10 @@ public class SSTableWriter implements AutoCloseable {
 			throw new StorageManagerException(error);
 		}
 		
-		final String sstableOutputFileName = SSTableHelper.getSSTableFilename(directory, name.getFullname(), tablenumber);
+		final String sstableOutputFileName = SSTableHelper.getSSTableFilename(directory, name, tablenumber);
 		sstableFile = new File(sstableOutputFileName);
 		
-		final String outputIndexFileName = SSTableHelper.getSSTableIndexFilename(directory, name.getFullname(), tablenumber);
+		final String outputIndexFileName = SSTableHelper.getSSTableIndexFilename(directory, name, tablenumber);
 		sstableIndexFile = new File(outputIndexFileName);
 		
 		// Don't overwrite old data

@@ -173,7 +173,7 @@ public class SSTableReader extends AbstractTableReader {
 	 */
 	@Override
 	protected File constructFileToRead() {
-		final String filename = SSTableHelper.getSSTableFilename(directory, name.getFullname(), tablebumber);
+		final String filename = SSTableHelper.getSSTableFilename(directory, name, tablebumber);
 		return new File(filename);
 	}
 

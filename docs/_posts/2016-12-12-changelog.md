@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.2.2 (Stable) - TBA
 - New Feature: Added start option for remote debuging
+- Improvement: New file system layout (all tables of a distribution group are now located in one dir)
 - Bugfix: A synchronisation issue in the memtable flush thread is fixed
 - Bugfix: The connect dialog in the GUI is now big enough to show full IP-Addresses
 

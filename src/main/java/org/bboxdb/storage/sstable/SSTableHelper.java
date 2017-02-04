@@ -47,17 +47,41 @@ public class SSTableHelper {
 	}
 	
 	/**
+	 * Get the distribution group dir
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/bboxdb/data/2_dgroup1
+	 */
+	public static String getDistributionGroupDir(final String directory, final SSTableName name) {
+		return getDistributionGroupDir(directory, name.getDistributionGroup());
+	}
+	
+	/**
+	 * Get the distribution group dir
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/bboxdb/data/2_dgroup1
+	 */
+	public static String getDistributionGroupDir(final String directory, final String name) {
+		return directory 
+				+ File.separator 
+				+ name;
+	}
+	
+	/**
 	 * The full name of the SSTable directory for a given relation
 	 * 
 	 * @param directory
 	 * @param name
 	 * 
-	 * @return e.g. /tmp/bboxdb/data/relation1 
+	 * @return e.g. /tmp/bboxdb/data/2_dgroup1/relation1 
 	 */
-	public static String getSSTableDir(final String directory, final String name) {
-		return directory 
-				+ File.separator 
-				+ name;
+	public static String getSSTableDir(final String directory, final SSTableName name) {
+		return getDistributionGroupDir(directory, name)
+				+ File.separator
+				+ name.getTablename();
 	}
 	
 	/**
@@ -66,15 +90,15 @@ public class SSTableHelper {
 	 * @param directory
 	 * @param name
 	 * 
-	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2
+	 * @return e.g. /tmp/bboxdb/data/2_dgroup1/relation1/sstable_relation1_2
 	 */
-	public static String getSSTableBase(final String directory, final String name, int tablebumber) {
+	public static String getSSTableBase(final String directory, final SSTableName name, final int tablenumber) {
 		return getSSTableDir(directory, name)
 				+ File.separator 
 				+ SSTableConst.SST_FILE_PREFIX 
 				+ name 
 				+ "_" 
-				+ tablebumber;
+				+ tablenumber;
 	}
 	
 	/**
@@ -85,8 +109,8 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.sst
 	 */
-	public static String getSSTableFilename(final String directory, final String name, int tablebumber) {
-		return getSSTableBase(directory, name, tablebumber)
+	public static String getSSTableFilename(final String directory, final SSTableName name, final int tablenumber) {
+		return getSSTableBase(directory, name, tablenumber)
 				+ SSTableConst.SST_FILE_SUFFIX;
 	}
 	
@@ -98,8 +122,8 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.idx
 	 */
-	public static String getSSTableIndexFilename(final String directory, final String name, int tablebumber) {
-		return getSSTableBase(directory, name, tablebumber)
+	public static String getSSTableIndexFilename(final String directory, final SSTableName name, final int tablenumber) {
+		return getSSTableBase(directory, name, tablenumber)
 				+ SSTableConst.SST_INDEX_SUFFIX;
 	}
 	
@@ -111,7 +135,7 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.blm
 	 */
-	public static String getSSTableBloomFilterFilename(final String directory, final String name, int tablebumber) {
+	public static String getSSTableBloomFilterFilename(final String directory, final SSTableName name, int tablebumber) {
 		return getSSTableBase(directory, name, tablebumber)
 				+ SSTableConst.SST_BLOOM_SUFFIX;
 	}
@@ -124,8 +148,8 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.sidx
 	 */
-	public static String getSSTableSpatialIndexFilename(final String directory, final String name, int tablebumber) {
-		return getSSTableBase(directory, name, tablebumber)
+	public static String getSSTableSpatialIndexFilename(final String directory, final SSTableName name, final int tablenumber) {
+		return getSSTableBase(directory, name, tablenumber)
 				+ SSTableConst.SST_SPATIAL_INDEX_SUFFIX;
 	}
 	
@@ -137,8 +161,8 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.meta
 	 */
-	public static String getSSTableMetadataFilename(final String directory, final String name, int tablebumber) {
-		return getSSTableBase(directory, name, tablebumber)
+	public static String getSSTableMetadataFilename(final String directory, final SSTableName name, final int tablenumber) {
+		return getSSTableBase(directory, name, tablenumber)
 				+ SSTableConst.SST_META_SUFFIX;
 	}
 	

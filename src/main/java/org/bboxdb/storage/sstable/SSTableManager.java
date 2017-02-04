@@ -305,18 +305,27 @@ public class SSTableManager implements BBoxDBService {
 	 * 
 	 */
 	protected void createSSTableDirIfNeeded() throws StorageManagerException {
-		final File rootDir = new File(configuration.getDataDirectory());
+		final String dataDirectory = configuration.getDataDirectory();
+		final File rootDir = new File(dataDirectory);
 		
 		if(! rootDir.exists()) {
 			throw new StorageManagerException("Root dir does not exist: " + rootDir);
 		}
 		
-		final String ssTableDir = SSTableHelper.getSSTableDir(configuration.getDataDirectory(), sstablename.getFullname());
-		final File directoryHandle = new File(ssTableDir);
+		final String dgroupDir = SSTableHelper.getDistributionGroupDir(dataDirectory, sstablename);
+		final File dgroupDirHandle = new File(dgroupDir);
 		
-		if(! directoryHandle.exists()) {
-			logger.info("Create a new dir for table: " + getSSTableName());
-			directoryHandle.mkdir();
+		if(! dgroupDirHandle.exists()) {
+			logger.info("Create a new dir for dgroup: " + dgroupDir);
+			dgroupDirHandle.mkdir();
+		}
+		
+		final String ssTableDir = SSTableHelper.getSSTableDir(dataDirectory, sstablename);
+		final File ssTableDirHandle = new File(ssTableDir);
+
+		if(! ssTableDirHandle.exists()) {
+			logger.info("Create a new dir for table: " + sstablename.getFullname());
+			ssTableDirHandle.mkdir();
 		}
 	}
 	
@@ -327,8 +336,8 @@ public class SSTableManager implements BBoxDBService {
 	 * 
 	 */
 	protected void scanForExistingTables() throws StorageManagerException {
-		logger.info("Scan for existing SSTables: " + getSSTableName());
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(configuration.getDataDirectory(), sstablename.getFullname()));
+		logger.info("Scan for existing SSTables: " + sstablename.getFullname());
+		final File directoryHandle = new File(SSTableHelper.getSSTableDir(configuration.getDataDirectory(), sstablename));
 		
 	    checkSSTableDir(directoryHandle);
 	
@@ -386,8 +395,8 @@ public class SSTableManager implements BBoxDBService {
 	 * Delete the persistent data of the table
 	 * @return
 	 */
-	public static boolean deletePersistentTableData(final String dataDirectory, final String sstableName) {
-		logger.info("Delete all existing SSTables for relation: {}", sstableName);
+	public static boolean deletePersistentTableData(final String dataDirectory, final SSTableName sstableName) {
+		logger.info("Delete all existing SSTables for relation: {}", sstableName.getFullname());
 
 		final File directoryHandle = new File(SSTableHelper.getSSTableDir(dataDirectory, sstableName));
 	
@@ -605,7 +614,8 @@ public class SSTableManager implements BBoxDBService {
 		shutdown();
 		waitForShutdownToComplete();
 		
-		deletePersistentTableData(configuration.getDataDirectory(), getSSTableName().getFullname());
+		deletePersistentTableData(configuration.getDataDirectory(), getSSTableName());
+		
 		init();
 	}
 

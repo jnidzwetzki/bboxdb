@@ -19,6 +19,7 @@ package org.bboxdb.storage;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.bboxdb.BBoxDBConfiguration;
 import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +117,7 @@ public class StorageRegistry {
 			shutdown(table);
 		}
 
-		SSTableManager.deletePersistentTableData(configuration.getDataDirectory(), table.getFullname());
+		SSTableManager.deletePersistentTableData(configuration.getDataDirectory(), table);
 	}
 	
 	/**
@@ -139,13 +141,27 @@ public class StorageRegistry {
 		}
 		
 		// Storage on disk
-		logger.info("Deleting all local stored data for distribution group: " + fullname);
 		final List<SSTableName> allTables = getAllTables();
 		for(final SSTableName ssTableName : allTables) {
 			if(ssTableName.getDistributionGroup().equals(fullname)) {
 				deleteTable(ssTableName);
 			}
 		}
+		
+		// Delete the group dir
+		logger.info("Deleting all local stored data for distribution group: " + fullname);
+		final String directory = configuration.getDataDirectory();
+		final String groupDirName = SSTableHelper.getDistributionGroupDir(directory, distributionGroupName.getFullname());
+		final File groupDir = new File(groupDirName);
+		final String[] childs = groupDir.list();
+		
+		if(childs.length > 0) {
+			final List<String> childList = Arrays.asList(childs);
+			throw new StorageManagerException("Unable to delete non empty dir: " 
+					+ groupDirName + " / " + childList);
+		}
+		
+		groupDir.delete();
 	}
 	
 	/**
@@ -167,10 +183,19 @@ public class StorageRegistry {
 		
 		final File folder = new File(configuration.getDataDirectory());
 		
+		// Distribution groups
 		for (final File fileEntry : folder.listFiles()) {
 	        if (fileEntry.isDirectory()) {
-	        	final String tableName = fileEntry.getName();
-	        	allTables.add(new SSTableName(tableName));
+	        	final String distributionGroup = fileEntry.getName();
+	        	final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
+	        	assert(distributionGroupName.isValid());
+	        	
+	        	// Tables
+		        if (fileEntry.isDirectory()) {
+		        	final String tablename = fileEntry.getName();
+		        	final String fullname = distributionGroupName.getFullname() + "_" + tablename;
+		        	allTables.add(new SSTableName(fullname));
+		        }
 	        } 
 	    }
 		

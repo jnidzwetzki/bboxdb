@@ -133,8 +133,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	 * @return
 	 */
 	protected File getSpatialIndexFile(final String directory, final SSTableName tablename, final int tablenumber) {
-		final String sstableName = tablename.getFullname();
-		final String spatialIndexFileName = SSTableHelper.getSSTableSpatialIndexFilename(directory, sstableName, tablenumber);
+		final String spatialIndexFileName = SSTableHelper.getSSTableSpatialIndexFilename(directory, tablename, tablenumber);
 		final File spatialIndexFile = new File(spatialIndexFileName);
 		return spatialIndexFile;
 	}
@@ -147,8 +146,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	 * @return
 	 */
 	protected File getBloomFilterFile(final String directory, final SSTableName tablename, final int tablenumber) {
-		final String sstableName = tablename.getFullname();
-		final String bloomFilterFileName = SSTableHelper.getSSTableBloomFilterFilename(directory, sstableName, tablenumber);
+		final String bloomFilterFileName = SSTableHelper.getSSTableBloomFilterFilename(directory, tablename, tablenumber);
 		final File bloomFilterFile = new File(bloomFilterFileName);
 		return bloomFilterFile;
 	}
@@ -202,7 +200,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	 */
 	protected File getMetadataFile(final String directory,
 			final SSTableName tablename, final int tablenumber) {
-		final String metadatafile = SSTableHelper.getSSTableMetadataFilename(directory, tablename.getFullname(), tablenumber);
+		final String metadatafile = SSTableHelper.getSSTableMetadataFilename(directory, tablename, tablenumber);
 		return new File(metadatafile);
 	}
 	

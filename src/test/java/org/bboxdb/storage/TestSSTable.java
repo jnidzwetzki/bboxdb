@@ -142,7 +142,7 @@ public class TestSSTable {
 		storageManager.clear();
 		storageManager.shutdown();
 	
-		final String relationDirectory = SSTableHelper.getSSTableDir(DATA_DIRECTORY, TEST_RELATION.getFullname());
+		final String relationDirectory = SSTableHelper.getSSTableDir(DATA_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
 		
 		// Directory should be empty
