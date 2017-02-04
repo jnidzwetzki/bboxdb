@@ -96,8 +96,6 @@ public class SSTableHelper {
 		return getSSTableDir(directory, name)
 				+ File.separator 
 				+ SSTableConst.SST_FILE_PREFIX 
-				+ name 
-				+ "_" 
 				+ tablenumber;
 	}
 	
