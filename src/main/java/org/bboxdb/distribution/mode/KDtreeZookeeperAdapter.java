@@ -646,6 +646,13 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			return;
 		}
 		
+		// Don't add local mapping for inactive regions
+		if(        region.getState() == DistributionRegionState.SPLITTING
+				|| region.getState() == DistributionRegionState.SPLIT 
+				|| region.getState() == DistributionRegionState.UNKNOWN) {
+			return;
+		}
+		
 		final DistributedInstance localInstance = zookeeperClient.getInstancename();
 		
 		// Add the mapping to the nameprefix mapper

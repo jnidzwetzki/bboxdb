@@ -13,6 +13,7 @@ order: 1
 - Bugfix: The connect dialog in the GUI is now big enough to show full IP-Addresses
 - Bugfix: Empty sstable dirs are removed after region split
 - Bugfix: Region mapping is removed after region split
+- Bugfix: Region mapping is not created for inactive regions
 
 ### Version 0.2.1 (Stable) - 31.01.2017
 - New Feature: Using Coverity scan and codecov.io to improve source code quality
