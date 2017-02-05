@@ -24,6 +24,7 @@ import org.bboxdb.BBoxDBConfiguration;
 import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.BBoxDBService;
 import org.bboxdb.distribution.DistributionGroupCache;
+import org.bboxdb.distribution.DistributionGroupMetadataHelper;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
@@ -40,6 +41,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.server.NetworkConnectionService;
+import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableManager;
@@ -111,6 +113,8 @@ public class RecoveryService implements BBoxDBService {
 			final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 			final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName(configuration);
 			
+			checkGroupVersion(distributionGroupName, zookeeperClient);
+					
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
 					distributionGroupName.getFullname(), zookeeperClient);
 			
@@ -122,6 +126,26 @@ public class RecoveryService implements BBoxDBService {
 			logger.error("Got exception while running recovery for distribution group: " + distributionGroupName, e);
 		}
 		
+	}
+
+	protected void checkGroupVersion(final DistributionGroupName distributionGroupName,
+			final ZookeeperClient zookeeperClient) {
+		
+		try {
+			final DistributionGroupMetadata metaData = DistributionGroupMetadataHelper.getMedatadaForGroup(distributionGroupName);
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+			final String remoteVersion = distributionGroupZookeeperAdapter.getVersionForDistributionGroup(distributionGroupName.getFullname(), null);
+			
+			final String localVersion = metaData.getVersion();
+			
+			if(! remoteVersion.equals(localVersion)) {
+				logger.error("Local version {} of dgroup {} does not match remtote version {}", localVersion, distributionGroupName, remoteVersion);
+				System.exit(-1);
+			}
+			
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
+			logger.error("Got an exception while checking group version");
+		} 
 	}
 
 	/**
