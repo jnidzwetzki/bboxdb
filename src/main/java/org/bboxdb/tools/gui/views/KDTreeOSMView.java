@@ -19,14 +19,22 @@ package org.bboxdb.tools.gui.views;
 
 import javax.swing.JPanel;
 
-public class KDTreeOSMView extends JPanel {
+import org.bboxdb.tools.gui.GuiModel;
 
+public class KDTreeOSMView extends JPanel {
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6568150461129445127L;
 	
-	
+	/**
+	 * The gui model
+	 */
+	private final GuiModel guiModel;
 
+	public KDTreeOSMView(final GuiModel guiModel) {
+		this.guiModel = guiModel;
+	}
 
 }

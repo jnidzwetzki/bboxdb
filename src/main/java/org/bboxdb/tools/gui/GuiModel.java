@@ -144,10 +144,16 @@ public class GuiModel implements DistributedInstanceEventCallback,
 		
 		logger.info("Reread distribution group: {}", distributionGroup);
 		
+		if(distributionGroup == null) {
+			return;
+		}
+		
 		// Show wait cursor
 		SwingUtilities.invokeLater(() -> {
-			bboxdbGui.getGlassPane().setVisible(true);
-			bboxdbGui.getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			if(bboxdbGui.getGlassPane() != null) {
+				bboxdbGui.getGlassPane().setVisible(true);
+				bboxdbGui.getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			}
 		});
 
 		// Read distribution group async
@@ -181,8 +187,11 @@ public class GuiModel implements DistributedInstanceEventCallback,
 			// Reset cursor
 			SwingUtilities.invokeLater(() -> {
 					updateModel();
-					bboxdbGui.getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-					bboxdbGui.getGlassPane().setVisible(false);
+					if(bboxdbGui.getGlassPane() != null) {
+						final Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+						bboxdbGui.getGlassPane().setCursor(defaultCursor);
+						bboxdbGui.getGlassPane().setVisible(false);
+					}
 			});
 		})).start();
 	}

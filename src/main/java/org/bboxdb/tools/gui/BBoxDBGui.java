@@ -44,7 +44,9 @@ import javax.swing.border.BevelBorder;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.tools.gui.views.KDTreeOSMView;
 import org.bboxdb.tools.gui.views.KDTreeView;
+import org.bboxdb.tools.gui.views.ViewMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,6 +91,11 @@ public class BBoxDBGui {
 	 * The GUI Model
 	 */
 	protected GuiModel guiModel;
+	
+	/**
+	 * The view mode
+	 */
+	protected ViewMode viewMode = ViewMode.KD_TREE_MODE;
 
 	/**
 	 * The Logger
@@ -108,7 +115,7 @@ public class BBoxDBGui {
 		mainframe = new JFrame("BBoxDB - Data Distribution");
 
 		setupMenu();
-		setupMainPanel();
+		buildMainPanel();
 
 		tableModel = getTableModel();
 		final JTable table = new JTable(tableModel);
@@ -171,21 +178,41 @@ public class BBoxDBGui {
 	 * Initialize the GUI panel
 	 * 
 	 */
-	protected void setupMainPanel() {
-
-		final JPanel rightPanel = new KDTreeView(guiModel);
-
-		rightPanel.setBackground(Color.WHITE);
-		rightPanel.setToolTipText("");
-
-		final JScrollPane rightScrollPanel = new JScrollPane(rightPanel);
+	protected void buildMainPanel() {
+		
+		final JScrollPane rightScrollPanel = getRightPanel();
 
 		final JList<String> leftPanel = getLeftPanel();
 
 		mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightScrollPanel);
 		mainPanel.setOneTouchExpandable(true);
 		mainPanel.setDividerLocation(150);
-		mainPanel.setPreferredSize(new Dimension(800, 600));
+		mainPanel.setPreferredSize(new Dimension(800, 600));		
+	}
+
+	protected JScrollPane getRightPanel() {
+		JPanel rightPanel = null;
+			
+		if(viewMode == ViewMode.KD_TREE_MODE) {
+			rightPanel = new KDTreeView(guiModel);
+		} else {
+			rightPanel = new KDTreeOSMView(guiModel);
+		}
+
+		rightPanel.setBackground(Color.WHITE);
+		rightPanel.setToolTipText("");
+
+		final JScrollPane rightScrollPanel = new JScrollPane(rightPanel);
+		return rightScrollPanel;
+	}
+	
+	/**
+	 * Update the main panel
+	 */
+	protected void updateMainPanel() {
+		final int oldLocation = mainPanel.getDividerLocation();
+		mainPanel.setRightComponent(getRightPanel());
+		mainPanel.setDividerLocation(oldLocation);
 	}
 
 	/**
@@ -204,6 +231,8 @@ public class BBoxDBGui {
 		leftList.addListSelectionListener(e -> {
 			if (! e.getValueIsAdjusting()) {
 				guiModel.setDistributionGroup(leftList.getSelectedValue());
+				viewMode = ViewMode.KD_TREE_MODE;
+				updateMainPanel();
 			}
 		});
 
@@ -240,24 +269,42 @@ public class BBoxDBGui {
 	 */
 	protected void setupMenu() {
 		menuBar = new JMenuBar();
+		mainframe.setJMenuBar(menuBar);
+
+		// File menu
 		final JMenu menu = new JMenu("File");
 		menuBar.add(menu);
-
+				
 		final JMenuItem reloadItem = new JMenuItem("Reload Distribution Groups");
+		menu.add(reloadItem);
 		reloadItem.addActionListener((e) ->  {
 				refreshDistributionGroups(listModel);
 		});
 		
-		menu.add(reloadItem);
 
 		final JMenuItem closeItem = new JMenuItem("Close");
+		menu.add(closeItem);
 		closeItem.addActionListener((e) -> {
 				System.exit(0);
 		});
 		
-		menu.add(closeItem);
+		// View menu
+		final JMenu view = new JMenu("View");
+		menuBar.add(view);
 
-		mainframe.setJMenuBar(menuBar);
+		final JMenuItem viewKDTree = new JMenuItem("KD Tree view");
+		view.add(viewKDTree);
+		viewKDTree.addActionListener((e) -> {
+			viewMode = ViewMode.KD_TREE_MODE;
+			updateMainPanel();
+		});
+		
+		final JMenuItem viewKDTreeOsm = new JMenuItem("KD Tree OSM view");
+		view.add(viewKDTreeOsm);
+		viewKDTreeOsm.addActionListener((e) -> {
+			viewMode = ViewMode.KD_TREE_OSM_MODE;
+			updateMainPanel();
+		});
 	}
 
 	/**
