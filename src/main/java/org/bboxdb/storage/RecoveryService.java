@@ -136,6 +136,11 @@ public class RecoveryService implements BBoxDBService {
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
 			final String remoteVersion = distributionGroupZookeeperAdapter.getVersionForDistributionGroup(distributionGroupName.getFullname(), null);
 			
+			if(metaData == null) {
+				logger.debug("Metadata is null, skipping check");
+				return;
+			}
+			
 			final String localVersion = metaData.getVersion();
 			
 			if(! remoteVersion.equals(localVersion)) {
