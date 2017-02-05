@@ -71,6 +71,15 @@ public class SSTableHelper {
 	}
 	
 	/**
+	 * Get the metadata file of a distribution group
+	 */
+	public static String getDistributionGroupMedatadaFile(final String directory, final String name) {
+		return getDistributionGroupDir(directory, name)
+				+ File.separator 
+				+ SSTableConst.DISTRIBUTION_GROUP_MEDATADATA;
+	}
+	
+	/**
 	 * The full name of the SSTable directory for a given relation
 	 * 
 	 * @param directory

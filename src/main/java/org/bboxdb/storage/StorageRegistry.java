@@ -127,15 +127,15 @@ public class StorageRegistry {
 	 */
 	public static synchronized void deleteAllTablesInDistributionGroup(final DistributionGroupName distributionGroupName) throws StorageManagerException {
 		
-		final String fullname = distributionGroupName.getFullname();
+		final String distributionGroupString = distributionGroupName.getFullname();
 		
 		// Memtabes
-		logger.info("Shuting down active memtables for distribution group: " + fullname);
+		logger.info("Shuting down active memtables for distribution group: " + distributionGroupString);
 		
 		// Create a copy of the key set to allow deletions (performed by shutdown) during iteration
 		final Set<SSTableName> copyOfInstances = new HashSet<SSTableName>(instances.keySet());
 		for(final SSTableName ssTableName : copyOfInstances) {
-			if(ssTableName.getDistributionGroup().equals(fullname)) {
+			if(ssTableName.getDistributionGroup().equals(distributionGroupString)) {
 				shutdown(ssTableName);
 			}
 		}
@@ -143,15 +143,17 @@ public class StorageRegistry {
 		// Storage on disk
 		final List<SSTableName> allTables = getAllTables();
 		for(final SSTableName ssTableName : allTables) {
-			if(ssTableName.getDistributionGroup().equals(fullname)) {
+			if(ssTableName.getDistributionGroup().equals(distributionGroupString)) {
 				deleteTable(ssTableName);
 			}
 		}
 		
 		// Delete the group dir
-		logger.info("Deleting all local stored data for distribution group: " + fullname);
+		logger.info("Deleting all local stored data for distribution group: " + distributionGroupString);
 		final String directory = configuration.getDataDirectory();
-		final String groupDirName = SSTableHelper.getDistributionGroupDir(directory, distributionGroupName.getFullname());
+		deleteMedatadaOfDistributionGroup(distributionGroupString, directory);
+
+		final String groupDirName = SSTableHelper.getDistributionGroupDir(directory, distributionGroupString);
 		final File groupDir = new File(groupDirName);
 		final String[] childs = groupDir.list();
 		
@@ -162,7 +164,25 @@ public class StorageRegistry {
 		}
 		
 		if(groupDir.exists()) {
+			logger.debug("Deleting {}", groupDir);
 			groupDir.delete();
+		}
+	}
+
+	/**
+	 * Delete medatada file
+	 * @param distributionGroupString
+	 * @param directory
+	 */
+	protected static void deleteMedatadaOfDistributionGroup(final String distributionGroupString,
+			final String directory) {
+		
+		final String medatadaFileName = SSTableHelper.getDistributionGroupMedatadaFile(directory, distributionGroupString);
+		final File medatadaFile = new File(medatadaFileName);
+		
+		if(medatadaFile.exists()) {
+			logger.debug("Remove medatada file {}", medatadaFile);
+			medatadaFile.delete();
 		}
 	}
 	

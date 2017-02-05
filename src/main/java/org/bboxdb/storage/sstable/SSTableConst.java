@@ -70,6 +70,12 @@ public class SSTableConst {
 	 * The suffix for the meta files
 	 */
 	public final static String SST_META_SUFFIX = ".meta";
+	
+	/**
+	 * Distribution group medata data file
+	 */
+	public static final String DISTRIBUTION_GROUP_MEDATADATA = "group.meta";
+
 
 	/**
 	 * Format of the index file:
@@ -95,4 +101,5 @@ public class SSTableConst {
 	 * Execution interval for the checkpoint thread
 	 */
 	public final static long CHECKPOINT_THREAD_DELAY = TimeUnit.SECONDS.toMillis(60);
+
 }
