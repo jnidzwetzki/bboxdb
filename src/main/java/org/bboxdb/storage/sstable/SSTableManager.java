@@ -18,6 +18,7 @@
 package org.bboxdb.storage.sstable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,9 +30,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.bboxdb.BBoxDBConfiguration;
 import org.bboxdb.BBoxDBService;
 import org.bboxdb.Const;
+import org.bboxdb.distribution.DistributionGroupMetadataHelper;
+import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
@@ -317,7 +325,12 @@ public class SSTableManager implements BBoxDBService {
 		
 		if(! dgroupDirHandle.exists()) {
 			logger.info("Create a new dir for dgroup: " + dgroupDir);
-			dgroupDirHandle.mkdir();
+			dgroupDirHandle.mkdir();	
+			try {
+				writeMetaData();
+			} catch (ZookeeperException | ZookeeperNotFoundException | IOException e) {
+				logger.error("Unable to write meta data", e);
+			}
 		}
 		
 		final String ssTableDir = SSTableHelper.getSSTableDir(dataDirectory, sstablename);
@@ -327,6 +340,28 @@ public class SSTableManager implements BBoxDBService {
 			logger.info("Create a new dir for table: " + sstablename.getFullname());
 			ssTableDirHandle.mkdir();
 		}
+	}
+
+	/**
+	 * Write the meta data for the distribution group
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 * @throws IOException 
+	 */
+	protected void writeMetaData() throws ZookeeperException, ZookeeperNotFoundException, IOException {
+		
+		if(! sstablename.isDistributedTable()) {	
+			return;
+		}
+		
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
+		final DistributionGroupZookeeperAdapter dAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+		final String version = dAdapter.getVersionForDistributionGroup(sstablename.getDistributionGroup(), null);
+		
+		DistributionGroupMetadata distributionGroupMetadata = new DistributionGroupMetadata();
+		distributionGroupMetadata.setVersion(version);
+		
+		DistributionGroupMetadataHelper.writeMedatadataForGroup(sstablename.getDistributionGroupObject(), distributionGroupMetadata);
 	}
 	
 	/**

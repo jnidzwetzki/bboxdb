@@ -82,8 +82,8 @@ public class TestDistributionGroupMedadata {
 	public void testReadAndWriteDistributionGroupMetadata() throws IOException {
 		final DistributionGroupMetadata distributionGroupMetadata1 = new DistributionGroupMetadata();
 		final DistributionGroupMetadata distributionGroupMetadata2 = new DistributionGroupMetadata();
-		distributionGroupMetadata1.setVersion(10);
-		distributionGroupMetadata2.setVersion(20);
+		distributionGroupMetadata1.setVersion("10");
+		distributionGroupMetadata2.setVersion("20");
 		Assert.assertFalse(distributionGroupMetadata1.equals(distributionGroupMetadata2));
 		
 		DistributionGroupMetadataHelper.writeMedatadataForGroup(DGROUP_NAME, distributionGroupMetadata1);

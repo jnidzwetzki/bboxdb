@@ -22,13 +22,13 @@ public class DistributionGroupMetadata {
 	/**
 	 * The version of the distribution group
 	 */
-	protected long version;
+	protected String version;
 
-	public long getVersion() {
+	public String getVersion() {
 		return version;
 	}
 
-	public void setVersion(final long version) {
+	public void setVersion(final String version) {
 		this.version = version;
 	}
 
@@ -36,7 +36,7 @@ public class DistributionGroupMetadata {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (version ^ (version >>> 32));
+		result = prime * result + ((version == null) ? 0 : version.hashCode());
 		return result;
 	}
 
@@ -49,7 +49,10 @@ public class DistributionGroupMetadata {
 		if (getClass() != obj.getClass())
 			return false;
 		DistributionGroupMetadata other = (DistributionGroupMetadata) obj;
-		if (version != other.version)
+		if (version == null) {
+			if (other.version != null)
+				return false;
+		} else if (!version.equals(other.version))
 			return false;
 		return true;
 	}
