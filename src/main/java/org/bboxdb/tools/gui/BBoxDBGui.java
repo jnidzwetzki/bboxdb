@@ -41,58 +41,14 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.distribution.membership.event.DistributedInstanceState;
-import org.bboxdb.tools.gui.views.DistributionGroupJPanel;
+import org.bboxdb.tools.gui.views.KDTreeView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BBoxDBGui {
-
-	/**
-	 * Color green
-	 */
-	private static final Color OUR_GREEN = new Color(0, 192, 0);
-	
-	/**
-	 * Color gray
-	 */
-	private static final Color OUR_RED = new Color(164, 0, 0);
-
-	
-	protected class InstanceTableModel extends DefaultTableCellRenderer {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -2405592763548531423L;
-
-		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-
-			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-			final String state = (String) table.getModel().getValueAt(row, 4);
-
-			if(column != 4) {
-				setForeground(table.getForeground());
-			} else {
-				if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
-					setForeground(Color.YELLOW);
-				} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
-					setForeground(OUR_GREEN);
-				} else {
-					setForeground(OUR_RED);
-				}
-			}
-
-			return this;
-		}
-	}
 
 	/**
 	 * The main frame
@@ -160,7 +116,7 @@ public class BBoxDBGui {
 		table.getColumnModel().getColumn(2).setMinWidth(100);
 		table.getColumnModel().getColumn(2).setMaxWidth(100);
 
-		table.setDefaultRenderer(Object.class, new InstanceTableModel());
+		table.setDefaultRenderer(Object.class, new InstanceTableRenderer());
 
 		final JScrollPane tableScrollPane = new JScrollPane(table);		
 		final Dimension dimension = table.getPreferredSize();
@@ -217,7 +173,7 @@ public class BBoxDBGui {
 	 */
 	protected void setupMainPanel() {
 
-		final JPanel rightPanel = new DistributionGroupJPanel(guiModel);
+		final JPanel rightPanel = new KDTreeView(guiModel);
 
 		rightPanel.setBackground(Color.WHITE);
 		rightPanel.setToolTipText("");

@@ -32,7 +32,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.tools.gui.DistributionRegionComponent;
 import org.bboxdb.tools.gui.GuiModel;
 
-public class DistributionGroupJPanel extends JPanel {
+public class KDTreeView extends JPanel {
 	
 	private static final long serialVersionUID = -248493308846818192L;
 	
@@ -72,7 +72,7 @@ public class DistributionGroupJPanel extends JPanel {
 	 */
 	protected final int rootPosY;
 
-	public DistributionGroupJPanel(final GuiModel guiModel) {
+	public KDTreeView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 		this.rootPosX = 1000;
 		this.rootPosY = 30;
