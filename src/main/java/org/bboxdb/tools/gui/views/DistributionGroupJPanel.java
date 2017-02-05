@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.gui;
+package org.bboxdb.tools.gui.views;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -29,6 +29,8 @@ import javax.swing.JPanel;
 
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.tools.gui.DistributionRegionComponent;
+import org.bboxdb.tools.gui.GuiModel;
 
 public class DistributionGroupJPanel extends JPanel {
 	

@@ -46,6 +46,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.tools.gui.views.DistributionGroupJPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

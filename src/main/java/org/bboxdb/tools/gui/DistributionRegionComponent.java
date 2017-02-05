@@ -27,28 +27,29 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
+import org.bboxdb.tools.gui.views.DistributionGroupJPanel;
 
 public class DistributionRegionComponent {
 	
 	/**
 	 * The x offset of a child (- if left child / + if right child)
 	 */
-	protected final static int LEFT_RIGHT_OFFSET = 15;
+	public final static int LEFT_RIGHT_OFFSET = 15;
 	
 	/**
 	 * The distance between two levels
 	 */
-	protected final static int LEVEL_DISTANCE = 100;
+	public final static int LEVEL_DISTANCE = 100;
 
 	/**
 	 * The height of the box
 	 */
-	protected final static int HEIGHT = 50;
+	public final static int HEIGHT = 50;
 	
 	/**
 	 * The width of the box
 	 */
-	protected final static int WIDTH = 90;
+	public final static int WIDTH = 90;
 	
 	/**
 	 * The distribution region to paint
@@ -129,7 +130,7 @@ public class DistributionRegionComponent {
 	 * Is the mouse over this component?
 	 * @return
 	 */
-	protected boolean isMouseOver(final MouseEvent event) {
+	public boolean isMouseOver(final MouseEvent event) {
 	
 		if(event.getX() >= xOffset && event.getX() <= xOffset + WIDTH) {
 			if(event.getY() >= yOffset && event.getY() <= yOffset + HEIGHT) {
