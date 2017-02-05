@@ -354,6 +354,8 @@ public class SSTableManager implements BBoxDBService {
 			return;
 		}
 		
+		logger.debug("Write meta data for distribution group: ", sstablename.getDistributionGroup());
+		
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
 		final DistributionGroupZookeeperAdapter dAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
 		final String version = dAdapter.getVersionForDistributionGroup(sstablename.getDistributionGroup(), null);
