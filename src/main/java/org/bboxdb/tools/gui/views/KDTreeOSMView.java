@@ -65,8 +65,25 @@ public class KDTreeOSMView implements View {
 
 		final JButton zoomOutButton = getZoomOutButton();		
 		buttonPanel.add(zoomOutButton);
+		
+		final JButton showWolrdButton = getShowWorldButton();
+		buttonPanel.add(showWolrdButton);
+
 
 		return mainPanel;
+	}
+	
+	/**
+	 * Get the show world button
+	 * @return
+	 */
+	protected JButton getShowWorldButton() {
+		final JButton showWorldButton = new JButton("Show world");
+		showWorldButton.addActionListener((l) -> {
+			mapViewer.setZoom(17);
+		}
+		); 
+		return showWorldButton;
 	}
 
 	/**
@@ -92,6 +109,7 @@ public class KDTreeOSMView implements View {
 		zoomOutButton.addActionListener((l) -> {
 			final int zoom = mapViewer.getZoom();
 			mapViewer.setZoom(zoom + 1);
+			System.out.println("NEw Toom:  " + zoom);
 		}
 		); 
 		return zoomOutButton;
@@ -117,9 +135,13 @@ public class KDTreeOSMView implements View {
 		tileFactory.setThreadPoolSize(8);
 
 		// Set the focus
-		final GeoPosition hagen = new GeoPosition(51.3483856, 7.4840696);
+		final GeoPosition hagen = new GeoPosition(51.376255, 7.493675);
 		mapViewer.setZoom(7);
 		mapViewer.setAddressLocation(hagen);
+		
+		// The KD Tree painter
+		final KDOSMPainter kdosmPainter = new KDOSMPainter(guiModel);
+		mapViewer.setOverlayPainter(kdosmPainter);
 			
 		return mapViewer;
 	}
