@@ -17,6 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views;
 
+import java.awt.BorderLayout;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
 import org.bboxdb.tools.gui.GuiModel;
@@ -33,13 +37,71 @@ public class KDTreeOSMView implements View {
 	 * The gui model
 	 */
 	protected final GuiModel guiModel;
+	
+	/**
+	 * The map viewer
+	 */
+	protected JXMapViewer mapViewer;
 
 	public KDTreeOSMView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 	}
 	
 	@Override
-	public JXMapViewer getJPanel() {
+	public JPanel getJPanel() {
+		
+		mapViewer = getMapViewer();
+		
+		final JPanel mainPanel = new JPanel();
+		
+		mainPanel.setLayout(new BorderLayout());
+		mainPanel.add(mapViewer, BorderLayout.CENTER);
+
+		final JPanel buttonPanel = new JPanel();
+		mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+		
+		final JButton zoomInButton = getZoomInButton();
+		buttonPanel.add(zoomInButton);
+
+		final JButton zoomOutButton = getZoomOutButton();		
+		buttonPanel.add(zoomOutButton);
+
+		return mainPanel;
+	}
+
+	/**
+	 * Get the zoom in button
+	 * @return
+	 */
+	protected JButton getZoomInButton() {
+		final JButton zoomInButton = new JButton("Zoom in");
+		zoomInButton.addActionListener((l) -> {
+			final int zoom = mapViewer.getZoom();
+			mapViewer.setZoom(zoom - 1);
+		}
+		); 
+		return zoomInButton;
+	}
+
+	/**
+	 * Get the zoom out button
+	 * @return
+	 */
+	protected JButton getZoomOutButton() {
+		final JButton zoomOutButton = new JButton("Zoom out");
+		zoomOutButton.addActionListener((l) -> {
+			final int zoom = mapViewer.getZoom();
+			mapViewer.setZoom(zoom + 1);
+		}
+		); 
+		return zoomOutButton;
+	}
+
+	/**
+	 * Get an instance of the map viewer
+	 * @return
+	 */
+	protected JXMapViewer getMapViewer() {
 		final JXMapViewer mapViewer = new JXMapViewer();
 
 		// Create a TileFactoryInfo for OpenStreetMap
@@ -58,7 +120,7 @@ public class KDTreeOSMView implements View {
 		final GeoPosition hagen = new GeoPosition(51.3483856, 7.4840696);
 		mapViewer.setZoom(7);
 		mapViewer.setAddressLocation(hagen);
-		
+			
 		return mapViewer;
 	}
 
