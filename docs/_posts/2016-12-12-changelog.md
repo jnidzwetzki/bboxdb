@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.2.2 (Stable) - TBA
 - New Feature: Added start option for remote debuging
+- New Feature: Added OSM viewer for K-D Trees
 - Improvement: New file system layout (all tables of a distribution group are now located in one dir)
 - Improvement: In memory data is also redistributed after a region split
 - Improvement: The version for every distribution group is stored locally

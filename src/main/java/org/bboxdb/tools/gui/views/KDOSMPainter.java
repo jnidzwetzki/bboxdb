@@ -36,27 +36,27 @@ public class KDOSMPainter implements Painter<JXMapViewer> {
 	/**
 	 * Max latitude
 	 */
-	protected final static int MAX_LAT = 90;
+	protected final static double MAX_LAT = 85;
 	
 	/**
 	 * Min latitude
 	 */
-	protected final static int MIN_LAT = -90;
+	protected final static double MIN_LAT = -85;
 	
 	/**
 	 * Max longitude
 	 */
-	protected final static int MAX_LONG = 180;
+	protected final static double MAX_LONG = 180;
 	
 	/**
 	 * Min longitude
 	 */
-	protected final static int MIN_LONG = -180;
-	
+	protected final static double MIN_LONG = -180;
+
 	/**
 	 * The area covering box
 	 */
-	protected final BoundingBox coverBox = new BoundingBox((double) MIN_LONG, (double) MAX_LONG, (double) MIN_LAT, (double) MAX_LAT);
+	protected final BoundingBox coverBox = new BoundingBox((double) MIN_LAT, (double) MAX_LAT, (double) MIN_LONG, (double) MAX_LONG);
 
 	/**
 	 * The gui model
@@ -115,32 +115,25 @@ public class KDOSMPainter implements Painter<JXMapViewer> {
 		final BoundingBox bbox = distributionRegion.getConveringBox();
 
 		final BoundingBox paintBox = bbox.getIntersection(coverBox);
-		
-		System.out.println("Painting box : " + paintBox);
-		
-		final GeoPosition bl = new GeoPosition(paintBox.getCoordinateLow(1), paintBox.getCoordinateLow(0));
-		final GeoPosition br = new GeoPosition(paintBox.getCoordinateLow(1), paintBox.getCoordinateHigh(0));
-		final GeoPosition ul = new GeoPosition(paintBox.getCoordinateHigh(1), paintBox.getCoordinateLow(0));
-		final GeoPosition ur = new GeoPosition(paintBox.getCoordinateHigh(1), paintBox.getCoordinateHigh(0));
+				
+		final GeoPosition bl = new GeoPosition(paintBox.getCoordinateLow(0), paintBox.getCoordinateLow(1));
+		final GeoPosition br = new GeoPosition(paintBox.getCoordinateLow(0), paintBox.getCoordinateHigh(1));
+		final GeoPosition ul = new GeoPosition(paintBox.getCoordinateHigh(0), paintBox.getCoordinateLow(1));
+		final GeoPosition ur = new GeoPosition(paintBox.getCoordinateHigh(0), paintBox.getCoordinateHigh(1));
 
-		final Point2D blp = map.getTileFactory().geoToPixel(bl, map.getZoom());
-		final Point2D brp = map.getTileFactory().geoToPixel(br, map.getZoom());
-		final Point2D ulp = map.getTileFactory().geoToPixel(ul, map.getZoom());
-		final Point2D urp = map.getTileFactory().geoToPixel(ur, map.getZoom());
-
-		graphicsContext.drawLine((int) blp.getX(), (int) blp.getY(), (int) brp.getX(), (int) brp.getY());
-		graphicsContext.drawLine((int) brp.getX(), (int) brp.getY(), (int) urp.getX(), (int) urp.getY());
-		graphicsContext.drawLine((int) urp.getX(), (int) urp.getY(), (int) ulp.getX(), (int) ulp.getY());
-		graphicsContext.drawLine((int) ulp.getX(), (int) ulp.getY(), (int) blp.getX(), (int) blp.getY());
+		drawLine(graphicsContext, bl, br, map);
+		drawLine(graphicsContext, br, ur, map);
+		drawLine(graphicsContext, ur, ul, map);
+		drawLine(graphicsContext, ul, bl, map);
 	
-		final GeoPosition hagen = new GeoPosition(51.376255, 7.493675);
+/*		final GeoPosition hagen = new GeoPosition(51.376255, 7.493675);
 		final Point2D hagen2 = map.getTileFactory().geoToPixel(hagen, map.getZoom());
-
+	
 		graphicsContext.drawLine((int) hagen2.getX(), (int) hagen2.getY(), (int) brp.getX(), (int) brp.getY());
 		graphicsContext.drawLine((int) hagen2.getX(), (int) hagen2.getY(), (int) urp.getX(), (int) urp.getY());
 		graphicsContext.drawLine((int) hagen2.getX(), (int) hagen2.getY(), (int) ulp.getX(), (int) ulp.getY());
 		graphicsContext.drawLine((int) hagen2.getX(), (int) hagen2.getY(), (int) blp.getX(), (int) blp.getY());
-	
+	*/
 		if(distributionRegion.getLeftChild() != null) {
 			drawBoundingBox(graphicsContext, map, distributionRegion.getLeftChild());
 		}
@@ -149,6 +142,21 @@ public class KDOSMPainter implements Painter<JXMapViewer> {
 			drawBoundingBox(graphicsContext, map, distributionRegion.getRightChild());
 		}
 			
+	}
+
+	/**
+	 * Translate and draw a line
+	 * @param graphicsContext
+	 * @param begin
+	 * @param end
+	 * @param map
+	 */
+	protected void drawLine(final Graphics2D graphicsContext, final GeoPosition begin, 
+			final GeoPosition end, final JXMapViewer map) {
+	
+		final Point2D beginPoint = map.getTileFactory().geoToPixel(begin, map.getZoom());
+		final Point2D endPoint = map.getTileFactory().geoToPixel(end, map.getZoom());
+		graphicsContext.drawLine((int) beginPoint.getX(), (int) beginPoint.getY(), (int) endPoint.getX(), (int) endPoint.getY());
 	}
 
 }
