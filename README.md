@@ -16,8 +16,14 @@ SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like C
 ## Documentation 
 The documentation of the project is located at [http://jnidzwetzki.github.io/bboxdb/](http://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
 
-## Examples 
+## Examples
 Some examples and benchmarks are located in the [examples](examples/) directory.
+
+## Screenshots
+<p><img src="docs/images/bboxdb_gui1.jpg" width="400"></p>
+<p><img src="docs/images/bboxdb_gui2.jpg" width="400"><br>
+(The screenshot contains content from OpenSteetmap - CC-BY-SA 2.0)
+</p>
 
 ## Follow us on Twitter
 
