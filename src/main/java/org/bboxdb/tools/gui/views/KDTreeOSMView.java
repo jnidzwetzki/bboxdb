@@ -17,24 +17,49 @@
  *******************************************************************************/
 package org.bboxdb.tools.gui.views;
 
-import javax.swing.JPanel;
+import javax.swing.event.MouseInputListener;
 
 import org.bboxdb.tools.gui.GuiModel;
+import org.jxmapviewer.JXMapViewer;
+import org.jxmapviewer.OSMTileFactoryInfo;
+import org.jxmapviewer.input.PanMouseInputListener;
+import org.jxmapviewer.viewer.DefaultTileFactory;
+import org.jxmapviewer.viewer.GeoPosition;
+import org.jxmapviewer.viewer.TileFactoryInfo;
 
-public class KDTreeOSMView extends JPanel {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6568150461129445127L;
-	
+public class KDTreeOSMView implements View {
+
 	/**
 	 * The gui model
 	 */
-	private final GuiModel guiModel;
+	protected final GuiModel guiModel;
 
 	public KDTreeOSMView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
+	}
+	
+	@Override
+	public JXMapViewer getJPanel() {
+		final JXMapViewer mapViewer = new JXMapViewer();
+
+		// Create a TileFactoryInfo for OpenStreetMap
+		final TileFactoryInfo info = new OSMTileFactoryInfo();
+		final DefaultTileFactory tileFactory = new DefaultTileFactory(info);
+		mapViewer.setTileFactory(tileFactory);
+	
+		final MouseInputListener mia = new PanMouseInputListener(mapViewer);
+		mapViewer.addMouseListener(mia);
+		mapViewer.addMouseMotionListener(mia);
+		
+		// Use 8 threads in parallel to load the tiles
+		tileFactory.setThreadPoolSize(8);
+
+		// Set the focus
+		final GeoPosition hagen = new GeoPosition(51.3483856, 7.4840696);
+		mapViewer.setZoom(7);
+		mapViewer.setAddressLocation(hagen);
+		
+		return mapViewer;
 	}
 
 }

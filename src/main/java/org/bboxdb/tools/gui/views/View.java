@@ -19,22 +19,6 @@ package org.bboxdb.tools.gui.views;
 
 import javax.swing.JPanel;
 
-import org.bboxdb.tools.gui.GuiModel;
-
-public class KDTreeView implements View {
-
-	/**
-	 * The gui model
-	 */
-	private final GuiModel guiModel;
-
-	public KDTreeView(final GuiModel guiModel) {
-		this.guiModel = guiModel;
-	}
-
-	@Override
-	public JPanel getJPanel() {
-		return new KDTreeJPanel(guiModel);
-	}
-
+public interface View {
+	public JPanel getJPanel();
 }

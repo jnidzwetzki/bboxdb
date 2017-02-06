@@ -46,6 +46,7 @@ import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.tools.gui.views.KDTreeOSMView;
 import org.bboxdb.tools.gui.views.KDTreeView;
+import org.bboxdb.tools.gui.views.View;
 import org.bboxdb.tools.gui.views.ViewMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,14 +192,15 @@ public class BBoxDBGui {
 	}
 
 	protected JScrollPane getRightPanel() {
-		JPanel rightPanel = null;
+		View view = null;
 			
 		if(viewMode == ViewMode.KD_TREE_MODE) {
-			rightPanel = new KDTreeView(guiModel);
+			view = new KDTreeView(guiModel);
 		} else {
-			rightPanel = new KDTreeOSMView(guiModel);
+			view = new KDTreeOSMView(guiModel);
 		}
 
+		final JPanel rightPanel = view.getJPanel();
 		rightPanel.setBackground(Color.WHITE);
 		rightPanel.setToolTipText("");
 

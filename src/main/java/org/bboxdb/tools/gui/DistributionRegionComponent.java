@@ -27,7 +27,7 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
-import org.bboxdb.tools.gui.views.KDTreeView;
+import org.bboxdb.tools.gui.views.KDTreeJPanel;
 
 public class DistributionRegionComponent {
 	
@@ -69,10 +69,10 @@ public class DistributionRegionComponent {
 	/**
 	 * The panel
 	 */
-	protected final KDTreeView panel;
+	protected final KDTreeJPanel panel;
 
 	public DistributionRegionComponent(final DistributionRegion distributionRegion, 
-			final KDTreeView distributionGroupJPanel) {
+			final KDTreeJPanel distributionGroupJPanel) {
 		
 		this.distributionRegion = distributionRegion;
 		this.panel = distributionGroupJPanel;
