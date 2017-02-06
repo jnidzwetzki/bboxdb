@@ -22,7 +22,7 @@ Some examples and benchmarks are located in the [examples](examples/) directory.
 ## Screenshots
 <p><img src="docs/images/bboxdb_gui1.jpg" width="400"></p>
 <p><img src="docs/images/bboxdb_gui2.jpg" width="400"><br>
-(The screenshot contains content from OpenSteetmap - CC-BY-SA 2.0)
+(The screenshot contains content from <a href="https://www.openstreetmap.org/">OpenSteetMap</a> - CC-BY-SA 2.0)
 </p>
 
 ## Follow us on Twitter
