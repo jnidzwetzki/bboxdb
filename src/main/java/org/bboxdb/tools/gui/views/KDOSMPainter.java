@@ -126,14 +126,6 @@ public class KDOSMPainter implements Painter<JXMapViewer> {
 		drawLine(graphicsContext, ur, ul, map);
 		drawLine(graphicsContext, ul, bl, map);
 	
-/*		final GeoPosition hagen = new GeoPosition(51.376255, 7.493675);
-		final Point2D hagen2 = map.getTileFactory().geoToPixel(hagen, map.getZoom());
-	
-		graphicsContext.drawLine((int) hagen2.getX(), (int) hagen2.getY(), (int) brp.getX(), (int) brp.getY());
-		graphicsContext.drawLine((int) hagen2.getX(), (int) hagen2.getY(), (int) urp.getX(), (int) urp.getY());
-		graphicsContext.drawLine((int) hagen2.getX(), (int) hagen2.getY(), (int) ulp.getX(), (int) ulp.getY());
-		graphicsContext.drawLine((int) hagen2.getX(), (int) hagen2.getY(), (int) blp.getX(), (int) blp.getY());
-	*/
 		if(distributionRegion.getLeftChild() != null) {
 			drawBoundingBox(graphicsContext, map, distributionRegion.getLeftChild());
 		}
@@ -141,7 +133,6 @@ public class KDOSMPainter implements Painter<JXMapViewer> {
 		if(distributionRegion.getRightChild() != null) {
 			drawBoundingBox(graphicsContext, map, distributionRegion.getRightChild());
 		}
-			
 	}
 
 	/**
