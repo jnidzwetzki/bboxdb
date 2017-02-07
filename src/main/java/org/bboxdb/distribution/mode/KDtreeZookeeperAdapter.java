@@ -330,8 +330,8 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		
 		waitForChildCreateZookeeperCallback(regionToSplit);
 
-		// Allocate systems 
-		allocateSystemsToNewRegion(regionToSplit.getLeftChild());
+		// Allocate systems (the data of the left node is stored locally)
+		copySystemsToRegion(regionToSplit, regionToSplit.getLeftChild());
 		allocateSystemsToNewRegion(regionToSplit.getRightChild());
 		
 		// update state
@@ -378,6 +378,23 @@ public class KDtreeZookeeperAdapter implements Watcher {
 					logger.warn("Unable to wait for split for); {}", regionToSplit);
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Copy the system allocation of one distribution region to another
+	 * @param source
+	 * @param destination
+	 * @throws ZookeeperException 
+	 */
+	protected void copySystemsToRegion(final DistributionRegion source, 
+			final DistributionRegion destination) throws ZookeeperException {
+		
+		assert (destination.getSystems().isEmpty()) 
+			: "Systems are not empty: " + destination.getSystems();
+		
+		for(final DistributedInstance system : source.getSystems()) {
+			distributionGroupZookeeperAdapter.addSystemToDistributionRegion(destination, system);
 		}
 	}
 	

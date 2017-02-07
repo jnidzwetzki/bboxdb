@@ -13,6 +13,7 @@ order: 1
 - Improvement: In memory data is also redistributed after a region split
 - Improvement: The version for every distribution group is stored locally
 - Improvement: The local version and the remote version of the distribution group is checked. This prevents node joins with outdated data
+- Improvement: One part of the data is stored locally after region split
 - Bugfix: A synchronisation issue in the memtable flush thread is fixed
 - Bugfix: The connect dialog in the GUI is now big enough to show full IP-Addresses
 - Bugfix: Empty sstable dirs are removed after region split
