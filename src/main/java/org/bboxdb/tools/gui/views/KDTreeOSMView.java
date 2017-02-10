@@ -50,7 +50,7 @@ public class KDTreeOSMView implements View {
 	@Override
 	public JPanel getJPanel() {
 		
-		mapViewer = getMapViewer();
+		createMapViewer();
 		
 		final JPanel mainPanel = new JPanel();
 		
@@ -68,7 +68,9 @@ public class KDTreeOSMView implements View {
 		
 		final JButton showWolrdButton = getShowWorldButton();
 		buttonPanel.add(showWolrdButton);
-
+		
+		final JButton showHagenButton = getShowHagenButton();
+		buttonPanel.add(showHagenButton);
 
 		return mainPanel;
 	}
@@ -114,13 +116,26 @@ public class KDTreeOSMView implements View {
 		); 
 		return zoomOutButton;
 	}
+	
+	/**
+	 * Get the show hagen button
+	 * @return
+	 */
+	protected JButton getShowHagenButton() {
+		final JButton showHagenButton = new JButton("Show Hagen");
+		showHagenButton.addActionListener((l) -> {
+			showHagen();
+		}
+		); 
+		return showHagenButton;
+	}
 
 	/**
 	 * Get an instance of the map viewer
 	 * @return
 	 */
-	protected JXMapViewer getMapViewer() {
-		final JXMapViewer mapViewer = new JXMapViewer();
+	protected JXMapViewer createMapViewer() {
+		mapViewer = new JXMapViewer();
 
 		// Create a TileFactoryInfo for OpenStreetMap
 		final TileFactoryInfo info = new OSMTileFactoryInfo();
@@ -135,15 +150,23 @@ public class KDTreeOSMView implements View {
 		tileFactory.setThreadPoolSize(8);
 
 		// Set the focus
-		final GeoPosition hagen = new GeoPosition(51.376255, 7.493675);
-		mapViewer.setZoom(7);
-		mapViewer.setAddressLocation(hagen);
+		showHagen();
 		
 		// The KD Tree painter
 		final KDOSMPainter kdosmPainter = new KDOSMPainter(guiModel);
 		mapViewer.setOverlayPainter(kdosmPainter);
 			
 		return mapViewer;
+	}
+
+	/**
+	 * Show the university of Hagen in the viewer
+	 * @param mapViewer
+	 */
+	protected void showHagen() {
+		final GeoPosition hagen = new GeoPosition(51.376255, 7.493675);
+		mapViewer.setZoom(7);
+		mapViewer.setAddressLocation(hagen);
 	}
 
 }
