@@ -111,7 +111,6 @@ public class KDTreeOSMView implements View {
 		zoomOutButton.addActionListener((l) -> {
 			final int zoom = mapViewer.getZoom();
 			mapViewer.setZoom(zoom + 1);
-			System.out.println("NEw Toom:  " + zoom);
 		}
 		); 
 		return zoomOutButton;
