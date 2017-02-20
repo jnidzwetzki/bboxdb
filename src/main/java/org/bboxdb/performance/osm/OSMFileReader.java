@@ -149,7 +149,7 @@ public class OSMFileReader implements Runnable {
 		/**
 		 * The node serializer
 		 */
-		protected SerializerHelper<SerializableNode> serializerHelper = new SerializerHelper<>();
+		protected final SerializerHelper<SerializableNode> serializerHelper = new SerializerHelper<>();
 
 		protected OSMMultipointSink(final OSMMultiPointEntityFilter entityFilter) {
 			this.entityFilter = entityFilter;
