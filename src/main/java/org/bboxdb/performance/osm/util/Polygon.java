@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.performance.osm.util;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,12 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class Polygon {
+public class Polygon implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -25587980224359866L;
 
 	/**
 	 * The ID of the structure
