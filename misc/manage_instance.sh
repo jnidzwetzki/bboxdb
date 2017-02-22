@@ -147,6 +147,13 @@ bboxdb_stop() {
     if [ ! -f $bboxdb_pid ]; then
        echo -e "PID file $bboxdb_pid not found, BBoxDB seems to be already down $failed"
        exit -1
+    else 
+        pid=$(cat $bboxdb_pid)
+        if [ ! -d /proc/$pid ]; then
+          echo -e "PID file $bboxdb_pid found, but process ($pid) is already terminated $done"
+          rm $bboxdb_pid
+          exit -1
+        fi
     fi
     
     # Call shutdown MBean
