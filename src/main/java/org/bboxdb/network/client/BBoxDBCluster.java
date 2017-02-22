@@ -140,6 +140,15 @@ public class BBoxDBCluster implements BBoxDB {
 			// Determine the first system, it will route the request to the remaining systems
 			final DistributedInstance system = systems.iterator().next();
 			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
+			
+			if(connection == null) {
+				logger.warn("Unable to insert tuple, no connection to system: ", system);
+				final EmptyResultFuture future = new EmptyResultFuture(1);
+				future.setFailedState();
+				future.fireCompleteEvent();
+				return future;
+			}
+			
 			return connection.insertTuple(table, tuple);
 		} catch (ZookeeperException e) {
 			logger.warn("Got exception while inserting tuple", e);
