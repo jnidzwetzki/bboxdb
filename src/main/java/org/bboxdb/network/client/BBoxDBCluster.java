@@ -143,20 +143,25 @@ public class BBoxDBCluster implements BBoxDB {
 			
 			if(connection == null) {
 				logger.warn("Unable to insert tuple, no connection to system: ", system);
-				final EmptyResultFuture future = new EmptyResultFuture(1);
-				future.setFailedState();
-				future.fireCompleteEvent();
-				return future;
+				return getFailedEmptyResultFuture();
 			}
 			
 			return connection.insertTuple(table, tuple);
 		} catch (ZookeeperException e) {
 			logger.warn("Got exception while inserting tuple", e);
-			final EmptyResultFuture future = new EmptyResultFuture(1);
-			future.setFailedState();
-			future.fireCompleteEvent();
-			return future;
+			return getFailedEmptyResultFuture();
 		}
+	}
+
+	/**
+	 * Create and return an empty result future
+	 * @return
+	 */
+	protected EmptyResultFuture getFailedEmptyResultFuture() {
+		final EmptyResultFuture future = new EmptyResultFuture(1);
+		future.setFailedState();
+		future.fireCompleteEvent();
+		return future;
 	}
 
 	@Override
@@ -207,10 +212,7 @@ public class BBoxDBCluster implements BBoxDB {
 			return bboxdbClient.createDistributionGroup(distributionGroup, replicationFactor);
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);
-			final EmptyResultFuture future = new EmptyResultFuture(1);
-			future.setFailedState();
-			future.fireCompleteEvent();
-			return future;
+			return getFailedEmptyResultFuture();
 		}
 	}
 
