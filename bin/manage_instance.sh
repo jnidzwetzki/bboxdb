@@ -195,7 +195,7 @@ zookeeper_start() {
     fi
    
     # Write zookeeper config
-cat << EOF > $BBOXDB_HOME/misc/zoo.cfg
+cat << EOF > $BBOXDB_HOME/misc/zookeeper.cfg
 tickTime=2000
 dataDir=$zookeeper_workdir
 clientPort=$zookeeper_clientport
@@ -210,7 +210,7 @@ EOF
     localip=$(hostname --ip-address)
 
     for i in $zookeeper_nodes; do
-       echo "server.$serverid=$i:2888:3888" >> $BBOXDB_HOME/misc/zoo.cfg
+       echo "server.$serverid=$i:2888:3888" >> $BBOXDB_HOME/misc/zookeeper.cfg
 
        # Store the id of this node
        if [ "$hostname" == "$i" ] || [ "$localip" == "$i" ]; then
@@ -224,7 +224,7 @@ EOF
     echo $instanceid > $zookeeper_workdir/myid
  
     # Start zookeeper
-    nohup java -cp $classpath -Dzookeeper.log.dir="$logdir" org.apache.zookeeper.server.quorum.QuorumPeerMain $BBOXDB_HOME/misc/zoo.cfg > $logdir/zookeeper.log 2>&1 < /dev/null &
+    nohup java -cp $classpath -Dzookeeper.log.dir="$logdir" org.apache.zookeeper.server.quorum.QuorumPeerMain $BBOXDB_HOME/misc/zookeeper.cfg > $logdir/zookeeper.log 2>&1 < /dev/null &
     
     if [ $? -eq 0 ]; then
        # Dump PID into file
