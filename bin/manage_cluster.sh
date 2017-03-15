@@ -71,63 +71,63 @@ fi
 # Start the bboxdb
 ###
 bboxdb_start() {
-   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start" "Starting BBoxDB" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh bboxdb_start" "Starting BBoxDB" "$bboxdb_nodes" $max_pending
 }
 
 ###
 # Start the bboxdb in debug mode
 ###
 bboxdb_start_debug() {
-   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start_debug" "Starting BBoxDB in debug mode" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh bboxdb_start_debug" "Starting BBoxDB in debug mode" "$bboxdb_nodes" $max_pending
 }
 
 ###
 # Start the bboxdb in trace mode
 ###
 bboxdb_start_trace() {
-   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start_trace" "Starting BBoxDB in trace mode" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh bboxdb_start_trace" "Starting BBoxDB in trace mode" "$bboxdb_nodes" $max_pending
 }
 
 ###
 # Start the bboxdb in remote debug mode
 ###
 bboxdb_start_remote_debug() {
-   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_start_remote_debug" "Starting BBoxDB in remote debug mode" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh bboxdb_start_remote_debug" "Starting BBoxDB in remote debug mode" "$bboxdb_nodes" $max_pending
 }
 
 ###
 # Stop the bboxdb
 ###
 bboxdb_stop() {
-   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_stop" "Stopping BBoxDB" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh bboxdb_stop" "Stopping BBoxDB" "$bboxdb_nodes" $max_pending
 }
 
 ###
 # Update the bboxdb
 ###
 bboxdb_update() {
-   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh bboxdb_update" "Update BBoxDB" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh bboxdb_update" "Update BBoxDB" "$bboxdb_nodes" $max_pending
 }
 
 ###
 # Start zookeeper
 ###
 zookeeper_start() {
-   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh zookeeper_start > /dev/null" "Starting Zookeeper" "$zookeeper_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh zookeeper_start > /dev/null" "Starting Zookeeper" "$zookeeper_nodes" $max_pending
 }
 
 ###
 # Stop zookeeper
 ###
 zookeeper_stop() {
-   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh zookeeper_stop > /dev/null" "Stopping Zookeeper" "$zookeeper_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh zookeeper_stop > /dev/null" "Stopping Zookeeper" "$zookeeper_nodes" $max_pending
 }
 
 ###
 # Drop zookeeper
 ###
 zookeeper_drop() {
-   execute_parallel "\$BBOXDB_HOME/misc/manage_instance.sh zookeeper_drop > /dev/null" "Dropping Zookeeper database" "$zookeeper_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh zookeeper_drop > /dev/null" "Dropping Zookeeper database" "$zookeeper_nodes" $max_pending
 }
 
 case "$1" in  
