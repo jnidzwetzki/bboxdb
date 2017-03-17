@@ -95,7 +95,7 @@ public class BBoxDBMain {
 	 * Start all services
 	 */
 	public void start() {
-		logger.info("Starting up the BBoxDB - version: " + Const.VERSION);	
+		logger.info("Starting up the BBoxDB - version: {}", Const.VERSION);	
 		
 		if (! runBaseChecks() ) {
 			logger.warn("Some of the base checks have failed, exiting");
@@ -105,7 +105,7 @@ public class BBoxDBMain {
 		// Init all services
 		for(final BBoxDBService service : services) {
 			try {
-				logger.info("Starting service: " + service.getServicename());
+				logger.info("Starting service: {}", service.getServicename());
 				service.init();
 			} catch (Throwable e) {
 				logger.error("Got exception while init service:" + service.getServicename(), e);
@@ -126,7 +126,7 @@ public class BBoxDBMain {
 		
 		// Ensure that the server main dir does exist
 		if(! dataDirHandle.exists() ) {
-			logger.error("Data directory does not exist: " + dataDir);
+			logger.error("Data directory does not exist: {}", dataDir);
 			return false;
 		}
 		
@@ -142,7 +142,7 @@ public class BBoxDBMain {
 		// Stop all services
 		for(final BBoxDBService service : services) {
 			try {
-				logger.info("Stopping service: " + service.getServicename());
+				logger.info("Stopping service: {}", service.getServicename());
 				service.shutdown();
 			} catch (Throwable e) {
 				logger.error("Got exception while stopping service:" + service.getServicename(), e);
