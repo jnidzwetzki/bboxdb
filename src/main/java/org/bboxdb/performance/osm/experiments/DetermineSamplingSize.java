@@ -102,31 +102,47 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 				1d, 5d, 10d, 20d, 30d, 40d, 50d, 60d);
 		
 		for(final Double sampleSize : sampleSizes) {
-			System.out.println("Simulating with sample size: " + sampleSize);
-			final int numberOfSamples = (int) (numberOfElements / 100 * sampleSize);
-			
-			try {
+			runExperiment(sampleSize);
+		}
+	}
+
+	/**
+	 * Run the experiment with the given sample size
+	 * @param sampleSize
+	 */
+	protected void runExperiment(final double sampleSize) {
+		System.out.println("Simulating with sample size: " + sampleSize);
+		
+		final int numberOfElements = nodeMap.keySet().size();
+		final int numberOfSamples = (int) (numberOfElements / 100 * sampleSize);
+		
+		long totalDiff = 0;
+		
+		try {
+			ExperimentStatistics.printExperientHeader();
+			for(int experiment = 0; experiment < EXPERIMENT_RETRY; experiment++) {
 				final double splitPos = getSplit(numberOfSamples);
-				runExperimentForPos(splitPos);
-			} catch (ClassNotFoundException | IOException e) {
-				System.err.println(e.getStackTrace());
+				final ExperimentStatistics statistics = runExperimentForPos(splitPos);
+				statistics.printExperimentResult(experiment);
+				totalDiff = totalDiff + statistics.getDiff();
 			}
+			
+			System.out.println("Diff: " + totalDiff / EXPERIMENT_RETRY + "\n\n");
+		} catch (ClassNotFoundException | IOException e) {
+			System.err.println(e.getStackTrace());
 		}
 	}
 
 	/**
 	 * Run the experiment for the given position
 	 * @param splitPos
+	 * @return 
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 */
-	protected void runExperimentForPos(final double splitPos) throws ClassNotFoundException, IOException {
-		long left = 0;
-		long right = 0;
-		long total = 0;
-	
-		System.out.println("Got split position: " + splitPos);
-		
+	protected ExperimentStatistics runExperimentForPos(final double splitPos) throws ClassNotFoundException, IOException {
+
+		final ExperimentStatistics statistics = new ExperimentStatistics();		
 		final BoundingBox fullBox = BoundingBox.createFullCoveringDimensionBoundingBox(2);
 		final BoundingBox leftBox = fullBox.splitAndGetLeft(splitPos, 0, true);
 		final BoundingBox rightBox = fullBox.splitAndGetRight(splitPos, 0, false);
@@ -138,17 +154,18 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 			final BoundingBox polygonBoundingBox = polygon.getBoundingBox();
 			
 			if(polygonBoundingBox.overlaps(leftBox)) {
-				left++;
+				statistics.increaseLeft();
 			}
 			
 			if(polygonBoundingBox.overlaps(rightBox)) {
-				right++;
+				statistics.increaseRight();
 			}
 			
-			total++;
+			statistics.increaseTotal();
 		}
 		
-		System.out.format("Total %d, left %d, right %d, diff %d\n", total, left, right, Math.abs(left - right));
+		
+		return statistics;
 	}
 	
 	/**
@@ -205,4 +222,40 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 		determineSamplingSize.run();
 	}
 
+}
+
+class ExperimentStatistics {
+	protected long left = 0;
+	protected long right = 0;
+	protected long total = 0;
+	
+	public void increaseLeft() {
+		left++;
+	}
+	
+	public void increaseRight() {
+		right++;
+	}
+	
+	public void increaseTotal() {
+		total++;
+	}
+	
+	public static void printExperientHeader() {
+		System.out.println("#Experiment\tTotal\tLeft\tRight\tDiff");
+	}
+	
+	public void printExperimentResult(final int experiment) {
+		final long diff = getDiff();
+		System.out.format("%d\t%d\t%d\t%d\t%d\n", experiment, total, left, right, diff);
+	}
+
+	protected long getDiff() {
+		return Math.abs(left - right);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Total %d, left %d, right %d, diff %d\n", total, left, right, getDiff());
+	}
 }
