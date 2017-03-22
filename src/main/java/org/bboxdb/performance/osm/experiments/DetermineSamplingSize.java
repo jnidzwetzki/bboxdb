@@ -293,12 +293,13 @@ class ExperimentStatistics {
 	}
 	
 	public static void printExperientHeader() {
-		System.out.println("#Experiment\tTotal\tLeft\tRight\tDiff");
+		System.out.println("#Experiment\tTotal\tLeft\tRight\tDiff\t% diff");
 	}
 	
 	public void printExperimentResult(final int experiment) {
 		final long diff = getDiff();
-		System.out.format("%d\t%d\t%d\t%d\t%d\n", experiment, total, left, right, diff);
+		final long pDiff = (left - right) / total * 100;
+		System.out.format("%d\t%d\t%d\t%d\t%d\t%d\n", experiment, total, left, right, diff, pDiff);
 	}
 
 	protected long getDiff() {
