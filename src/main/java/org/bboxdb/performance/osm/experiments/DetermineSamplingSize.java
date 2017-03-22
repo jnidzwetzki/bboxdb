@@ -62,6 +62,11 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 	protected final String filename;
 	
 	/**
+	 * Data type for import
+	 */
+	protected final OSMType type;
+	
+	/**
 	 * The element counter
 	 */
 	protected long elementCounter;
@@ -76,9 +81,10 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DetermineSamplingSize.class);
 	
-	public DetermineSamplingSize(final String filename) throws IOException {
-		this.filename = filename;
+	public DetermineSamplingSize(final String filename, final OSMType osmType) throws IOException {
 		
+		this.filename = filename;
+		this.type = osmType;
 		this.elementCounter = 0;
 		
 		final File dbFile = File.createTempFile("osm-db-sampling", ".tmp");
@@ -94,7 +100,7 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 	@Override
 	public void run() {
 		System.out.format("Importing %s\n", filename);
-		final OSMFileReader osmFileReader = new OSMFileReader(filename, OSMType.TREE, this);
+		final OSMFileReader osmFileReader = new OSMFileReader(filename, type, this);
 		osmFileReader.run();
 		final int numberOfElements = nodeMap.keySet().size();
 		System.out.format("Imported %d objects\n", numberOfElements);
@@ -215,15 +221,36 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 	}
 	
 	/**
-	 *
 	 * Main * Main * Main
 	 * @throws IOException 
 	 * 
 	 */
 	public static void main(final String[] args) throws IOException {
-		final String filename = "/Users/kristofnidzwetzki/Downloads/berlin-latest.osm.pbf";
-
-		final DetermineSamplingSize determineSamplingSize = new DetermineSamplingSize(filename);
+		
+		// Check parameter
+		if(args.length != 2) {
+			System.err.println("Usage: programm <filename> <" + OSMFileReader.getFilterNames() + ">");
+			System.exit(-1);
+		}
+		
+		final String filename = args[0];
+		final String type = args[1];
+		
+		// Check file
+		final File inputFile = new File(filename);
+		if(! inputFile.isFile()) {
+			System.err.println("Unable to open file: " + filename);
+			System.exit(-1);
+		}
+		
+		// Check type
+		final OSMType osmType = OSMType.fromString(type);
+		if(osmType == null) {
+			System.err.println("Unknown type: " + type);
+			System.exit(-1);
+		}
+		
+		final DetermineSamplingSize determineSamplingSize = new DetermineSamplingSize(filename, osmType);
 		determineSamplingSize.run();
 	}
 
