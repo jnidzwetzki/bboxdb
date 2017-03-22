@@ -74,7 +74,7 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 	/**
 	 * The retry counter for the experiments
 	 */
-	public final static int EXPERIMENT_RETRY = 20;
+	public final static int EXPERIMENT_RETRY = 50;
 	
 	/**
 	 * The Logger
