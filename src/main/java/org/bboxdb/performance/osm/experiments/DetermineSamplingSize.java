@@ -298,7 +298,7 @@ class ExperimentStatistics {
 	
 	public void printExperimentResult(final int experiment) {
 		final long diff = getDiff();
-		final long pDiff = (left - right) / total * 100;
+		final double pDiff = ((left - right) / (double) total) * 100.0;
 		System.out.format("%d\t%d\t%d\t%d\t%d\t%d\n", experiment, total, left, right, diff, pDiff);
 	}
 
