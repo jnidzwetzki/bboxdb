@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.bboxdb.performance.osm.OSMFileReader;
 import org.bboxdb.performance.osm.OSMStructureCallback;
+import org.bboxdb.performance.osm.OSMType;
 import org.bboxdb.performance.osm.util.Polygon;
 import org.bboxdb.performance.osm.util.SerializerHelper;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -93,13 +94,15 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 	@Override
 	public void run() {
 		System.out.format("Importing %s\n", filename);
-		final OSMFileReader osmFileReader = new OSMFileReader(filename, "tree", this);
+		final OSMFileReader osmFileReader = new OSMFileReader(filename, OSMType.TREE, this);
 		osmFileReader.run();
 		final int numberOfElements = nodeMap.keySet().size();
 		System.out.format("Imported %d objects\n", numberOfElements);
 		
-		final List<Double> sampleSizes = Arrays.asList(0.2d, 0.3d, 0.4d, 0.5d, 0.6d, 0.7d, 
-				1d, 5d, 10d, 20d, 30d, 40d, 50d, 60d);
+		final List<Double> sampleSizes = Arrays.asList(
+				0.1d, 0.2d, 0.3d, 0.4d, 0.5d, 
+				0.6d, 0.7d, 0.8d, 0.9d, 1.0d, 
+				5d, 10d, 20d, 30d, 40d, 50d, 60d);
 		
 		for(final Double sampleSize : sampleSizes) {
 			runExperiment(sampleSize);
@@ -116,7 +119,7 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 		final int numberOfElements = nodeMap.keySet().size();
 		final int numberOfSamples = (int) (numberOfElements / 100 * sampleSize);
 		
-		long totalDiff = 0;
+		final ExperimentSeriesStatistics experimentSeriesStatistics = new ExperimentSeriesStatistics();
 		
 		try {
 			ExperimentStatistics.printExperientHeader();
@@ -124,10 +127,12 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 				final double splitPos = getSplit(numberOfSamples);
 				final ExperimentStatistics statistics = runExperimentForPos(splitPos);
 				statistics.printExperimentResult(experiment);
-				totalDiff = totalDiff + statistics.getDiff();
+				experimentSeriesStatistics.addExperiment(statistics);		
 			}
 			
-			System.out.println("Diff: " + totalDiff / EXPERIMENT_RETRY + "\n\n");
+			experimentSeriesStatistics.printStatistics();
+			System.out.println("\n\n");
+			
 		} catch (ClassNotFoundException | IOException e) {
 			System.err.println(e.getStackTrace());
 		}
@@ -222,6 +227,25 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 		determineSamplingSize.run();
 	}
 
+}
+
+class ExperimentSeriesStatistics {
+	protected long minDiff = Long.MAX_VALUE;
+	protected long maxDiff = Long.MIN_VALUE;
+	protected long avgDiff = 0;
+	protected int numberOfExperiments = 0;
+	
+	public void addExperiment(final ExperimentStatistics experimentStatistics) {
+		minDiff = Math.min(minDiff, experimentStatistics.getDiff());
+		maxDiff = Math.max(maxDiff, experimentStatistics.getDiff());
+		avgDiff = avgDiff + experimentStatistics.getDiff();
+		numberOfExperiments++;
+	}
+	
+	public void printStatistics() {
+		System.out.println("#Min Diff\tMax diff\tAvgDiff");
+		System.out.format("%d\t%d\t%d\n", minDiff, maxDiff, avgDiff / numberOfExperiments);
+	}
 }
 
 class ExperimentStatistics {

@@ -54,12 +54,12 @@ public class OSMFileReader implements Runnable {
 	/**
 	 * The single point filter
 	 */
-	protected final static Map<String, OSMSinglePointEntityFilter> singlePointFilter = new HashMap<String, OSMSinglePointEntityFilter>();
+	protected final static Map<OSMType, OSMSinglePointEntityFilter> singlePointFilter = new HashMap<>();
 	
 	/**
 	 * The multi point filter
 	 */
-	protected final static Map<String, OSMMultiPointEntityFilter> multiPointFilter = new HashMap<String, OSMMultiPointEntityFilter>();
+	protected final static Map<OSMType, OSMMultiPointEntityFilter> multiPointFilter = new HashMap<>();
 	
 	/**
 	 * The filename to parse
@@ -69,7 +69,7 @@ public class OSMFileReader implements Runnable {
 	/**
 	 * The type to import
 	 */
-	protected final String type;
+	protected final OSMType type;
 	
 	/**
 	 * The callback for completed objects
@@ -77,14 +77,14 @@ public class OSMFileReader implements Runnable {
 	protected final OSMStructureCallback structureCallback;
 	
 	static {
-		singlePointFilter.put("tree", new OSMTreeEntityFilter());
-		singlePointFilter.put("trafficsignals", new OSMTrafficSignalEntityFilter());
+		singlePointFilter.put(OSMType.TREE, new OSMTreeEntityFilter());
+		singlePointFilter.put(OSMType.TRAFFIC_SIGNALS, new OSMTrafficSignalEntityFilter());
 		
-		multiPointFilter.put("roads", new OSMRoadsEntityFilter());
-		multiPointFilter.put("buildings", new OSMBuildingsEntityFilter());
+		multiPointFilter.put(OSMType.ROADS, new OSMRoadsEntityFilter());
+		multiPointFilter.put(OSMType.BUILDINGS, new OSMBuildingsEntityFilter());
 	}
 	
-	public OSMFileReader(final String filename, final String type, final OSMStructureCallback structureCallback) {
+	public OSMFileReader(final String filename, final OSMType type, final OSMStructureCallback structureCallback) {
 		super();
 		this.filename = filename;
 		this.type = type;
@@ -167,7 +167,7 @@ public class OSMFileReader implements Runnable {
 			} catch (IOException e) {
 				throw new IllegalArgumentException(e);
 			}
-			
+				
 		}
 
 		@Override
@@ -241,20 +241,22 @@ public class OSMFileReader implements Runnable {
 	 * @return
 	 */
 	public static String getFilterNames() {
-		return getAllFilter().stream().collect(Collectors.joining("|"));
+		return getAllFilter()
+				.stream()
+				.map(o -> o.getName())
+				.collect(Collectors.joining("|"));
 	}
 
 	/**
 	 * Get all known filter
 	 * @return
 	 */
-	public static Set<String> getAllFilter() {
-		final Set<String> names = new HashSet<>();
+	public static Set<OSMType> getAllFilter() {
+		final Set<OSMType> names = new HashSet<>();
 		names.addAll(singlePointFilter.keySet());
 		names.addAll(multiPointFilter.keySet());
 		return Collections.unmodifiableSet(names);
 	}
-
 
 	/**
 	 * Run the importer

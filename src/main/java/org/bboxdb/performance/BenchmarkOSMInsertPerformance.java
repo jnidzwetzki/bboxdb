@@ -25,6 +25,7 @@ import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.performance.osm.OSMFileReader;
 import org.bboxdb.performance.osm.OSMStructureCallback;
+import org.bboxdb.performance.osm.OSMType;
 import org.bboxdb.performance.osm.util.Polygon;
 import org.bboxdb.performance.osm.util.SerializerHelper;
 import org.bboxdb.storage.entity.Tuple;
@@ -59,14 +60,14 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 	/**
 	 * The type to import
 	 */
-	protected final String type;
+	protected final OSMType type;
 
 	/**
 	 * The serializer
 	 */
 	protected final SerializerHelper<Polygon> serializerHelper = new SerializerHelper<>();
 
-	public BenchmarkOSMInsertPerformance(final String filename, final String type, final short replicationFactor) {
+	public BenchmarkOSMInsertPerformance(final String filename, final OSMType type, final short replicationFactor) {
 		this.filename = filename;
 		this.type = type;
 		this.table = DISTRIBUTION_GROUP + "_" + type;
@@ -178,7 +179,8 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 		}
 		
 		// Check type
-		if(! OSMFileReader.getAllFilter().contains(type)) {
+		final OSMType osmType = OSMType.fromString(type);
+		if(osmType == null) {
 			System.err.println("Unknown type: " + type);
 			System.exit(-1);
 		}
@@ -187,10 +189,10 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 			replicationFactor = Short.parseShort(replicationFactorString);
 		} catch(NumberFormatException e) {
 			System.err.println("Invalid replication factor: " + replicationFactorString);
-			System.exit(-1);	
+			System.exit(-1);
 		}
 		
-		final BenchmarkOSMInsertPerformance benchmarkInsertPerformance = new BenchmarkOSMInsertPerformance(filename, type, replicationFactor);
+		final BenchmarkOSMInsertPerformance benchmarkInsertPerformance = new BenchmarkOSMInsertPerformance(filename, osmType, replicationFactor);
 		benchmarkInsertPerformance.run();
 	}
 }
