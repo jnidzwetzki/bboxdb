@@ -259,19 +259,23 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 class ExperimentSeriesStatistics {
 	protected long minDiff = Long.MAX_VALUE;
 	protected long maxDiff = Long.MIN_VALUE;
-	protected long avgDiff = 0;
+	protected long avgDiffAll = 0;
+	protected long totalElements = 0;
 	protected int numberOfExperiments = 0;
 	
 	public void addExperiment(final ExperimentStatistics experimentStatistics) {
 		minDiff = Math.min(minDiff, experimentStatistics.getDiff());
 		maxDiff = Math.max(maxDiff, experimentStatistics.getDiff());
-		avgDiff = avgDiff + experimentStatistics.getDiff();
+		avgDiffAll = avgDiffAll + experimentStatistics.getDiff();
+		totalElements = experimentStatistics.getTotal();
 		numberOfExperiments++;
 	}
 	
 	public void printStatistics() {
-		System.out.println("#Min Diff\tMax diff\tAvgDiff");
-		System.out.format("%d\t%d\t%d\n", minDiff, maxDiff, avgDiff / numberOfExperiments);
+		System.out.println("#Min Diff\tMax diff\tAvgDiff\t% diff");
+		final long avgDiff = avgDiffAll / numberOfExperiments;
+		final double pAvgDiff = (avgDiff / (double) totalElements) * 100.0;
+		System.out.format("%d\t%d\t%d\t%f\n", minDiff, maxDiff, avgDiff, pAvgDiff);
 	}
 }
 
@@ -304,6 +308,10 @@ class ExperimentStatistics {
 
 	protected long getDiff() {
 		return Math.abs(left - right);
+	}
+	
+	public long getTotal() {
+		return total;
 	}
 
 	@Override
