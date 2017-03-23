@@ -6,9 +6,10 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.2.2 (Stable) - TBA
+### Version 0.2.2 (Stable) - 23.03.2017
 - New Feature: Added start option for remote debuging
 - New Feature: Added OSM viewer for K-D Trees
+- New Feature: Added sampling size experiment 
 - Improvement: Moved scripts from misc/ to bin/ folder
 - Improvement: New file system layout (all tables of a distribution group are now located in one dir)
 - Improvement: In memory data is also redistributed after a region split
