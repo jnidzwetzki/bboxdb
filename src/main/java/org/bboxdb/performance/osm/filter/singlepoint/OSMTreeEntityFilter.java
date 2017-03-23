@@ -15,22 +15,22 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.performance.osm.filter;
+package org.bboxdb.performance.osm.filter.singlepoint;
 
-import java.util.Collection;
-
+import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 
-public class OSMBuildingsEntityFilter extends OSMMultiPointEntityFilter {
-
-	@Override
-	public boolean forwardNode(final Collection<Tag> tags) {
+public class OSMTreeEntityFilter extends OSMSinglePointEntityFilter {
+	
+	public boolean forwardNode(final Node node) {
 		
-		for(final Tag tag : tags) {
+		for(final Tag tag : node.getTags()) {
+			//System.out.println(node.getId() + " " + tag.getKey() + " " + tag.getValue());	
 			
-			if(tag.getKey().equals("building") && tag.getValue().equals("yes")) {
+			// Filter
+			if(tag.getKey().equals("natural") && tag.getValue().equals("tree")) {
 				return true;
-			}
+			}		
 		}
 		
 		return false;

@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.performance.osm.filter;
+package org.bboxdb.performance.osm.filter.multipoint;
 
 import java.util.Collection;
 

@@ -15,15 +15,23 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.performance.osm.filter;
+package org.bboxdb.performance.osm.filter.multipoint;
 
-import org.openstreetmap.osmosis.core.domain.v0_6.Node;
+import java.util.Collection;
 
-public abstract class OSMSinglePointEntityFilter {
-	
-	/**
-	 * Does the node the filter pass or not 
-	 */
-	public abstract boolean forwardNode(final Node node);
-	
+import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
+
+public class OSMRoadsEntityFilter extends OSMMultiPointEntityFilter {
+
+	@Override
+	public boolean forwardNode(final Collection<Tag> tags) {
+		for(final Tag tag : tags) {
+			if(tag.getKey().equals("highway")) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 }

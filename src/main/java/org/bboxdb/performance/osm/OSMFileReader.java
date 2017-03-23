@@ -29,12 +29,12 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import org.bboxdb.performance.osm.filter.OSMBuildingsEntityFilter;
-import org.bboxdb.performance.osm.filter.OSMMultiPointEntityFilter;
-import org.bboxdb.performance.osm.filter.OSMRoadsEntityFilter;
-import org.bboxdb.performance.osm.filter.OSMSinglePointEntityFilter;
-import org.bboxdb.performance.osm.filter.OSMTrafficSignalEntityFilter;
-import org.bboxdb.performance.osm.filter.OSMTreeEntityFilter;
+import org.bboxdb.performance.osm.filter.multipoint.OSMBuildingsEntityFilter;
+import org.bboxdb.performance.osm.filter.multipoint.OSMMultiPointEntityFilter;
+import org.bboxdb.performance.osm.filter.multipoint.OSMRoadsEntityFilter;
+import org.bboxdb.performance.osm.filter.singlepoint.OSMSinglePointEntityFilter;
+import org.bboxdb.performance.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
+import org.bboxdb.performance.osm.filter.singlepoint.OSMTreeEntityFilter;
 import org.bboxdb.performance.osm.util.Polygon;
 import org.bboxdb.performance.osm.util.SerializableNode;
 import org.bboxdb.performance.osm.util.SerializerHelper;
