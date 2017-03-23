@@ -272,10 +272,13 @@ class ExperimentSeriesStatistics {
 	}
 	
 	public void printStatistics() {
-		System.out.println("#Min Diff\tMax diff\tAvgDiff\t% diff");
+		System.out.println("#Min diff\tMax diff\tAvg diff\tMin diff(%f)\tMax diff(%)\tAvg diff(%)");
 		final long avgDiff = avgDiffAll / numberOfExperiments;
 		final double pAvgDiff = (avgDiff / (double) totalElements) * 100.0;
-		System.out.format("%d\t%d\t%d\t%f\n", minDiff, maxDiff, avgDiff, pAvgDiff);
+		final double pMaxDiff = (maxDiff / (double) totalElements) * 100.0;
+		final double pMinDiff = (minDiff / (double) totalElements) * 100.0;
+		
+		System.out.format("%d\t%d\t%d\t%f\t%f\t%f\n", minDiff, maxDiff, avgDiff, pMinDiff, pMaxDiff, pAvgDiff);
 	}
 }
 
