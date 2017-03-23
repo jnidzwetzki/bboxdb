@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import org.bboxdb.performance.osm.filter.multipoint.OSMBuildingsEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMMultiPointEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMRoadsEntityFilter;
+import org.bboxdb.performance.osm.filter.multipoint.OSMWaterEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMSinglePointEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTreeEntityFilter;
@@ -82,6 +83,7 @@ public class OSMFileReader implements Runnable {
 		
 		multiPointFilter.put(OSMType.ROADS, new OSMRoadsEntityFilter());
 		multiPointFilter.put(OSMType.BUILDINGS, new OSMBuildingsEntityFilter());
+		multiPointFilter.put(OSMType.WATER, new OSMWaterEntityFilter());
 	}
 	
 	public OSMFileReader(final String filename, final OSMType type, final OSMStructureCallback structureCallback) {

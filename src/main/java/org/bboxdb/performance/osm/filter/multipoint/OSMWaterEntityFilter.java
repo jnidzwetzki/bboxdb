@@ -1,5 +1,6 @@
 /*******************************************************************************
  *
+### Version 0.2.2 (Stable) - 23.03.2017
  *    Copyright (C) 2015-2017 the BBoxDB project
  *  
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,40 +16,23 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.performance.osm;
+package org.bboxdb.performance.osm.filter.multipoint;
 
-public enum OSMType {
+import java.util.Collection;
+
+import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
+
+public class OSMWaterEntityFilter extends OSMMultiPointEntityFilter {
+
+	@Override
+	public boolean forwardNode(final Collection<Tag> tags) {
+		for(final Tag tag : tags) {
+			if(tag.getKey().equals("natural") && tag.getValue().equals("water")) {
+				return true;
+			}
+		}
 		
-	// Single Point elements
-	TREE("tree"),
-	TRAFFIC_SIGNALS("trafficsignals"),
-	
-	// Multi Point elements
-	ROADS("roads"),
-	BUILDINGS("buildings"),
-	WATER("water");
-	
-	private final String name;
+		return false;
+	}
 
-	OSMType(final String name) {
-		this.name = name;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	/**
-	 * Construct from name
-	 * @param name
-	 * @return
-	 */
-	public static OSMType fromString(final String name) {
-	    for (OSMType b : OSMType.values()) {
-	      if (b.getName().equalsIgnoreCase(name)) {
-	        return b;
-	      }
-	    }
-	    return null;
-	  }
 }
