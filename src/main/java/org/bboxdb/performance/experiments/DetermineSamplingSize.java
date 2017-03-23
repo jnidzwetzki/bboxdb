@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.performance.osm.experiments;
+package org.bboxdb.performance.experiments;
 
 import java.io.File;
 import java.io.IOException;
