@@ -79,10 +79,10 @@ public class OSMFileReader implements Runnable {
 	
 	static {
 		singlePointFilter.put(OSMType.TREE, new OSMTreeEntityFilter());
-		singlePointFilter.put(OSMType.TRAFFIC_SIGNALS, new OSMTrafficSignalEntityFilter());
+		singlePointFilter.put(OSMType.TRAFFIC_SIGNAL, new OSMTrafficSignalEntityFilter());
 		
-		multiPointFilter.put(OSMType.ROADS, new OSMRoadsEntityFilter());
-		multiPointFilter.put(OSMType.BUILDINGS, new OSMBuildingsEntityFilter());
+		multiPointFilter.put(OSMType.ROAD, new OSMRoadsEntityFilter());
+		multiPointFilter.put(OSMType.BUILDING, new OSMBuildingsEntityFilter());
 		multiPointFilter.put(OSMType.WATER, new OSMWaterEntityFilter());
 	}
 	

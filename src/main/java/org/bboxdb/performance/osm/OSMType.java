@@ -21,11 +21,11 @@ public enum OSMType {
 		
 	// Single Point elements
 	TREE("tree"),
-	TRAFFIC_SIGNALS("trafficsignals"),
+	TRAFFIC_SIGNAL("trafficsignal"),
 	
 	// Multi Point elements
-	ROADS("roads"),
-	BUILDINGS("buildings"),
+	ROAD("road"),
+	BUILDING("building"),
 	WATER("water");
 	
 	private final String name;
