@@ -99,7 +99,7 @@ public class OSMFileReader implements Runnable {
 	@Override
 	public void run() {
 		try {
-			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
+			OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
 			
 			if(! filter.containsKey(type)) {
 				throw new IllegalArgumentException("Unknown filter: " + type);
@@ -113,9 +113,11 @@ public class OSMFileReader implements Runnable {
 				
 				System.out.println("Preprocessing file to find all required nodes");
 				reader.run();
-				sink.setOperationMode(OSMMultiPointMode.PROCESSING);
 				System.out.println("Preprocessing done");
 				
+				// Use new reader to reprocess file
+				sink.setOperationMode(OSMMultiPointMode.PROCESSING);
+				reader = new OsmosisReader(new FileInputStream(filename));
 			} else {
 				final Sink sink = new OSMSinglePointSink(entityFilter, structureCallback);
 				reader.setSink(sink);
