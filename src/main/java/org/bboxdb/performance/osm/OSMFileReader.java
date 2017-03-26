@@ -38,7 +38,6 @@ import org.bboxdb.performance.osm.filter.singlepoint.OSMTrafficSignalEntityFilte
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTreeEntityFilter;
 import org.bboxdb.performance.osm.util.Polygon;
 import org.bboxdb.performance.osm.util.SerializableNode;
-import org.bboxdb.performance.osm.util.SerializerHelper;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
@@ -147,11 +146,6 @@ public class OSMFileReader implements Runnable {
 		 * The entity filter
 		 */
 		protected final OSMMultiPointEntityFilter entityFilter;
-		
-		/**
-		 * The node serializer
-		 */
-		protected final SerializerHelper<SerializableNode> serializerHelper = new SerializerHelper<>();
 
 		protected OSMMultipointSink(final OSMMultiPointEntityFilter entityFilter) {
 			this.entityFilter = entityFilter;
@@ -189,21 +183,17 @@ public class OSMFileReader implements Runnable {
 
 		@Override
 		public void process(final EntityContainer entityContainer) {
-			try {
-				if(entityContainer.getEntity() instanceof Node) {
-					final Node node = (Node) entityContainer.getEntity();
-					final SerializableNode serializableNode = new SerializableNode(node);
-					nodeMap.put(node.getId(), serializerHelper.toByteArray(serializableNode));
-				} else if(entityContainer.getEntity() instanceof Way) {
-					final Way way = (Way) entityContainer.getEntity();
-					final boolean forward = entityFilter.forwardNode(way.getTags());
+			if(entityContainer.getEntity() instanceof Node) {
+				final Node node = (Node) entityContainer.getEntity();
+				final SerializableNode serializableNode = new SerializableNode(node);
+				nodeMap.put(node.getId(), serializableNode.toByteArray());
+			} else if(entityContainer.getEntity() instanceof Way) {
+				final Way way = (Way) entityContainer.getEntity();
+				final boolean forward = entityFilter.forwardNode(way.getTags());
 
-					if(forward) {
-						insertWay(way, nodeMap);	
-					}
+				if(forward) {
+					insertWay(way, nodeMap);	
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 		
@@ -215,26 +205,21 @@ public class OSMFileReader implements Runnable {
 		protected void insertWay(final Way way, final Map<Long, byte[]> nodeMap) {
 			final Polygon geometricalStructure = new Polygon(way.getId());
 			
-			try {
-				for(final WayNode wayNode : way.getWayNodes()) {
-					
-					if(! nodeMap.containsKey(wayNode.getNodeId())) {
-						System.err.println("Unable to find node for way: " + wayNode.getNodeId());
-						return;
-					}
-					
-					final byte[] nodeBytes = nodeMap.get(wayNode.getNodeId());
-					final SerializableNode serializableNode = serializerHelper.loadFromByteArray(nodeBytes);
-					geometricalStructure.addPoint(serializableNode.getLatitude(), serializableNode.getLongitude());
+			for(final WayNode wayNode : way.getWayNodes()) {
+				
+				if(! nodeMap.containsKey(wayNode.getNodeId())) {
+					System.err.println("Unable to find node for way: " + wayNode.getNodeId());
+					return;
 				}
 				
-				if(geometricalStructure.getNumberOfPoints() > 0) {
-						structureCallback.processStructure(geometricalStructure);				
-				}
-			} catch (ClassNotFoundException | IOException e) {
-				e.printStackTrace();
+				final byte[] nodeBytes = nodeMap.get(wayNode.getNodeId());
+				final SerializableNode serializableNode = SerializableNode.fromByteArray(nodeBytes);
+				geometricalStructure.addPoint(serializableNode.getLatitude(), serializableNode.getLongitude());
 			}
 			
+			if(geometricalStructure.getNumberOfPoints() > 0) {
+					structureCallback.processStructure(geometricalStructure);				
+			}
 		}
 	}
 	
