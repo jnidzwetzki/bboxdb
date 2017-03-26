@@ -17,10 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.performance.osm;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,16 +34,6 @@ import org.bboxdb.performance.osm.filter.multipoint.OSMWaterEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMSinglePointEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTreeEntityFilter;
-import org.bboxdb.performance.osm.util.Polygon;
-import org.bboxdb.performance.osm.util.SerializableNode;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
-import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
-import org.openstreetmap.osmosis.core.domain.v0_6.Node;
-import org.openstreetmap.osmosis.core.domain.v0_6.Way;
-import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
-import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 import crosby.binary.osmosis.OsmosisReader;
 
@@ -91,146 +79,6 @@ public class OSMFileReader implements Runnable {
 		this.type = type;
 		this.structureCallback = structureCallback;
 	}
-
-	protected class OSMSinglePointSink implements Sink {
-
-		/**
-		 * The entity filter
-		 */
-		private final OSMSinglePointEntityFilter entityFilter;
-
-		protected OSMSinglePointSink(final OSMSinglePointEntityFilter entityFilter) {
-			this.entityFilter = entityFilter;
-		}
-
-		@Override
-		public void release() {
-		}
-
-		@Override
-		public void complete() {
-		}
-
-		@Override
-		public void initialize(final Map<String, Object> arg0) {
-		}
-
-		@Override
-		public void process(final EntityContainer entityContainer) {
-			
-			if(entityContainer.getEntity() instanceof Node) {
-				final Node node = (Node) entityContainer.getEntity();						
-				
-				if(entityFilter.forwardNode(node)) {
-					final Polygon geometricalStructure = new Polygon(node.getId());
-					geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
-					structureCallback.processStructure(geometricalStructure);
-				}
-			}
-		}
-	}
-
-	protected class OSMMultipointSink implements Sink {
-		
-		/**
-		 * The db instance
-		 */
-		protected final DB db;
-		
-		/**
-		 * The node map
-		 */
-		protected final Map<Long, byte[]> nodeMap;
-		
-		/**
-		 * The entity filter
-		 */
-		protected final OSMMultiPointEntityFilter entityFilter;
-
-		protected OSMMultipointSink(final OSMMultiPointEntityFilter entityFilter) {
-			this.entityFilter = entityFilter;
-	    	
-			try {
-				final File dbFile = File.createTempFile("osm-db", ".tmp");
-				dbFile.delete();
-				
-				// Use a disk backed map, to process files > Memory
-				this.db = DBMaker
-						.fileDB(dbFile)
-					    .allocateStartSize(1 * 1024 * 1024 * 1024)  // 1 GB
-					    .allocateIncrement(512 * 1024 * 1024)       // 512 MB
-						.fileMmapEnableIfSupported()
-						.fileDeleteAfterClose()
-						.make();
-				
-				this.nodeMap = db
-						.hashMap("osm-id-map")
-						.keySerializer(Serializer.LONG)
-				        .valueSerializer(Serializer.BYTE_ARRAY)
-				        .create();
-				
-			} catch (IOException e) {
-				throw new IllegalArgumentException(e);
-			}
-				
-		}
-
-		@Override
-		public void initialize(Map<String, Object> arg0) {
-			
-		}
-
-		@Override
-		public void complete() {
-			
-		}
-
-		@Override
-		public void release() {
-			
-		}
-
-		@Override
-		public void process(final EntityContainer entityContainer) {
-			if(entityContainer.getEntity() instanceof Node) {
-				final Node node = (Node) entityContainer.getEntity();
-				final SerializableNode serializableNode = new SerializableNode(node);
-				nodeMap.put(node.getId(), serializableNode.toByteArray());
-			} else if(entityContainer.getEntity() instanceof Way) {
-				final Way way = (Way) entityContainer.getEntity();
-				final boolean forward = entityFilter.forwardNode(way.getTags());
-
-				if(forward) {
-					insertWay(way, nodeMap);	
-				}
-			}
-		}
-		
-		/**
-		 * Handle the given way
-		 * @param way
-		 * @param nodeMap 
-		 */
-		protected void insertWay(final Way way, final Map<Long, byte[]> nodeMap) {
-			final Polygon geometricalStructure = new Polygon(way.getId());
-			
-			for(final WayNode wayNode : way.getWayNodes()) {
-				
-				if(! nodeMap.containsKey(wayNode.getNodeId())) {
-					System.err.println("Unable to find node for way: " + wayNode.getNodeId());
-					return;
-				}
-				
-				final byte[] nodeBytes = nodeMap.get(wayNode.getNodeId());
-				final SerializableNode serializableNode = SerializableNode.fromByteArray(nodeBytes);
-				geometricalStructure.addPoint(serializableNode.getLatitude(), serializableNode.getLongitude());
-			}
-			
-			if(geometricalStructure.getNumberOfPoints() > 0) {
-					structureCallback.processStructure(geometricalStructure);				
-			}
-		}
-	}
 	
 	/**
 	 * Get the names of the available filter
@@ -265,12 +113,14 @@ public class OSMFileReader implements Runnable {
 			
 			if(singlePointFilter.containsKey(type)) {
 				final OSMSinglePointEntityFilter entityFilter = singlePointFilter.get(type);
-				reader.setSink(new OSMSinglePointSink(entityFilter));
+				final OSMSinglePointSink sink = new OSMSinglePointSink(entityFilter, structureCallback);
+				reader.setSink(sink);
 			}
 			
 			if(multiPointFilter.containsKey(type)) {
 				final OSMMultiPointEntityFilter entityFilter = multiPointFilter.get(type);			
-				reader.setSink(new OSMMultipointSink(entityFilter));
+				final OSMMultiPointSink sink = new OSMMultiPointSink(entityFilter, structureCallback);
+				reader.setSink(sink);
 			}
 			
 			reader.run();
