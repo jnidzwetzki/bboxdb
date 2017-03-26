@@ -118,6 +118,7 @@ public class OSMFileReader implements Runnable {
 				// Use new reader to reprocess file
 				sink.setOperationMode(OSMMultiPointMode.PROCESSING);
 				reader = new OsmosisReader(new FileInputStream(filename));
+				reader.setSink(sink);
 			} else {
 				final Sink sink = new OSMSinglePointSink(entityFilter, structureCallback);
 				reader.setSink(sink);
