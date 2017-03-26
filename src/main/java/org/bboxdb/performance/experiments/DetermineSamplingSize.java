@@ -105,6 +105,11 @@ public class DetermineSamplingSize implements Runnable, OSMStructureCallback {
 		final int numberOfElements = nodeMap.keySet().size();
 		System.out.format("Imported %d objects\n", numberOfElements);
 		
+		if(numberOfElements == 0) {
+			System.err.println("No data is imported, stopping run");
+			System.exit(-1);
+		}
+		
 		final List<Double> sampleSizes = Arrays.asList(
 				0.01d, 0.02d, 0.03d, 0.04d, 0.05d,
 				0.06d, 0.07d, 0.08d, 0.09d,
