@@ -25,7 +25,7 @@ import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 public class OSMBuildingsEntityFilter extends OSMTagEntityFilter {
 
 	@Override
-	public boolean forwardNode(final Collection<Tag> tags) {
+	public boolean match(final Collection<Tag> tags) {
 		
 		for(final Tag tag : tags) {
 			

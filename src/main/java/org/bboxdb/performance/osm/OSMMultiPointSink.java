@@ -106,7 +106,7 @@ public class OSMMultiPointSink implements Sink {
 			nodeMap.put(node.getId(), serializableNode.toByteArray());
 		} else if(entityContainer.getEntity() instanceof Way) {
 			final Way way = (Way) entityContainer.getEntity();
-			final boolean forward = entityFilter.forwardNode(way.getTags());
+			final boolean forward = entityFilter.match(way.getTags());
 
 			if(forward) {
 				insertWay(way, nodeMap);	

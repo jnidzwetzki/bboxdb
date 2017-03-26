@@ -24,8 +24,8 @@ import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 public abstract class OSMTagEntityFilter {
 	
 	/**
-	 * Does the node the filter pass or not 
+	 * Does the tag matches the filter or not 
 	 */
-	public abstract boolean forwardNode(final Collection<Tag> tags);
+	public abstract boolean match(final Collection<Tag> tags);
 	
 }

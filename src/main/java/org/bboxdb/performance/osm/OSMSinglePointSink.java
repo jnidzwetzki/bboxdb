@@ -61,7 +61,7 @@ public class OSMSinglePointSink implements Sink {
 		if(entityContainer.getEntity() instanceof Node) {
 			final Node node = (Node) entityContainer.getEntity();						
 			
-			if(entityFilter.forwardNode(node.getTags())) {
+			if(entityFilter.match(node.getTags())) {
 				final Polygon geometricalStructure = new Polygon(node.getId());
 				geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
 				structureCallback.processStructure(geometricalStructure);
