@@ -106,25 +106,25 @@ public class OSMFileReader implements Runnable {
 			}
 			
 			final OSMTagEntityFilter entityFilter = filter.get(type);
-			final Sink sink = getSinkForFilter(entityFilter);
 			
-			reader.setSink(sink);
+			if(entityFilter.isMultiPointFilter()) {
+				final OSMMultiPointSink sink = new OSMMultiPointSink(entityFilter, structureCallback);
+				reader.setSink(sink);
+				
+				System.out.println("Preprocessing file to find all required nodes");
+				reader.run();
+				sink.setOperationMode(OSMMultiPointMode.PROCESSING);
+				System.out.println("Preprocessing done");
+				
+			} else {
+				final Sink sink = new OSMSinglePointSink(entityFilter, structureCallback);
+				reader.setSink(sink);
+			}
+
+			// Import data
 			reader.run();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Get the sink for the filter
-	 * @param entityFilter
-	 * @return 
-	 */
-	protected Sink getSinkForFilter(OSMTagEntityFilter entityFilter) {
-		if(entityFilter.isMultiPointFilter()) {
-			return new OSMMultiPointSink(entityFilter, structureCallback);
-		} else {
-			return new OSMSinglePointSink(entityFilter, structureCallback);
 		}
 	}
 	

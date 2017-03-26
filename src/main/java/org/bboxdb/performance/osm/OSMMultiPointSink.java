@@ -19,7 +19,9 @@ package org.bboxdb.performance.osm;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.performance.osm.util.Polygon;
@@ -54,7 +56,17 @@ public class OSMMultiPointSink implements Sink {
 	 * The structure callback
 	 */
 	protected OSMStructureCallback structureCallback;
-
+	
+	/**
+	 * The operation mode
+	 */
+	protected OSMMultiPointMode operationMode = OSMMultiPointMode.PREPROCESSING;
+	
+	/**
+	 * A set of all required nodes
+	 */
+	protected Set<Long> requiredNodes = new HashSet<>();
+	
 	protected OSMMultiPointSink(final OSMTagEntityFilter entityFilter, 
 			final OSMStructureCallback structureCallback) {
 		
@@ -101,14 +113,43 @@ public class OSMMultiPointSink implements Sink {
 	@Override
 	public void process(final EntityContainer entityContainer) {
 		if(entityContainer.getEntity() instanceof Node) {
-			final Node node = (Node) entityContainer.getEntity();
-			final SerializableNode serializableNode = new SerializableNode(node);
-			nodeMap.put(node.getId(), serializableNode.toByteArray());
+			handleNode(entityContainer);
 		} else if(entityContainer.getEntity() instanceof Way) {
-			final Way way = (Way) entityContainer.getEntity();
-			final boolean forward = entityFilter.match(way.getTags());
+			handleWay(entityContainer);
+		}
+	}
 
-			if(forward) {
+	/**
+	 * Handle a node
+	 * @param entityContainer
+	 */
+	protected void handleNode(final EntityContainer entityContainer) {
+		final Node node = (Node) entityContainer.getEntity();
+		
+		if(operationMode == OSMMultiPointMode.PROCESSING) {
+			if(requiredNodes.contains(node.getId())) {
+				final SerializableNode serializableNode = new SerializableNode(node);
+				nodeMap.put(node.getId(), serializableNode.toByteArray());
+			}
+		}
+	}
+
+	/**
+	 * Handle a way
+	 * @param entityContainer
+	 */
+	protected void handleWay(final EntityContainer entityContainer) {
+		final Way way = (Way) entityContainer.getEntity();
+
+		if(entityFilter.match(way.getTags())) {
+			
+			// Store only required nodes
+			if(operationMode == OSMMultiPointMode.PREPROCESSING) {
+				for(final WayNode wayNode : way.getWayNodes()) {
+					requiredNodes.add(wayNode.getNodeId());
+				}
+			} else {
+				// Handle way
 				insertWay(way, nodeMap);	
 			}
 		}
@@ -137,5 +178,13 @@ public class OSMMultiPointSink implements Sink {
 		if(geometricalStructure.getNumberOfPoints() > 0) {
 				structureCallback.processStructure(geometricalStructure);				
 		}
+	}
+	
+	/**
+	 * Set the operation mode
+	 * @param operationMode
+	 */
+	public void setOperationMode(final OSMMultiPointMode operationMode) {
+		this.operationMode = operationMode;
 	}
 }
