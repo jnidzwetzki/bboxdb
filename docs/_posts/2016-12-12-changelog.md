@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.2.3 (Stable) - TBA
 - Improvement: Added water OSM entity filter
+- Improvement: Speed up the OSM importer by using a new node serializer 
 
 ### Version 0.2.2 (Stable) - 23.03.2017
 - New Feature: Added start option for remote debuging
