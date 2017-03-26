@@ -27,11 +27,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMBuildingsEntityFilter;
-import org.bboxdb.performance.osm.filter.multipoint.OSMMultiPointEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMRoadsEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMWaterEntityFilter;
-import org.bboxdb.performance.osm.filter.singlepoint.OSMSinglePointEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTreeEntityFilter;
 
@@ -42,12 +41,12 @@ public class OSMFileReader implements Runnable {
 	/**
 	 * The single point filter
 	 */
-	protected final static Map<OSMType, OSMSinglePointEntityFilter> singlePointFilter = new HashMap<>();
+	protected final static Map<OSMType, OSMTagEntityFilter> singlePointFilter = new HashMap<>();
 	
 	/**
 	 * The multi point filter
 	 */
-	protected final static Map<OSMType, OSMMultiPointEntityFilter> multiPointFilter = new HashMap<>();
+	protected final static Map<OSMType, OSMTagEntityFilter> multiPointFilter = new HashMap<>();
 	
 	/**
 	 * The filename to parse
@@ -112,13 +111,13 @@ public class OSMFileReader implements Runnable {
 			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
 			
 			if(singlePointFilter.containsKey(type)) {
-				final OSMSinglePointEntityFilter entityFilter = singlePointFilter.get(type);
+				final OSMTagEntityFilter entityFilter = singlePointFilter.get(type);
 				final OSMSinglePointSink sink = new OSMSinglePointSink(entityFilter, structureCallback);
 				reader.setSink(sink);
 			}
 			
 			if(multiPointFilter.containsKey(type)) {
-				final OSMMultiPointEntityFilter entityFilter = multiPointFilter.get(type);			
+				final OSMTagEntityFilter entityFilter = multiPointFilter.get(type);			
 				final OSMMultiPointSink sink = new OSMMultiPointSink(entityFilter, structureCallback);
 				reader.setSink(sink);
 			}

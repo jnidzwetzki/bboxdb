@@ -15,13 +15,13 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.performance.osm.filter.multipoint;
+package org.bboxdb.performance.osm.filter;
 
 import java.util.Collection;
 
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 
-public abstract class OSMMultiPointEntityFilter {
+public abstract class OSMTagEntityFilter {
 	
 	/**
 	 * Does the node the filter pass or not 

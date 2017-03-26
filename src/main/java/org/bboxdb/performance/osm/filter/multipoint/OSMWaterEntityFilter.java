@@ -20,9 +20,10 @@ package org.bboxdb.performance.osm.filter.multipoint;
 
 import java.util.Collection;
 
+import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 
-public class OSMWaterEntityFilter extends OSMMultiPointEntityFilter {
+public class OSMWaterEntityFilter extends OSMTagEntityFilter {
 
 	@Override
 	public boolean forwardNode(final Collection<Tag> tags) {

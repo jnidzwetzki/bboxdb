@@ -17,14 +17,16 @@
  *******************************************************************************/
 package org.bboxdb.performance.osm.filter.singlepoint;
 
-import org.openstreetmap.osmosis.core.domain.v0_6.Node;
+import java.util.Collection;
+
+import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 
-public class OSMTreeEntityFilter extends OSMSinglePointEntityFilter {
+public class OSMTreeEntityFilter extends OSMTagEntityFilter {
 	
-	public boolean forwardNode(final Node node) {
+	public boolean forwardNode(final Collection<Tag> tags) {
 		
-		for(final Tag tag : node.getTags()) {
+		for(final Tag tag : tags) {
 			//System.out.println(node.getId() + " " + tag.getKey() + " " + tag.getValue());	
 			
 			// Filter

@@ -21,7 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.bboxdb.performance.osm.filter.multipoint.OSMMultiPointEntityFilter;
+import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.performance.osm.util.Polygon;
 import org.bboxdb.performance.osm.util.SerializableNode;
 import org.mapdb.DB;
@@ -48,14 +48,14 @@ public class OSMMultiPointSink implements Sink {
 	/**
 	 * The entity filter
 	 */
-	protected final OSMMultiPointEntityFilter entityFilter;
+	protected final OSMTagEntityFilter entityFilter;
 
 	/**
 	 * The structure callback
 	 */
 	protected OSMStructureCallback structureCallback;
 
-	protected OSMMultiPointSink(final OSMMultiPointEntityFilter entityFilter, 
+	protected OSMMultiPointSink(final OSMTagEntityFilter entityFilter, 
 			final OSMStructureCallback structureCallback) {
 		
 		this.entityFilter = entityFilter;
