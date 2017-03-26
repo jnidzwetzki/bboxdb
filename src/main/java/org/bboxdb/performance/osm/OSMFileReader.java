@@ -155,8 +155,17 @@ public class OSMFileReader implements Runnable {
 				dbFile.delete();
 				
 				// Use a disk backed map, to process files > Memory
-				this.db = DBMaker.fileDB(dbFile).fileMmapEnableIfSupported().fileDeleteAfterClose().make();
-				this.nodeMap = db.hashMap("osm-id-map").keySerializer(Serializer.LONG)
+				this.db = DBMaker
+						.fileDB(dbFile)
+					    .allocateStartSize(1 * 1024 * 1024 * 1024)  // 1 GB
+					    .allocateIncrement(512 * 1024 * 1024)       // 512 MB
+						.fileMmapEnableIfSupported()
+						.fileDeleteAfterClose()
+						.make();
+				
+				this.nodeMap = db
+						.hashMap("osm-id-map")
+						.keySerializer(Serializer.LONG)
 				        .valueSerializer(Serializer.BYTE_ARRAY)
 				        .create();
 				
