@@ -28,20 +28,18 @@ public class Tuple implements Comparable<Tuple> {
 	protected long timestamp;
 	
 	public Tuple(final String key, final BoundingBox boundingBox, final byte[] dataBytes) {
-		super();
 		this.key = key;
 		this.boundingBox = boundingBox;
 		this.dataBytes = dataBytes;
-		
 		this.timestamp = System.currentTimeMillis();
 	}
 	
-	public Tuple(final String key, final BoundingBox boundingBox, final byte[] dataBytes, long timestamp) {
-		super();
+	public Tuple(final String key, final BoundingBox boundingBox, 
+			final byte[] dataBytes, final long timestamp) {
+		
 		this.key = key;
 		this.boundingBox = boundingBox;
 		this.dataBytes = dataBytes;
-		
 		this.timestamp = timestamp;
 	}
 
