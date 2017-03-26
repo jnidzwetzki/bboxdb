@@ -21,11 +21,17 @@ import java.util.Collection;
 
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 
-public abstract class OSMTagEntityFilter {
+public interface OSMTagEntityFilter {
 	
 	/**
 	 * Does the tag matches the filter or not 
 	 */
-	public abstract boolean match(final Collection<Tag> tags);
+	public boolean match(final Collection<Tag> tags);
+	
+	/**
+	 * Is this a multi point or a single point filter?
+	 * @return
+	 */
+	public boolean isMultiPointFilter();
 	
 }

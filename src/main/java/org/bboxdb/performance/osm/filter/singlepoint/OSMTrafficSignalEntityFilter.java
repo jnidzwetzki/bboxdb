@@ -22,7 +22,7 @@ import java.util.Collection;
 import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 
-public class OSMTrafficSignalEntityFilter extends OSMTagEntityFilter {
+public class OSMTrafficSignalEntityFilter implements OSMTagEntityFilter {
 	
 	public boolean match(final Collection<Tag> tags) {
 		
@@ -35,6 +35,11 @@ public class OSMTrafficSignalEntityFilter extends OSMTagEntityFilter {
 			}		
 		}
 		
+		return false;
+	}
+	
+	@Override
+	public boolean isMultiPointFilter() {
 		return false;
 	}
 

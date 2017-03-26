@@ -21,7 +21,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -33,20 +32,16 @@ import org.bboxdb.performance.osm.filter.multipoint.OSMRoadsEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMWaterEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTreeEntityFilter;
+import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 import crosby.binary.osmosis.OsmosisReader;
 
 public class OSMFileReader implements Runnable {
 
 	/**
-	 * The single point filter
+	 * The filter
 	 */
-	protected final static Map<OSMType, OSMTagEntityFilter> singlePointFilter = new HashMap<>();
-	
-	/**
-	 * The multi point filter
-	 */
-	protected final static Map<OSMType, OSMTagEntityFilter> multiPointFilter = new HashMap<>();
+	protected final static Map<OSMType, OSMTagEntityFilter> filter = new HashMap<>();
 	
 	/**
 	 * The filename to parse
@@ -64,12 +59,11 @@ public class OSMFileReader implements Runnable {
 	protected final OSMStructureCallback structureCallback;
 	
 	static {
-		singlePointFilter.put(OSMType.TREE, new OSMTreeEntityFilter());
-		singlePointFilter.put(OSMType.TRAFFIC_SIGNAL, new OSMTrafficSignalEntityFilter());
-		
-		multiPointFilter.put(OSMType.ROAD, new OSMRoadsEntityFilter());
-		multiPointFilter.put(OSMType.BUILDING, new OSMBuildingsEntityFilter());
-		multiPointFilter.put(OSMType.WATER, new OSMWaterEntityFilter());
+		filter.put(OSMType.TREE, new OSMTreeEntityFilter());
+		filter.put(OSMType.TRAFFIC_SIGNAL, new OSMTrafficSignalEntityFilter());
+		filter.put(OSMType.ROAD, new OSMRoadsEntityFilter());
+		filter.put(OSMType.BUILDING, new OSMBuildingsEntityFilter());
+		filter.put(OSMType.WATER, new OSMWaterEntityFilter());
 	}
 	
 	public OSMFileReader(final String filename, final OSMType type, final OSMStructureCallback structureCallback) {
@@ -95,10 +89,7 @@ public class OSMFileReader implements Runnable {
 	 * @return
 	 */
 	public static Set<OSMType> getAllFilter() {
-		final Set<OSMType> names = new HashSet<>();
-		names.addAll(singlePointFilter.keySet());
-		names.addAll(multiPointFilter.keySet());
-		return Collections.unmodifiableSet(names);
+		return Collections.unmodifiableSet(filter.keySet());
 	}
 
 	/**
@@ -110,21 +101,30 @@ public class OSMFileReader implements Runnable {
 		try {
 			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
 			
-			if(singlePointFilter.containsKey(type)) {
-				final OSMTagEntityFilter entityFilter = singlePointFilter.get(type);
-				final OSMSinglePointSink sink = new OSMSinglePointSink(entityFilter, structureCallback);
-				reader.setSink(sink);
+			if(! filter.containsKey(type)) {
+				throw new IllegalArgumentException("Unknown filter: " + type);
 			}
 			
-			if(multiPointFilter.containsKey(type)) {
-				final OSMTagEntityFilter entityFilter = multiPointFilter.get(type);			
-				final OSMMultiPointSink sink = new OSMMultiPointSink(entityFilter, structureCallback);
-				reader.setSink(sink);
-			}
+			final OSMTagEntityFilter entityFilter = filter.get(type);
+			final Sink sink = getSinkForFilter(entityFilter);
 			
+			reader.setSink(sink);
 			reader.run();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Get the sink for the filter
+	 * @param entityFilter
+	 * @return 
+	 */
+	protected Sink getSinkForFilter(OSMTagEntityFilter entityFilter) {
+		if(entityFilter.isMultiPointFilter()) {
+			return new OSMMultiPointSink(entityFilter, structureCallback);
+		} else {
+			return new OSMSinglePointSink(entityFilter, structureCallback);
 		}
 	}
 	

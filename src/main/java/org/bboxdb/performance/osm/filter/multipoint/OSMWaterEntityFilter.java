@@ -1,6 +1,5 @@
 /*******************************************************************************
  *
-### Version 0.2.2 (Stable) - 23.03.2017
  *    Copyright (C) 2015-2017 the BBoxDB project
  *  
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +22,7 @@ import java.util.Collection;
 import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 
-public class OSMWaterEntityFilter extends OSMTagEntityFilter {
+public class OSMWaterEntityFilter implements OSMTagEntityFilter {
 
 	@Override
 	public boolean match(final Collection<Tag> tags) {
@@ -36,4 +35,8 @@ public class OSMWaterEntityFilter extends OSMTagEntityFilter {
 		return false;
 	}
 
+	@Override
+	public boolean isMultiPointFilter() {
+		return true;
+	}
 }
