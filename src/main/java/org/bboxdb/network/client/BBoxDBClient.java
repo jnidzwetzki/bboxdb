@@ -909,7 +909,6 @@ public class BBoxDBClient implements BBoxDB {
 					
 				case NetworkConst.RESPONSE_TYPE_PAGE_END:
 					handlePageEnd(encodedPackage, (TupleListFuture) pendingCall);
-					removeFuture = false;
 					break;
 					
 				default:
