@@ -656,9 +656,9 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public TupleListFuture getNextPage(final short queryPackageId) {
 		
-		if(resultBuffer.containsKey(queryPackageId)) {
+		if(! resultBuffer.containsKey(queryPackageId)) {
 			final String errorMessage = "Query package " + queryPackageId 
-					+ "not found in the result buffer";
+					+ " not found in the result buffer";
 			
 			logger.error(errorMessage);
 			return createFailedTupleListFuture(errorMessage);

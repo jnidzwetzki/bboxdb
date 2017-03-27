@@ -297,7 +297,7 @@ public class TestNetworkCommunication {
 		scalephantClient.setPagingEnabled(true);
 		scalephantClient.setTuplesPerPage((short) 10);
 		final TupleListFuture future2 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
-		future.waitForAll();
+		future2.waitForAll();
 		final List<Tuple> resultList2 = IteratorHelper.iteratorToList(future2.iterator());		
 		Assert.assertEquals(5, resultList2.size());
 		
@@ -305,7 +305,7 @@ public class TestNetworkCommunication {
 		scalephantClient.setPagingEnabled(true);
 		scalephantClient.setTuplesPerPage((short) 5);
 		final TupleListFuture future3 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
-		future.waitForAll();
+		future3.waitForAll();
 		final List<Tuple> resultList3 = IteratorHelper.iteratorToList(future3.iterator());		
 		Assert.assertEquals(5, resultList3.size());
 		
@@ -313,7 +313,7 @@ public class TestNetworkCommunication {
 		scalephantClient.setPagingEnabled(true);
 		scalephantClient.setTuplesPerPage((short) 1);
 		final TupleListFuture future4 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
-		future.waitForAll();
+		future4.waitForAll();
 		final List<Tuple> resultList4 = IteratorHelper.iteratorToList(future4.iterator());		
 		Assert.assertEquals(5, resultList4.size());
 	}
