@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.2.3 (Stable) - TBA
 - New Feature: Introduced the tuple deletion without timestamp method in API
+- Improvement: Enabled paging as default setting (50 tuples per page)
 - Improvement: Switched tuple timestamps from milliseconds to microseconds
 - Improvement: Added water OSM entity filter
 - Improvement: Speed up the OSM importer by using a new node serializer 

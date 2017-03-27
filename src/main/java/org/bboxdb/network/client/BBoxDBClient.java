@@ -201,8 +201,8 @@ public class BBoxDBClient implements BBoxDB {
 		// Default: Enable gzip compression
 		clientCapabilities.setGZipCompression();
 		
-		pagingEnabled = false;
-		tuplesPerPage = 0;
+		pagingEnabled = true;
+		tuplesPerPage = 50;
 	}
 	
 	public BBoxDBClient(final InetSocketAddress address) {
