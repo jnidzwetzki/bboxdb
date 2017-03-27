@@ -182,7 +182,7 @@ public class DistributedSelftest {
 		logger.info("Deleting tuples");
 		for(int i = 0; i < NUMBER_OF_OPERATIONS; i++) {
 			final String key = Integer.toString(i);
-			final EmptyResultFuture deletionResult = bboxdbClient.deleteTuple(TABLE, key, System.currentTimeMillis());
+			final EmptyResultFuture deletionResult = bboxdbClient.deleteTuple(TABLE, key);
 			deletionResult.waitForAll();
 			
 			if(deletionResult.isFailed() ) {

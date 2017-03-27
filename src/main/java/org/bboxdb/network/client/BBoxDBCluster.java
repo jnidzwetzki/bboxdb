@@ -40,6 +40,7 @@ import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,6 +165,29 @@ public class BBoxDBCluster implements BBoxDB {
 		return future;
 	}
 
+	@Override
+	public EmptyResultFuture deleteTuple(final String table, final String key) throws BBoxDBException {
+		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();
+		final long timestamp = MicroSecondTimestampProvider.getNewTimestamp();
+		
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			throw new BBoxDBException("deleteTuple called, but connection list is empty");
+		}
+		
+		final EmptyResultFuture future = new EmptyResultFuture();
+		
+		for(final BBoxDBClient client : connections) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("Send delete call for tuple {} on {} to {}", key, table, client);
+			}
+			
+			final EmptyResultFuture result = client.deleteTuple(table, key, timestamp);
+			future.merge(result);
+		}
+		
+		return future;
+	}
+	
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws BBoxDBException {
 		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();

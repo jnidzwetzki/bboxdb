@@ -32,6 +32,7 @@ import org.bboxdb.storage.queryprocessor.IteratorHelper;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
+import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.ObjectSerializer;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -128,7 +129,7 @@ public class TestMemtable {
 		memtable.put(createdTuple);
 		
 		Assert.assertEquals(createdTuple, memtable.get("1"));
-		memtable.delete("1", System.currentTimeMillis());
+		memtable.delete("1", MicroSecondTimestampProvider.getNewTimestamp());
 		Assert.assertTrue(memtable.get("1") instanceof DeletedTuple);
 	}
 	

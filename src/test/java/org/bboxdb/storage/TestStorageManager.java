@@ -22,6 +22,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.ObjectSerializer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -105,7 +106,7 @@ public class TestStorageManager {
 		
 		Assert.assertEquals(createdTuple, storageManager.get("1"));
 		
-		storageManager.delete("1", System.currentTimeMillis());
+		storageManager.delete("1", MicroSecondTimestampProvider.getNewTimestamp());
 		Assert.assertEquals(null, storageManager.get("1"));
 	}
 	
@@ -146,7 +147,7 @@ public class TestStorageManager {
 			storageManager.put(createdTuple);
 			
 			if(i == DELETE_AFTER) {
-				storageManager.delete(Integer.toString(SPECIAL_TUPLE), System.currentTimeMillis());
+				storageManager.delete(Integer.toString(SPECIAL_TUPLE), MicroSecondTimestampProvider.getNewTimestamp());
 			}
 		}
 		
@@ -177,7 +178,7 @@ public class TestStorageManager {
 		
 		System.out.println("Deleting tuples...");
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			storageManager.delete(Integer.toString(i), System.currentTimeMillis());
+			storageManager.delete(Integer.toString(i), MicroSecondTimestampProvider.getNewTimestamp());
 		}
 		
 		// Let the storage manager swap the memtables out

@@ -68,6 +68,15 @@ public interface BBoxDB {
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws BBoxDBException;
 
 	/**
+	 * Delete the given key from a table - version without timestamp
+	 * @param table
+	 * @param key
+	 * @return
+	 * @throws BBoxDBException
+	 */
+	public EmptyResultFuture deleteTuple(String table, String key) throws BBoxDBException;
+	
+	/**
 	 * List the existing tables
 	 * @return
 	 */

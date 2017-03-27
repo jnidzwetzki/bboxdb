@@ -26,6 +26,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +99,7 @@ public class LocalSelftest {
 		
 		logger.info("Deleting tuples...");
 		for(int i = 0; i < TUPLES; i++) {
-			storageManager.delete(Integer.toString(i), System.currentTimeMillis());
+			storageManager.delete(Integer.toString(i), MicroSecondTimestampProvider.getNewTimestamp());
 		}
 		
 		for(int iteration = 0; iteration < 4; iteration++) {

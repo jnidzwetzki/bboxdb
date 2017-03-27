@@ -71,6 +71,7 @@ import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.StreamHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -493,6 +494,15 @@ public class BBoxDBClient implements BBoxDB {
 		
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.bboxdb.network.client.Scalephant#deleteTuple(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public EmptyResultFuture deleteTuple(final String table, final String key) {
+		final long timestamp = MicroSecondTimestampProvider.getNewTimestamp();
+		return deleteTuple(table, key, timestamp);
 	}
 	
 	/* (non-Javadoc)

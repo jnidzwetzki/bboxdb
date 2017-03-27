@@ -19,6 +19,8 @@ package org.bboxdb.storage.entity;
 
 import java.util.Arrays;
 
+import org.bboxdb.util.MicroSecondTimestampProvider;
+
 public class Tuple implements Comparable<Tuple> {
 	
 	protected String key;
@@ -31,7 +33,7 @@ public class Tuple implements Comparable<Tuple> {
 		this.key = key;
 		this.boundingBox = boundingBox;
 		this.dataBytes = dataBytes;
-		this.timestamp = System.currentTimeMillis();
+		this.timestamp = MicroSecondTimestampProvider.getNewTimestamp();
 	}
 	
 	public Tuple(final String key, final BoundingBox boundingBox, 

@@ -166,7 +166,7 @@ public class TestNetworkCommunication {
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
-		final EmptyResultFuture deleteResult1 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
+		final EmptyResultFuture deleteResult1 = scalephantClient.deleteTuple(table, key);
 		deleteResult1.waitForAll();
 		Assert.assertFalse(deleteResult1.isFailed());
 		Assert.assertTrue(deleteResult1.isDone());

@@ -55,6 +55,7 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -234,7 +235,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeDeleteTuple() throws IOException, PackageEncodeException {
-		final long deletionTime = System.currentTimeMillis();
+		final long deletionTime = MicroSecondTimestampProvider.getNewTimestamp();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final DeleteTupleRequest deletePackage = new DeleteTupleRequest(sequenceNumber, "test", "key", deletionTime);
