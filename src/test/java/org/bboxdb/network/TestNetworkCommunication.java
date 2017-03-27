@@ -302,6 +302,7 @@ public class TestNetworkCommunication {
 		Assert.assertEquals(5, resultList2.size());
 		
 		// With paging (tuples per page 5)
+		System.out.println("Pages = 5");
 		scalephantClient.setPagingEnabled(true);
 		scalephantClient.setTuplesPerPage((short) 5);
 		final TupleListFuture future3 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
@@ -309,13 +310,24 @@ public class TestNetworkCommunication {
 		final List<Tuple> resultList3 = IteratorHelper.iteratorToList(future3.iterator());		
 		Assert.assertEquals(5, resultList3.size());
 		
-		// With paging (tuples per page 1)
+		// With paging (tuples per page 2)
+		System.out.println("Pages = 2");
 		scalephantClient.setPagingEnabled(true);
-		scalephantClient.setTuplesPerPage((short) 1);
+		scalephantClient.setTuplesPerPage((short) 2);
 		final TupleListFuture future4 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		System.out.println("CLient is waiting on: " + future4);
 		future4.waitForAll();
 		final List<Tuple> resultList4 = IteratorHelper.iteratorToList(future4.iterator());		
 		Assert.assertEquals(5, resultList4.size());
+		
+		// With paging (tuples per page 1)
+		System.out.println("Pages = 1");
+		scalephantClient.setPagingEnabled(true);
+		scalephantClient.setTuplesPerPage((short) 1);
+		final TupleListFuture future5 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		future5.waitForAll();
+		final List<Tuple> resultList5 = IteratorHelper.iteratorToList(future5.iterator());		
+		Assert.assertEquals(5, resultList5.size());
 	}
 	
 	

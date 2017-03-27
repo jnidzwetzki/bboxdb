@@ -366,7 +366,10 @@ public class ClientConnectionHandler implements Runnable {
 		try {
 			final NextPageRequest nextPagePackage = NextPageRequest.decodeTuple(encodedPackage);
 			logger.debug("Next page for query {} called", nextPagePackage.getQuerySequence());
-			sendNextResultsForQuery(nextPagePackage.getQuerySequence());
+			
+			// Send tuples as result for original query
+			sendNextResultsForQuery(packageSequence, nextPagePackage.getQuerySequence());
+
 		} catch (PackageEncodeException e) {
 			logger.warn("Error getting next page for a query", e);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
@@ -580,7 +583,7 @@ public class ClientConnectionHandler implements Runnable {
 					queryRequest.getTuplesPerPage(), this, packageSequence, requestTable);
 			
 			activeQueries.put(packageSequence, clientQuery);
-			sendNextResultsForQuery(packageSequence);
+			sendNextResultsForQuery(packageSequence, packageSequence);
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
@@ -610,7 +613,7 @@ public class ClientConnectionHandler implements Runnable {
 					queryRequest.getTuplesPerPage(), this, packageSequence, requestTable);
 			
 			activeQueries.put(packageSequence, clientQuery);
-			sendNextResultsForQuery(packageSequence);
+			sendNextResultsForQuery(packageSequence, packageSequence);
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
@@ -620,11 +623,12 @@ public class ClientConnectionHandler implements Runnable {
 	/**
 	 * Send next results for the given query
 	 * @param packageSequence
+	 * @param  
 	 */
-	public void sendNextResultsForQuery(final short packageSequence) {
-		
-		if(! activeQueries.containsKey(packageSequence)) {
-			logger.error("Unable to resume query {} - not found", packageSequence);
+	public void sendNextResultsForQuery(final short packageSequence, final short querySequence) {
+			
+		if(! activeQueries.containsKey(querySequence)) {
+			logger.error("Unable to resume query {} - package {} - not found", querySequence, packageSequence);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
 			return;
 		}
@@ -633,13 +637,13 @@ public class ClientConnectionHandler implements Runnable {
 
 			@Override
 			protected void runThread() {
-				final ClientQuery clientQuery = activeQueries.get(packageSequence);
-				clientQuery.fetchAndSendNextTuples();
+				final ClientQuery clientQuery = activeQueries.get(querySequence);
+				clientQuery.fetchAndSendNextTuples(packageSequence);
 				
 				if(clientQuery.isQueryDone()) {
-					logger.debug("Query {} is done, closing and removing iterator", packageSequence);
+					logger.debug("Query {} is done, closing and removing iterator", querySequence);
 					clientQuery.close();
-					activeQueries.remove(packageSequence);
+					activeQueries.remove(querySequence);
 				}
 			}
 			
@@ -652,7 +656,7 @@ public class ClientConnectionHandler implements Runnable {
 
 		// Submit the runnable to our pool
 		if(threadPool.isTerminating()) {
-			logger.warn("Thread pool is shutting down, don't execute query: {}", packageSequence);
+			logger.warn("Thread pool is shutting down, don't execute query: {}", querySequence);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
 		} else {
 			threadPool.submit(queryRunable);
@@ -680,7 +684,7 @@ public class ClientConnectionHandler implements Runnable {
 					queryRequest.getTuplesPerPage(), this, packageSequence, requestTable);
 			
 			activeQueries.put(packageSequence, clientQuery);
-			sendNextResultsForQuery(packageSequence);
+			sendNextResultsForQuery(packageSequence, packageSequence);
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	

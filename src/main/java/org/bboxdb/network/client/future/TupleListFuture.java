@@ -119,7 +119,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 						final List<Tuple> tupleList = tupleListFuture.get(resultId);
 						
 						addTupleListToQueue(tupleList);
-												
+									
 						if(! tupleListFuture.isCompleteResult(resultId)) {
 							handleAdditionalPages();
 						}
@@ -151,23 +151,24 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 					
 					TupleListFuture nextPage = null;
 					do {
-						 nextPage = bboxdbClient.getNextPage(queryRequestId);
+						 nextPage = (TupleListFuture) bboxdbClient.getNextPage(queryRequestId);
+ 
 						 nextPage.waitForAll();
-						 
+
 						 if(nextPage.isFailed()) {
 							 logger.error("Requesting next page failed! Query result is incomplete: {}", nextPage.getAllMessages());
 							 return;
 						 }
-						 
+
 						 // Query is send to one server, so the number of
-						 // resupt objects should be 1
+						 // result objects should be 1
 						 if(nextPage.getNumberOfResultObjets() != 1) {
 							 logger.error("Got a non expected number of result objects {}", nextPage.getNumberOfResultObjets());
 						 }
+
+						 addTupleListToQueue(nextPage.get(0));
 						 
-						 addTupleListToQueue(nextPage.get(1));
-						 
-					} while(! nextPage.isCompleteResult(1));
+					} while(! nextPage.isCompleteResult(0));
 				}
 
 				/**
@@ -339,7 +340,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		
 		return connections.get(resultId);
 	}
-	
+		
 	/**
 	 * Return a iterator for all tuples
 	 * @return

@@ -654,7 +654,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param queryPackageId
 	 * @return
 	 */
-	public TupleListFuture getNextPage(final short queryPackageId) {
+	public OperationFuture getNextPage(final short queryPackageId) {
 		
 		if(! resultBuffer.containsKey(queryPackageId)) {
 			final String errorMessage = "Query package " + queryPackageId 
@@ -665,7 +665,6 @@ public class BBoxDBClient implements BBoxDB {
 		}
 		
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
-		
 		final NextPageRequest requestPackage = new NextPageRequest(
 				getNextSequenceNumber(), queryPackageId);
 		
@@ -741,7 +740,8 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 * @throws IOException 
 	 */
-	protected short sendPackageToServer(final NetworkRequestPackage requestPackage, final OperationFuture future) {
+	protected short sendPackageToServer(final NetworkRequestPackage requestPackage, 
+			final OperationFuture future) {
 
 		try {
 			synchronized (pendingCalls) {
@@ -762,6 +762,9 @@ public class BBoxDBClient implements BBoxDB {
 		
 		try {		
 			synchronized (pendingCalls) {
+				assert (! pendingCalls.containsKey(sequenceNumber)) 
+					: "Old call exists: " + pendingCalls.get(sequenceNumber);
+				
 				pendingCalls.put(sequenceNumber, future);
 			}
 			
@@ -906,6 +909,7 @@ public class BBoxDBClient implements BBoxDB {
 					
 				case NetworkConst.RESPONSE_TYPE_PAGE_END:
 					handlePageEnd(encodedPackage, (TupleListFuture) pendingCall);
+					removeFuture = false;
 					break;
 					
 				default:
@@ -1092,19 +1096,24 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	protected void handleMultiTupleEnd(final ByteBuffer encodedPackage,
 			final TupleListFuture pendingCall) throws PackageEncodeException {
+		
 		final MultipleTupleEndResponse result = MultipleTupleEndResponse.decodePackage(encodedPackage);
 		
-		final List<Tuple> resultList = resultBuffer.remove(result.getSequenceNumber());
-		
-		if(resultList == null) {
-			logger.warn("Got handleMultiTupleEnd and resultList is empty");
-			pendingCall.setFailedState();
-			pendingCall.fireCompleteEvent();
+		final short sequenceNumber = result.getSequenceNumber();
+		final List<Tuple> resultList = resultBuffer.remove(sequenceNumber);
+
+		if(pendingCall == null) {
+			logger.warn("Got handleMultiTupleEnd and pendingCall is empty (package {}) ",
+					sequenceNumber);
 			return;
 		}
 		
-		if(pendingCall == null) {
-			logger.warn("Got handleMultiTupleEnd and pendingCall is empty");
+		if(resultList == null) {
+			logger.warn("Got handleMultiTupleEnd and resultList is empty (package {})",
+					sequenceNumber);
+			
+			pendingCall.setFailedState();
+			pendingCall.fireCompleteEvent();
 			return;
 		}
 		
@@ -1126,9 +1135,14 @@ public class BBoxDBClient implements BBoxDB {
 			logger.warn("Got handleMultiTupleEnd and pendingCall is empty");
 			return;
 		}
-		
+
 		final PageEndResponse result = PageEndResponse.decodePackage(encodedPackage);
-		final List<Tuple> resultList = resultBuffer.remove(result.getSequenceNumber());
+		final short sequenceNumber = result.getSequenceNumber();
+
+		final List<Tuple> resultList = resultBuffer.remove(sequenceNumber);
+		
+		// Collect tuples of the next page in new list
+		resultBuffer.put(sequenceNumber, new ArrayList<Tuple>());
 		
 		if(resultList == null) {
 			logger.warn("Got handleMultiTupleEnd and resultList is empty");
@@ -1136,10 +1150,7 @@ public class BBoxDBClient implements BBoxDB {
 			pendingCall.fireCompleteEvent();
 			return;
 		}
-		
-		// Collect tuples of the next page in new list
-		resultBuffer.put(result.getSequenceNumber(), new ArrayList<Tuple>());
-		 
+
 		pendingCall.setConnectionForResult(0, this);
 		pendingCall.setCompleteResult(0, false);
 		pendingCall.setOperationResult(0, resultList);

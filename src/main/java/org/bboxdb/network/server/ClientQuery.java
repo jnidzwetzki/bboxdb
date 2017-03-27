@@ -66,7 +66,7 @@ public class ClientQuery implements Closeable {
 	/**
 	 * The package sequence of the query
 	 */
-	protected final short packageSequence;
+	protected final short querySequence;
 	
 	/**
 	 * The request table
@@ -91,13 +91,13 @@ public class ClientQuery implements Closeable {
 
 	public ClientQuery(final QueryPlan queryPlan, final boolean pageResult,
 			final short tuplesPerPage, final ClientConnectionHandler clientConnectionHandler, 
-			final short packageSequence, final SSTableName requestTable) {
+			final short querySequence, final SSTableName requestTable) {
 
 		this.queryPlan = queryPlan;
 		this.pageResult = pageResult;
 		this.tuplesPerPage = tuplesPerPage;
 		this.clientConnectionHandler = clientConnectionHandler;
-		this.packageSequence = packageSequence;
+		this.querySequence = querySequence;
 		this.requestTable = requestTable;
 
 		final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
@@ -120,17 +120,15 @@ public class ClientQuery implements Closeable {
 	
 	/**
 	 * Calculate the next tuples of the query
+	 * @param packageSequence2 
 	 * @return
 	 */
-	public void fetchAndSendNextTuples() {
+	public void fetchAndSendNextTuples(final short packageSequence) {
 
 		long sendTuplesInThisPage = 0;
+		clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
 		
-		if(totalSendTuples == 0) {
-			clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));
-		}
-			
-		while(! localTables.isEmpty()) {
+		while(! isDataExhausted()) {
 			
 			if(currentIterator == null) {
 				setupNewIterator();
@@ -142,7 +140,6 @@ public class ClientQuery implements Closeable {
 			}
 			
 			while(currentIterator.hasNext()) {
-				
 				// Handle page end
 				if(pageResult == true && sendTuplesInThisPage >= tuplesPerPage) {
 					clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
@@ -161,6 +158,22 @@ public class ClientQuery implements Closeable {
 		
 		// All tuples are send
 		clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));	
+	}
+
+	/**
+	 * Is the data if the iterator exhausted?
+	 * @return
+	 */
+	protected boolean isDataExhausted() {
+		if(! localTables.isEmpty()) {
+			return false;
+		}
+		
+		if(currentIterator != null && currentIterator.hasNext()) {
+			return false;
+		}
+		
+		return true;
 	}
 
 	/**
@@ -200,7 +213,7 @@ public class ClientQuery implements Closeable {
 
 	@Override
 	public void close() {
-		logger.debug("Closing query {} (send {} result tuples)", packageSequence, totalSendTuples);
+		logger.debug("Closing query {} (send {} result tuples)", querySequence, totalSendTuples);
 		closeIteratorNE();
 	}
 
