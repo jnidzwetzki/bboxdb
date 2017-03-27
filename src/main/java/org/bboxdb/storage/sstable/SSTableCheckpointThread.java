@@ -141,7 +141,10 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 		final long currentTime = System.currentTimeMillis();
 		final boolean checkpointNeeded = inMemoryStores
 				.stream()
-				.anyMatch(m -> (m.getOldestTupleTimestamp() + maxUncheckpointedMiliseconds) < currentTime);
+				.mapToLong(m -> m.getOldestTupleTimestampInMicroseconds())
+				.anyMatch(m -> 
+					(TimeUnit.MICROSECONDS.toMillis(m) + maxUncheckpointedMiliseconds)
+				    < currentTime);
 		
 		return checkpointNeeded;
 	}

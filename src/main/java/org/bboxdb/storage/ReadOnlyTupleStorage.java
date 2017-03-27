@@ -70,13 +70,13 @@ public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	 * Get the timestamp of the oldest tuple
 	 * @return
 	 */
-	public long getOldestTupleTimestamp();
+	public long getOldestTupleTimestampInMicroseconds();
 	
 	/**
 	 * Get the timestamp of the newest tuple
 	 * @return
 	 */
-	public long getNewestTupleTimestamp();
+	public long getNewestTupleTimestampMicroseconds();
 	
 	/**
 	 * Delete the object and persistent data as soon as usage == 0
