@@ -6,6 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.2.3 (Stable) - TBA
+- New Feature: Introduced the tuple deletion without timestamp method in API
 - Improvement: Switched tuple timestamps from milliseconds to microseconds
 - Improvement: Added water OSM entity filter
 - Improvement: Speed up the OSM importer by using a new node serializer 
