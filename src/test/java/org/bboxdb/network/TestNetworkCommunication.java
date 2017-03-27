@@ -249,6 +249,77 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultList.contains(tuple5));
 	}
 	
+	
+	
+	/**
+	 * Insert some tuples and request it via paging
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testPaging() throws InterruptedException, ExecutionException {
+		final String distributionGroup = "2_testgroup"; 
+		final String table = distributionGroup + "_relation9999";
+		
+		final BBoxDBClient scalephantClient = connectToServer();
+		
+		// Delete distribution group
+		final EmptyResultFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
+		resultDelete.waitForAll();
+		Assert.assertFalse(resultDelete.isFailed());
+		
+		// Create distribution group
+		final EmptyResultFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
+		resultCreate.waitForAll();
+		Assert.assertFalse(resultCreate.isFailed());
+		
+		// Inside our bbox query
+		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes());
+		scalephantClient.insertTuple(table, tuple1);
+		final Tuple tuple2 = new Tuple("def", new BoundingBox(0d, 0.5d, 0d, 0.5d), "def".getBytes());
+		scalephantClient.insertTuple(table, tuple2);
+		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes());
+		scalephantClient.insertTuple(table, tuple3);		
+		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10d, -9d, -10d, -9d), "ijk".getBytes());
+		scalephantClient.insertTuple(table, tuple4);
+		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1d, 2d, 1d, 2d), "lmn".getBytes());
+		scalephantClient.insertTuple(table, tuple5);
+
+		// Without paging
+		scalephantClient.setPagingEnabled(false);
+		scalephantClient.setTuplesPerPage((short) 0);
+		final TupleListFuture future = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		future.waitForAll();
+		final List<Tuple> resultList = IteratorHelper.iteratorToList(future.iterator());		
+		Assert.assertEquals(5, resultList.size());
+		
+		// With paging (tuples per page 10)
+		scalephantClient.setPagingEnabled(true);
+		scalephantClient.setTuplesPerPage((short) 10);
+		final TupleListFuture future2 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		future.waitForAll();
+		final List<Tuple> resultList2 = IteratorHelper.iteratorToList(future2.iterator());		
+		Assert.assertEquals(5, resultList2.size());
+		
+		// With paging (tuples per page 5)
+		scalephantClient.setPagingEnabled(true);
+		scalephantClient.setTuplesPerPage((short) 5);
+		final TupleListFuture future3 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		future.waitForAll();
+		final List<Tuple> resultList3 = IteratorHelper.iteratorToList(future3.iterator());		
+		Assert.assertEquals(5, resultList3.size());
+		
+		// With paging (tuples per page 1)
+		scalephantClient.setPagingEnabled(true);
+		scalephantClient.setTuplesPerPage((short) 1);
+		final TupleListFuture future4 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		future.waitForAll();
+		final List<Tuple> resultList4 = IteratorHelper.iteratorToList(future4.iterator());		
+		Assert.assertEquals(5, resultList4.size());
+	}
+	
+	
+	
 	/**
 	 * Insert some tuples and start a bounding box query afterwards
 	 * @throws ExecutionException 
