@@ -37,11 +37,21 @@ public class NetworkPackageDecoder {
 	/**
 	 * Encapsulate the encoded package into a byte buffer
 	 * 
-	 * @param encodedPackage
+	 * @param bytes
 	 * @return
 	 */
-	public static ByteBuffer encapsulateBytes(final byte[] encodedPackage) {
-		final ByteBuffer bb = ByteBuffer.wrap(encodedPackage);
+	public static ByteBuffer encapsulateBytes(final byte[] bytes) {
+		return encapsulateBytes(bytes, 0);
+	}
+	
+	/**
+	 * Encapsulate the encoded package into a byte buffer - with offset
+	 * 
+	 * @param bytes
+	 * @return
+	 */
+	public static ByteBuffer encapsulateBytes(final byte[] bytes, final int offset) {
+		final ByteBuffer bb = ByteBuffer.wrap(bytes, offset, bytes.length - offset);
 		bb.order(Const.APPLICATION_BYTE_ORDER);
 		return bb;
 	}
