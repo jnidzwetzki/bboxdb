@@ -157,41 +157,49 @@ public class TestNetworkCommunication {
 		final BBoxDBClient scalephantClient = connectToServer();
 		
 		// Delete distribution group
+		System.out.println("Delete distribution group");
 		final EmptyResultFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
 		resultDelete.waitForAll();
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
+		System.out.println("Create distribution group");
 		final EmptyResultFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
+		System.out.println("Delete tuple");
 		final EmptyResultFuture deleteResult1 = scalephantClient.deleteTuple(table, key);
 		deleteResult1.waitForAll();
 		Assert.assertFalse(deleteResult1.isFailed());
 		Assert.assertTrue(deleteResult1.isDone());
 		
+		System.out.println("Query key");
 		final TupleListFuture getResult = scalephantClient.queryKey(table, key);
 		getResult.waitForAll();
 		Assert.assertFalse(getResult.isFailed());
 		Assert.assertTrue(getResult.isDone());
 		
+		System.out.println("Insert tuple");
 		final Tuple tuple = new Tuple(key, BoundingBox.EMPTY_BOX, "abc".getBytes());
 		final EmptyResultFuture insertResult = scalephantClient.insertTuple(table, tuple);
 		insertResult.waitForAll();
 		Assert.assertFalse(insertResult.isFailed());
 		Assert.assertTrue(insertResult.isDone());
 
+		System.out.println("Query key 2");
 		final TupleListFuture getResult2 = scalephantClient.queryKey(table, key);
 		getResult2.waitForAll();
 		final List<Tuple> resultList = IteratorHelper.iteratorToList(getResult2.iterator());
 		Assert.assertEquals(tuple, resultList.get(0));
 
+		System.out.println("Delete tuple 2");
 		final EmptyResultFuture deleteResult2 = scalephantClient.deleteTuple(table, key, System.currentTimeMillis());
 		deleteResult2.waitForAll();
 		Assert.assertFalse(deleteResult2.isFailed());
 		Assert.assertTrue(deleteResult2.isDone());
 		
+		System.out.println("Query key 3");
 		final TupleListFuture getResult3 = scalephantClient.queryKey(table, key);
 		getResult3.waitForAll();
 		Assert.assertFalse(getResult3.isFailed());

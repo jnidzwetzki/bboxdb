@@ -102,6 +102,7 @@ public class PackageRouter {
 					
 					if(routeResult) {
 						final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
+						System.out.println("---> Success for: " + packageSequence);
 						clientConnectionHandler.writeResultPackage(responsePackage);
 						return;
 					} 
@@ -112,7 +113,6 @@ public class PackageRouter {
 				} catch (ZookeeperException e) {
 					logger.error("Exception while routing package", e);
 				}
-				
 				
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_ROUTING_FAILED);
 				clientConnectionHandler.writeResultPackage(responsePackage);

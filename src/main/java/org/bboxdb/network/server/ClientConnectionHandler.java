@@ -179,7 +179,7 @@ public class ClientConnectionHandler implements Runnable {
 	 * @throws IOException
 	 * @throws PackageEncodeException 
 	 */
-	protected ByteBuffer readNextPackageHeader() throws IOException, PackageEncodeException {
+	protected ByteBuffer readNextPackageHeader(final InputStream inputStream) throws IOException, PackageEncodeException {
 		final ByteBuffer bb = ByteBuffer.allocate(12);
 		StreamHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
 		
@@ -218,7 +218,7 @@ public class ClientConnectionHandler implements Runnable {
 
 			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN ||
 					connectionState == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
-				handleNextPackage();
+				handleNextPackage(inputStream);
 			}
 			
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
@@ -470,12 +470,16 @@ public class ClientConnectionHandler implements Runnable {
 	 */
 	protected boolean handleCompression(final ByteBuffer encodedPackage, final short packageSequence) throws PackageEncodeException {
 
-		final byte[] uncompressedPackage = CompressionEnvelopeRequest.decodePackage(encodedPackage);
-		
-		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage);
-
-		final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(bb);
-		handleBufferedPackage(bb, packageSequence, packageType);
+		try {
+			final InputStream compressedDataStream = CompressionEnvelopeRequest.decodePackage(encodedPackage);
+						
+			while(compressedDataStream.available() > 0) {
+				handleNextPackage(compressedDataStream);
+			}
+			
+		} catch (IOException e) {
+			logger.error("Got an exception while handling compression", e);
+		}
 		
 		return true;
 	}
@@ -832,7 +836,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @return
 	 * @throws IOException 
 	 */
-	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) throws IOException {
+	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader, 
+			final InputStream inputStream) throws IOException {
+		
 		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
 		final int headerLength = packageHeader.limit();
 		
@@ -855,9 +861,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @throws IOException
 	 * @throws PackageEncodeException 
 	 */
-	protected void handleNextPackage() throws IOException, PackageEncodeException {
-		final ByteBuffer packageHeader = readNextPackageHeader();
-
+	protected void handleNextPackage(final InputStream inputStream) throws IOException, PackageEncodeException {
+		final ByteBuffer packageHeader = readNextPackageHeader(inputStream);
+		
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(packageHeader);
 		
@@ -869,9 +875,10 @@ public class ClientConnectionHandler implements Runnable {
 			}
 		}
 		
-		final ByteBuffer encodedPackage = readFullPackage(packageHeader);
+		final ByteBuffer encodedPackage = readFullPackage(packageHeader, inputStream);
+
 		final boolean readFurtherPackages = handleBufferedPackage(encodedPackage, packageSequence, packageType);
-	
+
 		if(readFurtherPackages == false) {
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 		}	
@@ -886,7 +893,9 @@ public class ClientConnectionHandler implements Runnable {
 	 * @throws IOException
 	 * @throws PackageEncodeException 
 	 */
-	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, final short packageSequence, final short packageType) throws PackageEncodeException {
+	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, 
+			final short packageSequence, 
+			final short packageType) throws PackageEncodeException {
 				
 		switch (packageType) {
 			case NetworkConst.REQUEST_TYPE_HELLO:

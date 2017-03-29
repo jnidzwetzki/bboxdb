@@ -19,12 +19,14 @@ package org.bboxdb.network;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.compress.utils.IOUtils;
 import org.bboxdb.Const;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.network.capabilities.PeerCapabilities;
@@ -784,7 +786,7 @@ public class TestNetworkClasses {
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, routingHeader, new SSTableName("test"), tuple);
 		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		
-		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(sequenceNumber, insertPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
+		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, Arrays.asList(insertPackage));
 		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		compressionPackage.writeToOutputStream(bos);
@@ -796,7 +798,8 @@ public class TestNetworkClasses {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
 		Assert.assertNotNull(bb);
 
-		final byte[] uncompressedBytes = CompressionEnvelopeRequest.decodePackage(bb);
+		final InputStream uncompressedByteStream = CompressionEnvelopeRequest.decodePackage(bb);
+		final byte[] uncompressedBytes = IOUtils.toByteArray(uncompressedByteStream);
 		final ByteBuffer uncompressedByteBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedBytes);
 		
 		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(uncompressedByteBuffer);
@@ -822,7 +825,8 @@ public class TestNetworkClasses {
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, routingHeader, new SSTableName("test"), tuple);
 		Assert.assertEquals(routingHeader, insertPackage.getRoutingHeader());
 		
-		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(sequenceNumber, insertPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
+		final CompressionEnvelopeRequest compressionPackage = new CompressionEnvelopeRequest(
+				NetworkConst.COMPRESSION_TYPE_GZIP, Arrays.asList(insertPackage));
 		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		compressionPackage.writeToOutputStream(bos);
@@ -834,7 +838,8 @@ public class TestNetworkClasses {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
 		Assert.assertNotNull(bb);
 
-		final byte[] uncompressedBytes = CompressionEnvelopeRequest.decodePackage(bb);
+		final InputStream uncompressedByteStream = CompressionEnvelopeRequest.decodePackage(bb);
+		final byte[] uncompressedBytes = IOUtils.toByteArray(uncompressedByteStream);
 		final ByteBuffer uncompressedByteBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedBytes);
 		
 		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(uncompressedByteBuffer);

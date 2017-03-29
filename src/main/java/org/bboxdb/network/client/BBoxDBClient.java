@@ -286,6 +286,7 @@ public class BBoxDBClient implements BBoxDB {
 		final HelloRequest requestPackage = new HelloRequest(getNextSequenceNumber(), 
 				NetworkConst.PROTOCOL_VERSION, clientCapabilities);
 		
+		registerPackageCallback(requestPackage, operationFuture);
 		sendPackageToServer(requestPackage, operationFuture);
 		
 		operationFuture.waitForAll();
@@ -314,7 +315,12 @@ public class BBoxDBClient implements BBoxDB {
 		
 		logger.info("Disconnecting from server: " + serverHostname + " port " + serverPort);
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
-		sendPackageToServer(new DisconnectRequest(getNextSequenceNumber()), new EmptyResultFuture(1));
+		
+		final DisconnectRequest requestPackage = new DisconnectRequest(getNextSequenceNumber());
+		final EmptyResultFuture operationFuture = new EmptyResultFuture(1);
+		
+		registerPackageCallback(requestPackage, operationFuture);
+		sendPackageToServer(requestPackage, operationFuture);
 
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
@@ -433,6 +439,7 @@ public class BBoxDBClient implements BBoxDB {
 		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 		final DeleteTableRequest requestPackage = new DeleteTableRequest(getNextSequenceNumber(), table);
+		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
 	}
@@ -454,12 +461,19 @@ public class BBoxDBClient implements BBoxDB {
 		final InsertTupleRequest requestPackage = new InsertTupleRequest(sequenceNumber, ssTableName, tuple);
 		
 		if(connectionCapabilities.hasGZipCompression()) {
-			final CompressionEnvelopeRequest compressionEnvelopeRequest 
-				= new CompressionEnvelopeRequest(sequenceNumber, requestPackage, 
-						NetworkConst.COMPRESSION_TYPE_GZIP);
+			final List<NetworkRequestPackage> requestPackages = new ArrayList<>();
+			requestPackages.add(requestPackage);
 			
+			final CompressionEnvelopeRequest compressionEnvelopeRequest 
+				= new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, 
+						requestPackages);
+			
+			for(final NetworkRequestPackage myPackage: requestPackages) {
+				registerPackageCallback(myPackage, clientOperationFuture);
+			}
 			sendPackageToServer(compressionEnvelopeRequest, clientOperationFuture);
 		} else {
+			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);
 		}
 		
@@ -492,6 +506,7 @@ public class BBoxDBClient implements BBoxDB {
 		final DeleteTupleRequest requestPackage = new DeleteTupleRequest(getNextSequenceNumber(), 
 				table, key, timestamp);
 		
+		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
 	}
@@ -516,7 +531,9 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		final SSTableNameListFuture clientOperationFuture = new SSTableNameListFuture(1);
-		sendPackageToServer(new ListTablesRequest(getNextSequenceNumber()), clientOperationFuture);
+		final ListTablesRequest requestPackage = new ListTablesRequest(getNextSequenceNumber());
+		registerPackageCallback(requestPackage, clientOperationFuture);
+		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
 	}
 	
@@ -535,6 +552,7 @@ public class BBoxDBClient implements BBoxDB {
 		final CreateDistributionGroupRequest requestPackage = new CreateDistributionGroupRequest(
 				getNextSequenceNumber(), distributionGroup, replicationFactor);
 		
+		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
 	}
@@ -553,6 +571,7 @@ public class BBoxDBClient implements BBoxDB {
 		final DeleteDistributionGroupRequest requestPackage = new DeleteDistributionGroupRequest(
 				getNextSequenceNumber(), distributionGroup);
 		
+		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		
 		return clientOperationFuture;
@@ -570,6 +589,7 @@ public class BBoxDBClient implements BBoxDB {
 
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
 		final QueryKeyRequest requestPackage = new QueryKeyRequest(getNextSequenceNumber(), table, key);
+		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		
 		return clientOperationFuture;
@@ -589,6 +609,7 @@ public class BBoxDBClient implements BBoxDB {
 		final QueryBoundingBoxRequest requestPackage = new QueryBoundingBoxRequest(getNextSequenceNumber(), 
 				table, boundingBox, pagingEnabled, tuplesPerPage);
 		
+		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		
 		return clientOperationFuture;
@@ -609,6 +630,7 @@ public class BBoxDBClient implements BBoxDB {
 		final QueryBoundingBoxTimeRequest requestPackage = new QueryBoundingBoxTimeRequest(getNextSequenceNumber(), 
 				table, boundingBox, timestamp, pagingEnabled, tuplesPerPage);
 		
+		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		
 		return clientOperationFuture;
@@ -628,6 +650,7 @@ public class BBoxDBClient implements BBoxDB {
 		final QueryTimeRequest requestPackage = new QueryTimeRequest(getNextSequenceNumber(), 
 				table, timestamp, pagingEnabled, tuplesPerPage);
 		
+		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		
 		return clientOperationFuture;
@@ -643,10 +666,12 @@ public class BBoxDBClient implements BBoxDB {
 			return createFailedFuture("sendKeepAlivePackage called, but connection not ready: " + this);
 		}
 		
-		final EmptyResultFuture future = new EmptyResultFuture(1);
-		sendPackageToServer(new KeepAliveRequest(getNextSequenceNumber()), future);
+		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
+		final KeepAliveRequest requestPackage = new KeepAliveRequest(getNextSequenceNumber());
+		registerPackageCallback(requestPackage, clientOperationFuture);
+		sendPackageToServer(requestPackage, clientOperationFuture);
 
-		return future;
+		return clientOperationFuture;
 	}
 	
 	/**
@@ -668,6 +693,7 @@ public class BBoxDBClient implements BBoxDB {
 		final NextPageRequest requestPackage = new NextPageRequest(
 				getNextSequenceNumber(), queryPackageId);
 		
+		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		
 		return clientOperationFuture;
@@ -740,7 +766,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 * @throws IOException 
 	 */
-	protected short sendPackageToServer(final NetworkRequestPackage requestPackage, 
+	protected void sendPackageToServer(final NetworkRequestPackage requestPackage, 
 			final OperationFuture future) {
 
 		try {
@@ -753,21 +779,10 @@ public class BBoxDBClient implements BBoxDB {
 		} catch(InterruptedException e) {
 			logger.warn("Got an exception while waiting for pending requests", e);
 			Thread.currentThread().interrupt();
-			return -1;
+			return;
 		}
-		
-		final short sequenceNumber = requestPackage.getSequenceNumber();
-		
-		future.setRequestId(0, sequenceNumber);
-		
-		try {		
-			synchronized (pendingCalls) {
-				assert (! pendingCalls.containsKey(sequenceNumber)) 
-					: "Old call exists: " + pendingCalls.get(sequenceNumber);
 				
-				pendingCalls.put(sequenceNumber, future);
-			}
-			
+		try {		
 			synchronized (outputStream) {
 				requestPackage.writeToOutputStream(outputStream);
 				outputStream.flush();
@@ -781,6 +796,18 @@ public class BBoxDBClient implements BBoxDB {
 			future.fireCompleteEvent();
 		}
 		
+	}
+
+	protected short registerPackageCallback(final NetworkRequestPackage requestPackage, final OperationFuture future) {
+		final short sequenceNumber = requestPackage.getSequenceNumber();
+		future.setRequestId(0, sequenceNumber);
+		
+		synchronized (pendingCalls) {
+			assert (! pendingCalls.containsKey(sequenceNumber)) 
+				: "Old call exists: " + pendingCalls.get(sequenceNumber);
+			
+			pendingCalls.put(sequenceNumber, future);
+		}
 		return sequenceNumber;
 	}
 	

@@ -17,12 +17,16 @@
  *******************************************************************************/
 package org.bboxdb.network.packages.request;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
+import org.bboxdb.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkHelper;
 import org.bboxdb.network.NetworkPackageDecoder;
@@ -33,22 +37,23 @@ import org.bboxdb.network.routing.RoutingHeader;
 public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 	
 	/**
-	 * The package to encode
-	 */
-	protected NetworkRequestPackage networkRequestPackage;
-	
-	/**
 	 * The compression type
 	 */
 	protected byte compressionType;
 
-	public CompressionEnvelopeRequest(final short sequenceNumber,
-			final NetworkRequestPackage networkRequestPackage, final byte compressionType) {
+	/**
+	 * The packages to encode
+	 */
+	protected List<NetworkRequestPackage> networkRequestPackages;
+
+	public CompressionEnvelopeRequest(final byte compressionType, 
+			final List<NetworkRequestPackage> networkRequestPackages) {
 		
-		super(sequenceNumber);
+		// Don't use a real sequence number
+		super((short) 0);
 		
-		this.networkRequestPackage = networkRequestPackage;
 		this.compressionType = compressionType;
+		this.networkRequestPackages = networkRequestPackages;
 	}
 
 	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
@@ -59,19 +64,30 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 			
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			final OutputStream os = new GZIPOutputStream(baos);
-			networkRequestPackage.writeToOutputStream(os);
+			
+			// Write packages
+			for(final NetworkRequestPackage networkRequestPackage : networkRequestPackages) {
+				networkRequestPackage.writeToOutputStream(os);
+			}
+			
 			os.close();
 			final byte[] compressedBytes = baos.toByteArray();
 			
+			// Header
+			final ByteBuffer bb = ByteBuffer.allocate(4);
+			bb.order(Const.APPLICATION_BYTE_ORDER);
+			bb.put(compressionType);
+			bb.putShort((short) networkRequestPackages.size());
+			
 			// Body length
-			final long bodyLength = 1 + compressedBytes.length;
+			final long bodyLength = bb.capacity() + compressedBytes.length;
 
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
 			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 			
 			// Write body
-			outputStream.write(compressionType);
+			outputStream.write(bb.array());
 			outputStream.write(compressedBytes);
 
 		} catch (IOException e) {
@@ -87,7 +103,7 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 	 * @throws IOException 
 	 * @throws PackageEncodeException 
 	 */
-	public static byte[] decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
+	public static InputStream decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_COMPRESSION);
 		
 		if(decodeResult == false) {
@@ -100,15 +116,31 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 			throw new PackageEncodeException("Unknown compression type: " + compressionType);
 		}
 		
+		// Skip 3 bytes - Header
+		encodedPackage.getShort();
+		encodedPackage.get();
+		
 		final byte[] compressedBytes = new byte[encodedPackage.remaining()];
 		encodedPackage.get(compressedBytes, 0, encodedPackage.remaining());
 		
-		return NetworkHelper.uncompressBytes(compressionType, compressedBytes);
+		final byte[] uncompressedBytes = NetworkHelper.uncompressBytes(compressionType, compressedBytes);
+		
+		final ByteArrayInputStream bis = new ByteArrayInputStream(uncompressedBytes);
+		
+		return bis;
 	}
 	
 	@Override
 	public byte getPackageType() {
 		return NetworkConst.REQUEST_TYPE_COMPRESSION;
+	}
+
+	/**
+	 * Get the request packages
+	 * @return
+	 */
+	public List<NetworkRequestPackage> getNetworkRequestPackages() {
+		return networkRequestPackages;
 	}
 	
 }
