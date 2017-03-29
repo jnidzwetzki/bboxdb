@@ -102,7 +102,6 @@ public class PackageRouter {
 					
 					if(routeResult) {
 						final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
-						System.out.println("---> Success for: " + packageSequence);
 						clientConnectionHandler.writeResultPackage(responsePackage);
 						return;
 					} 
