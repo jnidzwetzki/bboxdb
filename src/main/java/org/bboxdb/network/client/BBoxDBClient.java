@@ -20,6 +20,7 @@ package org.bboxdb.network.client;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -471,7 +472,9 @@ public class BBoxDBClient implements BBoxDB {
 			for(final NetworkRequestPackage myPackage: requestPackages) {
 				registerPackageCallback(myPackage, clientOperationFuture);
 			}
+			
 			sendPackageToServer(compressionEnvelopeRequest, clientOperationFuture);
+			
 		} else {
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);
@@ -844,7 +847,7 @@ public class BBoxDBClient implements BBoxDB {
 		 * @return 
 		 * @throws IOException 
 		 */
-		protected ByteBuffer readNextResponsePackageHeader() throws IOException {
+		protected ByteBuffer readNextResponsePackageHeader(final InputStream inputStream) throws IOException {
 			final ByteBuffer bb = ByteBuffer.allocate(12);
 			StreamHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
 			return bb;
@@ -853,9 +856,9 @@ public class BBoxDBClient implements BBoxDB {
 		/**
 		 * Process the next server answer
 		 */
-		protected boolean processNextResponsePackage() {
+		protected boolean processNextResponsePackage(final InputStream inputStream) {
 			try {
-				final ByteBuffer bb = readNextResponsePackageHeader();
+				final ByteBuffer bb = readNextResponsePackageHeader(inputStream);
 				
 				if(bb == null) {
 					// Ignore exceptions when connection is closing
@@ -865,7 +868,7 @@ public class BBoxDBClient implements BBoxDB {
 					return false;
 				}
 				
-				final ByteBuffer encodedPackage = readFullPackage(bb);
+				final ByteBuffer encodedPackage = readFullPackage(bb, inputStream);
 				handleResultPackage(encodedPackage);
 				
 			} catch (IOException | PackageEncodeException e) {
@@ -969,7 +972,7 @@ public class BBoxDBClient implements BBoxDB {
 			logger.info("Started new response reader for " + serverHostname + " / " + serverPort);
 			
 			while(clientSocket != null) {
-				boolean result = processNextResponsePackage();
+				boolean result = processNextResponsePackage(inputStream);
 				
 				if(result == false) {
 					handleSocketClosedUnexpected();
@@ -985,10 +988,13 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * Read the full package
 	 * @param packageHeader
+	 * @param inputStream2 
 	 * @return
 	 * @throws IOException 
 	 */
-	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader) throws IOException {
+	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader,
+			final InputStream inputStream) throws IOException {
+		
 		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromResponsePackage(packageHeader);
 		final int headerLength = packageHeader.limit();
 		final ByteBuffer encodedPackage = ByteBuffer.allocate(headerLength + bodyLength);
@@ -1049,9 +1055,16 @@ public class BBoxDBClient implements BBoxDB {
 	 * @throws PackageEncodeException 
 	 */
 	protected void handleCompression(final ByteBuffer encodedPackage) throws PackageEncodeException {
-		final byte[] uncompressedPackage = CompressionEnvelopeResponse.decodePackage(encodedPackage);
-		final ByteBuffer uncompressedPackageBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage); 
-		serverResponseReader.handleResultPackage(uncompressedPackageBuffer);
+		final InputStream uncompressedStream = CompressionEnvelopeResponse.decodePackage(encodedPackage);
+		
+		try {
+			while(uncompressedStream.available() > 0) {
+				serverResponseReader.processNextResponsePackage(uncompressedStream);
+			}
+		} catch (IOException e) {
+			logger.error("Got IO error while handling compressed packages", e);
+		}
+		
 	}
 	
 	/**

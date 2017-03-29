@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.2.3 (Stable) - TBA
 - New Feature: Introduced the tuple deletion without timestamp method in API
+- New Feature: Changed the format of the compressed envelopes to support multi package compression
 - Improvement: Enabled paging as default setting (50 tuples per page)
 - Improvement: Switched tuple timestamps from milliseconds to microseconds
 - Improvement: Added water OSM entity filter

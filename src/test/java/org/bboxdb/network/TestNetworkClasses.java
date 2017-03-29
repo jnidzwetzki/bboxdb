@@ -862,16 +862,16 @@ public class TestNetworkClasses {
 		final Tuple tuple = new Tuple("abc", BoundingBox.EMPTY_BOX, "databytes".getBytes());
 		
 		final TupleResponse singleTupleResponse = new TupleResponse((short) 4, tablename, tuple);
-		final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(singleTupleResponse, NetworkConst.COMPRESSION_TYPE_GZIP);
+		final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(NetworkConst.COMPRESSION_TYPE_GZIP, Arrays.asList(singleTupleResponse));
 		final byte[] encodedPackage = networkPackageToByte(compressionEnvelopeResponse);
 		Assert.assertNotNull(encodedPackage);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		final byte[] uncompressedPackage = CompressionEnvelopeResponse.decodePackage(bb);
-		
-		final ByteBuffer uncompressedPackageBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage);
+		final InputStream uncompressedByteStream = CompressionEnvelopeResponse.decodePackage(bb);
+		final byte[] uncompressedBytes = IOUtils.toByteArray(uncompressedByteStream);
+		final ByteBuffer uncompressedByteBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedBytes);
 
-		final TupleResponse responseDecoded = TupleResponse.decodePackage(uncompressedPackageBuffer);
+		final TupleResponse responseDecoded = TupleResponse.decodePackage(uncompressedByteBuffer);
 		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
 		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());
 	}
@@ -889,16 +889,18 @@ public class TestNetworkClasses {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		final HelloResponse helloPackage = new HelloResponse(sequenceNumber, 2, peerCapabilities);
 		
-		final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(helloPackage, NetworkConst.COMPRESSION_TYPE_GZIP);
+		final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(NetworkConst.COMPRESSION_TYPE_GZIP, Arrays.asList(helloPackage));
+
 		final byte[] encodedPackage = networkPackageToByte(compressionEnvelopeResponse);
 		Assert.assertNotNull(encodedPackage);
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
-		final byte[] uncompressedPackage = CompressionEnvelopeResponse.decodePackage(bb);
+		final InputStream uncompressedByteStream = CompressionEnvelopeResponse.decodePackage(bb);
 		
-		final ByteBuffer uncompressedPackageBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedPackage);
+		final byte[] uncompressedBytes = IOUtils.toByteArray(uncompressedByteStream);
+		final ByteBuffer uncompressedByteBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedBytes);
 
-		final HelloResponse decodedPackage = HelloResponse.decodePackage(uncompressedPackageBuffer);
+		final HelloResponse decodedPackage = HelloResponse.decodePackage(uncompressedByteBuffer);
 				
 		Assert.assertEquals(helloPackage, decodedPackage);
 		Assert.assertTrue(helloPackage.getPeerCapabilities().hasGZipCompression());

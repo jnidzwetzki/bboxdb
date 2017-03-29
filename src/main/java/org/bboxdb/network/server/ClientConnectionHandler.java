@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -986,7 +987,8 @@ public class ClientConnectionHandler implements Runnable {
 		final TupleResponse responsePackage = new TupleResponse(packageSequence, requestTable.getFullname(), tuple);
 		
 		if(connectionCapabilities.hasGZipCompression()) {
-			final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(responsePackage, NetworkConst.COMPRESSION_TYPE_GZIP);
+			final CompressionEnvelopeResponse compressionEnvelopeResponse 
+				= new CompressionEnvelopeResponse(NetworkConst.COMPRESSION_TYPE_GZIP, Arrays.asList(responsePackage));
 			writeResultPackage(compressionEnvelopeResponse);
 		} else {
 			writeResultPackage(responsePackage);

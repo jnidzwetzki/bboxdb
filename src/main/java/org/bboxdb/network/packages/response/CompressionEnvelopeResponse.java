@@ -17,12 +17,16 @@
  *******************************************************************************/
 package org.bboxdb.network.packages.response;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
+import org.bboxdb.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkHelper;
 import org.bboxdb.network.NetworkPackageDecoder;
@@ -32,20 +36,22 @@ import org.bboxdb.network.packages.PackageEncodeException;
 public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 
 	/**
-	 * The package to encode
-	 */
-	protected NetworkResponsePackage networkResponsePackage;
-	
-	/**
 	 * The compression type
 	 */
 	protected byte compressionType;
+	
+	/**
+	 * The package to encode
+	 */
+	protected List<NetworkResponsePackage> networkResponsePackages;
 
-	public CompressionEnvelopeResponse(final NetworkResponsePackage networkResponsePackage, final byte compressionType) {
-		super(networkResponsePackage.getSequenceNumber());
+	public CompressionEnvelopeResponse(final byte compressionType, 
+			final List<NetworkResponsePackage> networkResponsePackages) {
+		
+		super((short) 0);
 
-		this.networkResponsePackage = networkResponsePackage;
 		this.compressionType = compressionType;
+		this.networkResponsePackages = networkResponsePackages;
 	}
 
 	@Override
@@ -55,7 +61,6 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 
 	@Override
 	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
-		
 
 		try {
 			if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
@@ -64,18 +69,29 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 			
 			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			final OutputStream os = new GZIPOutputStream(baos);
-			networkResponsePackage.writeToOutputStream(os);
+			
+			// Write packages
+			for(final NetworkResponsePackage networkResponsePackage : networkResponsePackages) {
+				networkResponsePackage.writeToOutputStream(os);
+			}
+			
 			os.close();
 			final byte[] compressedBytes = baos.toByteArray();
 			
+			// Header
+			final ByteBuffer bb = ByteBuffer.allocate(4);
+			bb.order(Const.APPLICATION_BYTE_ORDER);
+			bb.put(compressionType);
+			bb.putShort((short) networkResponsePackages.size());
+			
 			// Body length
-			final long bodyLength = 1 + compressedBytes.length;
+			final long bodyLength = bb.capacity() + compressedBytes.length;
 
 			// Write body length
 			appendResponsePackageHeader(bodyLength, outputStream);
 			
 			// Write body
-			outputStream.write(compressionType);
+			outputStream.write(bb.array());
 			outputStream.write(compressedBytes);
 			
 		} catch (IOException e) {
@@ -91,7 +107,7 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 	 * @throws IOException 
 	 * @throws PackageEncodeException 
 	 */
-	public static byte[] decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
+	public static InputStream decodePackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateResponsePackageHeader(encodedPackage, NetworkConst.RESPONSE_TYPE_COMPRESSION);
 		
@@ -105,10 +121,18 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 			throw new PackageEncodeException("Unknown compression type: " + compressionType);
 		}
 
+		// Skip 3 bytes - Header
+		encodedPackage.getShort();
+		encodedPackage.get();
+		
 		final byte[] compressedBytes = new byte[encodedPackage.remaining()];
 		encodedPackage.get(compressedBytes, 0, encodedPackage.remaining());
 		
-		return NetworkHelper.uncompressBytes(compressionType, compressedBytes);
+		final byte[] uncompressedBytes = NetworkHelper.uncompressBytes(compressionType, compressedBytes);
+		
+		final ByteArrayInputStream bis = new ByteArrayInputStream(uncompressedBytes);
+		
+		return bis;
 	}
-
+	
 }
