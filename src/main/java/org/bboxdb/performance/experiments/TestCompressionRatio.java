@@ -115,6 +115,8 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 				20, 30, 40, 50, 60, 70, 80, 90, 100);
 		
+		System.out.println("Bachsize\tDatasize");
+		
 		for(final Integer batchSize : bachSizes) {
 			try {
 				runExperiment(batchSize);
@@ -155,7 +157,7 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 			}
 		}
 		
-		System.out.format("Size for %d elements per batch is %d\n", batchSize, totalSize);
+		System.out.format("%d\t%d\n", batchSize, totalSize);
 	}
 
 	/**
