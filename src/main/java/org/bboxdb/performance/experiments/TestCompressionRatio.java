@@ -216,12 +216,6 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 
 	public static void main(final String[] args) throws IOException {
 		
-		final String filename = "/Users/kristofnidzwetzki/Downloads/berlin-latest.osm.pbf";
-		final String type = "building";
-		final OSMType osmType = OSMType.fromString(type);
-
-		/*
-		
 		// Check parameter
 		if(args.length != 2) {
 			System.err.println("Usage: programm <filename> <" + OSMFileReader.getFilterNames() + ">");
@@ -243,7 +237,7 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 		if(osmType == null) {
 			System.err.println("Unknown type: " + type);
 			System.exit(-1);
-		}*/
+		}
 		
 		final TestCompressionRatio testCompressionRatio = new TestCompressionRatio(filename, osmType);
 		testCompressionRatio.run();
