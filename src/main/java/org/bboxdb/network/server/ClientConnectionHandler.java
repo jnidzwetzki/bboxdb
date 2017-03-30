@@ -37,11 +37,12 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.ExceptionSafeThread;
 import org.bboxdb.util.StreamHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientConnectionHandler implements Runnable {
+public class ClientConnectionHandler extends ExceptionSafeThread {
 
 	/**
 	 * The client socket
@@ -141,7 +142,7 @@ public class ClientConnectionHandler implements Runnable {
 	}
 	
 	@Override
-	public void run() {
+	public void runThread() {
 		try {
 			logger.debug("Handling new connection from: " + clientSocket.getInetAddress());
 
@@ -152,7 +153,7 @@ public class ClientConnectionHandler implements Runnable {
 			
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
 			logger.info("Closing connection to: {}", clientSocket.getInetAddress());
-		} catch (IOException e) {
+		} catch (IOException | PackageEncodeException e) {
 			// Ignore exception on closing sockets
 			if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 				
@@ -161,9 +162,7 @@ public class ClientConnectionHandler implements Runnable {
 				
 				logger.debug("Socket exception", e);
 			}
-		} catch(Throwable e) {
-			logger.error("Got an exception during connection handling: ", e);
-		}
+		} 
 				
 		closePackageHandlerNE();	
 		closeSocketNE();
