@@ -128,7 +128,8 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 					baseSize = experimentSize;
 				}
 				
-				System.out.format("%d\t%d\t%f\n", batchSize, experimentSize, (experimentSize / baseSize * 100.0));
+				final double ratio = (float) experimentSize / (float) baseSize * 100.0;
+				System.out.format("%d\t%d\t%f\n", batchSize, experimentSize, ratio);
 
 			} catch (ClassNotFoundException | IOException | PackageEncodeException e) {
 				logger.error("Exception while running experiment", e);
