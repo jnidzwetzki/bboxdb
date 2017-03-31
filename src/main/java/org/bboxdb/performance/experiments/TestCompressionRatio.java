@@ -124,7 +124,7 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 				
 				final long experimentSize = runExperiment(batchSize);
 				
-				if(baseSize == 0 && baseSize == -1) {
+				if(batchSize == 0 && baseSize == -1) {
 					baseSize = experimentSize;
 				}
 				
