@@ -254,5 +254,4 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 			logger.error("Got an exception during encoding", e);
 		}
 	}
-
 }

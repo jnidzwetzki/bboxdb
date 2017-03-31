@@ -24,6 +24,12 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
@@ -32,9 +38,29 @@ import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
+import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.TupleResponse;
+import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
+import org.bboxdb.network.server.handler.query.HandleBoundingBoxQuery;
+import org.bboxdb.network.server.handler.query.HandleBoundingBoxTimeQuery;
+import org.bboxdb.network.server.handler.query.HandleKeyQuery;
+import org.bboxdb.network.server.handler.query.HandleTimeQuery;
+import org.bboxdb.network.server.handler.query.QueryHandler;
+import org.bboxdb.network.server.handler.request.HandleCancelQuery;
+import org.bboxdb.network.server.handler.request.HandleCompression;
+import org.bboxdb.network.server.handler.request.HandleCreateDistributionGroup;
+import org.bboxdb.network.server.handler.request.HandleDeleteDistributionGroup;
+import org.bboxdb.network.server.handler.request.HandleDeleteTable;
+import org.bboxdb.network.server.handler.request.HandleDeleteTuple;
+import org.bboxdb.network.server.handler.request.HandleDisconnect;
+import org.bboxdb.network.server.handler.request.HandleHandshake;
+import org.bboxdb.network.server.handler.request.HandleInsertTuple;
+import org.bboxdb.network.server.handler.request.HandleKeepAlive;
+import org.bboxdb.network.server.handler.request.HandleListTables;
+import org.bboxdb.network.server.handler.request.HandleNextPage;
+import org.bboxdb.network.server.handler.request.RequestHandler;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.ExceptionSafeThread;
@@ -47,7 +73,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	/**
 	 * The client socket
 	 */
-	protected final Socket clientSocket;
+	public final Socket clientSocket;
 	
 	/**
 	 * The output stream of the socket
@@ -67,22 +93,43 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	/**
 	 * The state of the server (read only or read write)
 	 */
-	private final NetworkConnectionServiceState networkConnectionServiceState;
+	protected final NetworkConnectionServiceState networkConnectionServiceState;
 	
 	/**
 	 * The capabilities of the connection
 	 */
-	private PeerCapabilities connectionCapabilities = new PeerCapabilities();
+	protected PeerCapabilities connectionCapabilities = new PeerCapabilities();
 	
 	/**
-	 * The package handler
+	 * The open query iterators, i.e., the queries that are not finished and waiting
+	 * to send the next page
 	 */
-	protected final PackageHandler packageHandler = new PackageHandler(this);
+	private final Map<Short, ClientQuery> activeQueries;
+	
+	/**
+	 * The thread pool
+	 */
+	private final ThreadPoolExecutor threadPool;
+	
+	/**
+	 * The package router
+	 */
+	private final PackageRouter packageRouter;
+	
+	/**
+	 * Number of pending requests
+	 */
+	protected final static int PENDING_REQUESTS = 25;
+
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
+
+	private Map<Short, RequestHandler> requestHandlers;
+
+	private Map<Byte, QueryHandler> queryHandlerList;
 
 	public ClientConnectionHandler(final Socket clientSocket, final NetworkConnectionServiceState networkConnectionServiceState) {
 		
@@ -90,7 +137,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		this.clientSocket = clientSocket;
 		this.networkConnectionServiceState = networkConnectionServiceState;
 		
-		this.connectionState = NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING;
+		this.setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING);
 		
 		try {
 			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
@@ -98,9 +145,26 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		} catch (IOException e) {
 			inputStream = null;
 			outputStream = null;
-			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
+			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSED);
 			logger.error("Exception while creating IO stream", e);
 		}
+		
+		// The active queries
+		activeQueries = new HashMap<Short, ClientQuery>();
+		
+		// Create a thread pool that blocks after submitting more than PENDING_REQUESTS
+		final BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<Runnable>(PENDING_REQUESTS);
+		threadPool = new ThreadPoolExecutor(1, PENDING_REQUESTS/2, 30, TimeUnit.SECONDS, 
+				linkedBlockingDeque, new ThreadPoolExecutor.CallerRunsPolicy());
+		
+		// The package router
+		packageRouter = new PackageRouter(getThreadPool(), this);
+		
+		// Init the request handler map 
+		initRequestHandlerMap();
+		
+		// Init the query handler map
+		initQueryHandlerMap();
 	}
 
 	/**
@@ -146,38 +210,36 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		try {
 			logger.debug("Handling new connection from: " + clientSocket.getInetAddress());
 
-			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN ||
-					connectionState == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
+			while(getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_OPEN ||
+					getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
 				handleNextPackage(inputStream);
 			}
 			
-			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
+			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSED);
 			logger.info("Closing connection to: {}", clientSocket.getInetAddress());
 		} catch (IOException | PackageEncodeException e) {
 			// Ignore exception on closing sockets
-			if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			if(getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 				
 				logger.error("Socket to {} closed unexpectly (state: {}), closing connection",
-						clientSocket.getInetAddress(), connectionState);
+						clientSocket.getInetAddress(), getConnectionState());
 				
 				logger.debug("Socket exception", e);
 			}
 		} 
+		
+		getThreadPool().shutdown();
+		
+		// Close active query iterators
+		for(final ClientQuery clientQuery : getActiveQueries().values()) {
+			clientQuery.close();
+		}
+		
+		getActiveQueries().clear();	
 				
-		closePackageHandlerNE();	
 		closeSocketNE();
 	}
 
-	/**
-	 * Close the package handler without throwing an exception
-	 */
-	protected void closePackageHandlerNE() {
-		try {
-			packageHandler.close();
-		} catch (IOException e) {
-			// Ignore close exception
-		}
-	}
 
 	/**
 	 * Close the socket without throwing an exception
@@ -209,7 +271,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 			encodedPackage.put(packageHeader.array());
 			StreamHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
 		} catch (IOException e) {
-			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSING);
 			throw e;
 		}
 		
@@ -221,26 +283,26 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * @throws IOException
 	 * @throws PackageEncodeException 
 	 */
-	protected void handleNextPackage(final InputStream inputStream) throws IOException, PackageEncodeException {
+	public void handleNextPackage(final InputStream inputStream) throws IOException, PackageEncodeException {
 		final ByteBuffer packageHeader = readNextPackageHeader(inputStream);
 		
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(packageHeader);
 		
-		if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
+		if(getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
 			if(packageType != NetworkConst.REQUEST_TYPE_HELLO) {
 				logger.error("Connection is in handshake state but got package: " + packageType);
-				connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+				setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSING);
 				return;
 			}
 		}
 		
 		final ByteBuffer encodedPackage = readFullPackage(packageHeader, inputStream);
 
-		final boolean readFurtherPackages = packageHandler.handleBufferedPackage(encodedPackage, packageSequence, packageType);
+		final boolean readFurtherPackages = handleBufferedPackage(encodedPackage, packageSequence, packageType);
 
 		if(readFurtherPackages == false) {
-			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSING);
 		}	
 	}
 
@@ -250,7 +312,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * @param requestTable
 	 * @param tuple
 	 */
-	protected void writeResultTuple(final short packageSequence, final SSTableName requestTable, final Tuple tuple) {
+	public void writeResultTuple(final short packageSequence, final SSTableName requestTable, final Tuple tuple) {
 		final TupleResponse responsePackage = new TupleResponse(packageSequence, requestTable.getFullname(), tuple);
 		
 		if(getConnectionCapabilities().hasGZipCompression()) {
@@ -264,6 +326,135 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		}
 	}
 
+	/**
+	 * Handle query package
+	 * @param bb
+	 * @param packageSequence
+	 * @return
+	 */
+	protected boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) {
+	
+		final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
+
+		if(! queryHandlerList.containsKey(queryType)) {
+			logger.warn("Unsupported query type: " + queryType);
+			final ErrorResponse errorResponse = new ErrorResponse(packageSequence, 
+					ErrorMessages.ERROR_UNSUPPORTED_PACKAGE_TYPE);
+			writeResultPackage(errorResponse);
+			return false;
+		}
+		
+		final QueryHandler queryHandler = queryHandlerList.get(queryType);
+		queryHandler.handleQuery(encodedPackage, packageSequence, this);
+
+		return true;
+	}
+	
+	/**
+	 * Handle a buffered package
+	 * @param encodedPackage
+	 * @param packageSequence
+	 * @param packageType
+	 * @return
+	 * @throws IOException
+	 * @throws PackageEncodeException 
+	 */
+	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, 
+			final short packageSequence, 
+			final short packageType) throws PackageEncodeException {
+				
+		// Handle the different query types
+		if(packageType == NetworkConst.REQUEST_TYPE_QUERY) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("Got query package");
+			}
+			return handleQuery(encodedPackage, packageSequence);
+		}
+		
+
+		if(requestHandlers.containsKey(packageType)) {
+			final RequestHandler requestHandler = requestHandlers.get(packageType);
+			return requestHandler.handleRequest(encodedPackage, packageSequence, this);
+		} else {
+			logger.warn("Got unknown package type, closing connection: " + packageType);
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+			return false;
+		}
+	}
+
+	/**
+	 * Init the map with the package handlers
+	 * @return
+	 */
+	protected void initRequestHandlerMap() {
+		requestHandlers = new HashMap<>();
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_HELLO, new HandleHandshake());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_COMPRESSION, new HandleCompression());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_DISCONNECT, new HandleDisconnect());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_TABLE, new HandleDeleteTable());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_TUPLE, new HandleDeleteTuple());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_LIST_TABLES, new HandleListTables());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_INSERT_TUPLE, new HandleInsertTuple());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP, new HandleCreateDistributionGroup());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP, new HandleDeleteDistributionGroup());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_KEEP_ALIVE, new HandleKeepAlive());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_NEXT_PAGE, new HandleNextPage());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_CANCEL_QUERY, new HandleCancelQuery());
+	}
+	
+	/**
+	 * Init the query handler map
+	 */
+	protected void initQueryHandlerMap() {
+		queryHandlerList = new HashMap<>();
+		queryHandlerList.put(NetworkConst.REQUEST_QUERY_KEY, new HandleKeyQuery());
+		queryHandlerList.put(NetworkConst.REQUEST_QUERY_BBOX, new HandleBoundingBoxQuery());
+		queryHandlerList.put(NetworkConst.REQUEST_QUERY_TIME, new HandleTimeQuery());
+		queryHandlerList.put(NetworkConst.REQUEST_QUERY_BBOX_AND_TIME, new HandleBoundingBoxTimeQuery());
+	}
+
+	/**
+	 * Send next results for the given query
+	 * @param packageSequence
+	 * @param  
+	 */
+	public void sendNextResultsForQuery(final short packageSequence, final short querySequence) {
+			
+		if(! getActiveQueries().containsKey(querySequence)) {
+			logger.error("Unable to resume query {} - package {} - not found", querySequence, packageSequence);
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
+			return;
+		}
+		
+		final Runnable queryRunable = new ExceptionSafeThread() {
+
+			@Override
+			protected void runThread() {
+				final ClientQuery clientQuery = getActiveQueries().get(querySequence);
+				clientQuery.fetchAndSendNextTuples(packageSequence);
+				
+				if(clientQuery.isQueryDone()) {
+					logger.debug("Query {} is done, closing and removing iterator", querySequence);
+					clientQuery.close();
+					getActiveQueries().remove(querySequence);
+				}
+			}
+			
+			@Override
+			protected void afterExceptionHook() {
+				writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
+			}
+		};
+
+		// Submit the runnable to our pool
+		if(getThreadPool().isTerminating()) {
+			logger.warn("Thread pool is shutting down, don't execute query: {}", querySequence);
+			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
+		} else {
+			getThreadPool().submit(queryRunable);
+		}
+	}
+	
 	/**
 	 * Get the connection Capabilities
 	 * @return
@@ -286,5 +477,25 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 */
 	public NetworkConnectionServiceState getNetworkConnectionServiceState() {
 		return networkConnectionServiceState;
+	}
+
+	public NetworkConnectionState getConnectionState() {
+		return connectionState;
+	}
+
+	public void setConnectionState(NetworkConnectionState connectionState) {
+		this.connectionState = connectionState;
+	}
+
+	public Map<Short, ClientQuery> getActiveQueries() {
+		return activeQueries;
+	}
+
+	public ThreadPoolExecutor getThreadPool() {
+		return threadPool;
+	}
+
+	public PackageRouter getPackageRouter() {
+		return packageRouter;
 	}
 }
