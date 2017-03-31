@@ -100,6 +100,8 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 
 	@Override
 	public void run() {
+		long baseSize = -1;
+		
 		System.out.format("Importing %s\n", filename);
 		final OSMFileReader osmFileReader = new OSMFileReader(filename, osmType, this);
 		osmFileReader.run();
@@ -115,11 +117,19 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 				20, 30, 40, 50, 60, 70, 80, 90, 100);
 		
-		System.out.println("Bachsize\tDatasize");
+		System.out.println("Bachsize\tDatasize\tRatio");
 		
 		for(final Integer batchSize : bachSizes) {
 			try {
-				runExperiment(batchSize);
+				
+				final long experimentSize = runExperiment(batchSize);
+				
+				if(baseSize == 0 && baseSize == -1) {
+					baseSize = experimentSize;
+				}
+				
+				System.out.format("%d\t%d\t%f\n", batchSize, experimentSize, (experimentSize / baseSize * 100.0));
+
 			} catch (ClassNotFoundException | IOException | PackageEncodeException e) {
 				logger.error("Exception while running experiment", e);
 			}
@@ -130,16 +140,16 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 	/**
 	 * Run the experiment with the given batch size
 	 * @param batchSize
+	 * @return 
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 * @throws PackageEncodeException 
 	 */
-	protected void runExperiment(final Integer batchSize) throws ClassNotFoundException, IOException, PackageEncodeException {
+	protected long runExperiment(final Integer batchSize) throws ClassNotFoundException, IOException, PackageEncodeException {
 		final SSTableName tableName = new SSTableName("2_group1_table1");
 		long totalSize = 0;
 		
 		final List<Tuple> buffer = new ArrayList<>();
-
 
 		for(final Long id : nodeMap.keySet()) {
 			final byte[] elementBytes = nodeMap.get(id);
@@ -156,8 +166,8 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 				buffer.add(tuple);
 			}
 		}
-		
-		System.out.format("%d\t%d\n", batchSize, totalSize);
+
+		return totalSize;
 	}
 
 	/**
