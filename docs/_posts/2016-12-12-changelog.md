@@ -12,6 +12,7 @@ order: 1
 - Improvement: Switched tuple timestamps from milliseconds to microseconds
 - Improvement: Added water OSM entity filter
 - Improvement: Speed up the OSM importer by using a new node serializer 
+- Improvement: Updated to org.yaml 1.18 (from 1.17) / Mockito 2.7.19 (from 2.7.5)
 
 ### Version 0.2.2 (Stable) - 23.03.2017
 - New Feature: Added start option for remote debuging
