@@ -49,7 +49,7 @@ public class FutureImplementation<T> {
 	protected volatile boolean done = false;
 	
 	/**
-	 * Additionmal message
+	 * Additional message
 	 */
 	protected String message;
 	
