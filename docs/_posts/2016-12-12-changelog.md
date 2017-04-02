@@ -8,12 +8,13 @@ order: 1
 ### Version 0.2.3 (Stable) - TBA
 - New Feature: Futures now store the completion time 
 - New Feature: Introduced the tuple deletion without timestamp method in API
-- New Feature: Changed the format of the compressed envelopes to support multi package compression
+- New Feature: Changed the format of the compressed envelopes to support multi-package compression
 - Improvement: Enabled paging as default setting (50 tuples per page)
 - Improvement: Switched tuple timestamps from milliseconds to microseconds
 - Improvement: Added water OSM entity filter
 - Improvement: Speed up the OSM importer by using a new node serializer 
 - Improvement: Updated to org.yaml 1.18 (from 1.17) / Mockito 2.7.19 (from 2.7.5)
+- Improvement: Refactored the server side network package handling
 
 ### Version 0.2.2 (Stable) - 23.03.2017
 - New Feature: Added start option for remote debuging
