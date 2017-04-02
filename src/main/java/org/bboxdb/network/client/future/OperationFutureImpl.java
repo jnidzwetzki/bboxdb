@@ -214,4 +214,9 @@ public class OperationFutureImpl<T> implements OperationFuture {
 		futures.addAll(result.futures);
 	}
 
+	@Override
+	public long getCompletionTime() {
+		return futures.stream().mapToLong(f -> f.getCompletionTime()).sum();
+	}
+
 }

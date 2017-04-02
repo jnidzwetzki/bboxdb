@@ -54,10 +54,20 @@ public class FutureImplementation<T> {
 	protected String message;
 	
 	/**
+	 * The future start time
+	 */
+	protected final long startTime;
+	
+	/**
+	 * The future completion time
+	 */
+	protected long completionTime;
+	
+	/**
 	 * Empty constructor
 	 */
 	public FutureImplementation() {
-		
+		startTime = System.nanoTime();
 	}
 	
 	/**
@@ -65,6 +75,7 @@ public class FutureImplementation<T> {
 	 * @param requestId
 	 */
 	public FutureImplementation(final short requestId) {
+		this();
 		this.requestId = requestId;
 	}
 
@@ -178,6 +189,7 @@ public class FutureImplementation<T> {
 	public void fireCompleteEvent() {
 		
 		done = true;
+		completionTime = System.nanoTime();
 		
 		synchronized (mutex) {
 			mutex.notifyAll();
@@ -206,6 +218,18 @@ public class FutureImplementation<T> {
 				+ ", operationResult=" + operationResult + ", mutex=" + mutex
 				+ ", failed=" + failed + ", done=" + done + ", message="
 				+ message + "]";
+	}
+	
+	/**
+	 * Get the elapsed time in nanoseconds for task completion
+	 * @return
+	 */
+	public long getCompletionTime() {
+		if (! isDone()) {
+			throw new IllegalArgumentException("The future is not done. Unable to calculate completion time");
+		}
+		
+		return completionTime - startTime;
 	}
 	
 }

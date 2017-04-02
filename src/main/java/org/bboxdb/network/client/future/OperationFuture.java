@@ -96,6 +96,11 @@ public interface OperationFuture {
 	 */
 	public boolean waitForAll(final long timeout, final TimeUnit unit) 
 			throws InterruptedException, TimeoutException;
+	
+	/**
+	 * Get the time for completing the task
+	 */
+	public long getCompletionTime();
 
 	/**
 	 * Fire the completion event
