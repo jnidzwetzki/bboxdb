@@ -19,9 +19,7 @@ package org.bboxdb.performance.osm;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.performance.osm.util.Polygon;
@@ -65,7 +63,7 @@ public class OSMMultiPointSink implements Sink {
 	/**
 	 * A set of all required nodes
 	 */
-	protected Set<Long> requiredNodes = new HashSet<>();
+	protected Map<Long, Long> requiredNodesMap;
 	
 	protected OSMMultiPointSink(final OSMTagEntityFilter entityFilter, 
 			final OSMStructureCallback structureCallback) {
@@ -90,6 +88,12 @@ public class OSMMultiPointSink implements Sink {
 					.hashMap("osm-id-map")
 					.keySerializer(Serializer.LONG)
 			        .valueSerializer(Serializer.BYTE_ARRAY)
+			        .create();
+			
+			this.requiredNodesMap = db
+					.hashMap("osm-nodes")
+					.keySerializer(Serializer.LONG)
+			        .valueSerializer(Serializer.LONG)
 			        .create();
 			
 		} catch (IOException e) {
@@ -127,7 +131,7 @@ public class OSMMultiPointSink implements Sink {
 		final Node node = (Node) entityContainer.getEntity();
 		
 		if(operationMode == OSMMultiPointMode.PROCESSING) {
-			if(requiredNodes.contains(node.getId())) {
+			if(requiredNodesMap.values().contains(node.getId())) {
 				final SerializableNode serializableNode = new SerializableNode(node);
 				nodeMap.put(node.getId(), serializableNode.toByteArray());
 			}
@@ -146,7 +150,7 @@ public class OSMMultiPointSink implements Sink {
 			// Store only required nodes
 			if(operationMode == OSMMultiPointMode.PREPROCESSING) {
 				for(final WayNode wayNode : way.getWayNodes()) {
-					requiredNodes.add(wayNode.getNodeId());
+					requiredNodesMap.put(wayNode.getNodeId(), wayNode.getNodeId());
 				}
 			} else {
 				// Handle way
