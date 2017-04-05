@@ -26,6 +26,7 @@ import java.util.Map;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class Polygon implements Serializable {
 
@@ -117,14 +118,13 @@ public class Polygon implements Serializable {
 	 * @return
 	 */
 	public String toGeoJson() {
-
 		final JSONObject featureJson = new JSONObject();
 		featureJson.put("type", "Feature");
 		featureJson.put("id", id);
 
 		final JSONObject geometryJson = new JSONObject();
-
 		final JSONArray coordinateJson = new JSONArray();
+		
 		geometryJson.put("coordinates", coordinateJson);
 		featureJson.put("geometry", geometryJson);
 
@@ -153,6 +153,85 @@ public class Polygon implements Serializable {
 		}
 
 		return featureJson.toString(3);
+	}
+	
+	/**
+	 * Import an object from GeoJSON
+	 * @return
+	 */
+	public static Polygon fromGeoJson(final String jsonData) {
+		final JSONTokener tokener = new JSONTokener(jsonData);
+		final JSONObject jsonObject = new JSONObject(tokener);
+		final Long objectId = jsonObject.getLong("id");
+
+		final Polygon polygon = new Polygon(objectId);
+		
+		// Geometry
+		final JSONObject geometry = jsonObject.getJSONObject("geometry");
+		final JSONArray coordinates = geometry.getJSONArray("coordinates");
+				
+		if(coordinates.length() == 2 && coordinates.optJSONArray(0) == null) {
+			// Point
+			final double coordiante0 = coordinates.getDouble(0);
+			final double coordiante1 = coordinates.getDouble(1);
+			polygon.addPoint(coordiante0, coordiante1);
+		} else if(coordinates.length() > 1) {
+			// Polygon
+			for(int i = 0; i < coordinates.length(); i++) {
+				final JSONArray jsonArray = coordinates.getJSONArray(i);
+				final double coordiante0 = jsonArray.getDouble(0);
+				final double coordiante1 = jsonArray.getDouble(1);
+				polygon.addPoint(coordiante0, coordiante1);
+			}
+		}
+		
+		// Properties
+		final JSONObject properties = jsonObject.getJSONObject("properties");
+		for(final String key : properties.keySet()) {
+			final String value = properties.getString(key);
+			polygon.addProperty(key, value);
+		}
+		
+		return polygon;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + ((pointList == null) ? 0 : pointList.hashCode());
+		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Polygon other = (Polygon) obj;
+		if (id != other.id)
+			return false;
+		if (pointList == null) {
+			if (other.pointList != null)
+				return false;
+		} else if (!pointList.equals(other.pointList))
+			return false;
+		if (properties == null) {
+			if (other.properties != null)
+				return false;
+		} else if (!properties.equals(other.properties))
+			return false;
+		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return "Polygon [id=" + id + ", pointList=" + pointList + ", properties=" + properties + "]";
 	}
 
 	//=====================================================
