@@ -31,6 +31,36 @@ import org.json.JSONTokener;
 public class Polygon implements Serializable {
 
 	/**
+	 * The JSON constant for ID
+	 */
+	protected static final String JSON_ID = "id";
+	
+	/**
+	 * The JSON constant for type
+	 */
+	protected static final String JSON_TYPE = "type";
+	
+	/**
+	 * The JSON constant for properties
+	 */
+	protected static final String JSON_PROPERTIES = "properties";
+	
+	/**
+	 * The JSON constant for geometry
+	 */
+	protected static final String JSON_GEOMETRY = "geometry";
+	
+	/**
+	 * The JSON constant for coordinates
+	 */
+	protected static final String JSON_COORDINATES = "coordinates";
+	
+	/**
+	 * The JSON constant for Feature
+	 */
+	protected static final String JSON_FEATURE = "Feature";
+
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -25587980224359866L;
@@ -119,23 +149,23 @@ public class Polygon implements Serializable {
 	 */
 	public String toGeoJson() {
 		final JSONObject featureJson = new JSONObject();
-		featureJson.put("type", "Feature");
-		featureJson.put("id", id);
+		featureJson.put(JSON_TYPE, JSON_FEATURE);
+		featureJson.put(JSON_ID, id);
 
 		final JSONObject geometryJson = new JSONObject();
 		final JSONArray coordinateJson = new JSONArray();
 		
-		geometryJson.put("coordinates", coordinateJson);
-		featureJson.put("geometry", geometryJson);
+		geometryJson.put(JSON_COORDINATES, coordinateJson);
+		featureJson.put(JSON_GEOMETRY, geometryJson);
 
 		if(pointList.isEmpty()) {
 			// Nothing to add
 		} else if(pointList.size() == 1) {
-			geometryJson.put("type", "Point");
+			geometryJson.put(JSON_TYPE, "Point");
 			coordinateJson.put(pointList.get(0).getX());
 			coordinateJson.put(pointList.get(0).getY());
 		} else {
-			geometryJson.put("type", "Polygon");
+			geometryJson.put(JSON_TYPE, "Polygon");
 			
 			for(OSMPoint point : pointList) {
 				final JSONArray coordinatesJson = new JSONArray();
@@ -147,7 +177,7 @@ public class Polygon implements Serializable {
 		}
 
 		final JSONObject propertiesJson = new JSONObject();
-		featureJson.put("properties", propertiesJson);
+		featureJson.put(JSON_PROPERTIES, propertiesJson);
 		for(final String key : properties.keySet()) {
 			propertiesJson.put(key, properties.get(key));
 		}
@@ -162,13 +192,13 @@ public class Polygon implements Serializable {
 	public static Polygon fromGeoJson(final String jsonData) {
 		final JSONTokener tokener = new JSONTokener(jsonData);
 		final JSONObject jsonObject = new JSONObject(tokener);
-		final Long objectId = jsonObject.getLong("id");
+		final Long objectId = jsonObject.getLong(JSON_ID);
 
 		final Polygon polygon = new Polygon(objectId);
 		
 		// Geometry
-		final JSONObject geometry = jsonObject.getJSONObject("geometry");
-		final JSONArray coordinates = geometry.getJSONArray("coordinates");
+		final JSONObject geometry = jsonObject.getJSONObject(JSON_GEOMETRY);
+		final JSONArray coordinates = geometry.getJSONArray(JSON_COORDINATES);
 				
 		if(coordinates.length() == 2 && coordinates.optJSONArray(0) == null) {
 			// Point
@@ -186,7 +216,7 @@ public class Polygon implements Serializable {
 		}
 		
 		// Properties
-		final JSONObject properties = jsonObject.getJSONObject("properties");
+		final JSONObject properties = jsonObject.getJSONObject(JSON_PROPERTIES);
 		for(final String key : properties.keySet()) {
 			final String value = properties.getString(key);
 			polygon.addProperty(key, value);
