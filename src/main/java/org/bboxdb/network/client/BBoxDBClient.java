@@ -72,7 +72,6 @@ import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.util.ExceptionSafeThread;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.StreamHelper;
 import org.slf4j.Logger;
@@ -144,12 +143,6 @@ public class BBoxDBClient implements BBoxDB {
 	 * The default timeout
 	 */
 	protected static final long DEFAULT_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
-
-	/**
-	 * If no data was send for keepAliveTime, a keep alive package is send to the 
-	 * server to keep the tcp connection open
-	 */
-	protected long keepAliveTime = TimeUnit.SECONDS.toMillis(30);
 	
 	/**
 	 * The connection state
@@ -171,11 +164,6 @@ public class BBoxDBClient implements BBoxDB {
 	 * The capabilities of the client
 	 */
 	protected PeerCapabilities clientCapabilities = new PeerCapabilities();
-	
-	/**
-	 * The timestamp when the last data was send (useful for sending keep alive packages)
-	 */
-	protected long lastDataSendTimestamp = 0;
 	
 	/**
 	 * Is the paging for queries enabled?
@@ -238,7 +226,7 @@ public class BBoxDBClient implements BBoxDB {
 			resultBuffer.clear();
 			
 			// Start up the response reader
-			serverResponseReader = new ServerResponseReader();
+			serverResponseReader = new ServerResponseReader(this);
 			serverResponseReaderThread = new Thread(serverResponseReader);
 			serverResponseReaderThread.setName("Server response reader for " + getConnectionName());
 			serverResponseReaderThread.start();
@@ -303,7 +291,7 @@ public class BBoxDBClient implements BBoxDB {
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 		logger.info("Handshaking with " + getConnectionName() + " done");
 		
-		mainteinanceHandler = new ConnectionMainteinanceThread();
+		mainteinanceHandler = new ConnectionMainteinanceThread(this);
 		mainteinanceThread = new Thread(mainteinanceHandler);
 		mainteinanceThread.setName("Connection mainteinace thread for: " + getConnectionName());
 		mainteinanceThread.start();
@@ -792,8 +780,7 @@ public class BBoxDBClient implements BBoxDB {
 				outputStream.flush();
 			}
 			
-			lastDataSendTimestamp = System.currentTimeMillis();
-			
+			mainteinanceHandler.updateLastDataSendTimestamp();
 		} catch (IOException | PackageEncodeException e) {
 			logger.warn("Got an exception while sending package to server", e);
 			future.setFailedState();
@@ -815,184 +802,82 @@ public class BBoxDBClient implements BBoxDB {
 		return sequenceNumber;
 	}
 	
-	class ConnectionMainteinanceThread extends ExceptionSafeThread {
+	/**
+	 * Handle the next result package
+	 * @param packageHeader
+	 * @throws PackageEncodeException 
+	 */
+	protected void handleResultPackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
+		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
+		final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
 
-		@Override
-		protected void beginHook() {
-			logger.debug("Starting connection mainteinance thread for: " + getConnectionName());
-		}
+		OperationFuture pendingCall = null;
+		boolean removeFuture = true;
 		
-		@Override
-		protected void endHook() {
-			logger.debug("Mainteinance thread for: " + getConnectionName() + " has terminated");
+		synchronized (pendingCalls) {
+			pendingCall = pendingCalls.get(Short.valueOf(sequenceNumber));
 		}
-		
-		@Override
-		public void runThread() {
 
-			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-				if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
-					sendKeepAlivePackage();
-					try {
-						Thread.sleep(10000);
-					} catch (InterruptedException e) {
-						// Handle InterruptedException directly
-						return;
-					}
-				}
-			}
+		switch(packageType) {
+		
+			case NetworkConst.RESPONSE_TYPE_COMPRESSION:
+				removeFuture = false;
+				handleCompression(encodedPackage);
+			break;
 			
+			case NetworkConst.RESPONSE_TYPE_HELLO:
+				handleHello(encodedPackage, (HelloFuture) pendingCall);
+			break;
+				
+			case NetworkConst.RESPONSE_TYPE_SUCCESS:
+				handleSuccess(encodedPackage, pendingCall);
+				break;
+				
+			case NetworkConst.RESPONSE_TYPE_ERROR:
+				handleError(encodedPackage, pendingCall);
+				break;
+				
+			case NetworkConst.RESPONSE_TYPE_LIST_TABLES:
+				handleListTables(encodedPackage, (SSTableNameListFuture) pendingCall);
+				break;
+				
+			case NetworkConst.RESPONSE_TYPE_TUPLE:
+				// The removal of the future depends, if this is a one
+				// tuple result or a multiple tuple result
+				removeFuture = handleTuple(encodedPackage, (TupleListFuture) pendingCall);
+				break;
+				
+			case NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_START:
+				handleMultiTupleStart(encodedPackage);
+				removeFuture = false;
+				break;
+				
+			case NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END:
+				handleMultiTupleEnd(encodedPackage, (TupleListFuture) pendingCall);
+				break;
+				
+			case NetworkConst.RESPONSE_TYPE_PAGE_END:
+				handlePageEnd(encodedPackage, (TupleListFuture) pendingCall);
+				break;
+				
+			default:
+				logger.error("Unknown respose package type: " + packageType);
+				
+				if(pendingCall != null) {
+					pendingCall.setFailedState();
+					pendingCall.fireCompleteEvent();
+				}
+		}
+		
+		// Remove pending call
+		if(removeFuture) {
+			synchronized (pendingCalls) {
+				pendingCalls.remove(Short.valueOf(sequenceNumber));
+				pendingCalls.notifyAll();
+			}
 		}
 	}
 	
-	/**
-	 * Read the server response packages
-	 *
-	 */
-	class ServerResponseReader implements Runnable {
-		
-		/**
-		 * Read the next response package header from the server
-		 * @return 
-		 * @throws IOException 
-		 */
-		protected ByteBuffer readNextResponsePackageHeader(final InputStream inputStream) throws IOException {
-			final ByteBuffer bb = ByteBuffer.allocate(12);
-			StreamHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
-			return bb;
-		}
-		
-		/**
-		 * Process the next server answer
-		 */
-		protected boolean processNextResponsePackage(final InputStream inputStream) {
-			try {
-				final ByteBuffer bb = readNextResponsePackageHeader(inputStream);
-				
-				if(bb == null) {
-					// Ignore exceptions when connection is closing
-					if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-						logger.error("Read error from socket, exiting");
-					}
-					return false;
-				}
-				
-				final ByteBuffer encodedPackage = readFullPackage(bb, inputStream);
-				handleResultPackage(encodedPackage);
-				
-			} catch (IOException | PackageEncodeException e) {
-				
-				// Ignore exceptions when connection is closing
-				if(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-					logger.error("Unable to read data from server (state: " + connectionState + ")", e);
-					return false;
-				}
-			}
-			
-			return true;
-		}
-
-		/**
-		 * Handle the next result package
-		 * @param packageHeader
-		 * @throws PackageEncodeException 
-		 */
-		protected void handleResultPackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
-			final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
-			final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
-
-			OperationFuture pendingCall = null;
-			boolean removeFuture = true;
-			
-			synchronized (pendingCalls) {
-				pendingCall = pendingCalls.get(Short.valueOf(sequenceNumber));
-			}
-
-			switch(packageType) {
-			
-				case NetworkConst.RESPONSE_TYPE_COMPRESSION:
-					removeFuture = false;
-					handleCompression(encodedPackage);
-				break;
-				
-				case NetworkConst.RESPONSE_TYPE_HELLO:
-					handleHello(encodedPackage, (HelloFuture) pendingCall);
-				break;
-					
-				case NetworkConst.RESPONSE_TYPE_SUCCESS:
-					handleSuccess(encodedPackage, pendingCall);
-					break;
-					
-				case NetworkConst.RESPONSE_TYPE_ERROR:
-					handleError(encodedPackage, pendingCall);
-					break;
-					
-				case NetworkConst.RESPONSE_TYPE_LIST_TABLES:
-					handleListTables(encodedPackage, (SSTableNameListFuture) pendingCall);
-					break;
-					
-				case NetworkConst.RESPONSE_TYPE_TUPLE:
-					// The removal of the future depends, if this is a one
-					// tuple result or a multiple tuple result
-					removeFuture = handleTuple(encodedPackage, (TupleListFuture) pendingCall);
-					break;
-					
-				case NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_START:
-					handleMultiTupleStart(encodedPackage);
-					removeFuture = false;
-					break;
-					
-				case NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END:
-					handleMultiTupleEnd(encodedPackage, (TupleListFuture) pendingCall);
-					break;
-					
-				case NetworkConst.RESPONSE_TYPE_PAGE_END:
-					handlePageEnd(encodedPackage, (TupleListFuture) pendingCall);
-					break;
-					
-				default:
-					logger.error("Unknown respose package type: " + packageType);
-					
-					if(pendingCall != null) {
-						pendingCall.setFailedState();
-						pendingCall.fireCompleteEvent();
-					}
-			}
-			
-			// Remove pending call
-			if(removeFuture) {
-				synchronized (pendingCalls) {
-					pendingCalls.remove(Short.valueOf(sequenceNumber));
-					pendingCalls.notifyAll();
-				}
-			}
-		}
-
-		/**
-		 * Kill pending calls
-		 */
-		protected void handleSocketClosedUnexpected() {
-			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED_WITH_ERRORS;
-			killPendingCalls();
-		}
-
-		@Override
-		public void run() {
-			logger.info("Started new response reader for " + getConnectionName());
-			
-			while(clientSocket != null) {
-				boolean result = processNextResponsePackage(inputStream);
-				
-				if(result == false) {
-					handleSocketClosedUnexpected();
-					break;
-				}
-				
-			}
-			
-			logger.info("Stopping new response reader for " + getConnectionName());
-		}
-	}
 
 	/**
 	 * Read the full package
@@ -1224,14 +1109,6 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public PeerCapabilities getClientCapabilities() {
 		return clientCapabilities;
-	}
-	
-	/**
-	 * The the timestamp when the last data was send to the server
-	 * @return
-	 */
-	public long getLastDataSendTimestamp() {
-		return lastDataSendTimestamp;
 	}
 
 	/**
