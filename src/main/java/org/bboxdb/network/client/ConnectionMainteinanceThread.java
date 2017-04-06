@@ -38,9 +38,10 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 	protected final long keepAliveTime = TimeUnit.SECONDS.toMillis(30);
 	
 	/**
-	 * The thread wakeup time
+	 * The thread wakeup time (100 ms) to flush the pending compression packages
+	 * to the server
 	 */
-	protected final long THREAD_WAKEUP = TimeUnit.SECONDS.toMillis(10);
+	protected final long THREAD_WAKEUP = 100;
 
 	/**
 	 * The BBOXDB Client
@@ -70,6 +71,10 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 	public void runThread() {
 
 		while(bboxDBClient.connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			
+			// Write all waiting for compression packages
+			bboxDBClient.flushPendingCompressionPackages();
+			
 			if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
 				bboxDBClient.sendKeepAlivePackage();
 				try {

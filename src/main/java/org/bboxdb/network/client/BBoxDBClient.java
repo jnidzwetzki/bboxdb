@@ -176,6 +176,11 @@ public class BBoxDBClient implements BBoxDB {
 	protected short tuplesPerPage;
 	
 	/**
+	 * The pending packages for compression
+	 */
+	protected final List<NetworkRequestPackage> pendingCompressionPackages;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBClient.class);
@@ -193,6 +198,7 @@ public class BBoxDBClient implements BBoxDB {
 		
 		pagingEnabled = true;
 		tuplesPerPage = 50;
+		pendingCompressionPackages = new ArrayList<>();
 	}
 	
 	public BBoxDBClient(final InetSocketAddress address) {
@@ -449,26 +455,9 @@ public class BBoxDBClient implements BBoxDB {
 		final short sequenceNumber = getNextSequenceNumber();
 		
 		final InsertTupleRequest requestPackage = new InsertTupleRequest(sequenceNumber, ssTableName, tuple);
-		
-		if(connectionCapabilities.hasGZipCompression()) {
-			final List<NetworkRequestPackage> requestPackages = new ArrayList<>();
-			requestPackages.add(requestPackage);
-			
-			final CompressionEnvelopeRequest compressionEnvelopeRequest 
-				= new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, 
-						requestPackages);
-			
-			for(final NetworkRequestPackage myPackage: requestPackages) {
-				registerPackageCallback(myPackage, clientOperationFuture);
-			}
-			
-			sendPackageToServer(compressionEnvelopeRequest, clientOperationFuture);
-			
-		} else {
-			registerPackageCallback(requestPackage, clientOperationFuture);
-			sendPackageToServer(requestPackage, clientOperationFuture);
-		}
-		
+		registerPackageCallback(requestPackage, clientOperationFuture);
+		sendPackageToServer(requestPackage, clientOperationFuture);
+
 		return clientOperationFuture;
 	}
 	
@@ -773,8 +762,82 @@ public class BBoxDBClient implements BBoxDB {
 			Thread.currentThread().interrupt();
 			return;
 		}
-				
-		try {		
+		
+		if(connectionCapabilities.hasGZipCompression()) {
+			writePackageWithCompression(requestPackage, future);
+		} else {
+			writePackageUncompressed(requestPackage, future);
+		}
+	}
+
+	/**
+	 * Write a package uncompresssed to the socket
+	 * @param requestPackage
+	 * @param future
+	 */
+	protected void writePackageUncompressed(final NetworkRequestPackage requestPackage, 
+			final OperationFuture future) {
+		
+		try {	
+			writePackageToSocket(requestPackage);
+		} catch (IOException | PackageEncodeException e) {
+			logger.warn("Got an exception while sending package to server", e);
+			future.setFailedState();
+			future.fireCompleteEvent();
+		}
+	}
+
+	/**
+	 * Handle compression and package chunking
+	 * @param requestPackage
+	 * @param future
+	 */
+	protected void writePackageWithCompression(NetworkRequestPackage requestPackage, OperationFuture future) {
+		synchronized (pendingCompressionPackages) {
+			pendingCompressionPackages.add(requestPackage);
+		}
+	}
+	
+	/**
+	 * Write all pending compression packages to server, called by the maintainance thread
+	 * 
+	 */
+	protected void flushPendingCompressionPackages() {
+		
+		final List<NetworkRequestPackage> packagesToWrite = new ArrayList<>();
+		
+		synchronized (pendingCompressionPackages) {
+			if(pendingCompressionPackages.isEmpty()) {
+				return;
+			}
+			
+			packagesToWrite.addAll(pendingCompressionPackages);
+			pendingCompressionPackages.clear();
+		}
+			
+		if(logger.isDebugEnabled()) {
+			logger.debug("Chunk size is: {}", packagesToWrite.size());
+		}
+		
+		final NetworkRequestPackage compressionEnvelopeRequest 
+			= new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
+		
+		try {
+			writePackageToSocket(compressionEnvelopeRequest);
+		} catch (PackageEncodeException | IOException e) {
+			logger.error("Got an exception while write pending compression packages to server", e);
+		}
+	}
+	
+	/**
+	 * Write the package onto the socket
+	 * @param requestPackage
+	 * @throws PackageEncodeException
+	 * @throws IOException
+	 */
+	protected void writePackageToSocket(final NetworkRequestPackage requestPackage) 
+			throws PackageEncodeException, IOException {
+			
 			synchronized (outputStream) {
 				requestPackage.writeToOutputStream(outputStream);
 				outputStream.flush();
@@ -784,11 +847,6 @@ public class BBoxDBClient implements BBoxDB {
 			if(mainteinanceHandler != null) {
 				mainteinanceHandler.updateLastDataSendTimestamp();
 			}
-		} catch (IOException | PackageEncodeException e) {
-			logger.warn("Got an exception while sending package to server", e);
-			future.setFailedState();
-			future.fireCompleteEvent();
-		}
 		
 	}
 
