@@ -72,6 +72,7 @@ import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.ExceptionSafeThread;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.StreamHelper;
 import org.slf4j.Logger;
@@ -132,12 +133,12 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * The keep alive handler instance
 	 */
-	protected KeepAliveHandler keepAliveHandler;
+	protected ConnectionMaintainanceThread maintainanceHandler;
 	
 	/**
 	 * The keep alive thread
 	 */
-	protected Thread keepAliveThread;
+	protected Thread maintainanceThread;
 	
 	/**
 	 * The default timeout
@@ -302,10 +303,10 @@ public class BBoxDBClient implements BBoxDB {
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 		logger.info("Handshaking with " + getConnectionName() + " done");
 		
-		keepAliveHandler = new KeepAliveHandler();
-		keepAliveThread = new Thread(keepAliveHandler);
-		keepAliveThread.setName("Keep alive thread for: " + serverHostname + " / " + serverPort);
-		keepAliveThread.start();
+		maintainanceHandler = new ConnectionMaintainanceThread();
+		maintainanceThread = new Thread(maintainanceHandler);
+		maintainanceThread.setName("Connection maintainace thread for: " + getConnectionName());
+		maintainanceThread.start();
 	}
 	
 	/* (non-Javadoc)
@@ -814,11 +815,20 @@ public class BBoxDBClient implements BBoxDB {
 		return sequenceNumber;
 	}
 	
-	class KeepAliveHandler implements Runnable {
+	class ConnectionMaintainanceThread extends ExceptionSafeThread {
 
 		@Override
-		public void run() {
-			logger.debug("Starting keep alive thread for: " + serverHostname + " / " + serverPort);
+		protected void beginHook() {
+			logger.debug("Starting connection maintainance thread for: " + getConnectionName());
+		}
+		
+		@Override
+		protected void endHook() {
+			logger.debug("Maintainance thread for: " + getConnectionName() + " has terminated");
+		}
+		
+		@Override
+		public void runThread() {
 
 			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 				if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
@@ -827,12 +837,11 @@ public class BBoxDBClient implements BBoxDB {
 						Thread.sleep(10000);
 					} catch (InterruptedException e) {
 						// Handle InterruptedException directly
-						break;
+						return;
 					}
 				}
 			}
 			
-			logger.debug("Keep alive thread for: " + serverHostname + " / " + serverPort + " has terminated");
 		}
 	}
 	
@@ -969,7 +978,7 @@ public class BBoxDBClient implements BBoxDB {
 
 		@Override
 		public void run() {
-			logger.info("Started new response reader for " + serverHostname + " / " + serverPort);
+			logger.info("Started new response reader for " + getConnectionName());
 			
 			while(clientSocket != null) {
 				boolean result = processNextResponsePackage(inputStream);
@@ -981,7 +990,7 @@ public class BBoxDBClient implements BBoxDB {
 				
 			}
 			
-			logger.info("Stopping new response reader for " + serverHostname + " / " + serverPort);
+			logger.info("Stopping new response reader for " + getConnectionName());
 		}
 	}
 
