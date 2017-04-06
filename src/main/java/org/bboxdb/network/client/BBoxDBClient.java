@@ -25,7 +25,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +40,16 @@ import org.bboxdb.network.client.future.HelloFuture;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.client.response.CompressionHandler;
+import org.bboxdb.network.client.response.ErrorHandler;
+import org.bboxdb.network.client.response.HelloHandler;
+import org.bboxdb.network.client.response.ListTablesHandler;
+import org.bboxdb.network.client.response.MultipleTupleEndHandler;
+import org.bboxdb.network.client.response.MultipleTupleStartHandler;
+import org.bboxdb.network.client.response.PageEndHandler;
+import org.bboxdb.network.client.response.ServerResponseHandler;
+import org.bboxdb.network.client.response.SuccessHandler;
+import org.bboxdb.network.client.response.TupleHandler;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CancelQueryRequest;
@@ -59,16 +68,7 @@ import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.request.QueryTimeRequest;
-import org.bboxdb.network.packages.response.AbstractBodyResponse;
-import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
-import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.HelloResponse;
-import org.bboxdb.network.packages.response.ListTablesResponse;
-import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
-import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
-import org.bboxdb.network.packages.response.PageEndResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
-import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -117,12 +117,12 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * The result buffer
 	 */
-	protected final Map<Short, List<Tuple>> resultBuffer = new HashMap<Short, List<Tuple>>();
+	private final Map<Short, List<Tuple>> resultBuffer = new HashMap<Short, List<Tuple>>();
 	
 	/**
 	 * The server response reader
 	 */
-	protected ServerResponseReader serverResponseReader;
+	private ServerResponseReader serverResponseReader;
 	
 	/**
 	 * The server response reader thread
@@ -179,15 +179,18 @@ public class BBoxDBClient implements BBoxDB {
 	 * The pending packages for compression
 	 */
 	protected final List<NetworkRequestPackage> pendingCompressionPackages;
-	
+
+	/**
+	 * The Server response handler
+	 */
+	protected final Map<Short, ServerResponseHandler> serverResponseHandler;
+
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBClient.class);
 
-
 	public BBoxDBClient(final String serverHostname, final int serverPort) {
-		super();
 		this.serverHostname = serverHostname;
 		this.serverPort = serverPort;
 		this.sequenceNumberGenerator = new SequenceNumberGenerator();
@@ -199,12 +202,26 @@ public class BBoxDBClient implements BBoxDB {
 		pagingEnabled = true;
 		tuplesPerPage = 50;
 		pendingCompressionPackages = new ArrayList<>();
+		serverResponseHandler = new HashMap<>();
+		initResponseHandler();
 	}
 	
 	public BBoxDBClient(final InetSocketAddress address) {
 		this(address.getHostString(), address.getPort());
 	}
 
+	protected void initResponseHandler() {
+		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_COMPRESSION, new CompressionHandler());
+		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_HELLO, new HelloHandler());
+		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_SUCCESS, new SuccessHandler());
+		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_ERROR, new ErrorHandler());
+		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_LIST_TABLES, new ListTablesHandler());
+		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_TUPLE, new TupleHandler());
+		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_START, new MultipleTupleStartHandler());
+		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END, new MultipleTupleEndHandler());
+		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_PAGE_END, new PageEndHandler());
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.Scalephant#connect()
 	 */
@@ -229,7 +246,7 @@ public class BBoxDBClient implements BBoxDB {
 				pendingCalls.clear();
 			}
 			
-			resultBuffer.clear();
+			getResultBuffer().clear();
 			
 			// Start up the response reader
 			serverResponseReader = new ServerResponseReader(this);
@@ -366,7 +383,7 @@ public class BBoxDBClient implements BBoxDB {
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 
 		killPendingCalls();
-		resultBuffer.clear();
+		getResultBuffer().clear();
 		closeSocketNE();
 		
 		logger.info("Disconnected from server");
@@ -662,7 +679,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public OperationFuture getNextPage(final short queryPackageId) {
 		
-		if(! resultBuffer.containsKey(queryPackageId)) {
+		if(! getResultBuffer().containsKey(queryPackageId)) {
 			final String errorMessage = "Query package " + queryPackageId 
 					+ " not found in the result buffer";
 			
@@ -872,69 +889,31 @@ public class BBoxDBClient implements BBoxDB {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
 
-		OperationFuture pendingCall = null;
-		boolean removeFuture = true;
+		OperationFuture future = null;
 		
 		synchronized (pendingCalls) {
-			pendingCall = pendingCalls.get(Short.valueOf(sequenceNumber));
+			future = pendingCalls.get(Short.valueOf(sequenceNumber));
 		}
-
-		switch(packageType) {
 		
-			case NetworkConst.RESPONSE_TYPE_COMPRESSION:
-				removeFuture = false;
-				handleCompression(encodedPackage);
-			break;
+		if(! serverResponseHandler.containsKey(packageType)) {
+			logger.error("Unknown respose package type: " + packageType);
 			
-			case NetworkConst.RESPONSE_TYPE_HELLO:
-				handleHello(encodedPackage, (HelloFuture) pendingCall);
-			break;
-				
-			case NetworkConst.RESPONSE_TYPE_SUCCESS:
-				handleSuccess(encodedPackage, pendingCall);
-				break;
-				
-			case NetworkConst.RESPONSE_TYPE_ERROR:
-				handleError(encodedPackage, pendingCall);
-				break;
-				
-			case NetworkConst.RESPONSE_TYPE_LIST_TABLES:
-				handleListTables(encodedPackage, (SSTableNameListFuture) pendingCall);
-				break;
-				
-			case NetworkConst.RESPONSE_TYPE_TUPLE:
-				// The removal of the future depends, if this is a one
-				// tuple result or a multiple tuple result
-				removeFuture = handleTuple(encodedPackage, (TupleListFuture) pendingCall);
-				break;
-				
-			case NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_START:
-				handleMultiTupleStart(encodedPackage);
-				removeFuture = false;
-				break;
-				
-			case NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END:
-				handleMultiTupleEnd(encodedPackage, (TupleListFuture) pendingCall);
-				break;
-				
-			case NetworkConst.RESPONSE_TYPE_PAGE_END:
-				handlePageEnd(encodedPackage, (TupleListFuture) pendingCall);
-				break;
-				
-			default:
-				logger.error("Unknown respose package type: " + packageType);
-				
-				if(pendingCall != null) {
-					pendingCall.setFailedState();
-					pendingCall.fireCompleteEvent();
+			if(future != null) {
+				future.setFailedState();
+				future.fireCompleteEvent();
+			}
+			
+		} else {
+			
+			final ServerResponseHandler handler = serverResponseHandler.get(packageType);
+			final boolean removeFuture = handler.handleServerResult(this, encodedPackage, future);
+			
+			// Remove pending call
+			if(removeFuture) {
+				synchronized (pendingCalls) {
+					pendingCalls.remove(Short.valueOf(sequenceNumber));
+					pendingCalls.notifyAll();
 				}
-		}
-		
-		// Remove pending call
-		if(removeFuture) {
-			synchronized (pendingCalls) {
-				pendingCalls.remove(Short.valueOf(sequenceNumber));
-				pendingCalls.notifyAll();
 			}
 		}
 	}
@@ -962,195 +941,14 @@ public class BBoxDBClient implements BBoxDB {
 	}
 
 	/**
-	 * Handle a single tuple as result
-	 * @param encodedPackage
-	 * @param pendingCall
-	 * @throws PackageEncodeException 
+	 * Process the next response package
+	 * @param inputStream
+	 * @return
 	 */
-	protected boolean handleTuple(final ByteBuffer encodedPackage,
-			final TupleListFuture pendingCall) throws PackageEncodeException {
-		
-		final TupleResponse singleTupleResponse = TupleResponse.decodePackage(encodedPackage);
-		final short sequenceNumber = singleTupleResponse.getSequenceNumber();
-		
-		// Tuple is part of a multi tuple result
-		if(resultBuffer.containsKey(sequenceNumber)) {
-			resultBuffer.get(sequenceNumber).add(singleTupleResponse.getTuple());
-			return false;
-		}
-		
-		// Single tuple is returned
-		if(pendingCall != null) {
-			pendingCall.setOperationResult(0, Arrays.asList(singleTupleResponse.getTuple()));
-			pendingCall.fireCompleteEvent();
-		}
-		
-		return true;
+	public boolean processNextResponsePackage(final InputStream inputStream) {
+		return serverResponseReader.processNextResponsePackage(inputStream);
 	}
 
-	/**
-	 * Handle List table result
-	 * @param encodedPackage
-	 * @param pendingCall
-	 * @throws PackageEncodeException 
-	 */
-	protected void handleListTables(final ByteBuffer encodedPackage,
-			final SSTableNameListFuture pendingCall) throws PackageEncodeException {
-		final ListTablesResponse tables = ListTablesResponse.decodePackage(encodedPackage);
-		
-		if(pendingCall != null) {
-			pendingCall.setOperationResult(0, tables.getTables());
-			pendingCall.fireCompleteEvent();
-		}
-	}
-
-	/**
-	 * Handle the compressed package
-	 * @param encodedPackage
-	 * @throws PackageEncodeException 
-	 */
-	protected void handleCompression(final ByteBuffer encodedPackage) throws PackageEncodeException {
-		final InputStream uncompressedStream = CompressionEnvelopeResponse.decodePackage(encodedPackage);
-		
-		try {
-			while(uncompressedStream.available() > 0) {
-				serverResponseReader.processNextResponsePackage(uncompressedStream);
-			}
-		} catch (IOException e) {
-			logger.error("Got IO error while handling compressed packages", e);
-		}
-		
-	}
-	
-	/**
-	 * Handle the helo result package
-	 * @param encodedPackage
-	 * @param pendingCall
-	 * @throws PackageEncodeException 
-	 */
-	protected void handleHello(final ByteBuffer encodedPackage, final HelloFuture pendingCall) throws PackageEncodeException {
-		final HelloResponse helloResponse = HelloResponse.decodePackage(encodedPackage);
-		
-		if(pendingCall != null) {
-			pendingCall.setOperationResult(0, helloResponse);
-			pendingCall.fireCompleteEvent();
-		}
-	}
-	
-	/**
-	 * Handle error with body result
-	 * @param encodedPackage
-	 * @param pendingCall
-	 * @throws PackageEncodeException 
-	 */
-	protected void handleError(final ByteBuffer encodedPackage,
-			final OperationFuture pendingCall) throws PackageEncodeException {
-		
-		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
-		
-		if(pendingCall != null) {
-			pendingCall.setMessage(0, result.getBody());
-			pendingCall.setFailedState();
-			pendingCall.fireCompleteEvent();
-		}
-	}
-
-	/**
-	 * Handle success with body result
-	 * @param encodedPackage
-	 * @param pendingCall
-	 * @throws PackageEncodeException 
-	 */
-	protected void handleSuccess(final ByteBuffer encodedPackage,
-			final OperationFuture pendingCall) throws PackageEncodeException {
-		
-		final AbstractBodyResponse result = SuccessResponse.decodePackage(encodedPackage);
-		
-		if(pendingCall != null) {
-			pendingCall.setMessage(0, result.getBody());
-			pendingCall.fireCompleteEvent();
-		}
-	}	
-	
-	/**
-	 * Handle the multiple tuple start package
-	 * @param encodedPackage
-	 * @throws PackageEncodeException 
-	 */
-	protected void handleMultiTupleStart(final ByteBuffer encodedPackage) throws PackageEncodeException {
-		final MultipleTupleStartResponse result = MultipleTupleStartResponse.decodePackage(encodedPackage);
-		resultBuffer.put(result.getSequenceNumber(), new ArrayList<Tuple>());
-	}
-	
-	/**
-	 * Handle the multiple tuple end package
-	 * @param encodedPackage
-	 * @param pendingCall
-	 * @throws PackageEncodeException 
-	 */
-	protected void handleMultiTupleEnd(final ByteBuffer encodedPackage,
-			final TupleListFuture pendingCall) throws PackageEncodeException {
-		
-		final MultipleTupleEndResponse result = MultipleTupleEndResponse.decodePackage(encodedPackage);
-		
-		final short sequenceNumber = result.getSequenceNumber();
-		final List<Tuple> resultList = resultBuffer.remove(sequenceNumber);
-
-		if(pendingCall == null) {
-			logger.warn("Got handleMultiTupleEnd and pendingCall is empty (package {}) ",
-					sequenceNumber);
-			return;
-		}
-		
-		if(resultList == null) {
-			logger.warn("Got handleMultiTupleEnd and resultList is empty (package {})",
-					sequenceNumber);
-			
-			pendingCall.setFailedState();
-			pendingCall.fireCompleteEvent();
-			return;
-		}
-		
-		pendingCall.setCompleteResult(0, true);
-		pendingCall.setOperationResult(0, resultList);
-		pendingCall.fireCompleteEvent();
-	}
-	
-	/**
-	 * Handle the end of a page
-	 * @param encodedPackage
-	 * @param pendingCall
-	 * @throws PackageEncodeException
-	 */
-	protected void handlePageEnd(final ByteBuffer encodedPackage,
-			final TupleListFuture pendingCall) throws PackageEncodeException {
-		
-		if(pendingCall == null) {
-			logger.warn("Got handleMultiTupleEnd and pendingCall is empty");
-			return;
-		}
-
-		final PageEndResponse result = PageEndResponse.decodePackage(encodedPackage);
-		final short sequenceNumber = result.getSequenceNumber();
-
-		final List<Tuple> resultList = resultBuffer.remove(sequenceNumber);
-		
-		// Collect tuples of the next page in new list
-		resultBuffer.put(sequenceNumber, new ArrayList<Tuple>());
-		
-		if(resultList == null) {
-			logger.warn("Got handleMultiTupleEnd and resultList is empty");
-			pendingCall.setFailedState();
-			pendingCall.fireCompleteEvent();
-			return;
-		}
-
-		pendingCall.setConnectionForResult(0, this);
-		pendingCall.setCompleteResult(0, false);
-		pendingCall.setOperationResult(0, resultList);
-		pendingCall.fireCompleteEvent();
-	}
-	
 	@Override
 	public String toString() {
 		return "ScalephantClient [serverHostname=" + serverHostname + ", serverPort=" + serverPort + ", pendingCalls="
@@ -1202,5 +1000,9 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public void setTuplesPerPage(final short tuplesPerPage) {
 		this.tuplesPerPage = tuplesPerPage;
+	}
+
+	public Map<Short, List<Tuple>> getResultBuffer() {
+		return resultBuffer;
 	}
 }

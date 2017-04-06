@@ -16,6 +16,7 @@ order: 1
 - Improvement: Speed up the OSM importer by using a new node serializer 
 - Improvement: Updated to org.yaml 1.18 (from 1.17) / Mockito 2.7.19 (from 2.7.5)
 - Improvement: Refactored the server side network package handling
+- Improvement: Refactored the client side network package handling
 
 ### Version 0.2.2 (Stable) - 23.03.2017
 - New Feature: Added start option for remote debuging
