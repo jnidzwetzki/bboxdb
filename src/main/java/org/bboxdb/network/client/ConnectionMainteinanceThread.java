@@ -35,8 +35,13 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 	 * If no data was send for keepAliveTime, a keep alive package is send to the 
 	 * server to keep the tcp connection open
 	 */
-	protected long keepAliveTime = TimeUnit.SECONDS.toMillis(30);
+	protected final long keepAliveTime = TimeUnit.SECONDS.toMillis(30);
 	
+	/**
+	 * The thread wakeup time
+	 */
+	protected final long THREAD_WAKEUP = TimeUnit.SECONDS.toMillis(10);
+
 	/**
 	 * The BBOXDB Client
 	 */
@@ -68,7 +73,7 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 			if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
 				bboxDBClient.sendKeepAlivePackage();
 				try {
-					Thread.sleep(10000);
+					Thread.sleep(THREAD_WAKEUP);
 				} catch (InterruptedException e) {
 					// Handle InterruptedException directly
 					return;
