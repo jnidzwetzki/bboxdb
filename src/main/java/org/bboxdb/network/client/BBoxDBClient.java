@@ -780,7 +780,10 @@ public class BBoxDBClient implements BBoxDB {
 				outputStream.flush();
 			}
 			
-			mainteinanceHandler.updateLastDataSendTimestamp();
+			// Could be null during handshake
+			if(mainteinanceHandler != null) {
+				mainteinanceHandler.updateLastDataSendTimestamp();
+			}
 		} catch (IOException | PackageEncodeException e) {
 			logger.warn("Got an exception while sending package to server", e);
 			future.setFailedState();
