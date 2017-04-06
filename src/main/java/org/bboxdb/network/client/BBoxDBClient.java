@@ -131,14 +131,14 @@ public class BBoxDBClient implements BBoxDB {
 	protected Thread serverResponseReaderThread;
 	
 	/**
-	 * The keep alive handler instance
+	 * The maintenance handler instance
 	 */
-	protected ConnectionMaintainanceThread maintainanceHandler;
+	protected ConnectionMainteinanceThread mainteinanceHandler;
 	
 	/**
-	 * The keep alive thread
+	 * The maintenance thread
 	 */
-	protected Thread maintainanceThread;
+	protected Thread mainteinanceThread;
 	
 	/**
 	 * The default timeout
@@ -303,10 +303,10 @@ public class BBoxDBClient implements BBoxDB {
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 		logger.info("Handshaking with " + getConnectionName() + " done");
 		
-		maintainanceHandler = new ConnectionMaintainanceThread();
-		maintainanceThread = new Thread(maintainanceHandler);
-		maintainanceThread.setName("Connection maintainace thread for: " + getConnectionName());
-		maintainanceThread.start();
+		mainteinanceHandler = new ConnectionMainteinanceThread();
+		mainteinanceThread = new Thread(mainteinanceHandler);
+		mainteinanceThread.setName("Connection mainteinace thread for: " + getConnectionName());
+		mainteinanceThread.start();
 	}
 	
 	/* (non-Javadoc)
@@ -815,16 +815,16 @@ public class BBoxDBClient implements BBoxDB {
 		return sequenceNumber;
 	}
 	
-	class ConnectionMaintainanceThread extends ExceptionSafeThread {
+	class ConnectionMainteinanceThread extends ExceptionSafeThread {
 
 		@Override
 		protected void beginHook() {
-			logger.debug("Starting connection maintainance thread for: " + getConnectionName());
+			logger.debug("Starting connection mainteinance thread for: " + getConnectionName());
 		}
 		
 		@Override
 		protected void endHook() {
-			logger.debug("Maintainance thread for: " + getConnectionName() + " has terminated");
+			logger.debug("Mainteinance thread for: " + getConnectionName() + " has terminated");
 		}
 		
 		@Override
