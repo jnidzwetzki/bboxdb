@@ -20,6 +20,7 @@ package org.bboxdb.network.client;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.network.NetworkConnectionState;
+import org.bboxdb.network.NetworkConst;
 import org.bboxdb.util.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +36,7 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 	 * If no data was send for keepAliveTime, a keep alive package is send to the 
 	 * server to keep the tcp connection open
 	 */
-	protected final long keepAliveTime = TimeUnit.SECONDS.toMillis(30);
-	
-	/**
-	 * The thread wakeup time (100 ms) to flush the pending compression packages
-	 * to the server
-	 */
-	protected final long THREAD_WAKEUP = 100;
+	protected final static long keepAliveTime = TimeUnit.SECONDS.toMillis(30);
 
 	/**
 	 * The BBOXDB Client
@@ -78,7 +73,7 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 			if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
 				bboxDBClient.sendKeepAlivePackage();
 				try {
-					Thread.sleep(THREAD_WAKEUP);
+					Thread.sleep(NetworkConst.MAX_COMPRESSION_DELAY_MS);
 				} catch (InterruptedException e) {
 					// Handle InterruptedException directly
 					return;

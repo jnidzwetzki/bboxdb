@@ -168,4 +168,11 @@ public class NetworkConst {
 	 */
 	public final static byte COMPRESSION_TYPE_GZIP = 0x00;
 	
+
+	/**
+	 * The thread wakeup time (100 ms) to flush the pending compression packages
+	 * to the server
+	 */
+	public final static long MAX_COMPRESSION_DELAY_MS = 100;
+	
 }
