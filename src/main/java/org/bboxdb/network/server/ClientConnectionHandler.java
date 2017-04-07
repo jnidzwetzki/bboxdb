@@ -619,7 +619,8 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 
 		@Override
 		protected void runThread() throws Exception {
-			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			while(getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_OPEN ||
+					getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
 				
 				// Write all waiting for compression packages
 				flushPendingCompressionPackages();
