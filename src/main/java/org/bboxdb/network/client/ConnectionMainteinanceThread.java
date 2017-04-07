@@ -72,12 +72,13 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 			
 			if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
 				bboxDBClient.sendKeepAlivePackage();
-				try {
-					Thread.sleep(NetworkConst.MAX_COMPRESSION_DELAY_MS);
-				} catch (InterruptedException e) {
-					// Handle InterruptedException directly
-					return;
-				}
+			}
+			
+			try {
+				Thread.sleep(NetworkConst.MAX_COMPRESSION_DELAY_MS);
+			} catch (InterruptedException e) {
+				// Handle InterruptedException directly
+				return;
 			}
 		}
 		
