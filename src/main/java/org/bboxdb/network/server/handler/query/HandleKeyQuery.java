@@ -17,11 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.network.server.handler.query;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
@@ -48,7 +50,8 @@ public class HandleKeyQuery implements QueryHandler {
 	 * Handle a key query
 	 */
 	public void handleQuery(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
+					throws IOException, PackageEncodeException {
 
 		final Runnable queryRunable = new ExceptionSafeThread() {
 
@@ -78,7 +81,7 @@ public class HandleKeyQuery implements QueryHandler {
 			@Override
 			protected void afterExceptionHook() {
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
-				clientConnectionHandler.writeResultPackage(responsePackage);	
+				clientConnectionHandler.writeResultPackageNE(responsePackage);	
 			}
 		};
 

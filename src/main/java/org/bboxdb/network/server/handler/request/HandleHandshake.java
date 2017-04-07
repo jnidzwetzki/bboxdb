@@ -17,10 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.network.server.handler.request;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.HelloRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.HelloResponse;
@@ -42,7 +44,7 @@ public class HandleHandshake implements RequestHandler {
 	 * Handle the handshake request
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
 		logger.info("Handshaking with: " + clientConnectionHandler.clientSocket.getInetAddress());
 		

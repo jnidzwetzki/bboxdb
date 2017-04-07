@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -117,6 +119,11 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	private final PackageRouter packageRouter;
 	
 	/**
+	 * The pending packages for compression
+	 */
+	protected final List<NetworkResponsePackage> pendingCompressionPackages;
+
+	/**
 	 * Number of pending requests
 	 */
 	protected final static int PENDING_REQUESTS = 25;
@@ -160,6 +167,9 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		// The package router
 		packageRouter = new PackageRouter(getThreadPool(), this);
 		
+		// The pending packages for compression 
+		pendingCompressionPackages = new ArrayList<>();
+
 		// Init the request handler map 
 		initRequestHandlerMap();
 		
@@ -188,21 +198,70 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	}
 
 	/**
-	 * Write a response package to the client
-	 * @param responsePackage
+	 * Write all pending compression packages to server, called by the maintainance thread
+	 * 
 	 */
-	public synchronized boolean writeResultPackage(final NetworkResponsePackage responsePackage) {
+	protected void flushPendingCompressionPackages() {
+		
+		final List<NetworkResponsePackage> packagesToWrite = new ArrayList<>();
+		
+		synchronized (pendingCompressionPackages) {
+			if(pendingCompressionPackages.isEmpty()) {
+				return;
+			}
+			
+			packagesToWrite.addAll(pendingCompressionPackages);
+			pendingCompressionPackages.clear();
+		}
+			
+		if(logger.isDebugEnabled()) {
+			logger.debug("Chunk size is: {}", packagesToWrite.size());
+		}
+		
+		final NetworkResponsePackage compressionEnvelopeRequest 
+			= new CompressionEnvelopeResponse(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
 		
 		try {
-			responsePackage.writeToOutputStream(outputStream);
-			outputStream.flush();
-			
-			return true;
-		} catch (IOException | PackageEncodeException e) {
-			logger.warn("Unable to write result package", e);
+			writePackageToSocket(compressionEnvelopeRequest);
+		} catch (PackageEncodeException | IOException e) {
+			logger.error("Got an exception while write pending compression packages to server", e);
 		}
+	}
+	
+	/**
+	 * Write a response package to the client
+	 * @param responsePackage
+	 * @throws PackageEncodeException 
+	 * @throws IOException 
+	 */
+	public synchronized void writeResultPackage(final NetworkResponsePackage responsePackage) 
+			throws IOException, PackageEncodeException {
+		
+		writePackageToSocket(responsePackage);
+	}
+	
+	/**
+	 * Send a package and catch the exception
+	 * @param responsePackage
+	 */
+	public synchronized void writeResultPackageNE(final NetworkResponsePackage responsePackage) {
+		try {
+			writeResultPackage(responsePackage);
+		} catch (IOException | PackageEncodeException e) {
+			logger.error("Unable to send package", e);
+		}
+	}
 
-		return false;
+	/**
+	 * Write a network package uncompressed
+	 * @param responsePackage
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	protected void writePackageToSocket(final NetworkResponsePackage responsePackage) 
+			throws IOException, PackageEncodeException {
+		responsePackage.writeToOutputStream(outputStream);
+		outputStream.flush();
 	}
 	
 	@Override
@@ -311,8 +370,10 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * @param packageSequence
 	 * @param requestTable
 	 * @param tuple
+	 * @throws PackageEncodeException 
+	 * @throws IOException 
 	 */
-	public void writeResultTuple(final short packageSequence, final SSTableName requestTable, final Tuple tuple) {
+	public void writeResultTuple(final short packageSequence, final SSTableName requestTable, final Tuple tuple) throws IOException, PackageEncodeException {
 		final TupleResponse responsePackage = new TupleResponse(packageSequence, requestTable.getFullname(), tuple);
 		
 		if(getConnectionCapabilities().hasGZipCompression()) {
@@ -331,8 +392,11 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * @param bb
 	 * @param packageSequence
 	 * @return
+	 * @throws PackageEncodeException 
+	 * @throws IOException 
 	 */
-	protected boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) {
+	protected boolean handleQuery(final ByteBuffer encodedPackage, final short packageSequence) 
+			throws IOException, PackageEncodeException {
 	
 		final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
 
@@ -361,7 +425,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 */
 	protected boolean handleBufferedPackage(final ByteBuffer encodedPackage, 
 			final short packageSequence, 
-			final short packageType) throws PackageEncodeException {
+			final short packageType) throws PackageEncodeException, IOException {
 				
 		// Handle the different query types
 		if(packageType == NetworkConst.REQUEST_TYPE_QUERY) {
@@ -417,8 +481,11 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * Send next results for the given query
 	 * @param packageSequence
 	 * @param  
+	 * @throws PackageEncodeException 
+	 * @throws IOException 
 	 */
-	public void sendNextResultsForQuery(final short packageSequence, final short querySequence) {
+	public void sendNextResultsForQuery(final short packageSequence, final short querySequence) 
+			throws IOException, PackageEncodeException {
 			
 		if(! getActiveQueries().containsKey(querySequence)) {
 			logger.error("Unable to resume query {} - package {} - not found", querySequence, packageSequence);
@@ -429,7 +496,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		final Runnable queryRunable = new ExceptionSafeThread() {
 
 			@Override
-			protected void runThread() {
+			protected void runThread() throws IOException, PackageEncodeException {
 				final ClientQuery clientQuery = getActiveQueries().get(querySequence);
 				clientQuery.fetchAndSendNextTuples(packageSequence);
 				
@@ -442,7 +509,11 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 			
 			@Override
 			protected void afterExceptionHook() {
-				writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
+				try {
+					writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
+				} catch (IOException | PackageEncodeException e) {
+					logger.error("Unable to send result package", e);
+				}
 			}
 		};
 

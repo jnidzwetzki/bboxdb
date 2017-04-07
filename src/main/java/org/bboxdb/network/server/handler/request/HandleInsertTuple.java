@@ -17,11 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.network.server.handler.request;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
@@ -48,7 +50,8 @@ public class HandleInsertTuple implements RequestHandler {
 	 * Handle the insert tuple request
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
+					throws IOException, PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Got insert tuple request");

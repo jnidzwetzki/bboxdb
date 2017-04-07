@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.server.handler.request;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.distribution.DistributionGroupCache;
@@ -26,6 +27,7 @@ import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
@@ -47,7 +49,7 @@ public class HandleCreateDistributionGroup implements RequestHandler {
 	 * Create a new distribution group
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Got create distribution group package");

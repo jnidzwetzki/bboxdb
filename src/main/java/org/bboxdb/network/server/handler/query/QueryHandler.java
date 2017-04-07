@@ -17,8 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.network.server.handler.query;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.server.ClientConnectionHandler;
 
 public interface QueryHandler {
@@ -28,7 +30,10 @@ public interface QueryHandler {
 	 * @param encodedPackage
 	 * @param packageSequence
 	 * @param packageHandler
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
 	 */
 	public void handleQuery(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler);
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
+					throws IOException, PackageEncodeException;
 }

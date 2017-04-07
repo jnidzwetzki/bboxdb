@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.server.handler.request;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
@@ -47,7 +48,7 @@ public class HandleDeleteTable implements RequestHandler {
 	 * Handle the delete table call
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Got delete table package");

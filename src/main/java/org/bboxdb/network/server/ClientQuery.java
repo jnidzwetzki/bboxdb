@@ -18,10 +18,12 @@
 package org.bboxdb.network.server;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
@@ -122,8 +124,10 @@ public class ClientQuery implements Closeable {
 	 * Calculate the next tuples of the query
 	 * @param packageSequence2 
 	 * @return
+	 * @throws PackageEncodeException 
+	 * @throws IOException 
 	 */
-	public void fetchAndSendNextTuples(final short packageSequence) {
+	public void fetchAndSendNextTuples(final short packageSequence) throws IOException, PackageEncodeException {
 
 		long sendTuplesInThisPage = 0;
 		clientConnectionHandler.writeResultPackage(new MultipleTupleStartResponse(packageSequence));

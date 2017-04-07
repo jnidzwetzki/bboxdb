@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.routing;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +38,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
@@ -109,12 +111,12 @@ public class PackageRouter {
 				}  catch(InterruptedException e) {
 					logger.error("Exception while routing package", e);
 					Thread.currentThread().interrupt();
-				} catch (ZookeeperException e) {
+				} catch (ZookeeperException | IOException | PackageEncodeException e) {
 					logger.error("Exception while routing package", e);
-				}
+				} 
 				
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_ROUTING_FAILED);
-				clientConnectionHandler.writeResultPackage(responsePackage);
+				clientConnectionHandler.writeResultPackageNE(responsePackage);
 			}
 		};
 		
@@ -122,7 +124,7 @@ public class PackageRouter {
 		if(threadPool.isTerminating()) {
 			logger.warn("Thread pool is shutting down, don't route package: " + packageSequence);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_SHUTDOWN);
-			clientConnectionHandler.writeResultPackage(responsePackage);
+			clientConnectionHandler.writeResultPackageNE(responsePackage);
 		} else {
 			threadPool.submit(routeRunable);
 		}

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.server.handler.request;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
@@ -48,7 +49,8 @@ public class HandleDeleteTuple implements RequestHandler {
 	 * Handle delete tuple package
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
+					throws IOException, PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Got delete tuple package");

@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.server.handler.request;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -42,7 +43,7 @@ public class HandleCancelQuery implements RequestHandler {
 	 * Cancel the given query
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Got cancel query package");

@@ -17,11 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.network.server.handler.request;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
@@ -44,7 +46,7 @@ public class HandleDeleteDistributionGroup implements RequestHandler {
 	 * Delete an existing distribution group
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Got delete distribution group package");

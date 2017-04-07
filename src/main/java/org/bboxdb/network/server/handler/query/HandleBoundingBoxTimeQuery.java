@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.server.handler.query;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -44,7 +45,8 @@ public class HandleBoundingBoxTimeQuery implements QueryHandler {
 	 * Handle the bounding box time query
 	 */
 	public void handleQuery(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
+					throws IOException {
 		
 		try {
 			if(clientConnectionHandler.getActiveQueries().containsKey(packageSequence)) {
@@ -64,7 +66,7 @@ public class HandleBoundingBoxTimeQuery implements QueryHandler {
 			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
-			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
+			clientConnectionHandler.writeResultPackageNE(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 		}		
 	}
 }

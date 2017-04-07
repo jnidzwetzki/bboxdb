@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.server.handler.query;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -44,7 +45,9 @@ public class HandleTimeQuery implements QueryHandler {
 	 * Handle a time query
 	 */
 	public void handleQuery(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
+					throws IOException, PackageEncodeException {
+		
 		try {
 			if(clientConnectionHandler.getActiveQueries().containsKey(packageSequence)) {
 				logger.error("Query sequence {} is allready known, please close old query first", packageSequence);
