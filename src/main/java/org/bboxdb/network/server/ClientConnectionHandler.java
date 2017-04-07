@@ -128,15 +128,26 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 */
 	protected final static int PENDING_REQUESTS = 25;
 
+	/**
+	 * The request handlers
+	 */
+	protected Map<Short, RequestHandler> requestHandlers;
+
+	/**
+	 * The query handlers
+	 */
+	protected Map<Byte, QueryHandler> queryHandlerList;
+	
+	/**
+	 * The connection maintenance thread
+	 */
+	protected ConnectionMaintenanceThread maintenanceThread;
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
 
-	private Map<Short, RequestHandler> requestHandlers;
-
-	private Map<Byte, QueryHandler> queryHandlerList;
 
 	public ClientConnectionHandler(final Socket clientSocket, final NetworkConnectionServiceState networkConnectionServiceState) {
 		
@@ -169,6 +180,10 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		
 		// The pending packages for compression 
 		pendingCompressionPackages = new ArrayList<>();
+		
+		maintenanceThread = new ConnectionMaintenanceThread();
+		final Thread thread = new Thread(maintenanceThread);
+		thread.start();
 
 		// Init the request handler map 
 		initRequestHandlerMap();
@@ -237,7 +252,15 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	public synchronized void writeResultPackage(final NetworkResponsePackage responsePackage) 
 			throws IOException, PackageEncodeException {
 		
-		writePackageToSocket(responsePackage);
+		if(connectionCapabilities.hasGZipCompression()) {
+			synchronized (pendingCompressionPackages) {
+				// Schedule for batch compression
+				pendingCompressionPackages.add(responsePackage);
+			}
+		} else {
+			writePackageToSocket(responsePackage);
+		}
+		
 	}
 	
 	/**
@@ -569,4 +592,46 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	public PackageRouter getPackageRouter() {
 		return packageRouter;
 	}
+	
+	/**
+	 * Get the name of the connetion
+	 * @return
+	 */
+	public String getConnectionName() {
+		if(clientSocket == null) {
+			return "";
+		}
+		
+		return clientSocket.getInetAddress().toString();
+	}
+	
+	class ConnectionMaintenanceThread extends ExceptionSafeThread {
+		
+		@Override
+		protected void beginHook() {
+			logger.debug("Starting connection mainteinance thread for: " + getConnectionName());
+		}
+		
+		@Override
+		protected void endHook() {
+			logger.debug("Mainteinance thread for: " + getConnectionName() + " has terminated");
+		}
+
+		@Override
+		protected void runThread() throws Exception {
+			while(connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+				
+				// Write all waiting for compression packages
+				flushPendingCompressionPackages();
+		
+				try {
+					Thread.sleep(NetworkConst.MAX_COMPRESSION_DELAY_MS);
+				} catch (InterruptedException e) {
+					// Handle InterruptedException directly
+					return;
+				}
+			}
+		}
+		
+	};
 }
