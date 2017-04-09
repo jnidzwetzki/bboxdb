@@ -79,6 +79,9 @@ public class TestStorageRegistry {
 		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 		final String pathname = SSTableHelper.getDistributionGroupDir(configuration.getDataDirectory(), RELATION_NAME);
 		final File directory = new File(pathname);
+		
+		System.out.println("Check for " + directory);
+		
 		Assert.assertFalse(directory.exists());
 	}
 	
