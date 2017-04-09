@@ -77,7 +77,7 @@ public class TestStorageRegistry {
 		
 		// Check the removal of the directory
 		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-		final String pathname = SSTableHelper.getDistributionGroupDir(configuration.getDataDirectory(), RELATION_NAME);
+		final String pathname = SSTableHelper.getSSTableDir(configuration.getDataDirectory(), RELATION_NAME);
 		final File directory = new File(pathname);
 		
 		System.out.println("Check for " + directory);
