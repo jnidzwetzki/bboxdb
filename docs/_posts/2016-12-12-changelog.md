@@ -19,6 +19,7 @@ order: 1
 - Improvement: Refactored the server side network package handling
 - Improvement: Refactored the client side network package handling
 - Improvement: Changed the server side connection error handling
+- Improvement: Removed the unused 'root directory' from config file
 
 ### Version 0.2.2 (Stable) - 23.03.2017
 - New Feature: Added start option for remote debuging

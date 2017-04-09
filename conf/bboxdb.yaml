@@ -6,10 +6,6 @@
 # Storage
 ###
 
-# The directory for data
-# Default: /tmp/bboxdb_test
-rootDirectory: /tmp/bboxdb_production
-
 # The directory for the tables
 # Default: /tmp/bboxdb_test/data
 dataDirectory: /tmp/bboxdb_production/data

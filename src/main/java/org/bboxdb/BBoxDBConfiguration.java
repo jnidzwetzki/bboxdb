@@ -25,12 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BBoxDBConfiguration {
-	
-	/**
-	 * The root directory of the application
-	 */
-	protected String rootDirectory = "/tmp/bboxdb_test";
-	
+
 	/**
 	 *  The directory to store data
 	 */
@@ -122,14 +117,6 @@ public class BBoxDBConfiguration {
 		} catch (UnknownHostException e) {
 			logger.warn("Unable to determine the local IP adress of this node, please specify 'localip' in the configuration", e);
 		}
-	}
-	
-	public String getRootDirectory() {
-		return rootDirectory;
-	}
-	
-	public void setRootDirectory(final String rootDirectory) {
-		this.rootDirectory = rootDirectory;
 	}
 	
 	public String getDataDirectory() {
