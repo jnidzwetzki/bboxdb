@@ -42,7 +42,7 @@ public class TestSSTable {
 	/**
 	 * The directory for the output
 	 */
-	protected static final String DATA_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getDataDirectory();
+	protected static final String DATA_DIRECTORY = SSTableHelper.getDataDir(BBoxDBConfigurationManager.getConfiguration().getDataDirectory());
 	
 	/**
 	 * The name of the test relation

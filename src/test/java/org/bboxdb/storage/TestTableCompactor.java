@@ -23,12 +23,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.bboxdb.BBoxDBConfigurationManager;
-import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.compact.SSTableCompactor;
@@ -48,7 +47,7 @@ public class TestTableCompactor {
 	/**
 	 * The name of the test relation
 	 */
-	protected static final String DATA_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getDataDirectory();
+	protected static final String DATA_DIRECTORY = SSTableHelper.getDataDir(BBoxDBConfigurationManager.getConfiguration().getDataDirectory());
 
 	/**
 	 * The max number of expected tuples in the sstable

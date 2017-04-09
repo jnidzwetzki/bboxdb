@@ -26,6 +26,7 @@ import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.junit.Assert;
 import org.junit.Test;
@@ -76,7 +77,7 @@ public class TestStorageRegistry {
 		
 		// Check the removal of the directory
 		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-		final String pathname = configuration.getDataDirectory() + File.separator + RELATION_NAME;
+		final String pathname = SSTableHelper.getDistributionGroupDir(configuration.getDataDirectory(), RELATION_NAME);
 		final File directory = new File(pathname);
 		Assert.assertFalse(directory.exists());
 	}
