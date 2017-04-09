@@ -20,6 +20,7 @@ order: 1
 - Improvement: Refactored the client side network package handling
 - Improvement: Changed the server side connection error handling
 - Improvement: Data is automatically placed into the "data" subdirectory
+- Improvement: Default data location is now /tmp/bboxdb
 - Bugfix: Removed the unused 'root directory' from config file
 
 ### Version 0.2.2 (Stable) - 23.03.2017
