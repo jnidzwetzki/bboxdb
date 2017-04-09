@@ -5,7 +5,7 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
-### Version 0.2.3 (Stable) - TBA
+### Version 0.2.3 (Stable) - 09.04.2017
 - New Feature: Futures now store the completion time 
 - New Feature: Introduced the tuple deletion without timestamp method in API
 - New Feature: Changed the format of the compressed envelopes to support multi-package compression
