@@ -17,12 +17,11 @@ before_install:
   - /tmp/zookeeper/zookeeper-3.4.8/bin/zkServer.sh start
   # Change config
   - sed -i "s/zookeepernodes:.*/zookeepernodes:\ ['localhost:2181']/" conf/bboxdb.yaml
-  - sed -i "s|dataDirectory:.*|dataDirectory:\ /tmp/bboxdb_test|" conf/bboxdb.yaml
   - echo "#####################################################################"
   - cat conf/bboxdb.yaml
   - echo "#####################################################################"
   # Create required directories
-  - mkdir -p /tmp/bboxdb_test/data
+  - mkdir -p /tmp/bboxdb/data
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

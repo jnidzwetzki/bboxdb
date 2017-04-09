@@ -29,12 +29,12 @@ public class BBoxDBConfiguration {
 	/**
 	 *  The directory to store data
 	 */
-	protected String dataDirectory = "/tmp/bboxdb_test";
+	protected String dataDirectory = "/tmp/bboxdb";
 	
 	/**
 	 * The commit log dir
 	 */
-	protected String commitlogDir = "/tmp/bboxdb_test/commitlog";
+	protected String commitlogDir = "/tmp/bboxdb/commitlog";
 	
 	/**
 	 *  Number of entries per memtable

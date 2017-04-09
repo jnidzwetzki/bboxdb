@@ -7,8 +7,8 @@
 ###
 
 # The directory for the tables
-# Default: /tmp/bboxdb_test/data
-dataDirectory: /tmp/bboxdb_production/data
+# Default: /tmp/bboxdb
+# dataDirectory: /tmp/bboxdb
 
 # Max entries per memtable 
 # Default: 10000 entries
