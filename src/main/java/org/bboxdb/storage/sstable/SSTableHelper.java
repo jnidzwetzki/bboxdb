@@ -67,6 +67,8 @@ public class SSTableHelper {
 	public static String getDistributionGroupDir(final String directory, final String name) {
 		return directory 
 				+ File.separator 
+				+ "data"
+				+ File.separator 
 				+ name;
 	}
 	

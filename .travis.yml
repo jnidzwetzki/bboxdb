@@ -17,7 +17,7 @@ before_install:
   - /tmp/zookeeper/zookeeper-3.4.8/bin/zkServer.sh start
   # Change config
   - sed -i "s/zookeepernodes:.*/zookeepernodes:\ ['localhost:2181']/" conf/bboxdb.yaml
-  - sed -i "s|dataDirectory:.*|dataDirectory:\ /tmp/bboxdb_test/data|" conf/bboxdb.yaml
+  - sed -i "s|dataDirectory:.*|dataDirectory:\ /tmp/bboxdb_test|" conf/bboxdb.yaml
   - echo "#####################################################################"
   - cat conf/bboxdb.yaml
   - echo "#####################################################################"

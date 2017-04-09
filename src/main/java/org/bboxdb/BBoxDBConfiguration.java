@@ -29,7 +29,7 @@ public class BBoxDBConfiguration {
 	/**
 	 *  The directory to store data
 	 */
-	protected String dataDirectory = "/tmp/bboxdb_test/data";
+	protected String dataDirectory = "/tmp/bboxdb_test";
 	
 	/**
 	 * The commit log dir
