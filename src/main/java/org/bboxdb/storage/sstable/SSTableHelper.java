@@ -65,11 +65,22 @@ public class SSTableHelper {
 	 * @return e.g. /tmp/bboxdb/data/2_dgroup1
 	 */
 	public static String getDistributionGroupDir(final String directory, final String name) {
-		return directory 
-				+ File.separator 
-				+ "data"
+		return getDataDir(directory)
 				+ File.separator 
 				+ name;
+	}
+	
+	/**
+	 * Get the data dir for a given volume dir
+	 * @param directory
+	 * @param name
+	 * 
+	 * @return e.g. /tmp/bboxdb/data/2_dgroup1
+	 */
+	public static String getDataDir(final String directory) {
+		return directory 
+				+ File.separator 
+				+ "data";
 	}
 	
 	/**

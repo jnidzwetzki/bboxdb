@@ -203,8 +203,9 @@ public class StorageRegistry {
 	public static List<SSTableName> getAllTables() {
 		final List<SSTableName> allTables = new ArrayList<SSTableName>();
 		
-		final File folder = new File(configuration.getDataDirectory());
-		
+		final String dataDir = SSTableHelper.getDataDir(configuration.getDataDirectory());
+		final File folder = new File(dataDir);
+
 		// Distribution groups
 		for (final File fileEntry : folder.listFiles()) {
 	        if (fileEntry.isDirectory()) {
