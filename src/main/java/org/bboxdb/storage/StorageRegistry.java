@@ -210,7 +210,8 @@ public class StorageRegistry {
 	        if (fileEntry.isDirectory()) {
 	        	final String distributionGroup = fileEntry.getName();
 	        	final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
-	        	assert(distributionGroupName.isValid());
+	        	
+	        	assert(distributionGroupName.isValid()) : "Invalid name: " + distributionGroup;
 	        	
 	        	// Tables
 	    		for (final File tableEntry : fileEntry.listFiles()) {
