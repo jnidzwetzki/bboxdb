@@ -212,8 +212,11 @@ public class StorageRegistry {
 		if(managerInstances.containsKey(table)) {
 			shutdown(table);
 		}
-
-		assert (sstableLocations.containsKey(table)) : "Table not known" + table;
+		
+		if(! sstableLocations.containsKey(table)) {
+			logger.error("Table not known in deletion");
+			return;
+		}
 		
 		final String absolutePath = sstableLocations.get(table).getAbsolutePath();
 		SSTableManager.deletePersistentTableData(absolutePath, table);
