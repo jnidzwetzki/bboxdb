@@ -123,7 +123,6 @@ public class StorageRegistry {
 			return managerInstances.get(table);
 		}
 		
-		
 		SSTableManager sstableManager = null;
 		
 		// We have already data
@@ -134,6 +133,7 @@ public class StorageRegistry {
 			// Find a new storate directory for the sstable manager
 			final String location = getLowerstUtilizedDataLocation();
 			sstableManager = new SSTableManager(location, table, configuration);
+			sstableLocations.put(table, location);
 		}
 		
 		sstableManager.init();

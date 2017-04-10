@@ -18,6 +18,7 @@
 package org.bboxdb.storage;
 
 import java.io.File;
+import java.util.List;
 
 import org.bboxdb.BBoxDBConfiguration;
 import org.bboxdb.BBoxDBConfigurationManager;
@@ -105,8 +106,9 @@ public class TestStorageRegistry {
 		// Wait for requests to settle
 		Thread.sleep(10000);
 		
-		System.out.println(StorageRegistry.getInstance().getAllTables());
-		Assert.assertTrue(StorageRegistry.getInstance().getAllTables().contains(RELATION_NAME));
+		final List<SSTableName> tablesBeforeDelete = StorageRegistry.getInstance().getAllTables();
+		System.out.println(tablesBeforeDelete);
+		Assert.assertTrue(tablesBeforeDelete.contains(RELATION_NAME));
 		
 		final long size1 = 
 				StorageRegistry.getInstance().getSizeOfDistributionGroupAndRegionId(
@@ -115,7 +117,10 @@ public class TestStorageRegistry {
 		Assert.assertTrue(size1 > 0);
 		
 		StorageRegistry.getInstance().deleteTable(RELATION_NAME);
-		Assert.assertFalse(StorageRegistry.getInstance().getAllTables().contains(RELATION_NAME));
+		
+		final List<SSTableName> tablesAfterDelete = StorageRegistry.getInstance().getAllTables();
+		System.out.println(tablesAfterDelete);
+		Assert.assertFalse(tablesAfterDelete.contains(RELATION_NAME));
 		
 		final long size2 = 
 				StorageRegistry.getInstance().getSizeOfDistributionGroupAndRegionId(
