@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.bboxdb.BBoxDBConfiguration;
@@ -168,17 +167,17 @@ public class StorageRegistry {
 	 * @return
 	 */
 	public String getLowerstUtilizedDataLocation() {
-		
-		// First sstable
-		if(sstableLocations.isEmpty()) {
-			return storageDirectories.get(0);
+
+		final Map<String, Integer> usage = new HashMap<>();
+		for(final String location : storageDirectories) {
+			usage.put(location, 0);
 		}
 		
-		// Group by usage
-		final Map<File, Long> usage = sstableLocations
-			.values()
-			.stream()
-			.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		for(final File file : sstableLocations.values()) {
+			final String location = file.getAbsolutePath();
+			final Integer oldUsage = usage.get(location);
+			usage.put(location, oldUsage + 1);
+		}
 		
 		// Find the lowest usage
 		final long lowestUsage = usage.values()
@@ -186,16 +185,16 @@ public class StorageRegistry {
 			.mapToLong(e -> e)
 			.min()
 			.orElseThrow(() -> new IllegalArgumentException("Unable to found lowest usage: " + sstableLocations));
-			
+		
 		// Return the location
-		final File location = usage.entrySet()
+		final String location = usage.entrySet()
 			.stream()
 			.filter(e -> e.getValue() == lowestUsage)
 			.findFirst()
 			.map(e -> e.getKey())
 			.orElseThrow(() -> new IllegalArgumentException("Unable to found lowest location" + sstableLocations));
 		
-		return location.getAbsolutePath();
+		return location;
 	}
 	
 	/**
