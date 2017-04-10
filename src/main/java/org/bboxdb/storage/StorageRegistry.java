@@ -214,7 +214,7 @@ public class StorageRegistry {
 		}
 		
 		if(! sstableLocations.containsKey(table)) {
-			logger.error("Table not known in deletion");
+			logger.error("Table {} not known during deletion", table.getFullname());
 			return;
 		}
 		
@@ -428,7 +428,7 @@ public class StorageRegistry {
 	 */
 	public String getStorageDirForSSTable(final SSTableName ssTableName) {
 		if(! sstableLocations.containsKey(ssTableName)) {
-			logger.warn("Location for {} is unknown.", ssTableName);
+			logger.warn("Location for {} is unknown.", ssTableName.getFullname());
 			return getLowerstUtilizedDataLocation();
 		}
 		
