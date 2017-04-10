@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.2.4 (Stable) - TBA
 - New Feature: Support multiple storage locations
+- Bugfix: Removed the unused commit log from config class
 
 ### Version 0.2.3 (Stable) - 09.04.2017
 - New Feature: Futures now store the completion time 

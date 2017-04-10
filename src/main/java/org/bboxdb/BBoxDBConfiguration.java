@@ -32,12 +32,7 @@ public class BBoxDBConfiguration {
 	 *  The directories to store data
 	 */
 	protected List<String> storageDirectories = Arrays.asList("/tmp/bboxdb");
-	
-	/**
-	 * The commit log dir
-	 */
-	protected String commitlogDir = "/tmp/bboxdb/commitlog";
-	
+
 	/**
 	 *  Number of entries per memtable
 	 */
@@ -119,14 +114,6 @@ public class BBoxDBConfiguration {
 		} catch (UnknownHostException e) {
 			logger.warn("Unable to determine the local IP adress of this node, please specify 'localip' in the configuration", e);
 		}
-	}
-
-	public String getCommitlogDir() {
-		return commitlogDir;
-	}
-
-	public void setCommitlogDir(final String commitlogDir) {
-		this.commitlogDir = commitlogDir;
 	}
 
 	public int getMemtableEntriesMax() {
