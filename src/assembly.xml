@@ -7,7 +7,6 @@
 	<id>default</id>
 
 	<formats>
-		<format>tar.gz</format>
 		<format>tar.bz2</format>
 		<format>zip</format>
 	</formats>
@@ -36,6 +35,22 @@
 			<includes>
 				<include>*.sh</include>
 			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>conf</directory>
+			<outputDirectory>conf</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>docs/_posts</directory>
+			<outputDirectory>docs</outputDirectory>
+			<filtered>true</filtered>
+			<includes>
+				<include>*.md</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>examples</directory>
+			<outputDirectory>examples</outputDirectory>
 		</fileSet>
 	</fileSets>
 </assembly>
