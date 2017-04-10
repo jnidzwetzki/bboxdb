@@ -325,7 +325,7 @@ public class SSTableManager implements BBoxDBService {
 	protected void createSSTableDirIfNeeded() throws StorageManagerException {
 		final String dgroupDir = SSTableHelper.getDistributionGroupDir(storageDir, sstablename);
 		final File dgroupDirHandle = new File(dgroupDir);
-		
+				
 		if(! dgroupDirHandle.exists()) {
 			logger.info("Create a new dir for dgroup: " + dgroupDir);
 			dgroupDirHandle.mkdir();	

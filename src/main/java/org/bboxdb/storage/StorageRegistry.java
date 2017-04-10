@@ -56,7 +56,7 @@ public class StorageRegistry {
 	/**
 	 * A map that contains the storage directory for the sstable
 	 */
-	protected final Map<SSTableName, File> sstableLocations;
+	protected final Map<SSTableName, String> sstableLocations;
 	
 	/**
 	 * The singleton instance
@@ -128,8 +128,8 @@ public class StorageRegistry {
 		
 		// We have already data
 		if(sstableLocations.containsKey(table)) {
-			final File location = sstableLocations.get(table);
-			sstableManager = new SSTableManager(location.getAbsolutePath(), table, configuration);
+			final String location = sstableLocations.get(table);
+			sstableManager = new SSTableManager(location, table, configuration);
 		} else {
 			// Find a new storate directory for the sstable manager
 			final String location = getLowerstUtilizedDataLocation();
@@ -173,8 +173,7 @@ public class StorageRegistry {
 			usage.put(location, 0);
 		}
 		
-		for(final File file : sstableLocations.values()) {
-			final String location = file.getAbsolutePath();
+		for(final String location : sstableLocations.values()) {
 			final Integer oldUsage = usage.get(location);
 			usage.put(location, oldUsage + 1);
 		}
@@ -217,8 +216,8 @@ public class StorageRegistry {
 			return;
 		}
 		
-		final String absolutePath = sstableLocations.get(table).getAbsolutePath();
-		SSTableManager.deletePersistentTableData(absolutePath, table);
+		final String storageDirectory = sstableLocations.get(table);
+		SSTableManager.deletePersistentTableData(storageDirectory, table);
 		sstableLocations.remove(table);
 	}
 	
@@ -341,7 +340,7 @@ public class StorageRegistry {
 			        	final String tablename = tableEntry.getName();
 			        	final String fullname = distributionGroupName.getFullname() + "_" + tablename;
 			        	final SSTableName sstableName = new SSTableName(fullname);
-						sstableLocations.put(sstableName, tableEntry);
+						sstableLocations.put(sstableName, storageDirectory);
 			        }
 	    		}
 	        } 
@@ -431,6 +430,6 @@ public class StorageRegistry {
 			return getLowerstUtilizedDataLocation();
 		}
 		
-		return sstableLocations.get(ssTableName).getAbsolutePath();
+		return sstableLocations.get(ssTableName);
 	}
 }
