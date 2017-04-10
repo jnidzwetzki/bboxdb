@@ -6,7 +6,7 @@
 # Storage
 ###
 
-# The directories where BBoxDB stores the data on disk.	Data
+# The directories where BBoxDB stores the data on disk. Data
 # is spread across all directories
 # Default: /tmp/bboxdb
 # storageDirectories: 
