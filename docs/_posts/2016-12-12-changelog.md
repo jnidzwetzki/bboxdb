@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.2.4 (Stable) - TBA
 - New Feature: Support multiple storage locations
+- New Feature: Added maven packaging
 - Bugfix: Removed the unused commit log from config class
 
 ### Version 0.2.3 (Stable) - 09.04.2017
