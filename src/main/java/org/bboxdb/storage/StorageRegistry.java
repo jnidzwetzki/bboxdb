@@ -427,6 +427,11 @@ public class StorageRegistry {
 	 * @return
 	 */
 	public String getStorageDirForSSTable(final SSTableName ssTableName) {
+		if(! sstableLocations.containsKey(ssTableName)) {
+			logger.warn("Location for {} is unknown.", ssTableName);
+			return getLowerstUtilizedDataLocation();
+		}
+		
 		return sstableLocations.get(ssTableName).getAbsolutePath();
 	}
 }
