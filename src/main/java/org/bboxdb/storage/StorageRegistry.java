@@ -180,7 +180,7 @@ public class StorageRegistry {
 			.stream()
 			.mapToLong(e -> e)
 			.min()
-			.orElseThrow(() -> new IllegalArgumentException("Unable to found lowest usage"));
+			.orElseThrow(() -> new IllegalArgumentException("Unable to found lowest usage: " + sstableLocations));
 			
 		// Return the location
 		final File location = usage.entrySet()
@@ -188,7 +188,7 @@ public class StorageRegistry {
 			.filter(e -> e.getValue() == lowestUsage)
 			.findFirst()
 			.map(e -> e.getKey())
-			.orElseThrow(() -> new IllegalArgumentException("Unable to found lowest location"));
+			.orElseThrow(() -> new IllegalArgumentException("Unable to found lowest location" + sstableLocations));
 		
 		return location.getAbsolutePath();
 	}
