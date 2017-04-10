@@ -169,6 +169,11 @@ public class StorageRegistry {
 	 */
 	public String getLowerstUtilizedDataLocation() {
 		
+		// First sstable
+		if(sstableLocations.isEmpty()) {
+			return storageDirectories.get(0);
+		}
+		
 		// Group by usage
 		final Map<File, Long> usage = sstableLocations
 			.values()
