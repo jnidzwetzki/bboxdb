@@ -6,9 +6,11 @@
 # Storage
 ###
 
-# The directory for the tables
+# The directories where BBoxDB stores the data on disk.	Data
+# is spread across all directories
 # Default: /tmp/bboxdb
-# dataDirectory: /tmp/bboxdb
+# storageDirectories: 
+#   - /tmp/bboxdb
 
 # Max entries per memtable 
 # Default: 10000 entries

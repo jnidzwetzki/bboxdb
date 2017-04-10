@@ -100,7 +100,7 @@ public class HandleInsertTuple implements RequestHandler {
 		SSTableManager storageManager = null;
 		
 		try {
-			storageManager = StorageRegistry.getSSTableManager(ssTableName);
+			storageManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
 		} catch (StorageManagerException e) {
 			logger.warn("Got an exception while inserting", e);
 			return false;

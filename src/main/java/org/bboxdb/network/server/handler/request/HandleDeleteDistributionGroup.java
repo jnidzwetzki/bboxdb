@@ -67,7 +67,7 @@ public class HandleDeleteDistributionGroup implements RequestHandler {
 			
 			// Delete local stored data
 			final DistributionGroupName distributionGroupName = new DistributionGroupName(deletePackage.getDistributionGroup());
-			StorageRegistry.deleteAllTablesInDistributionGroup(distributionGroupName);
+			StorageRegistry.getInstance().deleteAllTablesInDistributionGroup(distributionGroupName);
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {

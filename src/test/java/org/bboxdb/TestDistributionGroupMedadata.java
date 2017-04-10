@@ -39,6 +39,11 @@ public class TestDistributionGroupMedadata {
 	protected final static DistributionGroupName DGROUP_NAME = new DistributionGroupName("2_testgroup");
 	
 	/**
+	 * The storage directory
+	 */
+	protected static final String STORAGE_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getStorageDirectories().get(0);
+
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(TestDistributionGroupMedadata.class);
@@ -49,9 +54,7 @@ public class TestDistributionGroupMedadata {
 	 */
 	@BeforeClass
 	public static void beforeClass() {
-		BBoxDBConfiguration bBoxDBConfiguration = BBoxDBConfigurationManager.getConfiguration();
-	    
-	    final String dirName = SSTableHelper.getDistributionGroupDir(bBoxDBConfiguration.getDataDirectory(), DGROUP_NAME.getFullname());
+	    final String dirName = SSTableHelper.getDistributionGroupDir(STORAGE_DIRECTORY, DGROUP_NAME.getFullname());
 
 	    logger.info("Create: {}", dirName);
 	    
@@ -63,10 +66,8 @@ public class TestDistributionGroupMedadata {
 	 * Delete the needed directory
 	 */
 	@AfterClass
-	public static void afterClass() {
-		BBoxDBConfiguration bBoxDBConfiguration = BBoxDBConfigurationManager.getConfiguration();
-	    
-	    final String dirName = SSTableHelper.getDistributionGroupDir(bBoxDBConfiguration.getDataDirectory(), DGROUP_NAME.getFullname());
+	public static void afterClass() {	    
+	    final String dirName = SSTableHelper.getDistributionGroupDir(STORAGE_DIRECTORY, DGROUP_NAME.getFullname());
 	 
 	    logger.info("Remove: {}", dirName);
 

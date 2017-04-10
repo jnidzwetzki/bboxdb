@@ -6,6 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.2.4 (Stable) - TBA
+- New Feature: Support multiple storage locations
 
 ### Version 0.2.3 (Stable) - 09.04.2017
 - New Feature: Futures now store the completion time 

@@ -20,8 +20,6 @@ package org.bboxdb.tools;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 
-import org.bboxdb.BBoxDBConfiguration;
-import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -33,6 +31,11 @@ import org.slf4j.LoggerFactory;
 
 public class SSTableExaminer implements Runnable {
 
+	/**
+	 * The base directory
+	 */
+	protected final String baseDirectory;
+	
 	/**
 	 * The number of the table
 	 */
@@ -52,9 +55,11 @@ public class SSTableExaminer implements Runnable {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableExaminer.class);
+
 	
 	
-	public SSTableExaminer(final SSTableName relationname, final int tableNumber, final String examineKey) {
+	public SSTableExaminer(final String baseDirectory, final SSTableName relationname, final int tableNumber, final String examineKey) {
+		this.baseDirectory = baseDirectory;
 		this.tableNumber = tableNumber;
 		this.relationname = relationname;
 		this.examineKey = examineKey;
@@ -62,10 +67,8 @@ public class SSTableExaminer implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			final BBoxDBConfiguration storageConfiguration = BBoxDBConfigurationManager.getConfiguration();
-			
-			final SSTableFacade sstableFacade = new SSTableFacade(storageConfiguration.getDataDirectory(), relationname, tableNumber);
+		try {			
+			final SSTableFacade sstableFacade = new SSTableFacade(baseDirectory, relationname, tableNumber);
 			sstableFacade.init();
 			
 			if(! sstableFacade.acquire()) {
@@ -155,26 +158,28 @@ public class SSTableExaminer implements Runnable {
 	 */
 	public static void main(final String[] args) {
 		
-		if(args.length != 3) {
-			logger.error("Usage: SSTableExaminer <Tablename> <Tablenumber> <Key>");
+		if(args.length != 4) {
+			logger.error("Usage: SSTableExaminer <Base directory> <Tablename> <Tablenumber> <Key>");
 			System.exit(-1);
 		}
 		
-		final SSTableName relationname = new SSTableName(args[0]);
+		final String baseDirectory = args[0];
+		
+		final SSTableName relationname = new SSTableName(args[1]);
 		if(! relationname.isValid()) {
 			logger.error("Relationname {} is invalid, exiting", args[0]);
 			System.exit(-1);
 		}
 		
 		try {
-			final int tableNumber = Integer.parseInt(args[1]);
+			final int tableNumber = Integer.parseInt(args[2]);
 			
-			final String examineKey = args[2];
+			final String examineKey = args[3];
 			
-			final SSTableExaminer dumper = new SSTableExaminer(relationname, tableNumber, examineKey);
+			final SSTableExaminer dumper = new SSTableExaminer(baseDirectory, relationname, tableNumber, examineKey);
 			dumper.run();
 		} catch (NumberFormatException e) {
-			logger.error("Unable to parse {} as tablenumber", args[1]);
+			logger.error("Unable to parse {} as tablenumber", args[2]);
 			System.exit(-1);
 		}
 	}

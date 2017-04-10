@@ -216,7 +216,8 @@ public class SSTableCompactorThread implements Runnable, Stoppable {
 		final DistributionGroupName distributionGroup = ssTableName.getDistributionGroupObject();
 		final int regionId = ssTableName.getRegionId();
 		
-		final long totalSize = StorageRegistry.getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
+		final long totalSize = StorageRegistry
+				.getInstance().getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
 		
 		final long totalSizeInMb = totalSize / (1024 * 1024);
 		logger.info("Test for region split: {}. Size in MB: {}", distributionGroup, totalSizeInMb);

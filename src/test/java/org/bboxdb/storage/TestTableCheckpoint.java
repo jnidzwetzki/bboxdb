@@ -60,9 +60,9 @@ public class TestTableCheckpoint {
 	public void testInsertWithoutFlush() throws StorageManagerException {
 		
 		// Prepare sstable manager
-		StorageRegistry.shutdown(TEST_RELATION);
+		StorageRegistry.getInstance().shutdown(TEST_RELATION);
 		BBoxDBConfigurationManager.getConfiguration().setStorageCheckpointInterval(0);
-		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 
 		Assert.assertTrue(storageManager.getMemtable().isEmpty());
@@ -84,9 +84,9 @@ public class TestTableCheckpoint {
 		final int CHECKPOINT_INTERVAL = 10;
 
 		// Prepare sstable manager
-		StorageRegistry.shutdown(TEST_RELATION);
+		StorageRegistry.getInstance().shutdown(TEST_RELATION);
 		BBoxDBConfigurationManager.getConfiguration().setStorageCheckpointInterval(CHECKPOINT_INTERVAL);
-		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		
 		Assert.assertTrue(storageManager.getMemtable().isEmpty());

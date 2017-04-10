@@ -209,7 +209,8 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		
 		assertChildIsReady(region);
 		
-		final List<SSTableName> localTables = StorageRegistry.getAllTablesForDistributionGroupAndRegionId
+		final List<SSTableName> localTables = StorageRegistry.getInstance()
+				.getAllTablesForDistributionGroupAndRegionId
 				(region.getDistributionGroupName(), region.getRegionId());
 		
 		for(final SSTableName ssTableName : localTables) {
@@ -233,7 +234,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			try {
 				// Redistribute only in memory data
 				distributeData(region, ssTableName, true);	
-				StorageRegistry.deleteTable(ssTableName);	
+				StorageRegistry.getInstance().deleteTable(ssTableName);	
 			} catch (StorageManagerException e) {
 				logger.error("Deleting table failed", e);
 			}
@@ -280,7 +281,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
-		final SSTableManager ssTableManager = StorageRegistry.getSSTableManager(ssTableName);
+		final SSTableManager ssTableManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
 		
 		// Spread data
 		final TupleRedistributor tupleRedistributor = getTupleRedistributor(region, ssTableName);
@@ -295,7 +296,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @throws StorageManagerException
 	 */
 	protected void stopFlushToDisk(final SSTableName ssTableName) throws StorageManagerException {
-		final SSTableManager ssTableManager = StorageRegistry.getSSTableManager(ssTableName);
+		final SSTableManager ssTableManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
 		
 		// Stop flush thread, so new data remains in memory
 		ssTableManager.stopThreads();

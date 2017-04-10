@@ -36,7 +36,8 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	protected boolean performSplit(final DistributionRegion regionToSplit) {
 		final int splitDimension = regionToSplit.getSplitDimension();
 	
-		final List<SSTableName> tables = StorageRegistry.getAllTablesForDistributionGroupAndRegionId
+		final List<SSTableName> tables = StorageRegistry.getInstance()
+				.getAllTablesForDistributionGroupAndRegionId
 				(region.getDistributionGroupName(), region.getRegionId());
 		
 		try {
@@ -45,7 +46,7 @@ public class WeightBasedSplitStrategy extends AbstractRegionSplitStrategy {
 			for(final SSTableName ssTableName : tables) {
 				logger.info("Create split samples for table: {} ", ssTableName.getFullname());
 				
-				final SSTableManager storageInterface = StorageRegistry.getSSTableManager(ssTableName);
+				final SSTableManager storageInterface = StorageRegistry.getInstance().getSSTableManager(ssTableName);
 				final List<ReadOnlyTupleStorage> tupleStores = storageInterface.getTupleStoreInstances().getAllTupleStorages();
 				
 				processTupleStores(tupleStores, splitDimension, regionToSplit, doubleIntervals);

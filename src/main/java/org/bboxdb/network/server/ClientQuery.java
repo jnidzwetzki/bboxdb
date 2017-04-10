@@ -196,7 +196,7 @@ public class ClientQuery implements Closeable {
 		
 		try {
 			final SSTableName sstableName = localTables.remove(0);
-			final SSTableManager storageManager = StorageRegistry.getSSTableManager(sstableName);
+			final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(sstableName);
 			final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
 			currentIterator = queryProcessor.iterator();
 			return true;

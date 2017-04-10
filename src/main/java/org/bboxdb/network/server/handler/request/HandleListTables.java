@@ -49,7 +49,7 @@ public class HandleListTables implements RequestHandler {
 			logger.debug("Got list tables request");
 		}
 		
-		final List<SSTableName> allTables = StorageRegistry.getAllTables();
+		final List<SSTableName> allTables = StorageRegistry.getInstance().getAllTables();
 		final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
 		clientConnectionHandler.writeResultPackage(listTablesResponse);
 		

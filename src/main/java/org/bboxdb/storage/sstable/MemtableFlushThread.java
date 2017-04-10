@@ -20,6 +20,8 @@ package org.bboxdb.storage.sstable;
 import java.util.Queue;
 
 import org.bboxdb.storage.Memtable;
+import org.bboxdb.storage.StorageRegistry;
+import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.ExceptionSafeThread;
 import org.bboxdb.util.Stoppable;
@@ -32,11 +34,6 @@ class MemtableFlushThread extends ExceptionSafeThread implements Stoppable {
 	 * The reference to the sstable Manager
 	 */
 	protected final SSTableManager sstableManager;
-
-	/**
-	 * The data directory
-	 */
-	protected String dataDirectory;
 
 	/**
 	 * The unflushed memtables
@@ -67,8 +64,6 @@ class MemtableFlushThread extends ExceptionSafeThread implements Stoppable {
 		this.sstableManager = ssTableManager;
 		this.unflushedMemtables = ssTableManager.getTupleStoreInstances()
 				.getMemtablesToFlush();
-		this.dataDirectory = sstableManager.getScalephantConfiguration()
-				.getDataDirectory();
 		this.threadname = sstableManager.getSSTableName().getFullname();
 		
 		this.run = true;
@@ -145,9 +140,11 @@ class MemtableFlushThread extends ExceptionSafeThread implements Stoppable {
 		}
 
 		try {
-			final int tableNumber = writeMemtable(memtable);
-			final SSTableFacade facade = new SSTableFacade(dataDirectory,
-					sstableManager.getSSTableName(), tableNumber);
+			final SSTableName sstableName = sstableManager.getSSTableName();
+			final String dataDirectory = StorageRegistry.getInstance().getStorageDirForSSTable(sstableName);
+			final int tableNumber = writeMemtable(dataDirectory, memtable);
+			final SSTableFacade facade = new SSTableFacade(dataDirectory, sstableName, tableNumber);
+			
 			facade.init();
 			
 			sstableManager.getTupleStoreInstances()
@@ -182,12 +179,13 @@ class MemtableFlushThread extends ExceptionSafeThread implements Stoppable {
 
 	/**
 	 * Write a memtable to disk and return the file handle of the table
+	 * @param dataDirectory 
 	 * 
 	 * @param memtable
 	 * @return
 	 * @throws Exception
 	 */
-	protected int writeMemtable(final Memtable memtable) throws Exception {
+	protected int writeMemtable(final String dataDirectory, final Memtable memtable) throws Exception {
 		
 		final int tableNumber = sstableManager.increaseTableNumber();
 		

@@ -46,11 +46,11 @@ public class TestStorageRegistry {
 	 */
 	@Test
 	public void testRegisterAndUnregister() throws StorageManagerException {
-		Assert.assertFalse(StorageRegistry.isStorageManagerActive(RELATION_NAME));
-		StorageRegistry.getSSTableManager(RELATION_NAME);
-		Assert.assertTrue(StorageRegistry.isStorageManagerActive(RELATION_NAME));
-		StorageRegistry.shutdown(RELATION_NAME);
-		Assert.assertFalse(StorageRegistry.isStorageManagerActive(RELATION_NAME));
+		Assert.assertFalse(StorageRegistry.getInstance().isStorageManagerActive(RELATION_NAME));
+		StorageRegistry.getInstance().getSSTableManager(RELATION_NAME);
+		Assert.assertTrue(StorageRegistry.getInstance().isStorageManagerActive(RELATION_NAME));
+		StorageRegistry.getInstance().shutdown(RELATION_NAME);
+		Assert.assertFalse(StorageRegistry.getInstance().isStorageManagerActive(RELATION_NAME));
 	}
 	
 	/**
@@ -61,7 +61,7 @@ public class TestStorageRegistry {
 	@Test
 	public void testDeleteTable() throws StorageManagerException, InterruptedException {
 		
-		final SSTableManager storageManager = StorageRegistry.getSSTableManager(RELATION_NAME);
+		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -71,13 +71,15 @@ public class TestStorageRegistry {
 		// Wait for requests to settle
 		Thread.sleep(10000);
 		
-		StorageRegistry.deleteTable(RELATION_NAME);
+		StorageRegistry.getInstance().deleteTable(RELATION_NAME);
 		
 		Assert.assertTrue(storageManager.isShutdownComplete());
 		
 		// Check the removal of the directory
 		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-		final String pathname = SSTableHelper.getSSTableDir(configuration.getDataDirectory(), RELATION_NAME);
+		final String storageDirectory = configuration.getStorageDirectories().get(0);
+
+		final String pathname = SSTableHelper.getSSTableDir(storageDirectory, RELATION_NAME);
 		final File directory = new File(pathname);
 		
 		System.out.println("Check for " + directory);
@@ -93,7 +95,7 @@ public class TestStorageRegistry {
 	@Test
 	public void testCalculateSize() throws StorageManagerException, InterruptedException {
 		
-		final SSTableManager storageManager = StorageRegistry.getSSTableManager(RELATION_NAME);
+		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -103,20 +105,20 @@ public class TestStorageRegistry {
 		// Wait for requests to settle
 		Thread.sleep(10000);
 		
-		System.out.println(StorageRegistry.getAllTables());
-		Assert.assertTrue(StorageRegistry.getAllTables().contains(RELATION_NAME));
+		System.out.println(StorageRegistry.getInstance().getAllTables());
+		Assert.assertTrue(StorageRegistry.getInstance().getAllTables().contains(RELATION_NAME));
 		
 		final long size1 = 
-				StorageRegistry.getSizeOfDistributionGroupAndRegionId(
+				StorageRegistry.getInstance().getSizeOfDistributionGroupAndRegionId(
 						RELATION_NAME.getDistributionGroupObject(), 2);
 		
 		Assert.assertTrue(size1 > 0);
 		
-		StorageRegistry.deleteTable(RELATION_NAME);
-		Assert.assertFalse(StorageRegistry.getAllTables().contains(RELATION_NAME));
+		StorageRegistry.getInstance().deleteTable(RELATION_NAME);
+		Assert.assertFalse(StorageRegistry.getInstance().getAllTables().contains(RELATION_NAME));
 		
 		final long size2 = 
-				StorageRegistry.getSizeOfDistributionGroupAndRegionId(
+				StorageRegistry.getInstance().getSizeOfDistributionGroupAndRegionId(
 						RELATION_NAME.getDistributionGroupObject(), 2);
 		
 		Assert.assertTrue(size2 == 0);

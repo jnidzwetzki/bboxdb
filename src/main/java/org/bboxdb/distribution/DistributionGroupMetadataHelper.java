@@ -69,7 +69,10 @@ public class DistributionGroupMetadataHelper {
 	protected static String getFilename(final DistributionGroupName distributionGroupName) {
 		BBoxDBConfiguration bBoxDBConfiguration = BBoxDBConfigurationManager.getConfiguration();
 	    
-	    return SSTableHelper.getDistributionGroupMedatadaFile(bBoxDBConfiguration.getDataDirectory(), distributionGroupName.getFullname());
+		// Choose one location
+	    final String directory = bBoxDBConfiguration.getStorageDirectories().get(0);
+	    
+		return SSTableHelper.getDistributionGroupMedatadaFile(directory, distributionGroupName.getFullname());
 	}
 
 	/**

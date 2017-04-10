@@ -167,7 +167,7 @@ public class RecoveryService implements BBoxDBService {
 			
 			final int regionId = outdatedDistributionRegion.getDistributedRegion().getRegionId();
 			
-			final List<SSTableName> allTables = StorageRegistry
+			final List<SSTableName> allTables = StorageRegistry.getInstance()
 					.getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
 			
 			for(final SSTableName ssTableName : allTables) {
@@ -198,7 +198,7 @@ public class RecoveryService implements BBoxDBService {
 			InterruptedException, ExecutionException {
 		
 		logger.info("Recovery: starting recovery for table {}", ssTableName.getFullname());
-		final SSTableManager tableManager = StorageRegistry.getSSTableManager(ssTableName);
+		final SSTableManager tableManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
 		final TupleListFuture result = connection.queryTime(ssTableName.getFullname(), outdatedDistributionRegion.getLocalVersion());
 		result.waitForAll();
 		

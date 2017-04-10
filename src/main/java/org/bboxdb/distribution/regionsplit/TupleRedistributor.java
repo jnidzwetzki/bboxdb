@@ -91,7 +91,7 @@ public class TupleRedistributor {
 				final SSTableName localTableName = sstableName.cloneWithDifferntRegionId(
 						distributionRegion.getRegionId());
 				
-				final SSTableManager storageManager = StorageRegistry.getSSTableManager(localTableName);
+				final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(localTableName);
 				regionMap.get(distributionRegion).add(new LocalTupleSink(sstableName, storageManager));
 			
 				logger.info("Redistributing data to local table {}", localTableName.getFullname());

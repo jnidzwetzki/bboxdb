@@ -71,7 +71,7 @@ public class HandleDeleteTuple implements RequestHandler {
 			final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
-				final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
+				final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
 				storageManager.delete(deleteTupleRequest.getKey(), deleteTupleRequest.getTimestamp());
 			}
 			

@@ -52,6 +52,11 @@ import org.slf4j.LoggerFactory;
 public class SSTableManager implements BBoxDBService {
 	
 	/**
+	 * The directory where this table is stored
+	 */
+	protected String storageDir;
+	
+	/**
 	 * The name of the table
 	 */
 	protected final SSTableName sstablename;
@@ -111,7 +116,12 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final SSTableName sstablename, final BBoxDBConfiguration configuration) {
+
+
+	public SSTableManager(final String storageDir, final SSTableName sstablename, 
+			final BBoxDBConfiguration configuration) {
+		
+		this.storageDir = storageDir;
 		this.configuration = configuration;
 		this.storageState = new State(false); 
 		this.sstablename = sstablename;
@@ -313,14 +323,7 @@ public class SSTableManager implements BBoxDBService {
 	 * 
 	 */
 	protected void createSSTableDirIfNeeded() throws StorageManagerException {
-		final String dataDirectory = configuration.getDataDirectory();
-		final File rootDir = new File(dataDirectory);
-		
-		if(! rootDir.exists()) {
-			throw new StorageManagerException("Root dir does not exist: " + rootDir);
-		}
-		
-		final String dgroupDir = SSTableHelper.getDistributionGroupDir(dataDirectory, sstablename);
+		final String dgroupDir = SSTableHelper.getDistributionGroupDir(storageDir, sstablename);
 		final File dgroupDirHandle = new File(dgroupDir);
 		
 		if(! dgroupDirHandle.exists()) {
@@ -333,7 +336,7 @@ public class SSTableManager implements BBoxDBService {
 			}
 		}
 		
-		final String ssTableDir = SSTableHelper.getSSTableDir(dataDirectory, sstablename);
+		final String ssTableDir = SSTableHelper.getSSTableDir(storageDir, sstablename);
 		final File ssTableDirHandle = new File(ssTableDir);
 
 		if(! ssTableDirHandle.exists()) {
@@ -374,7 +377,8 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	protected void scanForExistingTables() throws StorageManagerException {
 		logger.info("Scan for existing SSTables: " + sstablename.getFullname());
-		final File directoryHandle = new File(SSTableHelper.getSSTableDir(configuration.getDataDirectory(), sstablename));
+		final String ssTableDir = SSTableHelper.getSSTableDir(storageDir, sstablename);
+		final File directoryHandle = new File(ssTableDir);
 		
 	    checkSSTableDir(directoryHandle);
 	
@@ -387,7 +391,7 @@ public class SSTableManager implements BBoxDBService {
 				
 				try {
 					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(sstablename, filename);
-					final SSTableFacade facade = new SSTableFacade(configuration.getDataDirectory(), sstablename, sequenceNumber);
+					final SSTableFacade facade = new SSTableFacade(storageDir, sstablename, sequenceNumber);
 					facade.init();
 					tupleStoreInstances.addNewDetectedSSTable(facade);
 				} catch(StorageManagerException e) {
@@ -573,7 +577,7 @@ public class SSTableManager implements BBoxDBService {
 	 * Returns the configuration
 	 * @return
 	 */
-	public BBoxDBConfiguration getScalephantConfiguration() {
+	public BBoxDBConfiguration getConfiguration() {
 		return configuration;
 	}
 
@@ -651,7 +655,7 @@ public class SSTableManager implements BBoxDBService {
 		shutdown();
 		waitForShutdownToComplete();
 		
-		deletePersistentTableData(configuration.getDataDirectory(), getSSTableName());
+		deletePersistentTableData(storageDir, getSSTableName());
 		
 		init();
 	}

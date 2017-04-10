@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.bboxdb.BBoxDBConfiguration;
@@ -41,22 +42,69 @@ public class StorageRegistry {
 	/**
 	 * A map with all created storage instances
 	 */
-	protected static final Map<SSTableName, SSTableManager> instances;
+	protected final Map<SSTableName, SSTableManager> managerInstances;
 	
 	/**
 	 * The used storage configuration
 	 */
-	protected static BBoxDBConfiguration configuration;
+	protected final BBoxDBConfiguration configuration;
+	
+	/**
+	 * The list of the storage directories
+	 */
+	protected final List<String> storageDirectories;
+	
+	/**
+	 * A map that contains the storage directory for the sstable
+	 */
+	protected final Map<SSTableName, File> sstableLocations;
+	
+	/**
+	 * The singleton instance
+	 */
+	protected static StorageRegistry instance;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(StorageRegistry.class);
 
-	
-	static {
+	private StorageRegistry() {
 		configuration = BBoxDBConfigurationManager.getConfiguration();
-		instances = new HashMap<SSTableName, SSTableManager>();
+		managerInstances = new HashMap<>();
+		sstableLocations = new HashMap<>();
+		storageDirectories = configuration.getStorageDirectories();
+		
+		if(storageDirectories.isEmpty()) {
+			throw new IllegalArgumentException("Unable to build a storage registry without any data directory");
+		}
+		
+		// Populate the sstable location map
+		for(final String directory : storageDirectories) {
+			try {
+				scanDirectory(directory);
+			} catch (StorageManagerException e) {
+				logger.error("Directory {} does not exists, exiting...", directory);
+				System.exit(-1);
+			}
+		}
+	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		throw new IllegalStateException("Unable to clone a singleton");
+	}
+	
+	/**
+	 * Get the singleton instance
+	 * @return
+	 */
+	public static synchronized StorageRegistry getInstance() {
+		if(instance == null) {
+			instance = new StorageRegistry();
+		}
+		
+		return instance;
 	}
 	
 	/**
@@ -65,20 +113,33 @@ public class StorageRegistry {
 	 * 
 	 * @return
 	 */
-	public static synchronized SSTableManager getSSTableManager(final SSTableName table) throws StorageManagerException {
+	public synchronized SSTableManager getSSTableManager(final SSTableName table) throws StorageManagerException {
 		
 		if(! table.isValid()) {
 			throw new StorageManagerException("Invalid tablename: " + table);
 		}
 
-		if(instances.containsKey(table)) {
-			return instances.get(table);
+		// Instance is known
+		if(managerInstances.containsKey(table)) {
+			return managerInstances.get(table);
 		}
 		
-		final SSTableManager sstableManager = new SSTableManager(table, configuration);
+		
+		SSTableManager sstableManager = null;
+		
+		// We have already data
+		if(sstableLocations.containsKey(table)) {
+			final File location = sstableLocations.get(table);
+			sstableManager = new SSTableManager(location.getAbsolutePath(), table, configuration);
+		} else {
+			// Find a new storate directory for the sstable manager
+			final String location = getLowerstUtilizedDataLocation();
+			sstableManager = new SSTableManager(location, table, configuration);
+		}
+		
 		sstableManager.init();
 		
-		instances.put(table, sstableManager);
+		managerInstances.put(table, sstableManager);
 		
 		return sstableManager;
 	}
@@ -88,14 +149,14 @@ public class StorageRegistry {
 	 * @param table
 	 * @return
 	 */
-	public static synchronized boolean shutdown(final SSTableName table) {
+	public synchronized boolean shutdown(final SSTableName table) {
 		
-		if(! instances.containsKey(table)) {
+		if(! managerInstances.containsKey(table)) {
 			return false;
 		}
 		
-		logger.info("Shuting down storage interface for: " + table);
-		final SSTableManager sstableManager = instances.remove(table);
+		logger.info("Shuting down storage interface for: {}", table);
+		final SSTableManager sstableManager = managerInstances.remove(table);
 		sstableManager.shutdown();	
 		sstableManager.waitForShutdownToComplete();
 		
@@ -103,21 +164,55 @@ public class StorageRegistry {
 	}
 	
 	/**
+	 * Get the lowest utilized data storage location
+	 * @return
+	 */
+	public String getLowerstUtilizedDataLocation() {
+		
+		// Group by usage
+		final Map<File, Long> usage = sstableLocations
+			.values()
+			.stream()
+			.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		
+		// Find the lowest usage
+		final long lowestUsage = usage.values()
+			.stream()
+			.mapToLong(e -> e)
+			.min()
+			.orElseThrow(() -> new IllegalArgumentException("Unable to found lowest usage"));
+			
+		// Return the location
+		final File location = usage.entrySet()
+			.stream()
+			.filter(e -> e.getValue() == lowestUsage)
+			.findFirst()
+			.map(e -> e.getKey())
+			.orElseThrow(() -> new IllegalArgumentException("Unable to found lowest location"));
+		
+		return location.getAbsolutePath();
+	}
+	
+	/**
 	 * Delete the given table
 	 * @param table
 	 * @throws StorageManagerException 
 	 */
-	public static synchronized void deleteTable(final SSTableName table) throws StorageManagerException {
+	public synchronized void deleteTable(final SSTableName table) throws StorageManagerException {
 		
 		if(! table.isValid()) {
 			throw new StorageManagerException("Invalid tablename: " + table);
 		}
 		
-		if(instances.containsKey(table)) {
+		if(managerInstances.containsKey(table)) {
 			shutdown(table);
 		}
 
-		SSTableManager.deletePersistentTableData(configuration.getDataDirectory(), table);
+		assert (sstableLocations.containsKey(table)) : "Table not known" + table;
+		
+		final String absolutePath = sstableLocations.get(table).getAbsolutePath();
+		SSTableManager.deletePersistentTableData(absolutePath, table);
+		sstableLocations.remove(table);
 	}
 	
 	/**
@@ -125,7 +220,7 @@ public class StorageRegistry {
 	 * @param distributionGroupName
 	 * @throws StorageManagerException 
 	 */
-	public static synchronized void deleteAllTablesInDistributionGroup(final DistributionGroupName distributionGroupName) throws StorageManagerException {
+	public synchronized void deleteAllTablesInDistributionGroup(final DistributionGroupName distributionGroupName) throws StorageManagerException {
 		
 		final String distributionGroupString = distributionGroupName.getFullname();
 		
@@ -133,7 +228,7 @@ public class StorageRegistry {
 		logger.info("Shuting down active memtables for distribution group: " + distributionGroupString);
 		
 		// Create a copy of the key set to allow deletions (performed by shutdown) during iteration
-		final Set<SSTableName> copyOfInstances = new HashSet<SSTableName>(instances.keySet());
+		final Set<SSTableName> copyOfInstances = new HashSet<SSTableName>(managerInstances.keySet());
 		for(final SSTableName ssTableName : copyOfInstances) {
 			if(ssTableName.getDistributionGroup().equals(distributionGroupString)) {
 				shutdown(ssTableName);
@@ -149,23 +244,26 @@ public class StorageRegistry {
 		}
 		
 		// Delete the group dir
-		logger.info("Deleting all local stored data for distribution group: " + distributionGroupString);
-		final String directory = configuration.getDataDirectory();
-		deleteMedatadaOfDistributionGroup(distributionGroupString, directory);
-
-		final String groupDirName = SSTableHelper.getDistributionGroupDir(directory, distributionGroupString);
-		final File groupDir = new File(groupDirName);
-		final String[] childs = groupDir.list();
-		
-		if(childs != null && childs.length > 0) {
-			final List<String> childList = Arrays.asList(childs);
-			throw new StorageManagerException("Unable to delete non empty dir: " 
-					+ groupDirName + " / " + childList);
-		}
-		
-		if(groupDir.exists()) {
-			logger.debug("Deleting {}", groupDir);
-			groupDir.delete();
+		for(final String directory : storageDirectories) {
+			logger.info("Deleting all local stored data for distribution group {} in path {} ",
+					distributionGroupString, directory);
+			
+			deleteMedatadaOfDistributionGroup(distributionGroupString, directory);
+	
+			final String groupDirName = SSTableHelper.getDistributionGroupDir(directory, distributionGroupString);
+			final File groupDir = new File(groupDirName);
+			final String[] childs = groupDir.list();
+			
+			if(childs != null && childs.length > 0) {
+				final List<String> childList = Arrays.asList(childs);
+				throw new StorageManagerException("Unable to delete non empty dir: " 
+						+ groupDirName + " / " + childList);
+			}
+			
+			if(groupDir.exists()) {
+				logger.debug("Deleting {}", groupDir);
+				groupDir.delete();
+			}
 		}
 	}
 
@@ -191,8 +289,8 @@ public class StorageRegistry {
 	 * @param table
 	 * @return
 	 */
-	public static synchronized boolean isStorageManagerActive(final SSTableName table) {
-		return instances.containsKey(table);
+	public synchronized boolean isStorageManagerActive(final SSTableName table) {
+		return managerInstances.containsKey(table);
 	}
 	
 	/**
@@ -200,14 +298,30 @@ public class StorageRegistry {
 	 * 
 	 * @return
 	 */
-	public static List<SSTableName> getAllTables() {
-		final List<SSTableName> allTables = new ArrayList<SSTableName>();
-		
-		final String dataDir = SSTableHelper.getDataDir(configuration.getDataDirectory());
+	public List<SSTableName> getAllTables() {
+		final List<SSTableName> tables = new ArrayList<>(sstableLocations.size());
+		tables.addAll(sstableLocations.keySet());
+		return tables;
+	}
+	
+	/**
+	 * Scan the given directory for existing sstables and add them
+	 * to the sstable location map
+	 * @param storageDirectory
+	 * @throws StorageManagerException 
+	 */
+	protected void scanDirectory(final String storageDirectory) throws StorageManagerException {
+	
+		final String dataDir = SSTableHelper.getDataDir(storageDirectory);
 		final File folder = new File(dataDir);
 
 		// Distribution groups
 		for (final File fileEntry : folder.listFiles()) {
+						
+			if(! fileEntry.exists()) {
+				throw new StorageManagerException("Root dir does not exist: " + fileEntry);
+			}
+			
 	        if (fileEntry.isDirectory()) {
 	        	final String distributionGroup = fileEntry.getName();
 	        	final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
@@ -219,13 +333,12 @@ public class StorageRegistry {
 			        if (tableEntry.isDirectory()) {
 			        	final String tablename = tableEntry.getName();
 			        	final String fullname = distributionGroupName.getFullname() + "_" + tablename;
-			        	allTables.add(new SSTableName(fullname));
+			        	final SSTableName sstableName = new SSTableName(fullname);
+						sstableLocations.put(sstableName, tableEntry);
 			        }
 	    		}
 	        } 
 	    }
-		
-		return allTables;
 	}
 	
 	/**
@@ -234,7 +347,7 @@ public class StorageRegistry {
 	 * @param regionId
 	 * @return
 	 */
-	public static List<SSTableName> getAllTablesForDistributionGroupAndRegionId
+	public List<SSTableName> getAllTablesForDistributionGroupAndRegionId
 		(final DistributionGroupName distributionGroupName, final int regionId) {
 		
 		final List<SSTableName> groupTables = getAllTablesForDistributionGroup(distributionGroupName);
@@ -252,7 +365,7 @@ public class StorageRegistry {
 	 * @return
 	 * @throws StorageManagerException
 	 */
-	public static long getSizeOfDistributionGroupAndRegionId
+	public long getSizeOfDistributionGroupAndRegionId
 		(final DistributionGroupName distributionGroupName, final int regionId) 
 				throws StorageManagerException {
 		
@@ -272,12 +385,10 @@ public class StorageRegistry {
 	 * Get all tables for a given distribution group
 	 * @return
 	 */
-	public static List<SSTableName> getAllTablesForDistributionGroup
+	public List<SSTableName> getAllTablesForDistributionGroup
 		(final DistributionGroupName distributionGroupName) {
 		
-		final List<SSTableName> allTables = getAllTables();
-		
-		return allTables
+		return sstableLocations.keySet()
 			.stream()
 			.filter(s -> s.getDistributionGroupObject().equals(distributionGroupName))
 			.collect(Collectors.toList());
@@ -291,11 +402,23 @@ public class StorageRegistry {
 	protected void finalize() throws Throwable {
 		super.finalize();
 		
-		if(instances != null) {
-			for(final SSTableName table : instances.keySet()) {
-				final SSTableManager sstableManager = instances.get(table);
+		if(managerInstances != null) {
+			for(final SSTableName table : managerInstances.keySet()) {
+				final SSTableManager sstableManager = managerInstances.get(table);
 				sstableManager.shutdown();
 			}
 		}
+		
+		storageDirectories.clear();
+		sstableLocations.clear();
+	}
+	
+	/**
+	 * Get the storage directory for the sstable
+	 * @param ssTableName
+	 * @return
+	 */
+	public String getStorageDirForSSTable(final SSTableName ssTableName) {
+		return sstableLocations.get(ssTableName).getAbsolutePath();
 	}
 }

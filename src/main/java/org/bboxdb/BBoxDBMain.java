@@ -121,13 +121,16 @@ public class BBoxDBMain {
 	 * @return
 	 */
 	protected boolean runBaseChecks() {
-		final String dataDir = BBoxDBConfigurationManager.getConfiguration().getDataDirectory();
-		final File dataDirHandle = new File(dataDir);
+		final List<String> dataDirs = BBoxDBConfigurationManager.getConfiguration().getStorageDirectories();
 		
-		// Ensure that the server main dir does exist
-		if(! dataDirHandle.exists() ) {
-			logger.error("Data directory does not exist: {}", dataDir);
-			return false;
+		for(final String dataDir : dataDirs) {
+			final File dataDirHandle = new File(dataDir);
+			
+			// Ensure that the server main dir does exist
+			if(! dataDirHandle.exists() ) {
+				logger.error("Data directory does not exist: {}", dataDir);
+				return false;
+			}
 		}
 		
 		return true;

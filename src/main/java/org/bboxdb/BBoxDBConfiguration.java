@@ -19,7 +19,9 @@ package org.bboxdb;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +29,9 @@ import org.slf4j.LoggerFactory;
 public class BBoxDBConfiguration {
 
 	/**
-	 *  The directory to store data
+	 *  The directories to store data
 	 */
-	protected String dataDirectory = "/tmp/bboxdb";
+	protected List<String> storageDirectories = Arrays.asList("/tmp/bboxdb");
 	
 	/**
 	 * The commit log dir
@@ -117,14 +119,6 @@ public class BBoxDBConfiguration {
 		} catch (UnknownHostException e) {
 			logger.warn("Unable to determine the local IP adress of this node, please specify 'localip' in the configuration", e);
 		}
-	}
-	
-	public String getDataDirectory() {
-		return dataDirectory;
-	}
-	
-	public void setDataDirectory(final String dataDirectory) {
-		this.dataDirectory = dataDirectory;
 	}
 
 	public String getCommitlogDir() {
@@ -246,6 +240,14 @@ public class BBoxDBConfiguration {
 
 	public void setRegionMaxSize(final long regionMaxSize) {
 		this.regionMaxSize = regionMaxSize;
+	}
+
+	public List<String> getStorageDirectories() {
+		return storageDirectories;
+	}
+
+	public void setStorageDirectories(final List<String> storageDirectories) {
+		this.storageDirectories = storageDirectories;
 	}
 	
 }

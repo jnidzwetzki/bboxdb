@@ -70,7 +70,7 @@ public class HandleDeleteTable implements RequestHandler {
 			final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 			
 			for(final SSTableName ssTableName : localTables) {
-				StorageRegistry.deleteTable(ssTableName);	
+				StorageRegistry.getInstance().deleteTable(ssTableName);	
 			}
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));

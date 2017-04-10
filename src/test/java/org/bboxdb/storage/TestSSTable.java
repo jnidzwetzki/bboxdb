@@ -42,7 +42,7 @@ public class TestSSTable {
 	/**
 	 * The directory for the output
 	 */
-	protected static final String DATA_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getDataDirectory();
+	protected static final String STORAGE_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getStorageDirectories().get(0);
 	
 	/**
 	 * The name of the test relation
@@ -60,13 +60,13 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testWrittenFiles() throws Exception {
-		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
+		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();
@@ -83,19 +83,19 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testIndexIterator() throws Exception {
-		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
+		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableIndexFile = ssTableWriter.getSstableIndexFile();
 		ssTableWriter.close();
 		
-		final SSTableReader sstableReader = new SSTableReader(DATA_DIRECTORY, TEST_RELATION, 1);
+		final SSTableReader sstableReader = new SSTableReader(STORAGE_DIRECTORY, TEST_RELATION, 1);
 		sstableReader.init();
 		final SSTableKeyIndexReader ssTableIndexReader = new SSTableKeyIndexReader(sstableReader);
 		ssTableIndexReader.init();
@@ -138,11 +138,11 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testDelayedDeletion() throws Exception {
-		final SSTableManager storageManager = StorageRegistry.getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
 		storageManager.clear();
 		storageManager.shutdown();
 	
-		final String relationDirectory = SSTableHelper.getSSTableDir(DATA_DIRECTORY, TEST_RELATION);
+		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
 		
 		// Directory should be empty
@@ -150,7 +150,7 @@ public class TestSSTable {
 		
 		final List<Tuple> tupleList = createTupleList();
 		
-		final SSTableWriter ssTableWriter = new SSTableWriter(DATA_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
+		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
 		ssTableWriter.open();
 		ssTableWriter.addData(tupleList);
 		final File sstableFile = ssTableWriter.getSstableFile();
@@ -160,7 +160,7 @@ public class TestSSTable {
 		Assert.assertTrue(sstableFile.exists());
 		Assert.assertTrue(sstableIndexFile.exists());
 		
-		final ReadOnlyTupleStorage ssTableFacade = new SSTableFacade(DATA_DIRECTORY, TEST_RELATION, 1);
+		final ReadOnlyTupleStorage ssTableFacade = new SSTableFacade(STORAGE_DIRECTORY, TEST_RELATION, 1);
 		ssTableFacade.acquire();
 		ssTableFacade.deleteOnClose();
 		

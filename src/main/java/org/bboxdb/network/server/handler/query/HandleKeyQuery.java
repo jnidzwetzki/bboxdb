@@ -65,7 +65,7 @@ public class HandleKeyQuery implements QueryHandler {
 				final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 				
 				for(final SSTableName ssTableName : localTables) {
-					final SSTableManager storageManager = StorageRegistry.getSSTableManager(ssTableName);
+					final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
 					final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
 					
 					if(tuple != null) {
