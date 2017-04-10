@@ -61,7 +61,7 @@ public class NetworkConnectionService implements BBoxDBService {
 	/**
 	 * The state of the server (readonly or readwrite)
 	 */
-	protected final NetworkConnectionServiceState networkConnectionServiceState = new NetworkConnectionServiceState();
+	protected final ServerOperationMode networkConnectionServiceState = new ServerOperationMode();
 	
 	/**
 	 * The Logger

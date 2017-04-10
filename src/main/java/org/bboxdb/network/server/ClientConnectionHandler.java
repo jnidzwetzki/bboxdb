@@ -95,7 +95,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	/**
 	 * The state of the server (read only or read write)
 	 */
-	protected final NetworkConnectionServiceState networkConnectionServiceState;
+	protected final ServerOperationMode serverOperationMode;
 	
 	/**
 	 * The capabilities of the connection
@@ -149,11 +149,12 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
 
 
-	public ClientConnectionHandler(final Socket clientSocket, final NetworkConnectionServiceState networkConnectionServiceState) {
+	public ClientConnectionHandler(final Socket clientSocket, 
+			final ServerOperationMode serverOperationMode) {
 		
 		// The network connection state
 		this.clientSocket = clientSocket;
-		this.networkConnectionServiceState = networkConnectionServiceState;
+		this.serverOperationMode = serverOperationMode;
 		
 		this.setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING);
 		
@@ -569,8 +570,8 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * Get the network connection state
 	 * @return
 	 */
-	public NetworkConnectionServiceState getNetworkConnectionServiceState() {
-		return networkConnectionServiceState;
+	public ServerOperationMode getNetworkConnectionServiceState() {
+		return serverOperationMode;
 	}
 
 	public NetworkConnectionState getConnectionState() {

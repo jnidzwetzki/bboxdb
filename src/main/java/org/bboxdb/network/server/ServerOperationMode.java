@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.server;
 
-public class NetworkConnectionServiceState {
+public class ServerOperationMode {
 
 	/**
 	 * Readonly mode
