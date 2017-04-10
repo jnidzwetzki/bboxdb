@@ -319,15 +319,15 @@ public class StorageRegistry {
 	 */
 	protected void scanDirectory(final String storageDirectory) throws StorageManagerException {
 	
-		final String dataDir = SSTableHelper.getDataDir(storageDirectory);
-		final File folder = new File(dataDir);
+		final String dataDirString = SSTableHelper.getDataDir(storageDirectory);
+		final File dataDir = new File(dataDirString);
+		
+		if(! dataDir.exists()) {
+			throw new StorageManagerException("Root dir does not exist: " + dataDir);
+		}
 
 		// Distribution groups
-		for (final File fileEntry : folder.listFiles()) {
-						
-			if(! fileEntry.exists()) {
-				throw new StorageManagerException("Root dir does not exist: " + fileEntry);
-			}
+		for (final File fileEntry : dataDir.listFiles()) {
 			
 	        if (fileEntry.isDirectory()) {
 	        	final String distributionGroup = fileEntry.getName();
