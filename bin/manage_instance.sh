@@ -50,7 +50,7 @@ bboxdb_update() {
    
    rm target/*.jar
    
-   mvn package -DskipTests -Dassembly.skipAssembly=true
+   mvn package -DskipTests
    
    echo -e "BBoxDB data is successfully updated $done"
 }
