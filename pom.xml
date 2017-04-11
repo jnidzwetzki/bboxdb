@@ -7,6 +7,7 @@
 	<name>BBoxDB</name>
 
 	<properties>
+		<assembly.skipAssembly>true</assembly.skipAssembly>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -123,6 +124,7 @@
 				<configuration>
 					<descriptor>src/assembly.xml</descriptor>
 					<finalName>bboxdb-${project.version}</finalName>
+					<skipAssembly>${assembly.skipAssembly}</skipAssembly>
 				</configuration>
 				<executions>
 					<execution>
