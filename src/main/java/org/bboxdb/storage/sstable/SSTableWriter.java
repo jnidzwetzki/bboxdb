@@ -358,7 +358,7 @@ public class SSTableWriter implements AutoCloseable {
 		
 		final ByteBuffer boxLengthBytes = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
 		final ByteBuffer dataLengthBytes = DataEncoderHelper.intToByteBuffer(data.length);
-	    final ByteBuffer timestampBytes = DataEncoderHelper.longToByteBuffer(tuple.getTimestamp());
+	    final ByteBuffer timestampBytes = DataEncoderHelper.longToByteBuffer(tuple.getVersionTimestamp());
 	    
 	    sstableOutputStream.write(keyLengthBytes.array());
 		sstableOutputStream.write(boxLengthBytes.array());

@@ -151,16 +151,16 @@ public class QueryProcessor {
 				
 					if(seenTuples.containsKey(possibleTuple.getKey())) {
 						final long oldTimestamp = seenTuples.get(possibleTuple.getKey());
-						if(oldTimestamp < possibleTuple.getTimestamp()) {
+						if(oldTimestamp < possibleTuple.getVersionTimestamp()) {
 							logger.warn("Unprocessded: {}", unprocessedStorages);
 							logger.warn("Aquired: {}", aquiredStorages);
 							logger.warn("Got newer tuple {} than {}", possibleTuple, oldTimestamp);
-							seenTuples.put(possibleTuple.getKey(), possibleTuple.getTimestamp());
+							seenTuples.put(possibleTuple.getKey(), possibleTuple.getVersionTimestamp());
 						}
 					} else {
 						// Set nextTuple != null to exit the loop
 						nextTuple = getMostRecentVersionForTuple(possibleTuple);
-						seenTuples.put(possibleTuple.getKey(), possibleTuple.getTimestamp());
+						seenTuples.put(possibleTuple.getKey(), possibleTuple.getVersionTimestamp());
 					}
 				}
 			}

@@ -163,15 +163,15 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 		sizeInMemory = sizeInMemory + value.getSize();
 		
 		if(oldestTupleTimestamp == -1) {
-			oldestTupleTimestamp = value.getTimestamp();
+			oldestTupleTimestamp = value.getVersionTimestamp();
 		} else {
-			oldestTupleTimestamp = Math.min(oldestTupleTimestamp, value.getTimestamp());
+			oldestTupleTimestamp = Math.min(oldestTupleTimestamp, value.getVersionTimestamp());
 		}
 		
 		if(newestTupleTimestamp == -1) {
-			newestTupleTimestamp = value.getTimestamp();
+			newestTupleTimestamp = value.getVersionTimestamp();
 		} else {
-			newestTupleTimestamp = Math.max(newestTupleTimestamp, value.getTimestamp());
+			newestTupleTimestamp = Math.max(newestTupleTimestamp, value.getVersionTimestamp());
 		}
 	}
 
@@ -230,7 +230,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 			if(! allTuples.containsKey(key)) {
 				allTuples.put(key, data[i]);
 			} else {
-				if(allTuples.get(key).getTimestamp() < data[i].getTimestamp()) {
+				if(allTuples.get(key).getVersionTimestamp() < data[i].getVersionTimestamp()) {
 					
 					if(data[i] instanceof DeletedTuple) {
 						allTuples.remove(key);

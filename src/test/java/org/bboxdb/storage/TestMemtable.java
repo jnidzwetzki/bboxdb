@@ -194,9 +194,9 @@ public class TestMemtable {
 		Assert.assertEquals(3, countTuplesForPredicate(new NewerAsTimePredicate(0)));
 		Assert.assertEquals(0, countTuplesForPredicate(new NewerAsTimePredicate(Long.MAX_VALUE)));
 		
-		Assert.assertEquals(2, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple1.getTimestamp())));
-		Assert.assertEquals(1, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple2.getTimestamp())));
-		Assert.assertEquals(0, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple3.getTimestamp())));
+		Assert.assertEquals(2, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple1.getVersionTimestamp())));
+		Assert.assertEquals(1, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple2.getVersionTimestamp())));
+		Assert.assertEquals(0, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple3.getVersionTimestamp())));
 	}
 	
 	protected int countTuplesForPredicate(Predicate predicate) {

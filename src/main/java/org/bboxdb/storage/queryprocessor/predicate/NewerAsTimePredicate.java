@@ -29,7 +29,7 @@ public class NewerAsTimePredicate implements Predicate {
 
 	@Override
 	public boolean matches(final Tuple tuple) {
-		if(tuple.getTimestamp() > time) {
+		if(tuple.getVersionTimestamp() > time) {
 			return true;
 		}
 		

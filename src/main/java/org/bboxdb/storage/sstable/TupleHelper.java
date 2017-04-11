@@ -42,7 +42,7 @@ public class TupleHelper {
 			return tuple1;
 		}
 		
-		if(tuple1.getTimestamp() > tuple2.getTimestamp()) {
+		if(tuple1.getVersionTimestamp() > tuple2.getVersionTimestamp()) {
 			return tuple1;
 		}
 		
@@ -79,7 +79,7 @@ public class TupleHelper {
 			return true;
 		}
 		
-		if(storage.getNewestTupleTimestampMicroseconds() > tuple.getTimestamp()) {
+		if(storage.getNewestTupleTimestampMicroseconds() > tuple.getVersionTimestamp()) {
 			return true;
 		}
 		

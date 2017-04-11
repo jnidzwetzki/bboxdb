@@ -31,7 +31,7 @@ public class DeletedTuple extends Tuple {
 
 	@Override
 	public String toString() {
-		return "DeletedTuple [key=" + key + ", timestamp=" + timestamp + "]";
+		return "DeletedTuple [key=" + key + ", versionTimestamp=" + versionTimestamp + "]";
 	}
 	
 	@Override

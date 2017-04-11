@@ -83,7 +83,7 @@ public class NetworkTupleEncoderDecoder {
 		bb.putShort((short) keyBytes.length);
 		bb.putInt(bboxBytes.length);
 		bb.putInt(tuple.getDataBytes().length);
-		bb.putLong(tuple.getTimestamp());
+		bb.putLong(tuple.getVersionTimestamp());
 
 		// Write body
 		bos.write(bb.array());

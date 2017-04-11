@@ -27,22 +27,22 @@ public class Tuple implements Comparable<Tuple> {
 	protected BoundingBox boundingBox;
 	protected byte[] dataBytes;
 	protected short seen;
-	protected long timestamp;
+	protected long versionTimestamp;
 	
 	public Tuple(final String key, final BoundingBox boundingBox, final byte[] dataBytes) {
 		this.key = key;
 		this.boundingBox = boundingBox;
 		this.dataBytes = dataBytes;
-		this.timestamp = MicroSecondTimestampProvider.getNewTimestamp();
+		this.versionTimestamp = MicroSecondTimestampProvider.getNewTimestamp();
 	}
 	
 	public Tuple(final String key, final BoundingBox boundingBox, 
-			final byte[] dataBytes, final long timestamp) {
+			final byte[] dataBytes, final long versionTimestamp) {
 		
 		this.key = key;
 		this.boundingBox = boundingBox;
 		this.dataBytes = dataBytes;
-		this.timestamp = timestamp;
+		this.versionTimestamp = versionTimestamp;
 	}
 
 	/**
@@ -74,12 +74,12 @@ public class Tuple implements Comparable<Tuple> {
 	}
 	
 	/**
-	 * Get the timestamp of the tuple
+	 * Get the version timestamp of the tuple
 	 * 
 	 * @return
 	 */
-	public long getTimestamp() {
-		return timestamp;
+	public long getVersionTimestamp() {
+		return versionTimestamp;
 	}
 	
 	/**
@@ -112,7 +112,7 @@ public class Tuple implements Comparable<Tuple> {
 	public String toString() {
 		return "Tuple [key=" + key + ", boundingBox=" + boundingBox
 				+ ", dataBytes=" + Arrays.toString(dataBytes) + ", seen=" + seen
-				+ ", timestamp=" + timestamp + "]";
+				+ ", timestamp=" + versionTimestamp + "]";
 	}
 
 	@Override
@@ -124,7 +124,7 @@ public class Tuple implements Comparable<Tuple> {
 		result = prime * result + Arrays.hashCode(dataBytes);
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		result = prime * result + seen;
-		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
+		result = prime * result + (int) (versionTimestamp ^ (versionTimestamp >>> 32));
 		return result;
 	}
 
@@ -151,7 +151,7 @@ public class Tuple implements Comparable<Tuple> {
 			return false;
 		if (seen != other.seen)
 			return false;
-		if (timestamp != other.timestamp)
+		if (versionTimestamp != other.versionTimestamp)
 			return false;
 		return true;
 	}
@@ -162,7 +162,7 @@ public class Tuple implements Comparable<Tuple> {
 		
 		if(res == 0) {
 			// The most recent version at top
-			return Long.compare(timestamp, otherTuple.getTimestamp()) * -1;
+			return Long.compare(versionTimestamp, otherTuple.getVersionTimestamp()) * -1;
 		}
 			
 		return res;
