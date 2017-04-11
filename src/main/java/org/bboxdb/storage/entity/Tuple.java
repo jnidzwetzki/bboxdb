@@ -23,11 +23,30 @@ import org.bboxdb.util.MicroSecondTimestampProvider;
 
 public class Tuple implements Comparable<Tuple> {
 	
+	/**
+	 * The key of the tuple
+	 */
 	protected String key;
+	
+	/**
+	 * The bounding box of the tuple
+	 */
 	protected BoundingBox boundingBox;
+	
+	/**
+	 * The data of the tuple
+	 */
 	protected byte[] dataBytes;
-	protected short seen;
+	
+	/**
+	 * The version timestamp
+	 */
 	protected long versionTimestamp;
+	
+	/**
+	 * The received timestamp
+	 */
+	protected long receivedTimestamp;
 	
 	public Tuple(final String key, final BoundingBox boundingBox, final byte[] dataBytes) {
 		this.key = key;
@@ -110,26 +129,25 @@ public class Tuple implements Comparable<Tuple> {
 	
 	@Override
 	public String toString() {
-		return "Tuple [key=" + key + ", boundingBox=" + boundingBox
-				+ ", dataBytes=" + Arrays.toString(dataBytes) + ", seen=" + seen
-				+ ", timestamp=" + versionTimestamp + "]";
+		return "Tuple [key=" + key + ", boundingBox=" + boundingBox + ", dataBytes=" + Arrays.toString(dataBytes)
+			    + ", versionTimestamp=" + versionTimestamp + ", receivedTimestamp="
+				+ receivedTimestamp + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((boundingBox == null) ? 0 : boundingBox.hashCode());
+		result = prime * result + ((boundingBox == null) ? 0 : boundingBox.hashCode());
 		result = prime * result + Arrays.hashCode(dataBytes);
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
-		result = prime * result + seen;
+		result = prime * result + (int) (receivedTimestamp ^ (receivedTimestamp >>> 32));
 		result = prime * result + (int) (versionTimestamp ^ (versionTimestamp >>> 32));
 		return result;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -149,7 +167,7 @@ public class Tuple implements Comparable<Tuple> {
 				return false;
 		} else if (!key.equals(other.key))
 			return false;
-		if (seen != other.seen)
+		if (receivedTimestamp != other.receivedTimestamp)
 			return false;
 		if (versionTimestamp != other.versionTimestamp)
 			return false;
@@ -166,5 +184,13 @@ public class Tuple implements Comparable<Tuple> {
 		}
 			
 		return res;
+	}
+	
+	public long getReceivedTimestamp() {
+		return receivedTimestamp;
+	}
+
+	public void setReceivedTimestamp(final long receivedTimestamp) {
+		this.receivedTimestamp = receivedTimestamp;
 	}
 }
