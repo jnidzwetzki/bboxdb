@@ -7,7 +7,7 @@
 	<name>BBoxDB</name>
 
 	<properties>
-		<assembly.skipAssembly>true</assembly.skipAssembly>
+		<assembly.skipAssembly>false</assembly.skipAssembly>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
