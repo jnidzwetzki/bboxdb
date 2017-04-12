@@ -41,18 +41,19 @@ public class Tuple implements Comparable<Tuple> {
 	/**
 	 * The version timestamp
 	 */
-	protected long versionTimestamp;
+	protected final long versionTimestamp;
 	
 	/**
 	 * The received timestamp
 	 */
-	protected long receivedTimestamp;
+	protected final long receivedTimestamp;
 	
 	public Tuple(final String key, final BoundingBox boundingBox, final byte[] dataBytes) {
 		this.key = key;
 		this.boundingBox = boundingBox;
 		this.dataBytes = dataBytes;
 		this.versionTimestamp = MicroSecondTimestampProvider.getNewTimestamp();
+		this.receivedTimestamp = System.currentTimeMillis();
 	}
 	
 	public Tuple(final String key, final BoundingBox boundingBox, 
@@ -62,6 +63,18 @@ public class Tuple implements Comparable<Tuple> {
 		this.boundingBox = boundingBox;
 		this.dataBytes = dataBytes;
 		this.versionTimestamp = versionTimestamp;
+		this.receivedTimestamp = System.currentTimeMillis();
+	}
+	
+	public Tuple(final String key, final BoundingBox boundingBox, 
+			final byte[] dataBytes, final long versionTimestamp,
+			final long receivedTimestamp) {
+		
+		this.key = key;
+		this.boundingBox = boundingBox;
+		this.dataBytes = dataBytes;
+		this.versionTimestamp = versionTimestamp;
+		this.receivedTimestamp = receivedTimestamp;
 	}
 
 	/**
@@ -190,7 +203,4 @@ public class Tuple implements Comparable<Tuple> {
 		return receivedTimestamp;
 	}
 
-	public void setReceivedTimestamp(final long receivedTimestamp) {
-		this.receivedTimestamp = receivedTimestamp;
-	}
 }
