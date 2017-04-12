@@ -154,7 +154,6 @@ public class Tuple implements Comparable<Tuple> {
 		result = prime * result + ((boundingBox == null) ? 0 : boundingBox.hashCode());
 		result = prime * result + Arrays.hashCode(dataBytes);
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
-		result = prime * result + (int) (receivedTimestamp ^ (receivedTimestamp >>> 32));
 		result = prime * result + (int) (versionTimestamp ^ (versionTimestamp >>> 32));
 		return result;
 	}
@@ -179,8 +178,6 @@ public class Tuple implements Comparable<Tuple> {
 			if (other.key != null)
 				return false;
 		} else if (!key.equals(other.key))
-			return false;
-		if (receivedTimestamp != other.receivedTimestamp)
 			return false;
 		if (versionTimestamp != other.versionTimestamp)
 			return false;
