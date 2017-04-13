@@ -109,7 +109,8 @@ public class SSTableReader extends AbstractTableReader {
 		final short keyLength = memory.getShort();
 		final int boxLength = memory.getInt();
 		final int dataLength = memory.getInt();
-		final long timestamp = memory.getLong();
+		final long versionTimestamp = memory.getLong();
+		final long receivedTimestamp = memory.getLong();
 
 		final byte[] keyBytes = new byte[keyLength];
 		memory.get(keyBytes, 0, keyBytes.length);
@@ -125,10 +126,10 @@ public class SSTableReader extends AbstractTableReader {
 		final String keyString = new String(keyBytes);
 		
 		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
-			return new DeletedTuple(keyString, timestamp);
+			return new DeletedTuple(keyString, versionTimestamp);
 		}
 		
-		return new Tuple(keyString, boundingBox, dataBytes, timestamp);
+		return new Tuple(keyString, boundingBox, dataBytes, versionTimestamp, receivedTimestamp);
 	}
 	
 	/**
