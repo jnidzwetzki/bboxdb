@@ -145,7 +145,8 @@ public class SSTableReader extends AbstractTableReader {
 
 		final int sizeToSkip = DataEncoderHelper.INT_BYTES          // BBOX-Length
 				+ DataEncoderHelper.INT_BYTES 						// Data-Length
-				+ DataEncoderHelper.LONG_BYTES;						// Timestamp
+				+ DataEncoderHelper.LONG_BYTES						// Version Timestamp
+				+ DataEncoderHelper.LONG_BYTES;						// Received Timetamp		
 		
 		memory.position(memory.position() + sizeToSkip);
 		
