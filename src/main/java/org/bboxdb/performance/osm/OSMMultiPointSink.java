@@ -72,7 +72,7 @@ public class OSMMultiPointSink implements Sink {
 		this.structureCallback = structureCallback;
     	
 		try {			
-			connection = DriverManager.getConnection("jdbc:h2:file:/tmp/sample.db");
+			connection = DriverManager.getConnection("jdbc:h2:file:/tmp/osm.db");
 			Statement statement = connection.createStatement();
 			
 			statement.executeUpdate("drop table if exists osmnode");
@@ -82,6 +82,7 @@ public class OSMMultiPointSink implements Sink {
 			insertNode = connection.prepareStatement("INSERT into osmnode (id, data) values (?,?)");
 			selectNode = connection.prepareStatement("SELECT data from osmnode where id = ?");
 		
+			connection.commit();
 		} catch (SQLException e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -124,8 +125,10 @@ public class OSMMultiPointSink implements Sink {
 			insertNode.setLong(1, node.getId());
 			insertNode.setBlob(2, is);
 			insertNode.execute();
-			
 			is.close();
+
+			connection.commit();
+			
 		} catch (SQLException | IOException e) {
 			throw new RuntimeException(e);
 		} 
