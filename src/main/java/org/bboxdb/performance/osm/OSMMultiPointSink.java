@@ -80,7 +80,7 @@ public class OSMMultiPointSink implements Sink {
 			statement.close();
 			
 			insertNode = connection.prepareStatement("INSERT into osmnode (id, data) values (?,?)");
-			selectNode = connection.prepareStatement("SELECT from osmnode where id = ?");
+			selectNode = connection.prepareStatement("SELECT data from osmnode where id = ?");
 		
 		} catch (SQLException e) {
 			throw new IllegalArgumentException(e);
