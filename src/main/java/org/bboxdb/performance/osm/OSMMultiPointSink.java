@@ -17,12 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.performance.osm;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -55,14 +51,19 @@ public class OSMMultiPointSink implements Sink {
     protected Connection connection;
     
     /**
-     * The insert node statement
+     * The statement
      */
-    protected PreparedStatement insertNode;
+    protected Statement statement;
     
     /**
-     * The select node statement
+     * The insert node statement (prepared statements are not supported by SQLlite)
      */
-    protected PreparedStatement selectNode;
+    protected String insertNodeSQL = "INSERT into osmnode (id, data) values ('%s','%s')";
+    
+    /**
+     * The select node statement (prepared statements are not supported by SQLlite)
+     */
+    protected String selectNodeSQL = "SELECT data from osmnode where id = '%s'";
 
 	
 	protected OSMMultiPointSink(final OSMTagEntityFilter entityFilter, 
@@ -73,15 +74,10 @@ public class OSMMultiPointSink implements Sink {
     	
 		try {			
 			connection = DriverManager.getConnection("jdbc:sqlite:/tmp/sample.db");
-			Statement statement = connection.createStatement();
+			statement = connection.createStatement();
 			
 			statement.executeUpdate("drop table if exists osmnode");
 			statement.executeUpdate("create table osmnode (id INTEGER, data BLOB)");
-			statement.close();
-			
-			insertNode = connection.prepareStatement("INSERT into osmnode (id, data) values (?,?)");
-			selectNode = connection.prepareStatement("SELECT data from osmnode where id = ?");
-		
 		} catch (SQLException e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -119,14 +115,11 @@ public class OSMMultiPointSink implements Sink {
 			
 			final SerializableNode serializableNode = new SerializableNode(node);
 			final byte[] nodeBytes = serializableNode.toByteArray();
-			final InputStream is = new ByteArrayInputStream(nodeBytes);
-			
-			insertNode.setLong(1, node.getId());
-			insertNode.setBlob(2, is);
-			insertNode.execute();
-			
-			is.close();
-		} catch (SQLException | IOException e) {
+						
+			final String sql = String.format(insertNodeSQL, node.getId(), new String(nodeBytes));
+			statement.executeUpdate(sql);
+						
+		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} 
 	}
@@ -157,8 +150,8 @@ public class OSMMultiPointSink implements Sink {
 		
 		for(final WayNode wayNode : way.getWayNodes()) {
 			
-			selectNode.setLong(1, wayNode.getNodeId());
-			final ResultSet result = selectNode.executeQuery();
+			final String sql = String.format(selectNodeSQL, wayNode.getNodeId());
+			final ResultSet result = statement.executeQuery(sql);
 			
 			if(! result.next() ) {
 				System.err.println("Unable to find node for way: " + wayNode.getNodeId());
