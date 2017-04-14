@@ -72,7 +72,7 @@ public class OSMMultiPointSink implements Sink {
 		this.structureCallback = structureCallback;
     	
 		try {			
-			connection = DriverManager.getConnection("jdbc:sqlite:/tmp/sample.db");
+			connection = DriverManager.getConnection("jdbc:h2:file:/tmp/sample.db");
 			Statement statement = connection.createStatement();
 			
 			statement.executeUpdate("drop table if exists osmnode");
