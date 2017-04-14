@@ -17,16 +17,20 @@
  *******************************************************************************/
 package org.bboxdb.performance.osm;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 
 import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.performance.osm.util.Polygon;
 import org.bboxdb.performance.osm.util.SerializableNode;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
@@ -34,17 +38,7 @@ import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 public class OSMMultiPointSink implements Sink {
-	
-	/**
-	 * The db instance
-	 */
-	protected final DB db;
-	
-	/**
-	 * The node map
-	 */
-	protected final Map<Long, byte[]> nodeMap;
-	
+
 	/**
 	 * The entity filter
 	 */
@@ -54,16 +48,22 @@ public class OSMMultiPointSink implements Sink {
 	 * The structure callback
 	 */
 	protected OSMStructureCallback structureCallback;
-	
+
 	/**
-	 * The operation mode
+	 * The sqlite connection
 	 */
-	protected OSMMultiPointMode operationMode = OSMMultiPointMode.PREPROCESSING;
-	
-	/**
-	 * A set of all required nodes
-	 */
-	protected Map<Long, Long> requiredNodesMap;
+    protected Connection connection;
+    
+    /**
+     * The insert node statement
+     */
+    protected PreparedStatement insertNode;
+    
+    /**
+     * The select node statement
+     */
+    protected PreparedStatement selectNode;
+
 	
 	protected OSMMultiPointSink(final OSMTagEntityFilter entityFilter, 
 			final OSMStructureCallback structureCallback) {
@@ -71,32 +71,18 @@ public class OSMMultiPointSink implements Sink {
 		this.entityFilter = entityFilter;
 		this.structureCallback = structureCallback;
     	
-		try {
-			final File dbFile = File.createTempFile("osm-db", ".tmp");
-			dbFile.delete();
+		try {			
+			connection = DriverManager.getConnection("jdbc:sqlite:/tmp/sample.db");
+			Statement statement = connection.createStatement();
 			
-			// Use a disk backed map, to process files > Memory
-			this.db = DBMaker
-					.fileDB(dbFile)
-				    .allocateStartSize(1 * 1024 * 1024 * 1024)  // 1 GB
-				    .allocateIncrement(512 * 1024 * 1024)       // 512 MB
-					.fileMmapEnableIfSupported()
-					.fileDeleteAfterClose()
-					.make();
+			statement.executeUpdate("drop table if exists osmnode");
+			statement.executeUpdate("create table osmnode (id INTEGER, data BLOB)");
+			statement.close();
 			
-			this.nodeMap = db
-					.hashMap("osm-id-map")
-					.keySerializer(Serializer.LONG)
-			        .valueSerializer(Serializer.BYTE_ARRAY)
-			        .create();
-			
-			this.requiredNodesMap = db
-					.hashMap("osm-nodes")
-					.keySerializer(Serializer.LONG)
-			        .valueSerializer(Serializer.LONG)
-			        .create();
-			
-		} catch (IOException e) {
+			insertNode = connection.prepareStatement("INSERT into osmnode (id, data) values (?,?)");
+			selectNode = connection.prepareStatement("SELECT from osmnode where id = ?");
+		
+		} catch (SQLException e) {
 			throw new IllegalArgumentException(e);
 		}
 			
@@ -128,14 +114,21 @@ public class OSMMultiPointSink implements Sink {
 	 * @param entityContainer
 	 */
 	protected void handleNode(final EntityContainer entityContainer) {
-		final Node node = (Node) entityContainer.getEntity();
-		
-		if(operationMode == OSMMultiPointMode.PROCESSING) {
-			if(requiredNodesMap.values().contains(node.getId())) {
-				final SerializableNode serializableNode = new SerializableNode(node);
-				nodeMap.put(node.getId(), serializableNode.toByteArray());
-			}
-		}
+		try {
+			final Node node = (Node) entityContainer.getEntity();
+			
+			final SerializableNode serializableNode = new SerializableNode(node);
+			final byte[] nodeBytes = serializableNode.toByteArray();
+			final InputStream is = new ByteArrayInputStream(nodeBytes);
+			
+			insertNode.setLong(1, node.getId());
+			insertNode.setBlob(2, is);
+			insertNode.execute();
+			
+			is.close();
+		} catch (SQLException | IOException e) {
+			throw new RuntimeException(e);
+		} 
 	}
 
 	/**
@@ -146,35 +139,35 @@ public class OSMMultiPointSink implements Sink {
 		final Way way = (Way) entityContainer.getEntity();
 
 		if(entityFilter.match(way.getTags())) {
-			
-			// Store only required nodes
-			if(operationMode == OSMMultiPointMode.PREPROCESSING) {
-				for(final WayNode wayNode : way.getWayNodes()) {
-					requiredNodesMap.put(wayNode.getNodeId(), wayNode.getNodeId());
-				}
-			} else {
-				// Handle way
-				insertWay(way, nodeMap);	
-			}
+			try {
+				insertWay(way);
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}	
 		}
 	}
 	
 	/**
 	 * Handle the given way
 	 * @param way
-	 * @param nodeMap 
+	 * @throws SQLException 
 	 */
-	protected void insertWay(final Way way, final Map<Long, byte[]> nodeMap) {
+	protected void insertWay(final Way way) throws SQLException {
 		final Polygon geometricalStructure = new Polygon(way.getId());
 		
 		for(final WayNode wayNode : way.getWayNodes()) {
 			
-			if(! nodeMap.containsKey(wayNode.getNodeId())) {
+			selectNode.setLong(1, wayNode.getNodeId());
+			final ResultSet result = selectNode.executeQuery();
+			
+			if(! result.next() ) {
 				System.err.println("Unable to find node for way: " + wayNode.getNodeId());
 				return;
 			}
 			
-			final byte[] nodeBytes = nodeMap.get(wayNode.getNodeId());
+			final byte[] nodeBytes = result.getBytes(1);
+			result.close();
+			
 			final SerializableNode serializableNode = SerializableNode.fromByteArray(nodeBytes);
 			geometricalStructure.addPoint(serializableNode.getLatitude(), serializableNode.getLongitude());
 		}
@@ -183,12 +176,5 @@ public class OSMMultiPointSink implements Sink {
 				structureCallback.processStructure(geometricalStructure);				
 		}
 	}
-	
-	/**
-	 * Set the operation mode
-	 * @param operationMode
-	 */
-	public void setOperationMode(final OSMMultiPointMode operationMode) {
-		this.operationMode = operationMode;
-	}
+
 }

@@ -110,15 +110,6 @@ public class OSMFileReader implements Runnable {
 			if(entityFilter.isMultiPointFilter()) {
 				final OSMMultiPointSink sink = new OSMMultiPointSink(entityFilter, structureCallback);
 				reader.setSink(sink);
-				
-				System.out.println("Preprocessing file to find all required nodes");
-				reader.run();
-				System.out.println("Preprocessing done");
-				
-				// Use new reader to reprocess file
-				sink.setOperationMode(OSMMultiPointMode.PROCESSING);
-				reader = new OsmosisReader(new FileInputStream(filename));
-				reader.setSink(sink);
 			} else {
 				final Sink sink = new OSMSinglePointSink(entityFilter, structureCallback);
 				reader.setSink(sink);
