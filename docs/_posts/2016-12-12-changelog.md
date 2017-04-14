@@ -10,7 +10,7 @@ order: 1
 - New Feature: Added maven packaging
 - Improvement: Added the received timestamp to tuples
 - Bugfix: Removed the unused commit log from config class
-- Bugfix: Removed the unused 'seen' state from tupel class
+- Bugfix: Removed the unused 'seen' state from tuple class
 
 ### Version 0.2.3 (Stable) - 09.04.2017
 - New Feature: Futures now store the completion time 
