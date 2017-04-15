@@ -147,7 +147,25 @@ public class Polygon implements Serializable {
 	 * Return the GEO JSON representation of the polygon 
 	 * @return
 	 */
+	public String toFormatedGeoJson() {
+		final JSONObject featureJson = buildJSON();
+		return featureJson.toString(3);
+	}
+	
+	/**
+	 * Return the GEO JSON representation of the polygon 
+	 * @return
+	 */
 	public String toGeoJson() {
+		final JSONObject featureJson = buildJSON();
+		return featureJson.toString();
+	}
+
+	/**
+	 * Build the JSON representation
+	 * @return
+	 */
+	protected JSONObject buildJSON() {
 		final JSONObject featureJson = new JSONObject();
 		featureJson.put(JSON_TYPE, JSON_FEATURE);
 		featureJson.put(JSON_ID, id);
@@ -181,8 +199,7 @@ public class Polygon implements Serializable {
 		for(final String key : properties.keySet()) {
 			propertiesJson.put(key, properties.get(key));
 		}
-
-		return featureJson.toString(3);
+		return featureJson;
 	}
 	
 	/**
@@ -273,15 +290,18 @@ public class Polygon implements Serializable {
 		polygon.addPoint(23.1, 23.1);
 		polygon.addPoint(21.1, 23.0);
 		polygon.addPoint(3.1, 9.9);
+		System.out.println(polygon.toFormatedGeoJson());
 		System.out.println(polygon.toGeoJson());
 
 		System.out.println("=====================");
 		final Polygon polygon2 = new Polygon(14);
 		polygon2.addPoint(23.1, 23.1);
+		System.out.println(polygon2.toFormatedGeoJson());
 		System.out.println(polygon2.toGeoJson());
-		
+
 		System.out.println("=====================");
 		final Polygon polygon3 = new Polygon(15);
+		System.out.println(polygon3.toFormatedGeoJson());
 		System.out.println(polygon3.toGeoJson());
 	}
 }
