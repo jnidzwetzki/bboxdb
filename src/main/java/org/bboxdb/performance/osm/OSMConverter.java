@@ -46,6 +46,7 @@ import org.bboxdb.performance.osm.util.SerializableNode;
 import org.bboxdb.performance.osm.util.SerializerHelper;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
+import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
@@ -99,7 +100,7 @@ public class OSMConverter implements Runnable, Sink {
     /**
      * The H2 DB file flags
      */
-    protected final static String DB_FLAGS = ";LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0";
+    protected final static String DB_FLAGS = ";LOG=0;CACHE_SIZE=262144;LOCK_MODE=0;UNDO_LOG=0";
     
 	/**
 	 * The filter
@@ -109,7 +110,7 @@ public class OSMConverter implements Runnable, Sink {
 	/**
 	 * The output stream map
 	 */
-	protected final Map<OSMType, Writer> outputMap = new HashMap<>();
+	protected final Map<OSMType, Writer> writerMap = new HashMap<>();
 
 	/**
 	 * The Logger
@@ -129,7 +130,7 @@ public class OSMConverter implements Runnable, Sink {
 		this.output = output;
 		
 		try {			
-			connection = DriverManager.getConnection("jdbc:h2:file:" + DB_FILENAME + DB_FLAGS);
+			connection = DriverManager.getConnection("jdbc:h2:nio:" + DB_FILENAME + DB_FLAGS);
 			Statement statement = connection.createStatement();
 			
 			statement.executeUpdate("DROP TABLE if exists osmnode");
@@ -152,7 +153,7 @@ public class OSMConverter implements Runnable, Sink {
 			// Open file handles
 			for(final OSMType osmType : filter.keySet()) {
 				final BufferedWriter bw = new BufferedWriter(new FileWriter(new File(output + File.separator + osmType.toString())));
-				outputMap.put(osmType, bw);
+				writerMap.put(osmType, bw);
 			}
 			
 			System.out.format("Importing %s\n", filename);
@@ -162,11 +163,11 @@ public class OSMConverter implements Runnable, Sink {
 			System.out.format("Imported %d objects\n", processedElements);
 			
 			// Close file handles
-			for(final Writer writer : outputMap.values()) {
+			for(final Writer writer : writerMap.values()) {
 				writer.close();
 			}
 			
-			outputMap.clear();
+			writerMap.clear();
 			
 		} catch (IOException e) {
 			logger.error("Got an exception during import", e);
@@ -188,7 +189,7 @@ public class OSMConverter implements Runnable, Sink {
 	@Override
 	public void process(final EntityContainer entityContainer) {
 		
-		if(processedElements % 1000 == 0) {
+		if(processedElements % 10000 == 0) {
 			logger.info("Processing element {}", processedElements);
 		}
 		
@@ -216,7 +217,11 @@ public class OSMConverter implements Runnable, Sink {
 					final Polygon geometricalStructure = new Polygon(node.getId());
 					geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
 					
-					final Writer writer = outputMap.get(osmType);
+					for(final Tag tag : node.getTags()) {
+						geometricalStructure.addProperty(tag.getKey(), tag.getValue());
+					}
+					
+					final Writer writer = writerMap.get(osmType);
 					writer.write(geometricalStructure.toGeoJson());
 				}
 			}
@@ -269,7 +274,11 @@ public class OSMConverter implements Runnable, Sink {
 						geometricalStructure.addPoint(serializableNode.getLatitude(), serializableNode.getLongitude());
 					}
 					
-					final Writer writer = outputMap.get(osmType);
+					for(final Tag tag : way.getTags()) {
+						geometricalStructure.addProperty(tag.getKey(), tag.getValue());
+					}
+					
+					final Writer writer = writerMap.get(osmType);
 					writer.write(geometricalStructure.toGeoJson());
 				}
 			}
