@@ -8,11 +8,11 @@ order: 1
 ### Version 0.2.4 (Stable) - TBA
 - New Feature: Support multiple storage locations
 - New Feature: Added maven packaging
+- New Feature: Added a received timestamp to tuples
 - New Feature: Introduced the OSM converter
 - Improvement: Experiments are now executed on a preprocessed OSM dataset
-- Improvement: Added the received timestamp to tuples
 - Improvement: Switched OSM converter from mapdb to h2 backend
-- Bugfix: Removed the unused commit log from config class
+- Bugfix: Removed the unused 'commit log' variable from config class
 - Bugfix: Removed the unused 'seen' state from tuple class
 
 ### Version 0.2.3 (Stable) - 09.04.2017
