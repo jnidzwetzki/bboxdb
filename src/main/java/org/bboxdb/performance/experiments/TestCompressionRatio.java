@@ -17,13 +17,14 @@
  *******************************************************************************/
 package org.bboxdb.performance.experiments;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.bboxdb.network.NetworkConst;
@@ -31,50 +32,23 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
-import org.bboxdb.performance.osm.OSMFileReader;
-import org.bboxdb.performance.osm.OSMStructureCallback;
-import org.bboxdb.performance.osm.OSMType;
 import org.bboxdb.performance.osm.util.Polygon;
-import org.bboxdb.performance.osm.util.SerializerHelper;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestCompressionRatio implements Runnable, OSMStructureCallback {
+public class TestCompressionRatio implements Runnable {
 
 	/**
 	 * The file to read
 	 */
 	protected String filename;
-	
-	/**
-	 * The type to import
-	 */
-	protected OSMType osmType;
-	
-	/**
-	 * The db instance
-	 */
-	protected final DB db;
-	
-	/**
-	 * The node map
-	 */
-	protected final Map<Long, byte[]> nodeMap;
-	
+
 	/**
 	 * The element counter
 	 */
 	protected long elementCounter;
-	
-	/**
-	 * The node serializer
-	 */
-	protected final SerializerHelper<Polygon> serializerHelper = new SerializerHelper<>();
 
 	/**
 	 * The Logger
@@ -82,19 +56,8 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 	private final static Logger logger = LoggerFactory.getLogger(TestCompressionRatio.class);
 	
 
-	public TestCompressionRatio(final String filename, final OSMType osmType) throws IOException {
+	public TestCompressionRatio(final String filename) throws IOException {
 		this.filename = filename;
-		this.osmType = osmType;
-		
-		final File dbFile = File.createTempFile("osm-db-sampling", ".tmp");
-		dbFile.delete();
-		
-		// Use a disk backed map, to process files > Memory
-		this.db = DBMaker.fileDB(dbFile).fileMmapEnableIfSupported().fileDeleteAfterClose().make();
-		this.nodeMap = db.hashMap("osm-id-map").keySerializer(Serializer.LONG)
-		        .valueSerializer(Serializer.BYTE_ARRAY)
-		        .create();
-		
 		elementCounter = 0;
 	}
 
@@ -102,16 +65,7 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 	public void run() {
 		long baseSize = -1;
 		
-		System.out.format("Importing %s\n", filename);
-		final OSMFileReader osmFileReader = new OSMFileReader(filename, osmType, this);
-		osmFileReader.run();
-		final int numberOfElements = nodeMap.keySet().size();
-		System.out.format("Imported %d objects\n", numberOfElements);
-		
-		if(numberOfElements == 0) {
-			System.err.println("No data is imported, stopping run");
-			System.exit(-1);
-		}
+		System.out.format("Reading %s\n", filename);
 		
 		final List<Integer> bachSizes = Arrays.asList(
 				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
@@ -154,21 +108,30 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 		long totalSize = 0;
 		
 		final List<Tuple> buffer = new ArrayList<>();
+		
+		try (
+				final BufferedReader reader = new BufferedReader(new FileReader(new File(filename)));
+			) {
 
-		for(final Long id : nodeMap.keySet()) {
-			final byte[] elementBytes = nodeMap.get(id);
-			final Polygon element = serializerHelper.loadFromByteArray(elementBytes);
-			final Tuple tuple = new Tuple(Long.toString(id), element.getBoundingBox(), element.toGeoJson().getBytes());
+		    String line;
+		    while ((line = reader.readLine()) != null) {
+		    	final Polygon polygon = Polygon.fromGeoJson(line);
+		    	final byte[] tupleBytes = polygon.toGeoJson().getBytes();
 
-			if(batchSize == 0) {
-				final int size = handleUncompressedData(tableName, tuple);
-				totalSize = totalSize + size;
-			} else if (buffer.size() == batchSize) {
-				final int size = handleCompressedData(tableName, buffer);
-				totalSize = totalSize + size;
-			} else {
-				buffer.add(tuple);
-			}
+				final Tuple tuple = new Tuple(Long.toString(polygon.getId()), polygon.getBoundingBox(), tupleBytes);
+
+				if(batchSize == 0) {
+					final int size = handleUncompressedData(tableName, tuple);
+					totalSize = totalSize + size;
+				} else if (buffer.size() == batchSize) {
+					final int size = handleCompressedData(tableName, buffer);
+					totalSize = totalSize + size;
+				} else {
+					buffer.add(tuple);
+				}
+		    }
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
 		return totalSize;
@@ -234,12 +197,11 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 		
 		// Check parameter
 		if(args.length != 2) {
-			System.err.println("Usage: programm <filename> <" + OSMFileReader.getFilterNames() + ">");
+			System.err.println("Usage: programm <filename>");
 			System.exit(-1);
 		}
 		
 		final String filename = args[0];
-		final String type = args[1];
 		
 		// Check file
 		final File inputFile = new File(filename);
@@ -248,24 +210,8 @@ public class TestCompressionRatio implements Runnable, OSMStructureCallback {
 			System.exit(-1);
 		}
 		
-		// Check type
-		final OSMType osmType = OSMType.fromString(type);
-		if(osmType == null) {
-			System.err.println("Unknown type: " + type);
-			System.exit(-1);
-		}
-		
-		final TestCompressionRatio testCompressionRatio = new TestCompressionRatio(filename, osmType);
+		final TestCompressionRatio testCompressionRatio = new TestCompressionRatio(filename);
 		testCompressionRatio.run();
 	}
 
-	@Override
-	public void processStructure(Polygon geometricalStructure) {
-		try {
-			final byte[] data = serializerHelper.toByteArray(geometricalStructure);
-			nodeMap.put(elementCounter++, data);
-		} catch (IOException e) {
-			logger.error("Got an exception during encoding", e);
-		}
-	}
 }
