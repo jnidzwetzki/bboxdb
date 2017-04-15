@@ -17,20 +17,20 @@
  *******************************************************************************/
 package org.bboxdb.performance;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
-import org.bboxdb.performance.osm.OSMFileReader;
-import org.bboxdb.performance.osm.OSMStructureCallback;
-import org.bboxdb.performance.osm.OSMType;
 import org.bboxdb.performance.osm.util.Polygon;
 import org.bboxdb.performance.osm.util.SerializerHelper;
 import org.bboxdb.storage.entity.Tuple;
 
-public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements OSMStructureCallback  {
+public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 
 	/**
 	 * The amount of inserted tuples
@@ -56,28 +56,42 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 	 * The filename to parse
 	 */
 	protected final String filename;
-	
-	/**
-	 * The type to import
-	 */
-	protected final OSMType type;
 
 	/**
 	 * The serializer
 	 */
 	protected final SerializerHelper<Polygon> serializerHelper = new SerializerHelper<>();
 
-	public BenchmarkOSMInsertPerformance(final String filename, final OSMType type, final short replicationFactor) {
+	public BenchmarkFileInsertPerformance(final String filename, final short replicationFactor) {
 		this.filename = filename;
-		this.type = type;
-		this.table = DISTRIBUTION_GROUP + "_" + type;
+		this.table = DISTRIBUTION_GROUP + "_" + System.currentTimeMillis();
 		this.replicationFactor = replicationFactor;
 	}
 
 	@Override
 	public void runBenchmark() throws InterruptedException, ExecutionException, BBoxDBException {
-		final OSMFileReader osmFileReader = new OSMFileReader(filename, type, this);
-		osmFileReader.run();		
+	
+		try (
+				final BufferedReader reader = new BufferedReader(new FileReader(new File(filename)));
+			) {
+
+		    String line;
+		    while ((line = reader.readLine()) != null) {
+		    	final Polygon polygon = Polygon.fromGeoJson(line);
+		    	final byte[] tupleBytes = polygon.toGeoJson().getBytes();
+		    
+				final Tuple tuple = new Tuple(Long.toString(polygon.getId()), polygon.getBoundingBox(), tupleBytes);
+				final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
+				
+				// register pending future
+				pendingFutures.add(insertFuture);
+				checkForCompletedFutures();
+				
+				insertedTuples.incrementAndGet();
+		    }
+		} catch (BBoxDBException | IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -91,26 +105,6 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 		// Create a new distribution group
 		final EmptyResultFuture createResult = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, replicationFactor);
 		createResult.waitForAll();
-	}
-
-	/**
-	 * Callback from OSM reader
-	 */
-	@Override
-	public void processStructure(final Polygon polygon) {
-		try {
-			final byte[] tupleBytes = polygon.toGeoJson().getBytes();
-			final Tuple tuple = new Tuple(Long.toString(polygon.getId()), polygon.getBoundingBox(), tupleBytes);
-			final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
-			
-			// register pending future
-			pendingFutures.add(insertFuture);
-			checkForCompletedFutures();
-			
-			insertedTuples.incrementAndGet();
-		} catch (BBoxDBException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	@Override
@@ -162,26 +156,18 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 		
 		// Check parameter
 		if(args.length != 3) {
-			System.err.println("Usage: programm <filename> <" + OSMFileReader.getFilterNames() + "> <replication factor>");
+			System.err.println("Usage: programm <filename> <replication factor>");
 			System.exit(-1);
 		}
 		
 		final String filename = args[0];
-		final String type = args[1];
-		final String replicationFactorString = args[2];
+		final String replicationFactorString = args[1];
 		short replicationFactor = -1;
 		
 		// Check file
 		final File inputFile = new File(filename);
 		if(! inputFile.isFile()) {
 			System.err.println("Unable to open file: " + filename);
-			System.exit(-1);
-		}
-		
-		// Check type
-		final OSMType osmType = OSMType.fromString(type);
-		if(osmType == null) {
-			System.err.println("Unknown type: " + type);
 			System.exit(-1);
 		}
 		
@@ -192,7 +178,7 @@ public class BenchmarkOSMInsertPerformance extends AbstractBenchmark implements 
 			System.exit(-1);
 		}
 		
-		final BenchmarkOSMInsertPerformance benchmarkInsertPerformance = new BenchmarkOSMInsertPerformance(filename, osmType, replicationFactor);
+		final BenchmarkFileInsertPerformance benchmarkInsertPerformance = new BenchmarkFileInsertPerformance(filename, replicationFactor);
 		benchmarkInsertPerformance.run();
 	}
 }
