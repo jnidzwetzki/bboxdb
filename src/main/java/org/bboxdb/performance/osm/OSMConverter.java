@@ -223,6 +223,7 @@ public class OSMConverter implements Runnable, Sink {
 					
 					final Writer writer = writerMap.get(osmType);
 					writer.write(geometricalStructure.toGeoJson());
+					writer.write("\n");
 				}
 			}
 			
@@ -280,6 +281,7 @@ public class OSMConverter implements Runnable, Sink {
 					
 					final Writer writer = writerMap.get(osmType);
 					writer.write(geometricalStructure.toGeoJson());
+					writer.write("\n");
 				}
 			}
 		} catch (SQLException | IOException e) {
