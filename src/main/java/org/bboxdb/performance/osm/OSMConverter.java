@@ -120,7 +120,7 @@ public class OSMConverter implements Runnable, Sink {
 		
 		System.out.println("Using DB instances: " + instances);
 		
-		this.osmNodeStore = new OSMNodeStore(Arrays.asList(workfolder), instances);
+		this.osmNodeStore = new OSMNodeStore(Arrays.asList(workfolder.split(":")), instances);
 	}
 	
 

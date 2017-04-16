@@ -62,11 +62,13 @@ public class OSMNodeStore {
 	public OSMNodeStore(final List<String> baseDir, final int instances) {
 		
 		this.instances = instances;
-		final String workfolder = baseDir.get(0);
 		
 		try {			
 			// Prepare DB_Instances
 			for(int i = 0; i < instances; i++) {
+				
+				final String workfolder = baseDir.get(i % baseDir.size());
+				
 				final Connection connection = DriverManager.getConnection("jdbc:h2:nio:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS);
 				Statement statement = connection.createStatement();
 				
