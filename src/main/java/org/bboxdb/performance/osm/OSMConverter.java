@@ -197,7 +197,7 @@ public class OSMConverter implements Runnable, Sink {
 			if(lastPerformaceTimestamp != 0) {
 				performance = 10000.0 / ((System.currentTimeMillis() - lastPerformaceTimestamp) / 1000.0);
 			}
-			logger.info("Processing element {} / Elements per Sec", processedElements, performance);
+			logger.info("Processing element {} / Elements per Sec {}", processedElements, performance);
 			lastPerformaceTimestamp = System.currentTimeMillis();
 		}
 		
