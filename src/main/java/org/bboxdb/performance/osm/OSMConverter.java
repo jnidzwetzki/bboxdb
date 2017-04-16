@@ -116,7 +116,7 @@ public class OSMConverter implements Runnable, Sink {
 		
 		final File inputFile = new File(filename);
 		// 5 instances per GB
-		final int instances = (int) (inputFile.length() / (Math.pow(1024, 3) * 5));
+		final int instances = (int) ((inputFile.length() / (Math.pow(1024, 3)) * 5));
 		
 		System.out.println("Using DB instances: " + instances);
 		
