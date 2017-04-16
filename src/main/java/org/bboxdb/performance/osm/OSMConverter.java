@@ -168,8 +168,11 @@ public class OSMConverter implements Runnable, Sink {
 				performanceLast = 10000.0 / ((System.currentTimeMillis() - lastPerformaceTimestamp) / 1000.0);
 			}
 			
+			final String performanceTotalString = String.format("%.2f", performanceTotal);
+			final String performanceLastString = String.format("%.2f", performanceLast);
+			
 			logger.info("Processing element {} / Elements per Sec {} / Total elements per Sec {}",
-					processedElements, performanceLast, performanceTotal);
+					processedElements, performanceLastString, performanceTotalString);
 			
 			lastPerformaceTimestamp = System.currentTimeMillis();
 		}
