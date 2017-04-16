@@ -93,11 +93,6 @@ public class OSMConverter implements Runnable, Sink {
     protected long processedElements = 0;
     
     /**
-     * The database filename
-     */
-    protected final static String DB_FILENAME = "/tmp/osm.db";
-    
-    /**
      * The H2 DB file flags
      */
     protected final static String DB_FLAGS = ";LOG=0;CACHE_SIZE=262144;LOCK_MODE=0;UNDO_LOG=0";
@@ -125,12 +120,15 @@ public class OSMConverter implements Runnable, Sink {
 		filter.put(OSMType.WATER, new OSMWaterEntityFilter());
 	}
 	
-	public OSMConverter(final String filename, final String output) {
+	public OSMConverter(final String filename, final String workfolder, final String output) {
 		this.filename = filename;
 		this.output = output;
 		
 		try {			
-			connection = DriverManager.getConnection("jdbc:h2:nio:" + DB_FILENAME + DB_FLAGS);
+			final File workfoderDir = new File(workfolder);
+			workfoderDir.mkdirs();
+			
+			connection = DriverManager.getConnection("jdbc:h2:nio:" + workfolder + "/osm.db" + DB_FLAGS);
 			Statement statement = connection.createStatement();
 			
 			statement.executeUpdate("DROP TABLE if exists osmnode");
@@ -297,13 +295,14 @@ public class OSMConverter implements Runnable, Sink {
 	 */
 	public static void main(final String[] args) {
 		// Check parameter
-		if(args.length != 2) {
-			System.err.println("Usage: programm <filename> <output dir>");
+		if(args.length != 3) {
+			System.err.println("Usage: programm <filename> <work folder> <output dir>");
 			System.exit(-1);
 		}
 		
 		final String filename = args[0];
-		final String output = args[1];
+		final String workfolder = args[1];
+		final String output = args[2];
 		
 		// Check file
 		final File inputFile = new File(filename);
@@ -325,13 +324,13 @@ public class OSMConverter implements Runnable, Sink {
 		}
 
 		// Check database file
-		final File file = new File(DB_FILENAME);
+		final File file = new File(workfolder);
 		if(file.exists()) {
-			System.err.println("Database already exists, exiting...");
+			System.err.println("Work folder already exists, exiting...");
 			System.exit(-1);
 		}
 
-		final OSMConverter determineSamplingSize = new OSMConverter(filename, output);
+		final OSMConverter determineSamplingSize = new OSMConverter(filename, workfolder, output);
 		determineSamplingSize.run();
 	}
 
