@@ -18,19 +18,13 @@
 package org.bboxdb.performance.osm;
 
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,32 +65,12 @@ public class OSMConverter implements Runnable, Sink {
 	 * The node serializer
 	 */
 	protected final SerializerHelper<Polygon> serializerHelper = new SerializerHelper<>();
-
-	/**
-	 * The sqlite connection
-	 */
-    protected Connection connection;
-    
-    /**
-     * The insert node statement
-     */
-    protected PreparedStatement insertNode;
-    
-    /**
-     * The select node statement
-     */
-    protected PreparedStatement selectNode;
     
     /**
      * The number of processed elements
      */
     protected long processedElements = 0;
-    
-    /**
-     * The H2 DB file flags
-     */
-    protected final static String DB_FLAGS = ";LOG=0;CACHE_SIZE=262144;LOCK_MODE=0;UNDO_LOG=0";
-    
+
 	/**
 	 * The filter
 	 */
@@ -111,6 +85,13 @@ public class OSMConverter implements Runnable, Sink {
 	 * The performance timestamp
 	 */
 	protected long lastPerformaceTimestamp = 0;
+	
+	/**
+	 * Conversion begin
+	 */
+	protected final long beginTimestamp;
+	
+	protected final OSMNodeStore osmNodeStore;
 
 	/**
 	 * The Logger
@@ -128,25 +109,12 @@ public class OSMConverter implements Runnable, Sink {
 	public OSMConverter(final String filename, final String workfolder, final String output) {
 		this.filename = filename;
 		this.output = output;
+		this.beginTimestamp = System.currentTimeMillis();
 		
-		try {			
-			final File workfoderDir = new File(workfolder);
-			workfoderDir.mkdirs();
-			
-			connection = DriverManager.getConnection("jdbc:h2:nio:" + workfolder + "/osm.db" + DB_FLAGS);
-			Statement statement = connection.createStatement();
-			
-			statement.executeUpdate("DROP TABLE if exists osmnode");
-			statement.executeUpdate("CREATE TABLE osmnode (id INTEGER, data BLOB)");
-			statement.close();
-			
-			insertNode = connection.prepareStatement("INSERT into osmnode (id, data) values (?,?)");
-			selectNode = connection.prepareStatement("SELECT data from osmnode where id = ?");
+		final File workfoderDir = new File(workfolder);
+		workfoderDir.mkdirs();
 		
-			connection.commit();
-		} catch (SQLException e) {
-			throw new IllegalArgumentException(e);
-		}
+		this.osmNodeStore = new OSMNodeStore(Arrays.asList(workfolder), 2);
 	}
 	
 
@@ -171,7 +139,7 @@ public class OSMConverter implements Runnable, Sink {
 			}
 			
 			writerMap.clear();
-			
+			osmNodeStore.close();
 		} catch (IOException e) {
 			logger.error("Got an exception during import", e);
 		}
@@ -193,11 +161,16 @@ public class OSMConverter implements Runnable, Sink {
 	public void process(final EntityContainer entityContainer) {
 		
 		if(processedElements % 10000 == 0) {
-			double performance = 0;
+			double performanceLast = 0;
+			double performanceTotal = processedElements / ((System.currentTimeMillis() - beginTimestamp) / 1000.0);
+			
 			if(lastPerformaceTimestamp != 0) {
-				performance = 10000.0 / ((System.currentTimeMillis() - lastPerformaceTimestamp) / 1000.0);
+				performanceLast = 10000.0 / ((System.currentTimeMillis() - lastPerformaceTimestamp) / 1000.0);
 			}
-			logger.info("Processing element {} / Elements per Sec {}", processedElements, performance);
+			
+			logger.info("Processing element {} / Elements per Sec {} / Total elements per Sec {}",
+					processedElements, performanceLast, performanceTotal);
+			
 			lastPerformaceTimestamp = System.currentTimeMillis();
 		}
 		
@@ -235,16 +208,7 @@ public class OSMConverter implements Runnable, Sink {
 				}
 			}
 			
-			final SerializableNode serializableNode = new SerializableNode(node);
-			final byte[] nodeBytes = serializableNode.toByteArray();
-			final InputStream is = new ByteArrayInputStream(nodeBytes);
-			
-			insertNode.setLong(1, node.getId());
-			insertNode.setBlob(2, is);
-			insertNode.execute();
-			is.close();
-
-			connection.commit();
+			osmNodeStore.storeNode(node);
 			
 		} catch (SQLException | IOException e) {
 			throw new RuntimeException(e);
@@ -267,20 +231,8 @@ public class OSMConverter implements Runnable, Sink {
 					final Polygon geometricalStructure = new Polygon(way.getId());
 					
 					for(final WayNode wayNode : way.getWayNodes()) {
-						
-						selectNode.setLong(1, wayNode.getNodeId());
-						final ResultSet result = selectNode.executeQuery();
-						
-						if(! result.next() ) {
-							System.err.println("Unable to find node for way: " + wayNode.getNodeId());
-							return;
-						}
-						
-						final byte[] nodeBytes = result.getBytes(1);
-						result.close();
-						
-						final SerializableNode serializableNode = SerializableNode.fromByteArray(nodeBytes);
-						geometricalStructure.addPoint(serializableNode.getLatitude(), serializableNode.getLongitude());
+						final SerializableNode node = osmNodeStore.getNodeForId(wayNode.getNodeId());
+						geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
 					}
 					
 					for(final Tag tag : way.getTags()) {
