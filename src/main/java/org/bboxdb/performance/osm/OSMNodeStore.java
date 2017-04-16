@@ -26,6 +26,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.performance.osm.util.SerializableNode;
@@ -41,17 +42,17 @@ public class OSMNodeStore {
 	/**
 	 * The sqlite connection
 	 */
-    protected List<Connection> connections;
+    protected final List<Connection> connections = new ArrayList<>();
     
     /**
      * The insert node statement
      */
-    protected List<PreparedStatement> insertNodeStatements;
+    protected final List<PreparedStatement> insertNodeStatements = new ArrayList<>();
     
     /**
      * The select node statement
      */
-    protected List<PreparedStatement> selectNodeStatements;
+    protected final List<PreparedStatement> selectNodeStatements = new ArrayList<>();
 
     /**
      * The number of instances
