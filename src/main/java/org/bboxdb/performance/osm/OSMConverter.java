@@ -106,6 +106,11 @@ public class OSMConverter implements Runnable, Sink {
 	 * The output stream map
 	 */
 	protected final Map<OSMType, Writer> writerMap = new HashMap<>();
+	
+	/**
+	 * The performance timestamp
+	 */
+	protected long lastPerformaceTimestamp = 0;
 
 	/**
 	 * The Logger
@@ -188,7 +193,12 @@ public class OSMConverter implements Runnable, Sink {
 	public void process(final EntityContainer entityContainer) {
 		
 		if(processedElements % 10000 == 0) {
-			logger.info("Processing element {}", processedElements);
+			double performance = 0;
+			if(lastPerformaceTimestamp != 0) {
+				performance = 10000.0 / ((System.currentTimeMillis() - lastPerformaceTimestamp) / 1000.0);
+			}
+			logger.info("Processing element {} / Elements per Sec", processedElements, performance);
+			lastPerformaceTimestamp = System.currentTimeMillis();
 		}
 		
 		if(entityContainer.getEntity() instanceof Node) {
