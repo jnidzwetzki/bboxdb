@@ -107,5 +107,33 @@ public class TestPolygon {
 		Assert.assertTrue(polygon.equals(polygon2));
 		Assert.assertEquals(47, polygon2. getId());
 	}
+	
+	@Test
+	public void testJSONEncoding7() {
+		final Polygon polygon = new Polygon(47);
+		polygon.addPoint(4, 5);
+		polygon.addPoint(67, 45);
+		polygon.addPoint(3, -4);
+		polygon.addPoint(0, 12);
+		polygon.addPoint(2, 4);
+		
+		polygon.addProperty("key1", "value1");
+		polygon.addProperty("key2", "value2");
+		polygon.addProperty("key3", "value3");
+		polygon.addProperty("key4", "value4");
+		polygon.addProperty("key5", "value5");
+		polygon.addProperty("key6", "value6");
+
+		final String json1 = polygon.toGeoJson();
+		final String json2 = polygon.toFormatedGeoJson();
+
+		final Polygon polygon2 = Polygon.fromGeoJson(json1);
+		final Polygon polygon3 = Polygon.fromGeoJson(json2);
+
+		Assert.assertTrue(polygon.equals(polygon2));
+		Assert.assertTrue(polygon.equals(polygon3));
+		Assert.assertEquals(47, polygon2.getId());
+		Assert.assertEquals(47, polygon3.getId());
+	}
 
 }
