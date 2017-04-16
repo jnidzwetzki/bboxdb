@@ -114,7 +114,11 @@ public class OSMConverter implements Runnable, Sink {
 		final File workfoderDir = new File(workfolder);
 		workfoderDir.mkdirs();
 		
-		this.osmNodeStore = new OSMNodeStore(Arrays.asList(workfolder), 2);
+		final File inputFile = new File(filename);
+		// One instance per GB
+		final int instances = (int) (inputFile.length() / 1024^3);
+		
+		this.osmNodeStore = new OSMNodeStore(Arrays.asList(workfolder), instances);
 	}
 	
 
