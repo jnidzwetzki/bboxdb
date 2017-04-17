@@ -11,7 +11,7 @@ order: 1
 - New Feature: Added a received timestamp to tuples
 - New Feature: Introduced the OSM converter
 - Improvement: Experiments are now executed on a preprocessed OSM dataset
-- Improvement: Switched OSM converter from mapdb to h2 and berkley db backend
+- Improvement: Switched OSM converter from MapDB to h2 and Berkeley DB (Java Edition) backend
 - Bugfix: Removed the unused 'commit log' variable from config class
 - Bugfix: Removed the unused 'seen' state from tuple class
 
