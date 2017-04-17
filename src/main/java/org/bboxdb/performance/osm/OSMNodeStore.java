@@ -37,7 +37,7 @@ public class OSMNodeStore {
     /**
      * The H2 DB file flags
      */
-    protected final static String DB_FLAGS = ";create=true";
+    protected final static String DB_FLAGS = ";shutdown=true";
     
 	/**
 	 * The sqlite connection
@@ -69,11 +69,12 @@ public class OSMNodeStore {
 				
 				final String workfolder = baseDir.get(i % baseDir.size());
 				
-				final Connection connection = DriverManager.getConnection("jdbc:derby:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS);
+				final Connection connection = DriverManager.getConnection("jdbc:hsqldb:file:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS);
 				Statement statement = connection.createStatement();
 				
 				//statement.executeUpdate("DROP TABLE if exists osmnode");
 				statement.executeUpdate("CREATE TABLE osmnode (id BIGINT, data BLOB)");
+				statement.executeUpdate("SET FILES LOG FALSE");
 				statement.close();
 				
 				final PreparedStatement insertNode = connection.prepareStatement("INSERT into osmnode (id, data) values (?,?)");
