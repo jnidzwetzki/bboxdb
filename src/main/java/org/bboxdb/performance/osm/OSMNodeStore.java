@@ -37,7 +37,7 @@ public class OSMNodeStore {
     /**
      * The H2 DB file flags
      */
-    protected final static String DB_FLAGS = ";LOG=0;CACHE_SIZE=262144;LOCK_MODE=0;UNDO_LOG=0";
+    protected final static String DB_FLAGS = ";create=true";
     
 	/**
 	 * The sqlite connection
@@ -69,7 +69,7 @@ public class OSMNodeStore {
 				
 				final String workfolder = baseDir.get(i % baseDir.size());
 				
-				final Connection connection = DriverManager.getConnection("jdbc:h2:nio:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS);
+				final Connection connection = DriverManager.getConnection("jdbc:derby:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS);
 				Statement statement = connection.createStatement();
 				
 				statement.executeUpdate("DROP TABLE if exists osmnode");
