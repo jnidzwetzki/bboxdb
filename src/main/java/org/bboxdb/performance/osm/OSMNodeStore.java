@@ -72,7 +72,7 @@ public class OSMNodeStore {
 				final Connection connection = DriverManager.getConnection("jdbc:derby:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS);
 				Statement statement = connection.createStatement();
 				
-				statement.executeUpdate("DROP TABLE if exists osmnode");
+				//statement.executeUpdate("DROP TABLE if exists osmnode");
 				statement.executeUpdate("CREATE TABLE osmnode (id BIGINT, data BLOB)");
 				statement.close();
 				
