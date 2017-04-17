@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bboxdb.performance.experiments.DetermineSamplingSize;
 import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMBuildingsEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMRoadsEntityFilter;
@@ -96,7 +95,7 @@ public class OSMConverter implements Runnable, Sink {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(DetermineSamplingSize.class);
+	private final static Logger logger = LoggerFactory.getLogger(OSMConverter.class);
 
 	static {
 		filter.put(OSMType.TREE, new OSMTreeEntityFilter());
