@@ -74,7 +74,7 @@ public class OSMNodeStore {
 				
 				//statement.executeUpdate("DROP TABLE if exists osmnode");
 				statement.executeUpdate("CREATE TABLE osmnode (id BIGINT, data BLOB);");
-				statement.executeUpdate("SET FILES LOG FALSE;");
+		//		statement.executeUpdate("SET FILES LOG FALSE;");
 				statement.close();
 				
 				final PreparedStatement insertNode = connection.prepareStatement("INSERT into osmnode (id, data) values (?,?)");
