@@ -69,12 +69,12 @@ public class OSMNodeStore {
 				
 				final String workfolder = baseDir.get(i % baseDir.size());
 		        Class.forName("org.hsqldb.jdbcDriver" );
-				final Connection connection = DriverManager.getConnection("jdbc:hsqldb:file:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS);
+				final Connection connection = DriverManager.getConnection("jdbc:hsqldb:file:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS, "sa", "");
 				Statement statement = connection.createStatement();
 				
 				//statement.executeUpdate("DROP TABLE if exists osmnode");
-				statement.executeUpdate("CREATE TABLE osmnode (id BIGINT, data BLOB)");
-				statement.executeUpdate("SET FILES LOG FALSE");
+				statement.executeUpdate("CREATE TABLE osmnode (id BIGINT, data BLOB);");
+				statement.executeUpdate("SET FILES LOG FALSE;");
 				statement.close();
 				
 				final PreparedStatement insertNode = connection.prepareStatement("INSERT into osmnode (id, data) values (?,?)");
