@@ -32,15 +32,15 @@ import java.util.List;
 import org.bboxdb.performance.osm.util.SerializableNode;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
-public class OSMNodeStore {
+public class OSMJDBCNodeStore {
 	
     /**
      * The H2 DB file flags
      */
-    protected final static String DB_FLAGS = ";shutdown=true";
+    protected final static String DB_FLAGS = ";LOG=0;CACHE_SIZE=262144;LOCK_MODE=0;UNDO_LOG=0";
     
 	/**
-	 * The sqlite connection
+	 * The database connection
 	 */
     protected final List<Connection> connections = new ArrayList<>();
     
@@ -59,7 +59,7 @@ public class OSMNodeStore {
      */
     protected int instances;
 
-	public OSMNodeStore(final List<String> baseDir, final int instances) {
+	public OSMJDBCNodeStore(final List<String> baseDir, final int instances) {
 		
 		this.instances = instances;
 		
@@ -68,13 +68,12 @@ public class OSMNodeStore {
 			for(int i = 0; i < instances; i++) {
 				
 				final String workfolder = baseDir.get(i % baseDir.size());
-		        Class.forName("org.hsqldb.jdbcDriver" );
-				final Connection connection = DriverManager.getConnection("jdbc:hsqldb:file:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS, "sa", "");
+				
+				final Connection connection = DriverManager.getConnection("jdbc:h2:nio:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS);
 				Statement statement = connection.createStatement();
 				
-				//statement.executeUpdate("DROP TABLE if exists osmnode");
-				statement.executeUpdate("CREATE TABLE osmnode (id BIGINT, data BLOB);");
-		//		statement.executeUpdate("SET FILES LOG FALSE;");
+				statement.executeUpdate("DROP TABLE if exists osmnode");
+				statement.executeUpdate("CREATE TABLE osmnode (id BIGINT, data BLOB)");
 				statement.close();
 				
 				final PreparedStatement insertNode = connection.prepareStatement("INSERT into osmnode (id, data) values (?,?)");
@@ -86,13 +85,13 @@ public class OSMNodeStore {
 				connection.commit();
 				connections.add(connection);
 			}
-		} catch (SQLException | ClassNotFoundException e) {
+		} catch (SQLException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
 	
 	/**
-	 * Close all ressources
+	 * Close all resources
 	 */
 	public void close() {
 		

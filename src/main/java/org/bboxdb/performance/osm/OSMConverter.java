@@ -91,7 +91,7 @@ public class OSMConverter implements Runnable, Sink {
 	 */
 	protected final long beginTimestamp;
 	
-	protected final OSMNodeStore osmNodeStore;
+	protected final OSMBDBNodeStore osmNodeStore;
 
 	/**
 	 * The Logger
@@ -120,7 +120,7 @@ public class OSMConverter implements Runnable, Sink {
 		
 		System.out.println("Using DB instances: " + instances);
 		
-		this.osmNodeStore = new OSMNodeStore(Arrays.asList(workfolder.split(":")), instances);
+		this.osmNodeStore = new OSMBDBNodeStore(Arrays.asList(workfolder.split(":")), instances);
 	}
 	
 
