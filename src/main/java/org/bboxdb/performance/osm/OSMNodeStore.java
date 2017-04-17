@@ -68,7 +68,7 @@ public class OSMNodeStore {
 			for(int i = 0; i < instances; i++) {
 				
 				final String workfolder = baseDir.get(i % baseDir.size());
-				
+		        Class.forName("org.hsqldb.jdbcDriver" );
 				final Connection connection = DriverManager.getConnection("jdbc:hsqldb:file:" + workfolder + "/osm_" + i + ".db" + DB_FLAGS);
 				Statement statement = connection.createStatement();
 				
@@ -86,7 +86,7 @@ public class OSMNodeStore {
 				connection.commit();
 				connections.add(connection);
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | ClassNotFoundException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
