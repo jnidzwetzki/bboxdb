@@ -34,6 +34,8 @@ import org.bboxdb.performance.osm.filter.multipoint.OSMRoadsEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMWaterEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTreeEntityFilter;
+import org.bboxdb.performance.osm.store.OSMBDBNodeStore;
+import org.bboxdb.performance.osm.store.OSMNodeStore;
 import org.bboxdb.performance.osm.util.Polygon;
 import org.bboxdb.performance.osm.util.SerializableNode;
 import org.bboxdb.performance.osm.util.SerializerHelper;
@@ -90,7 +92,7 @@ public class OSMConverter implements Runnable, Sink {
 	 */
 	protected final long beginTimestamp;
 	
-	protected final OSMBDBNodeStore osmNodeStore;
+	protected final OSMNodeStore osmNodeStore;
 
 	/**
 	 * The Logger

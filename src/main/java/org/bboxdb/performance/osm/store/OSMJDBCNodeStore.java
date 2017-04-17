@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.performance.osm;
+package org.bboxdb.performance.osm.store;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.util.List;
 import org.bboxdb.performance.osm.util.SerializableNode;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
-public class OSMJDBCNodeStore {
+public class OSMJDBCNodeStore implements OSMNodeStore {
 	
     /**
      * The H2 DB file flags

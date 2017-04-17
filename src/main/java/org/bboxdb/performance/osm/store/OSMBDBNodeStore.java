@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.performance.osm;
+package org.bboxdb.performance.osm.store;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +37,7 @@ import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
-public class OSMBDBNodeStore {
+public class OSMBDBNodeStore implements OSMNodeStore {
 
 	/**
 	 * The environments connection
@@ -103,9 +103,10 @@ public class OSMBDBNodeStore {
 
 	}
 
-	/**
-	 * Close all resources
+	/* (non-Javadoc)
+	 * @see org.bboxdb.performance.osm.store.OSMNodeStore#close()
 	 */
+	@Override
 	public void close() {
 		databases.stream().forEach(p -> p.close());
 		databases.clear();
@@ -114,13 +115,10 @@ public class OSMBDBNodeStore {
 		environments.clear();
 	}
 
-	/**
-	 * Store a new node
-	 * 
-	 * @param node
-	 * @throws SQLException
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see org.bboxdb.performance.osm.store.OSMNodeStore#storeNode(org.openstreetmap.osmosis.core.domain.v0_6.Node)
 	 */
+	@Override
 	public void storeNode(final Node node) throws SQLException, IOException {
 
 		final int connectionNumber = getDatabaseForNode(node.getId());
@@ -171,13 +169,10 @@ public class OSMBDBNodeStore {
 		return (int) (nodeid % instances);
 	}
 
-	/**
-	 * Get the id for the node
-	 * 
-	 * @param nodeId
-	 * @return
-	 * @throws SQLException
+	/* (non-Javadoc)
+	 * @see org.bboxdb.performance.osm.store.OSMNodeStore#getNodeForId(long)
 	 */
+	@Override
 	public SerializableNode getNodeForId(final long nodeId) throws SQLException {
 		final int connectionNumber = getDatabaseForNode(nodeId);
 		
