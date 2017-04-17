@@ -52,7 +52,7 @@ public class OSMBDBNodeStore {
 	/**
 	 * Use transactions
 	 */
-	protected final boolean USE_TRANSACTIONS = false;
+	protected boolean useTransactions = false;
 
 	/**
 	 * The number of instances
@@ -79,18 +79,24 @@ public class OSMBDBNodeStore {
 			folder.mkdirs();
 
 			final EnvironmentConfig envConfig = new EnvironmentConfig();
-			envConfig.setTransactional(USE_TRANSACTIONS);
+			envConfig.setTransactional(useTransactions);
 			envConfig.setAllowCreate(true);
 			final Environment dbEnv = new Environment(folder, envConfig);
 
-			final Transaction txn = dbEnv.beginTransaction(null, null);
+			Transaction txn = null;
+			if(useTransactions) {
+				txn = dbEnv.beginTransaction(null, null);
+			}
+			
 			final DatabaseConfig dbConfig = new DatabaseConfig();
-			dbConfig.setTransactional(USE_TRANSACTIONS);
+			dbConfig.setTransactional(useTransactions);
 			dbConfig.setAllowCreate(true);
 			dbConfig.setSortedDuplicates(true);
 			final Database database = dbEnv.openDatabase(txn, "osm", dbConfig);
-			txn.commit();
-
+			
+			if(txn != null) {
+	        	txn.commit();
+	        }
 			environments.add(dbEnv);
 			databases.add(database);
 		}
@@ -125,7 +131,10 @@ public class OSMBDBNodeStore {
 		final SerializableNode serializableNode = new SerializableNode(node);
 		final byte[] nodeBytes = serializableNode.toByteArray();
 
-		final Transaction txn = environment.beginTransaction(null, null);
+		Transaction txn = null;
+		if(useTransactions) {
+			txn = environment.beginTransaction(null, null);
+		}
 		
 		final DatabaseEntry key = getKey(node.getId());
 		
@@ -136,7 +145,9 @@ public class OSMBDBNodeStore {
             throw new RuntimeException("Data insertion got status " + status);
         }
         
-        txn.commit();
+        if(txn != null) {
+        	txn.commit();
+        }
 	}
 
 	/**
