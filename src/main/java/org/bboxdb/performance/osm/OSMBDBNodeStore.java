@@ -71,6 +71,12 @@ public class OSMBDBNodeStore {
 
 			final String folderName = workfolder + "/osm_" + i;
 			final File folder = new File(folderName);
+			
+			if(folder.exists()) {
+				System.err.println("Folder already exists, exiting: " + folderName);
+			}
+			
+			folder.mkdirs();
 
 			final EnvironmentConfig envConfig = new EnvironmentConfig();
 			envConfig.setTransactional(USE_TRANSACTIONS);
