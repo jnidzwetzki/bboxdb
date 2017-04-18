@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.performance.osm.store;
 
-import java.io.IOException;
 import java.sql.SQLException;
 
 import org.bboxdb.performance.osm.util.SerializableNode;
@@ -34,10 +33,9 @@ public interface OSMNodeStore {
 	 * Store a new node
 	 * 
 	 * @param node
-	 * @throws SQLException
-	 * @throws IOException
+	 * @throws Exception 
 	 */
-	void storeNode(Node node) throws SQLException, IOException;
+	void storeNode(Node node) throws Exception;
 
 	/**
 	 * Get the id for the node

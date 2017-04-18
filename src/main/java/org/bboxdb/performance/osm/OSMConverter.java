@@ -216,7 +216,7 @@ public class OSMConverter implements Runnable, Sink {
 			
 			osmNodeStore.storeNode(node);
 			
-		} catch (SQLException | IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} 
 	}
