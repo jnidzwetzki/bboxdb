@@ -104,7 +104,13 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 			folder.mkdirs();
 
 			pendingWriteQueues.add(new LinkedList<SerializableNode>());
-			initNewBDBEnvironment(folder);
+			
+			final EnvironmentConfig envConfig = new EnvironmentConfig();
+			envConfig.setTransactional(useTransactions);
+			envConfig.setAllowCreate(true);
+		    envConfig.setSharedCache(true);
+			
+			initNewBDBEnvironment(folder, envConfig);
 
 			final BDBWriter bdbWriter = new BDBWriter(pendingWriteQueues.get(i), 
 					environments.get(i), databases.get(i));
@@ -117,10 +123,8 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 	 * Init a new BDB environment in the given folder
 	 * @param folder
 	 */
-	protected void initNewBDBEnvironment(final File folder) {
-		final EnvironmentConfig envConfig = new EnvironmentConfig();
-		envConfig.setTransactional(useTransactions);
-		envConfig.setAllowCreate(true);
+	protected void initNewBDBEnvironment(final File folder, final EnvironmentConfig envConfig) {
+
 		final Environment dbEnv = new Environment(folder, envConfig);
 
 		Transaction txn = null;
@@ -222,10 +226,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		final DatabaseEntry key = getKey(nodeId);
 	    final DatabaseEntry value = new DatabaseEntry();
 	    
-	    OperationStatus result;
-	    synchronized (database) {
-		    result = database.get(null, key, value, LockMode.DEFAULT);
-		}
+	    final OperationStatus result = database.get(null, key, value, LockMode.DEFAULT);
 	    
 	    if (result != OperationStatus.SUCCESS) {
 	        throw new RuntimeException("Data insertion got status " + result);
@@ -285,12 +286,8 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 			
 			final DatabaseEntry value = new DatabaseEntry(nodeBytes);
 			
-			OperationStatus status;
-			
-			synchronized (database) {
-				status = database.put(txn, key, value);
-			}
-
+			final OperationStatus status = database.put(txn, key, value);
+		
 	        if (status != OperationStatus.SUCCESS) {
 	            throw new RuntimeException("Data insertion got status " + status);
 	        }
