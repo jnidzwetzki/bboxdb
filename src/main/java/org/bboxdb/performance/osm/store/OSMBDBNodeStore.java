@@ -250,7 +250,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		}
 
 		@Override
-		protected void runThread() throws Exception {
+		protected void runThread() {
 			while(! Thread.currentThread().isInterrupted()) {
 				
 				SerializableNode nodeToProcess = null;
@@ -258,7 +258,12 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 				synchronized (pendingWriteQueue) {
 					
 					while(pendingWriteQueue.isEmpty()) {
-						pendingWriteQueue.wait();
+						try {
+							pendingWriteQueue.wait();
+						} catch (InterruptedException e) {
+							// Handle interrupt dirctly
+							return;
+						}
 					}
 					
 					nodeToProcess = pendingWriteQueue.get(0);
