@@ -68,7 +68,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 	/**
 	 * Max elements per pending write queue
 	 */
-	protected final static int MAX_ELEMENTS_PER_QUEUE = 20;
+	protected final static int MAX_ELEMENTS_PER_QUEUE = 200;
 
 	/**
 	 * Use transactions
@@ -87,8 +87,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 
 	public OSMBDBNodeStore(final List<String> baseDir, final long inputLength) {
 
-		//this.instances = instances;
-		this.instances = 1;
+		this.instances = 5;
 		
 		// Prepare DB_Instances
 		for (int i = 0; i < this.instances; i++) {
