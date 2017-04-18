@@ -116,12 +116,8 @@ public class OSMConverter implements Runnable, Sink {
 		workfoderDir.mkdirs();
 		
 		final File inputFile = new File(filename);
-		// 5 instances per GB
-		final int instances = (int) ((inputFile.length() / (Math.pow(1024, 3)) * 5));
-		
-		System.out.println("Using DB instances: " + instances);
-		
-		this.osmNodeStore = new OSMBDBNodeStore(Arrays.asList(workfolder.split(":")), instances);
+
+		this.osmNodeStore = new OSMBDBNodeStore(Arrays.asList(workfolder.split(":")), inputFile.length());
 	}
 	
 

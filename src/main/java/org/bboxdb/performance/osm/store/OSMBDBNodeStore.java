@@ -59,7 +59,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 	 */
 	protected int instances;
 
-	public OSMBDBNodeStore(final List<String> baseDir, final int instances) {
+	public OSMBDBNodeStore(final List<String> baseDir, final long inputLength) {
 
 		//this.instances = instances;
 		this.instances = 1;

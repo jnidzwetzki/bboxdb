@@ -59,10 +59,12 @@ public class OSMJDBCNodeStore implements OSMNodeStore {
      */
     protected int instances;
 
-	public OSMJDBCNodeStore(final List<String> baseDir, final int instances) {
+	public OSMJDBCNodeStore(final List<String> baseDir, final long inputLength) {
 		
-		this.instances = instances;
-		
+		// 5 instances per GB
+		instances = (int) ((inputLength / (Math.pow(1024, 3)) * 5));
+		System.out.println("Using DB instances: " + instances);
+				
 		try {			
 			// Prepare DB_Instances
 			for(int i = 0; i < instances; i++) {
