@@ -222,14 +222,16 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		final DatabaseEntry key = getKey(nodeId);
 	    final DatabaseEntry value = new DatabaseEntry();
 	    
-	    final OperationStatus result = database.get(null, key, value, LockMode.DEFAULT);
+	    OperationStatus result;
+	    synchronized (database) {
+		    result = database.get(null, key, value, LockMode.DEFAULT);
+		}
 	    
 	    if (result != OperationStatus.SUCCESS) {
 	        throw new RuntimeException("Data insertion got status " + result);
 	    }
 	
-		final SerializableNode node = SerializableNode.fromByteArray(value.getData());
-		return node;
+		return SerializableNode.fromByteArray(value.getData());
 	}
 	
 	
@@ -282,7 +284,12 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 			final DatabaseEntry key = getKey(node.getId());
 			
 			final DatabaseEntry value = new DatabaseEntry(nodeBytes);
-	        final OperationStatus status = database.put(txn, key, value);
+			
+			OperationStatus status;
+			
+			synchronized (database) {
+				status = database.put(txn, key, value);
+			}
 
 	        if (status != OperationStatus.SUCCESS) {
 	            throw new RuntimeException("Data insertion got status " + status);
