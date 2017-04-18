@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.util;
 
-import org.bboxdb.network.routing.PackageRouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,7 @@ public abstract class ExceptionSafeThread implements Runnable {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(PackageRouter.class);
+	private final static Logger logger = LoggerFactory.getLogger(ExceptionSafeThread.class);
 
 	/**
 	 * Run method that catches throwables
