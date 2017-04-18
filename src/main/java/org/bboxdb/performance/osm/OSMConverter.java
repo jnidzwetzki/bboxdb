@@ -23,10 +23,14 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMBuildingsEntityFilter;
@@ -92,7 +96,16 @@ public class OSMConverter implements Runnable, Sink {
 	 */
 	protected final long beginTimestamp;
 	
+	/**
+	 * The node store
+	 */
 	protected final OSMNodeStore osmNodeStore;
+	
+	/**
+	 * The thread pool
+	 */
+	protected ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
 
 	/**
 	 * The Logger
@@ -236,8 +249,17 @@ public class OSMConverter implements Runnable, Sink {
 					
 					final Polygon geometricalStructure = new Polygon(way.getId());
 					
+					final List<Callable<SerializableNode>> futures = new ArrayList<>();
+					
+					// Perform search async
 					for(final WayNode wayNode : way.getWayNodes()) {
-						final SerializableNode node = osmNodeStore.getNodeForId(wayNode.getNodeId());
+						final Callable<SerializableNode> callable = () -> osmNodeStore.getNodeForId(wayNode.getNodeId());
+						futures.add(callable);
+						threadPool.submit(callable);
+					}
+					
+					for(final Callable<SerializableNode> callable : futures) {
+						final SerializableNode node = callable.call();
 						geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
 					}
 					
@@ -250,7 +272,7 @@ public class OSMConverter implements Runnable, Sink {
 					writer.write("\n");
 				}
 			}
-		} catch (SQLException | IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} 
 	}
