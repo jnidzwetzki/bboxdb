@@ -266,7 +266,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 				
 				// Remove element after it is stored in BDB
 				synchronized (pendingWriteQueue) {
-					nodeToProcess = pendingWriteQueue.get(0);
+					pendingWriteQueue.remove(0);
 					pendingWriteQueue.notifyAll();
 				}
 			}
