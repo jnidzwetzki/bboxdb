@@ -112,7 +112,8 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 			envConfig.setTransactional(USE_TRANSACTIONS);
 			envConfig.setAllowCreate(true);
 		    envConfig.setSharedCache(true);
-			
+		    envConfig.setCachePercent(80);
+		    
 			initNewBDBEnvironment(folder, envConfig);
 
 			final BDBWriterThread bdbWriter = new BDBWriterThread(pendingWriteQueues.get(i), 
