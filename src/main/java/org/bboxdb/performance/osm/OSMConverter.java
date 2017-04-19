@@ -135,10 +135,9 @@ public class OSMConverter implements Runnable, Sink {
 		this.osmNodeStore = new OSMBDBNodeStore(Arrays.asList(workfolder.split(":")), inputFile.length());
 	
 		// Execute max 2 threads per DB instance
-		threadPool = Executors.newCachedThreadPool();
+		threadPool = Executors.newFixedThreadPool(osmNodeStore.getInstances() * 2);
 	}
 	
-
 	@Override
 	public void run() {
 		try {
@@ -265,7 +264,6 @@ public class OSMConverter implements Runnable, Sink {
 				final OSMTagEntityFilter entityFilter = filter.get(osmType);
 				if(entityFilter.match(way.getTags())) {
 					
-					final Polygon geometricalStructure = new Polygon(way.getId());
 					final List<Future<SerializableNode>> futures = new ArrayList<>(); 
 					 
 					// Perform search async
@@ -275,15 +273,17 @@ public class OSMConverter implements Runnable, Sink {
 						futures.add(future);
 					}
  					
+					final Polygon geometricalStructure = new Polygon(way.getId());
+
+					for(final Tag tag : way.getTags()) {
+						geometricalStructure.addProperty(tag.getKey(), tag.getValue());
+					}
+ 					
  					for(final Future<SerializableNode> future : futures) {
  						final SerializableNode node = future.get();
  						geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
  					}
-					
-					for(final Tag tag : way.getTags()) {
-						geometricalStructure.addProperty(tag.getKey(), tag.getValue());
-					}
-					
+
 					final Writer writer = writerMap.get(osmType);
 					writer.write(geometricalStructure.toGeoJson());
 					writer.write("\n");
