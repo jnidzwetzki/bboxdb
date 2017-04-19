@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -55,7 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import crosby.binary.osmosis.OsmosisReader;
 
-public class OSMConverter extends ExceptionSafeThread {
+public class OSMConverter {
 	
 	/**
 	 * The file to import
@@ -97,6 +98,8 @@ public class OSMConverter extends ExceptionSafeThread {
 	 */
 	protected final ExecutorService threadPool;
 	
+	protected final int CONSUMER_THREADS = 5;
+	
 	/**
 	 * The Blocking queue
 	 */
@@ -123,10 +126,10 @@ public class OSMConverter extends ExceptionSafeThread {
 		
 		final File inputFile = new File(filename);
 
-		this.osmNodeStore = new OSMBDBNodeStore(Arrays.asList(workfolder.split(":")), inputFile.length());
-	
-		// Execute max 2 threads per DB instance
-		threadPool = Executors.newFixedThreadPool(osmNodeStore.getInstances() * 2);
+		final List<String> workfolders = Arrays.asList(workfolder.split(":"));
+		this.osmNodeStore = new OSMBDBNodeStore(workfolders, inputFile.length());
+		
+		threadPool = Executors.newCachedThreadPool();		
 		
 		statistics.start();
 	}
@@ -158,11 +161,16 @@ public class OSMConverter extends ExceptionSafeThread {
 				@Override
 				public void process(final EntityContainer entityContainer) {
 					try {
-						// Nodes are cheap to handle, dispatching to another thread is expensives
+
 						if(entityContainer.getEntity() instanceof Node) {
+							// Nodes are cheap to handle, dispatching to another thread 
+							// is more expensive
+							
 							handleNode(entityContainer);
 							statistics.incProcessedNodes();
 						} else if(entityContainer.getEntity() instanceof Way) {
+							// Ways are expensive to handle
+							
 							final Way way = (Way) entityContainer.getEntity();
 							queue.put(way);
 						}
@@ -173,9 +181,10 @@ public class OSMConverter extends ExceptionSafeThread {
 				}
 			});
 			
-			// Two consumer
-			threadPool.submit(this);
-			threadPool.submit(this);
+			// The way consumer
+			for(int i = 0; i < CONSUMER_THREADS; i++) {
+				threadPool.submit(new Consumer());
+			}
 			
 			reader.run();
 		} catch (IOException e) {
@@ -206,22 +215,26 @@ public class OSMConverter extends ExceptionSafeThread {
 		osmNodeStore.close();
 	}
 	
-	/**
-	 * The consumer thread
-	 */
-	@Override
-	protected void runThread() {
-		
-		while(! Thread.currentThread().isInterrupted()) {
-			try {
-				final Way way = queue.take();
-				handleWay(way);
-				statistics.incProcessedWays();
-			} catch (InterruptedException e) {
-				return;
-			}		
+	
+	class Consumer extends ExceptionSafeThread {
+		/**
+		 * The consumer thread
+		 */
+		@Override
+		protected void runThread() {
+			
+			while(! Thread.currentThread().isInterrupted()) {
+				try {
+					final Way way = queue.take();
+					handleWay(way);
+					statistics.incProcessedWays();
+				} catch (InterruptedException e) {
+					return;
+				}		
+			}
 		}
 	}
+	
 
 	/**
 	 * Handle a node
