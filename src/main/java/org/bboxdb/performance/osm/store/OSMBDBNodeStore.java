@@ -114,6 +114,10 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		    envConfig.setSharedCache(true);
 		    envConfig.setCachePercent(80);
 		    
+		    envConfig.setConfigParam(EnvironmentConfig.ENV_RUN_CLEANER, "false");
+		    envConfig.setConfigParam(EnvironmentConfig.ENV_RUN_CHECKPOINTER, "false");
+		    envConfig.setConfigParam(EnvironmentConfig.ENV_RUN_IN_COMPRESSOR, "false");
+			
 			initNewBDBEnvironment(folder, envConfig);
 
 			final BDBWriterThread bdbWriter = new BDBWriterThread(pendingWriteQueues.get(i), 
@@ -142,8 +146,9 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		dbConfig.setTransactional(USE_TRANSACTIONS);
 		dbConfig.setAllowCreate(true);
 		dbConfig.setSortedDuplicates(false);
+	
 		final Database database = dbEnv.openDatabase(txn, "osm", dbConfig);
-		
+
 		if(txn != null) {
 			txn.commit();
 		}
