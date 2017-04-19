@@ -28,7 +28,6 @@ import java.util.concurrent.Executors;
 
 import org.bboxdb.performance.osm.util.SerializableNode;
 import org.bboxdb.util.DataEncoderHelper;
-import org.bboxdb.util.ExceptionSafeThread;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
 import com.sleepycat.je.Database;
@@ -73,7 +72,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 	/**
 	 * Use transactions
 	 */
-	protected boolean useTransactions = false;
+	public final static boolean USE_TRANSACTIONS = false;
 	
 	/**
 	 * The number of instances
@@ -105,14 +104,15 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 			pendingWriteQueues.add(new LinkedList<SerializableNode>());
 			
 			final EnvironmentConfig envConfig = new EnvironmentConfig();
-			envConfig.setTransactional(useTransactions);
+			envConfig.setTransactional(USE_TRANSACTIONS);
 			envConfig.setAllowCreate(true);
 		    envConfig.setSharedCache(true);
 			
 			initNewBDBEnvironment(folder, envConfig);
 
-			final BDBWriter bdbWriter = new BDBWriter(pendingWriteQueues.get(i), 
+			final BDBWriterThread bdbWriter = new BDBWriterThread(pendingWriteQueues.get(i), 
 					environments.get(i), databases.get(i));
+			
 			threadPool.submit(bdbWriter);
 		}
 
@@ -122,17 +122,18 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 	 * Init a new BDB environment in the given folder
 	 * @param folder
 	 */
+	@SuppressWarnings("unused")
 	protected void initNewBDBEnvironment(final File folder, final EnvironmentConfig envConfig) {
 
 		final Environment dbEnv = new Environment(folder, envConfig);
 
 		Transaction txn = null;
-		if(useTransactions) {
+		if(USE_TRANSACTIONS) {
 			txn = dbEnv.beginTransaction(null, null);
 		}
 		
 		final DatabaseConfig dbConfig = new DatabaseConfig();
-		dbConfig.setTransactional(useTransactions);
+		dbConfig.setTransactional(USE_TRANSACTIONS);
 		dbConfig.setAllowCreate(true);
 		dbConfig.setSortedDuplicates(true);
 		final Database database = dbEnv.openDatabase(txn, "osm", dbConfig);
@@ -185,7 +186,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 	 * @param node
 	 * @return
 	 */
-	protected DatabaseEntry getKey(final long nodeId) {
+	public static DatabaseEntry buildDatabaseKeyEntry(final long nodeId) {
 		final ByteBuffer keyByteBuffer = DataEncoderHelper.longToByteBuffer(nodeId);
 		return new DatabaseEntry(keyByteBuffer.array());
 	}
@@ -222,7 +223,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 			}
 		}
 		
-		final DatabaseEntry key = getKey(nodeId);
+		final DatabaseEntry key = buildDatabaseKeyEntry(nodeId);
 	    final DatabaseEntry value = new DatabaseEntry();
 	    
 	    final OperationStatus result = database.get(null, key, value, LockMode.DEFAULT);
@@ -233,71 +234,4 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 	
 		return SerializableNode.fromByteArray(value.getData());
 	}
-	
-	
-	class BDBWriter extends ExceptionSafeThread {
-
-		protected final List<SerializableNode> pendingWriteQueue;
-		protected final Environment environment;
-		protected final Database database;
-		
-		public BDBWriter(final List<SerializableNode> pendingWriteQueue, 
-				final Environment environment, final Database database) {
-			this.pendingWriteQueue = pendingWriteQueue;
-			this.environment = environment;
-			this.database = database;
-		}
-
-		@Override
-		protected void runThread() {
-			while(! Thread.currentThread().isInterrupted()) {
-				
-				SerializableNode nodeToProcess = null;
-				
-				synchronized (pendingWriteQueue) {
-					
-					while(pendingWriteQueue.isEmpty()) {
-						try {
-							pendingWriteQueue.wait();
-						} catch (InterruptedException e) {
-							// Handle interrupt dirctly
-							return;
-						}
-					}
-					
-					nodeToProcess = pendingWriteQueue.get(0);
-				}
-				
-				storeNode(nodeToProcess);
-				
-				// Remove element after it is stored in BDB
-				synchronized (pendingWriteQueue) {
-					pendingWriteQueue.remove(0);
-					pendingWriteQueue.notifyAll();
-				}
-			}
-		}
-		
-		protected void storeNode(final SerializableNode node) {
-			final byte[] nodeBytes = node.toByteArray();
-
-			Transaction txn = null;
-			if(useTransactions) {
-				txn = environment.beginTransaction(null, null);
-			}
-			
-			final DatabaseEntry key = getKey(node.getId());
-			final DatabaseEntry value = new DatabaseEntry(nodeBytes);
-			final OperationStatus status = database.put(txn, key, value);
-		
-	        if (status != OperationStatus.SUCCESS) {
-	            throw new RuntimeException("Data insertion got status " + status);
-	        }
-	        
-	        if(txn != null) {
-	        	txn.commit();
-	        }
-		}
-	}
 }
-
