@@ -100,7 +100,7 @@ public class OSMConverter extends ExceptionSafeThread {
 	/**
 	 * The Blocking queue
 	 */
-	protected BlockingQueue<EntityContainer> queue = new ArrayBlockingQueue<>(200);
+	protected BlockingQueue<Way> queue = new ArrayBlockingQueue<>(200);
 
 	/**
 	 * The data consumer thread
@@ -163,7 +163,14 @@ public class OSMConverter extends ExceptionSafeThread {
 				@Override
 				public void process(final EntityContainer entityContainer) {
 					try {
-						queue.put(entityContainer);
+						// Nodes are cheap to handle, dispatching to another thread is expensives
+						if(entityContainer.getEntity() instanceof Node) {
+							handleNode(entityContainer);
+							statistics.incProcessedNodes();
+						} else if(entityContainer.getEntity() instanceof Way) {
+							final Way way = (Way) entityContainer.getEntity();
+							queue.put(way);
+						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 						return;
@@ -212,15 +219,9 @@ public class OSMConverter extends ExceptionSafeThread {
 		
 		while(! Thread.currentThread().isInterrupted()) {
 			try {
-				final EntityContainer entityContainer = queue.take();
-				
-				if(entityContainer.getEntity() instanceof Node) {
-					handleNode(entityContainer);
-					statistics.incProcessedNodes();
-				} else if(entityContainer.getEntity() instanceof Way) {
-					handleWay(entityContainer);
-					statistics.incProcessedWays();
-				}
+				final Way way = queue.take();
+				handleWay(way);
+				statistics.incProcessedWays();
 			} catch (InterruptedException e) {
 				return;
 			}		
@@ -245,9 +246,7 @@ public class OSMConverter extends ExceptionSafeThread {
 						geometricalStructure.addProperty(tag.getKey(), tag.getValue());
 					}
 					
-					final Writer writer = writerMap.get(osmType);
-					writer.write(geometricalStructure.toGeoJson());
-					writer.write("\n");
+					writePolygonToOutput(osmType, geometricalStructure);
 				}
 			}
 			
@@ -259,13 +258,25 @@ public class OSMConverter extends ExceptionSafeThread {
 	}
 
 	/**
+	 * Write the polygon to output
+	 * @param osmType
+	 * @param geometricalStructure
+	 * @throws IOException
+	 */
+	protected void writePolygonToOutput(final OSMType osmType, final Polygon geometricalStructure) throws IOException {
+		final Writer writer = writerMap.get(osmType);
+		synchronized (writer) {
+			writer.write(geometricalStructure.toGeoJson());
+			writer.write("\n");
+		}
+	}
+
+	/**
 	 * Handle a way
 	 * @param entityContainer
 	 */
-	protected void handleWay(final EntityContainer entityContainer) {
-		try {
-			final Way way = (Way) entityContainer.getEntity();
-			
+	protected void handleWay(final Way way) {
+		try {			
 			for(final OSMType osmType : filter.keySet()) {
 				
 				final OSMTagEntityFilter entityFilter = filter.get(osmType);
@@ -283,9 +294,7 @@ public class OSMConverter extends ExceptionSafeThread {
  						geometricalStructure.addPoint(node.getLatitude(), node.getLongitude()); 						
 					}
  			
-					final Writer writer = writerMap.get(osmType);
-					writer.write(geometricalStructure.toGeoJson());
-					writer.write("\n");
+					writePolygonToOutput(osmType, geometricalStructure);
 				}
 			}
 		} catch (Exception e) {
