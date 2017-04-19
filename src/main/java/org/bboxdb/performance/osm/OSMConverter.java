@@ -74,9 +74,9 @@ public class OSMConverter implements Runnable, Sink {
 	protected final SerializerHelper<Polygon> serializerHelper = new SerializerHelper<>();
     
     /**
-     * The number of processed elements
+     * The number element statistics
      */
-    protected long processedElements = 0;
+    protected Statistics statistics;
 
 	/**
 	 * The filter
@@ -87,16 +87,6 @@ public class OSMConverter implements Runnable, Sink {
 	 * The output stream map
 	 */
 	protected final Map<OSMType, Writer> writerMap = new HashMap<>();
-	
-	/**
-	 * The performance timestamp
-	 */
-	protected long lastPerformaceTimestamp = 0;
-	
-	/**
-	 * Conversion begin
-	 */
-	protected final long beginTimestamp;
 	
 	/**
 	 * The node store
@@ -125,8 +115,7 @@ public class OSMConverter implements Runnable, Sink {
 	public OSMConverter(final String filename, final String workfolder, final String output) {
 		this.filename = filename;
 		this.output = output;
-		this.beginTimestamp = System.currentTimeMillis();
-		
+	
 		final File workfoderDir = new File(workfolder);
 		workfoderDir.mkdirs();
 		
@@ -136,6 +125,8 @@ public class OSMConverter implements Runnable, Sink {
 	
 		// Execute max 2 threads per DB instance
 		threadPool = Executors.newFixedThreadPool(osmNodeStore.getInstances() * 2);
+		
+		statistics.clear();
 	}
 	
 	@Override
@@ -151,7 +142,8 @@ public class OSMConverter implements Runnable, Sink {
 			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
 			reader.setSink(this);
 			reader.run();
-			System.out.format("Imported %d objects\n", processedElements);
+			System.out.format("Imported %d nodes and %d ways\n", 
+					statistics.getProcessedNodes(), statistics.getProcessedWays());
 		} catch (IOException e) {
 			logger.error("Got an exception during import", e);
 		} finally {
@@ -193,30 +185,17 @@ public class OSMConverter implements Runnable, Sink {
 	@Override
 	public void process(final EntityContainer entityContainer) {
 		
-		if(processedElements % 10000 == 0) {
-			double performanceLast = 0;
-			double performanceTotal = processedElements / ((System.currentTimeMillis() - beginTimestamp) / 1000.0);
-			
-			if(lastPerformaceTimestamp != 0) {
-				performanceLast = 10000.0 / ((System.currentTimeMillis() - lastPerformaceTimestamp) / 1000.0);
-			}
-			
-			final String performanceTotalString = String.format("%.2f", performanceTotal);
-			final String performanceLastString = String.format("%.2f", performanceLast);
-			
-			logger.info("Processing element {} / Elements per Sec {} / Total elements per Sec {}",
-					processedElements, performanceLastString, performanceTotalString);
-			
-			lastPerformaceTimestamp = System.currentTimeMillis();
+		if(statistics.getTotalProcessedElements() % 10000 == 0) {
+			statistics.printStatistics();
 		}
 		
 		if(entityContainer.getEntity() instanceof Node) {
 			handleNode(entityContainer);
+			statistics.incProcessedNodes();
 		} else if(entityContainer.getEntity() instanceof Way) {
 			handleWay(entityContainer);
-		}
-		
-		processedElements++;
+			statistics.incProcessedWays();
+		}		
 	}
 
 	/**
@@ -294,6 +273,74 @@ public class OSMConverter implements Runnable, Sink {
 		} 
 	}
 
+	class Statistics {
+		
+		/**
+		 * The amount of processed nodes
+		 */
+		protected double processedNodes;
+		
+		/**
+		 * The amount of processed ways
+		 */
+		protected double processedWays;
+		
+		/**
+		 * The performance timestamp
+		 */
+		protected long lastPerformaceTimestamp;
+		
+		/**
+		 * Conversion begin
+		 */
+		protected long beginTimestamp;
+		
+		public void clear() {
+			processedNodes = 0;
+			lastPerformaceTimestamp = 0;
+			beginTimestamp = System.currentTimeMillis();
+		}
+		
+		public void printStatistics() {
+			double performanceSinceLastCall = 0;
+			
+			final long now = System.currentTimeMillis();
+			
+			double performanceTotal = getTotalProcessedElements() / ((now - beginTimestamp) / 1000.0);
+			
+			if(lastPerformaceTimestamp != 0) {
+				performanceSinceLastCall = 10000.0 / ((now - lastPerformaceTimestamp) / 1000.0);
+			}
+			
+			final String performanceTotalString = String.format("%.2f", performanceTotal);
+			final String performanceLastString = String.format("%.2f", performanceSinceLastCall);
+			
+			logger.info("Processing node {} and way {} / Elements per Sec {} / Total elements per Sec {}",
+					processedNodes, processedWays, performanceLastString, performanceTotalString);
+			
+			lastPerformaceTimestamp = now;
+		}
+		
+		public void incProcessedNodes() {
+			processedNodes++;
+		}
+		
+		public void incProcessedWays() {
+			processedWays++;
+		}
+		
+		public double getProcessedNodes() {
+			return processedNodes;
+		}
+		
+		public double getProcessedWays() {
+			return processedWays;
+		}
+		
+		public double getTotalProcessedElements() {
+			return processedNodes + processedWays;
+		}
+	}
 	
 	/**
 	 * ====================================================
