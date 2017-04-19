@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -57,7 +59,7 @@ import org.slf4j.LoggerFactory;
 
 import crosby.binary.osmosis.OsmosisReader;
 
-public class OSMConverter implements Runnable, Sink {
+public class OSMConverter extends ExceptionSafeThread {
 	
 	/**
 	 * The file to import
@@ -77,7 +79,7 @@ public class OSMConverter implements Runnable, Sink {
     /**
      * The number element statistics
      */
-    protected final Statistics statistics;
+    protected final OSMConverterStatistics statistics;
 
 	/**
 	 * The filter
@@ -100,6 +102,21 @@ public class OSMConverter implements Runnable, Sink {
 	protected final ExecutorService threadPool;
 	
 	/**
+	 * The Blocking queue
+	 */
+	protected BlockingQueue<EntityContainer> queue = new ArrayBlockingQueue<>(200);
+	
+	/**
+	 * The queue posion
+	 */
+	protected EntityContainer QUEUE_POISON = null;
+	
+	/**
+	 * The data consumer thread
+	 */
+	protected Thread consumerThread;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(OSMConverter.class);
@@ -116,7 +133,7 @@ public class OSMConverter implements Runnable, Sink {
 	public OSMConverter(final String filename, final String workfolder, final String output) {
 		this.filename = filename;
 		this.output = output;
-		this.statistics = new Statistics();
+		this.statistics = new OSMConverterStatistics();
 		
 		final File inputFile = new File(filename);
 
@@ -127,9 +144,11 @@ public class OSMConverter implements Runnable, Sink {
 		
 		statistics.start();
 	}
-	
-	@Override
-	public void run() {
+
+	/**
+	 * Start the converter
+	 */
+	public void start() {
 		try {
 			// Open file handles
 			for(final OSMType osmType : filter.keySet()) {
@@ -139,7 +158,31 @@ public class OSMConverter implements Runnable, Sink {
 			
 			System.out.format("Importing %s\n", filename);
 			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
-			reader.setSink(this);
+			reader.setSink(new Sink() {
+				
+				@Override
+				public void release() {}
+				
+				@Override
+				public void complete() {}
+				
+				@Override
+				public void initialize(final Map<String, Object> metaData) {}
+				
+				@Override
+				public void process(final EntityContainer entityContainer) {
+					try {
+						queue.put(entityContainer);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						return;
+					}
+				}
+			});
+			
+			consumerThread = new Thread(this);
+			consumerThread.start();
+			
 			reader.run();
 		} catch (IOException e) {
 			logger.error("Got an exception during import", e);
@@ -155,6 +198,8 @@ public class OSMConverter implements Runnable, Sink {
 		
 		statistics.stop();
 
+		queue.add(QUEUE_POISON);
+		
 		// Close file handles
 		for(final Writer writer : writerMap.values()) {
 			try {
@@ -168,28 +213,32 @@ public class OSMConverter implements Runnable, Sink {
 		osmNodeStore.close();
 		threadPool.shutdownNow();
 	}
-
-	@Override
-	public void initialize(Map<String, Object> metaData) {		
-	}
-
-	@Override
-	public void complete() {		
-	}
-
-	@Override
-	public void release() {		
-	}
 	
+	/**
+	 * The consumer thread
+	 */
 	@Override
-	public void process(final EntityContainer entityContainer) {		
-		if(entityContainer.getEntity() instanceof Node) {
-			handleNode(entityContainer);
-			statistics.incProcessedNodes();
-		} else if(entityContainer.getEntity() instanceof Way) {
-			handleWay(entityContainer);
-			statistics.incProcessedWays();
-		}		
+	protected void runThread() {
+		
+		while(! Thread.currentThread().isInterrupted()) {
+			try {
+				final EntityContainer entityContainer = queue.take();
+				
+				if(entityContainer == QUEUE_POISON) {
+					return;
+				}
+				
+				if(entityContainer.getEntity() instanceof Node) {
+					handleNode(entityContainer);
+					statistics.incProcessedNodes();
+				} else if(entityContainer.getEntity() instanceof Way) {
+					handleWay(entityContainer);
+					statistics.incProcessedWays();
+				}
+			} catch (InterruptedException e) {
+				return;
+			}		
+		}
 	}
 
 	/**
@@ -266,108 +315,6 @@ public class OSMConverter implements Runnable, Sink {
 		} 
 	}
 
-	class Statistics extends ExceptionSafeThread {
-		
-		/**
-		 * The amount of processed nodes
-		 */
-		protected double processedNodes;
-		
-		/**
-		 * The amount of processed ways
-		 */
-		protected double processedWays;
-		
-		/**
-		 * The performance timestamp
-		 */
-		protected long lastPerformaceTimestamp;
-		
-		/**
-		 * The amount of processed nodes in the last call
-		 */
-		protected double lastProcessedElements;
-		
-		/**
-		 * Conversion begin
-		 */
-		protected long beginTimestamp;
-		
-		/**
-		 * The print thread
-		 */
-		protected Thread thread;
-		
-		/**
-		 * The delay between two statistic prints
-		 */
-		protected final static int DELAY_IN_MS = 1000;
-
-		public void start() {
-			processedNodes = 0;
-			lastPerformaceTimestamp = 0;
-			lastProcessedElements = 0;
-			beginTimestamp = System.currentTimeMillis();
-			thread = new Thread(this);
-			thread.start();
-		}
-		
-		public void stop() {
-			thread.interrupt();
-			
-			System.out.format("Imported %.0f nodes and %.0f ways\n", 
-					getProcessedNodes(), getProcessedWays());
-		}
-		
-		@Override
-		protected void runThread() throws Exception {
-			
-			while(! Thread.interrupted()) {
-				final long now = System.currentTimeMillis();
-				final double totalProcessedElements = getTotalProcessedElements();
-				
-				final double performanceTotal = totalProcessedElements / ((now - beginTimestamp) / (float) DELAY_IN_MS);				
-				final double performanceSinceLastCall = (totalProcessedElements - lastProcessedElements);
-				
-				final String logMessage = String.format(
-						"Processing node %.0f and way %.0f / Elements per Sec %.2f / Total elements per Sec %.2f",
-						processedNodes, processedWays, performanceSinceLastCall, performanceTotal);
-		
-				logger.info(logMessage);
-				
-				lastPerformaceTimestamp = now;
-				lastProcessedElements = totalProcessedElements;
-				
-				try {
-					Thread.sleep(DELAY_IN_MS);
-				} catch(InterruptedException e) {
-					return;
-				}
-			}
-		}
-		
-		public void incProcessedNodes() {
-			processedNodes++;
-		}
-		
-		public void incProcessedWays() {
-			processedWays++;
-		}
-		
-		public double getProcessedNodes() {
-			return processedNodes;
-		}
-		
-		public double getProcessedWays() {
-			return processedWays;
-		}
-		
-		public double getTotalProcessedElements() {
-			return processedNodes + processedWays;
-		}
-
-	}
-	
 	/**
 	 * ====================================================
 	 * Main * Main * Main * Main * Main
@@ -403,8 +350,10 @@ public class OSMConverter implements Runnable, Sink {
 			System.exit(-1);
 		}
 
-		final OSMConverter determineSamplingSize = new OSMConverter(filename, workfolder, output);
-		determineSamplingSize.run();
+		final OSMConverter converter = new OSMConverter(filename, workfolder, output);
+		converter.start();
 	}
+
+
 
 }
