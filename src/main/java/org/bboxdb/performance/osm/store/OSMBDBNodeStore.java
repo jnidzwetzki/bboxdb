@@ -91,7 +91,8 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 
 	public OSMBDBNodeStore(final List<String> baseDir, final long inputLength) {
 
-		this.instances = baseDir.size() * 2;
+		//this.instances = baseDir.size() * 2;
+		this.instances = 5;
 		
 		// Prepare DB_Instances
 		for (int i = 0; i < this.instances; i++) {
