@@ -143,7 +143,7 @@ public class OSMConverter implements Runnable, Sink {
 			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
 			reader.setSink(this);
 			reader.run();
-			System.out.format("Imported %f nodes and %f ways\n", 
+			System.out.format("Imported %.0f nodes and %.0f ways\n", 
 					statistics.getProcessedNodes(), statistics.getProcessedWays());
 		} catch (IOException e) {
 			logger.error("Got an exception during import", e);
