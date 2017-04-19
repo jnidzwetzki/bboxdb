@@ -101,11 +101,6 @@ public class OSMConverter extends ExceptionSafeThread {
 	 * The Blocking queue
 	 */
 	protected BlockingQueue<Way> queue = new ArrayBlockingQueue<>(200);
-
-	/**
-	 * The data consumer thread
-	 */
-	protected Thread consumerThread;
 	
 	/**
 	 * The Logger
@@ -178,8 +173,9 @@ public class OSMConverter extends ExceptionSafeThread {
 				}
 			});
 			
-			consumerThread = new Thread(this);
-			consumerThread.start();
+			// Two consumer
+			threadPool.submit(this);
+			threadPool.submit(this);
 			
 			reader.run();
 		} catch (IOException e) {
@@ -195,7 +191,7 @@ public class OSMConverter extends ExceptionSafeThread {
 	protected void shutdown() {
 		
 		statistics.stop();
-		consumerThread.interrupt();
+		threadPool.shutdownNow();
 		
 		// Close file handles
 		for(final Writer writer : writerMap.values()) {
@@ -208,7 +204,6 @@ public class OSMConverter extends ExceptionSafeThread {
 		
 		writerMap.clear();
 		osmNodeStore.close();
-		threadPool.shutdownNow();
 	}
 	
 	/**
