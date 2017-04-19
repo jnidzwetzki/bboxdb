@@ -15,41 +15,28 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.performance.osm;
+package org.bboxdb.performance.osm.filter.multipoint;
 
-public enum OSMType {
+import java.util.Collection;
+
+import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
+import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
+
+public class WoodEntityFilter implements OSMTagEntityFilter {
+
+	@Override
+	public boolean match(final Collection<Tag> tags) {
+		for(final Tag tag : tags) {
+			if(tag.getKey().equals("natural") && tag.getValue().equals("wood")) {
+				return true;
+			}
+		}
 		
-	// Single Point elements
-	TREE("tree"),
-	TRAFFIC_SIGNAL("trafficsignal"),
-	
-	// Multi Point elements
-	ROAD("road"),
-	BUILDING("building"),
-	WATER("water"), 
-	WOOD("wood");
-	
-	private final String name;
+		return false;
+	}
 
-	OSMType(final String name) {
-		this.name = name;
+	@Override
+	public boolean isMultiPointFilter() {
+		return true;
 	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	/**
-	 * Construct from name
-	 * @param name
-	 * @return
-	 */
-	public static OSMType fromString(final String name) {
-	    for (OSMType b : OSMType.values()) {
-	      if (b.getName().equalsIgnoreCase(name)) {
-	        return b;
-	      }
-	    }
-	    return null;
-	  }
 }

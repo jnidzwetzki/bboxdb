@@ -31,6 +31,7 @@ import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMBuildingsEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMRoadsEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMWaterEntityFilter;
+import org.bboxdb.performance.osm.filter.multipoint.WoodEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
 import org.bboxdb.performance.osm.filter.singlepoint.OSMTreeEntityFilter;
 import org.bboxdb.performance.osm.store.OSMBDBNodeStore;
@@ -103,6 +104,7 @@ public class OSMConverter implements Runnable, Sink {
 
 	static {
 		filter.put(OSMType.TREE, new OSMTreeEntityFilter());
+		filter.put(OSMType.WOOD, new WoodEntityFilter());
 		filter.put(OSMType.TRAFFIC_SIGNAL, new OSMTrafficSignalEntityFilter());
 		filter.put(OSMType.ROAD, new OSMRoadsEntityFilter());
 		filter.put(OSMType.BUILDING, new OSMBuildingsEntityFilter());

@@ -93,7 +93,6 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		for (int i = 0; i < this.instances; i++) {
 
 			final String workfolder = baseDir.get(i % baseDir.size());
-
 			final String folderName = workfolder + "/osm_" + i;
 			final File folder = new File(folderName);
 			
@@ -288,9 +287,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 			}
 			
 			final DatabaseEntry key = getKey(node.getId());
-			
 			final DatabaseEntry value = new DatabaseEntry(nodeBytes);
-			
 			final OperationStatus status = database.put(txn, key, value);
 		
 	        if (status != OperationStatus.SUCCESS) {
