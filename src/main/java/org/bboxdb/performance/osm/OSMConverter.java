@@ -166,13 +166,16 @@ public class OSMConverter {
 							// Nodes are cheap to handle, dispatching to another thread 
 							// is more expensive
 							
-							handleNode(entityContainer);
+							final Node node = (Node) entityContainer.getEntity();
+							handleNode(node);
 							statistics.incProcessedNodes();
 						} else if(entityContainer.getEntity() instanceof Way) {
 							// Ways are expensive to handle
 							
 							final Way way = (Way) entityContainer.getEntity();
 							handleWay(way);
+							statistics.incProcessedWays();
+
 							//queue.put(way);
 						}
 //					} catch (InterruptedException e) {
@@ -228,7 +231,6 @@ public class OSMConverter {
 				try {
 					final Way way = queue.take();
 					handleWay(way);
-					statistics.incProcessedWays();
 				} catch (InterruptedException e) {
 					return;
 				}		
@@ -241,10 +243,8 @@ public class OSMConverter {
 	 * Handle a node
 	 * @param entityContainer
 	 */
-	protected void handleNode(final EntityContainer entityContainer) {
-		try {
-			final Node node = (Node) entityContainer.getEntity();
-			
+	protected void handleNode(final Node node) {
+		try {			
 			for(final OSMType osmType : filter.keySet()) {
 				final OSMTagEntityFilter entityFilter = filter.get(osmType);
 				if(entityFilter.match(node.getTags())) {
