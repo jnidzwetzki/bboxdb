@@ -105,12 +105,7 @@ public class OSMConverter extends ExceptionSafeThread {
 	 * The Blocking queue
 	 */
 	protected BlockingQueue<EntityContainer> queue = new ArrayBlockingQueue<>(200);
-	
-	/**
-	 * The queue posion
-	 */
-	protected EntityContainer QUEUE_POISON = null;
-	
+
 	/**
 	 * The data consumer thread
 	 */
@@ -197,8 +192,7 @@ public class OSMConverter extends ExceptionSafeThread {
 	protected void shutdown() {
 		
 		statistics.stop();
-
-		queue.add(QUEUE_POISON);
+		consumerThread.interrupt();
 		
 		// Close file handles
 		for(final Writer writer : writerMap.values()) {
@@ -223,10 +217,6 @@ public class OSMConverter extends ExceptionSafeThread {
 		while(! Thread.currentThread().isInterrupted()) {
 			try {
 				final EntityContainer entityContainer = queue.take();
-				
-				if(entityContainer == QUEUE_POISON) {
-					return;
-				}
 				
 				if(entityContainer.getEntity() instanceof Node) {
 					handleNode(entityContainer);
