@@ -330,7 +330,7 @@ public class OSMConverter implements Runnable, Sink {
 				final double totalProcessedElements = getTotalProcessedElements();
 				
 				final double performanceTotal = totalProcessedElements / ((now - beginTimestamp) / (float) DELAY_IN_MS);				
-				final double performanceSinceLastCall = totalProcessedElements - lastProcessedElements / (float) DELAY_IN_MS;
+				final double performanceSinceLastCall = (totalProcessedElements - lastProcessedElements) / (float) DELAY_IN_MS;
 				
 				final String performanceTotalString = String.format("%.2f", performanceTotal);
 				final String performanceLastString = String.format("%.2f", performanceSinceLastCall);
