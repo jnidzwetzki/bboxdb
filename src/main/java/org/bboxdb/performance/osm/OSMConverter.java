@@ -333,7 +333,7 @@ public class OSMConverter implements Runnable, Sink {
 				final double performanceSinceLastCall = (totalProcessedElements - lastProcessedElements);
 				
 				final String logMessage = String.format(
-						"Processing node %f and way %f / Elements per Sec %.2f / Total elements per Sec %.2f",
+						"Processing node %.0f and way %.0f / Elements per Sec %.2f / Total elements per Sec %.2f",
 						processedNodes, processedWays, performanceSinceLastCall, performanceTotal);
 		
 				logger.info(logMessage);
