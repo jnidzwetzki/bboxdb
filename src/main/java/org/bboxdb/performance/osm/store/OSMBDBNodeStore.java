@@ -91,7 +91,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 
 	public OSMBDBNodeStore(final List<String> baseDir, final long inputLength) {
 
-		this.instances = baseDir.size() * 2;
+		this.instances = baseDir.size() * 5;
 		
 		// Prepare DB_Instances
 		for (int i = 0; i < this.instances; i++) {
@@ -113,11 +113,11 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 			envConfig.setAllowCreate(true);
 		    envConfig.setSharedCache(true);
 		    envConfig.setCachePercent(80);
-		    
+		   /* 
 		    envConfig.setConfigParam(EnvironmentConfig.ENV_RUN_CLEANER, "false");
 		    envConfig.setConfigParam(EnvironmentConfig.ENV_RUN_CHECKPOINTER, "false");
 		    envConfig.setConfigParam(EnvironmentConfig.ENV_RUN_IN_COMPRESSOR, "false");
-			
+		*/	
 			initNewBDBEnvironment(folder, envConfig);
 
 			final BDBWriterThread bdbWriter = new BDBWriterThread(pendingWriteQueues.get(i), 
