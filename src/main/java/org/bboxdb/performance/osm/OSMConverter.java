@@ -23,9 +23,15 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMBuildingsEntityFilter;
@@ -98,6 +104,11 @@ public class OSMConverter implements Runnable, Sink {
 	protected final OSMNodeStore osmNodeStore;
 
 	/**
+	 * The thread pool
+	 */
+	protected final ExecutorService threadPool;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(OSMConverter.class);
@@ -122,6 +133,9 @@ public class OSMConverter implements Runnable, Sink {
 		final File inputFile = new File(filename);
 
 		this.osmNodeStore = new OSMBDBNodeStore(Arrays.asList(workfolder.split(":")), inputFile.length());
+	
+		// Execute max 2 threads per DB instance
+		threadPool = Executors.newCachedThreadPool();
 	}
 	
 
@@ -139,17 +153,30 @@ public class OSMConverter implements Runnable, Sink {
 			reader.setSink(this);
 			reader.run();
 			System.out.format("Imported %d objects\n", processedElements);
-			
-			// Close file handles
-			for(final Writer writer : writerMap.values()) {
-				writer.close();
-			}
-			
-			writerMap.clear();
-			osmNodeStore.close();
 		} catch (IOException e) {
 			logger.error("Got an exception during import", e);
+		} finally {
+			shutdown();
 		}
+	}
+
+	/**
+	 * Shutdown the importer
+	 */
+	protected void shutdown() {
+		
+		// Close file handles
+		for(final Writer writer : writerMap.values()) {
+			try {
+				writer.close();
+			} catch (IOException e) {
+				logger.error("IO Exception while closing writer");
+			}
+		}
+		
+		writerMap.clear();
+		osmNodeStore.close();
+		threadPool.shutdownNow();
 	}
 
 	@Override
@@ -239,11 +266,19 @@ public class OSMConverter implements Runnable, Sink {
 				if(entityFilter.match(way.getTags())) {
 					
 					final Polygon geometricalStructure = new Polygon(way.getId());
-					
-					for(final WayNode wayNode : way.getWayNodes()) {
-						final SerializableNode node = osmNodeStore.getNodeForId(wayNode.getNodeId());
-						geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
+					final List<Future<SerializableNode>> futures = new ArrayList<>(); 
+					 
+					// Perform search async
+ 					for(final WayNode wayNode : way.getWayNodes()) {
+						final Callable<SerializableNode> callable = () -> osmNodeStore.getNodeForId(wayNode.getNodeId());
+						final Future<SerializableNode> future = threadPool.submit(callable);
+						futures.add(future);
 					}
+ 					
+ 					for(final Future<SerializableNode> future : futures) {
+ 						final SerializableNode node = future.get();
+ 						geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
+ 					}
 					
 					for(final Tag tag : way.getTags()) {
 						geometricalStructure.addProperty(tag.getKey(), tag.getValue());

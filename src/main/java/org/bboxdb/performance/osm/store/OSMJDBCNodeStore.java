@@ -182,4 +182,8 @@ public class OSMJDBCNodeStore implements OSMNodeStore {
 		return node;
 	}
 
+	@Override
+	public int getInstances() {
+		return instances;
+	}
 }

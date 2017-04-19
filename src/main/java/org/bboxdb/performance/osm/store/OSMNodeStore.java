@@ -27,7 +27,7 @@ public interface OSMNodeStore {
 	/**
 	 * Close all resources
 	 */
-	void close();
+	public void close();
 
 	/**
 	 * Store a new node
@@ -35,7 +35,7 @@ public interface OSMNodeStore {
 	 * @param node
 	 * @throws Exception 
 	 */
-	void storeNode(Node node) throws Exception;
+	public void storeNode(Node node) throws Exception;
 
 	/**
 	 * Get the id for the node
@@ -44,6 +44,12 @@ public interface OSMNodeStore {
 	 * @return
 	 * @throws SQLException
 	 */
-	SerializableNode getNodeForId(long nodeId) throws SQLException;
+	public SerializableNode getNodeForId(long nodeId) throws SQLException;
+	
+	/**
+	 * Get the amount of DB instances
+	 * @return
+	 */
+	public int getInstances();
 
 }
