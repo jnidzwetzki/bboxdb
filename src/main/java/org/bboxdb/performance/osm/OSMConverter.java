@@ -287,6 +287,11 @@ public class OSMConverter implements Runnable, Sink {
 		protected long lastPerformaceTimestamp;
 		
 		/**
+		 * The amount of processed nodes in the last call
+		 */
+		protected double lastProcessedElements;
+		
+		/**
 		 * Conversion begin
 		 */
 		protected long beginTimestamp;
@@ -296,9 +301,15 @@ public class OSMConverter implements Runnable, Sink {
 		 */
 		protected Thread thread;
 		
+		/**
+		 * The delay between two statistic prints
+		 */
+		protected final static int DELAY_IN_MS = 1000;
+
 		public void start() {
 			processedNodes = 0;
 			lastPerformaceTimestamp = 0;
+			lastProcessedElements = 0;
 			beginTimestamp = System.currentTimeMillis();
 			thread = new Thread(this);
 			thread.start();
@@ -315,15 +326,11 @@ public class OSMConverter implements Runnable, Sink {
 		protected void runThread() throws Exception {
 			
 			while(! Thread.interrupted()) {
-				double performanceSinceLastCall = 0;
-				
 				final long now = System.currentTimeMillis();
+				final double totalProcessedElements = getTotalProcessedElements();
 				
-				double performanceTotal = getTotalProcessedElements() / ((now - beginTimestamp) / 1000.0);
-				
-				if(lastPerformaceTimestamp != 0) {
-					performanceSinceLastCall = 10000.0 / ((now - lastPerformaceTimestamp) / 1000.0);
-				}
+				final double performanceTotal = totalProcessedElements / ((now - beginTimestamp) / (float) DELAY_IN_MS);				
+				final double performanceSinceLastCall = totalProcessedElements - lastProcessedElements / (float) DELAY_IN_MS;
 				
 				final String performanceTotalString = String.format("%.2f", performanceTotal);
 				final String performanceLastString = String.format("%.2f", performanceSinceLastCall);
@@ -332,8 +339,13 @@ public class OSMConverter implements Runnable, Sink {
 						processedNodes, processedWays, performanceLastString, performanceTotalString);
 				
 				lastPerformaceTimestamp = now;
+				lastProcessedElements = totalProcessedElements;
 				
-				Thread.sleep(1000);
+				try {
+					Thread.sleep(DELAY_IN_MS);
+				} catch(InterruptedException e) {
+					return;
+				}
 			}
 		}
 		
