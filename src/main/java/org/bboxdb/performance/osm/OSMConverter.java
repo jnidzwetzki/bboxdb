@@ -129,7 +129,7 @@ public class OSMConverter {
 		final List<String> workfolders = Arrays.asList(workfolder.split(":"));
 		this.osmNodeStore = new OSMBDBNodeStore(workfolders, inputFile.length());
 		
-		threadPool = Executors.newCachedThreadPool();		
+		threadPool = Executors.newCachedThreadPool();	
 		
 		statistics.start();
 	}
@@ -160,7 +160,7 @@ public class OSMConverter {
 				
 				@Override
 				public void process(final EntityContainer entityContainer) {
-					try {
+	//				try {
 
 						if(entityContainer.getEntity() instanceof Node) {
 							// Nodes are cheap to handle, dispatching to another thread 
@@ -172,12 +172,13 @@ public class OSMConverter {
 							// Ways are expensive to handle
 							
 							final Way way = (Way) entityContainer.getEntity();
-							queue.put(way);
+							handleWay(way);
+							//queue.put(way);
 						}
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						return;
-					}
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//						return;
+//					}
 				}
 			});
 			
