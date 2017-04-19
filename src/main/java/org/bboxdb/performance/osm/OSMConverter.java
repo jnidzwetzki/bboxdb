@@ -45,6 +45,7 @@ import org.bboxdb.performance.osm.store.OSMNodeStore;
 import org.bboxdb.performance.osm.util.Polygon;
 import org.bboxdb.performance.osm.util.SerializableNode;
 import org.bboxdb.performance.osm.util.SerializerHelper;
+import org.bboxdb.util.ExceptionSafeThread;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
@@ -127,7 +128,7 @@ public class OSMConverter implements Runnable, Sink {
 		// Execute max 2 threads per DB instance
 		threadPool = Executors.newFixedThreadPool(osmNodeStore.getInstances() * 2);
 		
-		statistics.clear();
+		statistics.start();
 	}
 	
 	@Override
@@ -143,8 +144,6 @@ public class OSMConverter implements Runnable, Sink {
 			final OsmosisReader reader = new OsmosisReader(new FileInputStream(filename));
 			reader.setSink(this);
 			reader.run();
-			System.out.format("Imported %.0f nodes and %.0f ways\n", 
-					statistics.getProcessedNodes(), statistics.getProcessedWays());
 		} catch (IOException e) {
 			logger.error("Got an exception during import", e);
 		} finally {
@@ -157,6 +156,8 @@ public class OSMConverter implements Runnable, Sink {
 	 */
 	protected void shutdown() {
 		
+		statistics.stop();
+
 		// Close file handles
 		for(final Writer writer : writerMap.values()) {
 			try {
@@ -184,12 +185,7 @@ public class OSMConverter implements Runnable, Sink {
 	}
 	
 	@Override
-	public void process(final EntityContainer entityContainer) {
-		
-		if(statistics.getTotalProcessedElements() % 10000 == 0) {
-			statistics.printStatistics();
-		}
-		
+	public void process(final EntityContainer entityContainer) {		
 		if(entityContainer.getEntity() instanceof Node) {
 			handleNode(entityContainer);
 			statistics.incProcessedNodes();
@@ -205,7 +201,6 @@ public class OSMConverter implements Runnable, Sink {
 	 */
 	protected void handleNode(final EntityContainer entityContainer) {
 		try {
-			
 			final Node node = (Node) entityContainer.getEntity();
 			
 			for(final OSMType osmType : filter.keySet()) {
@@ -274,7 +269,7 @@ public class OSMConverter implements Runnable, Sink {
 		} 
 	}
 
-	class Statistics {
+	class Statistics extends ExceptionSafeThread {
 		
 		/**
 		 * The amount of processed nodes
@@ -296,30 +291,50 @@ public class OSMConverter implements Runnable, Sink {
 		 */
 		protected long beginTimestamp;
 		
-		public void clear() {
+		/**
+		 * The print thread
+		 */
+		protected Thread thread;
+		
+		public void start() {
 			processedNodes = 0;
 			lastPerformaceTimestamp = 0;
 			beginTimestamp = System.currentTimeMillis();
+			thread = new Thread(this);
+			thread.start();
 		}
 		
-		public void printStatistics() {
-			double performanceSinceLastCall = 0;
+		public void stop() {
+			thread.interrupt();
 			
-			final long now = System.currentTimeMillis();
+			System.out.format("Imported %.0f nodes and %.0f ways\n", 
+					getProcessedNodes(), getProcessedWays());
+		}
+		
+		@Override
+		protected void runThread() throws Exception {
 			
-			double performanceTotal = getTotalProcessedElements() / ((now - beginTimestamp) / 1000.0);
-			
-			if(lastPerformaceTimestamp != 0) {
-				performanceSinceLastCall = 10000.0 / ((now - lastPerformaceTimestamp) / 1000.0);
+			while(! Thread.interrupted()) {
+				double performanceSinceLastCall = 0;
+				
+				final long now = System.currentTimeMillis();
+				
+				double performanceTotal = getTotalProcessedElements() / ((now - beginTimestamp) / 1000.0);
+				
+				if(lastPerformaceTimestamp != 0) {
+					performanceSinceLastCall = 10000.0 / ((now - lastPerformaceTimestamp) / 1000.0);
+				}
+				
+				final String performanceTotalString = String.format("%.2f", performanceTotal);
+				final String performanceLastString = String.format("%.2f", performanceSinceLastCall);
+				
+				logger.info("Processing node {} and way {} / Elements per Sec {} / Total elements per Sec {}",
+						processedNodes, processedWays, performanceLastString, performanceTotalString);
+				
+				lastPerformaceTimestamp = now;
+				
+				Thread.sleep(1000);
 			}
-			
-			final String performanceTotalString = String.format("%.2f", performanceTotal);
-			final String performanceLastString = String.format("%.2f", performanceSinceLastCall);
-			
-			logger.info("Processing node {} and way {} / Elements per Sec {} / Total elements per Sec {}",
-					processedNodes, processedWays, performanceLastString, performanceTotalString);
-			
-			lastPerformaceTimestamp = now;
 		}
 		
 		public void incProcessedNodes() {
@@ -341,6 +356,7 @@ public class OSMConverter implements Runnable, Sink {
 		public double getTotalProcessedElements() {
 			return processedNodes + processedWays;
 		}
+
 	}
 	
 	/**
