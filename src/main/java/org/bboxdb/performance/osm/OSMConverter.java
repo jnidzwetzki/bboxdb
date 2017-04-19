@@ -118,9 +118,6 @@ public class OSMConverter implements Runnable, Sink {
 		this.output = output;
 		this.statistics = new Statistics();
 		
-		final File workfoderDir = new File(workfolder);
-		workfoderDir.mkdirs();
-		
 		final File inputFile = new File(filename);
 
 		this.osmNodeStore = new OSMBDBNodeStore(Arrays.asList(workfolder.split(":")), inputFile.length());
@@ -403,13 +400,6 @@ public class OSMConverter implements Runnable, Sink {
 		
 		if(! outputDir.mkdirs() ) {
 			System.err.println("Unable to create " + output);
-			System.exit(-1);
-		}
-
-		// Check database file
-		final File file = new File(workfolder);
-		if(file.exists()) {
-			System.err.println("Work folder already exists, exiting...");
 			System.exit(-1);
 		}
 
