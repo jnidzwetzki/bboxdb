@@ -23,17 +23,13 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.bboxdb.performance.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.performance.osm.filter.multipoint.OSMBuildingsEntityFilter;
@@ -275,26 +271,18 @@ public class OSMConverter extends ExceptionSafeThread {
 				final OSMTagEntityFilter entityFilter = filter.get(osmType);
 				if(entityFilter.match(way.getTags())) {
 					
-					final List<Future<SerializableNode>> futures = new ArrayList<>(); 
-					 
-					// Perform search async
- 					for(final WayNode wayNode : way.getWayNodes()) {
-						final Callable<SerializableNode> callable = () -> osmNodeStore.getNodeForId(wayNode.getNodeId());
-						final Future<SerializableNode> future = threadPool.submit(callable);
-						futures.add(future);
-					}
- 					
 					final Polygon geometricalStructure = new Polygon(way.getId());
 
 					for(final Tag tag : way.getTags()) {
 						geometricalStructure.addProperty(tag.getKey(), tag.getValue());
 					}
- 					
- 					for(final Future<SerializableNode> future : futures) {
- 						final SerializableNode node = future.get();
- 						geometricalStructure.addPoint(node.getLatitude(), node.getLongitude());
- 					}
-
+					
+					// Perform search async
+ 					for(final WayNode wayNode : way.getWayNodes()) {
+ 						final SerializableNode node = osmNodeStore.getNodeForId(wayNode.getNodeId());
+ 						geometricalStructure.addPoint(node.getLatitude(), node.getLongitude()); 						
+					}
+ 			
 					final Writer writer = writerMap.get(osmType);
 					writer.write(geometricalStructure.toGeoJson());
 					writer.write("\n");
