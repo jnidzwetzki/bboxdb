@@ -112,7 +112,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 			envConfig.setTransactional(USE_TRANSACTIONS);
 			envConfig.setAllowCreate(true);
 		    envConfig.setSharedCache(true);
-		    envConfig.setCachePercent(80);
+		   // envConfig.setCachePercent(80);
 		   /* 
 		    envConfig.setConfigParam(EnvironmentConfig.ENV_RUN_CLEANER, "false");
 		    envConfig.setConfigParam(EnvironmentConfig.ENV_RUN_CHECKPOINTER, "false");
@@ -146,6 +146,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		dbConfig.setTransactional(USE_TRANSACTIONS);
 		dbConfig.setAllowCreate(true);
 		dbConfig.setSortedDuplicates(false);
+		dbConfig.setKeyPrefixing(true);
 	
 		final Database database = dbEnv.openDatabase(txn, "osm", dbConfig);
 
