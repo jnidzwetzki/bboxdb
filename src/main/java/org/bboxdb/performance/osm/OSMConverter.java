@@ -76,7 +76,7 @@ public class OSMConverter implements Runnable, Sink {
     /**
      * The number element statistics
      */
-    protected Statistics statistics;
+    protected final Statistics statistics;
 
 	/**
 	 * The filter
@@ -115,7 +115,8 @@ public class OSMConverter implements Runnable, Sink {
 	public OSMConverter(final String filename, final String workfolder, final String output) {
 		this.filename = filename;
 		this.output = output;
-	
+		this.statistics = new Statistics();
+		
 		final File workfoderDir = new File(workfolder);
 		workfoderDir.mkdirs();
 		
