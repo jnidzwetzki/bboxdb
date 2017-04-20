@@ -31,6 +31,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.converter.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.converter.osm.filter.multipoint.OSMBuildingsEntityFilter;
@@ -200,8 +201,16 @@ public class OSMConverter {
 	 */
 	protected void shutdown() {
 		
+		threadPool.shutdown();
+		
+		try {
+			threadPool.awaitTermination(120, TimeUnit.SECONDS);
+		} catch (InterruptedException e1) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+		
 		statistics.stop();
-		threadPool.shutdownNow();
 		
 		// Close file handles
 		for(final Writer writer : writerMap.values()) {
@@ -224,14 +233,22 @@ public class OSMConverter {
 		@Override
 		protected void runThread() {
 			
-			while(! Thread.currentThread().isInterrupted()) {
+			while(! Thread.currentThread().isInterrupted() ) {
 				try {
 					final Way way = queue.take();
 					handleWay(way);
 				} catch (InterruptedException e) {
-					return;
+					Thread.currentThread().interrupt();
 				}		
 			}
+			
+			// Thread is getting ready to die, but first,
+	        // handle the pending jobs
+			Way way = null;
+			while((way = queue.poll()) != null) {
+				handleWay(way);
+			}
+			
 		}
 	}
 	
