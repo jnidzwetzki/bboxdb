@@ -98,7 +98,7 @@ public class OSMConverter {
 	 */
 	protected final ExecutorService threadPool;
 	
-	protected final int CONSUMER_THREADS = 5;
+	protected final int CONSUMER_THREADS = 20;
 	
 	/**
 	 * The Blocking queue
