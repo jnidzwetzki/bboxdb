@@ -273,11 +273,22 @@ public class SSTableManager implements BBoxDBService {
 
 		// Stop the corresponding threads
 		for(final Thread thread : runningThreads.values()) {
-			logger.info("Interrupt and join thread: " + thread.getName());
+			logger.info("Interrupt thread: {}", thread.getName());
 			thread.interrupt();
-			
+		}
+		
+		// Join threads
+		for(final Thread thread : runningThreads.values()) {
 			try {
+				logger.info("Join thread: {}", thread.getName());
+
 				thread.join(THREAD_WAIT_TIMEOUT);
+				
+				// Is the thread still alive?
+				if(thread.isAlive()) {
+					logger.error("Unable to stop thread: {}", thread.getName());
+				}
+				
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				logger.warn("Got exception while waiting on thread join: " + thread.getName(), e);
