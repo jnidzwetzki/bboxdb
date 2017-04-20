@@ -40,8 +40,8 @@ import org.bboxdb.converter.osm.filter.multipoint.OSMWaterEntityFilter;
 import org.bboxdb.converter.osm.filter.multipoint.WoodEntityFilter;
 import org.bboxdb.converter.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
 import org.bboxdb.converter.osm.filter.singlepoint.OSMTreeEntityFilter;
-import org.bboxdb.converter.osm.store.OSMBDBNodeStore;
 import org.bboxdb.converter.osm.store.OSMNodeStore;
+import org.bboxdb.converter.osm.store.OSMSSTableNodeStore;
 import org.bboxdb.converter.osm.util.Polygon;
 import org.bboxdb.converter.osm.util.SerializableNode;
 import org.bboxdb.converter.osm.util.SerializerHelper;
@@ -128,7 +128,7 @@ public class OSMConverter {
 		final File inputFile = new File(filename);
 
 		final List<String> workfolders = Arrays.asList(workfolder.split(":"));
-		this.osmNodeStore = new OSMBDBNodeStore(workfolders, inputFile.length());
+		this.osmNodeStore = new OSMSSTableNodeStore(workfolders, inputFile.length());
 		
 		threadPool = Executors.newCachedThreadPool();	
 		

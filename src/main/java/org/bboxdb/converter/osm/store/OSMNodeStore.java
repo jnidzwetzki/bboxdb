@@ -44,7 +44,7 @@ public interface OSMNodeStore {
 	 * @return
 	 * @throws SQLException
 	 */
-	public SerializableNode getNodeForId(long nodeId) throws SQLException;
+	public SerializableNode getNodeForId(long nodeId) throws Exception;
 	
 	/**
 	 * Get the amount of DB instances
