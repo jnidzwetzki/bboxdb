@@ -160,7 +160,7 @@ public class OSMConverter {
 				
 				@Override
 				public void process(final EntityContainer entityContainer) {
-	//				try {
+					try {
 
 						if(entityContainer.getEntity() instanceof Node) {
 							// Nodes are cheap to handle, dispatching to another thread 
@@ -173,15 +173,12 @@ public class OSMConverter {
 							// Ways are expensive to handle
 							
 							final Way way = (Way) entityContainer.getEntity();
-							handleWay(way);
+							queue.put(way);
 							statistics.incProcessedWays();
-
-							//queue.put(way);
 						}
-//					} catch (InterruptedException e) {
-//						e.printStackTrace();
-//						return;
-//					}
+					} catch (InterruptedException e) {
+						return;
+					}
 				}
 			});
 			
