@@ -288,13 +288,7 @@ public class SSTableWriter implements AutoCloseable {
 	}
 	
 	/**
-	 * Format of a data record:
-	 * 
-	 * ----------------------------------------------------------------------------------
-	 * | Key-Length | BBox-Length | Data-Length | Timestamp |   Key   |  BBox  |  Data  |
-	 * |   2 Byte   |    4 Byte   |    4 Byte   |   8 Byte  |         |        |        |
-	 * ----------------------------------------------------------------------------------
-	 * 
+	 * Add the list of tuples to the sstable
 	 * @param tuples
 	 * @throws StorageManagerException
 	 */
@@ -346,6 +340,16 @@ public class SSTableWriter implements AutoCloseable {
 
 	/**
 	 * Write the given tuple into the SSTable
+	 * 
+	 * Format of a data record:
+	 * 
+	 * +----------------------------------------------------------------------------------------------+
+	 * | Key-Length | BBox-Length | Data-Length |  Version  |  Insert   |   Key   |  BBox   |   Data  |
+	 * |            |             |             | Timestamp | Timestamp |         |         |         |
+	 * |   2 Byte   |   4 Byte    |   4 Byte    |  8 Byte   |  8 Byte   |  n Byte |  n Byte |  n Byte |
+	 * +----------------------------------------------------------------------------------------------+
+	 * 
+	 * 
 	 * @param tuple
 	 * @throws IOException
 	 */
