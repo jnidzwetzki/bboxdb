@@ -146,6 +146,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		dbConfig.setTransactional(USE_TRANSACTIONS);
 		dbConfig.setAllowCreate(true);
 		dbConfig.setSortedDuplicates(false);
+		dbConfig.setKeyPrefixing(true);
 	
 		final Database database = dbEnv.openDatabase(txn, "osm", dbConfig);
 
