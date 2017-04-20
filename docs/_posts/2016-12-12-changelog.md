@@ -15,6 +15,7 @@ order: 1
 - Improvement: Added a OSM filter for woods
 - Bugfix: Removed the unused 'commit log' variable from config class
 - Bugfix: Removed the unused 'seen' state from tuple class
+- Bugfix: Removed warning caused by rm on first bboxdb_update call
 
 ### Version 0.2.3 (Stable) - 09.04.2017
 - New Feature: Futures now store the completion time 

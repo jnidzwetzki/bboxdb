@@ -48,7 +48,7 @@ bboxdb_update() {
       rm -r target/lib/
    fi
    
-   rm target/*.jar
+   rm -f target/*.jar
    
    mvn package -DskipTests -Dassembly.skipAssembly=true
    
