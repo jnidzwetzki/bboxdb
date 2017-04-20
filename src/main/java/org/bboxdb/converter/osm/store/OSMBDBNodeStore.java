@@ -91,7 +91,11 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 
 	public OSMBDBNodeStore(final List<String> baseDir, final long inputLength) {
 
-		this.instances = baseDir.size();
+		if(baseDir.size() == 1) {
+			this.instances = 4;
+		} else {
+			this.instances = baseDir.size();
+		}
 		
 		// Prepare DB_Instances
 		for (int i = 0; i < this.instances; i++) {
@@ -145,10 +149,10 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		final DatabaseConfig dbConfig = new DatabaseConfig();
 		dbConfig.setTransactional(USE_TRANSACTIONS);
 		dbConfig.setAllowCreate(true);
-	//	dbConfig.setSortedDuplicates(true);
+		dbConfig.setSortedDuplicates(true);
 		dbConfig.setDeferredWrite(true);
-		dbConfig.setKeyPrefixing(true);
-		dbConfig.setNodeMaxEntries(128);
+		//dbConfig.setKeyPrefixing(true);
+		//dbConfig.setNodeMaxEntries(128);
 	
 		final Database database = dbEnv.openDatabase(txn, "osm", dbConfig);
 
