@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb;
 
-import org.bboxdb.performance.osm.util.Polygon;
+import org.bboxdb.converter.osm.util.Polygon;
 import org.junit.Assert;
 import org.junit.Test;
 
