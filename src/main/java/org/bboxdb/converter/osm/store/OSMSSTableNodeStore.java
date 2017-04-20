@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.converter.osm.util.SerializableNode;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
@@ -30,9 +29,10 @@ import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OSMSSTableNodeStore implements OSMNodeStore {
-	
     
     /**
      * The number of instances
@@ -43,17 +43,22 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
      * The sstable manager
      */
 	private SSTableManager storageManager;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(OSMSSTableNodeStore.class);
+
 
 	public OSMSSTableNodeStore(final List<String> baseDir, final long inputLength) {
 		
 		try {
-			BBoxDBConfigurationManager.getConfiguration().setStorageCheckpointInterval(0);
-			storageManager = StorageRegistry.getInstance().getSSTableManager(new SSTableName("2_group1_test"));
+			final SSTableName tableName = new SSTableName("2_group1_test");
+			StorageRegistry.getInstance().deleteTable(tableName);
+			storageManager = StorageRegistry.getInstance().getSSTableManager(tableName);
 		} catch (StorageManagerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Got an exception while getting sstable manager: ", e);
 		}
-		
 	}
 	
 	/**
@@ -97,11 +102,8 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 	 */
 	public SerializableNode getNodeForId(final long nodeId) throws StorageManagerException {
 		final Tuple tuple = storageManager.get(Long.toString(nodeId));
-		
 		final byte[] nodeBytes = tuple.getDataBytes();
-		
-		final SerializableNode node = SerializableNode.fromByteArray(nodeBytes);
-		return node;
+		return SerializableNode.fromByteArray(nodeBytes);
 	}
 
 	@Override
