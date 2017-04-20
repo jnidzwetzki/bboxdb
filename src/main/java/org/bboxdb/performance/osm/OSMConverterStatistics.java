@@ -88,7 +88,7 @@ public class OSMConverterStatistics extends ExceptionSafeThread {
 			final double totalProcessedElements = getTotalProcessedElements();
 			
 			final double performanceTotal = totalProcessedElements / ((now - beginTimestamp) / (float) DELAY_IN_MS);				
-			final double performanceSinceLastCall = (totalProcessedElements - lastProcessedElements) / ((now - lastPerformaceTimestamp) * 1000.0);
+			final double performanceSinceLastCall = (totalProcessedElements - lastProcessedElements) / ((now - lastPerformaceTimestamp) / 1000.0);
 			
 			final String logMessage = String.format(
 					"Processing node %.0f and way %.0f / Elements per Sec %.2f / Total elements per Sec %.2f",
