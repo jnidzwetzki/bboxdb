@@ -45,7 +45,6 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.State;
-import org.bboxdb.util.Stoppable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,12 +84,7 @@ public class SSTableManager implements BBoxDBService {
 	 * The running threads
 	 */
 	protected final Map<String, Thread> runningThreads;
-	
-	/**
-	 * The stoppable tasks
-	 */
-	protected final Map<String, Stoppable> stoppableTasks;
-	
+
 	/**
 	 * Id of the memtable flush thread
 	 */
@@ -129,7 +123,6 @@ public class SSTableManager implements BBoxDBService {
 		
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		this.runningThreads = new HashMap<String, Thread>();
-		this.stoppableTasks = new HashMap<String, Stoppable>();
 	}
 
 	/**
@@ -179,7 +172,6 @@ public class SSTableManager implements BBoxDBService {
 			checkpointThread.setName("Checkpoint thread for: " + sstablename.getFullname());
 			checkpointThread.start();
 			runningThreads.put(CHECKPOINT_THREAD, checkpointThread);
-			stoppableTasks.put(CHECKPOINT_THREAD, ssTableCheckpointThread);
 		} else {
 			logger.info("NOT starting the checkpoint thread for: " + sstablename.getFullname());
 		}
@@ -195,7 +187,6 @@ public class SSTableManager implements BBoxDBService {
 			compactThread.setName("Compact thread for: " + sstablename.getFullname());
 			compactThread.start();
 			runningThreads.put(COMPACT_THREAD, compactThread);
-			stoppableTasks.put(COMPACT_THREAD, sstableCompactor);
 		} else {
 			logger.info("NOT starting the sstable compact thread for: " + sstablename.getFullname());
 		}
@@ -211,7 +202,6 @@ public class SSTableManager implements BBoxDBService {
 			flushThread.setName("Memtable flush thread for: " + sstablename.getFullname());
 			flushThread.start();
 			runningThreads.put(MEMTABLE_FLUSH_THREAD, flushThread);
-			stoppableTasks.put(MEMTABLE_FLUSH_THREAD, memtableFlushThread);
 		} else {
 			logger.info("NOT starting the memtable flush thread for:" + sstablename.getFullname());
 		}
@@ -280,12 +270,7 @@ public class SSTableManager implements BBoxDBService {
 	 * Shutdown all running service threads
 	 */
 	public void stopThreads() {
-		
-		// Stop the running tasks
-		for(final Stoppable stoppable : stoppableTasks.values()) {
-			stoppable.stop();
-		}
-		
+
 		// Stop the corresponding threads
 		for(final Thread thread : runningThreads.values()) {
 			logger.info("Interrupt and join thread: " + thread.getName());
@@ -299,7 +284,6 @@ public class SSTableManager implements BBoxDBService {
 			}
 		}
 		
-		stoppableTasks.clear();
 		runningThreads.clear();
 	}
 	
@@ -314,7 +298,7 @@ public class SSTableManager implements BBoxDBService {
 			return false;
 		}
 		
-		return (stoppableTasks.isEmpty() && runningThreads.isEmpty());
+		return (runningThreads.isEmpty());
 	}
 	
 	/**

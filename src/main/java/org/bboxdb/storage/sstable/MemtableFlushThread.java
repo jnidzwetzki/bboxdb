@@ -24,11 +24,10 @@ import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.ExceptionSafeThread;
-import org.bboxdb.util.Stoppable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class MemtableFlushThread extends ExceptionSafeThread implements Stoppable {
+class MemtableFlushThread extends ExceptionSafeThread {
 
 	/**
 	 * The reference to the sstable Manager
@@ -39,11 +38,6 @@ class MemtableFlushThread extends ExceptionSafeThread implements Stoppable {
 	 * The unflushed memtables
 	 */
 	protected final Queue<Memtable> unflushedMemtables;
-
-	/**
-	 * The run variable
-	 */
-	protected volatile boolean run;
 
 	/**
 	 * The name of the thread
@@ -64,9 +58,7 @@ class MemtableFlushThread extends ExceptionSafeThread implements Stoppable {
 		this.sstableManager = ssTableManager;
 		this.unflushedMemtables = ssTableManager.getTupleStoreInstances()
 				.getMemtablesToFlush();
-		this.threadname = sstableManager.getSSTableName().getFullname();
-		
-		this.run = true;
+		this.threadname = sstableManager.getSSTableName().getFullname();		
 	}
 
 	@Override
@@ -84,24 +76,18 @@ class MemtableFlushThread extends ExceptionSafeThread implements Stoppable {
 	 */
 	@Override
 	protected void runThread() {
-		while (run) {
+		while (! Thread.currentThread().isInterrupted()) {
 			final Memtable memtable = getNextUnflushedMemtable();
 			
 			if(memtable == null) {
 				logger.debug("Got null memtable, stopping thread");
-				return;
+				break;
 			}
 
 			flushMemtableToDisk(memtable);
 		}
-	}
-
-	/**
-	 * Stop the memtable flush thread
-	 */
-	public void stop() {
+		
 		logger.info("Stopping memtable flush thread for: " + threadname);
-		run = false;
 	}
 	
 	/**
@@ -117,7 +103,6 @@ class MemtableFlushThread extends ExceptionSafeThread implements Stoppable {
 					unflushedMemtables.wait();
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
-					run = false;
 					return null;
 				}
 			}

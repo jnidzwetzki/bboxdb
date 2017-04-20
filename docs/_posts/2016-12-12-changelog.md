@@ -13,6 +13,7 @@ order: 1
 - Improvement: Experiments are now executed on a preprocessed OSM dataset
 - Improvement: Switched OSM converter from MapDB to h2 and Berkeley DB (Java Edition) backend
 - Improvement: Added a OSM filter for woods
+- Improvement: Improved thread stop handling
 - Bugfix: Removed the unused 'commit log' variable from config class
 - Bugfix: Removed the unused 'seen' state from tuple class
 - Bugfix: Removed warning caused by rm on first bboxdb_update call

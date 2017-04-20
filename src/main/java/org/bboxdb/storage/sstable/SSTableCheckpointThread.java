@@ -35,11 +35,10 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
-import org.bboxdb.util.Stoppable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableCheckpointThread implements Runnable, Stoppable {
+public class SSTableCheckpointThread implements Runnable {
 
 	/**
 	 * The sstable manager
@@ -50,11 +49,6 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	 * The maximal number of seconds for data to stay in memory
 	 */
 	protected final long maxUncheckpointedMiliseconds;
-	
-	/**
-	 * The run variable
-	 */
-	protected volatile boolean run;
 
 	/**
 	 * The name of the local instance
@@ -79,7 +73,6 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	public SSTableCheckpointThread(final int maxUncheckpointedSeconds, final SSTableManager ssTableManager) {
 		this.maxUncheckpointedMiliseconds = TimeUnit.SECONDS.toMillis(maxUncheckpointedSeconds);
 		this.ssTableManager = ssTableManager;
-		this.run = true;
 		
 		this.threadname = ssTableManager.getSSTableName().getFullname();
 		
@@ -115,7 +108,7 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 	}
 
 	protected void executeThread() {
-		while(run) {
+		while(! Thread.currentThread().isInterrupted()) {
 			logger.debug("Executing checkpoint thread for: {}", threadname);
 		
 			try {
@@ -202,10 +195,4 @@ public class SSTableCheckpointThread implements Runnable, Stoppable {
 			distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(distributionRegion, localInstance, checkpointTimestamp);
 		}
 	}
-
-	@Override
-	public void stop() {
-		run = false;
-	}
-
 }

@@ -32,11 +32,10 @@ import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
-import org.bboxdb.util.Stoppable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableCompactorThread implements Runnable, Stoppable {
+public class SSTableCompactorThread implements Runnable {
 	
 	/**
 	 * The corresponding SSTable manager
@@ -59,17 +58,11 @@ public class SSTableCompactorThread implements Runnable, Stoppable {
 	protected AbstractRegionSplitStrategy regionSplitter;
 	
 	/**
-	 * The run variable
-	 */
-	protected volatile boolean run;
-	
-	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactorThread.class);
 
 	public SSTableCompactorThread(final SSTableManager ssTableManager) {
-		this.run = true;
 		this.sstableManager = ssTableManager;
 		this.mergeStragegy = new SimpleMergeStrategy();
 		this.threadname = sstableManager.getSSTableName().getFullname();
@@ -100,7 +93,7 @@ public class SSTableCompactorThread implements Runnable, Stoppable {
 		
 		initRegionSplitter();
 	
-		while(run) {
+		while(! Thread.currentThread().isInterrupted()) {
 
 			try {	
 				Thread.sleep(mergeStragegy.getCompactorDelay());
@@ -273,8 +266,4 @@ public class SSTableCompactorThread implements Runnable, Stoppable {
 		logger.info("Merging (major: {}) {} into {}", majorCompaction, formatedFacades, tablenumber);
 	}
 
-	@Override
-	public void stop() {
-		run = false;
-	}
 }
