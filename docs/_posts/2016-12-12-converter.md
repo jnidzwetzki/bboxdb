@@ -6,9 +6,13 @@ date: 2016-12-12 12:18:27
 ---
 
 # OpenStreetMap
-BBoxDB ships with an converter for OpenStreetMap (.osm.pbf - Protocolbuffer Binary Format) to GeoJSON data. The converter reads .osm.pbf files, filters certain elements and writes the matching elements to seperate files in GeoJSON format.
+BBoxDB ships with an converter for OpenStreetMap (.osm.pbf - Protocolbuffer Binary Format) to GeoJSON data. The converter reads .osm.pbf files, filters certain elements and writes the matching elements to separate files in [GeoJSON](http://geojson.org/) format.
 
-## Output Filter
+## Internal architecture
+.osm.pbf files consist of three different structures: nodes, ways, and relations. Nodes are simply points in the space; ways have an extend and are composed of multiple nodes. Relations describe the relationship between some nodes. The converter considers only nodes and ways. All structures are enhanced with properties; i.e., a key-value map, which contains information about the object. For example the name of the object or the maximal speed for a road.
+
+The main task of the converter is to find all required nodes for the ways. The .osm.pbf files contain all nodes at the top; the ways are stored at the bottom of the files. The files are processed in a streaming manner with the Osmosis parser. Filters are applied to the nodes and ways. If the filter matches, the node or way is written into the appropriate output file in GeoJSON format.
+
 At the moment, the converter filters the following nodes and ways:
 
 |    Filter      |    Content    |
@@ -16,19 +20,24 @@ At the moment, the converter filters the following nodes and ways:
 | BUILDING       | All Buildings |
 | ROAD           | All Roads (road, route, way, or thoroughfare)    |
 | TRAFFIC_SIGNAL | All Traffic signals (also known as traffic lights) | 
-| TREE           | All important trees |
+| TREE           | All valuable trees |
 | WATER          | All lakes, ponds, rivers, canals, ... |
 | WOOD           | All woods |
 
-## Internal architecture
-
+Nodes are also stored in a Berkley DB database. Ways are consisting of multiple nodes. Before a way can be written into the output file, the corresponding nodes are fetched from the database.
 
 ## Usage
-The converter needs three paremter, the input file, the folder(s) for the cache databases and the output directory:
+The converter requires three parameters, the input file, the folder(s) for the node databases and the output directory. 
 
-```java -server -Xmx6096m -classpath "target/*":"target/lib/*":"conf":"." org.bboxdb.performance.osm.OSMConverter <Input File> <Cache databases> <Output directory>```
+```java -server -Xmx6096m -classpath "target/*":"target/lib/*":"conf":"." org.bboxdb.performance.osm.OSMConverter <Input File> <Databasedir1:Databasedir2:DatabasedirN> <Output directory>```
 
-## Example usage
+When the system consists of multiple hard disks, it is recommended to place the input and the output files on one disk and let the other disks store the node databases. It is also recommended, to increase the size of the 'memory allocation pool' of the JVM. The memory will be used as a cache for the Berley DB databases and reduce the amount disk IO.
+
+```bash
+wget http://download.geofabrik.de/europe/germany-latest.osm.pbf
+cd $BBOXDB_HOME
+java -server -Xmx26096m -classpath "target/*":"target/lib/*":"conf":"." org.bboxdb.performance.osm.OSMConverter /path/togermany-latest.osm.pbf /diskb/work:/diskc/work:/diskd/work /outputdir/europe
+```
 
 ## Example output
 
@@ -49,4 +58,3 @@ One line of the TREE file:
 ```json
 {"geometry":{"coordinates":[52.9744383,8.630228],"type":"Point"},"id":31339954,"type":"Feature","properties":{"natural":"tree"}}
 ```
-
