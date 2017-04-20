@@ -147,6 +147,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		dbConfig.setAllowCreate(true);
 		dbConfig.setSortedDuplicates(false);
 		dbConfig.setNodeMaxEntries(2048);
+		dbConfig.setKeyPrefixing(true);
 	
 		final Database database = dbEnv.openDatabase(txn, "osm", dbConfig);
 
