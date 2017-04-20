@@ -201,7 +201,7 @@ public class OSMConverter {
 	 */
 	protected void shutdown() {
 		
-		threadPool.shutdown();
+		threadPool.shutdownNow();
 		
 		try {
 			threadPool.awaitTermination(120, TimeUnit.SECONDS);
