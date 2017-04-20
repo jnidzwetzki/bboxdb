@@ -99,6 +99,9 @@ public class OSMConverter {
 	 */
 	protected final ExecutorService threadPool;
 	
+	/**
+	 * The amount of consumer threads
+	 */
 	protected final int CONSUMER_THREADS = 20;
 	
 	/**
