@@ -55,9 +55,9 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 		
 		try {
 			final SSTableName tableName = new SSTableName("2_group1_test");
-			StorageRegistry.getInstance().deleteTable(tableName);
 			BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(storageDirectories);
 			
+			StorageRegistry.getInstance().deleteTable(tableName);
 			storageManager = StorageRegistry.getInstance().getSSTableManager(tableName);
 		} catch (StorageManagerException e) {
 			logger.error("Got an exception while getting sstable manager: ", e);
