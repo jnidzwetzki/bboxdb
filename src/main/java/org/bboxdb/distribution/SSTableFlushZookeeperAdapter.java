@@ -59,7 +59,7 @@ public class SSTableFlushZookeeperAdapter implements SSTableFlushCallback {
 			logger.debug("Updating checkpoint for: {} to {}", ssTableName.getFullname(), flushTimestamp);
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 			
-			if(distributionGroupZookeeperAdapter != null) {
+			if(distributionGroupZookeeperAdapter != null && distributionRegion != null) {
 				distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(distributionRegion, localInstance, flushTimestamp);
 			}
 			
