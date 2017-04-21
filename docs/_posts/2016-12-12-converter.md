@@ -26,7 +26,7 @@ At the moment, the converter filters the following nodes and ways:
 
 Nodes are also stored in a Berkley DB database. Ways are consisting of multiple nodes. Before a way can be written into the output file, the corresponding nodes are fetched from the database.
 
-<img src="logo/converter.png" width="800">
+<img src="/bboxdb/images/converter.png" width="800">
 
 ## Usage
 The converter requires three parameters, the input file, the folder(s) for the node databases and the output directory. 
