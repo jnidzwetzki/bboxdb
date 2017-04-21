@@ -32,10 +32,11 @@ import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
+import org.bboxdb.util.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableCompactorThread implements Runnable {
+public class SSTableCompactorThread extends ExceptionSafeThread {
 	
 	/**
 	 * The corresponding SSTable manager
@@ -70,26 +71,9 @@ public class SSTableCompactorThread implements Runnable {
 	}
 
 	/**
-	 * Compact our SSTables
-	 * 
-	 */
-	@Override
-	public void run() {
-		logger.info("Starting new compact thread for: {}", threadname);
-
-		try {
-			executeThread();
-		} catch(Throwable e) {
-			logger.error("Got an uncaught exception", e);
-		}
-		
-		logger.info("Compact thread for: {} is done", threadname);
-	}
-
-	/**
 	 * Execute the compactor thread
 	 */
-	protected void executeThread() {
+	protected void runThread() {
 		
 		initRegionSplitter();
 	
