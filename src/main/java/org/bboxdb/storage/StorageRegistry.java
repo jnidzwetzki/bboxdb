@@ -89,7 +89,8 @@ public class StorageRegistry {
 			try {
 				scanDirectory(directory);
 			} catch (StorageManagerException e) {
-				logger.error("Directory {} does not exists, exiting...", directory);
+				final String dataDirString = SSTableHelper.getDataDir(directory);
+				logger.error("Directory {} does not exists, exiting...", dataDirString);
 				System.exit(-1);
 			}
 		}
