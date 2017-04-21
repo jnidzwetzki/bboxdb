@@ -68,18 +68,26 @@ public class TupleStoreInstanceManager {
 	 * unflushed memtable list and also pushed into the flush queue
 	 * @param newMemtable
 	 */
-	public synchronized void activateNewMemtable(final Memtable newMemtable) {
+	public void activateNewMemtable(final Memtable newMemtable) {
 		
+		// Waiting outside of the synchonized area.
+		// Because, otherwise no other threads can replace
+		// unflushed memtables with sstables and block forever
 		if(memtable != null) {
-			unflushedMemtables.add(memtable);
 			try {
 				memtablesToFlush.put(memtable);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
 		}
-		
-		memtable = newMemtable;
+
+		synchronized (this) {
+			if(memtable != null) {
+				unflushedMemtables.add(memtable);
+			}
+			
+			memtable = newMemtable;
+		}
 	}
 	
 	/**
