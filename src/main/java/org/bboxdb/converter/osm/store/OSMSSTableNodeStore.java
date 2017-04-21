@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.converter.osm.util.SerializableNode;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
@@ -50,11 +51,13 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 	private final static Logger logger = LoggerFactory.getLogger(OSMSSTableNodeStore.class);
 
 
-	public OSMSSTableNodeStore(final List<String> baseDir, final long inputLength) {
+	public OSMSSTableNodeStore(final List<String> storageDirectories, final long inputLength) {
 		
 		try {
-			final SSTableName tableName = new SSTableName("2_group1_test");
+			final SSTableName tableName = new SSTableName("2_group1_test_1");
 			StorageRegistry.getInstance().deleteTable(tableName);
+			BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(storageDirectories);
+			
 			storageManager = StorageRegistry.getInstance().getSSTableManager(tableName);
 		} catch (StorageManagerException e) {
 			logger.error("Got an exception while getting sstable manager: ", e);
