@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.BloomFilter;
+import com.google.common.io.CountingOutputStream;
 
 public class SSTableWriter implements AutoCloseable {
 	
@@ -61,7 +62,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * SSTable output stream
 	 */
-	protected FileOutputStream sstableOutputStream;
+	protected CountingOutputStream sstableOutputStream;
 	
 	/**
 	 * SSTable index stream
@@ -121,11 +122,8 @@ public class SSTableWriter implements AutoCloseable {
 	public SSTableWriter(final String directory, final SSTableName name, final int tablenumber, final long estimatedNumberOfTuples) {
 		this.directory = directory;
 		this.name = name;
-		this.tablenumber = tablenumber;
-		
-		this.sstableOutputStream = null;
+		this.tablenumber = tablenumber;		
 		this.metadataBuilder = new SSTableMetadataBuilder();
-
 		this.exceptionDuringWrite = false;
 		
 		// Bloom Filter
@@ -178,8 +176,10 @@ public class SSTableWriter implements AutoCloseable {
 		
 		try {
 			logger.info("Writing new SSTable for relation: {} file: {}", name.getFullname(), sstableOutputFileName);
-			sstableOutputStream = new FileOutputStream(sstableFile);
+			final BufferedOutputStream sstableFileOutputStream = new BufferedOutputStream(new FileOutputStream(sstableFile));
+			sstableOutputStream = new CountingOutputStream(sstableFileOutputStream);
 			sstableOutputStream.write(SSTableConst.MAGIC_BYTES);
+			
 			sstableIndexOutputStream = new BufferedOutputStream(new FileOutputStream(sstableIndexFile));
 			sstableIndexOutputStream.write(SSTableConst.MAGIC_BYTES_INDEX);
 		} catch (FileNotFoundException e) {
@@ -325,7 +325,7 @@ public class SSTableWriter implements AutoCloseable {
 	public void addNextTuple(final Tuple tuple) throws StorageManagerException {
 		try {
 			// Add Tuple to the index
-			final long tuplePosition = sstableOutputStream.getChannel().position();
+			final long tuplePosition = sstableOutputStream.getCount();
 			writeIndexEntry((int) tuplePosition);
 			
 			// Add Tuple to the SSTable file

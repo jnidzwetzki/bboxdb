@@ -15,6 +15,7 @@ order: 1
 - Improvement: Added a OSM filter for woods
 - Improvement: Improved thread stop handling
 - Improvement: Introduced the memtable flush callbacks
+- Improvement: SSTables are now written buffered
 - Bugfix: Removed the unused 'commit log' variable from config class
 - Bugfix: Removed the unused 'seen' state from tuple class
 - Bugfix: Removed warning caused by rm on first bboxdb_update call
