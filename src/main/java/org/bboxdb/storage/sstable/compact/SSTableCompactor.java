@@ -166,7 +166,7 @@ public class SSTableCompactor {
 				tablenumber, estimatedMaxNumberOfEntries);
 				
 		sstableWriter.open();
-		logger.info("Execute a new compactation into file " + sstableWriter.getSstableFile());
+		logger.info("Output file for compact: {}", sstableWriter.getSstableFile());
 		
 		return sstableWriter;
 	}
