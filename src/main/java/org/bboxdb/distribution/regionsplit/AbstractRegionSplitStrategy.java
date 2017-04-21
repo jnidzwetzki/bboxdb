@@ -165,7 +165,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 
 	/**
 	 * Perform a SSTable split
-	 * @param ssTableName
+	 * @param sstableManager
 	 * @return Split performed or not
 	 */
 	public void run() {
@@ -325,7 +325,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	/**
 	 * Spread a given tuple store onto new systems
 	 * @param region
-	 * @param ssTableName
+	 * @param sstableManager
 	 * @param ssTableManager
 	 * @param tupleRedistributor
 	 * @param onlyInMemoryData 

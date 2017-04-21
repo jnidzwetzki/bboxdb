@@ -117,19 +117,6 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	}
 
 	/**
-	 * Calculate max the number of entries in the output
-	 * @param tables
-	 * @return
-	 */
-	public long calculateNumberOfEntries(final List<SSTableFacade> facades) {
-		return facades
-			.stream()
-			.map(SSTableFacade::getSsTableKeyIndexReader)
-			.mapToInt(SSTableKeyIndexReader::getNumberOfEntries)
-			.sum();
-	}
-
-	/**
 	 * Merge multipe facades into a new one
 	 * @param reader1
 	 * @param reader2
@@ -141,42 +128,30 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			return;
 		}
 		
-		final String directory = facades.get(0).getDirectory();
-		final SSTableName ssTableName = facades.get(0).getSStableName();
-		
-		final long estimatedMaxNumberOfEntries = calculateNumberOfEntries(facades);
-		final int tablenumber = sstableManager.increaseTableNumber();
-		final SSTableWriter writer = new SSTableWriter(directory, ssTableName, tablenumber, estimatedMaxNumberOfEntries);
-		
-		final List<SSTableKeyIndexReader> reader = new ArrayList<SSTableKeyIndexReader>();
-		for(final SSTableFacade facade : facades) {
-			reader.add(facade.getSsTableKeyIndexReader());
-		}
+		final List<SSTableKeyIndexReader> reader = facades
+				.stream()
+				.map(f -> f.getSsTableKeyIndexReader())
+				.collect(Collectors.toList());
 		
 		// Log the compact call
 		if(logger.isInfoEnabled()) {
-			writeMergeLog(facades, tablenumber, majorCompaction);
+			writeMergeLog(facades, majorCompaction);
 		}
 		
 		// Run the compact process
-		final SSTableCompactor ssTableCompactor = new SSTableCompactor(reader, writer);
+		final SSTableCompactor ssTableCompactor = new SSTableCompactor(sstableManager, reader);
 		ssTableCompactor.setMajorCompaction(majorCompaction);
-		final boolean compactSuccess = ssTableCompactor.executeCompactation();
+		final List<SSTableWriter> newTables = ssTableCompactor.executeCompactation();
+
+		final float mergeFactor = (float) ssTableCompactor.getWrittenTuples() / (float) ssTableCompactor.getReadTuples();
 		
-		if(! compactSuccess) {
-			logger.error("Error during compactation");
-			return;
-		} else {
-			final float mergeFactor = (float) ssTableCompactor.getWrittenTuples() / (float) ssTableCompactor.getReadTuples();
-			
-			logger.info("Compactation done. Read {} tuples, wrote {} tuples (expected {}). Factor {}", 
-					ssTableCompactor.getReadTuples(), ssTableCompactor.getWrittenTuples(), 
-					estimatedMaxNumberOfEntries, mergeFactor);
-		}
+		logger.info("Compactation done. Read {} tuples, wrote {} tuples. Factor {}", 
+				ssTableCompactor.getReadTuples(), ssTableCompactor.getWrittenTuples(), 
+				mergeFactor);
 		
-		registerNewFacadeAndDeleteOldInstances(facades, directory, ssTableName, tablenumber);
+		registerNewFacadeAndDeleteOldInstances(facades, newTables);
 		
-		if(majorCompaction && ssTableName.isDistributedTable()) {
+		if(majorCompaction && sstableManager.getSSTableName().isDistributedTable()) {
 			testForRegionSplit();
 		}
 	}
@@ -212,23 +187,30 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 
 	/**
 	 * Register a new sstable facade and delete the old ones
-	 * @param tables
+	 * @param oldTables
 	 * @param directory
 	 * @param name
 	 * @param tablenumber
 	 * @throws StorageManagerException
 	 */
-	protected void registerNewFacadeAndDeleteOldInstances(final List<SSTableFacade> tables, final String directory,
-			final SSTableName name, final int tablenumber) throws StorageManagerException {
-		// Create a new facade and remove the old ones
-		final SSTableFacade newFacade = new SSTableFacade(directory, name, tablenumber);
-		newFacade.init();
+	protected void registerNewFacadeAndDeleteOldInstances(final List<SSTableFacade> oldTables, 
+			final List<SSTableWriter> newTableWriter) throws StorageManagerException {
+		
+		final List<SSTableFacade> newFacedes = new ArrayList<>();
+		
+		// Open new facedes
+		for(final SSTableWriter writer : newTableWriter) {
+			final SSTableFacade newFacade = new SSTableFacade(writer.getDirectory(), 
+					writer.getName(), writer.getTablenumber());
+			newFacade.init();
+			newFacedes.add(newFacade);
+		}
 		
 		// Register the new sstable reader
-		sstableManager.getTupleStoreInstances().replaceCompactedSStables(newFacade, tables);
+		sstableManager.getTupleStoreInstances().replaceCompactedSStables(newFacedes, oldTables);
 
 		// Unregister and delete the files
-		for(final ReadOnlyTupleStorage facade : tables) {
+		for(final ReadOnlyTupleStorage facade : oldTables) {
 			facade.deleteOnClose();
 		}
 	}
@@ -238,8 +220,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @param facades
 	 * @param tablenumber
 	 */
-	protected void writeMergeLog(final List<SSTableFacade> facades, final int tablenumber, 
-			final boolean majorCompaction) {
+	protected void writeMergeLog(final List<SSTableFacade> facades, final boolean majorCompaction) {
 		
 		final String formatedFacades = facades
 				.stream()
@@ -247,7 +228,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				.mapToObj(Integer::toString)
 				.collect(Collectors.joining(",", "[", "]"));
 		
-		logger.info("Merging (major: {}) {} into {}", majorCompaction, formatedFacades, tablenumber);
+		logger.info("Merging (major: {}) {}", majorCompaction, formatedFacades);
 	}
 
 }

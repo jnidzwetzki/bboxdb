@@ -69,20 +69,23 @@ public class TestTableCompactor {
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
+				
+		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
+		storageManager.clear();
 		
-		final SSTableWriter writer = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
+		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
+		final List<SSTableWriter> resultWriter = compactor.executeCompactation();
 		
-		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
-		boolean compactResult = compactor.executeCompactation();
-		
-		Assert.assertTrue(compactResult);
-		Assert.assertTrue(writer.getSstableFile().exists());
-		Assert.assertTrue(writer.getSstableIndexFile().exists());
-		
+		Assert.assertEquals(1, resultWriter.size());
 		Assert.assertEquals(2, compactor.getReadTuples());
 		Assert.assertEquals(2, compactor.getWrittenTuples());
 		
-		writer.close();
+		for(final SSTableWriter writer : resultWriter) {
+			Assert.assertTrue(writer.getSstableFile().exists());
+			Assert.assertTrue(writer.getSstableIndexFile().exists());
+			writer.close();
+		}
+		
 	}
 	
 	@Test
@@ -95,10 +98,8 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
-		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
-				reader1, reader2, writer, false);
+				reader1, reader2, false);
 		int counter = 0;
 		
 		for(@SuppressWarnings("unused") final Tuple tuple : ssTableIndexReader) {
@@ -127,11 +128,8 @@ public class TestTableCompactor {
 		}
 		reader2 = addTuplesToFileAndGetReader(tupleList, 2);
 
-		
-		final SSTableWriter writer = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
-		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
-				reader1, reader2, writer, false);
+				reader1, reader2, false);
 		
 		// Check the amount of tuples
 		int counter = 0;
@@ -158,10 +156,8 @@ public class TestTableCompactor {
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
-		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
-				reader1, reader2, writer, false);
+				reader1, reader2, false);
 		int counter = 0;
 		for(@SuppressWarnings("unused") final Tuple tuple : ssTableIndexReader) {
 			counter++;
@@ -178,11 +174,9 @@ public class TestTableCompactor {
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
-		
-		final SSTableWriter writer = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
-		
+				
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
-				reader1, reader2, writer, false);
+				reader1, reader2, false);
 		int counter = 0;
 		for(@SuppressWarnings("unused") final Tuple tuple : ssTableIndexReader) {
 			counter++;
@@ -200,11 +194,9 @@ public class TestTableCompactor {
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
 		tupleList2.add(new Tuple("1", BoundingBox.EMPTY_BOX, "def".getBytes(), 2));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
-		
-		final SSTableWriter writer = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
-		
+				
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
-				reader1, reader2, writer, false);
+				reader1, reader2, false);
 		
 		int counter = 0;
 		for(final Tuple tuple : ssTableIndexReader) {
@@ -228,11 +220,9 @@ public class TestTableCompactor {
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
 		tupleList2.add(new DeletedTuple("2"));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
-		
-		final SSTableWriter writer = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
-		
+				
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
-				reader1, reader2, writer, false);
+				reader1, reader2, false);
 		
 		int counter = 0;
 		for(@SuppressWarnings("unused") final Tuple tuple : ssTableIndexReader) {
@@ -255,11 +245,9 @@ public class TestTableCompactor {
 		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
 		tupleList2.add(new DeletedTuple("2"));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
-		
-		final SSTableWriter writer = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
-		
+				
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
-				reader1, reader2, writer, false);
+				reader1, reader2, false);
 		
 		boolean containsDeletedTuple = false;
 		int counter = 0;
@@ -289,10 +277,8 @@ public class TestTableCompactor {
 		tupleList2.add(new DeletedTuple("2"));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 		
-		final SSTableWriter writer = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 3, EXPECTED_TUPLES);
-		
 		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
-				reader1, reader2, writer, true);
+				reader1, reader2, true);
 		
 		boolean containsDeletedTuple = false;
 		int counter = 0;
@@ -319,19 +305,25 @@ public class TestTableCompactor {
 	 */
 	protected SSTableKeyIndexReader exectuteCompactAndGetReader(
 			final SSTableKeyIndexReader reader1,
-			final SSTableKeyIndexReader reader2, final SSTableWriter writer, final boolean majorCompaction)
+			final SSTableKeyIndexReader reader2, final boolean majorCompaction)
 			throws StorageManagerException {
 		
-		final SSTableCompactor compactor = new SSTableCompactor(Arrays.asList(reader1, reader2), writer);
-		compactor.setMajorCompaction(majorCompaction);
-		compactor.executeCompactation();
-		writer.close();
+		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
+		storageManager.clear();
 		
-		final SSTableReader reader = new SSTableReader(STORAGE_DIRECTORY, TEST_RELATION, 3);
+		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
+		compactor.setMajorCompaction(majorCompaction);
+		final List<SSTableWriter> resultWriter = compactor.executeCompactation();
+		
+		Assert.assertEquals(1, resultWriter.size());
+		
+		final SSTableWriter writer = resultWriter.get(0);
+		final SSTableReader reader = new SSTableReader(STORAGE_DIRECTORY, TEST_RELATION, writer.getTablenumber());
 		reader.init();
 		
 		final SSTableKeyIndexReader ssTableIndexReader = new SSTableKeyIndexReader(reader);
 		ssTableIndexReader.init();
+		
 		return ssTableIndexReader;
 	}
 	

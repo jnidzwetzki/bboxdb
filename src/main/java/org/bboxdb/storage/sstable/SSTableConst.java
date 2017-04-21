@@ -101,5 +101,11 @@ public class SSTableConst {
 	 * Execution interval for the checkpoint thread
 	 */
 	public final static long CHECKPOINT_THREAD_DELAY = TimeUnit.SECONDS.toMillis(60);
+	
+	/**
+	 * The maximal size for one SSTable. SStables are mapped into memory, the JVM can only
+	 * map files up to 2 GB. Therefore the limit is set to 1.9 GB.
+	 */
+	public final static int MAX_SSTABLE_SIZE = 2040109465;
 
 }

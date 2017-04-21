@@ -119,7 +119,9 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableWriter.class);
 	
-	public SSTableWriter(final String directory, final SSTableName name, final int tablenumber, final long estimatedNumberOfTuples) {
+	public SSTableWriter(final String directory, final SSTableName name, 
+			final int tablenumber, final long estimatedNumberOfTuples) {
+		
 		this.directory = directory;
 		this.name = name;
 		this.tablenumber = tablenumber;		
@@ -416,6 +418,37 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	public boolean isErrorFlagSet() {
 		return exceptionDuringWrite;
+	}
+	
+	/**
+	 * Get the already written bytes for this SSTable
+	 * @return
+	 */
+	public long getWrittenBytes() {
+		return sstableOutputStream.getCount();
+	}
+	
+	/**
+	 * Get the sstable name
+	 */
+	public SSTableName getName() {
+		return name;
+	}
+	
+	/**
+	 * Get the tablenumber
+	 * @return
+	 */
+	public int getTablenumber() {
+		return tablenumber;
+	}
+	
+	/**
+	 * Get the directory
+	 * @return
+	 */
+	public String getDirectory() {
+		return directory;
 	}
 	
 }

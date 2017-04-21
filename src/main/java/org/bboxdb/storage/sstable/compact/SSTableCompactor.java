@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.compact;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +24,8 @@ import java.util.List;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.SSTableConst;
+import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.slf4j.Logger;
@@ -36,12 +37,7 @@ public class SSTableCompactor {
 	 * The list of sstables to compact
 	 */
 	protected final List<SSTableKeyIndexReader> sstableIndexReader;
-	
-	/**
-	 * Our output sstable writer
-	 */
-	protected final SSTableWriter sstableWriter;
-	
+
 	/**
 	 * Major or minor compaction? In a major compaction, the deleted tuple
 	 * marker can be removed.
@@ -57,20 +53,42 @@ public class SSTableCompactor {
 	 * The amount of written tuples
 	 */
 	protected int writtenTuples;
+	
+	/**
+	 * The current SStable writer
+	 */
+	protected SSTableWriter sstableWriter;
+	
+	/**
+	 * The SStable manager
+	 */
+	protected final SSTableManager sstableManager;
+
 
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactor.class);
 
-	public SSTableCompactor(final List<SSTableKeyIndexReader> sstableIndexReader, 
-			final SSTableWriter sstableWriter) {
+	public SSTableCompactor(final SSTableManager sstableManager, 
+			final List<SSTableKeyIndexReader> sstableIndexReader) {
 		
-		super();
+		this.sstableManager = sstableManager;
 		this.sstableIndexReader = sstableIndexReader;
-		this.sstableWriter = sstableWriter;
 		this.readTuples = 0;
 		this.writtenTuples = 0;
+	}
+	
+	/**
+	 * Calculate max the number of entries in the output
+	 * @param tables
+	 * @return
+	 */
+	protected long calculateNumberOfEntries(final List<SSTableKeyIndexReader> indexReader) {
+		return indexReader
+			.stream()
+			.mapToInt(r -> r.getNumberOfEntries())
+			.sum();
 	}
 	
 	/** 
@@ -78,7 +96,10 @@ public class SSTableCompactor {
 	 * 
 	 * @return success or failure
 	 */
-	public boolean executeCompactation() {
+	public List<SSTableWriter> executeCompactation() throws StorageManagerException {
+		
+		// The result
+		final List<SSTableWriter> resultList = new ArrayList<>();
 		
 		// The iterators
 		final List<Iterator<Tuple>> iterators = new ArrayList<>(sstableIndexReader.size());
@@ -95,37 +116,59 @@ public class SSTableCompactor {
 			tuples.add(null); 
 		}
 		
-		try {
-			sstableWriter.open();
-			logger.info("Execute a new compactation into file " + sstableWriter.getSstableFile());
-
-			boolean done = false;
+		sstableWriter = openNewSSTableWriter();
+		resultList.add(sstableWriter);
+		
+		boolean done = false;
+		
+	    while(done == false) {
 			
-		    while(done == false) {
+			done = refreshTuple(iterators, tuples);
+			
+			final Tuple tuple = getTupleWithTheLowestKey(iterators, tuples);
+			
+			// Write the tuple
+			if(tuple != null) {
+				consumeTuplesForKey(tuples, tuple.getKey());
 				
-				done = refreshTuple(iterators, tuples);
-				
-				final Tuple tuple = getTupleWithTheLowestKey(iterators, tuples);
-				
-				// Write the tuple
-				if(tuple != null) {
-					consumeTuplesForKey(tuples, tuple.getKey());
+				// Don't add deleted tuples to output in a major compaction
+				if(! (isMajorCompaction() && (tuple instanceof DeletedTuple))) {
 					
-					// Don't add deleted tuples to output in a major compaction
-					if(! (isMajorCompaction() && (tuple instanceof DeletedTuple))) {
-						sstableWriter.addNextTuple(tuple);
-						writtenTuples++;
+					// Check max table size limit
+					if(sstableWriter.getWrittenBytes() + tuple.getSize() > SSTableConst.MAX_SSTABLE_SIZE) {
+						sstableWriter.close();
+						sstableWriter = openNewSSTableWriter();
+						resultList.add(sstableWriter);
 					}
+					
+					sstableWriter.addNextTuple(tuple);
+					writtenTuples++;
 				}
 			}
-			
-			sstableWriter.close();
-		} catch (StorageManagerException e) {
-			logger.error("Exception while compatation", e);
-			return false;
 		}
 		
-		return true;
+		sstableWriter.close();
+		return resultList;
+	}
+
+	/**
+	 * Open a new SSTable writer
+	 * @return 
+	 * @throws StorageManagerException
+	 */
+	protected SSTableWriter openNewSSTableWriter() throws StorageManagerException {
+		final long estimatedMaxNumberOfEntries = calculateNumberOfEntries(sstableIndexReader);
+
+		final String directory = sstableIndexReader.get(0).getDirectory();		
+		final int tablenumber = sstableManager.increaseTableNumber();
+		
+		final SSTableWriter sstableWriter = new SSTableWriter(directory, sstableManager.getSSTableName(), 
+				tablenumber, estimatedMaxNumberOfEntries);
+				
+		sstableWriter.open();
+		logger.info("Execute a new compactation into file " + sstableWriter.getSstableFile());
+		
+		return sstableWriter;
 	}
 
 	/**
@@ -213,22 +256,6 @@ public class SSTableCompactor {
 	}
 	
 	/**
-	 * Return the SSTable file
-	 * @return
-	 */
-	public File getSstableFile() {
-		return sstableWriter.getSstableFile();
-	}
-	
-	/**
-	 * Return the SSTable index file
-	 * @return
-	 */
-	public File getSstableIndexFile() {
-		return sstableWriter.getSstableIndexFile();
-	}
-
-	/**
 	 * Is this a major compaction?
 	 * @return
 	 */
@@ -259,5 +286,4 @@ public class SSTableCompactor {
 	public int getWrittenTuples() {
 		return writtenTuples;
 	}
-	
 }

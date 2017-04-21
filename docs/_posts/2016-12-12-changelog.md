@@ -16,6 +16,7 @@ order: 1
 - Improvement: Improved thread stop handling
 - Improvement: Introduced the memtable flush callbacks
 - Improvement: SSTables are now written buffered
+- Bugfix: Limit the size of SSTables to 1.9 GB. Otherwise, the reader is unable to map the table into memory.
 - Bugfix: Removed the unused 'commit log' variable from config class
 - Bugfix: Removed the unused 'seen' state from tuple class
 - Bugfix: Removed warning caused by rm on first bboxdb_update call

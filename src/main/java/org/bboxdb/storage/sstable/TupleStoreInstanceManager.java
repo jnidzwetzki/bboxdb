@@ -98,10 +98,10 @@ public class TupleStoreInstanceManager {
 	 * @param newSStable
 	 * @param oldFacades
 	 */
-	public synchronized void replaceCompactedSStables(final SSTableFacade newSStable, 
+	public synchronized void replaceCompactedSStables(final List<SSTableFacade> newFacedes, 
 			final List<SSTableFacade> oldFacades) {
 		
-		sstableFacades.add(newSStable);
+		sstableFacades.addAll(newFacedes);
 		
 		for(final SSTableFacade facade : oldFacades) {
 			sstableFacades.remove(facade);
