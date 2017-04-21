@@ -80,13 +80,19 @@ public class SSTableCompactor {
 	 */
 	public boolean executeCompactation() {
 		
-		final List<Iterator<Tuple>> iterators = new ArrayList<Iterator<Tuple>>(sstableIndexReader.size());
-		final List<Tuple> tuples = new ArrayList<Tuple>(sstableIndexReader.size());
+		// The iterators
+		final List<Iterator<Tuple>> iterators = new ArrayList<>(sstableIndexReader.size());
+		
+		// The last read tuple from interator
+		final List<Tuple> tuples = new ArrayList<>(sstableIndexReader.size());
 		
 		// Open iterators for input sstables
 		for(final SSTableKeyIndexReader reader : sstableIndexReader) {
 			iterators.add(reader.iterator());
-			tuples.add(null);
+			
+			// Until now, no tuple was read by this iterator
+			// it has to be refreshed by the next refreshTuple() call
+			tuples.add(null); 
 		}
 		
 		try {
