@@ -1,0 +1,77 @@
+\documentclass[tikz, border=10pt]{standalone}
+\usepackage[latin1]{inputenc}
+\usepackage[german]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx,float,wrapfig}
+\usepackage{graphicx}
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{shadows}
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes}
+\usetikzlibrary{shadows}
+\usetikzlibrary{3d}
+\usetikzlibrary{arrows}
+\usetikzlibrary{decorations.pathreplacing}
+
+\begin{document}
+\begin{tikzpicture}[scale=1, every node/.style={transform shape, anchor=south west}]
+
+\node [draw, drop shadow, fill=gray!20, minimum width=3cm, minimum height=3cm] at (0,7) (input) {};
+
+\node[anchor=base] at(1.5,9.5) {{\large\texttt .osm.pbf}};
+\foreach \k in {7.4, 7.8,...,9.2} {
+   \path let \p1=(input.west), \p2=(input.east) in ({\x1 + 5.0}, \k) edge[dashed] ({\x2 - 5.0}, \k) ;
+}
+
+\node[cylinder, draw, shape border rotate=90, aspect=0.25, fill=white, drop shadow, text width=2cm, text centered, minimum width=2cm, minimum height=2cm] (db1) at (4,4) {Nodes DB};
+
+\node[cylinder, draw, shape border rotate=90, aspect=0.25, fill=white, drop shadow, text width=2cm, text centered, minimum width=2cm, minimum height=2cm] (db2) at (7,4) {Nodes DB};
+
+\node [draw, drop shadow, fill=gray!20, minimum width=3cm, minimum height=3cm] at (13.5,7.5) (output1) {};
+\node[anchor=base] at(15,10.1) {{\large\texttt Trees}};
+
+\node [draw, drop shadow, fill=gray!20, minimum width=3cm, minimum height=3cm] at (14,7) (output2) {};
+\node[anchor=base] at(15.5,9.6) {{\large\texttt Buildings}};
+
+\node [draw, drop shadow, fill=gray!20, minimum width=3cm, minimum height=3cm] at (14.5,6.5) (output3) {};
+\node[anchor=base] at(16,9.1) {{\large\texttt Roads}};
+
+\foreach \k in {7.0, 7.4,...,8.8} {
+   \path let \p1=(output3.west), \p2=(output3.east) in ({\x1 + 5.0}, \k) edge[dashed] ({\x2 - 5.0}, \k) ;
+}
+
+\draw[dashed] (13, 5) -- (13, 11) -- (18, 11) -- (18, 5) -- cycle;
+\node[anchor=base] at(17.3, 5.1) {\small Output};
+
+\node[anchor=base] at(6.2, 8.7) {\small Nodes};
+\node[anchor=base, draw, minimum width=2cm, minimum height=1cm, fill=white, drop shadow] at(10, 8.4) (filter) {\small Filter};
+
+\draw[->, >=latex, line width=1pt] (input) -- (filter);
+\draw[->, >=latex, line width=1pt] (filter) -- (13, 8.5);
+
+\draw[->, >=latex, line width=1pt] (6, 8.5) -- (db1);
+\draw[->, >=latex, line width=1pt] (6.5, 8.5) -- (db2);
+
+
+\draw[line width=1pt] (input) -- (1.5, 1.1);
+\node[anchor=base, rotate=90] at(1.3, 4) {\small Ways with Node IDs};
+
+\node[anchor=base, draw, minimum width=2cm, minimum height=1cm, fill=white, drop shadow] at(3, 1) (filter2) {\small Filter};
+\draw[->, >=latex, line width=1pt] (1.5, 1.1) -- (filter2);
+\draw[line width=1pt] (filter2) -- (15.5, 1.1);
+\draw[->, >=latex, line width=1pt] (15.5, 1.1) -- (15.5, 5);
+\node[anchor=base] at(9, 1.3) {\small Ways with Nodes};
+
+
+\draw[->, >=latex, line width=1pt] (db1) -- (6, 1.1);
+\draw[->, >=latex, line width=1pt] (db2) -- (6.5, 1.1);
+
+
+\end{tikzpicture}
+\end{document}
+
