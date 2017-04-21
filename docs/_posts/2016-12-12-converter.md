@@ -27,6 +27,7 @@ At the moment, the converter filters the following nodes and ways:
 Nodes are also stored in a Berkley DB database. Ways are consisting of multiple nodes. Before a way can be written into the output file, the corresponding nodes are fetched from the database (see Figure 1).
 
 <img src="/bboxdb/images/converter.png" width="800">
+<br>
 Figure 1: The architecture of the Converter. The .osm.pbf input file is read. Nodes are stored in one or more databases, filtered and written to the output files. Ways are filtered, the associated nodes are fetched from the database, and integrated in the way. Afterward, the new way object is written to the output files.
 
 ## Usage
