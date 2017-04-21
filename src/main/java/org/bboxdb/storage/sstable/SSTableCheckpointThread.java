@@ -111,7 +111,8 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 			logger.debug("Create a checkpoint for: {}", threadname);
 			ssTableManager.flushAndInitMemtable();
 			
-			final Queue<Memtable> unflushedMemtables = ssTableManager.getTupleStoreInstances().getMemtablesToFlush();
+			final Queue<Memtable> unflushedMemtables 
+				= ssTableManager.getTupleStoreInstances().getMemtablesToFlush();
 			
 			// Wait until the active memtable is flushed to disk
 			synchronized (unflushedMemtables) {

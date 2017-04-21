@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
@@ -53,12 +53,14 @@ public class TupleStoreInstanceManager {
 	/**
 	 * The queue for the memtable flush thread
 	 */
-	protected final Queue<Memtable> memtablesToFlush;
+	protected final BlockingQueue<Memtable> memtablesToFlush;
 	
 	public TupleStoreInstanceManager() {
 		sstableFacades = new ArrayList<SSTableFacade>();
 		unflushedMemtables = new ArrayList<Memtable>();
-		memtablesToFlush = new ConcurrentLinkedQueue<Memtable>();
+		
+		memtablesToFlush = new ArrayBlockingQueue<Memtable>
+			(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
 	}
 	
 	/**
@@ -70,12 +72,11 @@ public class TupleStoreInstanceManager {
 		
 		if(memtable != null) {
 			unflushedMemtables.add(memtable);
-			
-			synchronized (memtablesToFlush) {
-				memtablesToFlush.add(memtable);
-				memtablesToFlush.notifyAll();
+			try {
+				memtablesToFlush.put(memtable);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			}
-			
 		}
 		
 		memtable = newMemtable;
@@ -143,7 +144,7 @@ public class TupleStoreInstanceManager {
 	 * Get the memtable flush queue
 	 * @return
 	 */
-	public Queue<Memtable> getMemtablesToFlush() {
+	public BlockingQueue<Memtable> getMemtablesToFlush() {
 		return memtablesToFlush;
 	}
 

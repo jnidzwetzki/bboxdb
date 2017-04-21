@@ -18,7 +18,7 @@
 package org.bboxdb.storage.sstable;
 
 import java.util.List;
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 
 import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.SSTableFlushCallback;
@@ -39,7 +39,7 @@ class MemtableFlushThread extends ExceptionSafeThread {
 	/**
 	 * The unflushed memtables
 	 */
-	protected final Queue<Memtable> unflushedMemtables;
+	protected final BlockingQueue<Memtable> unflushedMemtables;
 
 	/**
 	 * The name of the thread
@@ -79,42 +79,24 @@ class MemtableFlushThread extends ExceptionSafeThread {
 	@Override
 	protected void runThread() {
 		while (! Thread.currentThread().isInterrupted()) {
-			final Memtable memtable = getNextUnflushedMemtable();
-			
-			if(memtable == null) {
-				logger.debug("Got null memtable, stopping thread");
-				break;
-			}
+			try {
+				final Memtable memtable = unflushedMemtables.take();
+				
+				if(memtable == null) {
+					logger.debug("Got null memtable, stopping thread");
+					break;
+				}
 
-			flushMemtableToDisk(memtable);
+				flushMemtableToDisk(memtable);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
+			}
 		}
 		
 		logger.info("Stopping memtable flush thread for: " + threadname);
 	}
 	
-	/**
-	 * Get the next unflushed memtable
-	 * @return
-	 */
-	protected Memtable getNextUnflushedMemtable() {
-		
-		synchronized (unflushedMemtables) {
-			
-			while (unflushedMemtables.isEmpty()) {
-				try {
-					unflushedMemtables.wait();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					return null;
-				}
-			}
-			
-			final Memtable memtable = unflushedMemtables.remove();
-			unflushedMemtables.notifyAll();
-			return memtable;
-		}
-	}
-
 	/**
 	 * Flush a memtable to disk
 	 * @param memtable

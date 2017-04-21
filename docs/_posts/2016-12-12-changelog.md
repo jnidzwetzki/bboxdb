@@ -17,6 +17,7 @@ order: 1
 - Improvement: Introduced the memtable flush callbacks
 - Bugfix: SStables were written unbuffered. This requires a lot of CPU time and was slow.
 - Bugfix: Limit the size of SSTables to 1.9 GB. Otherwise, the reader is unable to map the table into memory.
+- Bugfix: Limit the amount of maximal unflushed memtables. (Prevents OOM Exceptions on heavy write load)
 - Bugfix: Removed the unused 'commit log' variable from config class
 - Bugfix: Removed the unused 'seen' state from tuple class
 - Bugfix: Removed warning caused by rm on first bboxdb_update call

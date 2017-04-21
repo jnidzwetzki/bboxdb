@@ -107,5 +107,10 @@ public class SSTableConst {
 	 * map files up to 2 GB. Therefore the limit is set to 1.9 GB.
 	 */
 	public final static int MAX_SSTABLE_SIZE = 2040109465;
+	
+	/**
+	 * The maximal amount of unflushed memtables per SSTable
+	 */
+	public final static int MAX_UNFLUSHED_MEMTABLES_PER_TABLE = 20;
 
 }
