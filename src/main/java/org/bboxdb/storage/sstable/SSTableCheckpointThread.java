@@ -35,10 +35,11 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
+import org.bboxdb.util.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableCheckpointThread implements Runnable {
+public class SSTableCheckpointThread extends ExceptionSafeThread {
 
 	/**
 	 * The sstable manager
@@ -94,20 +95,12 @@ public class SSTableCheckpointThread implements Runnable {
 		}
 	}
 
-	@Override
-	public void run() {
+	/**
+	 * Execute the ceckpoint thread
+	 */
+	protected void runThread() {
 		logger.info("Checkpoint thread has started: {} ", threadname);
 
-		try {
-			executeThread();
-		} catch (Throwable e) {
-			logger.error("Got uncought exception", e);
-		}
-		
-		logger.info("Checkpoint thread has stopped: {} ", threadname);
-	}
-
-	protected void executeThread() {
 		while(! Thread.currentThread().isInterrupted()) {
 			logger.debug("Executing checkpoint thread for: {}", threadname);
 		
@@ -120,6 +113,11 @@ public class SSTableCheckpointThread implements Runnable {
 				return;
 			}
 		}
+	}
+	
+	@Override
+	protected void endHook() {
+		logger.info("Checkpoint thread has stopped: {} ", threadname);
 	}
 	
 	/**
