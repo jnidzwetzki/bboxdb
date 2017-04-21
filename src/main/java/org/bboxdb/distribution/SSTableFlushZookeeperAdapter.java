@@ -58,7 +58,10 @@ public class SSTableFlushZookeeperAdapter implements SSTableFlushCallback {
 			
 			logger.debug("Updating checkpoint for: {} to {}", ssTableName.getFullname(), flushTimestamp);
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(distributionRegion, localInstance, flushTimestamp);
+			
+			if(distributionGroupZookeeperAdapter != null) {
+				distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(distributionRegion, localInstance, flushTimestamp);
+			}
 			
 		} catch (ZookeeperException | BBoxDBException e) {
 			logger.warn("Unable to find distribution region: " , e);
