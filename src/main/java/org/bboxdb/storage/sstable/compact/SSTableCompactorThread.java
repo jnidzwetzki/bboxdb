@@ -67,7 +67,6 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		this.sstableManager = ssTableManager;
 		this.mergeStragegy = new SimpleMergeStrategy();
 		this.threadname = sstableManager.getSSTableName().getFullname();
-		this.regionSplitter = RegionSplitStrategyFactory.getInstance();
 	}
 
 	/**
@@ -109,6 +108,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	protected void initRegionSplitter() {
 		try {
 			if(sstableManager.getSSTableName().isDistributedTable()) {
+				regionSplitter = RegionSplitStrategyFactory.getInstance();
 				regionSplitter.initFromSSTablename(sstableManager.getSSTableName());
 			}
 		} catch (StorageManagerException e) {
