@@ -54,7 +54,7 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 	public OSMSSTableNodeStore(final List<String> storageDirectories, final long inputLength) {
 		
 		try {
-			final SSTableName tableName = new SSTableName("2_group1_test_1");
+			final SSTableName tableName = new SSTableName("2_group1_test");
 			StorageRegistry.getInstance().deleteTable(tableName);
 			BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(storageDirectories);
 			
