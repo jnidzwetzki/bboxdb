@@ -20,6 +20,7 @@ package org.bboxdb.storage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +58,11 @@ public class StorageRegistry {
 	 * A map that contains the storage directory for the sstable
 	 */
 	protected final Map<SSTableName, String> sstableLocations;
+	
+	/**
+	 * The flush callbacks
+	 */
+	protected final List<SSTableFlushCallback> flushCallbacks = new ArrayList<>();
 	
 	/**
 	 * The singleton instance
@@ -431,5 +437,21 @@ public class StorageRegistry {
 		}
 		
 		return sstableLocations.get(ssTableName);
+	}
+	
+	/**
+	 * Regiter a new SSTable flush callback
+	 * @param callback
+	 */
+	public void registerSSTableFlushCallback(final SSTableFlushCallback callback) {
+		flushCallbacks.add(callback);
+	}
+	
+	/**
+	 * Get a list with all SSTable flush callbacks
+	 * @return
+	 */
+	public List<SSTableFlushCallback> getSSTableFlushCallbacks() {
+		return Collections.unmodifiableList(flushCallbacks);
 	}
 }

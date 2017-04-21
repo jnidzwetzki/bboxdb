@@ -17,9 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable;
 
+import java.util.List;
 import java.util.Queue;
 
 import org.bboxdb.storage.Memtable;
+import org.bboxdb.storage.SSTableFlushCallback;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
@@ -137,12 +139,25 @@ class MemtableFlushThread extends ExceptionSafeThread {
 			
 			logger.debug("Replacing memtable {} with sstable {}", memtable, facade);
 			
+			sendCallbacks(memtable);		
 		} catch (Exception e) {
 			handleExceptionDuringFlush(e);
 		}
 
 		memtable.deleteOnClose();
 		memtable.release();
+	}
+
+	/**
+	 * Send all callbacks for a memtable flush
+	 * @param memtable
+	 */
+	protected void sendCallbacks(final Memtable memtable) {
+		final long timestamp = memtable.getCreatedTimestamp();
+		final List<SSTableFlushCallback> callbacks = StorageRegistry.getInstance().getSSTableFlushCallbacks();
+		for(final SSTableFlushCallback callback : callbacks) {
+			callback.flushCallback(sstableManager.getSSTableName(), timestamp);
+		}
 	}
 
 	/**

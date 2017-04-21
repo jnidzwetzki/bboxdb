@@ -21,18 +21,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.BBoxDBConfiguration;
-import org.bboxdb.BBoxDBConfigurationManager;
-import org.bboxdb.distribution.DistributionGroupCache;
-import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionHelper;
-import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.util.ExceptionSafeThread;
@@ -52,16 +40,6 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	protected final long maxUncheckpointedMiliseconds;
 
 	/**
-	 * The name of the local instance
-	 */
-	protected DistributedInstance localInstance;
-	
-	/**
-	 * The distribution region of the sstable
-	 */
-	protected DistributionRegion distributionRegion = null;
-	
-	/**
 	 * The name of the thread
 	 */
 	protected final String threadname;
@@ -74,25 +52,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	public SSTableCheckpointThread(final int maxUncheckpointedSeconds, final SSTableManager ssTableManager) {
 		this.maxUncheckpointedMiliseconds = TimeUnit.SECONDS.toMillis(maxUncheckpointedSeconds);
 		this.ssTableManager = ssTableManager;
-		
 		this.threadname = ssTableManager.getSSTableName().getFullname();
-		
-		// Local instance
-		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-		this.localInstance = ZookeeperClientFactory.getLocalInstanceName(configuration);
-	
-		try {
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
-			
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
-					ssTableManager.getSSTableName(), zookeeperClient);
-
-			final DistributionRegion distributionGroupRoot = distributionAdapter.getRootNode();
-			
-			distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableManager.getSSTableName().getRegionId());
-		} catch (ZookeeperException | BBoxDBException e) {
-			logger.warn("Unable to find distribution region: " , e);
-		}
 	}
 
 	/**
@@ -145,52 +105,22 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 * @throws InterruptedException 
 	 */
 	protected void createCheckpoint() throws InterruptedException {
-		
-		try {
-			if(isCheckpointNeeded()) {
-				final Memtable activeMemtable = ssTableManager.getMemtable();
-				logger.debug("Create a checkpoint for: {}", threadname);
-				ssTableManager.flushAndInitMemtable();
-				
-				final Queue<Memtable> unflushedMemtables = ssTableManager.getTupleStoreInstances().getMemtablesToFlush();
-				
-				// Wait until the active memtable is flushed to disk
-				synchronized (unflushedMemtables) {
-					while(unflushedMemtables.contains(activeMemtable)) {
-						unflushedMemtables.wait();
-					}
-				}
-				
-				logger.info("Create checkpoint DONE for: {}", threadname);
-			}
-			
-			// Update checkpoint date in zookeeper
+	
+		if(isCheckpointNeeded()) {
 			final Memtable activeMemtable = ssTableManager.getMemtable();
-			final long createdTimestamp = activeMemtable.getCreatedTimestamp();
-			updateCheckpointDate(createdTimestamp);
+			logger.debug("Create a checkpoint for: {}", threadname);
+			ssTableManager.flushAndInitMemtable();
 			
-		} catch (ZookeeperException e) {
-			if(Thread.currentThread().isInterrupted()) {
-				logger.trace("Got an exception while creating checkpoint", e);
-			} else {
-				logger.warn("Got an exception while creating checkpoint", e);
+			final Queue<Memtable> unflushedMemtables = ssTableManager.getTupleStoreInstances().getMemtablesToFlush();
+			
+			// Wait until the active memtable is flushed to disk
+			synchronized (unflushedMemtables) {
+				while(unflushedMemtables.contains(activeMemtable)) {
+					unflushedMemtables.wait();
+				}
 			}
-		}
-	}
-
-	/**
-	 * Update the checkpoint date (e.g. propagate checkpoint to zookeeper)
-	 * @param createdTimestamp
-	 * @throws ZookeeperException 
-	 * @throws InterruptedException 
-	 */
-	protected void updateCheckpointDate(final long checkpointTimestamp) throws ZookeeperException, InterruptedException {
-		
-		logger.debug("Updating checkpoint for: {} to {}", threadname, checkpointTimestamp);
-		
-		if(distributionRegion != null) {
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(distributionRegion, localInstance, checkpointTimestamp);
-		}
+			
+			logger.info("Create checkpoint DONE for: {}", threadname);
+		}		
 	}
 }

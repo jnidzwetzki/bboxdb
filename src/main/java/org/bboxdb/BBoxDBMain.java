@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bboxdb.distribution.SSTableFlushZookeeperAdapter;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -28,6 +29,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.jmx.JMXService;
 import org.bboxdb.network.server.NetworkConnectionService;
 import org.bboxdb.storage.RecoveryService;
+import org.bboxdb.storage.StorageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +69,9 @@ public class BBoxDBMain {
 		// The JMX service
 		final JMXService jmxService = new JMXService(this);
 		services.add(jmxService);
+		
+		// Send flush events to zookeeper
+		StorageRegistry.getInstance().registerSSTableFlushCallback(new SSTableFlushZookeeperAdapter());
 	}
 
 	/**
