@@ -364,7 +364,7 @@ public class OSMConverter {
 	 */
 	public static void main(final String[] args) {
 		// Check parameter
-		if(args.length != 3) {
+		if(args.length != 4) {
 			System.err.println("Usage: programm <filename> <backend> <work folder> <output dir>");
 			System.exit(-1);
 		}
