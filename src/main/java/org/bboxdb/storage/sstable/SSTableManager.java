@@ -20,9 +20,7 @@ package org.bboxdb.storage.sstable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -83,22 +81,7 @@ public class SSTableManager implements BBoxDBService {
 	/**
 	 * The running threads
 	 */
-	protected final Map<String, Thread> runningThreads;
-
-	/**
-	 * Id of the memtable flush thread
-	 */
-	protected final static String MEMTABLE_FLUSH_THREAD = "memtable";
-	
-	/**
-	 * Id of the checkpoint thread
-	 */
-	protected final static String CHECKPOINT_THREAD = "checkpoint";
-	
-	/**
-	 * Id of the compact thread
-	 */
-	protected final static String COMPACT_THREAD = "compact";
+	protected final List<Thread> runningThreads;
 	
 	/**
 	 * The timeout for a thread join (10 seconds)
@@ -110,8 +93,6 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-
-
 	public SSTableManager(final String storageDir, final SSTableName sstablename, 
 			final BBoxDBConfiguration configuration) {
 		
@@ -122,7 +103,7 @@ public class SSTableManager implements BBoxDBService {
 		this.tableNumber = new AtomicInteger();
 		
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
-		this.runningThreads = new HashMap<String, Thread>();
+		this.runningThreads = new ArrayList<>();
 	}
 
 	/**
@@ -171,7 +152,7 @@ public class SSTableManager implements BBoxDBService {
 			final Thread checkpointThread = new Thread(ssTableCheckpointThread);
 			checkpointThread.setName("Checkpoint thread for: " + sstablename.getFullname());
 			checkpointThread.start();
-			runningThreads.put(CHECKPOINT_THREAD, checkpointThread);
+			runningThreads.add(checkpointThread);
 		} else {
 			logger.info("NOT starting the checkpoint thread for: " + sstablename.getFullname());
 		}
@@ -186,7 +167,7 @@ public class SSTableManager implements BBoxDBService {
 			final Thread compactThread = new Thread(sstableCompactor);
 			compactThread.setName("Compact thread for: " + sstablename.getFullname());
 			compactThread.start();
-			runningThreads.put(COMPACT_THREAD, compactThread);
+			runningThreads.add(compactThread);
 		} else {
 			logger.info("NOT starting the sstable compact thread for: " + sstablename.getFullname());
 		}
@@ -201,7 +182,7 @@ public class SSTableManager implements BBoxDBService {
 			final Thread flushThread = new Thread(memtableFlushThread);
 			flushThread.setName("Memtable flush thread for: " + sstablename.getFullname());
 			flushThread.start();
-			runningThreads.put(MEMTABLE_FLUSH_THREAD, flushThread);
+			runningThreads.add(flushThread);
 		} else {
 			logger.info("NOT starting the memtable flush thread for:" + sstablename.getFullname());
 		}
@@ -272,13 +253,13 @@ public class SSTableManager implements BBoxDBService {
 	public void stopThreads() {
 
 		// Stop the corresponding threads
-		for(final Thread thread : runningThreads.values()) {
+		for(final Thread thread : runningThreads) {
 			logger.info("Interrupt thread: {}", thread.getName());
 			thread.interrupt();
 		}
 		
 		// Join threads
-		for(final Thread thread : runningThreads.values()) {
+		for(final Thread thread : runningThreads) {
 			try {
 				logger.info("Join thread: {}", thread.getName());
 
