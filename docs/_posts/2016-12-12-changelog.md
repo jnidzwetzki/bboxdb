@@ -15,6 +15,7 @@ order: 1
 - Improvement: Added a OSM filter for woods
 - Improvement: Improved thread stop handling
 - Improvement: Introduced the memtable flush callbacks
+- Improvement: Improved .jar discovery in bash files
 - Bugfix: SStables were written unbuffered. This requires a lot of CPU time and was slow.
 - Bugfix: Limit the size of SSTables to 1.9 GB. Otherwise, the reader is unable to map the table into memory.
 - Bugfix: Limit the amount of maximal unflushed memtables. (Prevents OOM Exceptions on heavy write load)

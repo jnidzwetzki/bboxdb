@@ -5,7 +5,7 @@
 #
 #########################################
 
-# Home dir
+# Is the environment configured?
 if [ -z "$BBOXDB_HOME" ]; then
    echo "Your environment variable \$(BBOXDB_HOME) is empty. Please check your .bboxdbrc"
    exit -1
@@ -15,17 +15,19 @@ fi
 source $BBOXDB_HOME/bin/bboxdb-env.sh
 source $BBOXDB_HOME/bin/functions.sh
 
-# Find all jars
+# Change working dir
 cd $BBOXDB_HOME 
 
-# Does a build exists? 
+# Find all required jars
 if [ -d $BBOXDB_HOME/target ]; then
    libs=$(find $BBOXDB_HOME/target/lib -name '*.jar' | xargs echo | tr ' ' ':')
-   jar=$(ls -1 $BBOXDB_HOME/target/bboxdb*.jar | tail -1)
+   jar=$(find $BBOXDB_HOME/target -name 'bboxdb*.jar' | tail -1)
 fi 
 
+# Build classpath
 classpath="$BBOXDB_HOME/conf:$libs:$jar"
 
+# Discover zookeeper nodes
 zookeeper_nodes=$(read_nodes_file $zookeeper_node_file)
 if [ -z "$zookeeper_nodes" ]; then
    echo -e "Your zzokeeper nodes ($zookeeper_node_file) are empty, please check your configuration $failed" 
