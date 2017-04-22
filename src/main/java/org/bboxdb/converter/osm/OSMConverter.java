@@ -32,6 +32,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.bboxdb.converter.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.converter.osm.filter.multipoint.OSMBuildingsEntityFilter;
@@ -40,6 +41,8 @@ import org.bboxdb.converter.osm.filter.multipoint.OSMWaterEntityFilter;
 import org.bboxdb.converter.osm.filter.multipoint.WoodEntityFilter;
 import org.bboxdb.converter.osm.filter.singlepoint.OSMTrafficSignalEntityFilter;
 import org.bboxdb.converter.osm.filter.singlepoint.OSMTreeEntityFilter;
+import org.bboxdb.converter.osm.store.OSMBDBNodeStore;
+import org.bboxdb.converter.osm.store.OSMJDBCNodeStore;
 import org.bboxdb.converter.osm.store.OSMNodeStore;
 import org.bboxdb.converter.osm.store.OSMSSTableNodeStore;
 import org.bboxdb.converter.osm.util.Polygon;
@@ -58,7 +61,7 @@ import org.slf4j.LoggerFactory;
 import crosby.binary.osmosis.OsmosisReader;
 
 public class OSMConverter {
-	
+
 	/**
 	 * The file to import
 	 */
@@ -110,9 +113,25 @@ public class OSMConverter {
 	protected BlockingQueue<Way> queue = new ArrayBlockingQueue<>(200);
 	
 	/**
+	 * The name of the SSTable backend
+	 */
+	protected static final String BACKEND_SSTABLE = "sstable";
+
+	/**
+	 * The name of the BDB backend
+	 */
+	protected static final String BACKEND_BDB = "bdb";
+
+	/**
+	 * The name of the JDBC backend
+	 */
+	protected static final String BACKEND_JDBC = "jdbc";
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(OSMConverter.class);
+
 
 	static {
 		filter.put(OSMType.TREE, new OSMTreeEntityFilter());
@@ -123,7 +142,9 @@ public class OSMConverter {
 		filter.put(OSMType.WATER, new OSMWaterEntityFilter());
 	}
 	
-	public OSMConverter(final String filename, final String workfolder, final String output) {
+	public OSMConverter(final String filename, final String backend, 
+			final String workfolder, final String output) {
+		
 		this.filename = filename;
 		this.output = output;
 		this.statistics = new OSMConverterStatistics();
@@ -131,10 +152,18 @@ public class OSMConverter {
 		final File inputFile = new File(filename);
 
 		final List<String> workfolders = Arrays.asList(workfolder.split(":"));
-		this.osmNodeStore = new OSMSSTableNodeStore(workfolders, inputFile.length());
+		 
+		if(BACKEND_BDB.equals(backend)) {
+			this.osmNodeStore = new OSMBDBNodeStore(workfolders, inputFile.length());
+		} else if(BACKEND_JDBC.equals(backend)) {
+			this.osmNodeStore = new OSMJDBCNodeStore(workfolders, inputFile.length());
+		} else if(BACKEND_SSTABLE.equals(backend)) {
+			this.osmNodeStore = new OSMSSTableNodeStore(workfolders, inputFile.length());
+		} else {
+			throw new RuntimeException("Unknown backend: " + backend);
+		}
 		
-		threadPool = Executors.newCachedThreadPool();	
-		
+		threadPool = Executors.newCachedThreadPool();
 		statistics.start();
 	}
 
@@ -336,19 +365,28 @@ public class OSMConverter {
 	public static void main(final String[] args) {
 		// Check parameter
 		if(args.length != 3) {
-			System.err.println("Usage: programm <filename> <work folder> <output dir>");
+			System.err.println("Usage: programm <filename> <backend> <work folder> <output dir>");
 			System.exit(-1);
 		}
 		
 		final String filename = args[0];
-		final String workfolder = args[1];
-		final String output = args[2];
+		final String backend = args[1];
+		final String workfolder = args[2];
+		final String output = args[3];
 		
-		// Check file
+		// Check input file
 		final File inputFile = new File(filename);
 		if(! inputFile.isFile()) {
 			System.err.println("Unable to open file: " + filename);
 			System.exit(-1);
+		}
+		
+		// Check backend
+		final List<String> backends = Arrays.asList(BACKEND_JDBC, BACKEND_BDB, BACKEND_SSTABLE);
+		if(! backends.contains(backend)) {
+			System.err.println("Unknown backend: " + backend);
+			System.err.println("Known backends are :" 
+					+ backends.stream().collect(Collectors.joining(",", "[", "]")));
 		}
 		
 		// Check output dir
@@ -363,10 +401,7 @@ public class OSMConverter {
 			System.exit(-1);
 		}
 
-		final OSMConverter converter = new OSMConverter(filename, workfolder, output);
+		final OSMConverter converter = new OSMConverter(filename, backend, workfolder, output);
 		converter.start();
 	}
-
-
-
 }
