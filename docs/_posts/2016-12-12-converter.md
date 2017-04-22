@@ -41,9 +41,9 @@ The converter supports different database backends to store the nodes. At the mo
 
 | Backend  |  Name   |                           Description                         |
 |----------|---------|---------------------------------------------------------------|
-| JDBC     | jdbc    | A JDBC backend using the h2 embedded database                 |
-| BDB      | bdb     | A backend that is using the Berkeley DB (Java edition)         |
-| SSTable  | sstable | The BBoxDB SSTables implementation is used to store the nodes |
+| JDBC     | jdbc    | A backend that is using the h2 embedded database via JDBC     |
+| BDB      | bdb     | A backend that is using the Berkeley DB (Java edition)        |
+| SSTable  | sstable | The BBoxDB SSTables implementation is used                    |
 
 In the following example, an extract of the OpenStreepMap database is downloaded and processed. It is assumed, that the system contains at least 32 GB of RAM (-Xmx26096m) and have four hard disks. One hard disk is used to store the input and the output data. The three remaining disks (mounted at /diskb, /diskc and /diskd) are used to store the Berkeley DB databases.
 
