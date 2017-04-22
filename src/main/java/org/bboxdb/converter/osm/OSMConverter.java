@@ -385,8 +385,9 @@ public class OSMConverter {
 		final List<String> backends = Arrays.asList(BACKEND_JDBC, BACKEND_BDB, BACKEND_SSTABLE);
 		if(! backends.contains(backend)) {
 			System.err.println("Unknown backend: " + backend);
-			System.err.println("Known backends are :" 
+			System.err.println("Known backends are: " 
 					+ backends.stream().collect(Collectors.joining(",", "[", "]")));
+			System.exit(-1);
 		}
 		
 		// Check output dir
