@@ -24,7 +24,7 @@ At the moment, the converter filters the following nodes and ways:
 | WATER          | All lakes, ponds, rivers, canals, ... |
 | WOOD           | All woods |
 
-Nodes are also stored in a Berkley DB database. Ways are consisting of multiple nodes. Before a way can be written into the output file, the corresponding nodes are fetched from the database (see Figure 1).
+Nodes are also stored in a Berkeley DB database. Ways are consisting of multiple nodes. Before a way can be written into the output file, the corresponding nodes are fetched from the database (see Figure 1).
 
 <img src="/bboxdb/images/converter.png" width="800">
 <br>
@@ -35,22 +35,22 @@ The converter requires three parameters, the input file, the folder(s) for the n
 
 ```java -server -Xmx6096m -classpath "target/*":"target/lib/*":"conf":"." org.bboxdb.converter.osm.OSMConverter <Input File> <DB backend> <Databasedir1:Databasedir2:DatabasedirN> <Output directory>```
 
-When the system consists of multiple hard disks, it is recommended to place the input and the output files on one disk and let the other disks store the node databases. It is also recommended, to increase the size of the 'memory allocation pool' of the JVM. The memory will be used as a cache for the Berley DB databases and reduce the amount disk IO.
+When the system consists of multiple hard disks, it is recommended to place the input and the output files on one disk and let the other disks store the node databases. It is also recommended, to increase the size of the 'memory allocation pool' of the JVM. The memory will be used as a cache for the databases and reduce the amount disk IO.
 
 The converter supports different database backends to store the nodes. At the moment, the following backends are available:
 
 | Backend  |  Name   |                           Description                         |
 |----------|---------|---------------------------------------------------------------|
 | JDBC     | jdbc    | A JDBC backend using the h2 embedded database                 |
-| BDB      | bdb     | A backend that is using the Berkley DB (Java edition)         |
+| BDB      | bdb     | A backend that is using the Berkeley DB (Java edition)         |
 | SSTable  | sstable | The BBoxDB SSTables implementation is used to store the nodes |
 
-In the following example, an extract of the OpenStreepMap database is downloaded and processed. It is assumed, that the system contains at least 32 GB of RAM (-Xmx26096m) and have four hard disks. One hard disk is used to store the input and the output data. The three remaining disks (mounted at /diskb, /diskc and /diskd) are used to store the Berkley DB databases. The JDBC backend is used.
+In the following example, an extract of the OpenStreepMap database is downloaded and processed. It is assumed, that the system contains at least 32 GB of RAM (-Xmx26096m) and have four hard disks. One hard disk is used to store the input and the output data. The three remaining disks (mounted at /diskb, /diskc and /diskd) are used to store the Berkeley DB databases.
 
 ```bash
 wget http://download.geofabrik.de/europe/germany-latest.osm.pbf
 cd $BBOXDB_HOME
-java -server -Xmx26096m -classpath "target/*":"target/lib/*":"conf":"." org.bboxdb.converter.osm.OSMConverter /path/to/germany-latest.osm.pbf jdbc /diskb/work:/diskc/work:/diskd/work /outputdir/germany
+java -server -Xmx26096m -classpath "target/*":"target/lib/*":"conf":"." org.bboxdb.converter.osm.OSMConverter /path/to/germany-latest.osm.pbf bdb /diskb/work:/diskc/work:/diskd/work /outputdir/germany
 ```
 
 ## Example output
