@@ -67,7 +67,7 @@ import org.bboxdb.network.packages.request.NextPageRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
-import org.bboxdb.network.packages.request.QueryTimeRequest;
+import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
@@ -645,7 +645,7 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
-		final QueryTimeRequest requestPackage = new QueryTimeRequest(getNextSequenceNumber(), 
+		final QueryVersionTimeRequest requestPackage = new QueryVersionTimeRequest(getNextSequenceNumber(), 
 				table, timestamp, pagingEnabled, tuplesPerPage);
 		
 		registerPackageCallback(requestPackage, clientOperationFuture);

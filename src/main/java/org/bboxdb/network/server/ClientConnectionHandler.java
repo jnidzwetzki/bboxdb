@@ -497,7 +497,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		queryHandlerList = new HashMap<>();
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_KEY, new HandleKeyQuery());
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_BBOX, new HandleBoundingBoxQuery());
-		queryHandlerList.put(NetworkConst.REQUEST_QUERY_TIME, new HandleTimeQuery());
+		queryHandlerList.put(NetworkConst.REQUEST_QUERY_VERSION_TIME, new HandleTimeQuery());
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_BBOX_AND_TIME, new HandleBoundingBoxTimeQuery());
 	}
 

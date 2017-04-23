@@ -107,14 +107,19 @@ public class NetworkConst {
 	public static final byte REQUEST_QUERY_BBOX = 0x02;
 	
 	/**
-	 * Query type time
+	 * Query type version time
 	 */
-	public static final byte REQUEST_QUERY_TIME = 0x03;
+	public static final byte REQUEST_QUERY_VERSION_TIME = 0x03;
+	
+	/**
+	 * Query type insert time
+	 */
+	public static final byte REQUEST_QUERY_INSERT_TIME = 0x04;
 	
 	/**
 	 * Query type bounding box and Time
 	 */
-	public static final byte REQUEST_QUERY_BBOX_AND_TIME = 0x04;
+	public static final byte REQUEST_QUERY_BBOX_AND_TIME = 0x05;
 	
 	
 	/**

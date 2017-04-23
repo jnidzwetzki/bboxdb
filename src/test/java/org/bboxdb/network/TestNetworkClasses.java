@@ -46,8 +46,9 @@ import org.bboxdb.network.packages.request.ListTablesRequest;
 import org.bboxdb.network.packages.request.NextPageRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
+import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
-import org.bboxdb.network.packages.request.QueryTimeRequest;
+import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
 import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.network.packages.response.ListTablesResponse;
@@ -416,17 +417,17 @@ public class TestNetworkClasses {
 	}
 	
 	/**
-	 * Test decode time query
+	 * Test decode version time query
 	 * @throws IOException 
 	 * @throws PackageEncodeException 
 	 */
 	@Test
-	public void testDecodeTimeQuery() throws IOException, PackageEncodeException {
+	public void testDecodeVersionTimeQuery() throws IOException, PackageEncodeException {
 		final String table = "table1";
 		final long timeStamp = 4711;
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryTimeRequest queryRequest = new QueryTimeRequest(sequenceNumber, table, timeStamp, true, (short) 50);
+		final QueryVersionTimeRequest queryRequest = new QueryVersionTimeRequest(sequenceNumber, table, timeStamp, true, (short) 50);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -434,15 +435,42 @@ public class TestNetworkClasses {
 		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
 		Assert.assertTrue(result);
 
-		final QueryTimeRequest decodedPackage = QueryTimeRequest.decodeTuple(bb);
+		final QueryVersionTimeRequest decodedPackage = QueryVersionTimeRequest.decodeTuple(bb);
 		Assert.assertEquals(queryRequest.getTimestamp(), decodedPackage.getTimestamp());
 		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		
-		Assert.assertEquals(NetworkConst.REQUEST_QUERY_TIME, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+		Assert.assertEquals(NetworkConst.REQUEST_QUERY_VERSION_TIME, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 	}
 	
+	/**
+	 * Test decode insert time query
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test
+	public void testDecodeInsertTimeQuery() throws IOException, PackageEncodeException {
+		final String table = "table1";
+		final long timeStamp = 4711;
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final QueryInsertTimeRequest queryRequest = new QueryInsertTimeRequest(sequenceNumber, table, timeStamp, true, (short) 50);
+		byte[] encodedPackage = networkPackageToByte(queryRequest);
+		Assert.assertNotNull(encodedPackage);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
+		Assert.assertTrue(result);
+
+		final QueryInsertTimeRequest decodedPackage = QueryInsertTimeRequest.decodeTuple(bb);
+		Assert.assertEquals(queryRequest.getTimestamp(), decodedPackage.getTimestamp());
+		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
+		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
+		
+		Assert.assertEquals(NetworkConst.REQUEST_QUERY_INSERT_TIME, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+	}
 	
 	/**
 	 * Test decode time query

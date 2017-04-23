@@ -29,7 +29,7 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.SSTableName;
 
-public class QueryTimeRequest extends NetworkQueryRequestPackage {
+public class QueryInsertTimeRequest extends NetworkQueryRequestPackage {
 	
 	/**
 	 * The name of the table
@@ -51,7 +51,7 @@ public class QueryTimeRequest extends NetworkQueryRequestPackage {
 	 */
 	protected final short tuplesPerPage;
 
-	public QueryTimeRequest(final short packageSequene, final String table, final long timestamp, 
+	public QueryInsertTimeRequest(final short packageSequene, final String table, final long timestamp, 
 			final boolean pagingEnabled, final short tuplesPerPage) {
 		
 		super(packageSequene);
@@ -105,7 +105,7 @@ public class QueryTimeRequest extends NetworkQueryRequestPackage {
 	 * @return
 	 * @throws PackageEncodeException 
 	 */
-	public static QueryTimeRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException {
+	public static QueryInsertTimeRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
@@ -116,7 +116,7 @@ public class QueryTimeRequest extends NetworkQueryRequestPackage {
 		
 	    final byte queryType = encodedPackage.get();
 	    
-	    if(queryType != NetworkConst.REQUEST_QUERY_TIME) {
+	    if(queryType != NetworkConst.REQUEST_QUERY_INSERT_TIME) {
 	    	throw new PackageEncodeException("Wrong query type: " + queryType);
 	    }
 		
@@ -138,7 +138,7 @@ public class QueryTimeRequest extends NetworkQueryRequestPackage {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new QueryTimeRequest(sequenceNumber, table, timestamp, pagingEnabled, tuplesPerPage);
+		return new QueryInsertTimeRequest(sequenceNumber, table, timestamp, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public class QueryTimeRequest extends NetworkQueryRequestPackage {
 
 	@Override
 	public byte getQueryType() {
-		return NetworkConst.REQUEST_QUERY_TIME;
+		return NetworkConst.REQUEST_QUERY_INSERT_TIME;
 	}
 	
 	public SSTableName getTable() {

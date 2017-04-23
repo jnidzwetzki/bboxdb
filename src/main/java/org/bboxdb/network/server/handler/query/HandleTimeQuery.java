@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryTimeRequest;
+import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ClientQuery;
@@ -54,7 +54,7 @@ public class HandleTimeQuery implements QueryHandler {
 				return;
 			}
 			
-			final QueryTimeRequest queryRequest = QueryTimeRequest.decodeTuple(encodedPackage);
+			final QueryVersionTimeRequest queryRequest = QueryVersionTimeRequest.decodeTuple(encodedPackage);
 			final SSTableName requestTable = queryRequest.getTable();
 			final QueryPlan queryPlan = new NewerAsTimeQueryPlan(queryRequest.getTimestamp());
 			
