@@ -56,6 +56,7 @@ public class TestSSTableMetadataBuilder {
 		Assert.assertArrayEquals(boundingBox1.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(metadata.getOldestTupleVersionTimestamp(), metadata.getNewestTupleVersionTimestamp());
 		Assert.assertEquals(1, metadata.getTuples());
+		Assert.assertEquals(tuple1.getReceivedTimestamp(), metadata.getNewestTupleInsertedTimstamp());
 	}
 	
 	/**
@@ -163,21 +164,25 @@ public class TestSSTableMetadataBuilder {
 		ssTableIndexBuilder.addTuple(tuple1);
 		Assert.assertEquals(6, ssTableIndexBuilder.getMetaData().getNewestTupleVersionTimestamp());
 		Assert.assertEquals(6, ssTableIndexBuilder.getMetaData().getOldestTupleVersionTimestamp());
-		
+		Assert.assertEquals(tuple1.getReceivedTimestamp(), ssTableIndexBuilder.getMetaData().getNewestTupleInsertedTimstamp());
+
 		final Tuple tuple2 = new Tuple("0", BoundingBox.EMPTY_BOX, "".getBytes(), 7);
 		ssTableIndexBuilder.addTuple(tuple2);
 		Assert.assertEquals(7, ssTableIndexBuilder.getMetaData().getNewestTupleVersionTimestamp());
 		Assert.assertEquals(6, ssTableIndexBuilder.getMetaData().getOldestTupleVersionTimestamp());
-		
+		Assert.assertEquals(tuple2.getReceivedTimestamp(), ssTableIndexBuilder.getMetaData().getNewestTupleInsertedTimstamp());
+
 		final Tuple tuple3 = new Tuple("0", BoundingBox.EMPTY_BOX, "".getBytes(), 2);
 		ssTableIndexBuilder.addTuple(tuple3);
 		Assert.assertEquals(7, ssTableIndexBuilder.getMetaData().getNewestTupleVersionTimestamp());
 		Assert.assertEquals(2, ssTableIndexBuilder.getMetaData().getOldestTupleVersionTimestamp());
-		
+		Assert.assertEquals(tuple3.getReceivedTimestamp(), ssTableIndexBuilder.getMetaData().getNewestTupleInsertedTimstamp());
+
 		final Tuple tuple4 = new DeletedTuple("0", 22);
 		ssTableIndexBuilder.addTuple(tuple4);
 		Assert.assertEquals(22, ssTableIndexBuilder.getMetaData().getNewestTupleVersionTimestamp());
 		Assert.assertEquals(2, ssTableIndexBuilder.getMetaData().getOldestTupleVersionTimestamp());
+		Assert.assertEquals(tuple4.getReceivedTimestamp(), ssTableIndexBuilder.getMetaData().getNewestTupleInsertedTimstamp());
 	}
 	
 	/**
