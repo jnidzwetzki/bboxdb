@@ -29,14 +29,19 @@ public class SSTableMetadataBuilder {
 	protected long tuples = 0;
 	
 	/**
-	 * The timestamp of the oldest tuple
+	 * The version timestamp of the oldest tuple
 	 */
-	protected long oldestTuple = Long.MAX_VALUE;
+	protected long oldestTupleVersionTimestamp = Long.MAX_VALUE;
 	
 	/**
-	 * The timestamp of the newest tuple
+	 * The version timestamp of the newest tuple
 	 */
-	protected long newestTuple = Long.MIN_VALUE;
+	protected long newestTupleVersionTimstamp = Long.MIN_VALUE;
+	
+	/**
+	 * The inserted timestamp of the newest tuple
+	 */
+	protected long newestTupleInsertedTimstamp = Long.MIN_VALUE;
 
 	/**
 	 * The coresponding bounding box
@@ -58,8 +63,9 @@ public class SSTableMetadataBuilder {
 		}
 				
 		// Update the newest and the oldest tuple
-		newestTuple = Math.max(newestTuple, tuple.getVersionTimestamp());
-		oldestTuple = Math.min(oldestTuple, tuple.getVersionTimestamp());
+		newestTupleVersionTimstamp = Math.max(newestTupleVersionTimstamp, tuple.getVersionTimestamp());
+		oldestTupleVersionTimestamp = Math.min(oldestTupleVersionTimestamp, tuple.getVersionTimestamp());
+		newestTupleInsertedTimstamp = Math.max(newestTupleInsertedTimstamp, tuple.getReceivedTimestamp());
 	}
 	
 	/**
@@ -73,6 +79,7 @@ public class SSTableMetadataBuilder {
 			boundingBoxArray = boundingBox.toDoubleArray();
 		}
 		
-		return new SStableMetaData(tuples, oldestTuple, newestTuple, boundingBoxArray);
+		return new SStableMetaData(tuples, oldestTupleVersionTimestamp, 
+				newestTupleVersionTimstamp, newestTupleInsertedTimstamp, boundingBoxArray);
 	}
 }

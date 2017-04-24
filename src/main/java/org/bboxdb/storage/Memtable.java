@@ -365,12 +365,22 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 		};
 	}
 
+	@Override
+	public long getNewestTupleInsertedTimestamp() {
+		if(freePos == 0) {
+			return System.currentTimeMillis();
+		}
+		
+		final Tuple mostRecentTuple = data[freePos - 1];
+		return mostRecentTuple.getReceivedTimestamp();
+	}
+	
 	/**
 	 * Get the oldest tuple timestamp
 	 * @return
 	 */
 	@Override
-	public long getOldestTupleTimestampInMicroseconds() {
+	public long getOldestTupleVersionTimestampInMicroseconds() {
 		return oldestTupleTimestamp;
 	}
 
@@ -379,7 +389,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	 * @return
 	 */
 	@Override
-	public long getNewestTupleTimestampMicroseconds() {
+	public long getNewestTupleVersionTimestampMicroseconds() {
 		return newestTupleTimestamp;
 	}
 

@@ -38,14 +38,19 @@ public class SStableMetaData {
 	protected long tuples = 0;
 	
 	/**
-	 * The timestamp of the oldest tuple
+	 * The version timestamp of the oldest tuple
 	 */
-	protected long oldestTuple = Long.MAX_VALUE;
+	protected long oldestTupleVersionTimestamp = Long.MAX_VALUE;
 	
 	/**
-	 * The timestamp of the newest tuple
+	 * The version timestamp of the newest tuple
 	 */
-	protected long newestTuple = Long.MIN_VALUE;
+	protected long newestTupleVersionTimestamp = Long.MIN_VALUE;
+	
+	/**
+	 * The inserted timestamp of the newest tuple
+	 */
+	protected long newestTupleInsertedTimstamp = Long.MIN_VALUE;
 	
 	/**
 	 * The bounding box of all tuples
@@ -63,15 +68,19 @@ public class SStableMetaData {
 	private final static Logger logger = LoggerFactory.getLogger(SStableMetaData.class);
 
 
+
+
 	public SStableMetaData() {
 		
 	}
 	
-	public SStableMetaData(final long tuples, final long oldestTuple, final long newestTuple, final double[] boundingBoxData) {
-		super();
+	public SStableMetaData(final long tuples, final long oldestTuple, final long newestTuple, 
+			final long newestTupleInsertedTimstamp, final double[] boundingBoxData) {
+		
 		this.tuples = tuples;
-		this.oldestTuple = oldestTuple;
-		this.newestTuple = newestTuple;
+		this.oldestTupleVersionTimestamp = oldestTuple;
+		this.newestTupleVersionTimestamp = newestTuple;
+		this.newestTupleInsertedTimstamp = newestTupleInsertedTimstamp;
 		this.boundingBoxData = boundingBoxData;
 		this.dimensions = boundingBoxData.length / 2;
 	}
@@ -110,8 +119,9 @@ public class SStableMetaData {
 	protected Map<String, Object> getPropertyMap() {
 		final Map<String, Object> data = new HashMap<String, Object>();	
 		data.put("tuples", tuples);
-	    data.put("oldestTuple", oldestTuple);
-	    data.put("newestTuple", newestTuple);
+	    data.put("oldestTupleVersionTimestamp", oldestTupleVersionTimestamp);
+	    data.put("newestTupleVersionTimestamp", newestTupleVersionTimestamp);
+	    data.put("newestTupleInsertedTimstamp", newestTupleInsertedTimstamp);
 		data.put("dimensions", dimensions);
 	    data.put("boundingBoxData", boundingBoxData);
 		return data;
@@ -148,20 +158,29 @@ public class SStableMetaData {
 		return yaml.loadAs(reader, SStableMetaData.class);
 	}
 
-	public long getOldestTuple() {
-		return oldestTuple;
+	public long getOldestTupleVersionTimestamp() {
+		return oldestTupleVersionTimestamp;
 	}
 
-	public void setOldestTuple(final long oldestTuple) {
-		this.oldestTuple = oldestTuple;
+	public void setOldestTupleVersionTimestamp(final long oldestTuple) {
+		this.oldestTupleVersionTimestamp = oldestTuple;
 	}
 
-	public long getNewestTuple() {
-		return newestTuple;
+	public long getNewestTupleVersionTimestamp() {
+		return newestTupleVersionTimestamp;
 	}
 
-	public void setNewestTuple(final long newestTuple) {
-		this.newestTuple = newestTuple;
+	public void setNewestTupleVersionTimestamp(final long newestTuple) {
+		this.newestTupleVersionTimestamp = newestTuple;
+	}
+
+	
+	public long getNewestTupleInsertedTimstamp() {
+		return newestTupleInsertedTimstamp;
+	}
+
+	public void setNewestTupleInsertedTimstamp(final long newestTupleInsertedTimstamp) {
+		this.newestTupleInsertedTimstamp = newestTupleInsertedTimstamp;
 	}
 
 	public double[] getBoundingBoxData() {
@@ -189,21 +208,14 @@ public class SStableMetaData {
 	}
 
 	@Override
-	public String toString() {
-		return "SStableMetaData [tuples=" + tuples + ", oldestTuple="
-				+ oldestTuple + ", newestTuple=" + newestTuple
-				+ ", boundingBoxData=" + Arrays.toString(boundingBoxData)
-				+ ", dimensions=" + dimensions + "]";
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Arrays.hashCode(boundingBoxData);
 		result = prime * result + dimensions;
-		result = prime * result + (int) (newestTuple ^ (newestTuple >>> 32));
-		result = prime * result + (int) (oldestTuple ^ (oldestTuple >>> 32));
+		result = prime * result + (int) (newestTupleInsertedTimstamp ^ (newestTupleInsertedTimstamp >>> 32));
+		result = prime * result + (int) (newestTupleVersionTimestamp ^ (newestTupleVersionTimestamp >>> 32));
+		result = prime * result + (int) (oldestTupleVersionTimestamp ^ (oldestTupleVersionTimestamp >>> 32));
 		result = prime * result + (int) (tuples ^ (tuples >>> 32));
 		return result;
 	}
@@ -221,13 +233,23 @@ public class SStableMetaData {
 			return false;
 		if (dimensions != other.dimensions)
 			return false;
-		if (newestTuple != other.newestTuple)
+		if (newestTupleInsertedTimstamp != other.newestTupleInsertedTimstamp)
 			return false;
-		if (oldestTuple != other.oldestTuple)
+		if (newestTupleVersionTimestamp != other.newestTupleVersionTimestamp)
+			return false;
+		if (oldestTupleVersionTimestamp != other.oldestTupleVersionTimestamp)
 			return false;
 		if (tuples != other.tuples)
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "SStableMetaData [tuples=" + tuples + ", oldestTupleVersionTimestamp=" + oldestTupleVersionTimestamp
+				+ ", newestTupleVersionTimestamp=" + newestTupleVersionTimestamp + ", newestTupleInsertedTimstamp="
+				+ newestTupleInsertedTimstamp + ", boundingBoxData=" + Arrays.toString(boundingBoxData)
+				+ ", dimensions=" + dimensions + "]";
 	}
 
 }

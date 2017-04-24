@@ -92,7 +92,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 		final long currentTime = System.currentTimeMillis();
 		final boolean checkpointNeeded = inMemoryStores
 				.stream()
-				.mapToLong(m -> m.getOldestTupleTimestampInMicroseconds())
+				.mapToLong(m -> m.getOldestTupleVersionTimestampInMicroseconds())
 				.anyMatch(m -> 
 					(TimeUnit.MICROSECONDS.toMillis(m) + maxUncheckpointedMiliseconds)
 				    < currentTime);

@@ -41,7 +41,7 @@ public class NewerAsTimeQueryPlan implements QueryPlan {
 	public Iterator<Tuple> execute(final ReadOnlyTupleStorage readOnlyTupleStorage) {
 		
 		// All tuples are older than our predicate
-		if(readOnlyTupleStorage.getNewestTupleTimestampMicroseconds() < timestamp) {
+		if(readOnlyTupleStorage.getNewestTupleVersionTimestampMicroseconds() < timestamp) {
 			return null;
 		}
 		

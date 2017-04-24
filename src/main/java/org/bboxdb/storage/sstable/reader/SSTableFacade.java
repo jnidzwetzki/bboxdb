@@ -237,8 +237,8 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	public String toString() {
 		return "SSTableFacade [name=" + name.getFullname() + ", directory=" + directory
 				+ ", tablenumber=" + tablenumber + ", oldestTupleTimestamp="
-				+ getOldestTupleTimestampInMicroseconds() + ", newestTupleTimestamp="
-				+ getNewestTupleTimestampMicroseconds() + "]";
+				+ getOldestTupleVersionTimestampInMicroseconds() + ", newestTupleTimestamp="
+				+ getNewestTupleVersionTimestampMicroseconds() + "]";
 	}
 
 	public SSTableReader getSsTableReader() {
@@ -347,13 +347,18 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	}
 
 	@Override
-	public long getOldestTupleTimestampInMicroseconds() {
-		return ssTableMetadata.getOldestTuple();
+	public long getOldestTupleVersionTimestampInMicroseconds() {
+		return ssTableMetadata.getOldestTupleVersionTimestamp();
 	}
 
 	@Override
-	public long getNewestTupleTimestampMicroseconds() {
-		return ssTableMetadata.getNewestTuple();
+	public long getNewestTupleVersionTimestampMicroseconds() {
+		return ssTableMetadata.getNewestTupleVersionTimestamp();
+	}
+	
+	@Override
+	public long getNewestTupleInsertedTimestamp() {
+		return ssTableMetadata.getNewestTupleInsertedTimstamp();
 	}
 
 	@Override
