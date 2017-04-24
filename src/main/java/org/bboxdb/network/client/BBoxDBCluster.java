@@ -371,7 +371,7 @@ public class BBoxDBCluster implements BBoxDB {
 	}
 
 	@Override
-	public TupleListFuture queryTime(final String table, final long timestamp) throws BBoxDBException {
+	public TupleListFuture queryVersionTime(final String table, final long timestamp) throws BBoxDBException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryTime called, but connection list is empty");
 		}
@@ -383,7 +383,30 @@ public class BBoxDBCluster implements BBoxDB {
 		final TupleListFuture future = new TupleListFuture();
 		
 		for(final BBoxDBClient client : membershipConnectionService.getAllConnections()) {
-			final TupleListFuture queryFuture = client.queryTime(table, timestamp);
+			final TupleListFuture queryFuture = client.queryVersionTime(table, timestamp);
+			
+			if(queryFuture != null) {
+				future.merge(queryFuture);
+			}
+		}
+
+		return future;
+	}
+	
+	@Override
+	public TupleListFuture queryInsertedTime(final String table, final long timestamp) throws BBoxDBException {
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			throw new BBoxDBException("queryTime called, but connection list is empty");
+		}
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
+		}
+		
+		final TupleListFuture future = new TupleListFuture();
+		
+		for(final BBoxDBClient client : membershipConnectionService.getAllConnections()) {
+			final TupleListFuture queryFuture = client.queryInsertedTime(table, timestamp);
 			
 			if(queryFuture != null) {
 				future.merge(queryFuture);

@@ -199,7 +199,7 @@ public class RecoveryService implements BBoxDBService {
 		
 		logger.info("Recovery: starting recovery for table {}", ssTableName.getFullname());
 		final SSTableManager tableManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
-		final TupleListFuture result = connection.queryTime(ssTableName.getFullname(), outdatedDistributionRegion.getLocalVersion());
+		final TupleListFuture result = connection.queryVersionTime(ssTableName.getFullname(), outdatedDistributionRegion.getLocalVersion());
 		result.waitForAll();
 		
 		if(result.isFailed()) {

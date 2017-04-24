@@ -116,13 +116,21 @@ public interface BBoxDB {
 			final BoundingBox boundingBox) throws BBoxDBException;
 
 	/**
-	 * Query the given table for all tuples newer than timestamp
+	 * Query the given table for all tuples that have a newer version timestamp
 	 * @param table
 	 * @param key
 	 * @return
 	 */
-	public TupleListFuture queryTime(final String table, final long timestamp) throws BBoxDBException;
+	public TupleListFuture queryVersionTime(final String table, final long timestamp) throws BBoxDBException;
 
+	/**
+	 * Query the given table for all tuples that have a newer inserted timestamp
+	 * @param table
+	 * @param key
+	 * @return
+	 */
+	public TupleListFuture queryInsertedTime(final String table, final long timestamp) throws BBoxDBException;
+	
 	/**
 	 * Query the given table for all tuples newer than timestamp and inside of the bounding box
 	 * @param table

@@ -154,7 +154,7 @@ public class DistributedSelftest {
 	private static void queryForExistingTuplesByTime(final BBoxDBCluster bboxdbClient) throws InterruptedException, ExecutionException, BBoxDBException {
 		logger.info("Executing time query");
 		
-		final TupleListFuture queryResult = bboxdbClient.queryTime(TABLE, 0);
+		final TupleListFuture queryResult = bboxdbClient.queryVersionTime(TABLE, 0);
 		queryResult.waitForAll();
 		
 		if(queryResult.isFailed()) {

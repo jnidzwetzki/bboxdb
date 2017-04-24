@@ -66,6 +66,7 @@ import org.bboxdb.network.packages.request.ListTablesRequest;
 import org.bboxdb.network.packages.request.NextPageRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
+import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.HelloResponse;
@@ -638,7 +639,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.Scalephant#queryTime(java.lang.String, long)
 	 */
 	@Override
-	public TupleListFuture queryTime(final String table, final long timestamp) {
+	public TupleListFuture queryVersionTime(final String table, final long timestamp) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedTupleListFuture("queryTime called, but connection not ready: " + this);
@@ -646,6 +647,26 @@ public class BBoxDBClient implements BBoxDB {
 
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
 		final QueryVersionTimeRequest requestPackage = new QueryVersionTimeRequest(getNextSequenceNumber(), 
+				table, timestamp, pagingEnabled, tuplesPerPage);
+		
+		registerPackageCallback(requestPackage, clientOperationFuture);
+		sendPackageToServer(requestPackage, clientOperationFuture);
+		
+		return clientOperationFuture;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.bboxdb.network.client.Scalephant#queryTime(java.lang.String, long)
+	 */
+	@Override
+	public TupleListFuture queryInsertedTime(final String table, final long timestamp) {
+		
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			return createFailedTupleListFuture("queryTime called, but connection not ready: " + this);
+		}
+
+		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
+		final QueryInsertTimeRequest requestPackage = new QueryInsertTimeRequest(getNextSequenceNumber(), 
 				table, timestamp, pagingEnabled, tuplesPerPage);
 		
 		registerPackageCallback(requestPackage, clientOperationFuture);
