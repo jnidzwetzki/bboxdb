@@ -47,8 +47,9 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
 import org.bboxdb.network.server.handler.query.HandleBoundingBoxQuery;
 import org.bboxdb.network.server.handler.query.HandleBoundingBoxTimeQuery;
+import org.bboxdb.network.server.handler.query.HandleInsertTimeQuery;
 import org.bboxdb.network.server.handler.query.HandleKeyQuery;
-import org.bboxdb.network.server.handler.query.HandleTimeQuery;
+import org.bboxdb.network.server.handler.query.HandleVersionTimeQuery;
 import org.bboxdb.network.server.handler.query.QueryHandler;
 import org.bboxdb.network.server.handler.request.HandleCancelQuery;
 import org.bboxdb.network.server.handler.request.HandleCompression;
@@ -497,7 +498,8 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		queryHandlerList = new HashMap<>();
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_KEY, new HandleKeyQuery());
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_BBOX, new HandleBoundingBoxQuery());
-		queryHandlerList.put(NetworkConst.REQUEST_QUERY_VERSION_TIME, new HandleTimeQuery());
+		queryHandlerList.put(NetworkConst.REQUEST_QUERY_VERSION_TIME, new HandleVersionTimeQuery());
+		queryHandlerList.put(NetworkConst.REQUEST_QUERY_INSERT_TIME, new HandleInsertTimeQuery());
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_BBOX_AND_TIME, new HandleBoundingBoxTimeQuery());
 	}
 

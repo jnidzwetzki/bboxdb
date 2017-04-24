@@ -20,42 +20,40 @@ package org.bboxdb.storage.queryprocessor.queryplan;
 import java.util.Iterator;
 
 import org.bboxdb.storage.ReadOnlyTupleStorage;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.datasource.DataSource;
-import org.bboxdb.storage.queryprocessor.datasource.SpatialIndexDataSource;
-import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
+import org.bboxdb.storage.queryprocessor.datasource.FullStoreScanSource;
+import org.bboxdb.storage.queryprocessor.predicate.NewerAsInsertedTimePredicate;
+import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
 
-public class BoundingBoxAndTimeQueryPlan implements QueryPlan {
-
-	/**
-	 * The bounding box for the query
-	 */
-	protected final BoundingBox boundingBox;
+public class NewerAsInsertTimeQueryPlan implements QueryPlan {
 	
 	/**
-	 * The timestamp for the query
-	 * 
-	 * @param boundingBox
-	 * @param timestamp
+	 * The timestamp for the predicate
 	 */
 	protected final long timestamp;
-	
-	public BoundingBoxAndTimeQueryPlan(final BoundingBox boundingBox, final long timestamp) {
-		this.boundingBox = boundingBox;
+
+	public NewerAsInsertTimeQueryPlan(final long timestamp) {
 		this.timestamp = timestamp;
 	}
 
 	@Override
-	public Iterator<Tuple> execute(ReadOnlyTupleStorage readOnlyTupleStorage) {
-		final DataSource dataSource = new SpatialIndexDataSource(readOnlyTupleStorage, boundingBox);
+	public Iterator<Tuple> execute(final ReadOnlyTupleStorage readOnlyTupleStorage) {
 		
-		final NewerAsVersionTimePredicate predicate = new NewerAsVersionTimePredicate(timestamp);
+		// All tuples are older than our predicate
+		if(readOnlyTupleStorage.getNewestTupleInsertedTimestamp() < timestamp) {
+			return null;
+		}
+		
+		final DataSource fullStoreScanSource = new FullStoreScanSource(readOnlyTupleStorage);
+		
+		final Predicate predicate = new NewerAsInsertedTimePredicate(timestamp);
 		
 		final PredicateFilterIterator predicateFilterIterator 
-			= new PredicateFilterIterator(dataSource.iterator(), predicate);
+			= new PredicateFilterIterator(fullStoreScanSource.iterator(), predicate);
 		
 		return predicateFilterIterator;
 	}
+
 }

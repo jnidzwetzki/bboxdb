@@ -53,7 +53,7 @@ public class Tuple implements Comparable<Tuple> {
 		this.boundingBox = boundingBox;
 		this.dataBytes = dataBytes;
 		this.versionTimestamp = MicroSecondTimestampProvider.getNewTimestamp();
-		this.receivedTimestamp = System.currentTimeMillis();
+		this.receivedTimestamp = MicroSecondTimestampProvider.getNewTimestamp();
 	}
 	
 	public Tuple(final String key, final BoundingBox boundingBox, 

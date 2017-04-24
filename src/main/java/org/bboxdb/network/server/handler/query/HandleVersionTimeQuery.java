@@ -27,17 +27,17 @@ import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.queryprocessor.queryplan.NewerAsTimeQueryPlan;
+import org.bboxdb.storage.queryprocessor.queryplan.NewerAsVersionTimeQueryPlan;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleTimeQuery implements QueryHandler {
+public class HandleVersionTimeQuery implements QueryHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleTimeQuery.class);
+	private final static Logger logger = LoggerFactory.getLogger(HandleVersionTimeQuery.class);
 	
 
 	@Override
@@ -56,7 +56,7 @@ public class HandleTimeQuery implements QueryHandler {
 			
 			final QueryVersionTimeRequest queryRequest = QueryVersionTimeRequest.decodeTuple(encodedPackage);
 			final SSTableName requestTable = queryRequest.getTable();
-			final QueryPlan queryPlan = new NewerAsTimeQueryPlan(queryRequest.getTimestamp());
+			final QueryPlan queryPlan = new NewerAsVersionTimeQueryPlan(queryRequest.getTimestamp());
 			
 			final ClientQuery clientQuery = new ClientQuery(queryPlan, queryRequest.isPagingEnabled(), 
 					queryRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, requestTable);

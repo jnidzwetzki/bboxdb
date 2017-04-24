@@ -23,17 +23,18 @@ import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.datasource.DataSource;
 import org.bboxdb.storage.queryprocessor.datasource.FullStoreScanSource;
-import org.bboxdb.storage.queryprocessor.predicate.NewerAsTimePredicate;
+import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
+import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
 
-public class NewerAsTimeQueryPlan implements QueryPlan {
+public class NewerAsVersionTimeQueryPlan implements QueryPlan {
 	
 	/**
 	 * The timestamp for the predicate
 	 */
 	protected final long timestamp;
 
-	public NewerAsTimeQueryPlan(final long timestamp) {
+	public NewerAsVersionTimeQueryPlan(final long timestamp) {
 		this.timestamp = timestamp;
 	}
 
@@ -47,7 +48,7 @@ public class NewerAsTimeQueryPlan implements QueryPlan {
 		
 		final DataSource fullStoreScanSource = new FullStoreScanSource(readOnlyTupleStorage);
 		
-		final NewerAsTimePredicate predicate = new NewerAsTimePredicate(timestamp);
+		final Predicate predicate = new NewerAsVersionTimePredicate(timestamp);
 		
 		final PredicateFilterIterator predicateFilterIterator 
 			= new PredicateFilterIterator(fullStoreScanSource.iterator(), predicate);

@@ -29,7 +29,7 @@ import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.IteratorHelper;
-import org.bboxdb.storage.queryprocessor.predicate.NewerAsTimePredicate;
+import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
 import org.bboxdb.util.MicroSecondTimestampProvider;
@@ -191,12 +191,12 @@ public class TestMemtable {
 		memtable.put(createdTuple3);
 		
 		// Query the memtable
-		Assert.assertEquals(3, countTuplesForPredicate(new NewerAsTimePredicate(0)));
-		Assert.assertEquals(0, countTuplesForPredicate(new NewerAsTimePredicate(Long.MAX_VALUE)));
+		Assert.assertEquals(3, countTuplesForPredicate(new NewerAsVersionTimePredicate(0)));
+		Assert.assertEquals(0, countTuplesForPredicate(new NewerAsVersionTimePredicate(Long.MAX_VALUE)));
 		
-		Assert.assertEquals(2, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple1.getVersionTimestamp())));
-		Assert.assertEquals(1, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple2.getVersionTimestamp())));
-		Assert.assertEquals(0, countTuplesForPredicate(new NewerAsTimePredicate(createdTuple3.getVersionTimestamp())));
+		Assert.assertEquals(2, countTuplesForPredicate(new NewerAsVersionTimePredicate(createdTuple1.getVersionTimestamp())));
+		Assert.assertEquals(1, countTuplesForPredicate(new NewerAsVersionTimePredicate(createdTuple2.getVersionTimestamp())));
+		Assert.assertEquals(0, countTuplesForPredicate(new NewerAsVersionTimePredicate(createdTuple3.getVersionTimestamp())));
 	}
 	
 	protected int countTuplesForPredicate(Predicate predicate) {

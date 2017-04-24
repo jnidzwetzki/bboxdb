@@ -25,7 +25,7 @@ import java.util.List;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.predicate.AndPredicate;
-import org.bboxdb.storage.queryprocessor.predicate.NewerAsTimePredicate;
+import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.OverlapsBoundingBoxPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
@@ -47,7 +47,7 @@ public class TestPredicates {
 		tupleList.add(tuple1);
 		tupleList.add(tuple2);
 		
-		final Predicate predicate = new NewerAsTimePredicate(0);
+		final Predicate predicate = new NewerAsVersionTimePredicate(0);
 		final Collection<Tuple> tuples = getTuplesFromPredicate(tupleList, predicate);
 		
 		System.out.println(tuples);
@@ -70,7 +70,7 @@ public class TestPredicates {
 		tupleList.add(tuple1);
 		tupleList.add(tuple2);
 		
-		final Predicate predicate = new NewerAsTimePredicate(51);
+		final Predicate predicate = new NewerAsVersionTimePredicate(51);
 		final Collection<Tuple> tuples = getTuplesFromPredicate(tupleList, predicate);
 		
 		Assert.assertEquals(1, tuples.size());
@@ -120,7 +120,7 @@ public class TestPredicates {
 		tupleList.add(tuple2);
 		
 		final Predicate predicate1 = new OverlapsBoundingBoxPredicate(new BoundingBox(2.0, 100.0, 2.0, 100.0));
-		final Predicate predicate2 = new NewerAsTimePredicate(51);
+		final Predicate predicate2 = new NewerAsVersionTimePredicate(51);
 		
 		final Predicate predicate = new AndPredicate(predicate1, predicate2);
 		

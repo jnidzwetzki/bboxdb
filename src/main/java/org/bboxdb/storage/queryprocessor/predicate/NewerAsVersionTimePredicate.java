@@ -19,11 +19,11 @@ package org.bboxdb.storage.queryprocessor.predicate;
 
 import org.bboxdb.storage.entity.Tuple;
 
-public class NewerAsTimePredicate implements Predicate {
+public class NewerAsVersionTimePredicate implements Predicate {
 
 	protected final long time;
 	
-	public NewerAsTimePredicate(final long time) {
+	public NewerAsVersionTimePredicate(final long time) {
 		this.time = time;
 	}
 
@@ -38,7 +38,7 @@ public class NewerAsTimePredicate implements Predicate {
 
 	@Override
 	public String toString() {
-		return "NewerAsTimePredicate [time=" + time + "]";
+		return "NewerAsVersionTimePredicate [time=" + time + "]";
 	}
 
 }
