@@ -164,7 +164,9 @@
 				<version>2.16</version>
 				<configuration>
 					<enableAssertions>true</enableAssertions>
-					<additionalClasspathElement>${project.basedir}/conf</additionalClasspathElement>
+					<additionalClasspathElements>
+						<additionalClasspathElement>${project.basedir}/conf</additionalClasspathElement>
+					</additionalClasspathElements>
 				</configuration>
 			</plugin>
 
