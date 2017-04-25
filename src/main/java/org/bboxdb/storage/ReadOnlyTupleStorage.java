@@ -67,19 +67,19 @@ public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	public Tuple getTupleAtPosition(final long position) throws StorageManagerException;
 	
 	/**
-	 * Get the version timestamp of the oldest tuple
+	 * Get the version timestamp of the oldest tuple (in microseconds)
 	 * @return
 	 */
-	public long getOldestTupleVersionTimestampInMicroseconds();
+	public long getOldestTupleVersionTimestamp();
 	
 	/**
-	 * Get the version timestamp of the newest tuple
+	 * Get the version timestamp of the newest tuple (in microseconds)
 	 * @return
 	 */
-	public long getNewestTupleVersionTimestampMicroseconds();
+	public long getNewestTupleVersionTimestamp();
 	
 	/**
-	 * Get the newest inserted timestamp
+	 * Get the newest inserted timestamp (in microseconds)
 	 * @return
 	 */
 	public long getNewestTupleInsertedTimestamp();

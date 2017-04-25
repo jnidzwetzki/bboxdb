@@ -380,7 +380,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	 * @return
 	 */
 	@Override
-	public long getOldestTupleVersionTimestampInMicroseconds() {
+	public long getOldestTupleVersionTimestamp() {
 		return oldestTupleTimestamp;
 	}
 
@@ -389,7 +389,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	 * @return
 	 */
 	@Override
-	public long getNewestTupleVersionTimestampMicroseconds() {
+	public long getNewestTupleVersionTimestamp() {
 		return newestTupleTimestamp;
 	}
 

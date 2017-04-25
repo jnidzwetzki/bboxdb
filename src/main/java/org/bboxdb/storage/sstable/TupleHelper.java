@@ -79,7 +79,7 @@ public class TupleHelper {
 			return true;
 		}
 		
-		if(storage.getNewestTupleVersionTimestampMicroseconds() > tuple.getVersionTimestamp()) {
+		if(storage.getNewestTupleVersionTimestamp() > tuple.getVersionTimestamp()) {
 			return true;
 		}
 		

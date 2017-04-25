@@ -251,8 +251,8 @@ public class QueryProcessor {
 			// Sort tables regarding the newest tuple timestamp 
 			// The newest storage should be on top of the list
 			unprocessedStorages.sort((storage1, storage2) 
-					-> Long.compare(storage2.getNewestTupleVersionTimestampMicroseconds(), 
-							        storage1.getNewestTupleVersionTimestampMicroseconds()));
+					-> Long.compare(storage2.getNewestTupleVersionTimestamp(), 
+							        storage1.getNewestTupleVersionTimestamp()));
 			
 			ready = true;
 		

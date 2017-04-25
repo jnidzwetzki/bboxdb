@@ -313,14 +313,14 @@ public class TestMemtable {
 		final Tuple createdTuple2 = new Tuple("2", null, "def".getBytes(), 1);
 		memtable.put(createdTuple2);
 		
-		Assert.assertEquals(1, memtable.getOldestTupleVersionTimestampInMicroseconds());
-		Assert.assertEquals(60, memtable.getNewestTupleVersionTimestampMicroseconds());
+		Assert.assertEquals(1, memtable.getOldestTupleVersionTimestamp());
+		Assert.assertEquals(60, memtable.getNewestTupleVersionTimestamp());
 		
 		final DeletedTuple deletedTuple = new DeletedTuple("3", 500);
 		memtable.put(deletedTuple);
 
-		Assert.assertEquals(1, memtable.getOldestTupleVersionTimestampInMicroseconds());
-		Assert.assertEquals(500, memtable.getNewestTupleVersionTimestampMicroseconds());
+		Assert.assertEquals(1, memtable.getOldestTupleVersionTimestamp());
+		Assert.assertEquals(500, memtable.getNewestTupleVersionTimestamp());
 	}
 	
 }
