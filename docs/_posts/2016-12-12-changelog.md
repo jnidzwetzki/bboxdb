@@ -8,6 +8,8 @@ order: 1
 ### Version 0.2.5 (Stable) - TBA
 - New Feature: Implemented the new insert time tuple query
 - Improvement: Added the newest inserted tuple timestamp to the Storage interface
+- Improvement: Introduced the clock deta for the recovery service
+- Improvement: The recovery service now uses the insert time of the tuples
 - Bugfix: The checkpoint thread was waiting forever for flushed evenets
 
 ### Version 0.2.4 (Stable) - 23.04.2017

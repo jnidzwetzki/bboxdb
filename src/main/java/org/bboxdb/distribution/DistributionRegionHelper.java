@@ -88,8 +88,11 @@ public class DistributionRegionHelper {
 	 * @param distributedInstance
 	 * @return
 	 */
-	public static List<OutdatedDistributionRegion> getOutdatedRegions(final DistributionRegion region, final DistributedInstance distributedInstance) {
-		final DistributionRegionOutdatedRegionFinder distributionRegionOutdatedRegionFinder = new DistributionRegionOutdatedRegionFinder(distributedInstance);
+	public static List<OutdatedDistributionRegion> getOutdatedRegions(final DistributionRegion region, 
+			final DistributedInstance distributedInstance) {
+		
+		final DistributionRegionOutdatedRegionFinder distributionRegionOutdatedRegionFinder 
+			= new DistributionRegionOutdatedRegionFinder(distributedInstance);
 		
 		if(region != null) {
 			region.visit(distributionRegionOutdatedRegionFinder);
@@ -216,15 +219,19 @@ class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisito
 			long newestVersion = Long.MIN_VALUE;
 			
 			for(final DistributedInstance instance : distributionRegion.getSystems()) {
-				if(! instance.socketAddressEquals(instance)) {
-					
-					long version = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(distributionRegion, instance);
-					
-					if(newestVersion < version) {
-						newestInstance = instance;
-						newestVersion = version;
-					} 
+				if(instance.socketAddressEquals(instanceToSearch)) {
+					continue;
 				}
+					
+				final long version 
+					= distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(
+							distributionRegion, instance);
+				
+				if(newestVersion < version) {
+					newestInstance = instance;
+					newestVersion = version;
+				} 
+				
 			}
 			
 			final long localVersion = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(distributionRegion, instanceToSearch);

@@ -18,6 +18,7 @@
 package org.bboxdb;
 
 import java.nio.ByteOrder;
+import java.util.concurrent.TimeUnit;
 
 public class Const {
 	
@@ -42,4 +43,8 @@ public class Const {
 	 */
 	public final static ByteOrder APPLICATION_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 	
+	/**
+	 * The max timestamp delta between nodes (needed for recovery)
+	 */
+	public final static long MAX_NODE_CLOCK_DELTA = TimeUnit.SECONDS.toMicros(60);
 }

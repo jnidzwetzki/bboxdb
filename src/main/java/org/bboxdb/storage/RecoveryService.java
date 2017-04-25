@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import org.bboxdb.BBoxDBConfiguration;
 import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.BBoxDBService;
+import org.bboxdb.Const;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
 import org.bboxdb.distribution.DistributionGroupName;
@@ -93,7 +94,7 @@ public class RecoveryService implements BBoxDBService {
 			= ZookeeperClientFactory.getDistributionGroupAdapter();
 		
 		final List<DistributionGroupName> distributionGroups 
-			= distributionGroupZookeeperAdapter.getDistributionGroups(null);
+			= distributionGroupZookeeperAdapter.getDistributionGroups();
 		
 		for(final DistributionGroupName distributionGroupName : distributionGroups) {
 			logger.info("Recovery: running recovery for distribution group: {}", distributionGroupName);
@@ -158,7 +159,8 @@ public class RecoveryService implements BBoxDBService {
 	 * @param distributionGroupName
 	 * @param outdatedRegions
 	 */
-	protected void handleOutdatedRegions(final DistributionGroupName distributionGroupName, final List<OutdatedDistributionRegion> outdatedRegions) {
+	protected void handleOutdatedRegions(final DistributionGroupName distributionGroupName, 
+			final List<OutdatedDistributionRegion> outdatedRegions) {
 		
 		for(final OutdatedDistributionRegion outdatedDistributionRegion : outdatedRegions) {
 			
@@ -197,14 +199,25 @@ public class RecoveryService implements BBoxDBService {
 			final BBoxDBClient connection) throws StorageManagerException,
 			InterruptedException, ExecutionException {
 		
-		logger.info("Recovery: starting recovery for table {}", ssTableName.getFullname());
+		final String sstableName = ssTableName.getFullname();
+		
+		logger.info("Recovery: starting recovery for table {}", sstableName);
 		final SSTableManager tableManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
-		final TupleListFuture result = connection.queryVersionTime(ssTableName.getFullname(), outdatedDistributionRegion.getLocalVersion());
+		
+		// Even with NTP, the clock of the nodes can have a delta.
+		// We substract this delta from the checkpoint timestamp to ensure
+		// that all tuples for the recovery are requested
+		final long requestTupleTimestamp = outdatedDistributionRegion.getLocalVersion() 
+				- Const.MAX_NODE_CLOCK_DELTA;
+		
+		final TupleListFuture result = connection.queryInsertedTime
+				(sstableName, requestTupleTimestamp);
+		
 		result.waitForAll();
 		
 		if(result.isFailed()) {
 			logger.warn("Recovery: Failed result for table {} - Some tuples could not be received!", 
-					ssTableName.getFullname());
+					sstableName);
 			return;
 		}
 		
@@ -214,7 +227,8 @@ public class RecoveryService implements BBoxDBService {
 			insertedTuples++;
 		}
 		
-		logger.info("Recovery: successfully inserted {} tuples into table {}", insertedTuples, ssTableName.getFullname());
+		logger.info("Recovery: successfully inserted {} tuples into table {}", insertedTuples,
+				sstableName);
 	}
 
 	@Override
