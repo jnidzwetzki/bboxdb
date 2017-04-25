@@ -24,8 +24,8 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
-import org.bboxdb.BBoxDBService;
-import org.bboxdb.Const;
+import org.bboxdb.misc.BBoxDBService;
+import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.slf4j.Logger;

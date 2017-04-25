@@ -19,7 +19,7 @@ package org.bboxdb.util;
 
 import java.nio.ByteBuffer;
 
-import org.bboxdb.Const;
+import org.bboxdb.misc.Const;
 
 public class DataEncoderHelper {
 	

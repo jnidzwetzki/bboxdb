@@ -20,7 +20,7 @@ package org.bboxdb.network.packages.request;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.Const;
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;

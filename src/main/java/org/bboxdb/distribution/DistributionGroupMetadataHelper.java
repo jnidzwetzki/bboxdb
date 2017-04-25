@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bboxdb.BBoxDBConfiguration;
-import org.bboxdb.BBoxDBConfigurationManager;
+import org.bboxdb.misc.BBoxDBConfiguration;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.slf4j.Logger;

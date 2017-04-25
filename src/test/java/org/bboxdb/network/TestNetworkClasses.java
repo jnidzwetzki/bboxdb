@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.bboxdb.Const;
 import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.client.SequenceNumberGenerator;
 import org.bboxdb.network.packages.NetworkPackage;

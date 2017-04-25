@@ -23,7 +23,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.bboxdb.BBoxDBMain;
-import org.bboxdb.BBoxDBService;
+import org.bboxdb.misc.BBoxDBService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

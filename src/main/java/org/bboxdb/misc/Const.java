@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb;
+package org.bboxdb.misc;
 
 import java.nio.ByteOrder;
 import java.util.concurrent.TimeUnit;

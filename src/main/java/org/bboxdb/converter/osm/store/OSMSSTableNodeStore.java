@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.converter.osm.util.SerializableNode;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;

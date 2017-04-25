@@ -17,8 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.distribution.placement;
 
-import org.bboxdb.BBoxDBConfiguration;
-import org.bboxdb.BBoxDBConfigurationManager;
+import org.bboxdb.misc.BBoxDBConfiguration;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

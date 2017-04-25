@@ -20,7 +20,7 @@ package org.bboxdb.network;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.Const;
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;

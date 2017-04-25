@@ -19,7 +19,7 @@ package org.bboxdb.converter.osm.util;
 
 import java.nio.ByteBuffer;
 
-import org.bboxdb.Const;
+import org.bboxdb.misc.Const;
 import org.bboxdb.util.DataEncoderHelper;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 

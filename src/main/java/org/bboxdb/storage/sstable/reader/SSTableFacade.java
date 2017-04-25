@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.BBoxDBService;
+import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;

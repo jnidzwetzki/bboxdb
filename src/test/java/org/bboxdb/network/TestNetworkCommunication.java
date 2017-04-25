@@ -20,8 +20,8 @@ package org.bboxdb.network;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.BBoxDBMain;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;

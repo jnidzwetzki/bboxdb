@@ -21,11 +21,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bboxdb.Const;
-import org.bboxdb.BBoxDBConfiguration;
-import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
+import org.bboxdb.misc.BBoxDBConfiguration;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.misc.Const;
 
 public class ZookeeperClientFactory {
 	

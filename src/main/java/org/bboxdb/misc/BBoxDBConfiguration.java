@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb;
+package org.bboxdb.misc;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
 import org.bboxdb.distribution.DistributionGroupName;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.junit.AfterClass;

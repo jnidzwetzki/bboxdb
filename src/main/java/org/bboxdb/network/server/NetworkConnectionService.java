@@ -23,9 +23,9 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.bboxdb.BBoxDBConfiguration;
-import org.bboxdb.BBoxDBConfigurationManager;
-import org.bboxdb.BBoxDBService;
+import org.bboxdb.misc.BBoxDBConfiguration;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.util.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

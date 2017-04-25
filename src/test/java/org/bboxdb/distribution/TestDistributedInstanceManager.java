@@ -20,8 +20,6 @@ package org.bboxdb.distribution;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 
-import org.bboxdb.BBoxDBConfiguration;
-import org.bboxdb.BBoxDBConfigurationManager;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.DistributedInstanceManager;
 import org.bboxdb.distribution.membership.event.DistributedInstanceAddEvent;
@@ -31,6 +29,8 @@ import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.BBoxDBConfiguration;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

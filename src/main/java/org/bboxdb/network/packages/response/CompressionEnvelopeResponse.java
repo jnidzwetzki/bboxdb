@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
-import org.bboxdb.Const;
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkHelper;
 import org.bboxdb.network.NetworkPackageDecoder;

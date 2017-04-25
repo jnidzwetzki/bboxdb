@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage;
 
-import org.bboxdb.BBoxDBConfigurationManager;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
