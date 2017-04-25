@@ -36,6 +36,10 @@ import org.bboxdb.storage.StorageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Start the BBoxDB server 
+ *
+ */
 public class BBoxDBMain {
 
 	/**

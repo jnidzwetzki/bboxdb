@@ -30,6 +30,10 @@ import javax.management.remote.JMXServiceURL;
 import org.bboxdb.jmx.JMXService;
 import org.bboxdb.jmx.LifecycleMBean;
 
+/**
+ * Shutdown the BBoxDB server via JMX
+ * 
+ */
 public class Shutdown {
 
 	/**
