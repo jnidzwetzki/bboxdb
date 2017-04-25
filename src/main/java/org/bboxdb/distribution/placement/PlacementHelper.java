@@ -33,7 +33,7 @@ public class PlacementHelper {
 		for(final Iterator<DistributedInstance> iter = systems.iterator(); iter.hasNext(); ) {
 			final DistributedInstance system = iter.next();
 			
-			if(system.getState() != DistributedInstanceState.READWRITE) {
+			if(system.getState() != DistributedInstanceState.READY) {
 				iter.remove();
 			}
 		}

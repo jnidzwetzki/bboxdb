@@ -251,10 +251,10 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 
 		try {
 			final String state = readPathAndReturnString(statePath, true, this);
-			if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
-				return DistributedInstanceState.READONLY;
-			} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
-				return DistributedInstanceState.READWRITE;
+			if(DistributedInstanceState.OUTDATED.getZookeeperValue().equals(state)) {
+				return DistributedInstanceState.OUTDATED;
+			} else if(DistributedInstanceState.READY.getZookeeperValue().equals(state)) {
+				return DistributedInstanceState.READY;
 			}
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			// Ignore exception, instance state is unknown

@@ -23,6 +23,9 @@ import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 
 public class DistributedInstance implements Comparable<DistributedInstance> {
 	
+	/**
+	 * The string when the version is unknown
+	 */
 	public final static String UNKOWN_VERSION = "unknown";
 	
 	/**
@@ -50,7 +53,9 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	 */
 	protected DistributedInstanceState state = DistributedInstanceState.UNKNOWN;
 
-	public DistributedInstance(final String connectionString, final String version, final DistributedInstanceState state) {
+	public DistributedInstance(final String connectionString, final String version, 
+			final DistributedInstanceState state) {
+		
 		this(connectionString, version);
 		this.state = state;
 	}

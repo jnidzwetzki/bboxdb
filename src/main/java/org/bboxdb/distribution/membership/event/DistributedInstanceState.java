@@ -20,8 +20,8 @@ package org.bboxdb.distribution.membership.event;
 public enum DistributedInstanceState {
 	
 	UNKNOWN("unknown"), 
-	READONLY("readonly"), 
-	READWRITE("readwrite");
+	OUTDATED("outdated"), 
+	READY("ready");
 	
 	/**
 	 * The zookeeper value

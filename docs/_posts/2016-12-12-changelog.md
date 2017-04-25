@@ -10,6 +10,7 @@ order: 1
 - Improvement: Added the newest inserted tuple timestamp to the Storage interface
 - Improvement: Introduced the clock deta for the recovery service
 - Improvement: The recovery service now uses the insert time of the tuples
+- Improvement: Renamed node states to outdated and ready
 - Bugfix: The checkpoint thread was waiting forever for flushed evenets
 
 ### Version 0.2.4 (Stable) - 23.04.2017

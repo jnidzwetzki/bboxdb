@@ -28,7 +28,7 @@ import org.bboxdb.distribution.placement.RoundRobinResourcePlacementStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestResoucePlacement {
+public class TestRessourcePlacement {
 
 	/**
 	 * Test round robin placement 1 (empty list)
@@ -49,10 +49,10 @@ public class TestResoucePlacement {
 	public void testRoundRobinPlacement2() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = new RoundRobinResourcePlacementStrategy();
 		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
-		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READWRITE));
-		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.READWRITE));
-		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.READWRITE));
-		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READWRITE));
+		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READY));
 		
 		Assert.assertEquals(systems.get(0), resourcePlacementStrategy.getInstancesForNewRessource(systems));
 		Assert.assertEquals(systems.get(1), resourcePlacementStrategy.getInstancesForNewRessource(systems));
@@ -69,10 +69,10 @@ public class TestResoucePlacement {
 	public void testRoundRobinPlacement3() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = new RoundRobinResourcePlacementStrategy();
 		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
-		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READWRITE));
-		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.READWRITE));
-		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.READWRITE));
-		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READWRITE));
+		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READY));
 		
 		Assert.assertEquals(systems.get(0), resourcePlacementStrategy.getInstancesForNewRessource(systems, systems));
 	}
@@ -85,10 +85,10 @@ public class TestResoucePlacement {
 	public void testRoundRobinPlacement4() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = new RoundRobinResourcePlacementStrategy();
 		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
-		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READWRITE));
-		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.READWRITE));
-		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.READWRITE));
-		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READWRITE));
+		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READY));
 		
 		Assert.assertEquals(systems.get(0), resourcePlacementStrategy.getInstancesForNewRessource(systems));
 		Assert.assertEquals(systems.get(1), resourcePlacementStrategy.getInstancesForNewRessource(systems));
@@ -104,7 +104,7 @@ public class TestResoucePlacement {
 	public void testRoundRobinPlacement5() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = new RoundRobinResourcePlacementStrategy();
 		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
-		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READWRITE));
+		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READY));
 
 		Assert.assertEquals(systems.get(0), resourcePlacementStrategy.getInstancesForNewRessource(systems));
 		Assert.assertEquals(systems.get(0), resourcePlacementStrategy.getInstancesForNewRessource(systems));
@@ -120,7 +120,7 @@ public class TestResoucePlacement {
 	public void testNonReadySystems1() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = new RoundRobinResourcePlacementStrategy();
 		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
-		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READONLY));
+		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.OUTDATED));
 		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.UNKNOWN));
 		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.UNKNOWN));
 		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.UNKNOWN));
@@ -136,10 +136,10 @@ public class TestResoucePlacement {
 	public void testNonReadySystems2() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = new RoundRobinResourcePlacementStrategy();
 		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
-		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READONLY));
+		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.OUTDATED));
 		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.UNKNOWN));
 		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.UNKNOWN));
-		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READWRITE));
+		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READY));
 		
 		Assert.assertEquals(systems.get(3), resourcePlacementStrategy.getInstancesForNewRessource(systems));
 		Assert.assertEquals(systems.get(3), resourcePlacementStrategy.getInstancesForNewRessource(systems));

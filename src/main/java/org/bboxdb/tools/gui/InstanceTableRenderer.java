@@ -37,9 +37,9 @@ public class InstanceTableRenderer extends DefaultTableCellRenderer {
 		if(column != 4) {
 			setForeground(table.getForeground());
 		} else {
-			if(DistributedInstanceState.READONLY.getZookeeperValue().equals(state)) {
+			if(DistributedInstanceState.OUTDATED.getZookeeperValue().equals(state)) {
 				setForeground(Color.YELLOW);
-			} else if(DistributedInstanceState.READWRITE.getZookeeperValue().equals(state)) {
+			} else if(DistributedInstanceState.READY.getZookeeperValue().equals(state)) {
 				setForeground(OUR_GREEN);
 			} else {
 				setForeground(OUR_RED);
