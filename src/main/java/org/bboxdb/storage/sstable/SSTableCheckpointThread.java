@@ -90,6 +90,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 			= ssTableManager.getTupleStoreInstances().getAllInMemoryStorages();
 		
 		final long currentTime = System.currentTimeMillis();
+	
 		final boolean checkpointNeeded = inMemoryStores
 				.stream()
 				.mapToLong(m -> m.getOldestTupleVersionTimestamp())

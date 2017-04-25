@@ -88,6 +88,11 @@ class MemtableFlushThread extends ExceptionSafeThread {
 				}
 
 				flushMemtableToDisk(memtable);
+				
+				// Notify waiter (e.g. the checkpoint thread)
+				synchronized (unflushedMemtables) {
+					unflushedMemtables.notifyAll();
+				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				return;
@@ -137,6 +142,7 @@ class MemtableFlushThread extends ExceptionSafeThread {
 	protected void sendCallbacks(final Memtable memtable) {
 		final long timestamp = memtable.getCreatedTimestamp();
 		final List<SSTableFlushCallback> callbacks = StorageRegistry.getInstance().getSSTableFlushCallbacks();
+		
 		for(final SSTableFlushCallback callback : callbacks) {
 			callback.flushCallback(sstableManager.getSSTableName(), timestamp);
 		}

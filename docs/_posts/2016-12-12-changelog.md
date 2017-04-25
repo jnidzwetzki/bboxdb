@@ -8,6 +8,7 @@ order: 1
 ### Version 0.2.5 (Stable) - TBA
 - New Feature: Implemented the new insert time tuple query
 - Improvement: Added the newest inserted tuple timestamp to the Storage interface
+- Bugfix: The checkpoint thread was waiting forever for flushed evenets
 
 ### Version 0.2.4 (Stable) - 23.04.2017
 - New Feature: Support multiple storage locations
