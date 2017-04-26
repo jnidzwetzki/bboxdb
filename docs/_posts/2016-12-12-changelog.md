@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.2.5 (Stable) - TBA
 - New Feature: Implemented the new insert time tuple query
+- New Feature: Introduced the BBoxDB CLI
 - Improvement: Added the newest inserted tuple timestamp to the Storage interface
 - Improvement: Introduced the clock deta for the recovery service
 - Improvement: The recovery service now uses the insert time of the tuples
