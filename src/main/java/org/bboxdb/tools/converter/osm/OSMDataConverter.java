@@ -119,46 +119,50 @@ public class OSMDataConverter {
 	 */
 	protected BlockingQueue<Way> queue = new ArrayBlockingQueue<>(200);
 	
-	/**
-	 * The name of the SSTable backend
-	 */
-	protected static final String BACKEND_SSTABLE = "sstable";
-
-	/**
-	 * The name of the BDB backend
-	 */
-	protected static final String BACKEND_BDB = "bdb";
-
-	/**
-	 * The name of the JDBC backend
-	 */
-	protected static final String BACKEND_JDBC = "jdbc";
+	static class Backend {
+		/**
+		 * The name of the SSTable backend
+		 */
+		protected static final String BACKEND_SSTABLE = "sstable";
 	
-	/**
-	 * The name of the output parameter
-	 */
-	protected static final String PARAMETER_OUTPUT = "output";
-
-	/**
-	 * The name of the workfolder
-	 */
-	protected static final String PARAMETER_WORKFOLDER = "workfolder";
-
-	/**
-	 * The name of the backend
-	 */
-	protected static final String PARAMETER_BACKEND = "backend";
-
-	/**
-	 * The name of the input
-	 */
-	protected static final String PARAMETER_INPUT = "input";
+		/**
+		 * The name of the BDB backend
+		 */
+		protected static final String BACKEND_BDB = "bdb";
 	
-	/**
-	 * All known backends
-	 */
-	protected static final List<String> BACKENDS 
-		= Arrays.asList(BACKEND_JDBC, BACKEND_BDB, BACKEND_SSTABLE);
+		/**
+		 * The name of the JDBC backend
+		 */
+		protected static final String BACKEND_JDBC = "jdbc";
+		
+		/**
+		 * All known backends
+		 */
+		protected static final List<String> ALL_BACKENDS 
+			= Arrays.asList(BACKEND_JDBC, BACKEND_BDB, BACKEND_SSTABLE);
+	}
+	
+	static class Parameter {
+		/**
+		 * The name of the output parameter
+		 */
+		protected static final String PARAMETER_OUTPUT = "output";
+	
+		/**
+		 * The name of the workfolder
+		 */
+		protected static final String PARAMETER_WORKFOLDER = "workfolder";
+	
+		/**
+		 * The name of the backend
+		 */
+		protected static final String PARAMETER_BACKEND = "backend";
+	
+		/**
+		 * The name of the input
+		 */
+		protected static final String PARAMETER_INPUT = "input";
+	}
 	
 	/**
 	 * The Logger
@@ -186,11 +190,11 @@ public class OSMDataConverter {
 
 		final List<String> workfolders = Arrays.asList(workfolder.split(":"));
 		 
-		if(BACKEND_BDB.equals(backend)) {
+		if(Backend.BACKEND_BDB.equals(backend)) {
 			this.osmNodeStore = new OSMBDBNodeStore(workfolders, inputFile.length());
-		} else if(BACKEND_JDBC.equals(backend)) {
+		} else if(Backend.BACKEND_JDBC.equals(backend)) {
 			this.osmNodeStore = new OSMJDBCNodeStore(workfolders, inputFile.length());
-		} else if(BACKEND_SSTABLE.equals(backend)) {
+		} else if(Backend.BACKEND_SSTABLE.equals(backend)) {
 			this.osmNodeStore = new OSMSSTableNodeStore(workfolders, inputFile.length());
 		} else {
 			throw new RuntimeException("Unknown backend: " + backend);
@@ -402,8 +406,9 @@ public class OSMDataConverter {
 			final CommandLineParser parser = new DefaultParser();
 			final CommandLine line = parser.parse(options, args);
 			
-			final List<String> requiredArgs = Arrays.asList(PARAMETER_INPUT, PARAMETER_OUTPUT, 
-					PARAMETER_BACKEND, PARAMETER_WORKFOLDER);
+			final List<String> requiredArgs = Arrays.asList(Parameter.PARAMETER_INPUT, 
+					Parameter.PARAMETER_OUTPUT, Parameter.PARAMETER_BACKEND, 
+					Parameter.PARAMETER_WORKFOLDER);
 			
 			final boolean hasAllParameter = requiredArgs.stream().allMatch(s -> line.hasOption(s));
 			
@@ -411,10 +416,10 @@ public class OSMDataConverter {
 				printHelpAndExit(options);
 			}
 			
-			final String filename = line.getOptionValue(PARAMETER_INPUT);
-			final String backend = line.getOptionValue(PARAMETER_BACKEND);
-			final String workfolder = line.getOptionValue(PARAMETER_WORKFOLDER);
-			final String output = line.getOptionValue(PARAMETER_OUTPUT);
+			final String filename = line.getOptionValue(Parameter.PARAMETER_INPUT);
+			final String backend = line.getOptionValue(Parameter.PARAMETER_BACKEND);
+			final String workfolder = line.getOptionValue(Parameter.PARAMETER_WORKFOLDER);
+			final String output = line.getOptionValue(Parameter.PARAMETER_OUTPUT);
 			
 			// Check input file
 			final File inputFile = new File(filename);
@@ -436,7 +441,7 @@ public class OSMDataConverter {
 			}
 			
 			// Check backends
-			if(! BACKENDS.contains(backend)) {
+			if(! Backend.ALL_BACKENDS.contains(backend)) {
 				System.err.println("Backend with name is unkown: " + backend);
 				printHelpAndExit(options);
 			}
@@ -457,7 +462,7 @@ public class OSMDataConverter {
 		final Options options = new Options();
 		
 		// Input file
-		final Option input = Option.builder(PARAMETER_INPUT)
+		final Option input = Option.builder(Parameter.PARAMETER_INPUT)
 				.hasArg()
 				.argName("file")
 				.desc("The input file")
@@ -465,7 +470,7 @@ public class OSMDataConverter {
 		options.addOption(input);
 		
 		// Output dir
-		final Option output = Option.builder(PARAMETER_OUTPUT)
+		final Option output = Option.builder(Parameter.PARAMETER_OUTPUT)
 				.hasArg()
 				.argName("directory")
 				.desc("The output directory")
@@ -473,16 +478,17 @@ public class OSMDataConverter {
 		options.addOption(output);
 		
 		// The backend
-		final String backendList = BACKENDS.stream().collect(Collectors.joining(",", "[", "]"));
+		final String backendList = Backend.ALL_BACKENDS
+				.stream().collect(Collectors.joining(",", "[", "]"));
 		
-		final Option backend = Option.builder(PARAMETER_BACKEND)
+		final Option backend = Option.builder(Parameter.PARAMETER_BACKEND)
 				.hasArg()
 				.argName(backendList)
 				.desc("The node converter backend")
 				.build();
 		options.addOption(backend);
 
-		final Option workfolder = Option.builder(PARAMETER_WORKFOLDER)
+		final Option workfolder = Option.builder(Parameter.PARAMETER_WORKFOLDER)
 				.hasArg()
 				.argName("workfolder1:workfolder2:workfolderN")
 				.desc("The working folder for the database")
