@@ -162,6 +162,11 @@ public class OSMDataConverter {
 		 * The name of the input
 		 */
 		protected static final String INPUT = "input";
+		
+		/**
+		 * The name of the help parameter
+		 */
+		protected static final String HELP = "help";
 	}
 	
 	/**
@@ -406,15 +411,7 @@ public class OSMDataConverter {
 			final CommandLineParser parser = new DefaultParser();
 			final CommandLine line = parser.parse(options, args);
 			
-			final List<String> requiredArgs = Arrays.asList(Parameter.INPUT, 
-					Parameter.OUTPUT, Parameter.BACKEND, 
-					Parameter.WORKFOLDER);
-			
-			final boolean hasAllParameter = requiredArgs.stream().allMatch(s -> line.hasOption(s));
-			
-			if(! hasAllParameter) {
-				printHelpAndExit(options);
-			}
+			checkParameter(options, line);
 			
 			final String filename = line.getOptionValue(Parameter.INPUT);
 			final String backend = line.getOptionValue(Parameter.BACKEND);
@@ -453,6 +450,27 @@ public class OSMDataConverter {
 			System.exit(-1);
 		}
 	}
+
+	/**
+	 * Check the command line for all needed parameter
+	 * @param options
+	 * @param line
+	 */
+	protected static void checkParameter(final Options options, final CommandLine line) {
+		if( line.hasOption(Parameter.HELP)) {
+			printHelpAndExit(options);
+		}
+					
+		final List<String> requiredArgs = Arrays.asList(Parameter.INPUT, 
+				Parameter.OUTPUT, Parameter.BACKEND, 
+				Parameter.WORKFOLDER);
+		
+		final boolean hasAllParameter = requiredArgs.stream().allMatch(s -> line.hasOption(s));
+		
+		if(! hasAllParameter) {
+			printHelpAndExit(options);
+		}
+	}
 	
 	/**
 	 * Build the command line options
@@ -461,6 +479,12 @@ public class OSMDataConverter {
 	protected static Options buildOptions() {
 		final Options options = new Options();
 		
+		// Help
+		final Option help = Option.builder(Parameter.HELP)
+				.desc("Show this help")
+				.build();
+		options.addOption(help);
+
 		// Input file
 		final Option input = Option.builder(Parameter.INPUT)
 				.hasArg()
