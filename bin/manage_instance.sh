@@ -5,7 +5,15 @@
 #
 #########################################
 
+# Is the environment configured?
+if [ -z "$BBOXDB_HOME" ]; then
+   echo "Your environment variable \$(BBOXDB_HOME) is empty. Please check your .bboxdbrc"
+   exit -1
+fi
+
+# Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
+
 
 # Discover zookeeper nodes
 zookeeper_nodes=$(read_nodes_file $zookeeper_node_file)
