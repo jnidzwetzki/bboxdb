@@ -33,7 +33,7 @@ Figure 1: The architecture of the Converter. The .osm.pbf input file is read. No
 ## Usage
 The converter requires three parameters, the input file, the folder(s) for the node databases and the output directory. 
 
-```bin/data_conveter.sh <Input File> <DB backend> <Databasedir1:Databasedir2:DatabasedirN> <Output directory>```
+```bin/osm_data_conveter.sh -input <Input File> -backend <DB backend> -workfolder <Databasedir1:Databasedir2:DatabasedirN> -output <Output directory>```
 
 When the system consists of multiple hard disks, it is recommended to place the input and the output files on one disk and let the other disks store the node databases. It is also recommended, to increase the size of the 'memory allocation pool' of the JVM. The memory will be used as a cache for the databases and reduce the amount disk IO.
 
@@ -50,7 +50,7 @@ In the following example, an extract of the OpenStreepMap database is downloaded
 ```bash
 wget http://download.geofabrik.de/europe/germany-latest.osm.pbf
 cd $BBOXDB_HOME
-bin/data_conveter.sh /path/to/germany-latest.osm.pbf bdb /diskb/work:/diskc/work:/diskd/work /outputdir/germany
+bin/osm_data_conveter.sh -input /path/to/germany-latest.osm.pbf -backend bdb -workfolder /diskb/work:/diskc/work:/diskd/work -output /outputdir/germany
 ```
 
 ## Example output

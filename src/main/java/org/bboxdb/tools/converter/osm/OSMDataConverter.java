@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.converter;
+package org.bboxdb.tools.converter.osm;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,8 +34,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.bboxdb.tools.converter.osm.OSMConverterStatistics;
-import org.bboxdb.tools.converter.osm.OSMType;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.bboxdb.tools.converter.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.multipoint.OSMBuildingsEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.multipoint.OSMRoadsEntityFilter;
@@ -62,7 +67,7 @@ import org.slf4j.LoggerFactory;
 
 import crosby.binary.osmosis.OsmosisReader;
 
-public class DataConverter {
+public class OSMDataConverter {
 
 	/**
 	 * The file to import
@@ -130,9 +135,35 @@ public class DataConverter {
 	protected static final String BACKEND_JDBC = "jdbc";
 	
 	/**
+	 * The name of the output parameter
+	 */
+	protected static final String PARAMETER_OUTPUT = "output";
+
+	/**
+	 * The name of the workfolder
+	 */
+	protected static final String PARAMETER_WORKFOLDER = "workfolder";
+
+	/**
+	 * The name of the backend
+	 */
+	protected static final String PARAMETER_BACKEND = "backend";
+
+	/**
+	 * The name of the input
+	 */
+	protected static final String PARAMETER_INPUT = "input";
+	
+	/**
+	 * All known backends
+	 */
+	protected static final List<String> BACKENDS 
+		= Arrays.asList(BACKEND_JDBC, BACKEND_BDB, BACKEND_SSTABLE);
+	
+	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(DataConverter.class);
+	private final static Logger logger = LoggerFactory.getLogger(OSMDataConverter.class);
 
 
 	static {
@@ -144,7 +175,7 @@ public class DataConverter {
 		filter.put(OSMType.WATER, new OSMWaterEntityFilter());
 	}
 	
-	public DataConverter(final String filename, final String backend, 
+	public OSMDataConverter(final String filename, final String backend, 
 			final String workfolder, final String output) {
 		
 		this.filename = filename;
@@ -365,46 +396,109 @@ public class DataConverter {
 	 * ====================================================
 	 */
 	public static void main(final String[] args) {
-		// Check parameter
-		if(args.length != 4) {
-			System.err.println("Usage: programm <filename> <backend> <work folder> <output dir>");
-			System.exit(-1);
-		}
 		
-		final String filename = args[0];
-		final String backend = args[1];
-		final String workfolder = args[2];
-		final String output = args[3];
-		
-		// Check input file
-		final File inputFile = new File(filename);
-		if(! inputFile.isFile()) {
-			System.err.println("Unable to open file: " + filename);
-			System.exit(-1);
-		}
-		
-		// Check backend
-		final List<String> backends = Arrays.asList(BACKEND_JDBC, BACKEND_BDB, BACKEND_SSTABLE);
-		if(! backends.contains(backend)) {
-			System.err.println("Unknown backend: " + backend);
-			System.err.println("Known backends are: " 
-					+ backends.stream().collect(Collectors.joining(",", "[", "]")));
-			System.exit(-1);
-		}
-		
-		// Check output dir
-		final File outputDir = new File(output);
-		if(outputDir.exists() ) {
-			System.err.println("Output dir already exist, please remove first");
-			System.exit(-1);
-		}
-		
-		if(! outputDir.mkdirs() ) {
-			System.err.println("Unable to create " + output);
-			System.exit(-1);
-		}
+		try {
+			final Options options = buildOptions();
+			final CommandLineParser parser = new DefaultParser();
+			final CommandLine line = parser.parse(options, args);
+			
+			final List<String> requiredArgs = Arrays.asList(PARAMETER_INPUT, PARAMETER_OUTPUT, 
+					PARAMETER_BACKEND, PARAMETER_WORKFOLDER);
+			
+			final boolean hasAllParameter = requiredArgs.stream().allMatch(s -> line.hasOption(s));
+			
+			if(! hasAllParameter) {
+				printHelpAndExit(options);
+			}
+			
+			final String filename = line.getOptionValue(PARAMETER_INPUT);
+			final String backend = line.getOptionValue(PARAMETER_BACKEND);
+			final String workfolder = line.getOptionValue(PARAMETER_WORKFOLDER);
+			final String output = line.getOptionValue(PARAMETER_OUTPUT);
+			
+			// Check input file
+			final File inputFile = new File(filename);
+			if(! inputFile.isFile()) {
+				System.err.println("Unable to open file: " + filename);
+				System.exit(-1);
+			}
+			
+			// Check output dir
+			final File outputDir = new File(output);
+			if(outputDir.exists() ) {
+				System.err.println("Output dir already exist, please remove first");
+				System.exit(-1);
+			}
+			
+			if(! outputDir.mkdirs() ) {
+				System.err.println("Unable to create directory: " + output);
+				System.exit(-1);
+			}
+			
+			// Check backends
+			if(! BACKENDS.contains(backend)) {
+				System.err.println("Backend with name is unkown: " + backend);
+				printHelpAndExit(options);
+			}
 
-		final DataConverter converter = new DataConverter(filename, backend, workfolder, output);
-		converter.start();
+			final OSMDataConverter converter = new OSMDataConverter(filename, backend, workfolder, output);
+			converter.start();
+		} catch (ParseException e) {
+			System.err.println("Unable to parse commandline arguments: " + e);
+			System.exit(-1);
+		}
+	}
+	
+	/**
+	 * Build the command line options
+	 * @return
+	 */
+	protected static Options buildOptions() {
+		final Options options = new Options();
+		
+		// Input file
+		final Option input = Option.builder(PARAMETER_INPUT)
+				.hasArg()
+				.argName("file")
+				.desc("The input file")
+				.build();
+		options.addOption(input);
+		
+		// Output dir
+		final Option output = Option.builder(PARAMETER_OUTPUT)
+				.hasArg()
+				.argName("directory")
+				.desc("The output directory")
+				.build();
+		options.addOption(output);
+		
+		// The backend
+		final String backendList = BACKENDS.stream().collect(Collectors.joining(",", "[", "]"));
+		
+		final Option backend = Option.builder(PARAMETER_BACKEND)
+				.hasArg()
+				.argName(backendList)
+				.desc("The node converter backend")
+				.build();
+		options.addOption(backend);
+
+		final Option workfolder = Option.builder(PARAMETER_WORKFOLDER)
+				.hasArg()
+				.argName("workfolder1:workfolder2:workfolderN")
+				.desc("The working folder for the database")
+				.build();
+		options.addOption(workfolder);
+		return options;
+	}
+
+	/**
+	 * Print help and exit the program
+	 * @param options 
+	 */
+	protected static void printHelpAndExit(final Options options) {
+		final HelpFormatter formatter = new HelpFormatter();
+		formatter.setWidth(200);
+		formatter.printHelp("Conveter", options);
+		System.exit(-1);
 	}
 }
