@@ -5,29 +5,30 @@
 #
 #########################################
 
-# Scriptname and Path 
-pushd `dirname $0` > /dev/null
-basedir=`pwd`
-fullpath=$(basename $0)
-popd > /dev/null
+# Is the environment configured?
+if [ -z "$BBOXDB_HOME" ]; then
+   echo "Your environment variable \$(BBOXDB_HOME) is empty. Please check your .bboxdbrc"
+   exit -1
+fi
 
-cd ..
-mvn package -DskipTests
-cd $basedir
+# Include functions
+source $BBOXDB_HOME/bin/bboxdb-env.sh
+source $BBOXDB_HOME/bin/functions.sh
 
-# Find all jars
-cd $basedir
+# Change working dir
+cd $BBOXDB_HOME 
 
-# Does a build exists? 
-if [ -d ../target ]; then
-   libs=$(find ../target/lib -name '*.jar' | xargs echo | tr ' ' ':')
-   jar=$(ls -1 ../target/bboxdb*.jar | tail -1)
+# Find all required jars
+if [ -d $BBOXDB_HOME/target ]; then
+   libs=$(find $BBOXDB_HOME/target/lib -name '*.jar' | xargs echo | tr ' ' ':')
+   jar=$(find $BBOXDB_HOME/target -name 'bboxdb*.jar' | tail -1)
 fi 
 
-classpath="$basedir/../conf:$libs:$jar"
+# Build classpath
+classpath="$BBOXDB_HOME/conf:$libs:$jar"
 
-echo "Start the GUI"
+echo "Start the GUI...."
 
-java -cp $classpath org.bboxdb.tools.gui.Main
+java $jvm_ops_tools -cp $classpath org.bboxdb.tools.gui.Main
 
 exit 0
