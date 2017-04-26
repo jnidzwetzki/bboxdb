@@ -24,12 +24,15 @@ echo "controlRoleUser  $jmx_password" >> $BBOXDB_HOME/conf/jmxremote.password
 chmod 600 $BBOXDB_HOME/conf/jmxremote.password
 
 ################################
-#JVM options
+#JVM options for BBoxDB
 ################################
 jvm_ops=""
 
 # Enable assertions
 jvm_ops="$jvm_ops -ea"
+
+# Use the server mode
+jvm_ops="$jvm_ops -server"
 
 # Enable JMX
 jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.port=$jmx_port"
@@ -41,4 +44,9 @@ jvm_ops="$jvm_ops -Dcom.sun.management.jmxremote.password.file=$BBOXDB_HOME/conf
 
 # Port for the remote debuger
 jvm_debug_port=40010
+
+################################
+#JVM options for Tools
+################################
+jvm_ops_tools="-server -Xmx6096m"
 
