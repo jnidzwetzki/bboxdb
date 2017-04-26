@@ -4,15 +4,14 @@
 #
 #########################################
 
-# Home dir
+# Is the environment configured?
 if [ -z "$BBOXDB_HOME" ]; then
    echo "Your environment variable \$(BBOXDB_HOME) is empty. Please check your .bboxdbrc"
    exit -1
 fi
 
-# Include functions
-source $BBOXDB_HOME/bin/bboxdb-env.sh
-source $BBOXDB_HOME/bin/functions.sh
+# Load all required functions and variables
+source $BBOXDB_HOME/bin/bootstrap.sh
 
 ###
 # Execute command parallel on multiple nodes

@@ -33,7 +33,7 @@ Figure 1: The architecture of the Converter. The .osm.pbf input file is read. No
 ## Usage
 The converter requires three parameters, the input file, the folder(s) for the node databases and the output directory. 
 
-```java -server -Xmx6096m -classpath "target/*":"target/lib/*":"conf":"." org.bboxdb.tools.converter.osm.OSMConverter <Input File> <DB backend> <Databasedir1:Databasedir2:DatabasedirN> <Output directory>```
+```bin/data_conveter.sh org.bboxdb.tools.converter.osm.OSMConverter <Input File> <DB backend> <Databasedir1:Databasedir2:DatabasedirN> <Output directory>```
 
 When the system consists of multiple hard disks, it is recommended to place the input and the output files on one disk and let the other disks store the node databases. It is also recommended, to increase the size of the 'memory allocation pool' of the JVM. The memory will be used as a cache for the databases and reduce the amount disk IO.
 
@@ -45,12 +45,12 @@ The converter supports different database backends to store the nodes. At the mo
 | BDB      | bdb     | A backend that is using the Berkeley DB (Java edition)        |
 | SSTable  | sstable | The BBoxDB SSTables implementation is used                    |
 
-In the following example, an extract of the OpenStreepMap database is downloaded and processed. It is assumed, that the system contains at least 32 GB of RAM (-Xmx26096m) and have four hard disks. One hard disk is used to store the input and the output data. The three remaining disks (mounted at /diskb, /diskc and /diskd) are used to store the Berkeley DB databases.
+In the following example, an extract of the OpenStreepMap database is downloaded and processed. It is assumed, that the system contains have four hard disks. One hard disk is used to store the input and the output data. The three remaining disks (mounted at /diskb, /diskc and /diskd) are used to store the Berkeley DB databases. If your system contains a huge amount of RAM (> 8 GB), you could adjust the _jvm_ops_tools_ variable in _bin/bboxdb-env.sh_.
 
 ```bash
 wget http://download.geofabrik.de/europe/germany-latest.osm.pbf
 cd $BBOXDB_HOME
-java -server -Xmx26096m -classpath "target/*":"target/lib/*":"conf":"." org.bboxdb.tools.converter.osm.OSMConverter /path/to/germany-latest.osm.pbf bdb /diskb/work:/diskc/work:/diskd/work /outputdir/germany
+bin/data_conveter.sh /path/to/germany-latest.osm.pbf bdb /diskb/work:/diskc/work:/diskd/work /outputdir/germany
 ```
 
 ## Example output

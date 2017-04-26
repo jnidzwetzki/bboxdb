@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Start the GUI of the BBoxDB 
+# Start the the BBoxDB coveter
 #
 #
 #########################################
@@ -14,8 +14,5 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-echo "Start the GUI...."
+java $jvm_ops_tools -cp $classpath org.bboxdb.tools.converter.osm.OSMConverter "$@"
 
-java $jvm_ops_tools -cp $classpath org.bboxdb.tools.gui.Main
-
-exit 0
