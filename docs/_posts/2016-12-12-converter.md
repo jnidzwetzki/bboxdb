@@ -33,7 +33,7 @@ Figure 1: The architecture of the Converter. The .osm.pbf input file is read. No
 ## Usage
 The converter requires three parameters, the input file, the folder(s) for the node databases and the output directory. 
 
-```bin/data_conveter.sh org.bboxdb.tools.converter.osm.OSMConverter <Input File> <DB backend> <Databasedir1:Databasedir2:DatabasedirN> <Output directory>```
+```bin/data_conveter.sh <Input File> <DB backend> <Databasedir1:Databasedir2:DatabasedirN> <Output directory>```
 
 When the system consists of multiple hard disks, it is recommended to place the input and the output files on one disk and let the other disks store the node databases. It is also recommended, to increase the size of the 'memory allocation pool' of the JVM. The memory will be used as a cache for the databases and reduce the amount disk IO.
 
