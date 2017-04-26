@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.converter.osm;
+package org.bboxdb.tools.converter;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,6 +34,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.bboxdb.tools.converter.osm.OSMConverterStatistics;
+import org.bboxdb.tools.converter.osm.OSMType;
 import org.bboxdb.tools.converter.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.multipoint.OSMBuildingsEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.multipoint.OSMRoadsEntityFilter;
@@ -60,7 +62,7 @@ import org.slf4j.LoggerFactory;
 
 import crosby.binary.osmosis.OsmosisReader;
 
-public class OSMConverter {
+public class DataConverter {
 
 	/**
 	 * The file to import
@@ -130,7 +132,7 @@ public class OSMConverter {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(OSMConverter.class);
+	private final static Logger logger = LoggerFactory.getLogger(DataConverter.class);
 
 
 	static {
@@ -142,7 +144,7 @@ public class OSMConverter {
 		filter.put(OSMType.WATER, new OSMWaterEntityFilter());
 	}
 	
-	public OSMConverter(final String filename, final String backend, 
+	public DataConverter(final String filename, final String backend, 
 			final String workfolder, final String output) {
 		
 		this.filename = filename;
@@ -402,7 +404,7 @@ public class OSMConverter {
 			System.exit(-1);
 		}
 
-		final OSMConverter converter = new OSMConverter(filename, backend, workfolder, output);
+		final DataConverter converter = new DataConverter(filename, backend, workfolder, output);
 		converter.start();
 	}
 }
