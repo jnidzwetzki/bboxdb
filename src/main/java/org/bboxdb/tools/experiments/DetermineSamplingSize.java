@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.converter.experiments;
+package org.bboxdb.tools.experiments;
 
 import java.io.BufferedReader;
 import java.io.File;

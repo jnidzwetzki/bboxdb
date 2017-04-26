@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.converter;
+package org.bboxdb.tools.benchmark;
 
 public interface DataTable {
 

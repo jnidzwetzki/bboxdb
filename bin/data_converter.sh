@@ -14,5 +14,5 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-java $jvm_ops_tools -cp $classpath org.bboxdb.tools.converter.osm.OSMConverter "$@"
+java $jvm_ops_tools -cp $classpath org.bboxdb.tools.converter.DataConverter "$@"
 
