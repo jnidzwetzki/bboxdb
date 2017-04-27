@@ -14,6 +14,7 @@ order: 1
 - Improvement: Renamed node states to outdated and ready
 - Improvement: BBoxDB uses now the server JVM
 - Improvement: Improved parameter handling of the OSM data converter
+- Improvement: Upgraded vom Zookeeper 3.4.9 to Zookeeper 3.4.10
 - Bugfix: The checkpoint thread was waiting forever for flushed events
 - Bugfix: Don't include the content of the conf/ directory in the jar
 
