@@ -18,6 +18,7 @@
 package org.bboxdb.network.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -82,6 +83,16 @@ public class BBoxDBCluster implements BBoxDB {
 		resourcePlacementStrategy = new RandomResourcePlacementStrategy();
 		membershipConnectionService = MembershipConnectionService.getInstance();
 	}
+	
+	/**
+	 * Create a new instance of the BBoxDB cluster
+	 * @param zookeeperNodes
+	 * @param clustername
+	 */
+	public BBoxDBCluster(final String zookeeperNode, final String clustername) {
+		this(Arrays.asList(zookeeperNode), clustername);
+	}
+	
 
 	@Override
 	public boolean connect() {
