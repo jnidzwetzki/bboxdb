@@ -17,6 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.tools.cli;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -28,7 +35,9 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.osm.OSMDataConverter;
+import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,8 +160,80 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param line
 	 */
 	protected void actionImportData(final CommandLine line) {
-		// TODO Auto-generated method stub
 		
+		final List<String> requiredArgs = Arrays.asList(CLIParameter.FILE, 
+				CLIParameter.FORMAT, CLIParameter.TABLE);
+		
+		final boolean hasAllParameter = requiredArgs.stream().allMatch(s -> line.hasOption(s));
+		
+		if(! hasAllParameter) {
+			System.err.println("Some required parameters are not specified");
+			System.exit(-1);
+		}
+		
+		final String filename = line.getOptionValue(CLIParameter.FILE);
+		final String format = line.getOptionValue(CLIParameter.FORMAT);
+		final String table = line.getOptionValue(CLIParameter.TABLE);
+		
+		final File file = new File(filename);
+		if(! file.exists()) {
+			System.err.println("Unable to open file: " + file);
+			System.exit(-1);
+		}
+		
+		try(final BufferedReader reader = new BufferedReader(new FileReader(file))) {
+			String fileLine;
+			long lineNumber = 1;
+			
+			while((fileLine = reader.readLine()) != null) {
+				handleLine(fileLine, format, table, lineNumber);
+				lineNumber++;
+			}
+			
+		} catch (IOException e) {
+			System.err.println("Got an exeption while reading file: " + e);
+			System.exit(-1);
+		}
+		
+	}
+
+	/**
+	 * Insert a line of the file into the given table
+	 * 
+	 * @param line
+	 * @param format
+	 * @param table
+	 * @param lineNumber 
+	 */
+	protected void handleLine(final String line, final String format, final String table, 
+			final long lineNumber) {
+		
+		if("geojson".equals(format)) {
+			final Polygon polygon = Polygon.fromGeoJson(line);
+	    	final byte[] tupleBytes = polygon.toGeoJson().getBytes();
+
+			final Tuple tuple = new Tuple(Long.toString(lineNumber), 
+					polygon.getBoundingBox(), tupleBytes);
+			
+			try {
+				final EmptyResultFuture result = bboxDbConnection.insertTuple(table, tuple);
+				
+				result.waitForAll();
+				
+				if(result.isFailed()) {
+					System.err.println("Got an error during insert: " + result.getAllMessages());
+					System.exit(-1);
+				}
+			} catch (BBoxDBException e) {
+				System.err.println("Got an error during insert: " + e);
+				System.exit(-1);
+			} catch (InterruptedException e) {
+				System.err.println("Got an interruption during wait");
+				System.exit(-1);
+			}
+		} else {
+			throw new RuntimeException("Unknwon format: " + format);
+		}
 	}
 
 	/**
