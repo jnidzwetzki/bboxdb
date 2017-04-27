@@ -187,7 +187,8 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 			System.exit(-1);
 		}
 		
-		final BenchmarkFileInsertPerformance benchmarkInsertPerformance = new BenchmarkFileInsertPerformance(filename, replicationFactor);
+		final Runnable benchmarkInsertPerformance 
+			= new BenchmarkFileInsertPerformance(filename, replicationFactor);
 		benchmarkInsertPerformance.run();
 	}
 }
