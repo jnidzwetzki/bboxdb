@@ -261,8 +261,7 @@ public class CLI implements Runnable, AutoCloseable {
 			printHelpAndExit(options);
 		}
 					
-		final List<String> requiredArgs = Arrays.asList(CLIParameter.HOST, 
-				CLIParameter.CLUSTER_NAME, CLIParameter.ACTION);
+		final List<String> requiredArgs = Arrays.asList(CLIParameter.ACTION);
 		
 		final boolean hasAllParameter = requiredArgs.stream().allMatch(s -> line.hasOption(s));
 		
