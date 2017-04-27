@@ -17,12 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.tools.benchmark;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
@@ -71,25 +72,34 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 	@Override
 	public void runBenchmark() throws InterruptedException, ExecutionException, BBoxDBException {
 	
-		try (
-				final BufferedReader reader = new BufferedReader(new FileReader(new File(filename)));
-			) {
+		try(final Stream<String> lines = Files.lines(Paths.get(filename))) {
+			lines.forEach(l -> handleLine(l));
+		} catch (IOException e) {
+			System.err.println("Got an exeption while reading file: " + e);
+			System.exit(-1);
+		}
+	}
 
-		    String line;
-		    while ((line = reader.readLine()) != null) {
-		    	final Polygon polygon = Polygon.fromGeoJson(line);
-		    	final byte[] tupleBytes = polygon.toGeoJson().getBytes();
-		    
-				final Tuple tuple = new Tuple(Long.toString(polygon.getId()), polygon.getBoundingBox(), tupleBytes);
-				final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
-				
-				// register pending future
-				pendingFutures.put(insertFuture);
-				
-				insertedTuples.incrementAndGet();
-		    }
-		} catch (BBoxDBException | IOException e) {
-			e.printStackTrace();
+	/**
+	 * Handle a line from the input file
+	 * @param line
+	 * @throws BBoxDBException
+	 */
+	protected void handleLine(String line) {
+		try {
+			final Polygon polygon = Polygon.fromGeoJson(line);
+			final byte[] tupleBytes = polygon.toGeoJson().getBytes();
+   
+			final Tuple tuple = new Tuple(Long.toString(polygon.getId()), polygon.getBoundingBox(), tupleBytes);
+			final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
+			
+			// register pending future
+			pendingFutures.put(insertFuture);
+			
+			insertedTuples.incrementAndGet();
+		} catch (BBoxDBException e) {
+			System.err.println("Got an exeption while reading file: " + e);
+			System.exit(-1);
 		}
 	}
 	
