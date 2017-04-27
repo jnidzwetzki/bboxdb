@@ -17,12 +17,14 @@
  *******************************************************************************/
 package org.bboxdb.tools.cli;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -181,11 +183,11 @@ public class CLI implements Runnable, AutoCloseable {
 			System.exit(-1);
 		}
 		
-		try(final BufferedReader reader = new BufferedReader(new FileReader(file))) {
-			String fileLine;
+		try(final Stream<String> fileStream = Files.lines(Paths.get(filename))) {
 			long lineNumber = 1;
 			
-			while((fileLine = reader.readLine()) != null) {
+			for (Iterator<String> iterator = fileStream.iterator(); iterator.hasNext();) {
+				final String fileLine = iterator.next();
 				handleLine(fileLine, format, table, lineNumber);
 				lineNumber++;
 			}
@@ -224,6 +226,7 @@ public class CLI implements Runnable, AutoCloseable {
 					System.err.println("Got an error during insert: " + result.getAllMessages());
 					System.exit(-1);
 				}
+				
 			} catch (BBoxDBException e) {
 				System.err.println("Got an error during insert: " + e);
 				System.exit(-1);
