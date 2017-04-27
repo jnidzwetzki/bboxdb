@@ -70,8 +70,7 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 			final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), boundingBox, "abcdef".getBytes()));
 			
 			// register pending future
-			pendingFutures.add(insertFuture);
-			checkForCompletedFutures();
+			pendingFutures.put(insertFuture);
 		}
 	}
 

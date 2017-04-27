@@ -58,7 +58,7 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 	protected final String filename;
 
 	/**
-	 * The serializer
+	 * The Serializer
 	 */
 	protected final SerializerHelper<Polygon> serializerHelper = new SerializerHelper<>();
 
@@ -84,8 +84,7 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 				final EmptyResultFuture insertFuture = bboxdbClient.insertTuple(table, tuple);
 				
 				// register pending future
-				pendingFutures.add(insertFuture);
-				checkForCompletedFutures();
+				pendingFutures.put(insertFuture);
 				
 				insertedTuples.incrementAndGet();
 		    }

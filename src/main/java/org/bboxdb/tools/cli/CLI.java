@@ -37,6 +37,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.osm.OSMDataConverter;
 import org.bboxdb.tools.converter.osm.util.Polygon;
@@ -60,12 +61,28 @@ public class CLI implements Runnable, AutoCloseable {
 	protected BBoxDB bboxDbConnection;
 	
 	/**
+	 * The pending futures
+	 */
+	protected final FixedSizeFutureStore pendingFutures;
+	
+	/**
+	 * The amount of pending insert futures
+	 */
+	protected final static int MAX_PENDING_FUTURES = 5000;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(OSMDataConverter.class);
 	
 	public CLI(final CommandLine line) {
 		this.line = line;
+		
+		// The pending future store
+		pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
+		
+		// Log failed futures
+		pendingFutures.addFailedFutureCallback((f) -> logger.error("Failed future detected: {}", f));
 	}
 
 	/**
@@ -219,21 +236,11 @@ public class CLI implements Runnable, AutoCloseable {
 			
 			try {
 				final EmptyResultFuture result = bboxDbConnection.insertTuple(table, tuple);
-				
-				result.waitForAll();
-				
-				if(result.isFailed()) {
-					System.err.println("Got an error during insert: " + result.getAllMessages());
-					System.exit(-1);
-				}
-				
+				pendingFutures.put(result);
 			} catch (BBoxDBException e) {
 				System.err.println("Got an error during insert: " + e);
 				System.exit(-1);
-			} catch (InterruptedException e) {
-				System.err.println("Got an interruption during wait");
-				System.exit(-1);
-			}
+			} 
 		} else {
 			throw new RuntimeException("Unknwon format: " + format);
 		}

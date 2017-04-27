@@ -18,9 +18,6 @@
 package org.bboxdb.tools.benchmark;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.future.OperationFuture;
+import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +54,7 @@ public abstract class AbstractBenchmark implements Runnable {
 	/**
 	 * The pending futures
 	 */
-	protected final List<OperationFuture> pendingFutures;
+	protected final FixedSizeFutureStore pendingFutures;
 	
 	/**
 	 * The amount of pending insert futures
@@ -70,42 +67,10 @@ public abstract class AbstractBenchmark implements Runnable {
 	private final static Logger logger = LoggerFactory.getLogger(AbstractBenchmark.class);
 
 	public AbstractBenchmark() {
-		pendingFutures = new LinkedList<OperationFuture>();
-	}
-	
-	protected void checkForCompletedFutures() {
-		if(pendingFutures.size() > MAX_PENDING_FUTURES) {
-			
-			// Reduce futures
-			while(pendingFutures.size() > MAX_PENDING_FUTURES * 0.8) {
-				
-				// Remove old futures
-				final Iterator<OperationFuture> futureIterator = pendingFutures.iterator();
-				while(futureIterator.hasNext()) {
-					final OperationFuture future = futureIterator.next();
-					
-					if(future.isDone()) {
-						futureIterator.remove();
-						
-						if(future.isFailed()) {
-							logger.error("Failed future detected: " + future);
-						}
-						
-						continue;
-					}
-	
-				}
-
-				// Still to much futures? Wait some time
-				if(pendingFutures.size() > MAX_PENDING_FUTURES * 0.8) {
-					try {
-						Thread.sleep(1);
-					} catch (InterruptedException e) {
-						// Ignore exception
-					}
-				}
-			}
-		}
+		pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
+		
+		// Log failed futures
+		pendingFutures.addFailedFutureCallback((f) -> logger.error("Failed future detected: {}", f));
 	}
 	
 	/**
@@ -191,18 +156,11 @@ public abstract class AbstractBenchmark implements Runnable {
 	protected void done() throws Exception {
 		
 		// Wait for pending futures
-		if(! pendingFutures.isEmpty()) {
-			System.out.println("Wait for pending futures to settle: " + pendingFutures.size());
+		if(pendingFutures.getPendingFutureCount() > 0) {
+			System.out.println("Wait for pending futures to settle: " 
+					+ pendingFutures.getPendingFutureCount());
 			
-			for(final OperationFuture future : pendingFutures) {
-				future.waitForAll();
-				
-				if(future.isFailed()) {
-					System.out.println("Got failed future: " + future);
-				}
-			}
-			
-			pendingFutures.clear();
+			pendingFutures.waitForCompletion();
 		}
 		
 		// Disconnect from server and shutdown the statistics thread
