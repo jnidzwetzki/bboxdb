@@ -17,56 +17,35 @@
  *******************************************************************************/
 package org.bboxdb.tools.cli;
 
-public class CLIParameter {
+import java.util.Arrays;
+import java.util.List;
+
+public class CLIAction {
 
 	/**
-	 * The zookeeper host
+	 * The name of the import action
 	 */
-	protected static final String HOST = "host";
+	protected static final String IMPORT = "import";
+	
+	/**
+	 * The name of the query action
+	 */
+	protected static final String QUERY = "query";
+	
+	/**
+	 * The name of the create distribution group action
+	 */
+	protected static final String CREATE_DGROUP = "create_distribution_group";
+	
+	/**
+	 * The name of the delete distribution group action
+	 */
+	protected static final String DELETE_DGROUP = "delete_distribution_group";
 
 	/**
-	 * The name of the cluster
+	 * All known actions
 	 */
-	protected static final String CLUSTER_NAME = "cluster";
-	
-	/**
-	 * The name of the action parameter
-	 */
-	protected static final String ACTION = "action";
-	
-	/**
-	 * The name of the help parameter
-	 */
-	protected static final String HELP = "help";
-	
-	/**
-	 * Verbose flag
-	 */
-	protected static final String VERBOSE = "verbose";
-	
-	/**
-	 * The distribution group
-	 */
-	protected static final String DISTRIBUTION_GROUP = "distributiongroup";
-	
-	/**
-	 * Replication factor
-	 */
-	protected static final String REPLICATION_FACTOR = "replicationFactor";
-	
-	/**
-	 * Filename
-	 */
-	protected static final String FILE  = "file";
-	
-	/**
-	 * Input format
-	 */
-	protected static final String FORMAT = "format";
-	
-	/**
-	 * Table
-	 */
-	protected static final String TABLE = "table";
-	
+	protected List<String> ALL_ACTIONS 
+		= Arrays.asList(IMPORT, QUERY, CREATE_DGROUP, DELETE_DGROUP);
+
 }

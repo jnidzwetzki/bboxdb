@@ -17,9 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.tools.cli;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -40,34 +37,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class CLI implements Runnable, AutoCloseable {
-	
-	static class Action {
-		/**
-		 * The name of the import action
-		 */
-		protected static final String IMPORT = "import";
-		
-		/**
-		 * The name of the query action
-		 */
-		protected static final String QUERY = "query";
-		
-		/**
-		 * The name of the create distribution group action
-		 */
-		protected static final String CREATE_DGROUP = "create_distribution_group";
-		
-		/**
-		 * The name of the delete distribution group action
-		 */
-		protected static final String DELETE_DGROUP = "delete_distribution_group";
-	
-		/**
-		 * All known actions
-		 */
-		protected List<String> ALL_ACTIONS 
-			= Arrays.asList(IMPORT, QUERY, CREATE_DGROUP, DELETE_DGROUP);
-	}
 	
 	/**
 	 * The parsed command line
@@ -137,19 +106,19 @@ public class CLI implements Runnable, AutoCloseable {
 		final String action = line.getOptionValue(CLIParameter.ACTION);
 		
 		switch (action) {
-		case Action.CREATE_DGROUP:
+		case CLIAction.CREATE_DGROUP:
 			actionCreateDgroup(line);
 			break;
 			
-		case Action.DELETE_DGROUP:
+		case CLIAction.DELETE_DGROUP:
 			actionDeleteDgroup(line);
 			break;
 			
-		case Action.IMPORT:
+		case CLIAction.IMPORT:
 			actionImportData(line);
 			break;
 			
-		case Action.QUERY:
+		case CLIAction.QUERY:
 			actionExecuteQuery(line);
 			break;
 
@@ -329,6 +298,22 @@ public class CLI implements Runnable, AutoCloseable {
 				.desc("The file to read")
 				.build();
 		options.addOption(file);
+		
+		// Format
+		final Option format = Option.builder(CLIParameter.FORMAT)
+				.hasArg()
+				.argName("format")
+				.desc("The format of the file")
+				.build();
+		options.addOption(format);
+		
+		// Table
+		final Option table = Option.builder(CLIParameter.TABLE)
+				.hasArg()
+				.argName("table")
+				.desc("The table to carry out the action")
+				.build();
+		options.addOption(table);
 		
 		return options;
 	}
