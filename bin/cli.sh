@@ -14,6 +14,6 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-java $jvm_ops_tools -cp $classpath org.bboxdb.tools.CLI
+java $jvm_ops_tools -cp $classpath org.bboxdb.tools.cli.CLI
 
 exit 0
