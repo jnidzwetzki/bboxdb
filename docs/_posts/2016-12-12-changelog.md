@@ -17,6 +17,7 @@ order: 1
 - Improvement: Upgraded vom Zookeeper 3.4.9 to Zookeeper 3.4.10
 - Bugfix: The checkpoint thread was waiting forever for flushed events
 - Bugfix: Don't include the content of the conf/ directory in the jar
+- Bugfix: The count lines script searches in the wrong directory for source files
 
 ### Version 0.2.4 (Stable) - 23.04.2017
 - New Feature: Support multiple storage locations

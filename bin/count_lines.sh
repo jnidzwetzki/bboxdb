@@ -3,11 +3,17 @@
 # Generate some statistics about the project
 ######################
 
+# Is the environment configured?
+if [ -z "$BBOXDB_HOME" ]; then
+   echo "Your environment variable \$(BBOXDB_HOME) is empty. Please check your .bboxdbrc"
+   exit -1
+fi
+
 # Lines of code
-loc_java=$( (find .. -name '*.java' -print0 | xargs -0 cat ) | wc -l)
-loc_shell=$( (find .. -name '*.sh' -print0 | xargs -0 cat ) | wc -l)
-loc_xml=$( (find .. -name '*.xml' -print0 | xargs -0 cat ) | wc -l)
-loc_yaml=$( (find .. -name '*.yaml' -print0 | xargs -0 cat ) | wc -l)
+loc_java=$( (find $BBOXDB_HOME -name '*.java' -print0 | xargs -0 cat ) | wc -l)
+loc_shell=$( (find $BBOXDB_HOME -name '*.sh' -print0 | xargs -0 cat ) | wc -l)
+loc_xml=$( (find $BBOXDB_HOME -name '*.xml' -print0 | xargs -0 cat ) | wc -l)
+loc_yaml=$( (find $BBOXDB_HOME -name '*.yaml' -print0 | xargs -0 cat ) | wc -l)
 
 loc=$((loc_java + $loc_shell + $loc_xml + $loc_yaml))
 
