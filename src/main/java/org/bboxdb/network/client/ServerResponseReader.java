@@ -99,12 +99,12 @@ public class ServerResponseReader extends ExceptionSafeThread {
 
 	@Override
 	protected void beginHook() {
-		logger.info("Started new response reader for " + bboxDBClient.getConnectionName());
+		logger.debug("Started new response reader for " + bboxDBClient.getConnectionName());
 	}
 	
 	@Override
 	protected void endHook() {
-		logger.info("Stopping new response reader for " + bboxDBClient.getConnectionName());
+		logger.debug("Stopping new response reader for " + bboxDBClient.getConnectionName());
 	}
 	
 	@Override
