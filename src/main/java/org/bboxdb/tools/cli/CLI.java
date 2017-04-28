@@ -643,9 +643,12 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		final Options options = buildOptions();
 		
+		final String header = "BBoxDB command line interace (CLI)\n\n";
+		final String footer = "\nPlease report issues at https://github.com/jnidzwetzki/bboxdb/issues";
+		 
 		final HelpFormatter formatter = new HelpFormatter();
 		formatter.setWidth(120);
-		formatter.printHelp("CLI", options);
+		formatter.printHelp("CLI", header, options, footer);
 		
 		System.exit(-1);
 	}
