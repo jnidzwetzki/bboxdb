@@ -234,7 +234,7 @@ public class BBoxDBClient implements BBoxDB {
 			return true;
 		}
 		
-		logger.info("Connecting to server: " + getConnectionName());
+		logger.debug("Connecting to server: {}", getConnectionName());
 		
 		try {
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING;
@@ -313,7 +313,7 @@ public class BBoxDBClient implements BBoxDB {
 		connectionCapabilities = helloResponse.getPeerCapabilities();
 
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
-		logger.info("Handshaking with " + getConnectionName() + " done");
+		logger.debug("Handshaking with {} done", getConnectionName());
 		
 		mainteinanceHandler = new ConnectionMainteinanceThread(this);
 		mainteinanceThread = new Thread(mainteinanceHandler);
