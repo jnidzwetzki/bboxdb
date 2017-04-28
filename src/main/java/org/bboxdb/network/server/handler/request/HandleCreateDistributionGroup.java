@@ -87,7 +87,7 @@ public class HandleCreateDistributionGroup implements RequestHandler {
 			logger.warn("Error while create distribution group", e);
 			
 			final String errorMessage 
-				= RequestHandlerHelper.appendHostnameToError(ErrorMessages.ERROR_EXCEPTION, 
+				= RequestHandlerHelper.appendSocketDataToError(ErrorMessages.ERROR_EXCEPTION, 
 					clientConnectionHandler);
 			
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);

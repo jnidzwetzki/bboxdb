@@ -27,10 +27,15 @@ public class RequestHandlerHelper {
 	 * @param clientConnectionHandler
 	 * @return
 	 */
-	public static String appendHostnameToError(final String errorMessage, 
+	public static String appendSocketDataToError(final String errorMessage, 
 			final ClientConnectionHandler clientConnectionHandler) {
 		
-		return errorMessage + "(" + clientConnectionHandler.getConnectionName() + ")";
+		final StringBuffer sb = new StringBuffer();
+		sb.append(" (");
+		sb.append(clientConnectionHandler.getConnectionName());
+		sb.append(")");
+		
+		return sb.toString();
 	}
 
 }
