@@ -299,6 +299,8 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 				handleNextPackage(inputStream);
 			}
 			
+			flushPendingCompressionPackages();
+			
 			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSED);
 			logger.info("Closing connection to: {}", clientSocket.getInetAddress());
 		} catch (IOException | PackageEncodeException e) {
