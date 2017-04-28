@@ -378,7 +378,7 @@ public class BBoxDBClient implements BBoxDB {
 
 	/**
 	 * Close the connection to the server without sending a disconnect package. For a
-	 * reagular disconnect, see the disconnect() method.
+	 * regular disconnect, see the disconnect() method.
 	 */
 	public void closeConnection() {		
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;

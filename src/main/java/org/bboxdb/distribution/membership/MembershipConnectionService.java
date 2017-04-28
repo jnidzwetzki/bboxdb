@@ -141,7 +141,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 			for(final InetSocketAddress instance : serverConnections.keySet()) {
 				final BBoxDBClient client = serverConnections.get(instance);
 				logger.info("Closing connection to server: " + instance);
-				client.closeConnection();
+				client.disconnect();
 			}
 			
 			serverConnections.clear();
