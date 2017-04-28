@@ -65,7 +65,8 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 	@Override
 	public void runThread() {
 
-		while(bboxDBClient.connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+		while(bboxDBClient.connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN
+				|| bboxDBClient.connectionState == NetworkConnectionState.NETWORK_CONNECTION_CLOSING) {
 			
 			// Write all waiting for compression packages
 			bboxDBClient.flushPendingCompressionPackages();
