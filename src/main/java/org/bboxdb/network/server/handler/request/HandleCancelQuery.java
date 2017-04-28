@@ -63,7 +63,13 @@ public class HandleCancelQuery implements RequestHandler {
 			}
 		} catch (PackageEncodeException e) {
 			logger.warn("Error getting next page for a query", e);
-			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
+			
+			final String errorMessage 
+				= RequestHandlerHelper.appendHostnameToError(ErrorMessages.ERROR_EXCEPTION, 
+						clientConnectionHandler);
+			
+			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
+			clientConnectionHandler.writeResultPackage(responsePackage);
 		}
 		
 		return true;

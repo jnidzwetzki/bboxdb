@@ -15,6 +15,7 @@ order: 1
 - Improvement: BBoxDB uses now the server JVM
 - Improvement: Improved parameter handling of the OSM data converter
 - Improvement: Upgraded vom Zookeeper 3.4.9 to Zookeeper 3.4.10
+- Improvement: Add socket information to server side exceptions
 - Bugfix: The checkpoint thread was waiting forever for flushed events
 - Bugfix: Don't include the content of the conf/ directory in the jar
 - Bugfix: The count lines script searches in the wrong directory for source files
