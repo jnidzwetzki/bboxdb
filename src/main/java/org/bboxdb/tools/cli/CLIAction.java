@@ -45,12 +45,12 @@ public class CLIAction {
 	/**
 	 * The name of the create distribution group action
 	 */
-	protected static final String CREATE_DGROUP = "create_distribution_group";
+	protected static final String CREATE_DGROUP = "create_dgroup";
 	
 	/**
 	 * The name of the delete distribution group action
 	 */
-	protected static final String DELETE_DGROUP = "delete_distribution_group";
+	protected static final String DELETE_DGROUP = "delete_dgroup";
 
 	/**
 	 * All known actions
