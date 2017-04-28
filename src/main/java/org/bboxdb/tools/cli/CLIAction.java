@@ -33,6 +33,16 @@ public class CLIAction {
 	protected static final String QUERY = "query";
 	
 	/**
+	 * The name of the insert action
+	 */
+	protected static final String INSERT = "insert";
+	
+	/**
+	 * The name of the delete action
+	 */
+	protected static final String DELETE = "delete";
+	
+	/**
 	 * The name of the create distribution group action
 	 */
 	protected static final String CREATE_DGROUP = "create_distribution_group";

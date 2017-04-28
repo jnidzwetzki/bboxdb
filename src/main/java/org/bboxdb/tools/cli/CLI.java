@@ -37,7 +37,9 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.osm.OSMDataConverter;
 import org.bboxdb.tools.converter.osm.util.Polygon;
@@ -149,12 +151,20 @@ public class CLI implements Runnable, AutoCloseable {
 		case CLIAction.QUERY:
 			actionExecuteQuery(line);
 			break;
+			
+		case CLIAction.INSERT:
+			actionInsert(line);
+			break;
+			
+		case CLIAction.DELETE:
+			actionDelete(line);
+			break;
 
 		default:
 			break;
 		}
 	}
-	
+
 	/**
 	 * Shutdown the instance
 	 */
@@ -170,8 +180,179 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param line
 	 */
 	protected void actionExecuteQuery(final CommandLine line) {
-		// TODO Auto-generated method stub
+		if(! line.hasOption(CLIParameter.TABLE)) {
+			System.err.println("Query should be performed, but no table was specified");
+			printHelpAndExit();
+		}
+				
+		try {
+			final TupleListFuture resultFuture = buildQueryFuture(line);
+			
+			if(resultFuture == null) {
+				System.err.println("Unable to get query");
+				System.exit(-1);
+			}
+			
+			resultFuture.waitForAll();
+			
+			if(resultFuture.isFailed()) {
+				System.err.println("Unable to execute query: " + resultFuture.getAllMessages());
+				System.exit(-1);
+			}
+			
+			for(final Tuple tuple : resultFuture) {
+				System.out.println(tuple);
+			}
+			
+			System.out.println("Query done");
+		} catch (BBoxDBException e) {
+			System.err.println("Got an exception while performing query: " + e);
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+
+	}
+
+	/**
+	 * Build the query future
+	 * @param line
+	 * @return
+	 * @throws BBoxDBException
+	 */
+	protected TupleListFuture buildQueryFuture(final CommandLine line)
+			throws BBoxDBException {
 		
+		final String table = line.getOptionValue(CLIParameter.KEY);
+
+		if(line.hasOption(CLIParameter.KEY)) {
+			final String key = line.getOptionValue(CLIParameter.KEY);
+			return bboxDbConnection.queryKey(table, key);
+		} else if(line.hasOption(CLIParameter.BOUNDING_BOX) && line.hasOption(CLIParameter.TIMESTAMP)) {
+			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
+			final long timestamp = getTimestampFromArgs();
+			return bboxDbConnection.queryBoundingBoxAndTime(table, boundingBox, timestamp);
+		} else if(line.hasOption(CLIParameter.BOUNDING_BOX)) {
+			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
+			return bboxDbConnection.queryBoundingBox(table, boundingBox);
+		} else if(line.hasOption(CLIParameter.TIMESTAMP)) { 
+			final long timestamp = getTimestampFromArgs();
+			return bboxDbConnection.queryVersionTime(table, timestamp);
+		} else {
+			System.err.println("Unable to execute query with the specified parameter");
+			printHelpAndExit();
+			
+			// Unreachable code
+			return null;
+		}
+	}
+
+	/**
+	 * Read the timestamp from CLI parameter
+	 * @return
+	 */
+	protected long getTimestampFromArgs() {
+		final String timestampString = line.getOptionValue(CLIParameter.TIMESTAMP);
+		long value = -1;
+		
+		try {
+			value = Long.parseLong(timestampString);
+		} catch (NumberFormatException e) {
+			System.err.println("Unable to parse timestamp: "+ timestampString);
+			printHelpAndExit();
+		}
+	
+		return value;
+	}
+
+	/**
+	 * Read and convert the bounding box from CLI args
+	 * @param line
+	 * @return
+	 */
+	protected BoundingBox getBoundingBoxFromArgs(final CommandLine line) {
+		final String bbox = line.getOptionValue(CLIParameter.BOUNDING_BOX);
+		
+		final String[] bboxStringParts = bbox.split(":");
+		
+		if(bboxStringParts.length % 2 != 0) {
+			System.err.println("Invalid bounding box: " + bbox);
+			System.exit(-1);
+		}
+		
+		final double[] bboxDoubleValues = new double[bboxStringParts.length];
+		for(int i = 0; i < bboxStringParts.length; i++) {
+			try {
+				bboxDoubleValues[i] = Double.parseDouble(bboxStringParts[i]);
+			} catch (NumberFormatException e) {
+				System.err.println("Invalid number: " + bboxStringParts[i]);
+			}
+		}
+		
+		return new BoundingBox(bboxDoubleValues);
+	}
+	
+	/**
+	 * Delete a tuple
+	 * @param line
+	 */
+	protected void actionDelete(final CommandLine line) {
+		
+		if(! line.hasOption(CLIParameter.KEY) || ! line.hasOption(CLIParameter.TABLE)) {
+			System.err.println("Key or table are missing");
+			printHelpAndExit();
+		}
+		
+		final String key = line.getOptionValue(CLIParameter.KEY);
+		final String table = line.getOptionValue(CLIParameter.TABLE);
+		
+		try {
+			final EmptyResultFuture resultFuture = bboxDbConnection.deleteTuple(table, key);
+			pendingFutures.put(resultFuture);
+			pendingFutures.waitForCompletion();
+		} catch (BBoxDBException e) {
+			System.err.println("Got an error during delete: " + e);
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+	}
+
+	/**
+	 * Insert a new tuple
+	 * @param line
+	 */
+	protected void actionInsert(final CommandLine line) {
+		final List<String> requiredArgs = Arrays.asList(CLIParameter.TABLE,
+				CLIParameter.KEY, CLIParameter.BOUNDING_BOX, CLIParameter.VALUE);
+		
+		final boolean hasAllParameter = requiredArgs.stream().allMatch(s -> line.hasOption(s));
+		
+		if(! hasAllParameter) {
+			System.err.println("Some required parameters are not specified");
+			printHelpAndExit();
+		}
+		
+		final String table = line.getOptionValue(CLIParameter.TABLE);
+		final String key = line.getOptionValue(CLIParameter.KEY);
+		final String value = line.getOptionValue(CLIParameter.VALUE);
+		final BoundingBox boundingBox = getBoundingBoxFromArgs(line);
+		
+		final Tuple tuple = new Tuple(key, boundingBox, value.getBytes());
+		
+		try {
+			final EmptyResultFuture future = bboxDbConnection.insertTuple(table, tuple);
+			pendingFutures.put(future);
+			pendingFutures.waitForCompletion();
+		} catch (BBoxDBException e) {
+			System.err.println("Got an error during insert: " + e);
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		} 
 	}
 
 	/**
@@ -187,7 +368,7 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		if(! hasAllParameter) {
 			System.err.println("Some required parameters are not specified");
-			System.exit(-1);
+			printHelpAndExit();
 		}
 		
 		final String filename = line.getOptionValue(CLIParameter.FILE);
@@ -242,9 +423,13 @@ public class CLI implements Runnable, AutoCloseable {
 			try {
 				final EmptyResultFuture result = bboxDbConnection.insertTuple(table, tuple);
 				pendingFutures.put(result);
+				pendingFutures.waitForCompletion();
 			} catch (BBoxDBException e) {
 				System.err.println("Got an error during insert: " + e);
 				System.exit(-1);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
 			} 
 		} else {
 			throw new RuntimeException("Unknwon format: " + format);
@@ -319,11 +504,11 @@ public class CLI implements Runnable, AutoCloseable {
 	protected static void checkParameter(final Options options, final CommandLine line) {
 		
 		if(line.hasOption(CLIParameter.HELP)) {
-			printHelpAndExit(options);
+			printHelpAndExit();
 		}
 		
 		if(! line.hasOption(CLIParameter.ACTION)) {
-			printHelpAndExit(options);
+			printHelpAndExit();
 		}
 		
 	}
@@ -411,6 +596,38 @@ public class CLI implements Runnable, AutoCloseable {
 				.build();
 		options.addOption(table);
 		
+		// Key
+		final Option key = Option.builder(CLIParameter.KEY)
+				.hasArg()
+				.argName("key")
+				.desc("The name of the key")
+				.build();
+		options.addOption(key);
+		
+		// BBox
+		final Option bbox = Option.builder(CLIParameter.BOUNDING_BOX)
+				.hasArg()
+				.argName("bounding box")
+				.desc("The bounding box of the tuple")
+				.build();
+		options.addOption(bbox);
+		
+		// Value
+		final Option value = Option.builder(CLIParameter.VALUE)
+				.hasArg()
+				.argName("value")
+				.desc("The value of the tuple")
+				.build();
+		options.addOption(value);
+		
+		// Time
+		final Option time = Option.builder(CLIParameter.TIMESTAMP)
+				.hasArg()
+				.argName("timestamp")
+				.desc("The version time stamp of the tuple")
+				.build();
+		options.addOption(time);
+		
 		return options;
 	}
 	
@@ -418,10 +635,14 @@ public class CLI implements Runnable, AutoCloseable {
 	 * Print help and exit the program
 	 * @param options 
 	 */
-	protected static void printHelpAndExit(final Options options) {
+	protected static void printHelpAndExit() {
+		
+		final Options options = buildOptions();
+		
 		final HelpFormatter formatter = new HelpFormatter();
 		formatter.setWidth(200);
 		formatter.printHelp("CLI", options);
+		
 		System.exit(-1);
 	}
 

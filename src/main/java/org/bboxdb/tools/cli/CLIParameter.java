@@ -69,4 +69,24 @@ public class CLIParameter {
 	 */
 	protected static final String TABLE = "table";
 	
+	/**
+	 * Time
+	 */
+	protected static final String TIMESTAMP = "time";
+	
+	/**
+	 * Key
+	 */
+	protected static final String KEY = "key";
+	
+	/**
+	 * Bounding Box
+	 */
+	protected static final String BOUNDING_BOX = "bbox";
+
+	/**
+	 * Value
+	 */
+	protected static final String VALUE = "value";
+
 }
