@@ -128,7 +128,12 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		// Connect to zookeeper
 		bboxDbConnection = new BBoxDBCluster(zookeeperHost, clustername);
-			
+		
+		if( ! bboxDbConnection.connect() ) {
+			System.err.println("Unable to connect to the BBoxDB Server");
+			System.exit(-1);
+		}
+		
 		if(line.hasOption(CLIParameter.VERBOSE)) {
 			org.apache.log4j.Logger logger4j = org.apache.log4j.Logger.getRootLogger();
 			logger4j.setLevel(org.apache.log4j.Level.toLevel("DEBUG"));
@@ -322,6 +327,19 @@ public class CLI implements Runnable, AutoCloseable {
 	}
 
 	/**
+	 * Check the required args
+	 * @param requiredArgs
+	 */
+	protected void checkRequiredArgs(final List<String> requiredArgs) {
+		for(final String arg : requiredArgs) {
+			if(! line.hasOption(arg)) {
+				System.err.println("Option is missing: " + arg);
+				printHelpAndExit();
+			}
+		}
+	}
+	
+	/**
 	 * Insert a new tuple
 	 * @param line
 	 */
@@ -329,12 +347,7 @@ public class CLI implements Runnable, AutoCloseable {
 		final List<String> requiredArgs = Arrays.asList(CLIParameter.TABLE,
 				CLIParameter.KEY, CLIParameter.BOUNDING_BOX, CLIParameter.VALUE);
 		
-		final boolean hasAllParameter = requiredArgs.stream().allMatch(s -> line.hasOption(s));
-		
-		if(! hasAllParameter) {
-			System.err.println("Some required parameters are not specified");
-			printHelpAndExit();
-		}
+		checkRequiredArgs(requiredArgs);
 		
 		final String table = line.getOptionValue(CLIParameter.TABLE);
 		final String key = line.getOptionValue(CLIParameter.KEY);
@@ -365,12 +378,7 @@ public class CLI implements Runnable, AutoCloseable {
 		final List<String> requiredArgs = Arrays.asList(CLIParameter.FILE, 
 				CLIParameter.FORMAT, CLIParameter.TABLE);
 		
-		final boolean hasAllParameter = requiredArgs.stream().allMatch(s -> line.hasOption(s));
-		
-		if(! hasAllParameter) {
-			System.err.println("Some required parameters are not specified");
-			printHelpAndExit();
-		}
+		checkRequiredArgs(requiredArgs);
 		
 		final String filename = line.getOptionValue(CLIParameter.FILE);
 		final String format = line.getOptionValue(CLIParameter.FORMAT);
@@ -470,6 +478,12 @@ public class CLI implements Runnable, AutoCloseable {
 	 */
 	protected void actionCreateDgroup(final CommandLine line) {
 		logger.debug("Create a new distribution group");
+		
+		final List<String> requiredArgs = Arrays.asList(CLIParameter.DISTRIBUTION_GROUP, 
+				CLIParameter.REPLICATION_FACTOR);
+		
+		checkRequiredArgs(requiredArgs);
+		
 		final String distributionGroup = line.getOptionValue(CLIParameter.DISTRIBUTION_GROUP);
 		final String replicationFactorString = line.getOptionValue(CLIParameter.REPLICATION_FACTOR);
 		
