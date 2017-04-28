@@ -47,7 +47,7 @@ public class CLIParameter {
 	/**
 	 * The distribution group
 	 */
-	protected static final String DISTRIBUTION_GROUP = "distributiongroup";
+	protected static final String DISTRIBUTION_GROUP = "dgroup";
 	
 	/**
 	 * Replication factor
