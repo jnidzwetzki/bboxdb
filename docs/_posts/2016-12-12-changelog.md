@@ -9,16 +9,17 @@ order: 1
 - New Feature: Implemented the new insert time tuple query
 - New Feature: Introduced the BBoxDB CLI
 - Improvement: Added the newest inserted tuple timestamp to the Storage interface
-- Improvement: Introduced the clock deta for the recovery service
+- Improvement: Introduced the clock delta for the recovery service
 - Improvement: The recovery service now uses the insert time of the tuples
 - Improvement: Renamed node states to outdated and ready
 - Improvement: BBoxDB uses now the server JVM
 - Improvement: Improved parameter handling of the OSM data converter
-- Improvement: Upgraded vom Zookeeper 3.4.9 to Zookeeper 3.4.10
+- Improvement: Upgraded from Zookeeper 3.4.9 to Zookeeper 3.4.10
 - Improvement: Add socket information to server side exceptions
 - Bugfix: The checkpoint thread was waiting forever for flushed events
 - Bugfix: Don't include the content of the conf/ directory in the jar
 - Bugfix: The count lines script searches in the wrong directory for source files
+- Bugfix: The disconnect function did not work 
 
 ### Version 0.2.4 (Stable) - 23.04.2017
 - New Feature: Support multiple storage locations

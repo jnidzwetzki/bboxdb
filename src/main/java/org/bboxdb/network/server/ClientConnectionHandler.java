@@ -299,6 +299,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 				handleNextPackage(inputStream);
 			}
 			
+			// Flush all pending results to client
 			flushPendingCompressionPackages();
 			
 			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSED);
