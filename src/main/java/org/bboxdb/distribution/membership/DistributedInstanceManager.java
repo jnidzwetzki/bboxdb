@@ -125,7 +125,7 @@ public class DistributedInstanceManager {
 	 * @param event
 	 */
 	protected void sendEvent(final DistributedInstanceEvent event) {
-		logger.info("Sending event: " + event);
+		logger.debug("Sending event: {}", event);
 
 		for(final DistributedInstanceEventCallback callback : listener) {
 			callback.distributedInstanceEvent(event);
@@ -168,7 +168,7 @@ public class DistributedInstanceManager {
 	 */
 	public void zookeeperDisconnect() {
 		
-		logger.info("Zookeeper disconnected, sending delete events for all instances");
+		logger.debug("Zookeeper disconnected, sending delete events for all instances");
 		
 		for(final DistributedInstance instance : instances.values()) {
 			sendEvent(new DistributedInstanceDeleteEvent(instance));
