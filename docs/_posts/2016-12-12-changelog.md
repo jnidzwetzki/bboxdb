@@ -19,7 +19,8 @@ order: 1
 - Bugfix: The checkpoint thread was waiting forever for flushed events
 - Bugfix: Don't include the content of the conf/ directory in the jar
 - Bugfix: The count lines script searches in the wrong directory for source files
-- Bugfix: The disconnect function did not work 
+- Bugfix: Flush pending server responses on connection close
+- Bugfix: Don't send keep alive packages on closing connections
 
 ### Version 0.2.4 (Stable) - 23.04.2017
 - New Feature: Support multiple storage locations

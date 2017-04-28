@@ -72,7 +72,10 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 			bboxDBClient.flushPendingCompressionPackages();
 						
 			if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
-				bboxDBClient.sendKeepAlivePackage();
+				// Send keep alive only on open connections
+				if(bboxDBClient.connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+					bboxDBClient.sendKeepAlivePackage();
+				}
 			}
 			
 			try {

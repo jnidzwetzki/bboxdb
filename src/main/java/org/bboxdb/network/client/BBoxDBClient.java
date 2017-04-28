@@ -327,22 +327,25 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public void disconnect() {
 		
-		logger.info("Disconnecting from server: {}", getConnectionName());
-		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
-		
-		final DisconnectRequest requestPackage = new DisconnectRequest(getNextSequenceNumber());
-		final EmptyResultFuture operationFuture = new EmptyResultFuture(1);
-		
-		registerPackageCallback(requestPackage, operationFuture);
-		sendPackageToServer(requestPackage, operationFuture);
+		synchronized (connectionState) {
+			logger.info("Disconnecting from server: {}", getConnectionName());
+			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+			
+			final DisconnectRequest requestPackage = new DisconnectRequest(getNextSequenceNumber());
+			final EmptyResultFuture operationFuture = new EmptyResultFuture(1);
+			
+			registerPackageCallback(requestPackage, operationFuture);
+			sendPackageToServer(requestPackage, operationFuture);
+		}
 
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
 			
-			logger.info("Waiting {} seconds for pending requests to settle", 
-					TimeUnit.MILLISECONDS.toSeconds(DEFAULT_TIMEOUT));		
-						
 			if(! pendingCalls.keySet().isEmpty()) {
+				
+				logger.info("Waiting {} seconds for pending requests to settle", 
+						TimeUnit.MILLISECONDS.toSeconds(DEFAULT_TIMEOUT));		
+				
 				try {
 					pendingCalls.wait(DEFAULT_TIMEOUT);
 				} catch (InterruptedException e) {
@@ -367,8 +370,8 @@ public class BBoxDBClient implements BBoxDB {
 		synchronized (pendingCalls) {
 			if(! pendingCalls.isEmpty()) {
 				logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
-			
-				for(short requestId : pendingCalls.keySet()) {
+							
+				for(final short requestId : pendingCalls.keySet()) {
 					final OperationFuture future = pendingCalls.get(requestId);
 					future.setFailedState();
 					future.fireCompleteEvent();
@@ -685,16 +688,18 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public EmptyResultFuture sendKeepAlivePackage() {
 		
-		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			return createFailedFuture("sendKeepAlivePackage called, but connection not ready: " + this);
+		synchronized (connectionState) {
+			if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+				return createFailedFuture("sendKeepAlivePackage called, but connection not ready: " + this);
+			}
+			
+			final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
+			final KeepAliveRequest requestPackage = new KeepAliveRequest(getNextSequenceNumber());
+			registerPackageCallback(requestPackage, clientOperationFuture);
+			sendPackageToServer(requestPackage, clientOperationFuture);
+			return clientOperationFuture;
 		}
 		
-		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		final KeepAliveRequest requestPackage = new KeepAliveRequest(getNextSequenceNumber());
-		registerPackageCallback(requestPackage, clientOperationFuture);
-		sendPackageToServer(requestPackage, clientOperationFuture);
-
-		return clientOperationFuture;
 	}
 	
 	/**
