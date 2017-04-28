@@ -644,7 +644,7 @@ public class CLI implements Runnable, AutoCloseable {
 		final Options options = buildOptions();
 		
 		final HelpFormatter formatter = new HelpFormatter();
-		formatter.setWidth(200);
+		formatter.setWidth(120);
 		formatter.printHelp("CLI", options);
 		
 		System.exit(-1);
