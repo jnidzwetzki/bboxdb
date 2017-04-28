@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.cli.CommandLine;
@@ -533,9 +534,12 @@ public class CLI implements Runnable, AutoCloseable {
 		options.addOption(verbose);
 		
 		// Action
+		final String allActions = CLIAction.ALL_ACTIONS
+				.stream().collect(Collectors.joining(",", "[", "]"));
+		
 		final Option action = Option.builder(CLIParameter.ACTION)
 				.hasArg()
-				.argName("action")
+				.argName(allActions)
 				.desc("The CLI action to execute")
 				.build();
 		options.addOption(action);

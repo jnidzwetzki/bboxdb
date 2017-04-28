@@ -55,7 +55,7 @@ public class CLIAction {
 	/**
 	 * All known actions
 	 */
-	protected List<String> ALL_ACTIONS 
-		= Arrays.asList(IMPORT, QUERY, CREATE_DGROUP, DELETE_DGROUP);
+	protected static List<String> ALL_ACTIONS 
+		= Arrays.asList(IMPORT, QUERY, DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP);
 
 }
