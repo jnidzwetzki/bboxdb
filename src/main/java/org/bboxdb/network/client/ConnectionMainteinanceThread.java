@@ -69,7 +69,7 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 			
 			// Write all waiting for compression packages
 			bboxDBClient.flushPendingCompressionPackages();
-			
+						
 			if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
 				bboxDBClient.sendKeepAlivePackage();
 			}

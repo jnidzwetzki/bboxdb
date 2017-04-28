@@ -63,7 +63,7 @@ public class TestNetworkCommunication {
 			scalephantMain = null;
 		}
 		
-		// Wait some time for socket resuse
+		// Wait some time for socket re-use
 		Thread.sleep(5000);
 	}
 	
@@ -74,6 +74,7 @@ public class TestNetworkCommunication {
 	@Test
 	public void testSendDisconnectPackage() {
 		final BBoxDBClient scalephantClient = connectToServer();
+		Assert.assertTrue(scalephantClient.isConnected());
 		disconnectFromServer(scalephantClient);
 		Assert.assertFalse(scalephantClient.isConnected());
 	}

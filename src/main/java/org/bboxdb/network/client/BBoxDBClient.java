@@ -295,7 +295,7 @@ public class BBoxDBClient implements BBoxDB {
 			logger.error("Handshaking called in wrong state: " + connectionState);
 		}
 		
-		// Capabilies are reported to server. Make client capabilies read only. 
+		// Capabilities are reported to server; now freeze client capabilities. 
 		clientCapabilities.freeze();
 		final HelloRequest requestPackage = new HelloRequest(getNextSequenceNumber(), 
 				NetworkConst.PROTOCOL_VERSION, clientCapabilities);
@@ -327,7 +327,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public void disconnect() {
 		
-		logger.info("Disconnecting from server: " + serverHostname + " port " + serverPort);
+		logger.info("Disconnecting from server: {}", getConnectionName());
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 		
 		final DisconnectRequest requestPackage = new DisconnectRequest(getNextSequenceNumber());
@@ -338,8 +338,10 @@ public class BBoxDBClient implements BBoxDB {
 
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
-			logger.info("Waiting {} seconds for pending requests to settle", DEFAULT_TIMEOUT / 1000);		
 			
+			logger.info("Waiting {} seconds for pending requests to settle", 
+					TimeUnit.MILLISECONDS.toSeconds(DEFAULT_TIMEOUT));		
+						
 			if(! pendingCalls.keySet().isEmpty()) {
 				try {
 					pendingCalls.wait(DEFAULT_TIMEOUT);
@@ -350,10 +352,12 @@ public class BBoxDBClient implements BBoxDB {
 				}
 			}
 			
-			logger.info("Connection is closed. (Non completed requests: " + pendingCalls.size() + ").");
+			if(! pendingCalls.isEmpty()) {
+				logger.warn("Connection is closed. Still pending calls: {} ", pendingCalls);
+			}
 		}
 		
-		closeConnection();
+		terminateConnection();
 	}
 	
 	/**
@@ -380,7 +384,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * Close the connection to the server without sending a disconnect package. For a
 	 * regular disconnect, see the disconnect() method.
 	 */
-	public void closeConnection() {		
+	public void terminateConnection() {		
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 
 		killPendingCalls();
@@ -876,22 +880,21 @@ public class BBoxDBClient implements BBoxDB {
 	protected void writePackageToSocket(final NetworkRequestPackage requestPackage) 
 			throws PackageEncodeException, IOException {
 			
-			synchronized (outputStream) {
-				requestPackage.writeToOutputStream(outputStream);
-				outputStream.flush();
-			}
-			
-			// Could be null during handshake
-			if(mainteinanceHandler != null) {
-				mainteinanceHandler.updateLastDataSendTimestamp();
-			}
+		synchronized (outputStream) {
+			requestPackage.writeToOutputStream(outputStream);
+			outputStream.flush();
+		}
 		
+		// Could be null during handshake
+		if(mainteinanceHandler != null) {
+			mainteinanceHandler.updateLastDataSendTimestamp();
+		}	
 	}
 
 	protected short registerPackageCallback(final NetworkRequestPackage requestPackage, final OperationFuture future) {
 		final short sequenceNumber = requestPackage.getSequenceNumber();
 		future.setRequestId(0, sequenceNumber);
-		
+				
 		synchronized (pendingCalls) {
 			assert (! pendingCalls.containsKey(sequenceNumber)) 
 				: "Old call exists: " + pendingCalls.get(sequenceNumber);
@@ -909,7 +912,7 @@ public class BBoxDBClient implements BBoxDB {
 	protected void handleResultPackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
-
+	
 		OperationFuture future = null;
 		
 		synchronized (pendingCalls) {

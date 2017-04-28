@@ -218,7 +218,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 		
 		knownInstances.remove(distributedInstance.getInetSocketAddress());
 		final BBoxDBClient client = serverConnections.remove(distributedInstance.getInetSocketAddress());
-		client.closeConnection();
+		client.terminateConnection();
 	}
 
 	/**
