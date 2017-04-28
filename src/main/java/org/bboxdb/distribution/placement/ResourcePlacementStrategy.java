@@ -19,7 +19,6 @@ package org.bboxdb.distribution.placement;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
@@ -52,13 +51,7 @@ public abstract class ResourcePlacementStrategy {
 	 * @param systems
 	 */
 	public static void removeAllNonReadySystems(final List<DistributedInstance> systems) {
-		for(final Iterator<DistributedInstance> iter = systems.iterator(); iter.hasNext(); ) {
-			final DistributedInstance system = iter.next();
-			
-			if(system.getState() != DistributedInstanceState.READY) {
-				iter.remove();
-			}
-		}
+		systems.removeIf(s -> s.getState() != DistributedInstanceState.READY);
 	}
 
 }
