@@ -52,7 +52,7 @@ public class CLIParameter {
 	/**
 	 * Replication factor
 	 */
-	protected static final String REPLICATION_FACTOR = "replicationFactor";
+	protected static final String REPLICATION_FACTOR = "replicationfactor";
 	
 	/**
 	 * Filename
