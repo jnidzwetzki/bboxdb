@@ -39,6 +39,7 @@ import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.request.DeleteTableRequest;
 import org.bboxdb.network.packages.request.DeleteTupleRequest;
+import org.bboxdb.network.packages.request.DisconnectRequest;
 import org.bboxdb.network.packages.request.HelloRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
@@ -519,6 +520,26 @@ public class TestNetworkClasses {
 
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
 		final ListTablesRequest decodedPackage = ListTablesRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(listPackage, decodedPackage);
+	}
+	
+	/**
+	 * The the encoding and decoding of disconnect package
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test
+	public void encodeAndDecodeDisconnect() throws IOException, PackageEncodeException {
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final DisconnectRequest listPackage = new DisconnectRequest(sequenceNumber);
+		
+		byte[] encodedVersion = networkPackageToByte(listPackage);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final DisconnectRequest decodedPackage = DisconnectRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(listPackage, decodedPackage);
 	}
