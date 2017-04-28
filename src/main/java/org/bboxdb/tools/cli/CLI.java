@@ -209,11 +209,16 @@ public class CLI implements Runnable, AutoCloseable {
 				lineNumber++;
 			}
 			
+			pendingFutures.waitForCompletion();
+			System.out.format("Successfully imported %d lines\n", lineNumber);
+			
 		} catch (IOException e) {
 			System.err.println("Got an exeption while reading file: " + e);
 			System.exit(-1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
 		}
-		
 	}
 
 	/**
