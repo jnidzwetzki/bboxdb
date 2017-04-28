@@ -19,9 +19,11 @@ package org.bboxdb.distribution.placement;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 
 public abstract class ResourcePlacementStrategy {
 
@@ -43,6 +45,20 @@ public abstract class ResourcePlacementStrategy {
 	 */
 	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems) throws ResourceAllocationException {
 		return getInstancesForNewRessource(systems, new HashSet<DistributedInstance>());
+	}
+	
+	/**
+	 * Remove all non ready (state != READWRITE) systems 
+	 * @param systems
+	 */
+	public static void removeAllNonReadySystems(final List<DistributedInstance> systems) {
+		for(final Iterator<DistributedInstance> iter = systems.iterator(); iter.hasNext(); ) {
+			final DistributedInstance system = iter.next();
+			
+			if(system.getState() != DistributedInstanceState.READY) {
+				iter.remove();
+			}
+		}
 	}
 
 }

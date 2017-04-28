@@ -51,7 +51,7 @@ public class RandomResourcePlacementStrategy extends ResourcePlacementStrategy {
 		
 		final List<DistributedInstance> availableSystems = new ArrayList<DistributedInstance>(systems);
 		availableSystems.removeAll(blacklist);
-		PlacementHelper.removeAllNonReadySystems(availableSystems);
+		removeAllNonReadySystems(availableSystems);
 		
 		if(availableSystems.isEmpty()) {
 			throw new ResourceAllocationException("Unable to choose a system, all systems are blacklisted. Blacklisted: " + blacklist + " / All: " + systems);
