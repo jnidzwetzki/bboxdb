@@ -597,15 +597,21 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	}
 	
 	/**
-	 * Get the name of the connetion
+	 * Get the name of the connection
 	 * @return
 	 */
 	public String getConnectionName() {
-		if(clientSocket == null) {
-			return "";
+		
+		final StringBuilder sb = new StringBuilder("Connection: ");
+
+		if(clientSocket != null) {
+			sb.append("Client: ");
+			sb.append(clientSocket.getRemoteSocketAddress().toString());
+			sb.append(" to: ");
+			sb.append(clientSocket.getLocalAddress().toString());
 		}
 		
-		return clientSocket.getInetAddress().toString();
+		return sb.toString();
 	}
 	
 	class ConnectionMaintenanceThread extends ExceptionSafeThread {
