@@ -14,6 +14,6 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-java $jvm_ops_tools -cp $classpath org.bboxdb.tools.cli.CLI "$@"
+java $jvm_ops_tools -Dlog4j.configuration=log4j_warn.properties -cp $classpath org.bboxdb.tools.cli.CLI "$@"
 
 exit 0
