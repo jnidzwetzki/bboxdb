@@ -42,7 +42,6 @@ import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.converter.osm.OSMDataConverter;
 import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +75,7 @@ public class CLI implements Runnable, AutoCloseable {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(OSMDataConverter.class);
+	private final static Logger logger = LoggerFactory.getLogger(CLI.class);
 	
 	public CLI(final CommandLine line) {
 		this.line = line;
