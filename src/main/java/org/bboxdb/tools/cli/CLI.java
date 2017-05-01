@@ -211,7 +211,9 @@ public class CLI implements Runnable, AutoCloseable {
 			}
 			
 			for(final Tuple tuple : resultFuture) {
-				System.out.println(tuple);
+				System.out.format("Key %s, BoundingBox=%s, value=%s, version timestamp=%d\n",
+						tuple.getKey(), tuple.getBoundingBox(), tuple.getDataBytes(), 
+						tuple.getVersionTimestamp());
 			}
 			
 			System.out.println("Query done");
