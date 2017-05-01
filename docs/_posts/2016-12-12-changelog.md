@@ -21,6 +21,7 @@ order: 1
 - Bugfix: The count lines script searches in the wrong directory for source files
 - Bugfix: Flush pending server responses on connection close
 - Bugfix: Don't send keep alive packages on closing connections
+- Bugfix: Fixed wrong table name in BBox queries
 
 ### Version 0.2.4 (Stable) - 23.04.2017
 - New Feature: Support multiple storage locations
