@@ -212,7 +212,7 @@ public class CLI implements Runnable, AutoCloseable {
 			
 			for(final Tuple tuple : resultFuture) {
 				System.out.format("Key %s, BoundingBox=%s, value=%s, version timestamp=%d\n",
-						tuple.getKey(), tuple.getBoundingBox(), tuple.getDataBytes(), 
+						tuple.getKey(), tuple.getBoundingBox(), new String(tuple.getDataBytes()), 
 						tuple.getVersionTimestamp());
 			}
 			
