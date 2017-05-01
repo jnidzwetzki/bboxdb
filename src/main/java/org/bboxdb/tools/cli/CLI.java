@@ -234,21 +234,29 @@ public class CLI implements Runnable, AutoCloseable {
 	protected TupleListFuture buildQueryFuture(final CommandLine line)
 			throws BBoxDBException {
 		
-		final String table = line.getOptionValue(CLIParameter.KEY);
+		final String table = line.getOptionValue(CLIParameter.TABLE);
 
 		if(line.hasOption(CLIParameter.KEY)) {
+			System.out.println("Executing key query..");
 			final String key = line.getOptionValue(CLIParameter.KEY);
 			return bboxDbConnection.queryKey(table, key);
+			
 		} else if(line.hasOption(CLIParameter.BOUNDING_BOX) && line.hasOption(CLIParameter.TIMESTAMP)) {
+			System.out.println("Executing bounding box and time query...");
 			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
 			final long timestamp = getTimestampFromArgs();
 			return bboxDbConnection.queryBoundingBoxAndTime(table, boundingBox, timestamp);
+			
 		} else if(line.hasOption(CLIParameter.BOUNDING_BOX)) {
+			System.out.println("Executing bounding box query...");
 			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
 			return bboxDbConnection.queryBoundingBox(table, boundingBox);
+			
 		} else if(line.hasOption(CLIParameter.TIMESTAMP)) { 
+			System.out.println("Executing time query...");
 			final long timestamp = getTimestampFromArgs();
 			return bboxDbConnection.queryVersionTime(table, timestamp);
+			
 		} else {
 			System.err.println("Unable to execute query with the specified parameter");
 			printHelpAndExit();
@@ -359,6 +367,8 @@ public class CLI implements Runnable, AutoCloseable {
 		final BoundingBox boundingBox = getBoundingBoxFromArgs(line);
 		
 		final Tuple tuple = new Tuple(key, boundingBox, value.getBytes());
+		
+		System.out.println("Insert new tuple into table: " + table);
 		
 		try {
 			final EmptyResultFuture future = bboxDbConnection.insertTuple(table, tuple);
