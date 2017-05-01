@@ -19,7 +19,6 @@ package org.bboxdb.network.client.future;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -89,6 +88,20 @@ public class OperationFutureImpl<T> implements OperationFuture {
 		
 		return futures.get(resultId).getMessage();
 	}
+	
+	@Override
+	public void setConnectionName(final int resultId, final String connectionName) {
+		checkFutureSize(resultId);
+
+		futures.get(resultId).setConnectionName(connectionName);
+	}
+
+	@Override
+	public String getConnectonName(final int resultId) {
+		checkFutureSize(resultId);
+
+		return futures.get(resultId).getConnectionName();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.future.OperationFuture#getAllMessages()
@@ -97,8 +110,8 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	public String getAllMessages() {
 		return futures
 		.stream()
-		.map(FutureImplementation::getMessage)
-		.filter(Objects::nonNull)
+		.filter(f -> f.getMessage() != null)
+		.map(f -> f.getMessageWithConnectionName())
 		.collect(Collectors.joining(",", "[", "]"));
 	}
 	

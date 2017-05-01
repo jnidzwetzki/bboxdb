@@ -64,6 +64,11 @@ public class FutureImplementation<T> {
 	protected long completionTime;
 	
 	/**
+	 * The associated connection
+	 */
+	protected String connectionName;
+	
+	/**
 	 * Empty constructor
 	 */
 	public FutureImplementation() {
@@ -214,12 +219,11 @@ public class FutureImplementation<T> {
 
 	@Override
 	public String toString() {
-		return "FutureImplementation [requestId=" + requestId
-				+ ", operationResult=" + operationResult + ", mutex=" + mutex
-				+ ", failed=" + failed + ", done=" + done + ", message="
-				+ message + "]";
+		return "FutureImplementation [requestId=" + requestId + ", operationResult=" + operationResult + ", mutex="
+				+ mutex + ", failed=" + failed + ", done=" + done + ", message=" + message + ", startTime=" + startTime
+				+ ", completionTime=" + completionTime + ", connectionId=" + connectionName + "]";
 	}
-	
+
 	/**
 	 * Get the elapsed time in nanoseconds for task completion
 	 * @return
@@ -230,6 +234,36 @@ public class FutureImplementation<T> {
 		}
 		
 		return completionTime - startTime;
+	}
+
+	/**
+	 * Get the id of the connection
+	 * @return
+	 */
+	public String getConnectionName() {
+		return connectionName;
+	}
+
+	/**
+	 * Set the id of the connection
+	 * @param connectionName
+	 */
+	public void setConnectionName(final String connectionName) {
+		this.connectionName = connectionName;
+	}
+	
+	/**
+	 * Get the message and the connection id in a human readable format
+	 * @return
+	 */
+	public String getMessageWithConnectionName() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("[message=");
+		sb.append(getMessage());
+		sb.append(", connection=");
+		sb.append(getConnectionName());
+		sb.append("]");
+		return sb.toString();
 	}
 	
 }

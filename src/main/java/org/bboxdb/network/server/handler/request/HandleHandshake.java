@@ -60,11 +60,7 @@ public class HandleHandshake implements RequestHandler {
 		} catch(Exception e) {
 			logger.warn("Error while reading network package", e);
 
-			final String errorMessage 
-				= RequestHandlerHelper.appendSocketDataToError(ErrorMessages.ERROR_EXCEPTION, 
-					clientConnectionHandler);
-			
-			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
+			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
 			return false;
 		}

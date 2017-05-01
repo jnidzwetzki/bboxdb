@@ -73,11 +73,7 @@ public class HandleDeleteDistributionGroup implements RequestHandler {
 		} catch (Exception e) {
 			logger.warn("Error while delete distribution group", e);
 			
-			final String errorMessage 
-				= RequestHandlerHelper.appendSocketDataToError(ErrorMessages.ERROR_EXCEPTION, 
-					clientConnectionHandler);
-			
-			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
+			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
 		}
 		

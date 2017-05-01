@@ -27,55 +27,67 @@ public interface OperationFuture {
 	 * Set the request id of the operation
 	 * @return
 	 */
-	public abstract void setRequestId(int resultId, short requestId);
+	public void setRequestId(final int resultId, final short requestId);
 
 	/**
 	 * Get the request id of the operation
 	 * @return
 	 */
-	public abstract short getRequestId(int resultId);
+	public short getRequestId(final int resultId);
 
 	/**
 	 * Set the additional message
 	 * @param resultId
 	 * @param message
 	 */
-	public abstract void setMessage(int resultId, String message);
+	public void setMessage(final int resultId, final String message);
 
 	/**
 	 * Get the additional message
 	 * @param resultId
 	 * @return 
 	 */
-	public abstract String getMessage(int resultId);
+	public String getMessage(final int resultId);
+	
+	/**
+	 * Set the connection id for the future
+	 * @param resultId
+	 * @param connectionId
+	 */
+	public void setConnectionName(final int resultId, final String connectionName);
+	
+	/**
+	 * Get the connection id from the future
+	 */
+	public String getConnectonName(final int resultId);
 	
 	/**
 	 * Get the additional messages from all results [message1, message2, ...]
 	 * @return
 	 */
-	public abstract String getAllMessages();
+	public String getAllMessages();
 
 	/**
 	 * Is the future processed successfully or are errors occurred?
 	 * @return
 	 */
-	public abstract boolean isFailed();
+	public boolean isFailed();
 
 	/**
 	 * Set the failed state
 	 */
-	public abstract void setFailedState();
+	public void setFailedState();
 
 	/**
 	 * Is the future done
 	 */
-	public abstract boolean isDone();
+	public boolean isDone();
 
 	/**
 	 * Get the number of result objects
 	 * @return
 	 */
-	public abstract int getNumberOfResultObjets();
+	public int getNumberOfResultObjets();
 
 	/**
 	 * Wait for all futures to complete
@@ -83,7 +95,7 @@ public interface OperationFuture {
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
-	public abstract boolean waitForAll() throws InterruptedException;
+	public boolean waitForAll() throws InterruptedException;
 	
 	/**
 	 * Wait for the future to complete (with timeout)
