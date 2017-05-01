@@ -327,6 +327,8 @@ public class CLI implements Runnable, AutoCloseable {
 		final String key = line.getOptionValue(CLIParameter.KEY);
 		final String table = line.getOptionValue(CLIParameter.TABLE);
 		
+		System.out.println("Deleting tuple for key: " + key);
+		
 		try {
 			final EmptyResultFuture resultFuture = bboxDbConnection.deleteTuple(table, key);
 			pendingFutures.put(resultFuture);
