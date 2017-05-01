@@ -317,8 +317,10 @@ public class BBoxDBCluster implements BBoxDB {
 		final TupleListFuture future = new TupleListFuture();
 		
 		try {
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
-					table, zookeeperClient);
+			final SSTableName sstableName = new SSTableName(table);
+
+			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
+					sstableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(boundingBox);
@@ -355,8 +357,9 @@ public class BBoxDBCluster implements BBoxDB {
 		final TupleListFuture future = new TupleListFuture();
 		
 		try {
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
-					table, zookeeperClient);
+			final SSTableName sstableName = new SSTableName(table);
+			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
+					sstableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(boundingBox);
