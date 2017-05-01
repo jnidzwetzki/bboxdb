@@ -127,12 +127,17 @@ public class CLI implements Runnable, AutoCloseable {
 		}
 		
 		// Connect to zookeeper
+		System.out.print("Connecting to BBoxDB cluster...");
+		System.out.flush();
 		bboxDbConnection = new BBoxDBCluster(zookeeperHost, clustername);
 		
 		if( ! bboxDbConnection.connect() ) {
+			System.err.println(" ERROR");
 			System.err.println("Unable to connect to the BBoxDB Server");
 			System.exit(-1);
 		}
+		
+		System.out.println(" [Established]");
 		
 		if(line.hasOption(CLIParameter.VERBOSE)) {
 			org.apache.log4j.Logger logger4j = org.apache.log4j.Logger.getRootLogger();
