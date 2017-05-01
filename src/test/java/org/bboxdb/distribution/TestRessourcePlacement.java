@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.placement.RandomResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.RoundRobinResourcePlacementStrategy;
@@ -129,11 +130,27 @@ public class TestRessourcePlacement {
 	}
 	
 	/**
+	 * No system is ready
+	 * @throws ResourceAllocationException 
+	 */
+	@Test(expected=ResourceAllocationException.class)
+	public void testNonReadySystems2() throws ResourceAllocationException {
+		final ResourcePlacementStrategy resourcePlacementStrategy = new RandomResourcePlacementStrategy();
+		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
+		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.OUTDATED));
+		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.UNKNOWN));
+		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.UNKNOWN));
+		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.UNKNOWN));
+		
+		resourcePlacementStrategy.getInstancesForNewRessource(systems);
+	}
+	
+	/**
 	 * Only ready systems should be returned
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testNonReadySystems2() throws ResourceAllocationException {
+	public void testNonReadySystems3() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = new RoundRobinResourcePlacementStrategy();
 		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
 		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.OUTDATED));
@@ -141,9 +158,26 @@ public class TestRessourcePlacement {
 		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.UNKNOWN));
 		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READY));
 		
-		Assert.assertEquals(systems.get(3), resourcePlacementStrategy.getInstancesForNewRessource(systems));
-		Assert.assertEquals(systems.get(3), resourcePlacementStrategy.getInstancesForNewRessource(systems));
-		Assert.assertEquals(systems.get(3), resourcePlacementStrategy.getInstancesForNewRessource(systems));
-		Assert.assertEquals(systems.get(3), resourcePlacementStrategy.getInstancesForNewRessource(systems));
+		for(int i = 0; i < 100; i++) {
+			Assert.assertEquals(systems.get(3), resourcePlacementStrategy.getInstancesForNewRessource(systems));
+		}
+	}
+	
+	/**
+	 * Only ready systems should be returned
+	 * @throws ResourceAllocationException 
+	 */
+	@Test
+	public void testNonReadySystems4() throws ResourceAllocationException {
+		final ResourcePlacementStrategy resourcePlacementStrategy = new RandomResourcePlacementStrategy();
+		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
+		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.OUTDATED));
+		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.UNKNOWN));
+		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.UNKNOWN));
+		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READY));
+		
+		for(int i = 0; i < 100; i++) {
+			Assert.assertEquals(systems.get(3), resourcePlacementStrategy.getInstancesForNewRessource(systems));
+		}
 	}
 }
