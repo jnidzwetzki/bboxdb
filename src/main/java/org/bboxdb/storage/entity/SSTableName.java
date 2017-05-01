@@ -126,11 +126,14 @@ public class SSTableName {
 		if(parts.length != 3 && parts.length != 4) {
 			logger.warn("Got invalid tablename: " + fullname);
 			
+			/*
+			// Print full stack trace
 			final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 			for(final StackTraceElement stackTraceElement : stackTrace) {
 				logger.warn(stackTraceElement.toString());
-
 			}
+			*/
+			
 			return false;
 		}
 		
