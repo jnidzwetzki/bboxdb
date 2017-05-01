@@ -126,7 +126,7 @@ public class CLI implements Runnable, AutoCloseable {
 			clustername = line.getOptionValue(CLIParameter.CLUSTER_NAME);
 		}
 		
-		// Connect to zookeeper
+		// Connect to zookeeper and BBoxDB
 		System.out.print("Connecting to BBoxDB cluster...");
 		System.out.flush();
 		bboxDbConnection = new BBoxDBCluster(zookeeperHost, clustername);
@@ -164,11 +164,11 @@ public class CLI implements Runnable, AutoCloseable {
 			break;
 			
 		case CLIAction.INSERT:
-			actionInsert(line);
+			actionInsertTuple(line);
 			break;
 			
 		case CLIAction.DELETE:
-			actionDelete(line);
+			actionDeleteTuple(line);
 			break;
 
 		default:
@@ -308,7 +308,7 @@ public class CLI implements Runnable, AutoCloseable {
 	 * Delete a tuple
 	 * @param line
 	 */
-	protected void actionDelete(final CommandLine line) {
+	protected void actionDeleteTuple(final CommandLine line) {
 		
 		if(! line.hasOption(CLIParameter.KEY) || ! line.hasOption(CLIParameter.TABLE)) {
 			System.err.println("Key or table are missing");
@@ -348,7 +348,7 @@ public class CLI implements Runnable, AutoCloseable {
 	 * Insert a new tuple
 	 * @param line
 	 */
-	protected void actionInsert(final CommandLine line) {
+	protected void actionInsertTuple(final CommandLine line) {
 		final List<String> requiredArgs = Arrays.asList(CLIParameter.TABLE,
 				CLIParameter.KEY, CLIParameter.BOUNDING_BOX, CLIParameter.VALUE);
 		
@@ -455,9 +455,10 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param line
 	 */
 	protected void actionDeleteDgroup(final CommandLine line) {
-		logger.debug("Delete a new distribution group");
 		final String distributionGroup = line.getOptionValue(CLIParameter.DISTRIBUTION_GROUP);
 		
+		System.out.println("Deleting distribution group: " + distributionGroup);
+
 		try {
 			final EmptyResultFuture future 
 				= bboxDbConnection.deleteDistributionGroup(distributionGroup);
@@ -482,15 +483,16 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param line
 	 */
 	protected void actionCreateDgroup(final CommandLine line) {
-		logger.debug("Create a new distribution group");
 		
 		final List<String> requiredArgs = Arrays.asList(CLIParameter.DISTRIBUTION_GROUP, 
 				CLIParameter.REPLICATION_FACTOR);
-		
+			
 		checkRequiredArgs(requiredArgs);
 		
 		final String distributionGroup = line.getOptionValue(CLIParameter.DISTRIBUTION_GROUP);
 		final String replicationFactorString = line.getOptionValue(CLIParameter.REPLICATION_FACTOR);
+		
+		System.out.println("Create new distribution group: " + distributionGroup);
 		
 		try {
 			final int replicationFactor = Integer.parseInt(replicationFactorString);
