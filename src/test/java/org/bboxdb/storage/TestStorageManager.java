@@ -151,6 +151,8 @@ public class TestStorageManager {
 			}
 		}
 		
+		
+		
 		// Let the storage manager swap the memtables out
 		Thread.sleep(10000);
 		
@@ -191,7 +193,7 @@ public class TestStorageManager {
 			Assert.assertEquals(null, resultTuple2);
 		}
 	}
-	
+	/*
 	@Test
 	public void testBigInsert() throws Exception {
 
@@ -215,7 +217,7 @@ public class TestStorageManager {
 			
 			Assert.assertEquals(Integer.toString(i), new String(tuple.getDataBytes()));
 		}
-	}
+	}*/
 	
 	/**
 	 * Number of tuples for big insert
