@@ -89,10 +89,6 @@ class MemtableFlushThread extends ExceptionSafeThread {
 
 				flushMemtableToDisk(memtable);
 				
-				// Notify waiter (e.g. the checkpoint thread)
-				synchronized (unflushedMemtables) {
-					unflushedMemtables.notifyAll();
-				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				return;
@@ -108,31 +104,29 @@ class MemtableFlushThread extends ExceptionSafeThread {
 	 * 
 	 */
 	protected void flushMemtableToDisk(final Memtable memtable) {
-		
-		if (memtable == null || memtable.isEmpty()) {
-			return;
-		}
 
 		try {
-			final SSTableName sstableName = sstableManager.getSSTableName();
-			final String dataDirectory = StorageRegistry.getInstance().getStorageDirForSSTable(sstableName);
-			final int tableNumber = writeMemtable(dataDirectory, memtable);
-			final SSTableFacade facade = new SSTableFacade(dataDirectory, sstableName, tableNumber);
+			SSTableFacade facade = null;
 			
-			facade.init();
+			// Don't write empty memtables to disk
+			if (! memtable.isEmpty()) {
+				final SSTableName sstableName = sstableManager.getSSTableName();
+				final String dataDirectory = StorageRegistry.getInstance().getStorageDirForSSTable(sstableName);
+				final int tableNumber = writeMemtable(dataDirectory, memtable);
+				facade = new SSTableFacade(dataDirectory, sstableName, tableNumber);
+				facade.init();
+			}
 			
 			sstableManager.getTupleStoreInstances()
 					.replaceMemtableWithSSTable(memtable, facade);
+						
+			sendCallbacks(memtable);	
 			
-			logger.debug("Replacing memtable {} with sstable {}", memtable, facade);
-			
-			sendCallbacks(memtable);		
+			memtable.deleteOnClose();
+			memtable.release();
 		} catch (Exception e) {
 			handleExceptionDuringFlush(e);
 		}
-
-		memtable.deleteOnClose();
-		memtable.release();
 	}
 
 	/**

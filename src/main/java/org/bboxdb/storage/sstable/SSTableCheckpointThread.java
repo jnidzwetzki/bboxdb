@@ -18,7 +18,6 @@
 package org.bboxdb.storage.sstable;
 
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.storage.Memtable;
@@ -112,15 +111,10 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 			logger.debug("Create a checkpoint for: {}", threadname);
 			ssTableManager.flushAndInitMemtable();
 			
-			final Queue<Memtable> unflushedMemtables 
-				= ssTableManager.getTupleStoreInstances().getMemtablesToFlush();
-			
-			// Wait until the active memtable is flushed to disk
-			synchronized (unflushedMemtables) {
-				while(unflushedMemtables.contains(activeMemtable)) {
-					unflushedMemtables.wait();
-				}
-			}
+			final TupleStoreInstanceManager tupleStoreInstances 
+				= ssTableManager.getTupleStoreInstances();
+
+			tupleStoreInstances.waitForMemtableFlush(activeMemtable);
 			
 			logger.info("Create checkpoint DONE for: {}", threadname);
 		}		

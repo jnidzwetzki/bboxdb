@@ -18,7 +18,6 @@
 package org.bboxdb.storage;
 
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
@@ -28,6 +27,7 @@ import org.bboxdb.storage.queryprocessor.QueryProcessor;
 import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.sstable.TupleStoreInstanceManager;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -126,23 +126,22 @@ public class TestQueryProcessing {
 
 		storageManager.clear();
 		
-		final BlockingQueue<Memtable> unflushedMemmtables = storageManager.getTupleStoreInstances()
-				.getMemtablesToFlush();
+		final TupleStoreInstanceManager tupleStoreInstances = storageManager.getTupleStoreInstances();
 		
 		final Memtable activeMemtable1 = storageManager.getMemtable();
 		storageManager.put(tuple1);
 		storageManager.flushAndInitMemtable();
-		waitForMemtableFlush(unflushedMemmtables, activeMemtable1);
+		tupleStoreInstances.waitForMemtableFlush(activeMemtable1);
 		
 		final Memtable activeMemtable2 = storageManager.getMemtable();
 		storageManager.put(tuple2);
 		storageManager.flushAndInitMemtable();
-		waitForMemtableFlush(unflushedMemmtables, activeMemtable2);
+		tupleStoreInstances.waitForMemtableFlush(activeMemtable2);
 		
 		final Memtable activeMemtable3 = storageManager.getMemtable();
 		storageManager.put(tuple3);
 		storageManager.flushAndInitMemtable();
-		waitForMemtableFlush(unflushedMemmtables, activeMemtable3);
+		tupleStoreInstances.waitForMemtableFlush(activeMemtable3);
 		
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
 		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
@@ -174,23 +173,22 @@ public class TestQueryProcessing {
 
 		storageManager.clear();
 		
-		final BlockingQueue<Memtable> unflushedMemmtables = storageManager.getTupleStoreInstances()
-				.getMemtablesToFlush();
+		final TupleStoreInstanceManager tupleStoreInstances = storageManager.getTupleStoreInstances();
 		
 		final Memtable activeMemtable1 = storageManager.getMemtable();
 		storageManager.put(tuple1);
 		storageManager.flushAndInitMemtable();
-		waitForMemtableFlush(unflushedMemmtables, activeMemtable1);
+		tupleStoreInstances.waitForMemtableFlush(activeMemtable1);
 		
 		final Memtable activeMemtable2 = storageManager.getMemtable();
 		storageManager.put(tuple2);
 		storageManager.flushAndInitMemtable();
-		waitForMemtableFlush(unflushedMemmtables, activeMemtable2);
+		tupleStoreInstances.waitForMemtableFlush(activeMemtable2);
 		
 		final Memtable activeMemtable3 = storageManager.getMemtable();
 		storageManager.put(tuple3);
 		storageManager.flushAndInitMemtable();
-		waitForMemtableFlush(unflushedMemmtables, activeMemtable3);
+		tupleStoreInstances.waitForMemtableFlush(activeMemtable3);
 		
 		final boolean compactResult = storageManager.compactSStablesNow();
 		Assert.assertTrue(compactResult);
@@ -207,23 +205,6 @@ public class TestQueryProcessing {
 		Assert.assertFalse(resultList.contains(tuple1));
 		Assert.assertTrue(resultList.contains(tuple2));
 		Assert.assertTrue(resultList.contains(tuple3));
-	}
-
-	/**
-	 * Wait for the memtable flush
-	 * @param unflushedMemmtables
-	 * @param activeMemtable1
-	 * @throws InterruptedException
-	 */
-	protected void waitForMemtableFlush(final BlockingQueue<Memtable> unflushedMemmtables,
-			final Memtable activeMemtable1) throws InterruptedException {
-		
-		synchronized (unflushedMemmtables) {
-			while(unflushedMemmtables.contains(activeMemtable1)) {
-				unflushedMemmtables.wait();
-			}
-		}
-	}
-	
+	}	
 
 }

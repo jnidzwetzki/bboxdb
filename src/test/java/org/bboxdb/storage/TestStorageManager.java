@@ -17,14 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.storage;
 
-import java.util.concurrent.BlockingQueue;
-
 import org.bboxdb.PersonEntity;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.sstable.TupleStoreInstanceManager;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.ObjectSerializer;
 import org.junit.Assert;
@@ -127,7 +126,9 @@ public class TestStorageManager {
 			}
 		}
 		
-		waitForMemtableFlush();
+		final Memtable oldMemtable = storageManager.getMemtable();
+		storageManager.flushAndInitMemtable();
+		waitForMemtableFlush(oldMemtable);
 		
 		final Tuple resultTuple = storageManager.get(Integer.toString(SPECIAL_TUPLE));
 		
@@ -154,7 +155,9 @@ public class TestStorageManager {
 		}
 		
 		// Let the storage manager swap the memtables out
-		waitForMemtableFlush();
+		final Memtable oldMemtable = storageManager.getMemtable();
+		storageManager.flushAndInitMemtable();
+		waitForMemtableFlush(oldMemtable);		
 		
 		// Fetch the deleted tuple
 		final Tuple resultTuple2 = storageManager.get(Integer.toString(SPECIAL_TUPLE));
@@ -165,22 +168,18 @@ public class TestStorageManager {
 	 * Wait for the memtable to disk flush
 	 * @throws InterruptedException
 	 */
-	protected void waitForMemtableFlush() throws InterruptedException {
+	protected void waitForMemtableFlush(final Memtable activeMemtable) throws InterruptedException {
 		final boolean flushActive = BBoxDBConfigurationManager.getConfiguration().isStorageRunMemtableFlushThread();
 		
 		// Flush thread is not active, return immediately
 		if(! flushActive) {
 			return;
 		}
-		
-		final BlockingQueue<Memtable> memtablesToFlush 
-			= storageManager.getTupleStoreInstances().getMemtablesToFlush();
-		
-		synchronized (memtablesToFlush) {
-			while(! memtablesToFlush.isEmpty()) {
-				memtablesToFlush.wait();
-			}
-		}
+
+		final TupleStoreInstanceManager tupleStoreInstances 
+		= storageManager.getTupleStoreInstances();
+
+		tupleStoreInstances.waitForMemtableFlush(activeMemtable);
 	}
 	
 	/**
@@ -205,7 +204,9 @@ public class TestStorageManager {
 			storageManager.delete(Integer.toString(i), MicroSecondTimestampProvider.getNewTimestamp());
 		}
 		
-		waitForMemtableFlush();
+		final Memtable oldMemtable = storageManager.getMemtable();
+		storageManager.flushAndInitMemtable();
+		waitForMemtableFlush(oldMemtable);
 		
 		System.out.println("Reading tuples...");
 		// Fetch the deleted tuples

@@ -66,13 +66,18 @@ public class TupleStoreInstanceManager {
 	/**
 	 * Activate a new memtable, the old memtable is transfered into the
 	 * unflushed memtable list and also pushed into the flush queue
+	 * 
 	 * @param newMemtable
 	 */
 	public void activateNewMemtable(final Memtable newMemtable) {
 		
-		// Waiting outside of the synchonized area.
-		// Because, otherwise no other threads can replace
-		// unflushed memtables with sstables and block forever
+		// The put call can block when more than
+		// MAX_UNFLUSHED_MEMTABLES_PER_TABLE are unflushed.
+		//
+		// So we wait otside of the synchonized area.
+		// Because, otherwise no other threads could call
+		// replaceMemtableWithSSTable() and reduce
+		// the queue size
 		if(memtable != null) {
 			try {
 				memtablesToFlush.put(memtable);
@@ -98,8 +103,18 @@ public class TupleStoreInstanceManager {
 	public synchronized void replaceMemtableWithSSTable(final Memtable memtable, 
 			final SSTableFacade sstableFacade) {
 		
-		sstableFacades.add(sstableFacade);
+		//logger.debug("Replacing memtable {} with sstable {}", memtable, sstableFacade);
+		
+		// The memtable could be empty and no data was 
+		// written to disk
+		if(sstableFacade != null) {
+			sstableFacades.add(sstableFacade);
+		}
+		
 		unflushedMemtables.remove(memtable);
+		
+		// Notify waiter (e.g. the checkpoint thread)
+		this.notifyAll();
 	}
 	
 	/**
@@ -181,5 +196,18 @@ public class TupleStoreInstanceManager {
 		resultList.add(memtable);
 		resultList.addAll(unflushedMemtables);
 		return resultList;
+	}
+	
+	/**
+	 * Wait until the memtable is flushed to disk
+	 * @param memtable
+	 * @throws InterruptedException 
+	 */
+	public void waitForMemtableFlush(final Memtable memtable) throws InterruptedException {
+		synchronized (this) {
+			while(unflushedMemtables.contains(memtable)) {
+				this.wait();
+			}
+		}
 	}
 }
