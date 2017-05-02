@@ -112,8 +112,9 @@ public class TupleStoreInstanceManager {
 		}
 		
 		final boolean removeResult = unflushedMemtables.remove(memtable);
-		assert (removeResult == true) : "Unable to remove memtable from unflushed list: " + memtable;
 		
+		assert (removeResult == true) : "Unable to remove memtable from unflushed list: " 
+				+ memtable + "/" + unflushedMemtables;
 		
 		// Notify waiter (e.g. the checkpoint thread)
 		this.notifyAll();
