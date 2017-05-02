@@ -56,10 +56,10 @@ public class TupleStoreInstanceManager {
 	protected final BlockingQueue<Memtable> memtablesToFlush;
 	
 	public TupleStoreInstanceManager() {
-		sstableFacades = new ArrayList<SSTableFacade>();
-		unflushedMemtables = new ArrayList<Memtable>();
+		sstableFacades = new ArrayList<>();
+		unflushedMemtables = new ArrayList<>();
 		
-		memtablesToFlush = new ArrayBlockingQueue<Memtable>
+		memtablesToFlush = new ArrayBlockingQueue<>
 			(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
 	}
 	
@@ -111,7 +111,9 @@ public class TupleStoreInstanceManager {
 			sstableFacades.add(sstableFacade);
 		}
 		
-		unflushedMemtables.remove(memtable);
+		final boolean removeResult = unflushedMemtables.remove(memtable);
+		assert (removeResult == true) : "Unable to remove memtable from unflushed list: " + memtable;
+		
 		
 		// Notify waiter (e.g. the checkpoint thread)
 		this.notifyAll();
