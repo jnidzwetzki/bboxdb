@@ -145,7 +145,8 @@ public class TupleStoreInstanceManager {
 	 * @return
 	 */
 	public synchronized List<ReadOnlyTupleStorage> getAllTupleStorages() {
-		final List<ReadOnlyTupleStorage> allStorages = new ArrayList<ReadOnlyTupleStorage>();
+		final List<ReadOnlyTupleStorage> allStorages = new ArrayList<>();
+		
 		allStorages.add(memtable);
 		allStorages.addAll(unflushedMemtables);
 		allStorages.addAll(sstableFacades);
