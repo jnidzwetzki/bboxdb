@@ -126,6 +126,7 @@ class MemtableFlushThread extends ExceptionSafeThread {
 						
 			sendCallbacks(memtable);	
 			
+			logger.error("---> Schedule delete for: " + memtable.getInternalName());
 			memtable.deleteOnClose();
 			memtable.release();
 		} catch (Exception e) {

@@ -533,6 +533,11 @@ public class SSTableManager implements BBoxDBService {
 			}
 		}
 		
+		final List<ReadOnlyTupleStorage> knownStorages = tupleStoreInstances.getAllTupleStorages();
+		for(ReadOnlyTupleStorage storage : knownStorages) {
+			System.err.println("---> " + storage.getInternalName() + " / " + storage.acquire());
+		}
+		
 		throw new StorageManagerException("Unable to aquire all sstables in " 
 				+ Const.OPERATION_RETRY + " retries");
 	}

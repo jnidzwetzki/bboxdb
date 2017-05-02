@@ -45,7 +45,7 @@ public class TestQueryProcessing {
 	 * Simple BBox query
 	 * @throws StorageManagerException
 	 */
-//	@Test
+	@Test
 	public void testBBoxQuery1() throws StorageManagerException {
 		
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
