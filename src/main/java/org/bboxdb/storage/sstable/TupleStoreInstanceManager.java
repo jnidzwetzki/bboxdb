@@ -74,9 +74,7 @@ public class TupleStoreInstanceManager {
 		synchronized (this) {
 			if(memtable != null) {
 				unflushedMemtables.add(memtable);
-			}
-			
-			memtable = newMemtable;
+			}			
 		}
 		
 		// The put call can block when more than
@@ -93,8 +91,10 @@ public class TupleStoreInstanceManager {
 				Thread.currentThread().interrupt();
 			}
 		}
-
-
+		
+		synchronized (this) {
+			memtable = newMemtable;
+		}
 	}
 	
 	/**
