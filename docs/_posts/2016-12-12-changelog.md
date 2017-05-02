@@ -17,12 +17,12 @@ order: 1
 - Improvement: Upgraded from Zookeeper 3.4.9 to Zookeeper 3.4.10 and from slf4j 1.7.21 to 1.7.25 and from log4j 1.2.16 to 1.2.17
 - Improvement: Print connection information on failing futures
 - Bugfix: The checkpoint thread was waiting forever for flushed events
-- Bugfix: Don't include the content of the conf/ directory in the jar
+- Bugfix: Don’t include the content of the conf/ directory in the jar
 - Bugfix: The count lines script searches in the wrong directory for source files
 - Bugfix: Flush pending server responses on connection close
-- Bugfix: Don't send keep alive packages on closing connections
+- Bugfix: Don’t send keep-alive packages on closing connections
 - Bugfix: Fixed wrong table name in BBox queries
-- Bugfix: The spatial index was not build during compactification
+- Bugfix: The spatial index was not built during compactification
 - Bugfix: Remove also empty memtables from unflushed table list
 - Bugfix: Fixed a race condition, which prevented the deletion of flushed memtables from unflushed list
 
