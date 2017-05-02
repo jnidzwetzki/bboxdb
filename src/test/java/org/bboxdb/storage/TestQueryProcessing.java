@@ -146,7 +146,58 @@ public class TestQueryProcessing {
 		
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
 		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
+		
+		final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
+		final CloseableIterator<Tuple> iterator = queryProcessor.iterator();
+		
+		final List<Tuple> resultList = Lists.newArrayList(iterator);
+		
+		Assert.assertEquals(2, resultList.size());
+		Assert.assertFalse(resultList.contains(tuple1));
+		Assert.assertTrue(resultList.contains(tuple2));
+		Assert.assertTrue(resultList.contains(tuple3));
+	}
+	
+	/** 
+	 * Simple BBox query - across multiple tables on disk - after compact
+	 * @throws StorageManagerException
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testBBoxQuery4() throws StorageManagerException, InterruptedException {
+		
+		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
 
+		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
+		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
+		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
+
+		storageManager.clear();
+		
+		final BlockingQueue<Memtable> unflushedMemmtables = storageManager.getTupleStoreInstances()
+				.getMemtablesToFlush();
+		
+		final Memtable activeMemtable1 = storageManager.getMemtable();
+		storageManager.put(tuple1);
+		storageManager.flushAndInitMemtable();
+		waitForMemtableFlush(unflushedMemmtables, activeMemtable1);
+		
+		final Memtable activeMemtable2 = storageManager.getMemtable();
+		storageManager.put(tuple2);
+		storageManager.flushAndInitMemtable();
+		waitForMemtableFlush(unflushedMemmtables, activeMemtable2);
+		
+		final Memtable activeMemtable3 = storageManager.getMemtable();
+		storageManager.put(tuple3);
+		storageManager.flushAndInitMemtable();
+		waitForMemtableFlush(unflushedMemmtables, activeMemtable3);
+		
+		final boolean compactResult = storageManager.compactSStablesNow();
+		Assert.assertTrue(compactResult);
+		
+		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
+		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
+		
 		final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
 		final CloseableIterator<Tuple> iterator = queryProcessor.iterator();
 		

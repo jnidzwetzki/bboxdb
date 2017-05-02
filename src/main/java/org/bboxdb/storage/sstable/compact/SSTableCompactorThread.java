@@ -77,22 +77,10 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		initRegionSplitter();
 	
 		while(! Thread.currentThread().isInterrupted()) {
-
 			try {	
 				Thread.sleep(mergeStragegy.getCompactorDelay());
 				logger.debug("Executing compact thread for: {}", threadname);
-
-				// Create a copy to ensure, that the list of facades don't change
-				// during the compact run.
-				final List<SSTableFacade> facades = new ArrayList<SSTableFacade>(sstableManager.getTupleStoreInstances().getSstableFacades());
-				final MergeTask mergeTask = mergeStragegy.getMergeTask(facades);
-					
-				try {
-					mergeSSTables(mergeTask.getMinorCompactTables(), false);
-					mergeSSTables(mergeTask.getMajorCompactTables(), true);				
-				} catch (Exception e) {
-					logger.error("Error while merging tables", e);
-				} 
+				execute(); 
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				break;
@@ -100,6 +88,26 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		}
 		
 		logger.info("Compact thread for: {} is done", threadname);
+	}
+
+	/**
+	 * Execute a new compactation
+	 */
+	public synchronized void execute() {
+		
+		// Create a copy to ensure, that the list of facades don't change
+		// during the compact run.
+		final List<SSTableFacade> facades = new ArrayList<>();
+		facades.addAll(sstableManager.getTupleStoreInstances().getSstableFacades());
+		
+		final MergeTask mergeTask = mergeStragegy.getMergeTask(facades);
+			
+		try {
+			mergeSSTables(mergeTask.getMinorCompactTables(), false);
+			mergeSSTables(mergeTask.getMajorCompactTables(), true);				
+		} catch (Exception e) {
+			logger.error("Error while merging tables", e);
+		}
 	}
 
 	/**

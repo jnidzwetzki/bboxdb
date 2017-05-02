@@ -89,6 +89,11 @@ public class SSTableManager implements BBoxDBService {
 	protected long THREAD_WAIT_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
 	
 	/**
+	 * The SSTable compactor
+	 */
+	protected SSTableCompactorThread sstableCompactor;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
@@ -104,6 +109,7 @@ public class SSTableManager implements BBoxDBService {
 		
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		this.runningThreads = new ArrayList<>();
+		this.sstableCompactor = null;
 	}
 
 	/**
@@ -163,7 +169,7 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	protected void startCompactThread() {
 		if(configuration.isStorageRunCompactThread()) {
-			final SSTableCompactorThread sstableCompactor = new SSTableCompactorThread(this);
+			sstableCompactor = new SSTableCompactorThread(this);
 			final Thread compactThread = new Thread(sstableCompactor);
 			compactThread.setName("Compact thread for: " + sstablename.getFullname());
 			compactThread.start();
@@ -681,5 +687,18 @@ public class SSTableManager implements BBoxDBService {
 				releaseStorage(storages);
 			}
 		}
+	}
+	
+	/** 
+	 * Force a SSTable compacation
+	 */
+	public boolean compactSStablesNow() {
+		if(sstableCompactor == null) {
+			return false;
+		}
+		
+		sstableCompactor.execute();
+		
+		return true;
 	}
 }

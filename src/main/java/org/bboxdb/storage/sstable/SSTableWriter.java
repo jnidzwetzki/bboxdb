@@ -333,7 +333,14 @@ public class SSTableWriter implements AutoCloseable {
 			// Add Tuple to the SSTable file
 			writeTupleToFile(tuple);
 			metadataBuilder.addTuple(tuple);
+			
+			// Add tuple to the bloom filter
 			bloomFilter.put(tuple.getKey());
+			
+			// Add tuple to the spatial index
+			final SpatialIndexEntry sIndexentry 
+				= new SpatialIndexEntry(tuple.getKey(), tuple.getBoundingBox());
+			spatialIndex.insert(sIndexentry);
 		} catch (IOException e) {
 			exceptionDuringWrite = true;
 			throw new StorageManagerException("Unable to write tuple to SSTable", e);
