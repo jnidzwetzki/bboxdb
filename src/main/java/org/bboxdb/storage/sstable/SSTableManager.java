@@ -503,7 +503,7 @@ public class SSTableManager implements BBoxDBService {
 
 		for(int execution = 0; execution < Const.OPERATION_RETRY; execution++) {
 			
-			final List<ReadOnlyTupleStorage> aquiredStorages = new ArrayList<ReadOnlyTupleStorage>();
+			final List<ReadOnlyTupleStorage> aquiredStorages = new ArrayList<>();
 			final List<ReadOnlyTupleStorage> knownStorages = tupleStoreInstances.getAllTupleStorages();
 						
 			for(final ReadOnlyTupleStorage tupleStorage : knownStorages) {
@@ -522,6 +522,14 @@ public class SSTableManager implements BBoxDBService {
 				// one or more storages could not be acquired
 				// release storages and retry
 				releaseStorage(aquiredStorages);
+				
+				try {
+					// Wait some time and try again
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					break;
+				}
 			}
 		}
 		
