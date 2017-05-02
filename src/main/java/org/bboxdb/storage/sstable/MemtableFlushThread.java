@@ -104,6 +104,10 @@ class MemtableFlushThread extends ExceptionSafeThread {
 	 * 
 	 */
 	protected void flushMemtableToDisk(final Memtable memtable) {
+		
+		if(memtable == null) {
+			return;
+		}
 
 		try {
 			SSTableFacade facade = null;
