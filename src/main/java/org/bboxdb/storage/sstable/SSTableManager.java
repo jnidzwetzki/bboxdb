@@ -509,6 +509,8 @@ public class SSTableManager implements BBoxDBService {
 			for(final ReadOnlyTupleStorage tupleStorage : knownStorages) {
 				final boolean canBeUsed = tupleStorage.acquire();
 				
+				logger.error("Unable to aquire: "+ tupleStorage);
+				
 				if(! canBeUsed ) {
 					break;
 				} else {

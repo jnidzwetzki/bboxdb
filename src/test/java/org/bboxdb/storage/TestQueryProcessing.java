@@ -128,18 +128,18 @@ public class TestQueryProcessing {
 		
 		final TupleStoreInstanceManager tupleStoreInstances = storageManager.getTupleStoreInstances();
 		
-		final Memtable activeMemtable1 = storageManager.getMemtable();
 		storageManager.put(tuple1);
+		final Memtable activeMemtable1 = storageManager.getMemtable();
 		storageManager.flushAndInitMemtable();
 		tupleStoreInstances.waitForMemtableFlush(activeMemtable1);
 		
-		final Memtable activeMemtable2 = storageManager.getMemtable();
 		storageManager.put(tuple2);
+		final Memtable activeMemtable2 = storageManager.getMemtable();
 		storageManager.flushAndInitMemtable();
 		tupleStoreInstances.waitForMemtableFlush(activeMemtable2);
 		
-		final Memtable activeMemtable3 = storageManager.getMemtable();
 		storageManager.put(tuple3);
+		final Memtable activeMemtable3 = storageManager.getMemtable();
 		storageManager.flushAndInitMemtable();
 		tupleStoreInstances.waitForMemtableFlush(activeMemtable3);
 		
@@ -175,18 +175,18 @@ public class TestQueryProcessing {
 		
 		final TupleStoreInstanceManager tupleStoreInstances = storageManager.getTupleStoreInstances();
 		
-		final Memtable activeMemtable1 = storageManager.getMemtable();
 		storageManager.put(tuple1);
+		final Memtable activeMemtable1 = storageManager.getMemtable();
 		storageManager.flushAndInitMemtable();
 		tupleStoreInstances.waitForMemtableFlush(activeMemtable1);
 		
-		final Memtable activeMemtable2 = storageManager.getMemtable();
 		storageManager.put(tuple2);
+		final Memtable activeMemtable2 = storageManager.getMemtable();
 		storageManager.flushAndInitMemtable();
 		tupleStoreInstances.waitForMemtableFlush(activeMemtable2);
 		
-		final Memtable activeMemtable3 = storageManager.getMemtable();
 		storageManager.put(tuple3);
+		final Memtable activeMemtable3 = storageManager.getMemtable();
 		storageManager.flushAndInitMemtable();
 		tupleStoreInstances.waitForMemtableFlush(activeMemtable3);
 		
