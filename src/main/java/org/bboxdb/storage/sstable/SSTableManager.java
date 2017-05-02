@@ -588,7 +588,7 @@ public class SSTableManager implements BBoxDBService {
 	 * Flush the open memtable to disk
 	 * @throws StorageManagerException
 	 */
-	public void flushAndInitMemtable() {
+	public synchronized void flushAndInitMemtable() {
 		final Memtable memtable = new Memtable(sstablename, 
 				configuration.getMemtableEntriesMax(), 
 				configuration.getMemtableSizeMax());

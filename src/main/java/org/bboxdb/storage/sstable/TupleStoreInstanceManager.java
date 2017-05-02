@@ -71,6 +71,14 @@ public class TupleStoreInstanceManager {
 	 */
 	public void activateNewMemtable(final Memtable newMemtable) {
 		
+		synchronized (this) {
+			if(memtable != null) {
+				unflushedMemtables.add(memtable);
+			}
+			
+			memtable = newMemtable;
+		}
+		
 		// The put call can block when more than
 		// MAX_UNFLUSHED_MEMTABLES_PER_TABLE are unflushed.
 		//
@@ -86,13 +94,7 @@ public class TupleStoreInstanceManager {
 			}
 		}
 
-		synchronized (this) {
-			if(memtable != null) {
-				unflushedMemtables.add(memtable);
-			}
-			
-			memtable = newMemtable;
-		}
+
 	}
 	
 	/**
