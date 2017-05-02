@@ -36,7 +36,7 @@ public class Const {
 	 * If an operation is retried, this is the max amount
 	 * of retries
 	 */
-	public final static int OPERATION_RETRY = 10;
+	public final static int OPERATION_RETRY = 20;
 	
 	/**
 	 * The Byte order for encoded values
