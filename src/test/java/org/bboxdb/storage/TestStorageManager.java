@@ -17,7 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.storage;
 
+import java.util.concurrent.BlockingQueue;
+
 import org.bboxdb.PersonEntity;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -124,8 +127,7 @@ public class TestStorageManager {
 			}
 		}
 		
-		// Let the storage manager swap the memtables out
-		Thread.sleep(10000);
+		waitForMemtableFlush();
 		
 		final Tuple resultTuple = storageManager.get(Integer.toString(SPECIAL_TUPLE));
 		
@@ -151,14 +153,34 @@ public class TestStorageManager {
 			}
 		}
 		
-		
-		
 		// Let the storage manager swap the memtables out
-		Thread.sleep(10000);
+		waitForMemtableFlush();
 		
 		// Fetch the deleted tuple
 		final Tuple resultTuple2 = storageManager.get(Integer.toString(SPECIAL_TUPLE));
 		Assert.assertEquals(null, resultTuple2);
+	}
+
+	/**
+	 * Wait for the memtable to disk flush
+	 * @throws InterruptedException
+	 */
+	protected void waitForMemtableFlush() throws InterruptedException {
+		final boolean flushActive = BBoxDBConfigurationManager.getConfiguration().isStorageRunMemtableFlushThread();
+		
+		// Flush thread is not active, return immediately
+		if(! flushActive) {
+			return;
+		}
+		
+		final BlockingQueue<Memtable> memtablesToFlush 
+			= storageManager.getTupleStoreInstances().getMemtablesToFlush();
+		
+		synchronized (memtablesToFlush) {
+			while(! memtablesToFlush.isEmpty()) {
+				memtablesToFlush.wait();
+			}
+		}
 	}
 	
 	/**
@@ -183,8 +205,7 @@ public class TestStorageManager {
 			storageManager.delete(Integer.toString(i), MicroSecondTimestampProvider.getNewTimestamp());
 		}
 		
-		// Let the storage manager swap the memtables out
-		Thread.sleep(10000);
+		waitForMemtableFlush();
 		
 		System.out.println("Reading tuples...");
 		// Fetch the deleted tuples
