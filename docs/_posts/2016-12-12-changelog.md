@@ -24,7 +24,7 @@ order: 1
 - Bugfix: Fixed wrong table name in BBox queries
 - Bugfix: The spatial index was not build during compactification
 - Bugfix: Remove also empty memtables from unflushed table list
-- Bugfix: Fixed a race condition which prevented the deletion of flushed memtables from unflushed list
+- Bugfix: Fixed a race condition, which prevented the deletion of flushed memtables from unflushed list
 
 ### Version 0.2.4 (Stable) - 23.04.2017
 - New Feature: Support multiple storage locations
