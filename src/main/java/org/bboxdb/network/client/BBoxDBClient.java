@@ -327,7 +327,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public void disconnect() {
 		
-		synchronized (connectionState) {
+		synchronized (this) {
 			logger.info("Disconnecting from server: {}", getConnectionName());
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 			
@@ -688,7 +688,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public EmptyResultFuture sendKeepAlivePackage() {
 		
-		synchronized (connectionState) {
+		synchronized (this) {
 			if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 				return createFailedFuture("sendKeepAlivePackage called, but connection not ready: " + this);
 			}
