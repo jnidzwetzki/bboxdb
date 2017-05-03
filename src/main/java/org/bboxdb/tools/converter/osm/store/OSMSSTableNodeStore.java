@@ -105,6 +105,11 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 	 */
 	public SerializableNode getNodeForId(final long nodeId) throws StorageManagerException {
 		final Tuple tuple = storageManager.get(Long.toString(nodeId));
+		
+		if(tuple == null) {
+			throw new StorageManagerException("Unable to locate tuple for: " + nodeId);
+		}
+		
 		final byte[] nodeBytes = tuple.getDataBytes();
 		return SerializableNode.fromByteArray(nodeBytes);
 	}
