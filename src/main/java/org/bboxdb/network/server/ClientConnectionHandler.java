@@ -609,9 +609,18 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 
 		if(clientSocket != null) {
 			sb.append("Client: ");
-			sb.append(clientSocket.getRemoteSocketAddress().toString());
+			if(clientSocket.getRemoteSocketAddress() != null) {
+				sb.append(clientSocket.getRemoteSocketAddress().toString());
+			} else {
+				sb.append("-");
+			}
+			
 			sb.append(" to: ");
-			sb.append(clientSocket.getLocalAddress().toString());
+			if(clientSocket.getLocalAddress() != null) {
+				sb.append(clientSocket.getLocalAddress().toString());
+			} else {
+				sb.append("-");
+			}
 		}
 		
 		return sb.toString();
