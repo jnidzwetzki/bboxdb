@@ -456,13 +456,9 @@ public class CLI implements Runnable, AutoCloseable {
 			try {
 				final EmptyResultFuture result = bboxDbConnection.insertTuple(table, tuple);
 				pendingFutures.put(result);
-				pendingFutures.waitForCompletion();
 			} catch (BBoxDBException e) {
 				System.err.println("Got an error during insert: " + e);
 				System.exit(-1);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				return;
 			} 
 		} else {
 			throw new RuntimeException("Unknwon format: " + format);
