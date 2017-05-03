@@ -42,7 +42,8 @@ import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.converter.osm.util.Polygon;
+import org.bboxdb.tools.converter.tuple.TupleBuilder;
+import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -410,12 +411,15 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		System.out.println("Importing file: " + file);
 		
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
+		
 		try(final Stream<String> fileStream = Files.lines(Paths.get(filename))) {
 			long lineNumber = 1;
 			
-			for (Iterator<String> iterator = fileStream.iterator(); iterator.hasNext();) {
+			for (final Iterator<String> iterator = fileStream.iterator(); iterator.hasNext();) {
 				final String fileLine = iterator.next();
-				handleLine(fileLine, format, table, lineNumber);
+				handleLine(tupleBuilder, fileLine, table, lineNumber);
+				
 				if(lineNumber % 1000 == 0) {
 					System.out.format("Read %d lines\n", lineNumber);
 				}
@@ -425,7 +429,6 @@ public class CLI implements Runnable, AutoCloseable {
 			
 			pendingFutures.waitForCompletion();
 			System.out.format("Successfully imported %d lines\n", lineNumber);
-			
 		} catch (IOException e) {
 			System.err.println("Got an exeption while reading file: " + e);
 			System.exit(-1);
@@ -443,25 +446,16 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param table
 	 * @param lineNumber 
 	 */
-	protected void handleLine(final String line, final String format, final String table, 
-			final long lineNumber) {
-		
-		if("geojson".equals(format)) {
-			final Polygon polygon = Polygon.fromGeoJson(line);
-	    	final byte[] tupleBytes = polygon.toGeoJson().getBytes();
-
-			final Tuple tuple = new Tuple(Long.toString(lineNumber), 
-					polygon.getBoundingBox(), tupleBytes);
-			
-			try {
-				final EmptyResultFuture result = bboxDbConnection.insertTuple(table, tuple);
-				pendingFutures.put(result);
-			} catch (BBoxDBException e) {
-				System.err.println("Got an error during insert: " + e);
-				System.exit(-1);
-			} 
-		} else {
-			throw new RuntimeException("Unknwon format: " + format);
+	protected void handleLine(final TupleBuilder tupleBuilder, final String line, 
+			final String table, final long lineNumber) {
+					
+		try {
+			final Tuple tuple = tupleBuilder.buildTuple(Long.toString(lineNumber), line);
+			final EmptyResultFuture result = bboxDbConnection.insertTuple(table, tuple);
+			pendingFutures.put(result);
+		} catch (BBoxDBException e) {
+			System.err.println("Got an error during insert: " + e);
+			System.exit(-1);
 		}
 	}
 
