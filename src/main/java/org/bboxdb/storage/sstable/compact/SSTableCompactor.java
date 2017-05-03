@@ -165,10 +165,15 @@ public class SSTableCompactor {
 		final SSTableWriter sstableWriter = new SSTableWriter(directory, sstableManager.getSSTableName(), 
 				tablenumber, estimatedMaxNumberOfEntries);
 				
-		sstableWriter.open();
-		logger.info("Output file for compact: {}", sstableWriter.getSstableFile());
-		
-		return sstableWriter;
+		try {
+			sstableWriter.open();
+			logger.info("Output file for compact: {}", sstableWriter.getSstableFile());
+			return sstableWriter;
+		} catch (StorageManagerException e) {			
+			sstableWriter.close();
+			
+			throw e;
+		}
 	}
 
 	/**
