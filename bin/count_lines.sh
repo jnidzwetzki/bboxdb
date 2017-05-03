@@ -14,13 +14,15 @@ loc_java=$( (find $BBOXDB_HOME -name '*.java' -print0 | xargs -0 cat ) | wc -l)
 loc_shell=$( (find $BBOXDB_HOME -name '*.sh' -print0 | xargs -0 cat ) | wc -l)
 loc_xml=$( (find $BBOXDB_HOME -name '*.xml' -print0 | xargs -0 cat ) | wc -l)
 loc_yaml=$( (find $BBOXDB_HOME -name '*.yaml' -print0 | xargs -0 cat ) | wc -l)
+loc_markdown=$( (find $BBOXDB_HOME -name '*.md' -print0 | xargs -0 cat ) | wc -l)
 
-loc=$((loc_java + $loc_shell + $loc_xml + $loc_yaml))
+loc=$((loc_java + $loc_shell + $loc_xml + $loc_yaml + $loc_markdown))
 
 printf "Lines of java code:\t %8d\n" $loc_java
 printf "Lines of shell code:\t %8d\n" $loc_shell
 printf "Lines of xml code:\t %8d\n" $loc_xml
 printf "Lines of yaml code:\t %8d\n" $loc_yaml
+printf "Lines of markdown code:\t %8d\n" $loc_markdown
 printf "==================================\n"
 printf "Total lines of code:\t %8d\n" $loc
 printf "==================================\n"
