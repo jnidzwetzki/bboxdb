@@ -26,6 +26,7 @@ order: 1
 - Bugfix: The spatial index was not built during compactification
 - Bugfix: Remove also empty memtables from unflushed table list
 - Bugfix: Fixed a race condition, which prevented the deletion of flushed memtables from unflushed list
+- Bugfix: Fixed bugs found by Coverity scan
 
 ### Version 0.2.4 (Stable) - 23.04.2017
 - New Feature: Support multiple storage locations
