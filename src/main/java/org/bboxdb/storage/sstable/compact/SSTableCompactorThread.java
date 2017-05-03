@@ -117,6 +117,11 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		try {
 			if(sstableManager.getSSTableName().isDistributedTable()) {
 				regionSplitter = RegionSplitStrategyFactory.getInstance();
+				
+				if(regionSplitter == null) {
+					throw new IllegalArgumentException("Got null region splitter");
+				}
+				
 				regionSplitter.initFromSSTablename(sstableManager.getSSTableName());
 			}
 		} catch (StorageManagerException e) {
