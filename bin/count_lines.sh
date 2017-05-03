@@ -16,7 +16,7 @@ loc_xml=$( (find $BBOXDB_HOME -name '*.xml' -print0 | xargs -0 cat ) | wc -l)
 loc_yaml=$( (find $BBOXDB_HOME -name '*.yaml' -print0 | xargs -0 cat ) | wc -l)
 loc_markdown=$( (find $BBOXDB_HOME -name '*.md' -print0 | xargs -0 cat ) | wc -l)
 
-loc=$((loc_java + $loc_shell + $loc_xml + $loc_yaml + $loc_markdown))
+loc=$(($loc_java + $loc_shell + $loc_xml + $loc_yaml + $loc_markdown))
 
 printf "Lines of java code:\t %8d\n" $loc_java
 printf "Lines of shell code:\t %8d\n" $loc_shell
