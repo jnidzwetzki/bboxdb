@@ -56,6 +56,11 @@ public class BBoxDBConfigurationManager {
 	 */
 	public static void loadConfiguration() {
 		final ClassLoader classLoader = Thread.currentThread().getContextClassLoader(); 
+		
+		if(classLoader == null) {
+			throw new IllegalArgumentException("Got null classloader");
+		}
+		
 		final URL inputFile = classLoader.getResource(Const.CONFIG_FILE);
 		
 		if(inputFile == null) {
