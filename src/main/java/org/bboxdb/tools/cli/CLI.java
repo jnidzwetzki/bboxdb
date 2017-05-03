@@ -408,12 +408,18 @@ public class CLI implements Runnable, AutoCloseable {
 			System.exit(-1);
 		}
 		
+		System.out.println("Importing file: " + file);
+		
 		try(final Stream<String> fileStream = Files.lines(Paths.get(filename))) {
 			long lineNumber = 1;
 			
 			for (Iterator<String> iterator = fileStream.iterator(); iterator.hasNext();) {
 				final String fileLine = iterator.next();
 				handleLine(fileLine, format, table, lineNumber);
+				if(lineNumber % 1000 == 0) {
+					System.out.format("Read %d lines\n", lineNumber);
+				}
+					
 				lineNumber++;
 			}
 			
