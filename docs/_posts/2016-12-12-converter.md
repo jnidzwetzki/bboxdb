@@ -58,9 +58,9 @@ The converter supports different database backends to store the nodes. At the mo
 In the following example, an extract of the OpenStreepMap database is downloaded and processed. It is assumed, that the system contains have four hard disks. One hard disk is used to store the input and the output data. The three remaining disks (mounted at /diskb, /diskc and /diskd) are used to store the Berkeley DB databases. If your system contains a huge amount of RAM (> 8 GB), you could adjust the _jvm_ops_tools_ variable in _bin/bboxdb-env.sh_.
 
 ```bash
-wget http://download.geofabrik.de/europe/germany-latest.osm.pbf
-cd $BBOXDB_HOME
-bin/osm_data_conveter.sh -input /path/to/germany-latest.osm.pbf -backend bdb -workfolder /diskb/work:/diskc/work:/diskd/work -output /outputdir/germany
+$ wget http://download.geofabrik.de/europe/germany-latest.osm.pbf
+$ cd $BBOXDB_HOME
+$ bin/osm_data_conveter.sh -input /path/to/germany-latest.osm.pbf -backend bdb -workfolder /diskb/work:/diskc/work:/diskd/work -output /outputdir/germany
 ```
 
 ## Example output
