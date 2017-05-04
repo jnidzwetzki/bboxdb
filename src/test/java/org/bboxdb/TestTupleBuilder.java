@@ -38,7 +38,7 @@ public class TestTupleBuilder {
 	public void testGeoJsonTupleBuilder() {
 		final String testLine = "{\"geometry\":{\"coordinates\":[52.4688608,13.3327994],\"type\":\"Point\"},\"id\":271247324,\"type\":\"Feature\",\"properties\":{\"natural\":\"tree\",\"leaf_cycle\":\"deciduous\",\"name\":\"Kaisereiche\",\"leaf_type\":\"broadleaved\",\"wikipedia\":\"de:Kaisereiche (Berlin)\"}}";
 	
-		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat("geojson");
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.GEOJSON);
 		
 		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
 		
@@ -56,7 +56,7 @@ public class TestTupleBuilder {
 	public void testYellowTaxiTupleBuilder() throws ParseException {
 		final String testLine = "2,2016-01-01 00:00:00,2016-01-01 00:00:00,2,1.10,-73.990371704101563,40.734695434570313,1,N,-73.981842041015625,40.732406616210937,2,7.5,0.5,0.5,0,0,0.3,8.8";
 	
-		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat("yellowtaxi");
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.YELLOWTAXI);
 		
 		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
 				
@@ -73,4 +73,30 @@ public class TestTupleBuilder {
 		
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
+	
+	/**
+	 * Test the geo json tuple builder
+	 * @throws ParseException 
+	 */
+	@Test
+	public void testTPCHLineitemTupleBuilder() throws ParseException {
+		final String testLine = "3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|";
+
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.TPCH_LINEITEM);
+		
+		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
+				
+		Assert.assertTrue(tuple != null);
+		Assert.assertEquals(Integer.toString(1), tuple.getKey());
+		
+		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd");
+		final Date date = dateParser.parse("1993-12-04");
+
+		final double doubleTime = (double) date.getTime();
+		final BoundingBox exptectedBox = new BoundingBox(doubleTime, doubleTime);
+		
+		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
+	}
+	
+	
 }

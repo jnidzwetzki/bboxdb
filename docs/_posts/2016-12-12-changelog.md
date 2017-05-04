@@ -8,6 +8,7 @@ order: 1
 ### Version 0.2.5 (Stable) - TBA
 - New Feature: Implemented the new insert time tuple query
 - New Feature: Introduced the BBoxDB CLI
+- New Feature: Added importer for GeoJSON, NYC Yellow taxi and TPCH-Lineitem formated data
 - Improvement: Added the newest inserted tuple timestamp to the Storage interface
 - Improvement: Introduced the clock delta for the recovery service
 - Improvement: The recovery service now uses the insert time of the tuples

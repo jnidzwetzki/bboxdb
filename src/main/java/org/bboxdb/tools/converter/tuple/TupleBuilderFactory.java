@@ -31,18 +31,24 @@ public class TupleBuilderFactory {
 		 * The yellow taxi builder
 		 * @see http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml
 		 */
-		private static final String YELLOWTAXI = "yellowtaxi";
+		public static final String YELLOWTAXI = "yellowtaxi";
 		
 		/**
-		 * The GEOJson parser
+		 * The GEOJson builder
 		 */
-		private static final String GEOJSON = "geojson";
+		public static final String GEOJSON = "geojson";
+
+		/**
+		 * The TPCH lineitem builder
+		 */
+		public static final String TPCH_LINEITEM = "tpch_lineitem";
 	}
 	
 	/**
 	 * All known builder
 	 */
-	public static final List<String> ALL_BUILDER = Arrays.asList(Name.GEOJSON, Name.YELLOWTAXI);
+	public static final List<String> ALL_BUILDER = Arrays.asList(Name.GEOJSON, 
+			Name.YELLOWTAXI, Name.TPCH_LINEITEM);
 
 	/**
 	 * Return the parser for the tuple format
@@ -54,6 +60,8 @@ public class TupleBuilderFactory {
 			return new GeoJSONTupleBuilder();
 		} else if(Name.YELLOWTAXI.equals(format)) {
 			return new YellowTaxiTupleBuilder();
+		} else if(Name.TPCH_LINEITEM.equals(format)) {
+			return new TPCHLineitemBuilder();
 		} else {
 			throw new RuntimeException("Unknown format: " + format);
 		}
