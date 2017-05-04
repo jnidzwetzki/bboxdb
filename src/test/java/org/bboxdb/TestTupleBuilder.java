@@ -17,6 +17,10 @@
  *******************************************************************************/
 package org.bboxdb;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
@@ -46,9 +50,10 @@ public class TestTupleBuilder {
 
 	/**
 	 * Test the geo json tuple builder
+	 * @throws ParseException 
 	 */
 	@Test
-	public void testYellowTaxiTupleBuilder() {
+	public void testYellowTaxiTupleBuilder() throws ParseException {
 		final String testLine = "2,2016-01-01 00:00:00,2016-01-01 00:00:00,2,1.10,-73.990371704101563,40.734695434570313,1,N,-73.981842041015625,40.732406616210937,2,7.5,0.5,0.5,0,0,0.3,8.8";
 	
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat("yellowtaxi");
@@ -58,8 +63,13 @@ public class TestTupleBuilder {
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
 		
+		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+		final Date dateLow = dateParser.parse("2016-01-01 00:00:00");
+		final Date dateHigh = dateParser.parse("2016-01-01 00:00:00");
+
 		final BoundingBox exptectedBox = new BoundingBox(-73.990371704101563, 40.734695434570313, 
-				-73.981842041015625, 40.732406616210937, 1451602800000d, 1451602800000d);
+				-73.981842041015625, 40.732406616210937, 
+				(double) dateLow.getTime(), (double) dateHigh.getTime());
 		
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
