@@ -556,7 +556,7 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		final String systemsString = distributionRegion.getSystems()
 				.stream().map(s -> s.getIp() + ":" + s.getPort())
-			.collect(Collectors.joining(", ", "Systems[", "]"));	
+			.collect(Collectors.joining(", ", "[", "]"));	
 		
 		System.out.format("Region %d, Bounding Box=%s, State=%s, Systems=%s\n",
 				distributionRegion.getRegionId(), bboxString,
