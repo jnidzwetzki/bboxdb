@@ -758,10 +758,14 @@ public class CLI implements Runnable, AutoCloseable {
 		final Options options = buildOptions();
 		
 		final String allActions = CLIAction.ALL_ACTIONS
-				.stream().collect(Collectors.joining(",", "[", "]"));
+				.stream().collect(Collectors.joining(", ", "[", "]"));
+		
+		final String allBuilder = TupleBuilderFactory.ALL_BUILDER
+				.stream().collect(Collectors.joining(", ", "[", "]"));
 		
 		final String header = "BBoxDB command line interace (CLI)\n\n"
-				+ "Available actions are: " + allActions + "\n\n";		
+				+ "Available actions are: " + allActions + "\n"
+				+ "Known import formats: " + allBuilder + "\n\n";
 		
 		final String footer = "\nPlease report issues at https://github.com/jnidzwetzki/bboxdb/issues\n";
 		 

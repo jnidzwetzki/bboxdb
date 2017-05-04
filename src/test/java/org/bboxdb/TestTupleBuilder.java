@@ -40,7 +40,27 @@ public class TestTupleBuilder {
 		
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
-		Assert.assertEquals(new BoundingBox(52.4688608, 52.4688608, 13.3327994, 13.3327994), tuple.getBoundingBox());
+		final BoundingBox expectedBox = new BoundingBox(52.4688608, 52.4688608, 13.3327994, 13.3327994);
+		Assert.assertEquals(expectedBox, tuple.getBoundingBox());
 	}
 
+	/**
+	 * Test the geo json tuple builder
+	 */
+	@Test
+	public void testYellowTaxiTupleBuilder() {
+		final String testLine = "2,2016-01-01 00:00:00,2016-01-01 00:00:00,2,1.10,-73.990371704101563,40.734695434570313,1,N,-73.981842041015625,40.732406616210937,2,7.5,0.5,0.5,0,0,0.3,8.8";
+	
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat("yellowtaxi");
+		
+		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
+				
+		Assert.assertTrue(tuple != null);
+		Assert.assertEquals(Integer.toString(1), tuple.getKey());
+		
+		final BoundingBox exptectedBox = new BoundingBox(-73.990371704101563, 40.734695434570313, 
+				-73.981842041015625, 40.732406616210937, 1451602800000d, 1451602800000d);
+		
+		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
+	}
 }

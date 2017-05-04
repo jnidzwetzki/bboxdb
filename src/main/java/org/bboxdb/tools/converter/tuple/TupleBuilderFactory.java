@@ -17,11 +17,43 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class TupleBuilderFactory {
 
+	/**
+	 * The known parser names
+	 *
+	 */
+	public static class Name {
+		/**
+		 * The yellow taxi builder
+		 * @see http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml
+		 */
+		private static final String YELLOWTAXI = "yellowtaxi";
+		
+		/**
+		 * The GEOJson parser
+		 */
+		private static final String GEOJSON = "geojson";
+	}
+	
+	/**
+	 * All known builder
+	 */
+	public static final List<String> ALL_BUILDER = Arrays.asList(Name.GEOJSON, Name.YELLOWTAXI);
+
+	/**
+	 * Return the parser for the tuple format
+	 * @param format
+	 * @return
+	 */
 	public static TupleBuilder getBuilderForFormat(final String format) {
-		if("geojson".equals(format)) {
+		if(Name.GEOJSON.equals(format)) {
 			return new GeoJSONTupleBuilder();
+		} else if(Name.YELLOWTAXI.equals(format)) {
+			return new YellowTaxiTupleBuilder();
 		} else {
 			throw new RuntimeException("Unknown format: " + format);
 		}
