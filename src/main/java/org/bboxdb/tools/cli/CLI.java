@@ -456,18 +456,26 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param format
 	 * @param table
 	 * @param lineNumber 
+	 * @return 
 	 */
-	protected void handleLine(final TupleBuilder tupleBuilder, final String line, 
+	protected boolean handleLine(final TupleBuilder tupleBuilder, final String line, 
 			final String table, final long lineNumber) {
 					
 		try {
 			final Tuple tuple = tupleBuilder.buildTuple(Long.toString(lineNumber), line);
+			
+			if(tuple == null) {
+				return false;
+			}
+			
 			final EmptyResultFuture result = bboxDbConnection.insertTuple(table, tuple);
 			pendingFutures.put(result);
 		} catch (BBoxDBException e) {
 			System.err.println("Got an error during insert: " + e);
 			System.exit(-1);
 		}
+		
+		return true;
 	}
 
 	/**
