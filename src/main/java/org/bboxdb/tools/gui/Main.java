@@ -28,7 +28,7 @@ public class Main {
 	 * @param args
 	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws Exception {
+	public static void main(final String[] args) throws Exception {
 		
 		setLookAndFeel();
 		
@@ -51,7 +51,7 @@ public class Main {
 		    try {
 		        UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 		    } catch (Exception e1) {
-		    	
+		    	// Ignore exception and use the old look and feel
 		    }
 		}
 	}
