@@ -553,10 +553,14 @@ public class CLI implements Runnable, AutoCloseable {
 		final String bboxString = IntStream.range(0, boundingBox.getDimension())
 			.mapToObj(i -> "Dimension:" + i + " " + boundingBox.getIntervalForDimension(i).toString())
 			.collect(Collectors.joining(", "));			
-
+		
+		final String systemsString = distributionRegion.getSystems()
+				.stream().map(s -> s.getIp() + ":" + s.getPort())
+			.collect(Collectors.joining(", ", "Systems[", "]"));	
+		
 		System.out.format("Region %d, Bounding Box=%s, State=%s, Systems=%s\n",
 				distributionRegion.getRegionId(), bboxString,
-				distributionRegion.getState(), distributionRegion.getSystems());
+				distributionRegion.getState(), systemsString);
 		
 		printDistributionRegionRecursive(distributionRegion.getLeftChild());
 		printDistributionRegionRecursive(distributionRegion.getRightChild());
