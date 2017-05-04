@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.cli.CommandLine;
@@ -47,7 +48,6 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
@@ -549,15 +549,11 @@ public class CLI implements Runnable, AutoCloseable {
 		}
 		
 		final BoundingBox boundingBox = distributionRegion.getConveringBox();
-		final StringBuilder bboxString = new StringBuilder();
 		
-		for(int i = 0; i < boundingBox.getDimension(); i++) {
-			final DoubleInterval floatInterval = boundingBox.getIntervalForDimension(i);
-			bboxString.append("Dimension: " + i + " ");
-			bboxString.append(floatInterval.toString());
-			bboxString.append(", ");
-		}
-		
+		final String bboxString = IntStream.range(0, boundingBox.getDimension() - 1)
+			.mapToObj(i -> "Dimension:" + i + " " + boundingBox.getIntervalForDimension(i).toString())
+			.collect(Collectors.joining(", "));			
+
 		System.out.format("Region %d, Bounding Box=%s, State=%s, Systems=%s\n",
 				distributionRegion.getRegionId(), bboxString,
 				distributionRegion.getState(), distributionRegion.getSystems());
