@@ -21,10 +21,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
-import java.util.Iterator;
+import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.tools.gui.views.KDTreeJPanel;
@@ -267,15 +266,14 @@ public class DistributionRegionComponent {
 			sb.append("<br>");
 		}
 		
+		final String systemsString = distributionRegion.getSystems()
+				.stream()
+				.map(s -> s.toGUIString())
+				.collect(Collectors.joining(", "));
+		
 		sb.append("Systems: ");
-		
-		for(Iterator<DistributedInstance> iter = distributionRegion.getSystems().iterator(); iter.hasNext(); ) {
-			sb.append(iter.next().toGUIString());
-			if(iter.hasNext()) {
-				sb.append(", ");
-			}
-		}
-		
+		sb.append(systemsString);
+
 		sb.append("</html>");
 		return sb.toString();
 	}
