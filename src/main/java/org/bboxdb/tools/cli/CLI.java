@@ -47,6 +47,7 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
@@ -547,8 +548,18 @@ public class CLI implements Runnable, AutoCloseable {
 			return;
 		}
 		
+		final BoundingBox boundingBox = distributionRegion.getConveringBox();
+		final StringBuilder bboxString = new StringBuilder();
+		
+		for(int i = 0; i < boundingBox.getDimension(); i++) {
+			final DoubleInterval floatInterval = boundingBox.getIntervalForDimension(i);
+			bboxString.append("Dimension: " + i + " ");
+			bboxString.append(floatInterval.toString());
+			bboxString.append(", ");
+		}
+		
 		System.out.format("Region %d, Bounding Box=%s, State=%s, Systems=%s\n",
-				distributionRegion.getRegionId(), distributionRegion.getConveringBox(),
+				distributionRegion.getRegionId(), bboxString,
 				distributionRegion.getState(), distributionRegion.getSystems());
 		
 		printDistributionRegionRecursive(distributionRegion.getLeftChild());

@@ -263,7 +263,7 @@ public class DistributionRegionComponent {
 		for(int i = 0; i < boundingBox.getDimension(); i++) {
 			final DoubleInterval floatInterval = boundingBox.getIntervalForDimension(i);
 			sb.append("Dimension: " + i + " ");
-			sb.append(intervalToString(floatInterval));
+			sb.append(floatInterval.toString());
 			sb.append("<br>");
 		}
 		
@@ -277,43 +277,6 @@ public class DistributionRegionComponent {
 		}
 		
 		sb.append("</html>");
-		return sb.toString();
-	}
-
-	/**
-	 * Convert the given interval into a string representation
-	 * @param floatInterval
-	 * @return
-	 */
-	protected String intervalToString(final DoubleInterval floatInterval) {
-		final StringBuilder sb = new StringBuilder();
-		
-		if(floatInterval.isBeginIncluded()) {
-			sb.append("[");
-		} else {
-			sb.append("(");
-		}
-		
-		if(floatInterval.getBegin() == BoundingBox.MIN_VALUE) {
-			sb.append("min");
-		} else {
-			sb.append(floatInterval.getBegin());
-		}
-		
-		sb.append(",");
-		
-		if(floatInterval.getEnd() == BoundingBox.MAX_VALUE) {
-			sb.append("max");
-		} else {
-			sb.append(floatInterval.getEnd());
-		}
-					
-		if(floatInterval.isEndIncluded()) {
-			sb.append("]");
-		} else {
-			sb.append(")");
-		}
-		
 		return sb.toString();
 	}
 

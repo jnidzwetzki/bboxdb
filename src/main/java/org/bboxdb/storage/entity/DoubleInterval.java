@@ -327,10 +327,20 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 			sb.append("(");
 		}
 		
-		sb.append(begin);
-		sb.append(",");
-		sb.append(end);
+		if(begin == BoundingBox.MIN_VALUE) {
+			sb.append("min");
+		} else {
+			sb.append(begin);
+		}
 		
+		sb.append(",");
+		
+		if(end == BoundingBox.MAX_VALUE) {
+			sb.append("max");
+		} else {
+			sb.append(end);
+		}
+				
 		if(endIncluded) {
 			sb.append("]");
 		} else {
@@ -339,7 +349,7 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 		
 		return sb.toString();
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
