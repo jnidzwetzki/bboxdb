@@ -51,11 +51,16 @@ public class CLIAction {
 	 * The name of the delete distribution group action
 	 */
 	protected static final String DELETE_DGROUP = "delete_dgroup";
-
+	
+	/**
+	 * The name of the show distribution group action
+	 */
+	protected static final String SHOW_DGROUP = "show_dgroup";
+	
 	/**
 	 * All known actions
 	 */
 	protected static List<String> ALL_ACTIONS 
-		= Arrays.asList(IMPORT, QUERY, DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP);
+		= Arrays.asList(IMPORT, QUERY, DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP, SHOW_DGROUP);
 
 }

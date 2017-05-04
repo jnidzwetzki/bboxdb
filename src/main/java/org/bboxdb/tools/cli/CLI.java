@@ -34,6 +34,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
@@ -153,6 +159,10 @@ public class CLI implements Runnable, AutoCloseable {
 			
 		case CLIAction.DELETE_DGROUP:
 			actionDeleteDgroup(line);
+			break;
+			
+		case CLIAction.SHOW_DGROUP:
+			actionShowDgroup(line);
 			break;
 			
 		case CLIAction.IMPORT:
@@ -464,6 +474,11 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param line
 	 */
 	protected void actionDeleteDgroup(final CommandLine line) {
+		
+		final List<String> requiredArgs = Arrays.asList(CLIParameter.DISTRIBUTION_GROUP);
+		
+		checkRequiredArgs(requiredArgs);
+		
 		final String distributionGroup = line.getOptionValue(CLIParameter.DISTRIBUTION_GROUP);
 		
 		System.out.println("Deleting distribution group: " + distributionGroup);
@@ -485,6 +500,59 @@ public class CLI implements Runnable, AutoCloseable {
 			System.err.println("Waiting was interrupted");
 			System.exit(-1);
 		}
+	}
+	
+	/**
+	 * Show a distribution group
+	 * @param line
+	 */
+	protected void actionShowDgroup(final CommandLine line) {
+		
+		final List<String> requiredArgs = Arrays.asList(CLIParameter.DISTRIBUTION_GROUP);
+		
+		checkRequiredArgs(requiredArgs);
+		
+		final String distributionGroup = line.getOptionValue(CLIParameter.DISTRIBUTION_GROUP);
+		
+		System.out.println("Show distribution group: " + distributionGroup);
+		
+		try {
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+				= new DistributionGroupZookeeperAdapter(zookeeperClient);
+			
+			final KDtreeZookeeperAdapter treeAdapter = distributionGroupZookeeperAdapter
+					.readDistributionGroup(distributionGroup);
+			
+			final short replicationFactor = distributionGroupZookeeperAdapter
+					.getReplicationFactorForDistributionGroup(distributionGroup);
+			
+			System.out.println("Replication factor is: " + replicationFactor);
+			
+			printDistributionRegionRecursive(treeAdapter.getRootNode());
+
+		} catch (ZookeeperException e) {
+			System.err.println("Got an exception during reading distribution group:" + e);
+			System.exit(-1);
+		}
+	}
+	
+	/**
+	 * Print the content of the distribution region recursive
+	 * @param distributionRegion
+	 */
+	protected void printDistributionRegionRecursive(final DistributionRegion distributionRegion) {
+		
+		if(distributionRegion == null) {
+			return;
+		}
+		
+		System.out.format("Region %d, Bounding Box=%s, State=%s, Systems=%s\n",
+				distributionRegion.getRegionId(), distributionRegion.getConveringBox(),
+				distributionRegion.getState(), distributionRegion.getSystems());
+		
+		printDistributionRegionRecursive(distributionRegion.getLeftChild());
+		printDistributionRegionRecursive(distributionRegion.getRightChild());
 	}
 	
 	/**
@@ -564,12 +632,9 @@ public class CLI implements Runnable, AutoCloseable {
 		options.addOption(verbose);
 		
 		// Action
-		final String allActions = CLIAction.ALL_ACTIONS
-				.stream().collect(Collectors.joining(",", "[", "]"));
-		
 		final Option action = Option.builder(CLIParameter.ACTION)
 				.hasArg()
-				.argName(allActions)
+				.argName("action")
 				.desc("The CLI action to execute")
 				.build();
 		options.addOption(action);
@@ -673,7 +738,12 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		final Options options = buildOptions();
 		
-		final String header = "BBoxDB command line interace (CLI)\n\n";
+		final String allActions = CLIAction.ALL_ACTIONS
+				.stream().collect(Collectors.joining(",", "[", "]"));
+		
+		final String header = "BBoxDB command line interace (CLI)\n\n"
+				+ "Available actions are: " + allActions + "\n\n";		
+		
 		final String footer = "\nPlease report issues at https://github.com/jnidzwetzki/bboxdb/issues\n";
 		 
 		final HelpFormatter formatter = new HelpFormatter();
