@@ -319,7 +319,6 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer();
-		sb.append("DoubleInterval ");
 		
 		if(beginIncluded) {
 			sb.append("[");
