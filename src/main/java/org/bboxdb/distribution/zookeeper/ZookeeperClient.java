@@ -138,9 +138,13 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 
 	/**
 	 * Disconnect from zookeeper
+	 * 
+	 * This method is synchronized to guarantee that all
+	 * running callbacks are completed before the shutdown is 
+	 * executed
 	 */
 	@Override
-	public void shutdown() {
+	public synchronized void shutdown() {
 		shutdownPending = true;
 		stopMembershipObserver();
 		closeZookeeperConnectionNE();
@@ -360,7 +364,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * Process zooekeeper events
 	 * @param watchedEvent
 	 */
-	protected void processZookeeperEvent(final WatchedEvent watchedEvent) {
+	protected synchronized void processZookeeperEvent(final WatchedEvent watchedEvent) {
 		// Ignore null parameter
 		if(watchedEvent == null) {
 			logger.warn("process called with an null argument");
@@ -653,10 +657,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 					throw new ZookeeperNotFoundException("The path does not exist: " + pathName);
 				} else {
 					Thread.sleep(500);
-					
-					if(zookeeper == null) {
-						throw new ZookeeperException("Zookeper shutdown");
-					}
 					
 					if(zookeeper.exists(pathName, false) == null) {
 						throw new ZookeeperNotFoundException("The path does not exist: " + pathName);
