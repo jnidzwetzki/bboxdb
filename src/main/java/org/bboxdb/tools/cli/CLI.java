@@ -550,7 +550,7 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		final BoundingBox boundingBox = distributionRegion.getConveringBox();
 		
-		final String bboxString = IntStream.range(0, boundingBox.getDimension() - 1)
+		final String bboxString = IntStream.range(0, boundingBox.getDimension())
 			.mapToObj(i -> "Dimension:" + i + " " + boundingBox.getIntervalForDimension(i).toString())
 			.collect(Collectors.joining(", "));			
 
