@@ -653,6 +653,11 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 					throw new ZookeeperNotFoundException("The path does not exist: " + pathName);
 				} else {
 					Thread.sleep(500);
+					
+					if(zookeeper == null) {
+						throw new ZookeeperException("Zookeper shutdown");
+					}
+					
 					if(zookeeper.exists(pathName, false) == null) {
 						throw new ZookeeperNotFoundException("The path does not exist: " + pathName);
 					}
