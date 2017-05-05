@@ -765,7 +765,7 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		final String header = "BBoxDB command line interace (CLI)\n\n"
 				+ "Available actions are: " + allActions + "\n"
-				+ "Known import formats: " + allBuilder + "\n\n";
+				+ "Supported import formats: " + allBuilder + "\n\n";
 		
 		final String footer = "\nPlease report issues at https://github.com/jnidzwetzki/bboxdb/issues\n";
 		 
