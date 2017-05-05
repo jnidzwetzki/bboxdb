@@ -49,14 +49,14 @@ public class TestTupleBuilder {
 	}
 
 	/**
-	 * Test the geo json tuple builder
+	 * Test the yellow taxi range tuple builder
 	 * @throws ParseException 
 	 */
 	@Test
-	public void testYellowTaxiTupleBuilder() throws ParseException {
+	public void testYellowTaxiRangeTupleBuilder() throws ParseException {
 		final String testLine = "2,2016-01-01 00:00:00,2016-01-01 00:00:00,2,1.10,-73.990371704101563,40.734695434570313,1,N,-73.981842041015625,40.732406616210937,2,7.5,0.5,0.5,0,0,0.3,8.8";
 	
-		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.YELLOWTAXI);
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.YELLOWTAXI_RANGE);
 		
 		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
 				
@@ -75,14 +75,39 @@ public class TestTupleBuilder {
 	}
 	
 	/**
-	 * Test the geo json tuple builder
+	 * Test the yellow taxi range tuple builder
 	 * @throws ParseException 
 	 */
 	@Test
-	public void testTPCHLineitemTupleBuilder() throws ParseException {
+	public void testYellowTaxiPointTupleBuilder() throws ParseException {
+		final String testLine = "2,2016-01-01 00:00:00,2016-01-01 00:00:00,2,1.10,-73.990371704101563,40.734695434570313,1,N,-73.981842041015625,40.732406616210937,2,7.5,0.5,0.5,0,0,0.3,8.8";
+	
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.YELLOWTAXI_POINT);
+		
+		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
+				
+		Assert.assertTrue(tuple != null);
+		Assert.assertEquals(Integer.toString(1), tuple.getKey());
+		
+		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+		final Date dateLow = dateParser.parse("2016-01-01 00:00:00");
+
+		final BoundingBox exptectedBox = new BoundingBox(-73.990371704101563, 40.734695434570313, 
+				-73.990371704101563, 40.734695434570313, 
+				(double) dateLow.getTime(), (double) dateLow.getTime());
+		
+		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
+	}
+	
+	/**
+	 * Test the tpch point tuple builder
+	 * @throws ParseException 
+	 */
+	@Test
+	public void testTPCHLineitemPointTupleBuilder() throws ParseException {
 		final String testLine = "3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|";
 
-		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.TPCH_LINEITEM);
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.TPCH_LINEITEM_POINT);
 		
 		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
 				
@@ -98,5 +123,31 @@ public class TestTupleBuilder {
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
 	
+	/**
+	 * Test the tpch range tuple builder
+	 * @throws ParseException 
+	 */
+	@Test
+	public void testTPCHLineitemRangeTupleBuilder() throws ParseException {
+		final String testLine = "3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|";
+
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.TPCH_LINEITEM_RANGE);
+		
+		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
+				
+		Assert.assertTrue(tuple != null);
+		Assert.assertEquals(Integer.toString(1), tuple.getKey());
+		
+		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd");
+		final Date shipDateTime = dateParser.parse("1993-12-04");
+		final Date receiptDateTime = dateParser.parse("1994-01-01");
+		
+		final double doubleShipDateTime = (double) shipDateTime.getTime();
+		final double doublereceiptDateTime = (double) receiptDateTime.getTime();
+
+		final BoundingBox exptectedBox = new BoundingBox(doubleShipDateTime, doublereceiptDateTime);
+		
+		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
+	}
 	
 }

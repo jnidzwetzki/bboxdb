@@ -26,55 +26,45 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TPCHLineitemBuilder implements TupleBuilder {
+public class YellowTaxiPointTupleBuilder implements TupleBuilder {
 
 	/**
 	 * The date parser
 	 */
-	protected final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd");
+	protected final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(TPCHLineitemBuilder.class);
+	private final static Logger logger = LoggerFactory.getLogger(YellowTaxiPointTupleBuilder.class);
 
-	
 	@Override
-	/**
-	 * Orderkey     - 0
-	 * Partkey      - 1 
-	 * Suppkey      - 2
-	 * Linenumer    - 3
-	 * Quantity     - 4
-	 * Price        - 5
-	 * Discount     - 6 
-	 * Tax          - 7
-	 * Returnflag   - 8
-	 * Linestatus   - 9
-	 * Shippdate    - 10
-	 * Commitdate   - 11
-	 * Receiptdate  - 12
-	 * Shipinstruct - 13
-	 * Shipmode     - 14
-	 * Comment      - 15
-	 */
-	// 3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|
 	public Tuple buildTuple(final String keyData, final String valueData) {
-		final String[] data = valueData.split("\\|");	
-	
 		try {
-			final Date shipDate = dateParser.parse(data[10]);
+			final String[] data = valueData.split(",");
 			
-			final double shipDateTime = (double) shipDate.getTime();
-			final BoundingBox boundingBox = new BoundingBox(shipDateTime, shipDateTime);
+			// Header of the file
+			if("VendorID".equals(data[0])) {
+				return null;
+			}
+			
+			final Date tripStart = dateParser.parse(data[1]);
+			
+			final double longBegin = Double.parseDouble(data[5]);
+			final double latBegin = Double.parseDouble(data[6]);
+
+			final BoundingBox boundingBox = new BoundingBox(longBegin, latBegin, 
+					longBegin, latBegin,
+					(double) tripStart.getTime(), (double) tripStart.getTime());
 			
 			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());
 			
 			return tuple;
-		} catch (ParseException e) {
+		} catch (NumberFormatException | ParseException e) {
 			logger.error("Unabe to parse: ", e);
 			return null;
 		}
 	}
+
 
 }

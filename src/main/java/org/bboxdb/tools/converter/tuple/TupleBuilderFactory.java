@@ -28,10 +28,18 @@ public class TupleBuilderFactory {
 	 */
 	public static class Name {
 		/**
-		 * The yellow taxi builder
+		 * The yellow taxi builder - 3d point version (begin long, begin lat, trip start)
 		 * @see http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml
 		 */
-		public static final String YELLOWTAXI = "yellowtaxi";
+		public static final String YELLOWTAXI_POINT = "yellowtaxi_point";
+		
+		/**
+		 * The yellow taxi builder - 3d range version 
+		 * (begin long, begin lat, trip start, end long, end lat, trip end)
+		 * @see http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml
+		 */
+		public static final String YELLOWTAXI_RANGE = "yellowtaxi_range";
+		
 		
 		/**
 		 * The GEOJson builder
@@ -39,16 +47,22 @@ public class TupleBuilderFactory {
 		public static final String GEOJSON = "geojson";
 
 		/**
-		 * The TPCH lineitem builder
+		 * The TPCH lineitem builder - point version (shipDateTime)
 		 */
-		public static final String TPCH_LINEITEM = "tpch_lineitem";
+		public static final String TPCH_LINEITEM_POINT = "tpch_lineitem_point";
+		
+		/**
+		 * The TPCH lineitem builder - range version (shipDateTime - receiptDateTime)
+		 */
+		public static final String TPCH_LINEITEM_RANGE = "tpch_lineitem_range";
 	}
 	
 	/**
 	 * All known builder
 	 */
 	public static final List<String> ALL_BUILDER = Arrays.asList(Name.GEOJSON, 
-			Name.YELLOWTAXI, Name.TPCH_LINEITEM);
+			Name.YELLOWTAXI_POINT, Name.YELLOWTAXI_RANGE, 
+			Name.TPCH_LINEITEM_POINT, Name.TPCH_LINEITEM_RANGE);
 
 	/**
 	 * Return the parser for the tuple format
@@ -58,10 +72,14 @@ public class TupleBuilderFactory {
 	public static TupleBuilder getBuilderForFormat(final String format) {
 		if(Name.GEOJSON.equals(format)) {
 			return new GeoJSONTupleBuilder();
-		} else if(Name.YELLOWTAXI.equals(format)) {
-			return new YellowTaxiTupleBuilder();
-		} else if(Name.TPCH_LINEITEM.equals(format)) {
-			return new TPCHLineitemBuilder();
+		} else if(Name.YELLOWTAXI_POINT.equals(format)) {
+			return new YellowTaxiPointTupleBuilder();
+		} else if(Name.YELLOWTAXI_RANGE.equals(format)) {
+			return new YellowTaxiRangeTupleBuilder();
+		} else if(Name.TPCH_LINEITEM_POINT.equals(format)) {
+			return new TPCHLineitemPointBuilder();
+		} else if(Name.TPCH_LINEITEM_RANGE.equals(format)) {
+			return new TPCHLineitemRangeBuilder();
 		} else {
 			throw new RuntimeException("Unknown format: " + format);
 		}
