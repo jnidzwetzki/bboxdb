@@ -284,10 +284,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 */
 	public void setPagingEnabled(final boolean pagingEnabled) {
 		this.pagingEnabled = pagingEnabled;
-		
-		for(final BBoxDBClient bboxdbClient : serverConnections.values()) {
-			bboxdbClient.setPagingEnabled(pagingEnabled);
-		}
+		serverConnections.values().forEach(c -> c.setPagingEnabled(pagingEnabled));
 	}
 
 	/**
@@ -304,10 +301,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 */
 	public void setTuplesPerPage(final short tuplesPerPage) {
 		this.tuplesPerPage = tuplesPerPage;
-		
-		for(final BBoxDBClient bboxdbClient : serverConnections.values()) {
-			bboxdbClient.setTuplesPerPage(tuplesPerPage);
-		}
+		serverConnections.values().forEach(c -> c.setTuplesPerPage(tuplesPerPage));
 	}
 	
 }
