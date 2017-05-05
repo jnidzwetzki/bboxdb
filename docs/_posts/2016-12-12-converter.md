@@ -37,7 +37,7 @@ The converter requires three parameters, the input file, the folder(s) for the n
 ```
 $ bin/osm_data_converter.sh
 
-usage: Conveter
+usage: Converter
  -backend <[jdbc,bdb,sstable]>                       The node converter backend
  -help                                               Show this help
  -input <file>                                       The input file
@@ -60,7 +60,7 @@ In the following example, an extract of the OpenStreepMap database is downloaded
 ```bash
 $ wget http://download.geofabrik.de/europe/germany-latest.osm.pbf
 $ cd $BBOXDB_HOME
-$ bin/osm_data_conveter.sh -input /path/to/germany-latest.osm.pbf -backend bdb -workfolder /diskb/work:/diskc/work:/diskd/work -output /outputdir/germany
+$ bin/osm_data_converter.sh -input /path/to/germany-latest.osm.pbf -backend bdb -workfolder /diskb/work:/diskc/work:/diskd/work -output /outputdir/germany
 ```
 
 ## Example output

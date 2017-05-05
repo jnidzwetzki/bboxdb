@@ -528,7 +528,7 @@ public class OSMDataConverter {
 	protected static void printHelpAndExit(final Options options) {
 		final HelpFormatter formatter = new HelpFormatter();
 		formatter.setWidth(200);
-		formatter.printHelp("Conveter", options);
+		formatter.printHelp("Converter", options);
 		System.exit(-1);
 	}
 }
