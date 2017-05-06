@@ -98,21 +98,33 @@ public class SyntheticDataGenerator implements Runnable {
 		final Options options = new Options();
 
 		// Help
-		final Option help = Option.builder(Parameter.HELP).desc("Show this help").build();
+		final Option help = Option.builder(Parameter.HELP)
+				.desc("Show this help")
+				.build();
 		options.addOption(help);
 
 		// Dimension
-		final Option dimension = Option.builder(Parameter.DIMENSION).hasArg().argName("dimension")
-				.desc("The dimension of the bounding box").build();
+		final Option dimension = Option.builder(Parameter.DIMENSION)
+				.hasArg()
+				.argName("dimension")
+				.desc("The dimension of the bounding box")
+				.build();
 		options.addOption(dimension);
 
 		// Amount
-		final Option amount = Option.builder(Parameter.AMOUNT).hasArg().argName("amount")
-				.desc("The amount of tuples to produce").build();
+		final Option amount = Option
+				.builder(Parameter.AMOUNT)
+				.hasArg()
+				.argName("amount")
+				.desc("The amount of tuples to produce")
+				.build();
 		options.addOption(amount);
 
 		// Size
-		final Option size = Option.builder(Parameter.SIZE).hasArg().argName("size").desc("The size in byte per tuple")
+		final Option size = Option.builder(Parameter.SIZE)
+				.hasArg()
+				.argName("size")
+				.desc("The size in byte per tuple")
 				.build();
 		options.addOption(size);
 
