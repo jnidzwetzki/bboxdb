@@ -9,6 +9,7 @@ order: 1
 - New Feature: Implemented the new insert time tuple query
 - New Feature: Introduced the BBoxDB CLI
 - New Feature: Added importer for GeoJSON, NYC Yellow taxi and TPCH-Lineitem formated data
+- New Feature: Added generator for synthetic data
 - Improvement: Added the newest inserted tuple timestamp to the Storage interface
 - Improvement: Introduced the clock delta for the recovery service
 - Improvement: The recovery service now uses the insert time of the tuples

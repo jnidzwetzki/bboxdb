@@ -150,4 +150,26 @@ public class TestTupleBuilder {
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
 	}
 	
+	/**
+	 * Test the syntetic tuple builder
+	 * @throws ParseException 
+	 */
+	@Test
+	public void testSyntheticTupleBuilder() throws ParseException {
+		final String testLine = "51.47015078569419,58.26664175357267,49.11808592466023,52.72529828070016 e1k141dox9rayxo544y9";
+		
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.SYNTHETIC);
+		
+		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
+				
+		Assert.assertTrue(tuple != null);
+		Assert.assertEquals(Integer.toString(1), tuple.getKey());
+		
+		final BoundingBox exptectedBox = new BoundingBox(51.47015078569419, 58.26664175357267,
+				49.11808592466023, 52.72529828070016);
+		
+		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
+		Assert.assertEquals("e1k141dox9rayxo544y9", new String(tuple.getDataBytes()));
+	}
+	
 }

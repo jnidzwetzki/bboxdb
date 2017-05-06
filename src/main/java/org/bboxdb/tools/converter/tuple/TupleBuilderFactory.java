@@ -45,6 +45,11 @@ public class TupleBuilderFactory {
 		 * The GEOJson builder
 		 */
 		public static final String GEOJSON = "geojson";
+		
+		/**
+		 * The synthetic builder
+		 */
+		public static final String SYNTHETIC = "synthetic";
 
 		/**
 		 * The TPCH lineitem builder - point version (shipDateTime)
@@ -60,7 +65,8 @@ public class TupleBuilderFactory {
 	/**
 	 * All known builder
 	 */
-	public static final List<String> ALL_BUILDER = Arrays.asList(Name.GEOJSON, 
+	public static final List<String> ALL_BUILDER = Arrays.asList(
+			Name.GEOJSON, Name.SYNTHETIC,
 			Name.YELLOWTAXI_POINT, Name.YELLOWTAXI_RANGE, 
 			Name.TPCH_LINEITEM_POINT, Name.TPCH_LINEITEM_RANGE);
 
@@ -72,6 +78,8 @@ public class TupleBuilderFactory {
 	public static TupleBuilder getBuilderForFormat(final String format) {
 		if(Name.GEOJSON.equals(format)) {
 			return new GeoJSONTupleBuilder();
+		} else if(Name.SYNTHETIC.equals(format)) {
+			return new SyntheticTupleBuilder();
 		} else if(Name.YELLOWTAXI_POINT.equals(format)) {
 			return new YellowTaxiPointTupleBuilder();
 		} else if(Name.YELLOWTAXI_RANGE.equals(format)) {
