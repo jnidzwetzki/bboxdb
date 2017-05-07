@@ -19,6 +19,7 @@ order: 1
 - Improvement: Upgraded from Zookeeper 3.4.9 to Zookeeper 3.4.10 and from slf4j 1.7.21 to 1.7.25 and from log4j 1.2.16 to 1.2.17
 - Improvement: Print connection information on failing futures
 - Improvement: Added getting started page to documentation
+- Improvement: Added generic execution script
 - Bugfix: The checkpoint thread was waiting forever for flushed events
 - Bugfix: Don’t include the content of the conf/ directory in the jar
 - Bugfix: The count lines script searches in the wrong directory for source files
