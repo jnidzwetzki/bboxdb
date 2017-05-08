@@ -192,12 +192,30 @@ public class TestTupleBuilder {
 		Assert.assertEquals("e1k141dox9rayxo544y9", new String(tuple.getDataBytes()));
 	}
 	
+	
+	/**
+	 * Test the tuple file builder - Process non existing file
+	 * @throws IOException
+	 */
+	@Test(expected=IOException.class)
+	public void testTupleFile1() throws IOException {
+		final File tempFile = File.createTempFile("temp",".txt");
+		
+		tempFile.delete();
+		Assert.assertFalse(tempFile.exists());
+		
+		final TupleFile tupleFile = new TupleFile(tempFile.getAbsolutePath(), 
+				TupleBuilderFactory.Name.GEOJSON);
+		
+		tupleFile.processFile();
+	}
+		
 	/**
 	 * Test the tuple file builder
 	 * @throws IOException
 	 */
 	@Test
-	public void testTupleFile() throws IOException {
+	public void testTupleFile2() throws IOException {
 		final File tempFile = File.createTempFile("temp",".txt");
 		tempFile.deleteOnExit();
 		
