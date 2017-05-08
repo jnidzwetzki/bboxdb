@@ -60,7 +60,7 @@ public class TupleFile {
 
 	public TupleFile(final String filename, final String importFormat) {
 		this.filename = filename;
-		tupleBuilder = TupleBuilderFactory.getBuilderForFormat(importFormat);
+		this.tupleBuilder = TupleBuilderFactory.getBuilderForFormat(importFormat);
 		this.callbacks = new ArrayList<>();
 	}
 	
