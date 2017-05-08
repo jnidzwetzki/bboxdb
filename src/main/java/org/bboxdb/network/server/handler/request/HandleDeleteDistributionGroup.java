@@ -52,12 +52,7 @@ public class HandleDeleteDistributionGroup implements RequestHandler {
 			logger.debug("Got delete distribution group package");
 		}
 		
-		try {			
-			if(clientConnectionHandler.getNetworkConnectionServiceState().isReadonly()) {
-				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_INSTANCE_IS_READ_ONLY));
-				return true;
-			}
-			
+		try {
 			final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
 			logger.info("Delete distribution group: " + deletePackage.getDistributionGroup());
 			

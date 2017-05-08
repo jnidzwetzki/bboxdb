@@ -59,11 +59,6 @@ public class NetworkConnectionService implements BBoxDBService {
 	protected Thread serverSocketDispatchThread = null;
 	
 	/**
-	 * The state of the server (readonly or readwrite)
-	 */
-	protected final ServerOperationMode networkConnectionServiceState = new ServerOperationMode();
-	
-	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(NetworkConnectionService.class);
@@ -83,8 +78,6 @@ public class NetworkConnectionService implements BBoxDBService {
 		if(threadPool == null) {
 			threadPool = Executors.newFixedThreadPool(configuration.getNetworkConnectionThreads());
 		}
-		
-		networkConnectionServiceState.setReadonly(true);
 		
 		serverSocketDispatcher = new ConnectionDispatcher();
 		serverSocketDispatchThread = new Thread(serverSocketDispatcher);
@@ -204,7 +197,7 @@ public class NetworkConnectionService implements BBoxDBService {
 		 */
 		protected void handleConnection(final Socket clientSocket) {
 			logger.debug("Got new connection from: " + clientSocket.getInetAddress());
-			threadPool.submit(new ClientConnectionHandler(clientSocket, networkConnectionServiceState));
+			threadPool.submit(new ClientConnectionHandler(clientSocket));
 		}
 	}
 
@@ -212,21 +205,5 @@ public class NetworkConnectionService implements BBoxDBService {
 	@Override
 	public String getServicename() {
 		return "Network connection handler";
-	}
-	
-	/**
-	 * Set the readonly mode
-	 * @param readonly
-	 */
-	public void setReadonly(final boolean readonly) {
-		networkConnectionServiceState.setReadonly(readonly);
-	}
-
-	/**
-	 * Get the readonly mode
-	 * @return
-	 */
-	public boolean isReadonly() {
-		return networkConnectionServiceState.isReadonly();
 	}
 }

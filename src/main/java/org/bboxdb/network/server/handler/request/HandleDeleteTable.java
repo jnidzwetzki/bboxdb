@@ -54,13 +54,7 @@ public class HandleDeleteTable implements RequestHandler {
 			logger.debug("Got delete table package");
 		}
 		
-		try {
-			if(clientConnectionHandler.getNetworkConnectionServiceState().isReadonly()) {
-				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_INSTANCE_IS_READ_ONLY);
-				clientConnectionHandler.writeResultPackage(responsePackage);
-				return true;
-			}
-			
+		try {			
 			final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);
 			final SSTableName requestTable = deletePackage.getTable();
 			logger.info("Got delete call for table: " + requestTable);

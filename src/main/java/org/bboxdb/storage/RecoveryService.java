@@ -75,8 +75,7 @@ public class RecoveryService implements BBoxDBService {
 			runRecovery();
 			
 			logger.info("Running recovery for local stored data DONE");
-			connectionHandler.setReadonly(false);
-			
+
 			zookeeperClient.setLocalInstanceState(DistributedInstanceState.READY);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			logger.error("Got an exception during recovery: ", e);

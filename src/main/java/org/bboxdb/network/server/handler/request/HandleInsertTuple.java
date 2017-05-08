@@ -57,13 +57,7 @@ public class HandleInsertTuple implements RequestHandler {
 			logger.debug("Got insert tuple request");
 		}
 		
-		try {
-			if(clientConnectionHandler.getNetworkConnectionServiceState().isReadonly()) {
-				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_INSTANCE_IS_READ_ONLY);
-				clientConnectionHandler.writeResultPackage(responsePackage);
-				return true;
-			}
-			
+		try {			
 			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 			
 			// Send the call to the storage manager

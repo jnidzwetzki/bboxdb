@@ -56,12 +56,6 @@ public class HandleCreateDistributionGroup implements RequestHandler {
 		}
 		
 		try {
-			if(clientConnectionHandler.getNetworkConnectionServiceState().isReadonly()) {
-				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_INSTANCE_IS_READ_ONLY);
-				clientConnectionHandler.writeResultPackage(responsePackage);
-				return true;
-			}
-			
 			final CreateDistributionGroupRequest createPackage = CreateDistributionGroupRequest.decodeTuple(encodedPackage);
 			logger.info("Create distribution group: " + createPackage.getDistributionGroup());
 			

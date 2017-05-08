@@ -95,11 +95,6 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	protected volatile NetworkConnectionState connectionState;
 
 	/**
-	 * The state of the server (read only or read write)
-	 */
-	protected final ServerOperationMode serverOperationMode;
-	
-	/**
 	 * The capabilities of the connection
 	 */
 	protected PeerCapabilities connectionCapabilities = new PeerCapabilities();
@@ -151,13 +146,12 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
 
 
-	public ClientConnectionHandler(final Socket clientSocket, 
-			final ServerOperationMode serverOperationMode) {
+	public ClientConnectionHandler(final Socket clientSocket) {
 		
-		// The network connection state
+		// Client socket
 		this.clientSocket = clientSocket;
-		this.serverOperationMode = serverOperationMode;
 		
+		// Connection state
 		this.setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING);
 		
 		try {
@@ -570,14 +564,6 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 */
 	public void setConnectionCapabilities(PeerCapabilities connectionCapabilities) {
 		this.connectionCapabilities = connectionCapabilities;
-	}
-
-	/**
-	 * Get the network connection state
-	 * @return
-	 */
-	public ServerOperationMode getNetworkConnectionServiceState() {
-		return serverOperationMode;
 	}
 
 	public NetworkConnectionState getConnectionState() {

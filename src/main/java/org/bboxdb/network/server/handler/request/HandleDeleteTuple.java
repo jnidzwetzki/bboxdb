@@ -57,12 +57,6 @@ public class HandleDeleteTuple implements RequestHandler {
 		}
 		
 		try {
-			if(clientConnectionHandler.getNetworkConnectionServiceState().isReadonly()) {
-				final ErrorResponse errorResponse = new ErrorResponse(packageSequence, ErrorMessages.ERROR_INSTANCE_IS_READ_ONLY);
-				clientConnectionHandler.writeResultPackage(errorResponse);
-				return true;
-			}
-			
 			final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
 			final SSTableName requestTable = deleteTupleRequest.getTable();
 
