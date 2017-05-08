@@ -88,9 +88,11 @@ public class TupleFile {
 			for (final Iterator<String> iterator = fileStream.iterator(); iterator.hasNext();) {
 				fileLine = iterator.next();
 				final Tuple tuple = tupleBuilder.buildTuple(Long.toString(lineNumber), fileLine);
-
-				callbacks.forEach(c -> c.accept(tuple));
-					
+				
+				if(tuple != null) {
+					callbacks.forEach(c -> c.accept(tuple));
+				}
+				
 				lineNumber++;
 			}
 		}
