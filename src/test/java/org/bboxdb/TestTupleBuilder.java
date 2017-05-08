@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
@@ -213,12 +214,17 @@ public class TestTupleBuilder {
 		final TupleFile tupleFile = new TupleFile(tempFile.getAbsolutePath(), 
 				TupleBuilderFactory.Name.GEOJSON);
 		
+		final AtomicInteger seenTuples = new AtomicInteger(0);
+		
 		tupleFile.addTupleListener(t -> {
 			Assert.assertEquals(tuple.getKey(), t.getKey());
 			Assert.assertEquals(tuple.getBoundingBox(), t.getBoundingBox());
 			Assert.assertArrayEquals(tuple.getDataBytes(), t.getDataBytes());
+			seenTuples.incrementAndGet();
 		});
 		
 		tupleFile.processFile();
+		
+		Assert.assertEquals(1, seenTuples.get());
 	}
 }
