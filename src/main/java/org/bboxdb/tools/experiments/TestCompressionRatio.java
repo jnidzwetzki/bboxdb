@@ -68,7 +68,7 @@ public class TestCompressionRatio implements Runnable {
 				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 				20, 30, 40, 50, 60, 70, 80, 90, 100);
 		
-		System.out.println("Bachsize\tDatasize\tRatio\tCompression ratio");
+		System.out.println("#Batchsize\tDatasize\tRatio\tCompression ratio");
 		
 		for(final Integer batchSize : bachSizes) {
 			try {
