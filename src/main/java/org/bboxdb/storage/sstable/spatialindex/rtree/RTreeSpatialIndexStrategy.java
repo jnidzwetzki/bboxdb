@@ -28,10 +28,11 @@ import java.util.List;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.SSTableConst;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.util.DataEncoderHelper;
-import org.bboxdb.util.StreamHelper;
+
+import com.google.common.io.ByteStreams;
 
 public class RTreeSpatialIndexStrategy implements SpatialIndex {
 
@@ -66,7 +67,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		
 		// Validate file - read the magic from the beginning
 		final byte[] magicBytes = new byte[SSTableConst.MAGIC_BYTES_SPATIAL_INDEX.length];
-		StreamHelper.readExactlyBytes(inputStream, magicBytes, 0, SSTableConst.MAGIC_BYTES_SPATIAL_INDEX.length);
+		ByteStreams.readFully(inputStream, magicBytes, 0, SSTableConst.MAGIC_BYTES_SPATIAL_INDEX.length);
 
 		if(! Arrays.equals(magicBytes, SSTableConst.MAGIC_BYTES_SPATIAL_INDEX)) {
 			throw new StorageManagerException("Spatial index file does not contain the magic bytes");
@@ -84,7 +85,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 			validateStream(inputStream);
 			
 			final byte[] elementBytes = new byte[DataEncoderHelper.INT_BYTES];
-			StreamHelper.readExactlyBytes(inputStream, elementBytes, 0, elementBytes.length);
+			ByteStreams.readFully(inputStream, elementBytes, 0, elementBytes.length);
 			final int elements = DataEncoderHelper.readIntFromByte(elementBytes);
 		
 			for(int i = 0; i < elements; i++) {

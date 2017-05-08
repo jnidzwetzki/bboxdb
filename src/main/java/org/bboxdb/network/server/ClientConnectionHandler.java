@@ -67,9 +67,10 @@ import org.bboxdb.network.server.handler.request.RequestHandler;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.ExceptionSafeThread;
-import org.bboxdb.util.StreamHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.io.ByteStreams;
 
 public class ClientConnectionHandler extends ExceptionSafeThread {
 
@@ -202,7 +203,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 */
 	protected ByteBuffer readNextPackageHeader(final InputStream inputStream) throws IOException, PackageEncodeException {
 		final ByteBuffer bb = ByteBuffer.allocate(12);
-		StreamHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
+		ByteStreams.readFully(inputStream, bb.array(), 0, bb.limit());
 		
 		final RoutingHeader routingHeader = RoutingHeaderParser.decodeRoutingHeader(inputStream);
 		final byte[] routingHeaderBytes = RoutingHeaderParser.encodeHeader(routingHeader);
@@ -356,7 +357,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		try {
 			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());			
 			encodedPackage.put(packageHeader.array());
-			StreamHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
+			ByteStreams.readFully(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
 		} catch (IOException e) {
 			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSING);
 			throw e;

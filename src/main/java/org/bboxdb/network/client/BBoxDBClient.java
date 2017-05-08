@@ -74,9 +74,10 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.MicroSecondTimestampProvider;
-import org.bboxdb.util.StreamHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.io.ByteStreams;
 
 public class BBoxDBClient implements BBoxDB {
 	
@@ -966,7 +967,7 @@ public class BBoxDBClient implements BBoxDB {
 		
 		//System.out.println("Trying to read: " + bodyLength + " avail " + inputStream.available());
 		encodedPackage.put(packageHeader.array());
-		StreamHelper.readExactlyBytes(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
+		ByteStreams.readFully(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
 
 		return encodedPackage;
 	}

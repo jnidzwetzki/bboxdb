@@ -25,7 +25,8 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.util.DataEncoderHelper;
-import org.bboxdb.util.StreamHelper;
+
+import com.google.common.io.ByteStreams;
 
 public class RoutingHeaderParser {
 
@@ -39,7 +40,7 @@ public class RoutingHeaderParser {
 	public static RoutingHeader decodeRoutingHeader(final InputStream inputStream) throws IOException, PackageEncodeException {
 		
 		final byte[] routedOrDirect = new byte[1];		
-		StreamHelper.readExactlyBytes(inputStream, routedOrDirect, 0, routedOrDirect.length);
+		ByteStreams.readFully(inputStream, routedOrDirect, 0, routedOrDirect.length);
 		
 		if(        (routedOrDirect[0] != RoutingHeader.DIRECT_PACKAGE) 
 				&& (routedOrDirect[0] != RoutingHeader.ROUTED_PACKAGE)) {
@@ -92,19 +93,19 @@ public class RoutingHeaderParser {
 		
 		// Hop
 		final byte[] hopBuffer = new byte[2];
-		StreamHelper.readExactlyBytes(inputStream, hopBuffer, 0, hopBuffer.length);
+		ByteStreams.readFully(inputStream, hopBuffer, 0, hopBuffer.length);
 		final short hop = DataEncoderHelper.readShortFromByte(hopBuffer);
 		
 		// Skip one unused byte
-		StreamHelper.skipBytesExcactly(inputStream, 1);
+		ByteStreams.skipFully(inputStream, 1);
 
 		// Routing list list length
 		final byte[] routingListLengthBuffer = new byte[2];
-		StreamHelper.readExactlyBytes(inputStream, routingListLengthBuffer, 0, routingListLengthBuffer.length);
+		ByteStreams.readFully(inputStream, routingListLengthBuffer, 0, routingListLengthBuffer.length);
 		final short routingListLength = DataEncoderHelper.readShortFromByte(routingListLengthBuffer);
 
 		final byte[] routingListBuffer = new byte[routingListLength];
-		StreamHelper.readExactlyBytes(inputStream, routingListBuffer, 0, routingListBuffer.length);
+		ByteStreams.readFully(inputStream, routingListBuffer, 0, routingListBuffer.length);
 		final String routingList = new String(routingListBuffer);
 		
 		return new RoutingHeader(true, hop, routingList);
@@ -118,7 +119,7 @@ public class RoutingHeaderParser {
 	 */
 	protected static RoutingHeader decodeDirectPackage(final InputStream inputStream) throws IOException {
 		// Skip 5 unused bytes
-		StreamHelper.skipBytesExcactly(inputStream, 5);
+		ByteStreams.skipFully(inputStream, 5);
 		return new RoutingHeader(false);
 	}
 

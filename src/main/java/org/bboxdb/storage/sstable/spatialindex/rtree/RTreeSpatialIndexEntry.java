@@ -25,7 +25,8 @@ import java.nio.ByteBuffer;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.util.DataEncoderHelper;
-import org.bboxdb.util.StreamHelper;
+
+import com.google.common.io.ByteStreams;
 
 public class RTreeSpatialIndexEntry extends SpatialIndexEntry {
 
@@ -80,9 +81,9 @@ public class RTreeSpatialIndexEntry extends SpatialIndexEntry {
 		final byte[] keyLengthBytes = new byte[DataEncoderHelper.SHORT_BYTES];
 		final byte[] boxLengthBytes = new byte[DataEncoderHelper.INT_BYTES];
 		
-		StreamHelper.readExactlyBytes(inputStream, nodeIdBytes, 0, nodeIdBytes.length);
-		StreamHelper.readExactlyBytes(inputStream, keyLengthBytes, 0, keyLengthBytes.length);
-		StreamHelper.readExactlyBytes(inputStream, boxLengthBytes, 0, boxLengthBytes.length);
+		ByteStreams.readFully(inputStream, nodeIdBytes, 0, nodeIdBytes.length);
+		ByteStreams.readFully(inputStream, keyLengthBytes, 0, keyLengthBytes.length);
+		ByteStreams.readFully(inputStream, boxLengthBytes, 0, boxLengthBytes.length);
 
 		final int nodeId = DataEncoderHelper.readIntFromByte(nodeIdBytes);
 		final short keyLength = DataEncoderHelper.readShortFromByte(keyLengthBytes);
@@ -91,8 +92,8 @@ public class RTreeSpatialIndexEntry extends SpatialIndexEntry {
 		final byte[] keyBytes = new byte[keyLength];
 		final byte[] bboxBytes = new byte[bboxLength];
 		
-		StreamHelper.readExactlyBytes(inputStream, keyBytes, 0, keyBytes.length);
-		StreamHelper.readExactlyBytes(inputStream, bboxBytes, 0, bboxBytes.length);
+		ByteStreams.readFully(inputStream, keyBytes, 0, keyBytes.length);
+		ByteStreams.readFully(inputStream, bboxBytes, 0, bboxBytes.length);
 
 		final String key = new String(keyBytes);
 		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);

@@ -24,9 +24,10 @@ import java.nio.ByteBuffer;
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.util.ExceptionSafeThread;
-import org.bboxdb.util.StreamHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.io.ByteStreams;
 
 /**
  * Read the server response packages
@@ -55,7 +56,7 @@ public class ServerResponseReader extends ExceptionSafeThread {
 	 */
 	protected ByteBuffer readNextResponsePackageHeader(final InputStream inputStream) throws IOException {
 		final ByteBuffer bb = ByteBuffer.allocate(12);
-		StreamHelper.readExactlyBytes(inputStream, bb.array(), 0, bb.limit());
+		ByteStreams.readFully(inputStream, bb.array(), 0, bb.limit());
 		return bb;
 	}
 	
