@@ -17,16 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.tools.cli;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -49,7 +44,7 @@ import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.converter.tuple.TupleBuilder;
+import org.bboxdb.tools.TupleFile;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -413,69 +408,41 @@ public class CLI implements Runnable, AutoCloseable {
 		final String filename = line.getOptionValue(CLIParameter.FILE);
 		final String format = line.getOptionValue(CLIParameter.FORMAT);
 		final String table = line.getOptionValue(CLIParameter.TABLE);
+	
+		System.out.println("Importing file: " + filename);
 		
-		final File file = new File(filename);
-		if(! file.exists()) {
-			System.err.println("Unable to open file: " + file);
-			System.exit(-1);
-		}
-		
-		System.out.println("Importing file: " + file);
-		
-		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
-		
-		try(final Stream<String> fileStream = Files.lines(Paths.get(filename))) {
-			long lineNumber = 1;
+		final TupleFile tupleFile = new TupleFile(filename, format);
+		tupleFile.addTupleListener(t -> {
 			
-			for (final Iterator<String> iterator = fileStream.iterator(); iterator.hasNext();) {
-				final String fileLine = iterator.next();
-				handleLine(tupleBuilder, fileLine, table, lineNumber);
-				
-				if(lineNumber % 1000 == 0) {
-					System.out.format("Read %d lines\n", lineNumber);
-				}
-					
-				lineNumber++;
+			if(t == null) {
+				logger.error("Unable to parse line: " + tupleFile.getLastReadLine());
+				return;
 			}
 			
+			if(tupleFile.getProcessedLines() % 1000 == 0) {
+				System.out.format("Read %d lines\n", tupleFile.getProcessedLines());
+			}
+			
+			try {
+				final EmptyResultFuture result = bboxDbConnection.insertTuple(table, t);
+				pendingFutures.put(result);
+
+			} catch (BBoxDBException e) {
+				logger.error("Got exception while inserting tuple", e);
+			}
+		});
+			
+		try {
+			tupleFile.processFile();
 			pendingFutures.waitForCompletion();
-			System.out.format("Successfully imported %d lines\n", lineNumber);
+			System.out.format("Successfully imported %d lines\n", tupleFile.getProcessedLines());
 		} catch (IOException e) {
-			System.err.println("Got an exeption while reading file: " + e);
+			logger.error("Got IO Exception while reading data", e);
 			System.exit(-1);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return;
 		}
-	}
-
-	/**
-	 * Insert a line of the file into the given table
-	 * 
-	 * @param line
-	 * @param format
-	 * @param table
-	 * @param lineNumber 
-	 * @return 
-	 */
-	protected boolean handleLine(final TupleBuilder tupleBuilder, final String line, 
-			final String table, final long lineNumber) {
-					
-		try {
-			final Tuple tuple = tupleBuilder.buildTuple(Long.toString(lineNumber), line);
-			
-			if(tuple == null) {
-				return false;
-			}
-			
-			final EmptyResultFuture result = bboxDbConnection.insertTuple(table, tuple);
-			pendingFutures.put(result);
-		} catch (BBoxDBException e) {
-			System.err.println("Got an error during insert: " + e);
-			System.exit(-1);
-		}
-		
-		return true;
 	}
 
 	/**
