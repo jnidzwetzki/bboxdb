@@ -17,6 +17,10 @@
  *******************************************************************************/
 package org.bboxdb;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,6 +29,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
+import org.bboxdb.util.TupleFile;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,15 +37,34 @@ import org.junit.Test;
 public class TestTupleBuilder {
 
 	/**
+	 * The testline for TPC-H tests
+	 */
+	protected final static String TPCH_TEST_LINE = "3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|";
+	
+	/**
+	 * The testline for synthetic tests
+	 */
+	protected final static String SYNTHETIC_TEST_LINE = "51.47015078569419,58.26664175357267,49.11808592466023,52.72529828070016 e1k141dox9rayxo544y9";
+	
+	/**
+	 * The testline for yellow taxi format tests
+	 */
+	protected final static String TAXI_TEST_LINE = "2,2016-01-01 00:00:00,2016-01-01 00:00:00,2,1.10,-73.990371704101563,40.734695434570313,1,N,-73.981842041015625,40.732406616210937,2,7.5,0.5,0.5,0,0,0.3,8.8";
+
+	/**
+	 * The line for geojson tests
+	 */
+	protected final static String GEO_JOSN_LINE = "{\"geometry\":{\"coordinates\":[52.4688608,13.3327994],\"type\":\"Point\"},\"id\":271247324,\"type\":\"Feature\",\"properties\":{\"natural\":\"tree\",\"leaf_cycle\":\"deciduous\",\"name\":\"Kaisereiche\",\"leaf_type\":\"broadleaved\",\"wikipedia\":\"de:Kaisereiche (Berlin)\"}}";
+
+	/**
 	 * Test the geo json tuple builder
 	 */
 	@Test
 	public void testGeoJsonTupleBuilder() {
-		final String testLine = "{\"geometry\":{\"coordinates\":[52.4688608,13.3327994],\"type\":\"Point\"},\"id\":271247324,\"type\":\"Feature\",\"properties\":{\"natural\":\"tree\",\"leaf_cycle\":\"deciduous\",\"name\":\"Kaisereiche\",\"leaf_type\":\"broadleaved\",\"wikipedia\":\"de:Kaisereiche (Berlin)\"}}";
-	
-		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.GEOJSON);
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.GEOJSON);
 		
-		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
+		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JOSN_LINE);
 		
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -53,12 +77,11 @@ public class TestTupleBuilder {
 	 * @throws ParseException 
 	 */
 	@Test
-	public void testYellowTaxiRangeTupleBuilder() throws ParseException {
-		final String testLine = "2,2016-01-01 00:00:00,2016-01-01 00:00:00,2,1.10,-73.990371704101563,40.734695434570313,1,N,-73.981842041015625,40.732406616210937,2,7.5,0.5,0.5,0,0,0.3,8.8";
-	
-		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.YELLOWTAXI_RANGE);
+	public void testYellowTaxiRangeTupleBuilder() throws ParseException {	
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.YELLOWTAXI_RANGE);
 		
-		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
+		final Tuple tuple = tupleBuilder.buildTuple("1", TAXI_TEST_LINE);
 				
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -80,11 +103,10 @@ public class TestTupleBuilder {
 	 */
 	@Test
 	public void testYellowTaxiPointTupleBuilder() throws ParseException {
-		final String testLine = "2,2016-01-01 00:00:00,2016-01-01 00:00:00,2,1.10,-73.990371704101563,40.734695434570313,1,N,-73.981842041015625,40.732406616210937,2,7.5,0.5,0.5,0,0,0.3,8.8";
-	
-		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.YELLOWTAXI_POINT);
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.YELLOWTAXI_POINT);
 		
-		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
+		final Tuple tuple = tupleBuilder.buildTuple("1", TAXI_TEST_LINE);
 				
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -105,11 +127,10 @@ public class TestTupleBuilder {
 	 */
 	@Test
 	public void testTPCHLineitemPointTupleBuilder() throws ParseException {
-		final String testLine = "3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|";
-
-		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.TPCH_LINEITEM_POINT);
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.TPCH_LINEITEM_POINT);
 		
-		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
+		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_TEST_LINE);
 				
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -129,11 +150,10 @@ public class TestTupleBuilder {
 	 */
 	@Test
 	public void testTPCHLineitemRangeTupleBuilder() throws ParseException {
-		final String testLine = "3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|";
-
-		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.TPCH_LINEITEM_RANGE);
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.TPCH_LINEITEM_RANGE);
 		
-		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
+		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_TEST_LINE);
 				
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -156,11 +176,10 @@ public class TestTupleBuilder {
 	 */
 	@Test
 	public void testSyntheticTupleBuilder() throws ParseException {
-		final String testLine = "51.47015078569419,58.26664175357267,49.11808592466023,52.72529828070016 e1k141dox9rayxo544y9";
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.SYNTHETIC);
 		
-		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(TupleBuilderFactory.Name.SYNTHETIC);
-		
-		final Tuple tuple = tupleBuilder.buildTuple("1", testLine);
+		final Tuple tuple = tupleBuilder.buildTuple("1", SYNTHETIC_TEST_LINE);
 				
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -172,4 +191,34 @@ public class TestTupleBuilder {
 		Assert.assertEquals("e1k141dox9rayxo544y9", new String(tuple.getDataBytes()));
 	}
 	
+	/**
+	 * Test the tuple file builder
+	 * @throws IOException
+	 */
+	@Test
+	public void testTupleFile() throws IOException {
+		final File tempFile = File.createTempFile("temp",".txt");
+		tempFile.deleteOnExit();
+		
+		// The reference tuple
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.GEOJSON);
+		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JOSN_LINE);
+		
+		final BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+		writer.write(GEO_JOSN_LINE);
+		writer.write("\n");
+		writer.close();
+		
+		final TupleFile tupleFile = new TupleFile(tempFile.getAbsolutePath(), 
+				TupleBuilderFactory.Name.GEOJSON);
+		
+		tupleFile.addTupleListener(t -> {
+			Assert.assertEquals(tuple.getKey(), t.getKey());
+			Assert.assertEquals(tuple.getBoundingBox(), t.getBoundingBox());
+			Assert.assertArrayEquals(tuple.getDataBytes(), t.getDataBytes());
+		});
+		
+		tupleFile.processFile();
+	}
 }
