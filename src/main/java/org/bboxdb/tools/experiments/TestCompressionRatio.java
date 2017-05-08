@@ -17,10 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.tools.experiments;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +33,7 @@ import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.converter.osm.util.Polygon;
+import org.bboxdb.util.TupleFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,21 +43,20 @@ public class TestCompressionRatio implements Runnable {
 	 * The file to read
 	 */
 	protected String filename;
-
+	
 	/**
-	 * The element counter
+	 * The format of the input file
 	 */
-	protected long elementCounter;
+	protected String format;
 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(TestCompressionRatio.class);
-	
+	private final static Logger logger = LoggerFactory.getLogger(TestCompressionRatio.class);	
 
-	public TestCompressionRatio(final String filename) throws IOException {
-		this.filename = Objects.requireNonNull(filename);
-		elementCounter = 0;
+	public TestCompressionRatio(final String filename, final String format) throws IOException {
+		this.filename = filename;
+		this.format = format;
 	}
 
 	@Override
@@ -95,7 +92,6 @@ public class TestCompressionRatio implements Runnable {
 		}
 	}
 
-
 	/**
 	 * Run the experiment with the given batch size
 	 * @param batchSize
@@ -106,36 +102,31 @@ public class TestCompressionRatio implements Runnable {
 	 */
 	protected long runExperiment(final Integer batchSize) throws ClassNotFoundException, IOException, PackageEncodeException {
 		final SSTableName tableName = new SSTableName("2_group1_table1");
-		long totalSize = 0;
+		final List<Integer> experimentSize = new ArrayList<>();
 		
 		final List<Tuple> buffer = new ArrayList<>();
+		final TupleFile tupleFile = new TupleFile(filename, format);
 		
-		try (
-				final BufferedReader reader = new BufferedReader(new FileReader(new File(filename)));
-			) {
-
-		    String line;
-		    while ((line = reader.readLine()) != null) {
-		    	final Polygon polygon = Polygon.fromGeoJson(line);
-		    	final byte[] tupleBytes = polygon.toGeoJson().getBytes();
-
-				final Tuple tuple = new Tuple(Long.toString(polygon.getId()), polygon.getBoundingBox(), tupleBytes);
-
-				if(batchSize == 0) {
-					final int size = handleUncompressedData(tableName, tuple);
-					totalSize = totalSize + size;
-				} else if (buffer.size() == batchSize) {
-					final int size = handleCompressedData(tableName, buffer);
-					totalSize = totalSize + size;
-				} else {
-					buffer.add(tuple);
-				}
-		    }
+		tupleFile.addTupleListener(t -> {
+			if(batchSize == 0) {
+				final int size = handleUncompressedData(tableName, t);
+				experimentSize.add(size);
+			} else if (buffer.size() == batchSize) {
+				final int size = handleCompressedData(tableName, buffer);
+				experimentSize.add(size);
+			} else {
+				buffer.add(t);
+			}
+		});
+	
+		try {
+			tupleFile.processFile();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Got an IO-Exception while reading file", e);
+			System.exit(-1);
 		}
 
-		return totalSize;
+		return experimentSize.stream().mapToInt(i -> i).sum();
 	}
 
 	/**
@@ -146,8 +137,7 @@ public class TestCompressionRatio implements Runnable {
 	 * @throws PackageEncodeException
 	 * @throws IOException
 	 */
-	protected int handleCompressedData(final SSTableName tableName, final List<Tuple> buffer)
-			throws PackageEncodeException, IOException {
+	protected int handleCompressedData(final SSTableName tableName, final List<Tuple> buffer) {
 		
 		final List<NetworkRequestPackage> packages = 
 				buffer
@@ -160,20 +150,15 @@ public class TestCompressionRatio implements Runnable {
 		
 		buffer.clear();
 		
-		final int size = packageToBytes(compressionEnvelopeRequest);
-		return size;
+		return packageToBytes(compressionEnvelopeRequest);
 	}
 
 	/**
 	 * Handle the uncompressed version
 	 * @param tableName 
 	 * @return
-	 * @throws PackageEncodeException
-	 * @throws IOException
 	 */
-	protected int handleUncompressedData(final SSTableName tableName, final Tuple tuple)
-			throws PackageEncodeException, IOException {
-		
+	protected int handleUncompressedData(final SSTableName tableName, final Tuple tuple) {
 		final InsertTupleRequest insertTupleRequest = new InsertTupleRequest((short) 4, tableName, tuple);
 		return packageToBytes(insertTupleRequest);
 	}
@@ -182,27 +167,40 @@ public class TestCompressionRatio implements Runnable {
 	 * Convert the given package into a byte stream 
 	 * @param networkPackage
 	 * @return
-	 * @throws PackageEncodeException
-	 * @throws IOException
 	 */
-	protected int packageToBytes(final NetworkRequestPackage networkPackage)
-			throws PackageEncodeException, IOException {
+	protected int packageToBytes(final NetworkRequestPackage networkPackage) {
 		
-		final ByteArrayOutputStream os = new ByteArrayOutputStream();
-		networkPackage.writeToOutputStream(os);
-		os.close();
-		return os.toByteArray().length;
+		try {
+			final ByteArrayOutputStream os = new ByteArrayOutputStream();
+			networkPackage.writeToOutputStream(os);
+			os.close();
+			return os.toByteArray().length;
+		} catch (IOException e) {
+			logger.error("Got an IO-Exception while closing stream", e);
+			System.exit(-1);
+		} catch (PackageEncodeException e) {
+			logger.error("Got an Package encode exception", e);
+			System.exit(-1);
+		}
+		
+		// Unreachable code
+		return -1;
 	}
 
+	/**
+	 * Main * Main * Main * Main
+	 * @param args
+	 */
 	public static void main(final String[] args) throws IOException {
 		
 		// Check parameter
 		if(args.length != 2) {
-			System.err.println("Usage: programm <filename>");
+			System.err.println("Usage: programm <filename> <format>");
 			System.exit(-1);
 		}
 		
-		final String filename = args[0];
+		final String filename = Objects.requireNonNull(args[0]);
+		final String format = Objects.requireNonNull(args[1]);
 		
 		// Check file
 		final File inputFile = new File(filename);
@@ -211,7 +209,7 @@ public class TestCompressionRatio implements Runnable {
 			System.exit(-1);
 		}
 		
-		final TestCompressionRatio testCompressionRatio = new TestCompressionRatio(filename);
+		final TestCompressionRatio testCompressionRatio = new TestCompressionRatio(filename, format);
 		testCompressionRatio.run();
 	}
 
