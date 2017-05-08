@@ -25,11 +25,6 @@ public class ErrorMessages {
 	public final static String ERROR_UNSUPPORTED_PACKAGE_TYPE = "Unsupported package type";
 
 	/**
-	 * Readony node error message
-	 */
-	public final static String ERROR_INSTANCE_IS_READ_ONLY = "Instance is read only";
-	
-	/**
 	 * Exception during query processing
 	 */
 	public final static String ERROR_EXCEPTION = "Got an exception during query processing, check server logs";
