@@ -110,7 +110,7 @@ public class BBoxDBMain {
 		logger.info("Starting up the BBoxDB - version: {}", Const.VERSION);	
 		
 		if (! runBaseChecks() ) {
-			logger.warn("Some of the base checks have failed, exiting");
+			logger.error("Some of the base checks have failed, exiting");
 			System.exit(-1);
 		}
 		
@@ -121,6 +121,8 @@ public class BBoxDBMain {
 				service.init();
 			} catch (Throwable e) {
 				logger.error("Got exception while init service:" + service.getServicename(), e);
+				stop();
+				System.exit(-1);
 			}
 		}
 		
@@ -168,10 +170,10 @@ public class BBoxDBMain {
 		logger.info("Shutdown complete");
 	}
 
-	//===========================================
-	// Test method
-	//===========================================
-	public static void main(String[] args) throws Exception {
+	/**
+ 	 * Main * Main * Main * Main * Main 
+	 */
+	public static void main(final String[] args) throws Exception {
 		final BBoxDBMain main = new BBoxDBMain();
 		main.init();
 		main.start();
