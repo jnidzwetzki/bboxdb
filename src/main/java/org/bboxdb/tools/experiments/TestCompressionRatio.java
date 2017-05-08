@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.bboxdb.network.NetworkConst;
@@ -57,7 +58,7 @@ public class TestCompressionRatio implements Runnable {
 	
 
 	public TestCompressionRatio(final String filename) throws IOException {
-		this.filename = filename;
+		this.filename = Objects.requireNonNull(filename);
 		elementCounter = 0;
 	}
 
