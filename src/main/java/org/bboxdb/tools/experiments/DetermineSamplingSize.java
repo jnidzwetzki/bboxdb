@@ -17,9 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.tools.experiments;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -27,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -34,6 +32,7 @@ import java.util.stream.Stream;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.bboxdb.tools.converter.osm.util.SerializerHelper;
+import org.bboxdb.util.TupleFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +42,11 @@ public class DetermineSamplingSize implements Runnable {
 	 * The file to import
 	 */
 	protected final String filename;
+	
+	/**
+	 * The format of the input file
+	 */
+	protected String format;
 
 	/**
 	 * The element counter
@@ -64,9 +68,9 @@ public class DetermineSamplingSize implements Runnable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DetermineSamplingSize.class);
 	
-	public DetermineSamplingSize(final String filename) throws IOException {
-		
+	public DetermineSamplingSize(final String filename, final String format) throws IOException {
 		this.filename = filename;
+		this.format = format;
 		this.elementCounter = 0;
 	}
 	
@@ -130,29 +134,28 @@ public class DetermineSamplingSize implements Runnable {
 		final BoundingBox leftBox = fullBox.splitAndGetLeft(splitPos, 0, true);
 		final BoundingBox rightBox = fullBox.splitAndGetRight(splitPos, 0, false);
 
-		try (
-				final BufferedReader reader = new BufferedReader(new FileReader(new File(filename)));
-			) {
-
-		    String line;
-		    while ((line = reader.readLine()) != null) {
-		    	final Polygon polygon = Polygon.fromGeoJson(line);
-
-				final BoundingBox polygonBoundingBox = polygon.getBoundingBox();
-				
-				if(polygonBoundingBox.overlaps(leftBox)) {
-					statistics.increaseLeft();
-				}
-				
-				if(polygonBoundingBox.overlaps(rightBox)) {
-					statistics.increaseRight();
-				}
-				
-				statistics.increaseTotal();
-		    }
+		final TupleFile tupleFile = new TupleFile(filename, format);
+		
+		tupleFile.addTupleListener(t -> {
+			final BoundingBox polygonBoundingBox = t.getBoundingBox();
+			
+			if(polygonBoundingBox.overlaps(leftBox)) {
+				statistics.increaseLeft();
+			}
+			
+			if(polygonBoundingBox.overlaps(rightBox)) {
+				statistics.increaseRight();
+			}
+			
+			statistics.increaseTotal();
+	    });
+		
+		try {
+			tupleFile.processFile();
 		} catch (IOException e) {
-			logger.error("Error while processing data", e);
-		}		
+			logger.error("Got an IO-Exception while reading file", e);
+			System.exit(-1);
+		}
 		
 		return statistics;
 	}
@@ -198,20 +201,14 @@ public class DetermineSamplingSize implements Runnable {
 		
 		// Check parameter
 		if(args.length != 2) {
-			System.err.println("Usage: programm <filename>");
+			System.err.println("Usage: programm <filename> <format>");
 			System.exit(-1);
 		}
 		
-		final String filename = args[0];
-		
-		// Check file
-		final File inputFile = new File(filename);
-		if(! inputFile.isFile()) {
-			System.err.println("Unable to open file: " + filename);
-			System.exit(-1);
-		}
-		
-		final DetermineSamplingSize determineSamplingSize = new DetermineSamplingSize(filename);
+		final String filename = Objects.requireNonNull(args[0]);
+		final String format = Objects.requireNonNull(args[1]);
+
+		final DetermineSamplingSize determineSamplingSize = new DetermineSamplingSize(filename, format);
 		determineSamplingSize.run();
 	}
 

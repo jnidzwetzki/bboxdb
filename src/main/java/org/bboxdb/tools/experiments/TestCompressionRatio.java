@@ -18,7 +18,6 @@
 package org.bboxdb.tools.experiments;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -201,13 +200,6 @@ public class TestCompressionRatio implements Runnable {
 		
 		final String filename = Objects.requireNonNull(args[0]);
 		final String format = Objects.requireNonNull(args[1]);
-		
-		// Check file
-		final File inputFile = new File(filename);
-		if(! inputFile.isFile()) {
-			System.err.println("Unable to open file: " + filename);
-			System.exit(-1);
-		}
 		
 		final TestCompressionRatio testCompressionRatio = new TestCompressionRatio(filename, format);
 		testCompressionRatio.run();
