@@ -101,17 +101,17 @@ public class TestCompressionRatio implements Runnable {
 	 */
 	protected long runExperiment(final Integer batchSize) throws ClassNotFoundException, IOException, PackageEncodeException {
 		final SSTableName tableName = new SSTableName("2_group1_table1");
-		final List<Integer> experimentSize = new ArrayList<>();
+		final List<Long> experimentSize = new ArrayList<>();
 		
 		final List<Tuple> buffer = new ArrayList<>();
 		final TupleFile tupleFile = new TupleFile(filename, format);
 		
 		tupleFile.addTupleListener(t -> {
 			if(batchSize == 0) {
-				final int size = handleUncompressedData(tableName, t);
+				final long size = handleUncompressedData(tableName, t);
 				experimentSize.add(size);
 			} else if (buffer.size() == batchSize) {
-				final int size = handleCompressedData(tableName, buffer);
+				final long size = handleCompressedData(tableName, buffer);
 				experimentSize.add(size);
 			} else {
 				buffer.add(t);
@@ -125,7 +125,7 @@ public class TestCompressionRatio implements Runnable {
 			System.exit(-1);
 		}
 
-		return experimentSize.stream().mapToInt(i -> i).sum();
+		return experimentSize.stream().mapToLong(i -> i).sum();
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class TestCompressionRatio implements Runnable {
 	 * @throws PackageEncodeException
 	 * @throws IOException
 	 */
-	protected int handleCompressedData(final SSTableName tableName, final List<Tuple> buffer) {
+	protected long handleCompressedData(final SSTableName tableName, final List<Tuple> buffer) {
 		
 		final List<NetworkRequestPackage> packages = 
 				buffer
@@ -157,7 +157,7 @@ public class TestCompressionRatio implements Runnable {
 	 * @param tableName 
 	 * @return
 	 */
-	protected int handleUncompressedData(final SSTableName tableName, final Tuple tuple) {
+	protected long handleUncompressedData(final SSTableName tableName, final Tuple tuple) {
 		final InsertTupleRequest insertTupleRequest = new InsertTupleRequest((short) 4, tableName, tuple);
 		return packageToBytes(insertTupleRequest);
 	}
@@ -167,7 +167,7 @@ public class TestCompressionRatio implements Runnable {
 	 * @param networkPackage
 	 * @return
 	 */
-	protected int packageToBytes(final NetworkRequestPackage networkPackage) {
+	protected long packageToBytes(final NetworkRequestPackage networkPackage) {
 		
 		try {
 			final ByteArrayOutputStream os = new ByteArrayOutputStream();
