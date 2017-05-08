@@ -28,9 +28,10 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.IteratorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Iterators;
 
 public class DistributedSelftest {
 
@@ -163,7 +164,7 @@ public class DistributedSelftest {
 			System.exit(-1);
 		}
 		
-		final int totalTuples = IteratorHelper.getIteratorSize(queryResult.iterator());
+		final int totalTuples = Iterators.size(queryResult.iterator());
 		
 		if(totalTuples != NUMBER_OF_OPERATIONS) {
 			logger.error("Got {} tuples back, but expected {}", totalTuples, NUMBER_OF_OPERATIONS);

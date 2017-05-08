@@ -27,11 +27,12 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.IteratorHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 public class TestNetworkCommunication {
 
@@ -191,7 +192,7 @@ public class TestNetworkCommunication {
 		System.out.println("Query key 2");
 		final TupleListFuture getResult2 = scalephantClient.queryKey(table, key);
 		getResult2.waitForAll();
-		final List<Tuple> resultList = IteratorHelper.iteratorToList(getResult2.iterator());
+		final List<Tuple> resultList = Lists.newArrayList(getResult2.iterator());
 		Assert.assertEquals(tuple, resultList.get(0));
 
 		System.out.println("Delete tuple 2");
@@ -248,7 +249,7 @@ public class TestNetworkCommunication {
 
 		final TupleListFuture future = scalephantClient.queryBoundingBox(table, new BoundingBox(-1d, 2d, -1d, 2d));
 		future.waitForAll();
-		final List<Tuple> resultList = IteratorHelper.iteratorToList(future.iterator());
+		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
 		
 		Assert.assertEquals(3, resultList.size());
 		Assert.assertTrue(resultList.contains(tuple1));
@@ -299,7 +300,7 @@ public class TestNetworkCommunication {
 		scalephantClient.setTuplesPerPage((short) 0);
 		final TupleListFuture future = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future.waitForAll();
-		final List<Tuple> resultList = IteratorHelper.iteratorToList(future.iterator());		
+		final List<Tuple> resultList = Lists.newArrayList(future.iterator());		
 		Assert.assertEquals(5, resultList.size());
 		
 		// With paging (tuples per page 10)
@@ -307,7 +308,7 @@ public class TestNetworkCommunication {
 		scalephantClient.setTuplesPerPage((short) 10);
 		final TupleListFuture future2 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future2.waitForAll();
-		final List<Tuple> resultList2 = IteratorHelper.iteratorToList(future2.iterator());		
+		final List<Tuple> resultList2 = Lists.newArrayList(future2.iterator());		
 		Assert.assertEquals(5, resultList2.size());
 		
 		// With paging (tuples per page 5)
@@ -316,7 +317,7 @@ public class TestNetworkCommunication {
 		scalephantClient.setTuplesPerPage((short) 5);
 		final TupleListFuture future3 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future3.waitForAll();
-		final List<Tuple> resultList3 = IteratorHelper.iteratorToList(future3.iterator());		
+		final List<Tuple> resultList3 = Lists.newArrayList(future3.iterator());		
 		Assert.assertEquals(5, resultList3.size());
 		
 		// With paging (tuples per page 2)
@@ -326,7 +327,7 @@ public class TestNetworkCommunication {
 		final TupleListFuture future4 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		System.out.println("CLient is waiting on: " + future4);
 		future4.waitForAll();
-		final List<Tuple> resultList4 = IteratorHelper.iteratorToList(future4.iterator());		
+		final List<Tuple> resultList4 = Lists.newArrayList(future4.iterator());		
 		Assert.assertEquals(5, resultList4.size());
 		
 		// With paging (tuples per page 1)
@@ -335,7 +336,7 @@ public class TestNetworkCommunication {
 		scalephantClient.setTuplesPerPage((short) 1);
 		final TupleListFuture future5 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future5.waitForAll();
-		final List<Tuple> resultList5 = IteratorHelper.iteratorToList(future5.iterator());		
+		final List<Tuple> resultList5 = Lists.newArrayList(future5.iterator());		
 		Assert.assertEquals(5, resultList5.size());
 	}
 	
@@ -379,7 +380,7 @@ public class TestNetworkCommunication {
 
 		final TupleListFuture future = scalephantClient.queryBoundingBoxAndTime(table, new BoundingBox(-1d, 2d, -1d, 2d), 2);
 		future.waitForAll();
-		final List<Tuple> resultList = IteratorHelper.iteratorToList(future.iterator());
+		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
 		
 		Assert.assertEquals(2, resultList.size());
 		Assert.assertTrue(resultList.contains(tuple1));

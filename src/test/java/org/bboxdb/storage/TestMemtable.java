@@ -22,13 +22,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.PersonEntity;
-import org.bboxdb.storage.Memtable;
-import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.IteratorHelper;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
@@ -39,6 +36,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.google.common.collect.Iterators;
 
 public class TestMemtable {
 	
@@ -201,7 +200,7 @@ public class TestMemtable {
 	
 	protected int countTuplesForPredicate(Predicate predicate) {
 		final Iterator<Tuple> iterator = new PredicateFilterIterator(memtable.iterator(), predicate);
-		return IteratorHelper.getIteratorSize(iterator);
+		return Iterators.size(iterator);
 	}
 
 	/**

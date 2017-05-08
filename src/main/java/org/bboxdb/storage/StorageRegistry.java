@@ -138,7 +138,7 @@ public class StorageRegistry {
 			sstableManager = new SSTableManager(location, table, configuration);
 		} else {
 			// Find a new storate directory for the sstable manager
-			final String location = getLowerstUtilizedDataLocation();
+			final String location = getLowestUtilizedDataLocation();
 			sstableManager = new SSTableManager(location, table, configuration);
 			sstableLocations.put(table, location);
 		}
@@ -173,7 +173,7 @@ public class StorageRegistry {
 	 * Get the lowest utilized data storage location
 	 * @return
 	 */
-	public String getLowerstUtilizedDataLocation() {
+	public String getLowestUtilizedDataLocation() {
 
 		final Map<String, Integer> usage = new HashMap<>();
 		for(final String location : storageDirectories) {
@@ -434,7 +434,7 @@ public class StorageRegistry {
 	public String getStorageDirForSSTable(final SSTableName ssTableName) {
 		if(! sstableLocations.containsKey(ssTableName)) {
 			logger.warn("Location for {} is unknown.", ssTableName.getFullname());
-			return getLowerstUtilizedDataLocation();
+			return getLowestUtilizedDataLocation();
 		}
 		
 		return sstableLocations.get(ssTableName);
