@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.2.6 (Stable) - TBA
 - Improvement: Removed unused server read only mode
+- Improvement: Send client queries immediately to server
 
 ### Version 0.2.5 (Stable) - 07.05.2017
 - New Feature: Implemented the new insert time tuple query
