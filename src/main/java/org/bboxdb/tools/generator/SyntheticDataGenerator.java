@@ -173,7 +173,7 @@ public class SyntheticDataGenerator implements Runnable {
 	public void run() {
 		try {
 			final long amount = Long.parseLong(line.getOptionValue(Parameter.AMOUNT));
-			final long size = Long.parseLong(line.getOptionValue(Parameter.SIZE));
+			final int size = Integer.parseInt(line.getOptionValue(Parameter.SIZE));
 			final int dimension = Integer.parseInt(line.getOptionValue(Parameter.DIMENSION));
 			final String outputFile = line.getOptionValue(Parameter.OUTPUTFILE);
 			
@@ -206,7 +206,7 @@ public class SyntheticDataGenerator implements Runnable {
 	 * @param writer 
 	 * @throws IOException 
 	 */
-	protected void generateLine(final long size, final int dimension, final Writer writer)  {
+	protected void generateLine(final int size, final int dimension, final Writer writer)  {
 		try {
 			final String randomBBox = getRandomBoundingBox(dimension);
 			final String randomData = getRandomString(size);
@@ -246,8 +246,8 @@ public class SyntheticDataGenerator implements Runnable {
 	 * @param size
 	 * @return
 	 */
-	public String getRandomString(final long size) {
-		final StringBuilder sb = new StringBuilder();
+	public String getRandomString(final int size) {
+		final StringBuilder sb = new StringBuilder(size);
 
 		for (int i = 0; i < size; i++) {
 			sb.append(symbols[random.nextInt(symbols.length)]);
