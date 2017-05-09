@@ -17,6 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.tools.generator;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,6 +55,11 @@ public class SyntheticDataGenerator implements Runnable {
 		 */
 		public final static String SIZE = "size";
 
+		/**
+		 * The output file
+		 */
+		public final static String OUTPUTFILE = "outputfile";
+		
 		/**
 		 * Print help
 		 */
@@ -127,6 +137,14 @@ public class SyntheticDataGenerator implements Runnable {
 				.desc("The size in byte per tuple")
 				.build();
 		options.addOption(size);
+		
+		// Output file
+		final Option outputfile = Option.builder(Parameter.OUTPUTFILE)
+				.hasArg()
+				.argName("file")
+				.desc("The outputfile")
+				.build();
+		options.addOption(outputfile);
 
 		return options;
 	}
@@ -157,10 +175,22 @@ public class SyntheticDataGenerator implements Runnable {
 			final long amount = Long.parseLong(line.getOptionValue(Parameter.AMOUNT));
 			final long size = Long.parseLong(line.getOptionValue(Parameter.SIZE));
 			final int dimension = Integer.parseInt(line.getOptionValue(Parameter.DIMENSION));
-
+			final String outputFile = line.getOptionValue(Parameter.OUTPUTFILE);
+			
 			System.out.format("Generating %d lines with %d bytes and %d dimensions\n", amount, size, dimension);
 
-			LongStream.range(0, amount).forEach(l -> generateLine(size, dimension));
+			final File file = new File(outputFile);
+			if(file.exists()) {
+				System.err.println("File " + outputFile + " already exists, exiting");
+				System.exit(-1);
+			}
+			
+			try(final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+				LongStream.range(0, amount).forEach(l -> generateLine(size, dimension, writer));
+			} catch(IOException e) {
+				System.err.println("Got IO exception while writing data" + e);
+				System.exit(-1);
+			}
 
 		} catch (NumberFormatException e) {
 			System.err.println("Unable to parse number: " + e);
@@ -173,11 +203,19 @@ public class SyntheticDataGenerator implements Runnable {
 	 * 
 	 * @param size
 	 * @param dimension
+	 * @param writer 
+	 * @throws IOException 
 	 */
-	protected void generateLine(final long size, final int dimension) {
-		final String randomBBox = getRandomBoundingBox(dimension);
-		final String randomData = getRandomString(size);
-		System.out.format("%s %s\n", randomBBox, randomData);
+	protected void generateLine(final long size, final int dimension, final Writer writer)  {
+		try {
+			final String randomBBox = getRandomBoundingBox(dimension);
+			final String randomData = getRandomString(size);
+			final String line = String.format("%s %s\n", randomBBox, randomData);
+			writer.write(line);
+		} catch (IOException e) {
+			System.err.println("Got IO exception while writing data" + e);
+			System.exit(-1);
+		}
 	}
 
 	/**
@@ -248,7 +286,9 @@ public class SyntheticDataGenerator implements Runnable {
 				printHelpAndExit();
 			}
 
-			final List<String> requiredArgs = Arrays.asList(Parameter.AMOUNT, Parameter.DIMENSION, Parameter.SIZE);
+			final List<String> requiredArgs = Arrays.asList(Parameter.AMOUNT, 
+					Parameter.DIMENSION, Parameter.SIZE, Parameter.OUTPUTFILE);
+			
 			checkRequiredArgs(requiredArgs, line);
 
 			final SyntheticDataGenerator syntheticDataGenerator = new SyntheticDataGenerator(line);
