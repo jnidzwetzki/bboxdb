@@ -41,7 +41,7 @@ public class SyntheticDataGenerator implements Runnable {
 
 	static class Parameter {
 		/**
-		 * The dimenstion of the data
+		 * The dimension of the data
 		 */
 		public final static String DIMENSION = "dimension";
 
@@ -61,9 +61,19 @@ public class SyntheticDataGenerator implements Runnable {
 		public final static String OUTPUTFILE = "outputfile";
 		
 		/**
+		 * The bounding box type
+		 */
+		public final static String BBOX_TYPE = "bboxtype";
+		
+		/**
 		 * Print help
 		 */
 		public final static String HELP = "help";
+	}
+	
+	enum BBoxType {
+		POINT,
+		RANGE;
 	}
 
 	/**
@@ -145,7 +155,15 @@ public class SyntheticDataGenerator implements Runnable {
 				.desc("The outputfile")
 				.build();
 		options.addOption(outputfile);
-
+		
+		// BBox type
+		final Option bboxtype = Option.builder(Parameter.BBOX_TYPE)
+				.hasArg()
+				.argName("range|point")
+				.desc("The type of the bounding box")
+				.build();
+		options.addOption(bboxtype);
+	
 		return options;
 	}
 
@@ -176,6 +194,7 @@ public class SyntheticDataGenerator implements Runnable {
 			final int size = Integer.parseInt(line.getOptionValue(Parameter.SIZE));
 			final int dimension = Integer.parseInt(line.getOptionValue(Parameter.DIMENSION));
 			final String outputFile = line.getOptionValue(Parameter.OUTPUTFILE);
+			final BBoxType bboxType = getBBoxType();
 			
 			System.out.format("Generating %d lines with %d bytes and %d dimensions\n", lines, size, dimension);
 
@@ -186,7 +205,7 @@ public class SyntheticDataGenerator implements Runnable {
 			}
 			
 			try(final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-				LongStream.range(0, lines).forEach(l -> generateLine(size, dimension, writer));
+				LongStream.range(0, lines).forEach(l -> generateLine(size, dimension, writer, bboxType));
 			} catch(IOException e) {
 				System.err.println("Got IO exception while writing data" + e);
 				System.exit(-1);
@@ -199,16 +218,37 @@ public class SyntheticDataGenerator implements Runnable {
 	}
 
 	/**
+	 * Read the bbox type from args
+	 * @return
+	 */
+	protected BBoxType getBBoxType() {
+		final String bboxTypeString = line.getOptionValue(Parameter.BBOX_TYPE);
+		if("range".equals(bboxTypeString)) {
+			return BBoxType.RANGE;
+		} else if("point".equals(bboxTypeString)) {
+			return BBoxType.POINT;
+		} else {
+			System.err.println("Unkown bbox type: " + bboxTypeString);
+			System.exit(-1);
+		}
+		
+		// Unreachable code
+		return null;
+	}
+	
+	/**
 	 * Generate a line
 	 * 
 	 * @param size
 	 * @param dimension
 	 * @param writer 
+	 * @param bboxType 
 	 * @throws IOException 
 	 */
-	protected void generateLine(final int size, final int dimension, final Writer writer)  {
+	protected void generateLine(final int size, final int dimension, final Writer writer, 
+			final BBoxType bboxType)  {
 		try {
-			final String randomBBox = getRandomBoundingBox(dimension);
+			final String randomBBox = getRandomBoundingBox(dimension, bboxType);
 			final String randomData = getRandomString(size);
 			final String line = String.format("%s %s\n", randomBBox, randomData);
 			writer.write(line);
@@ -221,17 +261,28 @@ public class SyntheticDataGenerator implements Runnable {
 	/**
 	 * Get a new random bounding box for n dimensions
 	 * @param dimension
+	 * @param bboxType 
 	 * @return
 	 */
-	protected String getRandomBoundingBox(final int dimension) {
+	protected String getRandomBoundingBox(final int dimension, final BBoxType bboxType) {
 		final List<Double> bboxData = new ArrayList<>();
 		
 		for(int i = 0; i < dimension; i++) {
-			final double val1 = random.nextDouble() * 100;
-			final double val2 = random.nextDouble() * 100;
 			
-			bboxData.add(Math.min(val1, val2));
-			bboxData.add(Math.max(val1, val2));
+			if(bboxType == BBoxType.POINT) {
+				final double point = random.nextDouble() * 100;
+				
+				bboxData.add(point); // Begin
+				bboxData.add(point); // End
+			} else if(bboxType == BBoxType.RANGE) {
+				final double begin = random.nextDouble() * 100;
+				final double end = random.nextDouble() * 100;
+				
+				bboxData.add(Math.min(begin, end));
+				bboxData.add(Math.max(begin, end));
+			} else {
+				throw new IllegalArgumentException("Unknown bbox type: " + bboxType);
+			}
 		}
 		
 		return bboxData
@@ -287,7 +338,8 @@ public class SyntheticDataGenerator implements Runnable {
 			}
 
 			final List<String> requiredArgs = Arrays.asList(Parameter.LINES, 
-					Parameter.DIMENSION, Parameter.SIZE, Parameter.OUTPUTFILE);
+					Parameter.DIMENSION, Parameter.SIZE, Parameter.OUTPUTFILE,
+					Parameter.BBOX_TYPE);
 			
 			checkRequiredArgs(requiredArgs, line);
 
