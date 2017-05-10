@@ -48,7 +48,7 @@ public class SyntheticDataGenerator implements Runnable {
 		/**
 		 * The number of tuples to produce
 		 */
-		public final static String AMOUNT = "amount";
+		public final static String LINES = "lines";
 
 		/**
 		 * The size per tuple
@@ -121,14 +121,14 @@ public class SyntheticDataGenerator implements Runnable {
 				.build();
 		options.addOption(dimension);
 
-		// Amount
-		final Option amount = Option
-				.builder(Parameter.AMOUNT)
+		// Lines
+		final Option lines = Option
+				.builder(Parameter.LINES)
 				.hasArg()
-				.argName("amount")
-				.desc("The amount of tuples to produce")
+				.argName("lines")
+				.desc("The lines of tuples to produce")
 				.build();
-		options.addOption(amount);
+		options.addOption(lines);
 
 		// Size
 		final Option size = Option.builder(Parameter.SIZE)
@@ -172,12 +172,12 @@ public class SyntheticDataGenerator implements Runnable {
 	@Override
 	public void run() {
 		try {
-			final long amount = Long.parseLong(line.getOptionValue(Parameter.AMOUNT));
+			final long lines = Long.parseLong(line.getOptionValue(Parameter.LINES));
 			final int size = Integer.parseInt(line.getOptionValue(Parameter.SIZE));
 			final int dimension = Integer.parseInt(line.getOptionValue(Parameter.DIMENSION));
 			final String outputFile = line.getOptionValue(Parameter.OUTPUTFILE);
 			
-			System.out.format("Generating %d lines with %d bytes and %d dimensions\n", amount, size, dimension);
+			System.out.format("Generating %d lines with %d bytes and %d dimensions\n", lines, size, dimension);
 
 			final File file = new File(outputFile);
 			if(file.exists()) {
@@ -186,7 +186,7 @@ public class SyntheticDataGenerator implements Runnable {
 			}
 			
 			try(final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-				LongStream.range(0, amount).forEach(l -> generateLine(size, dimension, writer));
+				LongStream.range(0, lines).forEach(l -> generateLine(size, dimension, writer));
 			} catch(IOException e) {
 				System.err.println("Got IO exception while writing data" + e);
 				System.exit(-1);
@@ -286,7 +286,7 @@ public class SyntheticDataGenerator implements Runnable {
 				printHelpAndExit();
 			}
 
-			final List<String> requiredArgs = Arrays.asList(Parameter.AMOUNT, 
+			final List<String> requiredArgs = Arrays.asList(Parameter.LINES, 
 					Parameter.DIMENSION, Parameter.SIZE, Parameter.OUTPUTFILE);
 			
 			checkRequiredArgs(requiredArgs, line);
