@@ -526,9 +526,14 @@ public class OSMDataConverter {
 	 * @param options 
 	 */
 	protected static void printHelpAndExit(final Options options) {
+		
+		final String header = "OpenStreetMap data converter\n\n";
+	
+		final String footer = "\nPlease report issues at https://github.com/jnidzwetzki/bboxdb/issues\n";
+		 
 		final HelpFormatter formatter = new HelpFormatter();
 		formatter.setWidth(200);
-		formatter.printHelp("Converter", options);
+		formatter.printHelp("OSMConverter", header, options, footer);
 		System.exit(-1);
 	}
 }
