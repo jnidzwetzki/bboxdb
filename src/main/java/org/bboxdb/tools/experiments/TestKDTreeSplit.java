@@ -93,7 +93,7 @@ public class TestKDTreeSplit implements Runnable {
 	 * @throws IOException 
 	 */
 	protected void runExperiment(final int splitAfterElements) {
-		System.out.println("Simulating with max element size: " + splitAfterElements);
+		System.out.println("# Simulating with max element size: " + splitAfterElements);
 		
 		elements.clear();	
 		
@@ -109,6 +109,10 @@ public class TestKDTreeSplit implements Runnable {
 			System.err.println("Got an IOException during experiment: "+ e);
 			System.exit(-1);
 		}
+		
+		// Print results
+		elements.values().forEach(b -> System.out.println(b.size()));
+		System.out.println("\n\n");
 	}
 
 	/**
