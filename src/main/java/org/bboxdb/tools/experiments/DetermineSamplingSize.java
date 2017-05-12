@@ -31,8 +31,6 @@ import java.util.stream.Stream;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.converter.osm.util.Polygon;
-import org.bboxdb.tools.converter.osm.util.SerializerHelper;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.bboxdb.util.TupleFile;
@@ -56,11 +54,6 @@ public class DetermineSamplingSize implements Runnable {
 	 */
 	protected long elementCounter;
 	
-	/**
-	 * The node serializer
-	 */
-	protected final SerializerHelper<Polygon> serializerHelper = new SerializerHelper<>();
-
 	/**
 	 * The retry counter for the experiments
 	 */
@@ -88,9 +81,7 @@ public class DetermineSamplingSize implements Runnable {
 				0.6d, 0.7d, 0.8d, 0.9d, 1.0d, 
 				5d, 10d, 20d, 30d, 40d, 50d, 60d);
 		
-		for(final Double sampleSize : sampleSizes) {
-			runExperiment(sampleSize);
-		}
+		sampleSizes.forEach(s -> runExperiment(s));
 	}
 
 	/**
