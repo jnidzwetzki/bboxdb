@@ -48,11 +48,6 @@ public class DetermineSamplingSize implements Runnable {
 	 * The format of the input file
 	 */
 	protected String format;
-
-	/**
-	 * The element counter
-	 */
-	protected long elementCounter;
 	
 	/**
 	 * The retry counter for the experiments
@@ -67,7 +62,6 @@ public class DetermineSamplingSize implements Runnable {
 	public DetermineSamplingSize(final String filename, final String format) throws IOException {
 		this.filename = filename;
 		this.format = format;
-		this.elementCounter = 0;
 	}
 	
 	@Override
@@ -100,7 +94,7 @@ public class DetermineSamplingSize implements Runnable {
 			
 			ExperimentStatistics.printExperientHeader();
 			for(int experiment = 0; experiment < EXPERIMENT_RETRY; experiment++) {
-				final double splitPos = getSplit(numberOfSamples);
+				final double splitPos = getSplit(numberOfSamples, numberOfElements);
 				final ExperimentStatistics statistics = runExperimentForPos(splitPos);
 				statistics.printExperimentResult(experiment);
 				experimentSeriesStatistics.addExperiment(statistics);		
@@ -157,11 +151,14 @@ public class DetermineSamplingSize implements Runnable {
 	/**
 	 * Take a certain number of samples and generate a split position
 	 * @param sampleSize
+	 * @param numberOfElements 
 	 * @return 
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 */
-	protected double getSplit(final float sampleSize) throws ClassNotFoundException, IOException {
+	protected double getSplit(final float sampleSize, 
+			final long numberOfElements) throws ClassNotFoundException, IOException {
+		
 		final Set<Long> takenSamples = new HashSet<>();
 		final Random random = new Random(System.currentTimeMillis());
 		final List<BoundingBox> samples = new ArrayList<>();
@@ -169,7 +166,7 @@ public class DetermineSamplingSize implements Runnable {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
 
 		while(takenSamples.size() < sampleSize) {
-			final long sampleId = Math.abs(random.nextLong()) % elementCounter;
+			final long sampleId = Math.abs(random.nextLong()) % numberOfElements;
 			
 			if(takenSamples.contains(sampleId)) {
 				continue;
