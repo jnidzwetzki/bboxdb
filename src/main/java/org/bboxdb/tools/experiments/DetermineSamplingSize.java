@@ -175,7 +175,7 @@ public class DetermineSamplingSize implements Runnable {
 			takenSamples.add(sampleId);
 			
 			try (final Stream<String> lines = Files.lines(Paths.get(filename))) {
-			    final String line = lines.skip(sampleId - 1).findFirst().get();
+			    final String line = lines.skip(sampleId).findFirst().get();
 			    final Tuple tuple = tupleBuilder.buildTuple(Long.toString(sampleId), line);
 				samples.add(tuple.getBoundingBox());
 			}
