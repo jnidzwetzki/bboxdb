@@ -58,12 +58,7 @@ public class TestKDTreeSplit implements Runnable {
 	 * The sampling size
 	 */
 	protected final static double SAMPLING_SIZE = 1.0d;
-	
-	/**
-	 * Maximal elements per region
-	 */
-	protected final static int MAX_ELEMENTS_PER_REGION = 10000;
-	
+
 	/**
 	 * The random for our samples
 	 */
@@ -97,15 +92,15 @@ public class TestKDTreeSplit implements Runnable {
 	 * @param sampleSize
 	 * @throws IOException 
 	 */
-	protected void runExperiment(final int splitAfterElements) {
-		System.out.println("# Simulating with max element size: " + splitAfterElements);
+	protected void runExperiment(final int maxRegionSize) {
+		System.out.println("# Simulating with max element size: " + maxRegionSize);
 		
 		elements.clear();	
 		
 		final TupleFile tupleFile = new TupleFile(filename, format);
 		
 		tupleFile.addTupleListener(t -> {
-			insertNextBoundingBox(t.getBoundingBox());
+			insertNextBoundingBox(t.getBoundingBox(), maxRegionSize);
 		});
 		
 		try {
@@ -122,9 +117,11 @@ public class TestKDTreeSplit implements Runnable {
 
 	/**
 	 * Handle the next bounding box
+	 * @param maxRegionSize 
 	 * @param tuple
 	 */
-	protected void insertNextBoundingBox(final BoundingBox boundingBox) {
+	protected void insertNextBoundingBox(final BoundingBox boundingBox, 
+			final int maxRegionSize) {
 		
 		// Create first entry
 		if(elements.isEmpty()) {
@@ -141,7 +138,7 @@ public class TestKDTreeSplit implements Runnable {
 			.forEach(e -> e.getValue().add(boundingBox));
 		
 		final Predicate<Entry<BoundingBox, List<BoundingBox>>> boxFullPredicate 
-			= e -> e.getValue().size() >= MAX_ELEMENTS_PER_REGION;
+			= e -> e.getValue().size() >= maxRegionSize;
 		
 		// Split and remove full boxes
 		final List<BoundingBox> boxesToSplit = elements.entrySet()
