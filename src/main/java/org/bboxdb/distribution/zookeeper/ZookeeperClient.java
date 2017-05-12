@@ -778,7 +778,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	
 	/**
 	 * Replace the value for the given path, only if the old value matches. This operation
-	 * is perfomed atomic.
+	 * is performed atomic.
 	 * @param path
 	 * @param oldValue
 	 * @param newValue
