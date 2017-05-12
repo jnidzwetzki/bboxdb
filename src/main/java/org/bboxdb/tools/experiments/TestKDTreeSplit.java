@@ -60,6 +60,11 @@ public class TestKDTreeSplit implements Runnable {
 	protected final static double SAMPLING_SIZE = 1.0d;
 	
 	/**
+	 * Maximal elements per region
+	 */
+	protected final static int MAX_ELEMENTS_PER_REGION = 10000;
+	
+	/**
 	 * The random for our samples
 	 */
 	protected final Random random;
@@ -136,7 +141,7 @@ public class TestKDTreeSplit implements Runnable {
 			.forEach(e -> e.getValue().add(boundingBox));
 		
 		final Predicate<Entry<BoundingBox, List<BoundingBox>>> boxFullPredicate 
-			= e -> e.getValue().size() >= SAMPLING_SIZE;
+			= e -> e.getValue().size() >= MAX_ELEMENTS_PER_REGION;
 		
 		// Split and remove full boxes
 		final List<BoundingBox> boxesToSplit = elements.entrySet()
@@ -148,7 +153,7 @@ public class TestKDTreeSplit implements Runnable {
 		// Split region
 		boxesToSplit.forEach(e -> splitRegion(e));
 		
-		// Remove splitted regions
+		// Remove split regions
 		elements.entrySet().removeIf(e -> boxesToSplit.contains(e));
 	}
 	
