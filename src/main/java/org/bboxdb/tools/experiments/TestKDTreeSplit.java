@@ -164,9 +164,10 @@ public class TestKDTreeSplit implements Runnable {
 	 * @return 
 	 */
 	protected void splitRegion(final BoundingBox boundingBoxToSplit) {
-		final double splitPosition = getSplitPosition(boundingBoxToSplit);
 		
 		final int parentBoxDimension = boxDimension.get(boundingBoxToSplit) % dataDimension;
+
+		final double splitPosition = getSplitPosition(boundingBoxToSplit, parentBoxDimension);
 		
 		final BoundingBox leftBBox = boundingBoxToSplit.splitAndGetLeft(splitPosition, 
 				parentBoxDimension, true);
@@ -201,7 +202,7 @@ public class TestKDTreeSplit implements Runnable {
 	 * @param boundingBoxToSplit
 	 * @return
 	 */
-	protected double getSplitPosition(final BoundingBox boundingBoxToSplit) {
+	protected double getSplitPosition(final BoundingBox boundingBoxToSplit, final int dimension) {
 		final List<BoundingBox> samples = new ArrayList<>();
 		final List<BoundingBox> elementsToProcess = elements.get(boundingBoxToSplit);
 		
@@ -213,16 +214,19 @@ public class TestKDTreeSplit implements Runnable {
 			
 			final BoundingBox bboxSample = elementsToProcess.get(sampleId);
 			
-			if(samples.contains(bboxSample)) {
+			final BoundingBox bboxSampleCut = bboxSample.getIntersection(boundingBoxToSplit);
+			
+			if(samples.contains(bboxSampleCut)) {
 				continue;
 			}
 			
-			samples.add(bboxSample);
+			samples.add(bboxSampleCut);
 		}
 		
-		samples.sort((b1, b2) -> Double.compare(b1.getCoordinateLow(0), b2.getCoordinateLow(0)));
+		samples.sort((b1, b2) -> Double.compare(b1.getCoordinateLow(dimension), 
+				b2.getCoordinateLow(dimension)));
 		
-		final double splitPosition = samples.get(samples.size() / 2).getCoordinateLow(0);
+		final double splitPosition = samples.get(samples.size() / 2).getCoordinateLow(dimension);
 		return splitPosition;
 	}
 	
