@@ -14,6 +14,12 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
+# Check parameter
+if [ "$#" -eq 0 ]; then
+    echo "Usage: $0 <Classname> <Parameter>"
+    exit -1
+fi
+
 java $jvm_ops_tools -cp $classpath "$@"
 
 exit 0
