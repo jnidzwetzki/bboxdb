@@ -139,7 +139,13 @@ public class RegionIdMapper {
 	 */
 	public boolean removeMapping(final int regionId) {
 		// Removal is supported by COW array list
-		return regions.removeIf(r -> r.getRegionId() == regionId);
+		final boolean removed = regions.removeIf(r -> r.getRegionId() == regionId);
+		
+		if(removed) {
+			logger.info("Mapping for region id {} removed", regionId);
+		}
+		
+		return removed;
 	}
 	
 	/**
