@@ -69,6 +69,10 @@ public class ZookeeperClientFactory {
 		// Register instance
 		instances.put(bboxdbConfiguration, zookeeperClient);
 		
+		if(! zookeeperClient.isConnected()) {
+			zookeeperClient.init();
+		}
+		
 		return zookeeperClient;
 	}
 
@@ -82,20 +86,6 @@ public class ZookeeperClientFactory {
 		final int localPort = bboxdbConfiguration.getNetworkListenPort();
 		final DistributedInstance instance = new DistributedInstance(localIp, localPort, Const.VERSION);
 		return instance;
-	}
-
-	/**
-	 * Get a zookeeoer instance and init if needed
-	 * @return
-	 */
-	public static ZookeeperClient getZookeeperClientAndInit() {
-		final ZookeeperClient zookeeperClient = getZookeeperClient();
-		
-		if(! zookeeperClient.isConnected()) {
-			zookeeperClient.init();
-		}
-		
-		return zookeeperClient;
 	}
 	
 	/**

@@ -117,7 +117,7 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 		// The overall usage
 		final Map<DistributedInstance, Integer> systemUsage = new HashMap<DistributedInstance, Integer>();
 		
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		final DistributionGroupZookeeperAdapter zookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 		final List<DistributionGroupName> distributionGroups = zookeeperAdapter.getDistributionGroups(null);
 		

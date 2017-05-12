@@ -493,7 +493,7 @@ public class CLI implements Runnable, AutoCloseable {
 		System.out.println("Show distribution group: " + distributionGroup);
 		
 		try {
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
 				= new DistributionGroupZookeeperAdapter(zookeeperClient);
 			

@@ -71,7 +71,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	protected final static Logger logger = LoggerFactory.getLogger(AbstractRegionSplitStrategy.class);
 
 	public AbstractRegionSplitStrategy() {
-		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
+		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		this.distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 	}
 		

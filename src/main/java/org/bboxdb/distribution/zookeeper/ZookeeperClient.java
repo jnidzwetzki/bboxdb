@@ -638,9 +638,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		} 
 	}
 	
-	
-	
-	
 	/**
 	 * Read the given path and returns a string result
 	 * @param pathName

@@ -82,7 +82,7 @@ public class TupleRedistributor {
 		final MembershipConnectionService membershipConnectionService 	
 			= MembershipConnectionService.getInstance();
 		
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		
 		for(final DistributedInstance instance : instances) {
 			

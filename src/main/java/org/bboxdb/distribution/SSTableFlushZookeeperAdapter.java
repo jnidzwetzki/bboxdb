@@ -46,7 +46,7 @@ public class SSTableFlushZookeeperAdapter implements SSTableFlushCallback {
 		final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName(configuration);
 	
 		try {
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClientAndInit();
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					ssTableName, zookeeperClient);
