@@ -117,7 +117,7 @@ public class DistributionRegion {
 			this.totalLevel = parent.getTotalLevelPointer();
 		}
 		
-		// Update thte total amount of levels
+		// Update the total amount of levels
 		totalLevel.set(Math.max(totalLevel.get(), level + 1));
 		
 		systems = new ArrayList<DistributedInstance>();
