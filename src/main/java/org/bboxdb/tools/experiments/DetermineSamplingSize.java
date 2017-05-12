@@ -30,8 +30,11 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.bboxdb.tools.converter.osm.util.SerializerHelper;
+import org.bboxdb.tools.converter.tuple.TupleBuilder;
+import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.bboxdb.util.TupleFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,6 +174,8 @@ public class DetermineSamplingSize implements Runnable {
 		final Set<Long> takenSamples = new HashSet<>();
 		final Random random = new Random(System.currentTimeMillis());
 		final List<BoundingBox> samples = new ArrayList<>();
+		
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
 
 		while(takenSamples.size() < sampleSize) {
 			final long sampleId = Math.abs(random.nextLong()) % elementCounter;
@@ -183,9 +188,8 @@ public class DetermineSamplingSize implements Runnable {
 			
 			try (final Stream<String> lines = Files.lines(Paths.get(filename))) {
 			    final String line = lines.skip(sampleId - 1).findFirst().get();
-				
-				final Polygon polygon = Polygon.fromGeoJson(line);
-				samples.add(polygon.getBoundingBox());
+			    final Tuple tuple = tupleBuilder.buildTuple(Long.toString(sampleId), line);
+				samples.add(tuple.getBoundingBox());
 			}
 		}
 		
