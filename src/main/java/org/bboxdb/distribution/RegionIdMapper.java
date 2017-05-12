@@ -120,12 +120,11 @@ public class RegionIdMapper {
 		final int regionId = region.getRegionId();
 		final BoundingBox converingBox = region.getConveringBox();	
 		
-		for(final RegionTablenameEntry regionTablenameEntry : regions) {
-			// Mapping is known
-			if(regionTablenameEntry.getRegionId() == regionId) {
-				logger.debug("Mapping for region {} already exists, ignoring", regionId);
-				return false;
-			}
+		final boolean known = regions.stream().anyMatch(r -> r.getRegionId() == regionId);
+		
+		if(known) {
+			logger.debug("Mapping for region {} already exists, ignoring", regionId);
+			return false;
 		}
 		
 		logger.info("Add local mapping for: {}", region.getIdentifier());
@@ -139,19 +138,8 @@ public class RegionIdMapper {
 	 * @return
 	 */
 	public boolean removeMapping(final int regionId) {
-		
-		for (final RegionTablenameEntry region : regions) {
-			if(region.getRegionId() == regionId) {
-				logger.info("Mapping for region id {} removed", regionId);
-				
-				// Remove is supported by COW array list
-				regions.remove(region);
-				
-				return true;
-			}
-		}
-
-		return false;
+		// Removal is supported by COW array list
+		return regions.removeIf(r -> r.getRegionId() == regionId);
 	}
 	
 	/**
