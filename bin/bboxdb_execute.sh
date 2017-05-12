@@ -16,7 +16,7 @@ source $BBOXDB_HOME/bin/bootstrap.sh
 
 # Check parameter
 if [ "$#" -eq 0 ]; then
-    echo "Usage: $0 <Classname> <Parameter>"
+    echo "Usage: $0 <classname> <parameter>"
     exit -1
 fi
 
