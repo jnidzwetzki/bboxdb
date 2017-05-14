@@ -73,7 +73,9 @@ public class DetermineSamplingSize implements Runnable {
 				0.06d, 0.07d, 0.08d, 0.09d,
 				0.1d, 0.2d, 0.3d, 0.4d, 0.5d, 
 				0.6d, 0.7d, 0.8d, 0.9d, 1.0d, 
-				5d, 10d, 20d, 30d, 40d, 50d, 60d);
+				2.0d, 3.0d, 4.0d, 5.0d, 6.0d, 
+				7.0d, 8.0d, 9.0d, 10.0d);
+				//5d, 10d, 20d, 30d, 40d, 50d, 60d);
 		
 		sampleSizes.forEach(s -> runExperiment(s));
 	}
