@@ -88,7 +88,7 @@ public class DistributedInstanceManager {
 	public void updateInstanceList(final Set<DistributedInstance> newInstances) {
 		
 		// Are members removed?
-		final List<InetSocketAddress> deletedInstances = new ArrayList<InetSocketAddress>(instances.size());
+		final List<InetSocketAddress> deletedInstances = new ArrayList<>(instances.size());
 		deletedInstances.addAll(instances.keySet());
 		
 		// Remove still existing instances from 'to delete list'
