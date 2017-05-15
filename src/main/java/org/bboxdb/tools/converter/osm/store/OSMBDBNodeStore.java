@@ -187,7 +187,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		final int connectionNumber = getConnectionPositionForNode(node.getId());
 		final List<SerializableNode> queue = pendingWriteQueues.get(connectionNumber);
 
-		// Submit write reuest to queue (write will be handled async in a BDBWriter thread)
+		// Submit write request to queue (write will be handled async in a BDBWriter thread)
 		synchronized (queue) {
 			while(queue.size() > MAX_ELEMENTS_PER_QUEUE) {
 				queue.wait();
