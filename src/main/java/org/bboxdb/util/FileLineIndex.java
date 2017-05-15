@@ -224,7 +224,7 @@ public class FileLineIndex implements AutoCloseable {
 	    final OperationStatus result = database.get(null, key, value, LockMode.DEFAULT);
 	    
 	    if (result != OperationStatus.SUCCESS) {
-	        throw new RuntimeException("Data fetch got status " + result);
+	        throw new RuntimeException("Data fetch got status " + result + " for " + line);
 	    }
 	    
 	    final long bytePos = DataEncoderHelper.readLongFromByte(value.getData());
