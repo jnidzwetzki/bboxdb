@@ -17,13 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
@@ -454,40 +451,4 @@ public class BBoxDBCluster implements BBoxDB {
 		membershipConnectionService.setTuplesPerPage(tuplesPerPage);
 	}
 	
-
-	//===============================================================
-	// Test * Test * Test * Test * Test * Test * Test * Test
-	//===============================================================
-	public static void main(final String[] args) throws InterruptedException, ExecutionException, BBoxDBException {
-		final String GROUP = "2_TESTGROUP";
-		final String TABLE = "2_TESTGROUP_DATA";
-		
-		final Collection<String> zookeeperNodes = new ArrayList<String>();
-		zookeeperNodes.add("node1:2181");
-		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster(zookeeperNodes, "mycluster");
-		bboxdbCluster.connect();
-		
-		// Recreate distribution group
-		final EmptyResultFuture futureDelete = bboxdbCluster.deleteDistributionGroup(GROUP);
-		futureDelete.waitForAll();
-		final EmptyResultFuture futureCreate = bboxdbCluster.createDistributionGroup(GROUP, (short) 2);
-		futureCreate.waitForAll();
-		
-		// Insert the tuples
-		final Random bbBoxRandom = new Random();
-		for(int i = 0; i < 100000; i++) {
-			final double x = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
-			final double y = (float) Math.abs(bbBoxRandom.nextFloat() % 100000.0 * 1000);
-			
-			final BoundingBox boundingBox = new BoundingBox(x, x+1, y, y+1);
-			
-			System.out.println("Inserting Tuple " + i + " : " + boundingBox);
-			
-			final EmptyResultFuture result = bboxdbCluster.insertTuple(TABLE, new Tuple(Integer.toString(i), boundingBox, "abcdef".getBytes()));
-			result.waitForAll();
-		}		
-		
-		bboxdbCluster.disconnect();
-	}
-
 }
