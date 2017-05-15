@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb;
+package org.bboxdb.tools;
 
 import java.util.ArrayList;
 import java.util.Collections;

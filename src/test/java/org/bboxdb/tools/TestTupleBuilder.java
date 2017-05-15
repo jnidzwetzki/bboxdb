@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb;
+package org.bboxdb.tools;
 
 import java.io.BufferedWriter;
 import java.io.File;
