@@ -128,7 +128,6 @@ public class FileLineIndex implements AutoCloseable {
 		final DatabaseConfig dbConfig = new DatabaseConfig();
 		dbConfig.setTransactional(false);
 		dbConfig.setAllowCreate(true);
-		dbConfig.setSortedDuplicates(true);
 		dbConfig.setDeferredWrite(true);
 		
 		database = dbEnv.openDatabase(null, "lines", dbConfig);
