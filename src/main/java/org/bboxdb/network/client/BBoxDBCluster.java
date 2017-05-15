@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
@@ -48,7 +49,7 @@ import org.slf4j.LoggerFactory;
 public class BBoxDBCluster implements BBoxDB {
 	
 	/**
-	 * The zookeeper connection
+	 * The Zookeeper connection
 	 */
 	protected final ZookeeperClient zookeeperClient;
 	
@@ -117,16 +118,11 @@ public class BBoxDBCluster implements BBoxDB {
 		
 		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();
 		final EmptyResultFuture future = new EmptyResultFuture();
-
-		for(final BBoxDBClient client : connections) {
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug("Send delete call for table {} to {}", table, client);
-			}
-			
-			final EmptyResultFuture result = client.deleteTable(table);
-			future.merge(result);
-		}
+		
+		connections.stream()
+		 	.map(c -> c.deleteTable(table))
+		 	.filter(Objects::nonNull)
+		 	.forEach(f -> future.merge(f));
 		
 		return future;
 	}
@@ -178,25 +174,8 @@ public class BBoxDBCluster implements BBoxDB {
 
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key) throws BBoxDBException {
-		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();
 		final long timestamp = MicroSecondTimestampProvider.getNewTimestamp();
-		
-		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			throw new BBoxDBException("deleteTuple called, but connection list is empty");
-		}
-		
-		final EmptyResultFuture future = new EmptyResultFuture();
-		
-		for(final BBoxDBClient client : connections) {
-			if(logger.isDebugEnabled()) {
-				logger.debug("Send delete call for tuple {} on {} to {}", key, table, client);
-			}
-			
-			final EmptyResultFuture result = client.deleteTuple(table, key, timestamp);
-			future.merge(result);
-		}
-		
-		return future;
+		return deleteTuple(table, key, timestamp);
 	}
 	
 	@Override
@@ -208,15 +187,11 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 		
 		final EmptyResultFuture future = new EmptyResultFuture();
-		
-		for(final BBoxDBClient client : connections) {
-			if(logger.isDebugEnabled()) {
-				logger.debug("Send delete call for tuple {} on {} to {}", key, table, client);
-			}
-			
-			final EmptyResultFuture result = client.deleteTuple(table, key, timestamp);
-			future.merge(result);
-		}
+				
+		connections.stream()
+		 	.map(c -> c.deleteTuple(table, key, timestamp))
+		 	.filter(Objects::nonNull)
+		 	.forEach(f -> future.merge(f));
 		
 		return future;
 	}
@@ -275,11 +250,12 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 		
 		final EmptyResultFuture future = new EmptyResultFuture();
-		
-		for(final BBoxDBClient client : membershipConnectionService.getAllConnections()) {
-			final EmptyResultFuture deleteFuture = client.deleteDistributionGroup(distributionGroup);
-			future.merge(deleteFuture);
-		}
+
+		membershipConnectionService.getAllConnections()
+			.stream()
+		 	.map(c -> c.deleteDistributionGroup(distributionGroup))
+		 	.filter(Objects::nonNull)
+		 	.forEach(f -> future.merge(f));
 
 		return future;
 	}
@@ -295,15 +271,12 @@ public class BBoxDBCluster implements BBoxDB {
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for key {} in table {}", key, table);
 		}
-		
-		for(final BBoxDBClient client : membershipConnectionService.getAllConnections()) {
-			final TupleListFuture queryFuture = client.queryKey(table, key);
-			
-			if(queryFuture != null) {
-				future.merge(queryFuture);
-			}
-			
-		}
+
+		membershipConnectionService.getAllConnections()
+			.stream()
+		 	.map(c -> c.queryKey(table, key))
+		 	.filter(Objects::nonNull)
+		 	.forEach(f -> future.merge(f));
 
 		return future;
 	}
@@ -329,14 +302,11 @@ public class BBoxDBCluster implements BBoxDB {
 				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, systems);
 			}
 			
-			for(final DistributedInstance system : systems) {
-				final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
-				final TupleListFuture result = connection.queryBoundingBox(table, boundingBox);
-				
-				if(result != null) {
-					future.merge(result);
-				}
-			}
+			systems.stream()
+				.map(s -> membershipConnectionService.getConnectionForInstance(s))
+			 	.map(c -> c.queryBoundingBox(table, boundingBox))
+			 	.filter(Objects::nonNull)
+			 	.forEach(f -> future.merge(f));
 			
 		} catch (ZookeeperException e) {
 			e.printStackTrace();
@@ -368,14 +338,11 @@ public class BBoxDBCluster implements BBoxDB {
 				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, systems);
 			}
 			
-			for(final DistributedInstance system : systems) {
-				final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
-				final TupleListFuture result = connection.queryBoundingBoxAndTime(table, boundingBox, timestamp);
-				
-				if(result != null) {
-					future.merge(result);
-				}
-			}
+			systems.stream()
+				.map(s -> membershipConnectionService.getConnectionForInstance(s))
+			 	.map(c -> c.queryBoundingBoxAndTime(table, boundingBox, timestamp))
+			 	.filter(Objects::nonNull)
+			 	.forEach(f -> future.merge(f));
 			
 		} catch (ZookeeperException e) {
 			e.printStackTrace();
@@ -395,14 +362,12 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 		
 		final TupleListFuture future = new TupleListFuture();
-		
-		for(final BBoxDBClient client : membershipConnectionService.getAllConnections()) {
-			final TupleListFuture queryFuture = client.queryVersionTime(table, timestamp);
-			
-			if(queryFuture != null) {
-				future.merge(queryFuture);
-			}
-		}
+
+		membershipConnectionService.getAllConnections()
+		 	.stream()
+		 	.map(c -> c.queryVersionTime(table, timestamp))
+		 	.filter(Objects::nonNull)
+		 	.forEach(f -> future.merge(f));
 
 		return future;
 	}
@@ -419,13 +384,11 @@ public class BBoxDBCluster implements BBoxDB {
 		
 		final TupleListFuture future = new TupleListFuture();
 		
-		for(final BBoxDBClient client : membershipConnectionService.getAllConnections()) {
-			final TupleListFuture queryFuture = client.queryInsertedTime(table, timestamp);
-			
-			if(queryFuture != null) {
-				future.merge(queryFuture);
-			}
-		}
+		membershipConnectionService.getAllConnections()
+		 	.stream()
+		 	.map(c -> c.queryInsertedTime(table, timestamp))
+		 	.filter(Objects::nonNull)
+		 	.forEach(f -> future.merge(f));
 
 		return future;
 	}
