@@ -18,6 +18,7 @@
 package org.bboxdb.tools.experiments;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -27,12 +28,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
+import org.bboxdb.util.FileLineIndex;
 import org.bboxdb.util.TupleFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,11 @@ public class DetermineSamplingSize implements Runnable {
 	public final static int EXPERIMENT_RETRY = 50;
 	
 	/**
+	 * The file line index
+	 */
+	private FileLineIndex fli = null;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DetermineSamplingSize.class);
@@ -66,18 +72,26 @@ public class DetermineSamplingSize implements Runnable {
 	
 	@Override
 	public void run() {
-		System.out.format("Reading %s\n", filename);
-		
-		final List<Double> sampleSizes = Arrays.asList(
-				0.01d, 0.02d, 0.03d, 0.04d, 0.05d,
-				0.06d, 0.07d, 0.08d, 0.09d,
-				0.1d, 0.2d, 0.3d, 0.4d, 0.5d, 
-				0.6d, 0.7d, 0.8d, 0.9d, 1.0d, 
-				2.0d, 3.0d, 4.0d, 5.0d, 6.0d, 
-				7.0d, 8.0d, 9.0d, 10.0d);
-				//5d, 10d, 20d, 30d, 40d, 50d, 60d);
-		
-		sampleSizes.forEach(s -> runExperiment(s));
+		try {
+			System.out.format("Indexing %s\n", filename);
+			fli = new FileLineIndex(filename);
+			fli.indexFile();
+			System.out.format("Indexing %s done\n", filename);
+
+			final List<Double> sampleSizes = Arrays.asList(
+					0.01d, 0.02d, 0.03d, 0.04d, 0.05d,
+					0.06d, 0.07d, 0.08d, 0.09d,
+					0.1d, 0.2d, 0.3d, 0.4d, 0.5d, 
+					0.6d, 0.7d, 0.8d, 0.9d, 1.0d, 
+					2.0d, 3.0d, 4.0d, 5.0d, 6.0d, 
+					7.0d, 8.0d, 9.0d, 10.0d);
+					//5d, 10d, 20d, 30d, 40d, 50d, 60d);
+			
+			sampleSizes.forEach(s -> runExperiment(s));
+		} catch (IOException e) {
+			logger.error("Got an IO Exception", e);
+			System.exit(-1);
+		}
 	}
 
 	/**
@@ -166,18 +180,22 @@ public class DetermineSamplingSize implements Runnable {
 		final List<BoundingBox> samples = new ArrayList<>();
 		
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(format);
+		try(
+				final RandomAccessFile randomAccessFile = new RandomAccessFile(filename, "r");
+			) {
 
-		while(takenSamples.size() < sampleSize) {
-			final long sampleId = Math.abs(random.nextLong()) % numberOfElements;
-			
-			if(takenSamples.contains(sampleId)) {
-				continue;
-			}
-			
-			takenSamples.add(sampleId);
-			
-			try (final Stream<String> lines = Files.lines(Paths.get(filename))) {
-			    final String line = lines.skip(sampleId).findFirst().get();
+			while(takenSamples.size() < sampleSize) {
+				final long sampleId = Math.abs(random.nextLong()) % numberOfElements;
+				
+				if(takenSamples.contains(sampleId)) {
+					continue;
+				}
+				
+				takenSamples.add(sampleId);
+				
+				final long pos = fli.locateLine(sampleId);
+				randomAccessFile.seek(pos);
+				final String line = randomAccessFile.readLine();
 			    final Tuple tuple = tupleBuilder.buildTuple(Long.toString(sampleId), line);
 				samples.add(tuple.getBoundingBox());
 			}

@@ -120,6 +120,8 @@ public class FileLineIndex implements AutoCloseable {
 	    tmpDatabaseDir = Files.createTempDirectory(null);
 		dbEnv = new Environment(tmpDatabaseDir.toFile(), envConfig);
 		
+		logger.info("Database dir is {}", tmpDatabaseDir);
+		
 		// Delete database on exit
 		deleteDatabaseDirOnExit();
 
@@ -211,7 +213,7 @@ public class FileLineIndex implements AutoCloseable {
 	 * @param lineNumber
 	 * @return
 	 */
-	public long getLine(final long line) {
+	public long locateLine(final long line) {
 		
 		if(database == null) {
 			throw new IllegalArgumentException("No database is open, please index file first");

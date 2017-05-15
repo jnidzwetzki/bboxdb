@@ -55,7 +55,7 @@ public class TestFileLineIndex {
 		tempFile.deleteOnExit();
 		
 		try(final FileLineIndex fli = new FileLineIndex(tempFile.getAbsolutePath())) {
-			fli.getLine(12);
+			fli.locateLine(12);
 		}
 	}
 
@@ -75,7 +75,7 @@ public class TestFileLineIndex {
 		try (final FileLineIndex fli = new FileLineIndex(tempFile.getAbsolutePath())) {
 			fli.indexFile();
 			
-			final long pos1 = fli.getLine(1);
+			final long pos1 = fli.locateLine(1);
 			Assert.assertEquals(0, pos1);
 		}
 	}
@@ -95,7 +95,7 @@ public class TestFileLineIndex {
 		
 		try (final FileLineIndex fli = new FileLineIndex(tempFile.getAbsolutePath())) {
 			fli.indexFile();	
-			fli.getLine(2);
+			fli.locateLine(2);
 		}
 	}
 	
@@ -152,7 +152,7 @@ public class TestFileLineIndex {
 	protected void readLineFomIndex(final RandomAccessFile file, final FileLineIndex fli, 
 			final long lineNumber, final String expected) throws IOException {
 		
-		final long pos = fli.getLine(lineNumber);
+		final long pos = fli.locateLine(lineNumber);
 		file.seek(pos);
 		final String line = file.readLine();
 		Assert.assertEquals(expected, line);

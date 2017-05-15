@@ -10,6 +10,7 @@ order: 1
 - Improvement: Send client queries immediately to server
 - Improvement: Added output file to data generator
 - Improvement: Synthetic data can now be generated with point bboxes
+- Improvement: Switched 'sampling size experiment' to line index
 
 ### Version 0.2.5 (Stable) - 07.05.2017
 - New Feature: Implemented the new insert time tuple query
