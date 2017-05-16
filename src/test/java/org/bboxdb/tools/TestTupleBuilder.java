@@ -55,7 +55,7 @@ public class TestTupleBuilder {
 	/**
 	 * The line for geojson tests
 	 */
-	protected final static String GEO_JOSN_LINE = "{\"geometry\":{\"coordinates\":[52.4688608,13.3327994],\"type\":\"Point\"},\"id\":271247324,\"type\":\"Feature\",\"properties\":{\"natural\":\"tree\",\"leaf_cycle\":\"deciduous\",\"name\":\"Kaisereiche\",\"leaf_type\":\"broadleaved\",\"wikipedia\":\"de:Kaisereiche (Berlin)\"}}";
+	protected final static String GEO_JSON_LINE = "{\"geometry\":{\"coordinates\":[52.4688608,13.3327994],\"type\":\"Point\"},\"id\":271247324,\"type\":\"Feature\",\"properties\":{\"natural\":\"tree\",\"leaf_cycle\":\"deciduous\",\"name\":\"Kaisereiche\",\"leaf_type\":\"broadleaved\",\"wikipedia\":\"de:Kaisereiche (Berlin)\"}}";
 
 	/**
 	 * Test the geo json tuple builder
@@ -65,7 +65,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.GEOJSON);
 		
-		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JOSN_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JSON_LINE);
 		
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -222,10 +222,10 @@ public class TestTupleBuilder {
 		// The reference tuple
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.GEOJSON);
-		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JOSN_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JSON_LINE);
 		
 		final BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-		writer.write(GEO_JOSN_LINE);
+		writer.write(GEO_JSON_LINE);
 		writer.write("\n");
 		writer.close();
 		
@@ -244,5 +244,82 @@ public class TestTupleBuilder {
 		tupleFile.processFile();
 		
 		Assert.assertEquals(1, seenTuples.get());
+	}
+	
+	/**
+	 * Test the tuple file builder
+	 * @throws IOException
+	 */
+	@Test
+	public void testTupleFile3() throws IOException {
+		final File tempFile = File.createTempFile("temp",".txt");
+		tempFile.deleteOnExit();
+		
+		// The reference tuple
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.GEOJSON);
+		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JSON_LINE);
+		
+		final BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+		writer.write(GEO_JSON_LINE);
+		writer.write("\n");
+		writer.write(GEO_JSON_LINE);
+		writer.write("\n");
+		writer.close();
+		
+		final TupleFile tupleFile = new TupleFile(tempFile.getAbsolutePath(), 
+				TupleBuilderFactory.Name.GEOJSON);
+		
+		final AtomicInteger seenTuples = new AtomicInteger(0);
+		
+		tupleFile.addTupleListener(t -> {
+			Assert.assertEquals(tuple.getKey(), t.getKey());
+			Assert.assertEquals(tuple.getBoundingBox(), t.getBoundingBox());
+			Assert.assertArrayEquals(tuple.getDataBytes(), t.getDataBytes());
+			seenTuples.incrementAndGet();
+		});
+		
+		tupleFile.processFile(1);
+		
+		Assert.assertEquals(1, seenTuples.get());
+	}
+	
+	/**
+	 * Test the tuple file builder - Read 5 of 3 lines
+	 * @throws IOException
+	 */
+	@Test
+	public void testTupleFile4() throws IOException {
+		final File tempFile = File.createTempFile("temp",".txt");
+		tempFile.deleteOnExit();
+		
+		// The reference tuple
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.GEOJSON);
+		final Tuple tuple = tupleBuilder.buildTuple("1", GEO_JSON_LINE);
+		
+		final BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+		writer.write(GEO_JSON_LINE);
+		writer.write("\n");
+		writer.write(GEO_JSON_LINE);
+		writer.write("\n");
+		writer.write(GEO_JSON_LINE);
+		writer.write("\n");
+		writer.close();
+		
+		final TupleFile tupleFile = new TupleFile(tempFile.getAbsolutePath(), 
+				TupleBuilderFactory.Name.GEOJSON);
+		
+		final AtomicInteger seenTuples = new AtomicInteger(0);
+		
+		tupleFile.addTupleListener(t -> {
+			Assert.assertEquals(tuple.getBoundingBox(), t.getBoundingBox());
+			Assert.assertArrayEquals(tuple.getDataBytes(), t.getDataBytes());
+			seenTuples.incrementAndGet();
+		});
+		
+		tupleFile.processFile(3);
+		
+		Assert.assertEquals(3, seenTuples.get());
 	}
 }

@@ -73,10 +73,18 @@ public class TupleFile {
 	}
 	
 	/**
-	 * Read the file
-	 * @throws IOException 
+	 * Process all lines of the file
+	 * @throws IOException
 	 */
 	public void processFile() throws IOException {
+		processFile(Long.MAX_VALUE);
+	}
+	
+	/**
+	 * Read the file with a maximal number of lines
+	 * @throws IOException 
+	 */
+	public void processFile(final long maxLines) throws IOException {
 		final File file = new File(filename);
 		if(! file.exists()) {
 			throw new IOException("Unable to open file: " + file);
@@ -94,6 +102,10 @@ public class TupleFile {
 				}
 				
 				lineNumber++;
+				
+				if(lineNumber > maxLines) {
+					break;
+				}
 			}
 		}
 	}

@@ -56,6 +56,11 @@ public class DetermineSamplingSize implements Runnable {
 	public final static int EXPERIMENT_RETRY = 50;
 	
 	/**
+	 * The maximal number of elements to process
+	 */
+	public final static long MAX_ELEMENTS = 2000000;
+	
+	/**
 	 * The file line index
 	 */
 	private FileLineIndex fli = null;
@@ -103,7 +108,8 @@ public class DetermineSamplingSize implements Runnable {
 		
 
 		try {
-			final long numberOfElements = Files.lines(Paths.get(filename)).count();
+			final long linesInFile = Files.lines(Paths.get(filename)).count();
+			final long numberOfElements = Math.min(linesInFile, MAX_ELEMENTS);
 			final int numberOfSamples = (int) (numberOfElements / 100 * sampleSize);
 			
 			final ExperimentSeriesStatistics experimentSeriesStatistics = new ExperimentSeriesStatistics();
@@ -155,7 +161,7 @@ public class DetermineSamplingSize implements Runnable {
 	    });
 		
 		try {
-			tupleFile.processFile();
+			tupleFile.processFile(MAX_ELEMENTS);
 		} catch (IOException e) {
 			logger.error("Got an IO-Exception while reading file", e);
 			System.exit(-1);
