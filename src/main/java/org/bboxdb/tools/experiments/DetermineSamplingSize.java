@@ -19,8 +19,6 @@ package org.bboxdb.tools.experiments;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -105,10 +103,9 @@ public class DetermineSamplingSize implements Runnable {
 	 */
 	protected void runExperiment(final double sampleSize) {
 		System.out.println("Simulating with sample size: " + sampleSize);
-		
 
 		try {
-			final long linesInFile = Files.lines(Paths.get(filename)).count();
+			final long linesInFile = fli.getIndexedLines();
 			final long numberOfElements = Math.min(linesInFile, MAX_ELEMENTS);
 			final int numberOfSamples = (int) (numberOfElements / 100 * sampleSize);
 			

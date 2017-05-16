@@ -75,6 +75,8 @@ public class TestFileLineIndex {
 		try (final FileLineIndex fli = new FileLineIndex(tempFile.getAbsolutePath())) {
 			fli.indexFile();
 			
+			Assert.assertEquals(1, fli.getIndexedLines());
+			
 			final long pos1 = fli.locateLine(1);
 			Assert.assertEquals(0, pos1);
 		}
@@ -133,8 +135,10 @@ public class TestFileLineIndex {
 				final FileLineIndex fli = new FileLineIndex(tempFile.getAbsolutePath());
 				final RandomAccessFile file = new RandomAccessFile(tempFile, "r");
 			) {
+			Assert.assertEquals(0, fli.getIndexedLines());
 			fli.indexFile();
-			
+			Assert.assertEquals(5, fli.getIndexedLines());
+
 			readLineFomIndex(file, fli, 1, line1);
 			readLineFomIndex(file, fli, 2, line2);
 			readLineFomIndex(file, fli, 3, line3);

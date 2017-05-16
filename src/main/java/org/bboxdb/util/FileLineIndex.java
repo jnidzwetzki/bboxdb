@@ -64,9 +64,15 @@ public class FileLineIndex implements AutoCloseable {
 	private Environment dbEnv = null;
 	
 	/**
+	 * The indexed lines
+	 */
+	protected long indexedLines = 0;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(FileLineIndex.class);
+
 
 	public FileLineIndex(final String filename) {
 		this.filename = Objects.requireNonNull(filename);
@@ -86,9 +92,9 @@ public class FileLineIndex implements AutoCloseable {
 		openDatabase();
 		logger.info("Indexing file: {}", filename);
 		
-		long line = 1;
-		registerLine(line, 0);
-		line++;
+		indexedLines = 1;
+		registerLine(indexedLines, 0);
+		indexedLines++;
 		
 		try (
 				final CountingInputStream inputStream 
@@ -98,8 +104,8 @@ public class FileLineIndex implements AutoCloseable {
 			while(inputStream.available() > 0) {
 				final char readChar = (char) inputStream.read();
 				if(readChar == '\n') {
-					registerLine(line, inputStream.getBytesRead());
-					line++;
+					registerLine(indexedLines, inputStream.getBytesRead());
+					indexedLines++;
 				}
 			}
 		}
@@ -202,7 +208,7 @@ public class FileLineIndex implements AutoCloseable {
 	 * @param node
 	 * @return
 	 */
-	public static DatabaseEntry buildDatabaseEntry(final long id) {
+	protected static DatabaseEntry buildDatabaseEntry(final long id) {
 		final ByteBuffer keyByteBuffer = DataEncoderHelper.longToByteBuffer(id);
 		return new DatabaseEntry(keyByteBuffer.array());
 	}
@@ -218,6 +224,10 @@ public class FileLineIndex implements AutoCloseable {
 			throw new IllegalArgumentException("No database is open, please index file first");
 		}
 		
+		if(line > indexedLines) {
+			throw new IllegalArgumentException("Line " + line + " is higher then indexedLines: " + indexedLines);
+		}
+		
 		final DatabaseEntry key = buildDatabaseEntry(line);
 	    final DatabaseEntry value = new DatabaseEntry();
 	    
@@ -230,6 +240,15 @@ public class FileLineIndex implements AutoCloseable {
 	    final long bytePos = DataEncoderHelper.readLongFromByte(value.getData());
 	    
 	    return bytePos;
+	}
+	
+	/**
+	 * Get the amount of indexed lines
+	 * @return
+	 */
+	public long getIndexedLines() {
+		// Points to the next line
+		return Math.max(0, indexedLines - 1);
 	}
 
 }
