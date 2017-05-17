@@ -161,8 +161,10 @@ public class DetermineSamplingSize implements Runnable {
 			statistics.increaseTotal();
 			
 			if(!tupleDistributed) {
-				System.err.println("Left box: " + leftBox + " / " + rightBox 
-						+ " Tuple box " + polygonBoundingBox + " is not distributed");
+				System.err.println("Unable to distribute: ");
+				System.err.println("Left box: " + leftBox);
+				System.err.println("Right box: " + rightBox);
+				System.err.println("Tuple box: " + polygonBoundingBox);
 			}
 	    });
 		
