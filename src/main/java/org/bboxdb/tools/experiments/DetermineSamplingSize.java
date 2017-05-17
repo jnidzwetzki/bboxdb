@@ -64,6 +64,11 @@ public class DetermineSamplingSize implements Runnable {
 	private FileLineIndex fli = null;
 	
 	/**
+	 * The dimension of the tuples
+	 */
+	private int tupleDimension = -1;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DetermineSamplingSize.class);
@@ -137,7 +142,7 @@ public class DetermineSamplingSize implements Runnable {
 	protected ExperimentStatistics runExperimentForPos(final double splitPos) throws ClassNotFoundException, IOException {
 
 		final ExperimentStatistics statistics = new ExperimentStatistics();		
-		final BoundingBox fullBox = BoundingBox.createFullCoveringDimensionBoundingBox(2);
+		final BoundingBox fullBox = BoundingBox.createFullCoveringDimensionBoundingBox(tupleDimension);
 		final BoundingBox leftBox = fullBox.splitAndGetLeft(splitPos, 0, true);
 		final BoundingBox rightBox = fullBox.splitAndGetRight(splitPos, 0, false);
 
@@ -212,7 +217,9 @@ public class DetermineSamplingSize implements Runnable {
 				randomAccessFile.seek(pos);
 				final String line = randomAccessFile.readLine();
 			    final Tuple tuple = tupleBuilder.buildTuple(Long.toString(sampleId), line);
-				samples.add(tuple.getBoundingBox());
+				final BoundingBox boundingBox = tuple.getBoundingBox();
+				samples.add(boundingBox);
+				tupleDimension = boundingBox.getDimension();
 			}
 		}
 		
