@@ -69,7 +69,9 @@ public class TPCHLineitemRangeBuilder implements TupleBuilder {
 			final double shipDateTime = (double) shipDate.getTime();
 			final double receiptDateTime = (double) receiptDate.getTime();
 
-			final BoundingBox boundingBox = new BoundingBox(shipDateTime, receiptDateTime);
+			final BoundingBox boundingBox = new BoundingBox(
+					Math.min(shipDateTime, receiptDateTime),
+					Math.max(shipDateTime, receiptDateTime));
 			
 			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());
 			
