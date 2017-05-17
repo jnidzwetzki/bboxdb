@@ -210,16 +210,23 @@ public class DetermineSamplingSize implements Runnable {
 					continue;
 				}
 				
-				takenSamples.add(sampleId);
-				
 				// Line 1 is sample 0 in the file
 				final long pos = fli.locateLine(sampleId + 1);
 				randomAccessFile.seek(pos);
 				final String line = randomAccessFile.readLine();
 			    final Tuple tuple = tupleBuilder.buildTuple(Long.toString(sampleId), line);
+			    
+			    // E.g. Table header
+			    if(tuple == null) {
+			    	continue;
+			    }
+			    
 				final BoundingBox boundingBox = tuple.getBoundingBox();
 				samples.add(boundingBox);
 				tupleDimension = boundingBox.getDimension();
+				
+				takenSamples.add(sampleId);
+
 			}
 		}
 		

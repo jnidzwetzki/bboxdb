@@ -91,8 +91,8 @@ public class TestTupleBuilder {
 		final Date dateLow = dateParser.parse("2016-01-01 00:00:00");
 		final Date dateHigh = dateParser.parse("2016-01-01 00:00:00");
 
-		final BoundingBox exptectedBox = new BoundingBox(-73.990371704101563, 40.734695434570313, 
-				-73.981842041015625, 40.732406616210937, 
+		final BoundingBox exptectedBox = new BoundingBox(-73.990371704101563, -73.981842041015625, 
+				40.732406616210937, 40.734695434570313,
 				(double) dateLow.getTime(), (double) dateHigh.getTime());
 		
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
@@ -115,8 +115,8 @@ public class TestTupleBuilder {
 		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 		final Date dateLow = dateParser.parse("2016-01-01 00:00:00");
 
-		final BoundingBox exptectedBox = new BoundingBox(-73.990371704101563, 40.734695434570313, 
-				-73.990371704101563, 40.734695434570313, 
+		final BoundingBox exptectedBox = new BoundingBox(-73.990371704101563, -73.990371704101563,
+				40.734695434570313, 40.734695434570313, 
 				(double) dateLow.getTime(), (double) dateLow.getTime());
 		
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());

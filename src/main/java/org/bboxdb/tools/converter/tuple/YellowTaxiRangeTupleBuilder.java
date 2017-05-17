@@ -57,8 +57,11 @@ public class YellowTaxiRangeTupleBuilder implements TupleBuilder {
 			final double longEnd = Double.parseDouble(data[9]);
 			final double latEnd = Double.parseDouble(data[10]);
 			
-			final BoundingBox boundingBox = new BoundingBox(longBegin, latBegin, 
-					longEnd, latEnd,
+			final BoundingBox boundingBox = new BoundingBox(
+					Math.min(longBegin, longEnd),
+					Math.max(longBegin, longEnd),
+					Math.min(latBegin, latEnd),
+					Math.max(latBegin, latEnd),
 					(double) tripStart.getTime(), (double) tripEnd.getTime());
 			
 			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());

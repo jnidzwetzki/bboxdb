@@ -53,8 +53,8 @@ public class YellowTaxiPointTupleBuilder implements TupleBuilder {
 			final double longBegin = Double.parseDouble(data[5]);
 			final double latBegin = Double.parseDouble(data[6]);
 
-			final BoundingBox boundingBox = new BoundingBox(longBegin, latBegin, 
-					longBegin, latBegin,
+			final BoundingBox boundingBox = new BoundingBox(longBegin, longBegin,
+					latBegin, latBegin,
 					(double) tripStart.getTime(), (double) tripStart.getTime());
 			
 			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());
