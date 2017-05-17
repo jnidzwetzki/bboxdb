@@ -146,15 +146,24 @@ public class DetermineSamplingSize implements Runnable {
 		tupleFile.addTupleListener(t -> {
 			final BoundingBox polygonBoundingBox = t.getBoundingBox();
 			
+			boolean tupleDistributed = false;
+			
 			if(polygonBoundingBox.overlaps(leftBox)) {
 				statistics.increaseLeft();
+				tupleDistributed = true;
 			}
 			
 			if(polygonBoundingBox.overlaps(rightBox)) {
 				statistics.increaseRight();
+				tupleDistributed = true;
 			}
 			
 			statistics.increaseTotal();
+			
+			if(!tupleDistributed) {
+				System.err.println("Left box: " + leftBox + " / " + rightBox 
+						+ " Tuple box " + polygonBoundingBox + " is not distributed");
+			}
 	    });
 		
 		try {
