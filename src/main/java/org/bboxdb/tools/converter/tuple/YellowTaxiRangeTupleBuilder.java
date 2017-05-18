@@ -62,7 +62,8 @@ public class YellowTaxiRangeTupleBuilder implements TupleBuilder {
 					Math.max(longBegin, longEnd),
 					Math.min(latBegin, latEnd),
 					Math.max(latBegin, latEnd),
-					(double) tripStart.getTime(), (double) tripEnd.getTime());
+					Math.min((double) tripStart.getTime(), (double) tripEnd.getTime()),
+					Math.max((double) tripStart.getTime(), (double) tripEnd.getTime()));
 			
 			final Tuple tuple = new Tuple(keyData, boundingBox, valueData.getBytes());
 			
