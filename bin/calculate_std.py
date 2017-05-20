@@ -7,7 +7,7 @@
 
 import sys
 import re
-import numpy
+import math
 
 # Check args
 if len(sys.argv) < 2:
@@ -16,30 +16,36 @@ if len(sys.argv) < 2:
 
 # Regex
 samplingSizePattern = re.compile("^Simulating with sample size: ([\d\.]+)");
-experimentPattern = re.compile("^(\d+)\s(\d+)\s\d+\s\d+\s(\d+)")
+experimentPattern = re.compile("^(\d+)\s(\d+)\s(\d+)\s\d+\s\d+")
 
 
 class Experiment(object):
 
 	samplingSize = -1
-	diffData = []
+	leftRegion = []
 	totalElements = -1
 
 	def __init__(self, samplingSize):
 		self.samplingSize = samplingSize
+		self.leftRegion = []
+		self. totalElements = -1
 
 	def get_std_str(self):
 		'''Error in STD'''
-		npa = numpy.array(self.diffData)
-		std = numpy.std(npa)
-		stdPer = std / self.totalElements * 100.0
+		totalDiff = 0;
+		for result in self.leftRegion:
+			diff = abs(self.totalElements/2 - result)
+			totalDiff = totalDiff + math.pow(diff, 2)
+
+		std = math.sqrt(totalDiff / len(self.leftRegion))
+		stdPer = float(std) / float(self.totalElements) * 100.0
 
 		'''Error on AVG'''
 		totalDiff = 0;
-		for result in self.diffData:
-			totalDiff = totalDiff + result
+		for result in self.leftRegion:
+			totalDiff = totalDiff + abs(self.totalElements/2 - result)
 
-		average = totalDiff / len(self.diffData)
+		average = totalDiff / len(self.leftRegion)
 		averagePer = float(average) / float(self.totalElements) * 100.0
 
 		return  self.samplingSize + "\t" + str(stdPer) + "\t" + str(averagePer)
@@ -51,7 +57,7 @@ class Experiment(object):
 		self.totalElements = int(totalElements)
 
 	def append_experiment_result(self, result):
-		self.diffData.append(int(result))
+		self.leftRegion.append(int(result))
 
 # Global variables
 experiment = None
@@ -65,9 +71,9 @@ def handleLine(line):
 	if experimentMatcher:
 		experimentRun = experimentMatcher.group(1)
 		experimentTotal = experimentMatcher.group(2)
-		experimentDiff = experimentMatcher.group(3)
+		experimentLeft = experimentMatcher.group(3)
 		experiment.set_total_elements(experimentTotal)
-		experiment.append_experiment_result(experimentDiff)
+		experiment.append_experiment_result(experimentLeft)
 #		print line,
 
 	sampleMatcher = samplingSizePattern.match(line)
