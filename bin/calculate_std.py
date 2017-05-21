@@ -11,7 +11,7 @@ import math
 
 # Check args
 if len(sys.argv) < 2:
-	print "Usage " + sys.argv[0] + " <filename>"
+	print "Usage:", sys.argv[0], "<filename>"
         sys.exit(0)
 
 # Regex
@@ -48,7 +48,7 @@ class Experiment(object):
 		average = totalDiff / len(self.leftRegion)
 		averagePer = float(average) / float(self.totalElements) * 100.0
 
-		return  self.samplingSize + "\t" + str(stdPer) + "\t" + str(averagePer)
+		return self.samplingSize + "\t" + str(stdPer) + "\t" + str(averagePer)
 
 	def __str__(self):
 		return self.get_std_str()
