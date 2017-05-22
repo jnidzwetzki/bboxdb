@@ -6,6 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.2.6 (Stable) - TBA
+- New Feature: Created the project mailing list
 - Improvement: Removed unused server read only mode
 - Improvement: Send client queries immediately to server
 - Improvement: Added output file to data generator
