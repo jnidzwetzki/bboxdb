@@ -83,7 +83,7 @@ public class TestKDTreeSplit implements Runnable {
 		System.out.format("Reading %s\n", filename);
 		
 		final List<Integer> elements = Arrays.asList(
-				5000000, 1000000, 500000, 100000);
+				5000000, 1000000, 500000, 200000, 100000);
 		
 		elements.forEach(e -> runExperiment(e));
 	}
