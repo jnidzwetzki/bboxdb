@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.util.TupleFile;
@@ -111,8 +112,12 @@ public class TestKDTreeSplit implements Runnable {
 		}
 		
 		// Print results
-		elements.values().forEach(b -> System.out.println(b.size()));
-		System.out.println("\n\n");
+		final List<Integer> buckets = elements.values()
+				.stream()
+				.map(l -> l.size())
+				.collect(Collectors.toList());
+		
+		IntStream.range(0, buckets.size()).forEach(i -> System.out.format("%d\t%d\n", i, buckets.get(i)));
 	}
 
 	/**
