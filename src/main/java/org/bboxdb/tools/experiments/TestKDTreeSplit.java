@@ -60,11 +60,6 @@ public class TestKDTreeSplit implements Runnable {
 	protected final static double SAMPLING_SIZE = 1.0d;
 
 	/**
-	 * The epsilon
-	 */
-	protected final static double EPSION = 0.0001;
-	
-	/**
 	 * The random for our samples
 	 */
 	protected final Random random;
@@ -205,7 +200,9 @@ public class TestKDTreeSplit implements Runnable {
 	 * @return
 	 */
 	protected double getSplitPosition(final BoundingBox boundingBoxToSplit, final int dimension) {
-		final List<BoundingBox> samples = new ArrayList<>();
+		final List<BoundingBox> leftSamples = new ArrayList<>();
+		final List<BoundingBox> rightSamples = new ArrayList<>();
+
 		final List<BoundingBox> elementsToProcess = elements.get(boundingBoxToSplit);
 		
 		final int numberOfElements = elementsToProcess.size();
@@ -213,41 +210,46 @@ public class TestKDTreeSplit implements Runnable {
 
 		int sample = 0;
 		
-		while(samples.size() < numberOfSamples) {
+		while(leftSamples.size() < numberOfSamples && rightSamples.size() < numberOfSamples) {
 			sample++;
 			final int sampleId = Math.abs(random.nextInt()) % numberOfElements;
 			
 			final BoundingBox bboxSample = elementsToProcess.get(sampleId);
-
-			if(bboxSample.getCoordinateLow(dimension) < boundingBoxToSplit.getCoordinateLow(dimension)) {
-				continue;
+			
+			if(bboxSample.getCoordinateLow(dimension) > boundingBoxToSplit.getCoordinateLow(dimension)) {
+				if(! leftSamples.contains(bboxSample)) {
+					leftSamples.add(bboxSample);
+				}
 			}	
 			
-			if(samples.contains(bboxSample)) {
-				continue;
-			}
+			if(bboxSample.getCoordinateHigh(dimension) < boundingBoxToSplit.getCoordinateHigh(dimension)) {
+				if(! rightSamples.contains(bboxSample)) {
+					rightSamples.add(bboxSample);
+				}
+			}	
 			
 			if(sample > 10 * numberOfSamples) {
 				System.err.println("Unable to find start samples");
 				System.exit(-1);
-			}
+			}			
+		}
+		
+		if(leftSamples.size() >= numberOfSamples) {
+			leftSamples.sort((b1, b2) -> Double.compare(b1.getCoordinateLow(dimension), 
+					b2.getCoordinateLow(dimension)));
 			
-			samples.add(bboxSample);
+			return leftSamples.get(leftSamples.size() / 2).getCoordinateLow(dimension);
 		}
 		
-		samples.sort((b1, b2) -> Double.compare(b1.getCoordinateLow(dimension), 
-				b2.getCoordinateLow(dimension)));
-		
-		double splitPosition = samples.get(samples.size() / 2).getCoordinateLow(dimension);
-		
-		/**
-		 * Prevent split on start pos
-		 */
-		if(splitPosition == boundingBoxToSplit.getCoordinateLow(dimension)) {
-			splitPosition = splitPosition + EPSION;
+		if(rightSamples.size() >= numberOfSamples) {
+			rightSamples.sort((b1, b2) -> Double.compare(b1.getCoordinateHigh(dimension), 
+					b2.getCoordinateHigh(dimension)));
+			
+			return rightSamples.get(leftSamples.size() / 2).getCoordinateHigh(dimension);
 		}
-		
-		return splitPosition;
+
+		System.out.println("Not enough samples found");
+		return (boundingBoxToSplit.getCoordinateHigh(dimension) - boundingBoxToSplit.getCoordinateLow(dimension)) / 2;
 	}
 	
 	/**
