@@ -20,8 +20,7 @@ The documentation of the project is located at [http://jnidzwetzki.github.io/bbo
 See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/started.html) chapter in the documentation. We also recommend to read the examples located in the [examples](examples/) directory.
 
 ## Screenshots
-<p><img src="docs/images/bboxdb_gui1.jpg" width="400"></p>
-<p><img src="docs/images/bboxdb_gui2.jpg" width="400"><br>
+<p><img src="docs/images/bboxdb_gui1.jpg" width="400"> <img src="docs/images/bboxdb_gui2.jpg" width="400"><br>
 (The screenshot contains content from <a href="https://www.openstreetmap.org/">OpenSteetMap</a> - CC-BY-SA 2.0)
 </p>
 
