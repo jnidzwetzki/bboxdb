@@ -276,7 +276,7 @@ public class SyntheticDataGenerator implements Runnable {
 				bboxData.add(point); // End
 			} else if(bboxType == BBoxType.RANGE) {
 				final double begin = random.nextDouble() * 100;
-				final double end = begin + random.nextDouble() * 20;
+				final double end = begin + random.nextDouble() * 10;
 				
 				bboxData.add(begin);
 				bboxData.add(end);
