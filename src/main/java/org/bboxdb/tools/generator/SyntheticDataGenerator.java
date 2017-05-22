@@ -276,10 +276,10 @@ public class SyntheticDataGenerator implements Runnable {
 				bboxData.add(point); // End
 			} else if(bboxType == BBoxType.RANGE) {
 				final double begin = random.nextDouble() * 100;
-				final double end = random.nextDouble() * 100;
+				final double end = begin + random.nextDouble() * 20;
 				
-				bboxData.add(Math.min(begin, end));
-				bboxData.add(Math.max(begin, end));
+				bboxData.add(begin);
+				bboxData.add(end);
 			} else {
 				throw new IllegalArgumentException("Unknown bbox type: " + bboxType);
 			}
