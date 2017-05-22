@@ -234,22 +234,18 @@ public class TestKDTreeSplit implements Runnable {
 			}			
 		}
 		
-		if(leftSamples.size() >= numberOfSamples) {
+		// Calculate split based on begin or end points, based on higher sample size
+		if(leftSamples.size() >= rightSamples.size()) {
 			leftSamples.sort((b1, b2) -> Double.compare(b1.getCoordinateLow(dimension), 
 					b2.getCoordinateLow(dimension)));
 			
 			return leftSamples.get(leftSamples.size() / 2).getCoordinateLow(dimension);
-		}
-		
-		if(rightSamples.size() >= numberOfSamples) {
+		} else {
 			rightSamples.sort((b1, b2) -> Double.compare(b1.getCoordinateHigh(dimension), 
 					b2.getCoordinateHigh(dimension)));
 			
 			return rightSamples.get(leftSamples.size() / 2).getCoordinateHigh(dimension);
 		}
-
-		System.out.println("Not enough samples found");
-		return (boundingBoxToSplit.getCoordinateHigh(dimension) - boundingBoxToSplit.getCoordinateLow(dimension)) / 2;
 	}
 	
 	/**
