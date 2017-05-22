@@ -26,7 +26,7 @@ See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/started.html) 
 
 ## Stay informed
 * Follow us on Twitter: [@BBoxDB](https://twitter.com/BBoxDB)
-* Subscribe our Mailing list at [Google Groups](https://groups.google.com/forum/#!forum/bboxdb)
+* Subscribe our mailing list at [Google Groups](https://groups.google.com/forum/#!forum/bboxdb)
 
 ## License
 BBoxDB is licensed under the Apache 2.0 license. See the [LICENSE](./LICENSE) file for details.
