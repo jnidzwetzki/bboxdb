@@ -25,12 +25,9 @@ See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/started.html) 
 (The screenshot contains content from <a href="https://www.openstreetmap.org/">OpenSteetMap</a> - CC-BY-SA 2.0)
 </p>
 
-## Follow us on Twitter
-
-[@BBoxDB](https://twitter.com/BBoxDB)
-
-## Subscribe our Mailing list
-For updates and discussions abount BBoxDB, join our Mailing list at [Google Groups](https://groups.google.com/forum/#!forum/bboxdb)
+## Stay informed
+* Follow us on Twitter: [@BBoxDB](https://twitter.com/BBoxDB)
+* Subscribe our Mailing list at [Google Groups](https://groups.google.com/forum/#!forum/bboxdb)
 
 ## License
 BBoxDB is licensed under the Apache 2.0 license. See the [LICENSE](./LICENSE) file for details.
