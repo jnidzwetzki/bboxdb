@@ -215,18 +215,16 @@ public class TestKDTreeSplit implements Runnable {
 			final int sampleId = Math.abs(random.nextInt()) % numberOfElements;
 			
 			final BoundingBox bboxSample = elementsToProcess.get(sampleId);
-			
-			if(bboxSample == BoundingBox.EMPTY_BOX) {
+
+			if(bboxSample.getCoordinateLow(dimension) < boundingBoxToSplit.getCoordinateLow(dimension)) {
 				continue;
 			}
 			
-			final BoundingBox bboxSampleCut = bboxSample.getIntersection(boundingBoxToSplit);
-			
-			if(samples.contains(bboxSampleCut)) {
+			if(samples.contains(bboxSample)) {
 				continue;
 			}
 			
-			samples.add(bboxSampleCut);
+			samples.add(bboxSample);
 		}
 		
 		samples.sort((b1, b2) -> Double.compare(b1.getCoordinateLow(dimension), 
