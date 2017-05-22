@@ -96,7 +96,7 @@ public class BBoxDBConfiguration {
 	/**
 	 * The sstable split strategy
 	 */
-	protected String regionSplitStrategy = "org.bboxdb.distribution.regionsplit.WeightBasedSplitStrategy";
+	protected String regionSplitStrategy = "org.bboxdb.distribution.regionsplit.SamplingBasedSplitStrategy";
 
 	/**
 	 * The resource placement strategy

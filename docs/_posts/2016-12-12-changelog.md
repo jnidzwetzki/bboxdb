@@ -12,6 +12,7 @@ order: 1
 - Improvement: Added output file to data generator
 - Improvement: Synthetic data can now be generated with point bboxes
 - Improvement: Switched 'sampling size experiment' to line index
+- Improvement: Renamed WeightBasedSplitStrategy to SamplingBasedSplitStrategy
 
 ### Version 0.2.5 (Stable) - 07.05.2017
 - New Feature: Implemented the new insert time tuple query
