@@ -211,17 +211,25 @@ public class TestKDTreeSplit implements Runnable {
 		final int numberOfElements = elementsToProcess.size();
 		final long numberOfSamples = (long) (numberOfElements / 100.0 * SAMPLING_SIZE);
 
+		int sample = 0;
+		
 		while(samples.size() < numberOfSamples) {
+			sample++;
 			final int sampleId = Math.abs(random.nextInt()) % numberOfElements;
 			
 			final BoundingBox bboxSample = elementsToProcess.get(sampleId);
 
 			if(bboxSample.getCoordinateLow(dimension) < boundingBoxToSplit.getCoordinateLow(dimension)) {
 				continue;
-			}
+			}	
 			
 			if(samples.contains(bboxSample)) {
 				continue;
+			}
+			
+			if(sample > 10 * numberOfSamples) {
+				System.err.println("Unable to find start samples");
+				System.exit(-1);
 			}
 			
 			samples.add(bboxSample);
