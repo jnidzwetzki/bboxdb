@@ -60,6 +60,11 @@ public class TestKDTreeSplit implements Runnable {
 	protected final static double SAMPLING_SIZE = 1.0d;
 
 	/**
+	 * The epsilon
+	 */
+	protected final static double EPSION = 0.0001;
+	
+	/**
 	 * The random for our samples
 	 */
 	protected final Random random;
@@ -223,7 +228,15 @@ public class TestKDTreeSplit implements Runnable {
 		samples.sort((b1, b2) -> Double.compare(b1.getCoordinateLow(dimension), 
 				b2.getCoordinateLow(dimension)));
 		
-		final double splitPosition = samples.get(samples.size() / 2).getCoordinateLow(dimension);
+		double splitPosition = samples.get(samples.size() / 2).getCoordinateLow(dimension);
+		
+		/**
+		 * Prevent split on start pos
+		 */
+		if(splitPosition == boundingBoxToSplit.getCoordinateLow(dimension)) {
+			splitPosition = splitPosition + EPSION;
+		}
+		
 		return splitPosition;
 	}
 	
