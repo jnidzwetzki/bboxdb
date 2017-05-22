@@ -228,9 +228,9 @@ public class TestKDTreeSplit implements Runnable {
 				}
 			}	
 			
+			// Unable to find enough samples
 			if(sample > 10 * numberOfSamples) {
-				System.err.println("Unable to find start samples");
-				System.exit(-1);
+				break;
 			}			
 		}
 		
