@@ -216,6 +216,10 @@ public class TestKDTreeSplit implements Runnable {
 			
 			final BoundingBox bboxSample = elementsToProcess.get(sampleId);
 			
+			if(bboxSample == BoundingBox.EMPTY_BOX) {
+				continue;
+			}
+			
 			final BoundingBox bboxSampleCut = bboxSample.getIntersection(boundingBoxToSplit);
 			
 			if(samples.contains(bboxSampleCut)) {
