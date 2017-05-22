@@ -82,7 +82,7 @@ public class TestKDTreeSplit implements Runnable {
 		System.out.format("Reading %s\n", filename);
 		
 		final List<Integer> elements = Arrays.asList(
-				10000, 50000, 100000);
+				5000000, 1000000, 500000, 100000);
 		
 		elements.forEach(e -> runExperiment(e));
 	}
@@ -244,7 +244,7 @@ public class TestKDTreeSplit implements Runnable {
 			rightSamples.sort((b1, b2) -> Double.compare(b1.getCoordinateHigh(dimension), 
 					b2.getCoordinateHigh(dimension)));
 			
-			return rightSamples.get(leftSamples.size() / 2).getCoordinateHigh(dimension);
+			return rightSamples.get(rightSamples.size() / 2).getCoordinateHigh(dimension);
 		}
 	}
 	
