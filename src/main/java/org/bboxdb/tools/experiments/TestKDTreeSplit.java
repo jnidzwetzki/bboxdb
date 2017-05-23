@@ -57,7 +57,7 @@ public class TestKDTreeSplit implements Runnable {
 	/**
 	 * The sampling size
 	 */
-	protected final static double SAMPLING_SIZE = 1.0d;
+	protected final static double SAMPLING_SIZE = 0.1d;
 
 	/**
 	 * The random for our samples
