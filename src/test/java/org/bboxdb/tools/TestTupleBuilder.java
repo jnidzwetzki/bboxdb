@@ -30,7 +30,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
-import org.bboxdb.util.TupleFile;
+import org.bboxdb.util.TupleFileReader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -204,7 +204,7 @@ public class TestTupleBuilder {
 		tempFile.delete();
 		Assert.assertFalse(tempFile.exists());
 		
-		final TupleFile tupleFile = new TupleFile(tempFile.getAbsolutePath(), 
+		final TupleFileReader tupleFile = new TupleFileReader(tempFile.getAbsolutePath(), 
 				TupleBuilderFactory.Name.GEOJSON);
 		
 		tupleFile.processFile();
@@ -229,7 +229,7 @@ public class TestTupleBuilder {
 		writer.write("\n");
 		writer.close();
 		
-		final TupleFile tupleFile = new TupleFile(tempFile.getAbsolutePath(), 
+		final TupleFileReader tupleFile = new TupleFileReader(tempFile.getAbsolutePath(), 
 				TupleBuilderFactory.Name.GEOJSON);
 		
 		final AtomicInteger seenTuples = new AtomicInteger(0);
@@ -267,7 +267,7 @@ public class TestTupleBuilder {
 		writer.write("\n");
 		writer.close();
 		
-		final TupleFile tupleFile = new TupleFile(tempFile.getAbsolutePath(), 
+		final TupleFileReader tupleFile = new TupleFileReader(tempFile.getAbsolutePath(), 
 				TupleBuilderFactory.Name.GEOJSON);
 		
 		final AtomicInteger seenTuples = new AtomicInteger(0);
@@ -307,7 +307,7 @@ public class TestTupleBuilder {
 		writer.write("\n");
 		writer.close();
 		
-		final TupleFile tupleFile = new TupleFile(tempFile.getAbsolutePath(), 
+		final TupleFileReader tupleFile = new TupleFileReader(tempFile.getAbsolutePath(), 
 				TupleBuilderFactory.Name.GEOJSON);
 		
 		final AtomicInteger seenTuples = new AtomicInteger(0);

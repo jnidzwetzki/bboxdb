@@ -31,7 +31,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 
-public class TupleFile {
+public class TupleFileReader {
 
 	/**
 	 * The filename to read
@@ -58,7 +58,7 @@ public class TupleFile {
 	 */
 	protected String fileLine;
 
-	public TupleFile(final String filename, final String importFormat) {
+	public TupleFileReader(final String filename, final String importFormat) {
 		this.filename = filename;
 		this.tupleBuilder = TupleBuilderFactory.getBuilderForFormat(importFormat);
 		this.callbacks = new ArrayList<>();

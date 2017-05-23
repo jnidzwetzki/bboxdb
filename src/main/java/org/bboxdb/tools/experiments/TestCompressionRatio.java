@@ -32,7 +32,7 @@ import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.util.TupleFile;
+import org.bboxdb.util.TupleFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +104,7 @@ public class TestCompressionRatio implements Runnable {
 		final List<Long> experimentSize = new ArrayList<>();
 		
 		final List<Tuple> buffer = new ArrayList<>();
-		final TupleFile tupleFile = new TupleFile(filename, format);
+		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 		
 		tupleFile.addTupleListener(t -> {
 			if(batchSize == 0) {

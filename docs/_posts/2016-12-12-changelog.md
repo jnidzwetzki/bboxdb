@@ -5,14 +5,15 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
-### Version 0.2.6 (Stable) - TBA
+### Version 0.2.6 (Stable) - 23.05.2017
 - New Feature: Created the project mailing list
 - Improvement: Removed unused server read only mode
 - Improvement: Send client queries immediately to server
 - Improvement: Added output file to data generator
 - Improvement: Synthetic data can now be generated with point bboxes
-- Improvement: Switched 'sampling size experiment' to line index
+- Improvement: The execution time of the experiments is improved by using a line index
 - Improvement: Renamed WeightBasedSplitStrategy to SamplingBasedSplitStrategy
+- Improvement: Improved the SamplingBasedSplitStrategy by taking also object ends in consideration
 
 ### Version 0.2.5 (Stable) - 07.05.2017
 - New Feature: Implemented the new insert time tuple query

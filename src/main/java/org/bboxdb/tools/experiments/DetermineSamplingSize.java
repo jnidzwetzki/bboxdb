@@ -32,7 +32,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.bboxdb.util.FileLineIndex;
-import org.bboxdb.util.TupleFile;
+import org.bboxdb.util.TupleFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,7 +146,7 @@ public class DetermineSamplingSize implements Runnable {
 		final BoundingBox leftBox = fullBox.splitAndGetLeft(splitPos, 0, true);
 		final BoundingBox rightBox = fullBox.splitAndGetRight(splitPos, 0, false);
 
-		final TupleFile tupleFile = new TupleFile(filename, format);
+		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 		
 		tupleFile.addTupleListener(t -> {
 			final BoundingBox polygonBoundingBox = t.getBoundingBox();

@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.util.TupleFile;
+import org.bboxdb.util.TupleFileReader;
 
 public class TestKDTreeSplit implements Runnable {
 
@@ -98,7 +98,7 @@ public class TestKDTreeSplit implements Runnable {
 		
 		elements.clear();	
 		
-		final TupleFile tupleFile = new TupleFile(filename, format);
+		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 		
 		tupleFile.addTupleListener(t -> {
 			insertNextBoundingBox(t.getBoundingBox(), maxRegionSize);

@@ -45,7 +45,7 @@ import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
-import org.bboxdb.util.TupleFile;
+import org.bboxdb.util.TupleFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -411,7 +411,7 @@ public class CLI implements Runnable, AutoCloseable {
 	
 		System.out.println("Importing file: " + filename);
 		
-		final TupleFile tupleFile = new TupleFile(filename, format);
+		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 		tupleFile.addTupleListener(t -> {
 			
 			if(t == null) {

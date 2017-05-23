@@ -29,9 +29,25 @@ import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.MathUtil;
 
 public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	
+	/**
+	 * The left begin points
+	 */
+	protected final List<Double> rightPoints;
+	
+	/**
+	 * The right begin points
+	 */
+	protected final List<Double> leftPoints;
+
+	public SamplingBasedSplitStrategy() {
+		rightPoints = new ArrayList<>();
+		leftPoints = new ArrayList<>();
+	}
+
 	@Override
 	protected boolean performSplit(final DistributionRegion regionToSplit) {
 		final int splitDimension = regionToSplit.getSplitDimension();
@@ -41,25 +57,8 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 				(region.getDistributionGroupName(), region.getRegionId());
 		
 		try {
-			final List<DoubleInterval> doubleIntervals = new ArrayList<DoubleInterval>();
-
-			for(final SSTableName ssTableName : tables) {
-				logger.info("Create split samples for table: {} ", ssTableName.getFullname());
-				
-				final SSTableManager storageInterface = StorageRegistry.getInstance().getSSTableManager(ssTableName);
-				final List<ReadOnlyTupleStorage> tupleStores = storageInterface.getTupleStoreInstances().getAllTupleStorages();
-				
-				processTupleStores(tupleStores, splitDimension, regionToSplit, doubleIntervals);
-				logger.info("Create split samples for table: {} DONE", ssTableName.getFullname());
-			}
-			
-			// Sort intervals and take the middle element as split interval
-			doubleIntervals.sort((i1, i2) -> Double.compare(i1.getBegin(),i2.getBegin()));
-			final int midpoint = doubleIntervals.size() / 2;
-			final DoubleInterval splitInterval = doubleIntervals.get(midpoint);
-
-			final double splitPosition = splitInterval.getBegin();
-			final double splitPositonRound = round(splitPosition, 7);
+			final double splitPositonRound = caclculateSplitPoint(regionToSplit.getConveringBox(), 
+					splitDimension, tables);
 			
 			performSplitAtPosition(regionToSplit, splitPositonRound);
 			
@@ -69,30 +68,73 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 			return false;
 		}
 	}
-	
+
 	/**
-	 * Round the given number of fractions
-	 * @param value
-	 * @param frac
+	 * Calculate the split point
+	 * @param boundingBox
+	 * @param splitDimension
+	 * @param tables
 	 * @return
+	 * @throws StorageManagerException
 	 */
-    protected double round(final double value, final int frac) {
-        final double pow = Math.pow(10.0, frac);
-        
-		return Math.round(pow * value) / pow;
-    }
+	protected double caclculateSplitPoint(final BoundingBox boundingBox, final int splitDimension,
+			final List<SSTableName> tables) throws StorageManagerException {
+		
+		// Get the samples
+		getPointSamples(boundingBox, splitDimension, tables);
+		
+		// Sort points
+		leftPoints.sort((i1, i2) -> Double.compare(i1,i2));
+		rightPoints.sort((i1, i2) -> Double.compare(i1,i2));
+		
+		// Use list with more samples
+		final List<Double> pointList = (leftPoints.size() > rightPoints.size()) ? leftPoints : rightPoints;
+		
+		// Calculate point
+		final int midpoint = pointList.size() / 2;
+		final double splitPosition = pointList.get(midpoint);
+		final double splitPositonRound = MathUtil.round(splitPosition, 7);
+		
+		return splitPositonRound;
+	}
+
+	/**
+	 * Get the begin and end point samples
+	 * 
+	 * @param boundingBox
+	 * @param splitDimension
+	 * @param tables
+	 * @throws StorageManagerException
+	 */
+	protected void getPointSamples(final BoundingBox boundingBox, final int splitDimension,
+			final List<SSTableName> tables) throws StorageManagerException {
+		
+		for(final SSTableName ssTableName : tables) {
+			logger.info("Create split samples for table: {} ", ssTableName.getFullname());
+			
+			final SSTableManager storageInterface = StorageRegistry
+					.getInstance()
+					.getSSTableManager(ssTableName);
+			
+			final List<ReadOnlyTupleStorage> tupleStores = storageInterface
+					.getTupleStoreInstances()
+					.getAllTupleStorages();
+			
+			processTupleStores(tupleStores, splitDimension, boundingBox);
+			logger.info("Create split samples for table: {} DONE", ssTableName.getFullname());
+		}
+	}
 
 	/**
 	 * Process the facades for the table and create samples
 	 * @param storages
 	 * @param splitDimension 
-	 * @param regionToSplit 
+	 * @param boundingBox 
 	 * @param floatIntervals 
 	 * @throws StorageManagerException 
 	 */
 	protected void processTupleStores(final List<ReadOnlyTupleStorage> storages, final int splitDimension, 
-			final DistributionRegion regionToSplit, final List<DoubleInterval> floatIntervals) 
-					throws StorageManagerException {
+			final BoundingBox boundingBox) throws StorageManagerException {
 		
 		final int samplesPerStorage = 100;
 		
@@ -110,20 +152,26 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 				final Tuple tuple = storage.getTupleAtPosition(position);							
 				final BoundingBox tupleBoundingBox = tuple.getBoundingBox();
 				
-				// Only the in the region contained part of the tuple is relevant
-				final BoundingBox groupBox = regionToSplit.getConveringBox().getIntersection(tupleBoundingBox);
-				
 				// Ignore tuples with an empty box (e.g. deleted tuples)
-				if(groupBox.equals(BoundingBox.EMPTY_BOX)) {
+				if(tupleBoundingBox.equals(BoundingBox.EMPTY_BOX)) {
 					continue;
 				}
-					
-				final DoubleInterval interval = groupBox.getIntervalForDimension(splitDimension);
-				floatIntervals.add(interval);
+				
+				// Add the begin and end pos to the lists, if the begin / end is in the 
+				// covering box
+				final DoubleInterval tupleInterval = tupleBoundingBox.getIntervalForDimension(splitDimension);
+				final DoubleInterval groupInterval = boundingBox.getIntervalForDimension(splitDimension);
+				
+				if(tupleInterval.getBegin() > groupInterval.getBegin()) {
+					leftPoints.add(tupleInterval.getBegin());
+				}
+				
+				if(tupleInterval.getEnd() < groupInterval.getEnd()) {
+					rightPoints.add(tupleInterval.getEnd());
+				}
 			}
 	
 			storage.release();
 		}
 	}
-
 }
