@@ -19,13 +19,14 @@ package org.bboxdb.tools.experiments;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -70,9 +71,12 @@ public class TestKDTreeSplit implements Runnable {
 	 */
 	protected int dataDimension = -1;
 	
-	public TestKDTreeSplit(final String filename, final String format) {
+	protected final Set<Integer> experimentSize;
+	
+	public TestKDTreeSplit(final String filename, final String format, final Set<Integer> experimentSize) {
 		this.filename = filename;
 		this.format = format;
+		this.experimentSize = experimentSize;
 		this.elements = new HashMap<>();
 		this.boxDimension = new HashMap<>();
 		this.random = new Random(System.currentTimeMillis());
@@ -81,11 +85,7 @@ public class TestKDTreeSplit implements Runnable {
 	@Override
 	public void run() {
 		System.out.format("Reading %s\n", filename);
-		
-		final List<Integer> elements = Arrays.asList(
-				5000000, 1000000, 500000, 200000, 100000);
-		
-		elements.forEach(e -> runExperiment(e));
+		experimentSize.forEach(e -> runExperiment(e));
 	}
 
 	/**
@@ -259,15 +259,27 @@ public class TestKDTreeSplit implements Runnable {
 	public static void main(final String[] args) throws IOException {
 		
 		// Check parameter
-		if(args.length != 2) {
-			System.err.println("Usage: programm <filename> <format>");
+		if(args.length < 3) {
+			System.err.println("Usage: programm <filename> <format> <size1> <size2> <sizeN>");
 			System.exit(-1);
 		}
 		
 		final String filename = Objects.requireNonNull(args[0]);
 		final String format = Objects.requireNonNull(args[1]);
 
-		final TestKDTreeSplit testSplit = new TestKDTreeSplit(filename, format);
+		final Set<Integer> experimentSize = new HashSet<>();
+		
+		for(int pos = 2; pos < args.length; pos++) {
+			try {
+				final Integer size = Integer.parseInt(args[pos]);
+				experimentSize.add(size);
+			} catch (NumberFormatException e) {
+				System.err.println("Unable to parse: " + args[pos]);
+				System.exit(-1);
+			}			
+		}
+		
+		final TestKDTreeSplit testSplit = new TestKDTreeSplit(filename, format, experimentSize);
 		testSplit.run();
 	}
 
