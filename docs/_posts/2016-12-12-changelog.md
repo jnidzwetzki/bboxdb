@@ -5,6 +5,8 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
+### Version 0.3.0 (Stable) - TBA
+
 ### Version 0.2.6 (Stable) - 23.05.2017
 - New Feature: Created the project mailing list
 - Improvement: Removed unused server read only mode
