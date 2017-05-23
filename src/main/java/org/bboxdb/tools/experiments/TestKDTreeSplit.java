@@ -20,11 +20,13 @@ package org.bboxdb.tools.experiments;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -57,7 +59,7 @@ public class TestKDTreeSplit implements Runnable {
 	/**
 	 * The sampling size
 	 */
-	protected final static double SAMPLING_SIZE = 0.1d;
+	protected final static double SAMPLING_SIZE = 1d;
 
 	/**
 	 * The random for our samples
@@ -209,31 +211,33 @@ public class TestKDTreeSplit implements Runnable {
 	protected double getSplitPosition(final BoundingBox boundingBoxToSplit, final int dimension) {
 		final List<BoundingBox> leftSamples = new ArrayList<>();
 		final List<BoundingBox> rightSamples = new ArrayList<>();
-
+		final Set<Integer> takenSamples = new HashSet<>();
 		final List<BoundingBox> elementsToProcess = elements.get(boundingBoxToSplit);
 		
 		final int numberOfElements = elementsToProcess.size();
 		final long numberOfSamples = (long) (numberOfElements / 100.0 * SAMPLING_SIZE);
 
-		int sample = 0;
+		double sample = 0;
 		
 		while(leftSamples.size() < numberOfSamples && rightSamples.size() < numberOfSamples) {
 			sample++;
 			final int sampleId = Math.abs(random.nextInt()) % numberOfElements;
 			
+			if(takenSamples.contains(sampleId)) {
+				continue;
+			}
+			
 			final BoundingBox bboxSample = elementsToProcess.get(sampleId);
 			
 			if(bboxSample.getCoordinateLow(dimension) > boundingBoxToSplit.getCoordinateLow(dimension)) {
-				if(! leftSamples.contains(bboxSample)) {
-					leftSamples.add(bboxSample);
-				}
+				leftSamples.add(bboxSample);
 			}	
 			
 			if(bboxSample.getCoordinateHigh(dimension) < boundingBoxToSplit.getCoordinateHigh(dimension)) {
-				if(! rightSamples.contains(bboxSample)) {
-					rightSamples.add(bboxSample);
-				}
+				rightSamples.add(bboxSample);
 			}	
+			
+			takenSamples.add(sampleId);
 			
 			// Unable to find enough samples
 			if(sample > 10 * numberOfSamples) {
