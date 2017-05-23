@@ -20,13 +20,11 @@ package org.bboxdb.tools.experiments;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Random;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -71,9 +69,12 @@ public class TestKDTreeSplit implements Runnable {
 	 */
 	protected int dataDimension = -1;
 	
-	protected final Set<Integer> experimentSize;
+	/**
+	 * Experiment sizes
+	 */
+	protected final List<Integer> experimentSize;
 	
-	public TestKDTreeSplit(final String filename, final String format, final Set<Integer> experimentSize) {
+	public TestKDTreeSplit(final String filename, final String format, final List<Integer> experimentSize) {
 		this.filename = filename;
 		this.format = format;
 		this.experimentSize = experimentSize;
@@ -268,7 +269,7 @@ public class TestKDTreeSplit implements Runnable {
 		final String filename = Objects.requireNonNull(args[0]);
 		final String format = Objects.requireNonNull(args[1]);
 
-		final Set<Integer> experimentSize = new HashSet<>();
+		final List<Integer> experimentSize = new ArrayList<>();
 		
 		for(int pos = 2; pos < args.length; pos++) {
 			try {
