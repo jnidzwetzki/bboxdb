@@ -20,6 +20,6 @@ if [ "$#" -eq 0 ]; then
     exit -1
 fi
 
-java $jvm_ops_tools -cp $classpath "$@"
+java $jvm_ops_tools $jvm_ops_tools -cp $classpath "$@"
 
 exit 0

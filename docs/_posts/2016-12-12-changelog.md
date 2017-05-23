@@ -6,6 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.3.0 (Stable) - TBA
+- Bugfix: The JVM tool options are added to the bboxdb_execute script
 
 ### Version 0.2.6 (Stable) - 23.05.2017
 - New Feature: Created the project mailing list
