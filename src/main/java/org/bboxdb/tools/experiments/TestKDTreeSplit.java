@@ -97,6 +97,7 @@ public class TestKDTreeSplit implements Runnable {
 		System.out.println("# Simulating with max element size: " + maxRegionSize);
 		
 		elements.clear();	
+		boxDimension.clear();
 		
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 		
