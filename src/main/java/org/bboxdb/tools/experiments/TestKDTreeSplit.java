@@ -209,8 +209,7 @@ public class TestKDTreeSplit implements Runnable {
 	 * @return
 	 */
 	protected double getSplitPosition(final BoundingBox boundingBoxToSplit, final int dimension) {
-		final List<BoundingBox> leftSamples = new ArrayList<>();
-		final List<BoundingBox> rightSamples = new ArrayList<>();
+		final List<Double> pointSamples = new ArrayList<>();
 		final Set<Integer> takenSamples = new HashSet<>();
 		final List<BoundingBox> elementsToProcess = elements.get(boundingBoxToSplit);
 		
@@ -219,7 +218,8 @@ public class TestKDTreeSplit implements Runnable {
 
 		double sample = 0;
 		
-		while(leftSamples.size() < numberOfSamples && rightSamples.size() < numberOfSamples) {
+		// Try to find n samples (= 2n points)
+		while(pointSamples.size() > 2 * numberOfElements) {
 			sample++;
 			final int sampleId = Math.abs(random.nextInt()) % numberOfElements;
 			
@@ -230,11 +230,11 @@ public class TestKDTreeSplit implements Runnable {
 			final BoundingBox bboxSample = elementsToProcess.get(sampleId);
 			
 			if(bboxSample.getCoordinateLow(dimension) > boundingBoxToSplit.getCoordinateLow(dimension)) {
-				leftSamples.add(bboxSample);
+				pointSamples.add(bboxSample.getCoordinateLow(dimension));
 			}	
 			
 			if(bboxSample.getCoordinateHigh(dimension) < boundingBoxToSplit.getCoordinateHigh(dimension)) {
-				rightSamples.add(bboxSample);
+				pointSamples.add(bboxSample.getCoordinateHigh(dimension));
 			}	
 			
 			takenSamples.add(sampleId);
@@ -245,18 +245,9 @@ public class TestKDTreeSplit implements Runnable {
 			}			
 		}
 		
-		// Calculate split based on begin or end points, based on higher sample size
-		if(leftSamples.size() >= rightSamples.size()) {
-			leftSamples.sort((b1, b2) -> Double.compare(b1.getCoordinateLow(dimension), 
-					b2.getCoordinateLow(dimension)));
-			
-			return leftSamples.get(leftSamples.size() / 2).getCoordinateLow(dimension);
-		} else {
-			rightSamples.sort((b1, b2) -> Double.compare(b1.getCoordinateHigh(dimension), 
-					b2.getCoordinateHigh(dimension)));
-			
-			return rightSamples.get(rightSamples.size() / 2).getCoordinateHigh(dimension);
-		}
+		pointSamples.sort((b1, b2) -> Double.compare(b1, b2));
+		
+		return pointSamples.get(pointSamples.size() / 2);
 	}
 	
 	/**
