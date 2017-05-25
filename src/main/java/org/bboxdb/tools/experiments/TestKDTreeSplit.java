@@ -219,13 +219,15 @@ public class TestKDTreeSplit implements Runnable {
 		double sample = 0;
 		
 		// Try to find n samples (= 2n points)
-		while(pointSamples.size() > 2 * numberOfElements) {
+		while(pointSamples.size() < (2 * numberOfSamples)) {
 			sample++;
 			final int sampleId = Math.abs(random.nextInt()) % numberOfElements;
 			
 			if(takenSamples.contains(sampleId)) {
 				continue;
 			}
+			
+			takenSamples.add(sampleId);
 			
 			final BoundingBox bboxSample = elementsToProcess.get(sampleId);
 			
@@ -236,11 +238,9 @@ public class TestKDTreeSplit implements Runnable {
 			if(bboxSample.getCoordinateHigh(dimension) < boundingBoxToSplit.getCoordinateHigh(dimension)) {
 				pointSamples.add(bboxSample.getCoordinateHigh(dimension));
 			}	
-			
-			takenSamples.add(sampleId);
-			
+						
 			// Unable to find enough samples
-			if(sample > 10 * numberOfSamples) {
+			if(sample > (10 * numberOfSamples)) {
 				break;
 			}			
 		}
