@@ -30,5 +30,24 @@ public class MathUtil {
         
 		return Math.round(pow * value) / pow;
     }
+    
+    /**
+     * Try to convert the given string into an integer
+     * @param valueToParse
+     * @param message
+     * @return
+     */
+    public static int tryParseIntOrExit(final String valueToParse) {
+    	try {
+			final int parsedInteger = Integer.parseInt(valueToParse);
+			return parsedInteger;
+		} catch (NumberFormatException e) {
+			System.err.println("Unable to convert to integer: " + valueToParse);
+			System.exit(-1);
+		}
+    	
+    	// Dead code
+    	return -1;
+    }
 
 }

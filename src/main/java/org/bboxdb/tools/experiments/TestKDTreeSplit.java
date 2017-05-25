@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.util.MathUtil;
 import org.bboxdb.util.TupleFileReader;
 
 public class TestKDTreeSplit implements Runnable {
@@ -267,13 +268,8 @@ public class TestKDTreeSplit implements Runnable {
 		final List<Integer> experimentSize = new ArrayList<>();
 		
 		for(int pos = 2; pos < args.length; pos++) {
-			try {
-				final Integer size = Integer.parseInt(args[pos]);
-				experimentSize.add(size);
-			} catch (NumberFormatException e) {
-				System.err.println("Unable to parse: " + args[pos]);
-				System.exit(-1);
-			}			
+			final Integer size = MathUtil.tryParseIntOrExit(args[pos]);
+			experimentSize.add(size);
 		}
 		
 		final TestKDTreeSplit testSplit = new TestKDTreeSplit(filename, format, experimentSize);
