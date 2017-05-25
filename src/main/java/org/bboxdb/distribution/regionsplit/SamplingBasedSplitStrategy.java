@@ -34,18 +34,12 @@ import org.bboxdb.util.MathUtil;
 public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	
 	/**
-	 * The left begin points
+	 * The point samples
 	 */
-	protected final List<Double> rightPoints;
-	
-	/**
-	 * The right begin points
-	 */
-	protected final List<Double> leftPoints;
+	protected final List<Double> pointSamples;
 
 	public SamplingBasedSplitStrategy() {
-		rightPoints = new ArrayList<>();
-		leftPoints = new ArrayList<>();
+		pointSamples = new ArrayList<>();
 	}
 
 	@Override
@@ -84,15 +78,11 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 		getPointSamples(boundingBox, splitDimension, tables);
 		
 		// Sort points
-		leftPoints.sort((i1, i2) -> Double.compare(i1,i2));
-		rightPoints.sort((i1, i2) -> Double.compare(i1,i2));
-		
-		// Use list with more samples
-		final List<Double> pointList = (leftPoints.size() > rightPoints.size()) ? leftPoints : rightPoints;
+		pointSamples.sort((i1, i2) -> Double.compare(i1,i2));
 		
 		// Calculate point
-		final int midpoint = pointList.size() / 2;
-		final double splitPosition = pointList.get(midpoint);
+		final int midpoint = pointSamples.size() / 2;
+		final double splitPosition = pointSamples.get(midpoint);
 		final double splitPositonRound = MathUtil.round(splitPosition, 7);
 		
 		return splitPositonRound;
@@ -163,11 +153,11 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 				final DoubleInterval groupInterval = boundingBox.getIntervalForDimension(splitDimension);
 				
 				if(tupleInterval.getBegin() > groupInterval.getBegin()) {
-					leftPoints.add(tupleInterval.getBegin());
+					pointSamples.add(tupleInterval.getBegin());
 				}
 				
 				if(tupleInterval.getEnd() < groupInterval.getEnd()) {
-					rightPoints.add(tupleInterval.getEnd());
+					pointSamples.add(tupleInterval.getEnd());
 				}
 			}
 	
