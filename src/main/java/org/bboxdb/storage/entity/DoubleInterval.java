@@ -100,7 +100,15 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 	 * @return
 	 */
 	public double getMidpoint() {
-		return ((end - begin) / 2.0) + begin;
+		return (getLength() / 2.0) + begin;
+	}
+
+	/**
+	 * Get the length of the interval
+	 * @return
+	 */
+	public double getLength() {
+		return end - begin;
 	}
 	
 	/**
