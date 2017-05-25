@@ -41,7 +41,7 @@ class Experiment(object):
 		
 		stdPer = float(stdDiv) / float(totalElements) * 100.0
 
-		return self.samplingSize + "\t" + str(len(self.experimentResult)) + "\t" + str(totalElements) + "\t" + str(stdPer)
+		return self.samplingSize + "\t" + str(len(self.experimentResult)) + "\t" + str(totalElements) + "\t" + str(stdDiv)
 
 	def __str__(self):
 		return self.get_std_str()
