@@ -29,7 +29,7 @@ public class TestCellGrid {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyGrid() {
-		final CellGrid cellGrid = new CellGrid(new BoundingBox(1.0, 1.0, 1.0, 1.0), 1);
+		final CellGrid cellGrid = new CellGrid(new BoundingBox(1.0, 1.0, 1.0, 1.0), 10);
 		final BoundingBox fullBox = BoundingBox.createFullCoveringDimensionBoundingBox(2);
 		cellGrid.getAllInersectedBoundingBoxes(fullBox);
 	}
@@ -72,31 +72,17 @@ public class TestCellGrid {
 	 */
 	@Test
 	public void testGetCells1() {
-		final CellGrid cellGrid1D = new CellGrid(new BoundingBox(0.0, 10.0), 1);
+		final CellGrid cellGrid1D = new CellGrid(new BoundingBox(0.0, 10.0), 10);
 		Assert.assertEquals(10, cellGrid1D.getAllCells().size());
-		Assert.assertEquals(10, (int) cellGrid1D.getCellsInDimension().get(1));
-		Assert.assertEquals(1, (int) cellGrid1D.getCellsInDimension().size());
 
-		final CellGrid cellGrid2D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0), 1);
+		final CellGrid cellGrid2D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
 		Assert.assertEquals(100, cellGrid2D.getAllCells().size());
-		Assert.assertEquals(10, (int) cellGrid2D.getCellsInDimension().get(1));
-		Assert.assertEquals(10, (int) cellGrid2D.getCellsInDimension().get(2));
-		Assert.assertEquals(2, (int) cellGrid2D.getCellsInDimension().size());
 
-		final CellGrid cellGrid3D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 1);
+		final CellGrid cellGrid3D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 10);
 		Assert.assertEquals(1000, cellGrid3D.getAllCells().size());
-		Assert.assertEquals(10, (int) cellGrid3D.getCellsInDimension().get(1));
-		Assert.assertEquals(10, (int) cellGrid3D.getCellsInDimension().get(2));
-		Assert.assertEquals(10, (int) cellGrid3D.getCellsInDimension().get(3));
-		Assert.assertEquals(3, (int) cellGrid3D.getCellsInDimension().size());
 		
-		final CellGrid cellGrid4D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 1);
+		final CellGrid cellGrid4D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 10);
 		Assert.assertEquals(10000, cellGrid4D.getAllCells().size());
-		Assert.assertEquals(10, (int) cellGrid4D.getCellsInDimension().get(1));
-		Assert.assertEquals(10, (int) cellGrid4D.getCellsInDimension().get(2));
-		Assert.assertEquals(10, (int) cellGrid4D.getCellsInDimension().get(3));
-		Assert.assertEquals(10, (int) cellGrid4D.getCellsInDimension().get(4));
-		Assert.assertEquals(4, (int) cellGrid4D.getCellsInDimension().size());
 	}
 	
 	/**
@@ -104,7 +90,7 @@ public class TestCellGrid {
 	 */
 	@Test
 	public void testGetCells2() {
-		final CellGrid cellGrid2D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0), 1);
+		final CellGrid cellGrid2D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
 		Assert.assertEquals(1, cellGrid2D.getAllInersectedBoundingBoxes(new BoundingBox(1.5, 1.5, 1.5, 1.5)).size());
 		
 		// End pos

@@ -50,26 +50,24 @@ public class TestFixedGrid implements Runnable {
 	/**
 	 * The cell size
 	 */
-	protected double cellSize;
+	protected double cellsPerDimension;
 	
 	/**
 	 * The number of storing nodes
 	 */
 	protected int NODES = 6;
 	
-	public TestFixedGrid(final String filename, final String format, final double cellSize) {
+	public TestFixedGrid(final String filename, final String format, final double cellsPerDimension) {
 		this.filename = filename;
 		this.format = format;
-		this.cellSize = cellSize;
+		this.cellsPerDimension = cellsPerDimension;
 	}
 	
 	@Override
 	public void run() {
 		System.out.format("Reading %s\n", filename);
 		final BoundingBox boundingBox = determineBoundingBox();
-		this.cellGrid = new CellGrid(boundingBox, cellSize);
-		
-		System.out.println(cellGrid.getCellsInDimension());
+		this.cellGrid = new CellGrid(boundingBox, cellsPerDimension);
 		
 		runExperiment();
 	}
@@ -160,15 +158,15 @@ public class TestFixedGrid implements Runnable {
 		
 		// Check parameter
 		if(args.length != 3) {
-			System.err.println("Usage: programm <filename> <format> <cell size>");
+			System.err.println("Usage: programm <filename> <format> <cells per dimension>");
 			System.exit(-1);
 		}
 		
 		final String filename = Objects.requireNonNull(args[0]);
 		final String format = Objects.requireNonNull(args[1]);
-		final double cellSize = MathUtil.tryParseDoubleOrExit(args[2]);
+		final double cells = MathUtil.tryParseDoubleOrExit(args[2]);
 		
-		final TestFixedGrid testSplit = new TestFixedGrid(filename, format, cellSize);
+		final TestFixedGrid testSplit = new TestFixedGrid(filename, format, cells);
 		testSplit.run();
 	}
 }

@@ -19,10 +19,8 @@ package org.bboxdb.storage.entity;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,30 +35,24 @@ public class CellGrid {
 	protected BoundingBox coveringBox;
 	
 	/**
-	 * The cell size
+	 * The cells per dimension
 	 */
-	protected double cellsSize;
+	protected double cellsPerDimension;
 	
 	/**
 	 * All boxes of this grid
 	 */
 	protected Set<BoundingBox> allBoxes;
-	
-	/**
-	 * Cells per dimension
-	 */
-	protected final Map<Integer, Integer> cellsInDimension;
 
-	public CellGrid(final BoundingBox coveringBox, final double cellSize) {
+	public CellGrid(final BoundingBox coveringBox, final double cellsPerDimension) {
 		
-		if(cellSize <= 0) {
-			throw new IllegalArgumentException("Cell size has to be > 0");
+		if(cellsPerDimension <= 0) {
+			throw new IllegalArgumentException("Number of cells has to be > 0");
 		}
 		
 		this.coveringBox = Objects.requireNonNull(coveringBox);
-		this.cellsSize = Objects.requireNonNull(cellSize);
+		this.cellsPerDimension = Objects.requireNonNull(cellsPerDimension);
 		this.allBoxes = new HashSet<>();
-		this.cellsInDimension = new HashMap<>();
 		
 		createBBoxesForDimension(coveringBox);
 	}
@@ -96,24 +88,18 @@ public class CellGrid {
 		// Generate all possible interval for each dimension
 		for(int dimension = 0; dimension < bbox.getDimension(); dimension++) {
 			final DoubleInterval baseInterval = bbox.getIntervalForDimension(dimension);
-			final int neededCells = (int) Math.ceil(baseInterval.getLength() / (double) cellsSize);
+			final double cellsSize = baseInterval.getLength() / (double) cellsPerDimension;
 
-			if(neededCells == 0) {
-				throw new IllegalArgumentException("Length of dimension " + (dimension + 1) + " is zero"); 
-			}
-			
 			// List of intervals for this dimension
 			final List<DoubleInterval> intervals = new ArrayList<>();
 			cells.add(intervals);
 			
-			cellsInDimension.put(dimension + 1, neededCells);
-			
-			for(int offset = 0; offset < neededCells; offset++) {
+			for(int offset = 0; offset < cellsPerDimension; offset++) {
 				double end = baseInterval.getBegin() + ((offset+1) * cellsSize);
 				double begin = baseInterval.getBegin() + (offset * cellsSize);
 				
 				// The last cell contains the end point
-				final boolean endIncluded = (offset + 1 == neededCells); 
+				final boolean endIncluded = (offset + 1 == cellsPerDimension); 
 				
 				final DoubleInterval interval = new DoubleInterval(begin, end, true, endIncluded);
 				intervals.add(interval);
@@ -121,14 +107,6 @@ public class CellGrid {
 		}
 		
 		convertListsToBoxes(cells);
-	}
-	
-	/**
-	 * Get the cells per dimension
-	 * @return
-	 */
-	public Map<Integer, Integer> getCellsInDimension() {
-		return Collections.unmodifiableMap(cellsInDimension);
 	}
 
 	/**
