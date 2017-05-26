@@ -50,4 +50,23 @@ public class MathUtil {
     	return -1;
     }
 
+    
+    /**
+     * Try to convert the given string into a double
+     * @param valueToParse
+     * @param message
+     * @return
+     */
+    public static double tryParseDoubleOrExit(final String valueToParse) {
+    	try {
+			final double parsedInteger = Double.parseDouble(valueToParse);
+			return parsedInteger;
+		} catch (NumberFormatException e) {
+			System.err.println("Unable to convert to double: " + valueToParse);
+			System.exit(-1);
+		}
+    	
+    	// Dead code
+    	return -1;
+    }
 }

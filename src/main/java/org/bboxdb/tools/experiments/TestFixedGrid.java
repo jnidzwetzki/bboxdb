@@ -50,14 +50,14 @@ public class TestFixedGrid implements Runnable {
 	/**
 	 * The cell size
 	 */
-	protected int cellSize;
+	protected double cellSize;
 	
 	/**
 	 * The number of storing nodes
 	 */
 	protected int NODES = 6;
 	
-	public TestFixedGrid(final String filename, final String format, final int cellSize) {
+	public TestFixedGrid(final String filename, final String format, final double cellSize) {
 		this.filename = filename;
 		this.format = format;
 		this.cellSize = cellSize;
@@ -163,7 +163,7 @@ public class TestFixedGrid implements Runnable {
 		
 		final String filename = Objects.requireNonNull(args[0]);
 		final String format = Objects.requireNonNull(args[1]);
-		final int cellSize = MathUtil.tryParseIntOrExit(args[2]);
+		final double cellSize = MathUtil.tryParseDoubleOrExit(args[2]);
 		
 		final TestFixedGrid testSplit = new TestFixedGrid(filename, format, cellSize);
 		testSplit.run();
