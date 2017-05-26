@@ -37,7 +37,7 @@ public class CellGrid {
 	/**
 	 * The cell size
 	 */
-	protected double cellsPerDimension;
+	protected double cellsSize;
 	
 	/**
 	 * All boxes of this grid
@@ -51,7 +51,7 @@ public class CellGrid {
 		}
 		
 		this.coveringBox = Objects.requireNonNull(coveringBox);
-		this.cellsPerDimension = Objects.requireNonNull(cellSize);
+		this.cellsSize = Objects.requireNonNull(cellSize);
 		this.allBoxes = new HashSet<>();
 		
 		createBBoxesForDimension(coveringBox);
@@ -88,9 +88,9 @@ public class CellGrid {
 		// Generate all possible interval for each dimension
 		for(int dimension = 0; dimension < bbox.getDimension(); dimension++) {
 			final DoubleInterval baseInterval = bbox.getIntervalForDimension(dimension);
-			final double cellLength = baseInterval.getLength() / (double) cellsPerDimension;
+			final double neededCells = baseInterval.getLength() / (double) cellsSize;
 
-			if(cellLength == 0) {
+			if(neededCells == 0) {
 				throw new IllegalArgumentException("Length of dimension " + (dimension + 1) + " is zero"); 
 			}
 			
@@ -98,12 +98,12 @@ public class CellGrid {
 			final List<DoubleInterval> intervals = new ArrayList<>();
 			cells.add(intervals);
 			
-			for(int offset = 0; offset < cellsPerDimension; offset++) {
-				double end = baseInterval.getBegin() + ((offset+1) * cellLength);
-				double begin = baseInterval.getBegin() + (offset * cellLength);
+			for(int offset = 0; offset < neededCells; offset++) {
+				double end = baseInterval.getBegin() + ((offset+1) * cellsSize);
+				double begin = baseInterval.getBegin() + (offset * cellsSize);
 				
 				// The last cell contains the end point
-				final boolean endIncluded = (offset + 1 == cellsPerDimension); 
+				final boolean endIncluded = (offset + 1 == neededCells); 
 				
 				final DoubleInterval interval = new DoubleInterval(begin, end, true, endIncluded);
 				intervals.add(interval);

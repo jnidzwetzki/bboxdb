@@ -72,16 +72,16 @@ public class TestCellGrid {
 	 */
 	@Test
 	public void testGetCells1() {
-		final CellGrid cellGrid1D = new CellGrid(new BoundingBox(0.0, 10.0), 10);
+		final CellGrid cellGrid1D = new CellGrid(new BoundingBox(0.0, 10.0), 1);
 		Assert.assertEquals(10, cellGrid1D.getAllCells().size());
 		
-		final CellGrid cellGrid2D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
+		final CellGrid cellGrid2D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0), 1);
 		Assert.assertEquals(100, cellGrid2D.getAllCells().size());
 		
-		final CellGrid cellGrid3D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 10);
+		final CellGrid cellGrid3D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 1);
 		Assert.assertEquals(1000, cellGrid3D.getAllCells().size());
 		
-		final CellGrid cellGrid4D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 10);
+		final CellGrid cellGrid4D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 1);
 		Assert.assertEquals(10000, cellGrid4D.getAllCells().size());
 	}
 	
@@ -90,7 +90,7 @@ public class TestCellGrid {
 	 */
 	@Test
 	public void testGetCells2() {
-		final CellGrid cellGrid2D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
+		final CellGrid cellGrid2D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0), 1);
 		Assert.assertEquals(1, cellGrid2D.getAllInersectedBoundingBoxes(new BoundingBox(1.5, 1.5, 1.5, 1.5)).size());
 		
 		// End pos
