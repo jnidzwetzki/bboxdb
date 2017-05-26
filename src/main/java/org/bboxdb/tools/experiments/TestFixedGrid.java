@@ -82,7 +82,7 @@ public class TestFixedGrid implements Runnable {
 			final Set<BoundingBox> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(t.getBoundingBox());
 			
 			for(final BoundingBox box : intersectedBoxes) {
-				if(bboxes.containsKey(bboxes)) {
+				if(bboxes.containsKey(box)) {
 					final int oldValue = bboxes.get(bboxes);
 					bboxes.put(box, oldValue + 1);
 				} else {
