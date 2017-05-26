@@ -108,7 +108,7 @@ public class TestFixedGrid implements Runnable {
 	protected void calculateResult(final Map<BoundingBox, Integer> bboxes) {
 		System.out.println("# Calculating node results");
 		final int[] boxesPerNode = new int[NODES];
-		for(int i = 0; i < bboxes.size(); i++) {
+		for(int i = 0; i < boxesPerNode.length; i++) {
 			boxesPerNode[i] = 0;
 		}
 		
@@ -119,7 +119,7 @@ public class TestFixedGrid implements Runnable {
 		}
 		
 		System.out.println("#Node\tValues");
-		for(int i = 0; i < bboxes.size(); i++) {
+		for(int i = 0; i < boxesPerNode.length; i++) {
 			System.out.format("%d\t%d\n", i, boxesPerNode[i]);
 		}
 	}
