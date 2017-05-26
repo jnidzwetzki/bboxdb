@@ -83,7 +83,7 @@ public class TestFixedGrid implements Runnable {
 			
 			for(final BoundingBox box : intersectedBoxes) {
 				if(bboxes.containsKey(box)) {
-					final int oldValue = bboxes.get(bboxes);
+					final int oldValue = bboxes.get(box);
 					bboxes.put(box, oldValue + 1);
 				} else {
 					bboxes.put(box, 1);
