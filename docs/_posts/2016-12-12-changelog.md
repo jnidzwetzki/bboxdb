@@ -6,6 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.3.0 (Stable) - TBA
+- New Feature: Added the TestFixedGrid experiment
 - Improvement: Added a fixed cell data structure
 - Bugfix: The JVM tool options are added to the bboxdb_execute script
 
