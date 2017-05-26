@@ -19,8 +19,10 @@ package org.bboxdb.storage.entity;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,6 +45,11 @@ public class CellGrid {
 	 * All boxes of this grid
 	 */
 	protected Set<BoundingBox> allBoxes;
+	
+	/**
+	 * Cells per dimension
+	 */
+	protected final Map<Integer, Integer> cellsInDimension;
 
 	public CellGrid(final BoundingBox coveringBox, final double cellSize) {
 		
@@ -53,6 +60,7 @@ public class CellGrid {
 		this.coveringBox = Objects.requireNonNull(coveringBox);
 		this.cellsSize = Objects.requireNonNull(cellSize);
 		this.allBoxes = new HashSet<>();
+		this.cellsInDimension = new HashMap<>();
 		
 		createBBoxesForDimension(coveringBox);
 	}
@@ -88,7 +96,7 @@ public class CellGrid {
 		// Generate all possible interval for each dimension
 		for(int dimension = 0; dimension < bbox.getDimension(); dimension++) {
 			final DoubleInterval baseInterval = bbox.getIntervalForDimension(dimension);
-			final double neededCells = baseInterval.getLength() / (double) cellsSize;
+			final int neededCells = (int) Math.ceil(baseInterval.getLength() / (double) cellsSize);
 
 			if(neededCells == 0) {
 				throw new IllegalArgumentException("Length of dimension " + (dimension + 1) + " is zero"); 
@@ -97,6 +105,8 @@ public class CellGrid {
 			// List of intervals for this dimension
 			final List<DoubleInterval> intervals = new ArrayList<>();
 			cells.add(intervals);
+			
+			cellsInDimension.put(dimension + 1, neededCells);
 			
 			for(int offset = 0; offset < neededCells; offset++) {
 				double end = baseInterval.getBegin() + ((offset+1) * cellsSize);
@@ -111,6 +121,14 @@ public class CellGrid {
 		}
 		
 		convertListsToBoxes(cells);
+	}
+	
+	/**
+	 * Get the cells per dimension
+	 * @return
+	 */
+	public Map<Integer, Integer> getCellsInDimension() {
+		return Collections.unmodifiableMap(cellsInDimension);
 	}
 
 	/**
