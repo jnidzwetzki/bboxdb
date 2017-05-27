@@ -55,7 +55,7 @@ public class TestFixedGrid implements Runnable {
 	/**
 	 * The number of storing nodes
 	 */
-	protected int NODES = 6;
+	protected int NODES = 385;
 	
 	public TestFixedGrid(final String filename, final String format, final double cellsPerDimension) {
 		this.filename = filename;
