@@ -98,9 +98,6 @@ public class CellGrid {
 			final double cellSize = cellSizeInDimension.apply(dimension);
 			final int cellsInDimension = (int) Math.ceil(baseInterval.getLength() / cellSize);
 
-			System.out.println("Cell size: " + cellSize);
-			System.out.println("Cells in dimension: " + cellsInDimension);
-			
 			if(cellsInDimension <= 0) {
 				throw new IllegalArgumentException("Cells in dimension " + (dimension + 1) + " has to be > 0");
 			}
