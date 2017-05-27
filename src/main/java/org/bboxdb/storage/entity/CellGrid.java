@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 public class CellGrid {
@@ -35,26 +36,105 @@ public class CellGrid {
 	protected BoundingBox coveringBox;
 	
 	/**
-	 * The cells per dimension
-	 */
-	protected double cellsPerDimension;
-	
-	/**
 	 * All boxes of this grid
 	 */
-	protected Set<BoundingBox> allBoxes;
-
-	public CellGrid(final BoundingBox coveringBox, final double cellsPerDimension) {
+	protected final Set<BoundingBox> allBoxes;
+	
+	/**
+	 * Build the grid with fixed cell size
+	 * @param coveringBox
+	 * @param cellsPerDimension
+	 * @return
+	 */
+	public static CellGrid buildWithFixedCellSize(final BoundingBox coveringBox, 
+			final double cellSize) {
+		
+		Objects.requireNonNull(coveringBox);
+		Objects.requireNonNull(cellSize);
+		
+		if(cellSize <= 0) {
+			throw new IllegalArgumentException("Cell size has to be > 0");
+		}
+		
+		// Fixed size
+		return createCells(coveringBox, (d) -> cellSize);
+	}
+	
+	/**
+	 * Build the grid with a fixed amount of cells
+	 * @param coveringBox
+	 * @param cellsPerDimension
+	 * @return
+	 */
+	public static CellGrid buildWithFixedAmountOfCells(final BoundingBox coveringBox, 
+			final double cellsPerDimension) {
+		
+		Objects.requireNonNull(coveringBox);
+		Objects.requireNonNull(cellsPerDimension);
 		
 		if(cellsPerDimension <= 0) {
 			throw new IllegalArgumentException("Number of cells has to be > 0");
 		}
 		
-		this.coveringBox = Objects.requireNonNull(coveringBox);
-		this.cellsPerDimension = Objects.requireNonNull(cellsPerDimension);
-		this.allBoxes = new HashSet<>();
+		// Fixed amount of cells
+		return createCells(coveringBox, 
+				(d) -> coveringBox.getIntervalForDimension(d).getLength() / cellsPerDimension);
+	}
+
+	/**
+	 * Create the cell intervals for the grid
+	 * @param coveringBox
+	 * @param cellSizeInDimension
+	 * @return
+	 */
+	private static CellGrid createCells(final BoundingBox coveringBox,
+			final Function<Integer, Double> cellSizeInDimension) {
 		
-		createBBoxesForDimension(coveringBox);
+		final List<List<DoubleInterval>> cells = new ArrayList<>();
+		
+		// Generate all possible interval for each dimension
+		for(int dimension = 0; dimension < coveringBox.getDimension(); dimension++) {
+			final DoubleInterval baseInterval = coveringBox.getIntervalForDimension(dimension);
+			final double cellSize = cellSizeInDimension.apply(dimension);
+			final int cellsInDimension = (int) Math.ceil(baseInterval.getLength() / cellSize);
+
+			System.out.println("Cell size: " + cellSize);
+			System.out.println("Cells in dimension: " + cellsInDimension);
+			
+			if(cellsInDimension <= 0) {
+				throw new IllegalArgumentException("Cells in dimension " + (dimension + 1) + " has to be > 0");
+			}
+			
+			// List of intervals for this dimension
+			final List<DoubleInterval> intervals = new ArrayList<>();
+			cells.add(intervals);
+			
+			for(int offset = 0; offset < cellsInDimension; offset++) {
+				final double begin = baseInterval.getBegin() + (offset * cellSize);
+				final double end = Math.min(
+						baseInterval.getBegin() + ((offset+1) * cellSize),
+						baseInterval.getEnd());
+				
+				// The last cell contains the end point
+				final boolean endIncluded = (offset + 1 == cellsInDimension); 
+				
+				final DoubleInterval interval = new DoubleInterval(begin, end, true, endIncluded);
+				intervals.add(interval);
+			}
+		}
+		
+		final Set<BoundingBox> allBoxes = convertListsToBoxes(cells);
+		return new CellGrid(coveringBox, allBoxes);
+	}
+
+	/**
+	 * The private constructor
+	 * @param coveringBox
+	 * @param allBoxes
+	 */
+	private CellGrid(final BoundingBox coveringBox, final Set<BoundingBox> allBoxes) {
+		this.coveringBox = Objects.requireNonNull(coveringBox);
+		this.allBoxes = allBoxes;		
 	}
 	
 	/**
@@ -75,51 +155,21 @@ public class CellGrid {
 				.collect(Collectors.toSet());
 	}
 	
-	
-	/**
-	 * Create the cell boxes, recursive
-	 * @param bbox
-	 * @param dimension
-	 */
-	protected void createBBoxesForDimension(final BoundingBox bbox) {
-		
-		final List<List<DoubleInterval>> cells = new ArrayList<>();
-		
-		// Generate all possible interval for each dimension
-		for(int dimension = 0; dimension < bbox.getDimension(); dimension++) {
-			final DoubleInterval baseInterval = bbox.getIntervalForDimension(dimension);
-			final double cellsSize = baseInterval.getLength() / (double) cellsPerDimension;
-
-			// List of intervals for this dimension
-			final List<DoubleInterval> intervals = new ArrayList<>();
-			cells.add(intervals);
-			
-			for(int offset = 0; offset < cellsPerDimension; offset++) {
-				double end = baseInterval.getBegin() + ((offset+1) * cellsSize);
-				double begin = baseInterval.getBegin() + (offset * cellsSize);
-				
-				// The last cell contains the end point
-				final boolean endIncluded = (offset + 1 == cellsPerDimension); 
-				
-				final DoubleInterval interval = new DoubleInterval(begin, end, true, endIncluded);
-				intervals.add(interval);
-			}
-		}
-		
-		convertListsToBoxes(cells);
-	}
-
 	/**
 	 * Convert the lists of intervals to bounding boxes
 	 * @param cells
+	 * @return 
 	 */
-	protected void convertListsToBoxes(final List<List<DoubleInterval>> cells) {
+	protected static Set<BoundingBox> convertListsToBoxes(final List<List<DoubleInterval>> cells) {
+		final Set<BoundingBox> allBoxes = new HashSet<>();
 		final List<List<DoubleInterval>> intervallProduct = Lists.cartesianProduct(cells);
 		
 		for(List<DoubleInterval> intervalls : intervallProduct) {
 			final BoundingBox boundingBox = new BoundingBox(intervalls);
 			allBoxes.add(boundingBox);
 		}
+		
+		return allBoxes;
 	}
 	
 	/**
@@ -128,6 +178,37 @@ public class CellGrid {
 	 */
 	public Set<BoundingBox> getAllCells() {
 		return Collections.unmodifiableSet(allBoxes);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((allBoxes == null) ? 0 : allBoxes.hashCode());
+		result = prime * result + ((coveringBox == null) ? 0 : coveringBox.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CellGrid other = (CellGrid) obj;
+		if (allBoxes == null) {
+			if (other.allBoxes != null)
+				return false;
+		} else if (!allBoxes.equals(other.allBoxes))
+			return false;
+		if (coveringBox == null) {
+			if (other.coveringBox != null)
+				return false;
+		} else if (!coveringBox.equals(other.coveringBox))
+			return false;
+		return true;
 	}
 
 }

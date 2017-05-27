@@ -67,7 +67,7 @@ public class TestFixedGrid implements Runnable {
 	public void run() {
 		System.out.format("Reading %s\n", filename);
 		final BoundingBox boundingBox = determineBoundingBox();
-		this.cellGrid = new CellGrid(boundingBox, cellsPerDimension);
+		this.cellGrid = CellGrid.buildWithFixedAmountOfCells(boundingBox, cellsPerDimension);
 		
 		runExperiment();
 	}

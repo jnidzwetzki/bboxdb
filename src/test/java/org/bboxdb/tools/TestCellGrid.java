@@ -29,7 +29,7 @@ public class TestCellGrid {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyGrid() {
-		final CellGrid cellGrid = new CellGrid(new BoundingBox(1.0, 1.0, 1.0, 1.0), 10);
+		final CellGrid cellGrid = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(1.0, 1.0, 1.0, 1.0), 10);
 		final BoundingBox fullBox = BoundingBox.createFullCoveringDimensionBoundingBox(2);
 		cellGrid.getAllInersectedBoundingBoxes(fullBox);
 	}
@@ -39,7 +39,7 @@ public class TestCellGrid {
 	 */
 	@Test(expected=RuntimeException.class)
 	public void testInvalidParameter1() {
-		new CellGrid(new BoundingBox(1.0, 1.0, 1.0, 1.0), -1);
+		CellGrid.buildWithFixedAmountOfCells(new BoundingBox(1.0, 1.0, 1.0, 1.0), -1);
 	}
 	
 	/**
@@ -47,7 +47,7 @@ public class TestCellGrid {
 	 */
 	@Test(expected=RuntimeException.class)
 	public void testInvalidParameter2() {
-		new CellGrid(new BoundingBox(1.0, 1.0, 1.0, 1.0), 0);
+		CellGrid.buildWithFixedAmountOfCells(new BoundingBox(1.0, 1.0, 1.0, 1.0), 0);
 	}
 	
 	/**
@@ -55,7 +55,7 @@ public class TestCellGrid {
 	 */
 	@Test(expected=RuntimeException.class)
 	public void testInvalidParameter3() {
-		new CellGrid(null, 1.0);
+		CellGrid.buildWithFixedAmountOfCells(null, 1.0);
 	}
 	
 	/**
@@ -63,7 +63,7 @@ public class TestCellGrid {
 	 */
 	@Test(expected=RuntimeException.class)
 	public void testWrongDimension() {
-		final CellGrid cellGrid = new CellGrid(new BoundingBox(1.0, 1.0, 1.0, 1.0), 1);
+		final CellGrid cellGrid = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(1.0, 1.0, 1.0, 1.0), 1);
 		cellGrid.getAllInersectedBoundingBoxes(new BoundingBox(1.0, 1.0));		
 	}
 	
@@ -72,16 +72,16 @@ public class TestCellGrid {
 	 */
 	@Test
 	public void testGetCells1() {
-		final CellGrid cellGrid1D = new CellGrid(new BoundingBox(0.0, 10.0), 10);
+		final CellGrid cellGrid1D = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0), 10);
 		Assert.assertEquals(10, cellGrid1D.getAllCells().size());
 
-		final CellGrid cellGrid2D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
+		final CellGrid cellGrid2D = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
 		Assert.assertEquals(100, cellGrid2D.getAllCells().size());
 
-		final CellGrid cellGrid3D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 10);
+		final CellGrid cellGrid3D = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 10);
 		Assert.assertEquals(1000, cellGrid3D.getAllCells().size());
 		
-		final CellGrid cellGrid4D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 10);
+		final CellGrid cellGrid4D = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0, 0.0, 10.0, 0.0, 10.0), 10);
 		Assert.assertEquals(10000, cellGrid4D.getAllCells().size());
 	}
 	
@@ -90,7 +90,7 @@ public class TestCellGrid {
 	 */
 	@Test
 	public void testGetCells2() {
-		final CellGrid cellGrid2D = new CellGrid(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
+		final CellGrid cellGrid2D = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
 		Assert.assertEquals(1, cellGrid2D.getAllInersectedBoundingBoxes(new BoundingBox(1.5, 1.5, 1.5, 1.5)).size());
 		
 		// End pos
@@ -106,4 +106,15 @@ public class TestCellGrid {
 		Assert.assertEquals(1, cellGrid2D.getAllInersectedBoundingBoxes(new BoundingBox(0.0, 0.0, 0.0, 0.0)).size());
 	}
 	
+	/**
+	 * Test cell grid creation
+	 */
+	@Test
+	public void testCellGridCreation() {
+		final CellGrid cellGrid2D1 = CellGrid.buildWithFixedAmountOfCells(new BoundingBox(0.0, 10.0, 0.0, 10.0), 10);
+		final CellGrid cellGrid2D2 = CellGrid.buildWithFixedCellSize(new BoundingBox(0.0, 10.0, 0.0, 10.0), 1);
+
+		Assert.assertEquals(cellGrid2D1.getAllCells(), cellGrid2D2.getAllCells());
+		Assert.assertEquals(cellGrid2D1, cellGrid2D2);
+	}
 }
