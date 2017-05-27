@@ -108,15 +108,15 @@ public class TestFixedGrid implements Runnable {
 	 */
 	protected void calculateResult(final Map<BoundingBox, Integer> bboxes) {
 		System.out.println("# Calculating node results");
+		
 		final int[] boxesPerNode = new int[NODES];
 		for(int i = 0; i < boxesPerNode.length; i++) {
 			boxesPerNode[i] = 0;
 		}
 		
-		int pos = 0;
-		for(final Integer value : bboxes.values()) {
-			boxesPerNode[pos % NODES] += value.intValue(); 
-			pos++;
+		for(final BoundingBox key : bboxes.keySet()) {
+			final int value = bboxes.get(key);
+			boxesPerNode[key.hashCode() % NODES] += value; 
 		}
 		
 		System.out.println("#Node\tValues");
