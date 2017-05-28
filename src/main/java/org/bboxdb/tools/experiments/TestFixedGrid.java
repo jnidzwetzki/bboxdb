@@ -116,7 +116,8 @@ public class TestFixedGrid implements Runnable {
 		
 		for(final BoundingBox key : bboxes.keySet()) {
 			final int value = bboxes.get(key);
-			boxesPerNode[key.hashCode() % NODES] += value; 
+			int pos = Math.abs(key.hashCode() % NODES);
+			boxesPerNode[pos] += value; 
 		}
 		
 		System.out.println("#Node\tValues");
