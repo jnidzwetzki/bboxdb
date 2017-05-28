@@ -55,7 +55,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	}
 
 	/**
-	 * Execute the ceckpoint thread
+	 * Execute the checkpoint thread
 	 */
 	protected void runThread() {
 		logger.info("Checkpoint thread has started: {} ", threadname);
