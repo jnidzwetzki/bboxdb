@@ -26,6 +26,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
+import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy;
+
 import com.google.common.collect.Lists;
 
 public class CellGrid {
@@ -39,6 +42,11 @@ public class CellGrid {
 	 * All boxes of this grid
 	 */
 	protected final Set<BoundingBox> allBoxes;
+	
+	/**
+	 * The spatial index
+	 */
+	protected RTreeSpatialIndexStrategy spatialIndex = new RTreeSpatialIndexStrategy();
 	
 	/**
 	 * Build the grid with fixed cell size
@@ -132,6 +140,14 @@ public class CellGrid {
 	private CellGrid(final BoundingBox coveringBox, final Set<BoundingBox> allBoxes) {
 		this.coveringBox = Objects.requireNonNull(coveringBox);
 		this.allBoxes = allBoxes;		
+
+		// Build spatial index
+		final List<SpatialIndexEntry> indexEntries = allBoxes
+				.stream()
+				.map(b -> new SpatialIndexEntry("1", b))
+				.collect(Collectors.toList());
+		
+		spatialIndex.bulkInsert(indexEntries);
 	}
 	
 	/**
@@ -146,10 +162,9 @@ public class CellGrid {
 			+ " of the query object " + boundingBox.getDimension());
 		}
 		
-		return allBoxes
-				.stream()
-				.filter(b -> b.overlaps(boundingBox))
-				.collect(Collectors.toSet());
+		final List<? extends SpatialIndexEntry> entries = spatialIndex.getEntriesForRegion(boundingBox);
+		
+		return entries.stream().map(e -> e.getBoundingBox()).collect(Collectors.toSet());
 	}
 	
 	/**
