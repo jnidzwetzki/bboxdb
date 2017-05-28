@@ -204,7 +204,7 @@ public class RecoveryService implements BBoxDBService {
 		final SSTableManager tableManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
 		
 		// Even with NTP, the clock of the nodes can have a delta.
-		// We substract this delta from the checkpoint timestamp to ensure
+		// We subtract this delta from the checkpoint timestamp to ensure
 		// that all tuples for the recovery are requested
 		final long requestTupleTimestamp = outdatedDistributionRegion.getLocalVersion() 
 				- Const.MAX_NODE_CLOCK_DELTA;
