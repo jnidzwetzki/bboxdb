@@ -1,6 +1,5 @@
 body {
     font-weight: 400;
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
 }
 
 pre, code, pre code {
@@ -31,12 +30,6 @@ code {
     text-decoration: none;
 }
 
-#footer {
-    margin: 20px 0;
-    font-size: 0.85em;
-    color: #999;
-    text-align: center;
-}
 
 #content > .page-header:first-child {
     margin-top: 0;
