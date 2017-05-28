@@ -1,5 +1,5 @@
 # Info
-This directory contains some examples for the BBoxDB. In addition, this document covers the tools to benchmark the software. 
+This directory contains some examples for the BBoxDB. 
 
 # Examples
 The "client example" (BBoxDBClientExample.java) shows how data can be inserted and queried.
