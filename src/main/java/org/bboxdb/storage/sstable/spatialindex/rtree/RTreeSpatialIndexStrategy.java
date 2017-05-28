@@ -166,7 +166,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 	}
 
 	/**
-	 * Anjust the tree, beginning from the argument to the tree root
+	 * Adjust the tree, beginning from the argument to the tree root
 	 * @param insertedNode
 	 */
 	protected void adjustTree(final RTreeDirectoryNode insertedNode) {
