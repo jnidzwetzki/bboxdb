@@ -104,7 +104,7 @@ public class SSTableCompactor {
 		// The iterators
 		final List<Iterator<Tuple>> iterators = new ArrayList<>(sstableIndexReader.size());
 		
-		// The last read tuple from interator
+		// The last read tuple from iterator
 		final List<Tuple> tuples = new ArrayList<>(sstableIndexReader.size());
 		
 		// Open iterators for input sstables
@@ -116,8 +116,7 @@ public class SSTableCompactor {
 			tuples.add(null); 
 		}
 		
-		sstableWriter = openNewSSTableWriter();
-		resultList.add(sstableWriter);
+		sstableWriter = openNewSSTableWriter(resultList);
 		
 		boolean done = false;
 		
@@ -133,14 +132,7 @@ public class SSTableCompactor {
 				
 				// Don't add deleted tuples to output in a major compaction
 				if(! (isMajorCompaction() && (tuple instanceof DeletedTuple))) {
-					
-					// Check max table size limit
-					if(sstableWriter.getWrittenBytes() + tuple.getSize() > SSTableConst.MAX_SSTABLE_SIZE) {
-						sstableWriter.close();
-						sstableWriter = openNewSSTableWriter();
-						resultList.add(sstableWriter);
-					}
-					
+					createNewTableIfNeeded(resultList, tuple);
 					sstableWriter.addNextTuple(tuple);
 					writtenTuples++;
 				}
@@ -152,11 +144,30 @@ public class SSTableCompactor {
 	}
 
 	/**
+	 * Create a new table if the size of the open table hits the threshold
+	 * @param resultList
+	 * @param tuple
+	 * @throws StorageManagerException
+	 */
+	protected void createNewTableIfNeeded(final List<SSTableWriter> resultList, final Tuple tuple)
+			throws StorageManagerException {
+		
+		// Check max table size limit
+		if(sstableWriter.getWrittenBytes() + tuple.getSize() > SSTableConst.MAX_SSTABLE_SIZE) {
+			sstableWriter.close();
+			sstableWriter = openNewSSTableWriter(resultList);
+		}
+	}
+
+	/**
 	 * Open a new SSTable writer
+	 * @param resultList 
 	 * @return 
 	 * @throws StorageManagerException
 	 */
-	protected SSTableWriter openNewSSTableWriter() throws StorageManagerException {
+	protected SSTableWriter openNewSSTableWriter(List<SSTableWriter> resultList) 
+			throws StorageManagerException {
+		
 		final long estimatedMaxNumberOfEntries = calculateNumberOfEntries(sstableIndexReader);
 
 		final String directory = sstableIndexReader.get(0).getDirectory();		
@@ -167,6 +178,7 @@ public class SSTableCompactor {
 				
 		try {
 			sstableWriter.open();
+			resultList.add(sstableWriter);
 			logger.info("Output file for compact: {}", sstableWriter.getSstableFile());
 			return sstableWriter;
 		} catch (StorageManagerException e) {			
