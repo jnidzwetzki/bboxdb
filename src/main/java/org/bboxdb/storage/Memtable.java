@@ -467,8 +467,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 		assert (usage.get() > 0);
 
 		final List<? extends SpatialIndexEntry> matchingKeys = spatialIndex.getEntriesForRegion(boundingBox);
-		@SuppressWarnings("rawtypes")
-		final Iterator keyIterator = matchingKeys.iterator();
+		
+		final Iterator<? extends SpatialIndexEntry> keyIterator = matchingKeys.iterator();
 		
 		return new Iterator<Tuple>() {
 
@@ -479,7 +479,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 
 			@Override
 			public Tuple next() {
-				final SpatialIndexEntry entry = (SpatialIndexEntry) keyIterator.next();
+				final SpatialIndexEntry entry = keyIterator.next();
 				final String key = entry.getKey();
 				return get(key);
 			}
