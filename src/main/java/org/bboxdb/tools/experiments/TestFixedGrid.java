@@ -43,39 +43,38 @@ public class TestFixedGrid implements Runnable {
 	protected String format;
 	
 	/**
-	 * The bounding boxes
+	 * The cell sizes
 	 */
-	protected CellGrid cellGrid;
-
-	/**
-	 * The cell size
-	 */
-	protected double cellsPerDimension;
+	protected List<Integer> cellSizes;
 	
 	/**
 	 * The number of storing nodes
 	 */
 	public final static int NODES = 385;
 	
-	public TestFixedGrid(final String filename, final String format, final double cellsPerDimension) {
+	public TestFixedGrid(final String filename, final String format, final List<Integer> cellSizes) {
 		this.filename = filename;
 		this.format = format;
-		this.cellsPerDimension = cellsPerDimension;
+		this.cellSizes = cellSizes;
 	}
 	
 	@Override
 	public void run() {
 		System.out.format("Reading %s\n", filename);
 		final BoundingBox boundingBox = determineBoundingBox();
-		this.cellGrid = CellGrid.buildWithFixedAmountOfCells(boundingBox, cellsPerDimension);
 		
-		runExperiment();
+		for(final Integer cellsPerDimension: cellSizes) {
+			System.out.println("Cells per Dimension: " + cellsPerDimension);
+			final CellGrid cellGrid = CellGrid.buildWithFixedAmountOfCells(boundingBox, cellsPerDimension);
+			runExperiment(cellGrid);
+		}
 	}
 
 	/**
 	 * Run this experiment
+	 * @param cellGrid 
 	 */
-	protected void runExperiment() {
+	protected void runExperiment(final CellGrid cellGrid) {
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 		final Map<BoundingBox, Integer> bboxes = new HashMap<>();
 		
@@ -158,16 +157,22 @@ public class TestFixedGrid implements Runnable {
 	public static void main(final String[] args) throws IOException {
 		
 		// Check parameter
-		if(args.length != 3) {
+		if(args.length < 3) {
 			System.err.println("Usage: programm <filename> <format> <cells per dimension>");
 			System.exit(-1);
 		}
 		
 		final String filename = Objects.requireNonNull(args[0]);
 		final String format = Objects.requireNonNull(args[1]);
-		final double cells = MathUtil.tryParseDoubleOrExit(args[2]);
 		
-		final TestFixedGrid testSplit = new TestFixedGrid(filename, format, cells);
+		final List<Integer> cellSizes = new ArrayList<>();
+		
+		for(int pos = 2; pos < args.length; pos++) {
+			final Integer size = MathUtil.tryParseIntOrExit(args[pos]);
+			cellSizes.add(size);
+		}
+				
+		final TestFixedGrid testSplit = new TestFixedGrid(filename, format, cellSizes);
 		testSplit.run();
 	}
 }
