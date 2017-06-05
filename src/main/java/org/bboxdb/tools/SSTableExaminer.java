@@ -23,6 +23,7 @@ import java.nio.BufferUnderflowException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
@@ -135,7 +136,7 @@ public class SSTableExaminer implements Runnable {
 		System.out.println("Step1: Looping over SSTable and searching for key: " + examineKey);
 		while(true) {
 			try {
-				final Tuple tuple = ssTableReader.decodeTuple();
+				final Tuple tuple = TupleHelper.decodeTuple(ssTableReader.getMemory());
 				if(tuple.getKey().equals(examineKey)) {
 					System.out.println(tuple);
 				}

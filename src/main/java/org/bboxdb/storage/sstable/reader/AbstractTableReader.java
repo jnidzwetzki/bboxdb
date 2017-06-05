@@ -237,4 +237,12 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	public long getSize() {
 		return file.length();
 	}
+	
+	/**
+	 * Get the memory buffer
+	 * @return
+	 */
+	public MappedByteBuffer getMemory() {
+		return memory;
+	}
 }
