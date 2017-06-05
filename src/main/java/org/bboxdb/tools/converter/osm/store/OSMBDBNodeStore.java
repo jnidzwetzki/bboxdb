@@ -58,9 +58,9 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 	 * Java 7 BlockingQueue implementation, because we want to let 
 	 * the elements placed in the queue until the BDB has stored them. 
 	 * 
-	 * The getNodeForId read this queue and query the BDB. Removing 
-	 * elements before they are stored into the BDB could cause
-	 * missing elements.
+	 * The getNodeForId method reads this queue and query the BDB. 
+	 * Removing elements before they are stored into the BDB could 
+	 * cause missing elements.
 	 */
 	protected List<List<SerializableNode>> pendingWriteQueues = new ArrayList<>();
 	
