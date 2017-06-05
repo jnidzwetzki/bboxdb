@@ -49,9 +49,19 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 	/**
 	 * The max size of a child node
 	 */
-	protected int MAX_SIZE = 32;
-
+	protected final int maxNodeSize;
+	
+	/**
+	 * The default max node size
+	 */
+	public final static int DEFAULT_NODE_SIZE = 32;
+	
 	public RTreeSpatialIndexStrategy() {
+		this(DEFAULT_NODE_SIZE);
+	}
+
+	public RTreeSpatialIndexStrategy(final int maxNodeSize) {
+		this.maxNodeSize = maxNodeSize;
 		this.nodeFactory = new RTreeNodeFactory();
 		this.rootNode = nodeFactory.buildDirectoryNode();
 	}
@@ -180,7 +190,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		// Adjust beginning from the bottom
 		do {
 			
-			if(nodeToCheck.getSize() > MAX_SIZE) {
+			if(nodeToCheck.getSize() > maxNodeSize) {
 				nodeToCheck = splitNode(insertedNode);
 			}
 			
@@ -254,12 +264,12 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 			final int remainingObjects = dataToDistribute.size() - i;
 			final RTreeDirectoryNode entry = dataToDistribute.get(i);
 			
-			if(newNode1.getDirectoryNodeChilds().size() + remainingObjects <= MAX_SIZE / 2) {
+			if(newNode1.getDirectoryNodeChilds().size() + remainingObjects <= maxNodeSize / 2) {
 				newNode1.addDirectoryNodeChild(entry);
 				continue;
 			}
 			
-			if(newNode2.getDirectoryNodeChilds().size() + remainingObjects <= MAX_SIZE / 2) {
+			if(newNode2.getDirectoryNodeChilds().size() + remainingObjects <= maxNodeSize / 2) {
 				newNode2.addDirectoryNodeChild(entry);
 				continue;
 			}
@@ -312,12 +322,12 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 			final int remainingObjects = dataToDistribute.size() - i;
 			final RTreeSpatialIndexEntry entry = dataToDistribute.get(i);
 			
-			if(newNode1.getIndexEntries().size() + remainingObjects <= MAX_SIZE / 2) {
+			if(newNode1.getIndexEntries().size() + remainingObjects <= maxNodeSize / 2) {
 				newNode1.insertEntryIntoIndex(entry);
 				continue;
 			}
 			
-			if(newNode2.getIndexEntries().size() + remainingObjects <= MAX_SIZE / 2) {
+			if(newNode2.getIndexEntries().size() + remainingObjects <= maxNodeSize / 2) {
 				newNode2.insertEntryIntoIndex(entry);
 				continue;
 			}
@@ -343,5 +353,13 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 				continue;
 			}
 		}
+	}
+	
+	/**
+	 * Get the maximal node size
+	 * @return
+	 */
+	public int getMaxNodeSize() {
+		return maxNodeSize;
 	}
 }
