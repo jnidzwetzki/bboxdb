@@ -331,7 +331,7 @@ public class SSTableWriter implements AutoCloseable {
 			writeIndexEntry((int) tuplePosition);
 			
 			// Add Tuple to the SSTable file
-			writeTupleToFile(tuple);
+			TupleHelper.writeTupleToStream(tuple, sstableOutputStream);
 			metadataBuilder.addTuple(tuple);
 			
 			// Add tuple to the bloom filter
@@ -345,43 +345,6 @@ public class SSTableWriter implements AutoCloseable {
 			exceptionDuringWrite = true;
 			throw new StorageManagerException("Unable to write tuple to SSTable", e);
 		}
-	}
-
-	/**
-	 * Write the given tuple into the SSTable
-	 * 
-	 * Format of a data record:
-	 * 
-	 * +----------------------------------------------------------------------------------------------+
-	 * | Key-Length | BBox-Length | Data-Length |  Version  |  Insert   |   Key   |  BBox   |   Data  |
-	 * |            |             |             | Timestamp | Timestamp |         |         |         |
-	 * |   2 Byte   |   4 Byte    |   4 Byte    |  8 Byte   |  8 Byte   |  n Byte |  n Byte |  n Byte |
-	 * +----------------------------------------------------------------------------------------------+
-	 * 
-	 * 
-	 * @param tuple
-	 * @throws IOException
-	 */
-	protected void writeTupleToFile(final Tuple tuple) throws IOException {
-		final byte[] keyBytes = tuple.getKey().getBytes();
-		final ByteBuffer keyLengthBytes = DataEncoderHelper.shortToByteBuffer((short) keyBytes.length);
-
-		final byte[] boundingBoxBytes = tuple.getBoundingBoxBytes();
-		final byte[] data = tuple.getDataBytes();
-		
-		final ByteBuffer boxLengthBytes = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
-		final ByteBuffer dataLengthBytes = DataEncoderHelper.intToByteBuffer(data.length);
-	    final ByteBuffer versionTimestampBytes = DataEncoderHelper.longToByteBuffer(tuple.getVersionTimestamp());
-	    final ByteBuffer receivedTimestampBytes = DataEncoderHelper.longToByteBuffer(tuple.getReceivedTimestamp());
-
-	    sstableOutputStream.write(keyLengthBytes.array());
-		sstableOutputStream.write(boxLengthBytes.array());
-		sstableOutputStream.write(dataLengthBytes.array());
-		sstableOutputStream.write(versionTimestampBytes.array());
-		sstableOutputStream.write(receivedTimestampBytes.array());
-		sstableOutputStream.write(keyBytes);
-		sstableOutputStream.write(boundingBoxBytes);
-		sstableOutputStream.write(data);
 	}
 
 	/** 

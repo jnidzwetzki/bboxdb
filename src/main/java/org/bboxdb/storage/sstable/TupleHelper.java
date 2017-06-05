@@ -17,9 +17,16 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 import org.bboxdb.storage.ReadOnlyTupleStorage;
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.DataEncoderHelper;
 
 public class TupleHelper {
 
@@ -86,4 +93,74 @@ public class TupleHelper {
 		return false;
 	}
 	
+	/**
+	 * Write the given tuple onto the output Stream
+	 * 
+	 * Format of a data record:
+	 * 
+	 * +----------------------------------------------------------------------------------------------+
+	 * | Key-Length | BBox-Length | Data-Length |  Version  |  Insert   |   Key   |  BBox   |   Data  |
+	 * |            |             |             | Timestamp | Timestamp |         |         |         |
+	 * |   2 Byte   |   4 Byte    |   4 Byte    |  8 Byte   |  8 Byte   |  n Byte |  n Byte |  n Byte |
+	 * +----------------------------------------------------------------------------------------------+
+	 * 
+	 * 
+	 * @param tuple
+	 * @throws IOException
+	 */
+	public static void writeTupleToStream(final Tuple tuple, final OutputStream outputStream) throws IOException {
+		final byte[] keyBytes = tuple.getKey().getBytes();
+		final ByteBuffer keyLengthBytes = DataEncoderHelper.shortToByteBuffer((short) keyBytes.length);
+
+		final byte[] boundingBoxBytes = tuple.getBoundingBoxBytes();
+		final byte[] data = tuple.getDataBytes();
+		
+		final ByteBuffer boxLengthBytes = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
+		final ByteBuffer dataLengthBytes = DataEncoderHelper.intToByteBuffer(data.length);
+	    final ByteBuffer versionTimestampBytes = DataEncoderHelper.longToByteBuffer(tuple.getVersionTimestamp());
+	    final ByteBuffer receivedTimestampBytes = DataEncoderHelper.longToByteBuffer(tuple.getReceivedTimestamp());
+
+	    outputStream.write(keyLengthBytes.array());
+	    outputStream.write(boxLengthBytes.array());
+	    outputStream.write(dataLengthBytes.array());
+	    outputStream.write(versionTimestampBytes.array());
+	    outputStream.write(receivedTimestampBytes.array());
+	    outputStream.write(keyBytes);
+	    outputStream.write(boundingBoxBytes);
+	    outputStream.write(data);
+	}
+	
+	/**
+	 * Decode the tuple at the current reader position
+	 * 
+	 * @param reader
+	 * @return
+	 * @throws IOException
+	 */
+	public static Tuple decodeTuple(final ByteBuffer byteBuffer) throws IOException {
+		final short keyLength = byteBuffer.getShort();
+		final int boxLength = byteBuffer.getInt();
+		final int dataLength = byteBuffer.getInt();
+		final long versionTimestamp = byteBuffer.getLong();
+		final long receivedTimestamp = byteBuffer.getLong();
+
+		final byte[] keyBytes = new byte[keyLength];
+		byteBuffer.get(keyBytes, 0, keyBytes.length);
+		
+		final byte[] boxBytes = new byte[boxLength];
+		byteBuffer.get(boxBytes, 0, boxBytes.length);
+		
+		final byte[] dataBytes = new byte[dataLength];
+		byteBuffer.get(dataBytes, 0, dataBytes.length);				
+		
+		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
+		
+		final String keyString = new String(keyBytes);
+		
+		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
+			return new DeletedTuple(keyString, versionTimestamp);
+		}
+		
+		return new Tuple(keyString, boundingBox, dataBytes, versionTimestamp, receivedTimestamp);
+	}
 }

@@ -19,15 +19,13 @@ package org.bboxdb.storage.sstable.reader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
+import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.util.DataEncoderHelper;
 
 public class SSTableReader extends AbstractTableReader {
@@ -49,7 +47,7 @@ public class SSTableReader extends AbstractTableReader {
 			resetPosition();
 			
 			while(memory.hasRemaining()) {
-				final Tuple tuple = decodeTuple();
+				final Tuple tuple = TupleHelper.decodeTuple(memory);
 
 				// The keys are stored in lexicographical order. If the
 				// next key of the sstable is greater then our search key,
@@ -88,7 +86,7 @@ public class SSTableReader extends AbstractTableReader {
 			
 			memory.position(position);
 			
-			return decodeTuple();
+			return TupleHelper.decodeTuple(memory);
 		} catch (Exception e) {
 			try {
 				throw new StorageManagerException("Exception while decoding Position: " + position +  " Size "  + fileChannel.size(), e);
@@ -96,40 +94,6 @@ public class SSTableReader extends AbstractTableReader {
 				throw new StorageManagerException(e);
 			}
 		}
-	}
-
-	/**
-	 * Decode the tuple at the current reader position
-	 * 
-	 * @param reader
-	 * @return
-	 * @throws IOException
-	 */
-	public Tuple decodeTuple() throws IOException {
-		final short keyLength = memory.getShort();
-		final int boxLength = memory.getInt();
-		final int dataLength = memory.getInt();
-		final long versionTimestamp = memory.getLong();
-		final long receivedTimestamp = memory.getLong();
-
-		final byte[] keyBytes = new byte[keyLength];
-		memory.get(keyBytes, 0, keyBytes.length);
-		
-		final byte[] boxBytes = new byte[boxLength];
-		memory.get(boxBytes, 0, boxBytes.length);
-		
-		final byte[] dataBytes = new byte[dataLength];
-		memory.get(dataBytes, 0, dataBytes.length);				
-		
-		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
-		
-		final String keyString = new String(keyBytes);
-		
-		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
-			return new DeletedTuple(keyString, versionTimestamp);
-		}
-		
-		return new Tuple(keyString, boundingBox, dataBytes, versionTimestamp, receivedTimestamp);
 	}
 	
 	/**
