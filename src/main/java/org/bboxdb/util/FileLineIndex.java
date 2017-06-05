@@ -22,11 +22,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 import org.apache.commons.compress.utils.CountingInputStream;
@@ -129,7 +126,7 @@ public class FileLineIndex implements AutoCloseable {
 		logger.info("Database dir is {}", tmpDatabaseDir);
 		
 		// Delete database on exit
-		deleteDatabaseDirOnExit();
+		FileUtil.deleteDirOnExit(tmpDatabaseDir);
 
 		final DatabaseConfig dbConfig = new DatabaseConfig();
 		dbConfig.setTransactional(false);
@@ -153,38 +150,6 @@ public class FileLineIndex implements AutoCloseable {
 			dbEnv.close();
 			dbEnv = null;
 		}
-	}
-
-	/**
-	 * Delete the database dir on exit
-	 */
-	protected void deleteDatabaseDirOnExit() {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-	        @Override
-	        public void run() {
-	        	
-	        	close();
-	        	
-	        	final Path directory = tmpDatabaseDir.toAbsolutePath();
-	        	try {
-					Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-					   @Override
-					   public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					       Files.delete(file);
-					       return FileVisitResult.CONTINUE;
-					   }
-
-					   @Override
-					   public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-					       Files.delete(dir);
-					       return FileVisitResult.CONTINUE;
-					   }
-					});
-				} catch (IOException e) {
-					System.err.println("Got Exception: " + e);
-				}
-	        }
-	    });
 	}
 
 	/**
