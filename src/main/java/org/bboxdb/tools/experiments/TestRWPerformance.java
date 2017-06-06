@@ -84,7 +84,7 @@ public class TestRWPerformance implements Runnable {
 					timeRead += readTuples();
 				}
 				
-				System.out.format("%d\t%d\t%d", dataSize, timeWrite / RETRY, timeRead / RETRY);
+				System.out.format("%d\t%d\t%d\n", dataSize, timeWrite / RETRY, timeRead / RETRY);
 			} catch (Exception e) {
 				System.out.println("Got exception: " + e);
 			}
