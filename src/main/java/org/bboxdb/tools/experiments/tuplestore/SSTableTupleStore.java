@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.experiments.tuplestore;
 
+import java.io.File;
 import java.util.Arrays;
 
 import org.bboxdb.misc.BBoxDBConfigurationManager;
@@ -33,9 +34,9 @@ public class SSTableTupleStore implements TupleStore {
 	 */
 	private SSTableManager storageManager;
 
-	public SSTableTupleStore() throws StorageManagerException {
+	public SSTableTupleStore(final File dir) throws StorageManagerException {
 		final SSTableName tableName = new SSTableName("2_group1_test");
-		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList("/tmp"));
+		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));
 		
 		StorageRegistry.getInstance().deleteTable(tableName);
 		storageManager = StorageRegistry.getInstance().getSSTableManager(tableName);

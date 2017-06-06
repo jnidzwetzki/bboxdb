@@ -18,6 +18,7 @@
 package org.bboxdb.tools.experiments.tuplestore;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
@@ -52,8 +53,8 @@ public class JDBCTupleStore implements TupleStore {
 	 */
 	private final Connection connection;
 
-	public JDBCTupleStore() throws SQLException {
-		connection = DriverManager.getConnection("jdbc:h2:nio:/tmp/dbtest.db" + DB_FLAGS);
+	public JDBCTupleStore(final File dir) throws SQLException {
+		connection = DriverManager.getConnection("jdbc:h2:nio:" + dir.getAbsolutePath() + "/dbtest.db" + DB_FLAGS);
 		Statement statement = connection.createStatement();
 		
 		statement.executeUpdate("DROP TABLE if exists tuples");

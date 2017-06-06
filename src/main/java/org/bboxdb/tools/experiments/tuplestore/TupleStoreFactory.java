@@ -1,5 +1,6 @@
 package org.bboxdb.tools.experiments.tuplestore;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,14 +35,14 @@ public class TupleStoreFactory {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static TupleStore getTupleStore(final String tupleStoreName) throws Exception {
+	public static TupleStore getTupleStore(final String tupleStoreName, final File dir) throws Exception {
 		switch(tupleStoreName) {
 		case TUPLE_STORE_BDB:
-			return new BDBTupleStore();
+			return new BDBTupleStore(dir);
 		case TUPLE_STORE_JDBC:
-			return new JDBCTupleStore();
+			return new JDBCTupleStore(dir);
 		case TUPLE_STORE_SSTABLE: 
-			return new SSTableTupleStore();
+			return new SSTableTupleStore(dir);
 		default:
 			throw new IllegalArgumentException("Unknown tuple store: " + tupleStoreName);
 		}

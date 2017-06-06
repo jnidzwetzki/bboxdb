@@ -17,10 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.tools.experiments.tuplestore;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.TupleHelper;
@@ -52,17 +51,15 @@ public class BDBTupleStore implements TupleStore {
 	 */
 	private Database database;
 	
-	public BDBTupleStore() throws IOException {
+	public BDBTupleStore(final File dir) throws IOException {
 		final EnvironmentConfig envConfig = new EnvironmentConfig();
 		envConfig.setTransactional(USE_TRANSACTIONS);
 		envConfig.setAllowCreate(true);
-		
-	    final Path tmpDatabaseDir = Files.createTempDirectory(null);
-				
+						
 		// Delete database on exit
-		FileUtil.deleteDirOnExit(tmpDatabaseDir);
+		FileUtil.deleteDirOnExit(dir.toPath());
 		
-		environment = new Environment(tmpDatabaseDir.toFile(), envConfig);
+		environment = new Environment(dir, envConfig);
 
 		Transaction txn = null;
 		if(USE_TRANSACTIONS) {

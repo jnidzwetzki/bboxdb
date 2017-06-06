@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.experiments;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -53,9 +54,14 @@ public class TestRWPerformance implements Runnable {
 	 */
 	private String adapterName;
 
+	/**
+	 * The storage directory
+	 */
+	private File dir;
 
-	public TestRWPerformance(final String adapterName) throws Exception {
+	public TestRWPerformance(final String adapterName, final File dir) throws Exception {
 		this.adapterName = adapterName;
+		this.dir = dir;
 		System.out.println("#Using backend: " + adapterName);
 	}
 
@@ -72,7 +78,7 @@ public class TestRWPerformance implements Runnable {
 					tupleStore.close();
 				}
 				
-				tupleStore = TupleStoreFactory.getTupleStore(adapterName);
+				tupleStore = TupleStoreFactory.getTupleStore(adapterName, dir);
 				
 				long timeRead = 0;
 				long timeWrite = 0;
@@ -131,19 +137,25 @@ public class TestRWPerformance implements Runnable {
 	 */
 	public static void main(final String[] args) throws Exception {
 		// Check parameter
-		if(args.length != 1) {
-			System.err.println("Usage: programm <adapter>");
+		if(args.length != 2) {
+			System.err.println("Usage: programm <adapter> <dir>");
 			System.exit(-1);
 		}
 		
 		final String adapter = Objects.requireNonNull(args[0]);
+		final String dirName = Objects.requireNonNull(args[1]);
 		
 		if(! TupleStoreFactory.ALL_STORES.contains(adapter)) {
 			System.err.println("Unknown adapter: " + adapter);
 			System.exit(-1);
 		}
+		
+		final File dir = new File(dirName);
+		if(dir.exists()) {
+			System.err.println("Dir already exists, please remove");
+		}
 
-		final TestRWPerformance testSplit = new TestRWPerformance(adapter);
+		final TestRWPerformance testSplit = new TestRWPerformance(adapter, dir);
 		testSplit.run();
 	}
 
