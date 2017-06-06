@@ -28,6 +28,8 @@ import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
+
 public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 
 	/**
@@ -93,7 +95,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	@Override
 	protected void startBenchmarkTimer() {
 		// Set the benchmark time
-		startTime = System.currentTimeMillis();
+		stopWatch = Stopwatch.createStarted();
 		System.out.println("#Iteration\tTime");
 	}
 	

@@ -29,12 +29,14 @@ import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
+
 public abstract class AbstractBenchmark implements Runnable {
 	
 	/**
 	 * Unix time of the benchmark start
 	 */
-	protected long startTime = 0;
+	protected Stopwatch stopWatch;
 	
 	/**
 	 * The BBoxDB client
@@ -124,7 +126,7 @@ public abstract class AbstractBenchmark implements Runnable {
 		System.out.println(dataTable.getTableHeader());
 		
 		// Set the benchmark time
-		startTime = System.currentTimeMillis();
+		stopWatch = Stopwatch.createStarted();
 		
 		// Dump performance info every second
 		executorService.scheduleAtFixedRate(new Runnable() {
@@ -132,7 +134,7 @@ public abstract class AbstractBenchmark implements Runnable {
 			@Override
 			public void run() {
 				final StringBuffer sb = new StringBuffer();
-				sb.append(System.currentTimeMillis() - startTime + "\t");
+				sb.append(stopWatch.elapsed(TimeUnit.MILLISECONDS) + "\t");
 				
 				for(short i = 0; i < dataTable.getColumns(); i++) {
 					sb.append(dataTable.getValueForColum(i));
@@ -167,8 +169,7 @@ public abstract class AbstractBenchmark implements Runnable {
 		bboxdbClient.disconnect();
 		executorService.shutdown();
 		
-		final long executionTime = System.currentTimeMillis() - startTime;
-		System.out.format("Done in %d ms\n", executionTime);
+		System.out.format("Done in %d ms\n", stopWatch.elapsed(TimeUnit.MILLISECONDS));
 		
 		// Set the benchmark flag to finish
 		benchmarkActive = false;
