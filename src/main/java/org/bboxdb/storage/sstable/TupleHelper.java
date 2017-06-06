@@ -18,6 +18,7 @@
 package org.bboxdb.storage.sstable;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -27,6 +28,8 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.DataEncoderHelper;
+
+import com.google.common.io.ByteStreams;
 
 public class TupleHelper {
 
@@ -163,4 +166,53 @@ public class TupleHelper {
 		
 		return new Tuple(keyString, boundingBox, dataBytes, versionTimestamp, receivedTimestamp);
 	}
+	
+	/**
+	 * Read the tuple from the input stream
+	 * @param inputStream
+	 * @return
+	 * @throws IOException 
+	 */
+	public static Tuple decodeTuple(final InputStream inputStream) throws IOException {
+		final byte[] keyLengthBytes = new byte[DataEncoderHelper.SHORT_BYTES];
+		ByteStreams.readFully(inputStream, keyLengthBytes);
+		final short keyLength = DataEncoderHelper.readShortFromByte(keyLengthBytes);
+		
+		final byte[] boxLengthBytes = new byte[DataEncoderHelper.INT_BYTES];
+		ByteStreams.readFully(inputStream, boxLengthBytes);
+		final int boxLength = DataEncoderHelper.readIntFromByte(boxLengthBytes);
+
+		final byte[] dataLengthBytes = new byte[DataEncoderHelper.INT_BYTES];
+		ByteStreams.readFully(inputStream, dataLengthBytes);
+		final int dataLength = DataEncoderHelper.readIntFromByte(dataLengthBytes);
+
+		final byte[] versionTimestampBytes = new byte[DataEncoderHelper.LONG_BYTES];
+		ByteStreams.readFully(inputStream, versionTimestampBytes);
+		final long versionTimestamp = DataEncoderHelper.readLongFromByte(versionTimestampBytes);
+
+		final byte[] receivedTimestampBytes = new byte[DataEncoderHelper.LONG_BYTES];
+		ByteStreams.readFully(inputStream, receivedTimestampBytes);
+		final long receivedTimestamp = DataEncoderHelper.readLongFromByte(receivedTimestampBytes);
+
+		final byte[] keyBytes = new byte[keyLength];
+		ByteStreams.readFully(inputStream, keyBytes);
+		
+		final byte[] boxBytes = new byte[boxLength];
+		ByteStreams.readFully(inputStream, boxBytes);
+		
+		final byte[] dataBytes = new byte[dataLength];
+		ByteStreams.readFully(inputStream, dataBytes);		
+						
+		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
+		
+		final String keyString = new String(keyBytes);
+		
+		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
+			return new DeletedTuple(keyString, versionTimestamp);
+		}
+		
+		return new Tuple(keyString, boundingBox, dataBytes, versionTimestamp, receivedTimestamp);
+	}
+	
+	
 }

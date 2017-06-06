@@ -17,7 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.storage;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.junit.Assert;
@@ -25,6 +31,9 @@ import org.junit.Test;
 
 public class TestTupleHelper {
 
+	/**
+	 * Find the most recent tuple
+	 */
 	@Test
 	public void testGetMostRecentTuple() {
 		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, null, 1);
@@ -37,6 +46,55 @@ public class TestTupleHelper {
 		Assert.assertEquals(tupleB, TupleHelper.returnMostRecentTuple(tupleA, tupleB));
 		Assert.assertEquals(tupleB, TupleHelper.returnMostRecentTuple(tupleB, tupleA));
 		Assert.assertEquals(tupleB, TupleHelper.returnMostRecentTuple(tupleB, tupleB));
+	}
+	
+	/**
+	 * Encode and decode a tuple
+	 * @throws IOException 
+	 */
+	@Test
+	public void encodeAndDecodeTuple1() throws IOException {
+		final Tuple tuple = new Tuple("abc", new BoundingBox(1.0, 2.0, 3.0, 4.0), "abc".getBytes());
+		
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		TupleHelper.writeTupleToStream(tuple, outputStream);
+		outputStream.close();
+		
+		// Read from stream
+		final byte[] bytes = outputStream.toByteArray();
+		final ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+		final Tuple readTuple = TupleHelper.decodeTuple(inputStream);
+		Assert.assertEquals(tuple, readTuple);
+		
+		// Read from byte buffer
+		final ByteBuffer bb = ByteBuffer.wrap(bytes);
+		final Tuple readTuple2 = TupleHelper.decodeTuple(bb);
+		Assert.assertEquals(tuple, readTuple2);
+	}
+	
+	
+	/**
+	 * Encode and decode a tuple
+	 * @throws IOException 
+	 */
+	@Test
+	public void encodeAndDecodeTuple2() throws IOException {
+		final Tuple tuple = new DeletedTuple("abc");
+		
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		TupleHelper.writeTupleToStream(tuple, outputStream);
+		outputStream.close();
+		
+		// Read from stream
+		final byte[] bytes = outputStream.toByteArray();
+		final ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+		final Tuple readTuple = TupleHelper.decodeTuple(inputStream);
+		Assert.assertEquals(tuple, readTuple);
+		
+		// Read from byte buffer
+		final ByteBuffer bb = ByteBuffer.wrap(bytes);
+		final Tuple readTuple2 = TupleHelper.decodeTuple(bb);
+		Assert.assertEquals(tuple, readTuple2);
 	}
 
 }
