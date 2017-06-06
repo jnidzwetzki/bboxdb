@@ -36,7 +36,7 @@ public class TestRWPerformance implements Runnable {
 	/**
 	 * The tuple store
 	 */
-	protected TupleStore tupleStore;
+	protected TupleStore tupleStore = null;
 	
 	/**
 	 * The amount of tuples (one milion)
@@ -47,11 +47,16 @@ public class TestRWPerformance implements Runnable {
 	 * The retry counter
 	 */
 	public final static int RETRY = 3;
-	
 
-	public TestRWPerformance(final String adapterName) throws IOException {
-		System.out.println("Using backend: " + adapterName);
-		this.tupleStore = TupleStoreFactory.getTupleStore(adapterName);
+	/**
+	 * The name of the adapter
+	 */
+	private String adapterName;
+
+
+	public TestRWPerformance(final String adapterName) throws Exception {
+		this.adapterName = adapterName;
+		System.out.println("#Using backend: " + adapterName);
 	}
 
 	@Override
@@ -62,6 +67,13 @@ public class TestRWPerformance implements Runnable {
 
 		for(final int dataSize : dataSizes) {
 			try {
+				
+				if(tupleStore != null) {
+					tupleStore.close();
+				}
+				
+				tupleStore = TupleStoreFactory.getTupleStore(adapterName);
+				
 				long timeRead = 0;
 				long timeWrite = 0;
 				
@@ -73,7 +85,7 @@ public class TestRWPerformance implements Runnable {
 				}
 				
 				System.out.format("%d\t%d\t%d", dataSize, timeWrite / RETRY, timeRead / RETRY);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				System.out.println("Got exception: " + e);
 			}
 		}
@@ -85,7 +97,7 @@ public class TestRWPerformance implements Runnable {
 	 * @return 
 	 * @throws IOException 
 	 */
-	protected long writeTuples(final String data) throws IOException {
+	protected long writeTuples(final String data) throws Exception {
 		System.out.println("# Writing Tuples");
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		
@@ -102,7 +114,7 @@ public class TestRWPerformance implements Runnable {
 	 * @return 
 	 * @throws IOException 
 	 */
-	protected long readTuples() throws IOException {
+	protected long readTuples() throws Exception {
 		System.out.println("# Reading Tuples");
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 
@@ -117,7 +129,7 @@ public class TestRWPerformance implements Runnable {
 	 * Main * Main * Main
 	 * @throws IOException 
 	 */
-	public static void main(final String[] args) throws IOException {
+	public static void main(final String[] args) throws Exception {
 		// Check parameter
 		if(args.length != 1) {
 			System.err.println("Usage: programm <adapter>");

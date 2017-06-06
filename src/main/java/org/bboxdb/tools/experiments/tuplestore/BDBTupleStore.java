@@ -35,7 +35,7 @@ import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
-public class BDBTupleStore implements TupleStore, AutoCloseable {
+public class BDBTupleStore implements TupleStore {
 
 	/**
 	 * Use transactions

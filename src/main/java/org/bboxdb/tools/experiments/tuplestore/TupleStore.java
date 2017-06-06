@@ -21,14 +21,14 @@ import java.io.IOException;
 
 import org.bboxdb.storage.entity.Tuple;
 
-public interface TupleStore {
+public interface TupleStore extends AutoCloseable {
 
 	/**
 	 * Store the given tuple
 	 * @param tuple
 	 * @throws IOException 
 	 */
-	public void writeTuple(final Tuple tuple) throws IOException;
+	public void writeTuple(final Tuple tuple) throws Exception;
 	
 	/**
 	 * Read the given tuple
@@ -36,6 +36,6 @@ public interface TupleStore {
 	 * @throws IOException
 	 * @return
 	 */
-	public Tuple readTuple(final String key) throws IOException;
+	public Tuple readTuple(final String key) throws Exception;
 
 }

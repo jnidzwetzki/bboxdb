@@ -34,14 +34,14 @@ public class TupleStoreFactory {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static TupleStore getTupleStore(final String tupleStoreName) throws IOException {
+	public static TupleStore getTupleStore(final String tupleStoreName) throws Exception {
 		switch(tupleStoreName) {
 		case TUPLE_STORE_BDB:
 			return new BDBTupleStore();
 		case TUPLE_STORE_JDBC:
-			return null;
+			return new JDBCTupleStore();
 		case TUPLE_STORE_SSTABLE: 
-			return null;
+			return new SSTableTupleStore();
 		default:
 			throw new IllegalArgumentException("Unknown tuple store: " + tupleStoreName);
 		}
