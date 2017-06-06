@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
@@ -148,6 +149,12 @@ public class TestRWPerformance implements Runnable {
 		
 		if(! TupleStoreFactory.ALL_STORES.contains(adapter)) {
 			System.err.println("Unknown adapter: " + adapter);
+			
+			final String adapterList = TupleStoreFactory.ALL_STORES
+					.stream()
+					.collect(Collectors.joining(",", "[", "]"));
+			
+			System.err.println("Known adapter: " + adapterList);
 			System.exit(-1);
 		}
 		
