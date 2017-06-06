@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -131,6 +132,19 @@ public class TupleHelper {
 	    outputStream.write(keyBytes);
 	    outputStream.write(boundingBoxBytes);
 	    outputStream.write(data);
+	}
+	
+	/**
+	 * Convert the tuple into bytes
+	 * @param tuple
+	 * @return
+	 * @throws IOException
+	 */
+	public static byte[] tupleToBytes(final Tuple tuple) throws IOException {
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		writeTupleToStream(tuple, outputStream);
+		outputStream.close();
+		return outputStream.toByteArray();
 	}
 	
 	/**

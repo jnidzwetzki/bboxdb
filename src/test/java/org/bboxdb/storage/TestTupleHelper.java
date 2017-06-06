@@ -18,7 +18,6 @@
 package org.bboxdb.storage;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -56,12 +55,8 @@ public class TestTupleHelper {
 	public void encodeAndDecodeTuple1() throws IOException {
 		final Tuple tuple = new Tuple("abc", new BoundingBox(1.0, 2.0, 3.0, 4.0), "abc".getBytes());
 		
-		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		TupleHelper.writeTupleToStream(tuple, outputStream);
-		outputStream.close();
-		
 		// Read from stream
-		final byte[] bytes = outputStream.toByteArray();
+		final byte[] bytes = TupleHelper.tupleToBytes(tuple);
 		final ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
 		final Tuple readTuple = TupleHelper.decodeTuple(inputStream);
 		Assert.assertEquals(tuple, readTuple);
@@ -81,12 +76,8 @@ public class TestTupleHelper {
 	public void encodeAndDecodeTuple2() throws IOException {
 		final Tuple tuple = new DeletedTuple("abc");
 		
-		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		TupleHelper.writeTupleToStream(tuple, outputStream);
-		outputStream.close();
-		
 		// Read from stream
-		final byte[] bytes = outputStream.toByteArray();
+		final byte[] bytes = TupleHelper.tupleToBytes(tuple);
 		final ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
 		final Tuple readTuple = TupleHelper.decodeTuple(inputStream);
 		Assert.assertEquals(tuple, readTuple);
