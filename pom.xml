@@ -77,6 +77,23 @@
 			<artifactId>commons-cli</artifactId>
 			<version>1.4</version>
 		</dependency>
+
+		<!-- Used by some experiments 
+		<dependency> 
+			<groupId>org.apache.derby</groupId> 
+			<artifactId>derby</artifactId> 
+			<version>10.13.1.1</version> 
+		</dependency> 
+		-->
+		
+		<!-- Used by some experiments 
+		<dependency>
+		    <groupId>com.h2database</groupId>
+		    <artifactId>h2</artifactId>
+		    <version>1.4.195</version>
+		</dependency>
+		-->
+		
 	</dependencies>
 
 	<!-- Needed for berkley db (com.sleepycat) -->

@@ -14,9 +14,14 @@ public class TupleStoreFactory {
 	public final static String TUPLE_STORE_BDB = "bdb";
 	
 	/**
-	 * The JDBC tuple store
+	 * The JDBC h2 tuple store
 	 */
-	public final static String TUPLE_STORE_JDBC = "jdbc";
+	public final static String TUPLE_STORE_JDBC_H2 = "jdbc-h2";
+
+	/**
+	 * The JDBC derby tuple store
+	 */
+	public final static String TUPLE_STORE_JDBC_DERBY = "jdbc-derby";
 
 	/**
 	 * The SSTable tuple store
@@ -27,7 +32,8 @@ public class TupleStoreFactory {
 	 * All tuple stores
 	 */
 	public final static List<String> ALL_STORES = Collections.unmodifiableList(
-			Arrays.asList(TUPLE_STORE_BDB, TUPLE_STORE_JDBC, TUPLE_STORE_SSTABLE));
+			Arrays.asList(TUPLE_STORE_BDB, TUPLE_STORE_JDBC_H2, TUPLE_STORE_JDBC_DERBY,
+					TUPLE_STORE_SSTABLE));
 	
 	/**
 	 * Return the tuple store for the name
@@ -39,8 +45,10 @@ public class TupleStoreFactory {
 		switch(tupleStoreName) {
 		case TUPLE_STORE_BDB:
 			return new BDBTupleStore(dir);
-		case TUPLE_STORE_JDBC:
-			return new JDBCTupleStore(dir);
+		case TUPLE_STORE_JDBC_H2:
+			return new JDBCH2TupleStore(dir);
+		case TUPLE_STORE_JDBC_DERBY:
+			return new JDBCDerbyTupleStore(dir);
 		case TUPLE_STORE_SSTABLE: 
 			return new SSTableTupleStore(dir);
 		default:

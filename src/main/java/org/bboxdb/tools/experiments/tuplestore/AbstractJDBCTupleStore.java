@@ -31,13 +31,8 @@ import java.sql.Statement;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.TupleHelper;
 
-public class JDBCTupleStore implements TupleStore {
+public abstract class AbstractJDBCTupleStore implements TupleStore {
 	
-    /**
-     * The H2 DB file flags
-     */
-    protected final static String DB_FLAGS = ";LOG=0;CACHE_SIZE=262144;LOCK_MODE=0;UNDO_LOG=0";
-    
     /**
      * The insert statement
      */
@@ -53,8 +48,14 @@ public class JDBCTupleStore implements TupleStore {
 	 */
 	private final Connection connection;
 
-	public JDBCTupleStore(final File dir) throws SQLException {
-		connection = DriverManager.getConnection("jdbc:h2:nio:" + dir.getAbsolutePath() + "/dbtest.db" + DB_FLAGS);
+	/**
+	 * The database dir
+	 */
+	protected File dir;
+
+	public AbstractJDBCTupleStore(final File dir) throws SQLException {
+		this.dir = dir;
+		connection = DriverManager.getConnection(getConnectionURL());
 		Statement statement = connection.createStatement();
 		
 		statement.executeUpdate("DROP TABLE if exists tuples");
@@ -64,6 +65,8 @@ public class JDBCTupleStore implements TupleStore {
 		insertStatement = connection.prepareStatement("INSERT into tuples (id, data) values (?,?)");
 		selectStatement = connection.prepareStatement("SELECT data from tuples where id = ?");
 	}
+	
+	protected abstract String getConnectionURL();
 
 	@Override
 	public void writeTuple(final Tuple tuple) throws Exception {
