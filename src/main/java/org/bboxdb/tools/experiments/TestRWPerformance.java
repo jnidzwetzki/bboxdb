@@ -138,7 +138,7 @@ public class TestRWPerformance implements Runnable {
 		
 		final String adapter = Objects.requireNonNull(args[0]);
 		
-		if(TupleStoreFactory.ALL_STORES.contains(adapter)) {
+		if(! TupleStoreFactory.ALL_STORES.contains(adapter)) {
 			System.err.println("Unknown adapter: " + adapter);
 			System.exit(-1);
 		}
