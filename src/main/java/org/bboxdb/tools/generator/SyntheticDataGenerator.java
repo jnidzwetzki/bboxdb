@@ -89,7 +89,7 @@ public class SyntheticDataGenerator implements Runnable {
 	/**
 	 * The random generator
 	 */
-	protected final Random random = new Random();
+	protected final static Random random = new Random();
 
 	static {
 		StringBuilder tmp = new StringBuilder();
@@ -297,7 +297,7 @@ public class SyntheticDataGenerator implements Runnable {
 	 * @param size
 	 * @return
 	 */
-	public String getRandomString(final int size) {
+	public static String getRandomString(final int size) {
 		final StringBuilder sb = new StringBuilder(size);
 
 		for (int i = 0; i < size; i++) {
