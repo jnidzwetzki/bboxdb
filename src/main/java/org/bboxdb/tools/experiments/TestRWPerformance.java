@@ -154,6 +154,7 @@ public class TestRWPerformance implements Runnable {
 		final File dir = new File(dirName);
 		if(dir.exists()) {
 			System.err.println("Dir already exists, please remove");
+			System.exit(-1);
 		}
 
 		dir.mkdirs();
