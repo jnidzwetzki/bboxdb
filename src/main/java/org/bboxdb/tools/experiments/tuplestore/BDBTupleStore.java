@@ -93,8 +93,8 @@ public class BDBTupleStore implements TupleStore {
 		}
 		
 		final byte[] tupleBytes = TupleHelper.tupleToBytes(tuple);
-		final DatabaseEntry key = new DatabaseEntry(tupleBytes);
-		final DatabaseEntry value = new DatabaseEntry(tuple.getDataBytes());
+		final DatabaseEntry key = new DatabaseEntry(tuple.getKey().getBytes());
+		final DatabaseEntry value = new DatabaseEntry(tupleBytes);
 		final OperationStatus status = database.put(txn, key, value);
 	
         if (status != OperationStatus.SUCCESS) {
