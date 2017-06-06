@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.TupleHelper;
-import org.bboxdb.util.FileUtil;
 
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
@@ -55,10 +54,7 @@ public class BDBTupleStore implements TupleStore {
 		final EnvironmentConfig envConfig = new EnvironmentConfig();
 		envConfig.setTransactional(USE_TRANSACTIONS);
 		envConfig.setAllowCreate(true);
-						
-		// Delete database on exit
-		FileUtil.deleteDirOnExit(dir.toPath());
-		
+
 		environment = new Environment(dir, envConfig);
 
 		Transaction txn = null;

@@ -29,6 +29,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.experiments.tuplestore.TupleStore;
 import org.bboxdb.tools.experiments.tuplestore.TupleStoreFactory;
 import org.bboxdb.tools.generator.SyntheticDataGenerator;
+import org.bboxdb.util.FileUtil;
 
 import com.google.common.base.Stopwatch;
 
@@ -154,6 +155,11 @@ public class TestRWPerformance implements Runnable {
 		if(dir.exists()) {
 			System.err.println("Dir already exists, please remove");
 		}
+
+		dir.mkdirs();
+		
+		// Delete database on exit
+		FileUtil.deleteDirOnExit(dir.toPath());
 
 		final TestRWPerformance testSplit = new TestRWPerformance(adapter, dir);
 		testSplit.run();
