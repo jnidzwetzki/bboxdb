@@ -39,7 +39,7 @@ public class TestRWPerformance implements Runnable {
 	protected TupleStore tupleStore = null;
 	
 	/**
-	 * The amount of tuples (one milion)
+	 * The amount of tuples (one million)
 	 */
 	public final static int TUPLES = 1000000;
 	
@@ -62,7 +62,7 @@ public class TestRWPerformance implements Runnable {
 	@Override
 	public void run() {
 		
-		final List<Integer> dataSizes = Arrays.asList(1024, 10240);
+		final List<Integer> dataSizes = Arrays.asList(1024, 10240, 102400);
 		System.out.println("#Size\tWrite\tRead");
 
 		for(final int dataSize : dataSizes) {
