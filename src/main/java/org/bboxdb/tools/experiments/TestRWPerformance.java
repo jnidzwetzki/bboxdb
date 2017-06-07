@@ -72,13 +72,12 @@ public class TestRWPerformance implements Runnable {
 		
 		final List<Integer> dataSizes = Arrays.asList(1024, 10240, 102400);
 		System.out.println("#Size\tWrite\tRead");
-
-		FileUtil.deleteRecursive(dir.toPath());
-		dir.mkdirs();
 		
 		for(final int dataSize : dataSizes) {
 			
-			try {									
+			try {					
+				FileUtil.deleteRecursive(dir.toPath());
+				dir.mkdirs();
 				tupleStore = TupleStoreFactory.getTupleStore(adapterName, dir);
 				
 				long timeRead = 0;
