@@ -18,6 +18,8 @@
 package org.bboxdb.tools.experiments.tuplestore;
 
 import java.io.File;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class JDBCDerbyTupleStore extends AbstractJDBCTupleStore {
 
@@ -38,5 +40,14 @@ public class JDBCDerbyTupleStore extends AbstractJDBCTupleStore {
 	@Override
 	public File getDBFile() {
 		return new File(dir.getAbsolutePath() + "/dbtest.db");
+	}
+	
+	@Override
+	public void afterShutdownHook() {
+		try {
+			DriverManager.getConnection("jdbc:derby:;shutdown=true");
+		} catch (SQLException e) {
+			System.err.println("Got exception while shutdown system" + e);
+		}
 	}
 }

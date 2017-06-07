@@ -101,6 +101,15 @@ public abstract class AbstractJDBCTupleStore implements TupleStore {
 		if(connection != null) {
 			connection.close();
 		}	
+		
+		afterShutdownHook();
+	}
+	
+	/**
+	 * The after shutdown hook
+	 */
+	public void afterShutdownHook() {
+		// Default: do nothing
 	}
 	
 	/**
