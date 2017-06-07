@@ -137,7 +137,7 @@ public class StorageRegistry {
 			final String location = sstableLocations.get(table);
 			sstableManager = new SSTableManager(location, table, configuration);
 		} else {
-			// Find a new storate directory for the sstable manager
+			// Find a new storage directory for the sstable manager
 			final String location = getLowestUtilizedDataLocation();
 			sstableManager = new SSTableManager(location, table, configuration);
 			sstableLocations.put(table, location);
