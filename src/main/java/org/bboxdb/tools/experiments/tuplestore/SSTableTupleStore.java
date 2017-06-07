@@ -38,6 +38,11 @@ public class SSTableTupleStore implements TupleStore {
 	 */
 	private File dir;
 
+	/**
+	 * The sstable name
+	 */
+	protected final static SSTableName SSTABLE_NAME = new SSTableName("2_group1_test");
+
 	public SSTableTupleStore(final File dir) {
 		this.dir = dir;
 	}
@@ -61,7 +66,7 @@ public class SSTableTupleStore implements TupleStore {
 	@Override
 	public void close() throws Exception {
 		if(storageManager != null) {
-			storageManager.shutdown();
+			StorageRegistry.getInstance().shutdown(SSTABLE_NAME);
 			storageManager = null;
 		}
 	}
@@ -72,8 +77,7 @@ public class SSTableTupleStore implements TupleStore {
 		final File dataDir = new File(dir.getAbsoluteFile() + "/data");
 		dataDir.mkdirs();
 		
-		final SSTableName tableName = new SSTableName("2_group1_test");
 		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));		
-		storageManager = StorageRegistry.getInstance().getSSTableManager(tableName);
+		storageManager = StorageRegistry.getInstance().getSSTableManager(SSTABLE_NAME);
 	}
 }
