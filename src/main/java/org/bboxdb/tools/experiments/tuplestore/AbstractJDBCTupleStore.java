@@ -63,7 +63,7 @@ public abstract class AbstractJDBCTupleStore implements TupleStore {
 		final byte[] tupleBytes = TupleHelper.tupleToBytes(tuple);
 		final InputStream is = new ByteArrayInputStream(tupleBytes);
 		
-		insertStatement.setLong(1, Integer.parseInt(tuple.getKey()));
+		insertStatement.setLong(1, Integer.parseInt(tuple.getKey() + 1));
 		insertStatement.setBlob(2, is);
 		insertStatement.execute();
 	
@@ -75,11 +75,11 @@ public abstract class AbstractJDBCTupleStore implements TupleStore {
 	@Override
 	public Tuple readTuple(final String key) throws Exception {
 
-		selectStatement.setLong(1, Integer.parseInt(key));
+		selectStatement.setLong(1, Integer.parseInt(key) + 1);
 		final ResultSet result = selectStatement.executeQuery();
 		
 		if(! result.next()) {
-			throw new RuntimeException("Unable to find node for way: " + key);
+			throw new RuntimeException("Unable to find data for key: " + key);
 		}
 		
 		final byte[] bytes = result.getBytes(1);
