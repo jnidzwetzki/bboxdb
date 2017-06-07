@@ -76,16 +76,16 @@ public class TestRWPerformance implements Runnable {
 		for(final int dataSize : dataSizes) {
 			
 			try {					
-				FileUtil.deleteRecursive(dir.toPath());
-				dir.mkdirs();
-				tupleStore = TupleStoreFactory.getTupleStore(adapterName, dir);
-				
 				long timeRead = 0;
 				long timeWrite = 0;
 				
 				final String data = SyntheticDataGenerator.getRandomString(dataSize);
 	
 				for(int i = 0; i < RETRY; i++) {
+					FileUtil.deleteRecursive(dir.toPath());
+					dir.mkdirs();
+					tupleStore = TupleStoreFactory.getTupleStore(adapterName, dir);
+					
 					timeWrite += writeTuples(data);
 					timeRead += readTuples();
 				}
