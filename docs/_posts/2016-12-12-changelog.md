@@ -17,6 +17,7 @@ order: 1
 - Bugfix: Fixed the primary key for the JDBC osm-converter backend
 - Bugfix: Name of the a invalid distribution region is removed from sstable dir
 - Bugfix: Deleted tuples are now detected by bbox and value bytes
+- Bugfix: Prevent the creation of tuples with 'null' data
 
 ### Version 0.2.6 (Stable) - 23.05.2017
 - New Feature: Created the project mailing list
