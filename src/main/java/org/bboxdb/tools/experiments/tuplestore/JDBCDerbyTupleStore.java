@@ -48,7 +48,7 @@ public class JDBCDerbyTupleStore extends AbstractJDBCTupleStore {
 			DriverManager.getConnection("jdbc:derby:" + getDBFile().getAbsolutePath() + ";shutdown=true");
 		} catch (SQLException e) {
 			// See https://db.apache.org/derby/docs/10.9/devguide/tdevdvlp40464.html
-			System.err.println("# Got exception while shutdown system, but this is normal for derby" + e);
+			// System.err.println("# Got exception while shutdown system, but this is normal for derby" + e);
 		}
 	}
 }
