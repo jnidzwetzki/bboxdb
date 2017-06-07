@@ -67,6 +67,10 @@ public class SSTableTupleStore implements TupleStore {
 
 	@Override
 	public void open() throws Exception {
+		
+		final File dataDir = new File(dir.getAbsoluteFile() + "/data");
+		dataDir.mkdirs();
+		
 		final SSTableName tableName = new SSTableName("2_group1_test");
 		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));
 		
