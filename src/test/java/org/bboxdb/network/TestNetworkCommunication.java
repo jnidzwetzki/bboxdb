@@ -74,10 +74,14 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testSendDisconnectPackage() {
+		System.out.println("=== Running testSendDisconnectPackage");
+
 		final BBoxDBClient scalephantClient = connectToServer();
 		Assert.assertTrue(scalephantClient.isConnected());
 		disconnectFromServer(scalephantClient);
 		Assert.assertFalse(scalephantClient.isConnected());
+		
+		System.out.println("=== End testSendDisconnectPackage");
 	}
 	
 	/**
@@ -87,6 +91,8 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void sendDeletePackage() throws InterruptedException, ExecutionException {
+		System.out.println("=== Running sendDeletePackage");
+
 		final BBoxDBClient scalephantClient = connectToServer();
 		
 		final EmptyResultFuture result = scalephantClient.deleteTable("1_testgroup1_relation3");
@@ -99,6 +105,8 @@ public class TestNetworkCommunication {
 		
 		disconnectFromServer(scalephantClient);
 		Assert.assertFalse(scalephantClient.isConnected());
+		
+		System.out.println("=== End sendDeletePackage");
 	}
 	
 	/**
@@ -106,6 +114,8 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testConnectionState() {
+		System.out.println("=== Running testConnectionState");
+
 		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
 		final BBoxDBClient scalephantClient = new BBoxDBClient("127.0.0.1", port);
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, scalephantClient.getConnectionState());
@@ -113,6 +123,8 @@ public class TestNetworkCommunication {
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
 		scalephantClient.disconnect();
 		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, scalephantClient.getConnectionState());
+	
+		System.out.println("=== End testConnectionState");
 	}
 	
 	/**
@@ -122,6 +134,8 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void sendDeletePackage2() throws InterruptedException, ExecutionException {
+		System.out.println("=== Running sendDeletePackage2");
+
 		final BBoxDBClient scalephantClient = connectToServer();
 		
 		// First call
@@ -143,6 +157,8 @@ public class TestNetworkCommunication {
 		
 		disconnectFromServer(scalephantClient);
 		Assert.assertFalse(scalephantClient.isConnected());		
+		
+		System.out.println("=== End sendDeletePackage2");
 	}
 
 	/**
@@ -152,6 +168,8 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException {
+		System.out.println("=== Running testInsertAndDelete");
+
 		final String distributionGroup = "1_testgroup1"; 
 		final String table = distributionGroup + "_relation4";
 		final String key = "key12";
@@ -209,6 +227,8 @@ public class TestNetworkCommunication {
 		
 		// Disconnect
 		disconnectFromServer(scalephantClient);
+		
+		System.out.println("=== End testInsertAndDelete");
 	}
 	
 	/**
@@ -218,6 +238,7 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testInsertAndBoundingBoxQuery() throws InterruptedException, ExecutionException {
+		System.out.println("=== Running testInsertAndBoundingBoxQuery");
 		final String distributionGroup = "2_testgroup"; 
 		final String table = distributionGroup + "_relation9999";
 		
@@ -257,6 +278,7 @@ public class TestNetworkCommunication {
 		Assert.assertTrue(resultList.contains(tuple3));
 		Assert.assertFalse(resultList.contains(tuple4));
 		Assert.assertFalse(resultList.contains(tuple5));
+		System.out.println("=== End testInsertAndBoundingBoxQuery");
 	}
 	
 	
@@ -268,6 +290,7 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testPaging() throws InterruptedException, ExecutionException {
+		System.out.println("=== Running testPaging");
 		final String distributionGroup = "2_testgroup"; 
 		final String table = distributionGroup + "_relation9999";
 		
@@ -338,6 +361,8 @@ public class TestNetworkCommunication {
 		future5.waitForAll();
 		final List<Tuple> resultList5 = Lists.newArrayList(future5.iterator());		
 		Assert.assertEquals(5, resultList5.size());
+		
+		System.out.println("=== End testPaging");
 	}
 	
 	/**
@@ -347,6 +372,8 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testInsertAndBoundingBoxTimeQuery() throws InterruptedException, ExecutionException {
+		System.out.println("=== Running testInsertAndBoundingBoxTimeQuery");
+
 		final String distributionGroup = "2_testgroup"; 
 		final String table = distributionGroup + "_relation9999";
 		
@@ -386,6 +413,8 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultList.contains(tuple3));
 		Assert.assertFalse(resultList.contains(tuple4));
 		Assert.assertFalse(resultList.contains(tuple5));
+		
+		System.out.println("=== End testInsertAndBoundingBoxTimeQuery");
 	}
 	
 	
@@ -396,6 +425,8 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void sendKeepAlivePackage() throws InterruptedException, ExecutionException {
+		System.out.println("=== Running sendKeepAlivePackage");
+
 		final BBoxDBClient scalephantClient = connectToServer();
 		
 		final EmptyResultFuture result = scalephantClient.sendKeepAlivePackage();
@@ -407,6 +438,8 @@ public class TestNetworkCommunication {
 		
 		disconnectFromServer(scalephantClient);
 		Assert.assertFalse(scalephantClient.isConnected());
+		
+		System.out.println("=== End sendKeepAlivePackage");
 	}
 	
 	
