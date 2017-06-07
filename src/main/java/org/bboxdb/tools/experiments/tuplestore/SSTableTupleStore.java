@@ -62,6 +62,7 @@ public class SSTableTupleStore implements TupleStore {
 	public void close() throws Exception {
 		if(storageManager != null) {
 			storageManager.shutdown();
+			storageManager = null;
 		}
 	}
 
