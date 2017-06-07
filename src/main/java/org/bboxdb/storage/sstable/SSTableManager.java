@@ -237,6 +237,11 @@ public class SSTableManager implements BBoxDBService {
 			throw new IllegalStateException("waitForShutdownToComplete called but no shutdown is active");
 		}
 		
+		// No flush thread active, unable to write data to disk
+		if(! configuration.isStorageRunMemtableFlushThread()) {
+			return;
+		}
+		
 		final Queue<Memtable> memtablesToFlush = tupleStoreInstances.getMemtablesToFlush();
 		
 		// New writes are rejected, so we wait for the unflushed memtables
