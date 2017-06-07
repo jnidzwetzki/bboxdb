@@ -93,12 +93,11 @@ public class TestStorageManager {
 		Assert.assertEquals(null, storageManager.get("1000"));
 	}
 	
-	@Test
+	@Test(expected=NullPointerException.class)
 	public void testStoreNullTuple() throws Exception {
-		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, null);
+		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, null); // This should cause an NPE
 		storageManager.put(createdTuple);
-		
-		Assert.assertEquals(createdTuple, storageManager.get("1"));
+		Assert.assertTrue(false);
 	}
 	
 	@Test
