@@ -42,9 +42,9 @@ public class TestRWPerformance implements Runnable {
 	protected TupleStore tupleStore = null;
 	
 	/**
-	 * The amount of tuples (one million)
+	 * The amount of tuples
 	 */
-	public final static int TUPLES = 1000000;
+	public final static int TUPLES = 100000;
 	
 	/** 
 	 * The retry counter
