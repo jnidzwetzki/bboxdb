@@ -75,7 +75,7 @@ public class OSMJDBCNodeStore implements OSMNodeStore {
 				Statement statement = connection.createStatement();
 				
 				statement.executeUpdate("DROP TABLE if exists osmnode");
-				statement.executeUpdate("CREATE TABLE osmnode (id BIGINT, data BLOB)");
+				statement.executeUpdate("CREATE TABLE osmnode (id BIGINT PRIMARY KEY, data BLOB)");
 				statement.close();
 				
 				final PreparedStatement insertNode = connection.prepareStatement("INSERT into osmnode (id, data) values (?,?)");

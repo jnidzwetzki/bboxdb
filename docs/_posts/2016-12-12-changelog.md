@@ -11,6 +11,7 @@ order: 1
 - Improvement: Added a fixed cell data structure
 - Improvement: Switched from guava 21.0 to 22.0
 - Bugfix: The JVM tool options are added to the bboxdb_execute script
+- Bugfix: Fixed the primary key for the JDBC osm-converter backend
 
 ### Version 0.2.6 (Stable) - 23.05.2017
 - New Feature: Created the project mailing list
