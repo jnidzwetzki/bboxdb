@@ -18,6 +18,7 @@
 package org.bboxdb.storage.entity;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.bboxdb.util.MicroSecondTimestampProvider;
 
@@ -49,9 +50,9 @@ public class Tuple implements Comparable<Tuple> {
 	protected final long receivedTimestamp;
 	
 	public Tuple(final String key, final BoundingBox boundingBox, final byte[] dataBytes) {
-		this.key = key;
+		this.key = Objects.requireNonNull(key);
 		this.boundingBox = boundingBox;
-		this.dataBytes = dataBytes;
+		this.dataBytes = Objects.requireNonNull(dataBytes);
 		this.versionTimestamp = MicroSecondTimestampProvider.getNewTimestamp();
 		this.receivedTimestamp = MicroSecondTimestampProvider.getNewTimestamp();
 	}
@@ -59,9 +60,9 @@ public class Tuple implements Comparable<Tuple> {
 	public Tuple(final String key, final BoundingBox boundingBox, 
 			final byte[] dataBytes, final long versionTimestamp) {
 		
-		this.key = key;
+		this.key = Objects.requireNonNull(key);
 		this.boundingBox = boundingBox;
-		this.dataBytes = dataBytes;
+		this.dataBytes = Objects.requireNonNull(dataBytes);
 		this.versionTimestamp = versionTimestamp;
 		this.receivedTimestamp = System.currentTimeMillis();
 	}

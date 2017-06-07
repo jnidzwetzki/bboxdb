@@ -22,11 +22,11 @@ import org.bboxdb.storage.sstable.SSTableConst;
 public class DeletedTuple extends Tuple {
 
 	public DeletedTuple(final String key) {
-		super(key, null, null);
+		super(key, null, SSTableConst.DELETED_MARKER);
 	}
 	
 	public DeletedTuple(final String key, final long versionTimestamp) {
-		super(key, null, null, versionTimestamp);
+		super(key, null, SSTableConst.DELETED_MARKER, versionTimestamp);
 	}
 
 	@Override
