@@ -49,7 +49,13 @@ public class SSTableTupleStore implements TupleStore {
 
 	@Override
 	public Tuple readTuple(final String key) throws Exception {
-		return storageManager.get(key);
+		final Tuple tuple = storageManager.get(key);
+		
+		if(tuple == null) {
+			throw new RuntimeException("Unable to locate tuple for key: " + key);
+		}
+		
+		return tuple;
 	}
 
 	@Override
