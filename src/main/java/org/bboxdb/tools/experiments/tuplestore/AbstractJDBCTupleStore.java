@@ -109,7 +109,7 @@ public abstract class AbstractJDBCTupleStore implements TupleStore {
 		Statement statement = connection.createStatement();
 		
 		statement.executeUpdate("DROP TABLE if exists tuples");
-		statement.executeUpdate("CREATE TABLE tuples (id BIGINT, data BLOB)");
+		statement.executeUpdate("CREATE TABLE tuples (id INT, data BLOB)");
 		statement.close();
 		
 		insertStatement = connection.prepareStatement("INSERT into tuples (id, data) values (?,?)");
