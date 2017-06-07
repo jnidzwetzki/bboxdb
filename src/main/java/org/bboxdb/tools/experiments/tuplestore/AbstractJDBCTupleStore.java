@@ -117,12 +117,15 @@ public abstract class AbstractJDBCTupleStore implements TupleStore {
 	
 	@Override
 	public void open() throws Exception {
+		final boolean newCreated = ! getDBFile().exists();
+			
 		connection = DriverManager.getConnection(getConnectionURL());
 		
-		if(! getDBFile().exists()) {
+		if(newCreated) {
 			final Statement statement = connection.createStatement();		
 			statement.executeUpdate(getCreateTableSQL());
 			statement.close();
+			connection.commit();
 		}
 		
 		insertStatement = connection.prepareStatement("INSERT into tuples (id, data) values (?,?)");

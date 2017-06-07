@@ -37,6 +37,6 @@ public class JDBCDerbyTupleStore extends AbstractJDBCTupleStore {
 
 	@Override
 	public File getDBFile() {
-		return new File(dir.getAbsolutePath());
+		return new File(dir.getAbsolutePath() + "/dbtest.db");
 	}
 }
