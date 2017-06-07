@@ -39,7 +39,7 @@ public class TestTableCheckpoint {
 	/**
 	 * The name of the test relation
 	 */
-	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_abc");
+	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_tablecheckpoint");
 	
 	/**
 	 * Ensure that the distribution group is recreated
