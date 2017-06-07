@@ -170,7 +170,7 @@ public class TestNetworkCommunication {
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running testInsertAndDelete");
 
-		final String distributionGroup = "1_testgroup1"; 
+		final String distributionGroup = "1_testgroupdel"; 
 		final String table = distributionGroup + "_relation4";
 		final String key = "key12";
 		
