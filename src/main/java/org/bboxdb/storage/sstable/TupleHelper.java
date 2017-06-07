@@ -113,25 +113,30 @@ public class TupleHelper {
 	 * @throws IOException
 	 */
 	public static void writeTupleToStream(final Tuple tuple, final OutputStream outputStream) throws IOException {
-		final byte[] keyBytes = tuple.getKey().getBytes();
-		final ByteBuffer keyLengthBytes = DataEncoderHelper.shortToByteBuffer((short) keyBytes.length);
+		try {
+			final byte[] keyBytes = tuple.getKey().getBytes();
+			final ByteBuffer keyLengthBytes = DataEncoderHelper.shortToByteBuffer((short) keyBytes.length);
 
-		final byte[] boundingBoxBytes = tuple.getBoundingBoxBytes();
-		final byte[] data = tuple.getDataBytes();
-		
-		final ByteBuffer boxLengthBytes = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
-		final ByteBuffer dataLengthBytes = DataEncoderHelper.intToByteBuffer(data.length);
-	    final ByteBuffer versionTimestampBytes = DataEncoderHelper.longToByteBuffer(tuple.getVersionTimestamp());
-	    final ByteBuffer receivedTimestampBytes = DataEncoderHelper.longToByteBuffer(tuple.getReceivedTimestamp());
+			final byte[] boundingBoxBytes = tuple.getBoundingBoxBytes();
+			final byte[] data = tuple.getDataBytes();
+			
+			final ByteBuffer boxLengthBytes = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
+			final ByteBuffer dataLengthBytes = DataEncoderHelper.intToByteBuffer(data.length);
+			final ByteBuffer versionTimestampBytes = DataEncoderHelper.longToByteBuffer(tuple.getVersionTimestamp());
+			final ByteBuffer receivedTimestampBytes = DataEncoderHelper.longToByteBuffer(tuple.getReceivedTimestamp());
 
-	    outputStream.write(keyLengthBytes.array());
-	    outputStream.write(boxLengthBytes.array());
-	    outputStream.write(dataLengthBytes.array());
-	    outputStream.write(versionTimestampBytes.array());
-	    outputStream.write(receivedTimestampBytes.array());
-	    outputStream.write(keyBytes);
-	    outputStream.write(boundingBoxBytes);
-	    outputStream.write(data);
+			outputStream.write(keyLengthBytes.array());
+			outputStream.write(boxLengthBytes.array());
+			outputStream.write(dataLengthBytes.array());
+			outputStream.write(versionTimestampBytes.array());
+			outputStream.write(receivedTimestampBytes.array());
+			outputStream.write(keyBytes);
+			outputStream.write(boundingBoxBytes);
+			outputStream.write(data);
+		} catch (Exception e) {
+			System.out.println("Tuple: " + tuple);
+			throw e;
+		}
 	}
 	
 	/**
