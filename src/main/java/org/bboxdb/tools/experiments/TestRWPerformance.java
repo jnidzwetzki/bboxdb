@@ -74,11 +74,14 @@ public class TestRWPerformance implements Runnable {
 		System.out.println("#Size\tWrite\tRead");
 
 		for(final int dataSize : dataSizes) {
-			try {
-				
+			
+			try {				
 				if(tupleStore != null) {
 					tupleStore.close();
 				}
+				
+				FileUtil.deleteRecursive(dir.toPath());
+				dir.mkdirs();
 				
 				tupleStore = TupleStoreFactory.getTupleStore(adapterName, dir);
 				
@@ -163,8 +166,6 @@ public class TestRWPerformance implements Runnable {
 			System.err.println("Dir already exists, please remove");
 			System.exit(-1);
 		}
-
-		dir.mkdirs();
 		
 		// Delete database on exit
 		FileUtil.deleteDirOnExit(dir.toPath());

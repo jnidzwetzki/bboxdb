@@ -33,26 +33,33 @@ public class FileUtil {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 	        @Override
 	        public void run() {
-	        	
-	        	final Path directory = dirToDelete.toAbsolutePath();
-	        	try {
-					Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-					   @Override
-					   public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					       Files.delete(file);
-					       return FileVisitResult.CONTINUE;
-					   }
-
-					   @Override
-					   public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-					       Files.delete(dir);
-					       return FileVisitResult.CONTINUE;
-					   }
-					});
-				} catch (IOException e) {
-					System.err.println("Got Exception: " + e);
-				}
+	        	deleteRecursive(dirToDelete);
 	        }
 	    });
+	}
+	
+	/**
+	 * Delete the files recursive
+	 * @param dirToDelete
+	 */
+	public static void deleteRecursive(final Path dirToDelete) {
+		final Path directory = dirToDelete.toAbsolutePath();
+    	try {
+			Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+			   @Override
+			   public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+			       Files.delete(file);
+			       return FileVisitResult.CONTINUE;
+			   }
+
+			   @Override
+			   public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+			       Files.delete(dir);
+			       return FileVisitResult.CONTINUE;
+			   }
+			});
+		} catch (IOException e) {
+			System.err.println("Got Exception: " + e);
+		}
 	}
 }
