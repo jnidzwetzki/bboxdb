@@ -73,7 +73,9 @@ public class SSTableTupleStore implements TupleStore {
 		dataDir.mkdirs();
 		
 		final SSTableName tableName = new SSTableName("2_group1_test");
-		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));		
+		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));
+		
+		StorageRegistry.getInstance().deleteTable(tableName);
 		storageManager = StorageRegistry.getInstance().getSSTableManager(tableName);
 	}
 }
