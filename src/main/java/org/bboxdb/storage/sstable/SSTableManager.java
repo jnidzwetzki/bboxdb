@@ -214,10 +214,7 @@ public class SSTableManager implements BBoxDBService {
 		stopThreads();
 
 		// Close all sstables
-		for(final SSTableFacade facade : tupleStoreInstances.getSstableFacades()) {
-			facade.shutdown();
-		}
-		
+		tupleStoreInstances.getSstableFacades().forEach(f -> f.shutdown());		
 		tupleStoreInstances.clear();
 	}
 	
