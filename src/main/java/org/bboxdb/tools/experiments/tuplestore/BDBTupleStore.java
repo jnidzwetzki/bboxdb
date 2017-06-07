@@ -136,7 +136,7 @@ public class BDBTupleStore implements TupleStore {
 		final DatabaseConfig dbConfig = new DatabaseConfig();
 		dbConfig.setTransactional(USE_TRANSACTIONS);
 		dbConfig.setAllowCreate(true);
-		dbConfig.setSortedDuplicates(true);
+		//dbConfig.setSortedDuplicates(true);
 		dbConfig.setDeferredWrite(true);
 		//dbConfig.setKeyPrefixing(true);
 		//dbConfig.setNodeMaxEntries(128);
