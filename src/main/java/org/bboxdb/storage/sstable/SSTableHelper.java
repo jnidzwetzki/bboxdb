@@ -98,14 +98,20 @@ public class SSTableHelper {
 	 * @param directory
 	 * @param name
 	 * 
-	 * @return e.g. /tmp/bboxdb/data/2_dgroup1/relation1 
+	 * @return e.g. /tmp/bboxdb/data/2_dgroup1/relation1(_regionid)
 	 */
 	public static String getSSTableDir(final String directory, final SSTableName name) {
+		
+		final StringBuilder regionSuffix = new StringBuilder();
+		if(name.getRegionId() != SSTableName.INVALID_REGIONID) {
+			regionSuffix.append("_");
+			regionSuffix.append(name.getRegionId());
+		}
+		
 		return getDistributionGroupDir(directory, name)
 				+ File.separator
 				+ name.getTablename()
-				+ "_"
-				+ name.getRegionId();
+				+ regionSuffix.toString();
 	}
 	
 	/**

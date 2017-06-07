@@ -309,11 +309,11 @@ public class SSTableManager implements BBoxDBService {
 		final File dgroupDirHandle = new File(dgroupDir);
 				
 		if(! dgroupDirHandle.exists()) {
-			logger.info("Create a new dir for dgroup: " + dgroupDir);
+			logger.info("Create a new directory for dgroup: {}", dgroupDir);
 			dgroupDirHandle.mkdir();	
 			try {
 				writeMetaData();
-			} catch (ZookeeperException | ZookeeperNotFoundException | IOException e) {
+			} catch (Exception e) {
 				logger.error("Unable to write meta data", e);
 			}
 		}

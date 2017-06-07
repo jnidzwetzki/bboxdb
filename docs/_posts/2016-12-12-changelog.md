@@ -12,6 +12,7 @@ order: 1
 - Improvement: Switched from guava 21.0 to 22.0
 - Bugfix: The JVM tool options are added to the bboxdb_execute script
 - Bugfix: Fixed the primary key for the JDBC osm-converter backend
+- Bugfix: Name of the a invalid distribution region is removed from sstable dir
 
 ### Version 0.2.6 (Stable) - 23.05.2017
 - New Feature: Created the project mailing list
