@@ -277,6 +277,7 @@ public class SSTableManager implements BBoxDBService {
 			}
 		}
 		
+		// Complete shutdown by clearing running threads
 		runningThreads.clear();
 	}
 	

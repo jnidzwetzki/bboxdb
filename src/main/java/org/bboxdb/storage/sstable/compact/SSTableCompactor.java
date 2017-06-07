@@ -34,11 +34,6 @@ import org.slf4j.LoggerFactory;
 public class SSTableCompactor {
 
 	/**
-	 * The list of sstables to compact
-	 */
-	protected final List<SSTableKeyIndexReader> sstableIndexReader;
-
-	/**
 	 * Major or minor compaction? In a major compaction, the deleted tuple
 	 * marker can be removed.
 	 */
@@ -55,6 +50,11 @@ public class SSTableCompactor {
 	protected int writtenTuples;
 	
 	/**
+	 * The list of sstables to compact
+	 */
+	protected final List<SSTableKeyIndexReader> sstableIndexReader;
+
+	/**
 	 * The current SStable writer
 	 */
 	protected SSTableWriter sstableWriter;
@@ -63,8 +63,17 @@ public class SSTableCompactor {
 	 * The SStable manager
 	 */
 	protected final SSTableManager sstableManager;
-
-
+	
+	/**
+	 * The resulting writer
+	 */
+	protected final List<SSTableWriter> resultList = new ArrayList<>();
+	
+	/**
+	 * Was the compactification successfully
+	 */
+	protected boolean successfully = true;
+	
 	/**
 	 * The logger
 	 */
@@ -96,51 +105,76 @@ public class SSTableCompactor {
 	 * 
 	 * @return success or failure
 	 */
-	public List<SSTableWriter> executeCompactation() throws StorageManagerException {
-		
-		// The result
-		final List<SSTableWriter> resultList = new ArrayList<>();
-		
-		// The iterators
-		final List<Iterator<Tuple>> iterators = new ArrayList<>(sstableIndexReader.size());
-		
-		// The last read tuple from iterator
-		final List<Tuple> tuples = new ArrayList<>(sstableIndexReader.size());
-		
-		// Open iterators for input sstables
-		for(final SSTableKeyIndexReader reader : sstableIndexReader) {
-			iterators.add(reader.iterator());
+	public void executeCompactation() throws StorageManagerException {
+	
+		try {
+			// The iterators
+			final List<Iterator<Tuple>> iterators = new ArrayList<>(sstableIndexReader.size());
 			
-			// Until now, no tuple was read by this iterator
-			// it has to be refreshed by the next refreshTuple() call
-			tuples.add(null); 
-		}
-		
-		sstableWriter = openNewSSTableWriter(resultList);
-		
-		boolean done = false;
-		
-	    while(done == false) {
+			// The last read tuple from iterator
+			final List<Tuple> tuples = new ArrayList<>(sstableIndexReader.size());
 			
-			done = refreshTuple(iterators, tuples);
-			
-			final Tuple tuple = getTupleWithTheLowestKey(iterators, tuples);
-			
-			// Write the tuple
-			if(tuple != null) {
-				consumeTuplesForKey(tuples, tuple.getKey());
+			// Open iterators for input sstables
+			for(final SSTableKeyIndexReader reader : sstableIndexReader) {
+				iterators.add(reader.iterator());
 				
-				// Don't add deleted tuples to output in a major compaction
-				if(! (isMajorCompaction() && (tuple instanceof DeletedTuple))) {
-					createNewTableIfNeeded(resultList, tuple);
-					sstableWriter.addNextTuple(tuple);
-					writtenTuples++;
+				// Until now, no tuple was read by this iterator
+				// it has to be refreshed by the next refreshTuple() call
+				tuples.add(null); 
+			}
+			
+			sstableWriter = openNewSSTableWriter();
+			
+			boolean done = false;
+			
+			while(done == false) {
+				
+				done = refreshTuple(iterators, tuples);
+				
+				final Tuple tuple = getTupleWithTheLowestKey(iterators, tuples);
+				
+				// Write the tuple
+				if(tuple != null) {
+					consumeTuplesForKey(tuples, tuple.getKey());
+					
+					// Don't add deleted tuples to output in a major compaction
+					if(! (isMajorCompaction() && (tuple instanceof DeletedTuple))) {
+						createNewTableIfNeeded(tuple);
+						sstableWriter.addNextTuple(tuple);
+						writtenTuples++;
+					}
 				}
+			}
+			
+			sstableWriter.close();
+			sstableWriter = null;
+		} catch (StorageManagerException e) {
+			handleErrorDuringCompact();
+			throw e;
+		}
+	}
+
+	/**
+	 * Handle the error during compact
+	 */
+	protected void handleErrorDuringCompact() {
+		successfully = false;
+
+		// Close open writer
+		if(sstableWriter != null) {
+			try {
+				sstableWriter.close();
+			} catch (StorageManagerException e) {
+				logger.error("Got an exception while closing writer in error handler");
+			} finally {
+				sstableWriter = null;
 			}
 		}
 		
-		sstableWriter.close();
-		return resultList;
+		// Delete partial written results
+		logger.debug("Deleting partial written results");
+		resultList.forEach(s -> s.deleteFromDisk());
+		resultList.clear();
 	}
 
 	/**
@@ -149,13 +183,13 @@ public class SSTableCompactor {
 	 * @param tuple
 	 * @throws StorageManagerException
 	 */
-	protected void createNewTableIfNeeded(final List<SSTableWriter> resultList, final Tuple tuple)
+	protected void createNewTableIfNeeded(final Tuple tuple)
 			throws StorageManagerException {
 		
 		// Check max table size limit
 		if(sstableWriter.getWrittenBytes() + tuple.getSize() > SSTableConst.MAX_SSTABLE_SIZE) {
 			sstableWriter.close();
-			sstableWriter = openNewSSTableWriter(resultList);
+			sstableWriter = openNewSSTableWriter();
 		}
 	}
 
@@ -165,7 +199,7 @@ public class SSTableCompactor {
 	 * @return 
 	 * @throws StorageManagerException
 	 */
-	protected SSTableWriter openNewSSTableWriter(List<SSTableWriter> resultList) 
+	protected SSTableWriter openNewSSTableWriter() 
 			throws StorageManagerException {
 		
 		final long estimatedMaxNumberOfEntries = calculateNumberOfEntries(sstableIndexReader);
@@ -176,16 +210,10 @@ public class SSTableCompactor {
 		final SSTableWriter sstableWriter = new SSTableWriter(directory, sstableManager.getSSTableName(), 
 				tablenumber, estimatedMaxNumberOfEntries);
 				
-		try {
-			sstableWriter.open();
-			resultList.add(sstableWriter);
-			logger.info("Output file for compact: {}", sstableWriter.getSstableFile());
-			return sstableWriter;
-		} catch (StorageManagerException e) {			
-			sstableWriter.close();
-			
-			throw e;
-		}
+		sstableWriter.open();
+		resultList.add(sstableWriter);
+		logger.info("Output file for compact: {}", sstableWriter.getSstableFile());
+		return sstableWriter;
 	}
 
 	/**
@@ -302,5 +330,21 @@ public class SSTableCompactor {
 	 */
 	public int getWrittenTuples() {
 		return writtenTuples;
+	}
+	
+	/**
+	 * Get the writer result list
+	 * @return
+	 */
+	public List<SSTableWriter> getResultList() {
+		return resultList;
+	}
+	
+	/**
+	 * Was the compact successfully finished
+	 * @return
+	 */
+	public boolean isSuccessfullyFinished() {
+		return successfully;
 	}
 }

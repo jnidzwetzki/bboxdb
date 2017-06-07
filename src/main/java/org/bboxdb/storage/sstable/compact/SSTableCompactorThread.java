@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.regionsplit.AbstractRegionSplitStrategy;
 import org.bboxdb.distribution.regionsplit.RegionSplitStrategyFactory;
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
@@ -130,12 +129,13 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	}
 
 	/**
-	 * Merge multipe facades into a new one
+	 * Merge multiple facades into a new one
 	 * @param reader1
 	 * @param reader2
 	 * @throws StorageManagerException
 	 */
-	protected void mergeSSTables(final List<SSTableFacade> facades, final boolean majorCompaction) throws StorageManagerException {
+	protected void mergeSSTables(final List<SSTableFacade> facades, final boolean majorCompaction) 
+			throws StorageManagerException {
 	
 		if(facades == null || facades.isEmpty()) {
 			return;
@@ -154,7 +154,8 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		// Run the compact process
 		final SSTableCompactor ssTableCompactor = new SSTableCompactor(sstableManager, reader);
 		ssTableCompactor.setMajorCompaction(majorCompaction);
-		final List<SSTableWriter> newTables = ssTableCompactor.executeCompactation();
+		ssTableCompactor.executeCompactation();
+		final List<SSTableWriter> newTables = ssTableCompactor.getResultList();
 
 		final float mergeFactor = (float) ssTableCompactor.getWrittenTuples() / (float) ssTableCompactor.getReadTuples();
 		
@@ -200,13 +201,13 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 
 	/**
 	 * Register a new sstable facade and delete the old ones
-	 * @param oldTables
+	 * @param oldFacades
 	 * @param directory
 	 * @param name
 	 * @param tablenumber
 	 * @throws StorageManagerException
 	 */
-	protected void registerNewFacadeAndDeleteOldInstances(final List<SSTableFacade> oldTables, 
+	protected void registerNewFacadeAndDeleteOldInstances(final List<SSTableFacade> oldFacades, 
 			final List<SSTableWriter> newTableWriter) throws StorageManagerException {
 		
 		final List<SSTableFacade> newFacedes = new ArrayList<>();
@@ -219,13 +220,11 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			newFacedes.add(newFacade);
 		}
 		
-		// Register the new sstable reader
-		sstableManager.getTupleStoreInstances().replaceCompactedSStables(newFacedes, oldTables);
+		// Switch facades in registry
+		sstableManager.getTupleStoreInstances().replaceCompactedSStables(newFacedes, oldFacades);
 
-		// Unregister and delete the files
-		for(final ReadOnlyTupleStorage facade : oldTables) {
-			facade.deleteOnClose();
-		}
+		// Schedule facades for deletion
+		oldFacades.forEach(f -> f.deleteOnClose());
 	}
 
 	/***

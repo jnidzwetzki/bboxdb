@@ -219,7 +219,7 @@ public class SSTableWriter implements AutoCloseable {
 			exceptionDuringWrite = true;
 			throw new StorageManagerException("Exception while closing streams", e);
 		} finally {
-			handleWriteException();
+			checkForWriteException();
 		}
 	}
 
@@ -227,27 +227,34 @@ public class SSTableWriter implements AutoCloseable {
 	 *  Delete half written files if an exception has occurred
 	 *  The variable exceptionDuringWrite is set to true in every catch block
 	 */
-	protected void handleWriteException() {
+	protected void checkForWriteException() {
 		if(exceptionDuringWrite == true) {
-			if(sstableFile != null && sstableFile.exists()) {
-				sstableFile.delete();
-			}
-			
-			if(sstableIndexFile != null && sstableIndexFile.exists()) {
-				sstableIndexFile.delete();
-			}
-			
-			if(sstableBloomFilterFile != null && sstableBloomFilterFile.exists()) {
-				sstableBloomFilterFile.delete();
-			}
-			
-			if(spatialIndexFile != null && spatialIndexFile.exists()) {
-				spatialIndexFile.delete();
-			}
-			
-			if(metadatafile != null && metadatafile.exists()) {
-				metadatafile.delete();
-			}
+			deleteFromDisk();
+		}
+	}
+	
+	/**
+	 * Delete written data from disk
+	 */
+	public void deleteFromDisk() {
+		if(sstableFile != null && sstableFile.exists()) {
+			sstableFile.delete();
+		}
+		
+		if(sstableIndexFile != null && sstableIndexFile.exists()) {
+			sstableIndexFile.delete();
+		}
+		
+		if(sstableBloomFilterFile != null && sstableBloomFilterFile.exists()) {
+			sstableBloomFilterFile.delete();
+		}
+		
+		if(spatialIndexFile != null && spatialIndexFile.exists()) {
+			spatialIndexFile.delete();
+		}
+		
+		if(metadatafile != null && metadatafile.exists()) {
+			metadatafile.delete();
 		}
 	}
 	

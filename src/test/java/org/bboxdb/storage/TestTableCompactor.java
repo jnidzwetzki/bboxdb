@@ -74,7 +74,8 @@ public class TestTableCompactor {
 		storageManager.clear();
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
-		final List<SSTableWriter> resultWriter = compactor.executeCompactation();
+		compactor.executeCompactation();
+		final List<SSTableWriter> resultWriter = compactor.getResultList();
 		
 		Assert.assertEquals(1, resultWriter.size());
 		Assert.assertEquals(2, compactor.getReadTuples());
@@ -313,7 +314,8 @@ public class TestTableCompactor {
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.setMajorCompaction(majorCompaction);
-		final List<SSTableWriter> resultWriter = compactor.executeCompactation();
+		compactor.executeCompactation();
+		final List<SSTableWriter> resultWriter = compactor.getResultList();
 		
 		Assert.assertEquals(1, resultWriter.size());
 		
