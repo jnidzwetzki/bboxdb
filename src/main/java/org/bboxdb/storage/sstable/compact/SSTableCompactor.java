@@ -136,13 +136,7 @@ public class SSTableCompactor {
 				// Write the tuple
 				if(tuple != null) {
 					consumeTuplesForKey(tuples, tuple.getKey());
-					
-					// Don't add deleted tuples to output in a major compaction
-					if(! (isMajorCompaction() && (tuple instanceof DeletedTuple))) {
-						createNewTableIfNeeded(tuple);
-						sstableWriter.addNextTuple(tuple);
-						writtenTuples++;
-					}
+					addTupleToWriter(tuple);
 				}
 			}
 			
@@ -152,6 +146,22 @@ public class SSTableCompactor {
 			handleErrorDuringCompact();
 			throw e;
 		}
+	}
+	
+	/**
+	 * Add the given tuple to the output file
+	 * @param tuple
+	 * @throws StorageManagerException
+	 */
+	protected void addTupleToWriter(final Tuple tuple) throws StorageManagerException {
+		// Don't add deleted tuples to output in a major compaction
+		if(isMajorCompaction() && tuple instanceof DeletedTuple) {
+			return;
+		}
+		
+		createNewTableIfNeeded(tuple);
+		sstableWriter.addNextTuple(tuple);
+		writtenTuples++;
 	}
 
 	/**
