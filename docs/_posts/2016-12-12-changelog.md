@@ -9,6 +9,7 @@ order: 1
 - New Feature: Added the TestFixedGrid experiment
 - New Feature: Added a tuple read / write experiment
 - Improvement: Added a fixed cell data structure
+- Improvement: Switched from guava 21.0 to 22.0
 - Bugfix: The JVM tool options are added to the bboxdb_execute script
 
 ### Version 0.2.6 (Stable) - 23.05.2017
