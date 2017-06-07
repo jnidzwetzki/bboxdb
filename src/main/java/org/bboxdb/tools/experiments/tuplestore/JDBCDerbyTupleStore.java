@@ -29,4 +29,9 @@ public class JDBCDerbyTupleStore extends AbstractJDBCTupleStore {
 	protected String getConnectionURL() {
 		return "jdbc:derby:" + dir.getAbsolutePath() + "/dbtest.db;create=true";
 	}
+
+	@Override
+	public String getCreateTableSQL() {
+		return "CREATE TABLE IF NOT EXISTS tuples (id INT, data BLOB)";
+	}
 }

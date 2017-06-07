@@ -103,11 +103,13 @@ public abstract class AbstractJDBCTupleStore implements TupleStore {
 		}	
 	}
 	
+	public abstract String getCreateTableSQL();
+	
 	@Override
 	public void open() throws Exception {
 		connection = DriverManager.getConnection(getConnectionURL());
 		Statement statement = connection.createStatement();		
-		statement.executeUpdate("CREATE TABLE IF NOT EXISTS tuples (id INT, data BLOB)");
+		statement.executeUpdate(getCreateTableSQL());
 		statement.close();
 		
 		insertStatement = connection.prepareStatement("INSERT into tuples (id, data) values (?,?)");
