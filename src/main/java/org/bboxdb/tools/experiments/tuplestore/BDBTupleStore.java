@@ -49,32 +49,15 @@ public class BDBTupleStore implements TupleStore {
 	 * The database
 	 */
 	private Database database;
+
+	/**
+	 * The database dir
+	 */
+	private File dir;
 	
-	public BDBTupleStore(final File dir) throws IOException {
-		final EnvironmentConfig envConfig = new EnvironmentConfig();
-		envConfig.setTransactional(USE_TRANSACTIONS);
-		envConfig.setAllowCreate(true);
-
-		environment = new Environment(dir, envConfig);
-
-		Transaction txn = null;
-		if(USE_TRANSACTIONS) {
-			txn = environment.beginTransaction(null, null);
-		}
-		
-		final DatabaseConfig dbConfig = new DatabaseConfig();
-		dbConfig.setTransactional(USE_TRANSACTIONS);
-		dbConfig.setAllowCreate(true);
-		dbConfig.setSortedDuplicates(true);
-		dbConfig.setDeferredWrite(true);
-		//dbConfig.setKeyPrefixing(true);
-		//dbConfig.setNodeMaxEntries(128);
-	
-		database = environment.openDatabase(txn, "test", dbConfig);
-
-		if(txn != null) {
-			txn.commit();
-		}		
+	public BDBTupleStore(final File dir) throws Exception {
+		this.dir = dir;
+		open();
 	}
 	
 	@Override
@@ -136,5 +119,33 @@ public class BDBTupleStore implements TupleStore {
 			environment.close();
 			environment = null;
 		}
+	}
+
+	@Override
+	public void open() throws Exception {
+		final EnvironmentConfig envConfig = new EnvironmentConfig();
+		envConfig.setTransactional(USE_TRANSACTIONS);
+		envConfig.setAllowCreate(true);
+
+		environment = new Environment(dir, envConfig);
+
+		Transaction txn = null;
+		if(USE_TRANSACTIONS) {
+			txn = environment.beginTransaction(null, null);
+		}
+		
+		final DatabaseConfig dbConfig = new DatabaseConfig();
+		dbConfig.setTransactional(USE_TRANSACTIONS);
+		dbConfig.setAllowCreate(true);
+		dbConfig.setSortedDuplicates(true);
+		dbConfig.setDeferredWrite(true);
+		//dbConfig.setKeyPrefixing(true);
+		//dbConfig.setNodeMaxEntries(128);
+	
+		database = environment.openDatabase(txn, "test", dbConfig);
+
+		if(txn != null) {
+			txn.commit();
+		}	
 	}
 }

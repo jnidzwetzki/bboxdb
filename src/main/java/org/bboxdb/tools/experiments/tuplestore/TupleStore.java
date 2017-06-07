@@ -37,5 +37,11 @@ public interface TupleStore extends AutoCloseable {
 	 * @return
 	 */
 	public Tuple readTuple(final String key) throws Exception;
+	
+	/**
+	 * Open the given tuple store
+	 * @throws Exception
+	 */
+	public void open() throws Exception;
 
 }

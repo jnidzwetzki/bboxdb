@@ -25,7 +25,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.bboxdb.storage.entity.Tuple;
@@ -36,34 +35,26 @@ public abstract class AbstractJDBCTupleStore implements TupleStore {
     /**
      * The insert statement
      */
-	private final PreparedStatement insertStatement;
+	private PreparedStatement insertStatement;
 	
 	/**
 	 * The select statement
 	 */
-	private final PreparedStatement selectStatement;
+	private PreparedStatement selectStatement;
 
 	/**
 	 * The database connection
 	 */
-	private final Connection connection;
+	private Connection connection;
 
 	/**
 	 * The database dir
 	 */
 	protected File dir;
 
-	public AbstractJDBCTupleStore(final File dir) throws SQLException {
+	public AbstractJDBCTupleStore(final File dir) throws Exception {
 		this.dir = dir;
-		connection = DriverManager.getConnection(getConnectionURL());
-		Statement statement = connection.createStatement();
-		
-		statement.executeUpdate("DROP TABLE if exists tuples");
-		statement.executeUpdate("CREATE TABLE tuples (id BIGINT, data BLOB)");
-		statement.close();
-		
-		insertStatement = connection.prepareStatement("INSERT into tuples (id, data) values (?,?)");
-		selectStatement = connection.prepareStatement("SELECT data from tuples where id = ?");
+		open();
 	}
 	
 	protected abstract String getConnectionURL();
@@ -111,5 +102,18 @@ public abstract class AbstractJDBCTupleStore implements TupleStore {
 		if(connection != null) {
 			connection.close();
 		}	
+	}
+	
+	@Override
+	public void open() throws Exception {
+		connection = DriverManager.getConnection(getConnectionURL());
+		Statement statement = connection.createStatement();
+		
+		statement.executeUpdate("DROP TABLE if exists tuples");
+		statement.executeUpdate("CREATE TABLE tuples (id BIGINT, data BLOB)");
+		statement.close();
+		
+		insertStatement = connection.prepareStatement("INSERT into tuples (id, data) values (?,?)");
+		selectStatement = connection.prepareStatement("SELECT data from tuples where id = ?");
 	}
 }

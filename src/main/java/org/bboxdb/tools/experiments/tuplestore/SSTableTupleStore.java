@@ -21,7 +21,6 @@ import java.io.File;
 import java.util.Arrays;
 
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -33,13 +32,15 @@ public class SSTableTupleStore implements TupleStore {
 	 * The storage manager
 	 */
 	private SSTableManager storageManager;
+	
+	/**
+	 * The database dir
+	 */
+	private File dir;
 
-	public SSTableTupleStore(final File dir) throws StorageManagerException {
-		final SSTableName tableName = new SSTableName("2_group1_test");
-		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));
-		
-		StorageRegistry.getInstance().deleteTable(tableName);
-		storageManager = StorageRegistry.getInstance().getSSTableManager(tableName);
+	public SSTableTupleStore(final File dir) throws Exception {
+		this.dir = dir;
+		open();
 	}
 
 	@Override
@@ -57,5 +58,14 @@ public class SSTableTupleStore implements TupleStore {
 		if(storageManager != null) {
 			storageManager.shutdown();
 		}
+	}
+
+	@Override
+	public void open() throws Exception {
+		final SSTableName tableName = new SSTableName("2_group1_test");
+		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));
+		
+		StorageRegistry.getInstance().deleteTable(tableName);
+		storageManager = StorageRegistry.getInstance().getSSTableManager(tableName);
 	}
 }

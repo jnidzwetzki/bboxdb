@@ -41,9 +41,15 @@ public class FileUtil {
 	/**
 	 * Delete the files recursive
 	 * @param dirToDelete
+	 * @return 
 	 */
-	public static void deleteRecursive(final Path dirToDelete) {
+	public static boolean deleteRecursive(final Path dirToDelete) {
 		final Path directory = dirToDelete.toAbsolutePath();
+		
+		if(! directory.toFile().exists()) {
+			return false;
+		}
+		
     	try {
 			Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
 			   @Override
@@ -61,5 +67,7 @@ public class FileUtil {
 		} catch (IOException e) {
 			System.err.println("Got Exception: " + e);
 		}
+    	
+    	return true;
 	}
 }

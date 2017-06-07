@@ -75,14 +75,10 @@ public class TestRWPerformance implements Runnable {
 
 		for(final int dataSize : dataSizes) {
 			
-			try {				
-				if(tupleStore != null) {
-					tupleStore.close();
-				}
-				
+			try {								
 				FileUtil.deleteRecursive(dir.toPath());
 				dir.mkdirs();
-				
+								
 				tupleStore = TupleStoreFactory.getTupleStore(adapterName, dir);
 				
 				long timeRead = 0;
@@ -110,6 +106,8 @@ public class TestRWPerformance implements Runnable {
 	 */
 	protected long writeTuples(final String data) throws Exception {
 		System.out.println("# Writing Tuples");
+		tupleStore.open();
+		
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		
 		for(int i = 0; i < TUPLES; i++) {
@@ -117,6 +115,7 @@ public class TestRWPerformance implements Runnable {
 			tupleStore.writeTuple(tuple);
 		}
 		
+		tupleStore.close();
 		return stopwatch.elapsed(TimeUnit.MILLISECONDS);
 	}
 
@@ -127,12 +126,14 @@ public class TestRWPerformance implements Runnable {
 	 */
 	protected long readTuples() throws Exception {
 		System.out.println("# Reading Tuples");
+		tupleStore.open();
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 
 		for(int i = 0; i < TUPLES; i++) {
 			tupleStore.readTuple(Integer.toString(i));
 		}
 		
+		tupleStore.close();
 		return stopwatch.elapsed(TimeUnit.MILLISECONDS);
 	}
 	

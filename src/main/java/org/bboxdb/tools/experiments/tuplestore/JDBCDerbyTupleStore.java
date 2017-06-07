@@ -18,11 +18,10 @@
 package org.bboxdb.tools.experiments.tuplestore;
 
 import java.io.File;
-import java.sql.SQLException;
 
 public class JDBCDerbyTupleStore extends AbstractJDBCTupleStore {
 
-	public JDBCDerbyTupleStore(final File dir) throws SQLException {
+	public JDBCDerbyTupleStore(final File dir) throws Exception {
 		super(dir);
 	}
 

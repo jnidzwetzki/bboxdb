@@ -18,7 +18,6 @@
 package org.bboxdb.tools.experiments.tuplestore;
 
 import java.io.File;
-import java.sql.SQLException;
 
 public class JDBCH2TupleStore extends AbstractJDBCTupleStore {
 	
@@ -27,7 +26,7 @@ public class JDBCH2TupleStore extends AbstractJDBCTupleStore {
      */
     protected final static String DB_FLAGS = ";LOG=0;CACHE_SIZE=262144;LOCK_MODE=0;UNDO_LOG=0";
     
-	public JDBCH2TupleStore(final File dir) throws SQLException {
+	public JDBCH2TupleStore(final File dir) throws Exception {
 		super(dir);
 	}
 
