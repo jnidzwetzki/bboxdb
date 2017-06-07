@@ -104,8 +104,12 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		try {
 			mergeSSTables(mergeTask.getMinorCompactTables(), false);
 			mergeSSTables(mergeTask.getMajorCompactTables(), true);				
-		} catch (Exception e) {
-			logger.error("Error while merging tables", e);
+		} catch (StorageManagerException e) {
+			if(! Thread.currentThread().isInterrupted()) {
+				logger.error("Error while merging tables", e);
+			} else {
+				logger.debug("Got exception on interrupted thread", e);
+			}
 		}
 	}
 

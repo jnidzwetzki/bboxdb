@@ -128,7 +128,7 @@ public class SSTableCompactor {
 			boolean done = false;
 			
 			while(done == false) {
-				
+				checkForThreadTermination();
 				done = refreshTuple(iterators, tuples);
 				
 				final Tuple tuple = getTupleWithTheLowestKey(iterators, tuples);
@@ -148,6 +148,16 @@ public class SSTableCompactor {
 		}
 	}
 	
+	/**
+	 * Check for the thread termination
+	 * @throws StorageManagerException 
+	 */
+	protected void checkForThreadTermination() throws StorageManagerException {
+		if(Thread.currentThread().isInterrupted()) {
+			throw new StorageManagerException("The curent thread is interrupted, stop compact");
+		}
+	}
+
 	/**
 	 * Add the given tuple to the output file
 	 * @param tuple
