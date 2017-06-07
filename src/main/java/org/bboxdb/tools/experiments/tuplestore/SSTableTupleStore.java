@@ -38,9 +38,8 @@ public class SSTableTupleStore implements TupleStore {
 	 */
 	private File dir;
 
-	public SSTableTupleStore(final File dir) throws Exception {
+	public SSTableTupleStore(final File dir) {
 		this.dir = dir;
-		open();
 	}
 
 	@Override

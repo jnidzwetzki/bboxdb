@@ -55,9 +55,8 @@ public class BDBTupleStore implements TupleStore {
 	 */
 	private File dir;
 	
-	public BDBTupleStore(final File dir) throws Exception {
+	public BDBTupleStore(final File dir) {
 		this.dir = dir;
-		open();
 	}
 	
 	@Override

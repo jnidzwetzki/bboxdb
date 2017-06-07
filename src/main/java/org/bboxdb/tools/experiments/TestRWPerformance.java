@@ -73,12 +73,12 @@ public class TestRWPerformance implements Runnable {
 		final List<Integer> dataSizes = Arrays.asList(1024, 10240, 102400);
 		System.out.println("#Size\tWrite\tRead");
 
+		FileUtil.deleteRecursive(dir.toPath());
+		dir.mkdirs();
+		
 		for(final int dataSize : dataSizes) {
 			
-			try {								
-				FileUtil.deleteRecursive(dir.toPath());
-				dir.mkdirs();
-								
+			try {									
 				tupleStore = TupleStoreFactory.getTupleStore(adapterName, dir);
 				
 				long timeRead = 0;
@@ -94,7 +94,23 @@ public class TestRWPerformance implements Runnable {
 				System.out.format("%d\t%d\t%d\n", dataSize, timeWrite / RETRY, timeRead / RETRY);
 			} catch (Exception e) {
 				System.out.println("Got exception: " + e);
+			} finally {
+				closeTupleStoreNE();
 			}
+		}
+	}
+
+	/**
+	 * Closing the tuple store without throwing an exception
+	 */
+	protected void closeTupleStoreNE() {
+		try {
+			if(tupleStore != null) {
+				tupleStore.close();
+				tupleStore = null;
+			}
+		} catch (Exception e) {
+			System.err.println("Got exception while closing tuple store" + e);
 		}
 	}
 

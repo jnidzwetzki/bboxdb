@@ -52,9 +52,8 @@ public abstract class AbstractJDBCTupleStore implements TupleStore {
 	 */
 	protected File dir;
 
-	public AbstractJDBCTupleStore(final File dir) throws Exception {
+	public AbstractJDBCTupleStore(final File dir) {
 		this.dir = dir;
-		open();
 	}
 	
 	protected abstract String getConnectionURL();
