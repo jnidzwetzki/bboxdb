@@ -170,13 +170,15 @@ public class TupleHelper {
 		final byte[] dataBytes = new byte[dataLength];
 		byteBuffer.get(dataBytes, 0, dataBytes.length);				
 		
-		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
-		
 		final String keyString = new String(keyBytes);
 		
 		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
-			return new DeletedTuple(keyString, versionTimestamp);
+			if(Arrays.equals(boxBytes, SSTableConst.DELETED_MARKER)) {
+				return new DeletedTuple(keyString, versionTimestamp);
+			}
 		}
+		
+		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
 		
 		return new Tuple(keyString, boundingBox, dataBytes, versionTimestamp, receivedTimestamp);
 	}
@@ -216,17 +218,18 @@ public class TupleHelper {
 		
 		final byte[] dataBytes = new byte[dataLength];
 		ByteStreams.readFully(inputStream, dataBytes);		
+
+		final String keyString = new String(keyBytes);
+
+		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
+			if(Arrays.equals(boxBytes, SSTableConst.DELETED_MARKER)) {
+				return new DeletedTuple(keyString, versionTimestamp);
+			}
+		}
 						
 		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
 		
-		final String keyString = new String(keyBytes);
-		
-		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
-			return new DeletedTuple(keyString, versionTimestamp);
-		}
-		
 		return new Tuple(keyString, boundingBox, dataBytes, versionTimestamp, receivedTimestamp);
 	}
-	
 	
 }

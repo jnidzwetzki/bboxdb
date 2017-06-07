@@ -16,6 +16,7 @@ order: 1
 - Bugfix: The JVM tool options are added to the bboxdb_execute script
 - Bugfix: Fixed the primary key for the JDBC osm-converter backend
 - Bugfix: Name of the a invalid distribution region is removed from sstable dir
+- Bugfix: Deleted tuples are now detected by bbox and value bytes
 
 ### Version 0.2.6 (Stable) - 23.05.2017
 - New Feature: Created the project mailing list
