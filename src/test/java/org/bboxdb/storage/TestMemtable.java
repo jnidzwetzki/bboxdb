@@ -110,12 +110,11 @@ public class TestMemtable {
 	 * Test the null tuple
 	 * @throws Exception
 	 */
-	@Test
+	@Test(expected=NullPointerException.class)
 	public void testStoreNullTuple() throws Exception {		
-		final Tuple createdTuple = new Tuple("1", null, null);
+		final Tuple createdTuple = new Tuple("1", null, null); // This should cause an NPE
 		memtable.put(createdTuple);
-		
-		Assert.assertEquals(createdTuple, memtable.get("1"));
+		Assert.assertTrue(false);
 	}
 	
 	/**

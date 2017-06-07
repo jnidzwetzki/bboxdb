@@ -35,8 +35,8 @@ public class TestTupleHelper {
 	 */
 	@Test
 	public void testGetMostRecentTuple() {
-		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, null, 1);
-		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, null, 2);
+		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
 		
 		Assert.assertEquals(null, TupleHelper.returnMostRecentTuple(null, null));
 		Assert.assertEquals(tupleA, TupleHelper.returnMostRecentTuple(tupleA, null));
