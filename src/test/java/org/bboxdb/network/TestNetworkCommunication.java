@@ -325,7 +325,7 @@ public class TestNetworkCommunication {
 		scalephantClient.setPagingEnabled(true);
 		scalephantClient.setTuplesPerPage((short) 2);
 		final TupleListFuture future4 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
-		System.out.println("CLient is waiting on: " + future4);
+		System.out.println("Client is waiting on: " + future4);
 		future4.waitForAll();
 		final List<Tuple> resultList4 = Lists.newArrayList(future4.iterator());		
 		Assert.assertEquals(5, resultList4.size());
@@ -339,8 +339,6 @@ public class TestNetworkCommunication {
 		final List<Tuple> resultList5 = Lists.newArrayList(future5.iterator());		
 		Assert.assertEquals(5, resultList5.size());
 	}
-	
-	
 	
 	/**
 	 * Insert some tuples and start a bounding box query afterwards
@@ -413,7 +411,7 @@ public class TestNetworkCommunication {
 	
 	
 	/**
-	 * Build a new connection to the scalephant server
+	 * Build a new connection to the bboxdb server
 	 * 
 	 * @return
 	 */
