@@ -24,7 +24,7 @@ public class JDBCH2TupleStore extends AbstractJDBCTupleStore {
     /**	
      * The H2 DB file flags
      */
-    protected final static String DB_FLAGS = ";LOG=0;CACHE_SIZE=262144;LOCK_MODE=0;UNDO_LOG=0";
+    protected final static String DB_FLAGS = ";CACHE_SIZE=131072";
     
 	public JDBCH2TupleStore(final File dir) throws Exception {
 		super(dir);
@@ -32,11 +32,16 @@ public class JDBCH2TupleStore extends AbstractJDBCTupleStore {
 
 	@Override
 	protected String getConnectionURL() {
-		return "jdbc:h2:nio:" + dir.getAbsolutePath() + "/dbtest.db" + DB_FLAGS;
+		return "jdbc:h2:nio:" + getDBFile().getAbsolutePath() + DB_FLAGS;
 	}
 
 	@Override
 	public String getCreateTableSQL() {
 		return "CREATE TABLE IF NOT EXISTS tuples (id INT PRIMARY KEY, data BLOB)";
+	}
+
+	@Override
+	public File getDBFile() {
+		return new File(dir.getAbsolutePath() + "/dbtest.db");
 	}
 }
