@@ -142,7 +142,11 @@ class MemtableFlushThread extends ExceptionSafeThread {
 		final List<SSTableFlushCallback> callbacks = StorageRegistry.getInstance().getSSTableFlushCallbacks();
 		
 		for(final SSTableFlushCallback callback : callbacks) {
-			callback.flushCallback(sstableManager.getSSTableName(), timestamp);
+			try {
+				callback.flushCallback(sstableManager.getSSTableName(), timestamp);
+			} catch(Exception e) {
+				logger.error("Got exception while executing callback", e);
+			}
 		}
 	}
 
