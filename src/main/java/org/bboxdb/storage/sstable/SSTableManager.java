@@ -255,11 +255,9 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	public void stopThreads() {
 
-		// Stop the corresponding threads
-		for(final Thread thread : runningThreads) {
-			logger.info("Interrupt thread: {}", thread.getName());
-			thread.interrupt();
-		}
+		// Interrupt the running threads
+		logger.info("Interrupt running service threads");
+		runningThreads.forEach(t -> t.interrupt());
 		
 		// Join threads
 		for(final Thread thread : runningThreads) {
