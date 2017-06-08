@@ -172,10 +172,8 @@ public class TupleHelper {
 		
 		final String keyString = new String(keyBytes);
 		
-		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
-			if(Arrays.equals(boxBytes, SSTableConst.DELETED_MARKER)) {
-				return new DeletedTuple(keyString, versionTimestamp);
-			}
+		if(isDeletedTuple(boxBytes, dataBytes)) {
+			return new DeletedTuple(keyString, versionTimestamp);
 		}
 		
 		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
@@ -221,15 +219,29 @@ public class TupleHelper {
 
 		final String keyString = new String(keyBytes);
 
-		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
-			if(Arrays.equals(boxBytes, SSTableConst.DELETED_MARKER)) {
-				return new DeletedTuple(keyString, versionTimestamp);
-			}
+		if(isDeletedTuple(boxBytes, dataBytes)) {
+			return new DeletedTuple(keyString, versionTimestamp);
 		}
 						
 		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
 		
 		return new Tuple(keyString, boundingBox, dataBytes, versionTimestamp, receivedTimestamp);
+	}
+	
+	/**
+	 * Is this a deleted tuple?
+	 * @param boxBytes
+	 * @param dataBytes
+	 * @return
+	 */
+	protected static boolean isDeletedTuple(final byte[] boxBytes, final byte[] dataBytes) {
+		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
+			if(Arrays.equals(boxBytes, SSTableConst.DELETED_MARKER)) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 }
