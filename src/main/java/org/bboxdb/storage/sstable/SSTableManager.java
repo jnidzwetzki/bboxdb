@@ -210,19 +210,20 @@ public class SSTableManager implements BBoxDBService {
 		storageState.dispatchToStopping();
 		
 		// Flush in memory data
-		final Memtable activeMemtable = tupleStoreInstances.getMemtable();
-		
-		if(activeMemtable != null) {
-			// Flush in memory data	
-			flushAndInitMemtable();
+		if(configuration.isStorageRunMemtableFlushThread()) {
+			final Memtable activeMemtable = tupleStoreInstances.getMemtable();
 			
-			try {
-				if(configuration.isStorageRunMemtableFlushThread()) {
-					tupleStoreInstances.waitForMemtableFlush(activeMemtable);
+			if(activeMemtable != null) {
+				// Flush in memory data	
+				flushAndInitMemtable();
+				
+				try {
+						tupleStoreInstances.waitForMemtableFlush(activeMemtable);
+					
+				} catch (InterruptedException e) {
+					logger.info("Got interrupted exception while waiting for memtable flush");
+					Thread.currentThread().interrupt();
 				}
-			} catch (InterruptedException e) {
-				logger.info("Got interrupted exception while waiting for memtable flush");
-				Thread.currentThread().interrupt();
 			}
 		}
 		
