@@ -118,8 +118,8 @@ public class SSTableManager implements BBoxDBService {
 	@Override
 	public void init() {
 		
-		if(storageState.isInNewState()) {
-			logger.warn("SSTable manager state is not new init() is called" + storageState.getState());
+		if(! storageState.isInNewState()) {
+			logger.warn("SSTable manager state is not new init() is called: {}", storageState.getState());
 			return;
 		}
 		
@@ -219,8 +219,7 @@ public class SSTableManager implements BBoxDBService {
 				flushAndInitMemtable();
 				
 				try {
-						tupleStoreInstances.waitForMemtableFlush(activeMemtable);
-					
+					tupleStoreInstances.waitForMemtableFlush(activeMemtable);
 				} catch (InterruptedException e) {
 					logger.info("Got interrupted exception while waiting for memtable flush");
 					Thread.currentThread().interrupt();
