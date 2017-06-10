@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
+import org.bboxdb.util.ExceptionSafeThread;
 import org.bboxdb.util.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +124,7 @@ public class NetworkConnectionService implements BBoxDBService {
 	 * The connection dispatcher
 	 *
 	 */
-	class ConnectionDispatcher implements Runnable {
+	class ConnectionDispatcher extends ExceptionSafeThread {
 
 		/**
 		 * The shutdown signal
@@ -136,7 +137,7 @@ public class NetworkConnectionService implements BBoxDBService {
 		private ServerSocket serverSocket;
 
 		@Override
-		public void run() {
+		public void runThread() {
 			
 			logger.info("Starting new connection dispatcher");
 			
