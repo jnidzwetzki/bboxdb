@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -54,7 +54,7 @@ public class PackageRouter {
 	/**
 	 * The thread pool
 	 */
-	protected final ThreadPoolExecutor threadPool;
+	protected final ExecutorService threadPool;
 	
 	/**
 	 * The client connection handler
@@ -77,7 +77,7 @@ public class PackageRouter {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(PackageRouter.class);
 
-	public PackageRouter(final ThreadPoolExecutor threadPool, 
+	public PackageRouter(final ExecutorService threadPool, 
 			final ClientConnectionHandler clientConnectionHandler) {
 		
 		this.threadPool = threadPool;
@@ -121,7 +121,7 @@ public class PackageRouter {
 		};
 		
 		// Submit the runnable to our pool
-		if(threadPool.isTerminating()) {
+		if(threadPool.isShutdown()) {
 			logger.warn("Thread pool is shutting down, don't route package: " + packageSequence);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_SHUTDOWN);
 			clientConnectionHandler.writeResultPackageNE(responsePackage);

@@ -86,7 +86,7 @@ public class HandleKeyQuery implements QueryHandler {
 		};
 
 		// Submit the runnable to our pool
-		if(clientConnectionHandler.getThreadPool().isTerminating()) {
+		if(clientConnectionHandler.getThreadPool().isShutdown()) {
 			logger.warn("Thread pool is shutting down, don't execute query: {}", packageSequence);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_SHUTDOWN);
 			clientConnectionHandler.writeResultPackage(responsePackage);

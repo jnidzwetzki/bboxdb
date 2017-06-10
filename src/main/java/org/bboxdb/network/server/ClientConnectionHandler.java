@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
 
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
@@ -106,7 +106,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	/**
 	 * The thread pool
 	 */
-	private final ThreadPoolExecutor threadPool;
+	private final ExecutorService threadPool;
 	
 	/**
 	 * The package router
@@ -169,7 +169,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		threadPool = ExecutorUtil.getBoundThreadPoolExecutor(10, MAX_PENDING_REQUESTS);
 
 		// The package router
-		packageRouter = new PackageRouter(getThreadPool(), this);
+		packageRouter = new PackageRouter(threadPool, this);
 		
 		// The pending packages for compression 
 		pendingCompressionPackages = new ArrayList<>();
@@ -538,7 +538,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		};
 
 		// Submit the runnable to our pool
-		if(getThreadPool().isTerminating()) {
+		if(threadPool.isShutdown()) {
 			logger.warn("Thread pool is shutting down, don't execute query: {}", querySequence);
 			writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));
 		} else {
@@ -574,7 +574,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		return activeQueries;
 	}
 
-	public ThreadPoolExecutor getThreadPool() {
+	public ExecutorService getThreadPool() {
 		return threadPool;
 	}
 
