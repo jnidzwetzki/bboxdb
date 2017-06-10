@@ -171,7 +171,7 @@ public class NetworkConnectionService implements BBoxDBService {
 		 * @param clientSocket
 		 */
 		protected void handleConnection(final Socket clientSocket) {
-			logger.debug("Got new connection from: " + clientSocket.getInetAddress());
+			logger.debug("Got new connection from: {}", clientSocket.getInetAddress());
 			threadPool.submit(new ClientConnectionHandler(clientSocket));
 		}
 	}
