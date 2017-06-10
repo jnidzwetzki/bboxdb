@@ -198,7 +198,7 @@ public class SSTableManager implements BBoxDBService {
 	 * Shutdown the instance
 	 */
 	@Override
-	public void shutdown() {
+	public synchronized void shutdown() {
 		logger.info("Shuting down the instance for table: " + sstablename.getFullname());
 		
 		// Set ready to false and reject write requests
@@ -231,7 +231,7 @@ public class SSTableManager implements BBoxDBService {
 	/**
 	 * Wait for the shutdown to complete
 	 */
-	public void waitForShutdownToComplete() {
+	public void awaitShutdown() {
 		
 		if(storageState.isReady()) {
 			throw new IllegalStateException("waitForShutdownToComplete called but no shutdown is active");
@@ -253,10 +253,6 @@ public class SSTableManager implements BBoxDBService {
 				Thread.currentThread().interrupt();
 				return;
 			}
-		}
-		
-		if(getMemtable() != null && ! getMemtable().isEmpty()) {
-			logger.warn("Memtable is not empty after shutdown().");
 		}
 		
 		if(! memtablesToFlush.isEmpty() ) {
@@ -654,7 +650,7 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	public void clear() throws StorageManagerException {
 		shutdown();
-		waitForShutdownToComplete();
+		awaitShutdown();
 		
 		deletePersistentTableData(storageDir, getSSTableName());
 		

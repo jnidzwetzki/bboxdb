@@ -164,7 +164,7 @@ public class StorageRegistry {
 		logger.info("Shuting down storage interface for: {}", table);
 		final SSTableManager sstableManager = managerInstances.remove(table);
 		sstableManager.shutdown();	
-		sstableManager.waitForShutdownToComplete();
+		sstableManager.awaitShutdown();
 		logger.info("Shuting down storage interface DONE for: {}", table);
 		
 		return true;
