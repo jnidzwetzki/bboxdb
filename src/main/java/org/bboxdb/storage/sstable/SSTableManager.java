@@ -136,6 +136,7 @@ public class SSTableManager implements BBoxDBService {
 			scanForExistingTables();
 		} catch (StorageManagerException e) {
 			logger.error("Unable to init the instance: " +  sstablename.getFullname(), e);
+			storageState.dispatchToFailed();
 			return;
 		}
 		
