@@ -454,7 +454,7 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	public Tuple get(final String key) throws StorageManagerException {
 			
-		if(storageState.isInRunningState()) {
+		if(! storageState.isInRunningState()) {
 			throw new StorageManagerException("Storage manager is not ready: " + sstablename.getFullname());
 		}
 		
