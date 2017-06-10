@@ -58,6 +58,11 @@ public class ServiceState {
 	 * Dispatch to the running state
 	 */
 	public void dipatchToStarting() {
+		
+		if(state == State.FAILED) {
+			return;
+		}
+		
 		if(state != State.NEW) {
 			throw new IllegalStateException("State is not new: " + state);
 		}
@@ -72,6 +77,11 @@ public class ServiceState {
 	 * Dispatch to the starting state
 	 */
 	public void dispatchToRunning() {
+		
+		if(state == State.FAILED) {
+			return;
+		}
+		
 		if(state != State.STARTING) {
 			throw new IllegalStateException("State is not starting: " + state);
 		}
@@ -86,6 +96,11 @@ public class ServiceState {
 	 * Dispatch to the stopping state
 	 */
 	public void dispatchToStopping() {
+		
+		if(state == State.FAILED) {
+			return;
+		}
+		
 		if(state != State.RUNNING) {
 			throw new IllegalStateException("State is not stopping: " + state);
 		}
@@ -100,6 +115,11 @@ public class ServiceState {
 	 * Dispatch to the terminated state
 	 */
 	public void dispatchToTerminated() {
+		
+		if(state == State.FAILED) {
+			return;
+		}
+		
 		if(state != State.STOPPING) {
 			throw new IllegalStateException("State is not terminated: " + state);
 		}

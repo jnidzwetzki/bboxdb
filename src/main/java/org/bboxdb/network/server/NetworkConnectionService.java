@@ -74,20 +74,27 @@ public class NetworkConnectionService implements BBoxDBService {
 			return;
 		}
 		
-		state.dipatchToStarting();
-		
-		logger.info("Start the network connection handler on port: {}", configuration.getNetworkListenPort());
-		
-		if(threadPool == null) {
-			threadPool = Executors.newFixedThreadPool(configuration.getNetworkConnectionThreads());
+		try {
+			state.dipatchToStarting();
+			
+			logger.info("Start the network connection handler on port: {}", configuration.getNetworkListenPort());
+			
+			if(threadPool == null) {
+				threadPool = Executors.newFixedThreadPool(configuration.getNetworkConnectionThreads());
+			}
+			
+			serverSocketDispatcher = new ConnectionDispatcher();
+			serverSocketDispatchThread = new Thread(serverSocketDispatcher);
+			serverSocketDispatchThread.start();
+			serverSocketDispatchThread.setName("Connection dispatcher thread");
+			
+			state.dispatchToRunning();
+		} catch(Exception e) {
+			logger.error("Got exception, setting state to failed", e);
+			state.dispatchToFailed();
+			shutdown();
+			throw e;
 		}
-		
-		serverSocketDispatcher = new ConnectionDispatcher();
-		serverSocketDispatchThread = new Thread(serverSocketDispatcher);
-		serverSocketDispatchThread.start();
-		serverSocketDispatchThread.setName("Connection dispatcher thread");
-		
-		state.dispatchToRunning();
 	}
 	
 	/**
@@ -99,6 +106,7 @@ public class NetworkConnectionService implements BBoxDBService {
 		state.dispatchToStopping();
 		
 		if(serverSocketDispatchThread != null) {
+			serverSocketDispatcher.closeSocketNE();
 			serverSocketDispatchThread.interrupt();	
 			serverSocketDispatchThread = null;
 			serverSocketDispatcher = null;
@@ -154,7 +162,7 @@ public class NetworkConnectionService implements BBoxDBService {
 		/**
 		 * Close socket without an exception
 		 */
-		protected void closeSocketNE() {
+		public void closeSocketNE() {
 			if(serverSocket != null) {
 				try {
 					logger.info("Close server socket on port: " + serverSocket.getLocalPort());

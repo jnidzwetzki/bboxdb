@@ -78,4 +78,21 @@ public class TestServiceState {
 		Assert.assertTrue(state.isInRunningState());
 	}
 
+	/**
+	 * Error dispatching
+	 * @throws InterruptedException 
+	 */
+	@Test(timeout=1000)
+	public void testTransition5() throws InterruptedException {
+		final ServiceState state = new ServiceState();
+		state.dispatchToFailed();
+		Assert.assertTrue(state.isInFinishedState());
+
+		state.dispatchToRunning();
+		state.dispatchToStopping();
+		state.dispatchToRunning();
+		state.dispatchToTerminated();
+		Assert.assertTrue(state.isInFinishedState());
+	}
+	
 }
