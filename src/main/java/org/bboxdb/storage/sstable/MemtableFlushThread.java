@@ -155,7 +155,7 @@ class MemtableFlushThread extends ExceptionSafeThread {
 	 * @param e
 	 */
 	protected void handleExceptionDuringFlush(Exception e) {
-		sstableManager.storageState.setReady(false);
+		sstableManager.storageState.dispatchToFailed();
 
 		if (Thread.currentThread().isInterrupted()) {
 			logger.debug("Got Exception while flushing memtable, but thread was interrupted. "

@@ -27,7 +27,7 @@ import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.util.ExceptionSafeThread;
-import org.bboxdb.util.State;
+import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class NetworkConnectionService implements BBoxDBService {
 	/**
 	 * The connection handler state
 	 */
-	protected final State state = new State(false);
+	protected final ServiceState state = new ServiceState();
 	
 	/**
 	 * The connection dispatcher runnable
@@ -69,12 +69,14 @@ public class NetworkConnectionService implements BBoxDBService {
 	 */
 	public void init() {
 		
-		if(state.isReady()) {
-			logger.info("init() called on ready instance, ignoring");
+		if(! state.isInNewState()) {
+			logger.info("init() called on ready instance, ignoring: {}", state.getState());
 			return;
 		}
 		
-		logger.info("Start the network connection handler on port: " + configuration.getNetworkListenPort());
+		state.dipatchToStarting();
+		
+		logger.info("Start the network connection handler on port: {}", configuration.getNetworkListenPort());
 		
 		if(threadPool == null) {
 			threadPool = Executors.newFixedThreadPool(configuration.getNetworkConnectionThreads());
@@ -85,7 +87,7 @@ public class NetworkConnectionService implements BBoxDBService {
 		serverSocketDispatchThread.start();
 		serverSocketDispatchThread.setName("Connection dispatcher thread");
 		
-		state.setReady(true);
+		state.dispatchToRunning();
 	}
 	
 	/**
@@ -94,7 +96,7 @@ public class NetworkConnectionService implements BBoxDBService {
 	public synchronized void shutdown() {
 		
 		logger.info("Shutdown the network connection handler");
-		state.setReady(false);
+		state.dispatchToStopping();
 		
 		if(serverSocketDispatchThread != null) {
 			serverSocketDispatchThread.interrupt();	
@@ -106,16 +108,9 @@ public class NetworkConnectionService implements BBoxDBService {
 			threadPool.shutdown();
 			threadPool = null;
 		}
+		
+		state.dispatchToTerminated();
 	}
-	
-	/**
-	 * Is the connection handler ready?
-	 * @return
-	 */
-	public boolean isReady() {
-		return state.isReady();
-	}
-	
 	
 	/**
 	 * The connection dispatcher
