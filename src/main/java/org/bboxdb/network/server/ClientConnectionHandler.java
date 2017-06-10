@@ -28,10 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
@@ -67,6 +64,7 @@ import org.bboxdb.network.server.handler.request.RequestHandler;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.ExceptionSafeThread;
+import org.bboxdb.util.ExecutorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +121,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	/**
 	 * Number of pending requests
 	 */
-	protected final static int PENDING_REQUESTS = 25;
+	protected final static int MAX_PENDING_REQUESTS = 25;
 
 	/**
 	 * The request handlers
@@ -167,11 +165,9 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		// The active queries
 		activeQueries = new HashMap<Short, ClientQuery>();
 		
-		// Create a thread pool that blocks after submitting more than PENDING_REQUESTS
-		final BlockingQueue<Runnable> linkedBlockingDeque = new LinkedBlockingDeque<Runnable>(PENDING_REQUESTS);
-		threadPool = new ThreadPoolExecutor(1, PENDING_REQUESTS/2, 30, TimeUnit.SECONDS, 
-				linkedBlockingDeque, new ThreadPoolExecutor.CallerRunsPolicy());
-		
+		// Create a thread pool that blocks after submitting more than MAX_PENDING_REQUESTS
+		threadPool = ExecutorUtil.getBoundThreadPoolExecutor(10, MAX_PENDING_REQUESTS);
+
 		// The package router
 		packageRouter = new PackageRouter(getThreadPool(), this);
 		

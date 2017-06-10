@@ -25,10 +25,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.CellGrid;
+import org.bboxdb.util.ExecutorUtil;
 import org.bboxdb.util.MathUtil;
 import org.bboxdb.util.TupleFileReader;
 
@@ -80,7 +80,7 @@ public class TestFixedGrid implements Runnable {
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 		final Map<BoundingBox, Integer> bboxes = new HashMap<>();
 		
-		final ExecutorService executor = Executors.newFixedThreadPool(10);
+		final ExecutorService executor = ExecutorUtil.getBoundThreadPoolExecutor(10, 100);
 		
 		tupleFile.addTupleListener(t -> {
 			executor.submit(() -> {
