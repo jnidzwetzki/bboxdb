@@ -91,24 +91,21 @@ public class NetworkConnectionService implements BBoxDBService {
 	/**
 	 * Shutdown our thread pool
 	 */
-	public void shutdown() {
+	public synchronized void shutdown() {
 		
 		logger.info("Shutdown the network connection handler");
+		state.setReady(false);
 		
 		if(serverSocketDispatchThread != null) {
-			serverSocketDispatcher.setShutdown(true);
-			serverSocketDispatchThread.interrupt();
-			
+			serverSocketDispatchThread.interrupt();	
 			serverSocketDispatchThread = null;
 			serverSocketDispatcher = null;
 		}
 		
 		if(threadPool != null) {
 			threadPool.shutdown();
+			threadPool = null;
 		}
-		
-		threadPool = null;
-		state.setReady(false);
 	}
 	
 	/**
@@ -127,11 +124,6 @@ public class NetworkConnectionService implements BBoxDBService {
 	class ConnectionDispatcher extends ExceptionSafeThread {
 
 		/**
-		 * The shutdown signal
-		 */
-		protected volatile boolean shutdown = false;
-		
-		/**
 		 * The server socket
 		 */
 		private ServerSocket serverSocket;
@@ -145,7 +137,7 @@ public class NetworkConnectionService implements BBoxDBService {
 				serverSocket = new ServerSocket(configuration.getNetworkListenPort());
 				serverSocket.setReuseAddress(true);
 				
-				while(! shutdown) {
+				while(! Thread.currentThread().isInterrupted()) {
 					final Socket clientSocket = serverSocket.accept();
 					handleConnection(clientSocket);
 				}
@@ -153,9 +145,8 @@ public class NetworkConnectionService implements BBoxDBService {
 			} catch(IOException e) {
 				
 				// Print exception only if the exception is really unexpected
-				if(shutdown != true) {
+				if(Thread.currentThread().isInterrupted() != true) {
 					logger.error("Got an IO exception while reading from server socket ", e);
-					shutdown = true;
 				}
 
 			} finally {
@@ -181,18 +172,6 @@ public class NetworkConnectionService implements BBoxDBService {
 		}
 		
 		/**
-		 * Set the shutdown flag
-		 * @param shutdown
-		 */
-		public void setShutdown(final boolean shutdown) {
-			this.shutdown = shutdown;
-			
-			if(shutdown == true) {
-				closeSocketNE();
-			}
-		}
-		
-		/**
 		 * Dispatch the connection to the thread pool
 		 * @param clientSocket
 		 */
@@ -201,7 +180,6 @@ public class NetworkConnectionService implements BBoxDBService {
 			threadPool.submit(new ClientConnectionHandler(clientSocket));
 		}
 	}
-
 
 	@Override
 	public String getServicename() {
