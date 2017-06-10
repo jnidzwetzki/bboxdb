@@ -203,7 +203,8 @@ public class SSTableManager implements BBoxDBService {
 		logger.info("Shuting down the instance for table: {}", sstablename.getFullname());
 		
 		if(storageState.getState() != ServiceState.State.RUNNING) {
-			logger.error("Shutdown called but state is not running:" + storageState.getState());
+			logger.error("Shutdown called but state is not running: " + storageState.getState());
+			return;
 		}
 		
 		// Set ready to false and reject write requests
