@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.CellGrid;
@@ -78,22 +80,29 @@ public class TestFixedGrid implements Runnable {
 		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
 		final Map<BoundingBox, Integer> bboxes = new HashMap<>();
 		
-		tupleFile.addTupleListener(t -> {
-			final Set<BoundingBox> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(t.getBoundingBox());
-			
-			for(final BoundingBox box : intersectedBoxes) {
-				if(bboxes.containsKey(box)) {
-					final int oldValue = bboxes.get(box);
-					bboxes.put(box, oldValue + 1);
-				} else {
-					bboxes.put(box, 1);
-				}
-			}
-		});
+		final ExecutorService executor = Executors.newFixedThreadPool(10);
 		
+		tupleFile.addTupleListener(t -> {
+			executor.submit(() -> {
+				final Set<BoundingBox> intersectedBoxes = cellGrid.getAllInersectedBoundingBoxes(t.getBoundingBox());
+				
+				synchronized (bboxes) {
+					for(final BoundingBox box : intersectedBoxes) {
+						if(bboxes.containsKey(box)) {
+							final int oldValue = bboxes.get(box);
+							bboxes.put(box, oldValue + 1);
+						} else {
+							bboxes.put(box, 1);
+						}
+					}	
+				}
+			});
+		});
+
 		try {
 			System.out.println("# Processing tuples");
 			tupleFile.processFile();
+			executor.shutdown();
 		} catch (IOException e) {
 			System.err.println("Got an IOException during experiment: "+ e);
 			System.exit(-1);
