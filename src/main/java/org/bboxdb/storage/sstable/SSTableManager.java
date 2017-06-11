@@ -579,7 +579,7 @@ public class SSTableManager implements BBoxDBService {
 	}
 
 	/**
-	 * Open a new memtable and schedule the old memtable for flusing
+	 * Open a new memtable and schedule the old memtable for flushing
 	 * @throws StorageManagerException
 	 */
 	public synchronized void initNewMemtable() {
