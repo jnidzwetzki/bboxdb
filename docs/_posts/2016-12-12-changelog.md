@@ -14,7 +14,7 @@ order: 1
 - Improvement: Handle thread interrupt during compactification
 - Improvement: Memtables are flushed completely on shutdown()
 - Improvement: Improved state handling of the SSTable manager
-- Improvement: Added flush() method to SSTaable manager
+- Improvement: Added flush() method to SSTable manager
 - Bugfix: The JVM tool options are added to the bboxdb_execute script
 - Bugfix: Fixed the primary key for the JDBC osm-converter backend
 - Bugfix: Name of the a invalid distribution region is removed from sstable dir
