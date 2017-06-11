@@ -1,6 +1,9 @@
 package org.bboxdb.tools;
 
+import java.util.concurrent.Semaphore;
+
 import org.bboxdb.util.ServiceState;
+import org.bboxdb.util.ServiceState.State;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -110,6 +113,31 @@ public class TestServiceState {
 
 		// Assume at least 100 chars for stacktrace
 		Assert.assertTrue(length + 100 < lengthWithException);
+	}
+	
+	/**
+	 * Test the callback listener
+	 */
+	@Test(timeout=1000)
+	public void testCallbackListener() {
+		final Semaphore semaphore = new Semaphore(0);
+		final ServiceState state = new ServiceState();
+		
+		state.registerCallback((s) -> { 
+			if(s == State.TERMINATED) {
+				semaphore.release();
+			}
+		});
+		
+		Assert.assertEquals(0, semaphore.availablePermits());
+		state.dipatchToStarting();
+		Assert.assertEquals(0, semaphore.availablePermits());
+		state.dispatchToRunning();
+		Assert.assertEquals(0, semaphore.availablePermits());
+		state.dispatchToStopping();
+		Assert.assertEquals(0, semaphore.availablePermits());
+		state.dispatchToTerminated();
+		Assert.assertEquals(1, semaphore.availablePermits());
 	}
 	
 }

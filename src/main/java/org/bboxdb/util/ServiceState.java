@@ -17,6 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 import com.google.common.base.Throwables;
 
 public class ServiceState {
@@ -50,20 +54,37 @@ public class ServiceState {
 	 */
 	protected Throwable throwable;
 	
+	/**
+	 * Callback handler
+	 */
+	protected final List<Consumer<? super State>> callbacks;
+	
 	public ServiceState() {
+		callbacks = new ArrayList<>();
 		reset();
+	}
+	
+	/**
+	 * Set a new state
+	 * @param state
+	 */
+	protected void setNewState(final State state) {
+		this.state = state;
+		
+		callbacks.forEach(c -> c.accept(state));
+		
+		synchronized (this) {
+			this.notifyAll();
+		}
 	}
 	
 	/**
 	 * Reset the state
 	 */
 	public void reset() {
-		state = State.NEW;
-		synchronized (this) {
-			this.notifyAll();
-		}
+		setNewState(State.NEW);
 	}
-	
+
 	/**
 	 * Dispatch to the running state
 	 */
@@ -77,10 +98,7 @@ public class ServiceState {
 			throw new IllegalStateException("State is not new: " + state);
 		}
 		
-		state = State.STARTING;
-		synchronized (this) {
-			this.notifyAll();
-		}
+		setNewState(State.STARTING);
 	}
 	
 	/**
@@ -96,10 +114,7 @@ public class ServiceState {
 			throw new IllegalStateException("State is not starting: " + state);
 		}
 		
-		state = State.RUNNING;
-		synchronized (this) {
-			this.notifyAll();
-		}
+		setNewState(State.RUNNING);
 	}
 	
 	/**
@@ -115,10 +130,7 @@ public class ServiceState {
 			throw new IllegalStateException("State is not stopping: " + state);
 		}
 		
-		state = State.STOPPING;
-		synchronized (this) {
-			this.notifyAll();
-		}
+		setNewState(State.STOPPING);
 	}
 	
 	/**
@@ -134,22 +146,16 @@ public class ServiceState {
 			throw new IllegalStateException("State is not terminated: " + state);
 		}
 		
-		state = State.TERMINATED;
-		synchronized (this) {
-			this.notifyAll();
-		}
+		setNewState(State.TERMINATED);
 	}
 	
 	/**
 	 * Dispatch to the failed state
 	 */
 	public void dispatchToFailed(final Throwable throwable) {		
-		this.state = State.FAILED;
 		this.throwable = throwable;
 		
-		synchronized (this) {
-			this.notifyAll();
-		}
+		setNewState(State.FAILED);
 	}
 	
 	/**
@@ -265,4 +271,20 @@ public class ServiceState {
 		return Throwables.getStackTraceAsString(throwable);
 	}
 	
+	/**
+	 * Register a callback listener
+	 * @param c
+	 */
+	public void registerCallback(final Consumer<? super State> consumer) {
+		callbacks.add(consumer);
+	}
+	
+	/**
+	 * Remove a callback listener
+	 * @param consumer
+	 * @return
+	 */
+	public boolean removeCallback(final Consumer<? super State> consumer) {
+		return callbacks.remove(consumer);
+	}
 }
