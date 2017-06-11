@@ -9,7 +9,7 @@ order: 1
 - New Feature: Added the TestFixedGrid experiment
 - New Feature: Added a tuple read / write experiment
 - Improvement: Added a fixed cell data structure
-- Improvement: Switched from guava 21.0 to 22.0
+- Improvement: Switched from guava 21.0 to 22.0 and from org.json 20160810 to 20170516
 - Improvement: Partial written results during compactification are deleted
 - Improvement: Handle thread interrupt during compactification
 - Improvement: Memtables are flushed completely on shutdown()
