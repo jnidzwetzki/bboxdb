@@ -101,7 +101,7 @@ public class HandleInsertTuple implements RequestHandler {
 		}
 	
 		try {
-			if(! storageManager.getStorageState().isInRunningState()) {
+			if(! storageManager.getServiceState().isInRunningState()) {
 				return false;
 			}
 			
@@ -109,7 +109,7 @@ public class HandleInsertTuple implements RequestHandler {
 			return true;
 			
 		} catch (StorageManagerException e) {
-			if(storageManager.getStorageState().isInRunningState()) {
+			if(storageManager.getServiceState().isInRunningState()) {
 				logger.warn("Got an exception while inserting", e);
 			} else {
 				logger.debug("Got an exception while inserting", e);

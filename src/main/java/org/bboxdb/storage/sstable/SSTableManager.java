@@ -75,7 +75,7 @@ public class SSTableManager implements BBoxDBService {
 	/**
 	 * The corresponding storage manager state
 	 */
-	protected ServiceState storageState;
+	protected ServiceState serviceState;
 	
 	/**
 	 * The running threads
@@ -102,7 +102,7 @@ public class SSTableManager implements BBoxDBService {
 		
 		this.storageDir = storageDir;
 		this.configuration = configuration;
-		this.storageState = new ServiceState(); 
+		this.serviceState = new ServiceState(); 
 		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
 		
@@ -118,12 +118,12 @@ public class SSTableManager implements BBoxDBService {
 	@Override
 	public void init() {
 		
-		if(! storageState.isInNewState()) {
-			logger.warn("SSTable manager state is not new init() is called: {}", storageState.getState());
+		if(! serviceState.isInNewState()) {
+			logger.warn("SSTable manager state is not new init() is called: {}", serviceState.getState());
 			return;
 		}
 		
-		storageState.dipatchToStarting();
+		serviceState.dipatchToStarting();
 		
 		logger.info("Init a new instance for the table: {}", sstablename.getFullname());
 		
@@ -136,14 +136,14 @@ public class SSTableManager implements BBoxDBService {
 			scanForExistingTables();
 		} catch (StorageManagerException e) {
 			logger.error("Unable to init the instance: " +  sstablename.getFullname(), e);
-			storageState.dispatchToFailed(e);
+			serviceState.dispatchToFailed(e);
 			return;
 		}
 		
 		tableNumber.set(getLastSequencenumberFromReader() + 1);
 
 		// Set to ready before the threads are started
-		storageState.dispatchToRunning();
+		serviceState.dispatchToRunning();
 
 		startMemtableFlushThread();
 		startCompactThread();
@@ -203,13 +203,13 @@ public class SSTableManager implements BBoxDBService {
 	public void shutdown() {
 		logger.info("Shuting down the instance for table: {}", sstablename.getFullname());
 		
-		if(! storageState.isInRunningState()) {
-			logger.error("Shutdown called but state is not running: " + storageState.getState());
+		if(! serviceState.isInRunningState()) {
+			logger.error("Shutdown called but state is not running: " + serviceState.getState());
 			return;
 		}
 		
 		// Set ready to false and reject write requests
-		storageState.dispatchToStopping();
+		serviceState.dispatchToStopping();
 		flush();
 		stopThreads();
 
@@ -217,7 +217,7 @@ public class SSTableManager implements BBoxDBService {
 		tupleStoreInstances.getSstableFacades().forEach(f -> f.shutdown());		
 		tupleStoreInstances.clear();
 		
-		storageState.dispatchToTerminated();
+		serviceState.dispatchToTerminated();
 	}
 
 	/**
@@ -254,7 +254,7 @@ public class SSTableManager implements BBoxDBService {
 	 * @throws InterruptedException 
 	 */
 	public void awaitShutdown() throws InterruptedException {
-		storageState.awaitTerminatedOrFailed();
+		serviceState.awaitTerminatedOrFailed();
 	}
 
 	/**
@@ -293,7 +293,7 @@ public class SSTableManager implements BBoxDBService {
 	 * @return
 	 */
 	public boolean isShutdownComplete() {
-		return storageState.isInFinishedState();
+		return serviceState.isInFinishedState();
 	}
 	
 	/**
@@ -406,7 +406,7 @@ public class SSTableManager implements BBoxDBService {
 		if(! directoryHandle.isDirectory()) {
 			final String message = "Storage directory is not an directory: " + directoryHandle;
 			final StorageManagerException exception = new StorageManagerException(message);
-			storageState.dispatchToFailed(exception);
+			serviceState.dispatchToFailed(exception);
 			logger.error(message);
 			throw exception;
 		}		
@@ -467,10 +467,10 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	public Tuple get(final String key) throws StorageManagerException {
 			
-		if(! storageState.isInRunningState()) {
+		if(! serviceState.isInRunningState()) {
 			throw new StorageManagerException("Storage manager is not ready: " 
 					+ sstablename.getFullname() 
-					+ " state: " + storageState);
+					+ " state: " + serviceState);
 		}
 		
 		Tuple mostRecentTuple = null;
@@ -602,10 +602,11 @@ public class SSTableManager implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public void put(final Tuple tuple) throws StorageManagerException {
-		if(! storageState.isInRunningState()) {
+		
+		if(! serviceState.isInRunningState()) {
 			throw new StorageManagerException("Storage manager is not ready: " 
 					+ sstablename.getFullname() 
-					+ " state: " + storageState);
+					+ " state: " + serviceState);
 		}
 		
 		// Ensure that only one memtable is newly created
@@ -625,10 +626,10 @@ public class SSTableManager implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public void delete(final String key, final long timestamp) throws StorageManagerException {
-		if(! storageState.isInRunningState()) {
+		if(! serviceState.isInRunningState()) {
 			throw new StorageManagerException("Storage manager is not ready: " 
 					+ sstablename.getFullname() 
-					+ " state: " + storageState);
+					+ " state: " + serviceState);
 		}
 		
 		// Ensure that only one memtable is newly created
@@ -657,7 +658,7 @@ public class SSTableManager implements BBoxDBService {
 		
 		deletePersistentTableData(storageDir, getSSTableName());
 		
-		storageState.reset();
+		serviceState.reset();
 		init();
 	}
 
@@ -714,10 +715,10 @@ public class SSTableManager implements BBoxDBService {
 	}
 	
 	/**
-	 * Get the storage state
+	 * Get the service state
 	 * @return
 	 */
-	public ServiceState getStorageState() {
-		return storageState;
+	public ServiceState getServiceState() {
+		return serviceState;
 	}
 }

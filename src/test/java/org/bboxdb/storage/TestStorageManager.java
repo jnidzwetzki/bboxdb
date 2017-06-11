@@ -50,7 +50,7 @@ public class TestStorageManager {
 	public void init() throws StorageManagerException {
 		storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
 		storageManager.clear();
-		Assert.assertTrue(storageManager.getStorageState().isInRunningState());
+		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
 	}
 	
 	@Test
