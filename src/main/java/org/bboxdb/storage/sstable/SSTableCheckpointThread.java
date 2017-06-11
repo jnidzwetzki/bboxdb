@@ -20,7 +20,6 @@ package org.bboxdb.storage.sstable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.util.ExceptionSafeThread;
 import org.slf4j.Logger;
@@ -107,15 +106,8 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	protected void createCheckpoint() throws InterruptedException {
 	
 		if(isCheckpointNeeded()) {
-			final Memtable activeMemtable = ssTableManager.getMemtable();
 			logger.debug("Create a checkpoint for: {}", threadname);
-			ssTableManager.flushAndInitMemtable();
-			
-			final TupleStoreInstanceManager tupleStoreInstances 
-				= ssTableManager.getTupleStoreInstances();
-
-			tupleStoreInstances.waitForMemtableFlush(activeMemtable);
-			
+			ssTableManager.flush();
 			logger.info("Create checkpoint DONE for: {}", threadname);
 		}		
 	}

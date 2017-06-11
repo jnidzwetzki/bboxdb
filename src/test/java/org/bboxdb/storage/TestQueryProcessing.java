@@ -27,7 +27,6 @@ import org.bboxdb.storage.queryprocessor.QueryProcessor;
 import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.sstable.SSTableManager;
-import org.bboxdb.storage.sstable.TupleStoreInstanceManager;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -90,11 +89,11 @@ public class TestQueryProcessing {
 		storageManager.clear();
 		
 		storageManager.put(tuple1);
-		storageManager.flushAndInitMemtable();
+		storageManager.initNewMemtable();
 		storageManager.put(tuple2);
-		storageManager.flushAndInitMemtable();
+		storageManager.initNewMemtable();
 		storageManager.put(tuple3);
-		storageManager.flushAndInitMemtable();
+		storageManager.initNewMemtable();
 		
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
 		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
@@ -125,23 +124,15 @@ public class TestQueryProcessing {
 		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 
 		storageManager.clear();
-		
-		final TupleStoreInstanceManager tupleStoreInstances = storageManager.getTupleStoreInstances();
-		
+				
 		storageManager.put(tuple1);
-		final Memtable activeMemtable1 = storageManager.getMemtable();
-		storageManager.flushAndInitMemtable();
-		tupleStoreInstances.waitForMemtableFlush(activeMemtable1);
+		storageManager.flush();
 		
 		storageManager.put(tuple2);
-		final Memtable activeMemtable2 = storageManager.getMemtable();
-		storageManager.flushAndInitMemtable();
-		tupleStoreInstances.waitForMemtableFlush(activeMemtable2);
+		storageManager.flush();
 		
 		storageManager.put(tuple3);
-		final Memtable activeMemtable3 = storageManager.getMemtable();
-		storageManager.flushAndInitMemtable();
-		tupleStoreInstances.waitForMemtableFlush(activeMemtable3);
+		storageManager.flush();
 		
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
 		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
@@ -173,22 +164,14 @@ public class TestQueryProcessing {
 
 		storageManager.clear();
 		
-		final TupleStoreInstanceManager tupleStoreInstances = storageManager.getTupleStoreInstances();
-		
 		storageManager.put(tuple1);
-		final Memtable activeMemtable1 = storageManager.getMemtable();
-		storageManager.flushAndInitMemtable();
-		tupleStoreInstances.waitForMemtableFlush(activeMemtable1);
+		storageManager.flush();
 		
 		storageManager.put(tuple2);
-		final Memtable activeMemtable2 = storageManager.getMemtable();
-		storageManager.flushAndInitMemtable();
-		tupleStoreInstances.waitForMemtableFlush(activeMemtable2);
+		storageManager.flush();
 		
 		storageManager.put(tuple3);
-		final Memtable activeMemtable3 = storageManager.getMemtable();
-		storageManager.flushAndInitMemtable();
-		tupleStoreInstances.waitForMemtableFlush(activeMemtable3);
+		storageManager.flush();
 		
 		final boolean compactResult = storageManager.compactSStablesNow();
 		Assert.assertTrue(compactResult);

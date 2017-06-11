@@ -132,7 +132,7 @@ public class SSTableManager implements BBoxDBService {
 		
 		try {
 			createSSTableDirIfNeeded();
-			flushAndInitMemtable();
+			initNewMemtable();
 			scanForExistingTables();
 		} catch (StorageManagerException e) {
 			logger.error("Unable to init the instance: " +  sstablename.getFullname(), e);
@@ -210,24 +210,7 @@ public class SSTableManager implements BBoxDBService {
 		
 		// Set ready to false and reject write requests
 		storageState.dispatchToStopping();
-		
-		// Flush in memory data
-		if(configuration.isStorageRunMemtableFlushThread()) {
-			final Memtable activeMemtable = tupleStoreInstances.getMemtable();
-			
-			if(activeMemtable != null) {
-				// Flush in memory data	
-				flushAndInitMemtable();
-				
-				try {
-					tupleStoreInstances.waitForMemtableFlush(activeMemtable);
-				} catch (InterruptedException e) {
-					logger.info("Got interrupted exception while waiting for memtable flush");
-					Thread.currentThread().interrupt();
-				}
-			}
-		}
-		
+		flush();
 		stopThreads();
 
 		// Close all sstables
@@ -235,6 +218,35 @@ public class SSTableManager implements BBoxDBService {
 		tupleStoreInstances.clear();
 		
 		storageState.dispatchToTerminated();
+	}
+
+	/**
+	 * Flush all in memory data, if the memtable flush thread is running
+	 * @return 
+	 */
+	public boolean flush() {
+		// Flush in memory data
+		if(! configuration.isStorageRunMemtableFlushThread()) {
+			return false;
+		}
+		
+		
+		final Memtable activeMemtable = tupleStoreInstances.getMemtable();
+		
+		if(activeMemtable != null) {
+			// Flush in memory data	
+			initNewMemtable();
+			
+			try {
+				tupleStoreInstances.waitForMemtableFlush(activeMemtable);
+			} catch (InterruptedException e) {
+				logger.info("Got interrupted exception while waiting for memtable flush");
+				Thread.currentThread().interrupt();
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -567,10 +579,10 @@ public class SSTableManager implements BBoxDBService {
 	}
 
 	/**
-	 * Flush the open memtable to disk
+	 * Open a new memtable and schedule the old memtable for flusing
 	 * @throws StorageManagerException
 	 */
-	public synchronized void flushAndInitMemtable() {
+	public synchronized void initNewMemtable() {
 		final Memtable memtable = new Memtable(sstablename, 
 				configuration.getMemtableEntriesMax(), 
 				configuration.getMemtableSizeMax());
@@ -598,7 +610,7 @@ public class SSTableManager implements BBoxDBService {
 		// Ensure that only one memtable is newly created
 		synchronized (this) {	
 			if(getMemtable().isFull()) {
-				flushAndInitMemtable();
+				initNewMemtable();
 			}
 			
 			getMemtable().put(tuple);
@@ -621,7 +633,7 @@ public class SSTableManager implements BBoxDBService {
 		// Ensure that only one memtable is newly created
 		synchronized (this) {	
 			if(getMemtable().isFull()) {
-				flushAndInitMemtable();
+				initNewMemtable();
 			}
 			
 			getMemtable().delete(key, timestamp);
