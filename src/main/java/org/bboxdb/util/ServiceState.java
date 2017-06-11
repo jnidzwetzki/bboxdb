@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.util;
 
+import com.google.common.base.Throwables;
+
 public class ServiceState {
 	
 	public enum State {		
@@ -231,7 +233,8 @@ public class ServiceState {
 
 	@Override
 	public String toString() {
-		return "ServiceState [state=" + state + ", throwable=" + throwable + "]";
+		return "ServiceState [state=" + state + ", throwable=" 
+				+ getThrowableAsString() + "]";
 	}
 
 	/**
@@ -248,6 +251,18 @@ public class ServiceState {
 	 */
 	public Throwable getThrowable() {
 		return throwable;
+	}
+	
+	/**
+	 * Get the throwable as string
+	 * @return
+	 */
+	public String getThrowableAsString() {
+		if(throwable == null) {
+			return "";
+		}
+		
+		return Throwables.getStackTraceAsString(throwable);
 	}
 	
 }

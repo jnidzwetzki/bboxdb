@@ -89,12 +89,27 @@ public class TestServiceState {
 		final IllegalArgumentException exception = new IllegalArgumentException();
 		state.dispatchToFailed(exception);
 		Assert.assertTrue(state.isInFinishedState());
-
+		Assert.assertEquals(exception, state.getThrowable());
 		state.dispatchToRunning();
 		state.dispatchToStopping();
 		state.dispatchToRunning();
 		state.dispatchToTerminated();
 		Assert.assertTrue(state.isInFinishedState());
+	}
+	
+	/**
+	 * Test the to string method
+	 */
+	@Test
+	public void testToString() {
+		final ServiceState state = new ServiceState();
+		final int length = state.toString().length();
+		final IllegalArgumentException exception = new IllegalArgumentException();
+		state.dispatchToFailed(exception);
+		final int lengthWithException = state.toString().length();
+
+		// Assume at least 100 chars for stacktrace
+		Assert.assertTrue(length + 100 < lengthWithException);
 	}
 	
 }
