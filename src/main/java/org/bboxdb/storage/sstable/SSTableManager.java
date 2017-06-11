@@ -42,6 +42,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.ServiceState;
+import org.bboxdb.util.ServiceState.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,13 +103,19 @@ public class SSTableManager implements BBoxDBService {
 		
 		this.storageDir = storageDir;
 		this.configuration = configuration;
-		this.serviceState = new ServiceState(); 
 		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
-		
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		this.runningThreads = new ArrayList<>();
 		this.sstableCompactor = null;
+		
+		// Close open ressources when the failed state is entered
+		this.serviceState = new ServiceState(); 
+		serviceState.registerCallback((s) -> {
+			if(s == State.FAILED) {
+				closeRessources();
+			}
+		});
 	}
 
 	/**
@@ -125,29 +132,28 @@ public class SSTableManager implements BBoxDBService {
 		
 		serviceState.dipatchToStarting();
 		
-		logger.info("Init a new instance for the table: {}", sstablename.getFullname());
-		
-		tupleStoreInstances.clear();
-		runningThreads.clear();
-		
 		try {
+			logger.info("Init a new instance for the table: {}", sstablename.getFullname());
+			
+			tupleStoreInstances.clear();
+			runningThreads.clear();
+
 			createSSTableDirIfNeeded();
 			initNewMemtable();
 			scanForExistingTables();
+			
+			tableNumber.set(getLastSequencenumberFromReader() + 1);
+
+			// Set to ready before the threads are started
+			serviceState.dispatchToRunning();
+
+			startMemtableFlushThread();
+			startCompactThread();
+			startCheckpointThread();
 		} catch (StorageManagerException e) {
 			logger.error("Unable to init the instance: " +  sstablename.getFullname(), e);
 			serviceState.dispatchToFailed(e);
-			return;
 		}
-		
-		tableNumber.set(getLastSequencenumberFromReader() + 1);
-
-		// Set to ready before the threads are started
-		serviceState.dispatchToRunning();
-
-		startMemtableFlushThread();
-		startCompactThread();
-		startCheckpointThread();
 	}
 
 	/**
@@ -211,13 +217,22 @@ public class SSTableManager implements BBoxDBService {
 		// Set ready to false and reject write requests
 		serviceState.dispatchToStopping();
 		flush();
-		stopThreads();
-
-		// Close all sstables
-		tupleStoreInstances.getSstableFacades().forEach(f -> f.shutdown());		
-		tupleStoreInstances.clear();
+		
+		closeRessources();
 		
 		serviceState.dispatchToTerminated();
+	}
+
+	/**
+	 * Close all open Ressources
+	 */
+	protected void closeRessources() {
+		stopThreads();
+		
+		if(tupleStoreInstances != null) {
+			tupleStoreInstances.getSstableFacades().forEach(f -> f.shutdown());		
+			tupleStoreInstances.clear();
+		}
 	}
 
 	/**
@@ -229,7 +244,6 @@ public class SSTableManager implements BBoxDBService {
 		if(! configuration.isStorageRunMemtableFlushThread()) {
 			return false;
 		}
-		
 		
 		final Memtable activeMemtable = tupleStoreInstances.getMemtable();
 		
@@ -609,13 +623,18 @@ public class SSTableManager implements BBoxDBService {
 					+ " state: " + serviceState);
 		}
 		
-		// Ensure that only one memtable is newly created
-		synchronized (this) {	
-			if(getMemtable().isFull()) {
-				initNewMemtable();
+		try {
+			// Ensure that only one memtable is newly created
+			synchronized (this) {	
+				if(getMemtable().isFull()) {
+					initNewMemtable();
+				}
+				
+				getMemtable().put(tuple);
 			}
-			
-			getMemtable().put(tuple);
+		} catch (StorageManagerException e) {
+			serviceState.dispatchToFailed(e);
+			throw e;
 		}
 	}
 
@@ -633,12 +652,17 @@ public class SSTableManager implements BBoxDBService {
 		}
 		
 		// Ensure that only one memtable is newly created
-		synchronized (this) {	
-			if(getMemtable().isFull()) {
-				initNewMemtable();
+		try {
+			synchronized (this) {	
+				if(getMemtable().isFull()) {
+					initNewMemtable();
+				}
+				
+				getMemtable().delete(key, timestamp);
 			}
-			
-			getMemtable().delete(key, timestamp);
+		} catch (StorageManagerException e) {
+			serviceState.dispatchToFailed(e);
+			throw e;
 		}
 	}
 
