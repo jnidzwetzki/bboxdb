@@ -124,7 +124,7 @@ public class TestServiceState {
 		final ServiceState state = new ServiceState();
 		
 		state.registerCallback((s) -> { 
-			if(s == State.TERMINATED) {
+			if(s.getState() == State.TERMINATED) {
 				semaphore.release();
 			}
 		});

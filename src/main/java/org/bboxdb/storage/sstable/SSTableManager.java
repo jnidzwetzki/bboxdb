@@ -112,7 +112,7 @@ public class SSTableManager implements BBoxDBService {
 		// Close open ressources when the failed state is entered
 		this.serviceState = new ServiceState(); 
 		serviceState.registerCallback((s) -> {
-			if(s == State.FAILED) {
+			if(s.getState() == State.FAILED) {
 				closeRessources();
 			}
 		});

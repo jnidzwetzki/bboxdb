@@ -57,7 +57,7 @@ public class ServiceState {
 	/**
 	 * Callback handler
 	 */
-	protected final List<Consumer<? super State>> callbacks;
+	protected final List<Consumer<? super ServiceState>> callbacks;
 	
 	public ServiceState() {
 		callbacks = new ArrayList<>();
@@ -71,7 +71,7 @@ public class ServiceState {
 	protected void setNewState(final State state) {
 		this.state = state;
 		
-		callbacks.forEach(c -> c.accept(state));
+		callbacks.forEach(c -> c.accept(this));
 		
 		synchronized (this) {
 			this.notifyAll();
@@ -276,7 +276,7 @@ public class ServiceState {
 	 * Register a callback listener
 	 * @param c
 	 */
-	public void registerCallback(final Consumer<? super State> consumer) {
+	public void registerCallback(final Consumer<? super ServiceState> consumer) {
 		callbacks.add(consumer);
 	}
 	
