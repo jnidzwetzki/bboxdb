@@ -91,7 +91,7 @@ public class NetworkConnectionService implements BBoxDBService {
 			state.dispatchToRunning();
 		} catch(Exception e) {
 			logger.error("Got exception, setting state to failed", e);
-			state.dispatchToFailed();
+			state.dispatchToFailed(e);
 			shutdown();
 			throw e;
 		}

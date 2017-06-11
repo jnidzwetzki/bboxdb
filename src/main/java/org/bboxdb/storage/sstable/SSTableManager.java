@@ -136,7 +136,7 @@ public class SSTableManager implements BBoxDBService {
 			scanForExistingTables();
 		} catch (StorageManagerException e) {
 			logger.error("Unable to init the instance: " +  sstablename.getFullname(), e);
-			storageState.dispatchToFailed();
+			storageState.dispatchToFailed(e);
 			return;
 		}
 		
@@ -405,9 +405,10 @@ public class SSTableManager implements BBoxDBService {
 	public void checkSSTableDir(final File directoryHandle) throws StorageManagerException {
 		if(! directoryHandle.isDirectory()) {
 			final String message = "Storage directory is not an directory: " + directoryHandle;
-			storageState.dispatchToFailed();
+			final StorageManagerException exception = new StorageManagerException(message);
+			storageState.dispatchToFailed(exception);
 			logger.error(message);
-			throw new StorageManagerException(message);
+			throw exception;
 		}		
 	}
 
@@ -469,7 +470,7 @@ public class SSTableManager implements BBoxDBService {
 		if(! storageState.isInRunningState()) {
 			throw new StorageManagerException("Storage manager is not ready: " 
 					+ sstablename.getFullname() 
-					+ " state: " + storageState.getState());
+					+ " state: " + storageState);
 		}
 		
 		Tuple mostRecentTuple = null;
@@ -604,7 +605,7 @@ public class SSTableManager implements BBoxDBService {
 		if(! storageState.isInRunningState()) {
 			throw new StorageManagerException("Storage manager is not ready: " 
 					+ sstablename.getFullname() 
-					+ " state: " + storageState.getState());
+					+ " state: " + storageState);
 		}
 		
 		// Ensure that only one memtable is newly created
@@ -627,7 +628,7 @@ public class SSTableManager implements BBoxDBService {
 		if(! storageState.isInRunningState()) {
 			throw new StorageManagerException("Storage manager is not ready: " 
 					+ sstablename.getFullname() 
-					+ " state: " + storageState.getState());
+					+ " state: " + storageState);
 		}
 		
 		// Ensure that only one memtable is newly created

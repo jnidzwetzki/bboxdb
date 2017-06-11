@@ -51,7 +51,8 @@ public class TestServiceState {
 	@Test(timeout=1000)
 	public void testTransition3() throws InterruptedException {
 		final ServiceState state = new ServiceState();
-		state.dispatchToFailed();
+		final IllegalArgumentException exception = new IllegalArgumentException();
+		state.dispatchToFailed(exception);
 		state.awaitTerminatedOrFailed();
 		Assert.assertTrue(state.isInFinishedState());
 		Assert.assertFalse(state.isInRunningState());
@@ -85,7 +86,8 @@ public class TestServiceState {
 	@Test(timeout=1000)
 	public void testTransition5() throws InterruptedException {
 		final ServiceState state = new ServiceState();
-		state.dispatchToFailed();
+		final IllegalArgumentException exception = new IllegalArgumentException();
+		state.dispatchToFailed(exception);
 		Assert.assertTrue(state.isInFinishedState());
 
 		state.dispatchToRunning();

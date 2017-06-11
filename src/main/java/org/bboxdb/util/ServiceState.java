@@ -38,8 +38,16 @@ public class ServiceState {
 		}
 	}
 	
+	/**
+	 * The current state
+	 */
 	protected State state;
 
+	/**
+	 * The reason for the failed state
+	 */
+	protected Throwable throwable;
+	
 	public ServiceState() {
 		reset();
 	}
@@ -133,8 +141,10 @@ public class ServiceState {
 	/**
 	 * Dispatch to the failed state
 	 */
-	public void dispatchToFailed() {		
-		state = State.FAILED;
+	public void dispatchToFailed(final Throwable throwable) {		
+		this.state = State.FAILED;
+		this.throwable = throwable;
+		
 		synchronized (this) {
 			this.notifyAll();
 		}
@@ -221,15 +231,23 @@ public class ServiceState {
 
 	@Override
 	public String toString() {
-		return "ServiceState [state=" + state + "]";
+		return "ServiceState [state=" + state + ", throwable=" + throwable + "]";
 	}
-	
+
 	/**
 	 * Get the state
 	 * @return
 	 */
 	public State getState() {
 		return state;
+	}
+	
+	/**
+	 * Get the throwable
+	 * @return
+	 */
+	public Throwable getThrowable() {
+		return throwable;
 	}
 	
 }
