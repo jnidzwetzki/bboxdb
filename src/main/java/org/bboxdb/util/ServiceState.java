@@ -82,6 +82,7 @@ public class ServiceState {
 	 * Reset the state
 	 */
 	public void reset() {
+		throwable = null;
 		setNewState(State.NEW);
 	}
 

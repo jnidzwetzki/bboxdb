@@ -140,4 +140,17 @@ public class TestServiceState {
 		Assert.assertEquals(1, semaphore.availablePermits());
 	}
 	
+	/**
+	 * Test the reset call
+	 */
+	@Test
+	public void testReset() {
+		final ServiceState state = new ServiceState();
+		final IllegalArgumentException exception = new IllegalArgumentException();
+		state.dispatchToFailed(exception);
+		state.reset();
+		Assert.assertEquals(null, state.getThrowable());
+		Assert.assertTrue(state.isInNewState());
+	}
+	
 }
