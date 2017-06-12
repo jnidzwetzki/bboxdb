@@ -69,7 +69,7 @@ def handleLine(line):
 			print experiment
 		experiment = Experiment(cellMatcher.group(1))
 
-print	"#Max elements	total buckets	total elements	STD"
+print	"#Cell size	total buckets	total elements	STD"
 
 ''' Read file '''
 filename = sys.argv[1]
