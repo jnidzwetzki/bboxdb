@@ -127,9 +127,9 @@ public class Polygon implements Serializable {
 
 		for(final OSMPoint osmPoint : pointList) {
 			minX = Math.min(minX, osmPoint.getX());
-			maxX = Math.min(maxX, osmPoint.getX());
+			maxX = Math.max(maxX, osmPoint.getX());
 			minY = Math.min(minY, osmPoint.getY());
-			maxY = Math.min(maxY, osmPoint.getY());
+			maxY = Math.max(maxY, osmPoint.getY());
 		}
 
 		return new BoundingBox(minX, maxX, minY, maxY);
