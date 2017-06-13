@@ -160,6 +160,7 @@ public class TestSortedIteratorMerger {
 		
 		final List<String> resultList = Lists.newArrayList(mergeIterator);
 		Assert.assertEquals(9, resultList.size());
+		Assert.assertEquals(9, mergeIterator.getReadElements());
 	}
 	
 	/**
@@ -177,6 +178,7 @@ public class TestSortedIteratorMerger {
 		final List<String> resultList = Lists.newArrayList(mergeIterator);
 		Assert.assertEquals(3, resultList.size());
 		Assert.assertEquals(list1, resultList);
+		Assert.assertEquals(9, mergeIterator.getReadElements());
 	}
 	
 	/**
@@ -198,6 +200,7 @@ public class TestSortedIteratorMerger {
 		Assert.assertTrue(resultList.contains("abc"));
 		Assert.assertTrue(resultList.contains("def"));
 		Assert.assertTrue(resultList.contains("geh"));
+		Assert.assertEquals(7, mergeIterator.getReadElements());
 	}
 
 }

@@ -52,6 +52,10 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 	 */
 	protected final DuplicateResolver<E> duplicateResolver;
 
+	/**
+	 * The amount of read elements
+	 */
+	protected int readElements = 0;
 
 	public SortedIteratorMerger(final List<Iterator<E>> iteratorList, 
 			final Comparator<? super E> elementComperator,
@@ -81,6 +85,7 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 		}
 		
 		final E element = iterator.next();
+		readElements++;
 		
 		iteratorElementMap.put(iterator, element);
 		
@@ -166,4 +171,11 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 		};
 	}
 
+	/**
+	 * Get the number of read elements
+	 * @return
+	 */
+	public int getReadElements() {
+		return readElements;
+	}
 }
