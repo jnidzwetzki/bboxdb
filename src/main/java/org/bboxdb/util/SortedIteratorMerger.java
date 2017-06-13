@@ -132,7 +132,7 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 					E element = iteratorElementMap.get(iteratorToCheck);
 					
 					// Move the searched element from the iterator list to the result list
-					while(element != null && elementComperator.compare(element, lowestElement) == 0) {	
+					while(belongsElementToCurrentKey(lowestElement, element)) {	
 						unconsumedDuplicates.add(element);
 						element = refreshIterator(iteratorToCheck);
 					}
@@ -144,6 +144,24 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 				
 				
 				return unconsumedDuplicates.remove(0);				
+			}
+
+			/**
+			 * Belongs the given element to the current key
+			 * @param lowestElement
+			 * @param element
+			 * @return
+			 */
+			protected boolean belongsElementToCurrentKey(final E lowestElement, final E element) {
+				if(element == null) {
+					return false;
+				}
+						
+				if(elementComperator.compare(element, lowestElement) == 0) {
+					return true;
+				}
+				
+				return false;
 			}
 		};
 	}
