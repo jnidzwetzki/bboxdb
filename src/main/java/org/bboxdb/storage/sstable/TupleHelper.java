@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Comparator;
 
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -50,6 +51,12 @@ public class TupleHelper {
 		t.add(newestTuple);
 	};
 
+	/**
+	 * Compare the tuples by key
+	 */
+	public final static Comparator<Tuple> TUPLE_KEY_COMPARATOR = 
+			(t1, t2) -> (t1.getKey().compareTo(t2.getKey()));
+	
 	/**
 	 * Return the most recent version of the tuple
 	 * @param tuple1

@@ -71,6 +71,24 @@ public class TestTupleHelper {
 	}
 	
 	/**
+	 * Test the tuple key comparator
+	 */
+	@Test
+	public void testTupleKeyComparator() {
+		final Tuple tupleA = new Tuple("xyz", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("ijk", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		
+		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC));
+		
+		tupleList.sort(TupleHelper.TUPLE_KEY_COMPARATOR);
+		
+		Assert.assertEquals(tupleC, tupleList.get(0));
+		Assert.assertEquals(tupleB, tupleList.get(1));
+		Assert.assertEquals(tupleA, tupleList.get(2));
+	}
+	
+	/**
 	 * Encode and decode a tuple
 	 * @throws IOException 
 	 */

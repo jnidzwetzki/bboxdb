@@ -117,24 +117,22 @@ public class SSTableCompactor {
 					.map(r -> r.iterator())
 					.collect(Collectors.toList());
 			
-			sstableWriter = openNewSSTableWriter();
-			
 			final SortedIteratorMerger<Tuple> sortedIteratorMerger = new SortedIteratorMerger<>(
 					iterators, 
-					(t1, t2) -> (t1.getKey().compareTo(t2.getKey())), 
+					TupleHelper.TUPLE_KEY_COMPARATOR, 
 					TupleHelper.NEWEST_TUPLE_DUPLICATE_RESOLVER);
 						
 			for(final Tuple tuple : sortedIteratorMerger) {
 				checkForThreadTermination();
 				addTupleToWriter(tuple);
 			}
-					
-			sstableWriter.close();
-			sstableWriter = null;
+
 			readTuples = sortedIteratorMerger.getReadElements();
 		} catch (StorageManagerException e) {
 			handleErrorDuringCompact();
 			throw e;
+		} finally {
+			closeSSTableWriter();
 		}
 	}
 	
@@ -159,7 +157,7 @@ public class SSTableCompactor {
 			return;
 		}
 		
-		createNewTableIfNeeded(tuple);
+		openNewWriterIfNeeded(tuple);
 		sstableWriter.addNextTuple(tuple);
 		writtenTuples++;
 	}
@@ -170,16 +168,7 @@ public class SSTableCompactor {
 	protected void handleErrorDuringCompact() {
 		successfully = false;
 
-		// Close open writer
-		if(sstableWriter != null) {
-			try {
-				sstableWriter.close();
-			} catch (StorageManagerException e) {
-				logger.error("Got an exception while closing writer in error handler");
-			} finally {
-				sstableWriter = null;
-			}
-		}
+		closeSSTableWriter();
 		
 		// Delete partial written results
 		logger.debug("Deleting partial written results");
@@ -188,13 +177,35 @@ public class SSTableCompactor {
 	}
 
 	/**
+	 * Close the open sstable writer
+	 */
+	protected void closeSSTableWriter() {
+		// Close open writer
+		if(sstableWriter == null) {
+			return;
+		}
+		
+		try {
+			sstableWriter.close();
+			sstableWriter = null;
+		} catch (StorageManagerException e) {
+			logger.error("Got an exception while closing writer in error handler", e);
+		} 
+	}
+
+	/**
 	 * Create a new table if the size of the open table hits the threshold
 	 * @param resultList
 	 * @param tuple
 	 * @throws StorageManagerException
 	 */
-	protected void createNewTableIfNeeded(final Tuple tuple)
+	protected void openNewWriterIfNeeded(final Tuple tuple)
 			throws StorageManagerException {
+		
+		if(sstableWriter == null) {
+			sstableWriter = openNewSSTableWriter();
+			return;
+		}
 		
 		// Check max table size limit
 		if(sstableWriter.getWrittenBytes() + tuple.getSize() > SSTableConst.MAX_SSTABLE_SIZE) {
