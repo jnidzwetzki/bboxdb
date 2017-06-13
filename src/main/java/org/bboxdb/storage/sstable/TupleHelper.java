@@ -29,10 +29,26 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.util.DuplicateResolver;
 
 import com.google.common.io.ByteStreams;
 
 public class TupleHelper {
+	
+	/**
+	 * Remove outdated tuples from the given list
+	 */
+	public final static DuplicateResolver<Tuple> NEWEST_TUPLE_DUPLICATE_RESOLVER = (t) -> {
+		
+		Tuple newestTuple = null;
+		
+		for(final Tuple tuple : t) {
+			newestTuple = TupleHelper.returnMostRecentTuple(newestTuple, tuple);
+		}
+		
+		t.clear();
+		t.add(newestTuple);
+	};
 
 	/**
 	 * Return the most recent version of the tuple

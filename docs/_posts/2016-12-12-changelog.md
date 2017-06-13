@@ -8,6 +8,7 @@ order: 1
 ### Version 0.3.0 (Stable) - TBA
 - New Feature: Added the TestFixedGrid experiment
 - New Feature: Added a tuple read / write experiment
+- New Feature: Merge SSTables based on a SortedIteratorMerger
 - Improvement: Added a fixed cell data structure
 - Improvement: Switched from guava 21.0 to 22.0 and from org.json 20160810 to 20170516
 - Improvement: Partial written results during compactification are deleted

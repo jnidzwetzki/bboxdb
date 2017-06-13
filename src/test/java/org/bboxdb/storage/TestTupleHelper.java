@@ -20,6 +20,9 @@ package org.bboxdb.storage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
@@ -45,6 +48,26 @@ public class TestTupleHelper {
 		Assert.assertEquals(tupleB, TupleHelper.returnMostRecentTuple(tupleA, tupleB));
 		Assert.assertEquals(tupleB, TupleHelper.returnMostRecentTuple(tupleB, tupleA));
 		Assert.assertEquals(tupleB, TupleHelper.returnMostRecentTuple(tupleB, tupleB));
+	}
+	
+	/**
+	 * Test the tuple resolver
+	 */
+	@Test
+	public void testTupleDuplicateResolver() {
+		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		
+		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
+				tupleD, tupleE, tupleF));
+		
+		TupleHelper.NEWEST_TUPLE_DUPLICATE_RESOLVER.handleDuplicates(tupleList);
+		Assert.assertEquals(1, tupleList.size());
+		Assert.assertTrue(tupleList.contains(tupleD));
 	}
 	
 	/**
@@ -88,4 +111,6 @@ public class TestTupleHelper {
 		Assert.assertEquals(tuple, readTuple2);
 	}
 
+	
+	
 }
