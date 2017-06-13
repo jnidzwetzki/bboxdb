@@ -2,7 +2,7 @@
 
 # What is BBoxDB?
 
-SSTables (String Sorted Tables) are used nowadays in many NoSQL databases like Cassandra or LevelDB. SSTables provide a high throughput for read and write operations. Scalephant is a java implementation of SSTables. I wrote this software for research purposes and to understand some of the techniques that are used in other implementations.
+BBoxDB is a distributed storage manager, designed to handle multi-dimensional big data. BBoxDB uses SSTables (String Sorted Tables) for a high throughput of read and write operations. Primarily, the software is a research project to explore new ways to handle multi-dimensional data in a distributed environment.
 
 <a href="https://travis-ci.org/jnidzwetzki/bboxdb">
   <img alt="Build Status" src="https://travis-ci.org/jnidzwetzki/bboxdb.svg?branch=master">
