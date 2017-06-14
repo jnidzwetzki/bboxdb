@@ -253,7 +253,6 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		} else {
 			writePackageToSocket(responsePackage);
 		}
-		
 	}
 	
 	/**
@@ -263,7 +262,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	public synchronized void writeResultPackageNE(final NetworkResponsePackage responsePackage) {
 		try {
 			writeResultPackage(responsePackage);
-		} catch (IOException | PackageEncodeException e) {
+		} catch (Exception e) {
 			logger.error("Unable to send package", e);
 		}
 	}
@@ -276,6 +275,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 */
 	protected void writePackageToSocket(final NetworkResponsePackage responsePackage) 
 			throws IOException, PackageEncodeException {
+		
 		responsePackage.writeToOutputStream(outputStream);
 		outputStream.flush();
 	}
@@ -309,15 +309,10 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		getThreadPool().shutdown();
 		
 		// Close active query iterators
-		for(final ClientQuery clientQuery : getActiveQueries().values()) {
-			clientQuery.close();
-		}
-		
+		getActiveQueries().values().forEach(i -> i.close());
 		getActiveQueries().clear();	
-				
 		closeSocketNE();
 	}
-
 
 	/**
 	 * Close the socket without throwing an exception
@@ -420,9 +415,11 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		final byte queryType = NetworkPackageDecoder.getQueryTypeFromRequest(encodedPackage);
 
 		if(! queryHandlerList.containsKey(queryType)) {
-			logger.warn("Unsupported query type: " + queryType);
+			logger.warn("Unsupported query type: {}", queryType);
+			
 			final ErrorResponse errorResponse = new ErrorResponse(packageSequence, 
 					ErrorMessages.ERROR_UNSUPPORTED_PACKAGE_TYPE);
+			
 			writeResultPackage(errorResponse);
 			return false;
 		}
@@ -453,7 +450,6 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 			}
 			return handleQuery(encodedPackage, packageSequence);
 		}
-		
 
 		if(requestHandlers.containsKey(packageType)) {
 			final RequestHandler requestHandler = requestHandlers.get(packageType);
@@ -613,12 +609,12 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		
 		@Override
 		protected void beginHook() {
-			logger.debug("Starting connection mainteinance thread for: " + getConnectionName());
+			logger.debug("Starting connection mainteinance thread for: {}", getConnectionName());
 		}
 		
 		@Override
 		protected void endHook() {
-			logger.debug("Mainteinance thread for: " + getConnectionName() + " has terminated");
+			logger.debug("Mainteinance thread for {} has terminated", getConnectionName());
 		}
 
 		@Override
