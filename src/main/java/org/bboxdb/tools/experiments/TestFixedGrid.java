@@ -63,7 +63,7 @@ public class TestFixedGrid implements Runnable {
 	@Override
 	public void run() {
 		System.out.format("Reading %s\n", filename);
-		final BoundingBox boundingBox = determineBoundingBox();
+		final BoundingBox boundingBox = ExperimentHelper.determineBoundingBox(filename, format);
 		
 		for(final Integer cellsPerDimension: cellSizes) {
 			System.out.println("Cells per Dimension: " + cellsPerDimension);
@@ -132,32 +132,6 @@ public class TestFixedGrid implements Runnable {
 		for(int i = 0; i < boxesPerNode.length; i++) {
 			System.out.format("%d\t%d\n", i, boxesPerNode[i]);
 		}
-	}
-
-	/**
-	 * Determine global bounding box
-	 * @param sampleSize
-	 * @return 
-	 * @throws IOException 
-	 */
-	protected BoundingBox determineBoundingBox() {
-		System.out.println("# Determining the bounding box");
-			
-		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
-		final List<BoundingBox> bboxes = new ArrayList<>();
-		
-		tupleFile.addTupleListener(t -> {
-			bboxes.add(t.getBoundingBox());
-		});
-		
-		try {
-			tupleFile.processFile();
-		} catch (IOException e) {
-			System.err.println("Got an IOException during experiment: "+ e);
-			System.exit(-1);
-		}
-		
-		return BoundingBox.getCoveringBox(bboxes);
 	}
 	
 	/**
