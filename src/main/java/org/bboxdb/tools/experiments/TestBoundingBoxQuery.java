@@ -18,10 +18,16 @@
 package org.bboxdb.tools.experiments;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+
+import org.bboxdb.network.client.BBoxDB;
+import org.bboxdb.network.client.BBoxDBCluster;
+import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DoubleInterval;
 
 public class TestBoundingBoxQuery implements Runnable {
 
@@ -34,51 +40,87 @@ public class TestBoundingBoxQuery implements Runnable {
 	 * The format of the input file
 	 */
 	protected String format;
-
+	
 	/**
-	 * The sampling size
+	 * The endpoint name
 	 */
-	protected final static double SAMPLING_SIZE = 1d;
-
+	protected String endpoint;
+	
 	/**
-	 * The random for our samples
+	 * The cluster name
 	 */
-	protected final Random random;
-
-	/**
-	 * The dimension of the input data
-	 */
-	protected int dataDimension = -1;
+	protected String cluster;
 	
 	/**
 	 * The tablename to query
 	 */
 	protected final String tablename;
 	
-	public TestBoundingBoxQuery(final String filename, final String format, final String tablename) {
+	/**
+	 * The random for our samples
+	 */
+	protected final Random random;
+
+	/**
+	 * The amont of queries
+	 */
+	protected final static int QUERIES = 100000;
+	
+
+	
+	public TestBoundingBoxQuery(final String filename, final String format, 
+			final String endpoint, String cluster, String tablename) {
 		this.filename = filename;
 		this.format = format;
+		this.endpoint = endpoint;
+		this.cluster = cluster;
 		this.tablename = tablename;
 		this.random = new Random(System.currentTimeMillis());
 	}
 	
 	@Override
 	public void run() {
-		System.out.format("Reading %s\n", filename);
+		System.out.format("# Reading %s\n", filename);
+		final BoundingBox boundingBox = ExperimentHelper.determineBoundingBox(filename, format);
+		
+		System.out.println("Connecting to BBoxDB cluster");
+		final BBoxDB bboxDBConnection = new BBoxDBCluster(endpoint, cluster);
+
 		final List<Double> experimentSize = Arrays.asList(0.1, 0.2, 0.5, 1.0);
-		experimentSize.forEach(e -> runExperiment(e));
+		experimentSize.forEach(e -> runExperiment(e, boundingBox, bboxDBConnection));
 	}
 
 	/**
 	 * Run the experiment with the max dimension soze
+	 * @param boundingBox 
+	 * @param bboxDBConnection 
 	 * @param sampleSize
 	 * @throws IOException 
 	 */
-	protected void runExperiment(final double maxDimensionSize) {
+	protected void runExperiment(final double maxDimensionSize, final BoundingBox boundingBox, 
+			final BBoxDB bboxDBConnection) {
+		
 		System.out.println("# Simulating with max dimension size: " + maxDimensionSize);
-	
+		for(int i = 0; i < QUERIES; i++) {
+			
+			final List<DoubleInterval> bboxIntervals = new ArrayList<>();
+			// Determine query bounding box
+			for(int dimension = 0; dimension < boundingBox.getDimension(); dimension++) {
+				final double dataExtent = boundingBox.getExtent(dimension);
+				final double bboxExtent = random.nextDouble() % dataExtent;
+				final double bboxStartPos = boundingBox.getCoordinateLow(dimension) + bboxExtent;
+				
+				final double bboxEndPos = bboxStartPos 
+						+ (dataExtent / 100 * maxDimensionSize) * random.nextDouble() % 1;
+				
+				final DoubleInterval doubleInterval = new DoubleInterval(bboxStartPos, bboxEndPos);
+				bboxIntervals.add(doubleInterval);
+			}
+			
+			final BoundingBox queryBox = new BoundingBox(bboxIntervals);
+			System.out.println("Executing query with bounding box: " + queryBox);
+		}
 	}
-
 	
 	/**
 	 * Main * Main * Main
@@ -86,17 +128,21 @@ public class TestBoundingBoxQuery implements Runnable {
 	public static void main(final String[] args) throws IOException {
 		
 		// Check parameter
-		if(args.length != 3) {
-			System.err.println("Usage: programm <filename> <format> <table>");
+		if(args.length != 5) {
+			System.err.println("Usage: programm <filename> <format> <endpoint> <cluster> <table>");
 			System.exit(-1);
 		}
 		
 		final String filename = Objects.requireNonNull(args[0]);
 		final String format = Objects.requireNonNull(args[1]);
-		final String table = Objects.requireNonNull(args[2]);
+		final String endpoint = Objects.requireNonNull(args[2]);
+		final String cluster = Objects.requireNonNull(args[3]);
+		final String table = Objects.requireNonNull(args[4]);
 		
-		final TestBoundingBoxQuery testSplit = new TestBoundingBoxQuery(filename, format, table);
-		testSplit.run();
+		final TestBoundingBoxQuery experiment = new TestBoundingBoxQuery(filename, format, endpoint, 
+				cluster, table);
+		
+		experiment.run();
 	}
 
 }
