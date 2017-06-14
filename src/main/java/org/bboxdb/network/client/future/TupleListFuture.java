@@ -295,11 +295,11 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 	public boolean isCompleteResult(final int resultId) {
 		checkFutureSize(resultId);
 		
-		if(! resultComplete.containsKey(resultComplete)) {
+		if(! resultComplete.containsKey(resultId)) {
 			return false;
 		}
 
-		return resultComplete.get(resultComplete);
+		return resultComplete.get(resultId);
 	}
 
 	/**

@@ -23,6 +23,7 @@ order: 1
 - Bugfix: Deleted tuples are now detected by bbox and value bytes
 - Bugfix: Prevent the creation of tuples with 'null' data
 - Bugfix: Fixed a bug in the bounding box calculation of the GeoJSON parser
+- Bugfix: Fixed a bug in the query complete handler, finished queries were sent to the server
 
 ### Version 0.2.6 (Stable) - 23.05.2017
 - New Feature: Created the project mailing list

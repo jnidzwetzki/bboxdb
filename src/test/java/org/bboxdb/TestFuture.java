@@ -23,6 +23,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.OperationFutureImpl;
+import org.bboxdb.network.client.future.TupleListFuture;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -176,4 +177,20 @@ public class TestFuture {
 		future1.get(0, 1, TimeUnit.SECONDS);
 	}
 	
+	/**
+	 * Test the tuple list future
+	 */
+	@Test
+	public void testTupleListFuture() {
+		final TupleListFuture tupleListFuture = new TupleListFuture(2);
+		
+		Assert.assertFalse(tupleListFuture.isCompleteResult(0));
+		Assert.assertFalse(tupleListFuture.isCompleteResult(1));
+		
+		tupleListFuture.setCompleteResult(0, true);
+		tupleListFuture.setCompleteResult(1, true);
+
+		Assert.assertTrue(tupleListFuture.isCompleteResult(0));
+		Assert.assertTrue(tupleListFuture.isCompleteResult(1));
+	}
 }
