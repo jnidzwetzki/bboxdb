@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.bboxdb.storage.entity.Tuple;
@@ -131,11 +132,14 @@ public abstract class AbstractJDBCTupleStore implements TupleStore {
 		connection = DriverManager.getConnection(getConnectionURL());
 		
 		if(newCreated) {
-			final Statement statement = connection.createStatement();		
-			statement.executeUpdate(getCreateTableSQL());
-			statement.close();
-			connection.commit();
-		}
+			try(final Statement statement = connection.createStatement()) {	
+				statement.executeUpdate(getCreateTableSQL());
+				statement.close();
+				connection.commit();
+			} catch(SQLException e) {
+				throw e;
+			}
+ 		}
 		
 		insertStatement = connection.prepareStatement("INSERT into tuples (id, data) values (?,?)");
 		selectStatement = connection.prepareStatement("SELECT data from tuples where id = ?");

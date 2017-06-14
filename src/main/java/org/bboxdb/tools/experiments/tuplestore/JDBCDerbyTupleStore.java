@@ -18,6 +18,7 @@
 package org.bboxdb.tools.experiments.tuplestore;
 
 import java.io.File;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
@@ -44,8 +45,9 @@ public class JDBCDerbyTupleStore extends AbstractJDBCTupleStore {
 	
 	@Override
 	public void afterShutdownHook() {
-		try {
-			DriverManager.getConnection("jdbc:derby:" + getDBFile().getAbsolutePath() + ";shutdown=true");
+		final String shutdownUrl = "jdbc:derby:" + getDBFile().getAbsolutePath() + ";shutdown=true";
+		try(Connection shutdownConnection = DriverManager.getConnection(shutdownUrl)) {
+			
 		} catch (SQLException e) {
 			// See https://db.apache.org/derby/docs/10.9/devguide/tdevdvlp40464.html
 			// System.err.println("# Got exception while shutdown system, but this is normal for derby" + e);
