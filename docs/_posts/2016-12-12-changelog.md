@@ -19,6 +19,7 @@ order: 1
 - Improvement: Added flush() method to SSTable manager
 - Improvement: Improved ressource clean up in SSTable manager
 - Improvement: Introduced the last modified timestamp for sstables
+- Improvement: Big compacts are only executed every hour
 - Bugfix: The JVM tool options are added to the bboxdb_execute script
 - Bugfix: Fixed the primary key for the JDBC osm-converter backend
 - Bugfix: Name of the a invalid distribution region is removed from sstable dir
