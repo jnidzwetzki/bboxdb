@@ -238,7 +238,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		return "SSTableFacade [name=" + name.getFullname() + ", directory=" + directory
 				+ ", tablenumber=" + tablenumber + ", oldestTupleTimestamp="
 				+ getOldestTupleVersionTimestamp() + ", newestTupleTimestamp="
-				+ getNewestTupleVersionTimestamp() + "]";
+				+ getNewestTupleVersionTimestamp() + ", deleteOnClose=" + deleteOnClose + "]";
 	}
 
 	public SSTableReader getSsTableReader() {
