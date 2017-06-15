@@ -131,7 +131,10 @@ public class TupleStoreInstanceManager {
 			final List<SSTableFacade> oldFacades) {
 		
 		sstableFacades.addAll(newFacedes);
-		sstableFacades.removeAll(oldFacades);
+		final boolean removeResult = sstableFacades.removeAll(oldFacades);
+		
+		assert (removeResult == true) : "Unable to remove old facades in replaceCompactedSStables: " 
+			+ oldFacades;
 	}
 	
 	/**
