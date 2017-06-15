@@ -459,7 +459,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 				+ ", sizeInMemory=" + sizeInMemory + ", createdTimestamp="
 				+ createdTimestamp + ", oldestTupleTimestamp="
 				+ oldestTupleTimestamp + ", newestTupleTimestamp="
-				+ newestTupleTimestamp + "]";
+				+ newestTupleTimestamp +", pendingDelete=" + pendingDelete + "]";
 	}
 
 	@Override
