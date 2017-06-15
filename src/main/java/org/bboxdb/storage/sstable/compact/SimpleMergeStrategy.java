@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.sstable.SSTableConst;
-import org.bboxdb.storage.sstable.compact.MergeTask.TaskType;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 
 public class SimpleMergeStrategy implements MergeStrategy {
@@ -47,14 +46,14 @@ public class SimpleMergeStrategy implements MergeStrategy {
 		final List<SSTableFacade> majorMergeTables = generateMajorCompactTask(sstables);
 		
 		if(majorMergeTables.size() > 1) {
-			mergeTask.setTaskType(TaskType.MAJOR);
+			mergeTask.setTaskType(MergeTaskType.MAJOR);
 			mergeTask.setCompactTables(majorMergeTables);
 			return mergeTask;
 		} 
 		
 		final List<SSTableFacade> minnorMergeTables = generateMinorCompactTask(sstables);
 		if(minnorMergeTables.size() > 1) {
-			mergeTask.setTaskType(TaskType.MINNOR);
+			mergeTask.setTaskType(MergeTaskType.MINNOR);
 			mergeTask.setCompactTables(minnorMergeTables);
 		}
 

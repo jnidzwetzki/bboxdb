@@ -17,39 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.compact;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bboxdb.storage.sstable.reader.SSTableFacade;
-
-public class MergeTask {
-
-	/**
-	 * The tables that should be compacted by a minor compact
-	 * @return
-	 */
-	protected List<SSTableFacade> compactTables = new ArrayList<>();
-
-	public MergeTaskType taskType = MergeTaskType.UNKNOWN;
-	
-	public List<SSTableFacade> getCompactTables() {
-		return compactTables;
-	}
-
-	public void setCompactTables(final List<SSTableFacade> minorCompactTables) {
-		this.compactTables = minorCompactTables;
-	}
-	
-	public MergeTaskType getTaskType() {
-		return taskType;
-	}
-	
-	public void setTaskType(final MergeTaskType taskType) {
-		this.taskType = taskType;
-	}
-
-	@Override
-	public String toString() {
-		return "MergeTask [compactTables=" + compactTables + ", taskType=" + taskType + "]";
-	}
+public enum MergeTaskType {
+	MAJOR,
+	MINNOR,
+	UNKNOWN;
 }

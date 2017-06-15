@@ -29,7 +29,6 @@ import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
-import org.bboxdb.storage.sstable.compact.MergeTask.TaskType;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.util.ExceptionSafeThread;
@@ -139,12 +138,12 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 */
 	protected void mergeSSTables(final MergeTask mergeTask) throws StorageManagerException {
 		
-		if(mergeTask.getTaskType() == TaskType.UNKNOWN) {
+		if(mergeTask.getTaskType() == MergeTaskType.UNKNOWN) {
 			return;
 		}
 		
 		final List<SSTableFacade> facades = mergeTask.getCompactTables();
-		final boolean majorCompaction = mergeTask.getTaskType() == TaskType.MAJOR;
+		final boolean majorCompaction = mergeTask.getTaskType() == MergeTaskType.MAJOR;
 	
 		if(facades == null || facades.isEmpty()) {
 			return;
