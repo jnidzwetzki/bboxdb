@@ -104,6 +104,9 @@ public class TestSSTable {
 		Assert.assertEquals(1, ssTableIndexReader.getTablebumber());
 		Assert.assertEquals(sstableIndexFile, ssTableIndexReader.getFile());
 		
+		Assert.assertTrue(sstableReader.getLastModifiedTimestamp() > 0);
+		Assert.assertTrue(ssTableIndexReader.getLastModifiedTimestamp() > 0);
+
 		Assert.assertTrue(ssTableIndexReader.getSize() > 0);
 		Assert.assertTrue(sstableReader.getSize() > 0);
 		

@@ -239,6 +239,14 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	}
 	
 	/**
+	 * Get the last modified timestamp
+	 * @return 
+	 */
+	public long getLastModifiedTimestamp() {
+		return file.lastModified();
+	}
+	
+	/**
 	 * Get the memory buffer
 	 * @return
 	 */
