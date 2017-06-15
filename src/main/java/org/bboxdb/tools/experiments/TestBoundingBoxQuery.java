@@ -23,11 +23,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
+import org.bboxdb.network.client.BBoxDBException;
+import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
+
+import com.google.common.base.Stopwatch;
 
 public class TestBoundingBoxQuery implements Runnable {
 
@@ -66,7 +72,20 @@ public class TestBoundingBoxQuery implements Runnable {
 	 */
 	protected final static int QUERIES = 100000;
 	
-
+	/**
+	 * The number of experiment retries
+	 */
+	protected final static int RETRIES = 5;
+	
+	/**
+	 * The pending futures
+	 */
+	protected final FixedSizeFutureStore pendingFutures;
+	
+	/**
+	 * The amount of pending insert futures
+	 */
+	protected final static int MAX_PENDING_FUTURES = 250;
 	
 	public TestBoundingBoxQuery(final String filename, final String format, 
 			final String endpoint, String cluster, String tablename) {
@@ -75,6 +94,7 @@ public class TestBoundingBoxQuery implements Runnable {
 		this.endpoint = endpoint;
 		this.cluster = cluster;
 		this.tablename = tablename;
+		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
 		this.random = new Random(System.currentTimeMillis());
 	}
 	
@@ -95,12 +115,41 @@ public class TestBoundingBoxQuery implements Runnable {
 	 * @param boundingBox 
 	 * @param bboxDBConnection 
 	 * @param sampleSize
+	 * @throws BBoxDBException 
 	 * @throws IOException 
 	 */
 	protected void runExperiment(final double maxDimensionSize, final BoundingBox boundingBox, 
 			final BBoxDB bboxDBConnection) {
 		
-		System.out.println("# Simulating with max dimension size: " + maxDimensionSize);
+		try {
+			System.out.println("# Simulating with max dimension size: " + maxDimensionSize);
+			long totalElapsedTime = 0;
+			for(int execution = 0; execution < RETRIES; execution++) {
+				final Stopwatch stopwatch = Stopwatch.createStarted();
+				executeQueries(maxDimensionSize, boundingBox, bboxDBConnection);
+				final long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+				System.out.println("#" + elapsedTime);
+				totalElapsedTime += elapsedTime;
+			}
+			
+			System.out.println(maxDimensionSize + "\t" + totalElapsedTime / RETRIES);
+		} catch (Exception e) {
+			System.err.println("Got exception while executing experiment: " + e);
+			System.exit(-1);
+		}
+	}
+
+	/**
+	 * Execute the bounding box queries
+	 * @param maxDimensionSize
+	 * @param boundingBox
+	 * @param bboxDBConnection 
+	 * @throws BBoxDBException 
+	 * @throws InterruptedException 
+	 */
+	protected void executeQueries(final double maxDimensionSize, final BoundingBox boundingBox, 
+			final BBoxDB bboxDBConnection) throws BBoxDBException, InterruptedException {
+		
 		for(int i = 0; i < QUERIES; i++) {
 			
 			final List<DoubleInterval> bboxIntervals = new ArrayList<>();
@@ -118,8 +167,11 @@ public class TestBoundingBoxQuery implements Runnable {
 			}
 			
 			final BoundingBox queryBox = new BoundingBox(bboxIntervals);
-			System.out.println("Executing query with bounding box: " + queryBox);
+			final TupleListFuture future = bboxDBConnection.queryBoundingBox(tablename, queryBox);
+			pendingFutures.put(future);
 		}
+		
+		pendingFutures.waitForCompletion();
 	}
 	
 	/**
