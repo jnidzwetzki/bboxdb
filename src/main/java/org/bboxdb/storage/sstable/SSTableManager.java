@@ -524,6 +524,9 @@ public class SSTableManager implements BBoxDBService {
 				final boolean canBeUsed = tupleStorage.acquire();
 								
 				if(! canBeUsed ) {
+					if(execution == Const.OPERATION_RETRY - 1) {
+						logger.error("Unable to aquire: {} with {} retries", tupleStorage, execution);
+					}
 					break;
 				} else {
 					aquiredStorages.add(tupleStorage);
