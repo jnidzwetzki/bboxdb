@@ -131,10 +131,7 @@ public class TupleStoreInstanceManager {
 			final List<SSTableFacade> oldFacades) {
 		
 		sstableFacades.addAll(newFacedes);
-		
-		for(final SSTableFacade facade : oldFacades) {
-			sstableFacades.remove(facade);
-		}
+		sstableFacades.removeAll(oldFacades);
 	}
 	
 	/**
