@@ -204,7 +204,6 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			splitThread.setName("Split thread for: " + threadname);
 			splitThread.start();
 		}
-		
 	}
 
 	/**
