@@ -22,15 +22,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.bboxdb.misc.BBoxDBConfiguration;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 
 public class SimpleMergeStrategy implements MergeStrategy {
-	
-	/**
-	 * Merge small tables into a big one
-	 */
-	protected final static int SMALL_TABLE_THRESHOLD = 10000;
 	
 	/**
 	 * The number of tables to merge per task
@@ -66,10 +63,12 @@ public class SimpleMergeStrategy implements MergeStrategy {
 		
 		final long now = System.currentTimeMillis();
 		
+		final long smallTableThreshold = getSmallTableThreshold();
+		
 		// Any old big compact tables?
 		final boolean bigCompactNeeded = sstables
 			.stream()
-			.filter(f -> f.getSsTableMetadata().getTuples() >= SMALL_TABLE_THRESHOLD)
+			.filter(f -> f.getSsTableMetadata().getTuples() >= smallTableThreshold)
 			.anyMatch(f -> f.getSsTableReader().getLastModifiedTimestamp() + BIG_TABLE_UNTOUCHED_TIME < now);
 		
 		final MergeTask mergeTask = new MergeTask();
@@ -88,15 +87,26 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	}
 
 	/**
+	 * The small table threshold
+	 * @return
+	 */
+	protected long getSmallTableThreshold() {
+		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
+		return configuration.getMemtableEntriesMax() * 5;
+	}
+
+	/**
 	 * Generate a minor compact task
 	 * @param sstables
 	 * @return
 	 */
 	protected MergeTask generateMinorCompactTask(final List<SSTableFacade> sstables) {
 		
+		final long smallTableThreshold = getSmallTableThreshold();
+		
 		final List<SSTableFacade> smallCompacts = sstables
 			.stream()
-			.filter(f -> f.getSsTableMetadata().getTuples() < SMALL_TABLE_THRESHOLD)
+			.filter(f -> f.getSsTableMetadata().getTuples() < smallTableThreshold)
 			.limit(MAX_MERGE_TABLES_PER_JOB)
 			.collect(Collectors.toList());
 
