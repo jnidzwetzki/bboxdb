@@ -48,7 +48,12 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	public MergeTask getMergeTask(final List<SSTableFacade> sstables) {
 		
 		if(sstables.size() > BIG_TABLE_THRESHOLD) {
-			return generateMajorCompactTask(sstables);
+			final MergeTask mergeTask = generateMajorCompactTask(sstables);
+			if(! mergeTask.getMajorCompactTables().isEmpty()) {
+				return mergeTask;
+			}
+			
+			// Otherweise generate small task
 		}
 		
 		return generateMinorCompactTask(sstables);
