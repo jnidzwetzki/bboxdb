@@ -17,39 +17,45 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.compact;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 
 public class MergeTask {
 
+	public enum TaskType {
+		MAJOR,
+		MINNOR,
+		UNKNOWN;
+	}
+	
 	/**
 	 * The tables that should be compacted by a minor compact
 	 * @return
 	 */
-	protected List<SSTableFacade> minorCompactTables;
+	protected List<SSTableFacade> compactTables = new ArrayList<>();
+
+	public TaskType taskType = TaskType.UNKNOWN;
 	
-	/**
-	 * The tables that should be compacted by a minor compact
-	 * @return
-	 */
-	protected List<SSTableFacade> majorCompactTables;
-
-	
-	public List<SSTableFacade> getMinorCompactTables() {
-		return minorCompactTables;
+	public List<SSTableFacade> getCompactTables() {
+		return compactTables;
 	}
 
-	public void setMinorCompactTables(List<SSTableFacade> minorCompactTables) {
-		this.minorCompactTables = minorCompactTables;
-	}
-
-	public List<SSTableFacade> getMajorCompactTables() {
-		return majorCompactTables;
-	}
-
-	public void setMajorCompactTables(List<SSTableFacade> majorCompactTables) {
-		this.majorCompactTables = majorCompactTables;
+	public void setCompactTables(final List<SSTableFacade> minorCompactTables) {
+		this.compactTables = minorCompactTables;
 	}
 	
+	public TaskType getTaskType() {
+		return taskType;
+	}
+	
+	public void setTaskType(final TaskType taskType) {
+		this.taskType = taskType;
+	}
+
+	@Override
+	public String toString() {
+		return "MergeTask [compactTables=" + compactTables + ", taskType=" + taskType + "]";
+	}
 }

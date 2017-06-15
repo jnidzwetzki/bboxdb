@@ -29,6 +29,7 @@ import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
+import org.bboxdb.storage.sstable.compact.MergeTask.TaskType;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.util.ExceptionSafeThread;
@@ -102,8 +103,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		final MergeTask mergeTask = mergeStragegy.getMergeTask(facades);
 			
 		try {
-			mergeSSTables(mergeTask.getMinorCompactTables(), false);
-			mergeSSTables(mergeTask.getMajorCompactTables(), true);				
+			mergeSSTables(mergeTask);
 		} catch (StorageManagerException e) {
 			if(! Thread.currentThread().isInterrupted()) {
 				logger.error("Error while merging tables", e);
@@ -134,18 +134,23 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 
 	/**
 	 * Merge multiple facades into a new one
-	 * @param reader1
-	 * @param reader2
+	 *
 	 * @throws StorageManagerException
 	 */
-	protected void mergeSSTables(final List<SSTableFacade> facades, final boolean majorCompaction) 
-			throws StorageManagerException {
+	protected void mergeSSTables(final MergeTask mergeTask) throws StorageManagerException {
+		
+		if(mergeTask.getTaskType() == TaskType.UNKNOWN) {
+			return;
+		}
+		
+		final List<SSTableFacade> facades = mergeTask.getCompactTables();
+		final boolean majorCompaction = mergeTask.getTaskType() == TaskType.MAJOR;
 	
 		if(facades == null || facades.isEmpty()) {
 			return;
 		}
 		
-		final List<SSTableKeyIndexReader> reader = facades
+		final List<SSTableKeyIndexReader> reader = mergeTask.getCompactTables()
 				.stream()
 				.map(f -> f.getSsTableKeyIndexReader())
 				.collect(Collectors.toList());
@@ -169,7 +174,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 		registerNewFacadeAndDeleteOldInstances(facades, newTables);
 		
-		if(majorCompaction && sstableManager.getSSTableName().isDistributedTable()) {
+		if(sstableManager.getSSTableName().isDistributedTable()) {
 			testForRegionSplit();
 		}
 	}

@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.sstable.SSTableConst;
+import org.bboxdb.storage.sstable.compact.MergeTask.TaskType;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 
 public class SimpleMergeStrategy implements MergeStrategy {
@@ -35,11 +36,6 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	protected final static int MAX_MERGE_TABLES_PER_JOB = 10;
 	
 	/**
-	 * Number of tables that will trigger a big compactification
-	 */
-	protected final static int BIG_TABLE_THRESHOLD = 5;
-	
-	/**
 	 * The time a big table is excluded from compact tasks
 	 */
 	protected final static long BIG_TABLE_UNTOUCHED_TIME = TimeUnit.HOURS.toMillis(1);
@@ -47,16 +43,22 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	@Override
 	public MergeTask getMergeTask(final List<SSTableFacade> sstables) {
 		
-		if(sstables.size() > BIG_TABLE_THRESHOLD) {
-			final MergeTask mergeTask = generateMajorCompactTask(sstables);
-			if(! mergeTask.getMajorCompactTables().isEmpty()) {
-				return mergeTask;
-			}
-			
-			// Otherweise generate small task
-		}
+		final MergeTask mergeTask = new MergeTask();
+		final List<SSTableFacade> majorMergeTables = generateMajorCompactTask(sstables);
 		
-		return generateMinorCompactTask(sstables);
+		if(majorMergeTables.size() > 1) {
+			mergeTask.setTaskType(TaskType.MAJOR);
+			mergeTask.setCompactTables(majorMergeTables);
+			return mergeTask;
+		} 
+		
+		final List<SSTableFacade> minnorMergeTables = generateMinorCompactTask(sstables);
+		if(minnorMergeTables.size() > 1) {
+			mergeTask.setTaskType(TaskType.MINNOR);
+			mergeTask.setCompactTables(minnorMergeTables);
+		}
+
+		return mergeTask;
 	}
 
 	/**
@@ -64,7 +66,7 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	 * @param sstables
 	 * @return
 	 */
-	protected MergeTask generateMajorCompactTask(final List<SSTableFacade> sstables) {
+	protected List<SSTableFacade> generateMajorCompactTask(final List<SSTableFacade> sstables) {
 		
 		final long now = System.currentTimeMillis();
 		
@@ -75,20 +77,15 @@ public class SimpleMergeStrategy implements MergeStrategy {
 			.stream()
 			.filter(f -> f.getSsTableMetadata().getTuples() >= smallTableThreshold)
 			.anyMatch(f -> f.getSsTableReader().getLastModifiedTimestamp() + BIG_TABLE_UNTOUCHED_TIME < now);
-		
-		final MergeTask mergeTask = new MergeTask();
-	
-		// One table can't be merged
-		if(bigCompactNeeded && sstables.size() > 1) {
 			
-			// In a major compact, all tables needs to be merged
-			final List<SSTableFacade> bigCompacts = new ArrayList<>();
+		final List<SSTableFacade> bigCompacts = new ArrayList<>();
+		
+		// One table can't be merged
+		if(bigCompactNeeded) {
 			bigCompacts.addAll(sstables);
-
-			mergeTask.setMajorCompactTables(bigCompacts);
 		}
 		
-		return mergeTask;
+		return bigCompacts;
 	}
 
 	/**
@@ -105,7 +102,7 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	 * @param sstables
 	 * @return
 	 */
-	protected MergeTask generateMinorCompactTask(final List<SSTableFacade> sstables) {
+	protected List<SSTableFacade> generateMinorCompactTask(final List<SSTableFacade> sstables) {
 		
 		final long smallTableThreshold = getSmallTableThreshold();
 		
@@ -115,15 +112,7 @@ public class SimpleMergeStrategy implements MergeStrategy {
 			.limit(MAX_MERGE_TABLES_PER_JOB)
 			.collect(Collectors.toList());
 
-		// Create compact task
-		final MergeTask mergeTask = new MergeTask();
-		
-		// One table can't be merged
-		if(smallCompacts.size() > 1) {
-			mergeTask.setMinorCompactTables(smallCompacts);
-		}
-		
-		return mergeTask;
+		return smallCompacts;
 	}
 	
 	@Override
