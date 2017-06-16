@@ -245,6 +245,13 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		}
 		
 		try {
+			final DistributionGroupZookeeperAdapter zookeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+			zookeperAdapter.setStateForDistributionGroup(region, DistributionRegionState.SPLIT);
+		} catch (ZookeeperException e) {
+			logger.error("Got an exception while setting region state to splitted", e);
+		}
+		
+		try {
 			logger.info("Deleting local data for {}", region.getIdentifier());
 			deleteLocalData(localTables);
 		}  catch (InterruptedException e) {
@@ -252,15 +259,8 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			Thread.currentThread().interrupt();
 			return;
 		} catch (Exception e) {
-			logger.error("Gto exception when deleting local data", e);
+			logger.error("Got exception when deleting local data", e);
 			return;
-		}
-		
-		try {
-			final DistributionGroupZookeeperAdapter zookeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			zookeperAdapter.setStateForDistributionGroup(region, DistributionRegionState.SPLIT);
-		} catch (ZookeeperException e) {
-			logger.error("Got an exception while setting region state to splitted", e);
 		}
 		
 		logger.info("Redistributing data for region: {} DONE", region.getIdentifier());
