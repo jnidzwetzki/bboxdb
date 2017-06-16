@@ -202,58 +202,42 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param region
 	 */
 	protected void redistributeData(final DistributionRegion region) {
-		logger.info("Redistributing all data for region: " + region.getIdentifier());
-		
-		assertChildIsReady(region);
-		
-		final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
-		
-		final List<SSTableName> localTables = StorageRegistry.getInstance()
-				.getAllTablesForDistributionGroupAndRegionId
-				(distributionGroupName, region.getRegionId());
-		
-		for(final SSTableName ssTableName : localTables) {
-			try {
-				// Redistribute all data, new data is kept in memory
+		try {
+			logger.info("Redistributing all data for region: " + region.getIdentifier());
+			
+			assertChildIsReady(region);
+			
+			final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
+			
+			final List<SSTableName> localTables = StorageRegistry.getInstance()
+					.getAllTablesForDistributionGroupAndRegionId
+					(distributionGroupName, region.getRegionId());
+	
+			// Redistribute all data, new data is kept in memory
+			for(final SSTableName ssTableName : localTables) {
 				stopFlushToDisk(ssTableName);
 				distributeData(region, ssTableName, false);	
-			} catch (Exception e) {
-				logger.warn("Got an exception while distributing tuples for: {}, stopping redistirbution", 
-						ssTableName, e);
-				
-				return;
 			}
-		}
-		
-		// Remove the local mapping, no new data is written to the region
-		final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(distributionGroupName);
-		mapper.removeMapping(region.getRegionId());
-		
-		logger.info("Redistributing in-memory data for region: {}", region.getIdentifier());
-
-		// Remove old data
-		for(final SSTableName ssTableName : localTables) {
-			try {
-				// Redistribute only in memory data
+			
+			// Remove the local mapping, no new data is written to the region
+			final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(distributionGroupName);
+			mapper.removeMapping(region.getRegionId());
+			
+			// Redistribute only in memory data
+			logger.info("Redistributing in-memory data for region: {}", region.getIdentifier());
+			for(final SSTableName ssTableName : localTables) {	
 				distributeData(region, ssTableName, true);	
-				StorageRegistry.getInstance().deleteTable(ssTableName);	
-			} catch (Exception e) {
-				logger.warn("Got an exception while distributing IN-MEMORY tuples for: {}, stopping redistirbution", 
-						ssTableName, e);
-				return;
 			}
-		}
-		
-		try {
+			
+			// Update zookeeer
 			final DistributionGroupZookeeperAdapter zookeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 			zookeperAdapter.setStateForDistributionGroup(region, DistributionRegionState.SPLIT);
-		} catch (ZookeeperException e) {
-			logger.error("Got an exception while setting region state to splitted", e);
-		}
-		
-		try {
+
+			// Remove local data
 			logger.info("Deleting local data for {}", region.getIdentifier());
 			deleteLocalData(localTables);
+		} catch (ZookeeperException e) {
+			logger.error("Got an exception while setting region state to splitted", e);
 		}  catch (InterruptedException e) {
 			logger.warn("Thread was interrupted");
 			Thread.currentThread().interrupt();
