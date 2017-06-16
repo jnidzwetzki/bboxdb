@@ -35,6 +35,11 @@ import org.bboxdb.storage.sstable.reader.SSTableFacade;
  */
 public class TupleStoreInstanceManager {
 	
+	public enum FlushMode {
+		MEMORY_ONLY,
+		DISK;
+	}
+	
 	/**
 	 * The active memtable
 	 */
@@ -54,12 +59,21 @@ public class TupleStoreInstanceManager {
 	 * The queue for the memtable flush thread
 	 */
 	protected final BlockingQueue<Memtable> memtablesToFlush;
+
+	/**
+	 * The flush mode. When data is kept in memory only, the memtablesToFlush
+	 * is not used. Otherwise, put requests will block when this queue
+	 * is full
+	 */
+	protected volatile FlushMode flushMode;
 	
-	public TupleStoreInstanceManager() {
-		sstableFacades = new ArrayList<>();
-		unflushedMemtables = new ArrayList<>();
+	public TupleStoreInstanceManager(final FlushMode flushMode) {
+		this.flushMode = flushMode;
 		
-		memtablesToFlush = new ArrayBlockingQueue<>
+		this.sstableFacades = new ArrayList<>();
+		this.unflushedMemtables = new ArrayList<>();
+		
+		this.memtablesToFlush = new ArrayBlockingQueue<>
 			(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
 	}
 	
@@ -84,7 +98,7 @@ public class TupleStoreInstanceManager {
 		// Because, otherwise no other threads could call
 		// replaceMemtableWithSSTable() and reduce
 		// the queue size
-		if(memtable != null) {
+		if(memtable != null && flushMode == FlushMode.DISK) {
 			try {
 				memtablesToFlush.put(memtable);
 			} catch (InterruptedException e) {
@@ -215,5 +229,13 @@ public class TupleStoreInstanceManager {
 				this.wait();
 			}
 		}
+	}
+	
+	/**
+	 * Set the flush mode
+	 * @param flushMode
+	 */
+	public synchronized void setFlushMode(final FlushMode flushMode) {
+		this.flushMode = flushMode;
 	}
 }

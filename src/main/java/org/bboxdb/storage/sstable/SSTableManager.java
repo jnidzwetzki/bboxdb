@@ -39,6 +39,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.TupleStoreInstanceManager.FlushMode;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.ServiceState;
@@ -105,9 +106,9 @@ public class SSTableManager implements BBoxDBService {
 		this.configuration = configuration;
 		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
-		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		this.runningThreads = new ArrayList<>();
 		this.sstableCompactor = null;
+		this.tupleStoreInstances = new TupleStoreInstanceManager(FlushMode.DISK);
 		
 		// Close open ressources when the failed state is entered
 		this.serviceState = new ServiceState(); 
@@ -144,6 +145,10 @@ public class SSTableManager implements BBoxDBService {
 			
 			tableNumber.set(getLastSequencenumberFromReader() + 1);
 
+			final FlushMode flushMode = (configuration.isStorageRunMemtableFlushThread()) 
+					? FlushMode.DISK : FlushMode.MEMORY_ONLY;
+			tupleStoreInstances.setFlushMode(flushMode);
+			
 			// Set to ready before the threads are started
 			serviceState.dispatchToRunning();
 
@@ -276,6 +281,9 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	public void stopThreads() {
 
+		// Set the flush mode to memory only
+		tupleStoreInstances.setFlushMode(FlushMode.MEMORY_ONLY);
+		
 		// Interrupt the running threads
 		logger.info("Interrupt running service threads");
 		runningThreads.forEach(t -> t.interrupt());
