@@ -17,12 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.misc;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.bboxdb.util.InterfaceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,8 +110,8 @@ public class BBoxDBConfiguration {
 
 	public BBoxDBConfiguration() {
 		try {
-			localip = InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException e) {
+			localip = InterfaceHelper.getFirstLoopbackIPv4();
+		} catch (SocketException e) {
 			logger.warn("Unable to determine the local IP adress of this node, please specify 'localip' in the configuration", e);
 		}
 	}

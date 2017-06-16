@@ -31,6 +31,7 @@ order: 1
 - Bugfix: Fixed some ressource leaks found by coverty scan
 - Bugfix: Fixed a reace condition when a busy table should be redistributed
 - Bugfix: Introduced the memtable flush mode. After the flush thread is stopped, all data can stay in memory
+- Bugfix: Loopback IPs (e.g. 127.0.0.1) are now filtered, when the local instancename is determined
 
 ### Version 0.2.6 (Stable) - 23.05.2017
 - New Feature: Created the project mailing list
