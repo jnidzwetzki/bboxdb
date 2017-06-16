@@ -64,6 +64,11 @@ public class SSTableFlushZookeeperAdapter implements SSTableFlushCallback {
 			}
 			
 		} catch (ZookeeperException | BBoxDBException e) {
+			
+			if(Thread.currentThread().isInterrupted()) {
+				return;
+			}
+			
 			logger.warn("Unable to find distribution region: " , e);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
