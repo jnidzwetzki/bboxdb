@@ -223,11 +223,9 @@ public class TupleStoreInstanceManager {
 	 * @param memtable
 	 * @throws InterruptedException 
 	 */
-	public void waitForMemtableFlush(final Memtable memtable) throws InterruptedException {
-		synchronized (this) {
-			while(unflushedMemtables.contains(memtable)) {
-				this.wait();
-			}
+	public synchronized void waitForMemtableFlush(final Memtable memtable) throws InterruptedException {
+		while(unflushedMemtables.contains(memtable)) {
+			this.wait();
 		}
 	}
 	
@@ -237,5 +235,13 @@ public class TupleStoreInstanceManager {
 	 */
 	public synchronized void setFlushMode(final FlushMode flushMode) {
 		this.flushMode = flushMode;
+	}
+	
+	/**
+	 * Get the flush mode
+	 * @return
+	 */
+	public FlushMode getFlushMode() {
+		return flushMode;
 	}
 }

@@ -245,11 +245,6 @@ public class SSTableManager implements BBoxDBService {
 	 * @return 
 	 */
 	public boolean flush() {
-		// Flush in memory data
-		if(! configuration.isStorageRunMemtableFlushThread()) {
-			return false;
-		}
-		
 		final Memtable activeMemtable = tupleStoreInstances.getMemtable();
 		
 		if(activeMemtable != null) {
@@ -257,7 +252,10 @@ public class SSTableManager implements BBoxDBService {
 			initNewMemtable();
 			
 			try {
-				tupleStoreInstances.waitForMemtableFlush(activeMemtable);
+				// In in-memory only mode, the table is not flushed to disk
+				if(tupleStoreInstances.getFlushMode() == FlushMode.DISK) {
+					tupleStoreInstances.waitForMemtableFlush(activeMemtable);
+				}
 			} catch (InterruptedException e) {
 				logger.info("Got interrupted exception while waiting for memtable flush");
 				Thread.currentThread().interrupt();
