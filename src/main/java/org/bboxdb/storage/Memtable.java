@@ -491,4 +491,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 		return false;
 	}
 
+	@Override
+	public boolean isDeletePending() {
+		return pendingDelete;
+	}
 }

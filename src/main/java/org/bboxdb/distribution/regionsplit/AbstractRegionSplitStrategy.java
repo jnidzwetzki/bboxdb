@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.distribution.DistributionGroupCache;
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.RegionIdMapper;
@@ -209,9 +210,11 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		
 		assertChildIsReady(region);
 		
+		final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
+		
 		final List<SSTableName> localTables = StorageRegistry.getInstance()
 				.getAllTablesForDistributionGroupAndRegionId
-				(region.getDistributionGroupName(), region.getRegionId());
+				(distributionGroupName, region.getRegionId());
 		
 		for(final SSTableName ssTableName : localTables) {
 			try {
@@ -219,15 +222,15 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 				stopFlushToDisk(ssTableName);
 				distributeData(region, ssTableName, false);	
 			} catch (StorageManagerException e) {
-				logger.warn("Got an exception while distributing tuples for: " + ssTableName, e);
+				logger.warn("Got an exception while distributing tuples for: {}", ssTableName, e);
 			}
 		}
 		
 		// Remove the local mapping, no new data is written to the region
-		final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName());
+		final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(distributionGroupName);
 		mapper.removeMapping(region.getRegionId());
 		
-		logger.info("Redistributing in-memory data for region: " + region.getIdentifier());
+		logger.info("Redistributing in-memory data for region: {}", region.getIdentifier());
 
 		// Remove old data
 		for(final SSTableName ssTableName : localTables) {
@@ -247,7 +250,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			logger.error("Got an exception while setting region state to splitted", e);
 		}
 		
-		logger.info("Redistributing data for region: " + region.getIdentifier() + " DONE");
+		logger.info("Redistributing data for region: {} DONE", region.getIdentifier());
 	}
 
 	/**
@@ -355,8 +358,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param storages
 	 */
 	protected void spreadTupleStore(final TupleRedistributor tupleRedistributor, 
-			final boolean onlyInMemoryData,
-			final List<ReadOnlyTupleStorage> storages) {
+			final boolean onlyInMemoryData, final List<ReadOnlyTupleStorage> storages) {
 		
 		for(final ReadOnlyTupleStorage storage: storages) {
 			

@@ -87,7 +87,13 @@ public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	/**
 	 * Delete the object and persistent data as soon as usage == 0
 	 */
-	public abstract void deleteOnClose();
+	public void deleteOnClose();
+	
+	/**
+	 * Is the deletion pending
+	 * @return
+	 */
+	public boolean isDeletePending(); 
 
 	/** 
 	 * Increment the usage counter
