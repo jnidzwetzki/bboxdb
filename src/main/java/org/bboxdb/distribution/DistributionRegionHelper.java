@@ -253,14 +253,9 @@ class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisito
 	 * @return
 	 */
 	protected boolean isInstanceContained(final DistributionRegion distributionRegion) {
-
-		for(final DistributedInstance instance : distributionRegion.getSystems()) {
-			if(instance.socketAddressEquals(instanceToSearch)) {
-				return true;
-			}
-		}
-		
-		return false;
+		return distributionRegion.getSystems()
+			.stream()
+			.anyMatch(s -> s.socketAddressEquals(instanceToSearch));
 	}
 	
 	/**
@@ -270,5 +265,4 @@ class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisito
 	public List<OutdatedDistributionRegion> getResult() {
 		return result;
 	}
-	
 }
