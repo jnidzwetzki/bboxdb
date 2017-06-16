@@ -135,7 +135,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			
-			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(tuple.getBoundingBox());
+			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBoxAndWrite(tuple.getBoundingBox());
 
 			if(systems.isEmpty()) {
 				throw new BBoxDBException("Insert tuple called, but system list for bounding box is empty: " 
@@ -293,7 +293,7 @@ public class BBoxDBCluster implements BBoxDB {
 					sstableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(boundingBox);
+			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBoxAndRead(boundingBox);
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, systems);
@@ -329,7 +329,7 @@ public class BBoxDBCluster implements BBoxDB {
 					sstableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBox(boundingBox);
+			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBoxAndRead(boundingBox);
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, systems);

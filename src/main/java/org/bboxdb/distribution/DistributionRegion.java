@@ -20,9 +20,9 @@ package org.bboxdb.distribution;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.mode.DistributionRegionState;
@@ -419,9 +419,27 @@ public class DistributionRegion {
 	 * Get the a list of systems for the bounding box
 	 * @return
 	 */
-	public List<DistributedInstance> getSystemsForBoundingBox(final BoundingBox boundingBox) {
-		final List<DistributedInstance> result = new ArrayList<DistributedInstance>();
-		getSystemsForBoundingBoxRecursive(boundingBox, result);
+	public Set<DistributedInstance> getSystemsForBoundingBoxAndRead(final BoundingBox boundingBox) {
+		final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
+		
+		getSystemsForBoundingBoxRecursive(boundingBox, 
+				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ, 
+				result);
+		
+		return result;
+	}
+	
+	/**
+	 * Get the a list of systems for the bounding box
+	 * @return
+	 */
+	public Set<DistributedInstance> getSystemsForBoundingBoxAndWrite(final BoundingBox boundingBox) {
+		final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
+		
+		getSystemsForBoundingBoxRecursive(boundingBox, 
+				DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE, 
+				result);
+		
 		return result;
 	}
 	
@@ -430,29 +448,26 @@ public class DistributionRegion {
 	 * @param boundingBox
 	 * @param systems
 	 */
-	protected void getSystemsForBoundingBoxRecursive(final BoundingBox boundingBox, final Collection<DistributedInstance> resultSystems) {
+	protected void getSystemsForBoundingBoxRecursive(final BoundingBox boundingBox, 
+			final Predicate<DistributionRegionState> statePredicate,
+			final Set<DistributedInstance> resultSystems) {
 		
-		// This node is not covered. So, edge nodes are not covered
+		// This node is not covered. So, child nodes are not covered
 		if(! converingBox.overlaps(boundingBox)) {
 			return;
 		}
 		
-		if(state == DistributionRegionState.ACTIVE 
-				|| state == DistributionRegionState.ACTIVE_FULL
-				|| state == DistributionRegionState.SPLITTING) {
-			
+		if(statePredicate.test(state)) {
 			if(! systems.isEmpty()) {
 				for(final DistributedInstance system : systems) {
-					if(! resultSystems.contains(system)) {
-						resultSystems.add(system);
-					}
+					resultSystems.add(system);
 				}
 			}
-		} else {
-			if(! isLeafRegion()) {
-				leftChild.getSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
-				rightChild.getSystemsForBoundingBoxRecursive(boundingBox, resultSystems);
-			}
+		} 
+		
+		if(! isLeafRegion()) {
+			leftChild.getSystemsForBoundingBoxRecursive(boundingBox, statePredicate, resultSystems);
+			rightChild.getSystemsForBoundingBoxRecursive(boundingBox, statePredicate, resultSystems);
 		}
 	}
 

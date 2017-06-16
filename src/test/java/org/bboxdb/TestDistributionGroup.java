@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb;
 
-import java.util.List;
 import java.util.Set;
 
 import org.bboxdb.distribution.DistributionGroupName;
@@ -177,14 +176,14 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
 		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
 		
-		Assert.assertFalse(level0.getSystemsForBoundingBox(new BoundingBox(100d, 110d)).contains(SYSTEM_A));
-		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0d, 10d)).contains(SYSTEM_A));
+		Assert.assertFalse(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(100d, 110d)).contains(SYSTEM_A));
+		Assert.assertTrue(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(0d, 10d)).contains(SYSTEM_A));
 		
-		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0d, 10d)).contains(SYSTEM_A));
-		Assert.assertFalse(level0.getSystemsForBoundingBox(new BoundingBox(100d, 110d)).contains(SYSTEM_A));
+		Assert.assertTrue(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(0d, 10d)).contains(SYSTEM_A));
+		Assert.assertFalse(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(100d, 110d)).contains(SYSTEM_A));
 		
-		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0d, 100d)).contains(SYSTEM_A));
-		Assert.assertTrue(level0.getSystemsForBoundingBox(new BoundingBox(0d, 100d)).contains(SYSTEM_B));
+		Assert.assertTrue(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(0d, 100d)).contains(SYSTEM_A));
+		Assert.assertTrue(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(0d, 100d)).contains(SYSTEM_B));
 	}
 	
 	/**
@@ -239,15 +238,18 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setRegionId(2);
 		level0.getRightChild().setRegionId(3);
 		
-		level0.setState(DistributionRegionState.SPLIT);
+		level0.setState(DistributionRegionState.SPLITTING);
 		level0.makeChildsActive();
 		
 		level0.addSystem(new DistributedInstance("node1:123"));
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
 		level0.getRightChild().addSystem(new DistributedInstance("node3:123"));
 		
-		final List<DistributedInstance> systems = level0.getSystemsForBoundingBox(BoundingBox.EMPTY_BOX);
-		Assert.assertEquals(2, systems.size());
+		final Set<DistributedInstance> systemsRead = level0.getSystemsForBoundingBoxAndRead(BoundingBox.EMPTY_BOX);
+		Assert.assertEquals(3, systemsRead.size());
+		
+		final Set<DistributedInstance> systemsWrite = level0.getSystemsForBoundingBoxAndWrite(BoundingBox.EMPTY_BOX);
+		Assert.assertEquals(2, systemsWrite.size());
 	}
 	
 	/**
@@ -260,15 +262,18 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setRegionId(2);
 		level0.getRightChild().setRegionId(3);
 		
-		level0.setState(DistributionRegionState.SPLIT);
+		level0.setState(DistributionRegionState.SPLITTING);
 		level0.makeChildsActive();
 		
 		level0.addSystem(new DistributedInstance("node1:123"));
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
 		level0.getRightChild().addSystem(new DistributedInstance("node2:123"));
 		
-		final List<DistributedInstance> systems = level0.getSystemsForBoundingBox(BoundingBox.EMPTY_BOX);
-		Assert.assertEquals(1, systems.size());
+		final Set<DistributedInstance> systemsRead = level0.getSystemsForBoundingBoxAndRead(BoundingBox.EMPTY_BOX);
+		Assert.assertEquals(2, systemsRead.size());
+		
+		final Set<DistributedInstance> systemsWrite = level0.getSystemsForBoundingBoxAndWrite(BoundingBox.EMPTY_BOX);
+		Assert.assertEquals(1, systemsWrite.size());
 	}
 	
 	/**

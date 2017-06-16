@@ -22,9 +22,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.Const;
@@ -32,6 +34,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DistributionRegionHelper {
+	
+	/**
+	 * System for read operations
+	 */
+	protected static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_READ = (s) -> {
+		return s == DistributionRegionState.ACTIVE 
+				|| s == DistributionRegionState.ACTIVE_FULL
+				|| s == DistributionRegionState.SPLITTING;
+	};
+	
+	/**
+	 * Systems for write operations
+	 */
+	protected static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_WRITE = (s) -> {
+		return s == DistributionRegionState.ACTIVE 
+				|| s == DistributionRegionState.ACTIVE_FULL;
+	};
 	
 	/**
 	 * Find the region for the given name prefix
