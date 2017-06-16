@@ -395,8 +395,9 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 				
 				logger.info("Spread sstable facade: {}", storage.getInternalName());
 				spreadStorage(tupleRedistributor, storage);
-				logger.info("Statistics for spread: {}", tupleRedistributor.getStatistics());
 			}				
+			
+			logger.info("Statistics for spread: {}", tupleRedistributor.getStatistics());
 		} catch (Exception e) {
 			throw e;
 		} finally {
