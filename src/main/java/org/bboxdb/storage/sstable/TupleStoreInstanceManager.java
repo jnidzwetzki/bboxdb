@@ -224,6 +224,11 @@ public class TupleStoreInstanceManager {
 	 * @throws InterruptedException 
 	 */
 	public synchronized void waitForMemtableFlush(final Memtable memtable) throws InterruptedException {
+		
+		if(flushMode != FlushMode.DISK) {
+			throw new IllegalStateException("Unable to wait for memtable flush in memory only mode");
+		}
+		
 		while(unflushedMemtables.contains(memtable)) {
 			this.wait();
 		}
