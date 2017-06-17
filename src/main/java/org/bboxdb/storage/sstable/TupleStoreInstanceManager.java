@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.memtable.Memtable;
@@ -50,17 +48,9 @@ public class TupleStoreInstanceManager {
 	 */
 	protected final List<SSTableFacade> sstableFacades;
 	
-	/**
-	 * The queue for the memtable flush thread
-	 */
-	protected final BlockingQueue<Memtable> memtablesToFlush;
-
 	public TupleStoreInstanceManager() {		
 		this.sstableFacades = new ArrayList<>();
 		this.unflushedMemtables = new ArrayList<>();
-		
-		this.memtablesToFlush = new ArrayBlockingQueue<>
-			(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
 	}
 	
 	/**
@@ -68,33 +58,18 @@ public class TupleStoreInstanceManager {
 	 * unflushed memtable list and also pushed into the flush queue
 	 * 
 	 * @param newMemtable
+	 * @return 
 	 */
-	public void activateNewMemtable(final Memtable newMemtable) {
+	public synchronized Memtable activateNewMemtable(final Memtable newMemtable) {
 		
-		synchronized (this) {
-			if(memtable != null) {
-				unflushedMemtables.add(memtable);
-			}			
-		}
-		
-		// The put call can block when more than
-		// MAX_UNFLUSHED_MEMTABLES_PER_TABLE are unflushed.
-		//
-		// So we wait otside of the synchonized area.
-		// Because, otherwise no other threads could call
-		// replaceMemtableWithSSTable() and reduce
-		// the queue size
 		if(memtable != null) {
-			try {
-				memtablesToFlush.put(memtable);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-		}
+			unflushedMemtables.add(memtable);
+		}	
 		
-		synchronized (this) {
-			memtable = newMemtable;
-		}
+		final Memtable oldMemtable = memtable;
+		memtable = newMemtable;
+		
+		return oldMemtable;
 	}
 	
 	/**
@@ -164,17 +139,8 @@ public class TupleStoreInstanceManager {
 	 */
 	public synchronized void clear() {
 		memtable = null;
-		memtablesToFlush.clear();
 		sstableFacades.clear();
 		unflushedMemtables.clear();
-	}
-	
-	/**
-	 * Get the memtable flush queue
-	 * @return
-	 */
-	public BlockingQueue<Memtable> getMemtablesToFlush() {
-		return memtablesToFlush;
 	}
 
 	/**

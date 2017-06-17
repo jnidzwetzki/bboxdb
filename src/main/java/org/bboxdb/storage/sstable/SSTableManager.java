@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
@@ -39,21 +38,18 @@ import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.memtable.Memtable;
-import org.bboxdb.storage.memtable.MemtableWriterThread;
+import org.bboxdb.storage.memtable.MemtableAndSSTableManager;
+import org.bboxdb.storage.memtable.Storage;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.ServiceState.State;
+import org.bboxdb.util.ThreadHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SSTableManager implements BBoxDBService {
-	
-	/**
-	 * The directory where this table is stored
-	 */
-	protected String storageDir;
-	
+		
 	/**
 	 * The name of the table
 	 */
@@ -83,12 +79,7 @@ public class SSTableManager implements BBoxDBService {
 	 * The running threads
 	 */
 	protected final List<Thread> runningThreads;
-	
-	/**
-	 * The timeout for a thread join (10 seconds)
-	 */
-	protected long THREAD_WAIT_TIMEOUT = TimeUnit.SECONDS.toMillis(10);
-	
+
 	/**
 	 * The SSTable compactor
 	 */
@@ -102,14 +93,19 @@ public class SSTableManager implements BBoxDBService {
 	protected volatile SSTableFlushMode flushMode;
 	
 	/**
+	 * The storage
+	 */
+	protected final Storage storage;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final String storageDir, final SSTableName sstablename, 
+	public SSTableManager(final Storage storage, final SSTableName sstablename, 
 			final BBoxDBConfiguration configuration) {
 		
-		this.storageDir = storageDir;
+		this.storage = storage;
 		this.configuration = configuration;
 		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
@@ -159,7 +155,6 @@ public class SSTableManager implements BBoxDBService {
 			// Set to ready before the threads are started
 			serviceState.dispatchToRunning();
 
-			startMemtableFlushThread();
 			startCompactThread();
 			startCheckpointThread();
 		} catch (StorageManagerException e) {
@@ -196,21 +191,6 @@ public class SSTableManager implements BBoxDBService {
 			runningThreads.add(compactThread);
 		} else {
 			logger.info("NOT starting the sstable compact thread for: " + sstablename.getFullname());
-		}
-	}
-
-	/**
-	 * Start the memtable flush thread if needed
-	 */
-	protected void startMemtableFlushThread() {
-		if(configuration.isStorageRunMemtableFlushThread()) {
-			final MemtableWriterThread memtableFlushThread = new MemtableWriterThread(this);
-			final Thread flushThread = new Thread(memtableFlushThread);
-			flushThread.setName("Memtable flush thread for: " + sstablename.getFullname());
-			flushThread.start();
-			runningThreads.add(flushThread);
-		} else {
-			logger.info("NOT starting the memtable flush thread for:" + sstablename.getFullname());
 		}
 	}
 
@@ -289,27 +269,8 @@ public class SSTableManager implements BBoxDBService {
 		// Set the flush mode to memory only
 		flushMode = SSTableFlushMode.MEMORY_ONLY;
 		
-		// Interrupt the running threads
-		logger.info("Interrupt running service threads");
-		runningThreads.forEach(t -> t.interrupt());
-		
-		// Join threads
-		for(final Thread thread : runningThreads) {
-			try {
-				logger.info("Join thread: {}", thread.getName());
-
-				thread.join(THREAD_WAIT_TIMEOUT);
-				
-				// Is the thread still alive?
-				if(thread.isAlive()) {
-					logger.error("Unable to stop thread: {}", thread.getName());
-				}
-				
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				logger.warn("Got exception while waiting on thread join: " + thread.getName(), e);
-			}
-		}
+		logger.info("Stop running threads");
+		ThreadHelper.stopThreads(runningThreads);
 		
 		// Complete shutdown by clearing running threads
 		runningThreads.clear();
@@ -329,6 +290,7 @@ public class SSTableManager implements BBoxDBService {
 	 * 
 	 */
 	protected void createSSTableDirIfNeeded() throws StorageManagerException {
+		final String storageDir = storage.getBasedir().getAbsolutePath();
 		final String dgroupDir = SSTableHelper.getDistributionGroupDir(storageDir, sstablename);
 		final File dgroupDirHandle = new File(dgroupDir);
 				
@@ -383,6 +345,7 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	protected void scanForExistingTables() throws StorageManagerException {
 		logger.info("Scan for existing SSTables: " + sstablename.getFullname());
+		final String storageDir = storage.getBasedir().getAbsolutePath();
 		final String ssTableDir = SSTableHelper.getSSTableDir(storageDir, sstablename);
 		final File directoryHandle = new File(ssTableDir);
 		
@@ -621,7 +584,12 @@ public class SSTableManager implements BBoxDBService {
 		memtable.acquire();
 		memtable.init();
 		
-		tupleStoreInstances.activateNewMemtable(memtable);	
+		final Memtable oldMemtable = tupleStoreInstances.activateNewMemtable(memtable);	
+		
+		if(flushMode == SSTableFlushMode.DISK) {
+			final MemtableAndSSTableManager memtableTask = new MemtableAndSSTableManager(oldMemtable, this);
+			storage.scheduleMemtableFlush(memtableTask);
+		}
 		
 		logger.debug("Activated a new memtable: " + memtable.getInternalName());
 	}
@@ -696,6 +664,7 @@ public class SSTableManager implements BBoxDBService {
 			return;
 		}
 		
+		final String storageDir = storage.getBasedir().getAbsolutePath();
 		deletePersistentTableData(storageDir, getSSTableName());
 		
 		serviceState.reset();

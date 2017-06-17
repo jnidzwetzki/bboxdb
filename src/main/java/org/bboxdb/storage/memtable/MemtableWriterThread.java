@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.memtable;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -33,19 +34,19 @@ import org.slf4j.LoggerFactory;
 public class MemtableWriterThread extends ExceptionSafeThread {
 
 	/**
-	 * The reference to the sstable Manager
-	 */
-	protected final SSTableManager sstableManager;
-
-	/**
 	 * The unflushed memtables
 	 */
-	protected final BlockingQueue<Memtable> unflushedMemtables;
+	protected final BlockingQueue<MemtableAndSSTableManager> flushQueue;
 
 	/**
 	 * The name of the thread
 	 */
 	protected final String threadname;
+
+	/**
+	 * The basedir
+	 */
+	protected final File basedir;
 
 	/**
 	 * The logger
@@ -56,12 +57,11 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * @param ssTableManager
 	 */
-	public MemtableWriterThread(final SSTableManager ssTableManager) {
-		
-		this.sstableManager = ssTableManager;
-		this.unflushedMemtables = ssTableManager.getTupleStoreInstances()
-				.getMemtablesToFlush();
-		this.threadname = sstableManager.getSSTableName().getFullname();		
+	public MemtableWriterThread(final BlockingQueue<MemtableAndSSTableManager> flushQueue, 
+			final String threadname, final File basedir) {
+		this.flushQueue = flushQueue;
+		this.threadname = threadname;
+		this.basedir = basedir;	
 	}
 
 	@Override
@@ -81,15 +81,16 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	protected void runThread() {
 		while (! Thread.currentThread().isInterrupted()) {
 			try {
-				final Memtable memtable = unflushedMemtables.take();
+				final MemtableAndSSTableManager memtableAndSSTableManager = flushQueue.take();
+				final Memtable memtable = memtableAndSSTableManager.getMemtable();
+				final SSTableManager sstableManager = memtableAndSSTableManager.getSsTableManager();
 				
 				if(memtable == null) {
 					logger.debug("Got null memtable, stopping thread");
 					break;
 				}
 
-				flushMemtableToDisk(memtable);
-				
+				flushMemtableToDisk(memtable, sstableManager);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				return;
@@ -102,9 +103,10 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * Flush a memtable to disk
 	 * @param memtable
+	 * @param sstableManager 
 	 * 
 	 */
-	protected void flushMemtableToDisk(final Memtable memtable) {
+	protected void flushMemtableToDisk(final Memtable memtable, final SSTableManager sstableManager) {
 		
 		if(memtable == null) {
 			return;
@@ -116,8 +118,8 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 			// Don't write empty memtables to disk
 			if (! memtable.isEmpty()) {
 				final SSTableName sstableName = sstableManager.getSSTableName();
-				final String dataDirectory = StorageRegistry.getInstance().getStorageDirForSSTable(sstableName);
-				final int tableNumber = writeMemtable(dataDirectory, memtable);
+				final String dataDirectory = basedir.getAbsolutePath();
+				final int tableNumber = writeMemtable(dataDirectory, memtable, sstableManager);
 				facade = new SSTableFacade(dataDirectory, sstableName, tableNumber);
 				facade.init();
 			}
@@ -125,7 +127,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 			sstableManager.getTupleStoreInstances()
 					.replaceMemtableWithSSTable(memtable, facade);
 						
-			sendCallbacks(memtable);	
+			sendCallbacks(memtable, sstableManager);	
 			
 			memtable.deleteOnClose();
 			memtable.release();
@@ -137,8 +139,9 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * Send all callbacks for a memtable flush
 	 * @param memtable
+	 * @param sstableManager 
 	 */
-	protected void sendCallbacks(final Memtable memtable) {
+	protected void sendCallbacks(final Memtable memtable, SSTableManager sstableManager) {
 		final long timestamp = memtable.getCreatedTimestamp();
 		final List<SSTableFlushCallback> callbacks = StorageRegistry.getInstance().getSSTableFlushCallbacks();
 		
@@ -156,8 +159,6 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	 * @param e
 	 */
 	protected void handleExceptionDuringFlush(Exception e) {
-		sstableManager.getServiceState().dispatchToFailed(e);
-
 		if (Thread.currentThread().isInterrupted()) {
 			logger.debug("Got Exception while flushing memtable, but thread was interrupted. "
 					+ "Ignoring exception.");
@@ -173,10 +174,12 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	 * @param dataDirectory 
 	 * 
 	 * @param memtable
+	 * @param sstableManager 
 	 * @return
 	 * @throws Exception
 	 */
-	protected int writeMemtable(final String dataDirectory, final Memtable memtable) throws Exception {
+	protected int writeMemtable(final String dataDirectory, final Memtable memtable, 
+			final SSTableManager sstableManager) throws Exception {
 		
 		final int tableNumber = sstableManager.increaseTableNumber();
 		
