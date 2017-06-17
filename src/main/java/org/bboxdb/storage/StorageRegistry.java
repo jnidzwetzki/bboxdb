@@ -241,13 +241,15 @@ public class StorageRegistry {
 		}
 		
 		if(! sstableLocations.containsKey(table)) {
-			logger.error("Table {} not known during deletion", table.getFullname());
-			return;
+			throw new StorageManagerException("Unkown storage dir for: " + table);
 		}
 		
 		final String storageDirectory = sstableLocations.get(table);
 		SSTableManager.deletePersistentTableData(storageDirectory, table);
-		sstableLocations.remove(table);
+		
+		if(sstableLocations.containsKey(table)) {
+			sstableLocations.remove(table);
+		}
 	}
 	
 	/**
