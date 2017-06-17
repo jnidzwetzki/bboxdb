@@ -33,11 +33,6 @@ import org.slf4j.LoggerFactory;
 public class Storage implements BBoxDBService {
 
 	/**
-	 * The amount of flush threads per storage
-	 */
-	public final int FLUSH_THREADS_PER_STORAGE = 2;
-
-	/**
 	 * The running flush threads
 	 */
 	public final List<Thread> runningThreads = new ArrayList<>();
@@ -45,7 +40,7 @@ public class Storage implements BBoxDBService {
 	/**
 	 * The state of the service
 	 */
-	public final ServiceState serviceState = new ServiceState();
+	protected final ServiceState serviceState = new ServiceState();
 	
 	/**
 	 * The queue for the memtable flush thread
@@ -55,16 +50,21 @@ public class Storage implements BBoxDBService {
 	/**
 	 * The storage base dir
 	 */
-	private final File basedir;
+	protected final File basedir;
+	
+	/**
+	 * Number of flush threads per storage
+	 */
+	protected int flushThreadsPerStorage;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Storage.class);
-
 	
-	public Storage(final File basedir) {
+	public Storage(final File basedir, final int flushThreadsPerStorage) {
 		this.basedir = basedir;
+		this.flushThreadsPerStorage = flushThreadsPerStorage;
 		this.memtablesToFlush = new ArrayBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
 	}
 
@@ -79,7 +79,7 @@ public class Storage implements BBoxDBService {
 		serviceState.dipatchToStarting();
 		memtablesToFlush.clear();
 		
-		for(int i = 0; i < FLUSH_THREADS_PER_STORAGE; i++) {
+		for(int i = 0; i < flushThreadsPerStorage; i++) {
 			final String threadname = "Memtable write thread for storage: " + basedir;
 			
 			final MemtableWriterThread memtableWriterThread = new MemtableWriterThread(memtablesToFlush, 
@@ -113,8 +113,7 @@ public class Storage implements BBoxDBService {
 
 	@Override
 	public String getServicename() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Storage instance for: " + basedir.getAbsolutePath();
 	}
 	
 	public void scheduleMemtableFlush(final MemtableAndSSTableManager memtable) {

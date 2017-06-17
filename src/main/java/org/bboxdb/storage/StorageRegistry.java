@@ -91,7 +91,7 @@ public class StorageRegistry {
 		for(final String directory : storageDirs) {
 			try {
 				scanDirectory(directory);
-				final Storage storage = new Storage(new File(directory));
+				final Storage storage = new Storage(new File(directory), configuration.getMemtableFlushThreadsPerStorage());
 				storage.init();
 				storages.put(directory, storage);
 			} catch (StorageManagerException e) {

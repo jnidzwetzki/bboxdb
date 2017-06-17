@@ -24,10 +24,10 @@
 # Default: true
 # storageRunCompactThread: true
 
-# Start a thread to flush full memtables to disk
-# When disabled, all data stays in memory
-# Default: true
-# storageRunMemtableFlushThread: true
+# Number of memtable flush threads per storage
+#
+# Default: 2
+# memtableFlushThreadsPerStorage: 2
 
 # The classname of the spatial indexer factory
 # When disabled, full table scans are performed

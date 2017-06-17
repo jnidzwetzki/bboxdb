@@ -149,8 +149,7 @@ public class SSTableManager implements BBoxDBService {
 			
 			tableNumber.set(getLastSequencenumberFromReader() + 1);
 
-			flushMode = (configuration.isStorageRunMemtableFlushThread()) 
-					? SSTableFlushMode.DISK : SSTableFlushMode.MEMORY_ONLY;
+			flushMode = SSTableFlushMode.DISK;
 			
 			// Set to ready before the threads are started
 			serviceState.dispatchToRunning();
