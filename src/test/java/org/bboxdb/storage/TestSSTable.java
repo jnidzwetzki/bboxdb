@@ -18,12 +18,6 @@
 package org.bboxdb.storage;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +31,7 @@ import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
+import org.bboxdb.util.FileUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -65,7 +60,7 @@ public class TestSSTable {
 	public void testWrittenFiles() throws Exception {
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
-		deleteDirRecursive(relationDirectoryFile);
+		FileUtil.deleteRecursive(relationDirectoryFile.toPath());
 		
 		Assert.assertFalse(relationDirectoryFile.exists());
 		
@@ -85,28 +80,6 @@ public class TestSSTable {
 	}
 	
 	/**
-	 * Delete dir recursive
-	 * @param dir
-	 * @throws IOException
-	 */
-	protected void deleteDirRecursive(final File dir) throws IOException {
-		Path directory = dir.toPath();
-		Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-		   @Override
-		   public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-		       Files.delete(file);
-		       return FileVisitResult.CONTINUE;
-		   }
-
-		   @Override
-		   public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-		       Files.delete(dir);
-		       return FileVisitResult.CONTINUE;
-		   }
-		});
-	}
-	
-	/**
 	 * Test the tuple iterator
 	 * @throws Exception
 	 */
@@ -114,7 +87,7 @@ public class TestSSTable {
 	public void testIndexIterator() throws Exception {
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
-		deleteDirRecursive(relationDirectoryFile);
+		FileUtil.deleteRecursive(relationDirectoryFile.toPath());
 		relationDirectoryFile.mkdirs();
 	
 		final List<Tuple> tupleList = createTupleList();
@@ -173,7 +146,7 @@ public class TestSSTable {
 	public void testDelayedDeletion() throws Exception {	
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
-		deleteDirRecursive(relationDirectoryFile);
+		FileUtil.deleteRecursive(relationDirectoryFile.toPath());
 
 		// Directory should be empty
 		Assert.assertFalse(relationDirectoryFile.isDirectory());
