@@ -241,7 +241,8 @@ public class StorageRegistry {
 		}
 		
 		if(! sstableLocations.containsKey(table)) {
-			throw new StorageManagerException("Unkown storage dir for: " + table);
+			logger.error("Table {} not known during deletion", table.getFullname());
+			return;
 		}
 		
 		final String storageDirectory = sstableLocations.get(table);
