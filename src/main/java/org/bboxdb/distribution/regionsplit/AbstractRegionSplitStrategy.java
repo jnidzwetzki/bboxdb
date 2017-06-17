@@ -169,7 +169,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	public void run() {
 		
 		assert(region != null);
-		assert(region.isLeafRegion());
+		assert(region.isLeafRegion()) : "Unable to perform split on: " + region;
 		
 		logger.info("Performing split for: {}", region.getIdentifier());
 		
