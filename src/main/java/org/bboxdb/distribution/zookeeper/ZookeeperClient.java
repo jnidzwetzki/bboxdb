@@ -73,7 +73,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	/**
 	 * Service state
 	 */
-	protected ServiceState serviceState;
+	protected final ServiceState serviceState;
 	
 	/**
 	 * The timeout for the zookeeper session in miliseconds
@@ -92,9 +92,9 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 
 	
 	public ZookeeperClient(final Collection<String> zookeeperHosts, final String clustername) {
-		super();
 		this.zookeeperHosts = zookeeperHosts;
 		this.clustername = clustername;
+		this.serviceState = new ServiceState();
 	}
 
 	/**
