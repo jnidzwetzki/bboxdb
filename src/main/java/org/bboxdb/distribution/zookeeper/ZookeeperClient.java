@@ -39,6 +39,7 @@ import org.bboxdb.distribution.membership.DistributedInstanceManager;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
+import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +71,9 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	protected volatile boolean membershipObserver = false;
 	
 	/**
-	 * Is a shutdown call pending
+	 * Service state
 	 */
-	protected volatile boolean shutdownPending = false;
+	protected ServiceState serviceState;
 	
 	/**
 	 * The timeout for the zookeeper session in miliseconds
@@ -107,7 +108,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		}
 		
 		try {
-			shutdownPending = false;
+			serviceState.dipatchToStarting();
 			
 			final CountDownLatch connectLatch = new CountDownLatch(1);
 			
@@ -120,7 +121,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 				}
 			});
 			
-			boolean waitResult = connectLatch.await(ZOOKEEPER_CONNCT_TIMEOUT, TimeUnit.SECONDS);
+			final boolean waitResult = connectLatch.await(ZOOKEEPER_CONNCT_TIMEOUT, TimeUnit.SECONDS);
 			
 			if(waitResult == false) {
 				logger.warn("Unable to connect in " + ZOOKEEPER_CONNCT_TIMEOUT + " seconds");
@@ -129,8 +130,9 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			}
 			
 			createDirectoryStructureIfNeeded();
-			
 			registerInstanceIfNameWasSet();
+			
+			serviceState.dispatchToRunning();
 		} catch (Exception e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
 		}
@@ -145,9 +147,16 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 */
 	@Override
 	public synchronized void shutdown() {
-		shutdownPending = true;
+		
+		if(! serviceState.isInRunningState()) {
+			logger.warn("Unable to shutdown, service is in {} state", serviceState);
+			return;
+		}
+		
+		serviceState.dispatchToStopping();
 		stopMembershipObserver();
 		closeZookeeperConnectionNE();
+		serviceState.dispatchToTerminated();
 	}
 
 	/**
@@ -372,7 +381,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		}
 		
 		// Shutdown is pending, stop event processing
-		if(shutdownPending == true) {
+		if(! serviceState.isInRunningState()) {
+			logger.debug("Ignoring event {}, because service state is {}", watchedEvent, serviceState);
 			return;
 		}
 		
