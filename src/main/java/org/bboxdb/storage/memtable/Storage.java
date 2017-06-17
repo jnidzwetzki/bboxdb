@@ -80,7 +80,7 @@ public class Storage implements BBoxDBService {
 		memtablesToFlush.clear();
 		
 		for(int i = 0; i < flushThreadsPerStorage; i++) {
-			final String threadname = "Memtable write thread for storage: " + basedir;
+			final String threadname = i + ". Memtable write thread for storage: " + basedir;
 			
 			final MemtableWriterThread memtableWriterThread = new MemtableWriterThread(
 					memtablesToFlush, basedir);

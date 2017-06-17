@@ -60,12 +60,12 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 
 	@Override
 	protected void beginHook() {
-		logger.info("Memtable flush thread has started");
+		logger.info("Memtable writer thread has started");
 	}
 	
 	@Override
 	protected void endHook() {
-		logger.info("Memtable flush thread has stopped");
+		logger.info("Memtable writer thread has stopped");
 	}
 	
 	/**
@@ -78,12 +78,6 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 				final MemtableAndSSTableManager memtableAndSSTableManager = flushQueue.take();
 				final Memtable memtable = memtableAndSSTableManager.getMemtable();
 				final SSTableManager sstableManager = memtableAndSSTableManager.getSsTableManager();
-				
-				if(memtable == null) {
-					logger.debug("Got null memtable, stopping thread");
-					break;
-				}
-
 				flushMemtableToDisk(memtable, sstableManager);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
