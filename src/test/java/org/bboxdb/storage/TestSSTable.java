@@ -22,18 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.storage.ReadOnlyTupleStorage;
-import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
+import org.bboxdb.util.FileUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,10 +58,14 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testWrittenFiles() throws Exception {
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
-		storageManager.shutdown();
-	
+		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
+		final File relationDirectoryFile = new File(relationDirectory);
+		FileUtil.deleteRecursive(relationDirectoryFile.toPath());
+		
+		Assert.assertFalse(relationDirectoryFile.exists());
+		
+		relationDirectoryFile.mkdirs();
+			
 		final List<Tuple> tupleList = createTupleList();
 		
 		final SSTableWriter ssTableWriter = new SSTableWriter(STORAGE_DIRECTORY, TEST_RELATION, 1, EXPECTED_TUPLES);
@@ -83,9 +85,10 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testIndexIterator() throws Exception {
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
-		storageManager.shutdown();
+		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
+		final File relationDirectoryFile = new File(relationDirectory);
+		FileUtil.deleteRecursive(relationDirectoryFile.toPath());
+		relationDirectoryFile.mkdirs();
 	
 		final List<Tuple> tupleList = createTupleList();
 		
@@ -140,16 +143,14 @@ public class TestSSTable {
 	 * @throws Exception
 	 */
 	@Test
-	public void testDelayedDeletion() throws Exception {
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
-		storageManager.shutdown();
-	
+	public void testDelayedDeletion() throws Exception {	
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
-		
+		FileUtil.deleteRecursive(relationDirectoryFile.toPath());
+
 		// Directory should be empty
-		Assert.assertEquals(0, relationDirectoryFile.listFiles().length);
+		Assert.assertFalse(relationDirectoryFile.isDirectory());
+		relationDirectoryFile.mkdirs();
 		
 		final List<Tuple> tupleList = createTupleList();
 		

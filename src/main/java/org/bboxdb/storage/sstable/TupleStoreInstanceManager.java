@@ -21,11 +21,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
-import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
+import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 
 /**
@@ -34,11 +32,6 @@ import org.bboxdb.storage.sstable.reader.SSTableFacade;
  *
  */
 public class TupleStoreInstanceManager {
-	
-	public enum FlushMode {
-		MEMORY_ONLY,
-		DISK;
-	}
 	
 	/**
 	 * The active memtable
@@ -55,26 +48,9 @@ public class TupleStoreInstanceManager {
 	 */
 	protected final List<SSTableFacade> sstableFacades;
 	
-	/**
-	 * The queue for the memtable flush thread
-	 */
-	protected final BlockingQueue<Memtable> memtablesToFlush;
-
-	/**
-	 * The flush mode. When data is kept in memory only, the memtablesToFlush
-	 * is not used. Otherwise, put requests will block when this queue
-	 * is full
-	 */
-	protected volatile FlushMode flushMode;
-	
-	public TupleStoreInstanceManager(final FlushMode flushMode) {
-		this.flushMode = flushMode;
-		
+	public TupleStoreInstanceManager() {		
 		this.sstableFacades = new ArrayList<>();
 		this.unflushedMemtables = new ArrayList<>();
-		
-		this.memtablesToFlush = new ArrayBlockingQueue<>
-			(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
 	}
 	
 	/**
@@ -82,33 +58,18 @@ public class TupleStoreInstanceManager {
 	 * unflushed memtable list and also pushed into the flush queue
 	 * 
 	 * @param newMemtable
+	 * @return 
 	 */
-	public void activateNewMemtable(final Memtable newMemtable) {
+	public synchronized Memtable activateNewMemtable(final Memtable newMemtable) {
 		
-		synchronized (this) {
-			if(memtable != null) {
-				unflushedMemtables.add(memtable);
-			}			
-		}
+		if(memtable != null) {
+			unflushedMemtables.add(memtable);
+		}	
 		
-		// The put call can block when more than
-		// MAX_UNFLUSHED_MEMTABLES_PER_TABLE are unflushed.
-		//
-		// So we wait otside of the synchonized area.
-		// Because, otherwise no other threads could call
-		// replaceMemtableWithSSTable() and reduce
-		// the queue size
-		if(memtable != null && flushMode == FlushMode.DISK) {
-			try {
-				memtablesToFlush.put(memtable);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-		}
+		final Memtable oldMemtable = memtable;
+		memtable = newMemtable;
 		
-		synchronized (this) {
-			memtable = newMemtable;
-		}
+		return oldMemtable;
 	}
 	
 	/**
@@ -178,17 +139,8 @@ public class TupleStoreInstanceManager {
 	 */
 	public synchronized void clear() {
 		memtable = null;
-		memtablesToFlush.clear();
 		sstableFacades.clear();
 		unflushedMemtables.clear();
-	}
-	
-	/**
-	 * Get the memtable flush queue
-	 * @return
-	 */
-	public BlockingQueue<Memtable> getMemtablesToFlush() {
-		return memtablesToFlush;
 	}
 
 	/**
@@ -224,29 +176,19 @@ public class TupleStoreInstanceManager {
 	 * @throws InterruptedException 
 	 */
 	public synchronized void waitForMemtableFlush(final Memtable memtable) throws InterruptedException {
-		
-		if(flushMode != FlushMode.DISK) {
-			throw new IllegalStateException("Unable to wait for memtable flush in memory only mode");
-		}
-		
 		while(unflushedMemtables.contains(memtable)) {
 			this.wait();
 		}
 	}
 	
 	/**
-	 * Set the flush mode
-	 * @param flushMode
+	 * Wait until all memtables are flushed to disk
+	 * @param memtable
+	 * @throws InterruptedException 
 	 */
-	public synchronized void setFlushMode(final FlushMode flushMode) {
-		this.flushMode = flushMode;
-	}
-	
-	/**
-	 * Get the flush mode
-	 * @return
-	 */
-	public FlushMode getFlushMode() {
-		return flushMode;
+	public synchronized void waitForAllMemtablesFlushed() throws InterruptedException {
+		while(! unflushedMemtables.isEmpty()) {
+			this.wait();
+		}
 	}
 }

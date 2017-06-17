@@ -54,9 +54,9 @@ public class BBoxDBConfiguration {
 	protected boolean storageRunCompactThread = true;
 	
 	/**
-	 * Start flush thread (can be disabled for tests - all data stays in memory)
+	 * Number of memtable flush threads per storage
 	 */
-	protected boolean storageRunMemtableFlushThread = true;
+	protected int memtableFlushThreadsPerStorage = 2;
 	
 	/**
 	 * The classname of the spatial indexer
@@ -139,16 +139,7 @@ public class BBoxDBConfiguration {
 	public void setStorageRunCompactThread(final boolean storageRunCompactThread) {
 		this.storageRunCompactThread = storageRunCompactThread;
 	}
-
-	public boolean isStorageRunMemtableFlushThread() {
-		return storageRunMemtableFlushThread;
-	}
-
-	public void setStorageRunMemtableFlushThread(
-			final boolean storageRunMemtableFlushThread) {
-		this.storageRunMemtableFlushThread = storageRunMemtableFlushThread;
-	}
-
+	
 	public int getNetworkListenPort() {
 		return networkListenPort;
 	}
@@ -235,6 +226,14 @@ public class BBoxDBConfiguration {
 
 	public void setStorageDirectories(final List<String> storageDirectories) {
 		this.storageDirectories = storageDirectories;
+	}
+
+	public int getMemtableFlushThreadsPerStorage() {
+		return memtableFlushThreadsPerStorage;
+	}
+
+	public void setMemtableFlushThreadsPerStorage(final int memtableFlushThreadsPerStorage) {
+		this.memtableFlushThreadsPerStorage = memtableFlushThreadsPerStorage;
 	}
 	
 }

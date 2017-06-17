@@ -46,15 +46,14 @@ public class TestQueryProcessing {
 	 */
 	@Test
 	public void testBBoxQuery1() throws StorageManagerException {
-		
+
+		StorageRegistry.getInstance().deleteTable(TABLE);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
 		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 
-		storageManager.clear();
-		
 		storageManager.put(tuple1);
 		storageManager.put(tuple2);
 		storageManager.put(tuple3);
@@ -80,14 +79,13 @@ public class TestQueryProcessing {
 	@Test
 	public void testBBoxQuery2() throws StorageManagerException {
 		
+		StorageRegistry.getInstance().deleteTable(TABLE);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
 		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 
-		storageManager.clear();
-		
 		storageManager.put(tuple1);
 		storageManager.initNewMemtable();
 		storageManager.put(tuple2);
@@ -116,15 +114,13 @@ public class TestQueryProcessing {
 	 */
 	@Test
 	public void testBBoxQuery3() throws StorageManagerException, InterruptedException {
-		
+		StorageRegistry.getInstance().deleteTable(TABLE);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
 		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 
-		storageManager.clear();
-				
 		storageManager.put(tuple1);
 		storageManager.flush();
 		
@@ -155,14 +151,12 @@ public class TestQueryProcessing {
 	 */
 	@Test
 	public void testBBoxQuery4() throws StorageManagerException, InterruptedException {
-		
+		StorageRegistry.getInstance().deleteTable(TABLE);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
 		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
-
-		storageManager.clear();
 		
 		storageManager.put(tuple1);
 		storageManager.flush();

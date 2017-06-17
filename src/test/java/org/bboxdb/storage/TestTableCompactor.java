@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,6 +28,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.compact.SSTableCompactor;
@@ -55,9 +57,10 @@ public class TestTableCompactor {
 	
 	@Before
 	public void clearData() throws StorageManagerException {
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
-		storageManager.shutdown();
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
+		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
+		final File relationDirectoryFile = new File(relationDirectory);
+		relationDirectoryFile.mkdirs();
 	}
 
 	@Test
@@ -70,8 +73,8 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 				
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.executeCompactation();
@@ -309,8 +312,8 @@ public class TestTableCompactor {
 			final SSTableKeyIndexReader reader2, final boolean majorCompaction)
 			throws StorageManagerException {
 		
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.setMajorCompaction(majorCompaction);

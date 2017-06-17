@@ -50,7 +50,7 @@ public class TestStorageRegistry {
 		Assert.assertFalse(StorageRegistry.getInstance().isStorageManagerActive(RELATION_NAME));
 		StorageRegistry.getInstance().getSSTableManager(RELATION_NAME);
 		Assert.assertTrue(StorageRegistry.getInstance().isStorageManagerActive(RELATION_NAME));
-		StorageRegistry.getInstance().shutdown(RELATION_NAME);
+		StorageRegistry.getInstance().shutdownSStable(RELATION_NAME);
 		Assert.assertFalse(StorageRegistry.getInstance().isStorageManagerActive(RELATION_NAME));
 	}
 	

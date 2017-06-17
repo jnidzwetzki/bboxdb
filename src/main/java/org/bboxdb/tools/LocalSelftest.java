@@ -61,12 +61,12 @@ public class LocalSelftest {
 			final int iterations = Integer.parseInt(args[0]);
 			logger.info("Running selftest......");
 			
-			final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(new SSTableName(TABLENAME));
+			final SSTableName sstable = new SSTableName(TABLENAME);
+			final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(sstable);
 
 			for(int iteration = 0; iteration < iterations; iteration++) {
 				logger.info("Running iteration {}", iteration);
-				storageManager.clear();
-				
+				StorageRegistry.getInstance().deleteTable(sstable);
 				testInsertDelete(storageManager);
 			}
 			

@@ -15,35 +15,40 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage;
+package org.bboxdb.storage.memtable;
 
-import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.bboxdb.storage.sstable.SSTableManager;
 
-/**
- * Run the same test as the normal storage manager. The difference is, that
- * all data is kept in memory. The flush test is disabled. Therefore, the 
- * storage manager is forced to scan a lot of unflushed memtables.
- *
- */
-public class TestStorageManagerWithoutFlush extends TestStorageManager {
+public class MemtableAndSSTableManager {
 
-	@BeforeClass
-	public static void changeConfigToMemory() {
-		BBoxDBConfigurationManager.getConfiguration().setStorageRunMemtableFlushThread(false);
-	}
+	/**
+	 * The memtale
+	 */
+	protected final Memtable memtable;
 	
-	@AfterClass
-	public static void changeConfigToPersistent() {
-		BBoxDBConfigurationManager.getConfiguration().setStorageRunMemtableFlushThread(true);
+	/**
+	 * The sstable manager
+	 */
+	protected final SSTableManager ssTableManager;
+
+	public MemtableAndSSTableManager(final Memtable memtable, final SSTableManager ssTableManager) {
+		this.memtable = memtable;
+		this.ssTableManager = ssTableManager;
 	}
 	
 	/**
-	 * Number of tuples for big insert
+	 * Get the memtable
 	 * @return
 	 */
-	protected int getNumberOfTuplesForBigInsert() {
-		return 10000;
+	public Memtable getMemtable() {
+		return memtable;
+	}
+	
+	/**
+	 * Get the sstable manager
+	 * @return
+	 */
+	public SSTableManager getSsTableManager() {
+		return ssTableManager;
 	}
 }

@@ -66,7 +66,7 @@ public class SSTableTupleStore implements TupleStore {
 	@Override
 	public void close() throws Exception {
 		if(storageManager != null) {
-			StorageRegistry.getInstance().shutdown(SSTABLE_NAME);
+			StorageRegistry.getInstance().shutdownSStable(SSTABLE_NAME);
 			storageManager = null;
 		}
 	}
