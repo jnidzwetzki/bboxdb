@@ -87,7 +87,10 @@ public class CLI implements Runnable, AutoCloseable {
 		pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
 		
 		// Log failed futures
-		pendingFutures.addFailedFutureCallback((f) -> logger.error("Failed future detected: {}", f));
+		pendingFutures.addFailedFutureCallback((f) -> {
+			logger.error("Failed future detected: {}", f.getAllMessages());
+			System.exit(-1);
+		});
 	}
 
 	/**
