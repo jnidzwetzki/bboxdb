@@ -370,8 +370,8 @@ public class SSTableManager implements BBoxDBService {
 					final SSTableFacade facade = new SSTableFacade(storageDir, sstablename, sequenceNumber);
 					facade.init();
 					tupleStoreInstances.addNewDetectedSSTable(facade);
-				} catch(StorageManagerException e) {
-					logger.warn("Unable to parse sequence number, ignoring file: " + filename, e);
+				} catch(Exception e) {
+					logger.warn("Unable to load file: " + filename, e);
 				}
 			}
 		}

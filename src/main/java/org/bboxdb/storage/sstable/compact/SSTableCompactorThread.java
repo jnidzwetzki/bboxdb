@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.regionsplit.AbstractRegionSplitStrategy;
 import org.bboxdb.distribution.regionsplit.RegionSplitStrategyFactory;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
@@ -223,9 +224,17 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		for(final SSTableWriter writer : newTableWriter) {
 			final SSTableFacade newFacade = new SSTableFacade(writer.getDirectory(), 
 					writer.getName(), writer.getTablenumber());
-			newFacade.init();
 			newFacedes.add(newFacade);
 		}
+		
+		try {
+			for(final SSTableFacade facade : newFacedes) {
+				facade.init();
+			}
+		} catch (BBoxDBException | InterruptedException e) {
+			newFacedes.forEach(f -> f.deleteOnClose());
+			throw new StorageManagerException(e);
+		} 
 		
 		// Switch facades in registry
 		sstableManager.getTupleStoreInstances().replaceCompactedSStables(newFacedes, oldFacades);

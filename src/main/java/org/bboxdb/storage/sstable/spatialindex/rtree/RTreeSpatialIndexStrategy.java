@@ -85,7 +85,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 	}
 
 	@Override
-	public void readFromStream(final InputStream inputStream) throws StorageManagerException {
+	public void readFromStream(final InputStream inputStream) throws StorageManagerException, InterruptedException {
 		
 		assert (rootNode.getDirectoryNodeChilds().isEmpty());
 		assert (rootNode.getIndexEntries().isEmpty());
@@ -101,6 +101,10 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 			for(int i = 0; i < elements; i++) {
 				final RTreeSpatialIndexEntry entry = RTreeSpatialIndexEntry.readFromStream(inputStream);
 				insert(entry);
+				
+				if(Thread.currentThread().isInterrupted()) {
+					throw new InterruptedException();
+				}
 			}
 			
 		} catch (IOException e) {

@@ -155,7 +155,6 @@ public class RegionIdMapper {
 		logger.info("Clear all local mappings");
 		regions.clear();
 	}
-	
 }
 
 class RegionTablenameEntry {

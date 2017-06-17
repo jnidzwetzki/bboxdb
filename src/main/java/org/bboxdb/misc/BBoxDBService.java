@@ -17,12 +17,15 @@
  *******************************************************************************/
 package org.bboxdb.misc;
 
+import org.bboxdb.network.client.BBoxDBException;
+
 public interface BBoxDBService {
 	
 	/**
 	 * Init the service
+	 * @throws InterruptedException 
 	 */
-	public void init();
+	public void init() throws InterruptedException, BBoxDBException;
 	
 	/**
 	 * Shutdown the service

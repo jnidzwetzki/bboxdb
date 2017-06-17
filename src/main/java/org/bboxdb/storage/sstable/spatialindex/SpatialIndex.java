@@ -48,7 +48,7 @@ public interface SpatialIndex {
 	 * 
 	 * @param inputStream
 	 */
-	public void readFromStream(final InputStream inputStream) throws StorageManagerException;
+	public void readFromStream(final InputStream inputStream) throws StorageManagerException, InterruptedException;
 	
 	/**
 	 * Read the index from a data stream

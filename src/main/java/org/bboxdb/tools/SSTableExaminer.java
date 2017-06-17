@@ -85,9 +85,7 @@ public class SSTableExaminer implements Runnable {
 			
 			sstableFacade.release();
 			sstableFacade.shutdown();
-		} catch (StorageManagerException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} 
 	}

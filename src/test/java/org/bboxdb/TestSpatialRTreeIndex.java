@@ -227,9 +227,10 @@ public class TestSpatialRTreeIndex {
 	 * Test the encoding and the decoding of the index
 	 * @throws StorageManagerException 
 	 * @throws IOException 
+	 * @throws InterruptedException 
 	 */
 	@Test
-	public void testSerializeIndex() throws StorageManagerException, IOException {
+	public void testSerializeIndex() throws StorageManagerException, IOException, InterruptedException {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(3);
 		
 		final SpatialIndex index = new RTreeSpatialIndexStrategy();

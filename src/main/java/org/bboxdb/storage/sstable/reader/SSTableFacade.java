@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.misc.BBoxDBService;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
@@ -47,7 +48,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName name;
+	protected final SSTableName tablename;
 	
 	/**
 	 * The Directory for the SSTables
@@ -102,20 +103,12 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 
 	public SSTableFacade(final String directory, final SSTableName tablename, final int tablenumber) throws StorageManagerException {
 		super();
-		this.name = tablename;
+		this.tablename = tablename;
 		this.directory = directory;
 		this.tablenumber = tablenumber;
 		
 		ssTableReader = new SSTableReader(directory, tablename, tablenumber);
 		ssTableKeyIndexReader = new SSTableKeyIndexReader(ssTableReader);
-				
-		// Spatial index
-		final File spatialIndexFile = getSpatialIndexFile(directory, tablename, tablenumber);
-		loadSpatialIndex(spatialIndexFile); 
-		
-		// Bloom filter
-		final File bloomFilterFile = getBloomFilterFile(directory, tablename, tablenumber);
-		loadBloomFilter(bloomFilterFile);
 		
 		// Meta data
 		final File metadataFile = getMetadataFile(directory, tablename, tablenumber);
@@ -205,15 +198,27 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	}
 	
 	@Override
-	public void init() {
+	public void init() throws InterruptedException, BBoxDBException {
 		
-		if(ssTableReader == null || ssTableKeyIndexReader == null) {
-			logger.warn("init called but sstable reader or index reader is null");
-			return;
+		try {
+			if(ssTableReader == null || ssTableKeyIndexReader == null) {
+				logger.warn("init called but sstable reader or index reader is null");
+				return;
+			}
+			
+			ssTableReader.init();
+			ssTableKeyIndexReader.init();
+			
+			// Spatial index
+			final File spatialIndexFile = getSpatialIndexFile(directory, tablename, tablenumber);
+			loadSpatialIndex(spatialIndexFile); 
+			
+			// Bloom filter
+			final File bloomFilterFile = getBloomFilterFile(directory, tablename, tablenumber);
+			loadBloomFilter(bloomFilterFile);
+		} catch (StorageManagerException e) {
+			throw new BBoxDBException(e);
 		}
-		
-		ssTableReader.init();
-		ssTableKeyIndexReader.init();
 	}
 
 	@Override
@@ -230,12 +235,12 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 
 	@Override
 	public String getServicename() {
-		return "SSTable facade for: " + name + " " + tablenumber;
+		return "SSTable facade for: " + tablename + " " + tablenumber;
 	}
 
 	@Override
 	public String toString() {
-		return "SSTableFacade [name=" + name.getFullname() + ", directory=" + directory
+		return "SSTableFacade [name=" + tablename.getFullname() + ", directory=" + directory
 				+ ", tablenumber=" + tablenumber + ", oldestTupleTimestamp="
 				+ getOldestTupleVersionTimestamp() + ", newestTupleTimestamp="
 				+ getNewestTupleVersionTimestamp() + ", deleteOnClose=" + deleteOnClose + "]";
@@ -292,7 +297,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	 */
 	protected void testFileDelete() {
 		if(deleteOnClose && usage.get() == 0) {
-			logger.info("Delete service facade for: {} / {}", name.getFullname(), tablenumber);
+			logger.info("Delete service facade for: {} / {}", tablename.getFullname(), tablenumber);
 			
 			shutdown();
 			
@@ -307,27 +312,27 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 			}
 			
 			// Delete spatial index
-			final File spatialIndexFile = getSpatialIndexFile(directory, name, tablenumber);
+			final File spatialIndexFile = getSpatialIndexFile(directory, tablename, tablenumber);
 			spatialIndexFile.delete();
 			
 			// Delete bloom filter
-			final File bloomFilterFile = getBloomFilterFile(directory, name, tablenumber);
+			final File bloomFilterFile = getBloomFilterFile(directory, tablename, tablenumber);
 			bloomFilterFile.delete();
 			
 			// Delete metadata
-			final File metadataFile = getMetadataFile(directory, name, tablenumber);
+			final File metadataFile = getMetadataFile(directory, tablename, tablenumber);
 			metadataFile.delete();
 		}
 	}
 
 	@Override
 	public String getInternalName() {
-		return name.getFullname() + " / " + tablenumber;
+		return tablename.getFullname() + " / " + tablenumber;
 	}
 
 	@Override
 	public SSTableName getSStableName() {
-		return name;
+		return tablename;
 	}
 	
 	public String getDirectory() {
@@ -368,7 +373,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 
 		// Check bloom filter first
 		if(bloomfilter == null) {
-			logger.warn("File {} does not have a bloom filter", name);
+			logger.warn("File {} does not have a bloom filter", tablename);
 		} else {
 			if(! bloomfilter.mightContain(key)) {
 				return null;

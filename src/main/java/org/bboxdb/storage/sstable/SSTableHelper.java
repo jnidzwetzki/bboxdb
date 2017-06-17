@@ -73,7 +73,7 @@ public class SSTableHelper {
 	/**
 	 * Get the data dir for a given volume dir
 	 * @param directory
-	 * @param name
+	 * @param tablename
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/2_dgroup1
 	 */
