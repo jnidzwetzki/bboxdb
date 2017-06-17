@@ -7,6 +7,8 @@ order: 1
 ---
 ### Version 0.3.1 (Stable) - TBA
 - New Feature: A fixed amount of memtable flush threads is used per storage
+- Improvement: Made service init interruptable
+- Bugfix: Prevent duplicate distribution of in-memory data
 
 ### Version 0.3.0 (Stable) - 17.06.2017
 - New Feature: Added the TestFixedGrid experiment
