@@ -33,6 +33,7 @@ import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.SSTableFlushMode;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,11 @@ public class HandleInsertTuple implements RequestHandler {
 		}
 	
 		try {
+			// Is in memory only mode, splitting region assumed
+			if(storageManager.getSSTableFlushMode() == SSTableFlushMode.MEMORY_ONLY) {
+				return false;
+			}
+			
 			if(! storageManager.getServiceState().isInRunningState()) {
 				return false;
 			}
