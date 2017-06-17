@@ -180,4 +180,15 @@ public class TupleStoreInstanceManager {
 			this.wait();
 		}
 	}
+	
+	/**
+	 * Wait until all memtables are flushed to disk
+	 * @param memtable
+	 * @throws InterruptedException 
+	 */
+	public synchronized void waitForAllMemtablesFlushed() throws InterruptedException {
+		while(! unflushedMemtables.isEmpty()) {
+			this.wait();
+		}
+	}
 }
