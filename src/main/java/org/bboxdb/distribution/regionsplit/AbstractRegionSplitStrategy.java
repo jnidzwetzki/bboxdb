@@ -214,18 +214,18 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 					.getAllTablesForDistributionGroupAndRegionId
 					(distributionGroupName, region.getRegionId());
 	
-			// Redistribute all data, new data is kept in memory
-			for(final SSTableName ssTableName : localTables) {
-				stopFlushToDisk(ssTableName);
-				distributeData(region, ssTableName, false);	
-			}
-			
 			// Remove the local mapping, no new data is written to the region
 			final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(distributionGroupName);
 			final boolean removeResult = mapper.removeMapping(region.getRegionId());
 			
 			assert (removeResult == true) : "Unable to remove mapping for: " + region;
 			
+			// Redistribute all data, new data is kept in memory
+			for(final SSTableName ssTableName : localTables) {
+				stopFlushToDisk(ssTableName);
+				distributeData(region, ssTableName, false);	
+			}
+
 			// Redistribute only in memory data
 			logger.info("Redistributing in-memory data for region: {}", region.getIdentifier());
 			for(final SSTableName ssTableName : localTables) {	
