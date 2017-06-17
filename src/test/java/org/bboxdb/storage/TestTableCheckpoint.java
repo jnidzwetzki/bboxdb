@@ -62,8 +62,8 @@ public class TestTableCheckpoint {
 		// Prepare sstable manager
 		StorageRegistry.getInstance().shutdownSStable(TEST_RELATION);
 		BBoxDBConfigurationManager.getConfiguration().setStorageCheckpointInterval(0);
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
 
 		Assert.assertTrue(storageManager.getMemtable().isEmpty());
 		final Tuple tuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
@@ -85,9 +85,9 @@ public class TestTableCheckpoint {
 
 		// Prepare sstable manager
 		StorageRegistry.getInstance().shutdownSStable(TEST_RELATION);
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
 		BBoxDBConfigurationManager.getConfiguration().setStorageCheckpointInterval(CHECKPOINT_INTERVAL);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
 		
 		Assert.assertTrue(storageManager.getMemtable().isEmpty());
 		final Tuple tuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());

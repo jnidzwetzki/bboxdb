@@ -650,27 +650,6 @@ public class SSTableManager implements BBoxDBService {
 	}
 
 	/**
-	 * Delete all transient and persistent data
-	 * @throws StorageManagerException
-	 */
-	public void clear() throws StorageManagerException {
-		shutdown();
-		
-		try {
-			awaitShutdown();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			return;
-		}
-		
-		final String storageDir = storage.getBasedir().getAbsolutePath();
-		deletePersistentTableData(storageDir, getSSTableName());
-		
-		serviceState.reset();
-		init();
-	}
-
-	/**
 	 * Get the tuple storage instance manager
 	 * @return
 	 */

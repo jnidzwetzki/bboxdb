@@ -48,8 +48,8 @@ public class TestStorageManager {
 	
 	@Before
 	public void init() throws StorageManagerException {
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
 		storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
 		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
 	}
 	

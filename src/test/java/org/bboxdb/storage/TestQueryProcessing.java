@@ -53,7 +53,7 @@ public class TestQueryProcessing {
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
 		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 
-		storageManager.clear();
+		StorageRegistry.getInstance().deleteTable(TABLE);
 		
 		storageManager.put(tuple1);
 		storageManager.put(tuple2);
@@ -86,7 +86,7 @@ public class TestQueryProcessing {
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
 		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 
-		storageManager.clear();
+		StorageRegistry.getInstance().deleteTable(TABLE);
 		
 		storageManager.put(tuple1);
 		storageManager.initNewMemtable();
@@ -123,7 +123,7 @@ public class TestQueryProcessing {
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
 		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 
-		storageManager.clear();
+		StorageRegistry.getInstance().deleteTable(TABLE);
 				
 		storageManager.put(tuple1);
 		storageManager.flush();
@@ -162,7 +162,7 @@ public class TestQueryProcessing {
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
 		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 
-		storageManager.clear();
+		StorageRegistry.getInstance().deleteTable(TABLE);
 		
 		storageManager.put(tuple1);
 		storageManager.flush();

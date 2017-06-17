@@ -60,9 +60,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testWrittenFiles() throws Exception {
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
-		storageManager.shutdown();
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
 	
 		final List<Tuple> tupleList = createTupleList();
 		
@@ -84,7 +82,7 @@ public class TestSSTable {
 	@Test
 	public void testIndexIterator() throws Exception {
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
 		storageManager.shutdown();
 	
 		final List<Tuple> tupleList = createTupleList();
@@ -141,9 +139,7 @@ public class TestSSTable {
 	 */
 	@Test
 	public void testDelayedDeletion() throws Exception {
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
-		storageManager.shutdown();
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
 	
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);

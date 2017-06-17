@@ -55,9 +55,7 @@ public class TestTableCompactor {
 	
 	@Before
 	public void clearData() throws StorageManagerException {
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
-		storageManager.shutdown();
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
 	}
 
 	@Test
@@ -70,8 +68,8 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 				
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.executeCompactation();
@@ -309,8 +307,8 @@ public class TestTableCompactor {
 			final SSTableKeyIndexReader reader2, final boolean majorCompaction)
 			throws StorageManagerException {
 		
+		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
-		storageManager.clear();
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.setMajorCompaction(majorCompaction);
