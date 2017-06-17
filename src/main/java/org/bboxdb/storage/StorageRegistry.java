@@ -247,9 +247,7 @@ public class StorageRegistry {
 		final String storageDirectory = sstableLocations.get(table);
 		SSTableManager.deletePersistentTableData(storageDirectory, table);
 		
-		if(sstableLocations.containsKey(table)) {
-			sstableLocations.remove(table);
-		}
+		sstableLocations.remove(table);	
 	}
 	
 	/**
