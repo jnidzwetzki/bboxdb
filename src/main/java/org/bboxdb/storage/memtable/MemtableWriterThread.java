@@ -30,7 +30,7 @@ import org.bboxdb.util.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MemtableFlushThread extends ExceptionSafeThread {
+public class MemtableWriterThread extends ExceptionSafeThread {
 
 	/**
 	 * The reference to the sstable Manager
@@ -51,12 +51,12 @@ public class MemtableFlushThread extends ExceptionSafeThread {
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory
-			.getLogger(MemtableFlushThread.class);
+			.getLogger(MemtableWriterThread.class);
 
 	/**
 	 * @param ssTableManager
 	 */
-	public MemtableFlushThread(final SSTableManager ssTableManager) {
+	public MemtableWriterThread(final SSTableManager ssTableManager) {
 		
 		this.sstableManager = ssTableManager;
 		this.unflushedMemtables = ssTableManager.getTupleStoreInstances()

@@ -39,7 +39,7 @@ import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.memtable.Memtable;
-import org.bboxdb.storage.memtable.MemtableFlushThread;
+import org.bboxdb.storage.memtable.MemtableWriterThread;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.ServiceState;
@@ -204,7 +204,7 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	protected void startMemtableFlushThread() {
 		if(configuration.isStorageRunMemtableFlushThread()) {
-			final MemtableFlushThread memtableFlushThread = new MemtableFlushThread(this);
+			final MemtableWriterThread memtableFlushThread = new MemtableWriterThread(this);
 			final Thread flushThread = new Thread(memtableFlushThread);
 			flushThread.setName("Memtable flush thread for: " + sstablename.getFullname());
 			flushThread.start();
