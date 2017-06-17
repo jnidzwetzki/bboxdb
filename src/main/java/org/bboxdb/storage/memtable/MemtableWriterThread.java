@@ -39,11 +39,6 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	protected final BlockingQueue<MemtableAndSSTableManager> flushQueue;
 
 	/**
-	 * The name of the thread
-	 */
-	protected final String threadname;
-
-	/**
 	 * The basedir
 	 */
 	protected final File basedir;
@@ -58,20 +53,19 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	 * @param ssTableManager
 	 */
 	public MemtableWriterThread(final BlockingQueue<MemtableAndSSTableManager> flushQueue, 
-			final String threadname, final File basedir) {
+			final File basedir) {
 		this.flushQueue = flushQueue;
-		this.threadname = threadname;
 		this.basedir = basedir;	
 	}
 
 	@Override
 	protected void beginHook() {
-		logger.info("Memtable flush thread has started: {} ", threadname);
+		logger.info("Memtable flush thread has started");
 	}
 	
 	@Override
 	protected void endHook() {
-		logger.info("Memtable flush thread has stopped: {} ", threadname);
+		logger.info("Memtable flush thread has stopped");
 	}
 	
 	/**
@@ -97,7 +91,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 			}
 		}
 		
-		logger.info("Stopping memtable flush thread for: " + threadname);
+		logger.info("Memtable flush thread has ended");
 	}
 	
 	/**
@@ -164,8 +158,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 					+ "Ignoring exception.");
 			Thread.currentThread().interrupt();
 		} else {
-			logger.warn("Exception while flushing memtable: "
-					+ threadname, e);
+			logger.warn("Exception while flushing memtable", e);
 		}
 	}
 
