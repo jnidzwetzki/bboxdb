@@ -54,7 +54,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 	/**
 	 * The default max node size
 	 */
-	public final static int DEFAULT_NODE_SIZE = 32;
+	public final static int DEFAULT_NODE_SIZE = 64;
 	
 	public RTreeSpatialIndexStrategy() {
 		this(DEFAULT_NODE_SIZE);
