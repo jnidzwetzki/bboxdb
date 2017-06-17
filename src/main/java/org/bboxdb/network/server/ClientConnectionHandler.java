@@ -232,7 +232,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		try {
 			writePackageToSocket(compressionEnvelopeRequest);
 		} catch (PackageEncodeException | IOException e) {
-			logger.error("Got an exception while write pending compression packages to server", e);
+			logger.error("Got an exception while write pending compression packages to client", e);
 		}
 	}
 	
