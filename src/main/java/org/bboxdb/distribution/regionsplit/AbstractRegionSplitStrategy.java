@@ -222,7 +222,9 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			
 			// Remove the local mapping, no new data is written to the region
 			final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(distributionGroupName);
-			mapper.removeMapping(region.getRegionId());
+			final boolean removeResult = mapper.removeMapping(region.getRegionId());
+			
+			assert (removeResult == true) : "Unable to remove mapping for: " + region;
 			
 			// Redistribute only in memory data
 			logger.info("Redistributing in-memory data for region: {}", region.getIdentifier());
