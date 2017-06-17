@@ -77,7 +77,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	/**
 	 * The timeout for the zookeeper session in miliseconds
 	 */
-	protected final static int ZOOKEEPER_SESSION_TIMEOUT = 10000;
+	protected final static int ZOOKEEPER_SESSION_TIMEOUT = 15000;
 	
 	/**
 	 * The connect timeout in seconds
