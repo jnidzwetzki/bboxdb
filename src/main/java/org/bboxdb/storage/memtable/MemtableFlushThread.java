@@ -15,21 +15,22 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.sstable;
+package org.bboxdb.storage.memtable;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-import org.bboxdb.storage.Memtable;
 import org.bboxdb.storage.SSTableFlushCallback;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class MemtableFlushThread extends ExceptionSafeThread {
+public class MemtableFlushThread extends ExceptionSafeThread {
 
 	/**
 	 * The reference to the sstable Manager
@@ -155,7 +156,7 @@ class MemtableFlushThread extends ExceptionSafeThread {
 	 * @param e
 	 */
 	protected void handleExceptionDuringFlush(Exception e) {
-		sstableManager.serviceState.dispatchToFailed(e);
+		sstableManager.getServiceState().dispatchToFailed(e);
 
 		if (Thread.currentThread().isInterrupted()) {
 			logger.debug("Got Exception while flushing memtable, but thread was interrupted. "

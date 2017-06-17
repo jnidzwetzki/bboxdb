@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage;
+package org.bboxdb.storage.memtable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,6 +25,9 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.misc.BBoxDBService;
+import org.bboxdb.storage.BloomFilterBuilder;
+import org.bboxdb.storage.ReadWriteTupleStorage;
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
