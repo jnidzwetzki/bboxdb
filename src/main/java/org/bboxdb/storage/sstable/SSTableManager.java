@@ -40,7 +40,6 @@ import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.memtable.MemtableFlushThread;
-import org.bboxdb.storage.sstable.TupleStoreInstanceManager.FlushMode;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.ServiceState;
@@ -96,6 +95,13 @@ public class SSTableManager implements BBoxDBService {
 	protected SSTableCompactorThread sstableCompactor;
 	
 	/**
+	 * The flush mode. When data is kept in memory only, the memtablesToFlush
+	 * is not used. Otherwise, put requests will block when this queue
+	 * is full
+	 */
+	protected volatile SSTableFlushMode flushMode;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
@@ -109,7 +115,8 @@ public class SSTableManager implements BBoxDBService {
 		this.tableNumber = new AtomicInteger();
 		this.runningThreads = new ArrayList<>();
 		this.sstableCompactor = null;
-		this.tupleStoreInstances = new TupleStoreInstanceManager(FlushMode.DISK);
+		this.flushMode = SSTableFlushMode.DISK;
+		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		
 		// Close open ressources when the failed state is entered
 		this.serviceState = new ServiceState(); 
@@ -146,9 +153,8 @@ public class SSTableManager implements BBoxDBService {
 			
 			tableNumber.set(getLastSequencenumberFromReader() + 1);
 
-			final FlushMode flushMode = (configuration.isStorageRunMemtableFlushThread()) 
-					? FlushMode.DISK : FlushMode.MEMORY_ONLY;
-			tupleStoreInstances.setFlushMode(flushMode);
+			flushMode = (configuration.isStorageRunMemtableFlushThread()) 
+					? SSTableFlushMode.DISK : SSTableFlushMode.MEMORY_ONLY;
 			
 			// Set to ready before the threads are started
 			serviceState.dispatchToRunning();
@@ -254,7 +260,7 @@ public class SSTableManager implements BBoxDBService {
 			
 			try {
 				// In in-memory only mode, the table is not flushed to disk
-				if(tupleStoreInstances.getFlushMode() == FlushMode.DISK) {
+				if(flushMode == SSTableFlushMode.DISK) {
 					tupleStoreInstances.waitForMemtableFlush(activeMemtable);
 				}
 			} catch (InterruptedException e) {
@@ -281,7 +287,7 @@ public class SSTableManager implements BBoxDBService {
 	public void stopThreads() {
 
 		// Set the flush mode to memory only
-		tupleStoreInstances.setFlushMode(FlushMode.MEMORY_ONLY);
+		flushMode = SSTableFlushMode.MEMORY_ONLY;
 		
 		// Interrupt the running threads
 		logger.info("Interrupt running service threads");
@@ -754,5 +760,22 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	public ServiceState getServiceState() {
 		return serviceState;
+	}
+	
+	
+	/**
+	 * Set the flush mode
+	 * @param flushMode
+	 */
+	public synchronized void setSSTableFlushMode(final SSTableFlushMode flushMode) {
+		this.flushMode = flushMode;
+	}
+	
+	/**
+	 * Get the flush mode
+	 * @return
+	 */
+	public SSTableFlushMode getSSTableFlushMode() {
+		return flushMode;
 	}
 }
