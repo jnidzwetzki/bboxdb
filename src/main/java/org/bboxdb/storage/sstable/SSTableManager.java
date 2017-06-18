@@ -151,7 +151,6 @@ public class SSTableManager implements BBoxDBService {
 			// Set to ready before the threads are started
 			serviceState.dispatchToRunning();
 
-			startCompactThread();
 			startCheckpointThread();
 		} catch (StorageManagerException e) {
 			logger.error("Unable to init the instance: " +  sstablename.getFullname(), e);
@@ -175,21 +174,6 @@ public class SSTableManager implements BBoxDBService {
 		}
 	}
 	
-	/**
-	 * Start the compact thread if needed
-	 */
-	protected void startCompactThread() {
-		if(configuration.isStorageRunCompactThread()) {
-			sstableCompactor = new SSTableCompactorThread(this);
-			final Thread compactThread = new Thread(sstableCompactor);
-			compactThread.setName("Compact thread for: " + sstablename.getFullname());
-			compactThread.start();
-			runningThreads.add(compactThread);
-		} else {
-			logger.info("NOT starting the sstable compact thread for: {}", sstablename.getFullname());
-		}
-	}
-
 	/**
 	 * Shutdown the instance
 	 */

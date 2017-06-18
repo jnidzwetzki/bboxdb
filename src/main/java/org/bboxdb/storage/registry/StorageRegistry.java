@@ -446,4 +446,16 @@ public class StorageRegistry {
 	public List<SSTableFlushCallback> getSSTableFlushCallbacks() {
 		return Collections.unmodifiableList(flushCallbacks);
 	}
+	
+	/**
+	 * Get all sstables for the given location
+	 * @param basedir
+	 * @return 
+	 */
+	public List<SSTableName> getSSTablesForLocation(final String basedir) {
+		return sstableLocations.entrySet().stream()
+				.filter(e -> e.getValue().equals(basedir))
+				.map(e -> e.getKey())
+				.collect(Collectors.toList());
+	}
 }

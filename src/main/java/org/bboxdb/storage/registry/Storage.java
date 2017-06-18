@@ -26,6 +26,7 @@ import java.util.concurrent.BlockingQueue;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.memtable.MemtableWriterThread;
 import org.bboxdb.storage.sstable.SSTableConst;
+import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.ThreadHelper;
 import org.slf4j.Logger;
@@ -88,7 +89,16 @@ public class Storage implements BBoxDBService {
 		
 		serviceState.dipatchToStarting();
 		memtablesToFlush.clear();
-		
+	
+		startFlushThreads();
+		startCompactThread();
+		serviceState.dispatchToRunning();
+	}
+
+	/**
+	 * Start the flush threads
+	 */
+	protected void startFlushThreads() {
 		for(int i = 0; i < flushThreadsPerStorage; i++) {
 			final String threadname = i + ". Memtable write thread for storage: " + basedir;
 			
@@ -100,8 +110,17 @@ public class Storage implements BBoxDBService {
 			thread.start();
 			runningThreads.add(thread);
 		}
-		
-		serviceState.dispatchToRunning();
+	}
+	
+	/**
+	 * Start the compact thread if needed
+	 */
+	protected void startCompactThread() {
+		final SSTableCompactorThread sstableCompactor = new SSTableCompactorThread(this);
+		final Thread compactThread = new Thread(sstableCompactor);
+		compactThread.setName("Compact thread for: " + basedir);
+		compactThread.start();
+		runningThreads.add(compactThread);
 	}
 
 	@Override
@@ -159,4 +178,11 @@ public class Storage implements BBoxDBService {
 		return basedir;
 	}
 
+	/**
+	 * Get the storage registry
+	 * @return
+	 */
+	public StorageRegistry getStorageRegistry() {
+		return storageRegistry;
+	}
 }

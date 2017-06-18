@@ -20,10 +20,6 @@
 # Default: 128 MB
 # memtableSizeMax: 134217728
 
-# Start a thread to compact SSTables
-# Default: true
-# storageRunCompactThread: true
-
 # Number of memtable flush threads per storage
 #
 # Default: 2

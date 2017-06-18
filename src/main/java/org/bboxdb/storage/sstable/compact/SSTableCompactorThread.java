@@ -27,6 +27,7 @@ import org.bboxdb.distribution.regionsplit.RegionSplitStrategyFactory;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.registry.Storage;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
@@ -39,47 +40,34 @@ import org.slf4j.LoggerFactory;
 public class SSTableCompactorThread extends ExceptionSafeThread {
 	
 	/**
-	 * The corresponding SSTable manager
-	 */
-	protected final SSTableManager sstableManager;
-	
-	/**
 	 * The merge strategy
 	 */
 	protected final MergeStrategy mergeStragegy;
-	
+
 	/**
-	 * The name of the thread
+	 * The storage
 	 */
-	protected final String threadname;
-	
-	/**
-	 * The region splitter
-	 */
-	protected AbstractRegionSplitStrategy regionSplitter;
+	protected Storage storage;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactorThread.class);
 
-	public SSTableCompactorThread(final SSTableManager ssTableManager) {
-		this.sstableManager = ssTableManager;
+	public SSTableCompactorThread(final Storage storage) {
+		this.storage = storage;
 		this.mergeStragegy = new SimpleMergeStrategy();
-		this.threadname = sstableManager.getSSTableName().getFullname();
 	}
 
 	/**
 	 * Execute the compactor thread
 	 */
 	protected void runThread() {
-		
-		initRegionSplitter();
-	
+			
 		while(! Thread.currentThread().isInterrupted()) {
 			try {	
 				Thread.sleep(mergeStragegy.getCompactorDelay());
-				logger.debug("Executing compact thread for: {}", threadname);
+				logger.debug("Executing compact thread");
 				execute(); 
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -87,7 +75,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			} 
 		}
 		
-		logger.info("Compact thread for: {} is done", threadname);
+		logger.info("Compact thread for is done");
 	}
 
 	/**
@@ -95,49 +83,68 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 */
 	public synchronized void execute() {
 		
-		// Create a copy to ensure, that the list of facades don't change
-		// during the compact run.
-		final List<SSTableFacade> facades = new ArrayList<>();
-		facades.addAll(sstableManager.getSstableFacades());
+		final StorageRegistry storageRegistry = storage.getStorageRegistry();
+		final String location = storage.getBasedir().getAbsolutePath();
+		final List<SSTableName> sstables = storageRegistry.getSSTablesForLocation(location);
 		
-		final MergeTask mergeTask = mergeStragegy.getMergeTask(facades);
-			
-		try {
-			mergeSSTables(mergeTask);
-		} catch (StorageManagerException e) {
-			if(! Thread.currentThread().isInterrupted()) {
-				logger.error("Error while merging tables", e);
-			} else {
-				logger.debug("Got exception on interrupted thread", e);
+		if(sstables.isEmpty()) {
+			logger.warn("SSables list is empty");
+			return;
+		}
+		
+		for(final SSTableName ssTableName: sstables) {
+		
+			try {
+				logger.info("Running compact for: {}", ssTableName);
+				final SSTableManager sstableManager = storageRegistry.getSSTableManager(ssTableName);
+				
+				// Create a copy to ensure, that the list of facades don't change
+				// during the compact run.
+				final List<SSTableFacade> facades = new ArrayList<>();
+				facades.addAll(sstableManager.getSstableFacades());
+				
+				final MergeTask mergeTask = mergeStragegy.getMergeTask(facades);
+				mergeSSTables(mergeTask, sstableManager);
+			} catch (StorageManagerException e) {
+				if(! Thread.currentThread().isInterrupted()) {
+					logger.error("Error while merging tables", e);
+				} else {
+					logger.debug("Got exception on interrupted thread", e);
+				}
 			}
 		}
 	}
 
 	/**
 	 * Init the region spliter, if needed (distributed version if a table)
+	 * @return 
+	 * @throws StorageManagerException 
 	 */
-	protected void initRegionSplitter() {
-		try {
-			if(sstableManager.getSSTableName().isDistributedTable()) {
-				regionSplitter = RegionSplitStrategyFactory.getInstance();
-				
-				if(regionSplitter == null) {
-					throw new IllegalArgumentException("Got null region splitter");
-				}
-				
-				regionSplitter.initFromSSTablename(sstableManager.getSSTableName());
-			}
-		} catch (StorageManagerException e) {
-			logger.error("Got exception when init region splitter", e);
+	protected AbstractRegionSplitStrategy getRegionSplitter(final SSTableManager ssTableManager) 
+			throws StorageManagerException {
+		
+		assert(ssTableManager.getSSTableName().isDistributedTable()) 
+			: ssTableManager.getSSTableName() + " is not a distributed table";
+		
+		final AbstractRegionSplitStrategy regionSplitter = RegionSplitStrategyFactory.getInstance();
+		
+		if(regionSplitter == null) {
+			throw new IllegalArgumentException("Got null region splitter");
 		}
+		
+		regionSplitter.initFromSSTablename(ssTableManager.getSSTableName());
+		
+		return regionSplitter;		
 	}
 
 	/**
 	 * Merge multiple facades into a new one
+	 * @param sstableManager 
 	 *
 	 * @throws StorageManagerException
 	 */
-	protected void mergeSSTables(final MergeTask mergeTask) throws StorageManagerException {
+	protected void mergeSSTables(final MergeTask mergeTask, final SSTableManager sstableManager) 
+			throws StorageManagerException {
 		
 		if(mergeTask.getTaskType() == MergeTaskType.UNKNOWN) {
 			return;
@@ -172,10 +179,10 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				ssTableCompactor.getReadTuples(), ssTableCompactor.getWrittenTuples(), 
 				mergeFactor);
 		
-		registerNewFacadeAndDeleteOldInstances(facades, newTables);
+		registerNewFacadeAndDeleteOldInstances(sstableManager, facades, newTables);
 		
 		if(sstableManager.getSSTableName().isDistributedTable()) {
-			testForRegionSplit();
+			testForRegionSplit(sstableManager);
 		}
 	}
 
@@ -184,7 +191,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @param totalWrittenTuples 
 	 * @throws StorageManagerException 
 	 */
-	protected void testForRegionSplit() throws StorageManagerException {
+	protected void testForRegionSplit(final SSTableManager sstableManager) throws StorageManagerException {
 		
 		final SSTableName ssTableName = sstableManager.getSSTableName();
 		
@@ -197,12 +204,13 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		final long totalSizeInMb = totalSize / (1024 * 1024);
 		logger.info("Test for region split: {}. Size in MB: {}", distributionGroup, totalSizeInMb);
 						
+		final AbstractRegionSplitStrategy regionSplitter = getRegionSplitter(sstableManager);
 		if(regionSplitter.isSplitNeeded(totalSize)) {
 			
 			// Execute the split operation in an own thread, to survive the sstable manager
 			// stop call. This will stop (this) compact thread
 			final Thread splitThread = new Thread(regionSplitter);
-			splitThread.setName("Split thread for: " + threadname);
+			splitThread.setName("Split thread for: " + sstableManager.getSSTableName().getFullname());
 			splitThread.start();
 		}
 	}
@@ -215,7 +223,8 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @param tablenumber
 	 * @throws StorageManagerException
 	 */
-	protected void registerNewFacadeAndDeleteOldInstances(final List<SSTableFacade> oldFacades, 
+	protected void registerNewFacadeAndDeleteOldInstances(final SSTableManager sstableManager, 
+			final List<SSTableFacade> oldFacades, 
 			final List<SSTableWriter> newTableWriter) throws StorageManagerException {
 		
 		final List<SSTableFacade> newFacedes = new ArrayList<>();

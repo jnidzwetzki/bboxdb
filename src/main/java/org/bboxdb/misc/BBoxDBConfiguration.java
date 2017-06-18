@@ -47,12 +47,7 @@ public class BBoxDBConfiguration {
 	 * The maximum size of a region in bytes
 	 */
 	protected long regionMaxSize = 256 * 1024 * 1014;
-	
-	/**
-	 * Start compact thread (can be disabled for tests)
-	 */
-	protected boolean storageRunCompactThread = true;
-	
+
 	/**
 	 * Number of memtable flush threads per storage
 	 */
@@ -132,14 +127,6 @@ public class BBoxDBConfiguration {
 		this.memtableSizeMax = memtableSizeMax;
 	}
 
-	public boolean isStorageRunCompactThread() {
-		return storageRunCompactThread;
-	}
-
-	public void setStorageRunCompactThread(final boolean storageRunCompactThread) {
-		this.storageRunCompactThread = storageRunCompactThread;
-	}
-	
 	public int getNetworkListenPort() {
 		return networkListenPort;
 	}
