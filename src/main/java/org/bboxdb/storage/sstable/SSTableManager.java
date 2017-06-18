@@ -41,7 +41,6 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.registry.MemtableAndSSTableManager;
 import org.bboxdb.storage.registry.Storage;
-import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.RejectedException;
 import org.bboxdb.util.ServiceState;
@@ -83,11 +82,6 @@ public class SSTableManager implements BBoxDBService {
 	protected final List<Thread> runningThreads;
 
 	/**
-	 * The SSTable compactor
-	 */
-	protected SSTableCompactorThread sstableCompactor;
-	
-	/**
 	 * The state (read only / read write) of the manager
 	 */
 	protected volatile SSTableManagerState sstableManagerState;
@@ -110,7 +104,6 @@ public class SSTableManager implements BBoxDBService {
 		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
 		this.runningThreads = new ArrayList<>();
-		this.sstableCompactor = null;
 		this.sstableManagerState = SSTableManagerState.READ_WRITE;
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		
@@ -730,19 +723,6 @@ public class SSTableManager implements BBoxDBService {
 				releaseStorage(storages);
 			}
 		}
-	}
-	
-	/** 
-	 * Force a SSTable compacation
-	 */
-	public boolean compactSStablesNow() {
-		if(sstableCompactor == null) {
-			return false;
-		}
-		
-		sstableCompactor.execute();
-		
-		return true;
 	}
 	
 	/**

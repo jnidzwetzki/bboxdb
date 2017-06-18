@@ -173,9 +173,6 @@ public class TestQueryProcessing {
 		storageManager.put(tuple3);
 		storageManager.flush();
 		
-		final boolean compactResult = storageManager.compactSStablesNow();
-		Assert.assertTrue(compactResult);
-		
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
 		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
 		
