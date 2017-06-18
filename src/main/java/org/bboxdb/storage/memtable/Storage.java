@@ -24,6 +24,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import org.bboxdb.misc.BBoxDBService;
+import org.bboxdb.storage.facade.MemtableAndSSTableManager;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.ThreadHelper;

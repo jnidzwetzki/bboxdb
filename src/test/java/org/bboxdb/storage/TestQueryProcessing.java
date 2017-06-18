@@ -22,6 +22,7 @@ import java.util.List;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.facade.StorageRegistry;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
 import org.bboxdb.storage.queryprocessor.QueryProcessor;
 import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;

@@ -23,11 +23,11 @@ import java.util.List;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.facade.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.MathUtil;
 

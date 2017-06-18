@@ -15,8 +15,9 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.memtable;
+package org.bboxdb.storage.facade;
 
+import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.sstable.SSTableManager;
 
 public class MemtableAndSSTableManager {

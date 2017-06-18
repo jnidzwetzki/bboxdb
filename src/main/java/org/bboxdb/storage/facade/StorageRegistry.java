@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage;
+package org.bboxdb.storage.facade;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.storage.SSTableFlushCallback;
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.memtable.Storage;
 import org.bboxdb.storage.sstable.SSTableHelper;

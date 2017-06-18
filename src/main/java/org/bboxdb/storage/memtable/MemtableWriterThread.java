@@ -22,8 +22,9 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 import org.bboxdb.storage.SSTableFlushCallback;
-import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.facade.MemtableAndSSTableManager;
+import org.bboxdb.storage.facade.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;

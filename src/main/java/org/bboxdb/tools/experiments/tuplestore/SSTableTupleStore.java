@@ -21,9 +21,9 @@ import java.io.File;
 import java.util.Arrays;
 
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.facade.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 
 public class SSTableTupleStore implements TupleStore {
