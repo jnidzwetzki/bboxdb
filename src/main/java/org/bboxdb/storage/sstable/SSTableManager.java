@@ -20,6 +20,7 @@ package org.bboxdb.storage.sstable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -649,15 +650,50 @@ public class SSTableManager implements BBoxDBService {
 			throw e;
 		}
 	}
+	
+	
+	/**
+	 * Replace memtable delegate
+	 * @param memtable
+	 * @param sstableFacade
+	 */
+	public void replaceMemtableWithSSTable(final Memtable memtable, final SSTableFacade sstableFacade) {
+		tupleStoreInstances.replaceMemtableWithSSTable(memtable, sstableFacade);
+	}
 
 	/**
-	 * Get the tuple storage instance manager
+	 * Replace sstables delegate
+	 * @param newFacedes
+	 * @param oldFacades
+	 */
+	public void replaceCompactedSStables(final List<SSTableFacade> newFacedes, final List<SSTableFacade> oldFacades) {
+		tupleStoreInstances.replaceCompactedSStables(newFacedes, oldFacades);
+	}
+
+	/**
+	 * Get all sstable facades
 	 * @return
 	 */
-	public TupleStoreInstanceManager getTupleStoreInstances() {
-		return tupleStoreInstances;
+	public Collection<SSTableFacade> getSstableFacades() {
+		return tupleStoreInstances.getSstableFacades();
+	}
+
+	/**
+	 * In memory delegate
+	 * @return
+	 */
+	public List<ReadOnlyTupleStorage> getAllInMemoryStorages() {
+		return tupleStoreInstances.getAllInMemoryStorages();
 	}
 	
+	/**
+	 * Get all tuple storages delegate
+	 * @return
+	 */
+	public List<ReadOnlyTupleStorage> getAllTupleStorages() {
+		return tupleStoreInstances.getAllTupleStorages();
+	}
+
 	/**
 	 * Get the active memtable
 	 * @return

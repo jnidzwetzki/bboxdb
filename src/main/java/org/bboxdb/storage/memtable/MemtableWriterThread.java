@@ -112,8 +112,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 				facade.init();
 			}
 			
-			sstableManager.getTupleStoreInstances()
-					.replaceMemtableWithSSTable(memtable, facade);
+			sstableManager.replaceMemtableWithSSTable(memtable, facade);
 						
 			sendCallbacks(memtable, sstableManager);	
 			

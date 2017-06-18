@@ -98,7 +98,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		// Create a copy to ensure, that the list of facades don't change
 		// during the compact run.
 		final List<SSTableFacade> facades = new ArrayList<>();
-		facades.addAll(sstableManager.getTupleStoreInstances().getSstableFacades());
+		facades.addAll(sstableManager.getSstableFacades());
 		
 		final MergeTask mergeTask = mergeStragegy.getMergeTask(facades);
 			
@@ -237,7 +237,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		} 
 		
 		// Switch facades in registry
-		sstableManager.getTupleStoreInstances().replaceCompactedSStables(newFacedes, oldFacades);
+		sstableManager.replaceCompactedSStables(newFacedes, oldFacades);
 
 		// Schedule facades for deletion
 		oldFacades.forEach(f -> f.deleteOnClose());
