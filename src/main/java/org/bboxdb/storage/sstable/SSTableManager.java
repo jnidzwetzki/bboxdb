@@ -43,6 +43,7 @@ import org.bboxdb.storage.registry.MemtableAndSSTableManager;
 import org.bboxdb.storage.registry.Storage;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
+import org.bboxdb.util.RejectedException;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.ServiceState.State;
 import org.bboxdb.util.ThreadHelper;
@@ -581,13 +582,18 @@ public class SSTableManager implements BBoxDBService {
 	 * Store a new tuple
 	 * @param tuple
 	 * @throws StorageManagerException
+	 * @throws RejectedException 
 	 */
-	public void put(final Tuple tuple) throws StorageManagerException {
+	public void put(final Tuple tuple) throws StorageManagerException, RejectedException {
 		
 		if(! serviceState.isInRunningState()) {
 			throw new StorageManagerException("Storage manager is not ready: " 
 					+ sstablename.getFullname() 
 					+ " state: " + serviceState);
+		}
+		
+		if(sstableManagerState == SSTableManagerState.READ_ONLY) {
+			throw new RejectedException("Storage manager is in read only state");
 		}
 		
 		try {
@@ -610,12 +616,17 @@ public class SSTableManager implements BBoxDBService {
 	 * @param key
 	 * @param timestamp
 	 * @throws StorageManagerException
+	 * @throws RejectedException 
 	 */
-	public void delete(final String key, final long timestamp) throws StorageManagerException {
+	public void delete(final String key, final long timestamp) throws StorageManagerException, RejectedException {
 		if(! serviceState.isInRunningState()) {
 			throw new StorageManagerException("Storage manager is not ready: " 
 					+ sstablename.getFullname() 
 					+ " state: " + serviceState);
+		}
+		
+		if(sstableManagerState == SSTableManagerState.READ_ONLY) {
+			throw new RejectedException("Storage manager is in read only state");
 		}
 		
 		// Ensure that only one memtable is newly created
@@ -638,8 +649,15 @@ public class SSTableManager implements BBoxDBService {
 	 * Replace memtable delegate
 	 * @param memtable
 	 * @param sstableFacade
+	 * @throws RejectedException 
 	 */
-	public void replaceMemtableWithSSTable(final Memtable memtable, final SSTableFacade sstableFacade) {
+	public void replaceMemtableWithSSTable(final Memtable memtable, final SSTableFacade sstableFacade) 
+			throws RejectedException {
+
+		if(sstableManagerState == SSTableManagerState.READ_ONLY) {
+			throw new RejectedException("Storage manager is in read only state");
+		}
+		
 		tupleStoreInstances.replaceMemtableWithSSTable(memtable, sstableFacade);
 	}
 
@@ -647,8 +665,15 @@ public class SSTableManager implements BBoxDBService {
 	 * Replace sstables delegate
 	 * @param newFacedes
 	 * @param oldFacades
+	 * @throws RejectedException 
 	 */
-	public void replaceCompactedSStables(final List<SSTableFacade> newFacedes, final List<SSTableFacade> oldFacades) {
+	public void replaceCompactedSStables(final List<SSTableFacade> newFacedes, 
+			final List<SSTableFacade> oldFacades) throws RejectedException {
+		
+		if(sstableManagerState == SSTableManagerState.READ_ONLY) {
+			throw new RejectedException("Storage manager is in read only state");
+		}
+		
 		tupleStoreInstances.replaceCompactedSStables(newFacedes, oldFacades);
 	}
 

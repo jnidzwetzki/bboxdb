@@ -25,6 +25,7 @@ import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.ObjectSerializer;
+import org.bboxdb.util.RejectedException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,7 +112,7 @@ public class TestStorageManager {
 	}
 	
 	@Test
-	public void testDeleteTuple() throws StorageManagerException, InterruptedException {
+	public void testDeleteTuple() throws StorageManagerException, InterruptedException, RejectedException {
 		int MAX_TUPLES = 100000;
 		int SPECIAL_TUPLE = MAX_TUPLES / 2;
 		
@@ -132,7 +133,7 @@ public class TestStorageManager {
 	}
 	
 	@Test
-	public void testDeleteTuple2() throws StorageManagerException, InterruptedException {
+	public void testDeleteTuple2() throws StorageManagerException, InterruptedException, RejectedException {
 		int MAX_TUPLES = 100000;
 		int SPECIAL_TUPLE = MAX_TUPLES / 2;
 		int DELETE_AFTER = (int) (MAX_TUPLES * 0.75);
@@ -162,9 +163,10 @@ public class TestStorageManager {
 	 * Test the mass deletion of tuples
 	 * @throws StorageManagerException
 	 * @throws InterruptedException
+	 * @throws RejectedException 
 	 */
 	@Test
-	public void testDeleteTuple3() throws StorageManagerException, InterruptedException {
+	public void testDeleteTuple3() throws StorageManagerException, InterruptedException, RejectedException {
 		int MAX_TUPLES = getNumberOfTuplesForBigInsert();
 		
 		System.out.println("Inserting tuples...");

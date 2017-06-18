@@ -47,6 +47,7 @@ import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,7 +176,7 @@ public class RecoveryService implements BBoxDBService {
 			for(final SSTableName ssTableName : allTables) {
 				try {
 					runRecoveryForTable(ssTableName, outdatedDistributionRegion, connection);
-				} catch (StorageManagerException | ExecutionException e) {
+				} catch (RejectedException | StorageManagerException | ExecutionException e) {
 					logger.error("Got an exception while performing recovery for table: " + ssTableName.getFullname());
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
@@ -193,11 +194,12 @@ public class RecoveryService implements BBoxDBService {
 	 * @throws StorageManagerException
 	 * @throws InterruptedException
 	 * @throws ExecutionException
+	 * @throws RejectedException 
 	 */
 	protected void runRecoveryForTable(final SSTableName ssTableName,
 			final OutdatedDistributionRegion outdatedDistributionRegion,
 			final BBoxDBClient connection) throws StorageManagerException,
-			InterruptedException, ExecutionException {
+			InterruptedException, ExecutionException, RejectedException {
 		
 		final String sstableName = ssTableName.getFullname();
 		

@@ -28,6 +28,7 @@ import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.RejectedException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,9 +45,10 @@ public class TestQueryProcessing {
 	/** 
 	 * Simple BBox query
 	 * @throws StorageManagerException
+	 * @throws RejectedException 
 	 */
 	@Test
-	public void testBBoxQuery1() throws StorageManagerException {
+	public void testBBoxQuery1() throws StorageManagerException, RejectedException {
 
 		StorageRegistry.getInstance().deleteTable(TABLE);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
@@ -76,9 +78,10 @@ public class TestQueryProcessing {
 	/** 
 	 * Simple BBox query - across multiple tables
 	 * @throws StorageManagerException
+	 * @throws RejectedException 
 	 */
 	@Test
-	public void testBBoxQuery2() throws StorageManagerException {
+	public void testBBoxQuery2() throws StorageManagerException, RejectedException {
 		
 		StorageRegistry.getInstance().deleteTable(TABLE);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
@@ -112,9 +115,10 @@ public class TestQueryProcessing {
 	 * Simple BBox query - across multiple tables on disk
 	 * @throws StorageManagerException
 	 * @throws InterruptedException 
+	 * @throws RejectedException 
 	 */
 	@Test
-	public void testBBoxQuery3() throws StorageManagerException, InterruptedException {
+	public void testBBoxQuery3() throws StorageManagerException, InterruptedException, RejectedException {
 		StorageRegistry.getInstance().deleteTable(TABLE);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
 
@@ -149,9 +153,10 @@ public class TestQueryProcessing {
 	 * Simple BBox query - across multiple tables on disk - after compact
 	 * @throws StorageManagerException
 	 * @throws InterruptedException 
+	 * @throws RejectedException 
 	 */
 	@Test
-	public void testBBoxQuery4() throws StorageManagerException, InterruptedException {
+	public void testBBoxQuery4() throws StorageManagerException, InterruptedException, RejectedException {
 		StorageRegistry.getInstance().deleteTable(TABLE);
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
 

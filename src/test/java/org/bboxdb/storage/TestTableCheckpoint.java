@@ -30,6 +30,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.RejectedException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,9 +56,10 @@ public class TestTableCheckpoint {
 	/**
 	 * Test insert without flush thread
 	 * @throws StorageManagerException
+	 * @throws RejectedException 
 	 */
 	@Test
-	public void testInsertWithoutFlush() throws StorageManagerException {
+	public void testInsertWithoutFlush() throws StorageManagerException, RejectedException {
 		
 		// Prepare sstable manager
 		StorageRegistry.getInstance().shutdownSStable(TEST_RELATION);
@@ -77,9 +79,10 @@ public class TestTableCheckpoint {
 	 * Test insert with flush
 	 * @throws StorageManagerException 
 	 * @throws InterruptedException 
+	 * @throws RejectedException 
 	 */
 	@Test
-	public void testInsertWithFlush() throws StorageManagerException, InterruptedException {
+	public void testInsertWithFlush() throws StorageManagerException, InterruptedException, RejectedException {
 		
 		final int CHECKPOINT_INTERVAL = 10;
 

@@ -33,6 +33,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,7 @@ public class HandleDeleteTuple implements RequestHandler {
 			}
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		} catch (PackageEncodeException | StorageManagerException e) {
+		} catch (PackageEncodeException | StorageManagerException | RejectedException e) {
 			logger.warn("Error while delete tuple", e);
 
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);

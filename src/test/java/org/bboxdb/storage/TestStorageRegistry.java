@@ -29,6 +29,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.RejectedException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -58,9 +59,10 @@ public class TestStorageRegistry {
 	 * Test delete table
 	 * @throws StorageManagerException 
 	 * @throws InterruptedException 
+	 * @throws RejectedException 
 	 */
 	@Test
-	public void testDeleteTable() throws StorageManagerException, InterruptedException {
+	public void testDeleteTable() throws StorageManagerException, InterruptedException, RejectedException {
 		
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(RELATION_NAME);
 		
@@ -92,9 +94,10 @@ public class TestStorageRegistry {
 	 * Calculate the size of a distribution group
 	 * @throws StorageManagerException
 	 * @throws InterruptedException
+	 * @throws RejectedException 
 	 */
 	@Test
-	public void testCalculateSize() throws StorageManagerException, InterruptedException {
+	public void testCalculateSize() throws StorageManagerException, InterruptedException, RejectedException {
 		
 		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(RELATION_NAME);
 		

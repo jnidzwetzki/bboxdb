@@ -34,6 +34,7 @@ import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +109,7 @@ public class HandleInsertTuple implements RequestHandler {
 			storageManager.put(tuple);
 			return true;
 			
-		} catch (StorageManagerException e) {
+		} catch (StorageManagerException | RejectedException e) {
 			if(storageManager.getServiceState().isInRunningState()) {
 				logger.warn("Got an exception while inserting", e);
 			} else {

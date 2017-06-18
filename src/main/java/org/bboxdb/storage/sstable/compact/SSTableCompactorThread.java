@@ -34,6 +34,7 @@ import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.util.ExceptionSafeThread;
+import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -240,16 +241,18 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			for(final SSTableFacade facade : newFacedes) {
 				facade.init();
 			}
-		} catch (BBoxDBException | InterruptedException e) {
+			
+			// Switch facades in registry
+			sstableManager.replaceCompactedSStables(newFacedes, oldFacades);
+
+			// Schedule facades for deletion
+			oldFacades.forEach(f -> f.deleteOnClose());
+			
+		} catch (BBoxDBException | InterruptedException | RejectedException e) {
 			newFacedes.forEach(f -> f.deleteOnClose());
 			throw new StorageManagerException(e);
-		} 
-		
-		// Switch facades in registry
-		sstableManager.replaceCompactedSStables(newFacedes, oldFacades);
+		}
 
-		// Schedule facades for deletion
-		oldFacades.forEach(f -> f.deleteOnClose());
 	}
 
 	/***

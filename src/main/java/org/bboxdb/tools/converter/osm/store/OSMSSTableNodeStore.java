@@ -29,6 +29,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
+import org.bboxdb.util.RejectedException;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +78,9 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 	 * @throws SQLException 
 	 * @throws IOException 
 	 * @throws StorageManagerException 
+	 * @throws RejectedException 
 	 */
-	public void storeNode(final Node node) throws StorageManagerException {
+	public void storeNode(final Node node) throws StorageManagerException, RejectedException {
 		
 		final SerializableNode serializableNode = new SerializableNode(node);
 		final byte[] nodeBytes = serializableNode.toByteArray();

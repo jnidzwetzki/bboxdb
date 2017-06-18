@@ -27,6 +27,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.MicroSecondTimestampProvider;
+import org.bboxdb.util.RejectedException;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +49,7 @@ public class LocalSelftest {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(LocalSelftest.class);
 	
-
-
-	public static void main(final String[] args) throws InterruptedException, ExecutionException, BBoxDBException, StorageManagerException {
+	public static void main(final String[] args) throws InterruptedException, ExecutionException, BBoxDBException, StorageManagerException, RejectedException {
 		
 		if(args.length != 1) {
 			logger.error("Usage: LocalSelftest <Iterations>");
@@ -86,8 +85,9 @@ public class LocalSelftest {
 	 * @param iteration
 	 * @throws StorageManagerException
 	 * @throws InterruptedException
+	 * @throws RejectedException 
 	 */
-	protected static void testInsertDelete(final SSTableManager storageManager) throws StorageManagerException, InterruptedException {
+	protected static void testInsertDelete(final SSTableManager storageManager) throws StorageManagerException, InterruptedException, RejectedException {
 
 		logger.info("Inserting tuples...");
 		for(int i = 0; i < TUPLES; i++) {
