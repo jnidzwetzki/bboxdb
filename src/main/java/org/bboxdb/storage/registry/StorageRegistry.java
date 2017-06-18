@@ -34,7 +34,6 @@ import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.SSTableFlushCallback;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.memtable.Storage;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
@@ -93,7 +92,7 @@ public class StorageRegistry {
 		for(final String directory : storageDirs) {
 			try {
 				scanDirectory(directory);
-				final Storage storage = new Storage(new File(directory), configuration.getMemtableFlushThreadsPerStorage());
+				final Storage storage = new Storage(this, new File(directory), configuration.getMemtableFlushThreadsPerStorage());
 				storage.init();
 				storages.put(directory, storage);
 			} catch (StorageManagerException e) {

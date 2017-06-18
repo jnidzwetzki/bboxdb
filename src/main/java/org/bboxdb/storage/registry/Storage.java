@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.memtable;
+package org.bboxdb.storage.registry;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import org.bboxdb.misc.BBoxDBService;
-import org.bboxdb.storage.registry.MemtableAndSSTableManager;
+import org.bboxdb.storage.memtable.MemtableWriterThread;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.ThreadHelper;
@@ -59,11 +59,20 @@ public class Storage implements BBoxDBService {
 	protected int flushThreadsPerStorage;
 	
 	/**
+	 * The storage registry
+	 */
+	protected final StorageRegistry storageRegistry;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Storage.class);
 	
-	public Storage(final File basedir, final int flushThreadsPerStorage) {
+	public Storage(final StorageRegistry storageRegistry, 
+			final File basedir, 
+			final int flushThreadsPerStorage) {
+		
+		this.storageRegistry = storageRegistry;
 		this.basedir = basedir;
 		this.flushThreadsPerStorage = flushThreadsPerStorage;
 		this.memtablesToFlush = new ArrayBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
