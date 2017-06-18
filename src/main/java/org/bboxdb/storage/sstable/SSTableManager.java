@@ -86,11 +86,9 @@ public class SSTableManager implements BBoxDBService {
 	protected SSTableCompactorThread sstableCompactor;
 	
 	/**
-	 * The flush mode. When data is kept in memory only, the memtablesToFlush
-	 * is not used. Otherwise, put requests will block when this queue
-	 * is full
+	 * The state (read only / read write) of the manager
 	 */
-	protected volatile SSTableFlushMode flushMode;
+	protected volatile SSTableManagerState sstableManagerState;
 	
 	/**
 	 * The storage
@@ -111,7 +109,7 @@ public class SSTableManager implements BBoxDBService {
 		this.tableNumber = new AtomicInteger();
 		this.runningThreads = new ArrayList<>();
 		this.sstableCompactor = null;
-		this.flushMode = SSTableFlushMode.DISK;
+		this.sstableManagerState = SSTableManagerState.READ_WRITE;
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		
 		// Close open ressources when the failed state is entered
@@ -149,7 +147,7 @@ public class SSTableManager implements BBoxDBService {
 			
 			tableNumber.set(getLastSequencenumberFromReader() + 1);
 
-			flushMode = SSTableFlushMode.DISK;
+			sstableManagerState = SSTableManagerState.READ_WRITE;
 			
 			// Set to ready before the threads are started
 			serviceState.dispatchToRunning();
@@ -246,10 +244,7 @@ public class SSTableManager implements BBoxDBService {
 			initNewMemtable();
 			
 			try {
-				// In in-memory only mode, the table is not flushed to disk
-				if(flushMode == SSTableFlushMode.DISK) {
-					tupleStoreInstances.waitForMemtableFlush(activeMemtable);
-				}
+				tupleStoreInstances.waitForMemtableFlush(activeMemtable);
 			} catch (InterruptedException e) {
 				logger.info("Got interrupted exception while waiting for memtable flush");
 				Thread.currentThread().interrupt();
@@ -274,7 +269,7 @@ public class SSTableManager implements BBoxDBService {
 	public void stopThreads() {
 
 		// Set the flush mode to memory only
-		flushMode = SSTableFlushMode.MEMORY_ONLY;
+		sstableManagerState = SSTableManagerState.READ_ONLY;
 		
 		logger.info("Stop running threads");
 		ThreadHelper.stopThreads(runningThreads);
@@ -593,12 +588,10 @@ public class SSTableManager implements BBoxDBService {
 		
 		final Memtable oldMemtable = tupleStoreInstances.activateNewMemtable(memtable);	
 		
-		if(flushMode == SSTableFlushMode.DISK) {
-			final MemtableAndSSTableManager memtableTask = new MemtableAndSSTableManager(oldMemtable, this);
-			storage.scheduleMemtableFlush(memtableTask);
-		}
+		final MemtableAndSSTableManager memtableTask = new MemtableAndSSTableManager(oldMemtable, this);
+		storage.scheduleMemtableFlush(memtableTask);
 		
-		logger.debug("Activated a new memtable: " + memtable.getInternalName());
+		logger.debug("Activated a new memtable: {}", memtable.getInternalName());
 	}
 
 	/**
@@ -716,21 +709,20 @@ public class SSTableManager implements BBoxDBService {
 	public ServiceState getServiceState() {
 		return serviceState;
 	}
-	
-	
+
 	/**
-	 * Set the flush mode
-	 * @param flushMode
-	 */
-	public synchronized void setSSTableFlushMode(final SSTableFlushMode flushMode) {
-		this.flushMode = flushMode;
-	}
-	
-	/**
-	 * Get the flush mode
+	 * Get the manager state
 	 * @return
 	 */
-	public SSTableFlushMode getSSTableFlushMode() {
-		return flushMode;
+	public SSTableManagerState getSstableManagerState() {
+		return sstableManagerState;
+	}
+
+	/**
+	 * Set the manager state
+	 * @param sstableManagerState
+	 */
+	public void setSstableManagerState(final SSTableManagerState sstableManagerState) {
+		this.sstableManagerState = sstableManagerState;
 	}
 }

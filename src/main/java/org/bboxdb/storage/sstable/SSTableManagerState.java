@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable;
 
-public enum SSTableFlushMode {
-	MEMORY_ONLY,
-	DISK;
+public enum SSTableManagerState {
+	READ_ONLY,
+	READ_WRITE;
 }

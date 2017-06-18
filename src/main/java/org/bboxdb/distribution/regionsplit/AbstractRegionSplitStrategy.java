@@ -41,7 +41,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.StorageRegistry;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.sstable.SSTableFlushMode;
+import org.bboxdb.storage.sstable.SSTableManagerState;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -334,7 +334,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		
 		// FLush data to disk
 		ssTableManager.flush();
-		ssTableManager.setSSTableFlushMode(SSTableFlushMode.MEMORY_ONLY);
+		ssTableManager.setSstableManagerState(SSTableManagerState.READ_ONLY);
 		
 		// Stop flush thread, so new data remains in memory
 		ssTableManager.stopThreads();
