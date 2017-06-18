@@ -30,6 +30,7 @@ import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.registry.Storage;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.sstable.SSTableManagerState;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
@@ -183,7 +184,10 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		registerNewFacadeAndDeleteOldInstances(sstableManager, facades, newTables);
 		
 		if(sstableManager.getSSTableName().isDistributedTable()) {
-			testForRegionSplit(sstableManager);
+			// Read only = table is in splitting mode
+			if(sstableManager.getSstableManagerState() == SSTableManagerState.READ_WRITE) {
+				testForRegionSplit(sstableManager);
+			}
 		}
 	}
 
