@@ -124,7 +124,6 @@ public class SSTableManager implements BBoxDBService {
 
 	/**
 	 * Init the instance
-	 * 
 	 */
 	@Override
 	public void init() {
@@ -147,7 +146,6 @@ public class SSTableManager implements BBoxDBService {
 			scanForExistingTables();
 			
 			tableNumber.set(getLastSequencenumberFromReader() + 1);
-
 			sstableManagerState = SSTableManagerState.READ_WRITE;
 			
 			// Set to ready before the threads are started
@@ -173,7 +171,7 @@ public class SSTableManager implements BBoxDBService {
 			checkpointThread.start();
 			runningThreads.add(checkpointThread);
 		} else {
-			logger.info("NOT starting the checkpoint thread for: " + sstablename.getFullname());
+			logger.info("NOT starting the checkpoint thread for: {}", sstablename.getFullname());
 		}
 	}
 	
@@ -188,7 +186,7 @@ public class SSTableManager implements BBoxDBService {
 			compactThread.start();
 			runningThreads.add(compactThread);
 		} else {
-			logger.info("NOT starting the sstable compact thread for: " + sstablename.getFullname());
+			logger.info("NOT starting the sstable compact thread for: {}", sstablename.getFullname());
 		}
 	}
 
@@ -200,7 +198,7 @@ public class SSTableManager implements BBoxDBService {
 		logger.info("Shuting down the instance for table: {}", sstablename.getFullname());
 		
 		if(! serviceState.isInRunningState()) {
-			logger.error("Shutdown called but state is not running: " + serviceState.getState());
+			logger.error("Shutdown called but state is not running: {}", serviceState.getState());
 			return;
 		}
 		
