@@ -45,7 +45,7 @@ import org.bboxdb.network.server.NetworkConnectionService;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.facade.StorageRegistry;
+import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

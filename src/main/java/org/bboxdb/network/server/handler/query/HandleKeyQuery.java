@@ -31,7 +31,7 @@ import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.facade.StorageRegistry;
+import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.ExceptionSafeThread;
 import org.slf4j.Logger;

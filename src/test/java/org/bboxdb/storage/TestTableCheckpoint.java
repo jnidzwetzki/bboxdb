@@ -27,7 +27,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.facade.StorageRegistry;
+import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.junit.Assert;

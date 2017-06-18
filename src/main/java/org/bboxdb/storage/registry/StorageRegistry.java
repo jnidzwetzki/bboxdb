@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.facade;
+package org.bboxdb.storage.registry;
 
 import java.io.File;
 import java.util.ArrayList;

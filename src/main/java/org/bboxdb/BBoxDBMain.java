@@ -32,7 +32,7 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.server.NetworkConnectionService;
 import org.bboxdb.storage.RecoveryService;
-import org.bboxdb.storage.facade.StorageRegistry;
+import org.bboxdb.storage.registry.StorageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

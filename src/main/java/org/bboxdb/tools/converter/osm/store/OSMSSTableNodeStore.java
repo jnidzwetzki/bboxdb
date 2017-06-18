@@ -26,7 +26,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.facade.StorageRegistry;
+import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
