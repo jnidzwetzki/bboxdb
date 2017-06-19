@@ -86,7 +86,7 @@ public class TestFileLineIndex {
 	 * Test file indexing - Invalid line
 	 * @throws IOException 
 	 */
-	@Test(expected=RuntimeException.class)
+	@Test(expected=IllegalArgumentException.class)
 	public void testIndexEmpty2() throws IOException {
 		final File tempFile = File.createTempFile("temp",".txt");
 		tempFile.deleteOnExit();
@@ -100,6 +100,7 @@ public class TestFileLineIndex {
 			fli.locateLine(2);
 		}
 	}
+
 	
 	/**
 	 * Test file indexing

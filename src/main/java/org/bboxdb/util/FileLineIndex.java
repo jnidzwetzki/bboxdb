@@ -188,8 +188,8 @@ public class FileLineIndex implements AutoCloseable {
 		if(database == null) {
 			throw new IllegalArgumentException("No database is open, please index file first");
 		}
-		
-		if(line > indexedLines) {
+
+		if(line >= indexedLines) {
 			throw new IllegalArgumentException("Line " + line + " is higher then indexedLines: " + indexedLines);
 		}
 		
