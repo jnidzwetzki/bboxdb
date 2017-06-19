@@ -256,12 +256,26 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 
 			// Schedule facades for deletion
 			oldFacades.forEach(f -> f.deleteOnClose());
-			
-		} catch (BBoxDBException | InterruptedException | RejectedException e) {
-			newFacedes.forEach(f -> f.deleteOnClose());
+		} catch (BBoxDBException | RejectedException e) {
+			handleCompactException(newFacedes);
 			throw new StorageManagerException(e);
+		} catch (InterruptedException e) {
+			handleCompactException(newFacedes);
+			Thread.currentThread().interrupt();
+			throw new StorageManagerException(e);
+		} 
+	}
+	
+	/** 
+	 * Handle exception in compact thread
+	 * @param newFacedes
+	 */
+	protected void handleCompactException(final List<SSTableFacade> newFacedes) {
+		logger.info("Exception, schedule delete for {} compacted tables", newFacedes.size());
+		for(final SSTableFacade facade : newFacedes) {
+			facade.deleteOnClose();
+			assert (facade.getUsage().get() == 0) : "Usage counter is not 0 " + facade.getInternalName();
 		}
-
 	}
 
 	/***
