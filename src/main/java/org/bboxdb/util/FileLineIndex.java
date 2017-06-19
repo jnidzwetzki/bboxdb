@@ -190,7 +190,7 @@ public class FileLineIndex implements AutoCloseable {
 		}
 
 		if(line >= indexedLines) {
-			throw new IllegalArgumentException("Line " + line + " is higher then indexedLines: " + indexedLines);
+			throw new IllegalArgumentException("Line " + line + " is higher then indexedLines: " + (indexedLines - 1));
 		}
 		
 		final DatabaseEntry key = buildDatabaseEntry(line);
