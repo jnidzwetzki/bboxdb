@@ -10,6 +10,7 @@ order: 1
 - Improvement: Only one compact thread per storage 
 - Improvement: Made service init interruptable
 - Improvement: Better spread statistics
+- Improvement: Enabled Zookeeper logging
 - Bugfix: Prevent duplicate distribution of in-memory data
 
 ### Version 0.3.0 (Stable) - 17.06.2017
