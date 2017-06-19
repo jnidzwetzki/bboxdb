@@ -48,12 +48,12 @@ public class DataEncoderHelper {
 	 * @param longValues
 	 * @return
 	 */
-	public static ByteBuffer doubleArrayToByteBuffer(final double longValues[]) {
-		final ByteBuffer byteBuffer = ByteBuffer.allocate(DOUBLE_BYTES * longValues.length);
+	public static ByteBuffer doubleArrayToByteBuffer(final double doubleValues[]) {
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(DOUBLE_BYTES * doubleValues.length);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		
-		for(int i = 0; i < longValues.length; i++) {
-			byteBuffer.putDouble(longValues[i]);
+		for(int i = 0; i < doubleValues.length; i++) {
+			byteBuffer.putDouble(doubleValues[i]);
 		}
 		
 		return byteBuffer;
