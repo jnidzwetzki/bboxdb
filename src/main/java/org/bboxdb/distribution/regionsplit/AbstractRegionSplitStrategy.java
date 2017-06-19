@@ -232,7 +232,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			for(final SSTableName ssTableName : localTables) {
 				// Reject new writes and flush to disk
 				stopFlushToDisk(ssTableName);
-				distributeData(region, ssTableName);	
+				distributeData(ssTableName);	
 			}
 			
 			// Update zookeeer
@@ -312,8 +312,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param ssTableName
 	 * @throws StorageManagerException 
 	 */
-	protected void distributeData(final DistributionRegion region, 
-			final SSTableName ssTableName) throws Exception {
+	protected void distributeData(final SSTableName ssTableName) throws Exception {
 		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
@@ -321,9 +320,9 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		
 		// Spread data
 		final TupleRedistributor tupleRedistributor = getTupleRedistributor(region, ssTableName);
-		spreadTupleStores(region, ssTableManager, tupleRedistributor);			
+		spreadTupleStores(ssTableManager, tupleRedistributor);			
 		
-		logger.info("Redistributing table " + ssTableName.getFullname() + " is DONE");
+		logger.info("Redistributing table {} is DONE", ssTableName.getFullname());
 	}
 
 	/**
@@ -371,8 +370,8 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param onlyInMemoryData 
 	 * @throws StorageManagerException 
 	 */
-	protected void spreadTupleStores(final DistributionRegion region,
-			final SSTableManager ssTableManager, final TupleRedistributor tupleRedistributor) throws Exception {
+	protected void spreadTupleStores(final SSTableManager ssTableManager, 
+			final TupleRedistributor tupleRedistributor) throws Exception {
 		
 		final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
 		
@@ -389,7 +388,10 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 						spreadStorage(tupleRedistributor, storage);
 			}
 
-			logger.info("Statistics for spread: {}", tupleRedistributor.getStatistics());
+			logger.info("Final statistics for spread ({}): {}", 
+					ssTableManager.getSSTableName().getFullname(),
+					tupleRedistributor.getStatistics());
+			
 		} catch (Exception e) {
 			throw e;
 		} finally {
