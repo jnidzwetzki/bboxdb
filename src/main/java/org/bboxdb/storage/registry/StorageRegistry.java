@@ -195,7 +195,7 @@ public class StorageRegistry implements BBoxDBService {
 			return;
 		}
 		
-		serviceState.isInShutdownState();
+		serviceState.dispatchToStopping();
 		
 		managerInstances.values().forEach(s -> s.shutdown());
 		storages.values().forEach(s -> s.shutdown());
