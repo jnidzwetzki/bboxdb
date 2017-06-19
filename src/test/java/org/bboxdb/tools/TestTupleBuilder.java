@@ -282,6 +282,8 @@ public class TestTupleBuilder {
 		tupleFile.processFile(1);
 		
 		Assert.assertEquals(1, seenTuples.get());
+		Assert.assertEquals(2, tupleFile.getProcessedLines());
+		Assert.assertEquals(GEO_JSON_LINE, tupleFile.getLastReadLine());
 	}
 	
 	/**
