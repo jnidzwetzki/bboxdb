@@ -15,6 +15,7 @@ order: 1
 - Improvement: Removed StorageRegistry singleton
 - Bugfix: Prevent duplicate distribution of in-memory data
 - Bugfix: Handle non empty systems list in tuple insert as error
+- Bugfix: Reread systems list on insert tuple, when no systems are detected for BBox
 - Bugfix: Fixed handling of meta data when multiple storage locations are used
 
 ### Version 0.3.0 (Stable) - 17.06.2017
