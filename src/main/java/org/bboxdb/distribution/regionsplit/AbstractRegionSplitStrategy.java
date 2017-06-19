@@ -385,7 +385,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			for(int i = 0; i < totalSotrages; i++) {
 				final ReadOnlyTupleStorage storage = aquiredStorages.get(i);
 				logger.info("Spread sstable facade {} number {} of {}", 
-						storage.getInternalName(), i, totalSotrages);;
+						storage.getInternalName(), i, totalSotrages - 1);
 						spreadStorage(tupleRedistributor, storage);
 			}
 
