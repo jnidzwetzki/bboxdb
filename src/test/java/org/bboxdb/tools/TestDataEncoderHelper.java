@@ -84,5 +84,13 @@ public class TestDataEncoderHelper {
 		final long result = DataEncoderHelper.readShortFromByte(byteValue.array());
 		Assert.assertEquals(shortValue, result);
 	}
+	
+	@Test
+	public void testConstants() {
+		Assert.assertTrue(DataEncoderHelper.DOUBLE_BYTES > 0);
+		Assert.assertTrue(DataEncoderHelper.INT_BYTES > 0);
+		Assert.assertTrue(DataEncoderHelper.LONG_BYTES > 0);
+		Assert.assertTrue(DataEncoderHelper.SHORT_BYTES > 0);
+	}
 
 }
