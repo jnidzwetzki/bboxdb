@@ -37,11 +37,17 @@ public class SSTableTupleStore implements TupleStore {
 	 * The database dir
 	 */
 	private File dir;
+	
+	/**
+	 * The storage registry
+	 */
+	protected StorageRegistry storageRegistry;
 
 	/**
 	 * The sstable name
 	 */
 	protected final static SSTableName SSTABLE_NAME = new SSTableName("2_group1_test");
+
 
 	public SSTableTupleStore(final File dir) {
 		this.dir = dir;
@@ -65,19 +71,22 @@ public class SSTableTupleStore implements TupleStore {
 
 	@Override
 	public void close() throws Exception {
-		if(storageManager != null) {
-			StorageRegistry.getInstance().shutdownSStable(SSTABLE_NAME);
-			storageManager = null;
+		if(storageRegistry != null) {
+			storageRegistry.shutdown();
+			storageRegistry = null;
 		}
 	}
 
 	@Override
 	public void open() throws Exception {
+		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));		
+
+		storageRegistry = new StorageRegistry();
+		storageRegistry.init();
 		
 		final File dataDir = new File(dir.getAbsoluteFile() + "/data");
 		dataDir.mkdirs();
 		
-		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));		
-		storageManager = StorageRegistry.getInstance().getSSTableManager(SSTABLE_NAME);
+		storageManager = storageRegistry.getSSTableManager(SSTABLE_NAME);
 	}
 }

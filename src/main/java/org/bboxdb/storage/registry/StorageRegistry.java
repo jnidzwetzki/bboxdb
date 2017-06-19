@@ -31,15 +31,18 @@ import java.util.stream.Collectors;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.misc.BBoxDBService;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.SSTableFlushCallback;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StorageRegistry {
+public class StorageRegistry implements BBoxDBService {
 
 	/**
 	 * The used storage configuration
@@ -64,23 +67,39 @@ public class StorageRegistry {
 	/**
 	 * The flush callbacks
 	 */
-	protected final List<SSTableFlushCallback> flushCallbacks = new ArrayList<>();
-	
+	protected final List<SSTableFlushCallback> flushCallbacks;
+
 	/**
-	 * The singleton instance
+	 * The service state
 	 */
-	protected static StorageRegistry instance;
+	protected final ServiceState serviceState;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(StorageRegistry.class);
 
-	private StorageRegistry() {
+	public StorageRegistry() {
 		this.configuration = BBoxDBConfigurationManager.getConfiguration();
 		this.managerInstances = new HashMap<>();
 		this.sstableLocations = new HashMap<>();
 		this.storages = new HashMap<>();
+		this.flushCallbacks = new ArrayList<>();
+		this.serviceState = new ServiceState();
+	}
+	
+	/**
+	 * Init the service
+	 * @throws BBoxDBException 
+	 */
+	@Override
+	public void init() throws InterruptedException, BBoxDBException {
+		
+		if(! serviceState.isInNewState()) {
+			throw new BBoxDBException("Unable to init service is in state: " + serviceState.getState());
+		}
+		
+		serviceState.dipatchToStarting();
 		
 		final List<String> storageDirs = configuration.getStorageDirectories();
 		
@@ -101,23 +120,8 @@ public class StorageRegistry {
 				System.exit(-1);
 			}
 		}
-	}
-
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		throw new IllegalStateException("Unable to clone a singleton");
-	}
-	
-	/**
-	 * Get the singleton instance
-	 * @return
-	 */
-	public static synchronized StorageRegistry getInstance() {
-		if(instance == null) {
-			instance = new StorageRegistry();
-		}
 		
-		return instance;
+		serviceState.dispatchToRunning();
 	}
 	
 	/**
@@ -182,14 +186,25 @@ public class StorageRegistry {
 	
 	/**
 	 * Shutdown the storage registry
+	 * @throws BBoxDBException 
 	 */
 	public void shutdown() {
+		
+		if(! serviceState.isInRunningState()) {
+			logger.warn("Igonring shutdown, service is in state: " + serviceState.getState());
+			return;
+		}
+		
+		serviceState.isInShutdownState();
+		
 		managerInstances.values().forEach(s -> s.shutdown());
 		storages.values().forEach(s -> s.shutdown());
 
 		managerInstances.clear();
 		sstableLocations.clear();
 		storages.clear();
+		
+		serviceState.dispatchToTerminated();
 	}
 	
 	/**
@@ -457,5 +472,12 @@ public class StorageRegistry {
 				.filter(e -> e.getValue().equals(basedir))
 				.map(e -> e.getKey())
 				.collect(Collectors.toList());
+	}
+
+
+	@Override
+	public String getServicename() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

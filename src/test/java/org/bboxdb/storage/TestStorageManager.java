@@ -18,6 +18,7 @@
 package org.bboxdb.storage;
 
 import org.bboxdb.PersonEntity;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -26,8 +27,10 @@ import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.ObjectSerializer;
 import org.bboxdb.util.RejectedException;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestStorageManager {
@@ -46,12 +49,30 @@ public class TestStorageManager {
 	 * The amount of tuples for the big insert test
 	 */
 	protected int BIG_INSERT_TUPLES = 1000000;
-
 	
+	/**
+	 * The storage registry
+	 */
+	protected static StorageRegistry storageRegistry;
+	
+	@BeforeClass
+	public static void beforeClass() throws InterruptedException, BBoxDBException {
+		storageRegistry = new StorageRegistry();
+		storageRegistry.init();
+	}
+	
+	@AfterClass
+	public static void afterClass() {
+		if(storageRegistry != null) {
+			storageRegistry.shutdown();
+			storageRegistry = null;
+		}
+	}
+
 	@Before
 	public void init() throws StorageManagerException {
-		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
-		storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
+		storageRegistry.deleteTable(TEST_RELATION);
+		storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
 		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
 	}
 	

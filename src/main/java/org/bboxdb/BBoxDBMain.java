@@ -57,6 +57,10 @@ public class BBoxDBMain {
 		
 		services.clear();
 		
+		// The storage registry
+		final StorageRegistry storageRegistry = new StorageRegistry();
+		services.add(storageRegistry);
+		
 		// The zookeeper client
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		services.add(zookeeperClient);
@@ -66,11 +70,11 @@ public class BBoxDBMain {
 		services.add(membershipService);
 		
 		// The network connection handler
-		final NetworkConnectionService connectionHandler = createConnectionHandler();
+		final NetworkConnectionService connectionHandler = createConnectionHandler(storageRegistry);
 		services.add(connectionHandler);	
 		
 		// The recovery service
-		final RecoveryService recoveryService = new RecoveryService(connectionHandler);
+		final RecoveryService recoveryService = new RecoveryService(storageRegistry);
 		services.add(recoveryService);
 		
 		// The JMX service
@@ -78,7 +82,7 @@ public class BBoxDBMain {
 		services.add(jmxService);
 		
 		// Send flush events to zookeeper
-		StorageRegistry.getInstance().registerSSTableFlushCallback(new SSTableFlushZookeeperAdapter());
+		storageRegistry.registerSSTableFlushCallback(new SSTableFlushZookeeperAdapter());
 	}
 
 	/**
@@ -99,8 +103,8 @@ public class BBoxDBMain {
 	 * Returns a new instance of the connection handler
 	 * @return
 	 */
-	protected NetworkConnectionService createConnectionHandler() {
-		return new NetworkConnectionService();
+	protected NetworkConnectionService createConnectionHandler(final StorageRegistry storageRegistry) {
+		return new NetworkConnectionService(storageRegistry);
 	}
 
 	/**

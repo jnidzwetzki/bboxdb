@@ -19,6 +19,7 @@ package org.bboxdb.storage;
 
 import java.util.List;
 
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -29,7 +30,9 @@ import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.RejectedException;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -42,6 +45,25 @@ public class TestQueryProcessing {
 	 */
 	protected static final SSTableName TABLE = new SSTableName("2_junitgroup_table1");
 	
+	/**
+	 * The storage registry
+	 */
+	protected static StorageRegistry storageRegistry;
+	
+	@BeforeClass
+	public static void beforeClass() throws InterruptedException, BBoxDBException {
+		storageRegistry = new StorageRegistry();
+		storageRegistry.init();
+	}
+	
+	@AfterClass
+	public static void afterClass() {
+		if(storageRegistry != null) {
+			storageRegistry.shutdown();
+			storageRegistry = null;
+		}
+	}
+	
 	/** 
 	 * Simple BBox query
 	 * @throws StorageManagerException
@@ -50,8 +72,8 @@ public class TestQueryProcessing {
 	@Test
 	public void testBBoxQuery1() throws StorageManagerException, RejectedException {
 
-		StorageRegistry.getInstance().deleteTable(TABLE);
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
+		storageRegistry.deleteTable(TABLE);
+		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -83,8 +105,8 @@ public class TestQueryProcessing {
 	@Test
 	public void testBBoxQuery2() throws StorageManagerException, RejectedException {
 		
-		StorageRegistry.getInstance().deleteTable(TABLE);
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
+		storageRegistry.deleteTable(TABLE);
+		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -119,8 +141,8 @@ public class TestQueryProcessing {
 	 */
 	@Test
 	public void testBBoxQuery3() throws StorageManagerException, InterruptedException, RejectedException {
-		StorageRegistry.getInstance().deleteTable(TABLE);
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
+		storageRegistry.deleteTable(TABLE);
+		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -157,8 +179,8 @@ public class TestQueryProcessing {
 	 */
 	@Test
 	public void testBBoxQuery4() throws StorageManagerException, InterruptedException, RejectedException {
-		StorageRegistry.getInstance().deleteTable(TABLE);
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TABLE);
+		storageRegistry.deleteTable(TABLE);
+		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());

@@ -139,7 +139,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			throw new IllegalArgumentException("Got null region splitter");
 		}
 		
-		regionSplitter.initFromSSTablename(ssTableManager.getSSTableName());
+		regionSplitter.initFromSSTablename(storage, ssTableManager.getSSTableName());
 		
 		return regionSplitter;		
 	}
@@ -208,8 +208,8 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		final DistributionGroupName distributionGroup = ssTableName.getDistributionGroupObject();
 		final int regionId = ssTableName.getRegionId();
 		
-		final long totalSize = StorageRegistry
-				.getInstance().getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
+		final long totalSize = storage
+				.getStorageRegistry().getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
 		
 		final long totalSizeInMb = totalSize / (1024 * 1024);
 		logger.info("Test for region split: {}. Size in MB: {}", distributionGroup, totalSizeInMb);

@@ -32,7 +32,7 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.registry.Storage;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,13 +53,20 @@ public class TupleRedistributor {
 	 * The amount of total redistributed tuples
 	 */
 	protected long redistributedTuples;
+
+	/**
+	 * The storage reference
+	 */
+	protected Storage storage;
 	
 	/**
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(TupleRedistributor.class);
+
 	
-	public TupleRedistributor(final SSTableName ssTableName) {
+	public TupleRedistributor(final Storage storage, final SSTableName ssTableName) {
+		this.storage = storage;
 		this.sstableName = ssTableName;
 		this.regionMap = new HashMap<DistributionRegion, List<TupleSink>>();
 		this.redistributedTuples = 0;
@@ -91,7 +98,10 @@ public class TupleRedistributor {
 				final SSTableName localTableName = sstableName.cloneWithDifferntRegionId(
 						distributionRegion.getRegionId());
 				
-				final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(localTableName);
+				final SSTableManager storageManager = storage
+						.getStorageRegistry()
+						.getSSTableManager(localTableName);
+				
 				regionMap.get(distributionRegion).add(new LocalTupleSink(sstableName, storageManager));
 			
 				logger.info("Redistributing data to local table {}", localTableName.getFullname());

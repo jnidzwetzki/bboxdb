@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
@@ -35,8 +36,10 @@ import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.compact.SSTableCompactor;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestTableCompactor {
@@ -56,9 +59,28 @@ public class TestTableCompactor {
 	 */
 	protected final static int EXPECTED_TUPLES = 100;
 	
+	/**
+	 * The storage registry
+	 */
+	protected static StorageRegistry storageRegistry;
+	
+	@BeforeClass
+	public static void beforeClass() throws InterruptedException, BBoxDBException {
+		storageRegistry = new StorageRegistry();
+		storageRegistry.init();
+	}
+	
+	@AfterClass
+	public static void afterClass() {
+		if(storageRegistry != null) {
+			storageRegistry.shutdown();
+			storageRegistry = null;
+		}
+	}
+	
 	@Before
 	public void clearData() throws StorageManagerException {
-		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
+		storageRegistry.deleteTable(TEST_RELATION);
 		final String relationDirectory = SSTableHelper.getSSTableDir(STORAGE_DIRECTORY, TEST_RELATION);
 		final File relationDirectoryFile = new File(relationDirectory);
 		relationDirectoryFile.mkdirs();
@@ -74,8 +96,8 @@ public class TestTableCompactor {
 		tupleList2.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 				
-		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
+		storageRegistry.deleteTable(TEST_RELATION);
+		final SSTableManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.executeCompactation();
@@ -313,8 +335,8 @@ public class TestTableCompactor {
 			final SSTableKeyIndexReader reader2, final boolean majorCompaction)
 			throws StorageManagerException {
 		
-		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
+		storageRegistry.deleteTable(TEST_RELATION);
+		final SSTableManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.setMajorCompaction(majorCompaction);

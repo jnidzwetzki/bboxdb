@@ -29,7 +29,6 @@ import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
-import org.bboxdb.storage.registry.StorageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +61,7 @@ public class HandleDeleteDistributionGroup implements RequestHandler {
 			
 			// Delete local stored data
 			final DistributionGroupName distributionGroupName = new DistributionGroupName(deletePackage.getDistributionGroup());
-			StorageRegistry.getInstance().deleteAllTablesInDistributionGroup(distributionGroupName);
+			clientConnectionHandler.getStorageRegistry().deleteAllTablesInDistributionGroup(distributionGroupName);
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
