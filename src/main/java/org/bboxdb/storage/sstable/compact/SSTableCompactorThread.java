@@ -100,6 +100,11 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				logger.info("Running compact for: {}", ssTableName);
 				final SSTableManager sstableManager = storageRegistry.getSSTableManager(ssTableName);
 				
+				if(sstableManager.getSstableManagerState() == SSTableManagerState.READ_ONLY) {
+					logger.debug("Skipping compact for read only sstable manager: {}" , ssTableName);
+					continue;
+				}
+				
 				// Create a copy to ensure, that the list of facades don't change
 				// during the compact run.
 				final List<SSTableFacade> facades = new ArrayList<>();
