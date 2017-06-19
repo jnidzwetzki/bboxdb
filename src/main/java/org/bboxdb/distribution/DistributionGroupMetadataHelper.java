@@ -53,8 +53,11 @@ public class DistributionGroupMetadataHelper {
 	    data.put("version", distributionGroupMetadata.getVersion());
 	    
 	    final String filename = getFilename(distributionGroupName);
-	    final FileWriter writer = new FileWriter(new File(filename));
-	    logger.debug("Output data to: " + filename);
+	    final File metadataFile = new File(filename);
+	    
+	    logger.info("Writing metadata to {} ", metadataFile);
+	    
+		final FileWriter writer = new FileWriter(metadataFile);
 	    
 	    final Yaml yaml = new Yaml();
 	    yaml.dump(data, writer);
