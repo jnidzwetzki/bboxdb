@@ -33,7 +33,6 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
 import org.bboxdb.storage.queryprocessor.QueryProcessor;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
-import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -196,7 +195,11 @@ public class ClientQuery implements Closeable {
 		
 		try {
 			final SSTableName sstableName = localTables.remove(0);
-			final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(sstableName);
+			
+			final SSTableManager storageManager = clientConnectionHandler
+					.getStorageRegistry()
+					.getSSTableManager(sstableName);
+			
 			final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
 			currentIterator = queryProcessor.iterator();
 			return true;

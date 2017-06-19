@@ -24,7 +24,7 @@ import java.util.concurrent.BlockingQueue;
 import org.bboxdb.storage.SSTableFlushCallback;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.registry.MemtableAndSSTableManager;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.registry.Storage;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableManagerState;
 import org.bboxdb.storage.sstable.SSTableWriter;
@@ -44,6 +44,11 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	 * The basedir
 	 */
 	protected final File basedir;
+	
+	/**
+	 * The storage
+	 */
+	protected Storage storage;
 
 	/**
 	 * The logger
@@ -54,9 +59,9 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * @param ssTableManager
 	 */
-	public MemtableWriterThread(final BlockingQueue<MemtableAndSSTableManager> flushQueue, 
-			final File basedir) {
-		this.flushQueue = flushQueue;
+	public MemtableWriterThread(final Storage storage, final File basedir) {
+		this.storage = storage;
+		this.flushQueue = storage.getMemtablesToFlush();
 		this.basedir = basedir;	
 	}
 
@@ -157,7 +162,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	 */
 	protected void sendCallbacks(final Memtable memtable, SSTableManager sstableManager) {
 		final long timestamp = memtable.getCreatedTimestamp();
-		final List<SSTableFlushCallback> callbacks = StorageRegistry.getInstance().getSSTableFlushCallbacks();
+		final List<SSTableFlushCallback> callbacks = storage.getStorageRegistry().getSSTableFlushCallbacks();
 		
 		for(final SSTableFlushCallback callback : callbacks) {
 			try {

@@ -41,7 +41,6 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.TupleListFuture;
-import org.bboxdb.network.server.NetworkConnectionService;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -54,17 +53,17 @@ import org.slf4j.LoggerFactory;
 public class RecoveryService implements BBoxDBService {
 	
 	/**
+	 * The storage registry
+	 */
+	protected final StorageRegistry storageRegistry;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(RecoveryService.class);
 	
-	/**
-	 * The connection handler
-	 */
-	protected final NetworkConnectionService connectionHandler;
-
-	public RecoveryService(final NetworkConnectionService connectionHandler) {
-		this.connectionHandler = connectionHandler;
+	public RecoveryService(final StorageRegistry storageRegistry) {
+		this.storageRegistry = storageRegistry;
 	}
 
 	@Override
@@ -170,7 +169,7 @@ public class RecoveryService implements BBoxDBService {
 			
 			final int regionId = outdatedDistributionRegion.getDistributedRegion().getRegionId();
 			
-			final List<SSTableName> allTables = StorageRegistry.getInstance()
+			final List<SSTableName> allTables = storageRegistry
 					.getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
 			
 			for(final SSTableName ssTableName : allTables) {
@@ -204,7 +203,7 @@ public class RecoveryService implements BBoxDBService {
 		final String sstableName = ssTableName.getFullname();
 		
 		logger.info("Recovery: starting recovery for table {}", sstableName);
-		final SSTableManager tableManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
+		final SSTableManager tableManager = storageRegistry.getSSTableManager(ssTableName);
 		
 		// Even with NTP, the clock of the nodes can have a delta.
 		// We subtract this delta from the checkpoint timestamp to ensure

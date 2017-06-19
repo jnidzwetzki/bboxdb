@@ -39,7 +39,7 @@ import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.registry.Storage;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableManagerState;
 import org.slf4j.Logger;
@@ -68,26 +68,34 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	protected DistributionRegion region = null;
 	
 	/**
+	 * The storage reference
+	 */
+	protected Storage storage;
+	
+	/**
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(AbstractRegionSplitStrategy.class);
+
 
 	public AbstractRegionSplitStrategy() {
 		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		this.distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 	}
-		
+
 	/**
 	 * Set the distribution region
 	 * @param region
 	 * @throws StorageManagerException 
 	 */
-	public void initFromSSTablename(final SSTableName ssTableName) throws StorageManagerException {
+	public void initFromSSTablename(final Storage storage, final SSTableName ssTableName) throws StorageManagerException {
 		
 		assert (treeAdapter == null) : "Unable to reinit instance";
 		assert (region == null) : "Unable to reinit instance";
 
 		try {
+			this.storage = storage;
+			
 			treeAdapter = DistributionGroupCache.getGroupForGroupName(
 					ssTableName.getDistributionGroup(), zookeeperClient);
 
@@ -210,7 +218,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			
 			final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
 			
-			final List<SSTableName> localTables = StorageRegistry.getInstance()
+			final List<SSTableName> localTables = storage.getStorageRegistry()
 					.getAllTablesForDistributionGroupAndRegionId
 					(distributionGroupName, region.getRegionId());
 	
@@ -259,7 +267,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			throws StorageManagerException, Exception, InterruptedException {
 		
 		for(final SSTableName ssTableName : localTables) {
-			final SSTableManager ssTableManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
+			final SSTableManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
 			
 			final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
 			
@@ -309,7 +317,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
-		final SSTableManager ssTableManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
+		final SSTableManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
 		
 		// Spread data
 		final TupleRedistributor tupleRedistributor = getTupleRedistributor(region, ssTableName);
@@ -324,7 +332,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @throws StorageManagerException
 	 */
 	protected void stopFlushToDisk(final SSTableName ssTableName) throws StorageManagerException {
-		final SSTableManager ssTableManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
+		final SSTableManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
 		
 		// FLush data to disk
 		ssTableManager.flush();
@@ -347,7 +355,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		final DistributionRegion leftRegion = region.getLeftChild();
 		final DistributionRegion rightRegion = region.getRightChild();
 		
-		final TupleRedistributor tupleRedistributor = new TupleRedistributor(ssTableName);
+		final TupleRedistributor tupleRedistributor = new TupleRedistributor(storage, ssTableName);
 		tupleRedistributor.registerRegion(leftRegion);
 		tupleRedistributor.registerRegion(rightRegion);
 		

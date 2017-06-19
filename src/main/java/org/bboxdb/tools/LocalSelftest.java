@@ -60,16 +60,19 @@ public class LocalSelftest {
 			final int iterations = Integer.parseInt(args[0]);
 			logger.info("Running selftest......");
 			
+			final StorageRegistry storageRegistry = new StorageRegistry();
+			storageRegistry.init();
+			
 			final SSTableName sstable = new SSTableName(TABLENAME);
-			final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(sstable);
+			final SSTableManager storageManager = storageRegistry.getSSTableManager(sstable);
 
 			for(int iteration = 0; iteration < iterations; iteration++) {
 				logger.info("Running iteration {}", iteration);
-				StorageRegistry.getInstance().deleteTable(sstable);
+				storageRegistry.deleteTable(sstable);
 				testInsertDelete(storageManager);
 			}
 			
-			storageManager.shutdown();
+			storageRegistry.shutdown();
 			logger.info("Selftest done");
 
 		} catch(NumberFormatException e) {

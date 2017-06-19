@@ -25,7 +25,6 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.ListTablesResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.registry.StorageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +48,10 @@ public class HandleListTables implements RequestHandler {
 			logger.debug("Got list tables request");
 		}
 		
-		final List<SSTableName> allTables = StorageRegistry.getInstance().getAllTables();
+		final List<SSTableName> allTables = clientConnectionHandler
+				.getStorageRegistry()
+				.getAllTables();
+		
 		final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
 		clientConnectionHandler.writeResultPackage(listTablesResponse);
 		

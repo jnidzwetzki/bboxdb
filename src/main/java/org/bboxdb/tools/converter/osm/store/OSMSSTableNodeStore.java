@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
@@ -44,7 +45,12 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
     /**
      * The sstable manager
      */
-	private SSTableManager storageManager;
+    protected  SSTableManager storageManager;
+	
+	/**
+	 * The storage registry
+	 */
+	protected StorageRegistry storageRegistry;
 	
 	/**
 	 * The Logger
@@ -53,14 +59,17 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 
 
 	public OSMSSTableNodeStore(final List<String> storageDirectories, final long inputLength) {
+		final SSTableName tableName = new SSTableName("2_group1_test");
+
+		storageRegistry = new StorageRegistry();
 		
 		try {
-			final SSTableName tableName = new SSTableName("2_group1_test");
+			storageRegistry.init();
+
 			BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(storageDirectories);
-			
-			StorageRegistry.getInstance().deleteTable(tableName);
-			storageManager = StorageRegistry.getInstance().getSSTableManager(tableName);
-		} catch (StorageManagerException e) {
+			storageRegistry.deleteTable(tableName);
+			storageManager = storageRegistry.getSSTableManager(tableName);
+		} catch (StorageManagerException | InterruptedException | BBoxDBException e) {
 			logger.error("Got an exception while getting sstable manager: ", e);
 		}
 	}
@@ -69,7 +78,10 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 	 * Close all resources
 	 */
 	public void close() {
-		storageManager.shutdown();
+		if(storageRegistry != null) {
+			storageRegistry.shutdown();
+			storageRegistry = null;
+		}
 	}
 
 	/**

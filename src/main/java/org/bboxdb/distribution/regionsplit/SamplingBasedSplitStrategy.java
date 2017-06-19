@@ -27,7 +27,6 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.MathUtil;
 
@@ -46,7 +45,7 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	protected boolean performSplit(final DistributionRegion regionToSplit) {
 		final int splitDimension = regionToSplit.getSplitDimension();
 	
-		final List<SSTableName> tables = StorageRegistry.getInstance()
+		final List<SSTableName> tables = storage.getStorageRegistry()
 				.getAllTablesForDistributionGroupAndRegionId
 				(region.getDistributionGroupName(), region.getRegionId());
 		
@@ -102,8 +101,7 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 		for(final SSTableName ssTableName : tables) {
 			logger.info("Create split samples for table: {} ", ssTableName.getFullname());
 			
-			final SSTableManager sstableManager = StorageRegistry
-					.getInstance()
+			final SSTableManager sstableManager = storage.getStorageRegistry()
 					.getSSTableManager(ssTableName);
 			
 			final List<ReadOnlyTupleStorage> tupleStores = sstableManager.getAllTupleStorages();

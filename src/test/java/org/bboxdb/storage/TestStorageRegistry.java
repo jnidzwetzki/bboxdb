@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
@@ -30,7 +31,9 @@ import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.RejectedException;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestStorageRegistry {
@@ -41,6 +44,25 @@ public class TestStorageRegistry {
 	protected static final SSTableName RELATION_NAME = new SSTableName("3_grouptest1_table1_2");
 
 	/**
+	 * The storage registry
+	 */
+	protected static StorageRegistry storageRegistry;
+	
+	@BeforeClass
+	public static void beforeClass() throws InterruptedException, BBoxDBException {
+		storageRegistry = new StorageRegistry();
+		storageRegistry.init();
+	}
+	
+	@AfterClass
+	public static void afterClass() {
+		if(storageRegistry != null) {
+			storageRegistry.shutdown();
+			storageRegistry = null;
+		}
+	}
+	
+	/**
 	 * Test registering and unregistering the storage manager
 	 * @throws StorageManagerException 
 	 * 
@@ -48,11 +70,11 @@ public class TestStorageRegistry {
 	 */
 	@Test
 	public void testRegisterAndUnregister() throws StorageManagerException {
-		Assert.assertFalse(StorageRegistry.getInstance().isStorageManagerActive(RELATION_NAME));
-		StorageRegistry.getInstance().getSSTableManager(RELATION_NAME);
-		Assert.assertTrue(StorageRegistry.getInstance().isStorageManagerActive(RELATION_NAME));
-		StorageRegistry.getInstance().shutdownSStable(RELATION_NAME);
-		Assert.assertFalse(StorageRegistry.getInstance().isStorageManagerActive(RELATION_NAME));
+		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
+		storageRegistry.getSSTableManager(RELATION_NAME);
+		Assert.assertTrue(storageRegistry.isStorageManagerActive(RELATION_NAME));
+		storageRegistry.shutdownSStable(RELATION_NAME);
+		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
 	}
 	
 	/**
@@ -64,7 +86,7 @@ public class TestStorageRegistry {
 	@Test
 	public void testDeleteTable() throws StorageManagerException, InterruptedException, RejectedException {
 		
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(RELATION_NAME);
+		final SSTableManager storageManager = storageRegistry.getSSTableManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -74,7 +96,7 @@ public class TestStorageRegistry {
 		// Wait for requests to settle
 		Thread.sleep(10000);
 		
-		StorageRegistry.getInstance().deleteTable(RELATION_NAME);
+		storageRegistry.deleteTable(RELATION_NAME);
 		
 		Assert.assertTrue(storageManager.isShutdownComplete());
 		
@@ -99,7 +121,7 @@ public class TestStorageRegistry {
 	@Test
 	public void testCalculateSize() throws StorageManagerException, InterruptedException, RejectedException {
 		
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(RELATION_NAME);
+		final SSTableManager storageManager = storageRegistry.getSSTableManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -109,24 +131,22 @@ public class TestStorageRegistry {
 		// Wait for requests to settle
 		Thread.sleep(10000);
 		
-		final List<SSTableName> tablesBeforeDelete = StorageRegistry.getInstance().getAllTables();
+		final List<SSTableName> tablesBeforeDelete = storageRegistry.getAllTables();
 		System.out.println(tablesBeforeDelete);
 		Assert.assertTrue(tablesBeforeDelete.contains(RELATION_NAME));
 		
-		final long size1 = 
-				StorageRegistry.getInstance().getSizeOfDistributionGroupAndRegionId(
+		final long size1 = storageRegistry.getSizeOfDistributionGroupAndRegionId(
 						RELATION_NAME.getDistributionGroupObject(), 2);
 		
 		Assert.assertTrue(size1 > 0);
 		
-		StorageRegistry.getInstance().deleteTable(RELATION_NAME);
+		storageRegistry.deleteTable(RELATION_NAME);
 		
-		final List<SSTableName> tablesAfterDelete = StorageRegistry.getInstance().getAllTables();
+		final List<SSTableName> tablesAfterDelete = storageRegistry.getAllTables();
 		System.out.println(tablesAfterDelete);
 		Assert.assertFalse(tablesAfterDelete.contains(RELATION_NAME));
 		
-		final long size2 = 
-				StorageRegistry.getInstance().getSizeOfDistributionGroupAndRegionId(
+		final long size2 = storageRegistry.getSizeOfDistributionGroupAndRegionId(
 						RELATION_NAME.getDistributionGroupObject(), 2);
 		
 		Assert.assertTrue(size2 == 0);
