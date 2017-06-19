@@ -20,6 +20,7 @@ package org.bboxdb.distribution.regionsplit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupName;
@@ -41,8 +42,8 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManagerState;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.sstable.SSTableManagerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -379,14 +380,20 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			final List<ReadOnlyTupleStorage> aquiredStorages = ssTableManager.aquireStorage();
 			storages.addAll(aquiredStorages);
 			
-			for(final ReadOnlyTupleStorage storage: storages) {
-				
-				if(predicate.test(storage)) {
-					logger.info("Spread sstable facade: {}", storage.getInternalName());
-					spreadStorage(tupleRedistributor, storage);
-				}
-			}				
+			final List<ReadOnlyTupleStorage> storagesToSpread = storages
+					.stream()
+					.filter(predicate)
+					.collect(Collectors.toList());
 			
+			final int totalSotrages = storagesToSpread.size();
+			
+			for(int i = 0; i < totalSotrages; i++) {
+				final ReadOnlyTupleStorage storage = storagesToSpread.get(i);
+				logger.info("Spread sstable facade {} number {} of {}", 
+						storage.getInternalName(), i, totalSotrages);;
+						spreadStorage(tupleRedistributor, storage);
+			}
+
 			logger.info("Statistics for spread: {}", tupleRedistributor.getStatistics());
 		} catch (Exception e) {
 			throw e;
