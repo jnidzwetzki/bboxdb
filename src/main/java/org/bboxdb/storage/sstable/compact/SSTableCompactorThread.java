@@ -215,13 +215,9 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		logger.info("Test for region split: {}. Size in MB: {}", distributionGroup, totalSizeInMb);
 						
 		final AbstractRegionSplitStrategy regionSplitter = getRegionSplitter(sstableManager);
+		
 		if(regionSplitter.isSplitNeeded(totalSize)) {
-			
-			// Execute the split operation in an own thread, to survive the sstable manager
-			// stop call. This will stop (this) compact thread
-			final Thread splitThread = new Thread(regionSplitter);
-			splitThread.setName("Split thread for: " + sstableManager.getSSTableName().getFullname());
-			splitThread.start();
+			regionSplitter.run();
 		}
 	}
 

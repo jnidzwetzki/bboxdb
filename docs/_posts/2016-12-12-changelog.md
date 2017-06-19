@@ -11,6 +11,7 @@ order: 1
 - Improvement: Made service init interruptable
 - Improvement: Better spread statistics
 - Improvement: Enabled Zookeeper logging
+- Improvement: Only execute one split / compact task per storage 
 - Bugfix: Prevent duplicate distribution of in-memory data
 
 ### Version 0.3.0 (Stable) - 17.06.2017
