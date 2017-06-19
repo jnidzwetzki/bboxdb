@@ -26,9 +26,11 @@ import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.registry.MemtableAndSSTableManager;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.sstable.SSTableManagerState;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.ExceptionSafeThread;
+import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,9 +103,9 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 			return;
 		}
 
-		try {
-			SSTableFacade facade = null;
-			
+		SSTableFacade facade = null;
+
+		try {			
 			// Don't write empty memtables to disk
 			if (! memtable.isEmpty()) {
 				final SSTableName sstableName = sstableManager.getSSTableName();
@@ -119,8 +121,33 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 			
 			memtable.deleteOnClose();
 			memtable.release();
-		} catch (Exception e) {
-			handleExceptionDuringFlush(e);
+		}  catch (Exception e) {
+			deleteWrittenFacade(facade);
+
+			if(sstableManager.getSstableManagerState() == SSTableManagerState.READ_ONLY) {
+				logger.debug("Rejected memtable write:", e);
+				return;
+			}
+			
+			if (Thread.currentThread().isInterrupted()) {
+				logger.debug("Got Exception while flushing memtable, but thread was interrupted. "
+						+ "Ignoring exception.");
+				Thread.currentThread().interrupt();
+				return;
+				
+			} 
+			
+			logger.error("Exception while flushing memtable", e);
+		}
+	}
+
+	/**
+	 * Delete the written facade
+	 * @param facade
+	 */
+	protected void deleteWrittenFacade(final SSTableFacade facade) {
+		if(facade != null) {
+			facade.deleteOnClose();
 		}
 	}
 
@@ -139,20 +166,6 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 			} catch(Exception e) {
 				logger.error("Got exception while executing callback", e);
 			}
-		}
-	}
-
-	/**
-	 * Handle the exception during memtable flush
-	 * @param e
-	 */
-	protected void handleExceptionDuringFlush(Exception e) {
-		if (Thread.currentThread().isInterrupted()) {
-			logger.debug("Got Exception while flushing memtable, but thread was interrupted. "
-					+ "Ignoring exception.");
-			Thread.currentThread().interrupt();
-		} else {
-			logger.warn("Exception while flushing memtable", e);
 		}
 	}
 
