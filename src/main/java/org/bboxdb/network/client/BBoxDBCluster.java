@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.SSTableNameListFuture;
@@ -135,11 +137,12 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			
-			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBoxAndWrite(tuple.getBoundingBox());
-
+			Collection<DistributedInstance> systems = getSystemsList(tuple, distributionRegion);
+			
 			if(systems.isEmpty()) {
-				throw new BBoxDBException("Insert tuple called, but system list for bounding box is empty: " 
-						+ tuple.getBoundingBox() + ". State is: " + distributionRegion.getState());
+				logger.error("Insert tuple called, but system list for bounding box is empty: {}", 
+						tuple.getBoundingBox());
+				return getFailedEmptyResultFuture();
 			}
 			
 			// Determine the first system, it will route the request to the remaining systems
@@ -147,7 +150,7 @@ public class BBoxDBCluster implements BBoxDB {
 			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 			
 			if(connection == null) {
-				logger.warn("Unable to insert tuple, no connection to system: ", system);
+				logger.warn("Unable to insert tuple, no connection to system: {}", system);
 				return getFailedEmptyResultFuture();
 			}
 			
@@ -155,7 +158,36 @@ public class BBoxDBCluster implements BBoxDB {
 		} catch (ZookeeperException e) {
 			logger.warn("Got exception while inserting tuple", e);
 			return getFailedEmptyResultFuture();
+		} catch (InterruptedException e) {
+			logger.warn("Interrupted while waiting for systems list");
+			Thread.currentThread().interrupt();
+			return getFailedEmptyResultFuture();
 		}
+	}
+
+	/**
+	 * Get a non empty systems list
+	 * @param tuple
+	 * @param distributionRegion
+	 * @return
+	 * @throws InterruptedException
+	 */
+	protected Collection<DistributedInstance> getSystemsList(final Tuple tuple,
+			final DistributionRegion distributionRegion) throws InterruptedException {
+		
+		Collection<DistributedInstance> systems = new ArrayList<>();
+
+		for(int execution = 0; execution < Const.OPERATION_RETRY; execution++) {
+			systems = distributionRegion.getSystemsForBoundingBoxAndWrite(tuple.getBoundingBox());
+			
+			if(! systems.isEmpty()) {
+				break;
+			}
+			
+			Thread.sleep(20 * execution);	
+		}
+		
+		return systems;
 	}
 
 	/**

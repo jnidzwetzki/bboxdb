@@ -13,6 +13,7 @@ order: 1
 - Improvement: Enabled Zookeeper logging
 - Improvement: Only execute one split / compact task per storage 
 - Bugfix: Prevent duplicate distribution of in-memory data
+- Bugfix: Handle non empty systems list in tuple insert as error
 
 ### Version 0.3.0 (Stable) - 17.06.2017
 - New Feature: Added the TestFixedGrid experiment
