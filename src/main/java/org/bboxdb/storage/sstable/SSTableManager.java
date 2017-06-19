@@ -320,7 +320,9 @@ public class SSTableManager implements BBoxDBService {
 		DistributionGroupMetadata distributionGroupMetadata = new DistributionGroupMetadata();
 		distributionGroupMetadata.setVersion(version);
 		
-		DistributionGroupMetadataHelper.writeMedatadataForGroup(sstablename.getDistributionGroupObject(), distributionGroupMetadata);
+		DistributionGroupMetadataHelper.writeMedatadataForGroup(storage.getBasedir().getAbsolutePath(), 
+				sstablename.getDistributionGroupObject(), 
+				distributionGroupMetadata);
 	}
 	
 	/**

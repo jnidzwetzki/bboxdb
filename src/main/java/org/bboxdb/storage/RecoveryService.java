@@ -44,6 +44,7 @@ import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.registry.Storage;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.RejectedException;
@@ -114,7 +115,9 @@ public class RecoveryService implements BBoxDBService {
 			final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 			final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName(configuration);
 			
-			checkGroupVersion(distributionGroupName, zookeeperClient);
+			for(final Storage storage : storageRegistry.getAllStorages()) {
+				checkGroupVersion(storage, distributionGroupName, zookeeperClient);
+			}
 					
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
 					distributionGroupName.getFullname(), zookeeperClient);
@@ -129,18 +132,24 @@ public class RecoveryService implements BBoxDBService {
 		
 	}
 
-	protected void checkGroupVersion(final DistributionGroupName distributionGroupName,
+	protected void checkGroupVersion(final Storage storage, final DistributionGroupName distributionGroupName,
 			final ZookeeperClient zookeeperClient) {
 		
 		try {
-			final DistributionGroupMetadata metaData = DistributionGroupMetadataHelper.getMedatadaForGroup(distributionGroupName);
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
-			final String remoteVersion = distributionGroupZookeeperAdapter.getVersionForDistributionGroup(distributionGroupName.getFullname(), null);
+			final DistributionGroupMetadata metaData = DistributionGroupMetadataHelper
+					.getMedatadaForGroup(storage.getBasedir().getAbsolutePath(), distributionGroupName);
 			
 			if(metaData == null) {
-				logger.debug("Metadata is null, skipping check");
+				logger.debug("Metadata for storage {} and group {} is null, skipping check", 
+						storage.getBasedir(), distributionGroupName.getFullname());
 				return;
 			}
+			
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+				= new DistributionGroupZookeeperAdapter(zookeeperClient);
+			
+			final String remoteVersion = distributionGroupZookeeperAdapter
+					.getVersionForDistributionGroup(distributionGroupName.getFullname(), null);
 			
 			final String localVersion = metaData.getVersion();
 			

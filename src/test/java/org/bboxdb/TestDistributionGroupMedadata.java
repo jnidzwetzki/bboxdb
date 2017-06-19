@@ -85,14 +85,16 @@ public class TestDistributionGroupMedadata {
 		final DistributionGroupMetadata distributionGroupMetadata1 = new DistributionGroupMetadata();
 		final DistributionGroupMetadata distributionGroupMetadata2 = new DistributionGroupMetadata();
 		distributionGroupMetadata1.setVersion("10");
-		distributionGroupMetadata2.setVersion("20");
+		distributionGroupMetadata2.setVersion("20");	
 		Assert.assertFalse(distributionGroupMetadata1.equals(distributionGroupMetadata2));
+
+		DistributionGroupMetadataHelper.writeMedatadataForGroup(STORAGE_DIRECTORY, DGROUP_NAME, distributionGroupMetadata1);
+		final DistributionGroupMetadata distributionGroupMetadata1read = 
+				DistributionGroupMetadataHelper.getMedatadaForGroup(STORAGE_DIRECTORY, DGROUP_NAME);
 		
-		DistributionGroupMetadataHelper.writeMedatadataForGroup(DGROUP_NAME, distributionGroupMetadata1);
-		final DistributionGroupMetadata distributionGroupMetadata1read = DistributionGroupMetadataHelper.getMedatadaForGroup(DGROUP_NAME);
-		
-		DistributionGroupMetadataHelper.writeMedatadataForGroup(DGROUP_NAME, distributionGroupMetadata2);
-		final DistributionGroupMetadata distributionGroupMetadata2read = DistributionGroupMetadataHelper.getMedatadaForGroup(DGROUP_NAME);
+		DistributionGroupMetadataHelper.writeMedatadataForGroup(STORAGE_DIRECTORY, DGROUP_NAME, distributionGroupMetadata2);
+		final DistributionGroupMetadata distributionGroupMetadata2read = 
+				DistributionGroupMetadataHelper.getMedatadaForGroup(STORAGE_DIRECTORY, DGROUP_NAME);
 		
 		Assert.assertTrue(distributionGroupMetadata1read.equals(distributionGroupMetadata1));
 		Assert.assertTrue(distributionGroupMetadata2read.equals(distributionGroupMetadata2));

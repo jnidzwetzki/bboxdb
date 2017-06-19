@@ -20,6 +20,7 @@ package org.bboxdb.storage.registry;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -474,6 +475,13 @@ public class StorageRegistry implements BBoxDBService {
 				.collect(Collectors.toList());
 	}
 
+	/**
+	 * Get all storages
+	 * @return 
+	 */
+	public Collection<Storage> getAllStorages() {
+		return storages.values();
+	}
 
 	@Override
 	public String getServicename() {

@@ -15,7 +15,7 @@ order: 1
 - Improvement: Removed StorageRegistry singleton
 - Bugfix: Prevent duplicate distribution of in-memory data
 - Bugfix: Handle non empty systems list in tuple insert as error
-- Bugfix: Create parent dirs for sstable metadata
+- Bugfix: Fixed handling of meta data when multiple storage locations are used
 
 ### Version 0.3.0 (Stable) - 17.06.2017
 - New Feature: Added the TestFixedGrid experiment

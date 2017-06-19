@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bboxdb.misc.BBoxDBConfiguration;
-import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.slf4j.Logger;
@@ -46,13 +44,14 @@ public class DistributionGroupMetadataHelper {
 	 * @param distributionGroupMetadata
 	 * @throws IOException 
 	 */
-	public static void writeMedatadataForGroup(final DistributionGroupName distributionGroupName, 
+	public static void writeMedatadataForGroup(final String basedir, 
+			final DistributionGroupName distributionGroupName, 
 			final DistributionGroupMetadata distributionGroupMetadata) throws IOException {
 		
 	    final Map<String, Object> data = new HashMap<>();
 	    data.put("version", distributionGroupMetadata.getVersion());
 	    
-	    final String filename = getFilename(distributionGroupName);
+	    final String filename = getFilename(basedir, distributionGroupName);
 	    final File metadataFile = new File(filename);
 	    
 	    logger.info("Writing metadata to {} ", metadataFile);
@@ -69,13 +68,11 @@ public class DistributionGroupMetadataHelper {
 	 * @param distributionGroupName
 	 * @return
 	 */
-	protected static String getFilename(final DistributionGroupName distributionGroupName) {
-		BBoxDBConfiguration bBoxDBConfiguration = BBoxDBConfigurationManager.getConfiguration();
-	    
-		// Choose one location
-	    final String directory = bBoxDBConfiguration.getStorageDirectories().get(0);
-	    
-		return SSTableHelper.getDistributionGroupMedatadaFile(directory, distributionGroupName.getFullname());
+	protected static String getFilename(final String basedir, 
+			final DistributionGroupName distributionGroupName) {
+		
+		return SSTableHelper.getDistributionGroupMedatadaFile(basedir, 
+				distributionGroupName.getFullname());
 	}
 
 	/**
@@ -84,11 +81,17 @@ public class DistributionGroupMetadataHelper {
 	 * @return
 	 */
 	public static DistributionGroupMetadata getMedatadaForGroup
-		(final DistributionGroupName distributionGroupName) {
+		(final String basedir, final DistributionGroupName distributionGroupName) {
 		
 		final Yaml yaml = new Yaml(); 
-	    final String filename = getFilename(distributionGroupName);
+	    final String filename = getFilename(basedir, distributionGroupName);
 
+	    final File file = new File(filename);
+	    
+	    if(! file.exists()) {
+	    	return null;
+	    }
+	    
 		FileReader reader;
 		try {
 			reader = new FileReader(filename);
