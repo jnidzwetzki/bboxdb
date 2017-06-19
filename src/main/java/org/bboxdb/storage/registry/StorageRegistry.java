@@ -192,7 +192,7 @@ public class StorageRegistry implements BBoxDBService {
 	public void shutdown() {
 		
 		if(! serviceState.isInRunningState()) {
-			logger.warn("Igonring shutdown, service is in state: " + serviceState.getState());
+			logger.warn("Igonring shutdown, service is in state: {}", serviceState.getState());
 			return;
 		}
 		
