@@ -180,16 +180,20 @@ public class SSTableManager implements BBoxDBService {
 			return;
 		}
 		
-		// Set ready to false and reject write requests
+		// Set service state to stopping
 		serviceState.dispatchToStopping();
-		flush();
 		
-		try {
-			tupleStoreInstances.waitForAllMemtablesFlushed();
-		} catch (InterruptedException e) {
-			logger.debug("Wait for memtable flush interrupted");
-			Thread.currentThread().interrupt();
-			return;
+		// Flush only when memtable is in RW state, otherwise the memtable flush callbacks
+		// could not be processed
+		if(sstableManagerState == SSTableManagerState.READ_WRITE) {
+			try {
+				flush();
+				tupleStoreInstances.waitForAllMemtablesFlushed();
+			} catch (InterruptedException e) {
+				logger.debug("Wait for memtable flush interrupted");
+				Thread.currentThread().interrupt();
+				return;
+			}
 		}
 		
 		closeRessources();
