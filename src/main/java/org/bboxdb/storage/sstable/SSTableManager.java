@@ -275,7 +275,10 @@ public class SSTableManager implements BBoxDBService {
 				
 		if(! dgroupDirHandle.exists()) {
 			logger.info("Create a new directory for dgroup: {}", dgroupDir);
-			dgroupDirHandle.mkdir();	
+			final boolean mkdirResult = dgroupDirHandle.mkdirs();
+			
+			assert (mkdirResult == true) : "Unable to create dir: " + dgroupDirHandle;
+			
 			try {
 				writeMetaData();
 			} catch (Exception e) {
