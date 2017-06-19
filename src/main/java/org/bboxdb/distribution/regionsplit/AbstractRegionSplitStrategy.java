@@ -19,8 +19,6 @@ package org.bboxdb.distribution.regionsplit;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupName;
@@ -222,16 +220,11 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			
 			assert (removeResult == true) : "Unable to remove mapping for: " + region;
 			
-			// Redistribute all data, new data is kept in memory
+			// Redistribute data
 			for(final SSTableName ssTableName : localTables) {
+				// Reject new writes and flush to disk
 				stopFlushToDisk(ssTableName);
-				distributeData(region, ssTableName, (f) -> f.isPersistent());	
-			}
-
-			// Redistribute only in memory data
-			logger.info("Redistributing in-memory data for region: {}", region.getIdentifier());
-			for(final SSTableName ssTableName : localTables) {	
-				distributeData(region, ssTableName, (f) -> !f.isPersistent());	
+				distributeData(region, ssTableName);	
 			}
 			
 			// Update zookeeer
@@ -312,7 +305,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @throws StorageManagerException 
 	 */
 	protected void distributeData(final DistributionRegion region, 
-			final SSTableName ssTableName, final Predicate<ReadOnlyTupleStorage> predicate) throws Exception {
+			final SSTableName ssTableName) throws Exception {
 		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
@@ -320,7 +313,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		
 		// Spread data
 		final TupleRedistributor tupleRedistributor = getTupleRedistributor(region, ssTableName);
-		spreadTupleStores(region, ssTableManager, tupleRedistributor, predicate);			
+		spreadTupleStores(region, ssTableManager, tupleRedistributor);			
 		
 		logger.info("Redistributing table " + ssTableName.getFullname() + " is DONE");
 	}
@@ -371,8 +364,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @throws StorageManagerException 
 	 */
 	protected void spreadTupleStores(final DistributionRegion region,
-			final SSTableManager ssTableManager, final TupleRedistributor tupleRedistributor, 
-			final Predicate<ReadOnlyTupleStorage> predicate) throws Exception {
+			final SSTableManager ssTableManager, final TupleRedistributor tupleRedistributor) throws Exception {
 		
 		final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
 		
@@ -380,15 +372,10 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			final List<ReadOnlyTupleStorage> aquiredStorages = ssTableManager.aquireStorage();
 			storages.addAll(aquiredStorages);
 			
-			final List<ReadOnlyTupleStorage> storagesToSpread = storages
-					.stream()
-					.filter(predicate)
-					.collect(Collectors.toList());
-			
-			final int totalSotrages = storagesToSpread.size();
+			final int totalSotrages = aquiredStorages.size();
 			
 			for(int i = 0; i < totalSotrages; i++) {
-				final ReadOnlyTupleStorage storage = storagesToSpread.get(i);
+				final ReadOnlyTupleStorage storage = aquiredStorages.get(i);
 				logger.info("Spread sstable facade {} number {} of {}", 
 						storage.getInternalName(), i, totalSotrages);;
 						spreadStorage(tupleRedistributor, storage);
