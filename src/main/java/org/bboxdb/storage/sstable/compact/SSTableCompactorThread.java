@@ -246,6 +246,13 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			newFacedes.add(newFacade);
 		}
 		
+		// Manager has switched to read only
+		if(sstableManager.getSstableManagerState() == SSTableManagerState.READ_ONLY) {
+			logger.info("Manager is in read only mode, cancel compact run");
+			handleCompactException(newFacedes);
+			return;
+		}
+		
 		try {
 			for(final SSTableFacade facade : newFacedes) {
 				facade.init();
