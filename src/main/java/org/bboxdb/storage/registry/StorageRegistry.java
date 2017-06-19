@@ -477,7 +477,6 @@ public class StorageRegistry implements BBoxDBService {
 
 	@Override
 	public String getServicename() {
-		// TODO Auto-generated method stub
-		return null;
+		return "The storage registry";
 	}
 }
