@@ -31,7 +31,6 @@ import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.registry.StorageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +63,7 @@ public class HandleDeleteTable implements RequestHandler {
 			final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 			
 			for(final SSTableName ssTableName : localTables) {
-				StorageRegistry.getInstance().deleteTable(ssTableName);	
+				clientConnectionHandler.getStorageRegistry().deleteTable(ssTableName);	
 			}
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));

@@ -63,6 +63,7 @@ import org.bboxdb.network.server.handler.request.HandleNextPage;
 import org.bboxdb.network.server.handler.request.RequestHandler;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.util.ExceptionSafeThread;
 import org.bboxdb.util.ExecutorUtil;
 import org.slf4j.Logger;
@@ -139,15 +140,22 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	protected ConnectionMaintenanceThread maintenanceThread;
 	
 	/**
+	 * The storage reference
+	 */
+	protected StorageRegistry storageRegistry;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
 
-
-	public ClientConnectionHandler(final Socket clientSocket) {
+	public ClientConnectionHandler(final StorageRegistry storageRegistry, final Socket clientSocket) {
 		
 		// Client socket
 		this.clientSocket = clientSocket;
+		
+		// The storage reference
+		this.storageRegistry = storageRegistry;
 		
 		// Connection state
 		this.setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING);
@@ -635,4 +643,12 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		}
 		
 	};
+	
+	/**
+	 * Get the storage registry
+	 * @return
+	 */
+	public StorageRegistry getStorageRegistry() {
+		return storageRegistry;
+	}
 }

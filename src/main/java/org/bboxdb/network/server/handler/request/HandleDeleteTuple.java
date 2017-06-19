@@ -31,7 +31,6 @@ import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
@@ -66,7 +65,11 @@ public class HandleDeleteTuple implements RequestHandler {
 			final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 
 			for(final SSTableName ssTableName : localTables) {
-				final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);	
+				
+				final SSTableManager storageManager = clientConnectionHandler
+						.getStorageRegistry()
+						.getSSTableManager(ssTableName);
+				
 				storageManager.delete(deleteTupleRequest.getKey(), deleteTupleRequest.getTimestamp());
 			}
 			

@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
+import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.util.ExceptionSafeThread;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
@@ -60,9 +61,18 @@ public class NetworkConnectionService implements BBoxDBService {
 	protected Thread serverSocketDispatchThread = null;
 	
 	/**
+	 * The storage reference
+	 */
+	protected final StorageRegistry storageRegistry;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(NetworkConnectionService.class);
+	
+	public NetworkConnectionService(final StorageRegistry storageRegistry) {
+		this.storageRegistry = storageRegistry;
+	}
 	
 	/**
 	 * Start the network connection handler
@@ -180,7 +190,7 @@ public class NetworkConnectionService implements BBoxDBService {
 		 */
 		protected void handleConnection(final Socket clientSocket) {
 			logger.debug("Got new connection from: {}", clientSocket.getInetAddress());
-			threadPool.submit(new ClientConnectionHandler(clientSocket));
+			threadPool.submit(new ClientConnectionHandler(storageRegistry, clientSocket));
 		}
 	}
 

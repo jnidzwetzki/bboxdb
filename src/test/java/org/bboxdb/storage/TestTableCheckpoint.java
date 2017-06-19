@@ -23,6 +23,7 @@ import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
@@ -31,8 +32,10 @@ import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.RejectedException;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestTableCheckpoint {
@@ -41,6 +44,25 @@ public class TestTableCheckpoint {
 	 * The name of the test relation
 	 */
 	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_tablecheckpoint");
+	
+	/**
+	 * The storage registry
+	 */
+	protected static StorageRegistry storageRegistry;
+	
+	@BeforeClass
+	public static void beforeClass() throws InterruptedException, BBoxDBException {
+		storageRegistry = new StorageRegistry();
+		storageRegistry.init();
+	}
+	
+	@AfterClass
+	public static void afterClass() {
+		if(storageRegistry != null) {
+			storageRegistry.shutdown();
+			storageRegistry = null;
+		}
+	}
 	
 	/**
 	 * Ensure that the distribution group is recreated
@@ -62,10 +84,10 @@ public class TestTableCheckpoint {
 	public void testInsertWithoutFlush() throws StorageManagerException, RejectedException {
 		
 		// Prepare sstable manager
-		StorageRegistry.getInstance().shutdownSStable(TEST_RELATION);
+		storageRegistry.shutdownSStable(TEST_RELATION);
 		BBoxDBConfigurationManager.getConfiguration().setStorageCheckpointInterval(0);
-		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
+		storageRegistry.deleteTable(TEST_RELATION);
+		final SSTableManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
 
 		Assert.assertTrue(storageManager.getMemtable().isEmpty());
 		final Tuple tuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
@@ -87,10 +109,10 @@ public class TestTableCheckpoint {
 		final int CHECKPOINT_INTERVAL = 10;
 
 		// Prepare sstable manager
-		StorageRegistry.getInstance().shutdownSStable(TEST_RELATION);
-		StorageRegistry.getInstance().deleteTable(TEST_RELATION);
+		storageRegistry.shutdownSStable(TEST_RELATION);
+		storageRegistry.deleteTable(TEST_RELATION);
 		BBoxDBConfigurationManager.getConfiguration().setStorageCheckpointInterval(CHECKPOINT_INTERVAL);
-		final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(TEST_RELATION);
+		final SSTableManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
 		
 		Assert.assertTrue(storageManager.getMemtable().isEmpty());
 		final Tuple tuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());

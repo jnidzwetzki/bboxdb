@@ -12,6 +12,7 @@ order: 1
 - Improvement: Better spread statistics
 - Improvement: Enabled Zookeeper logging
 - Improvement: Only execute one split / compact task per storage 
+- Improvement: Removed StorageRegistry singleton
 - Bugfix: Prevent duplicate distribution of in-memory data
 - Bugfix: Handle non empty systems list in tuple insert as error
 

@@ -31,7 +31,6 @@ import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.ExceptionSafeThread;
 import org.slf4j.Logger;
@@ -65,7 +64,11 @@ public class HandleKeyQuery implements QueryHandler {
 				final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 				
 				for(final SSTableName ssTableName : localTables) {
-					final SSTableManager storageManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
+					
+					final SSTableManager storageManager = clientConnectionHandler
+							.getStorageRegistry()
+							.getSSTableManager(ssTableName);
+					
 					final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
 					
 					if(tuple != null) {

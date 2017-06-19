@@ -32,7 +32,6 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
@@ -69,15 +68,14 @@ public class HandleInsertTuple implements RequestHandler {
 			final BoundingBox boundingBox = insertTupleRequest.getTuple().getBoundingBox();
 			final Collection<SSTableName> localTables = regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);
 
-			for(final SSTableName ssTableName : localTables) {	
-				insertTupleNE(tuple, ssTableName);
-			}
-
+			localTables.forEach(t -> insertTupleNE(clientConnectionHandler, tuple, t));
+			
 			clientConnectionHandler.getPackageRouter().performInsertPackageRoutingAsync(packageSequence, insertTupleRequest, boundingBox);
 			
 		} catch (Exception e) {
 			logger.warn("Error while insert tuple", e);
-			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
+			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
+			clientConnectionHandler.writeResultPackage(responsePackage);	
 		}
 		
 		return true;
@@ -90,12 +88,16 @@ public class HandleInsertTuple implements RequestHandler {
 	 * @param ssTableName
 	 * @return
 	 */
-	protected boolean insertTupleNE(final Tuple tuple, final SSTableName ssTableName) {
+	protected boolean insertTupleNE(final ClientConnectionHandler clientConnectionHandler, 
+			final Tuple tuple, final SSTableName ssTableName) {
 		
 		SSTableManager storageManager = null;
 		
 		try {
-			storageManager = StorageRegistry.getInstance().getSSTableManager(ssTableName);
+			storageManager = clientConnectionHandler
+					.getStorageRegistry()
+					.getSSTableManager(ssTableName);
+			
 		} catch (StorageManagerException e) {
 			logger.warn("Got an exception while inserting", e);
 			return false;
