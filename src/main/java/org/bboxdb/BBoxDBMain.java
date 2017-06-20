@@ -18,7 +18,6 @@
 package org.bboxdb;
 
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,16 +33,14 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.network.server.NetworkConnectionService;
 import org.bboxdb.storage.RecoveryService;
 import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.util.UnsafeMemoryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.nio.ch.DirectBuffer;
-
 
 /**
  * Start the BBoxDB server 
  *
  */
-@SuppressWarnings("restriction")
 public class BBoxDBMain {
 
 	/**
@@ -149,29 +146,14 @@ public class BBoxDBMain {
 			return false;
 		}
 		
-		final boolean memoryCleanerOk = runMemoryCleanerCheck();
+		final boolean memoryCleanerOk = UnsafeMemoryHelper.isDirectMemoryCleanerAvailable();
 		
 		if(memoryCleanerOk == false) {
+			logger.error("Cannot initialize un-mmaper. Please use a Oracle JVM");
 			return false;
 		}
 	
 		return true;
-	}
-
-	/**
-	 * Run the memory cleaner check
-	 * @return
-	 */
-	protected boolean runMemoryCleanerCheck() {
-		try {
-			final ByteBuffer buf = ByteBuffer.allocateDirect(1);
-			((DirectBuffer) buf).cleaner().clean();
-			return true;
-		} catch (Throwable t) {
-			logger.error("Cannot initialize un-mmaper. Please use a Oracle JVM");
-		}
-		
-		return false;
 	}
 
 	/**
