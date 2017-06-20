@@ -223,14 +223,13 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 
 	@Override
 	public void shutdown() {
-		
-		if(ssTableReader == null || ssTableKeyIndexReader == null) {
-			logger.warn("shutdown called but sstable reader or index reader is null");
-			return;
+		if(ssTableKeyIndexReader != null) {
+			ssTableKeyIndexReader.shutdown();
 		}
 		
-		ssTableKeyIndexReader.shutdown();
-		ssTableReader.shutdown();
+		if(ssTableReader != null) {
+			ssTableReader.shutdown();
+		}
 	}
 
 	@Override
