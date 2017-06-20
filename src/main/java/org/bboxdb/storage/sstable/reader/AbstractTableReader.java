@@ -28,6 +28,7 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.util.UnsafeMemoryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.nio.ch.DirectBuffer;
@@ -75,13 +76,16 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
 	
-	
 	public AbstractTableReader(final String directory, final SSTableName name, final int tablenumer) throws StorageManagerException {
 		this.name = name;
 		this.directory = directory;
 		this.tablebumber = tablenumer;
-
 		this.file = constructFileToRead();
+		
+		if(! UnsafeMemoryHelper.isDirectMemoryUnmapperAvailable()) {
+			logger.error("Memory unmapper not available, please use a oracle JVM");
+			System.exit(-1);
+		}
 	}
 	
 	/**

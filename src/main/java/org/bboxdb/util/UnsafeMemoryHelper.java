@@ -23,12 +23,21 @@ import sun.nio.ch.DirectBuffer;
 
 @SuppressWarnings("restriction")
 public class UnsafeMemoryHelper {
+	
+	/**
+	 * Is the direct memory unmapper available? (Oracle JVM specific)
+	 */
+	protected final static boolean directMemoryUnmapperAvailable;
+	
+	static {
+		directMemoryUnmapperAvailable = testMemoryUnmapperAvailable();
+	}
 
 	/**
-	 * Run the memory cleaner check
+	 * Run the memory unmapper check
 	 * @return
 	 */
-	public static boolean isDirectMemoryCleanerAvailable() {
+	public static boolean testMemoryUnmapperAvailable() {
 		try {
 			final ByteBuffer buf = ByteBuffer.allocateDirect(1);
 			((DirectBuffer) buf).cleaner().clean();
@@ -36,6 +45,10 @@ public class UnsafeMemoryHelper {
 		} catch (Throwable t) {
 			return false;
 		}		
+	}
+	
+	public static boolean isDirectMemoryUnmapperAvailable() {
+		return directMemoryUnmapperAvailable;
 	}
 
 }

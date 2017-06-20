@@ -13,6 +13,7 @@ order: 1
 - Improvement: Enabled Zookeeper logging
 - Improvement: Only execute one split / compact task per storage 
 - Improvement: Removed StorageRegistry singleton
+- Improvement: Added unmapper for memory mapped regions
 - Bugfix: Prevent duplicate distribution of in-memory data
 - Bugfix: Handle non empty systems list in tuple insert as error
 - Bugfix: Reread systems list on insert tuple, when no systems are detected for BBox
