@@ -93,10 +93,13 @@ public class MemoryMappedFiles {
 	 * @throws MalformedObjectNameException
 	 */
 	public static void main(final String[] args) throws Exception {
+		System.out.println("==============");
+		System.out.println("After start memory");
 		printMemoryStatistics();
 		printMappedStatistics();
 
 		final File fileOne = File.createTempFile("mmap1", ".bin");
+		System.out.println("==============");
 		System.out.println("Mapping file: " + fileOne);
 		fileOne.deleteOnExit();
 
@@ -112,6 +115,7 @@ public class MemoryMappedFiles {
 		printMemoryStatistics();
 		printMappedStatistics();
 
+		System.out.println("==============");
 		System.out.println("Unmapping file");
 		fileChannel.close();
 		randomAccessFileOne.close();
