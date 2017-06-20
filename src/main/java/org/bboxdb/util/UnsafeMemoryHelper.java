@@ -18,6 +18,7 @@
 package org.bboxdb.util;
 
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
 
 import sun.nio.ch.DirectBuffer;
 
@@ -47,8 +48,26 @@ public class UnsafeMemoryHelper {
 		}		
 	}
 	
+	/**
+	 * Is the direct memory unmapper available?
+	 * @return
+	 */
 	public static boolean isDirectMemoryUnmapperAvailable() {
 		return directMemoryUnmapperAvailable;
+	}
+	
+	/**
+	 * Unmap the given memory byte buffer
+	 * @param memory
+	 */
+	public static void unmapMemory(final MappedByteBuffer memory) {
+		if(memory == null) {
+			return;
+		}
+		
+		if(memory.isDirect()) {
+			((DirectBuffer) memory).cleaner().clean();
+		}
 	}
 
 }

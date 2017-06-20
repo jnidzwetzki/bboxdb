@@ -31,9 +31,7 @@ import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.util.UnsafeMemoryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.nio.ch.DirectBuffer;
 
-@SuppressWarnings("restriction")
 public abstract class AbstractTableReader implements BBoxDBService {
 
 	/**
@@ -164,14 +162,7 @@ public abstract class AbstractTableReader implements BBoxDBService {
 
 	@Override
 	public void shutdown() {
-		
-		if(memory != null) {
-			if(memory.isDirect()) {
-				((DirectBuffer) memory).cleaner().clean();
-				memory = null;
-			}
-		}
-		
+	
 		if(fileChannel != null) {
 			try {
 				fileChannel.close();
@@ -192,6 +183,11 @@ public abstract class AbstractTableReader implements BBoxDBService {
 				}
 			}
 			randomAccessFile = null;
+		}
+		
+		if(memory != null) {
+			UnsafeMemoryHelper.unmapMemory(memory);
+			memory = null;
 		}
 	}
 	
