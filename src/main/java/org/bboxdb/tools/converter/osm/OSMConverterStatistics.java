@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.osm;
 
-import org.bboxdb.util.ExceptionSafeThread;
+import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

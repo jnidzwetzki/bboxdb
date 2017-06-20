@@ -1,4 +1,4 @@
-package org.bboxdb.util;
+package org.bboxdb.util.concurrent;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;

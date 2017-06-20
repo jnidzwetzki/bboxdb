@@ -28,9 +28,9 @@ import java.util.concurrent.ExecutorService;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.CellGrid;
-import org.bboxdb.util.ExecutorUtil;
 import org.bboxdb.util.MathUtil;
-import org.bboxdb.util.TupleFileReader;
+import org.bboxdb.util.concurrent.ExecutorUtil;
+import org.bboxdb.util.io.TupleFileReader;
 
 public class TestFixedGrid implements Runnable {
 

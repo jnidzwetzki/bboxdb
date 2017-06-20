@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.util.ExceptionSafeThread;
+import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

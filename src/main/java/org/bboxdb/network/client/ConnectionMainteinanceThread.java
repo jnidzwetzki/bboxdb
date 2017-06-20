@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
-import org.bboxdb.util.ExceptionSafeThread;
+import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

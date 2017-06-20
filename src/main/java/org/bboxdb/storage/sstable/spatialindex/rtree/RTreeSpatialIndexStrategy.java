@@ -30,7 +30,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.util.io.DataEncoderHelper;
 
 import com.google.common.io.ByteStreams;
 

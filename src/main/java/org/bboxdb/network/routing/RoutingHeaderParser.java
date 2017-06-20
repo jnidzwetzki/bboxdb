@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.util.io.DataEncoderHelper;
 
 import com.google.common.io.ByteStreams;
 

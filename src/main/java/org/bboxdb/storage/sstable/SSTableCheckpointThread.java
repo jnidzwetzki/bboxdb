@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.storage.ReadOnlyTupleStorage;
-import org.bboxdb.util.ExceptionSafeThread;
+import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

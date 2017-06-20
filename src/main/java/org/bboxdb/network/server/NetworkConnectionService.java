@@ -27,8 +27,8 @@ import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.util.ExceptionSafeThread;
 import org.bboxdb.util.ServiceState;
+import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

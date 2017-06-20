@@ -29,8 +29,8 @@ import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.util.DataEncoderHelper;
 import org.bboxdb.util.DuplicateResolver;
+import org.bboxdb.util.io.DataEncoderHelper;
 
 import com.google.common.io.ByteStreams;
 

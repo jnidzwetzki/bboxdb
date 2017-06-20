@@ -45,7 +45,7 @@ import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.RejectedException;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.ServiceState.State;
-import org.bboxdb.util.ThreadHelper;
+import org.bboxdb.util.concurrent.ThreadHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

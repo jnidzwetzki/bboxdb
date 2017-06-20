@@ -30,7 +30,7 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.util.io.DataEncoderHelper;
 
 public class ListTablesResponse extends NetworkResponsePackage {
 	

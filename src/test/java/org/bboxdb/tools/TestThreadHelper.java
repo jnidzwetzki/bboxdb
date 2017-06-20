@@ -20,7 +20,7 @@ package org.bboxdb.tools;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bboxdb.util.ThreadHelper;
+import org.bboxdb.util.concurrent.ThreadHelper;
 import org.junit.Assert;
 import org.junit.Test;
 

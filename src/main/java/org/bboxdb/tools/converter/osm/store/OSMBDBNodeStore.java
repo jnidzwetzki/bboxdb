@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
-import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.util.io.DataEncoderHelper;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
 import com.sleepycat.je.Database;

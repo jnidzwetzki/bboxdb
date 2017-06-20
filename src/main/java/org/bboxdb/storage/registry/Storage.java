@@ -28,7 +28,7 @@ import org.bboxdb.storage.memtable.MemtableWriterThread;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.util.ServiceState;
-import org.bboxdb.util.ThreadHelper;
+import org.bboxdb.util.concurrent.ThreadHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -20,7 +20,7 @@ package org.bboxdb.tools.converter.osm.util;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.misc.Const;
-import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.util.io.DataEncoderHelper;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
 public class SerializableNode {

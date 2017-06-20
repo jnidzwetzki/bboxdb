@@ -45,7 +45,7 @@ import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
-import org.bboxdb.util.TupleFileReader;
+import org.bboxdb.util.io.TupleFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

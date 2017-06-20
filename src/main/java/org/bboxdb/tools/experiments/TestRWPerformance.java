@@ -30,7 +30,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.experiments.tuplestore.TupleStore;
 import org.bboxdb.tools.experiments.tuplestore.TupleStoreFactory;
 import org.bboxdb.tools.generator.SyntheticDataGenerator;
-import org.bboxdb.util.FileUtil;
+import org.bboxdb.util.io.FileUtil;
 
 import com.google.common.base.Stopwatch;
 

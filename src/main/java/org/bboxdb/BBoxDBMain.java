@@ -33,7 +33,7 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.network.server.NetworkConnectionService;
 import org.bboxdb.storage.RecoveryService;
 import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.util.UnsafeMemoryHelper;
+import org.bboxdb.util.io.UnsafeMemoryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

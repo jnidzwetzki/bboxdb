@@ -23,7 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.bboxdb.util.FileLineIndex;
+import org.bboxdb.util.io.FileLineIndex;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -20,7 +20,7 @@ package org.bboxdb.tools.converter.osm.store;
 import java.util.List;
 
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
-import org.bboxdb.util.ExceptionSafeThread;
+import org.bboxdb.util.concurrent.ExceptionSafeThread;
 
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;

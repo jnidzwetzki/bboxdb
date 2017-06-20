@@ -32,7 +32,7 @@ import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.util.TupleFileReader;
+import org.bboxdb.util.io.TupleFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

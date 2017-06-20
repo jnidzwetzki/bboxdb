@@ -31,7 +31,7 @@ import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
-import org.bboxdb.util.FileUtil;
+import org.bboxdb.util.io.FileUtil;
 import org.junit.Assert;
 import org.junit.Test;
 

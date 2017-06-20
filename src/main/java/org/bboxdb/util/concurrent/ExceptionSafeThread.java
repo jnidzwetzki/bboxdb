@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.util;
+package org.bboxdb.util.concurrent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

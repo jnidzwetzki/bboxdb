@@ -30,7 +30,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
-import org.bboxdb.util.TupleFileReader;
+import org.bboxdb.util.io.TupleFileReader;
 import org.junit.Assert;
 import org.junit.Test;
 

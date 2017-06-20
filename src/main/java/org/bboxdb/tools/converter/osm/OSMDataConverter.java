@@ -55,7 +55,7 @@ import org.bboxdb.tools.converter.osm.store.OSMSSTableNodeStore;
 import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
 import org.bboxdb.tools.converter.osm.util.SerializerHelper;
-import org.bboxdb.util.ExceptionSafeThread;
+import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;

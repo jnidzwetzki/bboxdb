@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.util.TupleFileReader;
+import org.bboxdb.util.io.TupleFileReader;
 
 public class ExperimentHelper {
 

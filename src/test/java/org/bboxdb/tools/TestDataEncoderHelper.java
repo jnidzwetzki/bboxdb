@@ -19,7 +19,7 @@ package org.bboxdb.tools;
 
 import java.nio.ByteBuffer;
 
-import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.util.io.DataEncoderHelper;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.util;
+package org.bboxdb.util.io;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

@@ -64,8 +64,8 @@ import org.bboxdb.network.server.handler.request.RequestHandler;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.util.ExceptionSafeThread;
-import org.bboxdb.util.ExecutorUtil;
+import org.bboxdb.util.concurrent.ExceptionSafeThread;
+import org.bboxdb.util.concurrent.ExecutorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

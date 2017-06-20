@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.util;
+package org.bboxdb.util.io;
 
 import java.io.BufferedInputStream;
 import java.io.File;
