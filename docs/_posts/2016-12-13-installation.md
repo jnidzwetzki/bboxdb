@@ -12,7 +12,7 @@ The software is tested on Debian and Ubuntu Linux.
 ## Dependencies 
 BBoxDB depends on the following programs:
 
-- Java (>= 8)
+- Java (>= 8, Oracle)
 - Git
 - Maven
 
@@ -21,6 +21,8 @@ On Debian and Ubuntu, you can install them by typing:
 ```bash
 apt-get install openjdk-8-jdk ant maven git
 ```
+
+_Notice:_ We recommend to use an Oracle JVM. BBoxDB uses memory mapped files, features such as cleaning allocated memory is not available in all JVMs.
 
 ### Clock synchronization
 BBoxDB uses timestamps to order operations. So, it is useful to have a reliable time source on all systems. We strongly recommend to synchronize the local clock with an NTP server. You can accomplish this by executing:
