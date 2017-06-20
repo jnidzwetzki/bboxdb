@@ -198,7 +198,10 @@ public class StorageRegistry implements BBoxDBService {
 		
 		serviceState.dispatchToStopping();
 		
+		logger.info("Shutting down SSTable manager instances");
 		managerInstances.values().forEach(s -> s.shutdown());
+		
+		logger.info("Shutting down storages");
 		storages.values().forEach(s -> s.shutdown());
 
 		managerInstances.clear();
