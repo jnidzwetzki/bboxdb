@@ -25,6 +25,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -135,7 +136,12 @@ public class MemoryMappedFiles {
 		System.out.println("==============");
 		System.out.println("Read");
 		files.stream().forEach(f -> f.read());
+		printMemoryStatistics();
+		printMappedStatistics();
 		
+		System.out.println("==============");
+		System.out.println("Sleep");
+		Thread.sleep(TimeUnit.SECONDS.toMillis(20));
 		printMemoryStatistics();
 		printMappedStatistics();
 		
