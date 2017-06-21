@@ -56,9 +56,11 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 */
 	protected void runThread() {
 
-		while(! Thread.currentThread().isInterrupted()) {
+		final StorageRegistry storageRegistry = storage.getStorageRegistry();
 
-			final StorageRegistry storageRegistry = storage.getStorageRegistry();
+		while(! Thread.currentThread().isInterrupted()) {
+			
+			logMemoryStatistics();
 			
 			final List<SSTableName> allTables = storageRegistry.getSSTablesForLocation(
 					storage.getBasedir().getAbsolutePath());
@@ -121,12 +123,21 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 * @throws InterruptedException 
 	 */
 	protected void createCheckpoint(final SSTableManager ssTableManager) throws InterruptedException {
-	
 		if(isCheckpointNeeded(ssTableManager)) {
 			final String fullname = ssTableManager.getSSTableName().getFullname();
 			logger.debug("Create a checkpoint for: {}", fullname);
 			ssTableManager.flush();
 			logger.info("Create checkpoint DONE for: {}", fullname);
-		}		
+		}
+	}
+	
+	
+	/**
+	 * Log statistics about memory consumption
+	 */
+	protected void logMemoryStatistics() {
+		logger.info("Maximum memory (bytes): {}", Runtime.getRuntime().maxMemory());
+		logger.info("Total memory (bytes): {}",  Runtime.getRuntime().totalMemory());
+		logger.info("Free memory within total (bytes): {}", Runtime.getRuntime().freeMemory());
 	}
 }
