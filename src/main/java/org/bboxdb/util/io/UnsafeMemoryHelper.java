@@ -100,7 +100,6 @@ public class UnsafeMemoryHelper {
 	public static long getMappedBytes() throws Exception {
 		final ObjectName objectName = new ObjectName(MBEAN_NAME);
 		final MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
-		
 		final Long mmapMemoryUsed = (Long) mbeanServer.getAttribute(objectName, "MemoryUsed");
 		
 		return mmapMemoryUsed.longValue();
