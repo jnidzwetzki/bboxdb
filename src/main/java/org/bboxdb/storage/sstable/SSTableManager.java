@@ -45,7 +45,6 @@ import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.RejectedException;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.ServiceState.State;
-import org.bboxdb.util.concurrent.ThreadHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,11 +74,6 @@ public class SSTableManager implements BBoxDBService {
 	 * The corresponding storage manager state
 	 */
 	protected ServiceState serviceState;
-	
-	/**
-	 * The running threads
-	 */
-	protected final List<Thread> runningThreads;
 
 	/**
 	 * The state (read only / read write) of the manager
@@ -103,7 +97,6 @@ public class SSTableManager implements BBoxDBService {
 		this.configuration = configuration;
 		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
-		this.runningThreads = new ArrayList<>();
 		this.sstableManagerState = SSTableManagerState.READ_WRITE;
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		
@@ -133,7 +126,6 @@ public class SSTableManager implements BBoxDBService {
 			logger.info("Init a new instance for the table: {}", sstablename.getFullname());
 			
 			tupleStoreInstances.clear();
-			runningThreads.clear();
 
 			createSSTableDirIfNeeded();
 			initNewMemtable();
@@ -144,30 +136,12 @@ public class SSTableManager implements BBoxDBService {
 			
 			// Set to ready before the threads are started
 			serviceState.dispatchToRunning();
-
-			startCheckpointThread();
 		} catch (StorageManagerException e) {
 			logger.error("Unable to init the instance: " +  sstablename.getFullname(), e);
 			serviceState.dispatchToFailed(e);
 		}
 	}
 
-	/**
-	 * Start the checkpoint thread if needed
-	 */
-	protected void startCheckpointThread() {
-		if(configuration.getStorageCheckpointInterval() > 0) {
-			final int maxUncheckpointedSeconds = configuration.getStorageCheckpointInterval();
-			final SSTableCheckpointThread ssTableCheckpointThread = new SSTableCheckpointThread(maxUncheckpointedSeconds, this);
-			final Thread checkpointThread = new Thread(ssTableCheckpointThread);
-			checkpointThread.setName("Checkpoint thread for: " + sstablename.getFullname());
-			checkpointThread.start();
-			runningThreads.add(checkpointThread);
-		} else {
-			logger.info("NOT starting the checkpoint thread for: {}", sstablename.getFullname());
-		}
-	}
-	
 	/**
 	 * Shutdown the instance
 	 */
@@ -205,7 +179,7 @@ public class SSTableManager implements BBoxDBService {
 	 * Close all open Ressources
 	 */
 	protected void closeRessources() {
-		stopThreads();
+		setToReadOnly();
 		
 		if(tupleStoreInstances != null) {
 			tupleStoreInstances.getSstableFacades().forEach(f -> f.shutdown());		
@@ -245,18 +219,11 @@ public class SSTableManager implements BBoxDBService {
 	}
 
 	/**
-	 * Shutdown all running service threads
+	 * Set the mode to read only
 	 */
-	public void stopThreads() {
-
-		// Set the flush mode to memory only
+	public void setToReadOnly() {
+		// Set the flush mode to read only
 		sstableManagerState = SSTableManagerState.READ_ONLY;
-		
-		logger.info("Stop running threads");
-		ThreadHelper.stopThreads(runningThreads);
-		
-		// Complete shutdown by clearing running threads
-		runningThreads.clear();
 	}
 	
 	/**

@@ -6,7 +6,8 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.3.1 (Stable) - TBA
-- New Feature: A fixed amount of memtable flush threads is used per storage
+- Improvement: A fixed amount of memtable flush threads is used per storage
+- Improvement: Only one checkpoint thread per storage
 - Improvement: Only one compact thread per storage 
 - Improvement: Made service init interruptable
 - Improvement: Better spread statistics

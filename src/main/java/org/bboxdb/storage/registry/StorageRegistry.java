@@ -485,6 +485,14 @@ public class StorageRegistry implements BBoxDBService {
 	public Collection<Storage> getAllStorages() {
 		return storages.values();
 	}
+	
+	/**
+	 * Get the bboxdb configuration
+	 * @return
+	 */
+	public BBoxDBConfiguration getConfiguration() {
+		return configuration;
+	}
 
 	@Override
 	public String getServicename() {

@@ -338,7 +338,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		ssTableManager.setSstableManagerState(SSTableManagerState.READ_ONLY);
 		
 		// Stop flush thread, so new data remains in memory
-		ssTableManager.stopThreads();
+		ssTableManager.setToReadOnly();
 	}
 
 	/**

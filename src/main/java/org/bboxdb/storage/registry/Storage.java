@@ -23,8 +23,10 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.memtable.MemtableWriterThread;
+import org.bboxdb.storage.sstable.SSTableCheckpointThread;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
 import org.bboxdb.util.ServiceState;
@@ -92,6 +94,8 @@ public class Storage implements BBoxDBService {
 	
 		startFlushThreads();
 		startCompactThread();
+		startCheckpointThread();
+		
 		serviceState.dispatchToRunning();
 	}
 
@@ -121,6 +125,21 @@ public class Storage implements BBoxDBService {
 		compactThread.setName("Compact thread for: " + basedir);
 		compactThread.start();
 		runningThreads.add(compactThread);
+	}
+	
+	/**
+	 * Start the checkpoint thread for the storage
+	 */
+	protected void startCheckpointThread() {
+		final BBoxDBConfiguration configuration = storageRegistry.getConfiguration();
+		if(configuration.getStorageCheckpointInterval() > 0) {
+			final int maxUncheckpointedSeconds = configuration.getStorageCheckpointInterval();
+			final SSTableCheckpointThread ssTableCheckpointThread = new SSTableCheckpointThread(this, maxUncheckpointedSeconds);
+			final Thread checkpointThread = new Thread(ssTableCheckpointThread);
+			checkpointThread.setName("Checkpoint thread for: " + basedir);
+			checkpointThread.start();
+			runningThreads.add(checkpointThread);
+		}
 	}
 
 	@Override
