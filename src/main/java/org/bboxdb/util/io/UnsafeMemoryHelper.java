@@ -17,13 +17,22 @@
  *******************************************************************************/
 package org.bboxdb.util.io;
 
+import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import sun.nio.ch.DirectBuffer;
 
 @SuppressWarnings("restriction")
 public class UnsafeMemoryHelper {
+	
+	/**
+	 * THe name of the memory mapped mbean
+	 */
+	protected static final String MBEAN_NAME = "java.nio:type=BufferPool,name=mapped";
 	
 	/**
 	 * Is the direct memory unmapper available? (Oracle JVM specific)
@@ -70,4 +79,31 @@ public class UnsafeMemoryHelper {
 		}
 	}
 
+	/**
+	 * Get the number of mapped segments
+	 * @return
+	 * @throws Exception
+	 */
+	public static long getMappedSegments() throws Exception {
+		final ObjectName objectName = new ObjectName(MBEAN_NAME);
+		final MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+		final Long mmapCount = (Long) mbeanServer.getAttribute(objectName, "Count");
+		
+		return mmapCount.longValue();
+	}
+	
+	/**
+	 * Get the number of mapped bytes
+	 * @return
+	 * @throws Exception
+	 */
+	public static long getMappedBytes() throws Exception {
+		final ObjectName objectName = new ObjectName(MBEAN_NAME);
+		final MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+		
+		final Long mmapMemoryUsed = (Long) mbeanServer.getAttribute(objectName, "MemoryUsed");
+		
+		return mmapMemoryUsed.longValue();
+	}
+	
 }

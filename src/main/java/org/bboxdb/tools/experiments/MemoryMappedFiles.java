@@ -20,7 +20,6 @@ package org.bboxdb.tools.experiments;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.management.ManagementFactory;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.HashSet;
@@ -30,9 +29,7 @@ import java.util.concurrent.TimeUnit;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.bboxdb.util.MathUtil;
@@ -44,8 +41,6 @@ import org.bboxdb.util.io.UnsafeMemoryHelper;
  */
 public class MemoryMappedFiles {
 	
-	
-
 	/**
 	 * The size of one MB
 	 */
@@ -56,33 +51,28 @@ public class MemoryMappedFiles {
 	 */
 	protected static void printMemoryStatistics() {
 		final long maxMemory = Runtime.getRuntime().maxMemory();
-		System.out.println("Maximum memory (bytes): " + (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory));
+		
+		System.out.println("Maximum memory (bytes): " 
+				+ (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory));
 
-		System.out.println("Total memory (bytes): " + Runtime.getRuntime().totalMemory());
+		System.out.println("Total memory (bytes): " 
+				+ Runtime.getRuntime().totalMemory());
 
-		System.out.println("Free memory within total (bytes): " + Runtime.getRuntime().freeMemory());
+		System.out.println("Free memory within total (bytes): " 
+				+ Runtime.getRuntime().freeMemory());
 	}
 
 	/**
 	 * Print the memory mapped MBean data
 	 * 
 	 * @param args
-	 * @throws MalformedObjectNameException
-	 * @throws MBeanException
-	 * @throws ReflectionException
-	 * @throws AttributeNotFoundException
-	 * @throws InstanceNotFoundException
+	 * @throws Exception
 	 */
-	protected static void printMappedStatistics() throws MalformedObjectNameException, InstanceNotFoundException,
-			AttributeNotFoundException, ReflectionException, MBeanException {
+	protected static void printMappedStatistics() throws Exception {
 
-		final ObjectName objectName = new ObjectName("java.nio:type=BufferPool,name=mapped");
-		final MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
-		final Long mmapCount = (Long) mbeanServer.getAttribute(objectName, "Count");
-		final Long mmapMemoryUsed = (Long) mbeanServer.getAttribute(objectName, "MemoryUsed");
-
-		System.out.format("Number of mmaps %d number of mmap memory %d\n", mmapCount.longValue(),
-				mmapMemoryUsed.longValue());
+		System.out.format("Number of mmaps %d number of mmap memory %d\n", 
+				UnsafeMemoryHelper.getMappedSegments(),
+				UnsafeMemoryHelper.getMappedBytes());
 		
 		final boolean unmapperState = UnsafeMemoryHelper.isDirectMemoryUnmapperAvailable();
 		
