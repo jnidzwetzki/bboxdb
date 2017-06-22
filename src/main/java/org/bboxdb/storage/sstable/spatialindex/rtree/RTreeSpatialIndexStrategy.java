@@ -21,8 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
 
 import org.bboxdb.storage.StorageManagerException;
@@ -167,11 +169,50 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		if(entry.getBoundingBox() == null || entry.getBoundingBox() == BoundingBox.EMPTY_BOX) {
 			return false;
 		}
-
-		final RTreeDirectoryNode insertedNode = rootNode.insertEntryIntoIndex(entry);
-		adjustTree(insertedNode);	
+		
+		final RTreeDirectoryNode childNode = insert(rootNode, entry);
+		adjustTree(childNode);	
 		
 		return true;
+	}
+	
+	/**
+	 * Insert the given RTreeSpatialIndexEntry into the tree into the base node or below
+	 * @param insertBaseNode
+	 * @param entry
+	 * @return
+	 */
+	protected RTreeDirectoryNode insert(final RTreeDirectoryNode insertBaseNode, final SpatialIndexEntry entry) {
+
+		final BoundingBox entryBox = entry.getBoundingBox();
+		
+		RTreeDirectoryNode childNode = insertBaseNode;
+
+		final Deque<RTreeDirectoryNode> path = new ArrayDeque<>();
+		path.add(childNode);
+		
+		while(! childNode.isLeafNode()) {
+			if(childNode.getDirectoryNodeChilds().isEmpty()) {
+				throw new RuntimeException("This is a !leaf node with no childs?");
+			}
+		
+			childNode = childNode.findBestNodeForInsert(entryBox);
+			path.push(childNode);
+
+			if(childNode == null) {
+				throw new RuntimeException("Unable to find a node for insert");
+			}
+		}
+		
+		childNode.getIndexEntries().add(entry);
+		
+
+		while(! path.isEmpty()) {
+			final RTreeDirectoryNode tmpNode = path.pop();
+			tmpNode.updateBoundingBox();
+		}
+		
+		return childNode;
 	}
 
 	/**
@@ -188,12 +229,14 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		
 		// Adjust beginning from the bottom
 		do {
-			
+			//nodeToCheck.testCovering();
+
 			if(nodeToCheck.getSize() > maxNodeSize) {
 				nodeToCheck = splitNode(insertedNode);
+			} else {
+				nodeToCheck = nodeToCheck.getParentNode();
 			}
 			
-			nodeToCheck = nodeToCheck.getParentNode();
 		} while(nodeToCheck != null);	
 	}
 
@@ -235,7 +278,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		newNode2.updateBoundingBox();
 		newParent.updateBoundingBox();
 		
-		return newNode1;
+		return newParent;
 	}
 
 	/**
@@ -302,7 +345,8 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 	 * @param newNode1
 	 * @param newNode2
 	 */
-	protected void distributeLeafData(final RTreeDirectoryNode nodeToSplit, final RTreeDirectoryNode newNode1,
+	protected void distributeLeafData(final RTreeDirectoryNode nodeToSplit, 
+			final RTreeDirectoryNode newNode1,
 			final RTreeDirectoryNode newNode2) {
 		
 		final List<SpatialIndexEntry> dataToDistribute = nodeToSplit.getIndexEntries();
@@ -311,8 +355,8 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		final QuadraticSeedPicker<SpatialIndexEntry> seedPicker = new QuadraticSeedPicker<>();
 		seedPicker.quadraticPickSeeds(dataToDistribute, seeds);
 
-		newNode1.insertEntryIntoIndex(seeds.get(0));
-		newNode2.insertEntryIntoIndex(seeds.get(1));
+		insert(newNode1, seeds.get(0));
+		insert(newNode2, seeds.get(1));
 		
 		for(int i = 0; i < dataToDistribute.size(); i++) {
 			newNode1.updateBoundingBox();
@@ -322,12 +366,12 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 			final SpatialIndexEntry entry = dataToDistribute.get(i);
 			
 			if(newNode1.getIndexEntries().size() + remainingObjects <= maxNodeSize / 2) {
-				newNode1.insertEntryIntoIndex(entry);
+				insert(newNode1, entry);
 				continue;
 			}
 			
 			if(newNode2.getIndexEntries().size() + remainingObjects <= maxNodeSize / 2) {
-				newNode2.insertEntryIntoIndex(entry);
+				insert(newNode2, entry);
 				continue;
 			}
 			
@@ -336,19 +380,19 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		
 			if(node1Enlargement == node2Enlargement) {
 				if(newNode1.getIndexEntries().size() < newNode2.getIndexEntries().size()) {
-					newNode1.insertEntryIntoIndex(entry);
+					insert(newNode1, entry);
 					continue;
 				} else {
-					newNode2.insertEntryIntoIndex(entry);
+					insert(newNode2, entry);
 					continue;
 				}
 			}
 			
 			if(node1Enlargement < node2Enlargement) {
-				newNode1.insertEntryIntoIndex(entry);
+				insert(newNode1, entry);
 				continue;
 			} else {
-				newNode2.insertEntryIntoIndex(entry);
+				insert(newNode2, entry);
 				continue;
 			}
 		}

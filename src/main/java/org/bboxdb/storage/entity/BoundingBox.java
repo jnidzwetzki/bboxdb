@@ -563,7 +563,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	}
 
 	/**
-	 * Throw an exception of the dimensiuon of the other box don't match
+	 * Throw an exception of the dimension of the other box don't match
 	 * @param otherBox
 	 */
 	protected void throwExceptionIfDimensionNotMatch(final BoundingBox otherBox) {

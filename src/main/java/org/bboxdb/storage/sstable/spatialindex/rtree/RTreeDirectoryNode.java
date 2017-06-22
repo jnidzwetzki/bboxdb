@@ -135,39 +135,6 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 		
 		return indexEntries.remove(entry);
 	}
-
-	
-	/**
-	 * Add an entry to the leaf node
-	 * @param spatialIndexEntry
-	 * @return 
-	 */
-	public RTreeDirectoryNode insertEntryIntoIndex(final SpatialIndexEntry entry) {
-		
-		final BoundingBox entryBox = entry.getBoundingBox();
-		
-		if(isLeafNode()) {
-			indexEntries.add(entry);
-			updateBoundingBox();
-			
-			// Return the leaf node that has stored the data
-			return this;
-		} else {
-			if(directoryNodeChilds.isEmpty()) {
-				throw new RuntimeException("This is a !leaf node with no childs?");
-			}
-		
-			final RTreeDirectoryNode bestNode = findBestNodeForInsert(entryBox);
-			
-			if(bestNode == null) {
-				throw new RuntimeException("Unable to find a node for insert");
-			}
-
-			final RTreeDirectoryNode result = bestNode.insertEntryIntoIndex(entry);
-			updateBoundingBox();
-			return result;
-		}
-	}
 	
 	/**
 	 * Recalculate the bounding box of all entries
@@ -278,6 +245,9 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 		
 		for(final RTreeDirectoryNode entry : directoryNodeChilds) {
 			
+			assert boundingBox != null;
+			assert entry.getBoundingBox() != null : "Null BBox: " + entry;
+
 			if(! boundingBox.isCovering(entry.getBoundingBox())) {
 				System.err.println("Error 3a: " + boundingBox + " does not cover" + entry.getBoundingBox());
 				entry.updateBoundingBox();
@@ -432,6 +402,14 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 		if (nodeId != other.nodeId)
 			return false;
 		return true;
+	}
+	
+	/**
+	 * Get the node id
+	 * @return
+	 */
+	public int getNodeId() {
+		return nodeId;
 	}
 
 }
