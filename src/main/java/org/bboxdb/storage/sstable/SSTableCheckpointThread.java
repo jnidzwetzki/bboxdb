@@ -136,8 +136,10 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 * Log statistics about memory consumption
 	 */
 	protected void logMemoryStatistics() {
-		logger.info("Maximum memory (bytes): {}", Runtime.getRuntime().maxMemory());
-		logger.info("Total memory (bytes): {}",  Runtime.getRuntime().totalMemory());
-		logger.info("Free memory within total (bytes): {}", Runtime.getRuntime().freeMemory());
+		logger.info("Maximum memory (bytes): {}, Total memory (bytes): {}, "
+				+ "Free memory within total (bytes): {}", 
+				Runtime.getRuntime().maxMemory(),
+				Runtime.getRuntime().totalMemory(),
+				Runtime.getRuntime().freeMemory());
 	}
 }
