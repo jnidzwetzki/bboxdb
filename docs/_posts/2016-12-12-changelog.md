@@ -21,6 +21,7 @@ order: 1
 - Bugfix: Handle non empty systems list in tuple insert as error
 - Bugfix: Reread systems list on insert tuple, when no systems are detected for BBox
 - Bugfix: Fixed handling of meta data when multiple storage locations are used
+- Bugfix: Tuples were inserted twice in the spatial index
 
 ### Version 0.3.0 (Stable) - 17.06.2017
 - New Feature: Added the TestFixedGrid experiment

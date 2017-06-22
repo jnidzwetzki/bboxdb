@@ -25,12 +25,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.SSTableMetaData;
+import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -307,14 +306,7 @@ public class SSTableWriter implements AutoCloseable {
 			logger.error(error);
 			throw new StorageManagerException(error);
 		}
-		
-		final List<SpatialIndexEntry> indexEntries = tuples
-				.stream()
-				.map(t -> new SpatialIndexEntry(t.getKey(), t.getBoundingBox()))
-				.collect(Collectors.toList());
-		
-		spatialIndex.bulkInsert(indexEntries);
-		
+
 		try {
 			for(final Tuple tuple : tuples) {
 				addNextTuple(tuple);
@@ -348,6 +340,7 @@ public class SSTableWriter implements AutoCloseable {
 			final SpatialIndexEntry sIndexentry 
 				= new SpatialIndexEntry(tuple.getKey(), tuple.getBoundingBox());
 			spatialIndex.insert(sIndexentry);
+
 		} catch (IOException e) {
 			exceptionDuringWrite = true;
 			throw new StorageManagerException("Unable to write tuple to SSTable", e);
