@@ -25,6 +25,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.registry.Storage;
 import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.util.FileSizeHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,8 +156,12 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 		final long freeMemory = Runtime.getRuntime().freeMemory();
 		final long maxMemory = Runtime.getRuntime().maxMemory();
 		final long usedMemory = totalMemory - freeMemory;
-		logger.info("Maximum memory (bytes): {}, Total memory (bytes): {}, "
-				+ "Free memory within total (bytes): {}, Used (bytes) {}", 
-				maxMemory, totalMemory, freeMemory, usedMemory);
+		
+		logger.info("Maximum memory: {}, Total memory: {}, "
+				+ "Free memory within total: {}, Used memory {}", 
+				FileSizeHelper.readableFileSize(maxMemory),
+				FileSizeHelper.readableFileSize(totalMemory), 
+				FileSizeHelper.readableFileSize(freeMemory), 
+				FileSizeHelper.readableFileSize(usedMemory));
 	}
 }
