@@ -17,6 +17,7 @@ order: 1
 - Improvement: Added unmapper for memory mapped regions
 - Improvement: The R-Tree index is now written to disk. Before, the index was recalculated on every SSTable opening
 - Improvement: The R-Tree index is now calculated non-recursive to safe call stack memory
+- Improvement: The R-Tree index now is based on tuple positions instead of keys
 - Bugfix: Prevent duplicate distribution of in-memory data
 - Bugfix: Handle non empty systems list in tuple insert as error
 - Bugfix: Reread systems list on insert tuple, when no systems are detected for BBox

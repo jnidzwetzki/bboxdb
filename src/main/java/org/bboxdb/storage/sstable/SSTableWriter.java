@@ -114,6 +114,11 @@ public class SSTableWriter implements AutoCloseable {
 	protected boolean exceptionDuringWrite;
 	
 	/**
+	 * The amount of written tuples
+	 */
+	protected long writtenTuples;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableWriter.class);
@@ -126,6 +131,7 @@ public class SSTableWriter implements AutoCloseable {
 		this.tablenumber = tablenumber;		
 		this.metadataBuilder = new SSTableMetadataBuilder();
 		this.exceptionDuringWrite = false;
+		writtenTuples = 0;
 		
 		// Bloom Filter
 		final String sstableBloomFilterFilename = SSTableHelper.getSSTableBloomFilterFilename(directory, name, tablenumber);
@@ -338,9 +344,10 @@ public class SSTableWriter implements AutoCloseable {
 			
 			// Add tuple to the spatial index
 			final SpatialIndexEntry sIndexentry 
-				= new SpatialIndexEntry(tuple.getKey(), tuple.getBoundingBox());
+				= new SpatialIndexEntry(tuple.getBoundingBox(), writtenTuples);
 			spatialIndex.insert(sIndexentry);
 
+			writtenTuples++;
 		} catch (IOException e) {
 			exceptionDuringWrite = true;
 			throw new StorageManagerException("Unable to write tuple to SSTable", e);

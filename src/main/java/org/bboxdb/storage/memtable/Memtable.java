@@ -160,7 +160,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 
 		data[freePos] = value;
 		bloomFilter.put(value.getKey());
-		spatialIndex.insert(new SpatialIndexEntry(value.getKey(), value.getBoundingBox()));
+		final SpatialIndexEntry indexEntry = new SpatialIndexEntry(value.getBoundingBox(), freePos);
+		spatialIndex.insert(indexEntry);
 		
 		freePos++;
 		sizeInMemory = sizeInMemory + value.getSize();
@@ -483,8 +484,8 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 			@Override
 			public Tuple next() {
 				final SpatialIndexEntry entry = keyIterator.next();
-				final String key = entry.getKey();
-				return get(key);
+				final int pos = (int) entry.getValue();
+				return data[pos];
 			}
 		};
 	}

@@ -141,10 +141,10 @@ public class TestSpatialRTreeIndex {
 			final List<? extends SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
 			Assert.assertTrue(resultList.size() >= 1);
 			
-			final List<String> keyResult = resultList
+			final List<Long> keyResult = resultList
 					.stream()
-					.map(e -> e.getKey())
-					.filter(k -> k.equals(entry.getKey()))
+					.map(e -> e.getValue())
+					.filter(k -> k.equals(entry.getValue()))
 					.collect(Collectors.toList());
 
 			Assert.assertTrue("Searching for: " + entry, keyResult.size() == 1);
@@ -157,16 +157,16 @@ public class TestSpatialRTreeIndex {
 	 */
 	protected List<SpatialIndexEntry> getEntryList() {
 		final List<SpatialIndexEntry> entryList = new ArrayList<SpatialIndexEntry>();
-		entryList.add(new SpatialIndexEntry("abc", new BoundingBox(0d, 1d, 0d, 1d)));
-		entryList.add(new SpatialIndexEntry("def", new BoundingBox(1d, 2d, 1d, 3d)));
-		entryList.add(new SpatialIndexEntry("fgh", new BoundingBox(2d, 3d, 0d, 1d)));
-		entryList.add(new SpatialIndexEntry("ijk", new BoundingBox(3d, 4d, 3d, 7d)));
-		entryList.add(new SpatialIndexEntry("lmn", new BoundingBox(1.2d, 2.2d, 0d, 1d)));
-		entryList.add(new SpatialIndexEntry("ijk", new BoundingBox(4.6d, 5.6d, 0d, 1d)));
-		entryList.add(new SpatialIndexEntry("dwe", new BoundingBox(5.2d, 6.2d, 4d, 5d)));
-		entryList.add(new SpatialIndexEntry("gwd", new BoundingBox(5.1d, 6.1d, 0d, 1d)));
-		entryList.add(new SpatialIndexEntry("fs3", new BoundingBox(6.1d, 7.1d, 0d, 1d)));
-		entryList.add(new SpatialIndexEntry("xyz", new BoundingBox(8.1d, 9.1d, 2d, 5d)));
+		entryList.add(new SpatialIndexEntry(new BoundingBox(0d, 1d, 0d, 1d), 1));
+		entryList.add(new SpatialIndexEntry(new BoundingBox(1d, 2d, 1d, 3d), 2));
+		entryList.add(new SpatialIndexEntry(new BoundingBox(2d, 3d, 0d, 1d), 3));
+		entryList.add(new SpatialIndexEntry(new BoundingBox(3d, 4d, 3d, 7d), 4));
+		entryList.add(new SpatialIndexEntry(new BoundingBox(1.2d, 2.2d, 0d, 1d), 5));
+		entryList.add(new SpatialIndexEntry(new BoundingBox(4.6d, 5.6d, 0d, 1d), 6));
+		entryList.add(new SpatialIndexEntry(new BoundingBox(5.2d, 6.2d, 4d, 5d), 7));
+		entryList.add(new SpatialIndexEntry(new BoundingBox(5.1d, 6.1d, 0d, 1d), 8));
+		entryList.add(new SpatialIndexEntry(new BoundingBox(6.1d, 7.1d, 0d, 1d), 9));
+		entryList.add(new SpatialIndexEntry(new BoundingBox(8.1d, 9.1d, 2d, 5d), 10));
 		return entryList;
 	}
 	
@@ -188,7 +188,7 @@ public class TestSpatialRTreeIndex {
 				boundingBoxData[2 * d + 1] = begin+extent; // End coordinate
 			}
 			
-			final SpatialIndexEntry entry = new SpatialIndexEntry(Integer.toBinaryString(i), new BoundingBox(boundingBoxData));
+			final SpatialIndexEntry entry = new SpatialIndexEntry(new BoundingBox(boundingBoxData), i);
 			entryList.add(entry);
 		}
 
@@ -204,7 +204,7 @@ public class TestSpatialRTreeIndex {
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		final BoundingBox boundingBox = new BoundingBox(4.1, 8.1, 4.2, 8.8);
 		
-		final SpatialIndexEntry rTreeSpatialIndexEntry = new SpatialIndexEntry("abc", boundingBox);
+		final SpatialIndexEntry rTreeSpatialIndexEntry = new SpatialIndexEntry(boundingBox, 1);
 		rTreeSpatialIndexEntry.writeToStream(bos);
 		bos.close();
 		
@@ -217,7 +217,7 @@ public class TestSpatialRTreeIndex {
 
 		bis.close();
 		
-		Assert.assertEquals(rTreeSpatialIndexEntry.getKey(), readEntry.getKey());
+		Assert.assertEquals(rTreeSpatialIndexEntry.getValue(), readEntry.getValue());
 		Assert.assertEquals(rTreeSpatialIndexEntry.getBoundingBox(), readEntry.getBoundingBox());
 	}
 

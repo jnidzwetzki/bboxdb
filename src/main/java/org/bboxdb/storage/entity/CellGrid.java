@@ -144,7 +144,7 @@ public class CellGrid {
 		// Build spatial index
 		final List<SpatialIndexEntry> indexEntries = allBoxes
 				.stream()
-				.map(b -> new SpatialIndexEntry("1", b))
+				.map(b -> new SpatialIndexEntry(b, 1))
 				.collect(Collectors.toList());
 		
 		spatialIndex.bulkInsert(indexEntries);

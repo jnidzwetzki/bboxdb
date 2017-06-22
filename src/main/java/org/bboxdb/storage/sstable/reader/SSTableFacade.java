@@ -443,11 +443,11 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 			@Override
 			public Tuple next() {
 				final SpatialIndexEntry entry = (SpatialIndexEntry) entryIterator.next();
-				final String key = entry.getKey();
+				final long tupleNumber = entry.getValue();
 				
 				try {
-					return get(key);
-				} catch (StorageManagerException e) {
+					return ssTableKeyIndexReader.getTupleForIndexEntry(tupleNumber);
+				} catch (StorageManagerException | IOException e) {
 					throw new RuntimeException(e);
 				}
 			}
