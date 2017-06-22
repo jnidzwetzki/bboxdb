@@ -9,13 +9,13 @@ order: 1
 - Improvement: A fixed amount of memtable flush threads is used per storage
 - Improvement: Only one checkpoint thread per storage
 - Improvement: Only one compact thread per storage 
+- Improvement: Only one split task per storage 
 - Improvement: Made service init interruptable
 - Improvement: Better spread statistics
 - Improvement: Enabled Zookeeper logging
-- Improvement: Only execute one split / compact task per storage 
 - Improvement: Removed StorageRegistry singleton
 - Improvement: Added unmapper for memory mapped regions
-- Improvement: The R-Tree index is now written to disk. Before, the index was recalculated on every SSTable opening
+- Improvement: The R-Tree index is now written to disk. In previous versions, the index was recalculated on every SSTable opening
 - Improvement: The R-Tree index is now calculated non-recursive to safe call stack memory
 - Improvement: The R-Tree index now is based on tuple positions instead of keys
 - Bugfix: Prevent duplicate distribution of in-memory data
