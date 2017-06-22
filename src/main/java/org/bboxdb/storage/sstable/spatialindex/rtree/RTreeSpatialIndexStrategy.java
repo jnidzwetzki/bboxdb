@@ -189,7 +189,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		RTreeDirectoryNode childNode = insertBaseNode;
 
 		final Deque<RTreeDirectoryNode> path = new ArrayDeque<>();
-		path.add(childNode);
+		path.push(childNode);
 		
 		while(! childNode.isLeafNode()) {
 			if(childNode.getDirectoryNodeChilds().isEmpty()) {
