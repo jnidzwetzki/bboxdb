@@ -72,18 +72,34 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 					return;
 				}
 				
-				try {
-					Thread.sleep(SSTableConst.CHECKPOINT_THREAD_DELAY);
-					final SSTableManager ssTableManager = storageRegistry.getSSTableManager(ssTableName);
-					createCheckpoint(ssTableManager);
-				} catch (InterruptedException e) {
-					logger.debug("Got interrupted exception, stopping checkpoint thread");
-					Thread.currentThread().interrupt();
-					return;
-				} catch (StorageManagerException e) {
-					logger.error("Got exception while creating checkpoint");
-				}
-			}			
+				createCheckpointIfNedded(storageRegistry, ssTableName);
+			}
+			
+			try {
+				Thread.sleep(SSTableConst.CHECKPOINT_THREAD_DELAY);
+				logger.info("Chekpoint thread was interrupted");
+				return;
+			} catch (InterruptedException e) {
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Create a checkpoint if needed
+	 * @param storageRegistry
+	 * @param ssTableName
+	 */
+	protected void createCheckpointIfNedded(final StorageRegistry storageRegistry, 
+			final SSTableName ssTableName) {
+		try {
+			final SSTableManager ssTableManager = storageRegistry.getSSTableManager(ssTableName);
+			createCheckpoint(ssTableManager);
+		} catch (InterruptedException e) {
+			logger.debug("Got interrupted exception, stopping checkpoint thread");
+			Thread.currentThread().interrupt();
+		} catch (StorageManagerException e) {
+			logger.error("Got exception while creating checkpoint");
 		}
 	}
 	
