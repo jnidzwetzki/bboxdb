@@ -49,18 +49,35 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 	/**
 	 * The max size of a child node
 	 */
-	protected final int maxNodeSize;
+	protected int maxNodeSize;
 	
 	/**
 	 * The default max node size
 	 */
 	public final static int DEFAULT_NODE_SIZE = 64;
 	
+	/**
+	 * The byte for a non existing child node
+	 */
+	protected final static byte MAGIC_CHILD_NODE_NOT_EXISTING = 0;
+	
+	/**
+	 * The byte for a following child node
+	 */
+	protected final static byte MAGIC_CHILD_NODE_FOLLOWING = 1;
+	
+
 	public RTreeSpatialIndexStrategy() {
 		this(DEFAULT_NODE_SIZE);
 	}
 
 	public RTreeSpatialIndexStrategy(final int maxNodeSize) {
+		
+		if(maxNodeSize <= 0) {
+			throw new IllegalArgumentException("Unable to construct an index with max node size: " 
+					+ maxNodeSize);
+		}
+		
 		this.maxNodeSize = maxNodeSize;
 		this.nodeFactory = new RTreeNodeFactory();
 		this.rootNode = nodeFactory.buildDirectoryNode();
@@ -73,7 +90,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 	 * @throws StorageManagerException
 	 * @throws IOException 
 	 */
-	protected void validateStream(final InputStream inputStream) throws IOException, StorageManagerException {
+	protected static void validateStream(final InputStream inputStream) throws IOException, StorageManagerException {
 		
 		// Validate file - read the magic from the beginning
 		final byte[] magicBytes = new byte[SSTableConst.MAGIC_BYTES_SPATIAL_INDEX.length];
@@ -93,20 +110,8 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		try {
 			// Validate the magic bytes
 			validateStream(inputStream);
-			
-			final byte[] elementBytes = new byte[DataEncoderHelper.INT_BYTES];
-			ByteStreams.readFully(inputStream, elementBytes, 0, elementBytes.length);
-			final int elements = DataEncoderHelper.readIntFromByte(elementBytes);
-		
-			for(int i = 0; i < elements; i++) {
-				final RTreeSpatialIndexEntry entry = RTreeSpatialIndexEntry.readFromStream(inputStream);
-				insert(entry);
-				
-				if(Thread.currentThread().isInterrupted()) {
-					throw new InterruptedException();
-				}
-			}
-			
+			maxNodeSize = DataEncoderHelper.readIntFromStream(inputStream);
+			rootNode = RTreeDirectoryNode.readFromStream(inputStream, maxNodeSize);
 		} catch (IOException e) {
 			throw new StorageManagerException(e);
 		}
@@ -119,18 +124,13 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 			// Write the magic bytes
 			outputStream.write(SSTableConst.MAGIC_BYTES_SPATIAL_INDEX);
 			
-			// Write only index entries.
-			// The index structure is reconstructed in memory
-			// with a bulk insert.
-			final List<RTreeSpatialIndexEntry> entries = rootNode.getEntriesForRegion(BoundingBox.EMPTY_BOX);
-			
-			final ByteBuffer nodes = DataEncoderHelper.intToByteBuffer(entries.size());
-			outputStream.write(nodes.array());
-			
-			for(final RTreeSpatialIndexEntry entry : entries) {
-				entry.writeToStream(outputStream);
-			}
-			
+			// Write the tree configuration
+			final ByteBuffer nodeSizeBytes = DataEncoderHelper.intToByteBuffer(maxNodeSize);
+			outputStream.write(nodeSizeBytes.array());
+
+			// Write nodes
+			rootNode.writeToStream(outputStream, maxNodeSize);
+
 		} catch (IOException e) {
 			throw new StorageManagerException(e);
 		}
@@ -155,19 +155,14 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		
 		return result;
 	}
-
-	@Override
-	public boolean insert(final SpatialIndexEntry entry) {
-		final RTreeSpatialIndexEntry treeEntry = nodeFactory.buildRTreeIndex(entry);
-		return insert(treeEntry);
-	}
 	
 	/**
 	 * Insert the given RTreeSpatialIndexEntry into the tree
 	 * @param entry
 	 * @return 
 	 */
-	protected boolean insert(final RTreeSpatialIndexEntry entry) {
+	@Override
+	public boolean insert(final SpatialIndexEntry entry) {
 
 		if(entry.getBoundingBox() == null || entry.getBoundingBox() == BoundingBox.EMPTY_BOX) {
 			return false;
@@ -310,10 +305,10 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 	protected void distributeLeafData(final RTreeDirectoryNode nodeToSplit, final RTreeDirectoryNode newNode1,
 			final RTreeDirectoryNode newNode2) {
 		
-		final List<RTreeSpatialIndexEntry> dataToDistribute = nodeToSplit.getIndexEntries();
-		final List<RTreeSpatialIndexEntry> seeds = new ArrayList<>();
+		final List<SpatialIndexEntry> dataToDistribute = nodeToSplit.getIndexEntries();
+		final List<SpatialIndexEntry> seeds = new ArrayList<>();
 		
-		final QuadraticSeedPicker<RTreeSpatialIndexEntry> seedPicker = new QuadraticSeedPicker<>();
+		final QuadraticSeedPicker<SpatialIndexEntry> seedPicker = new QuadraticSeedPicker<>();
 		seedPicker.quadraticPickSeeds(dataToDistribute, seeds);
 
 		newNode1.insertEntryIntoIndex(seeds.get(0));
@@ -324,7 +319,7 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 			newNode2.updateBoundingBox();
 
 			final int remainingObjects = dataToDistribute.size() - i;
-			final RTreeSpatialIndexEntry entry = dataToDistribute.get(i);
+			final SpatialIndexEntry entry = dataToDistribute.get(i);
 			
 			if(newNode1.getIndexEntries().size() + remainingObjects <= maxNodeSize / 2) {
 				newNode1.insertEntryIntoIndex(entry);

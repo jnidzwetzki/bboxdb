@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.tools;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.util.io.DataEncoderHelper;
@@ -70,11 +72,15 @@ public class TestDataEncoderHelper {
 	}
 	
 	@Test
-	public void testInt() {
+	public void testInt() throws IOException {
 		final int intValue = 4534545;
 		final ByteBuffer byteValue = DataEncoderHelper.intToByteBuffer(intValue);
-		final long result = DataEncoderHelper.readIntFromByte(byteValue.array());
+		final int result = DataEncoderHelper.readIntFromByte(byteValue.array());
 		Assert.assertEquals(intValue, result);
+		
+		final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteValue.array());
+		final int streamInt = DataEncoderHelper.readIntFromStream(byteArrayInputStream);
+		Assert.assertEquals(intValue, streamInt);
 	}
 	
 	@Test

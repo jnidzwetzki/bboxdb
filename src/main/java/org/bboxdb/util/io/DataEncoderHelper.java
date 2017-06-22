@@ -17,9 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.util.io;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.misc.Const;
+
+import com.google.common.io.ByteStreams;
 
 public class DataEncoderHelper {
 	
@@ -194,6 +198,18 @@ public class DataEncoderHelper {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
 		return byteBuffer.getInt();
+	}
+	
+	/**
+	 * Read an integer from a stream
+	 * @param inputStream
+	 * @return
+	 * @throws IOException 
+	 */
+	public static int readIntFromStream(final InputStream inputStream) throws IOException {
+		final byte[] elementBytes = new byte[DataEncoderHelper.INT_BYTES];
+		ByteStreams.readFully(inputStream, elementBytes, 0, elementBytes.length);
+		return DataEncoderHelper.readIntFromByte(elementBytes);
 	}
 	
 	/**

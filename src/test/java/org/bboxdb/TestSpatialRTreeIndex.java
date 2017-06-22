@@ -27,9 +27,8 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
-import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexEntry;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy;
 import org.junit.Assert;
 import org.junit.Test;
@@ -175,7 +174,7 @@ public class TestSpatialRTreeIndex {
 	 * Generate some random tuples
 	 * @return
 	 */
-	protected List<SpatialIndexEntry> generateRandomTupleList(int dimensions) {
+	protected List<SpatialIndexEntry> generateRandomTupleList(final int dimensions) {
 		final List<SpatialIndexEntry> entryList = new ArrayList<SpatialIndexEntry>();
 		final Random random = new Random();
 		
@@ -205,7 +204,7 @@ public class TestSpatialRTreeIndex {
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		final BoundingBox boundingBox = new BoundingBox(4.1, 8.1, 4.2, 8.8);
 		
-		final RTreeSpatialIndexEntry rTreeSpatialIndexEntry = new RTreeSpatialIndexEntry(3, "abc", boundingBox);
+		final SpatialIndexEntry rTreeSpatialIndexEntry = new SpatialIndexEntry("abc", boundingBox);
 		rTreeSpatialIndexEntry.writeToStream(bos);
 		bos.close();
 		
@@ -213,16 +212,55 @@ public class TestSpatialRTreeIndex {
 		final ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
 		
 		Assert.assertTrue(bis.available() > 0);
-		final RTreeSpatialIndexEntry readEntry = RTreeSpatialIndexEntry.readFromStream(bis);
+		final SpatialIndexEntry readEntry = SpatialIndexEntry.readFromStream(bis);
 		Assert.assertTrue(bis.available() == 0);
 
 		bis.close();
 		
 		Assert.assertEquals(rTreeSpatialIndexEntry.getKey(), readEntry.getKey());
-		Assert.assertEquals(rTreeSpatialIndexEntry.getNodeId(), readEntry.getNodeId());
 		Assert.assertEquals(rTreeSpatialIndexEntry.getBoundingBox(), readEntry.getBoundingBox());
 	}
 
+	/**
+	 * Test the creation of a rtree with a invalid max node size
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testWrongNodeSize0() {
+		new RTreeSpatialIndexStrategy(0);
+	}
+	
+	/**
+	 * Test the creation of a rtree with a invalid max node size
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testWrongNodeSize1() {
+		new RTreeSpatialIndexStrategy(-1);
+	}
+	
+	/**
+	 * Test different node size
+	 * @throws StorageManagerException
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	@Test
+	public void testSerializeIndex0() throws StorageManagerException, IOException, InterruptedException {
+		final int maxNodeSize = 12;
+		final RTreeSpatialIndexStrategy index = new RTreeSpatialIndexStrategy(maxNodeSize);
+		
+		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		index.writeToStream(bos);
+		bos.close();
+		
+		final byte[] bytes = bos.toByteArray();
+		final ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+		final RTreeSpatialIndexStrategy indexRead = new RTreeSpatialIndexStrategy();
+		indexRead.readFromStream(bis);
+
+		Assert.assertEquals(maxNodeSize, index.getMaxNodeSize());
+		Assert.assertEquals(maxNodeSize, indexRead.getMaxNodeSize());
+	}
+	
 	/**
 	 * Test the encoding and the decoding of the index
 	 * @throws StorageManagerException 
@@ -230,7 +268,7 @@ public class TestSpatialRTreeIndex {
 	 * @throws InterruptedException 
 	 */
 	@Test
-	public void testSerializeIndex() throws StorageManagerException, IOException, InterruptedException {
+	public void testSerializeIndex1() throws StorageManagerException, IOException, InterruptedException {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(3);
 		
 		final SpatialIndex index = new RTreeSpatialIndexStrategy();
@@ -244,7 +282,7 @@ public class TestSpatialRTreeIndex {
 		
 		final byte[] bytes = bos.toByteArray();
 		final ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-		RTreeSpatialIndexStrategy indexRead = new RTreeSpatialIndexStrategy();
+		final RTreeSpatialIndexStrategy indexRead = new RTreeSpatialIndexStrategy();
 		
 		Assert.assertTrue(bis.available() > 0);
 		indexRead.readFromStream(bis);

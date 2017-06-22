@@ -17,6 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +29,9 @@ import java.util.stream.Stream;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
+import org.bboxdb.util.io.DataEncoderHelper;
+
+import com.google.common.io.ByteStreams;
 
 public class RTreeDirectoryNode implements BoundingBoxEntity {
 	
@@ -36,7 +43,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	/**
 	 * The leaf node childs
 	 */
-	protected final List<RTreeSpatialIndexEntry> indexEntries;
+	protected final List<SpatialIndexEntry> indexEntries;
 	
 	/**
 	 * The root node 'root' reference
@@ -135,7 +142,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * @param spatialIndexEntry
 	 * @return 
 	 */
-	public RTreeDirectoryNode insertEntryIntoIndex(final RTreeSpatialIndexEntry entry) {
+	public RTreeDirectoryNode insertEntryIntoIndex(final SpatialIndexEntry entry) {
 		
 		final BoundingBox entryBox = entry.getBoundingBox();
 		
@@ -226,13 +233,19 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * @param boundingBox
 	 * @return
 	 */
-	public List<RTreeSpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
-		final List<RTreeSpatialIndexEntry> nodeMatches = indexEntries
+	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
+		
+		assert(boundingBox != null) : "Query bounding box has to be != null";
+		assert(indexEntries != null) : "Index entries has to be != null";
+		assert(directoryNodeChilds != null) : "Directory node childs has to be != null";
+		
+		try {
+		final List<SpatialIndexEntry> nodeMatches = indexEntries
 			.stream()
 			.filter(c -> c.getBoundingBox().overlaps(boundingBox))
 			.collect(Collectors.toList());
 		
-		final List<RTreeSpatialIndexEntry> childMatches = directoryNodeChilds
+		final List<SpatialIndexEntry> childMatches = directoryNodeChilds
 			.stream()
 			.filter(c -> c.getBoundingBox().overlaps(boundingBox))
 			.map(c -> c.getEntriesForRegion(boundingBox))
@@ -241,6 +254,11 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 
 		return Stream.concat(nodeMatches.stream(), childMatches.stream())
 				.collect(Collectors.toList());
+		} catch(NullPointerException e) {
+			System.out.println(e);
+			System.out.println(directoryNodeChilds);
+			return null;
+		}
 	}
 	
 	/**
@@ -297,7 +315,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	}
 	
 	/**
-	 * Get the diretory node childs
+	 * Get the directory node childs
 	 * @return
 	 */
 	public List<RTreeDirectoryNode> getDirectoryNodeChilds() {
@@ -308,9 +326,81 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 * Get the index entries
 	 * @return
 	 */
-	public List<RTreeSpatialIndexEntry> getIndexEntries() {
+	public List<SpatialIndexEntry> getIndexEntries() {
 		return indexEntries;
 	}
+	
+	/**
+	 * Write the node to the stream
+	 * @param outputStream
+	 * @param maxNodeSize 
+	 * @throws IOException
+	 */
+	public void writeToStream(final OutputStream outputStream, final int maxNodeSize) throws IOException {
+	    final ByteBuffer nodeIdBytes = DataEncoderHelper.intToByteBuffer(nodeId);
+	    outputStream.write(nodeIdBytes.array());
+	    
+	    // Write directory nodes
+	    for(int i = 0; i < maxNodeSize; i++) {
+	    	if(i < directoryNodeChilds.size()) {
+	    		outputStream.write(RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_FOLLOWING);
+	    		directoryNodeChilds.get(i).writeToStream(outputStream, maxNodeSize);
+	    	} else {
+	    		outputStream.write(RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_NOT_EXISTING);
+	    	}
+	    }
+	    
+	    // Write entry nodes
+	    for(int i = 0; i < maxNodeSize; i++) {
+	    	if(i < indexEntries.size()) {
+	    		outputStream.write(RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_FOLLOWING);
+	    		indexEntries.get(i).writeToStream(outputStream);
+	    	} else {
+	    		outputStream.write(RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_NOT_EXISTING);
+	    	}
+	    }
+	}
+	
+	/**
+	 * Read the node from the stream
+	 * @param inputStream
+	 * @return
+	 * @throws IOException
+	 */
+	public static RTreeDirectoryNode readFromStream(final InputStream inputStream, final int maxNodeSize) 
+			throws IOException {
+		
+		final int nodeId = DataEncoderHelper.readIntFromStream(inputStream);
+		final RTreeDirectoryNode resultNode = new RTreeDirectoryNode(nodeId);
+		
+		// Read directory nodes
+		for(int i = 0; i < maxNodeSize; i++) {
+			final byte[] followingByte = new byte[1];
+			ByteStreams.readFully(inputStream, followingByte, 0, followingByte.length);
+			
+			if(followingByte[0] == RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_FOLLOWING) {
+				final RTreeDirectoryNode rTreeDirectoryNode = RTreeDirectoryNode.readFromStream(
+						inputStream, maxNodeSize);
+				resultNode.directoryNodeChilds.add(rTreeDirectoryNode);
+			}
+		}
+		
+		// Read index entries
+		for(int i = 0; i < maxNodeSize; i++) {
+			final byte[] followingByte = new byte[1];
+			ByteStreams.readFully(inputStream, followingByte, 0, followingByte.length);
+			
+			if(followingByte[0] == RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_FOLLOWING) {
+				final SpatialIndexEntry spatialIndexEntry = SpatialIndexEntry.readFromStream(inputStream);
+				resultNode.indexEntries.add(spatialIndexEntry);
+			}
+		}
+		
+		resultNode.updateBoundingBox();
+		
+		return resultNode;
+	}
+
 
 	@Override
 	public int hashCode() {

@@ -15,6 +15,7 @@ order: 1
 - Improvement: Only execute one split / compact task per storage 
 - Improvement: Removed StorageRegistry singleton
 - Improvement: Added unmapper for memory mapped regions
+- Improvement: The R-Tree index is now written to disk. Before, the index was recalculated on every SSTable opening
 - Bugfix: Prevent duplicate distribution of in-memory data
 - Bugfix: Handle non empty systems list in tuple insert as error
 - Bugfix: Reread systems list on insert tuple, when no systems are detected for BBox

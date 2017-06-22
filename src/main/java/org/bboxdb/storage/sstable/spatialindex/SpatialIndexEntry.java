@@ -17,7 +17,15 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.util.io.DataEncoderHelper;
+
+import com.google.common.io.ByteStreams;
 
 public class SpatialIndexEntry implements BoundingBoxEntity {
 
@@ -88,4 +96,52 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 		return "SpatialIndexEntry [key=" + key + ", boundingBox=" + boundingBox + "]";
 	}
 	
+	/**
+	 * Write the node to a stream
+	 * @param outputStream
+	 * @throws IOException
+	 */
+	public void writeToStream(final OutputStream outputStream) throws IOException {
+		final byte[] keyBytes = getKey().getBytes();
+
+		final byte[] boundingBoxBytes = boundingBox.toByteArray();
+		
+		final ByteBuffer keyLengthBytes = DataEncoderHelper.shortToByteBuffer((short) keyBytes.length);
+		final ByteBuffer boxLengthBytes = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
+	    
+		outputStream.write(keyLengthBytes.array());
+		outputStream.write(boxLengthBytes.array());
+		
+		outputStream.write(keyBytes);
+		outputStream.write(boundingBoxBytes);
+	}
+	
+	/**
+	 * Read the node from a stream
+	 * @param inputStream
+	 * @return
+	 * @throws IOException 
+	 */
+	public static SpatialIndexEntry readFromStream(final InputStream inputStream) throws IOException {
+		final byte[] keyLengthBytes = new byte[DataEncoderHelper.SHORT_BYTES];
+		final byte[] boxLengthBytes = new byte[DataEncoderHelper.INT_BYTES];
+		
+		ByteStreams.readFully(inputStream, keyLengthBytes, 0, keyLengthBytes.length);
+		ByteStreams.readFully(inputStream, boxLengthBytes, 0, boxLengthBytes.length);
+
+		final short keyLength = DataEncoderHelper.readShortFromByte(keyLengthBytes);
+		final int bboxLength = DataEncoderHelper.readIntFromByte(boxLengthBytes);
+
+		final byte[] keyBytes = new byte[keyLength];
+		final byte[] bboxBytes = new byte[bboxLength];
+		
+		ByteStreams.readFully(inputStream, keyBytes, 0, keyBytes.length);
+		ByteStreams.readFully(inputStream, bboxBytes, 0, bboxBytes.length);
+
+		final String key = new String(keyBytes);
+		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);
+	
+		return new SpatialIndexEntry(key, boundingBox);
+	}
+
 }

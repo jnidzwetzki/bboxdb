@@ -19,8 +19,6 @@ package org.bboxdb.storage.sstable.spatialindex.rtree;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-
 public class RTreeNodeFactory {
 
 	/**
@@ -40,14 +38,6 @@ public class RTreeNodeFactory {
 		return new RTreeDirectoryNode(getNextNodeId());
 	}
 	
-	/**
-	 * Build a new r tree index entry
-	 * @return
-	 */
-	public RTreeSpatialIndexEntry buildRTreeIndex(final SpatialIndexEntry spatialIndexEntry) {
-		return new RTreeSpatialIndexEntry(getNextNodeId(), spatialIndexEntry);
-	}
-
 	/**
 	 * Get the next available node id
 	 * @return
