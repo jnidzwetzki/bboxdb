@@ -77,9 +77,8 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 			
 			try {
 				Thread.sleep(SSTableConst.CHECKPOINT_THREAD_DELAY);
-				logger.info("Chekpoint thread was interrupted");
-				return;
 			} catch (InterruptedException e) {
+				logger.info("Chekpoint thread was interrupted");
 				return;
 			}
 		}
