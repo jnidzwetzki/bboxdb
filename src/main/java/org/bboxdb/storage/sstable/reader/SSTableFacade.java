@@ -32,7 +32,7 @@ import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.entity.SStableMetaData;
+import org.bboxdb.storage.entity.SSTableMetaData;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
@@ -68,7 +68,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	/**
 	 * The metadata of the sstable
 	 */
-	protected final SStableMetaData ssTableMetadata;
+	protected final SSTableMetaData ssTableMetadata;
 	
 	/**
 	 * The spatial index
@@ -112,7 +112,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		
 		// Meta data
 		final File metadataFile = getMetadataFile(directory, tablename, tablenumber);
-		ssTableMetadata = SStableMetaData.importFromYamlFile(metadataFile);
+		ssTableMetadata = SSTableMetaData.importFromYamlFile(metadataFile);
 		
 		this.usage = new AtomicInteger(0);
 		deleteOnClose = false;
@@ -346,7 +346,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		return usage;
 	}
 
-	public SStableMetaData getSsTableMetadata() {
+	public SSTableMetaData getSsTableMetadata() {
 		return ssTableMetadata;
 	}
 

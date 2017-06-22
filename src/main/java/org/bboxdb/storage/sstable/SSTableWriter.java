@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.entity.SStableMetaData;
+import org.bboxdb.storage.entity.SSTableMetaData;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -292,7 +292,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws IOException
 	 */
 	protected void writeMetadata() throws IOException {
-		final SStableMetaData metadata = metadataBuilder.getMetaData();
+		final SSTableMetaData metadata = metadataBuilder.getMetaData();
 		metadata.exportToYamlFile(metadatafile);
 	}
 	

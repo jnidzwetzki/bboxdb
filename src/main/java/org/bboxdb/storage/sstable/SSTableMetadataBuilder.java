@@ -18,7 +18,7 @@
 package org.bboxdb.storage.sstable;
 
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SStableMetaData;
+import org.bboxdb.storage.entity.SSTableMetaData;
 import org.bboxdb.storage.entity.Tuple;
 
 public class SSTableMetadataBuilder {
@@ -72,14 +72,14 @@ public class SSTableMetadataBuilder {
 	 * Get the metadata object for the seen tuples
 	 * @return
 	 */
-	public SStableMetaData getMetaData() {
+	public SSTableMetaData getMetaData() {
 		double[] boundingBoxArray = {};
 		
 		if(boundingBox != null) {
 			boundingBoxArray = boundingBox.toDoubleArray();
 		}
 		
-		return new SStableMetaData(tuples, oldestTupleVersionTimestamp, 
+		return new SSTableMetaData(tuples, oldestTupleVersionTimestamp, 
 				newestTupleVersionTimstamp, newestTupleInsertedTimstamp, boundingBoxArray);
 	}
 }

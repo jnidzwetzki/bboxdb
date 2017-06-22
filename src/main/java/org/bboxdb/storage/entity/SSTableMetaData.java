@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-public class SStableMetaData {
+public class SSTableMetaData {
 	
 	/**
 	 * The amount of tuples
@@ -65,16 +65,16 @@ public class SStableMetaData {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SStableMetaData.class);
+	private final static Logger logger = LoggerFactory.getLogger(SSTableMetaData.class);
 
 
 
 
-	public SStableMetaData() {
+	public SSTableMetaData() {
 		
 	}
 	
-	public SStableMetaData(final long tuples, final long oldestTuple, final long newestTuple, 
+	public SSTableMetaData(final long tuples, final long oldestTuple, final long newestTuple, 
 			final long newestTupleInsertedTimstamp, final double[] boundingBoxData) {
 		
 		this.tuples = tuples;
@@ -133,9 +133,9 @@ public class SStableMetaData {
 	 * @param yaml
 	 * @return
 	 */
-	public static SStableMetaData importFromYaml(final String yamlString) {
+	public static SSTableMetaData importFromYaml(final String yamlString) {
 		  final Yaml yaml = new Yaml(); 
-	      return yaml.loadAs(yamlString, SStableMetaData.class);
+	      return yaml.loadAs(yamlString, SSTableMetaData.class);
 	}
 	
 	/**
@@ -145,7 +145,7 @@ public class SStableMetaData {
 	 * @return
 	 * @throws FileNotFoundException
 	 */
-	public static SStableMetaData importFromYamlFile(final File tmpFile) {
+	public static SSTableMetaData importFromYamlFile(final File tmpFile) {
 		  final Yaml yaml = new Yaml(); 
 		  FileReader reader;
 		try {
@@ -155,7 +155,7 @@ public class SStableMetaData {
 			return null;
 		}
 		
-		return yaml.loadAs(reader, SStableMetaData.class);
+		return yaml.loadAs(reader, SSTableMetaData.class);
 	}
 
 	public long getOldestTupleVersionTimestamp() {
@@ -228,7 +228,7 @@ public class SStableMetaData {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SStableMetaData other = (SStableMetaData) obj;
+		SSTableMetaData other = (SSTableMetaData) obj;
 		if (!Arrays.equals(boundingBoxData, other.boundingBoxData))
 			return false;
 		if (dimensions != other.dimensions)
