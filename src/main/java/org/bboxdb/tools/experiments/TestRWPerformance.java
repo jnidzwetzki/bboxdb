@@ -70,7 +70,7 @@ public class TestRWPerformance implements Runnable {
 	@Override
 	public void run() {
 		
-		final List<Integer> dataSizes = Arrays.asList(1024, 10240, 102400);
+		final List<Integer> dataSizes = Arrays.asList(1024, 5120, 10240, 51200, 102400);
 		System.out.println("#Size\tWrite\tRead");
 		
 		for(final int dataSize : dataSizes) {
