@@ -441,7 +441,7 @@ public class StorageRegistry implements BBoxDBService {
 	 * Get all tables for a given distribution group
 	 * @return
 	 */
-	public List<SSTableName> getAllTablesForDistributionGroup
+	public synchronized List<SSTableName> getAllTablesForDistributionGroup
 		(final DistributionGroupName distributionGroupName) {
 		
 		return sstableLocations.keySet()
@@ -451,7 +451,7 @@ public class StorageRegistry implements BBoxDBService {
 	}
 
 	/**
-	 * Regiter a new SSTable flush callback
+	 * Register a new SSTable flush callback
 	 * @param callback
 	 */
 	public void registerSSTableFlushCallback(final SSTableFlushCallback callback) {
@@ -471,7 +471,7 @@ public class StorageRegistry implements BBoxDBService {
 	 * @param basedir
 	 * @return 
 	 */
-	public List<SSTableName> getSSTablesForLocation(final String basedir) {
+	public synchronized List<SSTableName> getSSTablesForLocation(final String basedir) {
 		return sstableLocations.entrySet().stream()
 				.filter(e -> e.getValue().equals(basedir))
 				.map(e -> e.getKey())
