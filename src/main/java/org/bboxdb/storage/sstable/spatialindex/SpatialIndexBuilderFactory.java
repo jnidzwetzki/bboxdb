@@ -22,21 +22,21 @@ import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SpatialIndexFactory {
+public class SpatialIndexBuilderFactory {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SpatialIndexFactory.class);
+	private final static Logger logger = LoggerFactory.getLogger(SpatialIndexBuilderFactory.class);
 
 	/**
 	 * Get an instance of the configured factory
 	 * @return
 	 */
-	public static SpatialIndex getInstance() {
+	public static SpatialIndexBuilder getInstance() {
 
 		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-		final String factoryClass = configuration.getStorageSpatialIndexerFactory(); 
+		final String factoryClass = configuration.getStorageSpatialIndexBuilder();
 		
 		// Instance the classname
 		try {
@@ -48,11 +48,11 @@ public class SpatialIndexFactory {
 			
 			final Object factoryObject = classObject.newInstance();
 			
-			if(! (factoryObject instanceof SpatialIndex)) {
+			if(! (factoryObject instanceof SpatialIndexBuilder)) {
 				throw new ClassNotFoundException(factoryClass + " is not a instance of SpatialIndexer");
 			}
 			
-			return (SpatialIndex) factoryObject;			
+			return (SpatialIndexBuilder) factoryObject;			
 			
 		} catch (Exception e) {
 			logger.warn("Unable to instance class" + factoryClass, e);

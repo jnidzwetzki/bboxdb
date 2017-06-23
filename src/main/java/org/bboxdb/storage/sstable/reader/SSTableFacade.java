@@ -31,13 +31,13 @@ import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.SSTableMetaData;
+import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndexFactory;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReader;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReaderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +73,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	/**
 	 * The spatial index
 	 */
-	protected SpatialIndex spatialIndex;
+	protected SpatialIndexReader spatialIndex;
 	
 	/**
 	 * The Bloom filter
@@ -156,7 +156,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		try (    final FileInputStream fis = new FileInputStream(spatialIndexFile);
 				 final BufferedInputStream inputStream = new BufferedInputStream(fis);) {
 			
-			spatialIndex = SpatialIndexFactory.getInstance();
+			spatialIndex = SpatialIndexReaderFactory.getInstance();
 			spatialIndex.readFromStream(inputStream);
 			
 		} catch (Exception e) {

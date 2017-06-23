@@ -33,9 +33,9 @@ import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.TupleHelper;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndexFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +61,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	/**
 	 * The spatial index
 	 */
-	protected final SpatialIndex spatialIndex;
+	protected final SpatialIndexBuilder spatialIndex;
 	
 	/**
 	 * The next free position in the data array
@@ -123,7 +123,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 		this.sizeInMemory = 0;
 		
 		this.bloomFilter = BloomFilterBuilder.buildBloomFilter(entries);
-		this.spatialIndex = SpatialIndexFactory.getInstance();
+		this.spatialIndex = SpatialIndexBuilderFactory.getInstance();
 		
 		this.createdTimestamp = System.currentTimeMillis();
 		this.oldestTupleTimestamp = -1;

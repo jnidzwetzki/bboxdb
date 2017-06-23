@@ -313,20 +313,20 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	    // Write directory nodes
 	    for(int i = 0; i < maxNodeSize; i++) {
 	    	if(i < directoryNodeChilds.size()) {
-	    		outputStream.write(RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_FOLLOWING);
+	    		outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
 	    		directoryNodeChilds.get(i).writeToStream(outputStream, maxNodeSize);
 	    	} else {
-	    		outputStream.write(RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_NOT_EXISTING);
+	    		outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
 	    	}
 	    }
 	    
 	    // Write entry nodes
 	    for(int i = 0; i < maxNodeSize; i++) {
 	    	if(i < indexEntries.size()) {
-	    		outputStream.write(RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_FOLLOWING);
+	    		outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
 	    		indexEntries.get(i).writeToStream(outputStream);
 	    	} else {
-	    		outputStream.write(RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_NOT_EXISTING);
+	    		outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
 	    	}
 	    }
 	}
@@ -348,11 +348,11 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 			final byte[] followingByte = new byte[1];
 			ByteStreams.readFully(inputStream, followingByte, 0, followingByte.length);
 			
-			if(followingByte[0] == RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_FOLLOWING) {
+			if(followingByte[0] == RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING) {
 				final RTreeDirectoryNode rTreeDirectoryNode = RTreeDirectoryNode.readFromStream(
 						inputStream, maxNodeSize);
 				resultNode.directoryNodeChilds.add(rTreeDirectoryNode);
-			} else if(followingByte[0] != RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_NOT_EXISTING) {
+			} else if(followingByte[0] != RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING) {
 				throw new IllegalArgumentException("Unknown node type following: " + followingByte[0]);
 			}
 		}
@@ -362,10 +362,10 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 			final byte[] followingByte = new byte[1];
 			ByteStreams.readFully(inputStream, followingByte, 0, followingByte.length);
 			
-			if(followingByte[0] == RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_FOLLOWING) {
+			if(followingByte[0] == RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING) {
 				final SpatialIndexEntry spatialIndexEntry = SpatialIndexEntry.readFromStream(inputStream);
 				resultNode.indexEntries.add(spatialIndexEntry);
-			} else if(followingByte[0] != RTreeSpatialIndexStrategy.MAGIC_CHILD_NODE_NOT_EXISTING) {
+			} else if(followingByte[0] != RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING) {
 				throw new IllegalArgumentException("Unknown node type following: " + followingByte[0]);
 			}
 		}

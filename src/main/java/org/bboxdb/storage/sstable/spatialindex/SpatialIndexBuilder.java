@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
@@ -25,7 +24,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 
 
-public interface SpatialIndex {
+public interface SpatialIndexBuilder {
 	
 	/**
 	 * Construct the index from a list of tuples
@@ -42,14 +41,7 @@ public interface SpatialIndex {
 	 * @return 
 	 */
 	public boolean insert(final SpatialIndexEntry element);
-	
-	/**
-	 * Persist the index 
-	 * 
-	 * @param inputStream
-	 */
-	public void readFromStream(final InputStream inputStream) throws StorageManagerException, InterruptedException;
-	
+
 	/**
 	 * Read the index from a data stream
 	 * 

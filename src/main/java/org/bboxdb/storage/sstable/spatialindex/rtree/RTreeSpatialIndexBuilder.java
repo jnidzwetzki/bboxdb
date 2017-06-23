@@ -18,25 +18,21 @@
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.SSTableConst;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.util.io.DataEncoderHelper;
 
-import com.google.common.io.ByteStreams;
-
-public class RTreeSpatialIndexStrategy implements SpatialIndex {
+public class RTreeSpatialIndexBuilder implements SpatialIndexBuilder {
 
 	/**
 	 * The node factory
@@ -61,19 +57,19 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 	/**
 	 * The byte for a non existing child node
 	 */
-	protected final static byte MAGIC_CHILD_NODE_NOT_EXISTING = 0;
+	public final static byte MAGIC_CHILD_NODE_NOT_EXISTING = 0;
 	
 	/**
 	 * The byte for a following child node
 	 */
-	protected final static byte MAGIC_CHILD_NODE_FOLLOWING = 1;
+	public final static byte MAGIC_CHILD_NODE_FOLLOWING = 1;
 	
 
-	public RTreeSpatialIndexStrategy() {
+	public RTreeSpatialIndexBuilder() {
 		this(DEFAULT_NODE_SIZE);
 	}
 
-	public RTreeSpatialIndexStrategy(final int maxNodeSize) {
+	public RTreeSpatialIndexBuilder(final int maxNodeSize) {
 		
 		if(maxNodeSize <= 0) {
 			throw new IllegalArgumentException("Unable to construct an index with max node size: " 
@@ -84,47 +80,13 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		this.nodeFactory = new RTreeNodeFactory();
 		this.rootNode = nodeFactory.buildDirectoryNode();
 	}
-	
-	/**
-	 * Validate the magic bytes of a stream
-	 * 
-	 * @return a InputStream or null
-	 * @throws StorageManagerException
-	 * @throws IOException 
-	 */
-	protected static void validateStream(final InputStream inputStream) throws IOException, StorageManagerException {
-		
-		// Validate file - read the magic from the beginning
-		final byte[] magicBytes = new byte[SSTableConst.MAGIC_BYTES_SPATIAL_INDEX.length];
-		ByteStreams.readFully(inputStream, magicBytes, 0, SSTableConst.MAGIC_BYTES_SPATIAL_INDEX.length);
-
-		if(! Arrays.equals(magicBytes, SSTableConst.MAGIC_BYTES_SPATIAL_INDEX)) {
-			throw new StorageManagerException("Spatial index file does not contain the magic bytes");
-		}
-	}
-
-	@Override
-	public void readFromStream(final InputStream inputStream) throws StorageManagerException, InterruptedException {
-		
-		assert (rootNode.getDirectoryNodeChilds().isEmpty());
-		assert (rootNode.getIndexEntries().isEmpty());
-		
-		try {
-			// Validate the magic bytes
-			validateStream(inputStream);
-			maxNodeSize = DataEncoderHelper.readIntFromStream(inputStream);
-			rootNode = RTreeDirectoryNode.readFromStream(inputStream, maxNodeSize);
-		} catch (IOException e) {
-			throw new StorageManagerException(e);
-		}
-	}
 
 	@Override
 	public void writeToStream(final OutputStream outputStream) throws StorageManagerException {
 		
 		try {
 			// Write the magic bytes
-			outputStream.write(SSTableConst.MAGIC_BYTES_SPATIAL_INDEX);
+			outputStream.write(SSTableConst.MAGIC_BYTES_SPATIAL_RTREE_INDEX);
 			
 			// Write the tree configuration
 			final ByteBuffer nodeSizeBytes = DataEncoderHelper.intToByteBuffer(maxNodeSize);
@@ -136,11 +98,6 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		} catch (IOException e) {
 			throw new StorageManagerException(e);
 		}
-	}
-
-	@Override
-	public List<? extends SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
-		return rootNode.getEntriesForRegion(boundingBox);
 	}
 
 	@Override
@@ -279,6 +236,11 @@ public class RTreeSpatialIndexStrategy implements SpatialIndex {
 		newParent.updateBoundingBox();
 		
 		return newParent;
+	}
+	
+	@Override
+	public List<? extends SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
+		return rootNode.getEntriesForRegion(boundingBox);
 	}
 
 	/**

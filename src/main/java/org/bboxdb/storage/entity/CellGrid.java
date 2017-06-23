@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy;
+import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexBuilder;
 
 import com.google.common.collect.Lists;
 
@@ -46,8 +46,8 @@ public class CellGrid {
 	/**
 	 * The spatial index
 	 */
-	protected RTreeSpatialIndexStrategy spatialIndex = new RTreeSpatialIndexStrategy();
-	
+	protected final RTreeSpatialIndexBuilder spatialIndexBuilder = new RTreeSpatialIndexBuilder();
+
 	/**
 	 * Build the grid with fixed cell size
 	 * @param coveringBox
@@ -147,7 +147,7 @@ public class CellGrid {
 				.map(b -> new SpatialIndexEntry(b, 1))
 				.collect(Collectors.toList());
 		
-		spatialIndex.bulkInsert(indexEntries);
+		spatialIndexBuilder.bulkInsert(indexEntries);
 	}
 	
 	/**
@@ -162,7 +162,7 @@ public class CellGrid {
 			+ " of the query object " + boundingBox.getDimension());
 		}
 		
-		final List<? extends SpatialIndexEntry> entries = spatialIndex.getEntriesForRegion(boundingBox);
+		final List<? extends SpatialIndexEntry> entries = spatialIndexBuilder.getEntriesForRegion(boundingBox);
 		
 		return entries.stream().map(e -> e.getBoundingBox()).collect(Collectors.toSet());
 	}

@@ -34,7 +34,7 @@ public class SSTableConst {
 	/**
 	 * The magic bytes at the beginning of every spatial index file
 	 */
-	public final static byte[] MAGIC_BYTES_SPATIAL_INDEX = "bboxdb-sidx".getBytes();
+	public final static byte[] MAGIC_BYTES_SPATIAL_RTREE_INDEX = "bboxdb-sidx".getBytes();
 	
 	/**
 	 * The current version of the SSTable layout format

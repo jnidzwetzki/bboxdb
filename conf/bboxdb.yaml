@@ -25,19 +25,36 @@
 # Default: 2
 # memtableFlushThreadsPerStorage: 2
 
-# The classname of the spatial indexer factory
+# The classname of the spatial index builder
 # When disabled, full table scans are performed
-# for orthogonal spatial queries.
+# for bound box queries.
 #
 # Note: Changing this value on an existing storage
 #       can lead to unexpected behavior.
 #
 # Possible values: 
 #
-# org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy
+# org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexBuilder
+# none
 #
-# Default: org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy
-# storageSpatialIndexerFactory: org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy
+# Default: org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexBuilder
+# storageSpatialIndexBuilder: org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexBuilder
+
+# The classname of the spatial index reader
+# When disabled, full table scans are performed
+# for bound box queries.
+#
+# Note: Changing this value on an existing storage
+#       can lead to unexpected behavior.
+#
+# Possible values: 
+#
+# org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexMemoryReader
+# none
+#
+# Default: org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexMemoryReader
+# storageSpatialIndexReader: org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexMemoryReader
+
 
 # Checkpoint interval in seconds . After this interval, still open in 
 # memory tables will be written to disk.
@@ -81,7 +98,7 @@ zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
 # The region split strategy
 #
 # At the moment, two strategies are available. The simpleSplitStragety splits a region into two 
-# equal pices. The samplingBasedSplitStrategy uses samples to split a region into two parts
+# equal pieces. The samplingBasedSplitStrategy uses samples to split a region into two parts
 # with the same amount of objects in both regions.
 #
 # simpleSplitStragety: org.bboxdb.distribution.regionsplit.SimpleSplitStrategy

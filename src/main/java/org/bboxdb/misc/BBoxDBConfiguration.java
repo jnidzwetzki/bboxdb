@@ -54,9 +54,14 @@ public class BBoxDBConfiguration {
 	protected int memtableFlushThreadsPerStorage = 2;
 	
 	/**
-	 * The classname of the spatial indexer
+	 * The classname of the spatial index builder
 	 */
-	protected String storageSpatialIndexerFactory = "org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexStrategy";
+	protected String storageSpatialIndexBuilder = "org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexBuilder";
+	
+	/**
+	 * The classname of the spatial index reader
+	 */
+	protected String storageSpatialIndexReader = "org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexMemoryReader";
 	
 	/**
 	 * The checkpoint interval
@@ -143,14 +148,6 @@ public class BBoxDBConfiguration {
 		this.networkConnectionThreads = networkConnectionThreads;
 	}
 
-	public String getStorageSpatialIndexerFactory() {
-		return storageSpatialIndexerFactory;
-	}
-
-	public void setStorageSpatialIndexerFactory(String storageSpatialIndexerFactory) {
-		this.storageSpatialIndexerFactory = storageSpatialIndexerFactory;
-	}
-
 	public String getClustername() {
 		return clustername;
 	}
@@ -222,5 +219,20 @@ public class BBoxDBConfiguration {
 	public void setMemtableFlushThreadsPerStorage(final int memtableFlushThreadsPerStorage) {
 		this.memtableFlushThreadsPerStorage = memtableFlushThreadsPerStorage;
 	}
-	
+
+	public String getStorageSpatialIndexBuilder() {
+		return storageSpatialIndexBuilder;
+	}
+
+	public void setStorageSpatialIndexBuilder(final String storageSpatialIndexBuilder) {
+		this.storageSpatialIndexBuilder = storageSpatialIndexBuilder;
+	}
+
+	public String getStorageSpatialIndexReader() {
+		return storageSpatialIndexReader;
+	}
+
+	public void setStorageSpatialIndexReader(final String storageSpatialIndexReader) {
+		this.storageSpatialIndexReader = storageSpatialIndexReader;
+	}
 }

@@ -31,9 +31,9 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableMetaData;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndex;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndexFactory;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.util.io.DataEncoderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +106,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * The spatial index
 	 */
-	protected final SpatialIndex spatialIndex;
+	protected final SpatialIndexBuilder spatialIndex;
 	
 	/**
 	 * The error flag
@@ -141,7 +141,7 @@ public class SSTableWriter implements AutoCloseable {
 		// Spatial index
 		final String spatialIndexFilename =  SSTableHelper.getSSTableSpatialIndexFilename(directory, name, tablenumber);
 		this.spatialIndexFile = new File(spatialIndexFilename);
-		this.spatialIndex = SpatialIndexFactory.getInstance();
+		this.spatialIndex = SpatialIndexBuilderFactory.getInstance();
 		
 		// Metadata
 		final String ssTableMetadataFilename = SSTableHelper.getSSTableMetadataFilename(directory, name, tablenumber);
