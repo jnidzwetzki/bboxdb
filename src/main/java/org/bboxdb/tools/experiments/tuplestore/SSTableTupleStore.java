@@ -81,11 +81,11 @@ public class SSTableTupleStore implements TupleStore {
 	public void open() throws Exception {
 		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));		
 
-		storageRegistry = new StorageRegistry();
-		storageRegistry.init();
-		
 		final File dataDir = new File(dir.getAbsoluteFile() + "/data");
 		dataDir.mkdirs();
+		
+		storageRegistry = new StorageRegistry();
+		storageRegistry.init();
 		
 		storageManager = storageRegistry.getSSTableManager(SSTABLE_NAME);
 	}
