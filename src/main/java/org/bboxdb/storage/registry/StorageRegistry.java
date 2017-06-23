@@ -82,8 +82,8 @@ public class StorageRegistry implements BBoxDBService {
 
 	public StorageRegistry() {
 		this.configuration = BBoxDBConfigurationManager.getConfiguration();
-		this.managerInstances = new HashMap<>();
-		this.sstableLocations = new HashMap<>();
+		this.managerInstances = Collections.synchronizedMap(new HashMap<>());
+		this.sstableLocations = Collections.synchronizedMap(new HashMap<>());
 		this.storages = new HashMap<>();
 		this.flushCallbacks = new ArrayList<>();
 		this.serviceState = new ServiceState();

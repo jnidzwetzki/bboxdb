@@ -23,6 +23,7 @@ order: 1
 - Bugfix: Reread systems list on insert tuple, when no systems are detected for BBox
 - Bugfix: Fixed handling of meta data when multiple storage locations are used
 - Bugfix: Tuples were inserted twice in the spatial index
+- Bugfix: Fixed ConcurrentModificationException in StorageRegistry:getAllTablesForDistributionGroup
 
 ### Version 0.3.0 (Stable) - 17.06.2017
 - New Feature: Added the TestFixedGrid experiment
