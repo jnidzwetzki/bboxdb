@@ -170,7 +170,7 @@ public class SSTableManager implements BBoxDBService {
 	}
 
 	/**
-	 * Close all open Ressources
+	 * Close all open Resources
 	 */
 	protected void closeRessources() {
 		setToReadOnly();

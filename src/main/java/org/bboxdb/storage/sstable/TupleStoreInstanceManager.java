@@ -148,6 +148,7 @@ public class TupleStoreInstanceManager {
 		memtable = null;
 		sstableFacades.clear();
 		unflushedMemtables.clear();
+		notifyAll();
 	}
 
 	/**
@@ -183,7 +184,7 @@ public class TupleStoreInstanceManager {
 	 * @throws InterruptedException 
 	 */
 	public synchronized void waitForMemtableFlush(final Memtable memtable) throws InterruptedException {
-		while(unflushedMemtables.contains(memtable) && sstableManagerState == SSTableManagerState.READ_WRITE) {
+		while(unflushedMemtables.contains(memtable)) {
 			this.wait();
 		}
 	}
@@ -194,7 +195,7 @@ public class TupleStoreInstanceManager {
 	 * @throws InterruptedException 
 	 */
 	public synchronized void waitForAllMemtablesFlushed() throws InterruptedException {
-		while(! unflushedMemtables.isEmpty() && sstableManagerState == SSTableManagerState.READ_WRITE) {
+		while(! unflushedMemtables.isEmpty()) {
 			this.wait();
 		}
 	}
