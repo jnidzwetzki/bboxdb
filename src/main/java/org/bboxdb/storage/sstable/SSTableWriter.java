@@ -116,7 +116,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * The amount of written tuples
 	 */
-	protected long writtenTuples;
+	protected int writtenTuples;
 	
 	/**
 	 * The Logger

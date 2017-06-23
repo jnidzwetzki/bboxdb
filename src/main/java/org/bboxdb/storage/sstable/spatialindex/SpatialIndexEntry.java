@@ -32,14 +32,14 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 	/**
 	 * The key
 	 */
-	protected final long value;
+	protected final int value;
 	
 	/**
 	 * The bounding box
 	 */
 	protected final BoundingBox boundingBox;
 
-	public SpatialIndexEntry(final BoundingBox boundingBox, final long value) {
+	public SpatialIndexEntry(final BoundingBox boundingBox, final int value) {
 		this.value = value;
 		this.boundingBox = boundingBox;
 	}
@@ -100,7 +100,7 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 	 */
 	public void writeToStream(final OutputStream outputStream) throws IOException {
 		
-		final ByteBuffer keyBytes = DataEncoderHelper.longToByteBuffer(value);
+		final ByteBuffer keyBytes = DataEncoderHelper.intToByteBuffer(value);
 		outputStream.write(keyBytes.array());
 
 		final byte[] boundingBoxBytes = boundingBox.toByteArray();		
@@ -118,13 +118,13 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 	 */
 	public static SpatialIndexEntry readFromStream(final InputStream inputStream) throws IOException {
 
-		final byte[] keyBytes = new byte[DataEncoderHelper.LONG_BYTES];
+		final byte[] keyBytes = new byte[DataEncoderHelper.INT_BYTES];
 		final byte[] boxLengthBytes = new byte[DataEncoderHelper.INT_BYTES];
 		
 		ByteStreams.readFully(inputStream, keyBytes, 0, keyBytes.length);
 		ByteStreams.readFully(inputStream, boxLengthBytes, 0, boxLengthBytes.length);
 
-		final long key = DataEncoderHelper.readLongFromByte(keyBytes);
+		final int key = DataEncoderHelper.readIntFromByte(keyBytes);
 		final int bboxLength = DataEncoderHelper.readIntFromByte(boxLengthBytes);
 
 		final byte[] bboxBytes = new byte[bboxLength];		
