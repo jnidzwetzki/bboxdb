@@ -48,9 +48,16 @@ public class TupleStoreInstanceManager {
 	 */
 	protected final List<SSTableFacade> sstableFacades;
 	
+	/**
+	 * The state (read only / read write) of the manager
+	 */
+	protected volatile SSTableManagerState sstableManagerState;
+	
+	
 	public TupleStoreInstanceManager() {		
 		this.sstableFacades = new ArrayList<>();
 		this.unflushedMemtables = new ArrayList<>();
+		this.sstableManagerState = SSTableManagerState.READ_WRITE;
 	}
 	
 	/**
@@ -176,7 +183,7 @@ public class TupleStoreInstanceManager {
 	 * @throws InterruptedException 
 	 */
 	public synchronized void waitForMemtableFlush(final Memtable memtable) throws InterruptedException {
-		while(unflushedMemtables.contains(memtable)) {
+		while(unflushedMemtables.contains(memtable) && sstableManagerState == SSTableManagerState.READ_WRITE) {
 			this.wait();
 		}
 	}
@@ -187,8 +194,32 @@ public class TupleStoreInstanceManager {
 	 * @throws InterruptedException 
 	 */
 	public synchronized void waitForAllMemtablesFlushed() throws InterruptedException {
-		while(! unflushedMemtables.isEmpty()) {
+		while(! unflushedMemtables.isEmpty() && sstableManagerState == SSTableManagerState.READ_WRITE) {
 			this.wait();
 		}
+	}
+	
+	/**
+	 * Set to read only
+	 */
+	public synchronized void setReadOnly() {
+		sstableManagerState = SSTableManagerState.READ_ONLY;
+		this.notifyAll();
+	}
+	
+	/**
+	 * Set to read write
+	 */
+	public synchronized void setReadWrite() {
+		sstableManagerState = SSTableManagerState.READ_WRITE;
+		this.notifyAll();
+	}
+	
+	/**
+	 * Get the state
+	 * @return
+	 */
+	public SSTableManagerState getState() {
+		return sstableManagerState;
 	}
 }

@@ -76,11 +76,6 @@ public class SSTableManager implements BBoxDBService {
 	protected ServiceState serviceState;
 
 	/**
-	 * The state (read only / read write) of the manager
-	 */
-	protected volatile SSTableManagerState sstableManagerState;
-	
-	/**
 	 * The storage
 	 */
 	protected final Storage storage;
@@ -97,7 +92,6 @@ public class SSTableManager implements BBoxDBService {
 		this.configuration = configuration;
 		this.sstablename = sstablename;
 		this.tableNumber = new AtomicInteger();
-		this.sstableManagerState = SSTableManagerState.READ_WRITE;
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		
 		// Close open ressources when the failed state is entered
@@ -132,7 +126,7 @@ public class SSTableManager implements BBoxDBService {
 			scanForExistingTables();
 			
 			tableNumber.set(getLastSequencenumberFromReader() + 1);
-			sstableManagerState = SSTableManagerState.READ_WRITE;
+			tupleStoreInstances.setReadWrite();
 			
 			// Set to ready before the threads are started
 			serviceState.dispatchToRunning();
@@ -159,7 +153,7 @@ public class SSTableManager implements BBoxDBService {
 		
 		// Flush only when memtable is in RW state, otherwise the memtable flush callbacks
 		// could not be processed
-		if(sstableManagerState == SSTableManagerState.READ_WRITE) {
+		if(tupleStoreInstances.getState() == SSTableManagerState.READ_WRITE) {
 			try {
 				flush();
 				tupleStoreInstances.waitForAllMemtablesFlushed();
@@ -223,7 +217,7 @@ public class SSTableManager implements BBoxDBService {
 	 */
 	public void setToReadOnly() {
 		// Set the flush mode to read only
-		sstableManagerState = SSTableManagerState.READ_ONLY;
+		tupleStoreInstances.setReadOnly();
 	}
 	
 	/**
@@ -561,7 +555,7 @@ public class SSTableManager implements BBoxDBService {
 					+ " state: " + serviceState);
 		}
 		
-		if(sstableManagerState == SSTableManagerState.READ_ONLY) {
+		if(tupleStoreInstances.getState() == SSTableManagerState.READ_ONLY) {
 			throw new RejectedException("Storage manager is in read only state");
 		}
 		
@@ -594,7 +588,7 @@ public class SSTableManager implements BBoxDBService {
 					+ " state: " + serviceState);
 		}
 		
-		if(sstableManagerState == SSTableManagerState.READ_ONLY) {
+		if(tupleStoreInstances.getState() == SSTableManagerState.READ_ONLY) {
 			throw new RejectedException("Storage manager is in read only state");
 		}
 		
@@ -623,7 +617,7 @@ public class SSTableManager implements BBoxDBService {
 	public void replaceMemtableWithSSTable(final Memtable memtable, final SSTableFacade sstableFacade) 
 			throws RejectedException {
 
-		if(sstableManagerState == SSTableManagerState.READ_ONLY) {
+		if(tupleStoreInstances.getState() == SSTableManagerState.READ_ONLY) {
 			throw new RejectedException("Storage manager is in read only state");
 		}
 		
@@ -639,7 +633,7 @@ public class SSTableManager implements BBoxDBService {
 	public void replaceCompactedSStables(final List<SSTableFacade> newFacedes, 
 			final List<SSTableFacade> oldFacades) throws RejectedException {
 		
-		if(sstableManagerState == SSTableManagerState.READ_ONLY) {
+		if(tupleStoreInstances.getState() == SSTableManagerState.READ_ONLY) {
 			throw new RejectedException("Storage manager is in read only state");
 		}
 		
@@ -714,14 +708,7 @@ public class SSTableManager implements BBoxDBService {
 	 * @return
 	 */
 	public SSTableManagerState getSstableManagerState() {
-		return sstableManagerState;
+		return tupleStoreInstances.getState();
 	}
 
-	/**
-	 * Set the manager state
-	 * @param sstableManagerState
-	 */
-	public void setSstableManagerState(final SSTableManagerState sstableManagerState) {
-		this.sstableManagerState = sstableManagerState;
-	}
 }
