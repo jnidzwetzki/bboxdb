@@ -18,6 +18,7 @@
 package org.bboxdb.storage.sstable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.storage.ReadOnlyTupleStorage;
@@ -130,6 +131,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	
 		final boolean checkpointNeeded = inMemoryStores
 				.stream()
+				.filter(Objects::nonNull)
 				.mapToLong(m -> m.getOldestTupleVersionTimestamp())
 				.anyMatch(m -> 
 					(TimeUnit.MICROSECONDS.toMillis(m) + maxUncheckpointedMiliseconds)
