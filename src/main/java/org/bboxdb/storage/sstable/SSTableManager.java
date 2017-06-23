@@ -155,6 +155,7 @@ public class SSTableManager implements BBoxDBService {
 		// could not be processed
 		if(tupleStoreInstances.getState() == SSTableManagerState.READ_WRITE) {
 			try {
+				logger.info("Flushing tables for shutdown");
 				flush();
 				tupleStoreInstances.waitForAllMemtablesFlushed();
 			} catch (InterruptedException e) {
@@ -162,6 +163,8 @@ public class SSTableManager implements BBoxDBService {
 				Thread.currentThread().interrupt();
 				return;
 			}
+		} else {
+			logger.info("NOT flushing tables for shutdown");
 		}
 		
 		closeRessources();
