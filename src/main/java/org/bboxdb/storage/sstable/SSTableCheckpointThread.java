@@ -121,6 +121,10 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 		
 		final List<ReadOnlyTupleStorage> inMemoryStores 
 			= ssTableManager.getAllInMemoryStorages();
+	
+		if(inMemoryStores.isEmpty()) {
+			return false;
+		}
 		
 		final long currentTime = System.currentTimeMillis();
 	

@@ -24,6 +24,7 @@ order: 1
 - Bugfix: Fixed handling of meta data when multiple storage locations are used
 - Bugfix: Tuples were inserted twice in the spatial index
 - Bugfix: Fixed ConcurrentModificationException in StorageRegistry:getAllTablesForDistributionGroup
+- Bugfix: Fixed forever waiting checkpoint threads, when a SSTable is swithed to readonly
 
 ### Version 0.3.0 (Stable) - 17.06.2017
 - New Feature: Added the TestFixedGrid experiment
