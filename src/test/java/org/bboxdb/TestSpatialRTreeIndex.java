@@ -131,6 +131,20 @@ public class TestSpatialRTreeIndex {
 		queryIndex(tupleList, index);
 	}
 	
+	
+	/**
+	 * Test the covering of the nodes
+	 */
+	@Test
+	public void testCovering() {
+		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(3);
+		
+		final RTreeSpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		index.bulkInsert(tupleList);
+		
+		index.testCovering();		
+	}
+	
 	/**
 	 * Test the query
 	 * 

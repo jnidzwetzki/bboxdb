@@ -227,17 +227,21 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	}
 	
 	/**
-	 * Test the bounding box covering (usefull for test purposes)
+	 * Test the bounding box covering (useful for test purposes)
 	 */
 	public void testCovering() {
+		
+		boolean success = true;
 		
 		for(final SpatialIndexEntry entry : indexEntries) {
 			if(! boundingBox.isCovering(entry.getBoundingBox())) {
 				System.err.println("Error 1");
+				success = false;
 			}
 			
 			if(! boundingBox.overlaps(entry.getBoundingBox())) {
 				System.err.println("Error 2");
+				success = false;
 			}
 		}
 		
@@ -252,18 +256,22 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 				updateBoundingBox();
 				
 				if(! boundingBox.isCovering(entry.getBoundingBox())) {
-
 					System.err.println("Error 3b: " + boundingBox + " does not cover" + entry.getBoundingBox());
-
 					System.err.println(getAllChildBoundingBoxes());
+					success = false;
 				}
 			}
 			
 			if(! boundingBox.overlaps(entry.getBoundingBox())) {
 				System.err.println("Error 4");
+				success = false;
 			}
 			
 			entry.testCovering();
+		}
+		
+		if(! success) {
+			throw new RuntimeException();
 		}
 	}
 	

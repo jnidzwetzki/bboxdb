@@ -402,4 +402,11 @@ public class RTreeSpatialIndexBuilder implements SpatialIndexBuilder {
 	public int getMaxNodeSize() {
 		return maxNodeSize;
 	}
+	
+	/**
+	 * Test the covering of the child nodes
+	 */
+	public void testCovering() {
+		rootNode.testCovering();
+	}
 }
