@@ -299,6 +299,39 @@ public class TestSpatialRTreeIndex {
 	}
 	
 	/**
+	 * Test the encoding and the decoding of the index with only one entry 
+	 * = data is encoded in the root node
+	 * 
+	 * @throws StorageManagerException 
+	 * @throws IOException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testSerializeIndexSmall() throws StorageManagerException, IOException, InterruptedException {
+		final List<SpatialIndexEntry> tupleList = new ArrayList<>();
+		tupleList.add(new SpatialIndexEntry(new BoundingBox(1.0, 1.2), 2));
+		
+		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		index.bulkInsert(tupleList);
+		
+		queryIndex(tupleList, index);
+		
+		final File tempFile = File.createTempFile("rtree-", "-test");
+		tempFile.deleteOnExit();
+		final RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");		
+		index.writeToFile(raf);
+		raf.close();
+		
+		final RTreeSpatialIndexMemoryReader indexRead = new RTreeSpatialIndexMemoryReader();
+		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
+		indexRead.readFromFile(rafRead);
+		rafRead.close();
+		
+		final List<? extends SpatialIndexEntry> resultList = indexRead.getEntriesForRegion(new BoundingBox(1.1, 1.2));
+		Assert.assertEquals(1, resultList.size());
+	}
+	
+	/**
 	 * Test the encoding and the decoding of the index
 	 * @throws StorageManagerException 
 	 * @throws IOException 

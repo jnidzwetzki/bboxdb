@@ -55,8 +55,8 @@ public class RTreeSpatialIndexMemoryReader implements SpatialIndexReader {
 			// Validate the magic bytes
 			validateStream(randomAccessFile);
 			maxNodeSize = DataEncoderHelper.readIntFromDataInput(randomAccessFile);
-			rootNode = readDirectoryNode(randomAccessFile, null);
-			
+			readDirectoryNode(randomAccessFile, null);
+						
 			while(! childToReadQueue.isEmpty()) {
 				final Entry<RTreeDirectoryNode, Integer> element = childToReadQueue.remove();
 				
@@ -85,6 +85,11 @@ public class RTreeSpatialIndexMemoryReader implements SpatialIndexReader {
 
 		if(parent != null) {
 			parent.directoryNodeChilds.add(node);
+		}
+		
+		// Make this to the new root node
+		if(rootNode == null) {
+			rootNode = node;
 		}
 
 		// Bounding box data
