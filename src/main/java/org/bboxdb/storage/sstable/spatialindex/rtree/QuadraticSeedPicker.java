@@ -65,8 +65,6 @@ public class QuadraticSeedPicker<T extends BoundingBoxEntity> {
 		assert(seeds.size() == 2) : "Number of seeds don't match: " + seeds.size();
 		
 		// Remove seeds from available objects
-		for(final T seedBox : seeds) {
-			allEntries.remove(seedBox);
-		}	
+		allEntries.removeAll(seeds);
 	}
 }
