@@ -339,6 +339,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 			if(followingByte[0] == RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING) {
 				final RTreeDirectoryNode rTreeDirectoryNode = RTreeDirectoryNode.readFromStream(
 						inputStream, maxNodeSize);
+				rTreeDirectoryNode.setParentNode(resultNode);
 				resultNode.directoryNodeChilds.add(rTreeDirectoryNode);
 			} else if(followingByte[0] != RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING) {
 				throw new IllegalArgumentException("Unknown node type following: " + followingByte[0]);
