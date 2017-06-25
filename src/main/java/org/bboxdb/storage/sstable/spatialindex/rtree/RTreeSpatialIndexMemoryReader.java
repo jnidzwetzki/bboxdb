@@ -45,7 +45,11 @@ public class RTreeSpatialIndexMemoryReader implements SpatialIndexReader {
 			// Validate the magic bytes
 			validateStream(inputStream);
 			maxNodeSize = DataEncoderHelper.readIntFromStream(inputStream);
-			rootNode = RTreeDirectoryNode.readFromStream(inputStream, maxNodeSize);
+			
+			if(inputStream.read() == RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING) {
+				rootNode = RTreeDirectoryNode.readFromStream(inputStream, maxNodeSize);
+			}
+			
 		} catch (IOException e) {
 			throw new StorageManagerException(e);
 		}

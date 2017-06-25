@@ -342,7 +342,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 		
 		final int nodeId = DataEncoderHelper.readIntFromStream(inputStream);
 		final RTreeDirectoryNode resultNode = new RTreeDirectoryNode(nodeId);
-		
+
 		// Read entry entries
 		for(int i = 0; i < maxNodeSize; i++) {
 			final byte[] followingByte = new byte[1];
@@ -353,7 +353,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 				resultNode.indexEntries.add(spatialIndexEntry);
 			} else if(followingByte[0] != RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING) {
 				throw new IllegalArgumentException("Unknown node type following: " + followingByte[0]);
-			}
+			}				
 		}
 		
 		// Read directory nodes
