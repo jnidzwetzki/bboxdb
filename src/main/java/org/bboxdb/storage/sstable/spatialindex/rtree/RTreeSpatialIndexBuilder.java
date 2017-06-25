@@ -17,9 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -27,10 +25,8 @@ import java.util.List;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.util.io.DataEncoderHelper;
 
 public class RTreeSpatialIndexBuilder implements SpatialIndexBuilder {
 
@@ -83,56 +79,8 @@ public class RTreeSpatialIndexBuilder implements SpatialIndexBuilder {
 
 	@Override
 	public void writeToStream(final OutputStream outputStream) throws StorageManagerException {
-
-		final RTreeDirectoryNode NULL_RTREE_ELEMENT = new RTreeDirectoryNode(-1);
-
-		try {
-			// Write the magic bytes
-			outputStream.write(SSTableConst.MAGIC_BYTES_SPATIAL_RTREE_INDEX);
-
-			// Write the tree configuration
-			final ByteBuffer nodeSizeBytes = DataEncoderHelper.intToByteBuffer(maxNodeSize);
-			outputStream.write(nodeSizeBytes.array());
-
-			final Deque<RTreeDirectoryNode> nodesQueue = new ArrayDeque<>();
-			nodesQueue.push(rootNode);
-
-			while(! nodesQueue.isEmpty()) {
-				final RTreeDirectoryNode node = nodesQueue.pop();
-				// Child does not exist
-				if(node == NULL_RTREE_ELEMENT) {
-					outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
-					continue;
-				}
-
-				outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
-				final ByteBuffer nodeIdBytes = DataEncoderHelper.intToByteBuffer(node.getNodeId());
-				outputStream.write(nodeIdBytes.array());
-
-				// Write entry nodes
-				final List<SpatialIndexEntry> indexEntries = node.getIndexEntries();
-				for(int i = 0; i < maxNodeSize; i++) {
-					if(i < indexEntries.size()) {
-						outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
-						indexEntries.get(i).writeToStream(outputStream);
-					} else {
-						outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
-					}
-				}
-
-				// Write directory nodes
-				final List<RTreeDirectoryNode> directoryNodeChilds = node.getDirectoryNodeChilds();
-				for(int i = maxNodeSize - 1; i >= 0; i--) {
-					if(i < directoryNodeChilds.size()) {
-						nodesQueue.addFirst(directoryNodeChilds.get(i));
-					} else {
-						nodesQueue.addFirst(NULL_RTREE_ELEMENT);
-					}
-				}			    
-			}
-		} catch (IOException e) {
-			throw new StorageManagerException(e);
-		}
+		final RTreeSerializer rTreeSerializer = new RTreeSerializer(rootNode, maxNodeSize);
+		rTreeSerializer.writeToStream(outputStream);
 	}
 
 	@Override
