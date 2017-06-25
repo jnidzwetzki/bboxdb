@@ -18,6 +18,8 @@
 package org.bboxdb.tools;
 
 import java.io.ByteArrayInputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -81,6 +83,10 @@ public class TestDataEncoderHelper {
 		final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteValue.array());
 		final int streamInt = DataEncoderHelper.readIntFromStream(byteArrayInputStream);
 		Assert.assertEquals(intValue, streamInt);
+		
+		final DataInput dis = new DataInputStream(new ByteArrayInputStream(byteValue.array()));
+		final int dataInputInt = DataEncoderHelper.readIntFromDataInput(dis);
+		Assert.assertEquals(intValue, dataInputInt);
 	}
 	
 	@Test
