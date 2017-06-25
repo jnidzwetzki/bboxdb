@@ -19,8 +19,6 @@ package org.bboxdb.storage.sstable.spatialindex.rtree;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -298,37 +296,6 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	 */
 	public List<SpatialIndexEntry> getIndexEntries() {
 		return indexEntries;
-	}
-	
-	/**
-	 * Write the node to the stream
-	 * @param outputStream
-	 * @param maxNodeSize 
-	 * @throws IOException
-	 */
-	public void writeToStream(final OutputStream outputStream, final int maxNodeSize) throws IOException {
-	    final ByteBuffer nodeIdBytes = DataEncoderHelper.intToByteBuffer(nodeId);
-	    outputStream.write(nodeIdBytes.array());
-	    
-	    // Write entry nodes
-	    for(int i = 0; i < maxNodeSize; i++) {
-	    	if(i < indexEntries.size()) {
-	    		outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
-	    		indexEntries.get(i).writeToStream(outputStream);
-	    	} else {
-	    		outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
-	    	}
-	    }
-	    
-	    // Write directory nodes
-	    for(int i = 0; i < maxNodeSize; i++) {
-	    	if(i < directoryNodeChilds.size()) {
-	    		outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
-	    		directoryNodeChilds.get(i).writeToStream(outputStream, maxNodeSize);
-	    	} else {
-	    		outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
-	    	}
-	    }
 	}
 	
 	/**
