@@ -53,13 +53,17 @@ public class RTreeSpatialIndexBuilder implements SpatialIndexBuilder {
 	/**
 	 * The byte for a non existing child node
 	 */
-	public final static byte MAGIC_CHILD_NODE_NOT_EXISTING = 0;
+	public final static byte[] MAGIC_CHILD_NODE_NOT_EXISTING = {-1, 0, 0, 0};
 
 	/**
 	 * The byte for a following child node
 	 */
-	public final static byte MAGIC_CHILD_NODE_FOLLOWING = 1;
-
+	public final static byte[] MAGIC_CHILD_NODE_FOLLOWING = {1, 0, 0, 0};
+	
+	/**
+	 * The size of the magic nodes in bytes
+	 */
+	public final static int MAGIC_VALUE_SIZE = 4;
 
 	public RTreeSpatialIndexBuilder() {
 		this(DEFAULT_NODE_SIZE);

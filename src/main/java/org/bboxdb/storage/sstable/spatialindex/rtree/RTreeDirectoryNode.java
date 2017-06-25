@@ -17,8 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,9 +25,6 @@ import java.util.stream.Stream;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.util.io.DataEncoderHelper;
-
-import com.google.common.io.ByteStreams;
 
 public class RTreeDirectoryNode implements BoundingBoxEntity {
 	
@@ -313,58 +308,6 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	public List<SpatialIndexEntry> getIndexEntries() {
 		return indexEntries;
 	}
-	
-	/**
-	 * Read the node from the stream
-	 * @param inputStream
-	 * @return
-	 * @throws IOException
-	 */
-	public static RTreeDirectoryNode readFromStream(final InputStream inputStream, final int maxNodeSize) 
-			throws IOException {
-		
-		// Node data
-		final int nodeId = DataEncoderHelper.readIntFromStream(inputStream);
-		final RTreeDirectoryNode resultNode = new RTreeDirectoryNode(nodeId);
-
-		// Bounding box data
-		final int boundingBoxLength = DataEncoderHelper.readIntFromStream(inputStream);
-		final byte[] boundingBoxBytes = new byte[boundingBoxLength];
-		ByteStreams.readFully(inputStream, boundingBoxBytes, 0, boundingBoxBytes.length);
-		final BoundingBox boundingBox = BoundingBox.fromByteArray(boundingBoxBytes);
-		resultNode.setBoundingBox(boundingBox);
-		
-		// Read entry entries
-		for(int i = 0; i < maxNodeSize; i++) {
-			final byte[] followingByte = new byte[1];
-			ByteStreams.readFully(inputStream, followingByte, 0, followingByte.length);
-			
-			if(followingByte[0] == RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING) {
-				final SpatialIndexEntry spatialIndexEntry = SpatialIndexEntry.readFromStream(inputStream);
-				resultNode.indexEntries.add(spatialIndexEntry);
-			} else if(followingByte[0] != RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING) {
-				throw new IllegalArgumentException("Unknown node type following: " + followingByte[0]);
-			}				
-		}
-		
-		// Read directory nodes
-		for(int i = 0; i < maxNodeSize; i++) {
-			final byte[] followingByte = new byte[1];
-			ByteStreams.readFully(inputStream, followingByte, 0, followingByte.length);
-			
-			if(followingByte[0] == RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING) {
-				final RTreeDirectoryNode rTreeDirectoryNode = RTreeDirectoryNode.readFromStream(
-						inputStream, maxNodeSize);
-				rTreeDirectoryNode.setParentNode(resultNode);
-				resultNode.directoryNodeChilds.add(rTreeDirectoryNode);
-			} else if(followingByte[0] != RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING) {
-				throw new IllegalArgumentException("Unknown node type following: " + followingByte[0]);
-			}
-		}
-				
-		return resultNode;
-	}
-
 
 	@Override
 	public int hashCode() {

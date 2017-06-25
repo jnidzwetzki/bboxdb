@@ -18,14 +18,11 @@
 package org.bboxdb.storage.sstable.spatialindex;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.util.io.DataEncoderHelper;
-
-import com.google.common.io.ByteStreams;
 
 public class SpatialIndexEntry implements BoundingBoxEntity {
 
@@ -115,19 +112,19 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static SpatialIndexEntry readFromStream(final InputStream inputStream) throws IOException {
+	public static SpatialIndexEntry readFromFile(final RandomAccessFile randomAccessFile) throws IOException {
 
 		final byte[] keyBytes = new byte[DataEncoderHelper.INT_BYTES];
 		final byte[] boxLengthBytes = new byte[DataEncoderHelper.INT_BYTES];
 		
-		ByteStreams.readFully(inputStream, keyBytes, 0, keyBytes.length);
-		ByteStreams.readFully(inputStream, boxLengthBytes, 0, boxLengthBytes.length);
+		randomAccessFile.readFully(keyBytes, 0, keyBytes.length);
+		randomAccessFile.readFully(boxLengthBytes, 0, boxLengthBytes.length);
 
 		final int key = DataEncoderHelper.readIntFromByte(keyBytes);
 		final int bboxLength = DataEncoderHelper.readIntFromByte(boxLengthBytes);
 
 		final byte[] bboxBytes = new byte[bboxLength];		
-		ByteStreams.readFully(inputStream, bboxBytes, 0, bboxBytes.length);
+		randomAccessFile.readFully(bboxBytes, 0, bboxBytes.length);
 
 		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);
 	

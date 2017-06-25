@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex;
 
-import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.util.List;
 
 import org.bboxdb.storage.StorageManagerException;
@@ -30,7 +30,7 @@ public interface SpatialIndexReader {
 	 * 
 	 * @param inputStream
 	 */
-	public void readFromStream(final InputStream inputStream) throws StorageManagerException, InterruptedException;
+	public void readFromFile(final RandomAccessFile randomAccessFile) throws StorageManagerException, InterruptedException;
 	
 	
 	/**

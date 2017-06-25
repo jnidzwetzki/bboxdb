@@ -18,7 +18,6 @@
 package org.bboxdb;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -249,12 +248,9 @@ public class TestSpatialRTreeIndex {
 		rTreeSpatialIndexEntry.writeToFile(raf);		
 		raf.close();
 		
-		final FileInputStream fis = new FileInputStream(tempFile);		
-		Assert.assertTrue(fis.available() > 0);
-		final SpatialIndexEntry readEntry = SpatialIndexEntry.readFromStream(fis);
-		Assert.assertTrue(fis.available() == 0);
-
-		fis.close();
+		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
+		final SpatialIndexEntry readEntry = SpatialIndexEntry.readFromFile(rafRead);
+		rafRead.close();
 		
 		Assert.assertEquals(rTreeSpatialIndexEntry.getValue(), readEntry.getValue());
 		Assert.assertEquals(rTreeSpatialIndexEntry.getBoundingBox(), readEntry.getBoundingBox());
@@ -292,13 +288,11 @@ public class TestSpatialRTreeIndex {
 		final RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");		
 		index.writeToFile(raf);
 		raf.close();
-		
-		final FileInputStream fis = new FileInputStream(tempFile);		
+			
 		final RTreeSpatialIndexMemoryReader indexRead = new RTreeSpatialIndexMemoryReader();
-		
-		Assert.assertTrue(fis.available() > 0);
-		indexRead.readFromStream(fis);
-		Assert.assertTrue(fis.available() == 0);
+		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
+		indexRead.readFromFile(rafRead);
+		rafRead.close();
 
 		Assert.assertEquals(maxNodeSize, index.getMaxNodeSize());
 		Assert.assertEquals(maxNodeSize, indexRead.getMaxNodeSize());
@@ -311,7 +305,36 @@ public class TestSpatialRTreeIndex {
 	 * @throws InterruptedException 
 	 */
 	@Test
-	public void testSerializeIndex1() throws StorageManagerException, IOException, InterruptedException {
+	public void testSerializeIndex1D() throws StorageManagerException, IOException, InterruptedException {
+		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(1);
+		
+		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		index.bulkInsert(tupleList);
+		
+		queryIndex(tupleList, index);
+		
+		final File tempFile = File.createTempFile("rtree-", "-test");
+		tempFile.deleteOnExit();
+		final RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");		
+		index.writeToFile(raf);
+		raf.close();
+		
+		final RTreeSpatialIndexMemoryReader indexRead = new RTreeSpatialIndexMemoryReader();
+		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
+		indexRead.readFromFile(rafRead);
+		rafRead.close();
+		
+		queryIndex(tupleList, indexRead);
+	}
+	
+	/**
+	 * Test the encoding and the decoding of the index
+	 * @throws StorageManagerException 
+	 * @throws IOException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testSerializeIndex3D() throws StorageManagerException, IOException, InterruptedException {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(3);
 		
 		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
@@ -325,14 +348,10 @@ public class TestSpatialRTreeIndex {
 		index.writeToFile(raf);
 		raf.close();
 		
-		final FileInputStream fis = new FileInputStream(tempFile);		
 		final RTreeSpatialIndexMemoryReader indexRead = new RTreeSpatialIndexMemoryReader();
-		
-		Assert.assertTrue(fis.available() > 0);
-		indexRead.readFromStream(fis);
-		Assert.assertTrue(fis.available() == 0);
-		
-		fis.close();
+		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
+		indexRead.readFromFile(rafRead);
+		rafRead.close();
 		
 		queryIndex(tupleList, indexRead);
 	}

@@ -17,10 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.reader;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -153,11 +152,11 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 			throw new StorageManagerException("The spatial index does not exists: " + spatialIndexFile);
 		}
 		
-		try (    final FileInputStream fis = new FileInputStream(spatialIndexFile);
-				 final BufferedInputStream inputStream = new BufferedInputStream(fis);) {
+		try (   final RandomAccessFile randomAccessFile = new RandomAccessFile(spatialIndexFile, "r") 
+			) {
 			
 			spatialIndex = SpatialIndexReaderFactory.getInstance();
-			spatialIndex.readFromStream(inputStream);
+			spatialIndex.readFromFile(randomAccessFile);
 			
 		} catch (Exception e) {
 			throw new StorageManagerException(e);

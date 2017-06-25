@@ -46,23 +46,18 @@ public class RTreeSerializer {
 	/**
 	 * The node start position
 	 */
-	protected final Map<RTreeDirectoryNode, Long> nodeStartPosition = new HashMap<>();
+	protected final Map<RTreeDirectoryNode, Integer> nodeStartPosition = new HashMap<>();
 
 	/**
 	 * The node start child nodes position
 	 */
-	protected final Map<RTreeDirectoryNode, Long> nodeFixedEndPosition = new HashMap<>();
+	protected final Map<RTreeDirectoryNode, Integer> nodeFixedEndPosition = new HashMap<>();
 
 	/**
 	 * The nodes queue
 	 */
 	protected final Deque<RTreeDirectoryNode> nodesQueue = new ArrayDeque<>();
-	
-	/**
-	 * The queue null element
-	 */
-	protected static final RTreeDirectoryNode NULL_RTREE_ELEMENT = new RTreeDirectoryNode(-1);
-	
+
 
 	public RTreeSerializer(final RTreeDirectoryNode rootNode, final int maxNodeSize) {
 		this.rootNode = rootNode;
@@ -93,8 +88,30 @@ public class RTreeSerializer {
 				handleNewNode(randomAccessFile, node);			    
 			}
 			
+			updateIndexNodePointer(randomAccessFile);
+			
 		} catch (IOException e) {
 			throw new StorageManagerException(e);
+		}
+	}
+	
+	/**
+	 * Update the index node pointer
+	 * @param randomAccessFile 
+	 * @throws IOException 
+	 */
+	protected void updateIndexNodePointer(final RandomAccessFile randomAccessFile) throws IOException {
+		for(final RTreeDirectoryNode node : nodeFixedEndPosition.keySet()) {
+			// Seek to the first pointer
+			randomAccessFile.seek(nodeFixedEndPosition.get(node));
+			
+			for(final RTreeDirectoryNode child : node.getDirectoryNodeChilds()) {
+				final Integer childNodePosition = nodeStartPosition.get(child);
+				final ByteBuffer childNodePointer = DataEncoderHelper.intToByteBuffer(childNodePosition);
+				
+				// Override node pointer placeholder
+				randomAccessFile.write(childNodePointer.array());
+			}
 		}
 	}
 
@@ -107,16 +124,9 @@ public class RTreeSerializer {
 	 */
 	protected void handleNewNode(final RandomAccessFile randomAccessFile, final RTreeDirectoryNode node) 
 			throws IOException {
-		
-		// Child does not exist
-		if(node == NULL_RTREE_ELEMENT) {
-			randomAccessFile.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
-			return;
-		}
 
 		// Node data
-		nodeStartPosition.put(node, randomAccessFile.getFilePointer());
-		randomAccessFile.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
+		nodeStartPosition.put(node, (int) randomAccessFile.getFilePointer());
 		final ByteBuffer nodeIdBytes = DataEncoderHelper.intToByteBuffer(node.getNodeId());
 		randomAccessFile.write(nodeIdBytes.array());
 		
@@ -128,10 +138,10 @@ public class RTreeSerializer {
 
 		// Write entry nodes
 		writeEntryNodes(randomAccessFile, node);
-		nodeFixedEndPosition.put(node, randomAccessFile.getFilePointer());
+		nodeFixedEndPosition.put(node, (int) randomAccessFile.getFilePointer());
 
 		// Write directory nodes
-		addDirectoryNodesToQueue(nodesQueue, node);		
+		addDirectoryNodesToQueue(randomAccessFile, node);		
 	}
 
 	/**
@@ -158,17 +168,19 @@ public class RTreeSerializer {
 	 * Add the directory nodes to the queue
 	 * @param nodesQueue
 	 * @param node
+	 * @throws IOException 
 	 */
-	protected void addDirectoryNodesToQueue(final Deque<RTreeDirectoryNode> nodesQueue, 
-			final RTreeDirectoryNode node) {
+	protected void addDirectoryNodesToQueue(final RandomAccessFile randomAccessFile, 
+			final RTreeDirectoryNode node) throws IOException {
 		
 		final List<RTreeDirectoryNode> directoryNodeChilds = node.getDirectoryNodeChilds();
-		for(int i = maxNodeSize - 1; i >= 0; i--) {
+		for(int i = 0; i < maxNodeSize; i++) {
 			if(i < directoryNodeChilds.size()) {
 				nodesQueue.addFirst(directoryNodeChilds.get(i));
-			} else {
-				nodesQueue.addFirst(NULL_RTREE_ELEMENT);
 			}
+			
+			// Existing pointer will be written in a second step
+			randomAccessFile.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
 		}
 	}
 	
