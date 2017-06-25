@@ -75,6 +75,7 @@ public class RTreeSpatialIndexBuilder implements SpatialIndexBuilder {
 		this.maxNodeSize = maxNodeSize;
 		this.nodeFactory = new RTreeNodeFactory();
 		this.rootNode = nodeFactory.buildDirectoryNode();
+		this.rootNode.updateBoundingBox();
 	}
 
 	@Override

@@ -22,7 +22,9 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.sstable.SSTableConst;
@@ -42,11 +44,25 @@ public class RTreeSerializer {
 	protected RTreeDirectoryNode rootNode;
 
 	/**
+	 * The node start position
+	 */
+	protected final Map<RTreeDirectoryNode, Long> nodeStartPosition = new HashMap<>();
+
+	/**
+	 * The node start child nodes position
+	 */
+	protected final Map<RTreeDirectoryNode, Long> nodeFixedEndPosition = new HashMap<>();
+
+	/**
+	 * The nodes queue
+	 */
+	protected final Deque<RTreeDirectoryNode> nodesQueue = new ArrayDeque<>();
+	
+	/**
 	 * The queue null element
 	 */
-	private static final RTreeDirectoryNode NULL_RTREE_ELEMENT = new RTreeDirectoryNode(-1);
-
-	private final Deque<RTreeDirectoryNode> nodesQueue = new ArrayDeque<>();
+	protected static final RTreeDirectoryNode NULL_RTREE_ELEMENT = new RTreeDirectoryNode(-1);
+	
 
 	public RTreeSerializer(final RTreeDirectoryNode rootNode, final int maxNodeSize) {
 		this.rootNode = rootNode;
@@ -98,15 +114,24 @@ public class RTreeSerializer {
 			return;
 		}
 
+		// Node data
+		nodeStartPosition.put(node, randomAccessFile.getFilePointer());
 		randomAccessFile.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
 		final ByteBuffer nodeIdBytes = DataEncoderHelper.intToByteBuffer(node.getNodeId());
 		randomAccessFile.write(nodeIdBytes.array());
+		
+		// Bounding box data
+		final byte[] boundingBoxBytes = node.getBoundingBox().toByteArray();
+		final ByteBuffer boundingBoxLength = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
+		randomAccessFile.write(boundingBoxLength.array());
+		randomAccessFile.write(boundingBoxBytes);
 
 		// Write entry nodes
 		writeEntryNodes(randomAccessFile, node);
+		nodeFixedEndPosition.put(node, randomAccessFile.getFilePointer());
 
 		// Write directory nodes
-		addDirectoryNodesToQueue(nodesQueue, node);
+		addDirectoryNodesToQueue(nodesQueue, node);		
 	}
 
 	/**

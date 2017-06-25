@@ -80,6 +80,14 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	}
 	
 	/**
+	 * Set the bounding box
+	 * @param boundingBox
+	 */
+	public void setBoundingBox(BoundingBox boundingBox) {
+		this.boundingBox = boundingBox;
+	}
+	
+	/**
 	 * Get the parent node
 	 * @return
 	 */
@@ -315,9 +323,17 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 	public static RTreeDirectoryNode readFromStream(final InputStream inputStream, final int maxNodeSize) 
 			throws IOException {
 		
+		// Node data
 		final int nodeId = DataEncoderHelper.readIntFromStream(inputStream);
 		final RTreeDirectoryNode resultNode = new RTreeDirectoryNode(nodeId);
 
+		// Bounding box data
+		final int boundingBoxLength = DataEncoderHelper.readIntFromStream(inputStream);
+		final byte[] boundingBoxBytes = new byte[boundingBoxLength];
+		ByteStreams.readFully(inputStream, boundingBoxBytes, 0, boundingBoxBytes.length);
+		final BoundingBox boundingBox = BoundingBox.fromByteArray(boundingBoxBytes);
+		resultNode.setBoundingBox(boundingBox);
+		
 		// Read entry entries
 		for(int i = 0; i < maxNodeSize; i++) {
 			final byte[] followingByte = new byte[1];
@@ -345,9 +361,7 @@ public class RTreeDirectoryNode implements BoundingBoxEntity {
 				throw new IllegalArgumentException("Unknown node type following: " + followingByte[0]);
 			}
 		}
-		
-		resultNode.updateBoundingBox();
-		
+				
 		return resultNode;
 	}
 
