@@ -19,7 +19,7 @@ package org.bboxdb.storage.sstable.spatialindex;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.storage.entity.BoundingBox;
@@ -95,19 +95,18 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 	
 	/**
 	 * Write the node to a stream
-	 * @param outputStream
+	 * @param randomAccessFile
 	 * @throws IOException
 	 */
-	public void writeToStream(final OutputStream outputStream) throws IOException {
-		
+	public void writeToFile(final RandomAccessFile randomAccessFile) throws IOException {
 		final ByteBuffer keyBytes = DataEncoderHelper.intToByteBuffer(value);
-		outputStream.write(keyBytes.array());
+		randomAccessFile.write(keyBytes.array());
 
 		final byte[] boundingBoxBytes = boundingBox.toByteArray();		
 		final ByteBuffer boxLengthBytes = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
 		
-		outputStream.write(boxLengthBytes.array());
-		outputStream.write(boundingBoxBytes);
+		randomAccessFile.write(boxLengthBytes.array());
+		randomAccessFile.write(boundingBoxBytes);
 	}
 	
 	/**

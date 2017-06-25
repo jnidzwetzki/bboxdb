@@ -18,7 +18,7 @@
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -53,23 +53,28 @@ public class RTreeSerializer {
 		this.maxNodeSize = maxNodeSize;
 	}
 
-	public void writeToStream(final OutputStream outputStream) throws StorageManagerException {
+	/**
+	 * Serialize the tree to the file
+	 * @param randomAccessFile
+	 * @throws StorageManagerException
+	 */
+	public void writeToStream(final RandomAccessFile randomAccessFile) throws StorageManagerException {
 		
 		nodesQueue.clear();
 		
 		try {
 			// Write the magic bytes
-			outputStream.write(SSTableConst.MAGIC_BYTES_SPATIAL_RTREE_INDEX);
+			randomAccessFile.write(SSTableConst.MAGIC_BYTES_SPATIAL_RTREE_INDEX);
 
 			// Write the tree configuration
 			final ByteBuffer nodeSizeBytes = DataEncoderHelper.intToByteBuffer(maxNodeSize);
-			outputStream.write(nodeSizeBytes.array());
+			randomAccessFile.write(nodeSizeBytes.array());
 
 			nodesQueue.push(rootNode);
 
 			while(! nodesQueue.isEmpty()) {
 				final RTreeDirectoryNode node = nodesQueue.pop();
-				handleNewNode(outputStream, node);			    
+				handleNewNode(randomAccessFile, node);			    
 			}
 			
 		} catch (IOException e) {
@@ -79,26 +84,26 @@ public class RTreeSerializer {
 
 	/**
 	 * Handle the nodes
-	 * @param outputStream
+	 * @param randomAccessFile
 	 * @param nodesQueue
 	 * @param node
 	 * @throws IOException
 	 */
-	protected void handleNewNode(final OutputStream outputStream, final RTreeDirectoryNode node) 
+	protected void handleNewNode(final RandomAccessFile randomAccessFile, final RTreeDirectoryNode node) 
 			throws IOException {
 		
 		// Child does not exist
 		if(node == NULL_RTREE_ELEMENT) {
-			outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
+			randomAccessFile.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
 			return;
 		}
 
-		outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
+		randomAccessFile.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
 		final ByteBuffer nodeIdBytes = DataEncoderHelper.intToByteBuffer(node.getNodeId());
-		outputStream.write(nodeIdBytes.array());
+		randomAccessFile.write(nodeIdBytes.array());
 
 		// Write entry nodes
-		writeEntryNodes(outputStream, node);
+		writeEntryNodes(randomAccessFile, node);
 
 		// Write directory nodes
 		addDirectoryNodesToQueue(nodesQueue, node);
@@ -106,20 +111,20 @@ public class RTreeSerializer {
 
 	/**
 	 * Write the entry nodes to the output stream
-	 * @param outputStream
+	 * @param randomAccessFile
 	 * @param node
 	 * @throws IOException
 	 */
-	protected void writeEntryNodes(final OutputStream outputStream, final RTreeDirectoryNode node) 
+	protected void writeEntryNodes(final RandomAccessFile randomAccessFile, final RTreeDirectoryNode node) 
 			throws IOException {
 		
 		final List<SpatialIndexEntry> indexEntries = node.getIndexEntries();
 		for(int i = 0; i < maxNodeSize; i++) {
 			if(i < indexEntries.size()) {
-				outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
-				indexEntries.get(i).writeToStream(outputStream);
+				randomAccessFile.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
+				indexEntries.get(i).writeToFile(randomAccessFile);
 			} else {
-				outputStream.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
+				randomAccessFile.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
 			}
 		}
 	}

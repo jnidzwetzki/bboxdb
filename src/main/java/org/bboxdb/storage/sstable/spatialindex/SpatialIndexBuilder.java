@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex;
 
-import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.util.List;
 
 import org.bboxdb.storage.StorageManagerException;
@@ -48,7 +48,7 @@ public interface SpatialIndexBuilder {
 	 * @param outputStream
 	 * @throws StorageManagerException 
 	 */
-	public void writeToStream(final OutputStream outputStream) throws StorageManagerException;
+	public void writeToFile(final RandomAccessFile randomAccessFile) throws StorageManagerException;
 	
 	/**
 	 * Find the entries for the given region

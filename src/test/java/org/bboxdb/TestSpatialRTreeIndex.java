@@ -17,9 +17,10 @@
  *******************************************************************************/
 package org.bboxdb;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -239,21 +240,21 @@ public class TestSpatialRTreeIndex {
 	 */
 	@Test
 	public void testEncodeDecodeRTreeEntry() throws IOException {
-		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		final BoundingBox boundingBox = new BoundingBox(4.1, 8.1, 4.2, 8.8);
 		
+		final File tempFile = File.createTempFile("rtree-", "-test");
+		tempFile.deleteOnExit();
+		final RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");		
 		final SpatialIndexEntry rTreeSpatialIndexEntry = new SpatialIndexEntry(boundingBox, 1);
-		rTreeSpatialIndexEntry.writeToStream(bos);
-		bos.close();
+		rTreeSpatialIndexEntry.writeToFile(raf);		
+		raf.close();
 		
-		final byte[] bytes = bos.toByteArray();
-		final ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-		
-		Assert.assertTrue(bis.available() > 0);
-		final SpatialIndexEntry readEntry = SpatialIndexEntry.readFromStream(bis);
-		Assert.assertTrue(bis.available() == 0);
+		final FileInputStream fis = new FileInputStream(tempFile);		
+		Assert.assertTrue(fis.available() > 0);
+		final SpatialIndexEntry readEntry = SpatialIndexEntry.readFromStream(fis);
+		Assert.assertTrue(fis.available() == 0);
 
-		bis.close();
+		fis.close();
 		
 		Assert.assertEquals(rTreeSpatialIndexEntry.getValue(), readEntry.getValue());
 		Assert.assertEquals(rTreeSpatialIndexEntry.getBoundingBox(), readEntry.getBoundingBox());
@@ -286,14 +287,18 @@ public class TestSpatialRTreeIndex {
 		final int maxNodeSize = 12;
 		final RTreeSpatialIndexBuilder index = new RTreeSpatialIndexBuilder(maxNodeSize);
 		
-		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		index.writeToStream(bos);
-		bos.close();
+		final File tempFile = File.createTempFile("rtree-", "-test");
+		tempFile.deleteOnExit();
+		final RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");		
+		index.writeToFile(raf);
+		raf.close();
 		
-		final byte[] bytes = bos.toByteArray();
-		final ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+		final FileInputStream fis = new FileInputStream(tempFile);		
 		final RTreeSpatialIndexMemoryReader indexRead = new RTreeSpatialIndexMemoryReader();
-		indexRead.readFromStream(bis);
+		
+		Assert.assertTrue(fis.available() > 0);
+		indexRead.readFromStream(fis);
+		Assert.assertTrue(fis.available() == 0);
 
 		Assert.assertEquals(maxNodeSize, index.getMaxNodeSize());
 		Assert.assertEquals(maxNodeSize, indexRead.getMaxNodeSize());
@@ -314,19 +319,20 @@ public class TestSpatialRTreeIndex {
 		
 		queryIndex(tupleList, index);
 		
-		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		index.writeToStream(bos);
-		bos.close();
+		final File tempFile = File.createTempFile("rtree-", "-test");
+		tempFile.deleteOnExit();
+		final RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");		
+		index.writeToFile(raf);
+		raf.close();
 		
-		final byte[] bytes = bos.toByteArray();
-		final ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+		final FileInputStream fis = new FileInputStream(tempFile);		
 		final RTreeSpatialIndexMemoryReader indexRead = new RTreeSpatialIndexMemoryReader();
 		
-		Assert.assertTrue(bis.available() > 0);
-		indexRead.readFromStream(bis);
-		Assert.assertTrue(bis.available() == 0);
+		Assert.assertTrue(fis.available() > 0);
+		indexRead.readFromStream(fis);
+		Assert.assertTrue(fis.available() == 0);
 		
-		bis.close();
+		fis.close();
 		
 		queryIndex(tupleList, indexRead);
 	}

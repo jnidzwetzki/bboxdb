@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
-import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -78,9 +78,9 @@ public class RTreeSpatialIndexBuilder implements SpatialIndexBuilder {
 	}
 
 	@Override
-	public void writeToStream(final OutputStream outputStream) throws StorageManagerException {
+	public void writeToFile(final RandomAccessFile randomAccessFile) throws StorageManagerException {
 		final RTreeSerializer rTreeSerializer = new RTreeSerializer(rootNode, maxNodeSize);
-		rTreeSerializer.writeToStream(outputStream);
+		rTreeSerializer.writeToStream(randomAccessFile);
 	}
 
 	@Override

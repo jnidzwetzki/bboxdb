@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -32,8 +33,8 @@ import org.bboxdb.storage.entity.SSTableMetaData;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
+import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.util.io.DataEncoderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -269,11 +270,11 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws StorageManagerException 
 	 */
 	protected void writeSpatialIndex() throws IOException, StorageManagerException {
-		try (   final FileOutputStream fos = new FileOutputStream(spatialIndexFile);
-				final OutputStream outputStream = new BufferedOutputStream(fos);
+		try (   
+				final RandomAccessFile file = new RandomAccessFile(spatialIndexFile, "rw" );
 			) {
-			spatialIndex.writeToStream(outputStream);
-			outputStream.close();
+			spatialIndex.writeToFile(file);
+			file.close();
 		}
 	}
 	
