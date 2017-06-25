@@ -337,4 +337,14 @@ public class TestSpatialRTreeIndex {
 		queryIndex(tupleList, indexRead);
 	}
 	
+	/**
+	 * Test the bounding box of an empty r-tree
+	 */
+	@Test
+	public void testEmptryRTreeBBox() {
+		final RTreeSpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(BoundingBox.EMPTY_BOX);
+		Assert.assertTrue(result.isEmpty());
+	}
+	
 }
