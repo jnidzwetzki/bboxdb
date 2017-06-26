@@ -17,13 +17,14 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex;
 
+import java.io.Closeable;
 import java.io.RandomAccessFile;
 import java.util.List;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 
-public interface SpatialIndexReader {
+public interface SpatialIndexReader extends Closeable {
 	
 	/**
 	 * Persist the index 
