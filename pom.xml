@@ -78,22 +78,12 @@
 			<version>1.4</version>
 		</dependency>
 
-		<!-- Used by some experiments 
-		<dependency> 
-			<groupId>org.apache.derby</groupId> 
-			<artifactId>derby</artifactId> 
-			<version>10.13.1.1</version> 
-		</dependency> 
-		-->
-		
-		<!-- Used by some experiments 
-		<dependency>
-		    <groupId>com.h2database</groupId>
-		    <artifactId>h2</artifactId>
-		    <version>1.4.195</version>
-		</dependency>
-		-->
-		
+		<!-- Used by some experiments <dependency> <groupId>org.apache.derby</groupId> 
+			<artifactId>derby</artifactId> <version>10.13.1.1</version> </dependency> -->
+
+		<!-- Used by some experiments <dependency> <groupId>com.h2database</groupId> 
+			<artifactId>h2</artifactId> <version>1.4.195</version> </dependency> -->
+
 	</dependencies>
 
 	<!-- Needed for berkeley db (com.sleepycat) -->
@@ -115,8 +105,18 @@
 	</licenses>
 
 	<scm>
+		<connection>scm:git:git@github.com:jnidzwetzki/bboxdb.git</connection>
 		<url>https://github.com/jnidzwetzki/bboxdb</url>
+		<tag>HEAD</tag>
 	</scm>
+
+	<developers>
+		<developer>
+			<id>jkn</id>
+			<name>Jan Kristof Nidzwetzki</name>
+			<email>jnidzwetzki@gmx.de</email>
+		</developer>
+	</developers>
 
 	<ciManagement>
 		<system>Travis</system>
