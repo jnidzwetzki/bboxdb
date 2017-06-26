@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexBuilder;
+import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
 
 import com.google.common.collect.Lists;
 
@@ -46,7 +46,7 @@ public class CellGrid {
 	/**
 	 * The spatial index
 	 */
-	protected final RTreeSpatialIndexBuilder spatialIndexBuilder = new RTreeSpatialIndexBuilder();
+	protected final RTreeBuilder spatialIndexBuilder = new RTreeBuilder();
 
 	/**
 	 * Build the grid with fixed cell size

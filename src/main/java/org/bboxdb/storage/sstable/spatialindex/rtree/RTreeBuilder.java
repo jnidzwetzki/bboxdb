@@ -28,7 +28,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 
-public class RTreeSpatialIndexBuilder implements SpatialIndexBuilder {
+public class RTreeBuilder implements SpatialIndexBuilder {
 
 	/**
 	 * The node factory
@@ -65,11 +65,11 @@ public class RTreeSpatialIndexBuilder implements SpatialIndexBuilder {
 	 */
 	public final static int MAGIC_VALUE_SIZE = 4;
 
-	public RTreeSpatialIndexBuilder() {
+	public RTreeBuilder() {
 		this(DEFAULT_NODE_SIZE);
 	}
 
-	public RTreeSpatialIndexBuilder(final int maxNodeSize) {
+	public RTreeBuilder(final int maxNodeSize) {
 
 		if(maxNodeSize <= 0) {
 			throw new IllegalArgumentException("Unable to construct an index with max node size: " 

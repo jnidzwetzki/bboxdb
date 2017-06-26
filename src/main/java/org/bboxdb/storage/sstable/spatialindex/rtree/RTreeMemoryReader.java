@@ -16,7 +16,7 @@ import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReader;
 import org.bboxdb.util.io.DataEncoderHelper;
 
-public class RTreeSpatialIndexMemoryReader implements SpatialIndexReader {
+public class RTreeMemoryReader implements SpatialIndexReader {
 
 	/**
 	 * The root node of the tree
@@ -36,11 +36,11 @@ public class RTreeSpatialIndexMemoryReader implements SpatialIndexReader {
 	protected Queue<Entry<RTreeDirectoryNode, Integer>> childToReadQueue = new LinkedTransferQueue<>();
 	
 	
-	public RTreeSpatialIndexMemoryReader() {
+	public RTreeMemoryReader() {
 		
 	}
 	
-	public RTreeSpatialIndexMemoryReader(final RTreeSpatialIndexBuilder indexBuilder) {
+	public RTreeMemoryReader(final RTreeBuilder indexBuilder) {
 		this.rootNode = indexBuilder.rootNode;
 		this.maxNodeSize = indexBuilder.maxNodeSize;
 	}
@@ -118,10 +118,10 @@ public class RTreeSpatialIndexMemoryReader implements SpatialIndexReader {
 			throws IOException {
 		
 		for(int i = 0; i < maxNodeSize; i++) {
-			final byte[] followingByte = new byte[RTreeSpatialIndexBuilder.MAGIC_VALUE_SIZE];
+			final byte[] followingByte = new byte[RTreeBuilder.MAGIC_VALUE_SIZE];
 			randomAccessFile.readFully(followingByte, 0, followingByte.length);
 			
-			if(! Arrays.equals(followingByte, RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING)) {
+			if(! Arrays.equals(followingByte, RTreeBuilder.MAGIC_CHILD_NODE_NOT_EXISTING)) {
 				final int childPointer = DataEncoderHelper.readIntFromByte(followingByte);
 				
 				// Add the pointer for later decoding
@@ -139,13 +139,13 @@ public class RTreeSpatialIndexMemoryReader implements SpatialIndexReader {
 	 */
 	protected void readEntryNodes(final RandomAccessFile randomAccessFile) throws IOException {
 		for(int i = 0; i < maxNodeSize; i++) {
-			final byte[] followingByte = new byte[RTreeSpatialIndexBuilder.MAGIC_VALUE_SIZE];
+			final byte[] followingByte = new byte[RTreeBuilder.MAGIC_VALUE_SIZE];
 			randomAccessFile.readFully(followingByte, 0, followingByte.length);
 			
-			if(Arrays.equals(followingByte, RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING)) {
+			if(Arrays.equals(followingByte, RTreeBuilder.MAGIC_CHILD_NODE_FOLLOWING)) {
 				final SpatialIndexEntry spatialIndexEntry = SpatialIndexEntry.readFromFile(randomAccessFile);
 				rootNode.indexEntries.add(spatialIndexEntry);
-			} else if(! Arrays.equals(followingByte, RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING)) {
+			} else if(! Arrays.equals(followingByte, RTreeBuilder.MAGIC_CHILD_NODE_NOT_EXISTING)) {
 				throw new IllegalArgumentException("Unknown node type following: " + followingByte);
 			}				
 		}

@@ -156,10 +156,10 @@ public class RTreeSerializer {
 		final List<SpatialIndexEntry> indexEntries = node.getIndexEntries();
 		for(int i = 0; i < maxNodeSize; i++) {
 			if(i < indexEntries.size()) {
-				randomAccessFile.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_FOLLOWING);
+				randomAccessFile.write(RTreeBuilder.MAGIC_CHILD_NODE_FOLLOWING);
 				indexEntries.get(i).writeToFile(randomAccessFile);
 			} else {
-				randomAccessFile.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
+				randomAccessFile.write(RTreeBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
 			}
 		}
 	}
@@ -180,7 +180,7 @@ public class RTreeSerializer {
 			}
 			
 			// Existing pointer will be written in a second step
-			randomAccessFile.write(RTreeSpatialIndexBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
+			randomAccessFile.write(RTreeBuilder.MAGIC_CHILD_NODE_NOT_EXISTING);
 		}
 	}
 	

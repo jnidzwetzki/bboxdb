@@ -30,8 +30,8 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReader;
-import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexBuilder;
-import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexMemoryReader;
+import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
+import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeMemoryReader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,13 +44,13 @@ public class TestSpatialRTreeIndex {
 	public void testBoxesInsert() {
 		final List<SpatialIndexEntry> elements = getEntryList();
 		
-		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(elements);
 	}
 	
 	@Test
 	public void testQueryOnEmptytree() {
-		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final SpatialIndexBuilder index = new RTreeBuilder();
 		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(new BoundingBox(1d, 1d, 2d, 2d));
 		Assert.assertTrue(result.isEmpty());
 	}
@@ -62,7 +62,7 @@ public class TestSpatialRTreeIndex {
 	public void testBoxQuery1d() {
 		final List<SpatialIndexEntry> tupleList = getEntryList();
 		
-		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
 		queryIndex(tupleList, index);
 	}
@@ -74,7 +74,7 @@ public class TestSpatialRTreeIndex {
 	public void testBoxQuery2d() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(2);
 		
-		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
 		queryIndex(tupleList, index);
 	}
@@ -86,7 +86,7 @@ public class TestSpatialRTreeIndex {
 	public void testBoxQuery3d() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(3);
 		
-		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
 		
 		queryIndex(tupleList, index);
@@ -99,7 +99,7 @@ public class TestSpatialRTreeIndex {
 	public void testBoxQuery4d() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(4);
 		
-		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
 		
 		queryIndex(tupleList, index);
@@ -112,7 +112,7 @@ public class TestSpatialRTreeIndex {
 	public void testBoxQuery5d() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(5);
 		
-		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
 		
 		queryIndex(tupleList, index);
@@ -125,7 +125,7 @@ public class TestSpatialRTreeIndex {
 	public void testBoxQuery10d() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(10);
 		
-		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
 		
 		queryIndex(tupleList, index);
@@ -139,7 +139,7 @@ public class TestSpatialRTreeIndex {
 	public void testCovering() {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(3);
 		
-		final RTreeSpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final RTreeBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
 		
 		index.testCovering();		
@@ -261,7 +261,7 @@ public class TestSpatialRTreeIndex {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testWrongNodeSize0() {
-		new RTreeSpatialIndexBuilder(0);
+		new RTreeBuilder(0);
 	}
 	
 	/**
@@ -269,7 +269,7 @@ public class TestSpatialRTreeIndex {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testWrongNodeSize1() {
-		new RTreeSpatialIndexBuilder(-1);
+		new RTreeBuilder(-1);
 	}
 	
 	/**
@@ -281,7 +281,7 @@ public class TestSpatialRTreeIndex {
 	@Test
 	public void testSerializeIndex0() throws StorageManagerException, IOException, InterruptedException {
 		final int maxNodeSize = 12;
-		final RTreeSpatialIndexBuilder index = new RTreeSpatialIndexBuilder(maxNodeSize);
+		final RTreeBuilder index = new RTreeBuilder(maxNodeSize);
 		
 		final File tempFile = File.createTempFile("rtree-", "-test");
 		tempFile.deleteOnExit();
@@ -289,7 +289,7 @@ public class TestSpatialRTreeIndex {
 		index.writeToFile(raf);
 		raf.close();
 			
-		final RTreeSpatialIndexMemoryReader indexRead = new RTreeSpatialIndexMemoryReader();
+		final RTreeMemoryReader indexRead = new RTreeMemoryReader();
 		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
 		indexRead.readFromFile(rafRead);
 		rafRead.close();
@@ -311,7 +311,7 @@ public class TestSpatialRTreeIndex {
 		final List<SpatialIndexEntry> tupleList = new ArrayList<>();
 		tupleList.add(new SpatialIndexEntry(new BoundingBox(1.0, 1.2), 2));
 		
-		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
 		
 		queryIndex(tupleList, index);
@@ -322,7 +322,7 @@ public class TestSpatialRTreeIndex {
 		index.writeToFile(raf);
 		raf.close();
 		
-		final RTreeSpatialIndexMemoryReader indexRead = new RTreeSpatialIndexMemoryReader();
+		final RTreeMemoryReader indexRead = new RTreeMemoryReader();
 		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
 		indexRead.readFromFile(rafRead);
 		rafRead.close();
@@ -341,7 +341,7 @@ public class TestSpatialRTreeIndex {
 	public void testSerializeIndex1D() throws StorageManagerException, IOException, InterruptedException {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(1);
 		
-		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
 		
 		queryIndex(tupleList, index);
@@ -352,7 +352,7 @@ public class TestSpatialRTreeIndex {
 		index.writeToFile(raf);
 		raf.close();
 		
-		final RTreeSpatialIndexMemoryReader indexRead = new RTreeSpatialIndexMemoryReader();
+		final RTreeMemoryReader indexRead = new RTreeMemoryReader();
 		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
 		indexRead.readFromFile(rafRead);
 		rafRead.close();
@@ -370,7 +370,7 @@ public class TestSpatialRTreeIndex {
 	public void testSerializeIndex3D() throws StorageManagerException, IOException, InterruptedException {
 		final List<SpatialIndexEntry> tupleList = generateRandomTupleList(3);
 		
-		final SpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final SpatialIndexBuilder index = new RTreeBuilder();
 		index.bulkInsert(tupleList);
 		
 		queryIndex(tupleList, index);
@@ -381,7 +381,7 @@ public class TestSpatialRTreeIndex {
 		index.writeToFile(raf);
 		raf.close();
 		
-		final RTreeSpatialIndexMemoryReader indexRead = new RTreeSpatialIndexMemoryReader();
+		final RTreeMemoryReader indexRead = new RTreeMemoryReader();
 		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
 		indexRead.readFromFile(rafRead);
 		rafRead.close();
@@ -394,7 +394,7 @@ public class TestSpatialRTreeIndex {
 	 */
 	@Test
 	public void testEmptryRTreeBBox() {
-		final RTreeSpatialIndexBuilder index = new RTreeSpatialIndexBuilder();
+		final RTreeBuilder index = new RTreeBuilder();
 		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(BoundingBox.EMPTY_BOX);
 		Assert.assertTrue(result.isEmpty());
 	}

@@ -56,12 +56,12 @@ public class BBoxDBConfiguration {
 	/**
 	 * The classname of the spatial index builder
 	 */
-	protected String storageSpatialIndexBuilder = "org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexBuilder";
+	protected String storageSpatialIndexBuilder = "org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder";
 	
 	/**
 	 * The classname of the spatial index reader
 	 */
-	protected String storageSpatialIndexReader = "org.bboxdb.storage.sstable.spatialindex.rtree.RTreeSpatialIndexMemoryReader";
+	protected String storageSpatialIndexReader = "org.bboxdb.storage.sstable.spatialindex.rtree.RTreeMemoryReader";
 	
 	/**
 	 * The checkpoint interval
