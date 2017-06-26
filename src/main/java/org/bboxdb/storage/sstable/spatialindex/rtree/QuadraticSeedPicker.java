@@ -17,12 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex.rtree;
 
-import java.util.AbstractMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity;
+import org.bboxdb.util.Pair;
 
 public class QuadraticSeedPicker<T extends BoundingBoxEntity> {
 
@@ -31,12 +30,12 @@ public class QuadraticSeedPicker<T extends BoundingBoxEntity> {
 	 * @param insertedNode
 	 * @return
 	 */
-	protected Entry<T, T> quadraticPickSeeds(final List<T> allEntries) {
+	protected Pair<T, T> quadraticPickSeeds(final List<T> allEntries) {
 		
 		assert(allEntries.size() >= 2);
 		
 		double maxWaste = Double.MAX_VALUE;
-		Entry<T, T> result = null;
+		Pair<T, T> result = null;
 		
 		for(final T box1 : allEntries) {
 			for(final T box2 : allEntries) {
@@ -55,7 +54,7 @@ public class QuadraticSeedPicker<T extends BoundingBoxEntity> {
 						- boundingBox2.getVolume();
 				
 				if(waste < maxWaste) {
-					result = new AbstractMap.SimpleImmutableEntry<T,T>(box1, box2);
+					result = new Pair<T,T>(box1, box2);
 					maxWaste = waste;
 				}
 			}	
@@ -64,8 +63,8 @@ public class QuadraticSeedPicker<T extends BoundingBoxEntity> {
 		assert(result != null) : "Unable to find seeds";
 		
 		// Remove seeds from available objects
-		allEntries.remove(result.getKey());
-		allEntries.remove(result.getValue());
+		allEntries.remove(result.getElement1());
+		allEntries.remove(result.getElement2());
 		
 		return result;
 	}

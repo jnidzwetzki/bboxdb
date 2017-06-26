@@ -21,12 +21,12 @@ import java.io.RandomAccessFile;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
+import org.bboxdb.util.Pair;
 
 public class RTreeBuilder implements SpatialIndexBuilder {
 
@@ -243,11 +243,11 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 		final List<RTreeDirectoryNode> dataToDistribute = nodeToSplit.getDirectoryNodeChilds();
 
 		final QuadraticSeedPicker<RTreeDirectoryNode> seedPicker = new QuadraticSeedPicker<>();
-		final Entry<RTreeDirectoryNode, RTreeDirectoryNode> seeds 
+		final Pair<RTreeDirectoryNode, RTreeDirectoryNode> seeds 
 			= seedPicker.quadraticPickSeeds(dataToDistribute);
 
-		newNode1.addDirectoryNodeChild(seeds.getKey());
-		newNode2.addDirectoryNodeChild(seeds.getValue());
+		newNode1.addDirectoryNodeChild(seeds.getElement1());
+		newNode2.addDirectoryNodeChild(seeds.getElement2());
 
 		for(int i = 0; i < dataToDistribute.size(); i++) {
 			newNode1.updateBoundingBox();
@@ -302,11 +302,11 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 		final List<SpatialIndexEntry> dataToDistribute = nodeToSplit.getIndexEntries();
 
 		final QuadraticSeedPicker<SpatialIndexEntry> seedPicker = new QuadraticSeedPicker<>();
-		final Entry<SpatialIndexEntry, SpatialIndexEntry> seeds 
+		final Pair<SpatialIndexEntry, SpatialIndexEntry> seeds 
 			= seedPicker.quadraticPickSeeds(dataToDistribute);
 
-		insert(newNode1, seeds.getKey());
-		insert(newNode2, seeds.getValue());
+		insert(newNode1, seeds.getElement1());
+		insert(newNode2, seeds.getElement2());
 
 		for(int i = 0; i < dataToDistribute.size(); i++) {
 			newNode1.updateBoundingBox();
