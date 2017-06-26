@@ -29,6 +29,7 @@ import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableManagerState;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
+import org.bboxdb.util.FileSizeHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,8 +188,10 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 		
 		final int tableNumber = sstableManager.increaseTableNumber();
 		
-		logger.info("Writing new memtable number: {} with {} entries and a size of {} KB", 
-				tableNumber, memtable.getTotalEntries(), memtable.getSize() / 1024);
+		logger.info("Writing memtable number {} with {} entries and a size of {}", 
+				tableNumber, 
+				memtable.getTotalEntries(), 
+				FileSizeHelper.readableFileSize(memtable.getSize()));
 
 		try (final SSTableWriter ssTableWriter = new SSTableWriter(
 				dataDirectory, sstableManager.getSSTableName(), tableNumber,
