@@ -229,6 +229,10 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		if(ssTableReader != null) {
 			ssTableReader.shutdown();
 		}
+		
+		if(spatialIndex != null) {
+			spatialIndex.close();
+		}
 	}
 
 	@Override

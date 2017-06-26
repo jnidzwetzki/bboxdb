@@ -181,4 +181,11 @@ public class RTreeSpatialIndexMemoryReader implements SpatialIndexReader {
 	public int getMaxNodeSize() {
 		return maxNodeSize;
 	}
+
+	@Override
+	public void close() {
+		maxNodeSize = -1;
+		rootNode = null;
+		childToReadQueue.clear();
+	}
 }

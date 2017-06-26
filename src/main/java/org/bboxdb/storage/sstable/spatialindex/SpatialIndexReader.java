@@ -32,6 +32,10 @@ public interface SpatialIndexReader {
 	 */
 	public void readFromFile(final RandomAccessFile randomAccessFile) throws StorageManagerException, InterruptedException;
 	
+	/**
+	 * Close the index
+	 */
+	public void close();
 	
 	/**
 	 * Find the entries for the given region
