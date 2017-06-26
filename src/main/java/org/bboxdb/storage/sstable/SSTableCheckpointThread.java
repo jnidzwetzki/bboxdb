@@ -28,6 +28,7 @@ import org.bboxdb.storage.registry.Storage;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.util.FileSizeHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
+import org.bboxdb.util.io.UnsafeMemoryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,5 +170,14 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 				FileSizeHelper.readableFileSize(totalMemory), 
 				FileSizeHelper.readableFileSize(freeMemory), 
 				FileSizeHelper.readableFileSize(usedMemory));
+		
+		try {
+			final long mappedBytes = UnsafeMemoryHelper.getMappedBytes();
+			logger.info("Memory mapped segments: {}, memory mapped data: {}",
+					UnsafeMemoryHelper.getMappedSegments(),
+					FileSizeHelper.readableFileSize(mappedBytes));
+		} catch (Exception e) {
+			logger.debug("Unable to get memory statistics", e);
+		}
 	}
 }
