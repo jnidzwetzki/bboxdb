@@ -14,7 +14,7 @@ Zookeeper is used for group membership and service discovery. An entry the in zo
 
 * clustername - is a freely selectable name for the cluster.
 * node/active - the directory for active group memberships.
-* instancename - the name of the running BBoxDB instance in the format ip:port. The value of the node is the state of the node (readonly|readwrite).
+* instancename - the name of the running BBoxDB instance in the format ip:port. The value of the node is the state of the node. Allowed values are 'readonly' and 'readwrite'.
 
 For example: /mycluster/nodes/active/192.168.1.1:5050[readonly]
 
