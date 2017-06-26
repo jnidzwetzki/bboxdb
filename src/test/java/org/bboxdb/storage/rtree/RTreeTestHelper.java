@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -35,8 +36,9 @@ public class RTreeTestHelper {
 	 * 
 	 * @param entries
 	 * @param index
+	 * @throws StorageManagerException 
 	 */
-	public static void queryIndex(final List<SpatialIndexEntry> entries, final SpatialIndexReader index) {
+	public static void queryIndex(final List<SpatialIndexEntry> entries, final SpatialIndexReader index) throws StorageManagerException {
 		
 		for(final SpatialIndexEntry entry: entries) {
 			final List<? extends SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());

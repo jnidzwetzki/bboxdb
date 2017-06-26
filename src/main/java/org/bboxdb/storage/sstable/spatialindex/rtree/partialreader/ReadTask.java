@@ -15,33 +15,12 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.sstable.spatialindex;
+package org.bboxdb.storage.sstable.spatialindex.rtree.partialreader;
 
-import java.io.Closeable;
-import java.io.RandomAccessFile;
-import java.util.List;
+public class ReadTask {
 
-import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
+	public ReadTask() {
+		// TODO Auto-generated constructor stub
+	}
 
-public interface SpatialIndexReader extends Closeable {
-	
-	/**
-	 * Persist the index 
-	 * 
-	 * @param inputStream
-	 */
-	public void readFromFile(final RandomAccessFile randomAccessFile) throws StorageManagerException, InterruptedException;
-	
-	/**
-	 * Close the index
-	 */
-	public void close();
-	
-	/**
-	 * Find the entries for the given region
-	 * @param boundingBox
-	 * @return
-	 */
-	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) throws StorageManagerException;
 }

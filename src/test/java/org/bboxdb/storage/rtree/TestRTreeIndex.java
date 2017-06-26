@@ -20,8 +20,13 @@ package org.bboxdb.storage.rtree;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
+import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -144,7 +149,7 @@ public class TestRTreeIndex {
 	 * @throws IOException 
 	 */
 	@Test
-	public void testEncodeDecodeRTreeEntry() throws IOException {
+	public void testEncodeDecodeRTreeEntryFromFile() throws IOException {
 		final BoundingBox boundingBox = new BoundingBox(4.1, 8.1, 4.2, 8.8);
 		
 		final File tempFile = File.createTempFile("rtree-", "-test");
@@ -157,6 +162,32 @@ public class TestRTreeIndex {
 		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
 		final SpatialIndexEntry readEntry = SpatialIndexEntry.readFromFile(rafRead);
 		rafRead.close();
+		
+		Assert.assertEquals(rTreeSpatialIndexEntry.getValue(), readEntry.getValue());
+		Assert.assertEquals(rTreeSpatialIndexEntry.getBoundingBox(), readEntry.getBoundingBox());
+	}
+	
+	/**
+	 * Test the decoding an encoding of an rtree entry
+	 * @throws IOException 
+	 */
+	@Test
+	public void testEncodeDecodeRTreeEntryFromByteBuffer() throws IOException {
+		final BoundingBox boundingBox = new BoundingBox(4.1, 8.1, 4.2, 8.8);
+		
+		final File tempFile = File.createTempFile("rtree-", "-test");
+		tempFile.deleteOnExit();
+		final RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");		
+		final SpatialIndexEntry rTreeSpatialIndexEntry = new SpatialIndexEntry(boundingBox, 1);
+		rTreeSpatialIndexEntry.writeToFile(raf);		
+		raf.close();
+		
+		final Path path = Paths.get(tempFile.getAbsolutePath());
+		final byte[] data = Files.readAllBytes(path);
+		final ByteBuffer bb = ByteBuffer.wrap(data);
+		bb.order(Const.APPLICATION_BYTE_ORDER);
+		
+		final SpatialIndexEntry readEntry = SpatialIndexEntry.readFromByteBuffer(bb);
 		
 		Assert.assertEquals(rTreeSpatialIndexEntry.getValue(), readEntry.getValue());
 		Assert.assertEquals(rTreeSpatialIndexEntry.getBoundingBox(), readEntry.getBoundingBox());

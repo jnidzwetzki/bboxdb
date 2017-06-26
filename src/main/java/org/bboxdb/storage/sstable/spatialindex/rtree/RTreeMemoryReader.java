@@ -28,22 +28,15 @@ import java.util.concurrent.LinkedTransferQueue;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReader;
 import org.bboxdb.util.io.DataEncoderHelper;
 
-public class RTreeMemoryReader implements SpatialIndexReader {
+public class RTreeMemoryReader extends AbstractRTreeReader {
 
 	/**
 	 * The root node of the tree
 	 */
 	protected RTreeDirectoryNode rootNode;
-	
-	/**
-	 * The max size of a child node
-	 */
-	protected int maxNodeSize;
 	
 	/**
 	 * The child to read queue
@@ -76,7 +69,6 @@ public class RTreeMemoryReader implements SpatialIndexReader {
 						
 			while(! childToReadQueue.isEmpty()) {
 				final Entry<RTreeDirectoryNode, Integer> element = childToReadQueue.remove();
-				
 				readDirectoryNode(randomAccessFile, element.getKey());
 			}
 			
@@ -133,9 +125,10 @@ public class RTreeMemoryReader implements SpatialIndexReader {
 	 */
 	protected void readDirectoryNodes(final RandomAccessFile randomAccessFile, final RTreeDirectoryNode node)
 			throws IOException {
-		
+
+		final byte[] followingByte = new byte[RTreeBuilder.MAGIC_VALUE_SIZE];
+
 		for(int i = 0; i < maxNodeSize; i++) {
-			final byte[] followingByte = new byte[RTreeBuilder.MAGIC_VALUE_SIZE];
 			randomAccessFile.readFully(followingByte, 0, followingByte.length);
 			
 			if(! Arrays.equals(followingByte, RTreeBuilder.MAGIC_CHILD_NODE_NOT_EXISTING)) {
@@ -155,8 +148,10 @@ public class RTreeMemoryReader implements SpatialIndexReader {
 	 * @throws IOException
 	 */
 	protected void readEntryNodes(final RandomAccessFile randomAccessFile) throws IOException {
+		
+		final byte[] followingByte = new byte[RTreeBuilder.MAGIC_VALUE_SIZE];
+
 		for(int i = 0; i < maxNodeSize; i++) {
-			final byte[] followingByte = new byte[RTreeBuilder.MAGIC_VALUE_SIZE];
 			randomAccessFile.readFully(followingByte, 0, followingByte.length);
 			
 			if(Arrays.equals(followingByte, RTreeBuilder.MAGIC_CHILD_NODE_FOLLOWING)) {
@@ -169,35 +164,10 @@ public class RTreeMemoryReader implements SpatialIndexReader {
 	}
 
 	@Override
-	public List<? extends SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
+	public List<SpatialIndexEntry> getEntriesForRegion(final BoundingBox boundingBox) {
 		return rootNode.getEntriesForRegion(boundingBox);
 	}
 	
-	/**
-	 * Validate the magic bytes of a stream
-	 * 
-	 * @return a InputStream or null
-	 * @throws StorageManagerException
-	 * @throws IOException 
-	 */
-	protected static void validateStream(final RandomAccessFile randomAccessFile) throws IOException, StorageManagerException {
-		
-		// Validate file - read the magic from the beginning
-		final byte[] magicBytes = new byte[SSTableConst.MAGIC_BYTES_SPATIAL_RTREE_INDEX.length];
-		randomAccessFile.readFully(magicBytes, 0, SSTableConst.MAGIC_BYTES_SPATIAL_RTREE_INDEX.length);
-
-		if(! Arrays.equals(magicBytes, SSTableConst.MAGIC_BYTES_SPATIAL_RTREE_INDEX)) {
-			throw new StorageManagerException("Spatial index file does not contain the magic bytes");
-		}
-	}
-	
-	/**
-	 * Get the max node size for the index
-	 * @return
-	 */
-	public int getMaxNodeSize() {
-		return maxNodeSize;
-	}
 
 	@Override
 	public void close() {

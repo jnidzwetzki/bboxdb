@@ -432,9 +432,15 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	public Iterator<Tuple> getAllTuplesInBoundingBox(final BoundingBox boundingBox) {
 		assert (usage.get() > 0);
 
-		List<? extends SpatialIndexEntry> entries = spatialIndex.getEntriesForRegion(boundingBox);
-		@SuppressWarnings("rawtypes")
-		final Iterator entryIterator = entries.iterator();
+		List<SpatialIndexEntry> entries;
+		
+		try {
+			entries = spatialIndex.getEntriesForRegion(boundingBox);
+		} catch (StorageManagerException e) {
+			throw new RuntimeException(e);
+		}
+		
+		final Iterator<SpatialIndexEntry> entryIterator = entries.iterator();
 		
 		return new Iterator<Tuple>() {
 

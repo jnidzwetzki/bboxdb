@@ -29,11 +29,20 @@ import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeMemoryReader;
+import org.bboxdb.storage.sstable.spatialindex.rtree.AbstractRTreeReader;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestRTreeMemoryDeserializer {
 
+	/**
+	 * Get the reader for the test
+	 * @return
+	 */
+	protected AbstractRTreeReader getRTreeReader() {
+		return new RTreeMemoryReader();
+	}
+	
 
 	/**
 	 * Test different node size
@@ -52,7 +61,7 @@ public class TestRTreeMemoryDeserializer {
 		index.writeToFile(raf);
 		raf.close();
 			
-		final RTreeMemoryReader indexRead = new RTreeMemoryReader();
+		final AbstractRTreeReader indexRead = getRTreeReader();
 		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
 		indexRead.readFromFile(rafRead);
 		rafRead.close();
@@ -87,7 +96,7 @@ public class TestRTreeMemoryDeserializer {
 		index.writeToFile(raf);
 		raf.close();
 		
-		final RTreeMemoryReader indexRead = new RTreeMemoryReader();
+		final AbstractRTreeReader indexRead = getRTreeReader();
 		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
 		indexRead.readFromFile(rafRead);
 		rafRead.close();
@@ -119,14 +128,15 @@ public class TestRTreeMemoryDeserializer {
 		index.writeToFile(raf);
 		raf.close();
 		
-		final RTreeMemoryReader indexRead = new RTreeMemoryReader();
+		final AbstractRTreeReader indexRead = getRTreeReader();
 		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
 		indexRead.readFromFile(rafRead);
 		rafRead.close();
 		
 		RTreeTestHelper.queryIndex(tupleList, indexRead);
 	}
-	
+
+
 	/**
 	 * Test the encoding and the decoding of the index
 	 * @throws StorageManagerException 
@@ -148,7 +158,7 @@ public class TestRTreeMemoryDeserializer {
 		index.writeToFile(raf);
 		raf.close();
 		
-		final RTreeMemoryReader indexRead = new RTreeMemoryReader();
+		final AbstractRTreeReader indexRead = getRTreeReader();
 		final RandomAccessFile rafRead = new RandomAccessFile(tempFile, "r");
 		indexRead.readFromFile(rafRead);
 		rafRead.close();

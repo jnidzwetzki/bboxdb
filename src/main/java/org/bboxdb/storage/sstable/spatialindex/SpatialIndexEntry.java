@@ -130,5 +130,29 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 	
 		return new SpatialIndexEntry(boundingBox, key);
 	}
+	
+	/**
+	 * Read the node from a byte buffer
+	 * @param inputStream
+	 * @return
+	 * @throws IOException 
+	 */
+	public static SpatialIndexEntry readFromByteBuffer(final ByteBuffer buffer) throws IOException {
+		final byte[] keyBytes = new byte[DataEncoderHelper.INT_BYTES];
+		final byte[] boxLengthBytes = new byte[DataEncoderHelper.INT_BYTES];
+		
+		buffer.get(keyBytes, 0, keyBytes.length);
+		buffer.get(boxLengthBytes, 0, boxLengthBytes.length);
+
+		final int key = DataEncoderHelper.readIntFromByte(keyBytes);
+		final int bboxLength = DataEncoderHelper.readIntFromByte(boxLengthBytes);
+
+		final byte[] bboxBytes = new byte[bboxLength];		
+		buffer.get(bboxBytes, 0, bboxBytes.length);
+
+		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);
+	
+		return new SpatialIndexEntry(boundingBox, key);
+	}
 
 }
