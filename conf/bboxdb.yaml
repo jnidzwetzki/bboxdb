@@ -49,11 +49,19 @@
 #
 # Possible values: 
 #
+# This reader reads a complete r-tree index into memory and operates
+# on the in-memory version
 # org.bboxdb.storage.sstable.spatialindex.rtree.RTreeMemoryReader
+# 
+# This reader accesses a r-tree index as memory-mapped-file and read 
+# only partial parts of the index
+# org.bboxdb.storage.sstable.spatialindex.rtree.mmf.RTreeMMFReader
+#
+# This reader disables the spatial index
 # none
 #
-# Default: org.bboxdb.storage.sstable.spatialindex.rtree.RTreeMemoryReader
-# storageSpatialIndexReader: org.bboxdb.storage.sstable.spatialindex.rtree.RTreeMemoryReader
+# Default: org.bboxdb.storage.sstable.spatialindex.rtree.mmf.RTreeMMFReader
+# storageSpatialIndexReader: org.bboxdb.storage.sstable.spatialindex.rtree.mmf.RTreeMMFReader
 
 
 # Checkpoint interval in seconds . After this interval, still open in 

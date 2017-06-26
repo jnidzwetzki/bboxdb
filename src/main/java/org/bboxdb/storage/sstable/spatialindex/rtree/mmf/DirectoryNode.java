@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.sstable.spatialindex.rtree.partialreader;
+package org.bboxdb.storage.sstable.spatialindex.rtree.mmf;
 
 import java.io.IOException;
 import java.nio.MappedByteBuffer;

@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.sstable.spatialindex.rtree.partialreader;
+package org.bboxdb.storage.sstable.spatialindex.rtree.mmf;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public class RTreeMMFReader extends AbstractRTreeReader {
 
 	/**
-	 * The mappped memory
+	 * The mapped memory
 	 */
 	private MappedByteBuffer memory;
 	
