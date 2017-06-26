@@ -77,5 +77,5 @@ Upon the normal system start, the BBoxDB instance read all entries from the dist
 * <tt>creating</tt> - The distribution region is created but not ready. Some tasks like replica placement are currently running.
 * <tt>active</tt> - The distribution region is ready. Data can be read and written. If the parent node is in state 'splitting', the parent has also to be contacted for read operations.
 * <tt>splitting</tt> - The distribution region is splitting. Existing data is spread to the child regions. Data can still be read. New data has to be written to the child regions. 
-* <tt>splitted</tt> - All data is splitted. No read or write requests are possible.
+* <tt>split</tt> - All data is split. No read or write requests are possible in this distribution group.
 
