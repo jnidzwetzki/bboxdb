@@ -146,13 +146,21 @@ public class BBoxDBMain {
 			return false;
 		}
 		
+		// Check for memory mapped file unmapper
 		final boolean memoryCleanerOk = UnsafeMemoryHelper.isDirectMemoryUnmapperAvailable();
 		
 		if(memoryCleanerOk == false) {
 			logger.error("Cannot initialize un-mmaper. Please use a Oracle JVM");
 			return false;
 		}
-	
+		
+		// Check for address space size
+		final String datamodel = System.getProperty("sun.arch.data.model");
+		if(! "64".equals(datamodel)) {
+			logger.error("32 bit environment detected ({}). It is recommended to run BBoxDB on a 64 bit JVM.", datamodel);
+			return false;
+		}
+		
 		return true;
 	}
 
