@@ -7,4 +7,4 @@ title: "Documentation of the BBoxDB"
 
 # Documentation
 
-Coming soon
+Welcome to the documentation of BBoxDB. BBoxDB is a research project to evaluate a novel database architecture to handle multi-dimensional big data. 
