@@ -85,7 +85,7 @@ public class TestBoundingBoxQuery implements Runnable {
 	/**
 	 * The amount of pending insert futures
 	 */
-	protected final static int MAX_PENDING_FUTURES = 250;
+	protected final static int MAX_PENDING_FUTURES = 20;
 	
 	public TestBoundingBoxQuery(final String filename, final String format, 
 			final String endpoint, String cluster, String tablename) {
