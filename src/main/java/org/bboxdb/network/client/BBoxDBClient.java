@@ -740,6 +740,9 @@ public class BBoxDBClient implements BBoxDB {
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		
+		// Send query immediately
+		flushPendingCompressionPackages();
+		
 		return clientOperationFuture;
 	}
 	
