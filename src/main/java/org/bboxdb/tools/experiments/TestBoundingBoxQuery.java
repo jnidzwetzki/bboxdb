@@ -70,7 +70,7 @@ public class TestBoundingBoxQuery implements Runnable {
 	/**
 	 * The amont of queries
 	 */
-	protected final static int QUERIES = 100000;
+	protected final static int QUERIES = 1000;
 	
 	/**
 	 * The number of experiment retries
