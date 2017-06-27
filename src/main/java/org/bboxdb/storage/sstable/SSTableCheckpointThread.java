@@ -150,7 +150,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 			final String fullname = ssTableManager.getSSTableName().getFullname();
 			logger.debug("Create a checkpoint for: {}", fullname);
 			ssTableManager.flush();
-			logger.info("Create checkpoint DONE for: {}", fullname);
+			logger.debug("Create checkpoint DONE for: {}", fullname);
 		}
 	}
 	
