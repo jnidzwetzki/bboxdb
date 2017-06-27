@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
@@ -258,10 +259,18 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 			throws IOException, PackageEncodeException {
 		
 		if(connectionCapabilities.hasGZipCompression()) {
+			boolean uncompressedQueueFull = false;
+			
 			synchronized (pendingCompressionPackages) {
 				// Schedule for batch compression
 				pendingCompressionPackages.add(responsePackage);
+				uncompressedQueueFull = pendingCompressionPackages.size() >= Const.MAX_UNCOMPRESSED_QUEUE_SIZE;
 			}
+			
+			if(uncompressedQueueFull) {
+				flushPendingCompressionPackages();
+			}
+			
 		} else {
 			writePackageToSocket(responsePackage);
 		}

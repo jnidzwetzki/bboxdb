@@ -22,6 +22,7 @@ order: 1
 - Improvement: Check for 64 bit environment on start
 - Improvement: Limit the amount of parallel queries per client
 - Improvement: Client flush queue on next page request
+- Improvement: Introduced the maximal unflushed package queue size
 - Bugfix: Prevent duplicate distribution of in-memory data
 - Bugfix: Handle non empty systems list in tuple insert as error
 - Bugfix: Reread systems list on insert tuple, when no systems are detected for BBox

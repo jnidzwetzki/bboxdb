@@ -47,4 +47,9 @@ public class Const {
 	 * The max timestamp delta between nodes (needed for recovery)
 	 */
 	public final static long MAX_NODE_CLOCK_DELTA = TimeUnit.SECONDS.toMicros(60);
+	
+	/**
+	 * Max tuples in uncompressed queue
+	 */
+	public static final int MAX_UNCOMPRESSED_QUEUE_SIZE = 200;
 }

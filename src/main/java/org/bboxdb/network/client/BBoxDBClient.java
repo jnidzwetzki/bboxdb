@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
@@ -861,8 +862,16 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param future
 	 */
 	protected void writePackageWithCompression(NetworkRequestPackage requestPackage, OperationFuture future) {
+		
+		boolean queueFull = false;
+		
 		synchronized (pendingCompressionPackages) {
 			pendingCompressionPackages.add(requestPackage);
+			queueFull = pendingCompressionPackages.size() >= Const.MAX_UNCOMPRESSED_QUEUE_SIZE;
+		}
+		
+		if(queueFull) {
+			flushPendingCompressionPackages();
 		}
 	}
 	
