@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -393,7 +392,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	}
 
 	/**
-	 * Send a new result tuple to the client (compressed or uncompressed)
+	 * Send a new result tuple to the client
 	 * @param packageSequence
 	 * @param requestTable
 	 * @param tuple
@@ -401,17 +400,13 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * @throws IOException 
 	 */
 	public void writeResultTuple(final short packageSequence, final SSTableName requestTable, final Tuple tuple) throws IOException, PackageEncodeException {
-		final TupleResponse responsePackage = new TupleResponse(packageSequence, requestTable.getFullname(), tuple);
 		
-		if(getConnectionCapabilities().hasGZipCompression()) {
-			final CompressionEnvelopeResponse compressionEnvelopeResponse 
-				= new CompressionEnvelopeResponse(NetworkConst.COMPRESSION_TYPE_GZIP, 
-						Arrays.asList(responsePackage));
-			
-			writeResultPackage(compressionEnvelopeResponse);
-		} else {
-			writeResultPackage(responsePackage);
-		}
+		final TupleResponse responsePackage = new TupleResponse(
+				packageSequence, 
+				requestTable.getFullname(), 
+				tuple);
+		
+		writeResultPackage(responsePackage);
 	}
 
 	/**
