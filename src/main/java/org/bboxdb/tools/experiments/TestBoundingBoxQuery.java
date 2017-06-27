@@ -111,7 +111,7 @@ public class TestBoundingBoxQuery implements Runnable {
 			System.exit(-1);
 		}
 
-		final List<Double> experimentSize = Arrays.asList(0.1, 0.2, 0.5, 1.0);
+		final List<Double> experimentSize = Arrays.asList(0.001, 0.01, 0.1, 1.0);
 		experimentSize.forEach(e -> runExperiment(e, boundingBox, bboxDBConnection));
 	}
 
@@ -161,20 +161,18 @@ public class TestBoundingBoxQuery implements Runnable {
 			// Determine query bounding box
 			for(int dimension = 0; dimension < boundingBox.getDimension(); dimension++) {
 				final double dataExtent = boundingBox.getExtent(dimension);
-				final double bboxOffset = random.nextDouble() % dataExtent;
-				
+				final double bboxOffset = (random.nextDouble() % 1) * dataExtent;
 				final double coordinateLow = boundingBox.getCoordinateLow(dimension);
 				final double coordinateHigh = boundingBox.getCoordinateHigh(dimension);
 
 				final double bboxStartPos = coordinateLow + bboxOffset;
-				final double bboxEndPos = Math.min(bboxStartPos + dataExtent * 0.001, coordinateHigh);;
+				final double bboxEndPos = Math.min(bboxStartPos + dataExtent * maxDimensionSize, coordinateHigh);
 				
 				final DoubleInterval doubleInterval = new DoubleInterval(bboxStartPos, bboxEndPos);
 				bboxIntervals.add(doubleInterval);
 			}
 			
 			final BoundingBox queryBox = new BoundingBox(bboxIntervals);
-			System.out.println("Executing query with bbox: " + boundingBox);
 			final TupleListFuture future = bboxDBConnection.queryBoundingBox(tablename, queryBox);
 			pendingFutures.put(future);
 		}
