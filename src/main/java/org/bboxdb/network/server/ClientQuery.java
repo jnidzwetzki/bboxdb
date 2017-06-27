@@ -226,4 +226,11 @@ public class ClientQuery implements Closeable {
 		closeIteratorNE();
 	}
 
+	/**
+	 * Get the amount of total send tuples
+	 * @return
+	 */
+	public long getTotalSendTuples() {
+		return totalSendTuples;
+	}
 }

@@ -542,7 +542,9 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 				clientQuery.fetchAndSendNextTuples(packageSequence);
 				
 				if(clientQuery.isQueryDone()) {
-					logger.info("Query {} is done, closing and removing iterator", querySequence);
+					logger.info("Query {} is done with {} tuples, removing iterator ", 
+							clientQuery.getTotalSendTuples(),
+							querySequence);
 					clientQuery.close();
 					getActiveQueries().remove(querySequence);
 				}
