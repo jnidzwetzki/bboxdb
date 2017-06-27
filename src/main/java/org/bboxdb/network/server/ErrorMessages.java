@@ -35,12 +35,17 @@ public class ErrorMessages {
 	public final static String ERROR_QUERY_NOT_FOUND = "Query not found";
 	
 	/**
+	 * Query not found error
+	 */
+	public final static String ERROR_QUERY_TO_MUCH = "Client requested to much queries";
+	
+	/**
 	 * Server shutdown
 	 */
 	public final static String ERROR_QUERY_SHUTDOWN = "Unable to execute query, server started shutdown";
 
 	/**
-	 * Rounting failed
+	 * Routing failed
 	 */
 	public final static String ERROR_ROUTING_FAILED = "Package routing faield";
 }

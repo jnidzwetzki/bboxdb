@@ -125,6 +125,11 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	protected final static int MAX_PENDING_REQUESTS = 25;
 
 	/**
+	 * Number of maximal running queries
+	 */
+	protected final static int MAX_RUNNING_QUERIES = 25;
+	
+	/**
 	 * The request handlers
 	 */
 	protected Map<Short, RequestHandler> requestHandlers;
@@ -432,9 +437,17 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 			return false;
 		}
 		
-		final QueryHandler queryHandler = queryHandlerList.get(queryType);
-		queryHandler.handleQuery(encodedPackage, packageSequence, this);
-
+		if(activeQueries.size() > MAX_RUNNING_QUERIES) {
+			logger.warn("Client requested more than {} parallel queries", MAX_RUNNING_QUERIES);
+			final ErrorResponse errorResponse = new ErrorResponse(packageSequence, 
+					ErrorMessages.ERROR_QUERY_TO_MUCH);
+			
+			writeResultPackage(errorResponse);
+		} else {
+			final QueryHandler queryHandler = queryHandlerList.get(queryType);
+			queryHandler.handleQuery(encodedPackage, packageSequence, this);
+		}
+		
 		return true;
 	}
 	
