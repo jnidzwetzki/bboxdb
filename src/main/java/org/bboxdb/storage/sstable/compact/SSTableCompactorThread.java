@@ -97,7 +97,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		for(final SSTableName ssTableName: sstables) {
 		
 			try {
-				logger.info("Running compact for: {}", ssTableName);
+				logger.debug("Running compact for: {}", ssTableName);
 				final SSTableManager sstableManager = storageRegistry.getSSTableManager(ssTableName);
 				
 				if(sstableManager.getSstableManagerState() == SSTableManagerState.READ_ONLY) {
