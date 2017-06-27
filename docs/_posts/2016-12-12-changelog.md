@@ -31,6 +31,7 @@ order: 1
 - Bugfix: Fixed ConcurrentModificationException in StorageRegistry:getAllTablesForDistributionGroup
 - Bugfix: Fixed forever waiting checkpoint threads, when a SSTable is swithed to readonly
 - Bugfix: Don't compress tuples twice
+- Bugfix: Removed race condition in server socket handler
 
 ### Version 0.3.0 (Stable) - 17.06.2017
 - New Feature: Added the TestFixedGrid experiment

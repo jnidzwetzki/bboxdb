@@ -297,8 +297,10 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	protected void writePackageToSocket(final NetworkResponsePackage responsePackage) 
 			throws IOException, PackageEncodeException {
 		
-		responsePackage.writeToOutputStream(outputStream);
-		outputStream.flush();
+		synchronized (outputStream) {
+			responsePackage.writeToOutputStream(outputStream);
+			outputStream.flush();
+		}
 	}
 	
 	@Override
