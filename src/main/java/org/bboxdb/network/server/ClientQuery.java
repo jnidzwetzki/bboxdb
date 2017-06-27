@@ -146,6 +146,7 @@ public class ClientQuery implements Closeable {
 				// Handle page end
 				if(pageResult == true && sendTuplesInThisPage >= tuplesPerPage) {
 					clientConnectionHandler.writeResultPackage(new PageEndResponse(packageSequence));
+					clientConnectionHandler.flushPendingCompressionPackages();
 					return;
 				}
 				
@@ -161,6 +162,7 @@ public class ClientQuery implements Closeable {
 		
 		// All tuples are send
 		clientConnectionHandler.writeResultPackage(new MultipleTupleEndResponse(packageSequence));	
+		clientConnectionHandler.flushPendingCompressionPackages();
 	}
 
 	/**
