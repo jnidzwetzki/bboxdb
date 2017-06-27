@@ -116,7 +116,7 @@ public class TestBoundingBoxQuery implements Runnable {
 	}
 
 	/**
-	 * Run the experiment with the max dimension soze
+	 * Run the experiment with the max dimension size
 	 * @param boundingBox 
 	 * @param bboxDBConnection 
 	 * @param sampleSize
