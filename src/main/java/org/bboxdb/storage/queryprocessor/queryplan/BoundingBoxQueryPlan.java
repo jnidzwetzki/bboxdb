@@ -37,7 +37,7 @@ public class BoundingBoxQueryPlan implements QueryPlan {
 	}
 
 	@Override
-	public Iterator<Tuple> execute(ReadOnlyTupleStorage readOnlyTupleStorage) {
+	public Iterator<Tuple> execute(final ReadOnlyTupleStorage readOnlyTupleStorage) {
 		final DataSource dataSource = new SpatialIndexDataSource(readOnlyTupleStorage, boundingBox);
 		
 		return dataSource.iterator();
