@@ -105,6 +105,11 @@ public class TestBoundingBoxQuery implements Runnable {
 		
 		System.out.println("Connecting to BBoxDB cluster");
 		final BBoxDB bboxDBConnection = new BBoxDBCluster(endpoint, cluster);
+		
+		if(! bboxDBConnection.connect()) {
+			System.err.println("Unable to connect to the BBoxDB cluster, exiting");
+			System.exit(-1);
+		}
 
 		final List<Double> experimentSize = Arrays.asList(0.1, 0.2, 0.5, 1.0);
 		experimentSize.forEach(e -> runExperiment(e, boundingBox, bboxDBConnection));
