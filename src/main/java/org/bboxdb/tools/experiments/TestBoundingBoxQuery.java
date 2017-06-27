@@ -161,16 +161,20 @@ public class TestBoundingBoxQuery implements Runnable {
 			// Determine query bounding box
 			for(int dimension = 0; dimension < boundingBox.getDimension(); dimension++) {
 				final double dataExtent = boundingBox.getExtent(dimension);
-				final double bboxExtent = random.nextDouble() % dataExtent;
-				final double bboxStartPos = boundingBox.getCoordinateLow(dimension) + bboxExtent;
+				final double bboxOffset = random.nextDouble() % dataExtent;
 				
-				final double bboxEndPos = bboxStartPos + dataExtent * 0.001;
+				final double coordinateLow = boundingBox.getCoordinateLow(dimension);
+				final double coordinateHigh = boundingBox.getCoordinateHigh(dimension);
+
+				final double bboxStartPos = coordinateLow + bboxOffset;
+				final double bboxEndPos = Math.min(bboxStartPos + dataExtent * 0.001, coordinateHigh);;
 				
 				final DoubleInterval doubleInterval = new DoubleInterval(bboxStartPos, bboxEndPos);
 				bboxIntervals.add(doubleInterval);
 			}
 			
 			final BoundingBox queryBox = new BoundingBox(bboxIntervals);
+			System.out.println("Executing query with bbox: " + boundingBox);
 			final TupleListFuture future = bboxDBConnection.queryBoundingBox(tablename, queryBox);
 			pendingFutures.put(future);
 		}
