@@ -40,7 +40,7 @@ public class ExecutorUtil {
 		
 		// The Pool executor executes up to maxThreads in parallel. If the queue is full, the caller
 		// has to execute the task directly. 
-		return new ThreadPoolExecutor(maxThreads, maxThreads, 30, TimeUnit.SECONDS, 
+		return new ThreadPoolExecutor(maxThreads / 2, maxThreads, 30, TimeUnit.SECONDS, 
 				linkedBlockingDeque, new ThreadPoolExecutor.CallerRunsPolicy());
 	}
 
