@@ -164,8 +164,7 @@ public class TestBoundingBoxQuery implements Runnable {
 				final double bboxExtent = random.nextDouble() % dataExtent;
 				final double bboxStartPos = boundingBox.getCoordinateLow(dimension) + bboxExtent;
 				
-				final double bboxEndPos = bboxStartPos 
-						+ (dataExtent / 100 * maxDimensionSize) * (random.nextDouble() % 1);
+				final double bboxEndPos = bboxStartPos + dataExtent * 0.001;
 				
 				final DoubleInterval doubleInterval = new DoubleInterval(bboxStartPos, bboxEndPos);
 				bboxIntervals.add(doubleInterval);
