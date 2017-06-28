@@ -29,7 +29,7 @@ order: 1
 - Bugfix: Fixed handling of meta data when multiple storage locations are used
 - Bugfix: Tuples were inserted twice in the spatial index
 - Bugfix: Fixed ConcurrentModificationException in StorageRegistry:getAllTablesForDistributionGroup
-- Bugfix: Fixed forever waiting checkpoint threads, when a SSTable is swithed to readonly
+- Bugfix: Fixed forever waiting checkpoint threads, when a SSTable is switched to readonly
 - Bugfix: Don't compress tuples twice
 - Bugfix: Removed race condition in server socket handler
 
