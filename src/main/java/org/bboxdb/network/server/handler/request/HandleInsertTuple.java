@@ -26,6 +26,7 @@ import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.StorageManagerException;
@@ -70,7 +71,8 @@ public class HandleInsertTuple implements RequestHandler {
 
 			localTables.forEach(t -> insertTupleNE(clientConnectionHandler, tuple, t));
 			
-			clientConnectionHandler.getPackageRouter().performInsertPackageRoutingAsync(packageSequence, insertTupleRequest, boundingBox);
+			final PackageRouter packageRouter = clientConnectionHandler.getPackageRouter();
+			packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest, boundingBox);
 			
 		} catch (Exception e) {
 			logger.warn("Error while insert tuple", e);
