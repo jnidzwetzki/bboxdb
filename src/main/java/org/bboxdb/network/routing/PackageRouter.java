@@ -213,7 +213,7 @@ public class PackageRouter {
 		final BBoxDBClient connection = MembershipConnectionService.getInstance().getConnectionForInstance(receiver);
 		
 		if(connection == null) {
-			logger.error("Unable to get a connection to system: " + receiver);
+			logger.error("Unable to get a connection to system: {}", receiver);
 			return false;
 		} 
 		
@@ -222,7 +222,7 @@ public class PackageRouter {
 		try {
 			insertFuture.waitForAll(ROUTING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 		} catch (TimeoutException e) {
-			logger.warn("Routing timeout, retry routing: " + connection);
+			logger.warn("Routing timeout, retry routing: {}", connection);
 			return false;
 		}
 		
