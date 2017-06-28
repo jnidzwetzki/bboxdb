@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.slf4j.Logger;
@@ -69,11 +70,26 @@ public class RegionIdMapper {
 	 */
 	public Collection<SSTableName> getLocalTablesForRegion(final BoundingBox region, 
 			final SSTableName ssTableName) {
+	
+		Collection<Integer> namprefixes = null;
 		
-		final Collection<Integer> namprefixes = getRegionIdsForRegion(region);
+		for(int execution = 0; execution < Const.OPERATION_RETRY; execution++) {
+			namprefixes = getRegionIdsForRegion(region);
+			
+			if(! namprefixes.isEmpty()) {
+				break;
+			}
+			
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				break;
+			}
+		}
 		
-		if(namprefixes.isEmpty() && logger.isWarnEnabled()) {
-			logger.warn("Got an empty result list by query region: " + region);
+		if(namprefixes.isEmpty() && logger.isErrorEnabled()) {
+			logger.error("Got an empty result list by query region: {}", region);
 		}
 		
 		return convertRegionIdToTableNames(ssTableName, namprefixes);
