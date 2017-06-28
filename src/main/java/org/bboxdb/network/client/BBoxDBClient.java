@@ -226,7 +226,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#connect()
+	 * @see org.bboxdb.network.client.BBoxDB#connect()
 	 */
 	@Override
 	public boolean connect() {
@@ -324,7 +324,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#disconnect()
+	 * @see org.bboxdb.network.client.BBoxDB#disconnect()
 	 */
 	@Override
 	public void disconnect() {
@@ -451,7 +451,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#deleteTable(java.lang.String)
+	 * @see org.bboxdb.network.client.BBoxDB#deleteTable(java.lang.String)
 	 */
 	@Override
 	public EmptyResultFuture deleteTable(final String table) {
@@ -468,7 +468,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#insertTuple(java.lang.String, org.bboxdb.storage.entity.Tuple)
+	 * @see org.bboxdb.network.client.BBoxDB#insertTuple(java.lang.String, org.bboxdb.storage.entity.Tuple)
 	 */
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) {
@@ -501,7 +501,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#deleteTuple(java.lang.String, java.lang.String)
+	 * @see org.bboxdb.network.client.BBoxDB#deleteTuple(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
@@ -520,7 +520,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#deleteTuple(java.lang.String, java.lang.String)
+	 * @see org.bboxdb.network.client.BBoxDB#deleteTuple(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key) {
@@ -529,7 +529,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#listTables()
+	 * @see org.bboxdb.network.client.BBoxDB#listTables()
 	 */
 	@Override
 	public SSTableNameListFuture listTables() {
@@ -546,7 +546,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#createDistributionGroup(java.lang.String, short)
+	 * @see org.bboxdb.network.client.BBoxDB#createDistributionGroup(java.lang.String, short)
 	 */
 	@Override
 	public EmptyResultFuture createDistributionGroup(final String distributionGroup, 
@@ -566,7 +566,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#deleteDistributionGroup(java.lang.String)
+	 * @see org.bboxdb.network.client.BBoxDB#deleteDistributionGroup(java.lang.String)
 	 */
 	@Override
 	public EmptyResultFuture deleteDistributionGroup(final String distributionGroup) {
@@ -586,7 +586,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#queryKey(java.lang.String, java.lang.String)
+	 * @see org.bboxdb.network.client.BBoxDB#queryKey(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public TupleListFuture queryKey(final String table, final String key) {
@@ -607,7 +607,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#queryBoundingBox(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
+	 * @see org.bboxdb.network.client.BBoxDB#queryBoundingBox(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
 	 */
 	@Override
 	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
@@ -630,7 +630,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#queryBoundingBoxAndTime(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
+	 * @see org.bboxdb.network.client.BBoxDB#queryBoundingBoxAndTime(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
 	 */
 	@Override
 	public TupleListFuture queryBoundingBoxAndTime(final String table,
@@ -654,7 +654,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#queryTime(java.lang.String, long)
+	 * @see org.bboxdb.network.client.BBoxDB#queryTime(java.lang.String, long)
 	 */
 	@Override
 	public TupleListFuture queryVersionTime(final String table, final long timestamp) {
@@ -677,7 +677,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#queryTime(java.lang.String, long)
+	 * @see org.bboxdb.network.client.BBoxDB#queryTime(java.lang.String, long)
 	 */
 	@Override
 	public TupleListFuture queryInsertedTime(final String table, final long timestamp) {
@@ -763,7 +763,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#isConnected()
+	 * @see org.bboxdb.network.client.BBoxDB#isConnected()
 	 */
 	@Override
 	public boolean isConnected() {
@@ -775,7 +775,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#getConnectionState()
+	 * @see org.bboxdb.network.client.BBoxDB#getConnectionState()
 	 */
 	@Override
 	public NetworkConnectionState getConnectionState() {
@@ -783,7 +783,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#getInFlightCalls()
+	 * @see org.bboxdb.network.client.BBoxDB#getInFlightCalls()
 	 */
 	@Override
 	public int getInFlightCalls() {
@@ -793,7 +793,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#getMaxInFlightCalls()
+	 * @see org.bboxdb.network.client.BBoxDB#getMaxInFlightCalls()
 	 */
 	@Override
 	public short getMaxInFlightCalls() {
@@ -801,7 +801,7 @@ public class BBoxDBClient implements BBoxDB {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.Scalephant#setMaxInFlightCalls(short)
+	 * @see org.bboxdb.network.client.BBoxDB#setMaxInFlightCalls(short)
 	 */
 	@Override
 	public void setMaxInFlightCalls(short maxInFlightCalls) {
@@ -1010,7 +1010,7 @@ public class BBoxDBClient implements BBoxDB {
 
 	@Override
 	public String toString() {
-		return "ScalephantClient [serverHostname=" + serverHostname + ", serverPort=" + serverPort + ", pendingCalls="
+		return "BBoxDBClient [serverHostname=" + serverHostname + ", serverPort=" + serverPort + ", pendingCalls="
 				+ pendingCalls.size() + ", connectionState=" + connectionState + "]";
 	}
 
