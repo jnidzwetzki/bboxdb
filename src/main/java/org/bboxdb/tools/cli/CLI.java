@@ -31,6 +31,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.DistributedInstanceManager;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -162,6 +164,10 @@ public class CLI implements Runnable, AutoCloseable {
 			
 		case CLIAction.SHOW_DGROUP:
 			actionShowDgroup(line);
+			break;
+			
+		case CLIAction.SHOW_INSTANCES:
+			actionShowInstances(line);
 			break;
 			
 		case CLIAction.IMPORT:
@@ -480,6 +486,22 @@ public class CLI implements Runnable, AutoCloseable {
 			System.exit(-1);
 		}
 	}
+	
+	/**
+	 * Show all discovered instances
+	 * @param line
+	 */
+	protected void actionShowInstances(final CommandLine line) {
+		System.out.println("Show all discovered BBoxDB instances");
+
+		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
+		final List<DistributedInstance> allInstances = distributedInstanceManager.getInstances();
+		
+		System.out.println("#######");
+		allInstances.forEach(i -> System.out.println(i));
+		System.out.println("#######");
+	}
+		
 	
 	/**
 	 * Show a distribution group

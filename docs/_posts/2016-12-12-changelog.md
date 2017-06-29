@@ -6,6 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.3.2 (Stable) - TBA
+- New Feature: The CLI shows all discovered BBoxDB instances
 
 ### Version 0.3.1 (Stable) - 29.06.2017
 - Improvement: A fixed amount of memtable flush threads is used per storage

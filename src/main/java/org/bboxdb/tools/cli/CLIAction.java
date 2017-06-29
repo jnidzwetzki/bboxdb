@@ -58,9 +58,15 @@ public class CLIAction {
 	protected static final String SHOW_DGROUP = "show_dgroup";
 	
 	/**
+	 * The name of the show instances action
+	 */
+	protected static final String SHOW_INSTANCES = "show_instances";
+	
+	/**
 	 * All known actions
 	 */
 	protected static List<String> ALL_ACTIONS 
-		= Arrays.asList(IMPORT, QUERY, DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP, SHOW_DGROUP);
+		= Arrays.asList(IMPORT, QUERY, DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP, 
+				SHOW_DGROUP, SHOW_INSTANCES);
 
 }
