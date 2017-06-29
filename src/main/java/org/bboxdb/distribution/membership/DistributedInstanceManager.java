@@ -38,12 +38,12 @@ public class DistributedInstanceManager {
 	/**
 	 * The event listener
 	 */
-	protected final List<DistributedInstanceEventCallback> listener = new CopyOnWriteArrayList<DistributedInstanceEventCallback>();
+	protected final List<DistributedInstanceEventCallback> listener = new CopyOnWriteArrayList<>();
 	
 	/**
-	 * The active scalephant instances
+	 * The active BBoxDB instances
 	 */
-	protected final Map<InetSocketAddress, DistributedInstance> instances = new HashMap<InetSocketAddress, DistributedInstance>();
+	protected final Map<InetSocketAddress, DistributedInstance> instances = new HashMap<>();
 	
 	/**
 	 * The logger
