@@ -340,20 +340,42 @@ public class BBoxDBClient implements BBoxDB {
 			sendPackageToServer(requestPackage, operationFuture);
 		}
 
+		settlePendingCalls();
+		
+		terminateConnection();
+	}
+
+	/**
+	 * Settle all pending calls
+	 */
+	protected void settlePendingCalls() {
+		
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
 			
-			if(! pendingCalls.keySet().isEmpty()) {
-				
-				logger.info("Waiting {} seconds for pending requests to settle", 
-						TimeUnit.MILLISECONDS.toSeconds(DEFAULT_TIMEOUT));		
-				
+			if(pendingCalls.isEmpty()) {
+				return;
+			}
+			
+			logger.info("Waiting up to {} seconds for pending requests to settle", 
+					TimeUnit.MILLISECONDS.toSeconds(DEFAULT_TIMEOUT));		
+			
+			final long shutdownStarted = System.currentTimeMillis();
+			
+			while(! pendingCalls.keySet().isEmpty()) {
 				try {
-					pendingCalls.wait(DEFAULT_TIMEOUT);
+					final long shutdownDuration = System.currentTimeMillis() - shutdownStarted;
+					final long timeoutLeft = DEFAULT_TIMEOUT - shutdownDuration;
+					
+					if(DEFAULT_TIMEOUT <= 0) {
+						break;
+					}
+					
+					pendingCalls.wait(timeoutLeft);
 				} catch (InterruptedException e) {
 					logger.debug("Got an InterruptedException during pending calls wait.");
 					Thread.currentThread().interrupt();
-					// Close connection immediately
+					return;
 				}
 			}
 			
@@ -361,8 +383,6 @@ public class BBoxDBClient implements BBoxDB {
 				logger.warn("Connection is closed. Still pending calls: {} ", pendingCalls);
 			}
 		}
-		
-		terminateConnection();
 	}
 	
 	/**
