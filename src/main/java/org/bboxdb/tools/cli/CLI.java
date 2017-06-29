@@ -497,6 +497,9 @@ public class CLI implements Runnable, AutoCloseable {
 		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 		final List<DistributedInstance> allInstances = distributedInstanceManager.getInstances();
 		
+		allInstances.sort((i1, i2) -> i1.getIp().compareTo(i2.getIp()));
+		
+		System.out.println();
 		System.out.println("#######");
 		allInstances.forEach(i -> System.out.println(i));
 		System.out.println("#######");
