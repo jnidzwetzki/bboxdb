@@ -64,6 +64,7 @@ import org.bboxdb.network.server.handler.request.RequestHandler;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.util.CloseableHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.bboxdb.util.concurrent.ExecutorUtil;
 import org.slf4j.Logger;
@@ -334,18 +335,8 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		// Close active query iterators
 		getActiveQueries().values().forEach(i -> i.close());
 		getActiveQueries().clear();	
-		closeSocketNE();
-	}
-
-	/**
-	 * Close the socket without throwing an exception
-	 */
-	protected void closeSocketNE() {
-		try {
-			clientSocket.close();
-		} catch (IOException e) {
-			// Ignore close exception
-		}
+		
+		CloseableHelper.closeWithoutException(clientSocket);
 	}
 	
 	/**
