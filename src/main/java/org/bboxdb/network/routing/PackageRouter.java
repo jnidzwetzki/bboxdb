@@ -226,11 +226,8 @@ public class PackageRouter {
 			return false;
 		}
 		
-		if(insertFuture.isFailed()) {
-			return false;
-		} else {
-			return true;
-		}
+		final boolean success = ! insertFuture.isFailed();
+		return success;
 	}
 	
 	/**
