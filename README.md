@@ -25,11 +25,11 @@ See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/started.html) 
 </p>
 
 ## Contact / Stay informed
+* Visit our [website](http://bboxdb.org)
 * Follow us on Twitter: [@BBoxDB](https://twitter.com/BBoxDB)
 * Subscribe our mailing list at [Google Groups](https://groups.google.com/forum/#!forum/bboxdb)
 * Visit our [bug tracking system](https://github.com/jnidzwetzki/bboxdb/issues)
 * Read the [source code](https://github.com/jnidzwetzki/bboxdb) and the [documentation](http://jnidzwetzki.github.io/bboxdb/)
-* Visit our [website](http://bboxdb.org)
 * For contributing, see our [contributing guide](https://github.com/jnidzwetzki/bboxdb/blob/master/CONTRIBUTING.md)
 
 ## License
