@@ -82,7 +82,7 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 		// Calculate point
 		final int midpoint = pointSamples.size() / 2;
 		final double splitPosition = pointSamples.get(midpoint);
-		final double splitPositonRound = MathUtil.round(splitPosition, 7);
+		final double splitPositonRound = MathUtil.round(splitPosition, 5);
 		
 		return splitPositonRound;
 	}
