@@ -74,6 +74,7 @@ import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.CloseableHelper;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -414,26 +415,14 @@ public class BBoxDBClient implements BBoxDB {
 
 		killPendingCalls();
 		getResultBuffer().clear();
-		closeSocketNE();
 		
+		CloseableHelper.closeWithoutException(clientSocket);
+		clientSocket = null;
+
 		logger.info("Disconnected from server");
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
 	}
 
-	/**
-	 * Close socket without any exception
-	 */
-	protected void closeSocketNE() {
-		if(clientSocket != null) {
-			try {
-				clientSocket.close();
-			} catch (IOException e) {
-				// Ignore exception on socket close
-			}
-			clientSocket = null;
-		}
-	}
-	
 	/**
 	 * Create a failed SSTableNameListFuture
 	 * @return
