@@ -180,7 +180,7 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	public String getStringValue() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(ip);
-		sb.append("+");
+		sb.append(":");
 		sb.append(port);
 		return sb.toString();
 	}
