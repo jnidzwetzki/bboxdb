@@ -178,7 +178,11 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	 * @return
 	 */
 	public String getStringValue() {
-		return ip + ":" + port;
+		final StringBuilder sb = new StringBuilder();
+		sb.append(ip);
+		sb.append("+");
+		sb.append(port);
+		return sb.toString();
 	}
 
 	@Override
