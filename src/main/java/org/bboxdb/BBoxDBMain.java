@@ -27,6 +27,7 @@ import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.jmx.JMXService;
+import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
@@ -94,7 +95,8 @@ public class BBoxDBMain {
 		final MembershipConnectionService membershipService = MembershipConnectionService.getInstance();
 		
 		// Prevent network connections to ourself
-		final DistributedInstance localhost = ZookeeperClientFactory.getLocalInstanceName(BBoxDBConfigurationManager.getConfiguration());
+		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
+		final DistributedInstance localhost = ZookeeperClientFactory.getLocalInstanceName(configuration);
 		membershipService.addSystemToBlacklist(localhost);
 		
 		return membershipService;
