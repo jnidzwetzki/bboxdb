@@ -2,6 +2,8 @@
 
 # What is BBoxDB?
 
+[![Join the chat at https://gitter.im/bboxdb/Lobby](https://badges.gitter.im/bboxdb/Lobby.svg)](https://gitter.im/bboxdb/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 BBoxDB is a distributed storage manager, designed to handle multi-dimensional big data. BBoxDB uses SSTables (String Sorted Tables) for a high throughput of read and write operations. Primarily, the software is a research project to explore new ways to handle multi-dimensional data in a distributed environment.
 
 <a href="https://travis-ci.org/jnidzwetzki/bboxdb">
