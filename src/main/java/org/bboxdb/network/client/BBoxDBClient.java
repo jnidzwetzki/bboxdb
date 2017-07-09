@@ -542,18 +542,7 @@ public class BBoxDBClient implements BBoxDB {
 
 		return clientOperationFuture;
 	}
-	
-	public EmptyResultFuture insertTuple(final InsertTupleRequest insertTupleRequest) {
-		
-		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-			return createFailedFuture("insertTuple called, but connection not ready: " + this);
-		}
-		
-		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		sendPackageToServer(insertTupleRequest, clientOperationFuture);
-		return clientOperationFuture;
-	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#deleteTuple(java.lang.String, java.lang.String)
 	 */
