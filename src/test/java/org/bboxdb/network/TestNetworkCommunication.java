@@ -41,7 +41,7 @@ public class TestNetworkCommunication {
 	/**
 	 * The instance of the software
 	 */
-	protected static BBoxDBMain scalephantMain;
+	protected static BBoxDBMain bboxDBMain;
 	
 	/**
 	 * The replication factor for the unit tests
@@ -50,9 +50,9 @@ public class TestNetworkCommunication {
 	
 	@BeforeClass
 	public static void init() throws Exception {
-		scalephantMain = new BBoxDBMain();
-		scalephantMain.init();
-		scalephantMain.start();
+		bboxDBMain = new BBoxDBMain();
+		bboxDBMain.init();
+		bboxDBMain.start();
 		
 		Thread.currentThread();
 		// Wait some time to let the server process start
@@ -61,9 +61,9 @@ public class TestNetworkCommunication {
 	
 	@AfterClass
 	public static void shutdown() throws Exception {
-		if(scalephantMain != null) {
-			scalephantMain.stop();
-			scalephantMain = null;
+		if(bboxDBMain != null) {
+			bboxDBMain.stop();
+			bboxDBMain = null;
 		}
 		
 		// Wait some time for socket re-use
