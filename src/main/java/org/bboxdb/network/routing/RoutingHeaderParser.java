@@ -108,7 +108,7 @@ public class RoutingHeaderParser {
 		ByteStreams.readFully(inputStream, routingListBuffer, 0, routingListBuffer.length);
 		final String routingList = new String(routingListBuffer);
 		
-		return new RoutingHeader(true, hop, routingList);
+		return new RoutingHeader(hop, routingList);
 	}
 
 	/**

@@ -214,7 +214,7 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeInsertTupleWithCustomHeader() throws IOException, PackageEncodeException {
 		final RoutingHop hop1 = new RoutingHop(new DistributedInstance("host1:50500"), Arrays.asList(123));
 		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] { hop1 });
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, routingList);
+		final RoutingHeader routingHeader = new RoutingHeader((short) 12, routingList);
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -834,7 +834,7 @@ public class TestNetworkClasses {
 		final RoutingHop hop1 = new RoutingHop(new DistributedInstance("host1:50500"), Arrays.asList(123));
 		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] { hop1 });
 		
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, routingList);
+		final RoutingHeader routingHeader = new RoutingHeader((short) 12, routingList);
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -876,7 +876,7 @@ public class TestNetworkClasses {
 		final RoutingHop hop1 = new RoutingHop(new DistributedInstance("host1:50500"), Arrays.asList(123));
 		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] { hop1 });
 		
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, routingList);
+		final RoutingHeader routingHeader = new RoutingHeader((short) 12, routingList);
 		final Tuple tuple = new Tuple("abcdefghijklmopqrstuvxyz", BoundingBox.EMPTY_BOX, "abcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyz".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 

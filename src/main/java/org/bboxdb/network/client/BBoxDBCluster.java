@@ -156,7 +156,7 @@ public class BBoxDBCluster implements BBoxDB {
 				return FutureHelper.getFailedEmptyResultFuture();
 			}
 			
-			final RoutingHeader routingHeader = new RoutingHeader(true, (short) 0, hops);
+			final RoutingHeader routingHeader = new RoutingHeader((short) 0, hops);
 			
 			return connection.insertTuple(table, tuple, routingHeader);
 		} catch (ZookeeperException e) {

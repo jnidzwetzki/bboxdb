@@ -67,23 +67,18 @@ public class RoutingHeader {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(RoutingHeader.class);
 
-	
-	public RoutingHeader() {
-	
-	}
-	
 	public RoutingHeader(final boolean routedPackage) {
 		this.routedPackage = routedPackage;
 	}
 
-	public RoutingHeader(final boolean routedPackage, final short hop, final List<RoutingHop> routingList) {
-		this.routedPackage = routedPackage;
+	public RoutingHeader(final short hop, final List<RoutingHop> routingList) {
+		this.routedPackage = true;
 		this.hop = hop;
 		this.routingList.addAll(routingList);
 	}
 	
-	public RoutingHeader(final boolean routedPackage, final short hop, final String routingList) {
-		this.routedPackage = routedPackage;
+	public RoutingHeader(final short hop, final String routingList) {
+		this.routedPackage = true;
 		this.hop = hop;
 		setRoutingList(routingList);
 	}
@@ -162,7 +157,7 @@ public class RoutingHeader {
 	 */
 	public RoutingHop getRoutingHop() {
 		
-		assert (hop <= routingList.size()) : "Unable to return hop " + hop 
+		assert (hop < routingList.size()) : "Unable to return hop " + hop 
 			+ ", total hops " + routingList.size();
 		
 		return routingList.get(hop);

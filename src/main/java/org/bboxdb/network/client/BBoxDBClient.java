@@ -503,7 +503,7 @@ public class BBoxDBClient implements BBoxDB {
 				.filter(r -> r.getDistributedInstance().getInetSocketAddress().equals(serverAddress))
 				.collect(Collectors.toList());
 			
-			final RoutingHeader routingHeader = new RoutingHeader(true, (short) 0, connectionHop);
+			final RoutingHeader routingHeader = new RoutingHeader((short) 0, connectionHop);
 
 			return insertTuple(table, tuple, routingHeader);
 		} catch (ZookeeperException e) {

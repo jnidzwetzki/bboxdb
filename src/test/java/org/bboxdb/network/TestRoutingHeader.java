@@ -41,8 +41,7 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testRoutingHeaderHopParser1() {
-		final RoutingHeader routingHeader = new RoutingHeader();
-		routingHeader.setRoutingList(new ArrayList<RoutingHop>());
+		final RoutingHeader routingHeader = new RoutingHeader((short) 0, new ArrayList<RoutingHop>());
 
 		// Get routing list as string and parse list
 		final String stringRoutingList = routingHeader.getRoutingListAsString();
@@ -66,8 +65,7 @@ public class TestRoutingHeader {
 		routingList.add(hop2);
 		routingList.add(hop3);
 		
-		final RoutingHeader routingHeader = new RoutingHeader();
-		routingHeader.setRoutingList(routingList);
+		final RoutingHeader routingHeader = new RoutingHeader((short) 0, routingList);
 		
 		// Get routing list as string and parse list
 		final String stringRoutingList = routingHeader.getRoutingListAsString();
@@ -85,7 +83,7 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testRoutingHopParser3() {
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "node1:12,1;node2:23,2");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1;node2:23,2");
 		Assert.assertEquals(2, routingHeader.getRoutingList().size());
 		Assert.assertEquals(1, routingHeader.getRoutingList().get(0).getDistributionRegions().size());
 		Assert.assertEquals(1, routingHeader.getRoutingList().get(1).getDistributionRegions().size());
@@ -98,7 +96,7 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testRoutingHopParser4() {
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "node1:12,1,2,3;node2:23,2");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1,2,3;node2:23,2");
 		Assert.assertEquals(2, routingHeader.getRoutingList().size());
 		Assert.assertEquals(3, routingHeader.getRoutingList().get(0).getDistributionRegions().size());
 		Assert.assertEquals(1, routingHeader.getRoutingList().get(1).getDistributionRegions().size());
@@ -131,7 +129,7 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testRoutedPackageHeader1() throws IOException, PackageEncodeException {
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "node1:12,1;node2:23,2");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1;node2:23,2");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 		
 		final ByteArrayInputStream bis = new ByteArrayInputStream(encodedBytes);
@@ -147,7 +145,7 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testRoutedPackageHeader2() throws IOException, PackageEncodeException {
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 		
 		final ByteArrayInputStream bis = new ByteArrayInputStream(encodedBytes);
@@ -163,7 +161,7 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testRoutedPackageHeader3() throws IOException, PackageEncodeException {
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "node1:12,1;node2:23,2");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1;node2:23,2");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 		final ByteBuffer bb = ByteBuffer.wrap(encodedBytes);
 		bb.order(Const.APPLICATION_BYTE_ORDER);
@@ -182,7 +180,7 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testRoutedPackageHeader4() throws IOException, PackageEncodeException {
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "");
 		final byte[] encodedBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 		final ByteBuffer bb = ByteBuffer.wrap(encodedBytes);
 		bb.order(Const.APPLICATION_BYTE_ORDER);
@@ -199,7 +197,7 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testSetHopValid() {
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "node1:12,2;node2:23,1");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,2;node2:23,1");
 		routingHeader.setHop((short) 0);
 		routingHeader.setHop((short) 1);
 	}
@@ -209,7 +207,7 @@ public class TestRoutingHeader {
 	 */
 	@Test(expected=IllegalArgumentException.class)
 	public void testSetHopInvalid() {
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 10, "node1:12,1;node2:23,2");
+		final RoutingHeader routingHeader = new RoutingHeader((short) 10, "node1:12,1;node2:23,2");
 		routingHeader.setHop((short) 2);
 	}
 	
@@ -223,7 +221,7 @@ public class TestRoutingHeader {
 		
 		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] {hop1, hop2} );
 		
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 0, routingList);
+		final RoutingHeader routingHeader = new RoutingHeader((short) 0, routingList);
 		Assert.assertEquals(0, routingHeader.getHop());
 		Assert.assertFalse(routingHeader.reachedFinalInstance());
 		Assert.assertEquals(hop1, routingHeader.getRoutingHop());
