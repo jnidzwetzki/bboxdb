@@ -23,8 +23,6 @@ import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.misc.BBoxDBConfiguration;
-import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.SSTableFlushCallback;
 import org.bboxdb.storage.entity.SSTableName;
@@ -42,8 +40,7 @@ public class SSTableFlushZookeeperAdapter implements SSTableFlushCallback {
 	public void flushCallback(final SSTableName ssTableName, final long flushTimestamp) {
 		
 		// Fetch the local instance
-		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-		final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName(configuration);
+		final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 	
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
@@ -55,7 +52,6 @@ public class SSTableFlushZookeeperAdapter implements SSTableFlushCallback {
 			
 			final DistributionRegion distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableName.getRegionId());
 		
-			
 			logger.debug("Updating checkpoint for: {} to {}", ssTableName.getFullname(), flushTimestamp);
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 			

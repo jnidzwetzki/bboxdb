@@ -17,15 +17,19 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.mode.DistributionRegionState;
+import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.BoundingBox;
 
 public class DistributionRegion {
@@ -419,28 +423,28 @@ public class DistributionRegion {
 	 * Get the a list of systems for the bounding box
 	 * @return
 	 */
-	public Set<DistributedInstance> getSystemsForBoundingBoxAndRead(final BoundingBox boundingBox) {
-		final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
+	public Collection<RoutingHop> getRoutingHopsForRead(final BoundingBox boundingBox) {
+		final Map<InetSocketAddress, RoutingHop> result = new HashMap<>();
 		
-		getSystemsForBoundingBoxRecursive(boundingBox, 
+		getHopsForBoundingBoxRecursive(boundingBox, 
 				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ, 
 				result);
 		
-		return result;
+		return result.values();
 	}
 	
 	/**
 	 * Get the a list of systems for the bounding box
 	 * @return
 	 */
-	public Set<DistributedInstance> getSystemsForBoundingBoxAndWrite(final BoundingBox boundingBox) {
-		final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
+	public Collection<RoutingHop> getRoutingHopsForWrite(final BoundingBox boundingBox) {
+		final Map<InetSocketAddress, RoutingHop> result = new HashMap<>();
 		
-		getSystemsForBoundingBoxRecursive(boundingBox, 
+		getHopsForBoundingBoxRecursive(boundingBox, 
 				DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE, 
 				result);
 		
-		return result;
+		return result.values();
 	}
 	
 	/**
@@ -448,9 +452,9 @@ public class DistributionRegion {
 	 * @param boundingBox
 	 * @param systems
 	 */
-	protected void getSystemsForBoundingBoxRecursive(final BoundingBox boundingBox, 
+	protected void getHopsForBoundingBoxRecursive(final BoundingBox boundingBox, 
 			final Predicate<DistributionRegionState> statePredicate,
-			final Set<DistributedInstance> resultSystems) {
+			final Map<InetSocketAddress, RoutingHop> hops) {
 		
 		// This node is not covered. So, child nodes are not covered
 		if(! converingBox.overlaps(boundingBox)) {
@@ -458,16 +462,21 @@ public class DistributionRegion {
 		}
 		
 		if(statePredicate.test(state)) {
-			if(! systems.isEmpty()) {
-				for(final DistributedInstance system : systems) {
-					resultSystems.add(system);
+			for(final DistributedInstance system : systems) {
+				if(! hops.containsKey(system.getInetSocketAddress())) {
+					final RoutingHop routingHop = new RoutingHop(system, new ArrayList<Integer>());
+					hops.put(system.getInetSocketAddress(), routingHop);
 				}
+				
+				final RoutingHop routingHop = hops.get(system.getInetSocketAddress());
+				routingHop.addRegion(regionid);
 			}
+			
 		} 
 		
 		if(! isLeafRegion()) {
-			leftChild.getSystemsForBoundingBoxRecursive(boundingBox, statePredicate, resultSystems);
-			rightChild.getSystemsForBoundingBoxRecursive(boundingBox, statePredicate, resultSystems);
+			leftChild.getHopsForBoundingBoxRecursive(boundingBox, statePredicate, hops);
+			rightChild.getHopsForBoundingBoxRecursive(boundingBox, statePredicate, hops);
 		}
 	}
 

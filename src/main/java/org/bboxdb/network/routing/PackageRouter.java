@@ -19,13 +19,15 @@ package org.bboxdb.network.routing;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
@@ -35,7 +37,6 @@ import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -91,7 +92,7 @@ public class PackageRouter {
 	 * @param boundingBox
 	 */
 	public void performInsertPackageRoutingAsync(final short packageSequence, 
-			final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) {
+			final InsertTupleRequest insertTupleRequest) {
 	
 		final Runnable routeRunable = new ExceptionSafeThread()  {
 
@@ -99,9 +100,11 @@ public class PackageRouter {
 			protected void runThread() {
 				
 				try {
-					final boolean routeResult 
-						= routeInsertPackage(packageSequence, insertTupleRequest, boundingBox);
+					assert (insertTupleRequest.getRoutingHeader().isRoutedPackage()) : "Tuple is not a routed package";
 					
+					insertTupleRequest.getRoutingHeader().dispatchToNextHop();				
+					final boolean routeResult = sendInsertPackage(insertTupleRequest);
+	
 					if(routeResult) {
 						final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
 						clientConnectionHandler.writeResultPackage(responsePackage);
@@ -111,7 +114,7 @@ public class PackageRouter {
 				}  catch(InterruptedException e) {
 					logger.error("Exception while routing package", e);
 					Thread.currentThread().interrupt();
-				} catch (ZookeeperException | IOException | PackageEncodeException e) {
+				} catch (IOException | PackageEncodeException e) {
 					logger.error("Exception while routing package", e);
 				} 
 				
@@ -122,77 +125,12 @@ public class PackageRouter {
 		
 		// Submit the runnable to our pool
 		if(threadPool.isShutdown()) {
-			logger.warn("Thread pool is shutting down, don't route package: " + packageSequence);
+			logger.warn("Thread pool is shutting down, don't route package: {}", packageSequence);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_SHUTDOWN);
 			clientConnectionHandler.writeResultPackageNE(responsePackage);
 		} else {
 			threadPool.submit(routeRunable);
 		}
-	}
-
-	/**
-	 * Route the package to the next hop
-	 * @param packageSequence
-	 * @param insertTupleRequest
-	 * @param boundingBox
-	 * @return
-	 * @throws ZookeeperException
-	 * @throws InterruptedException
-	 */
-	protected boolean routeInsertPackage(final short packageSequence, final InsertTupleRequest insertTupleRequest,
-			final BoundingBox boundingBox) throws ZookeeperException, InterruptedException {
-		
-		if(insertTupleRequest.getRoutingHeader().isRoutedPackage()) {
-			// Routed package: dispatch to next hop
-			insertTupleRequest.getRoutingHeader().dispatchToNextHop();
-			
-			return sendInsertPackage(insertTupleRequest);
-		} else {
-			return handleUnroutedPackage(insertTupleRequest, boundingBox);
-		}
-	}
-
-	/**
-	 * Handle a unrouted insert package
-	 * @param insertTupleRequest
-	 * @param boundingBox
-	 * @return
-	 * @throws ZookeeperException
-	 * @throws InterruptedException
-	 * @throws TimeoutException 
-	 */
-	protected boolean handleUnroutedPackage(final InsertTupleRequest insertTupleRequest, 
-			final BoundingBox boundingBox) throws ZookeeperException, InterruptedException {
-		
-		int tryCounter = 0;
-		
-		while(tryCounter < ROUTING_RETRY) {
-			tryCounter++;
-			
-			// Unrouted package: Create routing list and route package
-			final Set<DistributionRegion> instancesBeforeRouting = getRoutingDestinations(insertTupleRequest, boundingBox);
-			final List<DistributedInstance> systemList = convertRegionsToDistributedInstances(instancesBeforeRouting);
-			setInsertRoutingHeader(insertTupleRequest, systemList);
-			
-	
-			final boolean sendResult = sendInsertPackage(insertTupleRequest);
-			
-			if(sendResult == false) {
-				logger.warn("Unable to send insert package, retry routing");
-				continue;
-			}
-			
-			final Set<DistributionRegion> instancesAfterRouting = getRoutingDestinations(insertTupleRequest, boundingBox);
-
-			if(instancesBeforeRouting.equals(instancesAfterRouting)) {
-				return true;
-			}
-			
-			logger.debug("Instance list differs before and after routing, retry package routing");
-		}
-		
-		logger.warn("Unable to route package with " + tryCounter + " retries");
-		return false;
 	}
 
 	/**
@@ -205,15 +143,21 @@ public class PackageRouter {
 	protected boolean sendInsertPackage(final InsertTupleRequest insertTupleRequest) 
 			throws InterruptedException {
 		
-		if(insertTupleRequest.getRoutingHeader().reachedFinalInstance()) {
+		final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
+		
+		if(routingHeader.reachedFinalInstance()) {
 			return true;
 		} 
 		
-		final DistributedInstance receiver = insertTupleRequest.getRoutingHeader().getHopInstance();
-		final BBoxDBClient connection = MembershipConnectionService.getInstance().getConnectionForInstance(receiver);
+		final RoutingHop routingHop = routingHeader.getRoutingHop();
+		final DistributedInstance receiverInstance = routingHop.getDistributedInstance();
+		
+		final BBoxDBClient connection = MembershipConnectionService
+				.getInstance()
+				.getConnectionForInstance(receiverInstance);
 		
 		if(connection == null) {
-			logger.error("Unable to get a connection to system: {}", receiver);
+			logger.error("Unable to get a connection to system: {}", receiverInstance);
 			return false;
 		} 
 		
@@ -226,8 +170,47 @@ public class PackageRouter {
 			return false;
 		}
 		
-		final boolean success = ! insertFuture.isFailed();
-		return success;
+		final boolean operationSuccess = (! insertFuture.isFailed());
+		return operationSuccess;
+	}
+	
+	/**
+	 * Handle a unrouted insert package
+	 * @param insertTupleRequest
+	 * @param boundingBox
+	 * @return
+	 * @throws ZookeeperException
+	 * @throws InterruptedException
+	 * @throws TimeoutException 
+	 */
+	protected boolean makePackageRoutable(final InsertTupleRequest insertTupleRequest, 
+			final BoundingBox boundingBox) throws ZookeeperException, InterruptedException {
+		
+		int tryCounter = 0;
+		
+		while(tryCounter < PackageRouter.ROUTING_RETRY) {
+			tryCounter++;
+			
+			// Routed package: Create routing list and route package
+			final Set<DistributionRegion> destinationRegions = getDestinationRegions(insertTupleRequest, 
+					boundingBox);
+			
+			setInsertRoutingHeader(insertTupleRequest, destinationRegions);
+	
+			final boolean sendResult = sendInsertPackage(insertTupleRequest);
+			
+			if(sendResult == true) {
+				break;
+			}
+			
+			logger.warn("Unable to send insert package, retry routing");
+			
+			// Wait some time to let the region assignment settle
+			Thread.sleep(10);			
+		}
+		
+		logger.warn("Unable to route package with {} retries", tryCounter);
+		return false;
 	}
 	
 	/**
@@ -238,9 +221,27 @@ public class PackageRouter {
 	 * @throws ZookeeperException
 	 */
 	protected void setInsertRoutingHeader(final InsertTupleRequest insertTupleRequest, 
-			final List<DistributedInstance> systems) throws ZookeeperException {
+			final Set<DistributionRegion> destinationRegions) throws ZookeeperException {
 		
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 0, systems);
+		final Map<DistributedInstance, RoutingHop> hops = new HashMap<>();
+		for(final DistributionRegion region : destinationRegions) {
+			final Collection<DistributedInstance> systems = region.getSystems();
+			
+			for(DistributedInstance system : systems) {
+				if(! hops.containsKey(system)) {
+					final List<Integer> regions = new ArrayList<>();
+					regions.add(region.getRegionId());
+					hops.put(system, new RoutingHop(system, regions));
+				} else {
+					final RoutingHop routingHop = hops.get(system);
+					routingHop.addRegion(region.getRegionId());
+				}
+			}
+		}
+		
+		final List<RoutingHop> hopList = new ArrayList<>(hops.values());
+		
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 0, hopList);
 		insertTupleRequest.replaceRoutingHeader(routingHeader);
 	}
 
@@ -251,7 +252,7 @@ public class PackageRouter {
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	protected Set<DistributionRegion> getRoutingDestinations(
+	protected Set<DistributionRegion> getDestinationRegions(
 			final InsertTupleRequest insertTupleRequest, final BoundingBox boundingBox) 
 					throws ZookeeperException {
 		
@@ -264,35 +265,5 @@ public class PackageRouter {
 		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 		
 		return distributionRegion.getDistributionRegionsForBoundingBox(boundingBox);
-	}
-	
-	
-	/**
-	 * Convert the region list into a system list
-	 * @param regions
-	 * @return
-	 */
-	protected List<DistributedInstance> convertRegionsToDistributedInstances(
-			final Set<DistributionRegion> regions) {
-		
-		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
-
-		for(final DistributionRegion region : regions) {
-			for(DistributedInstance instance : region.getSystems()) {
-				if(! systems.contains(instance)) {
-					systems.add(instance);
-				}
-			}
-		}
-		
-		// Remove the local instance
-		final DistributedInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName(BBoxDBConfigurationManager.getConfiguration());
-		
-		final List<DistributedInstance> systemsWithoutLocalInstance = systems
-			.stream()
-			.filter(i -> ! i.getInetSocketAddress().equals(localInstanceName.getInetSocketAddress()))
-			.collect(Collectors.toList());
-
-		return systemsWithoutLocalInstance;
 	}
 }

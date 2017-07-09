@@ -56,6 +56,7 @@ import org.bboxdb.network.packages.response.ListTablesResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -211,7 +212,9 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeInsertTupleWithCustomHeader() throws IOException, PackageEncodeException {
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
+		final RoutingHop hop1 = new RoutingHop(new DistributedInstance("host1:50500"), Arrays.asList(123));
+		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] { hop1 });
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, routingList);
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -828,7 +831,10 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testCompression1Request() throws IOException, PackageEncodeException {
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
+		final RoutingHop hop1 = new RoutingHop(new DistributedInstance("host1:50500"), Arrays.asList(123));
+		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] { hop1 });
+		
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, routingList);
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
@@ -867,7 +873,10 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testCompression2Request() throws IOException, PackageEncodeException {
-		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, Arrays.asList(new DistributedInstance[] { new DistributedInstance("node1:3445")}));
+		final RoutingHop hop1 = new RoutingHop(new DistributedInstance("host1:50500"), Arrays.asList(123));
+		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] { hop1 });
+		
+		final RoutingHeader routingHeader = new RoutingHeader(true, (short) 12, routingList);
 		final Tuple tuple = new Tuple("abcdefghijklmopqrstuvxyz", BoundingBox.EMPTY_BOX, "abcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyz".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 

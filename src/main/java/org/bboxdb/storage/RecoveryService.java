@@ -35,8 +35,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
-import org.bboxdb.misc.BBoxDBConfiguration;
-import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBClient;
@@ -112,8 +110,7 @@ public class RecoveryService implements BBoxDBService {
 	protected void runRecoveryForDistributionGroup(final DistributionGroupName distributionGroupName) {
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-			final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName(configuration);
+			final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 			
 			for(final Storage storage : storageRegistry.getAllStorages()) {
 				checkGroupVersion(storage, distributionGroupName, zookeeperClient);

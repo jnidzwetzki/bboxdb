@@ -21,18 +21,24 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.routing.PackageRouter;
+import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
@@ -61,18 +67,19 @@ public class HandleInsertTuple implements RequestHandler {
 		try {			
 			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 			
-			// Send the call to the storage manager
 			final Tuple tuple = insertTupleRequest.getTuple();			
 			final SSTableName requestTable = insertTupleRequest.getTable();
+			final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
+			final StorageRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
 			
-			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final BoundingBox boundingBox = insertTupleRequest.getTuple().getBoundingBox();
-			final Collection<SSTableName> localTables = regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);
-
-			localTables.forEach(t -> insertTupleNE(clientConnectionHandler, tuple, t));
+			if(! routingHeader.isRoutedPackage()) {
+				throw new BBoxDBException("Got a non routed insert package");
+			}
+			
+			insertTuple(tuple, requestTable, storageRegistry, routingHeader);
 			
 			final PackageRouter packageRouter = clientConnectionHandler.getPackageRouter();
-			packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest, boundingBox);
+			packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest);
 			
 		} catch (Exception e) {
 			logger.warn("Error while insert tuple", e);
@@ -83,45 +90,50 @@ public class HandleInsertTuple implements RequestHandler {
 		return true;
 	}
 
+	/**
+	 * Insert the table into the local storage
+	 * @param tuple
+	 * @param requestTable
+	 * @param storageRegistry
+	 * @param routingHeader
+	 * @throws StorageManagerException
+	 * @throws RejectedException
+	 * @throws BBoxDBException
+	 */
+	protected void insertTuple(final Tuple tuple, final SSTableName requestTable, 
+			final StorageRegistry storageRegistry,
+			final RoutingHeader routingHeader) 
+			throws StorageManagerException, RejectedException, BBoxDBException {
+		
+		final RoutingHop localHop = routingHeader.getRoutingHop();
+		
+		checkSystemNameMatches(localHop);
+		
+		final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
+		
+		final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
+
+		final Collection<SSTableName> localTables = regionIdMapper.convertRegionIdToTableNames(
+					requestTable, localHop.getDistributionRegions());
+
+		for(final SSTableName ssTableName : localTables) {
+			final SSTableManager storageManager = storageRegistry.getSSTableManager(ssTableName);
+			storageManager.put(tuple);			
+		}
+	}
 
 	/**
-	 * Insert an tuple with proper exception handling
-	 * @param tuple
-	 * @param ssTableName
-	 * @return
+	 * Ensure that the package is routed to the right system
+	 * @param localHop
+	 * @throws BBoxDBException
 	 */
-	protected boolean insertTupleNE(final ClientConnectionHandler clientConnectionHandler, 
-			final Tuple tuple, final SSTableName ssTableName) {
+	protected void checkSystemNameMatches(final RoutingHop localHop) throws BBoxDBException {
+		final DistributedInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
+		final DistributedInstance routingInstanceName = localHop.getDistributedInstance();
 		
-		SSTableManager storageManager = null;
-		
-		try {
-			storageManager = clientConnectionHandler
-					.getStorageRegistry()
-					.getSSTableManager(ssTableName);
-			
-		} catch (StorageManagerException e) {
-			logger.warn("Got an exception while inserting", e);
-			return false;
+		if(! localInstanceName.socketAddressEquals(routingInstanceName)) {
+			throw new BBoxDBException("Routing hop " + routingInstanceName 
+					+ " does not match local host " + localInstanceName);
 		}
-		
-		try {
-			if(! storageManager.getServiceState().isInRunningState()) {
-				return false;
-			}
-			
-			storageManager.put(tuple);
-			return true;
-			
-		} catch (StorageManagerException | RejectedException e) {
-			if(storageManager.getServiceState().isInRunningState()) {
-				logger.warn("Got an exception while inserting", e);
-			} else {
-				logger.debug("Got an exception while inserting", e);
-			}
-		}
-		
-		return false;
 	}
-	
 }

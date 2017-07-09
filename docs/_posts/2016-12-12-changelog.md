@@ -7,6 +7,7 @@ order: 1
 ---
 ### Version 0.3.2 (Stable) - TBA
 - New Feature: The CLI shows all discovered BBoxDB instances
+- New Feature: Introduced client based distribution group routing
 - Bugfix: Fixed wait for pending calls method in client code
 
 ### Version 0.3.1 (Stable) - 29.06.2017

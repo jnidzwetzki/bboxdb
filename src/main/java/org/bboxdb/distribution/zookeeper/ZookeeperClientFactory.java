@@ -31,6 +31,11 @@ public class ZookeeperClientFactory {
 	
 	protected final static Map<BBoxDBConfiguration, ZookeeperClient> instances;
 	
+	/**
+	 * The name of the local instance
+	 */
+	protected static DistributedInstance localInstanceName;
+	
 	static {
 		instances = new HashMap<BBoxDBConfiguration, ZookeeperClient>();
 	}
@@ -63,7 +68,7 @@ public class ZookeeperClientFactory {
 		final String clustername = bboxdbConfiguration.getClustername();
 
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, clustername);
-		final DistributedInstance instance = getLocalInstanceName(bboxdbConfiguration);
+		final DistributedInstance instance = getLocalInstanceName();
 		zookeeperClient.registerInstanceAfterConnect(instance);
 		
 		// Register instance
@@ -81,11 +86,16 @@ public class ZookeeperClientFactory {
 	 * @param bboxdbConfiguration
 	 * @return
 	 */
-	public static DistributedInstance getLocalInstanceName(final BBoxDBConfiguration bboxdbConfiguration) {
-		final String localIp = bboxdbConfiguration.getLocalip();
-		final int localPort = bboxdbConfiguration.getNetworkListenPort();
-		final DistributedInstance instance = new DistributedInstance(localIp, localPort, Const.VERSION);
-		return instance;
+	public static synchronized DistributedInstance getLocalInstanceName() {
+		
+		if(localInstanceName == null) {
+			final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
+			final String localIp = configuration.getLocalip();
+			final int localPort = configuration.getNetworkListenPort();
+			localInstanceName = new DistributedInstance(localIp, localPort, Const.VERSION);
+		}
+		
+		return localInstanceName;
 	}
 	
 	/**

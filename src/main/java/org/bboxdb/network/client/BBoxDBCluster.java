@@ -38,6 +38,7 @@ import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -137,16 +138,16 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			
-			Collection<DistributedInstance> systems = getSystemsList(tuple, distributionRegion);
+			final Collection<RoutingHop> hops = getRoutingHops(tuple, distributionRegion);
 			
-			if(systems.isEmpty()) {
-				logger.error("Insert tuple called, but system list for bounding box is empty: {}", 
+			if(hops.isEmpty()) {
+				logger.error("Insert tuple called, but hop list for bounding box is empty: {}", 
 						tuple.getBoundingBox());
 				return getFailedEmptyResultFuture();
 			}
 			
 			// Determine the first system, it will route the request to the remaining systems
-			final DistributedInstance system = systems.iterator().next();
+			final DistributedInstance system = hops.iterator().next().getDistributedInstance();
 			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 			
 			if(connection == null) {
@@ -157,12 +158,13 @@ public class BBoxDBCluster implements BBoxDB {
 			return connection.insertTuple(table, tuple);
 		} catch (ZookeeperException e) {
 			logger.warn("Got exception while inserting tuple", e);
-			return getFailedEmptyResultFuture();
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
-			return getFailedEmptyResultFuture();
 		}
+		
+		// Return after exception
+		return getFailedEmptyResultFuture();
 	}
 
 	/**
@@ -172,13 +174,13 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	protected Collection<DistributedInstance> getSystemsList(final Tuple tuple,
+	protected Collection<RoutingHop> getRoutingHops(final Tuple tuple,
 			final DistributionRegion distributionRegion) throws InterruptedException {
 		
-		Collection<DistributedInstance> systems = new ArrayList<>();
+		Collection<RoutingHop> systems = new ArrayList<>();
 
 		for(int execution = 0; execution < Const.OPERATION_RETRY; execution++) {
-			systems = distributionRegion.getSystemsForBoundingBoxAndWrite(tuple.getBoundingBox());
+			systems = distributionRegion.getRoutingHopsForWrite(tuple.getBoundingBox());
 			
 			if(! systems.isEmpty()) {
 				break;
@@ -325,14 +327,14 @@ public class BBoxDBCluster implements BBoxDB {
 					sstableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBoxAndRead(boundingBox);
+			final Collection<RoutingHop> hops = distributionRegion.getRoutingHopsForRead(boundingBox);
 			
 			if(logger.isDebugEnabled()) {
-				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, systems);
+				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, hops);
 			}
 			
-			systems.stream()
-				.map(s -> membershipConnectionService.getConnectionForInstance(s))
+			hops.stream()
+				.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
 			 	.map(c -> c.queryBoundingBox(table, boundingBox))
 			 	.filter(Objects::nonNull)
 			 	.forEach(f -> future.merge(f));
@@ -361,14 +363,14 @@ public class BBoxDBCluster implements BBoxDB {
 					sstableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			final Collection<DistributedInstance> systems = distributionRegion.getSystemsForBoundingBoxAndRead(boundingBox);
+			final Collection<RoutingHop> hops = distributionRegion.getRoutingHopsForRead(boundingBox);
 			
 			if(logger.isDebugEnabled()) {
-				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, systems);
+				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, hops);
 			}
 			
-			systems.stream()
-				.map(s -> membershipConnectionService.getConnectionForInstance(s))
+			hops.stream()
+				.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
 			 	.map(c -> c.queryBoundingBoxAndTime(table, boundingBox, timestamp))
 			 	.filter(Objects::nonNull)
 			 	.forEach(f -> future.merge(f));

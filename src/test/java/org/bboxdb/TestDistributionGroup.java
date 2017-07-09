@@ -17,7 +17,9 @@
  *******************************************************************************/
 package org.bboxdb;
 
+import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
@@ -25,6 +27,7 @@ import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.junit.Assert;
 import org.junit.Test;
@@ -166,7 +169,8 @@ public class TestDistributionGroup {
 		final DistributedInstance SYSTEM_A = new DistributedInstance("192.168.1.200:5050");
 		final DistributedInstance SYSTEM_B = new DistributedInstance("192.168.1.201:5050");
 		
-		final DistributionRegion level0 = DistributionRegion.createRootElement(new DistributionGroupName("1_foo"));
+		final DistributionGroupName distributionGroupName = new DistributionGroupName("1_foo");
+		final DistributionRegion level0 = DistributionRegion.createRootElement(distributionGroupName);
 		level0.setSplit(50);
 
 		level0.getLeftChild().addSystem(SYSTEM_A);
@@ -176,14 +180,25 @@ public class TestDistributionGroup {
 		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
 		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
 		
-		Assert.assertFalse(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(100d, 110d)).contains(SYSTEM_A));
-		Assert.assertTrue(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(0d, 10d)).contains(SYSTEM_A));
+		Assert.assertFalse(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(100d, 110d))).contains(SYSTEM_A));
+		Assert.assertTrue(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(0d, 10d))).contains(SYSTEM_A));
 		
-		Assert.assertTrue(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(0d, 10d)).contains(SYSTEM_A));
-		Assert.assertFalse(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(100d, 110d)).contains(SYSTEM_A));
+		Assert.assertTrue(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(0d, 10d))).contains(SYSTEM_A));
+		Assert.assertFalse(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(100d, 110d))).contains(SYSTEM_A));
 		
-		Assert.assertTrue(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(0d, 100d)).contains(SYSTEM_A));
-		Assert.assertTrue(level0.getSystemsForBoundingBoxAndRead(new BoundingBox(0d, 100d)).contains(SYSTEM_B));
+		Assert.assertTrue(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(0d, 100d))).contains(SYSTEM_A));
+		Assert.assertTrue(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(0d, 100d))).contains(SYSTEM_B));
+	}
+	
+	/**
+	 * Convert the routing hop list to distibuted instance list
+	 * @param collection
+	 * @return
+	 */
+	protected Collection<DistributedInstance> convertHopsToSystems(final Collection<RoutingHop> hops) {
+		return hops.stream()
+				.map(h -> h.getDistributedInstance())
+				.collect(Collectors.toList());
 	}
 	
 	/**
@@ -191,7 +206,8 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testNameprefixSearch() {
-		final DistributionRegion level0 = DistributionRegion.createRootElement(new DistributionGroupName("2_foo"));
+		final DistributionGroupName distributionGroupName = new DistributionGroupName("2_foo");
+		final DistributionRegion level0 = DistributionRegion.createRootElement(distributionGroupName);
 		level0.setRegionId(1);
 		level0.setSplit(50);
 		level0.getLeftChild().setRegionId(2);
@@ -245,10 +261,10 @@ public class TestDistributionGroup {
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
 		level0.getRightChild().addSystem(new DistributedInstance("node3:123"));
 		
-		final Set<DistributedInstance> systemsRead = level0.getSystemsForBoundingBoxAndRead(BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsRead = level0.getRoutingHopsForRead(BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(3, systemsRead.size());
 		
-		final Set<DistributedInstance> systemsWrite = level0.getSystemsForBoundingBoxAndWrite(BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsWrite = level0.getRoutingHopsForWrite(BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(2, systemsWrite.size());
 	}
 	
@@ -269,10 +285,10 @@ public class TestDistributionGroup {
 		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
 		level0.getRightChild().addSystem(new DistributedInstance("node2:123"));
 		
-		final Set<DistributedInstance> systemsRead = level0.getSystemsForBoundingBoxAndRead(BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsRead = level0.getRoutingHopsForRead(BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(2, systemsRead.size());
 		
-		final Set<DistributedInstance> systemsWrite = level0.getSystemsForBoundingBoxAndWrite(BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsWrite = level0.getRoutingHopsForWrite(BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(1, systemsWrite.size());
 	}
 	

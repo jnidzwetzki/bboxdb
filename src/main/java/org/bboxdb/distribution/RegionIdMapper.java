@@ -117,7 +117,7 @@ public class RegionIdMapper {
 	 * @param regionIds
 	 * @return
 	 */
-	protected List<SSTableName> convertRegionIdToTableNames(final SSTableName ssTableName,
+	public List<SSTableName> convertRegionIdToTableNames(final SSTableName ssTableName,
 			final Collection<Integer> regionIds) {
 		
 		return regionIds

@@ -19,6 +19,7 @@ package org.bboxdb.network.routing;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class RoutingHeader {
 	/**
 	 * The hops for this package
 	 */
-	protected final List<DistributedInstance> routingList = new ArrayList<DistributedInstance>();
+	protected final List<RoutingHop> routingList = new ArrayList<>();
 
 	/**
 	 * The flag for direct packages
@@ -54,7 +55,12 @@ public class RoutingHeader {
 	/**
 	 * The separator char for the host / hop list
 	 */
-	public final static String SEPARATOR_CHAR = ",";
+	public final static String SEPARATOR_CHAR_HOST = ";";
+	
+	/**
+	 * The separator char for the region
+	 */
+	public final static String SEPARATOR_CHAR_REGION = ",";
 	
 	/**
 	 * The Logger
@@ -70,7 +76,7 @@ public class RoutingHeader {
 		this.routedPackage = routedPackage;
 	}
 
-	public RoutingHeader(final boolean routedPackage, final short hop, final List<DistributedInstance> routingList) {
+	public RoutingHeader(final boolean routedPackage, final short hop, final List<RoutingHop> routingList) {
 		this.routedPackage = routedPackage;
 		this.hop = hop;
 		this.routingList.addAll(routingList);
@@ -154,7 +160,11 @@ public class RoutingHeader {
 	 * Get the next receiver of the package
 	 * @return
 	 */
-	public DistributedInstance getHopInstance() {
+	public RoutingHop getRoutingHop() {
+		
+		assert (hop <= routingList.size()) : "Unable to return hop " + hop 
+			+ ", total hops " + routingList.size();
+		
 		return routingList.get(hop);
 	}
 
@@ -162,7 +172,7 @@ public class RoutingHeader {
 	 * Get the list with hops
 	 * @return
 	 */
-	public List<DistributedInstance> getRoutingList() {
+	public List<RoutingHop> getRoutingList() {
 		return routingList;
 	}
 
@@ -170,7 +180,7 @@ public class RoutingHeader {
 	 * Set the list with hops
 	 * @param routingList
 	 */
-	public void setRoutingList(final List<DistributedInstance> routingList) {
+	public void setRoutingList(final List<RoutingHop> routingList) {
 		this.routingList.clear();
 		this.routingList.addAll(routingList);
 	}
@@ -188,16 +198,28 @@ public class RoutingHeader {
 			return;
 		}
 		
-		final String[] parts = stringRoutingList.split(SEPARATOR_CHAR);
+		final String[] hostParts = stringRoutingList.split(SEPARATOR_CHAR_HOST);
 		
-		
-		for(final String hop : parts) {
+		for(final String hostPart : hostParts) {
 			try {
-				final DistributedInstance distributedInstance = new DistributedInstance(hop);
-				routingList.add(distributedInstance);
+				final String[] regionParts = hostPart.split(SEPARATOR_CHAR_REGION);
+				
+				assert (regionParts.length > 1) : "Unable to split into regions: " + hostPart;
+				
+				final DistributedInstance distributedInstance = new DistributedInstance(regionParts[0]);
+				final List<Integer> distributionRegions = new ArrayList<>();
+				
+				for(int i = 1; i < regionParts.length; i++) {
+					final int distributionRegion = Integer.parseInt(regionParts[i]);
+					distributionRegions.add(distributionRegion);
+				}
+				
+				final RoutingHop routingHop = new RoutingHop(distributedInstance, distributionRegions);
+				routingList.add(routingHop);
+				
 			} catch(IllegalArgumentException e) {
-				logger.warn("Unable to parse as distributed instance: " + hop);
-			}
+				logger.warn("Unable to parse as distributed instance: " + hostPart);
+			} 
 		}
 	}
 	
@@ -206,13 +228,25 @@ public class RoutingHeader {
 	 * @return
 	 */
 	public String getRoutingListAsString() {
+		
 		final StringBuilder sb = new StringBuilder();
-		for(final DistributedInstance distributedInstance : routingList) {
+
+		for(final RoutingHop routingHop : routingList) {
+			final String regionString = routingHop
+					.getDistributionRegions()
+					.stream()
+					.map(i -> Integer.toString(i))
+					.collect(Collectors.joining(SEPARATOR_CHAR_REGION));
+
 			if(sb.length() != 0) {
-				sb.append(SEPARATOR_CHAR);
+				sb.append(SEPARATOR_CHAR_HOST);
 			}
-			sb.append(distributedInstance.getStringValue());
+			
+			sb.append(routingHop.getDistributedInstance().getStringValue());
+			sb.append(SEPARATOR_CHAR_REGION);
+			sb.append(regionString);
 		}
+
 		return sb.toString();
 	}
 
@@ -246,5 +280,5 @@ public class RoutingHeader {
 			return false;
 		return true;
 	}
-	
+
 }
