@@ -18,12 +18,15 @@
 package org.bboxdb.network.routing;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.Retryer;
 
 public class RoutingHopHelper {
 
@@ -37,21 +40,25 @@ public class RoutingHopHelper {
 	public static List<RoutingHop> getRoutingHopsForWrite(final Tuple tuple,
 			final DistributionRegion distributionRegion) throws InterruptedException {
 		
-		final List<RoutingHop> hops = new ArrayList<>();
-		
-		final BoundingBox boundingBox = tuple.getBoundingBox();
+		final Callable<List<RoutingHop>> getHops = new Callable<List<RoutingHop>>() {
 
-		for(int execution = 0; execution < Const.OPERATION_RETRY; execution++) {
-			hops.addAll(distributionRegion.getRoutingHopsForWrite(boundingBox));
-			
-			if(! hops.isEmpty()) {
-				break;
+			@Override
+			public List<RoutingHop> call() throws Exception {
+				final BoundingBox boundingBox = tuple.getBoundingBox();
+				final Collection<RoutingHop> hopCollection 
+					= distributionRegion.getRoutingHopsForWrite(boundingBox);
+				
+				if(hopCollection.isEmpty()) {
+					throw new Exception("Hop collection is empty");
+				}
+
+				return new ArrayList<RoutingHop>(hopCollection);
 			}
-			
-			Thread.sleep(20 * execution);	
-		}
+		};
 		
-		return hops;
+		final Retryer<List<RoutingHop>> retryer = new Retryer<>(Const.OPERATION_RETRY, 20, getHops);
+		retryer.execute();
+		return retryer.getResult();
 	}
 
 }

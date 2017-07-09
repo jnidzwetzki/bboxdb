@@ -203,9 +203,10 @@ public class TestDistributionGroup {
 	
 	/**
 	 * Test name prefix search
+	 * @throws InterruptedException 
 	 */
 	@Test
-	public void testNameprefixSearch() {
+	public void testNameprefixSearch() throws InterruptedException {
 		final DistributionGroupName distributionGroupName = new DistributionGroupName("2_foo");
 		final DistributionRegion level0 = DistributionRegion.createRootElement(distributionGroupName);
 		level0.setRegionId(1);

@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
@@ -30,6 +31,7 @@ import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.Const;
+import org.bboxdb.util.Retryer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,34 +58,42 @@ public class DistributionRegionHelper {
 	 * Find the region for the given name prefix
 	 * @param searchNameprefix
 	 * @return
+	 * @throws InterruptedException 
 	 */
-	public static DistributionRegion getDistributionRegionForNamePrefix(final DistributionRegion region, final int searchNameprefix) {
+	public static DistributionRegion getDistributionRegionForNamePrefix(final DistributionRegion region, 
+			final int searchNameprefix) throws InterruptedException {
 		
 		if(region == null) {
 			return null;
 		}
 		
-		for(int retry = 0; retry < Const.OPERATION_RETRY; retry++) {
-			final DistributionRegionNameprefixFinder distributionRegionNameprefixFinder 
-				= new DistributionRegionNameprefixFinder(searchNameprefix);
+		final Callable<DistributionRegion> getDistributionRegion = new Callable<DistributionRegion>() {
 
-			region.visit(distributionRegionNameprefixFinder);
+			@Override
+			public DistributionRegion call() throws Exception {
+				final DistributionRegionNameprefixFinder distributionRegionNameprefixFinder 
+					= new DistributionRegionNameprefixFinder(searchNameprefix);
+
+				region.visit(distributionRegionNameprefixFinder);
 				
-			final DistributionRegion result = distributionRegionNameprefixFinder.getResult();
+				final DistributionRegion result = distributionRegionNameprefixFinder.getResult();
 			
-			if(result != null) {
+				if(result == null) {
+					throw new Exception("Unable to get distribution region");
+				}
+				
 				return result;
 			}
-			
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				return null;
-			}
-		}
+		};
 		
-		return null;
+		// Retry the operation if neeed
+		final Retryer<DistributionRegion> retyer = new Retryer<>(Const.OPERATION_RETRY, 
+				250, 
+				getDistributionRegion);
+		
+		retyer.execute();
+		
+		return retyer.getResult();
 	}
 	
 	/**

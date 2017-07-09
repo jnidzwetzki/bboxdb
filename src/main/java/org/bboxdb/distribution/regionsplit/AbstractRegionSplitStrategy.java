@@ -117,6 +117,9 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			logger.error("Got exception while init region splitter", e);
 			region = null;
 			throw new StorageManagerException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
 		}
 	}
 	
