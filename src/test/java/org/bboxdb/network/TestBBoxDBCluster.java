@@ -106,8 +106,7 @@ public class TestBBoxDBCluster {
 		final String clusterName = BBoxDBConfigurationManager.getConfiguration().getClustername();
 		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster("localhost:2181", clusterName);
 	
-		Assert.assertFalse(bboxdbCluster.isConnected());
-		boolean result = bboxdbCluster.connect();
+		final boolean result = bboxdbCluster.connect();
 		Assert.assertTrue(result);
 		
 		Thread.sleep(50);
