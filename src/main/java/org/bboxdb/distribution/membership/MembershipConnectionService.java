@@ -111,6 +111,13 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	}
 	
 	/**
+	 * Clear the blacklist
+	 */
+	public void clearBlacklist() {
+		blacklist.clear();
+	}
+	
+	/**
 	 * Init the subsystem
 	 */
 	@Override
@@ -124,9 +131,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 			logger.warn("The list of instances is empty");
 		}
 		
-		for(final DistributedInstance distributedInstance : instances) {
-			createOrTerminateConnetion(distributedInstance);
-		}
+		instances.forEach(i -> createOrTerminateConnetion(i));
 	}
 
 	/**

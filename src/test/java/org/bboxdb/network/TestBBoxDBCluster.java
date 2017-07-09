@@ -20,6 +20,7 @@ package org.bboxdb.network;
 import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.BBoxDBMain;
+import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
@@ -41,6 +42,9 @@ public class TestBBoxDBCluster {
 		bboxDBMain = new BBoxDBMain();
 		bboxDBMain.init();
 		bboxDBMain.start();
+		
+		// Allow connections to localhost (needed for travis CI test)
+		MembershipConnectionService.getInstance().clearBlacklist();
 		
 		Thread.currentThread();
 		// Wait some time to let the server process start
