@@ -30,6 +30,7 @@ import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
@@ -75,6 +76,8 @@ public class HandleInsertTuple implements RequestHandler {
 			
 			if(! routingHeader.isRoutedPackage()) {
 				handleUnroutedPackage(insertTupleRequest, tuple, requestTable, storageRegistry);
+				final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
+				clientConnectionHandler.writeResultPackage(responsePackage);
 			} else {
 				handleRoutedPackage(tuple, requestTable, storageRegistry, routingHeader);
 				final PackageRouter packageRouter = clientConnectionHandler.getPackageRouter();
@@ -111,6 +114,7 @@ public class HandleInsertTuple implements RequestHandler {
 			final SSTableManager storageManager = storageRegistry.getSSTableManager(ssTableName);
 			storageManager.put(tuple);
 		}
+		
 	}
 
 	/**
