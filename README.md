@@ -11,6 +11,8 @@ BBoxDB is a distributed storage manager, designed to handle multi-dimensional bi
        src="https://scan.coverity.com/projects/11479/badge.svg"/>
 </a> <a href="https://codecov.io/gh/jnidzwetzki/bboxdb">
   <img src="https://codecov.io/gh/jnidzwetzki/bboxdb/branch/master/graph/badge.svg" alt="Codecov" />
+</a> <a href="https://gitter.im/bboxdb/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+  <img alt="Join the chat at https://gitter.im/bboxdb/Lobby" src="https://badges.gitter.im/Join%20Chat.svg">
 </a>
 
 ## Documentation 
@@ -26,6 +28,7 @@ See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/started.html) 
 
 ## Contact / Stay informed
 * Visit our [website](http://bboxdb.org)
+* Join our chat at [gitter](https://gitter.im/bboxdb/Lobby)
 * Follow us on Twitter: [@BBoxDB](https://twitter.com/BBoxDB)
 * Subscribe our mailing list at [Google Groups](https://groups.google.com/forum/#!forum/bboxdb)
 * Visit our [bug tracking system](https://github.com/jnidzwetzki/bboxdb/issues)
