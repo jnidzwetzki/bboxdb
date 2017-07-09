@@ -64,10 +64,11 @@ public class TestBBoxDBCluster {
 	
 	/**
 	 * Integration test for the disconnect package
+	 * @throws InterruptedException 
 	 * 
 	 */
 	@Test
-	public void testSendDisconnectPackage() {
+	public void testSendDisconnectPackage() throws InterruptedException {
 		System.out.println("=== Running cluster testSendDisconnectPackage");
 
 		final BBoxDBCluster bboxdbClient = connectToServer();
@@ -99,14 +100,18 @@ public class TestBBoxDBCluster {
 	 * Build a new connection to the bboxdb server
 	 * 
 	 * @return
+	 * @throws InterruptedException 
 	 */
-	protected BBoxDBCluster connectToServer() {
+	protected BBoxDBCluster connectToServer() throws InterruptedException {
 		final String clusterName = BBoxDBConfigurationManager.getConfiguration().getClustername();
 		final BBoxDBCluster bboxdbCluster = new BBoxDBCluster("localhost:2181", clusterName);
 	
 		Assert.assertFalse(bboxdbCluster.isConnected());
 		boolean result = bboxdbCluster.connect();
 		Assert.assertTrue(result);
+		
+		Thread.sleep(50);
+		
 		Assert.assertTrue(bboxdbCluster.isConnected());
 		
 		return bboxdbCluster;
