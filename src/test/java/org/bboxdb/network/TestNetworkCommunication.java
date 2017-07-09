@@ -78,10 +78,10 @@ public class TestNetworkCommunication {
 	public void testSendDisconnectPackage() {
 		System.out.println("=== Running testSendDisconnectPackage");
 
-		final BBoxDBClient scalephantClient = connectToServer();
-		Assert.assertTrue(scalephantClient.isConnected());
-		disconnectFromServer(scalephantClient);
-		Assert.assertFalse(scalephantClient.isConnected());
+		final BBoxDBClient bboxDBClient = connectToServer();
+		Assert.assertTrue(bboxDBClient.isConnected());
+		disconnectFromServer(bboxDBClient);
+		Assert.assertFalse(bboxDBClient.isConnected());
 		
 		System.out.println("=== End testSendDisconnectPackage");
 	}
@@ -95,18 +95,18 @@ public class TestNetworkCommunication {
 	public void sendDeletePackage() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running sendDeletePackage");
 
-		final BBoxDBClient scalephantClient = connectToServer();
+		final BBoxDBClient bboxDBClient = connectToServer();
 		
-		final EmptyResultFuture result = scalephantClient.deleteTable("1_testgroup1_relation3");
+		final EmptyResultFuture result = bboxDBClient.deleteTable("1_testgroup1_relation3");
 		
 		result.waitForAll();
 		
 		Assert.assertTrue(result.isDone());
 		Assert.assertFalse(result.isFailed());
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, bboxDBClient.getConnectionState());
 		
-		disconnectFromServer(scalephantClient);
-		Assert.assertFalse(scalephantClient.isConnected());
+		disconnectFromServer(bboxDBClient);
+		Assert.assertFalse(bboxDBClient.isConnected());
 		
 		System.out.println("=== End sendDeletePackage");
 	}
@@ -119,12 +119,12 @@ public class TestNetworkCommunication {
 		System.out.println("=== Running testConnectionState");
 
 		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
-		final BBoxDBClient scalephantClient = new BBoxDBClient(new InetSocketAddress("127.0.0.1", port));
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, scalephantClient.getConnectionState());
-		scalephantClient.connect();
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
-		scalephantClient.disconnect();
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, scalephantClient.getConnectionState());
+		final BBoxDBClient bboxDBClient = new BBoxDBClient(new InetSocketAddress("127.0.0.1", port));
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, bboxDBClient.getConnectionState());
+		bboxDBClient.connect();
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, bboxDBClient.getConnectionState());
+		bboxDBClient.disconnect();
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, bboxDBClient.getConnectionState());
 	
 		System.out.println("=== End testConnectionState");
 	}
@@ -138,27 +138,27 @@ public class TestNetworkCommunication {
 	public void sendDeletePackage2() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running sendDeletePackage2");
 
-		final BBoxDBClient scalephantClient = connectToServer();
+		final BBoxDBClient bboxDBClient = connectToServer();
 		
 		// First call
-		final EmptyResultFuture result1 = scalephantClient.deleteTable("1_testgroup1_relation3");
+		final EmptyResultFuture result1 = bboxDBClient.deleteTable("1_testgroup1_relation3");
 		result1.waitForAll();
 		Assert.assertTrue(result1.isDone());
 		Assert.assertFalse(result1.isFailed());
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, bboxDBClient.getConnectionState());
 		
 		// Wait for command processing
 		Thread.sleep(1000);
 		
 		// Second call
-		final EmptyResultFuture result2 = scalephantClient.deleteTable("1_testgroup1_relation3");
+		final EmptyResultFuture result2 = bboxDBClient.deleteTable("1_testgroup1_relation3");
 		result2.waitForAll();
 		Assert.assertTrue(result2.isDone());
 		Assert.assertFalse(result2.isFailed());
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, bboxDBClient.getConnectionState());
 		
-		disconnectFromServer(scalephantClient);
-		Assert.assertFalse(scalephantClient.isConnected());		
+		disconnectFromServer(bboxDBClient);
+		Assert.assertFalse(bboxDBClient.isConnected());		
 		
 		System.out.println("=== End sendDeletePackage2");
 	}
@@ -246,33 +246,33 @@ public class TestNetworkCommunication {
 		final String distributionGroup = "2_testgroup"; 
 		final String table = distributionGroup + "_relation9999";
 		
-		final BBoxDBClient scalephantClient = connectToServer();
+		final BBoxDBClient bboxDBClient = connectToServer();
 		
 		// Delete distribution group
-		final EmptyResultFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
+		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
 		resultDelete.waitForAll();
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
-		final EmptyResultFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes());
-		scalephantClient.insertTuple(table, tuple1);
+		bboxDBClient.insertTuple(table, tuple1);
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(0d, 0.5d, 0d, 0.5d), "def".getBytes());
-		scalephantClient.insertTuple(table, tuple2);
+		bboxDBClient.insertTuple(table, tuple2);
 		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes());
-		scalephantClient.insertTuple(table, tuple3);
+		bboxDBClient.insertTuple(table, tuple3);
 		
 		// Outside our bbox query
 		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10d, -9d, -10d, -9d), "ijk".getBytes());
-		scalephantClient.insertTuple(table, tuple4);
+		bboxDBClient.insertTuple(table, tuple4);
 		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000d, 1001d, 1000d, 1001d), "lmn".getBytes());
-		scalephantClient.insertTuple(table, tuple5);
+		bboxDBClient.insertTuple(table, tuple5);
 
-		final TupleListFuture future = scalephantClient.queryBoundingBox(table, new BoundingBox(-1d, 2d, -1d, 2d));
+		final TupleListFuture future = bboxDBClient.queryBoundingBox(table, new BoundingBox(-1d, 2d, -1d, 2d));
 		future.waitForAll();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
 		
@@ -299,60 +299,60 @@ public class TestNetworkCommunication {
 		final String distributionGroup = "2_testgroup"; 
 		final String table = distributionGroup + "_relation9999";
 		
-		final BBoxDBClient scalephantClient = connectToServer();
+		final BBoxDBClient bboxDBClient = connectToServer();
 		
 		// Delete distribution group
-		final EmptyResultFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
+		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
 		resultDelete.waitForAll();
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
-		final EmptyResultFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes());
-		scalephantClient.insertTuple(table, tuple1);
+		bboxDBClient.insertTuple(table, tuple1);
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(0d, 0.5d, 0d, 0.5d), "def".getBytes());
-		scalephantClient.insertTuple(table, tuple2);
+		bboxDBClient.insertTuple(table, tuple2);
 		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes());
-		scalephantClient.insertTuple(table, tuple3);		
+		bboxDBClient.insertTuple(table, tuple3);		
 		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10d, -9d, -10d, -9d), "ijk".getBytes());
-		scalephantClient.insertTuple(table, tuple4);
+		bboxDBClient.insertTuple(table, tuple4);
 		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1d, 2d, 1d, 2d), "lmn".getBytes());
-		scalephantClient.insertTuple(table, tuple5);
+		bboxDBClient.insertTuple(table, tuple5);
 
 		// Without paging
-		scalephantClient.setPagingEnabled(false);
-		scalephantClient.setTuplesPerPage((short) 0);
-		final TupleListFuture future = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		bboxDBClient.setPagingEnabled(false);
+		bboxDBClient.setTuplesPerPage((short) 0);
+		final TupleListFuture future = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future.waitForAll();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());		
 		Assert.assertEquals(5, resultList.size());
 		
 		// With paging (tuples per page 10)
-		scalephantClient.setPagingEnabled(true);
-		scalephantClient.setTuplesPerPage((short) 10);
-		final TupleListFuture future2 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		bboxDBClient.setPagingEnabled(true);
+		bboxDBClient.setTuplesPerPage((short) 10);
+		final TupleListFuture future2 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future2.waitForAll();
 		final List<Tuple> resultList2 = Lists.newArrayList(future2.iterator());		
 		Assert.assertEquals(5, resultList2.size());
 		
 		// With paging (tuples per page 5)
 		System.out.println("Pages = 5");
-		scalephantClient.setPagingEnabled(true);
-		scalephantClient.setTuplesPerPage((short) 5);
-		final TupleListFuture future3 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		bboxDBClient.setPagingEnabled(true);
+		bboxDBClient.setTuplesPerPage((short) 5);
+		final TupleListFuture future3 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future3.waitForAll();
 		final List<Tuple> resultList3 = Lists.newArrayList(future3.iterator());		
 		Assert.assertEquals(5, resultList3.size());
 		
 		// With paging (tuples per page 2)
 		System.out.println("Pages = 2");
-		scalephantClient.setPagingEnabled(true);
-		scalephantClient.setTuplesPerPage((short) 2);
-		final TupleListFuture future4 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		bboxDBClient.setPagingEnabled(true);
+		bboxDBClient.setTuplesPerPage((short) 2);
+		final TupleListFuture future4 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		System.out.println("Client is waiting on: " + future4);
 		future4.waitForAll();
 		final List<Tuple> resultList4 = Lists.newArrayList(future4.iterator());		
@@ -360,9 +360,9 @@ public class TestNetworkCommunication {
 		
 		// With paging (tuples per page 1)
 		System.out.println("Pages = 1");
-		scalephantClient.setPagingEnabled(true);
-		scalephantClient.setTuplesPerPage((short) 1);
-		final TupleListFuture future5 = scalephantClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
+		bboxDBClient.setPagingEnabled(true);
+		bboxDBClient.setTuplesPerPage((short) 1);
+		final TupleListFuture future5 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
 		future5.waitForAll();
 		final List<Tuple> resultList5 = Lists.newArrayList(future5.iterator());		
 		Assert.assertEquals(5, resultList5.size());
@@ -383,33 +383,33 @@ public class TestNetworkCommunication {
 		final String distributionGroup = "2_testgroup"; 
 		final String table = distributionGroup + "_relation9999";
 		
-		final BBoxDBClient scalephantClient = connectToServer();
+		final BBoxDBClient bboxDBClient = connectToServer();
 		
 		// Delete distribution group
-		final EmptyResultFuture resultDelete = scalephantClient.deleteDistributionGroup(distributionGroup);
+		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
 		resultDelete.waitForAll();
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
-		final EmptyResultFuture resultCreate = scalephantClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes(), 4);
-		scalephantClient.insertTuple(table, tuple1);
+		bboxDBClient.insertTuple(table, tuple1);
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(0d, 0.5d, 0d, 0.5d), "def".getBytes(), 4);
-		scalephantClient.insertTuple(table, tuple2);
+		bboxDBClient.insertTuple(table, tuple2);
 		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes(), 1);
-		scalephantClient.insertTuple(table, tuple3);
+		bboxDBClient.insertTuple(table, tuple3);
 		
 		// Outside our bbox query
 		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10d, -9d, -10d, -9d), "ijk".getBytes());
-		scalephantClient.insertTuple(table, tuple4);
+		bboxDBClient.insertTuple(table, tuple4);
 		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000d, 1001d, 1000d, 1001d), "lmn".getBytes());
-		scalephantClient.insertTuple(table, tuple5);
+		bboxDBClient.insertTuple(table, tuple5);
 
-		final TupleListFuture future = scalephantClient.queryBoundingBoxAndTime(table, new BoundingBox(-1d, 2d, -1d, 2d), 2);
+		final TupleListFuture future = bboxDBClient.queryBoundingBoxAndTime(table, new BoundingBox(-1d, 2d, -1d, 2d), 2);
 		future.waitForAll();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
 		
@@ -433,17 +433,17 @@ public class TestNetworkCommunication {
 	public void sendKeepAlivePackage() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running sendKeepAlivePackage");
 
-		final BBoxDBClient scalephantClient = connectToServer();
+		final BBoxDBClient bboxDBClient = connectToServer();
 		
-		final EmptyResultFuture result = scalephantClient.sendKeepAlivePackage();
+		final EmptyResultFuture result = bboxDBClient.sendKeepAlivePackage();
 		result.waitForAll();
 		
 		Assert.assertTrue(result.isDone());
 		Assert.assertFalse(result.isFailed());
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, scalephantClient.getConnectionState());
+		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, bboxDBClient.getConnectionState());
 		
-		disconnectFromServer(scalephantClient);
-		Assert.assertFalse(scalephantClient.isConnected());
+		disconnectFromServer(bboxDBClient);
+		Assert.assertFalse(bboxDBClient.isConnected());
 		
 		System.out.println("=== End sendKeepAlivePackage");
 	}
@@ -456,28 +456,28 @@ public class TestNetworkCommunication {
 	 */
 	protected BBoxDBClient connectToServer() {
 		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
-		final BBoxDBClient scalephantClient = new BBoxDBClient(new InetSocketAddress("127.0.0.1", port));
+		final BBoxDBClient bboxDBClient = new BBoxDBClient(new InetSocketAddress("127.0.0.1", port));
 		
 		if(compressPackages()) {
-			scalephantClient.getClientCapabilities().setGZipCompression();
-			Assert.assertTrue(scalephantClient.getClientCapabilities().hasGZipCompression());
+			bboxDBClient.getClientCapabilities().setGZipCompression();
+			Assert.assertTrue(bboxDBClient.getClientCapabilities().hasGZipCompression());
 		} else {
-			scalephantClient.getClientCapabilities().clearGZipCompression();
-			Assert.assertFalse(scalephantClient.getClientCapabilities().hasGZipCompression());
+			bboxDBClient.getClientCapabilities().clearGZipCompression();
+			Assert.assertFalse(bboxDBClient.getClientCapabilities().hasGZipCompression());
 		}
 		
-		Assert.assertFalse(scalephantClient.isConnected());
-		boolean result = scalephantClient.connect();
+		Assert.assertFalse(bboxDBClient.isConnected());
+		boolean result = bboxDBClient.connect();
 		Assert.assertTrue(result);
-		Assert.assertTrue(scalephantClient.isConnected());
+		Assert.assertTrue(bboxDBClient.isConnected());
 		
 		if(compressPackages()) { 
-			Assert.assertTrue(scalephantClient.getConnectionCapabilities().hasGZipCompression());
+			Assert.assertTrue(bboxDBClient.getConnectionCapabilities().hasGZipCompression());
 		} else {
-			Assert.assertFalse(scalephantClient.getConnectionCapabilities().hasGZipCompression());
+			Assert.assertFalse(bboxDBClient.getConnectionCapabilities().hasGZipCompression());
 		}
 		
-		return scalephantClient;
+		return bboxDBClient;
 	}
 	
 	/**
@@ -490,11 +490,11 @@ public class TestNetworkCommunication {
 	
 	/**
 	 * Disconnect from server
-	 * @param scalephantClient
+	 * @param bboxDBClient
 	 */
-	protected void disconnectFromServer(final BBoxDBClient scalephantClient) {
-		scalephantClient.disconnect();
-		Assert.assertFalse(scalephantClient.isConnected());
-		Assert.assertEquals(0, scalephantClient.getInFlightCalls());
+	protected void disconnectFromServer(final BBoxDBClient bboxDBClient) {
+		bboxDBClient.disconnect();
+		Assert.assertFalse(bboxDBClient.isConnected());
+		Assert.assertEquals(0, bboxDBClient.getInFlightCalls());
 	}
 }
