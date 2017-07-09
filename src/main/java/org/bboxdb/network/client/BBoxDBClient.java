@@ -30,21 +30,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import org.bboxdb.distribution.DistributionGroupCache;
-import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.client.future.EmptyResultFuture;
-import org.bboxdb.network.client.future.FutureHelper;
 import org.bboxdb.network.client.future.HelloFuture;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.SSTableNameListFuture;
@@ -80,8 +72,6 @@ import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.network.routing.RoutingHop;
-import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -483,43 +473,13 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 		
-		try {
-			if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-				return createFailedFuture("insertTuple called, but connection not ready: " + this);
-			}
-			
-			final SSTableName ssTableName = new SSTableName(table);
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
-					ssTableName, zookeeperClient);
-
-			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			
-			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(tuple, distributionRegion);
-			
-			// Filter the local hop
-			final List<RoutingHop> connectionHop = hops.stream()
-				.filter(r -> r.getDistributedInstance().getInetSocketAddress().equals(serverAddress))
-				.collect(Collectors.toList());
-			
-			if(connectionHop.isEmpty()) {
-				throw new BBoxDBException("Unable to find host for this connection in global routing list: " 
-						+ hops);
-			}
-			
-			final RoutingHeader routingHeader = new RoutingHeader((short) 0, connectionHop);
-
-			return insertTuple(table, tuple, routingHeader);
-		} catch (ZookeeperException e) {
-			throw new BBoxDBException(e);
-		} catch (InterruptedException e) {
-			logger.warn("Interrupted while waiting for systems list");
-			Thread.currentThread().interrupt();
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			return createFailedFuture("insertTuple called, but connection not ready: " + this);
 		}
 		
-		// Return after exception
-		return FutureHelper.getFailedEmptyResultFuture();
+		final RoutingHeader routingHeader = new RoutingHeader(false);
+
+		return insertTuple(table, tuple, routingHeader);
 	}
 	
 	/* (non-Javadoc)
