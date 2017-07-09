@@ -171,67 +171,9 @@ public class TestNetworkCommunication {
 	 */
 	@Test
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException, BBoxDBException {
-		System.out.println("=== Running testInsertAndDelete");
-
-		final String distributionGroup = "1_testgroupdel"; 
-		final String table = distributionGroup + "_relation4";
-		final String key = "key12";
-		
 		final BBoxDBClient bboxdbClient = connectToServer();
-		
-		// Delete distribution group
-		System.out.println("Delete distribution group");
-		final EmptyResultFuture resultDelete = bboxdbClient.deleteDistributionGroup(distributionGroup);
-		resultDelete.waitForAll();
-		Assert.assertFalse(resultDelete.isFailed());
-		
-		// Create distribution group
-		System.out.println("Create distribution group");
-		final EmptyResultFuture resultCreate = bboxdbClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
-		resultCreate.waitForAll();
-		Assert.assertFalse(resultCreate.isFailed());
-		
-		System.out.println("Delete tuple");
-		final EmptyResultFuture deleteResult1 = bboxdbClient.deleteTuple(table, key);
-		deleteResult1.waitForAll();
-		Assert.assertFalse(deleteResult1.isFailed());
-		Assert.assertTrue(deleteResult1.isDone());
-		
-		System.out.println("Query key");
-		final TupleListFuture getResult = bboxdbClient.queryKey(table, key);
-		getResult.waitForAll();
-		Assert.assertFalse(getResult.isFailed());
-		Assert.assertTrue(getResult.isDone());
-		
-		System.out.println("Insert tuple");
-		final Tuple tuple = new Tuple(key, BoundingBox.EMPTY_BOX, "abc".getBytes());
-		final EmptyResultFuture insertResult = bboxdbClient.insertTuple(table, tuple);
-		insertResult.waitForAll();
-		Assert.assertFalse(insertResult.isFailed());
-		Assert.assertTrue(insertResult.isDone());
 
-		System.out.println("Query key 2");
-		final TupleListFuture getResult2 = bboxdbClient.queryKey(table, key);
-		getResult2.waitForAll();
-		final List<Tuple> resultList = Lists.newArrayList(getResult2.iterator());
-		Assert.assertEquals(tuple, resultList.get(0));
-
-		System.out.println("Delete tuple 2");
-		final EmptyResultFuture deleteResult2 = bboxdbClient.deleteTuple(table, key, System.currentTimeMillis());
-		deleteResult2.waitForAll();
-		Assert.assertFalse(deleteResult2.isFailed());
-		Assert.assertTrue(deleteResult2.isDone());
-		
-		System.out.println("Query key 3");
-		final TupleListFuture getResult3 = bboxdbClient.queryKey(table, key);
-		getResult3.waitForAll();
-		Assert.assertFalse(getResult3.isFailed());
-		Assert.assertTrue(getResult3.isDone());
-		
-		// Disconnect
-		disconnectFromServer(bboxdbClient);
-		
-		System.out.println("=== End testInsertAndDelete");
+		NetworkQueryHelper.testInsertAndDeleteTuple(bboxdbClient);
 	}
 	
 	/**

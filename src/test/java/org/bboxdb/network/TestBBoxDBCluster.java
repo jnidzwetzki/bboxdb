@@ -111,4 +111,17 @@ public class TestBBoxDBCluster {
 		
 		return bboxdbCluster;
 	}
+	
+	/**
+	 * The the insert and the deletion of a tuple
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	@Test
+	public void testInsertAndDelete() throws InterruptedException, ExecutionException, BBoxDBException {
+		final BBoxDB bboxdbClient = connectToServer();
+
+		NetworkQueryHelper.testInsertAndDeleteTuple(bboxdbClient);
+	}
 }
