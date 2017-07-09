@@ -87,13 +87,13 @@ public class TestBBoxDBCluster {
 	 */
 	@Test
 	public void testInsertAndBoundingBoxTimeQuery() throws InterruptedException, ExecutionException, BBoxDBException {
-		System.out.println("=== Running testInsertAndBoundingBoxTimeQuery");
+		System.out.println("=== Running cluster testInsertAndBoundingBoxTimeQuery");
 
 		final BBoxDB bboxDBClient = connectToServer();
 
 		NetworkQueryHelper.executeBoudingboxAndTimeQuery(bboxDBClient);
 
-		System.out.println("=== End testInsertAndBoundingBoxTimeQuery");
+		System.out.println("=== End cluster testInsertAndBoundingBoxTimeQuery");
 	}
 	
 	/**
@@ -125,8 +125,12 @@ public class TestBBoxDBCluster {
 	 */
 	@Test
 	public void testInsertAndDelete() throws InterruptedException, ExecutionException, BBoxDBException {
+		System.out.println("=== Running cluster testInsertAndDelete");
+
 		final BBoxDB bboxdbClient = connectToServer();
 
 		NetworkQueryHelper.testInsertAndDeleteTuple(bboxdbClient);
+		System.out.println("=== End cluster testInsertAndDelete");
+
 	}
 }
