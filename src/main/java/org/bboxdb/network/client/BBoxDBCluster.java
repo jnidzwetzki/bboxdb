@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -33,12 +32,14 @@ import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.FutureHelper;
 import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
+import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -138,12 +139,12 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			
-			final Collection<RoutingHop> hops = getRoutingHops(tuple, distributionRegion);
+			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(tuple, distributionRegion);
 			
 			if(hops.isEmpty()) {
 				logger.error("Insert tuple called, but hop list for bounding box is empty: {}", 
 						tuple.getBoundingBox());
-				return getFailedEmptyResultFuture();
+				return FutureHelper.getFailedEmptyResultFuture();
 			}
 			
 			// Determine the first system, it will route the request to the remaining systems
@@ -152,55 +153,21 @@ public class BBoxDBCluster implements BBoxDB {
 			
 			if(connection == null) {
 				logger.warn("Unable to insert tuple, no connection to system: {}", system);
-				return getFailedEmptyResultFuture();
+				return FutureHelper.getFailedEmptyResultFuture();
 			}
 			
-			return connection.insertTuple(table, tuple);
+			final RoutingHeader routingHeader = new RoutingHeader(true, (short) 0, hops);
+			
+			return connection.insertTuple(table, tuple, routingHeader);
 		} catch (ZookeeperException e) {
-			logger.warn("Got exception while inserting tuple", e);
+			throw new BBoxDBException(e);
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 		}
 		
 		// Return after exception
-		return getFailedEmptyResultFuture();
-	}
-
-	/**
-	 * Get a non empty systems list
-	 * @param tuple
-	 * @param distributionRegion
-	 * @return
-	 * @throws InterruptedException
-	 */
-	protected Collection<RoutingHop> getRoutingHops(final Tuple tuple,
-			final DistributionRegion distributionRegion) throws InterruptedException {
-		
-		Collection<RoutingHop> systems = new ArrayList<>();
-
-		for(int execution = 0; execution < Const.OPERATION_RETRY; execution++) {
-			systems = distributionRegion.getRoutingHopsForWrite(tuple.getBoundingBox());
-			
-			if(! systems.isEmpty()) {
-				break;
-			}
-			
-			Thread.sleep(20 * execution);	
-		}
-		
-		return systems;
-	}
-
-	/**
-	 * Create and return an empty result future
-	 * @return
-	 */
-	protected EmptyResultFuture getFailedEmptyResultFuture() {
-		final EmptyResultFuture future = new EmptyResultFuture(1);
-		future.setFailedState();
-		future.fireCompleteEvent();
-		return future;
+		return FutureHelper.getFailedEmptyResultFuture();
 	}
 
 	@Override
@@ -253,7 +220,7 @@ public class BBoxDBCluster implements BBoxDB {
 			return bboxdbClient.createDistributionGroup(distributionGroup, replicationFactor);
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);
-			return getFailedEmptyResultFuture();
+			return FutureHelper.getFailedEmptyResultFuture();
 		}
 	}
 

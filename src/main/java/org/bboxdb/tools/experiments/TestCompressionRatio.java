@@ -30,6 +30,7 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
+import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.io.TupleFileReader;
@@ -141,7 +142,7 @@ public class TestCompressionRatio implements Runnable {
 		final List<NetworkRequestPackage> packages = 
 				buffer
 				.stream()
-				.map(t -> new InsertTupleRequest((short) 4, tableName, t))
+				.map(t -> new InsertTupleRequest((short) 4, new RoutingHeader(false), tableName, t))
 				.collect(Collectors.toList());
 				
 		final CompressionEnvelopeRequest compressionEnvelopeRequest 
@@ -158,7 +159,13 @@ public class TestCompressionRatio implements Runnable {
 	 * @return
 	 */
 	protected long handleUncompressedData(final SSTableName tableName, final Tuple tuple) {
-		final InsertTupleRequest insertTupleRequest = new InsertTupleRequest((short) 4, tableName, tuple);
+	
+		final InsertTupleRequest insertTupleRequest = new InsertTupleRequest(
+				(short) 4, 
+				new RoutingHeader(false), 
+				tableName, 
+				tuple);
+		
 		return packageToBytes(insertTupleRequest);
 	}
 

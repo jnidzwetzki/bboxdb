@@ -29,6 +29,7 @@ import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -204,6 +205,11 @@ class NetworkTupleSink extends TupleSink {
 	 */
 	protected final BBoxDBClient connection;
 	
+	/**
+	 * The Logger
+	 */
+	protected final static Logger logger = LoggerFactory.getLogger(NetworkTupleSink.class);
+	
 	public NetworkTupleSink(final SSTableName tablename, final BBoxDBClient connection) {
 		super(tablename);
 		this.connection = connection;
@@ -211,8 +217,12 @@ class NetworkTupleSink extends TupleSink {
 
 	@Override
 	public void sinkTuple(final Tuple tuple) {
+		try {
+			connection.insertTuple(tablename, tuple);
+		} catch (BBoxDBException e) {
+			logger.error("Got an exception while distributing tuple", e);
+		}
 		sinkedTuples++;
-		connection.insertTuple(tablename, tuple);
 	}
 	
 }

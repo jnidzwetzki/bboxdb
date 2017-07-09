@@ -66,16 +66,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 		this.table = table;
 		this.tuple = tuple;
 	}
-	
-	public InsertTupleRequest(final short sequenceNumber, final SSTableName table, final Tuple tuple) { 
-		
-		super(sequenceNumber);
-			
-		this.routingHeader = new RoutingHeader(false);
-		this.table = table;
-		this.tuple = tuple;		
-	}
-	
+
 	/**
 	 * Decode the encoded tuple into a object
 	 * 
