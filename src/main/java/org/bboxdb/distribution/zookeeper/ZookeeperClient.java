@@ -482,17 +482,16 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	public boolean setLocalInstanceState(final DistributedInstanceState distributedInstanceState)
+	public boolean setLocalInstanceState(final DistributedInstance instance, 
+			final DistributedInstanceState distributedInstanceState)
 			throws ZookeeperException {
-
-		final DistributedInstance instancename = ZookeeperClientFactory.getLocalInstanceName();
 		
-		if (instancename == null) {
+		if (instance == null) {
 			logger.warn("Try to set instance state without register local instance: " + distributedInstanceState);
 			return false;
 		}
 
-		final String statePath = getActiveInstancesPath() + "/" + instancename.getStringValue();
+		final String statePath = getActiveInstancesPath() + "/" + instance.getStringValue();
 
 		try {
 			zookeeper.setData(statePath, distributedInstanceState.getZookeeperValue().getBytes(), -1);

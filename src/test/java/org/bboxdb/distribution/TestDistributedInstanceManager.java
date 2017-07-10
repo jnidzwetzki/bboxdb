@@ -105,12 +105,12 @@ public class TestDistributedInstanceManager {
 		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 		Assert.assertTrue(DistributedInstanceState.UNKNOWN == distributedInstanceManager.getInstances().get(0).getState());
 	
-		zookeeperClient.setLocalInstanceState(DistributedInstanceState.OUTDATED);
+		zookeeperClient.setLocalInstanceState(instance, DistributedInstanceState.OUTDATED);
 		Thread.sleep(2000);
 		System.out.println(distributedInstanceManager.getInstances());
 		Assert.assertTrue(DistributedInstanceState.OUTDATED == distributedInstanceManager.getInstances().get(0).getState());
 		
-		zookeeperClient.setLocalInstanceState(DistributedInstanceState.READY);
+		zookeeperClient.setLocalInstanceState(instance, DistributedInstanceState.READY);
 		Thread.sleep(1000);
 		Assert.assertTrue(DistributedInstanceState.READY == distributedInstanceManager.getInstances().get(0).getState());
 		
@@ -139,7 +139,7 @@ public class TestDistributedInstanceManager {
 		Assert.assertTrue(DistributedInstanceState.UNKNOWN == distributedInstanceManager.getInstances().get(1).getState());
 
 		// Change instance 1
-		zookeeperClient1.setLocalInstanceState(DistributedInstanceState.OUTDATED);
+		zookeeperClient1.setLocalInstanceState(instance1, DistributedInstanceState.OUTDATED);
 		Thread.sleep(1000);
 		for(final DistributedInstance instance : distributedInstanceManager.getInstances()) {
 			if(instance.socketAddressEquals(instance1)) {
@@ -150,7 +150,7 @@ public class TestDistributedInstanceManager {
 		}
 		
 		// Change instance 2
-		zookeeperClient2.setLocalInstanceState(DistributedInstanceState.READY);
+		zookeeperClient2.setLocalInstanceState(instance2, DistributedInstanceState.READY);
 		Thread.sleep(1000);
 		for(final DistributedInstance instance : distributedInstanceManager.getInstances()) {
 			if(instance.socketAddressEquals(instance1)) {
@@ -225,8 +225,8 @@ public class TestDistributedInstanceManager {
 		zookeeperClient1.startMembershipObserver();
 		final ZookeeperClient zookeeperClient2 = getNewZookeeperClient(instance2);
 
-		zookeeperClient1.setLocalInstanceState(DistributedInstanceState.READY);
-		zookeeperClient2.setLocalInstanceState(DistributedInstanceState.READY);
+		zookeeperClient1.setLocalInstanceState(instance1, DistributedInstanceState.READY);
+		zookeeperClient2.setLocalInstanceState(instance2, DistributedInstanceState.READY);
 		
 		Thread.sleep(5000);
 		
@@ -249,7 +249,7 @@ public class TestDistributedInstanceManager {
 			}
 		});
 		
-		zookeeperClient2.setLocalInstanceState(DistributedInstanceState.OUTDATED);
+		zookeeperClient2.setLocalInstanceState(instance2, DistributedInstanceState.OUTDATED);
 
 		changedLatch.await();
 		distributedInstanceManager.removeAllListener();
@@ -274,8 +274,8 @@ public class TestDistributedInstanceManager {
 		zookeeperClient1.startMembershipObserver();
 		final ZookeeperClient zookeeperClient2 = getNewZookeeperClient(instance2);
 
-		zookeeperClient1.setLocalInstanceState(DistributedInstanceState.READY);
-		zookeeperClient2.setLocalInstanceState(DistributedInstanceState.READY);
+		zookeeperClient1.setLocalInstanceState(instance1, DistributedInstanceState.READY);
+		zookeeperClient2.setLocalInstanceState(instance2, DistributedInstanceState.READY);
 		
 		Thread.sleep(5000);
 		
@@ -320,7 +320,7 @@ public class TestDistributedInstanceManager {
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, CLUSTER_NAME);
 		
 		if(instance != null) {
-			zookeeperClient.registerAfterConnectCallback(new InstanceRegisterer());
+			zookeeperClient.registerAfterConnectCallback(new InstanceRegisterer(instance));
 		}
 		
 		zookeeperClient.init();

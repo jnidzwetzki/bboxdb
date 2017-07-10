@@ -16,12 +16,16 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 	/**
 	 * The name of the instance
 	 */
-	protected final DistributedInstance instancename;
+	protected final DistributedInstance instance;
 
 	public InstanceRegisterer() {
-		instancename = ZookeeperClientFactory.getLocalInstanceName();
+		instance = ZookeeperClientFactory.getLocalInstanceName();
 	}
-
+	
+	public InstanceRegisterer(final DistributedInstance instance) {
+		this.instance = instance;
+	}
+	
 	/**
 	 * The logger
 	 */
@@ -30,7 +34,7 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 	@Override
 	public void accept(final ZookeeperClient zookeeperClient) {
 		
-		if (instancename == null) {
+		if (instance == null) {
 			logger.error("Unable to determine local instance name");
 			return;
 		}
@@ -58,7 +62,7 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 		
 		final ZooKeeper zookeeper = zookeeperClient.getZookeeper();
 		
-		final String statePath = zookeeperClient.getActiveInstancesPath() + "/" + instancename.getStringValue();
+		final String statePath = zookeeperClient.getActiveInstancesPath() + "/" + instance.getStringValue();
 		
 		logger.info("Register instance on: {}", statePath);
 
@@ -70,7 +74,7 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 		}
 
 		// Register new state
-		zookeeper.create(statePath, instancename.getState().getZookeeperValue().getBytes(),
+		zookeeper.create(statePath, instance.getState().getZookeeperValue().getBytes(),
 				ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 	}
 
@@ -85,7 +89,7 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 		
 		final ZooKeeper zookeeper = zookeeperClient.getZookeeper();
 
-		final String versionPath = zookeeperClient.getInstancesVersionPath() + "/" + instancename.getStringValue();
+		final String versionPath = zookeeperClient.getInstancesVersionPath() + "/" + instance.getStringValue();
 
 		// Version
 		if (zookeeper.exists(versionPath, false) != null) {
