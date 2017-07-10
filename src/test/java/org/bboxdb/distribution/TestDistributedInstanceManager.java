@@ -291,6 +291,7 @@ public class TestDistributedInstanceManager {
 						changedLatch.countDown();
 					}
 				} else {
+					System.out.println(event);
 					// Unexpected event
 					Assert.assertTrue(false);
 				}

@@ -229,11 +229,11 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 				= DistributedInstanceManager.getInstance();
 
 			// Reregister watch on membership
-			final String activeNodesPath = getActiveInstancesPath();
-			zookeeper.getChildren(activeNodesPath, this);
+			final String activeInstancesPath = getActiveInstancesPath();
+			zookeeper.getChildren(activeInstancesPath, this);
 
 			// Read version data
-			final String detailsPath = getDetaisPath();
+			final String detailsPath = getDetailsPath();
 			final List<String> instances = zookeeper.getChildren(detailsPath, null);
 
 			final Set<DistributedInstance> instanceSet = new HashSet<>();
@@ -525,8 +525,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		createDirectoryStructureRecursive(activeInstancesPath);
 
 		// Details of the instances
-		final String detailsPath = getDetaisPath();
-		createDirectoryStructureRecursive(detailsPath);
+		final String detailsPath = getDetailsPath();
+		createDirectoryStructureRecursive(detailsPath);		
 	}
 
 	/**
@@ -560,7 +560,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * Get the details path
 	 * @return
 	 */
-	protected String getDetaisPath() {
+	protected String getDetailsPath() {
 		return getInstancesPath() + "/details";
 	}
 	
@@ -570,7 +570,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 */
 	protected String getInstanceDetailsPath(final DistributedInstance distributedInstance) {
-		return getDetaisPath() + "/" + distributedInstance.getStringValue();
+		return getDetailsPath() + "/" + distributedInstance.getStringValue();
 	}
 	
 	/**
@@ -607,7 +607,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 */
 	protected String getInstancesDiskspaceFreePath(final DistributedInstance distributedInstance, 
 			final String path) {
-		return getInstancesDiskspacePath(distributedInstance) + "/" + path + "/free";
+		final String zookeeperPath = path.replaceAll("/", "_");
+		return getInstancesDiskspacePath(distributedInstance) + "/" + zookeeperPath + "/free";
 	}
 	
 	/**
@@ -615,7 +616,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 */
 	protected String getInstancesDiskspaceTotalPath(final DistributedInstance distributedInstance, 
 			final String path) {
-		return getInstancesDiskspacePath(distributedInstance) + "/" + path + "/total";
+		final String zookeeperPath = path.replaceAll("/", "_");
+		return getInstancesDiskspacePath(distributedInstance) + "/" + zookeeperPath + "/total";
 	}
 	
 	@Override
