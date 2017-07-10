@@ -53,18 +53,16 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	 */
 	protected DistributedInstanceState state = DistributedInstanceState.UNKNOWN;
 
-	public DistributedInstance(final String connectionString, final String version, 
-			final DistributedInstanceState state) {
-		
-		this(connectionString, version);
-		this.state = state;
-	}
-	
-	public DistributedInstance(final String connectionString, final String version) {
-		this(connectionString);
+	public DistributedInstance(final String connectionString, final String version, final DistributedInstanceState state) {
+		this(connectionString, state);
 		this.version = version;
 	}
 	
+	public DistributedInstance(final String connectionString, final DistributedInstanceState state) {
+		this(connectionString);
+		this.state = state;
+	}
+
 	public DistributedInstance(final String connectionString) {
 		final String[] parts = connectionString.split(":");
 		
@@ -99,6 +97,10 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 
 	public String getVersion() {
 		return version;
+	}
+	
+	public void setVersion(final String version) {
+		this.version = version;
 	}
 
 	@Override

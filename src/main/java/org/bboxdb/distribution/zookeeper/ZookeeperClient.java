@@ -225,21 +225,28 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		}
 
 		try {
+			final DistributedInstanceManager distributedInstanceManager 
+				= DistributedInstanceManager.getInstance();
+
 			// Reregister watch on membership
 			final String activeNodesPath = getActiveInstancesPath();
 			zookeeper.getChildren(activeNodesPath, this);
 
 			// Read version data
-			final String instancesVersionPath = getInstancesVersionPath();
-			final List<String> instances = zookeeper.getChildren(instancesVersionPath, this);
-			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
+			final String detailsPath = getDetaisPath();
+			final List<String> instances = zookeeper.getChildren(detailsPath, null);
 
-			final Set<DistributedInstance> instanceSet = new HashSet<DistributedInstance>();
-			for (final String member : instances) {
-				final String instanceVersion = getVersionForInstance(member);
-				final DistributedInstanceState state = getStateForInstance(member);
+			final Set<DistributedInstance> instanceSet = new HashSet<>();
+			
+			for (final String instance : instances) {
+				final DistributedInstance theInstance = new DistributedInstance(instance);
 
-				final DistributedInstance theInstance = new DistributedInstance(member, instanceVersion, state);
+				final String instanceVersion = getVersionForInstance(theInstance);
+				theInstance.setVersion(instanceVersion);
+				
+				final DistributedInstanceState state = getStateForInstance(instance);
+				theInstance.setState(state);
+				
 				instanceSet.add(theInstance);
 			}
 
@@ -288,9 +295,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected String getVersionForInstance(final String member) throws ZookeeperNotFoundException {
-		final String nodesPath = getInstancesVersionPath();
-		final String versionPath = nodesPath + "/" + member;
+	protected String getVersionForInstance(final DistributedInstance member) throws ZookeeperNotFoundException {
+		final String versionPath = getInstancesVersionPath(member);
 
 		try {
 			return readPathAndReturnString(versionPath, true, null);
@@ -518,9 +524,9 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		final String activeInstancesPath = getActiveInstancesPath();
 		createDirectoryStructureRecursive(activeInstancesPath);
 
-		// Version of the instances
-		final String instancesVersionPath = getInstancesVersionPath();
-		createDirectoryStructureRecursive(instancesVersionPath);
+		// Details of the instances
+		final String detailsPath = getDetaisPath();
+		createDirectoryStructureRecursive(detailsPath);
 	}
 
 	/**
@@ -545,22 +551,33 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 
 	/**
 	 * Get the path of the zookeeper nodes
-	 * 
-	 * @param clustername
-	 * @return
 	 */
 	protected String getActiveInstancesPath() {
 		return getInstancesPath() + "/active";
 	}
 
 	/**
-	 * Get the path of the zookeeper nodes
-	 * 
-	 * @param clustername
+	 * Get the details path
 	 * @return
 	 */
-	protected String getInstancesVersionPath() {
-		return getInstancesPath() + "/version";
+	protected String getDetaisPath() {
+		return getInstancesPath() + "/details";
+	}
+	
+	/**
+	 * Get the node info path
+	 * @param distributedInstance 
+	 * @return
+	 */
+	protected String getInstanceDetailsPath(final DistributedInstance distributedInstance) {
+		return getDetaisPath() + "/" + distributedInstance.getStringValue();
+	}
+	
+	/**
+	 * Get the path of the version nodes
+	 */
+	protected String getInstancesVersionPath(final DistributedInstance distributedInstance) {
+		return getInstanceDetailsPath(distributedInstance) + "/version";
 	}
 
 	@Override

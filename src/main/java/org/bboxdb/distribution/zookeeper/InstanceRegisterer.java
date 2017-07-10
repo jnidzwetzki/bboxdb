@@ -2,7 +2,6 @@ package org.bboxdb.distribution.zookeeper;
 
 import java.util.function.Consumer;
 
-import org.apache.zookeeper.ZooKeeper;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.misc.Const;
 import org.slf4j.Logger;
@@ -64,7 +63,7 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 	 * @throws ZookeeperException 
 	 */
 	protected void updateVersion(final ZookeeperClient zookeeperClient) throws ZookeeperException {
-		final String versionPath = zookeeperClient.getInstancesVersionPath() + "/" + instance.getStringValue();
+		final String versionPath = zookeeperClient.getInstancesVersionPath(instance);
 		zookeeperClient.replacePersistentNode(versionPath, Const.VERSION.getBytes());
 	}
 	
@@ -73,7 +72,6 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 	 * @param zookeeperClient
 	 */
 	protected void updateHardwareInfo(final ZookeeperClient zookeeperClient) {
-		final ZooKeeper zookeeper = zookeeperClient.getZookeeper();
 
 	}
 }
