@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -83,7 +84,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	/**
 	 * The after connect callbacks
 	 */
-	protected List<Consumer<ZookeeperClient>> afterConnectCallbacks;
+	protected final List<Consumer<ZookeeperClient>> afterConnectCallbacks;
 
 	/**
 	 * The logger
@@ -94,6 +95,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		this.zookeeperHosts = zookeeperHosts;
 		this.clustername = clustername;
 		this.serviceState = new ServiceState();
+		this.afterConnectCallbacks = new ArrayList<Consumer<ZookeeperClient>>();
 	}
 
 	/**
