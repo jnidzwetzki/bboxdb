@@ -163,7 +163,7 @@ public class DistributionGroupZookeeperAdapter {
 	public DistributionRegionState getStateForDistributionRegion(final String path, 
 			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
+		final String statePath = path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE;
 		final String state = zookeeperClient.readPathAndReturnString(statePath, false, callback);
 		return DistributionRegionState.fromString(state);
 	}
@@ -227,7 +227,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 */
 	public void setStateForDistributionGroup(final String path, final DistributionRegionState state) throws ZookeeperException  {
-		final String statePath = path + "/" + ZookeeperNodeNames.NAME_STATE;
+		final String statePath = path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE;
 		zookeeperClient.setData(statePath, state.getStringValue());
 	}
 	
@@ -250,7 +250,7 @@ public class DistributionGroupZookeeperAdapter {
 	protected String getZookeeperPathForDistributionRegionState(final DistributionRegion region) {
 		
 		return getZookeeperPathForDistributionRegion(region) 
-				+ "/" + ZookeeperNodeNames.NAME_STATE;
+				+ "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE;
 	}
 
 	/**
@@ -276,10 +276,10 @@ public class DistributionGroupZookeeperAdapter {
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 				"".getBytes());
 
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_VERSION, 
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_VERSION, 
 				Long.toString(System.currentTimeMillis()).getBytes());
 		
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_STATE, 
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.ACTIVE.getStringValue().getBytes());
 
 	}
@@ -638,7 +638,7 @@ public class DistributionGroupZookeeperAdapter {
 			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
-		final String fullPath = path + "/" + ZookeeperNodeNames.NAME_VERSION;
+		final String fullPath = path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_VERSION;
 		return zookeeperClient.readPathAndReturnString(fullPath, false, callback);	 
 	}
 	

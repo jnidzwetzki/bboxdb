@@ -248,7 +248,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		} else if(path.endsWith(ZookeeperNodeNames.NAME_SYSTEMS)) {
 			// Some systems were added or deleted
 			handleSystemNodeUpdateEvent(event);
-		} else if(path.endsWith(ZookeeperNodeNames.NAME_STATE)) {
+		} else if(path.endsWith(ZookeeperNodeNames.NAME_SYSTEMS_STATE)) {
 			// The state of one has changed
 			handleNodeUpdateEvent(event);
 		} else {
@@ -268,7 +268,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		}
 		
 		// Remove state node from path
-		final String path = event.getPath().replace("/" + ZookeeperNodeNames.NAME_STATE, "");
+		final String path = event.getPath().replace("/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, "");
 		
 		final DistributionRegion nodeToUpdate = distributionGroupZookeeperAdapter.getNodeForPath(rootNode, path);
 		
@@ -487,7 +487,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 				"".getBytes());
 		
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_STATE, 
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.CREATING.getStringValue().getBytes());
 	}
 	
