@@ -2,9 +2,6 @@ package org.bboxdb.distribution.zookeeper;
 
 import java.util.function.Consumer;
 
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.misc.Const;
@@ -43,10 +40,7 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 			updateStateData(zookeeperClient);
 			updateVersion(zookeeperClient);
 			updateHardwareInfo(zookeeperClient);
-		} catch (KeeperException e) {
-			logger.error("Exception while registering instance", e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
+		} catch (ZookeeperException e) {
 			logger.error("Exception while registering instance", e);
 		}
 	}
@@ -54,50 +48,24 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 	/**
 	 * Update the instance data
 	 * @param zookeeperClient
-	 * @throws InterruptedException 
-	 * @throws KeeperException 
+	 * @throws ZookeeperException 
 	 */
-	protected void updateStateData(final ZookeeperClient zookeeperClient) 
-			throws KeeperException, InterruptedException {
-		
-		final ZooKeeper zookeeper = zookeeperClient.getZookeeper();
+	protected void updateStateData(final ZookeeperClient zookeeperClient) throws ZookeeperException {
 		
 		final String statePath = zookeeperClient.getActiveInstancesPath() + "/" + instance.getStringValue();
 		
 		logger.info("Register instance on: {}", statePath);
-
-		// Delete old state if exists (e.g. caused by a fast restart of the
-		// service)
-		if (zookeeper.exists(statePath, false) != null) {
-			logger.debug("Old state path {} does exist, deleting", statePath);
-			zookeeper.delete(statePath, -1);
-		}
-
-		// Register new state
-		zookeeper.create(statePath, instance.getState().getZookeeperValue().getBytes(),
-				ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+		zookeeperClient.replaceEphemeralNode(statePath, instance.getState().getZookeeperValue().getBytes());
 	}
 
 	/**
 	 * Update BBoxDB version
 	 * @param zookeeperClient
-	 * @throws KeeperException
-	 * @throws InterruptedException
+	 * @throws ZookeeperException 
 	 */
-	protected void updateVersion(final ZookeeperClient zookeeperClient) 
-			throws KeeperException, InterruptedException {
-		
-		final ZooKeeper zookeeper = zookeeperClient.getZookeeper();
-
+	protected void updateVersion(final ZookeeperClient zookeeperClient) throws ZookeeperException {
 		final String versionPath = zookeeperClient.getInstancesVersionPath() + "/" + instance.getStringValue();
-
-		// Version
-		if (zookeeper.exists(versionPath, false) != null) {
-			zookeeper.setData(versionPath, Const.VERSION.getBytes(), -1);
-		} else {
-			zookeeper.create(versionPath, Const.VERSION.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
-					CreateMode.PERSISTENT);
-		}
+		zookeeperClient.replacePersistentNode(versionPath, Const.VERSION.getBytes());
 	}
 	
 	/**

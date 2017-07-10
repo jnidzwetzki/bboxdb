@@ -751,6 +751,52 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			throw new ZookeeperException(e);
 		}
 	}
+	
+	/**
+	 * Replace the persistent node
+	 * @param path
+	 * @param bytes
+	 * @throws ZookeeperException 
+	 */
+	public void replacePersistentNode(final String path, final byte[] bytes) throws ZookeeperException {
+		try {
+			if (zookeeper.exists(path, false) != null) {
+				zookeeper.setData(path, bytes, -1);
+			} else {
+				zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+			}
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ZookeeperException(e);
+		}
+	}
+	
+	/**
+	 * Replace the ephemeral node
+	 * @param path
+	 * @param bytes
+	 * @throws ZookeeperException
+	 */
+	public void replaceEphemeralNode(final String path, final byte[] bytes) throws ZookeeperException {
+		
+		try {
+			// Delete old state if exists (e.g. caused by a fast restart of the
+			// service)
+			if (zookeeper.exists(path, false) != null) {
+				zookeeper.delete(path, -1);
+			}
+	
+			// Register new state
+			zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+		} catch (KeeperException e) {
+			throw new ZookeeperException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ZookeeperException(e);
+		}
+	}
 
 	/**
 	 * Replace the value for the given path, only if the old value matches. This
@@ -821,7 +867,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	public String getClustername() {
 		return clustername;
 	}
-	
+		
 	/** 
 	 * Get the zookeeper client instance
 	 */
