@@ -35,6 +35,7 @@ import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -654,7 +655,9 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	protected void updateLocalMappings(final DistributionRegion region, 
 			final Collection<DistributedInstance> systems) {
 		
-		if(zookeeperClient.getInstancename() == null) {
+		final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
+
+		if(localInstance == null) {
 			logger.debug("Local instance name is not set, so no local mapping is possible");
 			return;
 		}
@@ -668,8 +671,6 @@ public class KDtreeZookeeperAdapter implements Watcher {
 				|| region.getState() == DistributionRegionState.SPLIT) {
 			return;
 		}
-		
-		final DistributedInstance localInstance = zookeeperClient.getInstancename();
 		
 		// Add the mapping to the nameprefix mapper
 		for(final DistributedInstance instance : systems) {

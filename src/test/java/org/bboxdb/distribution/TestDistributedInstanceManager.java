@@ -27,6 +27,7 @@ import org.bboxdb.distribution.membership.event.DistributedInstanceChangedEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.zookeeper.InstanceRegisterer;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfiguration;
@@ -319,7 +320,7 @@ public class TestDistributedInstanceManager {
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, CLUSTER_NAME);
 		
 		if(instance != null) {
-			zookeeperClient.registerInstanceAfterConnect(instance);
+			zookeeperClient.registerAfterConnectCallback(new InstanceRegisterer());
 		}
 		
 		zookeeperClient.init();

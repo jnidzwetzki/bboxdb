@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -38,7 +39,6 @@ import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.DistributedInstanceManager;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 import org.bboxdb.misc.BBoxDBService;
-import org.bboxdb.misc.Const;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,11 +61,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	protected ZooKeeper zookeeper;
 
 	/**
-	 * The name of the instance
-	 */
-	protected DistributedInstance instancename = null;
-
-	/**
 	 * Is the membership observer active?
 	 */
 	protected volatile boolean membershipObserver = false;
@@ -84,6 +79,11 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * The connect timeout in seconds
 	 */
 	protected final static int ZOOKEEPER_CONNCT_TIMEOUT = 30;
+	
+	/**
+	 * The after connect callbacks
+	 */
+	protected List<Consumer<ZookeeperClient>> afterConnectCallbacks;
 
 	/**
 	 * The logger
@@ -130,8 +130,10 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			}
 
 			createDirectoryStructureIfNeeded();
-			registerInstanceIfNameWasSet();
-
+			
+			// Notify the callbacks
+			afterConnectCallbacks.forEach(c -> c.accept(this));
+			
 			serviceState.dispatchToRunning();
 		} catch (Exception e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
@@ -407,16 +409,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	}
 
 	/**
-	 * Register this instance of the bboxdb
-	 * 
-	 * @param localIp
-	 * @param localPort
-	 */
-	public void registerInstanceAfterConnect(final DistributedInstance instance) {
-		this.instancename = instance;
-	}
-
-	/**
 	 * Write the given data to zookeeper
 	 * 
 	 * @param path
@@ -482,51 +474,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	}
 
 	/**
-	 * Register the bboxdb instance
-	 * 
-	 * @throws ZookeeperException
-	 * @throws InterruptedException
-	 * @throws KeeperException
-	 */
-	protected void registerInstanceIfNameWasSet() throws ZookeeperException {
-
-		if (instancename == null) {
-			return;
-		}
-
-		final String statePath = getActiveInstancesPath() + "/" + instancename.getStringValue();
-		final String versionPath = getInstancesVersionPath() + "/" + instancename.getStringValue();
-		logger.info("Register instance on: {}", statePath);
-
-		try {
-			// Version
-			if (zookeeper.exists(versionPath, false) != null) {
-				zookeeper.setData(versionPath, Const.VERSION.getBytes(), -1);
-			} else {
-				zookeeper.create(versionPath, Const.VERSION.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,
-						CreateMode.PERSISTENT);
-			}
-
-			// Delete old state if exists (e.g. caused by a fast restart of the
-			// service)
-			if (zookeeper.exists(statePath, false) != null) {
-				logger.debug("Old state path {} does exist, deleting", statePath);
-				zookeeper.delete(statePath, -1);
-			}
-
-			// Register new state
-			zookeeper.create(statePath, instancename.getState().getZookeeperValue().getBytes(),
-					ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
-
-	}
-
-	/**
 	 * Set the state for the local instance
 	 * 
 	 * @param distributedInstanceState
@@ -536,6 +483,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	public boolean setLocalInstanceState(final DistributedInstanceState distributedInstanceState)
 			throws ZookeeperException {
 
+		final DistributedInstance instancename = ZookeeperClientFactory.getLocalInstanceName();
+		
 		if (instancename == null) {
 			logger.warn("Try to set instance state without register local instance: " + distributedInstanceState);
 			return false;
@@ -871,13 +820,20 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	public String getClustername() {
 		return clustername;
 	}
-
-	/**
-	 * Get the instance name
-	 * 
-	 * @return
+	
+	/** 
+	 * Get the zookeeper client instance
 	 */
-	public DistributedInstance getInstancename() {
-		return instancename;
+	public ZooKeeper getZookeeper() {
+		return zookeeper;
 	}
+	
+	/**
+	 * Register a after connect callback
+	 * @param callback
+	 */
+	public void registerAfterConnectCallback(final Consumer<ZookeeperClient> callback) {
+		afterConnectCallbacks.add(callback);
+	}
+
 }

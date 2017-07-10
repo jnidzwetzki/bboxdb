@@ -26,7 +26,6 @@ import java.util.Map;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
@@ -89,12 +88,12 @@ public class TupleRedistributor {
 
 		final MembershipConnectionService membershipConnectionService 	
 			= MembershipConnectionService.getInstance();
-		
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+				
+		final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 		
 		for(final DistributedInstance instance : instances) {
 			
-			if(instance.socketAddressEquals(zookeeperClient.getInstancename())) {
+			if(instance.socketAddressEquals(localInstance)) {
 				
 				final SSTableName localTableName = sstableName.cloneWithDifferntRegionId(
 						distributionRegion.getRegionId());
