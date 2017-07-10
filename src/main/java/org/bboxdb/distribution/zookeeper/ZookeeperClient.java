@@ -602,6 +602,22 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		return getInstanceDetailsPath(distributedInstance) + "/diskspace";
 	}
 
+	/**
+	 * Get the free space of the diskspace node
+	 */
+	protected String getInstancesDiskspaceFreePath(final DistributedInstance distributedInstance, 
+			final String path) {
+		return getInstancesDiskspacePath(distributedInstance) + "/" + path + "/free";
+	}
+	
+	/**
+	 * Get the total space of the diskspace node
+	 */
+	protected String getInstancesDiskspaceTotalPath(final DistributedInstance distributedInstance, 
+			final String path) {
+		return getInstancesDiskspacePath(distributedInstance) + "/" + path + "/total";
+	}
+	
 	@Override
 	public String getServicename() {
 		return "Zookeeper Client";

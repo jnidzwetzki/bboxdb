@@ -1,9 +1,14 @@
 package org.bboxdb.distribution.zookeeper;
 
+import java.io.File;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.misc.BBoxDBConfiguration;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.Const;
+import org.bboxdb.util.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +75,36 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 	/**
 	 * Update the hardware info
 	 * @param zookeeperClient
+	 * @throws ZookeeperException 
 	 */
-	protected void updateHardwareInfo(final ZookeeperClient zookeeperClient) {
+	protected void updateHardwareInfo(final ZookeeperClient zookeeperClient) throws ZookeeperException {
+		
+		// CPUs
+		final int cpuCores = SystemInfo.getCPUCores();
+		final String cpuCoresPath = zookeeperClient.getInstancesCpuCorePath(instance);
+		zookeeperClient.replacePersistentNode(cpuCoresPath, Integer.toString(cpuCores).getBytes());
 
+		// Memory
+		final long memory = SystemInfo.getAvailableMemory();
+		final String memoryPath = zookeeperClient.getInstancesMemoryPath(instance);
+		zookeeperClient.replacePersistentNode(memoryPath, Long.toString(memory).getBytes());
+
+		// Diskspace
+		final BBoxDBConfiguration bboxDBConfiguration = BBoxDBConfigurationManager.getConfiguration();
+		final List<String> directories = bboxDBConfiguration.getStorageDirectories();
+		for(final String directory : directories) {
+			final File path = new File(directory);
+			
+			// Free
+			final long freeDiskspace = SystemInfo.getFreeDiskspace(path);
+			final String freeDiskspacePath = zookeeperClient.getInstancesDiskspaceFreePath(instance, directory);
+			zookeeperClient.replacePersistentNode(freeDiskspacePath, Long.toString(freeDiskspace).getBytes());
+
+			// Total
+			final long totalDiskspace = SystemInfo.getTotalDiskspace(path);
+			final String totalDiskspacePath = zookeeperClient.getInstancesDiskspaceTotalPath(instance, directory);
+			zookeeperClient.replacePersistentNode(totalDiskspacePath, Long.toString(totalDiskspace).getBytes());
+		}
 	}
 }
 
