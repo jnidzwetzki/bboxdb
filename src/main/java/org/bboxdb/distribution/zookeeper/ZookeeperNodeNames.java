@@ -66,9 +66,6 @@ public class ZookeeperNodeNames {
 	/**
 	 * Name of the state node
 	 */
-	public final static String NAME_SYSTEMS_STATE = "state";
-	
-	
-	
+	public final static String NAME_SYSTEMS_STATE = "state";	
 	
 }

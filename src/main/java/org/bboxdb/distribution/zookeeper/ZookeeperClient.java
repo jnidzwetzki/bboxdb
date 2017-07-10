@@ -574,10 +574,32 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	}
 	
 	/**
-	 * Get the path of the version nodes
+	 * Get the path of the version node
 	 */
 	protected String getInstancesVersionPath(final DistributedInstance distributedInstance) {
 		return getInstanceDetailsPath(distributedInstance) + "/version";
+	}
+	
+
+	/**
+	 * Get the path of the cpu core node
+	 */
+	protected String getInstancesCpuCorePath(final DistributedInstance distributedInstance) {
+		return getInstanceDetailsPath(distributedInstance) + "/cpucore";
+	}
+	
+	/**
+	 * Get the path of the memory node
+	 */
+	protected String getInstancesMemoryPath(final DistributedInstance distributedInstance) {
+		return getInstanceDetailsPath(distributedInstance) + "/memory";
+	}
+	
+	/**
+	 * Get the path of the diskspace node
+	 */
+	protected String getInstancesDiskspacePath(final DistributedInstance distributedInstance) {
+		return getInstanceDetailsPath(distributedInstance) + "/diskspace";
 	}
 
 	@Override
@@ -780,7 +802,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			if (zookeeper.exists(path, false) != null) {
 				zookeeper.setData(path, bytes, -1);
 			} else {
-				zookeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				createDirectoryStructureRecursive(path);
+				zookeeper.setData(path, bytes, -1);
 			}
 		} catch (KeeperException e) {
 			throw new ZookeeperException(e);
