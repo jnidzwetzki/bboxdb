@@ -360,9 +360,9 @@ public class TestDistributedInstanceManager {
 		for(final String directory : directories) {
 			final File path = new File(directory);
 			Assert.assertEquals(SystemInfo.getFreeDiskspace(path), 
-					(long) instance.getAllFreeSpaceLocations().get(directory));
+					(long) instance.getAllFreeSpaceLocations().get(directory), 1000000);
 			Assert.assertEquals(SystemInfo.getTotalDiskspace(path), 
-					(long) instance.getAllTotalSpaceLocations().get(directory));
+					(long) instance.getAllTotalSpaceLocations().get(directory), 1000000);
 		}
 
 		zookeeperClient1.shutdown();
