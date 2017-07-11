@@ -304,7 +304,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			logger.info("Unable to read version for: {}", versionPath);
 		}
 
-		return DistributedInstance.UNKOWN_VERSION;
+		return DistributedInstance.UNKOWN_PROPERTY;
 	}
 
 	/**

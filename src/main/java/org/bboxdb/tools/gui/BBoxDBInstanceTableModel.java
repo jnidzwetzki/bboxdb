@@ -22,6 +22,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.util.FileSizeHelper;
 
 final class BBoxDBInstanceTableModel extends AbstractTableModel {
 
@@ -91,6 +92,22 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 				return instance.getState().getZookeeperValue();
 			}
 			
+			if(columnIndex == 5) {
+				return instance.getCpuCores();
+			}
+			
+			if(columnIndex == 6) {
+				return FileSizeHelper.readableFileSize(instance.getMemory());
+			}
+			
+			if(columnIndex == 7) {
+				return FileSizeHelper.readableFileSize(instance.getTotalSpace());
+			}
+			
+			if(columnIndex == 8) {
+				return FileSizeHelper.readableFileSize(instance.getFreeSpace());
+			}
+			
 			return "";
 		}
 	}
@@ -102,7 +119,7 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 5;
+		return 9;
 	}
 
 	@Override
@@ -123,6 +140,14 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 		   return "Version";
 	   } else if(column == 4) {
 		   return "State";
+	   } else if(column == 5) {
+		   return "CPU cores";
+	   } else if(column == 6) {
+		   return "Memory";
+	   } else if(column == 7) {
+		   return "Total disk space";
+	   } else if(column == 8) {
+		   return "Free disk space";
 	   }
 		
 	   return "---";

@@ -18,15 +18,17 @@
 package org.bboxdb.distribution.membership;
 
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 
 public class DistributedInstance implements Comparable<DistributedInstance> {
 	
 	/**
-	 * The string when the version is unknown
+	 * The string when the property is unknown
 	 */
-	public final static String UNKOWN_VERSION = "unknown";
+	public final static String UNKOWN_PROPERTY = "unknown";
 	
 	/**
 	 * The IP address of the instance
@@ -46,7 +48,27 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	/**
 	 * The version number of the instance
 	 */
-	protected String version = UNKOWN_VERSION;
+	protected String version = UNKOWN_PROPERTY;
+	
+	/**
+	 * The number of CPU cores
+	 */
+	protected int cpuCores = 0;
+	
+	/**
+	 * The amount of memory
+	 */
+	protected long memory = 0;
+	
+	/**
+	 * The total space on the storage locations
+	 */
+	protected final Map<String, Long> totalSpaceLocation = new HashMap<>();
+	
+	/**
+	 * The free space on the storage locations
+	 */
+	protected final Map<String, Long> freeSpaceLocation = new HashMap<>();
 	
 	/**
 	 * The state of the instance
@@ -154,17 +176,11 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	}
 
 	public String toGUIString() {
-		if(version == UNKOWN_VERSION) {
+		if(version == UNKOWN_PROPERTY) {
 			return "DistributedInstance [ip=" + ip + ", port=" + port + "]";
 		} else {
 			return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + "]";
 		}
-	}
-
-	@Override
-	public String toString() {
-		return "DistributedInstance [ip=" + ip + ", port=" + port
-				+ ", version=" + version + ", state=" + state + "]";
 	}
 
 	/**
@@ -175,6 +191,13 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 		return socketAddress;
 	}
 	
+	@Override
+	public String toString() {
+		return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + ", "
+				+ "cpuCores=" + cpuCores + ", memory=" + memory + ", state=" + state 
+				+ ", freeSpace()=" + getFreeSpace() + ", totalSpace()=" + getTotalSpace() + "]";
+	}
+
 	/**
 	 * Convert the data back into a string
 	 * @return
@@ -207,5 +230,86 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	public void setState(final DistributedInstanceState state) {
 		this.state = state;
 	}
+
+	/**
+	 * Get the number of cpu cores
+	 * @return
+	 */
+	public int getCpuCores() {
+		return cpuCores;
+	}
+
+	/**
+	 * Set the number of cpu cores
+	 * @param cpuCores
+	 */
+	public void setCpuCores(final int cpuCores) {
+		this.cpuCores = cpuCores;
+	}
+
+	/**
+	 * Get the amount of memory
+	 * @return
+	 */
+	public long getMemory() {
+		return memory;
+	}
+
+	/**
+	 * Set the amount of memory
+	 * @param memory
+	 */
+	public void setMemory(final long memory) {
+		this.memory = memory;
+	}
 	
+	/**
+	 * Add free space data
+	 * @param location
+	 * @param space
+	 */
+	public void addFreeSpace(final String location, final long space) {
+		freeSpaceLocation.put(location, space);
+	}
+	
+	/**
+	 * Add total space data
+	 * @param location
+	 * @param space
+	 */
+	public void addTotalSpace(final String location, final long space) {
+		freeSpaceLocation.put(location, space);
+	}
+	
+	/**
+	 * Get the free space data
+	 * @return
+	 */
+	public Map<String, Long> getFreeSpaceLocations() {
+		return freeSpaceLocation;
+	}
+	
+	/**
+	 * Get the total space data
+	 * @return
+	 */
+	public Map<String, Long> getTotalSpaceLocations() {
+		return totalSpaceLocation;
+	}
+	
+	/**
+	 * Get the summed free space
+	 * @return
+	 */
+	public long getFreeSpace() {
+		return freeSpaceLocation.values().stream().mapToLong(e -> e).sum();
+	}
+	
+	/**
+	 * Get the summed total space
+	 * @return
+	 */
+	public long getTotalSpace() {
+		return totalSpaceLocation.values().stream().mapToLong(e -> e).sum();
+	}
 }
