@@ -41,9 +41,8 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 		}
 
 		try {
+			updateNodeInfo(zookeeperClient);
 			updateStateData(zookeeperClient);
-			updateVersion(zookeeperClient);
-			updateHardwareInfo(zookeeperClient);
 		} catch (ZookeeperException e) {
 			logger.error("Exception while registering instance", e);
 		}
@@ -61,23 +60,17 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 		logger.info("Register instance on: {}", statePath);
 		zookeeperClient.replaceEphemeralNode(statePath, instance.getState().getZookeeperValue().getBytes());
 	}
-
-	/**
-	 * Update BBoxDB version
-	 * @param zookeeperClient
-	 * @throws ZookeeperException 
-	 */
-	protected void updateVersion(final ZookeeperClient zookeeperClient) throws ZookeeperException {
-		final String versionPath = zookeeperClient.getInstancesVersionPath(instance);
-		zookeeperClient.replacePersistentNode(versionPath, Const.VERSION.getBytes());
-	}
 	
 	/**
 	 * Update the hardware info
 	 * @param zookeeperClient
 	 * @throws ZookeeperException 
 	 */
-	protected void updateHardwareInfo(final ZookeeperClient zookeeperClient) throws ZookeeperException {
+	protected void updateNodeInfo(final ZookeeperClient zookeeperClient) throws ZookeeperException {
+		
+		// Version 
+		final String versionPath = zookeeperClient.getInstancesVersionPath(instance);
+		zookeeperClient.replacePersistentNode(versionPath, Const.VERSION.getBytes());
 		
 		// CPUs
 		final int cpuCores = SystemInfo.getCPUCores();

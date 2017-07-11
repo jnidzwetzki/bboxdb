@@ -232,6 +232,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			final String activeInstancesPath = getActiveInstancesPath();
 			zookeeper.getChildren(activeInstancesPath, this);
 
+			System.out.println("---> Register watch on: " + activeInstancesPath);
+			
 			// Read version data
 			final String detailsPath = getDetailsPath();
 			final List<String> instances = zookeeper.getChildren(detailsPath, null);
@@ -488,15 +490,10 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	public boolean setLocalInstanceState(final DistributedInstance instance, 
+	public void setLocalInstanceState(final DistributedInstance instance, 
 			final DistributedInstanceState distributedInstanceState)
 			throws ZookeeperException {
-		
-		if (instance == null) {
-			logger.warn("Try to set instance state without register local instance: " + distributedInstanceState);
-			return false;
-		}
-
+	
 		final String statePath = getActiveInstancesPath() + "/" + instance.getStringValue();
 
 		try {
@@ -508,7 +505,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			throw new ZookeeperException(e);
 		}
 
-		return true;
 	}
 
 	/**
