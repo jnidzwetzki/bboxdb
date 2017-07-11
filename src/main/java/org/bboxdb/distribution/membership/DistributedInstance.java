@@ -195,7 +195,8 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	public String toString() {
 		return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + ", "
 				+ "cpuCores=" + cpuCores + ", memory=" + memory + ", state=" + state 
-				+ ", freeSpace()=" + getFreeSpace() + ", totalSpace()=" + getTotalSpace() + "]";
+				+ ", storages=" + getNumberOfStorages() + ", freeSpace()=" + getFreeSpace() 
+				+ ", totalSpace()=" + getTotalSpace() + "]";
 	}
 
 	/**
@@ -278,14 +279,14 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	 * @param space
 	 */
 	public void addTotalSpace(final String location, final long space) {
-		freeSpaceLocation.put(location, space);
+		totalSpaceLocation.put(location, space);
 	}
 	
 	/**
 	 * Get the free space data
 	 * @return
 	 */
-	public Map<String, Long> getFreeSpaceLocations() {
+	public Map<String, Long> getAllFreeSpaceLocations() {
 		return freeSpaceLocation;
 	}
 	
@@ -293,8 +294,15 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	 * Get the total space data
 	 * @return
 	 */
-	public Map<String, Long> getTotalSpaceLocations() {
+	public Map<String, Long> getAllTotalSpaceLocations() {
 		return totalSpaceLocation;
+	}
+	
+	/** 
+	 * Get the number of storages
+	 */
+	public int getNumberOfStorages() {
+		return freeSpaceLocation.size();
 	}
 	
 	/**

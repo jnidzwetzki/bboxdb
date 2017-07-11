@@ -7,7 +7,8 @@ order: 1
 ---
 ### Version 0.3.2 (Stable) - TBA
 - New Feature: The CLI shows all discovered BBoxDB instances
-- New Feature: Introduced client based distribution group routing
+- New Feature: Introduced client based insert tuple routing
+- New Feature: Write Hardware info (cpu cores, memory, diskspace) to Zookeeper
 - Bugfix: Fixed wait for pending calls method in client code
 
 ### Version 0.3.1 (Stable) - 29.06.2017

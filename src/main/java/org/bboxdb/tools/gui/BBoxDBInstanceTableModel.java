@@ -97,14 +97,18 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 			}
 			
 			if(columnIndex == 6) {
-				return FileSizeHelper.readableFileSize(instance.getMemory());
+				return instance.getNumberOfStorages();
 			}
 			
 			if(columnIndex == 7) {
-				return FileSizeHelper.readableFileSize(instance.getTotalSpace());
+				return FileSizeHelper.readableFileSize(instance.getMemory());
 			}
 			
 			if(columnIndex == 8) {
+				return FileSizeHelper.readableFileSize(instance.getTotalSpace());
+			}
+			
+			if(columnIndex == 9) {
 				return FileSizeHelper.readableFileSize(instance.getFreeSpace());
 			}
 			
@@ -119,7 +123,7 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 9;
+		return 10;
 	}
 
 	@Override
@@ -145,8 +149,10 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 	   } else if(column == 6) {
 		   return "Memory";
 	   } else if(column == 7) {
-		   return "Total disk space";
+		   return "Storage locations";
 	   } else if(column == 8) {
+		   return "Total disk space";
+	   } else if(column == 9) {
 		   return "Free disk space";
 	   }
 		

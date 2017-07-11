@@ -44,6 +44,8 @@ import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.primitives.Longs;
+
 public class ZookeeperClient implements BBoxDBService, Watcher {
 
 	/**
@@ -235,23 +237,16 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			// Read version data
 			final String detailsPath = getDetailsPath();
 			final List<String> instances = zookeeper.getChildren(detailsPath, null);
-
+			
 			final Set<DistributedInstance> instanceSet = new HashSet<>();
 			
-			for (final String instance : instances) {
-				final DistributedInstance theInstance = new DistributedInstance(instance);
-
-				final String instanceVersion = getVersionForInstance(theInstance);
-				theInstance.setVersion(instanceVersion);
-				
-				final DistributedInstanceState state = getStateForInstance(instance);
-				theInstance.setState(state);
-				
-				instanceSet.add(theInstance);
+			for (final String instanceName : instances) {
+				final DistributedInstance distributedInstance = readInstance(instanceName);
+				instanceSet.add(distributedInstance);
 			}
 
 			distributedInstanceManager.updateInstanceList(instanceSet);
-		} catch (KeeperException | ZookeeperNotFoundException e) {
+		} catch (KeeperException | ZookeeperNotFoundException | ZookeeperException e) {
 			logger.warn("Unable to read membership and create a watch", e);
 			return false;
 		} catch (InterruptedException e) {
@@ -261,6 +256,40 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Read the given instance
+	 * @param instanceName
+	 * @return
+	 * @throws ZookeeperNotFoundException
+	 * @throws ZookeeperException 
+	 */
+	protected DistributedInstance readInstance(final String instanceName) 
+			throws ZookeeperNotFoundException, ZookeeperException {
+		
+		final DistributedInstance instance = new DistributedInstance(instanceName);
+
+		// Version
+		final String instanceVersion = getVersionForInstance(instance);
+		instance.setVersion(instanceVersion);
+		
+		// State
+		final DistributedInstanceState state = getStateForInstance(instanceName);
+		instance.setState(state);
+		
+		// CPU cores
+		final int cpuCores = getCpuCoresForInstnace(instance);
+		instance.setCpuCores(cpuCores);
+		
+		// Memory
+		final long memory = getMemoryForInstance(instance);
+		instance.setMemory(memory);
+		
+		// Diskspace
+		readDiskSpaceForInstance(instance);
+		
+		return instance;
 	}
 
 	/**
@@ -291,20 +320,112 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	/**
 	 * Read the version for the given instance
 	 * 
-	 * @param member
+	 * @param instance
 	 * @return
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected String getVersionForInstance(final DistributedInstance member) throws ZookeeperNotFoundException {
-		final String versionPath = getInstancesVersionPath(member);
+	protected String getVersionForInstance(final DistributedInstance instance) throws ZookeeperNotFoundException {
+		final String versionPath = getInstancesVersionPath(instance);
 
 		try {
 			return readPathAndReturnString(versionPath, true, null);
 		} catch (ZookeeperException e) {
-			logger.info("Unable to read version for: {}", versionPath);
+			logger.error("Unable to read version for: {}", versionPath);
 		}
 
 		return DistributedInstance.UNKOWN_PROPERTY;
+	}
+	
+	/**
+	 * Get the amount of CPU cores fot the instance
+	 * @param instance
+	 * @return
+	 * @throws ZookeeperNotFoundException
+	 */
+	protected int getCpuCoresForInstnace(final DistributedInstance instance) throws ZookeeperNotFoundException {
+		final String versionPath = getInstancesCpuCorePath(instance);
+
+		String versionString = null;
+		
+		try {
+			versionString = readPathAndReturnString(versionPath, true, null);
+			return Integer.parseInt(versionString);
+		} catch (ZookeeperException e) {
+			logger.error("Unable to read cpu cores for: {}", versionPath);
+		} catch(NumberFormatException e) {
+			logger.error("Unable to parse {} as CPU cores", versionString);
+		}
+
+		return -1;
+	}
+	
+	/**
+	 * Get the total memory for the given instance
+	 * @param instance
+	 * @return
+	 * @throws ZookeeperNotFoundException
+	 */
+	protected long getMemoryForInstance(final DistributedInstance instance) throws ZookeeperNotFoundException {
+		final String memoryPath = getInstancesMemoryPath(instance);
+
+		String memoryString = null;
+
+		try {
+			memoryString = readPathAndReturnString(memoryPath, true, null);
+			return Long.parseLong(memoryString);
+		} catch (ZookeeperException e) {
+			logger.error("Unable to read memory for: {}", memoryPath);
+		} catch(NumberFormatException e) {
+			logger.error("Unable to parse {} as memory", memoryString);
+		}
+
+		return -1;
+	}
+	
+	/**
+	 * Read the free and the total diskspace for the given instance
+	 * @param instance
+	 * @throws ZookeeperNotFoundException
+	 * @throws ZookeeperException 
+	 */
+	protected void readDiskSpaceForInstance(final DistributedInstance instance) 
+			throws ZookeeperNotFoundException, ZookeeperException {
+		
+		final String diskspacePath = getInstancesDiskspacePath(instance);
+		
+		try {
+			final List<String> diskspaceChilds = zookeeper.getChildren(diskspacePath, null);
+			
+			for(final String path : diskspaceChilds) {
+				final String unquotedPath = unquotePath(path);
+				final String totalDiskspacePath = getInstancesDiskspaceTotalPath(instance, unquotedPath);
+				final String freeDiskspacePath = getInstancesDiskspaceFreePath(instance, unquotedPath);
+				
+				final String totalDiskspaceString = readPathAndReturnString(totalDiskspacePath, true, null);
+				final String freeDiskspaceString = readPathAndReturnString(freeDiskspacePath, true, null);
+				
+				final Long totalDiskspace = Longs.tryParse(totalDiskspaceString);
+				final Long freeDiskspace = Longs.tryParse(freeDiskspaceString);
+								
+				if(totalDiskspace == null) {
+					logger.error("Unable to parse {} as total diskspace", totalDiskspaceString);
+				} else {
+					instance.addTotalSpace(unquotedPath, totalDiskspace);
+				}
+				
+				if(freeDiskspace == null) {
+					logger.error("Unable to parse {} as free diskspace", freeDiskspaceString);
+				} else {
+					instance.addFreeSpace(unquotedPath, freeDiskspace);
+				}
+			}
+			
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			logger.error("Unable to read diskspace for: {}", instance.getStringValue(), e);
+		} catch (KeeperException e) {
+			logger.error("Unable to read diskspace for: {}", instance.getStringValue(), e);
+		}
 	}
 
 	/**
@@ -601,7 +722,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 */
 	protected String getInstancesDiskspaceFreePath(final DistributedInstance distributedInstance, 
 			final String path) {
-		final String zookeeperPath = path.replaceAll("/", "_");
+		final String zookeeperPath = quotePath(path);
 		return getInstancesDiskspacePath(distributedInstance) + "/" + zookeeperPath + "/free";
 	}
 	
@@ -610,8 +731,28 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 */
 	protected String getInstancesDiskspaceTotalPath(final DistributedInstance distributedInstance, 
 			final String path) {
-		final String zookeeperPath = path.replaceAll("/", "_");
+		final String zookeeperPath = quotePath(path);
 		return getInstancesDiskspacePath(distributedInstance) + "/" + zookeeperPath + "/total";
+	}
+	
+	/**
+	 * Quote the file system path (replace all '/' with '__') to get 
+	 * a valid zookeeper node name
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public static String quotePath(final String path) {
+		return path.replaceAll("/", "__");
+	}
+	
+	/**
+	 * Unquote the given path
+	 * @param path
+	 * @return
+	 */
+	public static String unquotePath(final String path) {
+		return path.replaceAll("__", "/");
 	}
 	
 	@Override

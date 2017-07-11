@@ -18,6 +18,7 @@
 package org.bboxdb.distribution;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -551,5 +552,26 @@ public class TestZookeeperIntegration {
 		
 		// Test cached instance
 		Assert.assertEquals((float) 20.0, cacheGroup.getRootNode().getSplit(), 0.00001);	
+	}
+	
+	/**
+	 * Test the path quoting
+	 */
+	@Test
+	public void testPathQuoting() {
+		final String path1 = "/tmp";
+		final String path2 = "/etc/init.d";
+		final String path3 = "/tmp/test_abc";
+		
+		final List<String> paths = Arrays.asList(path1, path2, path3);
+		
+		for(final String path : paths) {
+			Assert.assertTrue(path.contains("/"));
+			final String quotedPath = ZookeeperClient.quotePath(path);
+			Assert.assertFalse(quotedPath.contains("/"));
+			final String unquotedPath = ZookeeperClient.unquotePath(quotedPath);
+			Assert.assertEquals(path, unquotedPath);
+		}
+		
 	}
 }

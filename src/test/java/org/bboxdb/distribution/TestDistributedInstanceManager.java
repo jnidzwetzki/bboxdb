@@ -17,7 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
+import java.io.File;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
@@ -32,6 +34,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.util.SystemInfo;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -291,7 +294,7 @@ public class TestDistributedInstanceManager {
 						changedLatch.countDown();
 					}
 				} else {
-					System.out.println(event);
+					System.out.println("Got unexpeced event: " + event);
 					// Unexpected event
 					Assert.assertTrue(false);
 				}
@@ -327,5 +330,41 @@ public class TestDistributedInstanceManager {
 		zookeeperClient.init();
 		
 		return zookeeperClient;
+	}
+	
+	/**
+	 * Test write the system info
+	 */
+	@Test
+	public void testWriteSystemInfo() {
+		final DistributedInstance instance1 = new DistributedInstance("node6:5050");
+		final ZookeeperClient zookeeperClient1 = getNewZookeeperClient(instance1);
+		zookeeperClient1.startMembershipObserver();
+		
+		final List<DistributedInstance> distributedInstances 
+			= DistributedInstanceManager.getInstance().getInstances();
+		
+		Assert.assertEquals(1, distributedInstances.size());
+		
+		final DistributedInstance instance = distributedInstances.get(0);
+		Assert.assertEquals(SystemInfo.getAvailableMemory(), instance.getMemory());
+		Assert.assertEquals(SystemInfo.getCPUCores(), instance.getCpuCores());
+		
+		final BBoxDBConfiguration bboxDBConfiguration = BBoxDBConfigurationManager.getConfiguration();
+		final List<String> directories = bboxDBConfiguration.getStorageDirectories();
+		
+		Assert.assertEquals(directories.size(), instance.getNumberOfStorages());
+		Assert.assertEquals(directories.size(), instance.getAllTotalSpaceLocations().size());
+		Assert.assertEquals(directories.size(), instance.getAllFreeSpaceLocations().size());
+		
+		for(final String directory : directories) {
+			final File path = new File(directory);
+			Assert.assertEquals(SystemInfo.getFreeDiskspace(path), 
+					(long) instance.getAllFreeSpaceLocations().get(directory));
+			Assert.assertEquals(SystemInfo.getTotalDiskspace(path), 
+					(long) instance.getAllTotalSpaceLocations().get(directory));
+		}
+
+		zookeeperClient1.shutdown();
 	}
 }
