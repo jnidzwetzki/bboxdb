@@ -34,7 +34,7 @@ public class SystemInfo {
 	 * @return
 	 */
 	public static long getAvailableMemory() {
-		return Runtime.getRuntime().totalMemory();
+		return Runtime.getRuntime().maxMemory();
 	}
 	
 	/**
