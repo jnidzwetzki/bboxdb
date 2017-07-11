@@ -231,8 +231,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			// Reregister watch on membership
 			final String activeInstancesPath = getActiveInstancesPath();
 			zookeeper.getChildren(activeInstancesPath, this);
-
-			System.out.println("---> Register watch on: " + activeInstancesPath);
 			
 			// Read version data
 			final String detailsPath = getDetailsPath();
