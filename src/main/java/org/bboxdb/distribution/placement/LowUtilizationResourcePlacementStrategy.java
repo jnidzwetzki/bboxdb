@@ -46,6 +46,7 @@ public class LowUtilizationResourcePlacementStrategy extends AbstractUtilization
 			DistributedInstance distributedInstance) {
 		
 		final int usageCount = systemUsage.count(distributedInstance);
+		
 		if(usageCount == 0) {
 			return 0;
 		}
