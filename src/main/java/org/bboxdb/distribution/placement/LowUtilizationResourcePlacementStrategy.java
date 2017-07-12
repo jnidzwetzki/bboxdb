@@ -19,7 +19,6 @@ package org.bboxdb.distribution.placement;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +36,9 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+
 public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementStrategy {
 	/**
 	 * The Logger
@@ -48,7 +50,8 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 	}
 	
 	@Override
-	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems, final Collection<DistributedInstance> blacklist) throws ResourceAllocationException {
+	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems, 
+			final Collection<DistributedInstance> blacklist) throws ResourceAllocationException {
 		
 		if(systems.isEmpty()) {
 			throw new ResourceAllocationException("Unable to choose a system, list of systems is empty");
@@ -63,7 +66,7 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 		}
 		
 		try {
-			final Map<DistributedInstance, Integer> systemUsage = calculateSystemUsage();
+			final Multiset<DistributedInstance> systemUsage = calculateSystemUsage();
 			return getSystemWithLowestUsage(availableSystems, systemUsage);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new ResourceAllocationException("Got an zookeeper exception while ressource allocation", e);
@@ -78,7 +81,8 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 	 * @return
 	 * @throws ResourceAllocationException 
 	 */
-	protected DistributedInstance getSystemWithLowestUsage(final List<DistributedInstance> availableSystems, final Map<DistributedInstance, Integer> systemUsage) throws ResourceAllocationException {
+	protected DistributedInstance getSystemWithLowestUsage(final List<DistributedInstance> availableSystems, 
+			final Multiset<DistributedInstance> systemUsage) throws ResourceAllocationException {
 		
 		if(availableSystems.isEmpty()) {
 			throw new ResourceAllocationException("Unable to choose a system, list of systems is empty");
@@ -89,14 +93,14 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 		for(final DistributedInstance distributedInstance : availableSystems) {
 			
 			// Unknown = Empty instance
-			if(! systemUsage.containsKey(distributedInstance)) {
+			if(systemUsage.count(distributedInstance) == 0) {
 				return distributedInstance;
 			}
 			
 			if(possibleSystem == null) {
 				possibleSystem = distributedInstance;
 			} else {
-				if(systemUsage.get(possibleSystem) > systemUsage.get(distributedInstance)) {
+				if(systemUsage.count(possibleSystem) > systemUsage.count(distributedInstance)) {
 					possibleSystem = distributedInstance;
 				}
 			}
@@ -112,14 +116,15 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException 
 	 */
-	protected Map<DistributedInstance, Integer> calculateSystemUsage() throws ZookeeperException, ZookeeperNotFoundException {
+	protected Multiset<DistributedInstance> calculateSystemUsage() 
+			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		// The overall usage
-		final Map<DistributedInstance, Integer> systemUsage = new HashMap<DistributedInstance, Integer>();
+		final Multiset<DistributedInstance> systemUsage = HashMultiset.create();
 		
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		final DistributionGroupZookeeperAdapter zookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-		final List<DistributionGroupName> distributionGroups = zookeeperAdapter.getDistributionGroups(null);
+		final List<DistributionGroupName> distributionGroups = zookeeperAdapter.getDistributionGroups();
 		
 		// Calculate usage for each distribution group
 		for(final DistributionGroupName groupName : distributionGroups) {
@@ -129,13 +134,7 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 		
 			// Merge result into systemUsage
 			for(final DistributedInstance instance : regionSystemUsage.keySet()) {
-				if(! systemUsage.containsKey(instance)) {
-					systemUsage.put(instance, regionSystemUsage.get(instance));
-				} else {
-					int oldUsage = systemUsage.get(instance);
-					int newUsage = oldUsage + regionSystemUsage.get(instance);
-					systemUsage.put(instance, newUsage);
-				}
+				systemUsage.add(instance, regionSystemUsage.get(instance));
 			}
 		}
 		
