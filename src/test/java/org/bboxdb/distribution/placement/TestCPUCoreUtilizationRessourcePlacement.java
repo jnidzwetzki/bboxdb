@@ -40,7 +40,7 @@ public class TestCPUCoreUtilizationRessourcePlacement extends TestRandomRessourc
 	 * @return
 	 */
 	@Override
-	public LowUtilizationResourcePlacementStrategy getPlacementStrategy() {
+	public AbstractUtilizationPlacementStrategy getPlacementStrategy() {
 		
 		return new CPUCoreUtilizationPlacementStrategy() {
 			@Override

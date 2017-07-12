@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.placement;
 
-import java.util.List;
+import java.util.function.Predicate;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.slf4j.Logger;
@@ -25,7 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multiset;
 
-public class CPUCoreUtilizationPlacementStrategy extends LowUtilizationResourcePlacementStrategy {
+public class CPUCoreUtilizationPlacementStrategy extends AbstractUtilizationPlacementStrategy {
+	
 	/**
 	 * The Logger
 	 */
@@ -36,55 +37,19 @@ public class CPUCoreUtilizationPlacementStrategy extends LowUtilizationResourceP
 	}
 	
 	/**
-	 * Get the system with the lowest cpu core / instance relation
-	 * @param availableSystems
-	 * @param systemUsage
-	 * @return
-	 * @throws ResourceAllocationException
-	 */
-	@Override
-	protected DistributedInstance getSystemWithLowestUsage(final List<DistributedInstance> availableSystems, 
-			final Multiset<DistributedInstance> systemUsage) throws ResourceAllocationException {
-		
-		DistributedInstance possibleSystem = null;
-		double cpuCoreUsageFactor = Double.MIN_VALUE;
-		
-		for(final DistributedInstance distributedInstance : availableSystems) {
-			
-			// Unknown = Empty instance
-			if(systemUsage.count(distributedInstance) == 0) {
-				return distributedInstance;
-			}
-			
-			// unknown memory data
-			if(distributedInstance.getCpuCores() <= 0) {
-				continue;
-			}
-			
-			if(possibleSystem == null) {
-				possibleSystem = distributedInstance;
-				cpuCoreUsageFactor = calculateUsageFactor(systemUsage, distributedInstance);
-			} else {
-				if(calculateUsageFactor(systemUsage, distributedInstance) > cpuCoreUsageFactor) {
-					possibleSystem = distributedInstance;
-					cpuCoreUsageFactor = calculateUsageFactor(systemUsage, distributedInstance);
-				}
-			}
-		}
-		
-		return possibleSystem;
-	}
-
-	/**
 	 * Calculate the cpu core / instance usage factor
 	 * @param systemUsage
 	 * @param distributedInstance
 	 * @return
 	 */
-	protected long calculateUsageFactor(final Multiset<DistributedInstance> systemUsage,
+	protected double calculateUsageFactor(final Multiset<DistributedInstance> systemUsage,
 			final DistributedInstance distributedInstance) {
 		
 		return distributedInstance.getCpuCores() / systemUsage.count(distributedInstance);
 	}
 
+	@Override
+	protected Predicate<? super DistributedInstance> getUnusableSystemsFilterPredicate() {
+		return i -> (i.getCpuCores() > 0);
+	}
 }

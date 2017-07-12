@@ -40,7 +40,7 @@ public class TestMemoryUtilizationRessourcePlacement extends TestRandomRessource
 	 * @return
 	 */
 	@Override
-	public LowUtilizationResourcePlacementStrategy getPlacementStrategy() {
+	public AbstractUtilizationPlacementStrategy getPlacementStrategy() {
 		
 		return new MemoryUtilizationPlacementStrategy() {
 			@Override

@@ -40,7 +40,7 @@ public class TestStorageUtilizationRessourcePlacement extends TestRandomRessourc
 	 * @return
 	 */
 	@Override
-	public LowUtilizationResourcePlacementStrategy getPlacementStrategy() {
+	public AbstractUtilizationPlacementStrategy getPlacementStrategy() {
 		
 		return new StorageUtilizationPlacementStrategy() {
 			@Override
