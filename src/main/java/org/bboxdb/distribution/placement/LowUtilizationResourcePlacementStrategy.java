@@ -35,7 +35,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Multiset;
 
 public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementStrategy {
@@ -113,26 +113,28 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 	 */
 	protected Multiset<DistributedInstance> calculateSystemUsage() 
 			throws ZookeeperException, ZookeeperNotFoundException {
-		
-		// The overall usage
-		final Multiset<DistributedInstance> systemUsage = HashMultiset.create();
-		
+				
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		final DistributionGroupZookeeperAdapter zookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		final DistributionGroupZookeeperAdapter zookeeperAdapter 
+			= ZookeeperClientFactory.getDistributionGroupAdapter();
 		final List<DistributionGroupName> distributionGroups = zookeeperAdapter.getDistributionGroups();
 		
+		// The overall usage
+	    final ImmutableMultiset.Builder<DistributedInstance> builder = ImmutableMultiset.builder();
+	    
 		// Calculate usage for each distribution group
 		for(final DistributionGroupName groupName : distributionGroups) {
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(groupName.getFullname(), zookeeperClient);
+			final KDtreeZookeeperAdapter distributionAdapter 
+				= DistributionGroupCache.getGroupForGroupName(groupName.getFullname(), zookeeperClient);
+			
 			final DistributionRegion region = distributionAdapter.getRootNode();
-			final Multiset<DistributedInstance> regionSystemUsage = DistributionRegionHelper.getSystemUtilization(region);
+			final Multiset<DistributedInstance> regionSystemUsage 
+				= DistributionRegionHelper.getSystemUtilization(region);
 		
-			// Merge result into systemUsage
-			for(final DistributedInstance instance : regionSystemUsage.elementSet()) {
-				systemUsage.add(instance, regionSystemUsage.count(instance));
-			}
+			// Merge results
+			builder.addAll(regionSystemUsage);
 		}
 		
-		return systemUsage;
+	    return builder.build();
 	}
 }
