@@ -78,6 +78,14 @@ public class TestLowUtilizationRessourcePlacement extends TestRandomRessourcePla
 		utilization.setCount(systems.get(3), 4);
 
 		Assert.assertEquals(systems.get(0), resourcePlacementStrategy.getInstancesForNewRessource(systems));
+		
+		utilization.clear();
+		utilization.setCount(systems.get(0), 4);
+		utilization.setCount(systems.get(1), 3);
+		utilization.setCount(systems.get(2), 2);
+		utilization.setCount(systems.get(3), 1);
+
+		Assert.assertEquals(systems.get(3), resourcePlacementStrategy.getInstancesForNewRessource(systems));
 	}
 
 }
