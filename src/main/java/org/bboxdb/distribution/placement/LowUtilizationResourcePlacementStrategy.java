@@ -54,7 +54,7 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 			throw new ResourceAllocationException("Unable to choose a system, list of systems is empty");
 		}
 		
-		final List<DistributedInstance> availableSystems = new ArrayList<DistributedInstance>(systems);
+		final List<DistributedInstance> availableSystems = new ArrayList<>(systems);
 		availableSystems.removeAll(blacklist);
 		removeAllNonReadySystems(availableSystems);
 		

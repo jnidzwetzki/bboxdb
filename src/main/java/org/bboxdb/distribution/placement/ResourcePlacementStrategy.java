@@ -33,7 +33,8 @@ public abstract class ResourcePlacementStrategy {
 	 * @return
 	 * @throws ResourceAllocationException 
 	 */
-	public abstract DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems, final Collection<DistributedInstance> blacklist) throws ResourceAllocationException;
+	public abstract DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems, 
+			final Collection<DistributedInstance> blacklist) throws ResourceAllocationException;
 
 	/**
 	 * Get a set with distributed instances. These instances will be responsible for 
@@ -42,8 +43,11 @@ public abstract class ResourcePlacementStrategy {
 	 * @return
 	 * @throws ResourceAllocationException 
 	 */
-	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems) throws ResourceAllocationException {
-		return getInstancesForNewRessource(systems, new HashSet<DistributedInstance>());
+	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems) 
+			throws ResourceAllocationException {
+		
+		final HashSet<DistributedInstance> emptyBlacklist = new HashSet<DistributedInstance>();
+		return getInstancesForNewRessource(systems, emptyBlacklist);
 	}
 	
 	/**
