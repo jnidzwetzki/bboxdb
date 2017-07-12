@@ -115,7 +115,8 @@ public class StorageRegistry implements BBoxDBService {
 		for(final String directory : storageDirs) {
 			try {
 				scanDirectory(directory);
-				final Storage storage = new Storage(this, new File(directory), configuration.getMemtableFlushThreadsPerStorage());
+				final int flushThreadsPerStorage = configuration.getMemtableFlushThreadsPerStorage();
+				final Storage storage = new Storage(this, new File(directory), flushThreadsPerStorage);
 				storage.init();
 				storages.put(directory, storage);
 			} catch (StorageManagerException e) {
@@ -134,7 +135,8 @@ public class StorageRegistry implements BBoxDBService {
 	 * 
 	 * @return
 	 */
-	public synchronized SSTableManager getSSTableManager(final SSTableName table) throws StorageManagerException {
+	public synchronized SSTableManager getSSTableManager(final SSTableName table) 
+			throws StorageManagerException {
 		
 		if(! table.isValid()) {
 			throw new StorageManagerException("Invalid tablename: " + table);
@@ -266,7 +268,8 @@ public class StorageRegistry implements BBoxDBService {
 	 * @param distributionGroupName
 	 * @throws StorageManagerException 
 	 */
-	public synchronized void deleteAllTablesInDistributionGroup(final DistributionGroupName distributionGroupName) throws StorageManagerException {
+	public synchronized void deleteAllTablesInDistributionGroup(
+			final DistributionGroupName distributionGroupName) throws StorageManagerException {
 		
 		final String distributionGroupString = distributionGroupName.getFullname();
 		
@@ -477,7 +480,7 @@ public class StorageRegistry implements BBoxDBService {
 	}
 	
 	/**
-	 * Get the bboxdb configuration
+	 * Get the BBoxDB configuration
 	 * @return
 	 */
 	public BBoxDBConfiguration getConfiguration() {
