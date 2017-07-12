@@ -43,6 +43,9 @@ import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+
 public class StorageRegistry implements BBoxDBService {
 
 	/**
@@ -217,32 +220,18 @@ public class StorageRegistry implements BBoxDBService {
 	 */
 	public String getLowestUtilizedDataLocation() {
 
-		final Map<String, Integer> usage = new HashMap<>();
-		for(final String location : storages.keySet()) {
-			usage.put(location, 0);
-		}
+		final Multiset<String> usage = HashMultiset.create();
 		
-		for(final String location : sstableLocations.values()) {
-			final Integer oldUsage = usage.get(location);
-			usage.put(location, oldUsage + 1);
-		}
+		// Put every location into the table (even unused ones)
+		storages.keySet().forEach(s -> usage.add(s));
 		
-		// Find the lowest usage
-		final long lowestUsage = usage.values()
-			.stream()
-			.mapToLong(e -> e)
-			.min()
-			.orElseThrow(() -> new IllegalArgumentException("Unable to found lowest usage: " + sstableLocations));
+		// Add SSTables per storage usage 
+		sstableLocations.values().forEach(v -> usage.add(v));
 		
-		// Return the location
-		final String location = usage.entrySet()
-			.stream()
-			.filter(e -> e.getValue() == lowestUsage)
-			.findFirst()
-			.map(e -> e.getKey())
-			.orElseThrow(() -> new IllegalArgumentException("Unable to found lowest location" + sstableLocations));
-		
-		return location;
+		// Return the lowest usage
+		return usage.elementSet().stream()
+			.reduce((a,b) -> usage.count(a) < usage.count(b) ? a : b)
+			.get();
 	}
 	
 	/**
