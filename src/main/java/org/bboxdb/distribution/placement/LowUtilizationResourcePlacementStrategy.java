@@ -20,7 +20,6 @@ package org.bboxdb.distribution.placement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupName;
@@ -126,11 +125,11 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 		for(final DistributionGroupName groupName : distributionGroups) {
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(groupName.getFullname(), zookeeperClient);
 			final DistributionRegion region = distributionAdapter.getRootNode();
-			final Map<DistributedInstance, Integer> regionSystemUsage = DistributionRegionHelper.getSystemUtilization(region);
+			final Multiset<DistributedInstance> regionSystemUsage = DistributionRegionHelper.getSystemUtilization(region);
 		
 			// Merge result into systemUsage
-			for(final DistributedInstance instance : regionSystemUsage.keySet()) {
-				systemUsage.add(instance, regionSystemUsage.get(instance));
+			for(final DistributedInstance instance : regionSystemUsage.elementSet()) {
+				systemUsage.add(instance, regionSystemUsage.count(instance));
 			}
 		}
 		

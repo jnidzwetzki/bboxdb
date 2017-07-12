@@ -19,9 +19,7 @@ package org.bboxdb.distribution;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
@@ -34,6 +32,9 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.util.Retryer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 
 public class DistributionRegionHelper {
 	
@@ -101,7 +102,7 @@ public class DistributionRegionHelper {
 	 * @param region
 	 * @return
 	 */
-	public static Map<DistributedInstance, Integer> getSystemUtilization(final DistributionRegion region) {
+	public static Multiset<DistributedInstance> getSystemUtilization(final DistributionRegion region) {
 		final CalculateSystemUtilization calculateSystemUtilization = new CalculateSystemUtilization();
 		
 		if(region != null) {
@@ -177,23 +178,13 @@ class CalculateSystemUtilization implements DistributionRegionVisitor {
 	/**
 	 * The utilization
 	 */
-	protected Map<DistributedInstance, Integer> utilization = new HashMap<DistributedInstance, Integer>();
+	protected Multiset<DistributedInstance> utilization = HashMultiset.create();
 	
 	@Override
 	public boolean visitRegion(final DistributionRegion distributionRegion) {
-	
 		final Collection<DistributedInstance> systems = distributionRegion.getSystems();
-		
-		for(final DistributedInstance instance : systems) {
-			if(! utilization.containsKey(instance)) {
-				utilization.put(instance, 1);
-			} else {
-				int oldValue = utilization.get(instance);
-				oldValue++;
-				utilization.put(instance, oldValue);
-			}
-		}
-		
+		systems.forEach(i -> utilization.add(i));
+
 		// Visit remaining nodes
 		return true;
 	}
@@ -202,7 +193,7 @@ class CalculateSystemUtilization implements DistributionRegionVisitor {
 	 * Get the result
 	 * @return
 	 */
-	public Map<DistributedInstance, Integer> getResult() {
+	public Multiset<DistributedInstance> getResult() {
 		return utilization;
 	}
 	
