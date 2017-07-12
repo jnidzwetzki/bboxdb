@@ -9,7 +9,7 @@ order: 1
 - New Feature: The CLI shows all discovered BBoxDB instances
 - New Feature: Introduced client based insert tuple routing
 - New Feature: Write Hardware info (cpu cores, memory, diskspace) to Zookeeper
-- New Feature: Added cpu core, storages and memory placement stategies
+- New Feature: Added cpu core, storages, free diskspace and memory placement strategies
 - Bugfix: Fixed wait for pending calls method in client code
 
 ### Version 0.3.1 (Stable) - 29.06.2017
