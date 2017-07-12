@@ -18,43 +18,34 @@
 package org.bboxdb.network.server.handler.request;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
+import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleCompression implements RequestHandler {
+public class DisconnectHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleCompression.class);
+	private final static Logger logger = LoggerFactory.getLogger(DisconnectHandler.class);
 	
 
 	@Override
 	/**
-	 * Handle compressed packages. Uncompress envelope and handle package
+	 * Handle the disconnect request
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
+					throws IOException, PackageEncodeException {
 		
-		try {
-			final InputStream compressedDataStream = CompressionEnvelopeRequest.decodePackage(encodedPackage);
-						
-			while(compressedDataStream.available() > 0) {
-				clientConnectionHandler.handleNextPackage(compressedDataStream);
-			}
-			
-		} catch (IOException e) {
-			logger.error("Got an exception while handling compression", e);
-		} catch (PackageEncodeException e) {
-			logger.error("Got an exception while handling compression", e);
-		}
+		logger.info("Got disconnect package, preparing for connection close: "  
+				+ clientConnectionHandler.clientSocket.getInetAddress());
 		
-		return true;
+		clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
+		return false;
 	}
 }

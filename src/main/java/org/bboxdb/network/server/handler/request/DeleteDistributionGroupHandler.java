@@ -19,68 +19,58 @@ package org.bboxdb.network.server.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Collection;
 
-import org.bboxdb.distribution.RegionIdMapper;
-import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.DistributionGroupName;
+import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.DeleteTupleRequest;
+import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
-import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.sstable.SSTableManager;
-import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleDeleteTuple implements RequestHandler {
+public class DeleteDistributionGroupHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleDeleteTuple.class);
+	private final static Logger logger = LoggerFactory.getLogger(DeleteDistributionGroupHandler.class);
 	
 
 	@Override
 	/**
-	 * Handle delete tuple package
+	 * Delete an existing distribution group
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Got delete tuple package");
+			logger.debug("Got delete distribution group package");
 		}
 		
 		try {
-			final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
-			final SSTableName requestTable = deleteTupleRequest.getTable();
-
-			// Send the call to the storage manager
-			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
-
-			for(final SSTableName ssTableName : localTables) {
-				
-				final SSTableManager storageManager = clientConnectionHandler
-						.getStorageRegistry()
-						.getSSTableManager(ssTableName);
-				
-				storageManager.delete(deleteTupleRequest.getKey(), deleteTupleRequest.getTimestamp());
-			}
+			final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
+			logger.info("Delete distribution group: " + deletePackage.getDistributionGroup());
+			
+			// Delete in Zookeeper
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+			distributionGroupZookeeperAdapter.deleteDistributionGroup(deletePackage.getDistributionGroup());
+			
+			// Delete local stored data
+			final DistributionGroupName distributionGroupName = new DistributionGroupName(deletePackage.getDistributionGroup());
+			clientConnectionHandler.getStorageRegistry().deleteAllTablesInDistributionGroup(distributionGroupName);
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		} catch (PackageEncodeException | StorageManagerException | RejectedException e) {
-			logger.warn("Error while delete tuple", e);
-
+		} catch (Exception e) {
+			logger.warn("Error while delete distribution group", e);
+			
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
-		} 
-
+		}
+		
 		return true;
 	}
 }

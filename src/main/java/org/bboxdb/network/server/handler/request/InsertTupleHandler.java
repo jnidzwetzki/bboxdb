@@ -46,12 +46,12 @@ import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleInsertTuple implements RequestHandler {
+public class InsertTupleHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleInsertTuple.class);
+	private final static Logger logger = LoggerFactory.getLogger(InsertTupleHandler.class);
 	
 
 	@Override

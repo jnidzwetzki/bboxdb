@@ -48,18 +48,18 @@ import org.bboxdb.network.server.handler.query.HandleInsertTimeQuery;
 import org.bboxdb.network.server.handler.query.HandleKeyQuery;
 import org.bboxdb.network.server.handler.query.HandleVersionTimeQuery;
 import org.bboxdb.network.server.handler.query.QueryHandler;
-import org.bboxdb.network.server.handler.request.HandleCancelQuery;
-import org.bboxdb.network.server.handler.request.HandleCompression;
-import org.bboxdb.network.server.handler.request.HandleCreateDistributionGroup;
-import org.bboxdb.network.server.handler.request.HandleDeleteDistributionGroup;
-import org.bboxdb.network.server.handler.request.HandleDeleteTable;
-import org.bboxdb.network.server.handler.request.HandleDeleteTuple;
-import org.bboxdb.network.server.handler.request.HandleDisconnect;
-import org.bboxdb.network.server.handler.request.HandleHandshake;
-import org.bboxdb.network.server.handler.request.HandleInsertTuple;
-import org.bboxdb.network.server.handler.request.HandleKeepAlive;
-import org.bboxdb.network.server.handler.request.HandleListTables;
-import org.bboxdb.network.server.handler.request.HandleNextPage;
+import org.bboxdb.network.server.handler.request.CancelQueryHandler;
+import org.bboxdb.network.server.handler.request.CompressionHandler;
+import org.bboxdb.network.server.handler.request.CreateDistributionGroupHandler;
+import org.bboxdb.network.server.handler.request.DeleteDistributionGroupHandler;
+import org.bboxdb.network.server.handler.request.DeleteTableHandler;
+import org.bboxdb.network.server.handler.request.DeleteTupleHandler;
+import org.bboxdb.network.server.handler.request.DisconnectHandler;
+import org.bboxdb.network.server.handler.request.HandshakeHandler;
+import org.bboxdb.network.server.handler.request.InsertTupleHandler;
+import org.bboxdb.network.server.handler.request.KeepAliveHandler;
+import org.bboxdb.network.server.handler.request.ListTablesHandler;
+import org.bboxdb.network.server.handler.request.NextPageHandler;
 import org.bboxdb.network.server.handler.request.RequestHandler;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -485,18 +485,18 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 */
 	protected void initRequestHandlerMap() {
 		requestHandlers = new HashMap<>();
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_HELLO, new HandleHandshake());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_COMPRESSION, new HandleCompression());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_DISCONNECT, new HandleDisconnect());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_TABLE, new HandleDeleteTable());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_TUPLE, new HandleDeleteTuple());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_LIST_TABLES, new HandleListTables());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_INSERT_TUPLE, new HandleInsertTuple());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP, new HandleCreateDistributionGroup());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP, new HandleDeleteDistributionGroup());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_KEEP_ALIVE, new HandleKeepAlive());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_NEXT_PAGE, new HandleNextPage());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_CANCEL_QUERY, new HandleCancelQuery());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_HELLO, new HandshakeHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_COMPRESSION, new CompressionHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_DISCONNECT, new DisconnectHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_TABLE, new DeleteTableHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_TUPLE, new DeleteTupleHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_LIST_TABLES, new ListTablesHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_INSERT_TUPLE, new InsertTupleHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP, new CreateDistributionGroupHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP, new DeleteDistributionGroupHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_KEEP_ALIVE, new KeepAliveHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_NEXT_PAGE, new NextPageHandler());
+		requestHandlers.put(NetworkConst.REQUEST_TYPE_CANCEL_QUERY, new CancelQueryHandler());
 	}
 	
 	/**

@@ -20,54 +20,49 @@ package org.bboxdb.network.server.handler.request;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.bboxdb.network.NetworkConnectionState;
+import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.CancelQueryRequest;
+import org.bboxdb.network.packages.request.HelloRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
-import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleCancelQuery implements RequestHandler {
+public class HandshakeHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleCancelQuery.class);
+	private final static Logger logger = LoggerFactory.getLogger(HandshakeHandler.class);
 	
 
 	@Override
 	/**
-	 * Cancel the given query
+	 * Handle the handshake request
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Got cancel query package");
-		}
+		logger.info("Handshaking with: " + clientConnectionHandler.clientSocket.getInetAddress());
 		
-		try {
-			final CancelQueryRequest nextPagePackage = CancelQueryRequest.decodeTuple(encodedPackage);
-			logger.debug("Cancel query {} requested", nextPagePackage.getQuerySequence());
-			
-			if(! clientConnectionHandler.getActiveQueries().containsKey(packageSequence)) {
-				logger.error("Unable to cancel query {} - not found", packageSequence);
-				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
-			} else {
-				final ClientQuery clientQuery = clientConnectionHandler.getActiveQueries().remove(packageSequence);
-				clientQuery.close();
-				clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-			}
-		} catch (PackageEncodeException e) {
-			logger.warn("Error getting next page for a query", e);
+		try {	
+			final HelloRequest heloRequest = HelloRequest.decodeRequest(encodedPackage);
+			clientConnectionHandler.setConnectionCapabilities(heloRequest.getPeerCapabilities());
+
+			final HelloResponse responsePackage = new HelloResponse(packageSequence, NetworkConst.PROTOCOL_VERSION, clientConnectionHandler.getConnectionCapabilities());
+			clientConnectionHandler.writeResultPackage(responsePackage);
+
+			clientConnectionHandler.setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_OPEN);
+			return true;
+		} catch(Exception e) {
+			logger.warn("Error while reading network package", e);
 
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
+			return false;
 		}
-		
-		return true;
 	}
 }

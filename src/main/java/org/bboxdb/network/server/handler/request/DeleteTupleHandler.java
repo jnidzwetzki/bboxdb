@@ -24,56 +24,63 @@ import java.util.Collection;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.DeleteTableRequest;
+import org.bboxdb.network.packages.request.DeleteTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleDeleteTable implements RequestHandler {
+public class DeleteTupleHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleDeleteTable.class);
+	private final static Logger logger = LoggerFactory.getLogger(DeleteTupleHandler.class);
 	
 
 	@Override
 	/**
-	 * Handle the delete table call
+	 * Handle delete tuple package
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
+					throws IOException, PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Got delete table package");
+			logger.debug("Got delete tuple package");
 		}
 		
-		try {			
-			final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);
-			final SSTableName requestTable = deletePackage.getTable();
-			logger.info("Got delete call for table: " + requestTable);
-			
+		try {
+			final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
+			final SSTableName requestTable = deleteTupleRequest.getTable();
+
 			// Send the call to the storage manager
 			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
 			final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
-			
+
 			for(final SSTableName ssTableName : localTables) {
-				clientConnectionHandler.getStorageRegistry().deleteTable(ssTableName);	
+				
+				final SSTableManager storageManager = clientConnectionHandler
+						.getStorageRegistry()
+						.getSSTableManager(ssTableName);
+				
+				storageManager.delete(deleteTupleRequest.getKey(), deleteTupleRequest.getTimestamp());
 			}
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		} catch (StorageManagerException | PackageEncodeException e) {
+		} catch (PackageEncodeException | StorageManagerException | RejectedException e) {
 			logger.warn("Error while delete tuple", e);
 
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
-		}
-		
+		} 
+
 		return true;
 	}
 }

@@ -21,33 +21,49 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.packages.request.NextPageRequest;
+import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
+import org.bboxdb.network.server.ErrorMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleKeepAlive implements RequestHandler {
+public class NextPageHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleKeepAlive.class);
+	private final static Logger logger = LoggerFactory.getLogger(NextPageHandler.class);
 	
 
 	@Override
 	/**
-	 * Handle the keep alive package. Simply send a success response package back
+	 * Handle the next page package
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Got keep alive package");
+			logger.debug("Got next page package");
 		}
 		
-		final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
-		clientConnectionHandler.writeResultPackage(responsePackage);
+		try {
+			final NextPageRequest nextPagePackage = NextPageRequest.decodeTuple(encodedPackage);
+			logger.debug("Next page for query {} called", nextPagePackage.getQuerySequence());
+			
+			// Send tuples as result for original query
+			clientConnectionHandler.sendNextResultsForQuery(packageSequence, nextPagePackage.getQuerySequence());
+
+		} catch (PackageEncodeException e) {
+			logger.warn("Error getting next page for a query", e);
+			final ErrorResponse errorResponse = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
+			clientConnectionHandler.writeResultPackage(errorResponse);	
+		}
+		
 		return true;
+		
 	}
+	
+	
 }

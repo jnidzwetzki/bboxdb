@@ -18,42 +18,42 @@
 package org.bboxdb.network.server.handler.request;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.List;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.ListTablesResponse;
+import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.server.ClientConnectionHandler;
-import org.bboxdb.storage.entity.SSTableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleListTables implements RequestHandler {
+public class CompressionHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleListTables.class);
+	private final static Logger logger = LoggerFactory.getLogger(CompressionHandler.class);
 	
 
 	@Override
 	/**
-	 * Handle list tables package
+	 * Handle compressed packages. Uncompress envelope and handle package
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
-					throws IOException, PackageEncodeException {
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Got list tables request");
+		try {
+			final InputStream compressedDataStream = CompressionEnvelopeRequest.decodePackage(encodedPackage);
+						
+			while(compressedDataStream.available() > 0) {
+				clientConnectionHandler.handleNextPackage(compressedDataStream);
+			}
+			
+		} catch (IOException e) {
+			logger.error("Got an exception while handling compression", e);
+		} catch (PackageEncodeException e) {
+			logger.error("Got an exception while handling compression", e);
 		}
-		
-		final List<SSTableName> allTables = clientConnectionHandler
-				.getStorageRegistry()
-				.getAllTables();
-		
-		final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
-		clientConnectionHandler.writeResultPackage(listTablesResponse);
 		
 		return true;
 	}

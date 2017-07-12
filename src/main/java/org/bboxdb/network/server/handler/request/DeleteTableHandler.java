@@ -19,54 +19,57 @@ package org.bboxdb.network.server.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 
-import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.RegionIdMapper;
+import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
+import org.bboxdb.network.packages.request.DeleteTableRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
+import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.SSTableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleDeleteDistributionGroup implements RequestHandler {
+public class DeleteTableHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleDeleteDistributionGroup.class);
+	private final static Logger logger = LoggerFactory.getLogger(DeleteTableHandler.class);
 	
 
 	@Override
 	/**
-	 * Delete an existing distribution group
+	 * Handle the delete table call
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("Got delete distribution group package");
+			logger.debug("Got delete table package");
 		}
 		
-		try {
-			final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
-			logger.info("Delete distribution group: " + deletePackage.getDistributionGroup());
+		try {			
+			final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);
+			final SSTableName requestTable = deletePackage.getTable();
+			logger.info("Got delete call for table: " + requestTable);
 			
-			// Delete in Zookeeper
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			distributionGroupZookeeperAdapter.deleteDistributionGroup(deletePackage.getDistributionGroup());
+			// Send the call to the storage manager
+			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 			
-			// Delete local stored data
-			final DistributionGroupName distributionGroupName = new DistributionGroupName(deletePackage.getDistributionGroup());
-			clientConnectionHandler.getStorageRegistry().deleteAllTablesInDistributionGroup(distributionGroupName);
+			for(final SSTableName ssTableName : localTables) {
+				clientConnectionHandler.getStorageRegistry().deleteTable(ssTableName);	
+			}
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		} catch (Exception e) {
-			logger.warn("Error while delete distribution group", e);
-			
+		} catch (StorageManagerException | PackageEncodeException e) {
+			logger.warn("Error while delete tuple", e);
+
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
 		}

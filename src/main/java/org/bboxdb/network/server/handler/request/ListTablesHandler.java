@@ -19,33 +19,42 @@ package org.bboxdb.network.server.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.packages.response.ListTablesResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
+import org.bboxdb.storage.entity.SSTableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleDisconnect implements RequestHandler {
+public class ListTablesHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleDisconnect.class);
+	private final static Logger logger = LoggerFactory.getLogger(ListTablesHandler.class);
 	
 
 	@Override
 	/**
-	 * Handle the disconnect request
+	 * Handle list tables package
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
 		
-		logger.info("Got disconnect package, preparing for connection close: "  
-				+ clientConnectionHandler.clientSocket.getInetAddress());
+		if(logger.isDebugEnabled()) {
+			logger.debug("Got list tables request");
+		}
 		
-		clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		return false;
+		final List<SSTableName> allTables = clientConnectionHandler
+				.getStorageRegistry()
+				.getAllTables();
+		
+		final ListTablesResponse listTablesResponse = new ListTablesResponse(packageSequence, allTables);
+		clientConnectionHandler.writeResultPackage(listTablesResponse);
+		
+		return true;
 	}
 }

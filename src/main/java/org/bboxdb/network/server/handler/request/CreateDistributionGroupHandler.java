@@ -36,12 +36,12 @@ import org.bboxdb.network.server.ErrorMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HandleCreateDistributionGroup implements RequestHandler {
+public class CreateDistributionGroupHandler implements RequestHandler {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(HandleCreateDistributionGroup.class);
+	private final static Logger logger = LoggerFactory.getLogger(CreateDistributionGroupHandler.class);
 	
 
 	@Override
