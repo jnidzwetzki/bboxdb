@@ -137,7 +137,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 	}
 	
 	/**
-	 * Filter ununable instances
+	 * Filter unusable instances
 	 * @return
 	 */
 	protected abstract Predicate<? super DistributedInstance> getUnusableSystemsFilterPredicate();
