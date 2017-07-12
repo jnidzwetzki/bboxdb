@@ -84,10 +84,6 @@ public class LowUtilizationResourcePlacementStrategy extends ResourcePlacementSt
 	protected DistributedInstance getSystemWithLowestUsage(final List<DistributedInstance> availableSystems, 
 			final Multiset<DistributedInstance> systemUsage) throws ResourceAllocationException {
 		
-		if(availableSystems.isEmpty()) {
-			throw new ResourceAllocationException("Unable to choose a system, list of systems is empty");
-		}
-		
 		DistributedInstance possibleSystem = null;
 		
 		for(final DistributedInstance distributedInstance : availableSystems) {
