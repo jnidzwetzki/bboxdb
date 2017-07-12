@@ -43,13 +43,14 @@ public class RandomResourcePlacementStrategy extends ResourcePlacementStrategy {
 	}
 	
 	@Override
-	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems, final Collection<DistributedInstance> blacklist) throws ResourceAllocationException {
+	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems, 
+			final Collection<DistributedInstance> blacklist) throws ResourceAllocationException {
 		
 		if(systems.isEmpty()) {
 			throw new ResourceAllocationException("Unable to choose a system, list of systems is empty");
 		}
 		
-		final List<DistributedInstance> availableSystems = new ArrayList<DistributedInstance>(systems);
+		final List<DistributedInstance> availableSystems = new ArrayList<>(systems);
 		availableSystems.removeAll(blacklist);
 		removeAllNonReadySystems(availableSystems);
 		
