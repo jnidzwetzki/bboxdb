@@ -131,8 +131,6 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 		int result = 1;
 		result = prime * result + ((ip == null) ? 0 : ip.hashCode());
 		result = prime * result + port;
-		result = prime * result + ((state == null) ? 0 : state.hashCode());
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
 		return result;
 	}
 
@@ -151,13 +149,6 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 		} else if (!ip.equals(other.ip))
 			return false;
 		if (port != other.port)
-			return false;
-		if (state != other.state)
-			return false;
-		if (version == null) {
-			if (other.version != null)
-				return false;
-		} else if (!version.equals(other.version))
 			return false;
 		return true;
 	}
