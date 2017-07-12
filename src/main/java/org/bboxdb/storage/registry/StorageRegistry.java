@@ -229,9 +229,10 @@ public class StorageRegistry implements BBoxDBService {
 		sstableLocations.values().forEach(v -> usage.add(v));
 		
 		// Return the lowest usage
-		return usage.elementSet().stream()
-			.reduce((a,b) -> usage.count(a) < usage.count(b) ? a : b)
-			.get();
+		return usage.entrySet().stream()
+			.reduce((a,b) -> a.getCount() < b.getCount() ? a : b)
+			.get()
+			.getElement();
 	}
 	
 	/**
