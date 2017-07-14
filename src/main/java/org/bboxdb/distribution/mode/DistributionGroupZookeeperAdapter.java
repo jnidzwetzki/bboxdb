@@ -259,7 +259,9 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param replicationFactor
 	 * @throws ZookeeperException 
 	 */
-	public void createDistributionGroup(final String distributionGroup, final short replicationFactor) throws ZookeeperException {
+	public void createDistributionGroup(final String distributionGroup, final short replicationFactor,
+			final int regionSize, final String placementStrategy, final String spacePartitioner,
+			final String spacePartitonerconfig) throws ZookeeperException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
 		
@@ -281,7 +283,11 @@ public class DistributionGroupZookeeperAdapter {
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.ACTIVE.getStringValue().getBytes());
-
+		
+		setRegionSizeForDistributionGroup(distributionGroup, regionSize);
+		setPlacementStrategyForDistributionGroup(distributionGroup, placementStrategy);
+		setSpacePartitionerForDistributionGroup(distributionGroup, spacePartitioner);
+		setSpacePartitionerConfigForDistributionGroup(distributionGroup, spacePartitonerconfig);
 	}
 	
 	/**
