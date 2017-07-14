@@ -33,8 +33,7 @@ import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.misc.BBoxDBConfiguration;
-import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
@@ -135,9 +134,16 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			return false;
 		}
 		
-		final long maxSize = getRegionMaxSize();
+		long maxSize;
+		try {
+			maxSize = getRegionMaxSizeInMB();
+			return (((sizeOfRegion / 1024) / 1024) > maxSize);
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
+			logger.error("Unable to read max size from zookeeper", e);
+		} 
 		
-		return (sizeOfRegion > maxSize);
+		// Return after exception
+		return false;
 	}
 	
 	/**
@@ -158,10 +164,12 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	/**
 	 * Get maximal size of a region
 	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
 	 */
-	protected long getRegionMaxSize() {
-		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-		return configuration.getRegionMaxSize();
+	protected long getRegionMaxSizeInMB() throws ZookeeperException, ZookeeperNotFoundException {
+		final String fullname = region.getDistributionGroupName().getFullname();
+		return distributionGroupZookeeperAdapter.getRegionSizeForDistributionGroup(fullname);
 	}
 	
 	/**
@@ -423,7 +431,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			logger.info("Set split for {} at: {}", region.getIdentifier(), splitPosition);
 			treeAdapter.splitNode(region, splitPosition);
 			assertChildIsReady(region);
-		} catch (ZookeeperException | ResourceAllocationException e) {
+		} catch (ZookeeperException | ResourceAllocationException | ZookeeperNotFoundException e) {
 			logger.warn("Unable to split region " + region.getIdentifier() + " at " + splitPosition, e);
 		} 
 	}

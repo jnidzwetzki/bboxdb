@@ -88,7 +88,9 @@ public interface BBoxDB {
 	 * @return
 	 */
 	public EmptyResultFuture createDistributionGroup(
-			final String distributionGroup, final short replicationFactor) throws BBoxDBException;
+			final String distributionGroup, final short replicationFactor,
+			final int regionSize, final String placementStrategy, 
+			final String spacePartitioner, final String spacePartitionerConfig) throws BBoxDBException;
 
 	/**
 	 * Delete a distribution group

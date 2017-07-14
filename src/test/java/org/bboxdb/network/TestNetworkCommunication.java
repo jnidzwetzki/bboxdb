@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
@@ -210,7 +211,10 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
+				REPLICATION_FACTOR, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
+				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		

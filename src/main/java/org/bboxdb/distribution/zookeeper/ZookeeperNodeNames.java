@@ -66,6 +66,26 @@ public class ZookeeperNodeNames {
 	/**
 	 * Name of the state node
 	 */
-	public final static String NAME_SYSTEMS_STATE = "state";	
+	public final static String NAME_SYSTEMS_STATE = "state";
+
+	/**
+	 * Name of the space partitioner node
+	 */
+	public static final String NAME_SPACEPARTITIONER = "spacepartitioner";
+
+	/**
+	 * Name of the space partitioner config node
+	 */
+	public static final String NAME_SPACEPARTITIONER_CONFIG = "spacepartitionerconfig";
+
+	/**
+	 * Name of the placement strategy node
+	 */
+	public static final String NAME_PLACEMENT_STRATEGY = "placement";
+
+	/**
+	 * Name of the region size node
+	 */
+	public static final String NAME_REGION_SIZE = "regionsize";	
 	
 }

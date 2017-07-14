@@ -200,10 +200,11 @@ public class TestZookeeperIntegration {
 	 * Test the distribution of changes in the zookeeper structure (reading data from the second object)
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
+	 * @throws ZookeeperNotFoundException 
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testDistributionRegionSplitWithZookeeperPropergate() throws ZookeeperException, InterruptedException {
+	public void testDistributionRegionSplitWithZookeeperPropergate() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
@@ -236,10 +237,11 @@ public class TestZookeeperIntegration {
 	 * Test the distribution of changes in the zookeeper structure (reading data from the second object)
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
+	 * @throws ZookeeperNotFoundException 
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testDistributionRegionSplitWithZookeeperPropergate2() throws ZookeeperException, InterruptedException {
+	public void testDistributionRegionSplitWithZookeeperPropergate2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
@@ -344,10 +346,11 @@ public class TestZookeeperIntegration {
 	 * Test the set and get checkpoint methods
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
+	 * @throws ZookeeperNotFoundException 
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testSystemCheckpoint2() throws ZookeeperException, InterruptedException {
+	public void testSystemCheckpoint2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		final DistributedInstance systemName1 = new DistributedInstance("192.168.1.10:5050");
 		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
 
@@ -422,10 +425,11 @@ public class TestZookeeperIntegration {
 	 * Test the generation of the nameprefix
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
+	 * @throws ZookeeperNotFoundException 
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testNameprefix2() throws ZookeeperException, InterruptedException {
+	public void testNameprefix2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
  		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		
@@ -520,10 +524,13 @@ public class TestZookeeperIntegration {
 	 * Test the deletion and the creation of an instance
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
+	 * @throws ZookeeperNotFoundException 
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testCreateAndDeleteDistributionGroup() throws ZookeeperException, InterruptedException {
+	public void testCreateAndDeleteDistributionGroup() 
+			throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
+		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, (short) 3); 
 		final KDtreeZookeeperAdapter cacheGroup = DistributionGroupCache.getGroupForGroupName(TEST_GROUP, zookeeperClient);

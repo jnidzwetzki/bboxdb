@@ -209,7 +209,9 @@ public class BBoxDBCluster implements BBoxDB {
 	}
 
 	@Override
-	public EmptyResultFuture createDistributionGroup(final String distributionGroup, final short replicationFactor) throws BBoxDBException {
+	public EmptyResultFuture createDistributionGroup(final String distributionGroup, 
+			final short replicationFactor, final int regionSize, final String placementStrategy, 
+			final String spacePartitioner, final String spacePartitionerConfig) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("createDistributionGroup called, but connection list is empty");
@@ -217,7 +219,9 @@ public class BBoxDBCluster implements BBoxDB {
 
 		try {
 			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
-			return bboxdbClient.createDistributionGroup(distributionGroup, replicationFactor);
+			return bboxdbClient.createDistributionGroup(distributionGroup, replicationFactor, 
+					regionSize, placementStrategy, spacePartitioner, spacePartitionerConfig);
+			
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);
 			return FutureHelper.getFailedEmptyResultFuture();

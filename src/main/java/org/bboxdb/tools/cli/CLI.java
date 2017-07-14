@@ -38,6 +38,7 @@ import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
@@ -47,6 +48,7 @@ import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
+import org.bboxdb.util.MathUtil;
 import org.bboxdb.util.io.TupleFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -580,15 +582,38 @@ public class CLI implements Runnable, AutoCloseable {
 			
 		checkRequiredArgs(requiredArgs);
 		
+		int regionSize = Const.DEFAULT_REGION_SIZE;
+		String resourcePlacement = Const.DEFAULT_PLACEMENT_STRATEGY;
+		String spacePartitioner = Const.DEFAULT_SPACE_PARTITIONER;
+		String spacePartitionerConfig = Const.DEFAULT_SPACE_PARTITIONER_CONFIG;
+		
 		final String distributionGroup = line.getOptionValue(CLIParameter.DISTRIBUTION_GROUP);
 		final String replicationFactorString = line.getOptionValue(CLIParameter.REPLICATION_FACTOR);
+		
+		if(line.hasOption(CLIParameter.REGION_SIZE)) {
+			final String regionSizeString = line.getOptionValue(CLIParameter.REGION_SIZE);
+			regionSize = MathUtil.tryParseIntOrExit(regionSizeString);
+		}
+		
+		if(line.hasOption(CLIParameter.RESOURCE_PLACEMENT)) {
+			resourcePlacement = line.getOptionValue(CLIParameter.RESOURCE_PLACEMENT);
+		}
+		
+		if(line.hasOption(CLIParameter.SPACE_PARTITIONER)) {
+			spacePartitioner = line.getOptionValue(CLIParameter.SPACE_PARTITIONER);
+		}
+		
+		if(line.hasOption(CLIParameter.SPACE_PARTITIONER_CONFIG)) {
+			spacePartitionerConfig = line.getOptionValue(CLIParameter.SPACE_PARTITIONER_CONFIG);
+		}
 		
 		System.out.println("Create new distribution group: " + distributionGroup);
 		
 		try {
 			final int replicationFactor = Integer.parseInt(replicationFactorString);
 			final EmptyResultFuture future = bboxDbConnection.createDistributionGroup(
-					distributionGroup, (short) replicationFactor);
+					distributionGroup, (short) replicationFactor, regionSize, 
+					resourcePlacement, spacePartitioner, spacePartitionerConfig);
 			
 			future.waitForAll();
 			
@@ -685,7 +710,39 @@ public class CLI implements Runnable, AutoCloseable {
 				.build();
 		options.addOption(replicationFactor);
 		
-		// Replication factor
+		// Region size
+		final Option regionSize = Option.builder(CLIParameter.REGION_SIZE)
+				.hasArg()
+				.argName("region size (in MB)")
+				.desc("Default: " + Const.DEFAULT_REGION_SIZE)
+				.build();
+		options.addOption(regionSize);
+		
+		// Resource placement
+		final Option resourcePlacement = Option.builder(CLIParameter.RESOURCE_PLACEMENT)
+				.hasArg()
+				.argName("ressource placement")
+				.desc("Default: " + Const.DEFAULT_PLACEMENT_STRATEGY)
+				.build();
+		options.addOption(resourcePlacement);
+		
+		// Space partitioner
+		final Option spacePartitioner = Option.builder(CLIParameter.SPACE_PARTITIONER)
+				.hasArg()
+				.argName("space partitioner")
+				.desc("Default: " + Const.DEFAULT_SPACE_PARTITIONER)
+				.build();
+		options.addOption(spacePartitioner);
+		
+		// Space partitioner
+		final Option spacePartitionerConfig = Option.builder(CLIParameter.SPACE_PARTITIONER_CONFIG)
+				.hasArg()
+				.argName("space partitioner configuration")
+				.desc("Default: " + Const.DEFAULT_SPACE_PARTITIONER_CONFIG)
+				.build();
+		options.addOption(spacePartitionerConfig);
+		
+		// Filename
 		final Option file = Option.builder(CLIParameter.FILE)
 				.hasArg()
 				.argName("file")

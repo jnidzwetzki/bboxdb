@@ -115,17 +115,3 @@ zookeepernodes: ['node1:2181', 'node2:2181', 'node3:2181']
 # Default: org.bboxdb.distribution.regionsplit.WeightBasedSplitStrategy
 # regionSplitStrategy: org.bboxdb.distribution.regionsplit.WeightBasedSplitStrategy
 
-# The max size of a region in bytes
-# Default: 256MB
-# regionMaxSize: 268435456
-
-# The resource placement strategy
-# Default: org.bboxdb.distribution.placement.RandomResourcePlacementStrategy
-# 
-# Supported values:
-# org.bboxdb.distribution.placement.RandomResourcePlacementStrategy
-# org.bboxdb.distribution.placement.RoundRobinResourcePlacementStrategy
-# org.bboxdb.distribution.placement.LowUtilizationResourcePlacementStrategy
-#
-# resourcePlacementStrategy: org.bboxdb.distribution.placement.RandomResourcePlacementStrategy
-

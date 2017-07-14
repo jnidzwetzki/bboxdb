@@ -314,8 +314,11 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * @param splitPosition
 	 * @throws ZookeeperException
 	 * @throws ResourceAllocationException 
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public void splitNode(final DistributionRegion regionToSplit, final double splitPosition) throws ZookeeperException, ResourceAllocationException {
+	public void splitNode(final DistributionRegion regionToSplit, final double splitPosition) 
+			throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException {
+		
 		logger.debug("Write split at pos {} into zookeeper", splitPosition);
 		final String zookeeperPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
 		
@@ -406,8 +409,9 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * @param zookeeperClient
 	 * @throws ZookeeperException
 	 * @throws ResourceAllocationException
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public void allocateSystemsToNewRegion(final DistributionRegion region) throws ZookeeperException, ResourceAllocationException {
+	public void allocateSystemsToNewRegion(final DistributionRegion region) throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException {
 		
 		final String distributionGroupName = region.getDistributionGroupName().getFullname();
 		final short replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroupName);
@@ -415,7 +419,11 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 		final List<DistributedInstance> availableSystems = distributedInstanceManager.getInstances();
 		
-		final ResourcePlacementStrategy resourcePlacementStrategy = ResourcePlacementStrategyFactory.getInstance();
+		final String placementStrategy = distributionGroupZookeeperAdapter
+				.getPlacementStrategyForDistributionGroup(distributionGroupName);
+		
+		final ResourcePlacementStrategy resourcePlacementStrategy 
+			= ResourcePlacementStrategyFactory.getInstance(placementStrategy);
 
 		if(resourcePlacementStrategy == null) {
 			throw new ResourceAllocationException("Unable to instanciate the ressource "

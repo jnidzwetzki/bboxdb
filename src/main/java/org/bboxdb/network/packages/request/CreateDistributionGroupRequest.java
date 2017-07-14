@@ -36,17 +36,44 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 	protected final String distributionGroup;
 	
 	/**
+	 * The max size of the region
+	 */
+	protected final int regionSize;
+	
+	/**
 	 * The replication factor for the distribution group
 	 */
 	protected final short replicationFactor;
 
+	/** 
+	 * The placement strategy
+	 */
+	protected final String placementStrategy;
+
+	/**
+	 * The space partitioner
+	 */
+	protected final String spacePartitioner;
+	
+	/**
+	 * The space partitioner configuration
+	 */
+	protected final String spacePartitionerConfig;
+
+
 	public CreateDistributionGroupRequest(final short sequencNumber,
-			final String distributionGroup, final short replicationFactor) {
+			final String distributionGroup, final short replicationFactor,
+			final int regionSize, final String placementStrategy, 
+			final String spacePartitioner, final String spacePartitionerConfig) {
 		
 		super(sequencNumber);
 		
 		this.distributionGroup = distributionGroup;
+		this.regionSize = regionSize;
 		this.replicationFactor = replicationFactor;
+		this.placementStrategy = placementStrategy;
+		this.spacePartitioner = spacePartitioner;
+		this.spacePartitionerConfig = spacePartitionerConfig;
 	}
 	
 	@Override
@@ -54,14 +81,23 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 
 		try {
 			final byte[] groupBytes = distributionGroup.getBytes();
-			
-			final ByteBuffer bb = ByteBuffer.allocate(4);
+			final byte[] placementBytes = placementStrategy.getBytes();
+			final byte[] spacePartitionierBytes = spacePartitioner.getBytes();
+			final byte[] spacePartitionierConfigBytes = spacePartitionerConfig.getBytes();
+
+			final ByteBuffer bb = ByteBuffer.allocate(16);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
-			bb.putShort((short) groupBytes.length);
 			bb.putShort(replicationFactor);
+			bb.putShort((short) groupBytes.length);
+			bb.putShort((short) placementBytes.length);
+			bb.putShort((short) spacePartitionierBytes.length);
+			bb.putInt((int) spacePartitionierConfigBytes.length);
+			bb.putInt(regionSize);
 			
 			// Body length
-			final long bodyLength = bb.capacity() + groupBytes.length;
+			final long bodyLength = bb.capacity() + groupBytes.length 
+					+ placementBytes.length + spacePartitionierBytes.length
+					+ spacePartitionierConfigBytes.length;
 
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
@@ -69,7 +105,11 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 			
 			// Write body
 			outputStream.write(bb.array());
-			outputStream.write(groupBytes);			
+			outputStream.write(groupBytes);	
+			outputStream.write(placementBytes);			
+			outputStream.write(spacePartitionierBytes);			
+			outputStream.write(spacePartitionierConfigBytes);			
+
 		} catch (IOException e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}
@@ -91,18 +131,39 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 			throw new PackageEncodeException("Unable to decode package");
 		}
 		
-		final short groupLength = encodedPackage.getShort();
 		final short replicationFactor = encodedPackage.getShort();
+		final short groupLength = encodedPackage.getShort();
+		final short placementLength = encodedPackage.getShort();
+		final short spacePartitionerLength = encodedPackage.getShort();
+		final int spacePartitionerConfigLength = encodedPackage.getInt();
+		final int regionSize = encodedPackage.getInt();
 		
+		// Distribution group
 		final byte[] groupBytes = new byte[groupLength];
 		encodedPackage.get(groupBytes, 0, groupBytes.length);
 		final String distributionGroup = new String(groupBytes);
+		
+		// Placement strategy
+		final byte[] placementBytes = new byte[placementLength];
+		encodedPackage.get(placementBytes, 0, placementBytes.length);
+		final String placemeneStrategy = new String(placementBytes);
+		
+		// Space partitioner
+		final byte[] spacePartitionerBytes = new byte[spacePartitionerLength];
+		encodedPackage.get(spacePartitionerBytes, 0, spacePartitionerBytes.length);
+		final String spacePartitioner = new String(spacePartitionerBytes);
+		
+		// Space partitioner configuration
+		final byte[] spacePartitionerConfigBytes = new byte[spacePartitionerConfigLength];
+		encodedPackage.get(spacePartitionerConfigBytes, 0, spacePartitionerConfigBytes.length);
+		final String spacePartitionerConfig = new String(spacePartitionerConfigBytes);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new CreateDistributionGroupRequest(sequenceNumber, distributionGroup, replicationFactor);
+		return new CreateDistributionGroupRequest(sequenceNumber, distributionGroup, replicationFactor, 
+				regionSize, placemeneStrategy, spacePartitioner, spacePartitionerConfig);
 	}
 
 	@Override
@@ -118,14 +179,34 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 		return replicationFactor;
 	}
 
+	public String getPlacementStrategy() {
+		return placementStrategy;
+	}
+
+	public int getRegionSize() {
+		return regionSize;
+	}
+	
+	public String getSpacePartitioner() {
+		return spacePartitioner;
+	}
+	
+	public String getSpacePartitionerConfig() {
+		return spacePartitionerConfig;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((distributionGroup == null) ? 0 : distributionGroup.hashCode());
+		result = prime * result + ((placementStrategy == null) ? 0 : placementStrategy.hashCode());
+		result = prime * result + regionSize;
+		result = prime * result + replicationFactor;
+		result = prime * result + ((spacePartitioner == null) ? 0 : spacePartitioner.hashCode());
+		result = prime * result + ((spacePartitionerConfig == null) ? 0 : spacePartitionerConfig.hashCode());
 		return result;
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {
@@ -141,7 +222,25 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 				return false;
 		} else if (!distributionGroup.equals(other.distributionGroup))
 			return false;
+		if (placementStrategy == null) {
+			if (other.placementStrategy != null)
+				return false;
+		} else if (!placementStrategy.equals(other.placementStrategy))
+			return false;
+		if (regionSize != other.regionSize)
+			return false;
+		if (replicationFactor != other.replicationFactor)
+			return false;
+		if (spacePartitioner == null) {
+			if (other.spacePartitioner != null)
+				return false;
+		} else if (!spacePartitioner.equals(other.spacePartitioner))
+			return false;
+		if (spacePartitionerConfig == null) {
+			if (other.spacePartitionerConfig != null)
+				return false;
+		} else if (!spacePartitionerConfig.equals(other.spacePartitionerConfig))
+			return false;
 		return true;
 	}
-
 }

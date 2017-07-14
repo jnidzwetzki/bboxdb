@@ -268,7 +268,11 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeCreateDistributionGroup() throws IOException, PackageEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final CreateDistributionGroupRequest groupPackage = new CreateDistributionGroupRequest(sequenceNumber, "test", (short) 3);
+		final String spacePartitionerConfig = "abcd";
+		
+		final CreateDistributionGroupRequest groupPackage = new CreateDistributionGroupRequest(sequenceNumber, 
+				"test", (short) 3, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
+				Const.DEFAULT_SPACE_PARTITIONER, spacePartitionerConfig);
 		
 		byte[] encodedVersion = networkPackageToByte(groupPackage);
 		Assert.assertNotNull(encodedVersion);
@@ -278,6 +282,10 @@ public class TestNetworkClasses {
 				
 		Assert.assertEquals(groupPackage.getDistributionGroup(), decodedPackage.getDistributionGroup());
 		Assert.assertEquals(groupPackage.getReplicationFactor(), decodedPackage.getReplicationFactor());
+		Assert.assertEquals(Const.DEFAULT_REGION_SIZE, decodedPackage.getRegionSize());
+		Assert.assertEquals(Const.DEFAULT_PLACEMENT_STRATEGY, decodedPackage.getPlacementStrategy());
+		Assert.assertEquals(Const.DEFAULT_SPACE_PARTITIONER, decodedPackage.getSpacePartitioner());
+		Assert.assertEquals(spacePartitionerConfig, decodedPackage.getSpacePartitionerConfig());
 		Assert.assertEquals(groupPackage, decodedPackage);
 	}
 	

@@ -49,6 +49,26 @@ public class Const {
 	public final static long MAX_NODE_CLOCK_DELTA = TimeUnit.SECONDS.toMicros(60);
 	
 	/**
+	 * The default placement strategy
+	 */
+	public final static String DEFAULT_PLACEMENT_STRATEGY = "org.bboxdb.distribution.placement.RandomResourcePlacementStrategy";
+	
+	/**
+	 * The default space partitioner
+	 */
+	public final static String DEFAULT_SPACE_PARTITIONER = "org.bboxdb.distribution.mode.KDtreeZookeeperAdapter";
+	
+	/**
+	 * The default space partitioner configuration
+	 */
+	public final static String DEFAULT_SPACE_PARTITIONER_CONFIG = "";
+	
+	/**
+	 * The default region size in MB
+	 */
+	public final static int DEFAULT_REGION_SIZE = 256;
+	
+	/**
 	 * Max tuples in uncompressed queue
 	 */
 	public static final int MAX_UNCOMPRESSED_QUEUE_SIZE = 200;

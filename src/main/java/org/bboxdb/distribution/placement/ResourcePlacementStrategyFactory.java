@@ -17,8 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.distribution.placement;
 
-import org.bboxdb.misc.BBoxDBConfiguration;
-import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,32 +31,29 @@ public class ResourcePlacementStrategyFactory {
 	 * Get an instance of the configured factory
 	 * @return
 	 */
-	public static ResourcePlacementStrategy getInstance() {
+	public static ResourcePlacementStrategy getInstance(final String placementStrategy) {
 		
-		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
-		final String factoryClass = configuration.getResourcePlacementStrategy();
-		
-		if("none".equals(factoryClass)) {
+		if("none".equals(placementStrategy)) {
 			return null;
 		}
 		
 		// Instance the classname
 		try {
-			final Class<?> classObject = Class.forName(factoryClass);
+			final Class<?> classObject = Class.forName(placementStrategy);
 			
 			if(classObject == null) {
-				throw new ClassNotFoundException("Unable to locate class: " + factoryClass);
+				throw new ClassNotFoundException("Unable to locate class: " + placementStrategy);
 			}
 			
 			final Object factoryObject = classObject.newInstance();
 			
 			if(! (factoryObject instanceof ResourcePlacementStrategy)) {
-				throw new ClassNotFoundException(factoryClass + " is not a instance of ReplicationStrategy");
+				throw new ClassNotFoundException(placementStrategy + " is not a instance of ReplicationStrategy");
 			}
 			
 			return (ResourcePlacementStrategy) factoryObject;			
 		} catch (Exception e) {
-			logger.warn("Unable to instance class: " + factoryClass, e);
+			logger.warn("Unable to instance class: " + placementStrategy, e);
 			throw new RuntimeException(e);
 		} 
 	}

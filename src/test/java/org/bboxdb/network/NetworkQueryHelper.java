@@ -19,6 +19,7 @@ package org.bboxdb.network;
 
 import java.util.List;
 
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
@@ -43,7 +44,9 @@ public class NetworkQueryHelper {
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
 	 */
-	public static void executeBoudingboxAndTimeQuery(final BBoxDB bboxDBClient) throws BBoxDBException, InterruptedException {
+	public static void executeBoudingboxAndTimeQuery(final BBoxDB bboxDBClient) 
+			throws BBoxDBException, InterruptedException {
+		
 		final String distributionGroup = "2_testgroup"; 
 		final String table = distributionGroup + "_relation9999";
 		
@@ -53,7 +56,10 @@ public class NetworkQueryHelper {
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
+				REPLICATION_FACTOR, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
+				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
@@ -89,7 +95,9 @@ public class NetworkQueryHelper {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	public static void testBoundingBoxQuery(final BBoxDB bboxDBClient) throws BBoxDBException, InterruptedException {
+	public static void testBoundingBoxQuery(final BBoxDB bboxDBClient) 
+			throws BBoxDBException, InterruptedException {
+		
 		System.out.println("=== Running testInsertAndBoundingBoxQuery");
 		final String distributionGroup = "2_testgroup"; 
 		final String table = distributionGroup + "_relation9999";
@@ -100,7 +108,10 @@ public class NetworkQueryHelper {
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
+				REPLICATION_FACTOR, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
+				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		
@@ -131,7 +142,9 @@ public class NetworkQueryHelper {
 		System.out.println("=== End testInsertAndBoundingBoxQuery");
 	}
 
-	public static void testInsertAndDeleteTuple(final BBoxDB bboxDBClient) throws BBoxDBException, InterruptedException {
+	public static void testInsertAndDeleteTuple(final BBoxDB bboxDBClient) 
+			throws BBoxDBException, InterruptedException {
+		
 		System.out.println("=== Running testInsertAndDelete");
 
 		final String distributionGroup = "1_testgroupdel"; 
@@ -146,7 +159,10 @@ public class NetworkQueryHelper {
 		
 		// Create distribution group
 		System.out.println("Create distribution group");
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, REPLICATION_FACTOR);
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
+				REPLICATION_FACTOR, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
+				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
 		

@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
@@ -70,7 +71,10 @@ public class BBoxDBClientExample {
 		}
 		
 		// Create a new distribution group
-		final EmptyResultFuture createGroupResult = bboxdbClient.createDistributionGroup(distributionGroup, (short) 3);
+		final EmptyResultFuture createGroupResult = bboxdbClient.createDistributionGroup(distributionGroup, 
+				(short) 3, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
+				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+		
 		createGroupResult.waitForAll();
 		if(createGroupResult.isFailed()) {
 			System.err.println("Unable to create distribution group: " + distributionGroup);

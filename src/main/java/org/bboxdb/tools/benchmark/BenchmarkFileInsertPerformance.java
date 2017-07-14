@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.storage.entity.Tuple;
@@ -112,7 +113,10 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final EmptyResultFuture createResult = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, replicationFactor);
+		final EmptyResultFuture createResult = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, 
+				replicationFactor, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
+				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+		
 		createResult.waitForAll();
 	}
 	

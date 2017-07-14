@@ -55,6 +55,26 @@ public class CLIParameter {
 	protected static final String REPLICATION_FACTOR = "replicationfactor";
 	
 	/**
+	 * Resource placement strategy
+	 */
+	protected static final String REGION_SIZE = "regionsize";
+	
+	/**
+	 * Resource placement strategy
+	 */
+	protected static final String RESOURCE_PLACEMENT = "resourceplacement";
+	
+	/**
+	 * Space partitioner
+	 */
+	protected static final String SPACE_PARTITIONER = "spacepartitioner";
+	
+	/**
+	 * Space partitioner configuration
+	 */
+	protected static final String SPACE_PARTITIONER_CONFIG = "spacepconfig";
+	
+	/**
 	 * Filename
 	 */
 	protected static final String FILE  = "file";

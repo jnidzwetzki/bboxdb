@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
@@ -108,7 +109,10 @@ public class DistributedSelftest {
 		Thread.sleep(5000);
 		
 		logger.info("Create new distribution group: " + DISTRIBUTION_GROUP);
-		final EmptyResultFuture createFuture = bboxdbCluster.createDistributionGroup(DISTRIBUTION_GROUP, (short) 2);
+		final EmptyResultFuture createFuture = bboxdbCluster.createDistributionGroup(DISTRIBUTION_GROUP, 
+				(short) 2, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
+				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+		
 		createFuture.waitForAll();
 		if(createFuture.isFailed()) {
 			logger.error("Unable to create distribution group: " + DISTRIBUTION_GROUP);

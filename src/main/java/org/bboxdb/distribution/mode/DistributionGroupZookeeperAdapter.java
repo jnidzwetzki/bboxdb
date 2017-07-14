@@ -661,4 +661,122 @@ public class DistributionGroupZookeeperAdapter {
 			throw new ZookeeperException("Unable to parse name prefix '" + namePrefix + "' for " + namePrefixPath);
 		}		
 	}
+	
+	/**
+	 * Set the distribution mode
+	 * @param distributionGroup
+	 * @throws ZookeeperException 
+	 */
+	public void setSpacePartitionerForDistributionGroup(final String distributionGroup, 
+			final String partitioner) throws ZookeeperException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String spacePartitionerPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER;
+		zookeeperClient.replacePersistentNode(spacePartitionerPath, partitioner.getBytes());
+	}
+	
+	/**
+	 * Get the distribution mode
+	 * @param distributionGroup
+	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public String getSpacePartitionerForDistributionGroup(final String distributionGroup) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String spacePartitionerPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER;
+		return zookeeperClient.readPathAndReturnString(spacePartitionerPath, false, null);
+	}
+	
+	/**
+	 * Set the distribution mode
+	 * @param distributionGroup
+	 * @throws ZookeeperException 
+	 */
+	public void setSpacePartitionerConfigForDistributionGroup(final String distributionGroup, 
+			final String config) throws ZookeeperException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String spacePartitionerConfigPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER_CONFIG;
+		zookeeperClient.replacePersistentNode(spacePartitionerConfigPath, config.getBytes());
+	}
+	
+	/**
+	 * Get the distribution mode
+	 * @param distributionGroup
+	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public String getSpacePartitionerConfigForDistributionGroup(final String distributionGroup) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String spacePartitionerConfigPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER_CONFIG;
+		return zookeeperClient.readPathAndReturnString(spacePartitionerConfigPath, false, null);
+	}
+	
+	/**
+	 * Set the placement strategy
+	 * @param distributionGroup
+	 * @throws ZookeeperException 
+	 */
+	public void setPlacementStrategyForDistributionGroup(final String distributionGroup, 
+			final String strategy) throws ZookeeperException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String placementPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_STRATEGY;
+		zookeeperClient.replacePersistentNode(placementPath, strategy.getBytes());
+	}
+	
+	/**
+	 * Get the placement strategy
+	 * @param distributionGroup
+	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public String getPlacementStrategyForDistributionGroup(final String distributionGroup) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String placementPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_STRATEGY;
+		return zookeeperClient.readPathAndReturnString(placementPath, false, null);
+	}
+	
+	/**
+	 * Set the region size
+	 * @param regionSize
+	 * @throws ZookeeperException 
+	 */
+	public void setRegionSizeForDistributionGroup(final String distributionGroup, final int regionSize) 
+			throws ZookeeperException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String regionSizePath = path + "/" + ZookeeperNodeNames.NAME_REGION_SIZE;
+		zookeeperClient.replacePersistentNode(regionSizePath, Integer.toString(regionSize).getBytes());
+	}
+	
+	/**
+	 * Get the region size
+	 * @return
+	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
+	 */
+	public int getRegionSizeForDistributionGroup(final String distributionGroup) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String regionSizePath = path + "/" + ZookeeperNodeNames.NAME_REGION_SIZE;
+		final String sizeString = zookeeperClient.readPathAndReturnString(regionSizePath, false, null);
+
+		try {
+			return Integer.parseInt(sizeString);
+		} catch(NumberFormatException e) {
+			logger.warn("Unable to parse number: " + sizeString, e);
+			throw new ZookeeperException(e);
+		}
+	}
 }

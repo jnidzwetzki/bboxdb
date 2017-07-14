@@ -42,11 +42,6 @@ public class BBoxDBConfiguration {
 	 * Size of the memtable in bytes
 	 */
 	protected long memtableSizeMax = 128 * 1024 * 1014;
-	
-	/**
-	 * The maximum size of a region in bytes
-	 */
-	protected long regionMaxSize = 256 * 1024 * 1014;
 
 	/**
 	 * Number of memtable flush threads per storage
@@ -97,11 +92,6 @@ public class BBoxDBConfiguration {
 	 * The sstable split strategy
 	 */
 	protected String regionSplitStrategy = "org.bboxdb.distribution.regionsplit.SamplingBasedSplitStrategy";
-
-	/**
-	 * The resource placement strategy
-	 */
-	protected String resourcePlacementStrategy = "org.bboxdb.distribution.placement.RandomResourcePlacementStrategy";
 
 	/**
 	 * The Logger
@@ -180,28 +170,12 @@ public class BBoxDBConfiguration {
 		this.regionSplitStrategy = regionSplitStrategy;
 	}
 
-	public String getResourcePlacementStrategy() {
-		return resourcePlacementStrategy;
-	}
-
-	public void setResourcePlacementStrategy(final String resourcePlacementStrategy) {
-		this.resourcePlacementStrategy = resourcePlacementStrategy;
-	}
-
 	public int getStorageCheckpointInterval() {
 		return storageCheckpointInterval;
 	}
 
 	public void setStorageCheckpointInterval(final int storageCheckpointInterval) {
 		this.storageCheckpointInterval = storageCheckpointInterval;
-	}
-
-	public long getRegionMaxSize() {
-		return regionMaxSize;
-	}
-
-	public void setRegionMaxSize(final long regionMaxSize) {
-		this.regionMaxSize = regionMaxSize;
 	}
 
 	public List<String> getStorageDirectories() {
