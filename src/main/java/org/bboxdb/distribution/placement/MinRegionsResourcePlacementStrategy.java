@@ -25,13 +25,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multiset;
 
-public class LowUtilizationResourcePlacementStrategy extends AbstractUtilizationPlacementStrategy {
+public class MinRegionsResourcePlacementStrategy extends AbstractUtilizationPlacementStrategy {
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(LowUtilizationResourcePlacementStrategy.class);
+	protected final static Logger logger = LoggerFactory.getLogger(MinRegionsResourcePlacementStrategy.class);
 	
-	public LowUtilizationResourcePlacementStrategy() {
+	public MinRegionsResourcePlacementStrategy() {
 
 	}
 	
