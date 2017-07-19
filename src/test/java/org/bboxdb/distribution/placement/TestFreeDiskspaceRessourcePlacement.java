@@ -33,7 +33,7 @@ public class TestFreeDiskspaceRessourcePlacement extends TestRandomRessourcePlac
 	 */
 	@Override
 	public ResourcePlacementStrategy getPlacementStrategy() {
-		return new FreeDiskspacePlacementStrategy();
+		return new MaxFreeDiskspacePlacementStrategy();
 	}
 
 	/**

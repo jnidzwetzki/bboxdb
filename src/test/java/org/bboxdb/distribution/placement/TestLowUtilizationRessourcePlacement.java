@@ -42,7 +42,7 @@ public class TestLowUtilizationRessourcePlacement extends TestRandomRessourcePla
 	@Override
 	public ResourcePlacementStrategy getPlacementStrategy() {
 		
-		return new LowUtilizationResourcePlacementStrategy() {
+		return new MinRegionsResourcePlacementStrategy() {
 			@Override
 			protected Multiset<DistributedInstance> calculateSystemUsage() {
 				return utilization;

@@ -25,30 +25,31 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multiset;
 
-public class MemoryUtilizationPlacementStrategy extends AbstractUtilizationPlacementStrategy {
+public class CoreUtilizationPlacementStrategy extends AbstractUtilizationPlacementStrategy {
+	
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(MemoryUtilizationPlacementStrategy.class);
+	protected final static Logger logger = LoggerFactory.getLogger(CoreUtilizationPlacementStrategy.class);
 	
-	public MemoryUtilizationPlacementStrategy() {
+	public CoreUtilizationPlacementStrategy() {
 
 	}
 	
 	/**
-	 * Calculate the memory / instance usage factor
+	 * Calculate the cpu core / instance usage factor
 	 * @param systemUsage
 	 * @param distributedInstance
 	 * @return
 	 */
 	protected double calculateUsageFactor(final Multiset<DistributedInstance> systemUsage,
 			final DistributedInstance distributedInstance) {
-		return distributedInstance.getMemory() / systemUsage.count(distributedInstance);
-	}
-	
-	@Override
-	protected Predicate<? super DistributedInstance> getUnusableSystemsFilterPredicate() {
-		return i -> (i.getMemory() > 0);
+		
+		return distributedInstance.getCpuCores() / systemUsage.count(distributedInstance);
 	}
 
+	@Override
+	protected Predicate<? super DistributedInstance> getUnusableSystemsFilterPredicate() {
+		return i -> (i.getCpuCores() > 0);
+	}
 }

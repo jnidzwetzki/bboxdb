@@ -42,7 +42,7 @@ public class TestCPUCoreUtilizationRessourcePlacement extends TestRandomRessourc
 	@Override
 	public AbstractUtilizationPlacementStrategy getPlacementStrategy() {
 		
-		return new CPUCoreUtilizationPlacementStrategy() {
+		return new CoreUtilizationPlacementStrategy() {
 			@Override
 			protected Multiset<DistributedInstance> calculateSystemUsage() {
 				return utilization;

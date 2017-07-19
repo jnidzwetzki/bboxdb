@@ -42,7 +42,7 @@ public class TestMemoryUtilizationRessourcePlacement extends TestRandomRessource
 	@Override
 	public AbstractUtilizationPlacementStrategy getPlacementStrategy() {
 		
-		return new MemoryUtilizationPlacementStrategy() {
+		return new MemoryUtilizationFreePlacementStrategy() {
 			@Override
 			protected Multiset<DistributedInstance> calculateSystemUsage() {
 				return utilization;

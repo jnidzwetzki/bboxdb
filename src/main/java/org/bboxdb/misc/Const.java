@@ -54,6 +54,11 @@ public class Const {
 	public final static String DEFAULT_PLACEMENT_STRATEGY = "org.bboxdb.distribution.placement.RandomResourcePlacementStrategy";
 	
 	/**
+	 * The default placement configuration
+	 */	
+	public final static String DEFAULT_PLACEMENT_CONFIG = "";
+
+	/**
 	 * The default space partitioner
 	 */
 	public final static String DEFAULT_SPACE_PARTITIONER = "org.bboxdb.distribution.mode.KDtreeZookeeperAdapter";

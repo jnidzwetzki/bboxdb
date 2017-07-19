@@ -25,14 +25,14 @@ import org.bboxdb.distribution.membership.DistributedInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FreeDiskspacePlacementStrategy extends ResourcePlacementStrategy {
+public class MaxFreeDis	kspacePlacementStrategy extends ResourcePlacementStrategy {
 
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(FreeDiskspacePlacementStrategy.class);
+	protected final static Logger logger = LoggerFactory.getLogger(MaxFreeDiskspacePlacementStrategy.class);
 	
-	public FreeDiskspacePlacementStrategy() {
+	public MaxFreeDiskspacePlacementStrategy() {
 	}
 	
 	@Override
