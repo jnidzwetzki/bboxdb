@@ -25,7 +25,7 @@ import org.bboxdb.distribution.membership.DistributedInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MaxFreeDis	kspacePlacementStrategy extends ResourcePlacementStrategy {
+public class MaxFreeDiskspacePlacementStrategy extends ResourcePlacementStrategy {
 
 	/**
 	 * The Logger
