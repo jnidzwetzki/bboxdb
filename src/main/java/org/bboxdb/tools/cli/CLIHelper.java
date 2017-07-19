@@ -33,7 +33,7 @@ public class CLIHelper {
 	public static String getParameterOrDefault(final CommandLine line, 
 			final String parameterName, final String defaultValue) {
 		
-		return line.hasOption(CLIParameter.REGION_SIZE) 
+		return line.hasOption(parameterName) 
 				? line.getOptionValue(parameterName)
 				: defaultValue;
 	}
