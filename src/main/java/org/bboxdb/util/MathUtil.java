@@ -38,11 +38,21 @@ public class MathUtil {
      * @return
      */
     public static int tryParseIntOrExit(final String valueToParse) {
+    	return tryParseIntOrExit(valueToParse, "Unable to convert to integer: " + valueToParse);
+    }
+    
+    /**
+     * Try to convert the given string into an integer
+     * @param valueToParse
+     * @param errorMessage
+     * @return
+     */
+    public static int tryParseIntOrExit(final String valueToParse, final String errorMessage) {
     	try {
 			final int parsedInteger = Integer.parseInt(valueToParse);
 			return parsedInteger;
 		} catch (NumberFormatException e) {
-			System.err.println("Unable to convert to integer: " + valueToParse);
+			System.err.println();
 			System.exit(-1);
 		}
     	

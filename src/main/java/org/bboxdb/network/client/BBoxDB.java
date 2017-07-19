@@ -89,7 +89,7 @@ public interface BBoxDB {
 	 */
 	public EmptyResultFuture createDistributionGroup(
 			final String distributionGroup, final short replicationFactor,
-			final int regionSize, final String placementStrategy, 
+			final int regionSize, final String placementStrategy, final String placementStrategyConfig,
 			final String spacePartitioner, final String spacePartitionerConfig) throws BBoxDBException;
 
 	/**

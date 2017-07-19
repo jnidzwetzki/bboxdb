@@ -115,7 +115,8 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 		// Create a new distribution group
 		final EmptyResultFuture createResult = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, 
 				replicationFactor, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+				Const.DEFAULT_PLACEMENT_CONFIG, Const.DEFAULT_SPACE_PARTITIONER, 
+				Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
 		
 		createResult.waitForAll();
 	}

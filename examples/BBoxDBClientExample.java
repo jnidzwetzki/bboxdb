@@ -73,7 +73,8 @@ public class BBoxDBClientExample {
 		// Create a new distribution group
 		final EmptyResultFuture createGroupResult = bboxdbClient.createDistributionGroup(distributionGroup, 
 				(short) 3, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+				Const.DEFAULT_PLACEMENT_CONFIG, Const.DEFAULT_SPACE_PARTITIONER, 
+				Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
 		
 		createGroupResult.waitForAll();
 		if(createGroupResult.isFailed()) {

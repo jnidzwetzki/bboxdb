@@ -559,8 +559,8 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public EmptyResultFuture createDistributionGroup(final String distributionGroup, 
 			final short replicationFactor, final int regionSize,
-			final String placementStrategy, final String spacePartitioner,
-			final String spacePartitionerConfig) {
+			final String placementStrategy, final String placementStrategyConfig,
+			final String spacePartitioner, final String spacePartitionerConfig) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedFuture("listTables called, but connection not ready: " + this);
@@ -569,7 +569,8 @@ public class BBoxDBClient implements BBoxDB {
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 		final CreateDistributionGroupRequest requestPackage = new CreateDistributionGroupRequest(
 				getNextSequenceNumber(), distributionGroup, 
-				replicationFactor, regionSize, placementStrategy, spacePartitioner, 
+				replicationFactor, regionSize, placementStrategy, 
+				placementStrategyConfig, spacePartitioner, 
 				spacePartitionerConfig);
 		
 		registerPackageCallback(requestPackage, clientOperationFuture);

@@ -260,8 +260,8 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 */
 	public void createDistributionGroup(final String distributionGroup, final short replicationFactor,
-			final int regionSize, final String placementStrategy, final String spacePartitioner,
-			final String spacePartitonerconfig) throws ZookeeperException {
+			final int regionSize, final String placementStrategy, final String placementConfig,
+			final String spacePartitioner, final String spacePartitonerconfig) throws ZookeeperException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
 		
@@ -286,6 +286,7 @@ public class DistributionGroupZookeeperAdapter {
 		
 		setRegionSizeForDistributionGroup(distributionGroup, regionSize);
 		setPlacementStrategyForDistributionGroup(distributionGroup, placementStrategy);
+		setPlacementConfigForDistributionGroup(distributionGroup, placementConfig);
 		setSpacePartitionerForDistributionGroup(distributionGroup, spacePartitioner);
 		setSpacePartitionerConfigForDistributionGroup(distributionGroup, spacePartitonerconfig);
 	}
@@ -751,6 +752,35 @@ public class DistributionGroupZookeeperAdapter {
 		final String placementPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_STRATEGY;
 		return zookeeperClient.readPathAndReturnString(placementPath, false, null);
 	}
+	
+	/**
+	 * Set the placement config
+	 * @param distributionGroup
+	 * @throws ZookeeperException 
+	 */
+	public void setPlacementConfigForDistributionGroup(final String distributionGroup, 
+			final String config) throws ZookeeperException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String spacePartitionerConfigPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_CONFIG;
+		zookeeperClient.replacePersistentNode(spacePartitionerConfigPath, config.getBytes());
+	}
+	
+	/**
+	 * Get the placement config
+	 * @param distributionGroup
+	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public String getPlacementConfigConfigForDistributionGroup(final String distributionGroup) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String spacePartitionerConfigPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_CONFIG;
+		return zookeeperClient.readPathAndReturnString(spacePartitionerConfigPath, false, null);
+	}
+	
 	
 	/**
 	 * Set the region size

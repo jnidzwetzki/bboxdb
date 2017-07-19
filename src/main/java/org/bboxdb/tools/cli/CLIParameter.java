@@ -65,6 +65,11 @@ public class CLIParameter {
 	protected static final String RESOURCE_PLACEMENT = "resourceplacement";
 	
 	/**
+	 * Resource placement config
+	 */
+	protected static final String RESOURCE_PLACEMENT_CONFIG = "resourcepconfig";
+	
+	/**
 	 * Space partitioner
 	 */
 	protected static final String SPACE_PARTITIONER = "spacepartitioner";

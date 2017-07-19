@@ -82,10 +82,15 @@ public class ZookeeperNodeNames {
 	 * Name of the placement strategy node
 	 */
 	public static final String NAME_PLACEMENT_STRATEGY = "placement";
+	
+	/**
+	 * The placement strategy config
+	 */
+	public static final String NAME_PLACEMENT_CONFIG = "placementconfig";	
 
 	/**
 	 * Name of the region size node
 	 */
-	public static final String NAME_REGION_SIZE = "regionsize";	
+	public static final String NAME_REGION_SIZE = "regionsize";
 	
 }

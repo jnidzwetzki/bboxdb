@@ -213,7 +213,8 @@ public class TestNetworkCommunication {
 		// Create distribution group
 		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
 				REPLICATION_FACTOR, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+				Const.DEFAULT_PLACEMENT_CONFIG, Const.DEFAULT_SPACE_PARTITIONER, 
+				Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());

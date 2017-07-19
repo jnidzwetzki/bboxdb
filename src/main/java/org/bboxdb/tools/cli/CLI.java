@@ -582,38 +582,38 @@ public class CLI implements Runnable, AutoCloseable {
 			
 		checkRequiredArgs(requiredArgs);
 		
-		int regionSize = Const.DEFAULT_REGION_SIZE;
-		String resourcePlacement = Const.DEFAULT_PLACEMENT_STRATEGY;
-		String spacePartitioner = Const.DEFAULT_SPACE_PARTITIONER;
-		String spacePartitionerConfig = Const.DEFAULT_SPACE_PARTITIONER_CONFIG;
+		final String regionSizeString = CLIHelper.getParameterOrDefault(
+				line, CLIParameter.REGION_SIZE, Integer.toString(Const.DEFAULT_REGION_SIZE));
 		
+		final int regionSize = MathUtil.tryParseIntOrExit(regionSizeString, 
+				"Unable to parse the region size: " + regionSizeString);
+		
+		final String resourcePlacement = CLIHelper.getParameterOrDefault(
+				line, CLIParameter.RESOURCE_PLACEMENT, Const.DEFAULT_PLACEMENT_STRATEGY);
+		
+		final String resourcePlacementConfig = CLIHelper.getParameterOrDefault(
+				line, CLIParameter.RESOURCE_PLACEMENT_CONFIG, Const.DEFAULT_PLACEMENT_CONFIG);
+		
+		final String spacePartitioner = CLIHelper.getParameterOrDefault(
+				line, CLIParameter.SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER);
+		
+		final String spacePartitionerConfig = CLIHelper.getParameterOrDefault(
+				line, CLIParameter.SPACE_PARTITIONER_CONFIG, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+
 		final String distributionGroup = line.getOptionValue(CLIParameter.DISTRIBUTION_GROUP);
+		
 		final String replicationFactorString = line.getOptionValue(CLIParameter.REPLICATION_FACTOR);
 		
-		if(line.hasOption(CLIParameter.REGION_SIZE)) {
-			final String regionSizeString = line.getOptionValue(CLIParameter.REGION_SIZE);
-			regionSize = MathUtil.tryParseIntOrExit(regionSizeString);
-		}
-		
-		if(line.hasOption(CLIParameter.RESOURCE_PLACEMENT)) {
-			resourcePlacement = line.getOptionValue(CLIParameter.RESOURCE_PLACEMENT);
-		}
-		
-		if(line.hasOption(CLIParameter.SPACE_PARTITIONER)) {
-			spacePartitioner = line.getOptionValue(CLIParameter.SPACE_PARTITIONER);
-		}
-		
-		if(line.hasOption(CLIParameter.SPACE_PARTITIONER_CONFIG)) {
-			spacePartitionerConfig = line.getOptionValue(CLIParameter.SPACE_PARTITIONER_CONFIG);
-		}
+		final int replicationFactor =  MathUtil.tryParseIntOrExit(replicationFactorString, 
+				"This is not a valid replication factor: " + replicationFactorString);
 		
 		System.out.println("Create new distribution group: " + distributionGroup);
 		
 		try {
-			final int replicationFactor = Integer.parseInt(replicationFactorString);
 			final EmptyResultFuture future = bboxDbConnection.createDistributionGroup(
 					distributionGroup, (short) replicationFactor, regionSize, 
-					resourcePlacement, spacePartitioner, spacePartitionerConfig);
+					resourcePlacement, resourcePlacementConfig, spacePartitioner, 
+					spacePartitionerConfig);
 			
 			future.waitForAll();
 			
@@ -622,9 +622,6 @@ public class CLI implements Runnable, AutoCloseable {
 						+ future.getAllMessages());
 			}
 			
-		} catch(NumberFormatException e) {
-			System.err.println("This is not a valid replication factor: " + replicationFactorString);
-			System.exit(-1);
 		} catch (BBoxDBException e) {
 			System.err.println("Got an exception during distribution group creation: " + e);
 			System.exit(-1);
@@ -725,6 +722,14 @@ public class CLI implements Runnable, AutoCloseable {
 				.desc("Default: " + Const.DEFAULT_PLACEMENT_STRATEGY)
 				.build();
 		options.addOption(resourcePlacement);
+		
+		// Resource placement config
+		final Option resourcePlacementConfig = Option.builder(CLIParameter.RESOURCE_PLACEMENT_CONFIG)
+				.hasArg()
+				.argName("ressource placement config")
+				.desc("Default: " + Const.DEFAULT_PLACEMENT_CONFIG)
+				.build();
+		options.addOption(resourcePlacementConfig);
 		
 		// Space partitioner
 		final Option spacePartitioner = Option.builder(CLIParameter.SPACE_PARTITIONER)

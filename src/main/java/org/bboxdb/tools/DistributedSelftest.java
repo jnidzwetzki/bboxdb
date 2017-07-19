@@ -111,7 +111,8 @@ public class DistributedSelftest {
 		logger.info("Create new distribution group: " + DISTRIBUTION_GROUP);
 		final EmptyResultFuture createFuture = bboxdbCluster.createDistributionGroup(DISTRIBUTION_GROUP, 
 				(short) 2, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+				Const.DEFAULT_PLACEMENT_CONFIG, Const.DEFAULT_SPACE_PARTITIONER, 
+				Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
 		
 		createFuture.waitForAll();
 		if(createFuture.isFailed()) {
