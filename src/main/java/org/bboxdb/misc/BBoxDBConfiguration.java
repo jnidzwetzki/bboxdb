@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.bboxdb.util.InterfaceHelper;
+import org.bboxdb.util.NetworkInterfaceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +100,7 @@ public class BBoxDBConfiguration {
 
 	public BBoxDBConfiguration() {
 		try {
-			localip = InterfaceHelper.getFirstLoopbackIPv4();
+			localip = NetworkInterfaceHelper.getFirstLoopbackIPv4();
 		} catch (SocketException e) {
 			logger.warn("Unable to determine the local IP adress of this node, please specify 'localip' in the configuration", e);
 		}

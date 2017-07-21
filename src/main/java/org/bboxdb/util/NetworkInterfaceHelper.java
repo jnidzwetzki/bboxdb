@@ -27,7 +27,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class InterfaceHelper {
+public class NetworkInterfaceHelper {
 
 	/**
 	 * Get a list with non loopback ipv4 ips
@@ -53,7 +53,7 @@ public class InterfaceHelper {
 	}
 	
 	/**
-	 * Get the first loopback v4 ip addresss as string
+	 * Get the first loopback v4 ip address as string
 	 * @return
 	 * @throws SocketException 
 	 */
