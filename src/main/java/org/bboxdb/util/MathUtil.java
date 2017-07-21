@@ -19,7 +19,14 @@ package org.bboxdb.util;
 
 import java.util.function.Supplier;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class MathUtil {
+	
+	/**
+	 * The return value when parsing has failed and no exit is requested
+	 */
+	public static int RESULT_PARSE_FAILED_AND_NO_EXIT = -1;
 
 	/**
 	 * Round the given number of fractions
@@ -40,7 +47,19 @@ public class MathUtil {
      * @return
      */
     public static int tryParseIntOrExit(final String valueToParse) {
-    	return tryParseIntOrExit(valueToParse, () -> "Unable to convert to integer: " + valueToParse);
+    	return tryParseInt(valueToParse, () -> "Unable to convert to integer: " + valueToParse, true);
+    }
+    
+    /**
+     * Try to convert the given string into an integer
+     * @param valueToParse
+     * @param message
+     * @return
+     */
+    public static int tryParseIntOrExit(final String valueToParse, 
+    		final Supplier<String> errorMessageSupplier) {
+    	
+    	return tryParseInt(valueToParse, errorMessageSupplier, true);
     }
     
     /**
@@ -49,19 +68,22 @@ public class MathUtil {
      * @param errorMessageSupplier
      * @return
      */
-    public static int tryParseIntOrExit(final String valueToParse, 
-    		final Supplier<String> errorMessageSupplier) {
+    @VisibleForTesting
+    public static int tryParseInt(final String valueToParse, 
+    		final Supplier<String> errorMessageSupplier, final boolean exitOnException) {
     	
     	try {
 			final int parsedInteger = Integer.parseInt(valueToParse);
 			return parsedInteger;
 		} catch (NumberFormatException e) {
 			System.err.println(errorMessageSupplier.get());
-			System.exit(-1);
+			
+			if(exitOnException) {
+				System.exit(-1);
+			}
 		}
     	
-    	// Dead code
-    	return -1;
+    	return RESULT_PARSE_FAILED_AND_NO_EXIT;
     }
 
     
@@ -72,16 +94,41 @@ public class MathUtil {
      * @return
      */
     public static double tryParseDoubleOrExit(final String valueToParse) {
+    	return tryParseDouble(valueToParse, () -> "Unable to convert to double: " + valueToParse, true);
+    }
+    
+    /**
+     * Try to convert the given string into a double
+     * @param valueToParse
+     * @param message
+     * @return
+     */
+    public static double tryParseDoubleOrExit(final String valueToParse, 
+    		final Supplier<String> errorMessageSupplier) {
+    	
+    	return tryParseDouble(valueToParse, errorMessageSupplier, true);
+    }
+    
+    /**
+     * Try to convert the given string into a double
+     * @param valueToParse
+     * @param message
+     * @return
+     */
+    @VisibleForTesting
+    public static double tryParseDouble(final String valueToParse,
+    		final Supplier<String> errorMessageSupplier, final boolean exitOnException) {
     	try {
 			final double parsedInteger = Double.parseDouble(valueToParse);
 			return parsedInteger;
 		} catch (NumberFormatException e) {
-			System.err.println("Unable to convert to double: " + valueToParse);
-			System.exit(-1);
+			System.err.println(errorMessageSupplier.get());
+			
+			if(exitOnException) {
+				System.exit(-1);
+			}
 		}
     	
-    	// Dead code
-    	return -1;
+    	return RESULT_PARSE_FAILED_AND_NO_EXIT;
     }
-    
 }
