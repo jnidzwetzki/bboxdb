@@ -29,6 +29,7 @@ import javax.management.remote.JMXServiceURL;
 
 import org.bboxdb.jmx.JMXService;
 import org.bboxdb.jmx.LifecycleMBean;
+import org.bboxdb.util.MathUtil;
 
 /**
  * Shutdown the BBoxDB server via JMX
@@ -48,7 +49,9 @@ public class Shutdown {
 			System.exit(-1);
 		}
 
-		final int jmxPort = Integer.parseInt(args[0]);
+		final int jmxPort = MathUtil.tryParseIntOrExit(args[0], 
+				() -> args[0] + " is not a valid port");
+		
 		final String password = args[1];
 
 		// Set username and password
