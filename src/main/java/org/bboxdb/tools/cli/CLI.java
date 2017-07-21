@@ -586,7 +586,7 @@ public class CLI implements Runnable, AutoCloseable {
 				line, CLIParameter.REGION_SIZE, Integer.toString(Const.DEFAULT_REGION_SIZE));
 		
 		final int regionSize = MathUtil.tryParseIntOrExit(regionSizeString, 
-				"Unable to parse the region size: " + regionSizeString);
+				() -> "Unable to parse the region size: " + regionSizeString);
 		
 		final String resourcePlacement = CLIHelper.getParameterOrDefault(
 				line, CLIParameter.RESOURCE_PLACEMENT, Const.DEFAULT_PLACEMENT_STRATEGY);
@@ -605,7 +605,7 @@ public class CLI implements Runnable, AutoCloseable {
 		final String replicationFactorString = line.getOptionValue(CLIParameter.REPLICATION_FACTOR);
 		
 		final int replicationFactor =  MathUtil.tryParseIntOrExit(replicationFactorString, 
-				"This is not a valid replication factor: " + replicationFactorString);
+				() -> "This is not a valid replication factor: " + replicationFactorString);
 		
 		System.out.println("Create new distribution group: " + distributionGroup);
 		
