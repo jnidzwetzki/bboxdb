@@ -356,7 +356,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		}
 		
 		// Is at least result paged? So, we use the threaded iterator 
-		// that requets more tuples/pages in the background
+		// that requests more tuples/pages in the background
 		final boolean pagedResult = resultComplete.values().stream().anyMatch(e -> e == false);
 		
 		if(pagedResult) {

@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network;
+package org.bboxdb.tools;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

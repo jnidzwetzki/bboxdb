@@ -29,9 +29,10 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.TupleListFuture;
-import org.bboxdb.network.client.tools.FixedSizeFutureStore;
+import org.bboxdb.network.client.tools.TupleListFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
+import org.bboxdb.util.RejectedException;
 
 import com.google.common.base.Stopwatch;
 
@@ -68,7 +69,7 @@ public class TestBoundingBoxQuery implements Runnable {
 	protected final Random random;
 
 	/**
-	 * The amont of queries
+	 * The amount of queries
 	 */
 	protected final static int QUERIES = 1000;
 	
@@ -80,13 +81,8 @@ public class TestBoundingBoxQuery implements Runnable {
 	/**
 	 * The pending futures
 	 */
-	protected final FixedSizeFutureStore pendingFutures;
-	
-	/**
-	 * The amount of pending insert futures
-	 */
-	protected final static int MAX_PENDING_FUTURES = 20;
-	
+	protected final TupleListFutureStore pendingFutures;
+
 	public TestBoundingBoxQuery(final String filename, final String format, 
 			final String endpoint, String cluster, String tablename) {
 		this.filename = filename;
@@ -94,7 +90,7 @@ public class TestBoundingBoxQuery implements Runnable {
 		this.endpoint = endpoint;
 		this.cluster = cluster;
 		this.tablename = tablename;
-		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
+		this.pendingFutures = new TupleListFutureStore();
 		this.random = new Random(System.currentTimeMillis());
 	}
 	
@@ -151,9 +147,10 @@ public class TestBoundingBoxQuery implements Runnable {
 	 * @param bboxDBConnection 
 	 * @throws BBoxDBException 
 	 * @throws InterruptedException 
+	 * @throws RejectedException 
 	 */
 	protected void executeQueries(final double maxDimensionSize, final BoundingBox boundingBox, 
-			final BBoxDB bboxDBConnection) throws BBoxDBException, InterruptedException {
+			final BBoxDB bboxDBConnection) throws BBoxDBException, InterruptedException, RejectedException {
 		
 		for(int i = 0; i < QUERIES; i++) {
 			
