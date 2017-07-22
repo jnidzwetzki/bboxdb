@@ -109,6 +109,8 @@ public class TestBoundingBoxQuery implements Runnable {
 
 		final List<Double> experimentSize = Arrays.asList(0.001, 0.01, 0.1, 1.0);
 		experimentSize.forEach(e -> runExperiment(e, boundingBox, bboxDBConnection));
+		
+		pendingFutures.shutdown();
 	}
 
 	/**
