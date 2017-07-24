@@ -20,6 +20,7 @@ package org.bboxdb.network.client.response;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.NetworkOperationRetryer;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.AbstractBodyResponse;
@@ -49,7 +50,13 @@ public class ErrorHandler implements ServerResponseHandler {
 		
 		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
 		
-		if(pendingCall != null) {
+		boolean ableToRetryOperation = false;
+		final NetworkOperationRetryer networkOperationRetryer = bboxDBClient.getNetworkOperationRetryer();
+		if(networkOperationRetryer.isPackageIdKnown(result.getSequenceNumber())) {
+			ableToRetryOperation = networkOperationRetryer.handleFailure(result.getSequenceNumber());	
+		}
+		
+		if(pendingCall != null && ! ableToRetryOperation) {
 			pendingCall.setMessage(0, result.getBody());
 			pendingCall.setFailedState();
 			pendingCall.fireCompleteEvent();

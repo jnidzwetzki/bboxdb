@@ -112,12 +112,17 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * The result buffer
 	 */
-	private final Map<Short, List<Tuple>> resultBuffer = new HashMap<Short, List<Tuple>>();
+	protected final Map<Short, List<Tuple>> resultBuffer = new HashMap<Short, List<Tuple>>();
+	
+	/**
+	 * The retryer
+	 */
+	protected final NetworkOperationRetryer networkOperationRetryer;
 	
 	/**
 	 * The server response reader
 	 */
-	private ServerResponseReader serverResponseReader;
+	protected ServerResponseReader serverResponseReader;
 	
 	/**
 	 * The server response reader thread
@@ -202,9 +207,15 @@ public class BBoxDBClient implements BBoxDB {
 		tuplesPerPage = 50;
 		pendingCompressionPackages = new ArrayList<>();
 		serverResponseHandler = new HashMap<>();
+		
+		networkOperationRetryer = new NetworkOperationRetryer((p, f) -> {sendPackageToServer(p, f);});
+		
 		initResponseHandler();
 	}
 
+	/**
+	 * Init the response handler
+	 */
 	protected void initResponseHandler() {
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_COMPRESSION, new CompressionHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_HELLO, new HelloHandler());
@@ -501,6 +512,9 @@ public class BBoxDBClient implements BBoxDB {
 				routingHeader, 
 				ssTableName, 
 				tuple);
+		
+		networkOperationRetryer.registerOperation(sequenceNumber, 
+				requestPackage, clientOperationFuture);
 		
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
@@ -839,6 +853,7 @@ public class BBoxDBClient implements BBoxDB {
 					pendingCalls.wait();
 				}	
 			}
+			
 		} catch(InterruptedException e) {
 			logger.warn("Got an exception while waiting for pending requests", e);
 			Thread.currentThread().interrupt();
@@ -1075,7 +1090,19 @@ public class BBoxDBClient implements BBoxDB {
 		this.tuplesPerPage = tuplesPerPage;
 	}
 
+	/**
+	 * Get the result buffer
+	 * @return
+	 */
 	public Map<Short, List<Tuple>> getResultBuffer() {
 		return resultBuffer;
+	}
+	
+	/**
+	 * Get the network operation retryer
+	 * @return
+	 */
+	public NetworkOperationRetryer getNetworkOperationRetryer() {
+		return networkOperationRetryer;
 	}
 }

@@ -17,10 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.network;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.NetworkOperationRetryer;
+import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +32,17 @@ public class TestNetworkOperationRetryer {
 	/**
 	 * The do nothing consumer
 	 */
-	protected Consumer<NetworkRequestPackage> doNothingConsumer = (p) -> {};
+	protected BiConsumer<NetworkRequestPackage, OperationFuture> doNothingConsumer = (p, f) -> {};
+	
+	/**
+	 * The empty package
+	 */
+	protected final NetworkRequestPackage emptyPackage = null;
+	
+	/**
+	 * The empty future
+	 */
+	protected final OperationFuture emptyFuture = null;
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testPackageNotFound() {
@@ -46,8 +57,8 @@ public class TestNetworkOperationRetryer {
 		final NetworkOperationRetryer retryer 
 			= new NetworkOperationRetryer(doNothingConsumer);
 
-		retryer.registerOperation((short) 12, null);
-		retryer.registerOperation((short) 12, null);
+		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
+		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
 	}
 	
 	@Test
@@ -55,54 +66,54 @@ public class TestNetworkOperationRetryer {
 		final NetworkOperationRetryer retryer 
 			= new NetworkOperationRetryer(doNothingConsumer);
 
-		retryer.registerOperation((short) 12, null);
+		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
 		retryer.clear();
-		retryer.registerOperation((short) 12, null);
+		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
 	}
 	
 	@Test
 	public void successOnFirst() {
 		final NetworkOperationRetryer retryer 
 			= new NetworkOperationRetryer(doNothingConsumer);
-		retryer.registerOperation((short) 12, null);
+		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
 		retryer.handleSuccess((short) 12);
 	}
 
 	@Test
 	public void retry() {
 		@SuppressWarnings("unchecked")
-		final Consumer<NetworkRequestPackage> consumer = Mockito.mock(Consumer.class);
+		final BiConsumer<NetworkRequestPackage, OperationFuture> consumer = Mockito.mock(BiConsumer.class);
 		
 		final NetworkOperationRetryer retryer 
 			= new NetworkOperationRetryer(consumer);
 		
-		retryer.registerOperation((short) 12, null);
+		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
 		
 		final boolean result = retryer.handleFailure((short) 12);
 		Assert.assertTrue(result);
-		(Mockito.verify(consumer, Mockito.atLeastOnce())).accept(null);
+		(Mockito.verify(consumer, Mockito.atLeastOnce())).accept(emptyPackage, emptyFuture);
 	}
 	
 	@Test
 	public void retryUntilEnd() {
 		@SuppressWarnings("unchecked")
-		final Consumer<NetworkRequestPackage> consumer = Mockito.mock(Consumer.class);
+		final BiConsumer<NetworkRequestPackage, OperationFuture> consumer = Mockito.mock(BiConsumer.class);
 		
 		final NetworkOperationRetryer retryer 
 			= new NetworkOperationRetryer(consumer);
 		
-		retryer.registerOperation((short) 12, null);
+		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
 		
 		for(int i = 0; i< Const.OPERATION_RETRY; i++) {
 			final boolean result = retryer.handleFailure((short) 12);
 			Assert.assertTrue(result);
-			(Mockito.verify(consumer, Mockito.times(i + 1))).accept(null);
+			(Mockito.verify(consumer, Mockito.times(i + 1))).accept(emptyPackage, emptyFuture);
 		}
 		
 		final boolean result = retryer.handleFailure((short) 12);
 		Assert.assertFalse(result);
 		
 		// Failed, we assume the operation is removed
-		retryer.registerOperation((short) 12, null);
+		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
 	}
 }

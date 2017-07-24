@@ -19,9 +19,10 @@ package org.bboxdb.network.client;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.bboxdb.misc.Const;
+import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 
 public class NetworkOperationRetryer {
@@ -31,9 +32,12 @@ public class NetworkOperationRetryer {
 	 */
 	protected final Map<Short, RetryPackageEntity> packages = new HashMap<>();
 	
-	protected final Consumer<NetworkRequestPackage> retryConsumer;
+	/**
+	 * The retry consumer
+	 */
+	protected final BiConsumer<NetworkRequestPackage, OperationFuture> retryConsumer;
 
-	public NetworkOperationRetryer(final Consumer<NetworkRequestPackage> retryConsumer) {
+	public NetworkOperationRetryer(final BiConsumer<NetworkRequestPackage, OperationFuture> retryConsumer) {
 		this.retryConsumer = retryConsumer;
 	}
 
@@ -42,14 +46,25 @@ public class NetworkOperationRetryer {
 	 * @param packageId
 	 * @param networkPackage
 	 */
-	public void registerOperation(final short packageId, final NetworkRequestPackage networkPackage) {
+	public void registerOperation(final short packageId, final NetworkRequestPackage networkPackage, 
+			final OperationFuture future) {
+		
 		final Short packageIdShort = Short.valueOf(packageId);
 
-		if(packages.containsKey(packageIdShort)) {
+		if(isPackageIdKnown(packageIdShort)) {
 			throw new IllegalArgumentException("Package is already known: " + packageId);
 		}
 		
-		packages.put(packageIdShort, new RetryPackageEntity(networkPackage));
+		packages.put(packageIdShort, new RetryPackageEntity(networkPackage, future));
+	}
+
+	/**
+	 * Is the package id known
+	 * @param packageIdShort
+	 * @return
+	 */
+	public boolean isPackageIdKnown(final Short packageIdShort) {
+		return packages.containsKey(packageIdShort);
 	}
 	
 	/**
@@ -68,7 +83,7 @@ public class NetworkOperationRetryer {
 	public boolean handleFailure(final short packageId) {
 		final Short packageIdShort = Short.valueOf(packageId);
 		
-		if(! packages.containsKey(packageIdShort)) {
+		if(! isPackageIdKnown(packageIdShort)) {
 			throw new IllegalArgumentException("Package is now known: " + packageId);
 		}
 		
@@ -76,7 +91,7 @@ public class NetworkOperationRetryer {
 		
 		if(retryPackageEntity.getRetryCounter() < Const.OPERATION_RETRY) {
 			retryPackageEntity.increaseRetryCounter();
-			retryConsumer.accept(retryPackageEntity.getNetworkPackage());
+			retryConsumer.accept(retryPackageEntity.getNetworkPackage(), retryPackageEntity.getFuture());
 			return true;
 		} else {
 			// Retry failed, remove
@@ -106,8 +121,14 @@ class RetryPackageEntity {
 	 */
 	protected short retryCounter;
 	
-	public RetryPackageEntity(final NetworkRequestPackage networkPackage) {
+	/**
+	 * The future
+	 */
+	protected OperationFuture future;
+	
+	public RetryPackageEntity(final NetworkRequestPackage networkPackage, OperationFuture future) {
 		this.networkPackage = networkPackage;
+		this.future = future;
 		this.retryCounter = 0;
 	}
 	
@@ -121,5 +142,9 @@ class RetryPackageEntity {
 	
 	public void increaseRetryCounter() {
 		retryCounter++;
+	}
+	
+	public OperationFuture getFuture() {
+		return future;
 	}
 }
