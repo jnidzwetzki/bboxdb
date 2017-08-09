@@ -19,6 +19,7 @@ package org.bboxdb.tools.experiments;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,13 +41,8 @@ public class TestKDTreeSplit implements Runnable {
 	/**
 	 * The file to import
 	 */
-	protected final String filename;
-	
-	/**
-	 * The format of the input file
-	 */
-	protected String format;
-	
+	protected final Map<String, String> filesAndFormats;
+
 	/**
 	 * The elements
 	 */
@@ -77,18 +73,16 @@ public class TestKDTreeSplit implements Runnable {
 	 */
 	protected final List<Integer> experimentSize;
 	
-	public TestKDTreeSplit(final String filename, final String format, final List<Integer> experimentSize) {
-		this.filename = filename;
-		this.format = format;
+	public TestKDTreeSplit(Map<String, String> filesAndFormats, List<Integer> experimentSize) {
+		this.filesAndFormats = filesAndFormats;
 		this.experimentSize = experimentSize;
 		this.elements = new HashMap<>();
 		this.boxDimension = new HashMap<>();
 		this.random = new Random(System.currentTimeMillis());
 	}
-	
+
 	@Override
 	public void run() {
-		System.out.format("Reading %s\n", filename);
 		experimentSize.forEach(e -> runExperiment(e));
 	}
 
@@ -103,17 +97,23 @@ public class TestKDTreeSplit implements Runnable {
 		elements.clear();	
 		boxDimension.clear();
 		
-		final TupleFileReader tupleFile = new TupleFileReader(filename, format);
-		
-		tupleFile.addTupleListener(t -> {
-			insertNextBoundingBox(t.getBoundingBox(), maxRegionSize);
-		});
-		
-		try {
-			tupleFile.processFile();
-		} catch (IOException e) {
-			System.err.println("Got an IOException during experiment: "+ e);
-			System.exit(-1);
+		for(Entry<String, String> elements : filesAndFormats.entrySet()) {
+			final String filename = elements.getKey();
+			final String format = elements.getValue();
+			
+			System.out.println("Processing file: " + filename);
+			final TupleFileReader tupleFile = new TupleFileReader(filename, format);
+			
+			tupleFile.addTupleListener(t -> {
+				insertNextBoundingBox(t.getBoundingBox(), maxRegionSize);
+			});
+			
+			try {
+				tupleFile.processFile();
+			} catch (IOException e) {
+				System.err.println("Got an IOException during experiment: "+ e);
+				System.exit(-1);
+			}
 		}
 		
 		// Print results
@@ -258,21 +258,38 @@ public class TestKDTreeSplit implements Runnable {
 		
 		// Check parameter
 		if(args.length < 3) {
-			System.err.println("Usage: programm <filename> <format> <size1> <size2> <sizeN>");
+			System.err.println("Usage: programm <size1,size2,sizeN> <filename1:format1> <filenameN:formatN> <filenameN:formatN>");
 			System.exit(-1);
 		}
 		
-		final String filename = Objects.requireNonNull(args[0]);
-		final String format = Objects.requireNonNull(args[1]);
+		final String experimentSizeString = Objects.requireNonNull(args[0]);
+		final List<Integer> experimentSize = Arrays.asList(experimentSizeString.split(","))
+				.stream()
+				.map(e -> MathUtil.tryParseIntOrExit(e))
+				.collect(Collectors.toList());
 
-		final List<Integer> experimentSize = new ArrayList<>();
-		
+		final Map<String, String> filesAndFormats = new HashMap<>();
+
 		for(int pos = 2; pos < args.length; pos++) {
-			final Integer size = MathUtil.tryParseIntOrExit(args[pos]);
-			experimentSize.add(size);
+			
+			final String element = args[pos];
+			
+			if(! element.contains(":")) {
+				System.err.println("Element does not contain format specifier: " + element);
+				System.exit(-1);
+			}
+			
+			final String[] splitFile = element.split("/:/");
+			
+			if(splitFile.length != 2) {
+				System.err.println("Unable to get two elements after format split: " + element);
+				System.exit(-1);
+			}
+
+			filesAndFormats.put(splitFile[0], splitFile[1]);
 		}
 		
-		final TestKDTreeSplit testSplit = new TestKDTreeSplit(filename, format, experimentSize);
+		final TestKDTreeSplit testSplit = new TestKDTreeSplit(filesAndFormats, experimentSize);
 		testSplit.run();
 	}
 
