@@ -38,9 +38,14 @@ import org.junit.Test;
 public class TestTupleBuilder {
 
 	/**
-	 * The testline for TPC-H tests
+	 * The testline for TPC-H lineitem tests
 	 */
-	protected final static String TPCH_TEST_LINE = "3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|";
+	protected final static String TPCH_LINEITEM_TEST_LINE = "3|29380|1883|4|2|2618.76|0.01|0.06|A|F|1993-12-04|1994-01-07|1994-01-01|NONE|TRUCK|y. fluffily pending d|";
+
+	/**
+	 * The testline for TPC-H order tests
+	 */
+	protected final static String TPCH_ORDER_TEST_LINE = "1|738001|O|215050.73|1996-01-02|5-LOW|Clerk#000019011|0|nstructions sleep furiously among |";
 	
 	/**
 	 * The testline for synthetic tests
@@ -131,7 +136,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.TPCH_LINEITEM_POINT);
 		
-		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_TEST_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_LINEITEM_TEST_LINE);
 				
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -154,7 +159,7 @@ public class TestTupleBuilder {
 		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
 				TupleBuilderFactory.Name.TPCH_LINEITEM_RANGE);
 		
-		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_TEST_LINE);
+		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_LINEITEM_TEST_LINE);
 				
 		Assert.assertTrue(tuple != null);
 		Assert.assertEquals(Integer.toString(1), tuple.getKey());
@@ -169,6 +174,30 @@ public class TestTupleBuilder {
 		final BoundingBox exptectedBox = new BoundingBox(doubleShipDateTime, doublereceiptDateTime);
 		
 		Assert.assertEquals(exptectedBox, tuple.getBoundingBox());
+	}
+	
+	/**
+	 * Test the tpch range tuple builder
+	 * @throws ParseException 
+	 */
+	@Test
+	public void testTPCHOrderPointTupleBuilder() throws ParseException {
+		final TupleBuilder tupleBuilder = TupleBuilderFactory.getBuilderForFormat(
+				TupleBuilderFactory.Name.TPCH_ORDER_POINT);
+		
+		final Tuple tuple = tupleBuilder.buildTuple("1", TPCH_ORDER_TEST_LINE);
+				
+		Assert.assertTrue(tuple != null);
+		Assert.assertEquals(Integer.toString(1), tuple.getKey());
+		
+		final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-mm-dd");
+		final Date orderDate = dateParser.parse("1996-01-02");
+		
+		final double doubleOrder = (double) orderDate.getTime();
+
+		final BoundingBox expectedBox = new BoundingBox(doubleOrder, doubleOrder);
+		
+		Assert.assertEquals(expectedBox, tuple.getBoundingBox());
 	}
 	
 	/**

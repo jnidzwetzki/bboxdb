@@ -40,7 +40,6 @@ public class TupleBuilderFactory {
 		 */
 		public static final String YELLOWTAXI_RANGE = "yellowtaxi_range";
 		
-		
 		/**
 		 * The GEOJson builder
 		 */
@@ -52,14 +51,19 @@ public class TupleBuilderFactory {
 		public static final String SYNTHETIC = "synthetic";
 
 		/**
-		 * The TPCH lineitem builder - point version (shipDateTime)
+		 * The TPC-H lineitem builder - point version (shipDateTime)
 		 */
 		public static final String TPCH_LINEITEM_POINT = "tpch_lineitem_point";
 		
 		/**
-		 * The TPCH lineitem builder - range version (shipDateTime - receiptDateTime)
+		 * The TPC-H lineitem builder - range version (shipDateTime - receiptDateTime)
 		 */
 		public static final String TPCH_LINEITEM_RANGE = "tpch_lineitem_range";
+		
+		/**
+		 * The TPC-H order builder - point version (orderDate)
+		 */
+		public static final String TPCH_ORDER_POINT = "tpch_order_point";
 	}
 	
 	/**
@@ -68,7 +72,8 @@ public class TupleBuilderFactory {
 	public static final List<String> ALL_BUILDER = Arrays.asList(
 			Name.GEOJSON, Name.SYNTHETIC,
 			Name.YELLOWTAXI_POINT, Name.YELLOWTAXI_RANGE, 
-			Name.TPCH_LINEITEM_POINT, Name.TPCH_LINEITEM_RANGE);
+			Name.TPCH_LINEITEM_POINT, Name.TPCH_LINEITEM_RANGE, 
+			Name.TPCH_ORDER_POINT);
 
 	/**
 	 * Return the parser for the tuple format
@@ -88,6 +93,8 @@ public class TupleBuilderFactory {
 			return new TPCHLineitemPointBuilder();
 		} else if(Name.TPCH_LINEITEM_RANGE.equals(format)) {
 			return new TPCHLineitemRangeBuilder();
+		} else if(Name.TPCH_ORDER_POINT.equals(format)) {
+			return new TPCHOrderPointBuilder();
 		} else {
 			throw new RuntimeException("Unknown format: " + format);
 		}
