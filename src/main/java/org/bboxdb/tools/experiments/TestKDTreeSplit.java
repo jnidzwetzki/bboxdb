@@ -257,7 +257,7 @@ public class TestKDTreeSplit implements Runnable {
 	public static void main(final String[] args) throws IOException {
 		
 		// Check parameter
-		if(args.length < 3) {
+		if(args.length < 2) {
 			System.err.println("Usage: programm <size1,size2,sizeN> <filename1:format1> <filenameN:formatN> <filenameN:formatN>");
 			System.exit(-1);
 		}
