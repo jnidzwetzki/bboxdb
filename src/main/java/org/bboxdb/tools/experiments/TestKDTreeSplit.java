@@ -270,7 +270,7 @@ public class TestKDTreeSplit implements Runnable {
 
 		final Map<String, String> filesAndFormats = new HashMap<>();
 
-		for(int pos = 2; pos < args.length; pos++) {
+		for(int pos = 1; pos < args.length; pos++) {
 			
 			final String element = args[pos];
 			
@@ -279,7 +279,7 @@ public class TestKDTreeSplit implements Runnable {
 				System.exit(-1);
 			}
 			
-			final String[] splitFile = element.split("/:/");
+			final String[] splitFile = element.split(":");
 			
 			if(splitFile.length != 2) {
 				System.err.println("Unable to get two elements after format split: " + element);
