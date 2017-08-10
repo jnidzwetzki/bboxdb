@@ -241,7 +241,7 @@ public class TestKDTreeSplit implements Runnable {
 			}	
 						
 			// Unable to find enough samples
-			if(sample > (10 * numberOfSamples)) {
+			if(sample > (50 * numberOfSamples)) {
 				break;
 			}			
 		}
