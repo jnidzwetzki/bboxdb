@@ -13,6 +13,7 @@ order: 1
 - New Feature: Region size, placement strategy and space partitioner are specified per distribution group
 - New Feature: Introduced placement strategy and space partitioner configuration
 - New Feature: Added the TupleListFutureStore
+- Improvement: Added importer for TPC-H order datasets
 - Improvement: Implement insert operation retry on error
 - Bugfix: Fixed wait for pending calls method in client code
 
