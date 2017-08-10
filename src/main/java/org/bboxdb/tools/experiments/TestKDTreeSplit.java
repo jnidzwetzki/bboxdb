@@ -246,6 +246,9 @@ public class TestKDTreeSplit implements Runnable {
 			}			
 		}
 		
+		
+		System.out.println("# Got " + pointSamples.size() + " samples");
+		
 		pointSamples.sort((b1, b2) -> Double.compare(b1, b2));
 		
 		return pointSamples.get(pointSamples.size() / 2);
