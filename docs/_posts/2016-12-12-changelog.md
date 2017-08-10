@@ -5,7 +5,7 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
-### Version 0.3.2 (Stable) - TBA
+### Version 0.3.2 (Stable) - 10.08.2017
 - New Feature: The CLI shows all discovered BBoxDB instances
 - New Feature: Introduced client based insert tuple routing
 - New Feature: Write Hardware info (cpu cores, memory, diskspace) to Zookeeper
