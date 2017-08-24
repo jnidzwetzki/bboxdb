@@ -208,7 +208,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBClient.class);
 
-	public BBoxDBClient(final InetSocketAddress serverAddress) throws BBoxDBException {
+	public BBoxDBClient(final InetSocketAddress serverAddress) {
 		
 		this.serverAddress = serverAddress;
 		
