@@ -50,7 +50,7 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 	/**
 	 * A routing header for custom routing
 	 */
-	protected RoutingHeader routingHeader;
+	protected final RoutingHeader routingHeader;
 
 	public DeleteTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
 			final String table, final String key, final long timestamp) {

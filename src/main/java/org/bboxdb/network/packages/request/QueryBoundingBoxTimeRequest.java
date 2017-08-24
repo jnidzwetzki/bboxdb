@@ -56,13 +56,19 @@ public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 	 * The max tuples per page
 	 */
 	protected final short tuplesPerPage;
+	
+	/**
+	 * A routing header for custom routing
+	 */
+	protected final RoutingHeader routingHeader;
 
-	public QueryBoundingBoxTimeRequest(final short sequenceNumber, final String table, 
-			final BoundingBox box, final long timestamp, final boolean pagingEnabled, 
+	public QueryBoundingBoxTimeRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
+			final String table, final BoundingBox box, final long timestamp, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
 		super(sequenceNumber);
 		
+		this.routingHeader = routingHeader;
 		this.table = new SSTableName(table);
 		this.box = box;
 		this.timestamp = timestamp;
@@ -99,8 +105,6 @@ public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 			// Body length
 			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;
 			
-			// Unrouted package
-			final RoutingHeader routingHeader = new RoutingHeader(false);
 			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 
 			// Write body
@@ -118,8 +122,9 @@ public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 * @throws PackageEncodeException 
+	 * @throws IOException 
 	 */
-	public static QueryBoundingBoxTimeRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException {
+	public static QueryBoundingBoxTimeRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException, IOException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
@@ -162,7 +167,9 @@ public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new QueryBoundingBoxTimeRequest(sequenceNumber, table, boundingBox, 
+		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
+
+		return new QueryBoundingBoxTimeRequest(sequenceNumber, routingHeader, table, boundingBox, 
 				timestamp, pagingEnabled, tuplesPerPage);
 	}
 

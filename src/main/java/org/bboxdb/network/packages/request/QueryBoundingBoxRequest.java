@@ -51,12 +51,19 @@ public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
 	 * The max tuples per page
 	 */
 	protected final short tuplesPerPage;
+	
+	/**
+	 * A routing header for custom routing
+	 */
+	protected final RoutingHeader routingHeader;
 
-	public QueryBoundingBoxRequest(final short sequenceNumber, final String table, 
-			final BoundingBox box, final boolean pagingEnabled, final short tuplesPerPage) {
+	public QueryBoundingBoxRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
+			final String table,  final BoundingBox box, final boolean pagingEnabled, 
+			final short tuplesPerPage) {
 		
 		super(sequenceNumber);
 		
+		this.routingHeader = routingHeader;
 		this.table = new SSTableName(table);
 		this.box = box;
 		this.pagingEnabled = pagingEnabled;
@@ -91,8 +98,6 @@ public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
 			// Body length
 			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;
 			
-			// Unrouted package
-			final RoutingHeader routingHeader = new RoutingHeader(false);
 			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 
 			// Write body
@@ -110,8 +115,9 @@ public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 * @throws PackageEncodeException 
+	 * @throws IOException 
 	 */
-	public static QueryBoundingBoxRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException {
+	public static QueryBoundingBoxRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException, IOException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_QUERY);
@@ -152,7 +158,9 @@ public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new QueryBoundingBoxRequest(sequenceNumber, table, boundingBox, 
+		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
+
+		return new QueryBoundingBoxRequest(sequenceNumber, routingHeader, table, boundingBox, 
 				pagingEnabled, tuplesPerPage);
 	}
 

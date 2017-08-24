@@ -40,11 +40,18 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 	 * The name of the key
 	 */
 	protected final String key;
+	
+	/**
+	 * A routing header for custom routing
+	 */
+	protected final RoutingHeader routingHeader;
 
-	public QueryKeyRequest(final short sequenceNumber, final String table, final String key) {
+	public QueryKeyRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
+			final String table, final String key) {
 		
 		super(sequenceNumber);
 		
+		this.routingHeader = routingHeader;
 		this.table = new SSTableName(table);
 		this.key = key;
 	}
@@ -66,8 +73,6 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 			// Body length
 			final long bodyLength = bb.capacity() + tableBytes.length + keyBytes.length;
 			
-			// Unrouted package
-			final RoutingHeader routingHeader = new RoutingHeader(false);
 			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 	
 			// Write body
@@ -85,8 +90,9 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 * @throws PackageEncodeException 
+	 * @throws IOException 
 	 */
-	public static QueryKeyRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException {
+	public static QueryKeyRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException, IOException {
 		
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 
@@ -117,7 +123,9 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new QueryKeyRequest(sequenceNumber, table, key);
+		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
+		
+		return new QueryKeyRequest(sequenceNumber, routingHeader, table, key);
 	}
 
 	@Override

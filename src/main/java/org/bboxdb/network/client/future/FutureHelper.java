@@ -29,4 +29,15 @@ public class FutureHelper {
 		future.fireCompleteEvent();
 		return future;
 	}
+	
+	/**
+	 * Create and return an empty tuple list future
+	 * @return
+	 */
+	public static TupleListFuture getFailedTupleListFuture() {
+		final TupleListFuture future = new TupleListFuture(1);
+		future.setFailedState();
+		future.fireCompleteEvent();
+		return future;
+	}
 }
