@@ -185,6 +185,11 @@ class RequestWorker extends ExceptionSafeThread {
 	public RequestWorker(final BlockingQueue<TupleListFuture> queue, final AtomicInteger activeWorker) {
 		this.queue = queue;
 		this.activeWorker = activeWorker;
+		
+		synchronized (activeWorker) {
+			activeWorker.incrementAndGet();
+			activeWorker.notifyAll();
+		}
 	}
 
 	@Override
@@ -192,11 +197,6 @@ class RequestWorker extends ExceptionSafeThread {
 	
 		while(! Thread.currentThread().isInterrupted()) {
 			final TupleListFuture future = queue.take();
-			
-			synchronized (activeWorker) {
-				activeWorker.incrementAndGet();
-				activeWorker.notifyAll();
-			}
 			
 			if(future != null) {
 				future.waitForAll();
