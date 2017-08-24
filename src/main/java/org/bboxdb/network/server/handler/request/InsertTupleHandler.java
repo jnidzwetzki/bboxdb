@@ -24,8 +24,6 @@ import java.util.Collection;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
-import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
@@ -109,7 +107,7 @@ public class InsertTupleHandler implements RequestHandler {
 		
 		final RoutingHop localHop = routingHeader.getRoutingHop();
 		
-		checkSystemNameMatches(localHop);
+		PackageRouter.checkLocalSystemNameMatches(localHop);
 		
 		final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
 		
@@ -124,18 +122,4 @@ public class InsertTupleHandler implements RequestHandler {
 		}
 	}
 
-	/**
-	 * Ensure that the package is routed to the right system
-	 * @param localHop
-	 * @throws BBoxDBException
-	 */
-	protected void checkSystemNameMatches(final RoutingHop localHop) throws BBoxDBException {
-		final DistributedInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
-		final DistributedInstance routingInstanceName = localHop.getDistributedInstance();
-		
-		if(! localInstanceName.socketAddressEquals(routingInstanceName)) {
-			throw new BBoxDBException("Routing hop " + routingInstanceName 
-					+ " does not match local host " + localInstanceName);
-		}
-	}
 }

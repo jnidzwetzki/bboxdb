@@ -515,27 +515,7 @@ public class BBoxDBClient implements BBoxDB {
 				return createFailedFuture("insertTuple called, but connection not ready: " + this);
 			}
 
-			final SSTableName ssTableName = new SSTableName(table);
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
-					ssTableName, zookeeperClient);
-
-			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-
-			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(tuple, distributionRegion);
-
-			// Filter the local hop
-			final List<RoutingHop> connectionHop = hops.stream()
-					.filter(r -> r.getDistributedInstance().getInetSocketAddress().equals(serverAddress))
-					.collect(Collectors.toList());
-
-			if(connectionHop.isEmpty()) {
-				throw new BBoxDBException("Unable to find host for this connection in global routing list: " 
-						+ hops);
-			}
-
-			final RoutingHeader routingHeader = new RoutingHeader((short) 0, connectionHop);
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, tuple.getBoundingBox());
 
 			return insertTuple(table, tuple, routingHeader);
 		} catch (ZookeeperException e) {
@@ -546,6 +526,42 @@ public class BBoxDBClient implements BBoxDB {
 			// Return after exception
 			return FutureHelper.getFailedEmptyResultFuture();
 		}
+	}
+
+	/**
+	 * Get the routing header for the local system
+	 * @param table
+	 * @param tuple
+	 * @return
+	 * @throws ZookeeperException
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	protected RoutingHeader getRoutingHeaderForLocalSystem(final String table, final BoundingBox boundingBox)
+			throws ZookeeperException, BBoxDBException, InterruptedException {
+		
+		final SSTableName ssTableName = new SSTableName(table);
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+
+		final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
+				ssTableName, zookeeperClient);
+
+		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+
+		final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(boundingBox, distributionRegion);
+
+		// Filter the local hop
+		final List<RoutingHop> connectionHop = hops.stream()
+				.filter(r -> r.getDistributedInstance().getInetSocketAddress().equals(serverAddress))
+				.collect(Collectors.toList());
+
+		if(connectionHop.isEmpty()) {
+			throw new BBoxDBException("Unable to find host for this connection in global routing list: " 
+					+ hops);
+		}
+
+		final RoutingHeader routingHeader = new RoutingHeader((short) 0, connectionHop);
+		return routingHeader;
 	}
 
 	/* (non-Javadoc)
@@ -588,19 +604,32 @@ public class BBoxDBClient implements BBoxDB {
 		}
 		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		final DeleteTupleRequest requestPackage = new DeleteTupleRequest(getNextSequenceNumber(), 
-				table, key, timestamp);
 		
-		registerPackageCallback(requestPackage, clientOperationFuture);
-		sendPackageToServer(requestPackage, clientOperationFuture);
-		return clientOperationFuture;
+		try {
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
+	
+			final DeleteTupleRequest requestPackage = new DeleteTupleRequest(getNextSequenceNumber(), 
+					routingHeader, table, key, timestamp);
+			
+			registerPackageCallback(requestPackage, clientOperationFuture);
+			sendPackageToServer(requestPackage, clientOperationFuture);
+			return clientOperationFuture;
+		} catch (BBoxDBException | ZookeeperException e) {
+			// Return after exception
+			return FutureHelper.getFailedEmptyResultFuture();
+		} catch (InterruptedException e) {
+			logger.warn("Interrupted while waiting for systems list");
+			Thread.currentThread().interrupt();
+			// Return after exception
+			return FutureHelper.getFailedEmptyResultFuture();
+		} 
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#deleteTuple(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key) {
+	public EmptyResultFuture deleteTuple(final String table, final String key) throws BBoxDBException {
 		final long timestamp = MicroSecondTimestampProvider.getNewTimestamp();
 		return deleteTuple(table, key, timestamp);
 	}

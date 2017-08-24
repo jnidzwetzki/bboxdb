@@ -21,18 +21,20 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.DeleteTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
+import org.bboxdb.network.routing.PackageRouter;
+import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
-import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.SSTableManager;
-import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,22 +57,36 @@ public class DeleteTupleHandler implements RequestHandler {
 		try {
 			final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
 			final SSTableName requestTable = deleteTupleRequest.getTable();
+			final RoutingHeader routingHeader = deleteTupleRequest.getRoutingHeader();
 
-			// Send the call to the storage manager
-			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
+			if(! routingHeader.isRoutedPackage()) {
+				final String errorMessage = "Error while deleting tuple - package is not routed";
+				logger.error(errorMessage);
+				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
+				clientConnectionHandler.writeResultPackage(responsePackage);
+			} else {
+				final RoutingHop localHop = routingHeader.getRoutingHop();
+				
+				PackageRouter.checkLocalSystemNameMatches(localHop);
+				
+				final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
+				
+				final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
 
-			for(final SSTableName ssTableName : localTables) {
-				
-				final SSTableManager storageManager = clientConnectionHandler
-						.getStorageRegistry()
-						.getSSTableManager(ssTableName);
-				
-				storageManager.delete(deleteTupleRequest.getKey(), deleteTupleRequest.getTimestamp());
+				final Collection<SSTableName> localTables = regionIdMapper.convertRegionIdToTableNames(
+							requestTable, localHop.getDistributionRegions());
+
+				for(final SSTableName ssTableName : localTables) {
+					final SSTableManager storageManager = clientConnectionHandler
+							.getStorageRegistry()
+							.getSSTableManager(ssTableName);
+					
+					storageManager.delete(deleteTupleRequest.getKey(), deleteTupleRequest.getTimestamp());
+				}
 			}
-			
+
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		} catch (PackageEncodeException | StorageManagerException | RejectedException e) {
+		} catch (Exception e) {
 			logger.warn("Error while delete tuple", e);
 
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);

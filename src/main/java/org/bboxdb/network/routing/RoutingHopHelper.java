@@ -25,7 +25,6 @@ import java.util.concurrent.Callable;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.Retryer;
 
 public class RoutingHopHelper {
@@ -37,14 +36,13 @@ public class RoutingHopHelper {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public static List<RoutingHop> getRoutingHopsForWrite(final Tuple tuple,
+	public static List<RoutingHop> getRoutingHopsForWrite(final BoundingBox boundingBox,
 			final DistributionRegion distributionRegion) throws InterruptedException {
 		
 		final Callable<List<RoutingHop>> getHops = new Callable<List<RoutingHop>>() {
 
 			@Override
 			public List<RoutingHop> call() throws Exception {
-				final BoundingBox boundingBox = tuple.getBoundingBox();
 				final Collection<RoutingHop> hopCollection 
 					= distributionRegion.getRoutingHopsForWrite(boundingBox);
 				

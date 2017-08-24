@@ -245,7 +245,7 @@ public class TestNetworkClasses {
 		final long deletionTime = MicroSecondTimestampProvider.getNewTimestamp();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final DeleteTupleRequest deletePackage = new DeleteTupleRequest(sequenceNumber, "test", "key", deletionTime);
+		final DeleteTupleRequest deletePackage = new DeleteTupleRequest(sequenceNumber, new RoutingHeader(false), "test", "key", deletionTime);
 		
 		byte[] encodedVersion = networkPackageToByte(deletePackage);
 		Assert.assertNotNull(encodedVersion);

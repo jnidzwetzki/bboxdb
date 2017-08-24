@@ -139,7 +139,8 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			
-			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(tuple, distributionRegion);
+			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(tuple.getBoundingBox(), 
+					distributionRegion);
 			
 			if(hops.isEmpty()) {
 				logger.error("Insert tuple called, but hop list for bounding box is empty: {}", 
@@ -185,7 +186,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 		
 		final EmptyResultFuture future = new EmptyResultFuture();
-				
+		
 		connections.stream()
 		 	.map(c -> c.deleteTuple(table, key, timestamp))
 		 	.filter(Objects::nonNull)

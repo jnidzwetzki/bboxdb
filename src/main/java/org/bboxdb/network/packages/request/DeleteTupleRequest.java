@@ -46,13 +46,19 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 	 * The timestmap of the operation
 	 */
 	protected final long timestamp;
+	
+	/**
+	 * A routing header for custom routing
+	 */
+	protected RoutingHeader routingHeader;
 
-	public DeleteTupleRequest(final short sequenceNumber, final String table, 
-			final String key, final long timestamp) {
+	public DeleteTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
+			final String table, final String key, final long timestamp) {
 		
 		super(sequenceNumber);
 		
 		this.table = new SSTableName(table);
+		this.routingHeader = routingHeader;
 		this.key = key;
 		this.timestamp = timestamp;
 	}
@@ -78,8 +84,6 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 			final long bodyLength = bb.capacity() + tableBytes.length 
 					+ keyBytes.length;
 			
-			// Unrouted package
-			final RoutingHeader routingHeader = new RoutingHeader(false);
 			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 	
 			// Write body
@@ -97,8 +101,9 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 	 * @param encodedPackage
 	 * @return
 	 * @throws PackageEncodeException 
+	 * @throws IOException 
 	 */
-	public static DeleteTupleRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException {
+	public static DeleteTupleRequest decodeTuple(final ByteBuffer encodedPackage) throws PackageEncodeException, IOException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromRequestPackage(encodedPackage);
 		
 		final boolean decodeResult = NetworkPackageDecoder.validateRequestPackageHeader(encodedPackage, NetworkConst.REQUEST_TYPE_DELETE_TUPLE);
@@ -123,7 +128,9 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new DeleteTupleRequest(sequenceNumber, table, key, timestamp);
+		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
+		
+		return new DeleteTupleRequest(sequenceNumber, routingHeader, table, key, timestamp);
 	}
 
 	@Override
@@ -175,5 +182,13 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 		if (timestamp != other.timestamp)
 			return false;
 		return true;
+	}
+	
+	/**
+	 * Get the routing header
+	 * @return
+	 */
+	public RoutingHeader getRoutingHeader() {
+		return routingHeader;
 	}
 }

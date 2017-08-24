@@ -25,7 +25,9 @@ import java.util.concurrent.TimeoutException;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
@@ -164,4 +166,19 @@ public class PackageRouter {
 		return operationSuccess;
 	}
 	
+
+	/**
+	 * Ensure that the package is routed to the right system
+	 * @param localHop
+	 * @throws BBoxDBException
+	 */
+	public static void checkLocalSystemNameMatches(final RoutingHop localHop) throws BBoxDBException {
+		final DistributedInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
+		final DistributedInstance routingInstanceName = localHop.getDistributedInstance();
+		
+		if(! localInstanceName.socketAddressEquals(routingInstanceName)) {
+			throw new BBoxDBException("Routing hop " + routingInstanceName 
+					+ " does not match local host " + localInstanceName);
+		}
+	}
 }
