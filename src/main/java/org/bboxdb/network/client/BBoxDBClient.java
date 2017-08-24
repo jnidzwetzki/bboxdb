@@ -21,8 +21,10 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Inet4Address;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,6 +89,7 @@ import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.CloseableHelper;
 import org.bboxdb.util.MicroSecondTimestampProvider;
+import org.bboxdb.util.NetworkInterfaceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,15 +201,28 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * The server address
 	 */
-	protected final InetSocketAddress serverAddress;
+	protected InetSocketAddress serverAddress;
 
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBClient.class);
 
-	public BBoxDBClient(final InetSocketAddress serverAddress) {
+	public BBoxDBClient(final InetSocketAddress serverAddress) throws BBoxDBException {
+		
 		this.serverAddress = serverAddress;
+		
+		// External IP is used to create propper package routing
+		if(serverAddress.getAddress().isLoopbackAddress()) {
+			try {
+				final Inet4Address nonLoopbackAdress = NetworkInterfaceHelper.getFirstNonLoopbackIPv4();
+				this.serverAddress = new InetSocketAddress(nonLoopbackAdress, serverAddress.getPort());
+			} catch (SocketException e) {
+				logger.error("Connection to loopback IP " + serverAddress 
+						+ " requested and unable replace the IP with external IP", e);
+			}
+		} 
+		
 		this.sequenceNumberGenerator = new SequenceNumberGenerator();
 		this.connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
 		

@@ -53,18 +53,27 @@ public class NetworkInterfaceHelper {
 	}
 	
 	/**
-	 * Get the first loopback v4 ip address as string
+	 * Get the first non loopback v4 ip address as string
 	 * @return
 	 * @throws SocketException 
 	 */
-	public static String getFirstLoopbackIPv4() throws SocketException {
+	public static Inet4Address getFirstNonLoopbackIPv4() throws SocketException {
 		final List<Inet4Address> allAddresses = getNonLoopbackIPv4();
 		
 		if(allAddresses.isEmpty()) {
 			throw new SocketException("No ipv4 ips found");
 		}
 		
-		return allAddresses.get(0).getHostAddress();
+		return allAddresses.get(0);
+	}
+	
+	/**
+	 * Get the first non loopback v4 ip address as string
+	 * @return
+	 * @throws SocketException 
+	 */
+	public static String getFirstNonLoopbackIPv4AsString() throws SocketException {
+		return getFirstNonLoopbackIPv4().getHostAddress();
 	}
 
 }

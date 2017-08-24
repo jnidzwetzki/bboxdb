@@ -100,7 +100,7 @@ public class BBoxDBConfiguration {
 
 	public BBoxDBConfiguration() {
 		try {
-			localip = NetworkInterfaceHelper.getFirstLoopbackIPv4();
+			localip = NetworkInterfaceHelper.getFirstNonLoopbackIPv4AsString();
 		} catch (SocketException e) {
 			logger.warn("Unable to determine the local IP adress of this node, please specify 'localip' in the configuration", e);
 		}
