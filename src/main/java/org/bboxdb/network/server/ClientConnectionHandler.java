@@ -466,14 +466,23 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 			if(logger.isDebugEnabled()) {
 				logger.debug("Got query package");
 			}
+			
 			return handleQuery(encodedPackage, packageSequence);
 		}
 
 		if(requestHandlers.containsKey(packageType)) {
 			final RequestHandler requestHandler = requestHandlers.get(packageType);
-			return requestHandler.handleRequest(encodedPackage, packageSequence, this);
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("Dispatching package to handler: {}", requestHandler);
+			}
+			
+			final boolean handleFurtherPackages 
+				= requestHandler.handleRequest(encodedPackage, packageSequence, this);
+			
+			return handleFurtherPackages;
 		} else {
-			logger.warn("Got unknown package type, closing connection: " + packageType);
+			logger.error("Got unknown package type, closing connection: " + packageType);
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
 			return false;
 		}

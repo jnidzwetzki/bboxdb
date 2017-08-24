@@ -47,11 +47,8 @@ public class DeleteTableHandler implements RequestHandler {
 	 * Handle the delete table call
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
-			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
-		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Got delete table package");
-		}
+			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
+					throws IOException, PackageEncodeException {
 		
 		try {			
 			final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);

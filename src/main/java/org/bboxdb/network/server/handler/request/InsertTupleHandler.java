@@ -30,14 +30,12 @@ import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.StorageRegistry;
@@ -75,8 +73,9 @@ public class InsertTupleHandler implements RequestHandler {
 			final StorageRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
 			
 			if(! routingHeader.isRoutedPackage()) {
-				handleUnroutedPackage(insertTupleRequest, tuple, requestTable, storageRegistry);
-				final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
+				final String errorMessage = "Error while insering tuple - package is not routed";
+				logger.error(errorMessage);
+				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
 				clientConnectionHandler.writeResultPackage(responsePackage);
 			} else {
 				handleRoutedPackage(tuple, requestTable, storageRegistry, routingHeader);
@@ -85,36 +84,12 @@ public class InsertTupleHandler implements RequestHandler {
 			}
 			
 		} catch (Exception e) {
-			logger.warn("Error while insert tuple", e);
+			logger.error("Error while inserting tuple", e);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);	
 		}
 		
 		return true;
-	}
-
-	/**
-	 * Handle the unrouted package
-	 * @param insertTupleRequest
-	 * @param tuple
-	 * @param requestTable
-	 * @param storageRegistry
-	 * @throws StorageManagerException
-	 * @throws RejectedException
-	 */
-	protected void handleUnroutedPackage(final InsertTupleRequest insertTupleRequest, final Tuple tuple,
-			final SSTableName requestTable, final StorageRegistry storageRegistry)
-			throws StorageManagerException, RejectedException {
-		
-		final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-		final BoundingBox boundingBox = insertTupleRequest.getTuple().getBoundingBox();
-		final Collection<SSTableName> localTables = regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);
-
-		for(final SSTableName ssTableName : localTables) {	
-			final SSTableManager storageManager = storageRegistry.getSSTableManager(ssTableName);
-			storageManager.put(tuple);
-		}
-		
 	}
 
 	/**

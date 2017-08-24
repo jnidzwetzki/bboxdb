@@ -52,10 +52,6 @@ public class DeleteTupleHandler implements RequestHandler {
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Got delete tuple package");
-		}
-		
 		try {
 			final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
 			final SSTableName requestTable = deleteTupleRequest.getTable();

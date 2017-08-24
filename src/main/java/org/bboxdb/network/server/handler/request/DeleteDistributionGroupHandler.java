@@ -46,11 +46,7 @@ public class DeleteDistributionGroupHandler implements RequestHandler {
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
-		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Got delete distribution group package");
-		}
-		
+
 		try {
 			final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
 			logger.info("Delete distribution group: " + deletePackage.getDistributionGroup());

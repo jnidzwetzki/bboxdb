@@ -43,11 +43,6 @@ public class NextPageHandler implements RequestHandler {
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
-		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Got next page package");
-		}
-		
 		try {
 			final NextPageRequest nextPagePackage = NextPageRequest.decodeTuple(encodedPackage);
 			logger.debug("Next page for query {} called", nextPagePackage.getQuerySequence());

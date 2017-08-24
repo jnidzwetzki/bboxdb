@@ -34,7 +34,6 @@ public class CompressionHandler implements RequestHandler {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(CompressionHandler.class);
 	
-
 	@Override
 	/**
 	 * Handle compressed packages. Uncompress envelope and handle package
@@ -49,11 +48,9 @@ public class CompressionHandler implements RequestHandler {
 				clientConnectionHandler.handleNextPackage(compressedDataStream);
 			}
 			
-		} catch (IOException e) {
+		} catch (IOException | PackageEncodeException e) {
 			logger.error("Got an exception while handling compression", e);
-		} catch (PackageEncodeException e) {
-			logger.error("Got an exception while handling compression", e);
-		}
+		} 
 		
 		return true;
 	}

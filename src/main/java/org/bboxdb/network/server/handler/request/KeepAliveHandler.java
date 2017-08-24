@@ -23,16 +23,8 @@ import java.nio.ByteBuffer;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class KeepAliveHandler implements RequestHandler {
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(KeepAliveHandler.class);
-	
 
 	@Override
 	/**
@@ -41,10 +33,6 @@ public class KeepAliveHandler implements RequestHandler {
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
-		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Got keep alive package");
-		}
 		
 		final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
 		clientConnectionHandler.writeResultPackage(responsePackage);
