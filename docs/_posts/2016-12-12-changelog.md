@@ -6,6 +6,8 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.3.3 (Stable) - TBA
+- New Feature: Added routing header to delete and query packages
+- Bugfix: Fixed a race condition in the tuple list store
 
 ### Version 0.3.2 (Stable) - 10.08.2017
 - New Feature: The CLI shows all discovered BBoxDB instances
