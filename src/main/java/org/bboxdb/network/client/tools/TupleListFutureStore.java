@@ -191,24 +191,29 @@ class RequestWorker extends ExceptionSafeThread {
 	protected void runThread() throws Exception {
 	
 		while(! Thread.currentThread().isInterrupted()) {
-			final TupleListFuture future = queue.take();
-			
-			synchronized (activeWorker) {
-				activeWorker.incrementAndGet();
-				activeWorker.notifyAll();
-			}
-		
-			if(future != null) {
-				future.waitForAll();
-				final Iterator<Tuple> iter = future.iterator();
-				while(iter.hasNext()) {
-					iter.next();
+			try {
+				final TupleListFuture future = queue.take();
+				
+				synchronized (activeWorker) {
+					activeWorker.incrementAndGet();
+					activeWorker.notifyAll();
 				}
-			}
-			
-			synchronized (activeWorker) {
-				activeWorker.decrementAndGet();
-				activeWorker.notifyAll();
+
+				if(future != null) {
+					future.waitForAll();
+					final Iterator<Tuple> iter = future.iterator();
+					while(iter.hasNext()) {
+						iter.next();
+					}
+				}
+				
+				synchronized (activeWorker) {
+					activeWorker.decrementAndGet();
+					activeWorker.notifyAll();
+				}
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
 			}
 		}
 		
