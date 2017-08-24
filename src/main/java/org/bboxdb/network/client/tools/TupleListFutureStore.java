@@ -139,7 +139,7 @@ public class TupleListFutureStore {
 	 */
 	public void waitForCompletion() throws InterruptedException {
 		synchronized (activeWorker) {
-			while(activeWorker.get() != 0) {
+			while(activeWorker.get() != 0 || ! futureQueue.isEmpty()) {
 				activeWorker.wait();
 			}
 		}
@@ -185,11 +185,6 @@ class RequestWorker extends ExceptionSafeThread {
 	public RequestWorker(final BlockingQueue<TupleListFuture> queue, final AtomicInteger activeWorker) {
 		this.queue = queue;
 		this.activeWorker = activeWorker;
-		
-		synchronized (activeWorker) {
-			activeWorker.incrementAndGet();
-			activeWorker.notifyAll();
-		}
 	}
 
 	@Override
@@ -198,6 +193,11 @@ class RequestWorker extends ExceptionSafeThread {
 		while(! Thread.currentThread().isInterrupted()) {
 			final TupleListFuture future = queue.take();
 			
+			synchronized (activeWorker) {
+				activeWorker.incrementAndGet();
+				activeWorker.notifyAll();
+			}
+		
 			if(future != null) {
 				future.waitForAll();
 				final Iterator<Tuple> iter = future.iterator();
