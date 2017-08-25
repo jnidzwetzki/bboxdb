@@ -81,7 +81,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 
 			@Override
 			public Integer load(String key) throws Exception {
-				return getPositionForTuple(key);
+				return getKeyPosFromIndex(key);
 			}
 			
 		});
