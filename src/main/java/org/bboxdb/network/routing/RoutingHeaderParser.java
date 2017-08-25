@@ -79,8 +79,8 @@ public class RoutingHeaderParser {
 		bb.get(); 		// Routed or direct
 		bb.getShort(); 	// Hop
 		bb.get(); 		// Unused
-		final short routingListLength = bb.getShort();	// Routing list length
-		bb.position(bb.position() + routingListLength);
+		final short routingListLength = bb.getShort();	// Routing list length		
+		bb.position(bb.position() + routingListLength);		
 	}
 	
 	/**
