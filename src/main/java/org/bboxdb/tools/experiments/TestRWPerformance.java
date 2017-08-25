@@ -30,6 +30,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.experiments.tuplestore.TupleStore;
 import org.bboxdb.tools.experiments.tuplestore.TupleStoreFactory;
 import org.bboxdb.tools.generator.SyntheticDataGenerator;
+import org.bboxdb.util.CloseableHelper;
 import org.bboxdb.util.io.FileUtil;
 
 import com.google.common.base.Stopwatch;
@@ -94,22 +95,9 @@ public class TestRWPerformance implements Runnable {
 			} catch (Exception e) {
 				System.out.println("Got exception: " + e);
 			} finally {
-				closeTupleStoreNE();
-			}
-		}
-	}
-
-	/**
-	 * Closing the tuple store without throwing an exception
-	 */
-	protected void closeTupleStoreNE() {
-		try {
-			if(tupleStore != null) {
-				tupleStore.close();
+				CloseableHelper.closeWithoutException(tupleStore, CloseableHelper.PRINT_EXCEPTION_ON_STDERR);
 				tupleStore = null;
 			}
-		} catch (Exception e) {
-			System.err.println("Got exception while closing tuple store" + e);
 		}
 	}
 

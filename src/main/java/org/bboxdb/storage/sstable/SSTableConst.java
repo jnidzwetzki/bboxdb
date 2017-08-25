@@ -112,5 +112,9 @@ public class SSTableConst {
 	 * The maximal amount of unflushed memtables per SSTable
 	 */
 	public final static int MAX_UNFLUSHED_MEMTABLES_PER_TABLE = 20;
-
+	
+	/**
+	 * Elements in key cache
+	 */
+	public final static int KEY_CACHE_ELEMENTS = 1000;
 }

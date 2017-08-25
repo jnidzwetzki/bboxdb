@@ -20,6 +20,8 @@ package org.bboxdb.storage.sstable.reader;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -30,12 +32,21 @@ import org.bboxdb.storage.sstable.SSTableHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
 public class SSTableKeyIndexReader extends AbstractTableReader implements Iterable<Tuple> {
 	
 	/**
 	 * The corresponding sstable reader
 	 */
 	protected final SSTableReader sstableReader;
+	
+	/**
+	 * The key cache
+	 */
+	protected LoadingCache<String, Integer> keyCache;
 	
 	/**
 	 * The Logger
@@ -54,6 +65,29 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	}
 
 	/**
+	 * Active the key cache with the given capacity
+	 * @param elements
+	 */
+	public void activateKeyCache(final int elements) {
+		
+		if(keyCache != null) {
+			throw new RuntimeException("Keycache was already be initiliazed");
+		}
+		
+		keyCache = CacheBuilder.newBuilder()
+				.maximumSize(elements)
+				.expireAfterAccess(30, TimeUnit.SECONDS)
+				.build(new CacheLoader<String, Integer>() {
+
+			@Override
+			public Integer load(String key) throws Exception {
+				return getPositionForTuple(key);
+			}
+			
+		});
+	}
+	
+	/**
 	 * Scan the index file for the tuple position
 	 * @param key
 	 * @return
@@ -61,8 +95,25 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	 */
 	public int getPositionForTuple(final String key) throws StorageManagerException {
 		
+		if(keyCache != null) {
+			try {
+				return keyCache.get(key);
+			} catch (ExecutionException e) {
+				throw new StorageManagerException(e);
+			}
+		}
+		
+		return getKeyPosFromIndex(key);
+	}
+
+	/**
+	 * Scan the index file for the tuple position
+	 * @param key
+	 * @return
+	 * @throws StorageManagerException 
+	 */
+	protected int getKeyPosFromIndex(final String key) throws StorageManagerException {
 		try {
-			
 			int firstEntry = 0;
 			int lastEntry = getNumberOfEntries() - 1;
 			

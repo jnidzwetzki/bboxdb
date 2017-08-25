@@ -33,6 +33,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableMetaData;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReader;
@@ -95,6 +96,11 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	protected volatile boolean deleteOnClose; 
 	
 	/**
+	 * The key cache size
+	 */
+	protected int keyCacheElements;
+	
+	/**
 	 * The Logger
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(SSTableFacade.class);
@@ -115,6 +121,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		
 		this.usage = new AtomicInteger(0);
 		deleteOnClose = false;
+		keyCacheElements = SSTableConst.KEY_CACHE_ELEMENTS;
 	}
 
 	/**
@@ -206,7 +213,9 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 			}
 			
 			ssTableReader.init();
+			
 			ssTableKeyIndexReader.init();
+			ssTableKeyIndexReader.activateKeyCache(keyCacheElements);
 			
 			// Spatial index
 			final File spatialIndexFile = getSpatialIndexFile(directory, tablename, tablenumber);
@@ -473,4 +482,11 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		return deleteOnClose;
 	}
 	
+	/**
+	 * Set the number of key cache elements, must be called before init()
+	 * @param keyCacheElements
+	 */
+	public void setKeyCacheElements(final int keyCacheElements) {
+		this.keyCacheElements = keyCacheElements;
+	}
 }
