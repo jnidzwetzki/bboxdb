@@ -23,8 +23,21 @@ public class FutureHelper {
 	 * Create and return an empty result future
 	 * @return
 	 */
-	public static EmptyResultFuture getFailedEmptyResultFuture() {
+	public static EmptyResultFuture getFailedEmptyResultFuture(final String failedMessage) {
 		final EmptyResultFuture future = new EmptyResultFuture(1);
+		future.setMessage(0, failedMessage);
+		future.setFailedState();
+		future.fireCompleteEvent();
+		return future;
+	}
+	
+	/**
+	 * Create and return an empty tuple list future
+	 * @return
+	 */
+	public static TupleListFuture getFailedTupleListFuture(final String failedMessage) {
+		final TupleListFuture future = new TupleListFuture(1);
+		future.setMessage(0, failedMessage);
 		future.setFailedState();
 		future.fireCompleteEvent();
 		return future;

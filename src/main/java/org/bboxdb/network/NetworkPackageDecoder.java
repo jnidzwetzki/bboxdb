@@ -183,10 +183,8 @@ public class NetworkPackageDecoder {
 	 */
 	public static byte getQueryTypeFromRequest(final ByteBuffer bb) {
 		// Set the position
-		bb.position(4);
+		bb.position(12);
 		RoutingHeaderParser.skipRoutingHeader(bb);
-		bb.getLong();
-		
 		return bb.get();
 	}
 	

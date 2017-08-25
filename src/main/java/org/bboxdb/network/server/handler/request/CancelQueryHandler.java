@@ -45,10 +45,6 @@ public class CancelQueryHandler implements RequestHandler {
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
 		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Got cancel query package");
-		}
-		
 		try {
 			final CancelQueryRequest nextPagePackage = CancelQueryRequest.decodeTuple(encodedPackage);
 			logger.debug("Cancel query {} requested", nextPagePackage.getQuerySequence());

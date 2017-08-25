@@ -50,11 +50,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) throws IOException, PackageEncodeException {
-		
-		if(logger.isDebugEnabled()) {
-			logger.debug("Got create distribution group package");
-		}
-		
+
 		try {
 			final CreateDistributionGroupRequest createPackage = CreateDistributionGroupRequest.decodeTuple(encodedPackage);
 			final String distributionGroup = createPackage.getDistributionGroup();

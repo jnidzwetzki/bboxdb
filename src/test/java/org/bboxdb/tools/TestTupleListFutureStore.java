@@ -61,7 +61,10 @@ public class TestTupleListFutureStore {
 		Assert.assertEquals(testFuture.getIteratorCalls(), 0);
 
 		tupleListFutureStore.put(testFuture);
+		
+		System.out.println("Wait for completion");
 		tupleListFutureStore.waitForCompletion();
+		System.out.println("Shutdown...");
 		tupleListFutureStore.shutdown();
 		
 		Assert.assertEquals(testFuture.getIteratorCalls(), TestTupleListFuture.ELEMENTS);
@@ -78,7 +81,9 @@ public class TestTupleListFutureStore {
 			futures.add(testFuture);
 		}
 		
+		System.out.println("Wait for completion");
 		tupleListFutureStore.waitForCompletion();
+		System.out.println("Shutdown...");
 		tupleListFutureStore.shutdown();
 		
 		final boolean hasNonFinishedIterators = futures
