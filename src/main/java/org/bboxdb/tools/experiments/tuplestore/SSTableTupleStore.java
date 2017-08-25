@@ -89,4 +89,12 @@ public class SSTableTupleStore implements TupleStore {
 		
 		storageManager = storageRegistry.getSSTableManager(SSTABLE_NAME);
 	}
+	
+	/**
+	 * Get the storage registry
+	 * @return
+	 */
+	public StorageRegistry getStorageRegistry() {
+		return storageRegistry;
+	}
 }

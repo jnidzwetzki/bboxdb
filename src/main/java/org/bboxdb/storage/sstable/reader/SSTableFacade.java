@@ -33,7 +33,6 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableMetaData;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReader;
@@ -106,7 +105,8 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	protected static final Logger logger = LoggerFactory.getLogger(SSTableFacade.class);
 	
 
-	public SSTableFacade(final String directory, final SSTableName tablename, final int tablenumber) throws StorageManagerException {
+	public SSTableFacade(final String directory, final SSTableName tablename, final int tablenumber, 
+			final int keyCacheElements) throws StorageManagerException {
 		super();
 		this.tablename = tablename;
 		this.directory = directory;
@@ -121,7 +121,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		
 		this.usage = new AtomicInteger(0);
 		deleteOnClose = false;
-		keyCacheElements = SSTableConst.KEY_CACHE_ELEMENTS;
+		this.keyCacheElements = keyCacheElements;
 	}
 
 	/**
@@ -480,13 +480,5 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	@Override
 	public boolean isDeletePending() {
 		return deleteOnClose;
-	}
-	
-	/**
-	 * Set the number of key cache elements, must be called before init()
-	 * @param keyCacheElements
-	 */
-	public void setKeyCacheElements(final int keyCacheElements) {
-		this.keyCacheElements = keyCacheElements;
 	}
 }

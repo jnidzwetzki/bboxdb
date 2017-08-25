@@ -69,7 +69,7 @@ public class SSTableExaminer implements Runnable {
 	@Override
 	public void run() {
 		try {			
-			final SSTableFacade sstableFacade = new SSTableFacade(baseDirectory, relationname, tableNumber);
+			final SSTableFacade sstableFacade = new SSTableFacade(baseDirectory, relationname, tableNumber, 0);
 			sstableFacade.init();
 			
 			if(! sstableFacade.acquire()) {

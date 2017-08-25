@@ -164,7 +164,7 @@ public class TestSSTable {
 		Assert.assertTrue(sstableFile.exists());
 		Assert.assertTrue(sstableIndexFile.exists());
 		
-		final ReadOnlyTupleStorage ssTableFacade = new SSTableFacade(STORAGE_DIRECTORY, TEST_RELATION, 1);
+		final ReadOnlyTupleStorage ssTableFacade = new SSTableFacade(STORAGE_DIRECTORY, TEST_RELATION, 1, 0);
 		ssTableFacade.acquire();
 		ssTableFacade.deleteOnClose();
 		

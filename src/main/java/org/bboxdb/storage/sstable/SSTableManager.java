@@ -312,7 +312,8 @@ public class SSTableManager implements BBoxDBService {
 				
 				try {
 					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(sstablename, filename);
-					final SSTableFacade facade = new SSTableFacade(storageDir, sstablename, sequenceNumber);
+					final SSTableFacade facade = new SSTableFacade(storageDir, sstablename, sequenceNumber, 
+							configuration.getSstableKeyCacheEntries());
 					facade.init();
 					tupleStoreInstances.addNewDetectedSSTable(facade);
 				} catch(Exception e) {

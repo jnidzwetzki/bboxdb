@@ -94,6 +94,11 @@ public class BBoxDBConfiguration {
 	protected String regionSplitStrategy = "org.bboxdb.distribution.regionsplit.SamplingBasedSplitStrategy";
 
 	/**
+	 * The number of entries in the key cache per SSTable
+	 */
+	protected int sstableKeyCacheEntries = 1000;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBConfiguration.class);
@@ -209,4 +214,13 @@ public class BBoxDBConfiguration {
 	public void setStorageSpatialIndexReader(final String storageSpatialIndexReader) {
 		this.storageSpatialIndexReader = storageSpatialIndexReader;
 	}
+
+	public int getSstableKeyCacheEntries() {
+		return sstableKeyCacheEntries;
+	}
+
+	public void setSstableKeyCacheEntries(int sstableKeyCacheEntries) {
+		this.sstableKeyCacheEntries = sstableKeyCacheEntries;
+	}
+	
 }

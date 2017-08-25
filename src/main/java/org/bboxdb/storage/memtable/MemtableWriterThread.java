@@ -116,7 +116,11 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 				final SSTableName sstableName = sstableManager.getSSTableName();
 				final String dataDirectory = basedir.getAbsolutePath();
 				final int tableNumber = writeMemtable(dataDirectory, memtable, sstableManager);
-				facade = new SSTableFacade(dataDirectory, sstableName, tableNumber);
+				
+				final int sstableKeyCacheEntries = storage.getStorageRegistry().getConfiguration()
+						.getSstableKeyCacheEntries();
+				
+				facade = new SSTableFacade(dataDirectory, sstableName, tableNumber, sstableKeyCacheEntries);
 				facade.init();
 			}
 			

@@ -74,6 +74,11 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 			throw new RuntimeException("Keycache was already be initiliazed");
 		}
 		
+		// Don't activate the cache
+		if(elements == 0) {
+			return;
+		}
+		
 		keyCache = CacheBuilder.newBuilder()
 				.maximumSize(elements)
 				.expireAfterAccess(30, TimeUnit.SECONDS)

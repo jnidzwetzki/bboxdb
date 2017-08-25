@@ -63,7 +63,6 @@
 # Default: org.bboxdb.storage.sstable.spatialindex.rtree.mmf.RTreeMMFReader
 # storageSpatialIndexReader: org.bboxdb.storage.sstable.spatialindex.rtree.mmf.RTreeMMFReader
 
-
 # Checkpoint interval in seconds . After this interval, still open in 
 # memory tables will be written to disk.
 # 
@@ -73,6 +72,9 @@
 #
 # Default: 1800 seconds
 # storageCheckpointInterval: 1800
+
+# The amount of cached index entries per SSTable
+sstableKeyCacheEntries: 1000
 
 ###
 # Network

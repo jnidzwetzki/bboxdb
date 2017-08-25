@@ -237,8 +237,12 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 		// Open new facedes
 		for(final SSTableWriter writer : newTableWriter) {
+			
+			final int sstableKeyCacheEntries = storage.getStorageRegistry().getConfiguration()
+					.getSstableKeyCacheEntries();
+			
 			final SSTableFacade newFacade = new SSTableFacade(writer.getDirectory(), 
-					writer.getName(), writer.getTablenumber());
+					writer.getName(), writer.getTablenumber(), sstableKeyCacheEntries);
 			newFacedes.add(newFacade);
 		}
 		
