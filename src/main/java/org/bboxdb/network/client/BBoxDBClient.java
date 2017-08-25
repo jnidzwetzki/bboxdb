@@ -524,7 +524,7 @@ public class BBoxDBClient implements BBoxDB {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedEmptyResultFuture();
+			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
 		}
 	}
 
@@ -616,12 +616,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedEmptyResultFuture();
+			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedEmptyResultFuture();
+			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
 		} 
 	}
 	
@@ -722,12 +722,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture();
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture();
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		}
 	}
 	
@@ -757,12 +757,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture();
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture();
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		}
 	}
 	
@@ -793,12 +793,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture();
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture();
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		}
 	}
 	
@@ -828,12 +828,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture();
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture();
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		}
 	}
 	
@@ -863,12 +863,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture();
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture();
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		}
 	}
 	

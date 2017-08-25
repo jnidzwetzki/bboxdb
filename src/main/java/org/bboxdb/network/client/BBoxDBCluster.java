@@ -143,9 +143,10 @@ public class BBoxDBCluster implements BBoxDB {
 					distributionRegion);
 			
 			if(hops.isEmpty()) {
-				logger.error("Insert tuple called, but hop list for bounding box is empty: {}", 
-						tuple.getBoundingBox());
-				return FutureHelper.getFailedEmptyResultFuture();
+				final String errorMessage = "Insert tuple called, but hop list for bounding box is empty: " 
+						+ tuple.getBoundingBox(); 
+				logger.error(errorMessage);
+				return FutureHelper.getFailedEmptyResultFuture(errorMessage);
 			}
 			
 			// Determine the first system, it will route the request to the remaining systems
@@ -153,8 +154,10 @@ public class BBoxDBCluster implements BBoxDB {
 			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 			
 			if(connection == null) {
-				logger.warn("Unable to insert tuple, no connection to system: {}", system);
-				return FutureHelper.getFailedEmptyResultFuture();
+				final String errorMessage = "Unable to insert tuple, no connection to system: " 
+						+ system; 
+				logger.error(errorMessage);
+				return FutureHelper.getFailedEmptyResultFuture(errorMessage);
 			}
 			
 			final RoutingHeader routingHeader = new RoutingHeader((short) 0, hops);
@@ -165,10 +168,8 @@ public class BBoxDBCluster implements BBoxDB {
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
+			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
 		}
-		
-		// Return after exception
-		return FutureHelper.getFailedEmptyResultFuture();
 	}
 
 	@Override
@@ -228,7 +229,7 @@ public class BBoxDBCluster implements BBoxDB {
 			
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);
-			return FutureHelper.getFailedEmptyResultFuture();
+			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
 		}
 	}
 
