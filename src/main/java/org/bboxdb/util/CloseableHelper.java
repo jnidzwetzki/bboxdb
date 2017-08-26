@@ -42,17 +42,19 @@ public class CloseableHelper {
 	 * @param closeable
 	 */
 	public static void closeWithoutException(final Closeable closeable, final Consumer<Exception> consumer) {
-		if(closeable == null) {
-			return;
-		}
 		
-		try {
-			closeable.close();
-		} catch (IOException e) {
-			if(consumer != null) {
-				consumer.accept(e);
+		/**
+		 * Wrap the Closeable interface into a AutoCloseable interface and resuse the
+		 * AutoCloseable close logic
+		 */
+		final AutoCloseable closeableWrapper = new AutoCloseable() {	
+			@Override
+			public void close() throws IOException {
+				closeable.close();
 			}
-		}
+		};
+		
+		closeWithoutException(closeableWrapper, consumer);
 	}
 	
 	/**
