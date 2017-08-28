@@ -41,6 +41,7 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.SSTableConfiguration;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.MicroSecondTimestampProvider;
@@ -108,6 +109,27 @@ public class BBoxDBCluster implements BBoxDB {
 	public void disconnect() {
 		membershipConnectionService.shutdown();
 		zookeeperClient.shutdown();		
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.bboxdb.network.client.BBoxDB#createTable(java.lang.String)
+	 */
+	@Override
+	public EmptyResultFuture createTable(final String table, final SSTableConfiguration configuration) 
+			throws BBoxDBException {
+	
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			throw new BBoxDBException("createTable called, but connection list is empty");
+		}
+
+		try {
+			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
+			
+			return bboxdbClient.createTable(table, configuration);
+		} catch (ResourceAllocationException e) {
+			logger.warn("createDistributionGroup called, but no ressoures are available", e);
+			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
+		}
 	}
 
 	@Override

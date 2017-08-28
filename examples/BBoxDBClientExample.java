@@ -26,6 +26,8 @@ import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.SSTableConfiguration;
+import org.bboxdb.storage.entity.SSTableConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 
 
@@ -80,6 +82,17 @@ public class BBoxDBClientExample {
 		if(createGroupResult.isFailed()) {
 			System.err.println("Unable to create distribution group: " + distributionGroup);
 			System.err.println(createGroupResult.getAllMessages());
+			System.exit(-1);
+		}
+		
+		// Create the table
+		final SSTableConfiguration tableConfig = SSTableConfigurationBuilder.create().allowDuplicates(false).build();
+		final EmptyResultFuture createTableResult = bboxdbClient.createTable(mytable, tableConfig);
+		
+		createTableResult.waitForAll();
+		if(createTableResult.isFailed()) {
+			System.err.println("Unable to create table group: " + mytable);
+			System.err.println(createTableResult.getAllMessages());
 			System.exit(-1);
 		}
 		

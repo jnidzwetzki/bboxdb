@@ -36,6 +36,7 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CancelQueryRequest;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
+import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.request.DeleteTableRequest;
 import org.bboxdb.network.packages.request.DeleteTupleRequest;
@@ -58,6 +59,8 @@ import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.SSTableConfiguration;
+import org.bboxdb.storage.entity.SSTableConfigurationBuilder;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.MicroSecondTimestampProvider;
@@ -386,6 +389,37 @@ public class TestNetworkClasses {
 		Assert.assertEquals(deletePackage, decodedPackage);
 	}
 	
+	
+	
+	/**
+	 * The the encoding and decoding of an create table package
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test
+	public void encodeAndDecodeCreateTable() throws IOException, PackageEncodeException {
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final SSTableConfiguration ssTableConfiguration = SSTableConfigurationBuilder
+				.create()
+				.withTTL(10)
+				.withVersions(666)
+				.withSpatialIndexReader("reader")
+				.withSpatialIndexWriter("writer")
+				.build();
+		
+		final CreateTableRequest createPackage = new CreateTableRequest(sequenceNumber, "test", ssTableConfiguration);
+		
+		final byte[] encodedVersion = networkPackageToByte(createPackage);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final CreateTableRequest decodedPackage = CreateTableRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(createPackage.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(createPackage.getSsTableConfiguration(), ssTableConfiguration);
+		Assert.assertEquals(createPackage, decodedPackage);
+	}
 	
 	/**
 	 * Test decoding and encoding of the key query

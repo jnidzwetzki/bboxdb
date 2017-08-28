@@ -45,56 +45,59 @@ public class NetworkConst {
 	public static final short REQUEST_TYPE_DELETE_TUPLE = 0x02;
 	
 	/**
+	 * Create a new table
+	 */
+	public static final short REQUEST_TYPE_CREATE_TABLE = 0x03;
+	
+	/**
 	 * Request type delete table
 	 */
-	public static final short REQUEST_TYPE_DELETE_TABLE = 0x03;
+	public static final short REQUEST_TYPE_DELETE_TABLE = 0x04;
 	
 	/**
 	 * Request type list tables
 	 */
-	public static final short REQUEST_TYPE_LIST_TABLES = 0x04;
+	public static final short REQUEST_TYPE_LIST_TABLES = 0x05;
 	
 	/**
 	 * Request type disconnect
 	 */
-	public static final short REQUEST_TYPE_DISCONNECT = 0x05;
+	public static final short REQUEST_TYPE_DISCONNECT = 0x06;
 	
 	/**
 	 * Request type query
 	 */
-	public static final short REQUEST_TYPE_QUERY = 0x06;
+	public static final short REQUEST_TYPE_QUERY = 0x07;
 	
 	/**
 	 * Request type create distribution group
 	 */
-	public static final short REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP = 0x07;
+	public static final short REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP = 0x08;
 	
 	/**
 	 * Request type delete distribution group
 	 */
-	public static final short REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP = 0x08;
+	public static final short REQUEST_TYPE_DELETE_DISTRIBUTION_GROUP = 0x09;
 
 	/**
 	 * Compression envelope
 	 */
-	public static final short REQUEST_TYPE_COMPRESSION = 0x09;
+	public static final short REQUEST_TYPE_COMPRESSION = 0x10;
 	
 	/**
 	 * Keep alive package
 	 */
-	public static final short REQUEST_TYPE_KEEP_ALIVE = 0x10;
+	public static final short REQUEST_TYPE_KEEP_ALIVE = 0x11;
 	
 	/**
 	 * Next page package
 	 */
-	public static final short REQUEST_TYPE_NEXT_PAGE = 0x11;
+	public static final short REQUEST_TYPE_NEXT_PAGE = 0x12;
 	
 	/**
 	 * Cancel the given query
 	 */
-	public static final short REQUEST_TYPE_CANCEL_QUERY = 0x12;
-	
-	
+	public static final short REQUEST_TYPE_CANCEL_QUERY = 0x13;
 	
 	/**
 	 * Query type key
