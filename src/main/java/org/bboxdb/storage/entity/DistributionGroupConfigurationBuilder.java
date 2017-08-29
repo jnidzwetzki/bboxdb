@@ -22,9 +22,10 @@ public class DistributionGroupConfigurationBuilder {
 	/**
 	 * The distribution group configuration
 	 */
-	protected DistributionGroupConfiguration distributionGroupConfiguration;
+	protected final DistributionGroupConfiguration distributionGroupConfiguration;
 	
 	protected DistributionGroupConfigurationBuilder() {
+		distributionGroupConfiguration = new DistributionGroupConfiguration();
 	}
 	
 	/**
