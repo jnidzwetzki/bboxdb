@@ -32,6 +32,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -259,9 +260,8 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param replicationFactor
 	 * @throws ZookeeperException 
 	 */
-	public void createDistributionGroup(final String distributionGroup, final short replicationFactor,
-			final int regionSize, final String placementStrategy, final String placementConfig,
-			final String spacePartitioner, final String spacePartitonerconfig) throws ZookeeperException {
+	public void createDistributionGroup(final String distributionGroup, 
+			final DistributionGroupConfiguration configuration) throws ZookeeperException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
 		
@@ -273,7 +273,7 @@ public class DistributionGroupZookeeperAdapter {
 				Integer.toString(nameprefix).getBytes());
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_REPLICATION, 
-				Short.toString(replicationFactor).getBytes());
+				Short.toString(configuration.getReplicationFactor()).getBytes());
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 				"".getBytes());
@@ -284,11 +284,11 @@ public class DistributionGroupZookeeperAdapter {
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.ACTIVE.getStringValue().getBytes());
 		
-		setRegionSizeForDistributionGroup(distributionGroup, regionSize);
-		setPlacementStrategyForDistributionGroup(distributionGroup, placementStrategy);
-		setPlacementConfigForDistributionGroup(distributionGroup, placementConfig);
-		setSpacePartitionerForDistributionGroup(distributionGroup, spacePartitioner);
-		setSpacePartitionerConfigForDistributionGroup(distributionGroup, spacePartitonerconfig);
+		setRegionSizeForDistributionGroup(distributionGroup, configuration.getRegionSize());
+		setPlacementStrategyForDistributionGroup(distributionGroup, configuration.getPlacementStrategy());
+		setPlacementConfigForDistributionGroup(distributionGroup, configuration.getPlacementStrategyConfig());
+		setSpacePartitionerForDistributionGroup(distributionGroup, configuration.getSpacePartitioner());
+		setSpacePartitionerConfigForDistributionGroup(distributionGroup, configuration.getSpacePartitionerConfig());
 	}
 	
 	/**

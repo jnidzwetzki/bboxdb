@@ -86,6 +86,7 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.SSTableConfiguration;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
@@ -675,9 +676,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture createDistributionGroup(final String distributionGroup, 
-			final short replicationFactor, final int regionSize,
-			final String placementStrategy, final String placementStrategyConfig,
-			final String spacePartitioner, final String spacePartitionerConfig) {
+			final DistributionGroupConfiguration distributionGroupConfiguration) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedFuture("listTables called, but connection not ready: " + this);
@@ -686,9 +685,7 @@ public class BBoxDBClient implements BBoxDB {
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 		final CreateDistributionGroupRequest requestPackage = new CreateDistributionGroupRequest(
 				getNextSequenceNumber(), distributionGroup, 
-				replicationFactor, regionSize, placementStrategy, 
-				placementStrategyConfig, spacePartitioner, 
-				spacePartitionerConfig);
+				distributionGroupConfiguration);
 		
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);

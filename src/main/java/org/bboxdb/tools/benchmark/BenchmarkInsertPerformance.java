@@ -21,10 +21,11 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 
 public class BenchmarkInsertPerformance extends AbstractBenchmark {
@@ -55,10 +56,12 @@ public class BenchmarkInsertPerformance extends AbstractBenchmark {
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
+		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder.create()
+				.withReplicationFactor((short) 3)
+				.build();
+		
 		final EmptyResultFuture createResult = bboxdbClient.createDistributionGroup(DISTRIBUTION_GROUP, 
-				(short) 3, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				Const.DEFAULT_PLACEMENT_CONFIG, Const.DEFAULT_SPACE_PARTITIONER, 
-				Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+				config);
 		
 		createResult.waitForAll();
 		

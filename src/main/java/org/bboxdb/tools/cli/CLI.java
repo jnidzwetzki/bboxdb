@@ -46,6 +46,8 @@ import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.bboxdb.util.MathUtil;
@@ -610,10 +612,15 @@ public class CLI implements Runnable, AutoCloseable {
 		System.out.println("Create new distribution group: " + distributionGroup);
 		
 		try {
+			final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
+					.withReplicationFactor((short) replicationFactor)
+					.withRegionSize(regionSize)
+					.withPlacementStrategy(resourcePlacement, resourcePlacementConfig)
+					.withSpacePartitioner(spacePartitioner, spacePartitionerConfig)
+					.build();
+					
 			final EmptyResultFuture future = bboxDbConnection.createDistributionGroup(
-					distributionGroup, (short) replicationFactor, regionSize, 
-					resourcePlacement, resourcePlacementConfig, spacePartitioner, 
-					spacePartitionerConfig);
+					distributionGroup, configuration);
 			
 			future.waitForAll();
 			

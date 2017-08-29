@@ -59,6 +59,8 @@ import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.SSTableConfiguration;
 import org.bboxdb.storage.entity.SSTableConfigurationBuilder;
 import org.bboxdb.storage.entity.SSTableName;
@@ -281,12 +283,15 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeCreateDistributionGroup() throws IOException, PackageEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final String placementConfig = "123456";
-		final String spacePartitionerConfig = "abcd";
-		
+		final DistributionGroupConfiguration distributionGroupConfiguration = DistributionGroupConfigurationBuilder.create()
+				.withPlacementStrategy("abc", "def")
+				.withSpacePartitioner("efg", "ijh")
+				.withRegionSize(33333)
+				.withReplicationFactor((short) 11)
+				.build();
+				
 		final CreateDistributionGroupRequest groupPackage = new CreateDistributionGroupRequest(sequenceNumber, 
-				"test", (short) 3, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				placementConfig, Const.DEFAULT_SPACE_PARTITIONER, spacePartitionerConfig);
+				"test", distributionGroupConfiguration);
 		
 		byte[] encodedVersion = networkPackageToByte(groupPackage);
 		Assert.assertNotNull(encodedVersion);
@@ -295,12 +300,7 @@ public class TestNetworkClasses {
 		final CreateDistributionGroupRequest decodedPackage = CreateDistributionGroupRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(groupPackage.getDistributionGroup(), decodedPackage.getDistributionGroup());
-		Assert.assertEquals(groupPackage.getReplicationFactor(), decodedPackage.getReplicationFactor());
-		Assert.assertEquals(Const.DEFAULT_REGION_SIZE, decodedPackage.getRegionSize());
-		Assert.assertEquals(Const.DEFAULT_PLACEMENT_STRATEGY, decodedPackage.getPlacementStrategy());
-		Assert.assertEquals(placementConfig, decodedPackage.getPlacementStrategyConfig());
-		Assert.assertEquals(Const.DEFAULT_SPACE_PARTITIONER, decodedPackage.getSpacePartitioner());
-		Assert.assertEquals(spacePartitionerConfig, decodedPackage.getSpacePartitionerConfig());
+		Assert.assertEquals(groupPackage.getDistributionGroupConfiguration(), distributionGroupConfiguration);
 		Assert.assertEquals(groupPackage, decodedPackage);
 	}
 	
