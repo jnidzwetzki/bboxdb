@@ -301,7 +301,6 @@ public class TestNetworkClasses {
 				
 		Assert.assertEquals(groupPackage.getDistributionGroup(), decodedPackage.getDistributionGroup());
 		Assert.assertEquals(groupPackage.getDistributionGroupConfiguration(), distributionGroupConfiguration);
-		Assert.assertEquals(groupPackage, decodedPackage);
 	}
 	
 	/**
