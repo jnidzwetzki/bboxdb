@@ -27,6 +27,8 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 
 public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 	
@@ -36,51 +38,18 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 	protected final String distributionGroup;
 	
 	/**
-	 * The max size of the region
+	 * The distribution group configuration
 	 */
-	protected final int regionSize;
-	
-	/**
-	 * The replication factor for the distribution group
-	 */
-	protected final short replicationFactor;
-
-	/** 
-	 * The placement strategy
-	 */
-	protected final String placementStrategy;
-	
-	/**
-	 * The placement strategy config
-	 */
-	protected final String placementStrategyConfig;
-
-	/**
-	 * The space partitioner
-	 */
-	protected final String spacePartitioner;
-	
-	/**
-	 * The space partitioner configuration
-	 */
-	protected final String spacePartitionerConfig;
-
+	protected final DistributionGroupConfiguration distributionGroupConfiguration;
 
 	public CreateDistributionGroupRequest(final short sequencNumber,
-			final String distributionGroup, final short replicationFactor,
-			final int regionSize, final String placementStrategy, 
-			final String placementStrategyConfig, final String spacePartitioner, 
-			final String spacePartitionerConfig) {
+			final String distributionGroup, 
+			final DistributionGroupConfiguration distributionGroupConfiguration) {
 		
 		super(sequencNumber);
 		
 		this.distributionGroup = distributionGroup;
-		this.regionSize = regionSize;
-		this.replicationFactor = replicationFactor;
-		this.placementStrategy = placementStrategy;
-		this.placementStrategyConfig = placementStrategyConfig;
-		this.spacePartitioner = spacePartitioner;
-		this.spacePartitionerConfig = spacePartitionerConfig;
+		this.distributionGroupConfiguration = distributionGroupConfiguration;
 	}
 	
 	@Override
@@ -88,20 +57,20 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 
 		try {
 			final byte[] groupBytes = distributionGroup.getBytes();
-			final byte[] placementBytes = placementStrategy.getBytes();
-			final byte[] placementConfigBytes = placementStrategyConfig.getBytes();
-			final byte[] spacePartitionierBytes = spacePartitioner.getBytes();
-			final byte[] spacePartitionierConfigBytes = spacePartitionerConfig.getBytes();
+			final byte[] placementBytes = distributionGroupConfiguration.getPlacementStrategy().getBytes();
+			final byte[] placementConfigBytes = distributionGroupConfiguration.getPlacementStrategyConfig().getBytes();
+			final byte[] spacePartitionierBytes = distributionGroupConfiguration.getSpacePartitioner().getBytes();
+			final byte[] spacePartitionierConfigBytes = distributionGroupConfiguration.getSpacePartitionerConfig().getBytes();
 
 			final ByteBuffer bb = ByteBuffer.allocate(20);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
-			bb.putShort(replicationFactor);
+			bb.putShort(distributionGroupConfiguration.getReplicationFactor());
 			bb.putShort((short) groupBytes.length);
 			bb.putShort((short) placementBytes.length);
 			bb.putShort((short) spacePartitionierBytes.length);
 			bb.putInt((int) placementConfigBytes.length);
 			bb.putInt((int) spacePartitionierConfigBytes.length);
-			bb.putInt(regionSize);
+			bb.putInt(distributionGroupConfiguration.getRegionSize());
 			
 			// Body length
 			final long bodyLength = bb.capacity() + groupBytes.length 
@@ -179,8 +148,14 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new CreateDistributionGroupRequest(sequenceNumber, distributionGroup, replicationFactor, 
-				regionSize, placemeneStrategy, placementConfig, spacePartitioner, spacePartitionerConfig);
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
+				.withPlacementStrategy(placemeneStrategy, placementConfig)
+				.withSpacePartitioner(spacePartitioner, spacePartitionerConfig)
+				.withRegionSize(regionSize)
+				.withReplicationFactor(replicationFactor)
+				.build();
+				
+		return new CreateDistributionGroupRequest(sequenceNumber, distributionGroup, configuration);
 	}
 
 	@Override
@@ -192,41 +167,17 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 		return distributionGroup;
 	}
 	
-	public short getReplicationFactor() {
-		return replicationFactor;
-	}
-
-	public String getPlacementStrategy() {
-		return placementStrategy;
+	public DistributionGroupConfiguration getDistributionGroupConfiguration() {
+		return distributionGroupConfiguration;
 	}
 	
-	public String getPlacementStrategyConfig() {
-		return placementStrategyConfig;
-	}
-
-	public int getRegionSize() {
-		return regionSize;
-	}
-	
-	public String getSpacePartitioner() {
-		return spacePartitioner;
-	}
-	
-	public String getSpacePartitionerConfig() {
-		return spacePartitionerConfig;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((distributionGroup == null) ? 0 : distributionGroup.hashCode());
-		result = prime * result + ((placementStrategy == null) ? 0 : placementStrategy.hashCode());
-		result = prime * result + ((placementStrategyConfig == null) ? 0 : placementStrategyConfig.hashCode());
-		result = prime * result + regionSize;
-		result = prime * result + replicationFactor;
-		result = prime * result + ((spacePartitioner == null) ? 0 : spacePartitioner.hashCode());
-		result = prime * result + ((spacePartitionerConfig == null) ? 0 : spacePartitionerConfig.hashCode());
+		result = prime * result
+				+ ((distributionGroupConfiguration == null) ? 0 : distributionGroupConfiguration.hashCode());
 		return result;
 	}
 
@@ -244,32 +195,11 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 				return false;
 		} else if (!distributionGroup.equals(other.distributionGroup))
 			return false;
-		if (placementStrategy == null) {
-			if (other.placementStrategy != null)
+		if (distributionGroupConfiguration == null) {
+			if (other.distributionGroupConfiguration != null)
 				return false;
-		} else if (!placementStrategy.equals(other.placementStrategy))
-			return false;
-		if (placementStrategyConfig == null) {
-			if (other.placementStrategyConfig != null)
-				return false;
-		} else if (!placementStrategyConfig.equals(other.placementStrategyConfig))
-			return false;
-		if (regionSize != other.regionSize)
-			return false;
-		if (replicationFactor != other.replicationFactor)
-			return false;
-		if (spacePartitioner == null) {
-			if (other.spacePartitioner != null)
-				return false;
-		} else if (!spacePartitioner.equals(other.spacePartitioner))
-			return false;
-		if (spacePartitionerConfig == null) {
-			if (other.spacePartitionerConfig != null)
-				return false;
-		} else if (!spacePartitionerConfig.equals(other.spacePartitionerConfig))
+		} else if (!distributionGroupConfiguration.equals(other.distributionGroupConfiguration))
 			return false;
 		return true;
 	}
-
-	
 }

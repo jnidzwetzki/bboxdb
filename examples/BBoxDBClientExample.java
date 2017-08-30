@@ -19,13 +19,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.storage.entity.SSTableConfiguration;
+import org.bboxdb.storage.entity.SSTableConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 
 
@@ -71,15 +74,28 @@ public class BBoxDBClientExample {
 		}
 		
 		// Create a new distribution group
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
+				.withReplicationFactor((short) 3)
+				.build();
+		
 		final EmptyResultFuture createGroupResult = bboxdbClient.createDistributionGroup(distributionGroup, 
-				(short) 3, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				Const.DEFAULT_PLACEMENT_CONFIG, Const.DEFAULT_SPACE_PARTITIONER, 
-				Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+				configuration);
 		
 		createGroupResult.waitForAll();
 		if(createGroupResult.isFailed()) {
 			System.err.println("Unable to create distribution group: " + distributionGroup);
 			System.err.println(createGroupResult.getAllMessages());
+			System.exit(-1);
+		}
+		
+		// Create the table
+		final SSTableConfiguration tableConfig = SSTableConfigurationBuilder.create().allowDuplicates(false).build();
+		final EmptyResultFuture createTableResult = bboxdbClient.createTable(mytable, tableConfig);
+		
+		createTableResult.waitForAll();
+		if(createTableResult.isFailed()) {
+			System.err.println("Unable to create table group: " + mytable);
+			System.err.println(createTableResult.getAllMessages());
 			System.exit(-1);
 		}
 		

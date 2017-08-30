@@ -66,6 +66,7 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CancelQueryRequest;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
+import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.request.DeleteTableRequest;
 import org.bboxdb.network.packages.request.DeleteTupleRequest;
@@ -85,6 +86,8 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.SSTableConfiguration;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.CloseableHelper;
@@ -488,6 +491,23 @@ public class BBoxDBClient implements BBoxDB {
 	}
 	
 	/* (non-Javadoc)
+	 * @see org.bboxdb.network.client.BBoxDB#createTable(java.lang.String)
+	 */
+	@Override
+	public EmptyResultFuture createTable(final String table, final SSTableConfiguration configuration) throws BBoxDBException {
+		
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			return createFailedFuture("createTable called, but connection not ready: " + this);
+		}
+		
+		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
+		final CreateTableRequest requestPackage = new CreateTableRequest(getNextSequenceNumber(), table, configuration);
+		registerPackageCallback(requestPackage, clientOperationFuture);
+		sendPackageToServer(requestPackage, clientOperationFuture);
+		return clientOperationFuture;
+	}
+
+	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#deleteTable(java.lang.String)
 	 */
 	@Override
@@ -656,9 +676,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture createDistributionGroup(final String distributionGroup, 
-			final short replicationFactor, final int regionSize,
-			final String placementStrategy, final String placementStrategyConfig,
-			final String spacePartitioner, final String spacePartitionerConfig) {
+			final DistributionGroupConfiguration distributionGroupConfiguration) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedFuture("listTables called, but connection not ready: " + this);
@@ -667,9 +685,7 @@ public class BBoxDBClient implements BBoxDB {
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 		final CreateDistributionGroupRequest requestPackage = new CreateDistributionGroupRequest(
 				getNextSequenceNumber(), distributionGroup, 
-				replicationFactor, regionSize, placementStrategy, 
-				placementStrategyConfig, spacePartitioner, 
-				spacePartitionerConfig);
+				distributionGroupConfiguration);
 		
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);

@@ -23,12 +23,13 @@ import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -211,10 +212,12 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
+				.withReplicationFactor((short) 1)
+				.build();
+		
 		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				REPLICATION_FACTOR, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				Const.DEFAULT_PLACEMENT_CONFIG, Const.DEFAULT_SPACE_PARTITIONER, 
-				Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+				configuration);
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());

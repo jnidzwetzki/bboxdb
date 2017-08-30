@@ -41,6 +41,8 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.SSTableConfiguration;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.MicroSecondTimestampProvider;
@@ -108,6 +110,27 @@ public class BBoxDBCluster implements BBoxDB {
 	public void disconnect() {
 		membershipConnectionService.shutdown();
 		zookeeperClient.shutdown();		
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.bboxdb.network.client.BBoxDB#createTable(java.lang.String)
+	 */
+	@Override
+	public EmptyResultFuture createTable(final String table, final SSTableConfiguration configuration) 
+			throws BBoxDBException {
+	
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			throw new BBoxDBException("createTable called, but connection list is empty");
+		}
+
+		try {
+			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
+			
+			return bboxdbClient.createTable(table, configuration);
+		} catch (ResourceAllocationException e) {
+			logger.warn("createDistributionGroup called, but no ressoures are available", e);
+			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
+		}
 	}
 
 	@Override
@@ -212,9 +235,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 	@Override
 	public EmptyResultFuture createDistributionGroup(final String distributionGroup, 
-			final short replicationFactor, final int regionSize, final String placementStrategy, 
-			final String placementStrategyConfig, final String spacePartitioner, 
-			final String spacePartitionerConfig) throws BBoxDBException {
+			final DistributionGroupConfiguration distributionGroupConfiguration) throws BBoxDBException {
 
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("createDistributionGroup called, but connection list is empty");
@@ -223,9 +244,7 @@ public class BBoxDBCluster implements BBoxDB {
 		try {
 			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
 			
-			return bboxdbClient.createDistributionGroup(distributionGroup, replicationFactor, 
-					regionSize, placementStrategy, placementStrategyConfig, 
-					spacePartitioner, spacePartitionerConfig);
+			return bboxdbClient.createDistributionGroup(distributionGroup, distributionGroupConfiguration);
 			
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);

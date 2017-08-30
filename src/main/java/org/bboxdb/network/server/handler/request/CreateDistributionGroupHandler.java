@@ -60,9 +60,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 			
 			distributionGroupZookeeperAdapter.createDistributionGroup(distributionGroup, 
-					createPackage.getReplicationFactor(), createPackage.getRegionSize(),
-					createPackage.getPlacementStrategy(), createPackage.getPlacementStrategyConfig(),
-					createPackage.getSpacePartitioner(), createPackage.getSpacePartitionerConfig());
+					createPackage.getDistributionGroupConfiguration());
 			
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
 					distributionGroup, zookeeperClient);

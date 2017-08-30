@@ -19,12 +19,13 @@ package org.bboxdb.network;
 
 import java.util.List;
 
-import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 import org.junit.Assert;
 
@@ -35,8 +36,11 @@ public class NetworkQueryHelper {
 	/**
 	 * The replication factor for the unit tests
 	 */
-	public final static short REPLICATION_FACTOR = 1;
+	public final static DistributionGroupConfiguration CONFIGURATION;
 	
+	static {
+		CONFIGURATION = DistributionGroupConfigurationBuilder.create().withReplicationFactor((short) 1).build();
+	}
 	
 	/**
 	 * Execute a bounding box and time query
@@ -57,9 +61,7 @@ public class NetworkQueryHelper {
 		
 		// Create distribution group
 		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				REPLICATION_FACTOR, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				Const.DEFAULT_PLACEMENT_CONFIG, Const.DEFAULT_SPACE_PARTITIONER, 
-				Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+				CONFIGURATION);
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
@@ -110,9 +112,7 @@ public class NetworkQueryHelper {
 		
 		// Create distribution group
 		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				REPLICATION_FACTOR, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				Const.DEFAULT_PLACEMENT_CONFIG, Const.DEFAULT_SPACE_PARTITIONER, 
-				Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+				CONFIGURATION);
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
@@ -162,9 +162,7 @@ public class NetworkQueryHelper {
 		// Create distribution group
 		System.out.println("Create distribution group");
 		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				REPLICATION_FACTOR, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				Const.DEFAULT_PLACEMENT_CONFIG, Const.DEFAULT_SPACE_PARTITIONER, 
-				Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+				CONFIGURATION);
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());

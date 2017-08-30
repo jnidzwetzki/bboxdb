@@ -24,26 +24,21 @@ import java.util.List;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionState;
+import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.misc.Const;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestZookeeperIntegration {
-
-	/**
-	 * The replication factor
-	 */
-	private static final short REPLICATION_FACTOR = (short) 3;
 
 	/**
 	 * The zookeeper client
@@ -131,9 +126,7 @@ public class TestZookeeperIntegration {
 		
 		// Create new group
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		final List<DistributionGroupName> groups = distributionGroupZookeeperAdapter.getDistributionGroups();
 		System.out.println(groups);
@@ -168,9 +161,7 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testDistributionGroupReplicationFactor() throws ZookeeperException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		Assert.assertEquals(3, distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(TEST_GROUP));
 	}
@@ -185,9 +176,7 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testDistributionRegionSplit() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		// Split and update
 		final KDtreeZookeeperAdapter distributionGroupAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
@@ -220,9 +209,7 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testDistributionRegionSplitWithZookeeperPropergate() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		final KDtreeZookeeperAdapter adapter1 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		final DistributionRegion distributionGroup1 = adapter1.getRootNode();
@@ -259,9 +246,7 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testDistributionRegionSplitWithZookeeperPropergate2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		final KDtreeZookeeperAdapter adapter1 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		final DistributionRegion distributionGroup1 = adapter1.getRootNode();
@@ -305,9 +290,7 @@ public class TestZookeeperIntegration {
 	public void testSystemRegisterAndUnregister() throws ZookeeperException, ZookeeperNotFoundException {
 		final DistributedInstance systemName = new DistributedInstance("192.168.1.10:5050");
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 		final Collection<DistributedInstance> systems1 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, null);
@@ -335,9 +318,7 @@ public class TestZookeeperIntegration {
 		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 
@@ -377,9 +358,7 @@ public class TestZookeeperIntegration {
 		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		final KDtreeZookeeperAdapter distributionGroupAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		final DistributionRegion region = distributionGroupAdapter.getRootNode();
@@ -419,9 +398,7 @@ public class TestZookeeperIntegration {
 	public void testSystems() throws ZookeeperException, InterruptedException {
 		final DistributedInstance systemName = new DistributedInstance("192.168.1.10:5050");
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName);
@@ -441,9 +418,7 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testNameprefix1() throws ZookeeperException, InterruptedException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
 		Assert.assertEquals(0, region.getRegionId());
@@ -459,9 +434,7 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testNameprefix2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
  		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		final KDtreeZookeeperAdapter distributionGroupAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
 		final DistributionRegion region = distributionGroupAdapter.getRootNode();
@@ -562,9 +535,7 @@ public class TestZookeeperIntegration {
 			throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		final KDtreeZookeeperAdapter cacheGroup = DistributionGroupCache.getGroupForGroupName(TEST_GROUP, zookeeperClient);
 		Assert.assertTrue(cacheGroup.getRootNode().isLeafRegion());
@@ -573,9 +544,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		System.out.println("---> Create");
 
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, REPLICATION_FACTOR, 
-				Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, Const.DEFAULT_PLACEMENT_CONFIG,
-				Const.DEFAULT_SPACE_PARTITIONER, Const.DEFAULT_SPACE_PARTITIONER_CONFIG); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		System.out.println("---> Split");
 

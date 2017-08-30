@@ -22,12 +22,13 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,10 +110,12 @@ public class DistributedSelftest {
 		Thread.sleep(5000);
 		
 		logger.info("Create new distribution group: " + DISTRIBUTION_GROUP);
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
+				.withReplicationFactor((short) 2)
+				.build();
+		
 		final EmptyResultFuture createFuture = bboxdbCluster.createDistributionGroup(DISTRIBUTION_GROUP, 
-				(short) 2, Const.DEFAULT_REGION_SIZE, Const.DEFAULT_PLACEMENT_STRATEGY, 
-				Const.DEFAULT_PLACEMENT_CONFIG, Const.DEFAULT_SPACE_PARTITIONER, 
-				Const.DEFAULT_SPACE_PARTITIONER_CONFIG);
+				configuration);
 		
 		createFuture.waitForAll();
 		if(createFuture.isFailed()) {
