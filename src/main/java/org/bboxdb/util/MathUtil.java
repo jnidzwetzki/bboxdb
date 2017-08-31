@@ -26,8 +26,14 @@ public class MathUtil {
 	/**
 	 * The return value when parsing has failed and no exit is requested
 	 */
-	public static int RESULT_PARSE_FAILED_AND_NO_EXIT = -1;
+	public static int RESULT_PARSE_FAILED_AND_NO_EXIT_INT = -1;
 
+	/**
+	 * The return value when parsing has failed and no exit is requested
+	 */
+	public static boolean RESULT_PARSE_FAILED_AND_NO_EXIT_BOOL = false;
+
+	
 	/**
 	 * Round the given number of fractions
 	 * @param value
@@ -83,7 +89,7 @@ public class MathUtil {
 			}
 		}
     	
-    	return RESULT_PARSE_FAILED_AND_NO_EXIT;
+    	return RESULT_PARSE_FAILED_AND_NO_EXIT_INT;
     }
 
     
@@ -129,6 +135,52 @@ public class MathUtil {
 			}
 		}
     	
-    	return RESULT_PARSE_FAILED_AND_NO_EXIT;
+    	return RESULT_PARSE_FAILED_AND_NO_EXIT_INT;
+    }
+    
+    
+    /**
+     * Try to convert the given string into a double
+     * @param valueToParse
+     * @param message
+     * @return
+     */
+    public static boolean tryParseBooleanOrExit(final String valueToParse) {
+    	return tryParseBooleanOrExit(valueToParse, () -> "Unable to convert to double: " + valueToParse, true);
+    }
+    
+    /**
+     * Try to convert the given string into a double
+     * @param valueToParse
+     * @param message
+     * @return
+     */
+    public static boolean tryParseBooleanOrExit(final String valueToParse, 
+    		final Supplier<String> errorMessageSupplier) {
+    	
+    	return tryParseBooleanOrExit(valueToParse, errorMessageSupplier, true);
+    }
+    
+    /**
+     * Try to convert the given string into a double
+     * @param valueToParse
+     * @param message
+     * @return
+     */
+    @VisibleForTesting
+    public static boolean tryParseBooleanOrExit(final String valueToParse,
+    		final Supplier<String> errorMessageSupplier, final boolean exitOnException) {
+    	try {
+			final boolean parsedBoolean = Boolean.parseBoolean(valueToParse);
+			return parsedBoolean;
+		} catch (NumberFormatException e) {
+			System.err.println(errorMessageSupplier.get());
+			
+			if(exitOnException) {
+				System.exit(-1);
+			}
+		}
+    	
+    	return RESULT_PARSE_FAILED_AND_NO_EXIT_BOOL;
     }
 }

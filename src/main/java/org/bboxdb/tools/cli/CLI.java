@@ -48,6 +48,8 @@ import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.storage.entity.SSTableConfiguration;
+import org.bboxdb.storage.entity.SSTableConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.bboxdb.util.MathUtil;
@@ -170,6 +172,14 @@ public class CLI implements Runnable, AutoCloseable {
 			actionShowDgroup(line);
 			break;
 			
+		case CLIAction.CREATE_TABLE:
+			actionCreateTable(line);
+			break;
+			
+		case CLIAction.DELETE_TABLE:
+			actionDeleteTable(line);
+			break;
+			
 		case CLIAction.SHOW_INSTANCES:
 			actionShowInstances(line);
 			break;
@@ -202,6 +212,112 @@ public class CLI implements Runnable, AutoCloseable {
 		if(bboxDbConnection != null) {
 			bboxDbConnection.disconnect();
 			bboxDbConnection = null;
+		}
+	}
+	
+	/**
+	 * Create a new table
+	 * @param line
+	 */
+	protected void actionCreateTable(final CommandLine line) {
+		if(! line.hasOption(CLIParameter.TABLE)) {
+			System.err.println("Create table should be performed, but no table was specified");
+			printHelpAndExit();
+		}
+		
+		final SSTableConfigurationBuilder ssTableConfigurationBuilder = SSTableConfigurationBuilder
+				.create();
+		
+		// Duplicates
+		if(line.hasOption(CLIParameter.DUPLICATES)) {
+			final String allowDuplicates = line.getOptionValue(CLIParameter.DUPLICATES);
+			
+			final boolean duplicatesAllowed = MathUtil.tryParseBooleanOrExit(allowDuplicates, 
+					() -> "Unable to parse the bolean value for duplicates: " + allowDuplicates);
+			
+			ssTableConfigurationBuilder.allowDuplicates(duplicatesAllowed);
+		}
+		
+		// TTL
+		if(line.hasOption(CLIParameter.TTL)) {
+			final String ttlString = line.getOptionValue(CLIParameter.TTL);
+			final int ttl = MathUtil.tryParseIntOrExit(ttlString, 
+					() -> "Unable to parse the region size: " + ttlString);
+			ssTableConfigurationBuilder.withTTL(ttl);
+		}
+			
+		// Versions
+		if(line.hasOption(CLIParameter.VERSIONS)) {
+			final String versionString = line.getOptionValue(CLIParameter.VERSIONS);
+			final int versions = MathUtil.tryParseIntOrExit(versionString, 
+					() -> "Unable to parse the region size: " + versionString);
+			ssTableConfigurationBuilder.withVersions(versions);
+		}
+		
+		// Spatial index reader
+		if(line.hasOption(CLIParameter.SPATIAL_INDEX_READER)) {
+			final String spatialIndexReader = line.getOptionValue(CLIParameter.SPATIAL_INDEX_READER);
+			ssTableConfigurationBuilder.withSpatialIndexReader(spatialIndexReader);
+		}
+		
+		// Spatial index writer
+		if(line.hasOption(CLIParameter.SPATIAL_INDEX_WRITER)) {
+			final String spatialIndexWriter = line.getOptionValue(CLIParameter.SPATIAL_INDEX_WRITER);
+			ssTableConfigurationBuilder.withSpatialIndexWriter(spatialIndexWriter);
+		}	
+		
+		final SSTableConfiguration configuration = ssTableConfigurationBuilder.build();
+		
+		try {
+			final String table = line.getOptionValue(CLIParameter.TABLE);
+	
+			final EmptyResultFuture resultFuture = bboxDbConnection.createTable(table, configuration);
+	
+			resultFuture.waitForAll();
+	
+			if(resultFuture.isFailed()) {
+				System.err.println("Unable to create table: " + resultFuture.getAllMessages());
+				System.exit(-1);
+			}
+			
+		} catch (BBoxDBException e) {
+			System.err.println("Got an exception while creating table: " + e);
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+		
+	}
+	
+	/**
+	 * Delete an existing table
+	 * @param line
+	 */
+	protected void actionDeleteTable(final CommandLine line) {
+		if(! line.hasOption(CLIParameter.TABLE)) {
+			System.err.println("Delete table should be performed, but no table was specified");
+			printHelpAndExit();
+		}
+		
+		try {
+			final String table = line.getOptionValue(CLIParameter.TABLE);
+	
+			final EmptyResultFuture resultFuture = bboxDbConnection.deleteTable(table);
+	
+			resultFuture.waitForAll();
+	
+			if(resultFuture.isFailed()) {
+				System.err.println("Unable to delete table: " + resultFuture.getAllMessages());
+				System.exit(-1);
+			}
+			
+		} catch (BBoxDBException e) {
+			System.err.println("Got an exception while deleting table: " + e);
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
 		}
 	}
 	
