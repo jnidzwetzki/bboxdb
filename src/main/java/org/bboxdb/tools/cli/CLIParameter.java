@@ -113,5 +113,29 @@ public class CLIParameter {
 	 * Value
 	 */
 	protected static final String VALUE = "value";
-
+	
+	/**
+	 * Allow duplicates
+	 */
+	protected static final String DUPLICATES = "duplicates";
+	
+	/**
+	 * The TTL for the table
+	 */
+	protected static final String TTL = "ttl";
+	
+	/**
+	 * The amount of tuple versions per table
+	 */
+	protected static final String VERSIONS = "versions";
+	
+	/**
+	 * The name of the spatial index writer
+	 */
+	protected static final String SPATIAL_INDEX_WRITER = "sindexwriter";
+	
+	/**
+	 * The name of the spatial index reader
+	 */
+	protected static final String SPATIAL_INDEX_READER = "sindexreader";
 }

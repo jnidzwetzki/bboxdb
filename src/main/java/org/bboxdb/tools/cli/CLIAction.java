@@ -53,6 +53,16 @@ public class CLIAction {
 	protected static final String DELETE_DGROUP = "delete_dgroup";
 	
 	/**
+	 * Create a new table
+	 */
+	protected static final String CREATE_TABLE = "create_table";
+	
+	/**
+	 * Delete a table
+	 */
+	protected static final String DELETE_TABLE = "delete_table";
+	
+	/**
 	 * The name of the show distribution group action
 	 */
 	protected static final String SHOW_DGROUP = "show_dgroup";
@@ -67,6 +77,6 @@ public class CLIAction {
 	 */
 	protected static List<String> ALL_ACTIONS 
 		= Arrays.asList(IMPORT, QUERY, DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP, 
-				SHOW_DGROUP, SHOW_INSTANCES);
+				SHOW_DGROUP, SHOW_INSTANCES, CREATE_TABLE, DELETE_TABLE);
 
 }

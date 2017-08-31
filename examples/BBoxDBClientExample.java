@@ -89,7 +89,10 @@ public class BBoxDBClientExample {
 		}
 		
 		// Create the table
-		final SSTableConfiguration tableConfig = SSTableConfigurationBuilder.create().allowDuplicates(false).build();
+		final SSTableConfiguration tableConfig = SSTableConfigurationBuilder.create()
+				.allowDuplicates(false)
+				.build();
+		
 		final EmptyResultFuture createTableResult = bboxdbClient.createTable(mytable, tableConfig);
 		
 		createTableResult.waitForAll();

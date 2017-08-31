@@ -65,7 +65,7 @@ public class TestMathUtil {
 	public void testParseInteger() {
 		final Supplier<String> errorSupplier1 = getMockedSupplier();
 		final int result1 = MathUtil.tryParseInt("abc", errorSupplier1, false);
-		Assert.assertEquals(MathUtil.RESULT_PARSE_FAILED_AND_NO_EXIT, result1);
+		Assert.assertEquals(MathUtil.RESULT_PARSE_FAILED_AND_NO_EXIT_INT, result1);
 		(Mockito.verify(errorSupplier1, Mockito.atLeastOnce())).get();
 		
 		final Supplier<String> errorSupplier2 = getMockedSupplier();
@@ -79,7 +79,7 @@ public class TestMathUtil {
 	public void testParseDouble() {
 		final Supplier<String> errorSupplier1 = getMockedSupplier();
 		final double result1 = MathUtil.tryParseDouble("abc", errorSupplier1, false);
-		Assert.assertEquals(MathUtil.RESULT_PARSE_FAILED_AND_NO_EXIT, result1, DEFAULT_ASSERT_DELTA);
+		Assert.assertEquals(MathUtil.RESULT_PARSE_FAILED_AND_NO_EXIT_INT, result1, DEFAULT_ASSERT_DELTA);
 		(Mockito.verify(errorSupplier1, Mockito.atLeastOnce())).get();
 		
 		final Supplier<String> errorSupplier2 = getMockedSupplier();
