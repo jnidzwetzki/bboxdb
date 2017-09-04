@@ -125,7 +125,6 @@ public class TestSSTableCache implements Runnable {
 	 */
 	protected long writeTuples(final String data) throws Exception {
 		System.out.println("# Writing Tuples");
-		tupleStore.open();
 		
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		
@@ -134,7 +133,6 @@ public class TestSSTableCache implements Runnable {
 			tupleStore.writeTuple(tuple);
 		}
 		
-		tupleStore.close();
 		return stopwatch.elapsed(TimeUnit.MILLISECONDS);
 	}
 
