@@ -145,14 +145,12 @@ public class TestSSTableCache implements Runnable {
 	 */
 	protected long readTuples() throws Exception {
 		System.out.println("# Reading Tuples");
-		tupleStore.open();
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 
 		for(int i = 0; i < TUPLES; i++) {
 			tupleStore.readTuple(Integer.toString(i));
 		}
 		
-		tupleStore.close();
 		return stopwatch.elapsed(TimeUnit.MILLISECONDS);
 	}
 	
