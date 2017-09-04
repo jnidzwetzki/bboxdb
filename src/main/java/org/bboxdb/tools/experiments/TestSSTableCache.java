@@ -24,10 +24,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.misc.BBoxDBConfiguration;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.tools.experiments.tuplestore.SSTableTupleStore;
 import org.bboxdb.tools.generator.SyntheticDataGenerator;
 import org.bboxdb.util.CloseableHelper;
@@ -77,14 +76,11 @@ public class TestSSTableCache implements Runnable {
 		for(final int cacheSize : keyCacheElements) {
 			
 			try {				
+				BBoxDBConfigurationManager.getConfiguration().setSstableKeyCacheEntries(cacheSize);
+
 				tupleStore = new SSTableTupleStore(dir);
-				
-				final StorageRegistry storageRegistry = tupleStore.getStorageRegistry();
-				final BBoxDBConfiguration configuration = storageRegistry.getConfiguration();
-				configuration.setSstableKeyCacheEntries(cacheSize);
-				
 				tupleStore.open();
-				
+
 				long timeRead = 0;
 				
 				for(int i = 0; i < RETRY; i++) {				
