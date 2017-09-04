@@ -242,7 +242,10 @@ public class SSTableManager implements BBoxDBService {
 		final File dgroupDirHandle = new File(dgroupDir);
 				
 		if(! dgroupDirHandle.exists()) {
-			logger.info("Create a new directory for dgroup: {}", dgroupDir);
+			logger.info("Create a new directory for dgroup {} ({})", 
+					sstablename.getDistributionGroup(), 
+					dgroupDir);
+			
 			final boolean mkdirResult = dgroupDirHandle.mkdirs();
 			
 			assert (mkdirResult == true) : "Unable to create dir: " + dgroupDirHandle;
