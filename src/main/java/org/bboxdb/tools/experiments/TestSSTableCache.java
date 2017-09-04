@@ -160,7 +160,7 @@ public class TestSSTableCache implements Runnable {
 	 */
 	public static void main(final String[] args) throws Exception {
 		// Check parameter
-		if(args.length != 2) {
+		if(args.length != 1) {
 			System.err.println("Usage: programm <dir>");
 			System.exit(-1);
 		}
