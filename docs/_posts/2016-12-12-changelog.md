@@ -9,10 +9,11 @@ order: 1
 - New Feature: Added routing header to delete and query packages
 - New Feature: Introduced the key index cache
 - New Feature: Added the create table call
-- New Feature: Intriduced the SSTable configuration
+- New Feature: Introduced the SSTable configuration
 - Improvement: Removed a lot of parameter from the create distribution group BBoxDB call
 - Improvement: Switched from Guava 22 to 23
 - Improvement: Added create and delete table call to CLI
+- Improvement: Added the SSTable key cache experiment
 - Bugfix: Fixed a race condition in the tuple list store
 - Bugfix: Fixed a bug in the query type field location
 
