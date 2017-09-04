@@ -258,7 +258,7 @@ public class SSTableManager implements BBoxDBService {
 		final File ssTableDirHandle = new File(ssTableDir);
 
 		if(! ssTableDirHandle.exists()) {
-			logger.info("Create a new dir for table: " + sstablename.getFullname());
+			logger.info("Create a new dir for table {} ({}) ", sstablename.getFullname(), ssTableDirHandle);
 			ssTableDirHandle.mkdir();
 		}
 	}
