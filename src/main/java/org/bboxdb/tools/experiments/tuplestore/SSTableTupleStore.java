@@ -25,6 +25,9 @@ import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.util.ServiceState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SSTableTupleStore implements TupleStore {
 
@@ -47,6 +50,16 @@ public class SSTableTupleStore implements TupleStore {
 	 * The sstable name
 	 */
 	protected final static SSTableName SSTABLE_NAME = new SSTableName("2_group1_test");
+
+	/**
+	 * The service state
+	 */
+	protected final ServiceState serviceState = new ServiceState();
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(SSTableTupleStore.class);
 
 
 	public SSTableTupleStore(final File dir) {
@@ -71,14 +84,32 @@ public class SSTableTupleStore implements TupleStore {
 
 	@Override
 	public void close() throws Exception {
+		
+		if(! serviceState.isInRunningState()) {
+			logger.error("Service state is not running, ignoring close");
+			return;
+		}
+		
+		serviceState.dispatchToStopping();
+		
 		if(storageRegistry != null) {
 			storageRegistry.shutdown();
 			storageRegistry = null;
 		}
+		
+		serviceState.dispatchToTerminated();
 	}
 
 	@Override
 	public void open() throws Exception {
+		
+		if(serviceState.isInRunningState()) {
+			logger.error("Service is already in running state, ignoring call");
+			return;
+		}
+		
+		serviceState.dipatchToStarting();
+		
 		BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(Arrays.asList(dir.getAbsolutePath()));		
 
 		final File dataDir = new File(dir.getAbsoluteFile() + "/data");
@@ -88,6 +119,8 @@ public class SSTableTupleStore implements TupleStore {
 		storageRegistry.init();
 		
 		storageManager = storageRegistry.getSSTableManager(SSTABLE_NAME);
+		
+		serviceState.dispatchToRunning();
 	}
 	
 	/**
