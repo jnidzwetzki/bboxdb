@@ -87,7 +87,7 @@ public class TestSSTableCache implements Runnable {
 				
 				System.out.format("%d\t%d\n", cacheSize, timeRead / RETRY);
 			} catch (Exception e) {
-				System.out.println("Got exception: " + e);
+				System.out.println(e.getStackTrace());
 			} finally {
 				CloseableHelper.closeWithoutException(tupleStore, CloseableHelper.PRINT_EXCEPTION_ON_STDERR);
 				tupleStore = null;
