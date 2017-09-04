@@ -85,6 +85,8 @@ public class SSTableTupleStore implements TupleStore {
 	@Override
 	public void close() throws Exception {
 		
+		logger.info("Close for sstable {} called", SSTABLE_NAME.getFullname());
+
 		if(! serviceState.isInRunningState()) {
 			logger.error("Service state is not running, ignoring close");
 			return;
@@ -102,6 +104,8 @@ public class SSTableTupleStore implements TupleStore {
 
 	@Override
 	public void open() throws Exception {
+		
+		logger.info("Open for sstable {} called", SSTABLE_NAME.getFullname());
 		
 		if(serviceState.isInRunningState()) {
 			logger.error("Service is already in running state, ignoring call");
