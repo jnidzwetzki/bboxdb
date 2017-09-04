@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -35,8 +34,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 
 public class SSTableKeyIndexReader extends AbstractTableReader implements Iterable<Tuple> {
 	
@@ -83,18 +80,10 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 		
 		keyCache = CacheBuilder.newBuilder()
 				.maximumSize(elements)
-				.expireAfterAccess(30, TimeUnit.SECONDS)
-				.removalListener(new RemovalListener<Long, String>() {
-					@Override
-					public void onRemoval(final RemovalNotification<Long, String> notification) {
-						System.out.println("Removing: " +  notification.getKey() + " in " + sstableReader.getTablebumber());
-					}
-				})
 				.build(new CacheLoader<Long, String>() {
 
 			@Override
 			public String load(final Long tupleNumber) throws Exception {
-				//System.out.println("Loading tuple: " + tupleNumber + " in " + sstableReader.getTablebumber());
 				return readKeyFromBytePos(tupleNumber);
 			}
 			
