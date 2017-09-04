@@ -44,9 +44,9 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	protected final SSTableReader sstableReader;
 	
 	/**
-	 * The key cache
+	 * The key cache <Tuple Number, Key>
 	 */
-	protected LoadingCache<String, Integer> keyCache;
+	protected LoadingCache<Long, String> keyCache;
 	
 	/**
 	 * The Logger
@@ -82,11 +82,11 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 		keyCache = CacheBuilder.newBuilder()
 				.maximumSize(elements)
 				.expireAfterAccess(30, TimeUnit.SECONDS)
-				.build(new CacheLoader<String, Integer>() {
+				.build(new CacheLoader<Long, String>() {
 
 			@Override
-			public Integer load(String key) throws Exception {
-				return getKeyPosFromIndex(key);
+			public String load(final Long tupleNumber) throws Exception {
+				return readKeyFromBytePos(tupleNumber);
 			}
 			
 		});
@@ -99,15 +99,6 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	 * @throws StorageManagerException 
 	 */
 	public int getPositionForTuple(final String key) throws StorageManagerException {
-		
-		if(keyCache != null) {
-			try {
-				return keyCache.get(key);
-			} catch (ExecutionException e) {
-				throw new StorageManagerException(e);
-			}
-		}
-		
 		return getKeyPosFromIndex(key);
 	}
 
@@ -175,8 +166,22 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	 * @param entry
 	 * @return
 	 * @throws IOException
+	 * @throws StorageManagerException 
 	 */
-	public String getKeyForIndexEntry(final long entry) throws IOException {
+	public String getKeyForIndexEntry(final long entry) throws IOException, StorageManagerException {
+		
+		if(keyCache != null) {
+			try {
+				return keyCache.get(entry);
+			} catch (ExecutionException e) {
+				throw new StorageManagerException(e);
+			}
+		}
+		
+		return readKeyFromBytePos(entry);
+	}
+
+	protected String readKeyFromBytePos(final long entry) throws IOException {
 		final int position = convertEntryToPosition(entry);
 		return sstableReader.decodeOnlyKeyFromTupleAtPosition(position);
 	}
