@@ -68,7 +68,7 @@ public class TestSSTableCache implements Runnable {
 	@Override
 	public void run() {
 		
-		final List<Integer> keyCacheElements = Arrays.asList(0, 5, 10, 50, 100, 500, 1000, 5000, 10000);
+		final List<Integer> keyCacheElements = Arrays.asList(0, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
 		System.out.println("#Cache size\tRead");
 		
 		generateDataset();
