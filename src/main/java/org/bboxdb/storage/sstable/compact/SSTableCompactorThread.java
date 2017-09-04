@@ -65,6 +65,8 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * Execute the compactor thread
 	 */
 	protected void runThread() {
+		
+		logger.info("Compact thread has started");
 			
 		while(! Thread.currentThread().isInterrupted()) {
 			try {	
@@ -77,7 +79,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			} 
 		}
 		
-		logger.info("Compact thread for is done");
+		logger.info("Compact thread is done");
 	}
 
 	/**
