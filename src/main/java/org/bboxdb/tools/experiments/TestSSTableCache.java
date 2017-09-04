@@ -105,8 +105,6 @@ public class TestSSTableCache implements Runnable {
 			tupleStore = new SSTableTupleStore(dir);
 			tupleStore.open();
 			final String data = SyntheticDataGenerator.getRandomString(TUPLE_LENGTH);
-			FileUtil.deleteRecursive(dir.toPath());
-			dir.mkdirs();
 			writeTuples(data);
 		} catch (Exception e) {
 			System.err.println("Got an exception while creating dataset: " + e);
