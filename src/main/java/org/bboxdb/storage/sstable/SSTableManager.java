@@ -94,7 +94,7 @@ public class SSTableManager implements BBoxDBService {
 		this.tableNumber = new AtomicInteger();
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		
-		// Close open ressources when the failed state is entered
+		// Close open resources when the failed state is entered
 		this.serviceState = new ServiceState(); 
 		serviceState.registerCallback((s) -> {
 			if(s.getState() == State.FAILED) {
