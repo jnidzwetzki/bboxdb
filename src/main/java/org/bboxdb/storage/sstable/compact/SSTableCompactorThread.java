@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.regionsplit.AbstractRegionSplitStrategy;
-import org.bboxdb.distribution.regionsplit.RegionSplitStrategyFactory;
+import org.bboxdb.distribution.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
@@ -135,12 +135,8 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		assert(ssTableManager.getSSTableName().isDistributedTable()) 
 			: ssTableManager.getSSTableName() + " is not a distributed table";
 		
-		final AbstractRegionSplitStrategy regionSplitter = RegionSplitStrategyFactory.getInstance();
-		
-		if(regionSplitter == null) {
-			throw new IllegalArgumentException("Got null region splitter");
-		}
-		
+		final AbstractRegionSplitStrategy regionSplitter = new SamplingBasedSplitStrategy();
+
 		regionSplitter.initFromSSTablename(storage, ssTableManager.getSSTableName());
 		
 		return regionSplitter;		

@@ -89,11 +89,6 @@ public class BBoxDBConfiguration {
 	protected String localip = null;
 	
 	/**
-	 * The sstable split strategy
-	 */
-	protected String regionSplitStrategy = "org.bboxdb.distribution.regionsplit.SamplingBasedSplitStrategy";
-
-	/**
 	 * The number of entries in the key cache per SSTable
 	 */
 	protected int sstableKeyCacheEntries = 1000;
@@ -165,14 +160,6 @@ public class BBoxDBConfiguration {
 
 	public void setLocalip(final String localip) {
 		this.localip = localip;
-	}
-
-	public String getRegionSplitStrategy() {
-		return regionSplitStrategy;
-	}
-
-	public void setRegionSplitStrategy(final String regionSplitStrategy) {
-		this.regionSplitStrategy = regionSplitStrategy;
 	}
 
 	public int getStorageCheckpointInterval() {

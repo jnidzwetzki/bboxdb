@@ -14,6 +14,7 @@ order: 1
 - Improvement: Switched from Guava 22 to 23
 - Improvement: Added create and delete table call to CLI
 - Improvement: Added the SSTable key cache experiment
+- Improvement: Removed split strategy from configuration file and made it space partitioned depended
 - Bugfix: Fixed a race condition in the tuple list store
 - Bugfix: Fixed a bug in the query type field location
 
