@@ -76,12 +76,12 @@ public class TestSSTableCache implements Runnable {
 			BBoxDBConfigurationManager.getConfiguration().setMemtableEntriesMax(memtableEntry);
 			
 			System.out.println("#Cache size\tRead sequence\tRead random\t" + memtableEntry);
-			
-			generateDataset();
-			
+						
 			for(final int cacheSize : keyCacheElements) {
-				
+	
 				try {				
+					generateDataset();
+
 					BBoxDBConfigurationManager.getConfiguration().setSstableKeyCacheEntries(cacheSize);
 					tupleStore = new SSTableTupleStore(dir);
 					tupleStore.open();
