@@ -38,11 +38,6 @@ import com.google.common.base.Stopwatch;
 public class TestSSTableCache implements Runnable {
 
 	/**
-	 * The tuple store
-	 */
-	protected SSTableTupleStore tupleStore = null;
-	
-	/**
 	 * The amount of tuples
 	 */
 	public final static int TUPLES = 1000000;
@@ -69,7 +64,7 @@ public class TestSSTableCache implements Runnable {
 	@Override
 	public void run() {
 		
-		final List<Integer> memtableEntries = Arrays.asList(1000, 5000, 10000, 50000, 100000);
+		final List<Integer> memtableEntries = Arrays.asList(10000, 50000, 100000, 500000);
 		final List<Integer> keyCacheElements = Arrays.asList(0, 1, 5, 10, 50, 100, 500, 1000, 5000, 10000);
 		
 		for(final int memtableEntry : memtableEntries) {
@@ -79,6 +74,8 @@ public class TestSSTableCache implements Runnable {
 						
 			for(final int cacheSize : keyCacheElements) {
 	
+				SSTableTupleStore tupleStore = null;
+				
 				try {				
 					generateDataset();
 
@@ -90,11 +87,11 @@ public class TestSSTableCache implements Runnable {
 					long timeReadRandom = 0;
 					
 					for(int i = 0; i < RETRY; i++) {				
-						timeReadSequence += readTuplesSequence();
+						timeReadSequence += readTuplesSequence(tupleStore);
 					}
 					
 					for(int i = 0; i < RETRY; i++) {				
-						timeReadRandom += readTuplesRandom();
+						timeReadRandom += readTuplesRandom(tupleStore);
 					}
 					
 					System.out.format("%d\t%d\t%d\n", cacheSize, timeReadSequence / RETRY, timeReadRandom / RETRY);
@@ -112,11 +109,12 @@ public class TestSSTableCache implements Runnable {
 	 * Generate a new dataset
 	 */
 	protected void generateDataset() {
+		SSTableTupleStore tupleStore = null;
 		try {
 			tupleStore = new SSTableTupleStore(dir);
 			tupleStore.open();
 			final String data = SyntheticDataGenerator.getRandomString(TUPLE_LENGTH);
-			writeTuples(data);
+			writeTuples(data, tupleStore);
 		} catch (Exception e) {
 			System.err.println("Got an exception while creating dataset: " + e);
 			System.exit(-1);
@@ -129,10 +127,11 @@ public class TestSSTableCache implements Runnable {
 	/**
 	 * Write the tuples
 	 * @param data 
+	 * @param tupleStore 
 	 * @return 
 	 * @throws IOException 
 	 */
-	protected long writeTuples(final String data) throws Exception {
+	protected long writeTuples(final String data, SSTableTupleStore tupleStore) throws Exception {
 		System.out.println("# Writing Tuples");
 		
 		final Stopwatch stopwatch = Stopwatch.createStarted();
@@ -147,10 +146,11 @@ public class TestSSTableCache implements Runnable {
 
 	/**
 	 * Read the tuples
+	 * @param tupleStore 
 	 * @return 
 	 * @throws IOException 
 	 */
-	protected long readTuplesSequence() throws Exception {
+	protected long readTuplesSequence(final SSTableTupleStore tupleStore) throws Exception {
 		System.out.println("# Reading Tuples sequence");
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 
@@ -163,10 +163,11 @@ public class TestSSTableCache implements Runnable {
 	
 	/**
 	 * Read the tuples
+	 * @param tupleStore 
 	 * @return 
 	 * @throws IOException 
 	 */
-	protected long readTuplesRandom() throws Exception {
+	protected long readTuplesRandom(final SSTableTupleStore tupleStore) throws Exception {
 		System.out.println("# Reading Tuples random");
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		final Random random = new Random();
