@@ -69,36 +69,41 @@ public class TestSSTableCache implements Runnable {
 	@Override
 	public void run() {
 		
+		final List<Integer> memtableEntries = Arrays.asList(1000, 5000, 10000, 50000, 100000);
 		final List<Integer> keyCacheElements = Arrays.asList(0, 1, 5, 10, 50, 100, 500, 1000, 5000, 10000);
-		System.out.println("#Cache size\tRead sequence\tRead random");
 		
-		generateDataset();
-		
-		for(final int cacheSize : keyCacheElements) {
+		for(final int memtableEntry : memtableEntries) {
+			BBoxDBConfigurationManager.getConfiguration().setMemtableEntriesMax(memtableEntry);
 			
-			try {				
-				BBoxDBConfigurationManager.getConfiguration().setSstableKeyCacheEntries(cacheSize);
-
-				tupleStore = new SSTableTupleStore(dir);
-				tupleStore.open();
-
-				long timeReadSequence = 0;
-				long timeReadRandom = 0;
+			System.out.println("#Cache size\tRead sequence\tRead random\t" + memtableEntry);
+			
+			generateDataset();
+			
+			for(final int cacheSize : keyCacheElements) {
 				
-				for(int i = 0; i < RETRY; i++) {				
-					timeReadSequence += readTuplesSequence();
+				try {				
+					BBoxDBConfigurationManager.getConfiguration().setSstableKeyCacheEntries(cacheSize);
+					tupleStore = new SSTableTupleStore(dir);
+					tupleStore.open();
+	
+					long timeReadSequence = 0;
+					long timeReadRandom = 0;
+					
+					for(int i = 0; i < RETRY; i++) {				
+						timeReadSequence += readTuplesSequence();
+					}
+					
+					for(int i = 0; i < RETRY; i++) {				
+						timeReadRandom += readTuplesRandom();
+					}
+					
+					System.out.format("%d\t%d\t%d\n", cacheSize, timeReadSequence / RETRY, timeReadRandom / RETRY);
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					CloseableHelper.closeWithoutException(tupleStore, CloseableHelper.PRINT_EXCEPTION_ON_STDERR);
+					tupleStore = null;
 				}
-				
-				for(int i = 0; i < RETRY; i++) {				
-					timeReadRandom += readTuplesRandom();
-				}
-				
-				System.out.format("%d\t%d\t%d\n", cacheSize, timeReadSequence / RETRY, timeReadRandom / RETRY);
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				CloseableHelper.closeWithoutException(tupleStore, CloseableHelper.PRINT_EXCEPTION_ON_STDERR);
-				tupleStore = null;
 			}
 		}
 	}
