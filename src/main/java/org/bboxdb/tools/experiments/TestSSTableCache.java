@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.misc.BBoxDBConfigurationManager;
@@ -68,8 +69,8 @@ public class TestSSTableCache implements Runnable {
 	@Override
 	public void run() {
 		
-		final List<Integer> keyCacheElements = Arrays.asList(0, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000);
-		System.out.println("#Cache size\tRead");
+		final List<Integer> keyCacheElements = Arrays.asList(0, 1, 5, 10, 50, 100, 500, 1000, 5000, 10000);
+		System.out.println("#Cache size\tRead sequence\tRead random");
 		
 		generateDataset();
 		
@@ -81,13 +82,18 @@ public class TestSSTableCache implements Runnable {
 				tupleStore = new SSTableTupleStore(dir);
 				tupleStore.open();
 
-				long timeRead = 0;
+				long timeReadSequence = 0;
+				long timeReadRandom = 0;
 				
 				for(int i = 0; i < RETRY; i++) {				
-					timeRead += readTuples();
+					timeReadSequence += readTuplesSequence();
 				}
 				
-				System.out.format("%d\t%d\n", cacheSize, timeRead / RETRY);
+				for(int i = 0; i < RETRY; i++) {				
+					timeReadRandom += readTuplesRandom();
+				}
+				
+				System.out.format("%d\t%d\t%d\n", cacheSize, timeReadSequence / RETRY, timeReadRandom / RETRY);
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
@@ -139,8 +145,8 @@ public class TestSSTableCache implements Runnable {
 	 * @return 
 	 * @throws IOException 
 	 */
-	protected long readTuples() throws Exception {
-		System.out.println("# Reading Tuples");
+	protected long readTuplesSequence() throws Exception {
+		System.out.println("# Reading Tuples sequence");
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 
 		for(int i = 0; i < TUPLES; i++) {
@@ -149,6 +155,24 @@ public class TestSSTableCache implements Runnable {
 		
 		return stopwatch.elapsed(TimeUnit.MILLISECONDS);
 	}
+	
+	/**
+	 * Read the tuples
+	 * @return 
+	 * @throws IOException 
+	 */
+	protected long readTuplesRandom() throws Exception {
+		System.out.println("# Reading Tuples random");
+		final Stopwatch stopwatch = Stopwatch.createStarted();
+		final Random random = new Random();
+
+		for(int i = 0; i < TUPLES; i++) {
+			tupleStore.readTuple(Integer.toString(random.nextInt(TUPLES)));
+		}
+		
+		return stopwatch.elapsed(TimeUnit.MILLISECONDS);
+	}
+	
 	
 	/**
 	 * Main * Main * Main
