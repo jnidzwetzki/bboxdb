@@ -76,7 +76,11 @@ public class TestSSTableCache implements Runnable {
 	
 				SSTableTupleStore tupleStore = null;
 				
-				try {				
+				try {			
+					// Delete old data
+					dir.delete();
+					dir.mkdirs();
+					
 					generateDataset();
 
 					BBoxDBConfigurationManager.getConfiguration().setSstableKeyCacheEntries(cacheSize);
