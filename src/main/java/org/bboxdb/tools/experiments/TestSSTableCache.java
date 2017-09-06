@@ -31,6 +31,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.experiments.tuplestore.SSTableTupleStore;
 import org.bboxdb.tools.generator.SyntheticDataGenerator;
 import org.bboxdb.util.CloseableHelper;
+import org.bboxdb.util.MathUtil;
 import org.bboxdb.util.io.FileUtil;
 
 import com.google.common.base.Stopwatch;
@@ -57,57 +58,61 @@ public class TestSSTableCache implements Runnable {
 	 */
 	private File dir;
 
-	public TestSSTableCache(final File dir) throws Exception {
+	/**
+	 * The memtable size
+	 */
+	private int memtableSize;
+
+	public TestSSTableCache(final File dir, final int memtableSize) throws Exception {
 		this.dir = dir;
+		this.memtableSize = memtableSize;
 	}
 
 	@Override
 	public void run() {
 		
-		final List<Integer> memtableEntries = Arrays.asList(10000, 50000, 100000, 500000);
 		final List<Integer> keyCacheElements = Arrays.asList(0, 1, 5, 10, 50, 100, 500, 1000, 5000, 10000);
 		
-		for(final int memtableEntry : memtableEntries) {
-			BBoxDBConfigurationManager.getConfiguration().setMemtableEntriesMax(memtableEntry);
-			
-			System.out.println("#Cache size\tRead sequence\tRead random\t" + memtableEntry);
+		BBoxDBConfigurationManager.getConfiguration().setMemtableEntriesMax(memtableSize);
+		
+		System.out.println("#Cache size\tRead sequence\tRead random\t" + memtableSize);
 
-			// Delete old data
-			FileUtil.deleteRecursive(dir.toPath());
-			dir.mkdirs();
+		// Delete old data
+		FileUtil.deleteRecursive(dir.toPath());
+		dir.mkdirs();
+		
+		generateDataset();
+		
+		for(final int cacheSize : keyCacheElements) {
+
+			SSTableTupleStore tupleStore = null;
 			
-			generateDataset();
-			
-			for(final int cacheSize : keyCacheElements) {
-	
-				SSTableTupleStore tupleStore = null;
+			try {			
+
+				BBoxDBConfigurationManager.getConfiguration().setSstableKeyCacheEntries(cacheSize);
+				tupleStore = new SSTableTupleStore(dir);
+				tupleStore.open();
+
+				long timeReadSequence = 0;
+				long timeReadRandom = 0;
 				
-				try {			
-
-					BBoxDBConfigurationManager.getConfiguration().setSstableKeyCacheEntries(cacheSize);
-					tupleStore = new SSTableTupleStore(dir);
-					tupleStore.open();
-	
-					long timeReadSequence = 0;
-					long timeReadRandom = 0;
-					
-					for(int i = 0; i < RETRY; i++) {				
-						timeReadSequence += readTuplesSequence(tupleStore);
-					}
-					
-					for(int i = 0; i < RETRY; i++) {				
-						timeReadRandom += readTuplesRandom(tupleStore);
-					}
-					
-					System.out.format("%d\t%d\t%d\n", cacheSize, timeReadSequence / RETRY, timeReadRandom / RETRY);
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					CloseableHelper.closeWithoutException(tupleStore, CloseableHelper.PRINT_EXCEPTION_ON_STDERR);
-					tupleStore = null;
+				for(int i = 0; i < RETRY; i++) {				
+					timeReadSequence += readTuplesSequence(tupleStore);
 				}
+				
+				for(int i = 0; i < RETRY; i++) {				
+					timeReadRandom += readTuplesRandom(tupleStore);
+				}
+				
+				System.out.format("%d\t%d\t%d\n", cacheSize, timeReadSequence / RETRY, timeReadRandom / RETRY);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				CloseableHelper.closeWithoutException(tupleStore, CloseableHelper.PRINT_EXCEPTION_ON_STDERR);
+				tupleStore = null;
 			}
 		}
+	
 	}
 
 	/**
@@ -191,12 +196,13 @@ public class TestSSTableCache implements Runnable {
 	 */
 	public static void main(final String[] args) throws Exception {
 		// Check parameter
-		if(args.length != 1) {
-			System.err.println("Usage: programm <dir>");
+		if(args.length != 2) {
+			System.err.println("Usage: programm <dir> <memtable size>");
 			System.exit(-1);
 		}
 		
 		final String dirName = Objects.requireNonNull(args[0]);
+		final String memtableSizeString = Objects.requireNonNull(args[1]);
 		
 		final File dir = new File(dirName);
 		if(dir.exists()) {
@@ -204,10 +210,12 @@ public class TestSSTableCache implements Runnable {
 			System.exit(-1);
 		}
 		
+		final int memtableSize = MathUtil.tryParseIntOrExit(memtableSizeString);
+		
 		// Delete database on exit
 		FileUtil.deleteDirOnExit(dir.toPath());
 
-		final TestSSTableCache testSplit = new TestSSTableCache(dir);
+		final TestSSTableCache testSplit = new TestSSTableCache(dir, memtableSize);
 		testSplit.run();
 	}
 
