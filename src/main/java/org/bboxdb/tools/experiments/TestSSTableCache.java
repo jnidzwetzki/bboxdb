@@ -78,7 +78,7 @@ public class TestSSTableCache implements Runnable {
 				
 				try {			
 					// Delete old data
-					dir.delete();
+					FileUtil.deleteRecursive(dir.toPath());
 					dir.mkdirs();
 					
 					generateDataset();
