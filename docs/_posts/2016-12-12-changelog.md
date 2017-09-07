@@ -5,7 +5,7 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
-### Version 0.3.3 (Stable) - TBA
+### Version 0.3.3 (Stable) - 07.09.2017
 - New Feature: Added routing header to delete and query packages
 - New Feature: Introduced the key index cache
 - New Feature: Added the create table call
