@@ -6,6 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.3.4 (Stable) - TBA
+- New Feature: Added a experiment to determine the bloom filter efficiency
 
 ### Version 0.3.3 (Stable) - 07.09.2017
 - New Feature: Added routing header to delete and query packages
