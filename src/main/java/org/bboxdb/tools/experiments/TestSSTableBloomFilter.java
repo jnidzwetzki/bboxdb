@@ -66,7 +66,7 @@ public class TestSSTableBloomFilter implements Runnable {
 		
 		System.out.println("#Memtable size\tRead sequence\tRead random\t");
 
-		final List<Integer> memtableSizes = Arrays.asList(10000, 50000, 100000, 500000, 1000000, 5000000);
+		final List<Integer> memtableSizes = Arrays.asList(1000, 5000, 10000, 50000, 100000, 500000, 1000000, 5000000);
 		
 		for(final int memtableSize : memtableSizes) {
 		
