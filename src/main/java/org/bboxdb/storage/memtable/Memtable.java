@@ -226,7 +226,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	public List<Tuple> getSortedTupleList() {
 		assert (usage.get() > 0);
 
-		final SortedMap<String, Tuple> allTuples = new TreeMap<String, Tuple>();
+		final SortedMap<String, Tuple> allTuples = new TreeMap<>();
 		
 		for(int i = 0; i < freePos; i++) {
 			final String key = data[i].getKey();
@@ -245,7 +245,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 			}
 		}
 		
-		final List<Tuple> resultList = new ArrayList<Tuple>(allTuples.size());
+		final List<Tuple> resultList = new ArrayList<>(allTuples.size());
 		resultList.addAll(allTuples.values());
 		
 		return resultList;
