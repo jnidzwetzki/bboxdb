@@ -10,7 +10,7 @@ First of all, thank you so much for being interested in contributing. At the mom
 The provided examples for the BBoxDB-Client are very limited at the moment. Feel free to write new examples and open a pull request.
 
 ## Feature requests
-Feature requests are welcome. Please take a moment and desribe the details of the new feature and why this is needed. Please provide as much detail and context as possible.
+Feature requests are welcome. Please take a moment and describe the details of the new feature and why this is needed. Please provide as much detail and context as possible.
 
 ## Pull requests
 * Open a new issue
