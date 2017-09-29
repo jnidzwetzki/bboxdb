@@ -121,7 +121,7 @@ public class TestFileIO implements Runnable {
 	}
 
 	protected int getNextPosition() {
-		return Math.abs(random.nextInt(FILESIZE - 1));
+		return Math.abs(random.nextInt()) % FILESIZE;
 	}
 
 	protected String getTestDataBuffer(final int length) {
