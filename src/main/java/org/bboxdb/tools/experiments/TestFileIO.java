@@ -134,7 +134,7 @@ public class TestFileIO implements Runnable {
 		try(
 				final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 		) {
-			while(writtenBytes < FILESIZE) {
+			while(writtenBytes <= FILESIZE) {
 				bos.write(stringBufferBytes);
 				writtenBytes += stringBufferBytes.length;
 			}
