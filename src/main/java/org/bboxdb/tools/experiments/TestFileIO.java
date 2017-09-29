@@ -19,9 +19,7 @@ package org.bboxdb.tools.experiments;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -65,33 +63,35 @@ public class TestFileIO implements Runnable {
 	
 	@Override
 	public void run() {
+		final List<Integer> readBytesList = Arrays.asList(1, 10, 100, 1000);
 		final List<Integer> reads = Arrays.asList(10000, 50000, 100000, 1000000, 5000000, 10000000, 50000000, 100000000);
 		
 		try {
 			generateTestData();
 			
-			System.out.println("Read requests\tTime random\tTime memory");
-			
-			for(final int readRequsts : reads) {
+			for(final int readBytes : readBytesList) {
+				System.out.println("Read requests\tTime random\tTime memory: " + readBytes);
 				
-				final Stopwatch stopwatch = Stopwatch.createStarted();
-
-				for(int i = 0; i < RETRY; i++) {
-					readDataRandom(readRequsts);
+				for(final int readRequsts : reads) {
+					final Stopwatch stopwatch = Stopwatch.createStarted();
+	
+					for(int i = 0; i < RETRY; i++) {
+						readDataRandom(readRequsts, readBytes);
+					}
+					
+					final int timeRandom = (int) (stopwatch.elapsed().toMillis() / RETRY);
+					
+					stopwatch.reset();
+					stopwatch.start();
+					
+					for(int i = 0; i < RETRY; i++) {
+						readDataMemoryMapped(readRequsts, readBytes);
+					}
+					
+					final int timeMemory = (int) (stopwatch.elapsed().toMillis() / RETRY);
+	
+					System.out.printf("%d\t%d\t%d\n", readRequsts, timeRandom, timeMemory);
 				}
-				
-				final int timeRandom = (int) (stopwatch.elapsed().toMillis() / RETRY);
-				
-				stopwatch.reset();
-				stopwatch.start();
-				
-				for(int i = 0; i < RETRY; i++) {
-					readDataMemoryMapped(readRequsts);
-				}
-				
-				final int timeMemory = (int) (stopwatch.elapsed().toMillis() / RETRY);
-
-				System.out.printf("%d\t%d\t%d\n", readRequsts, timeRandom, timeMemory);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -99,31 +99,37 @@ public class TestFileIO implements Runnable {
 		} 
 	}
 
-	protected void readDataMemoryMapped(final int readRequsts) throws FileNotFoundException, IOException {
+	protected void readDataMemoryMapped(final int readRequsts, final int readBytes) 
+			throws Exception {
 	
 		int nextPosition = 0;
 		try {
+			final byte[] buffer = new byte[readBytes];
+			
 			for(int i = 0; i < readRequsts; i++) {
-				nextPosition = getNextPosition();
+				nextPosition = getNextPosition(readBytes);
 				mappedByteBuffer.position(nextPosition);
-				mappedByteBuffer.get();
+				mappedByteBuffer.get(buffer, 0, readBytes);
 			}
+			
 		} catch(IllegalArgumentException e) {
 			e.printStackTrace();
 			System.out.println("Exception by setting to: " + nextPosition);
 		}
 	}
 
-	protected void readDataRandom(final int readRequsts) throws Exception {
+	protected void readDataRandom(final int readRequsts, final int readBytes) throws Exception {
 		
-			for(int i = 0; i < readRequsts; i++) {
-				raf.seek(getNextPosition());
-				raf.readByte();
-			}
+		final byte[] buffer = new byte[readBytes];
+
+		for(int i = 0; i < readRequsts; i++) {
+			raf.seek(getNextPosition(readBytes));
+			raf.readFully(buffer, 0, readBytes);
+		}
 	}
 
-	protected int getNextPosition() {
-		return Math.abs(random.nextInt()) % FILESIZE;
+	protected int getNextPosition(final int bytesToRead) {
+		return Math.abs(random.nextInt()) % (FILESIZE - bytesToRead);
 	}
 
 	protected String getTestDataBuffer(final int length) {
