@@ -153,6 +153,8 @@ public class TestFileIO implements Runnable {
 				bos.write(stringBufferBytes);
 				writtenBytes += stringBufferBytes.length;
 			}
+			
+			System.out.println("# File size is now: " + file.length());
 		} catch (Exception e) {
 			throw e;
 		}
