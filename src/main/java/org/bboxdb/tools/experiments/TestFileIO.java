@@ -83,6 +83,8 @@ public class TestFileIO implements Runnable {
 				final int timeRandom = (int) (stopwatch.elapsed().toMillis() / RETRY);
 				
 				stopwatch.reset();
+				stopwatch.start();
+				
 				for(int i = 0; i < RETRY; i++) {
 					readDataMemoryMapped(readRequsts);
 				}
