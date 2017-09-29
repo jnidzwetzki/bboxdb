@@ -65,7 +65,7 @@ public class TestFileIO implements Runnable {
 	
 	@Override
 	public void run() {
-		final List<Integer> reads = Arrays.asList(1000, 5000, 10000, 50000, 100000, 1000000);
+		final List<Integer> reads = Arrays.asList(10000, 50000, 100000, 1000000, 5000000, 10000000, 50000000, 100000000);
 		
 		try {
 			generateTestData();
@@ -99,9 +99,16 @@ public class TestFileIO implements Runnable {
 
 	protected void readDataMemoryMapped(final int readRequsts) throws FileNotFoundException, IOException {
 	
-		for(int i = 0; i < readRequsts; i++) {
-			mappedByteBuffer.position(getNextPosition());
-			mappedByteBuffer.get();
+		int nextPosition = 0;
+		try {
+			for(int i = 0; i < readRequsts; i++) {
+				nextPosition = getNextPosition();
+				mappedByteBuffer.position(nextPosition);
+				mappedByteBuffer.get();
+			}
+		} catch(IllegalArgumentException e) {
+			e.printStackTrace();
+			System.out.println("Exception by setting to: " + nextPosition);
 		}
 	}
 
