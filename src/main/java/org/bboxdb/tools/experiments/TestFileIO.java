@@ -150,14 +150,14 @@ public class TestFileIO implements Runnable {
 				writtenBytes += stringBufferBytes.length;
 			}
 			
-			System.out.println("# File size is now: " + file.length());
-			
-			raf = new RandomAccessFile(new File(filename), "r");
-			mappedByteBuffer = raf.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
-
 		} catch (Exception e) {
 			throw e;
 		}
+		
+		System.out.println("# File size is now: " + file.length());
+		
+		raf = new RandomAccessFile(new File(filename), "r");
+		mappedByteBuffer = raf.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
 	}
 	
 	/**
