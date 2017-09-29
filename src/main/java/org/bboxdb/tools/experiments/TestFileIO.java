@@ -53,6 +53,10 @@ public class TestFileIO implements Runnable {
 	 * The random generator
 	 */
 	protected final Random random;
+	
+	protected RandomAccessFile raf;
+	
+	protected MappedByteBuffer mappedByteBuffer;
 
 	public TestFileIO(final String filename) {
 		this.filename = filename;
@@ -95,37 +99,18 @@ public class TestFileIO implements Runnable {
 
 	protected void readDataMemoryMapped(final int readRequsts) throws FileNotFoundException, IOException {
 	
-		try (
-				final RandomAccessFile randomAccessFile = new RandomAccessFile(filename, "r");
-		) {
-			final MappedByteBuffer buffer = randomAccessFile
-					.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, FILESIZE);
-			
-			for(int i = 0; i < readRequsts; i++) {
-				buffer.position(random.nextInt(FILESIZE - 1));
-				buffer.get();
-			}
-		
-		} catch(Exception e) {
-			throw e;
+		for(int i = 0; i < readRequsts; i++) {
+			mappedByteBuffer.position(random.nextInt(FILESIZE - 1));
+			mappedByteBuffer.get();
 		}
 	}
 
 	protected void readDataRandom(final int readRequsts) throws Exception {
 		
-		try (
-				final RandomAccessFile raf = new RandomAccessFile(new File(filename), "r");
-		) {
-			
 			for(int i = 0; i < readRequsts; i++) {
 				raf.seek(random.nextInt(FILESIZE - 1));
 				raf.readByte();
 			}
-			
-		} catch(Exception e) {
-			throw e;
-		}
-		
 	}
 
 	protected String getTestDataBuffer(final int length) {
@@ -155,6 +140,10 @@ public class TestFileIO implements Runnable {
 			}
 			
 			System.out.println("# File size is now: " + file.length());
+			
+			raf = new RandomAccessFile(new File(filename), "r");
+			mappedByteBuffer = raf.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, FILESIZE);
+
 		} catch (Exception e) {
 			throw e;
 		}
