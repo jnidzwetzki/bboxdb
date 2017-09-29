@@ -41,7 +41,7 @@ public class TestFileIO implements Runnable {
 	/**
 	 * Filesize of 2 GB
 	 */
-	protected final static int FILESIZE = 2 * 1024 * 1024 * 1024;
+	protected final static int FILESIZE = 2 * 1024 * 1024 * 1024 - 1;
 	
 	/**
 	 * Retry
