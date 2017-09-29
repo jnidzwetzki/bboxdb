@@ -100,7 +100,7 @@ public class TestFileIO implements Runnable {
 	protected void readDataMemoryMapped(final int readRequsts) throws FileNotFoundException, IOException {
 	
 		for(int i = 0; i < readRequsts; i++) {
-			mappedByteBuffer.position(random.nextInt(FILESIZE - 1));
+			mappedByteBuffer.position(getNextPosition());
 			mappedByteBuffer.get();
 		}
 	}
@@ -108,9 +108,13 @@ public class TestFileIO implements Runnable {
 	protected void readDataRandom(final int readRequsts) throws Exception {
 		
 			for(int i = 0; i < readRequsts; i++) {
-				raf.seek(random.nextInt(FILESIZE - 1));
+				raf.seek(getNextPosition());
 				raf.readByte();
 			}
+	}
+
+	protected int getNextPosition() {
+		return Math.abs(random.nextInt(FILESIZE - 1));
 	}
 
 	protected String getTestDataBuffer(final int length) {
@@ -134,7 +138,7 @@ public class TestFileIO implements Runnable {
 		try(
 				final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 		) {
-			while(writtenBytes <= FILESIZE) {
+			while(writtenBytes < FILESIZE) {
 				bos.write(stringBufferBytes);
 				writtenBytes += stringBufferBytes.length;
 			}
