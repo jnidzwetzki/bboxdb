@@ -90,7 +90,7 @@ public class TestFileIO implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
-		}
+		} 
 	}
 
 	protected void readDataMemoryMapped(final int readRequsts) throws FileNotFoundException, IOException {
@@ -141,6 +141,7 @@ public class TestFileIO implements Runnable {
 	protected void generateTestData() throws Exception {
 		System.out.println("# Generating test data");
 		final File file = new File(filename);
+		file.deleteOnExit();
 		
 		long writtenBytes = 0;
 		final byte[] stringBufferBytes = getTestDataBuffer(1024).getBytes();
