@@ -64,7 +64,7 @@ public class TestFileIO implements Runnable {
 	@Override
 	public void run() {
 		final List<Integer> readBytesList = Arrays.asList(1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384);
-		final List<Integer> reads = Arrays.asList(10000, 50000, 100000, 1000000, 5000000, 10000000, 50000000, 100000000);
+		final List<Integer> reads = Arrays.asList(1000000, 2500000, 5000000, 7500000, 10000000, 25000000, 50000000, 75000000, 100000000);
 		
 		try {
 			generateTestData();
