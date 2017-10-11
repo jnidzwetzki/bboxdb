@@ -165,19 +165,17 @@ public class Storage implements BBoxDBService {
 	}
 	
 	public void scheduleMemtableFlush(final MemtableAndSSTableManager memtable) {
+		
+		if(memtable == null) {
+			return;
+		}
+		
 		// The put call can block when more than
 		// MAX_UNFLUSHED_MEMTABLES_PER_TABLE are unflushed.
-		//
-		// So we wait otside of the synchonized area.
-		// Because, otherwise no other threads could call
-		// replaceMemtableWithSSTable() and reduce
-		// the queue size
-		if(memtable != null) {
-			try {
-				memtablesToFlush.put(memtable);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
+		try {
+			memtablesToFlush.put(memtable);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 	}
 	
