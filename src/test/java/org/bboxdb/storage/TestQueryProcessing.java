@@ -27,8 +27,8 @@ import org.bboxdb.storage.queryprocessor.CloseableIterator;
 import org.bboxdb.storage.queryprocessor.QueryProcessor;
 import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.util.RejectedException;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -48,11 +48,11 @@ public class TestQueryProcessing {
 	/**
 	 * The storage registry
 	 */
-	protected static StorageRegistry storageRegistry;
+	protected static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException, BBoxDBException {
-		storageRegistry = new StorageRegistry();
+		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 	}
 	
@@ -73,7 +73,7 @@ public class TestQueryProcessing {
 	public void testBBoxQuery1() throws StorageManagerException, RejectedException {
 
 		storageRegistry.deleteTable(TABLE);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -106,7 +106,7 @@ public class TestQueryProcessing {
 	public void testBBoxQuery2() throws StorageManagerException, RejectedException {
 		
 		storageRegistry.deleteTable(TABLE);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -142,7 +142,7 @@ public class TestQueryProcessing {
 	@Test
 	public void testBBoxQuery3() throws StorageManagerException, InterruptedException, RejectedException {
 		storageRegistry.deleteTable(TABLE);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -180,7 +180,7 @@ public class TestQueryProcessing {
 	@Test
 	public void testBBoxQuery4() throws StorageManagerException, InterruptedException, RejectedException {
 		storageRegistry.deleteTable(TABLE);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());

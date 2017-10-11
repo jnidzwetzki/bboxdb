@@ -32,7 +32,7 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.server.NetworkConnectionService;
 import org.bboxdb.storage.RecoveryService;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.util.io.UnsafeMemoryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class BBoxDBMain {
 		services.clear();
 		
 		// The storage registry
-		final StorageRegistry storageRegistry = new StorageRegistry();
+		final TupleStoreManagerRegistry storageRegistry = new TupleStoreManagerRegistry();
 		services.add(storageRegistry);
 		
 		// The zookeeper client
@@ -104,7 +104,7 @@ public class BBoxDBMain {
 	 * Returns a new instance of the connection handler
 	 * @return
 	 */
-	protected NetworkConnectionService createConnectionHandler(final StorageRegistry storageRegistry) {
+	protected NetworkConnectionService createConnectionHandler(final TupleStoreManagerRegistry storageRegistry) {
 		return new NetworkConnectionService(storageRegistry);
 	}
 

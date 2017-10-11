@@ -27,7 +27,7 @@ import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.registry.TupleStoreManager;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class QueryProcessor {
 	/**
 	 * The sstable manager
 	 */
-	protected final SSTableManager ssTableManager;
+	protected final TupleStoreManager ssTableManager;
 
 	/**
 	 * Is the iterator ready?
@@ -71,7 +71,7 @@ public class QueryProcessor {
 	protected static final Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
 	
 	
-	public QueryProcessor(final QueryPlan queryplan, final SSTableManager ssTableManager) {
+	public QueryProcessor(final QueryPlan queryplan, final TupleStoreManager ssTableManager) {
 		this.queryplan = queryplan;
 		this.ssTableManager = ssTableManager;
 		this.ready = false;

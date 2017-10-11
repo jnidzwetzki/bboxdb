@@ -27,8 +27,8 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
 import org.bboxdb.util.RejectedException;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
@@ -45,12 +45,12 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
     /**
      * The sstable manager
      */
-    protected  SSTableManager storageManager;
+    protected  TupleStoreManager storageManager;
 	
 	/**
 	 * The storage registry
 	 */
-	protected StorageRegistry storageRegistry;
+	protected TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The Logger
@@ -61,7 +61,7 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 	public OSMSSTableNodeStore(final List<String> storageDirectories, final long inputLength) {
 		final SSTableName tableName = new SSTableName("2_group1_test");
 
-		storageRegistry = new StorageRegistry();
+		storageRegistry = new TupleStoreManagerRegistry();
 		
 		try {
 			storageRegistry.init();

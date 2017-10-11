@@ -38,7 +38,6 @@ import org.bboxdb.storage.SSTableFlushCallback;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 
-public class StorageRegistry implements BBoxDBService {
+public class TupleStoreManagerRegistry implements BBoxDBService {
 
 	/**
 	 * The used storage configuration
@@ -66,7 +65,7 @@ public class StorageRegistry implements BBoxDBService {
 	/**
 	 * A map with all created storage instances
 	 */
-	protected final Map<SSTableName, SSTableManager> managerInstances;
+	protected final Map<SSTableName, TupleStoreManager> managerInstances;
 	
 	/**
 	 * The flush callbacks
@@ -81,9 +80,9 @@ public class StorageRegistry implements BBoxDBService {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(StorageRegistry.class);
+	private final static Logger logger = LoggerFactory.getLogger(TupleStoreManagerRegistry.class);
 
-	public StorageRegistry() {
+	public TupleStoreManagerRegistry() {
 		this.configuration = BBoxDBConfigurationManager.getConfiguration();
 		this.managerInstances = Collections.synchronizedMap(new HashMap<>());
 		this.sstableLocations = Collections.synchronizedMap(new HashMap<>());
@@ -135,7 +134,7 @@ public class StorageRegistry implements BBoxDBService {
 	 * 
 	 * @return
 	 */
-	public synchronized SSTableManager getSSTableManager(final SSTableName table) 
+	public synchronized TupleStoreManager getSSTableManager(final SSTableName table) 
 			throws StorageManagerException {
 		
 		if(! table.isValid()) {
@@ -155,7 +154,7 @@ public class StorageRegistry implements BBoxDBService {
 		
 		final String location = sstableLocations.get(table);
 		final DiskStorage storage = storages.get(location);
-		final SSTableManager sstableManager = new SSTableManager(storage, table, configuration);
+		final TupleStoreManager sstableManager = new TupleStoreManager(storage, table, configuration);
 
 		sstableManager.init();
 		managerInstances.put(table, sstableManager);
@@ -175,7 +174,7 @@ public class StorageRegistry implements BBoxDBService {
 		}
 		
 		logger.info("Shutting down SSTable manager for: {}", table);
-		final SSTableManager sstableManager = managerInstances.remove(table);
+		final TupleStoreManager sstableManager = managerInstances.remove(table);
 		sstableManager.shutdown();	
 		
 		try {
@@ -258,7 +257,7 @@ public class StorageRegistry implements BBoxDBService {
 		}
 		
 		final String storageDirectory = sstableLocations.get(table);
-		SSTableManager.deletePersistentTableData(storageDirectory, table);
+		TupleStoreManager.deletePersistentTableData(storageDirectory, table);
 		
 		sstableLocations.remove(table);	
 	}

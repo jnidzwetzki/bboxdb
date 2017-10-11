@@ -28,9 +28,9 @@ import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.registry.DiskStorage;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
-import org.bboxdb.storage.sstable.SSTableManagerState;
+import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.registry.TupleStoreManagerState;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
@@ -87,7 +87,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 */
 	public synchronized void execute() {
 		
-		final StorageRegistry storageRegistry = storage.getStorageRegistry();
+		final TupleStoreManagerRegistry storageRegistry = storage.getStorageRegistry();
 		final String location = storage.getBasedir().getAbsolutePath();
 		final List<SSTableName> sstables = storageRegistry.getSSTablesForLocation(location);
 		
@@ -100,9 +100,9 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 			try {
 				logger.debug("Running compact for: {}", ssTableName);
-				final SSTableManager sstableManager = storageRegistry.getSSTableManager(ssTableName);
+				final TupleStoreManager sstableManager = storageRegistry.getSSTableManager(ssTableName);
 				
-				if(sstableManager.getSstableManagerState() == SSTableManagerState.READ_ONLY) {
+				if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
 					logger.debug("Skipping compact for read only sstable manager: {}" , ssTableName);
 					continue;
 				}
@@ -129,7 +129,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @return 
 	 * @throws StorageManagerException 
 	 */
-	protected AbstractRegionSplitStrategy getRegionSplitter(final SSTableManager ssTableManager) 
+	protected AbstractRegionSplitStrategy getRegionSplitter(final TupleStoreManager ssTableManager) 
 			throws StorageManagerException {
 		
 		assert(ssTableManager.getSSTableName().isDistributedTable()) 
@@ -148,7 +148,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 *
 	 * @throws StorageManagerException
 	 */
-	protected void mergeSSTables(final MergeTask mergeTask, final SSTableManager sstableManager) 
+	protected void mergeSSTables(final MergeTask mergeTask, final TupleStoreManager sstableManager) 
 			throws StorageManagerException {
 		
 		if(mergeTask.getTaskType() == MergeTaskType.UNKNOWN) {
@@ -188,7 +188,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 		if(sstableManager.getSSTableName().isDistributedTable()) {
 			// Read only = table is in splitting mode
-			if(sstableManager.getSstableManagerState() == SSTableManagerState.READ_WRITE) {
+			if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_WRITE) {
 				testForRegionSplit(sstableManager);
 			}
 		}
@@ -199,7 +199,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @param totalWrittenTuples 
 	 * @throws StorageManagerException 
 	 */
-	protected void testForRegionSplit(final SSTableManager sstableManager) throws StorageManagerException {
+	protected void testForRegionSplit(final TupleStoreManager sstableManager) throws StorageManagerException {
 		
 		final SSTableName ssTableName = sstableManager.getSSTableName();
 		
@@ -227,7 +227,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @param tablenumber
 	 * @throws StorageManagerException
 	 */
-	protected void registerNewFacadeAndDeleteOldInstances(final SSTableManager sstableManager, 
+	protected void registerNewFacadeAndDeleteOldInstances(final TupleStoreManager sstableManager, 
 			final List<SSTableFacade> oldFacades, 
 			final List<SSTableWriter> newTableWriter) throws StorageManagerException {
 		
@@ -245,7 +245,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		}
 		
 		// Manager has switched to read only
-		if(sstableManager.getSstableManagerState() == SSTableManagerState.READ_ONLY) {
+		if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
 			logger.info("Manager is in read only mode, cancel compact run");
 			handleCompactException(newFacedes);
 			return;

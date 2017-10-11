@@ -23,8 +23,8 @@ import java.util.Arrays;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ public class SSTableTupleStore implements TupleStore {
 	/**
 	 * The storage manager
 	 */
-	private SSTableManager storageManager;
+	private TupleStoreManager storageManager;
 	
 	/**
 	 * The database dir
@@ -44,7 +44,7 @@ public class SSTableTupleStore implements TupleStore {
 	/**
 	 * The storage registry
 	 */
-	protected StorageRegistry storageRegistry;
+	protected TupleStoreManagerRegistry storageRegistry;
 
 	/**
 	 * The sstable name
@@ -119,7 +119,7 @@ public class SSTableTupleStore implements TupleStore {
 		final File dataDir = new File(dir.getAbsoluteFile() + "/data");
 		dataDir.mkdirs();
 		
-		storageRegistry = new StorageRegistry();
+		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 		
 		storageManager = storageRegistry.getSSTableManager(SSTABLE_NAME);
@@ -131,7 +131,7 @@ public class SSTableTupleStore implements TupleStore {
 	 * Get the storage registry
 	 * @return
 	 */
-	public StorageRegistry getStorageRegistry() {
+	public TupleStoreManagerRegistry getStorageRegistry() {
 		return storageRegistry;
 	}
 }

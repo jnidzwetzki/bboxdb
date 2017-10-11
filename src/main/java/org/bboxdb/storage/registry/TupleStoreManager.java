@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.sstable;
+package org.bboxdb.storage.registry;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,8 +39,8 @@ import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.memtable.Memtable;
-import org.bboxdb.storage.registry.MemtableAndSSTableManagerPair;
-import org.bboxdb.storage.registry.DiskStorage;
+import org.bboxdb.storage.sstable.SSTableHelper;
+import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.RejectedException;
 import org.bboxdb.util.ServiceState;
@@ -48,7 +48,7 @@ import org.bboxdb.util.ServiceState.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableManager implements BBoxDBService {
+public class TupleStoreManager implements BBoxDBService {
 		
 	/**
 	 * The name of the table
@@ -83,9 +83,9 @@ public class SSTableManager implements BBoxDBService {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
+	private final static Logger logger = LoggerFactory.getLogger(TupleStoreManager.class);
 
-	public SSTableManager(final DiskStorage storage, final SSTableName sstablename, 
+	public TupleStoreManager(final DiskStorage storage, final SSTableName sstablename, 
 			final BBoxDBConfiguration configuration) {
 		
 		this.storage = storage;
@@ -153,7 +153,7 @@ public class SSTableManager implements BBoxDBService {
 		
 		// Flush only when memtable is in RW state, otherwise the memtable flush callbacks
 		// could not be processed
-		if(tupleStoreInstances.getState() == SSTableManagerState.READ_WRITE) {
+		if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_WRITE) {
 			try {
 				logger.info("Flushing tables for shutdown");
 				flush();
@@ -562,7 +562,7 @@ public class SSTableManager implements BBoxDBService {
 					+ " state: " + serviceState);
 		}
 		
-		if(tupleStoreInstances.getState() == SSTableManagerState.READ_ONLY) {
+		if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_ONLY) {
 			throw new RejectedException("Storage manager is in read only state");
 		}
 		
@@ -595,7 +595,7 @@ public class SSTableManager implements BBoxDBService {
 					+ " state: " + serviceState);
 		}
 		
-		if(tupleStoreInstances.getState() == SSTableManagerState.READ_ONLY) {
+		if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_ONLY) {
 			throw new RejectedException("Storage manager is in read only state");
 		}
 		
@@ -624,7 +624,7 @@ public class SSTableManager implements BBoxDBService {
 	public void replaceMemtableWithSSTable(final Memtable memtable, final SSTableFacade sstableFacade) 
 			throws RejectedException {
 
-		if(tupleStoreInstances.getState() == SSTableManagerState.READ_ONLY) {
+		if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_ONLY) {
 			throw new RejectedException("Storage manager is in read only state");
 		}
 		
@@ -640,7 +640,7 @@ public class SSTableManager implements BBoxDBService {
 	public void replaceCompactedSStables(final List<SSTableFacade> newFacedes, 
 			final List<SSTableFacade> oldFacades) throws RejectedException {
 		
-		if(tupleStoreInstances.getState() == SSTableManagerState.READ_ONLY) {
+		if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_ONLY) {
 			throw new RejectedException("Storage manager is in read only state");
 		}
 		
@@ -714,7 +714,7 @@ public class SSTableManager implements BBoxDBService {
 	 * Get the manager state
 	 * @return
 	 */
-	public SSTableManagerState getSstableManagerState() {
+	public TupleStoreManagerState getSstableManagerState() {
 		return tupleStoreInstances.getState();
 	}
 

@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.registry.TupleStoreManager;
 import org.bboxdb.storage.sstable.SSTableConst;
-import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
@@ -65,7 +65,7 @@ public class SSTableCompactor {
 	/**
 	 * The SStable manager
 	 */
-	protected final SSTableManager sstableManager;
+	protected final TupleStoreManager sstableManager;
 	
 	/**
 	 * The resulting writer
@@ -82,7 +82,7 @@ public class SSTableCompactor {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactor.class);
 
-	public SSTableCompactor(final SSTableManager sstableManager, 
+	public SSTableCompactor(final TupleStoreManager sstableManager, 
 			final List<SSTableKeyIndexReader> sstableIndexReader) {
 		
 		this.sstableManager = sstableManager;

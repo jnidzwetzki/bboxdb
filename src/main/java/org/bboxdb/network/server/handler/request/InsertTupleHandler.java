@@ -36,8 +36,8 @@ import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,7 @@ public class InsertTupleHandler implements RequestHandler {
 			final Tuple tuple = insertTupleRequest.getTuple();			
 			final SSTableName requestTable = insertTupleRequest.getTable();
 			final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
-			final StorageRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
+			final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
 			
 			if(! routingHeader.isRoutedPackage()) {
 				final String errorMessage = "Error while insering tuple - package is not routed";
@@ -101,7 +101,7 @@ public class InsertTupleHandler implements RequestHandler {
 	 * @throws BBoxDBException
 	 */
 	protected void handleRoutedPackage(final Tuple tuple, final SSTableName requestTable, 
-			final StorageRegistry storageRegistry,
+			final TupleStoreManagerRegistry storageRegistry,
 			final RoutingHeader routingHeader) 
 			throws StorageManagerException, RejectedException, BBoxDBException {
 		
@@ -117,7 +117,7 @@ public class InsertTupleHandler implements RequestHandler {
 					requestTable, localHop.getDistributionRegions());
 
 		for(final SSTableName ssTableName : localTables) {
-			final SSTableManager storageManager = storageRegistry.getSSTableManager(ssTableName);
+			final TupleStoreManager storageManager = storageRegistry.getSSTableManager(ssTableName);
 			storageManager.put(tuple);			
 		}
 	}

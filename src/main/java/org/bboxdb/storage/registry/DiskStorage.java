@@ -64,14 +64,14 @@ public class DiskStorage implements BBoxDBService {
 	/**
 	 * The storage registry
 	 */
-	protected final StorageRegistry storageRegistry;
+	protected final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DiskStorage.class);
 	
-	public DiskStorage(final StorageRegistry storageRegistry, 
+	public DiskStorage(final TupleStoreManagerRegistry storageRegistry, 
 			final File basedir, 
 			final int flushThreadsPerStorage) {
 		
@@ -199,7 +199,7 @@ public class DiskStorage implements BBoxDBService {
 	 * Get the storage registry
 	 * @return
 	 */
-	public StorageRegistry getStorageRegistry() {
+	public TupleStoreManagerRegistry getStorageRegistry() {
 		return storageRegistry;
 	}
 }

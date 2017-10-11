@@ -25,7 +25,8 @@ import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.registry.DiskStorage;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.util.FileSizeHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.bboxdb.util.io.UnsafeMemoryHelper;
@@ -59,7 +60,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 */
 	protected void runThread() {
 
-		final StorageRegistry storageRegistry = storage.getStorageRegistry();
+		final TupleStoreManagerRegistry storageRegistry = storage.getStorageRegistry();
 
 		while(! Thread.currentThread().isInterrupted()) {
 			
@@ -92,10 +93,10 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 * @param storageRegistry
 	 * @param ssTableName
 	 */
-	protected void createCheckpointIfNedded(final StorageRegistry storageRegistry, 
+	protected void createCheckpointIfNedded(final TupleStoreManagerRegistry storageRegistry, 
 			final SSTableName ssTableName) {
 		try {
-			final SSTableManager ssTableManager = storageRegistry.getSSTableManager(ssTableName);
+			final TupleStoreManager ssTableManager = storageRegistry.getSSTableManager(ssTableName);
 			createCheckpoint(ssTableManager);
 		} catch (InterruptedException e) {
 			logger.debug("Got interrupted exception, stopping checkpoint thread");
@@ -119,7 +120,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 * Decide if a new checkpoint is needed
 	 * @return
 	 */
-	protected boolean isCheckpointNeeded(final SSTableManager ssTableManager) {
+	protected boolean isCheckpointNeeded(final TupleStoreManager ssTableManager) {
 		
 		final List<ReadOnlyTupleStorage> inMemoryStores 
 			= ssTableManager.getAllInMemoryStorages();
@@ -145,7 +146,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 * Create a new checkpoint, this means flush all old memtables to disk
 	 * @throws InterruptedException 
 	 */
-	protected void createCheckpoint(final SSTableManager ssTableManager) throws InterruptedException {
+	protected void createCheckpoint(final TupleStoreManager ssTableManager) throws InterruptedException {
 		if(isCheckpointNeeded(ssTableManager)) {
 			final String fullname = ssTableManager.getSSTableName().getFullname();
 			logger.debug("Create a checkpoint for: {}", fullname);

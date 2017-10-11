@@ -18,7 +18,6 @@
 package org.bboxdb.storage.registry;
 
 import org.bboxdb.storage.memtable.Memtable;
-import org.bboxdb.storage.sstable.SSTableManager;
 
 public class MemtableAndSSTableManagerPair {
 
@@ -30,9 +29,9 @@ public class MemtableAndSSTableManagerPair {
 	/**
 	 * The sstable manager
 	 */
-	protected final SSTableManager ssTableManager;
+	protected final TupleStoreManager ssTableManager;
 
-	public MemtableAndSSTableManagerPair(final Memtable memtable, final SSTableManager ssTableManager) {
+	public MemtableAndSSTableManagerPair(final Memtable memtable, final TupleStoreManager ssTableManager) {
 		this.memtable = memtable;
 		this.ssTableManager = ssTableManager;
 	}
@@ -49,7 +48,7 @@ public class MemtableAndSSTableManagerPair {
 	 * Get the sstable manager
 	 * @return
 	 */
-	public SSTableManager getSsTableManager() {
+	public TupleStoreManager getSsTableManager() {
 		return ssTableManager;
 	}
 }

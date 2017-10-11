@@ -29,9 +29,9 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.compact.SSTableCompactor;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
@@ -62,11 +62,11 @@ public class TestTableCompactor {
 	/**
 	 * The storage registry
 	 */
-	protected static StorageRegistry storageRegistry;
+	protected static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException, BBoxDBException {
-		storageRegistry = new StorageRegistry();
+		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 	}
 	
@@ -97,7 +97,7 @@ public class TestTableCompactor {
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 				
 		storageRegistry.deleteTable(TEST_RELATION);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
+		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.executeCompactation();
@@ -336,7 +336,7 @@ public class TestTableCompactor {
 			throws StorageManagerException {
 		
 		storageRegistry.deleteTable(TEST_RELATION);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
+		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.setMajorCompaction(majorCompaction);

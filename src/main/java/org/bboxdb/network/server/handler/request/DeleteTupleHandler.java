@@ -34,7 +34,7 @@ import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.registry.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +77,7 @@ public class DeleteTupleHandler implements RequestHandler {
 							requestTable, localHop.getDistributionRegions());
 
 				for(final SSTableName ssTableName : localTables) {
-					final SSTableManager storageManager = clientConnectionHandler
+					final TupleStoreManager storageManager = clientConnectionHandler
 							.getStorageRegistry()
 							.getSSTableManager(ssTableName);
 					

@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.sstable;
+package org.bboxdb.storage.registry;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,13 +51,13 @@ public class TupleStoreInstanceManager {
 	/**
 	 * The state (read only / read write) of the manager
 	 */
-	protected volatile SSTableManagerState sstableManagerState;
+	protected volatile TupleStoreManagerState sstableManagerState;
 	
 	
 	public TupleStoreInstanceManager() {		
 		this.sstableFacades = new ArrayList<>();
 		this.unflushedMemtables = new ArrayList<>();
-		this.sstableManagerState = SSTableManagerState.READ_WRITE;
+		this.sstableManagerState = TupleStoreManagerState.READ_WRITE;
 	}
 	
 	/**
@@ -204,7 +204,7 @@ public class TupleStoreInstanceManager {
 	 * Set to read only
 	 */
 	public synchronized void setReadOnly() {
-		sstableManagerState = SSTableManagerState.READ_ONLY;
+		sstableManagerState = TupleStoreManagerState.READ_ONLY;
 		this.notifyAll();
 	}
 	
@@ -212,7 +212,7 @@ public class TupleStoreInstanceManager {
 	 * Set to read write
 	 */
 	public synchronized void setReadWrite() {
-		sstableManagerState = SSTableManagerState.READ_WRITE;
+		sstableManagerState = TupleStoreManagerState.READ_WRITE;
 		this.notifyAll();
 	}
 	
@@ -220,7 +220,7 @@ public class TupleStoreInstanceManager {
 	 * Get the state
 	 * @return
 	 */
-	public SSTableManagerState getState() {
+	public TupleStoreManagerState getState() {
 		return sstableManagerState;
 	}
 }

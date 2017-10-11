@@ -27,9 +27,9 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.RejectedException;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -46,11 +46,11 @@ public class TestStorageRegistry {
 	/**
 	 * The storage registry
 	 */
-	protected static StorageRegistry storageRegistry;
+	protected static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException, BBoxDBException {
-		storageRegistry = new StorageRegistry();
+		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 	}
 	
@@ -86,7 +86,7 @@ public class TestStorageRegistry {
 	@Test
 	public void testDeleteTable() throws StorageManagerException, InterruptedException, RejectedException {
 		
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(RELATION_NAME);
+		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -121,7 +121,7 @@ public class TestStorageRegistry {
 	@Test
 	public void testCalculateSize() throws StorageManagerException, InterruptedException, RejectedException {
 		
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(RELATION_NAME);
+		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());

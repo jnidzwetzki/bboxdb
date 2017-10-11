@@ -15,9 +15,9 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.sstable;
+package org.bboxdb.storage.registry;
 
-public enum SSTableManagerState {
+public enum TupleStoreManagerState {
 	READ_ONLY,
 	READ_WRITE;
 }

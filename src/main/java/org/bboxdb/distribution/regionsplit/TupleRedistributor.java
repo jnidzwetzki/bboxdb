@@ -33,7 +33,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.DiskStorage;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.registry.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +98,7 @@ public class TupleRedistributor {
 				final SSTableName localTableName = sstableName.cloneWithDifferntRegionId(
 						distributionRegion.getRegionId());
 				
-				final SSTableManager storageManager = storage
+				final TupleStoreManager storageManager = storage
 						.getStorageRegistry()
 						.getSSTableManager(localTableName);
 				
@@ -231,9 +231,9 @@ class LocalTupleSink extends TupleSink {
 	/**
 	 * The storage manager to store the tuple
 	 */
-	protected final SSTableManager storageManager;
+	protected final TupleStoreManager storageManager;
 	
-	public LocalTupleSink(final SSTableName tablename, final SSTableManager storageManager) {
+	public LocalTupleSink(final SSTableName tablename, final TupleStoreManager storageManager) {
 		super(tablename);
 		this.storageManager = storageManager;
 	}

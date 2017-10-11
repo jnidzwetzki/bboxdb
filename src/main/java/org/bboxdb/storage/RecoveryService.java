@@ -43,8 +43,8 @@ import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.DiskStorage;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,14 +54,14 @@ public class RecoveryService implements BBoxDBService {
 	/**
 	 * The storage registry
 	 */
-	protected final StorageRegistry storageRegistry;
+	protected final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(RecoveryService.class);
 	
-	public RecoveryService(final StorageRegistry storageRegistry) {
+	public RecoveryService(final TupleStoreManagerRegistry storageRegistry) {
 		this.storageRegistry = storageRegistry;
 	}
 
@@ -210,7 +210,7 @@ public class RecoveryService implements BBoxDBService {
 		final String sstableName = ssTableName.getFullname();
 		
 		logger.info("Recovery: starting recovery for table {}", sstableName);
-		final SSTableManager tableManager = storageRegistry.getSSTableManager(ssTableName);
+		final TupleStoreManager tableManager = storageRegistry.getSSTableManager(ssTableName);
 		
 		// Even with NTP, the clock of the nodes can have a delta.
 		// We subtract this delta from the checkpoint timestamp to ensure

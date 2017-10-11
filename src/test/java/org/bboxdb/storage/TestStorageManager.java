@@ -22,8 +22,8 @@ import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.ObjectSerializer;
 import org.bboxdb.util.RejectedException;
@@ -38,7 +38,7 @@ public class TestStorageManager {
 	/**
 	 * The instance of the storage manager
 	 */
-	protected SSTableManager storageManager;
+	protected TupleStoreManager storageManager;
 	
 	/**
 	 * The name of the test relation
@@ -53,11 +53,11 @@ public class TestStorageManager {
 	/**
 	 * The storage registry
 	 */
-	protected static StorageRegistry storageRegistry;
+	protected static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException, BBoxDBException {
-		storageRegistry = new StorageRegistry();
+		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 	}
 	

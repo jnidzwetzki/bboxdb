@@ -64,7 +64,7 @@ import org.bboxdb.network.server.handler.request.NextPageHandler;
 import org.bboxdb.network.server.handler.request.RequestHandler;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.util.CloseableHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.bboxdb.util.concurrent.ExecutorUtil;
@@ -149,14 +149,14 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	/**
 	 * The storage reference
 	 */
-	protected StorageRegistry storageRegistry;
+	protected TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
 
-	public ClientConnectionHandler(final StorageRegistry storageRegistry, final Socket clientSocket) {
+	public ClientConnectionHandler(final TupleStoreManagerRegistry storageRegistry, final Socket clientSocket) {
 		
 		// Client socket
 		this.clientSocket = clientSocket;
@@ -671,7 +671,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * Get the storage registry
 	 * @return
 	 */
-	public StorageRegistry getStorageRegistry() {
+	public TupleStoreManagerRegistry getStorageRegistry() {
 		return storageRegistry;
 	}
 }

@@ -24,8 +24,8 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.RejectedException;
 import org.junit.Assert;
@@ -60,11 +60,11 @@ public class LocalSelftest {
 			final int iterations = Integer.parseInt(args[0]);
 			logger.info("Running selftest......");
 			
-			final StorageRegistry storageRegistry = new StorageRegistry();
+			final TupleStoreManagerRegistry storageRegistry = new TupleStoreManagerRegistry();
 			storageRegistry.init();
 			
 			final SSTableName sstable = new SSTableName(TABLENAME);
-			final SSTableManager storageManager = storageRegistry.getSSTableManager(sstable);
+			final TupleStoreManager storageManager = storageRegistry.getSSTableManager(sstable);
 
 			for(int iteration = 0; iteration < iterations; iteration++) {
 				logger.info("Running iteration {}", iteration);
@@ -90,7 +90,7 @@ public class LocalSelftest {
 	 * @throws InterruptedException
 	 * @throws RejectedException 
 	 */
-	protected static void testInsertDelete(final SSTableManager storageManager) throws StorageManagerException, InterruptedException, RejectedException {
+	protected static void testInsertDelete(final TupleStoreManager storageManager) throws StorageManagerException, InterruptedException, RejectedException {
 
 		logger.info("Inserting tuples...");
 		for(int i = 0; i < TUPLES; i++) {

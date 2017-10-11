@@ -39,7 +39,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.registry.DiskStorage;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.registry.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -277,7 +277,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			throws StorageManagerException, Exception, InterruptedException {
 		
 		for(final SSTableName ssTableName : localTables) {
-			final SSTableManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
+			final TupleStoreManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
 			
 			final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
 			
@@ -326,7 +326,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
-		final SSTableManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
+		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
 		
 		// Spread data
 		final TupleRedistributor tupleRedistributor = getTupleRedistributor(region, ssTableName);
@@ -341,7 +341,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @throws StorageManagerException
 	 */
 	protected void stopFlushToDisk(final SSTableName ssTableName) throws StorageManagerException {
-		final SSTableManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
+		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
 		
 		// Stop flush thread, so new data remains in memory
 		ssTableManager.setToReadOnly();
@@ -376,7 +376,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param onlyInMemoryData 
 	 * @throws StorageManagerException 
 	 */
-	protected void spreadTupleStores(final SSTableManager ssTableManager, 
+	protected void spreadTupleStores(final TupleStoreManager ssTableManager, 
 			final TupleRedistributor tupleRedistributor) throws Exception {
 		
 		final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
