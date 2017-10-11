@@ -66,9 +66,9 @@ public class SSTableManager implements BBoxDBService {
 	protected final BBoxDBConfiguration configuration;
 	
 	/**
-	 * The number of the table
+	 * The number of the next SSTable name
 	 */
-	protected AtomicInteger tableNumber;
+	protected AtomicInteger nextFreeTableNumber;
 	
 	/**
 	 * The corresponding storage manager state
@@ -91,7 +91,7 @@ public class SSTableManager implements BBoxDBService {
 		this.storage = storage;
 		this.configuration = configuration;
 		this.sstablename = sstablename;
-		this.tableNumber = new AtomicInteger();
+		this.nextFreeTableNumber = new AtomicInteger();
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
 		
 		// Close open resources when the failed state is entered
@@ -125,7 +125,7 @@ public class SSTableManager implements BBoxDBService {
 			initNewMemtable();
 			scanForExistingTables();
 			
-			tableNumber.set(getLastSequencenumberFromReader() + 1);
+			nextFreeTableNumber.set(getLastSequencenumberFromReader() + 1);
 			tupleStoreInstances.setReadWrite();
 			
 			// Set to ready before the threads are started
@@ -501,7 +501,7 @@ public class SSTableManager implements BBoxDBService {
 	 * @return
 	 */
 	public int increaseTableNumber() {
-		return tableNumber.getAndIncrement();
+		return nextFreeTableNumber.getAndIncrement();
 	}
 
 	/**
