@@ -20,13 +20,13 @@ package org.bboxdb.storage.memtable;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.function.BiConsumer;
 
-import org.bboxdb.storage.SSTableFlushCallback;
 import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.registry.DiskStorage;
 import org.bboxdb.storage.registry.MemtableAndSSTableManagerPair;
 import org.bboxdb.storage.registry.TupleStoreManager;
 import org.bboxdb.storage.registry.TupleStoreManagerState;
-import org.bboxdb.storage.registry.DiskStorage;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.FileSizeHelper;
@@ -167,11 +167,12 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	 */
 	protected void sendCallbacks(final Memtable memtable, TupleStoreManager sstableManager) {
 		final long timestamp = memtable.getCreatedTimestamp();
-		final List<SSTableFlushCallback> callbacks = storage.getStorageRegistry().getSSTableFlushCallbacks();
+		final List<BiConsumer<SSTableName, Long>> callbacks 
+			= storage.getStorageRegistry().getSSTableFlushCallbacks();
 		
-		for(final SSTableFlushCallback callback : callbacks) {
+		for(final BiConsumer<SSTableName, Long> callback : callbacks) {
 			try {
-				callback.flushCallback(sstableManager.getSSTableName(), timestamp);
+				callback.accept(sstableManager.getSSTableName(), timestamp);
 			} catch(Exception e) {
 				logger.error("Got exception while executing callback", e);
 			}

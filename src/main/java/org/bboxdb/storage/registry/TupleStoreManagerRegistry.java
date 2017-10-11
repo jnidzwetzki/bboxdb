@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionGroupName;
@@ -34,7 +35,6 @@ import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.network.client.BBoxDBException;
-import org.bboxdb.storage.SSTableFlushCallback;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.SSTableHelper;
@@ -70,7 +70,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	/**
 	 * The flush callbacks
 	 */
-	protected final List<SSTableFlushCallback> flushCallbacks;
+	protected final List<BiConsumer<SSTableName, Long>> flushCallbacks;
 
 	/**
 	 * The service state
@@ -446,15 +446,16 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Register a new SSTable flush callback
 	 * @param callback
 	 */
-	public void registerSSTableFlushCallback(final SSTableFlushCallback callback) {
+	public void registerSSTableFlushCallback(final BiConsumer<SSTableName, Long> callback) {
 		flushCallbacks.add(callback);
 	}
 	
 	/**
 	 * Get a list with all SSTable flush callbacks
+	 * @return 
 	 * @return
 	 */
-	public List<SSTableFlushCallback> getSSTableFlushCallbacks() {
+	public List<BiConsumer<SSTableName, Long>> getSSTableFlushCallbacks() {
 		return Collections.unmodifiableList(flushCallbacks);
 	}
 	
