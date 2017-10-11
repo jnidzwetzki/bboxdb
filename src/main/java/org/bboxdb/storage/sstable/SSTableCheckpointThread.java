@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.registry.Storage;
+import org.bboxdb.storage.registry.DiskStorage;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.util.FileSizeHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
@@ -37,7 +37,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	/**
 	 * The storage
 	 */
-	protected Storage storage;
+	protected DiskStorage storage;
 	
 	/**
 	 * The maximal number of seconds for data to stay in memory
@@ -49,7 +49,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCheckpointThread.class);
 
-	public SSTableCheckpointThread(final Storage storage, final int maxUncheckpointedSeconds) {
+	public SSTableCheckpointThread(final DiskStorage storage, final int maxUncheckpointedSeconds) {
 		this.storage = storage;
 		this.maxUncheckpointedMiliseconds = TimeUnit.SECONDS.toMillis(maxUncheckpointedSeconds);
 	}

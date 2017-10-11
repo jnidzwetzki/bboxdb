@@ -27,7 +27,7 @@ import org.bboxdb.distribution.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.registry.Storage;
+import org.bboxdb.storage.registry.DiskStorage;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableManagerState;
@@ -49,14 +49,14 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	/**
 	 * The storage
 	 */
-	protected Storage storage;
+	protected DiskStorage storage;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactorThread.class);
 
-	public SSTableCompactorThread(final Storage storage) {
+	public SSTableCompactorThread(final DiskStorage storage) {
 		this.storage = storage;
 		this.mergeStragegy = new SimpleMergeStrategy();
 	}

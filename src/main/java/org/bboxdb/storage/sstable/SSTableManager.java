@@ -39,8 +39,8 @@ import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.memtable.Memtable;
-import org.bboxdb.storage.registry.MemtableAndSSTableManager;
-import org.bboxdb.storage.registry.Storage;
+import org.bboxdb.storage.registry.MemtableAndSSTableManagerPair;
+import org.bboxdb.storage.registry.DiskStorage;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.util.RejectedException;
 import org.bboxdb.util.ServiceState;
@@ -78,14 +78,14 @@ public class SSTableManager implements BBoxDBService {
 	/**
 	 * The storage
 	 */
-	protected final Storage storage;
+	protected final DiskStorage storage;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableManager.class);
 
-	public SSTableManager(final Storage storage, final SSTableName sstablename, 
+	public SSTableManager(final DiskStorage storage, final SSTableName sstablename, 
 			final BBoxDBConfiguration configuration) {
 		
 		this.storage = storage;
@@ -542,7 +542,7 @@ public class SSTableManager implements BBoxDBService {
 		
 		final Memtable oldMemtable = tupleStoreInstances.activateNewMemtable(memtable);	
 		
-		final MemtableAndSSTableManager memtableTask = new MemtableAndSSTableManager(oldMemtable, this);
+		final MemtableAndSSTableManagerPair memtableTask = new MemtableAndSSTableManagerPair(oldMemtable, this);
 		storage.scheduleMemtableFlush(memtableTask);
 		
 		logger.debug("Activated a new memtable: {}", memtable.getInternalName());

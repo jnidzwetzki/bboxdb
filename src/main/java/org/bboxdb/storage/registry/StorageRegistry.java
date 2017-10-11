@@ -56,7 +56,7 @@ public class StorageRegistry implements BBoxDBService {
 	/**
 	 * The list of the storage directories
 	 */
-	protected final Map<String, Storage> storages;
+	protected final Map<String, DiskStorage> storages;
 	
 	/**
 	 * A map that contains the storage directory for the sstable
@@ -116,7 +116,7 @@ public class StorageRegistry implements BBoxDBService {
 			try {
 				scanDirectory(directory);
 				final int flushThreadsPerStorage = configuration.getMemtableFlushThreadsPerStorage();
-				final Storage storage = new Storage(this, new File(directory), flushThreadsPerStorage);
+				final DiskStorage storage = new DiskStorage(this, new File(directory), flushThreadsPerStorage);
 				storage.init();
 				storages.put(directory, storage);
 			} catch (StorageManagerException e) {
@@ -154,7 +154,7 @@ public class StorageRegistry implements BBoxDBService {
 		}
 		
 		final String location = sstableLocations.get(table);
-		final Storage storage = storages.get(location);
+		final DiskStorage storage = storages.get(location);
 		final SSTableManager sstableManager = new SSTableManager(storage, table, configuration);
 
 		sstableManager.init();
@@ -475,7 +475,7 @@ public class StorageRegistry implements BBoxDBService {
 	 * Get all storages
 	 * @return 
 	 */
-	public Collection<Storage> getAllStorages() {
+	public Collection<DiskStorage> getAllStorages() {
 		return storages.values();
 	}
 	

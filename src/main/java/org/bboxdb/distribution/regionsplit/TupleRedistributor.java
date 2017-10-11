@@ -32,7 +32,7 @@ import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.Storage;
+import org.bboxdb.storage.registry.DiskStorage;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ public class TupleRedistributor {
 	/**
 	 * The storage reference
 	 */
-	protected Storage storage;
+	protected DiskStorage storage;
 	
 	/**
 	 * The Logger
@@ -65,7 +65,7 @@ public class TupleRedistributor {
 	protected final static Logger logger = LoggerFactory.getLogger(TupleRedistributor.class);
 
 	
-	public TupleRedistributor(final Storage storage, final SSTableName ssTableName) {
+	public TupleRedistributor(final DiskStorage storage, final SSTableName ssTableName) {
 		this.storage = storage;
 		this.sstableName = ssTableName;
 		this.regionMap = new HashMap<DistributionRegion, List<TupleSink>>();

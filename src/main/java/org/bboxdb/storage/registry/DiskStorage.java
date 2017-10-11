@@ -34,7 +34,7 @@ import org.bboxdb.util.concurrent.ThreadHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Storage implements BBoxDBService {
+public class DiskStorage implements BBoxDBService {
 
 	/**
 	 * The running flush threads
@@ -49,7 +49,7 @@ public class Storage implements BBoxDBService {
 	/**
 	 * The queue for the memtable flush thread
 	 */
-	protected final BlockingQueue<MemtableAndSSTableManager> memtablesToFlush;
+	protected final BlockingQueue<MemtableAndSSTableManagerPair> memtablesToFlush;
 	
 	/**
 	 * The storage base dir
@@ -69,9 +69,9 @@ public class Storage implements BBoxDBService {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(Storage.class);
+	private final static Logger logger = LoggerFactory.getLogger(DiskStorage.class);
 	
-	public Storage(final StorageRegistry storageRegistry, 
+	public DiskStorage(final StorageRegistry storageRegistry, 
 			final File basedir, 
 			final int flushThreadsPerStorage) {
 		
@@ -164,7 +164,7 @@ public class Storage implements BBoxDBService {
 		return "Storage instance for: " + basedir.getAbsolutePath();
 	}
 	
-	public void scheduleMemtableFlush(final MemtableAndSSTableManager memtable) {
+	public void scheduleMemtableFlush(final MemtableAndSSTableManagerPair memtable) {
 		
 		if(memtable == null) {
 			return;
@@ -183,7 +183,7 @@ public class Storage implements BBoxDBService {
 	 * Get the memtable flush queue
 	 * @return
 	 */
-	public BlockingQueue<MemtableAndSSTableManager> getMemtablesToFlush() {
+	public BlockingQueue<MemtableAndSSTableManagerPair> getMemtablesToFlush() {
 		return memtablesToFlush;
 	}
 	

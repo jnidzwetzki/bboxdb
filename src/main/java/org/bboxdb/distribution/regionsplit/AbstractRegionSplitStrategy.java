@@ -38,7 +38,7 @@ import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.Storage;
+import org.bboxdb.storage.registry.DiskStorage;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	/**
 	 * The storage reference
 	 */
-	protected Storage storage;
+	protected DiskStorage storage;
 	
 	/**
 	 * The Logger
@@ -86,7 +86,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param region
 	 * @throws StorageManagerException 
 	 */
-	public void initFromSSTablename(final Storage storage, final SSTableName ssTableName) throws StorageManagerException {
+	public void initFromSSTablename(final DiskStorage storage, final SSTableName ssTableName) throws StorageManagerException {
 		
 		assert (treeAdapter == null) : "Unable to reinit instance";
 		assert (region == null) : "Unable to reinit instance";

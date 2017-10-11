@@ -20,7 +20,7 @@ package org.bboxdb.storage.registry;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.sstable.SSTableManager;
 
-public class MemtableAndSSTableManager {
+public class MemtableAndSSTableManagerPair {
 
 	/**
 	 * The memtale
@@ -32,7 +32,7 @@ public class MemtableAndSSTableManager {
 	 */
 	protected final SSTableManager ssTableManager;
 
-	public MemtableAndSSTableManager(final Memtable memtable, final SSTableManager ssTableManager) {
+	public MemtableAndSSTableManagerPair(final Memtable memtable, final SSTableManager ssTableManager) {
 		this.memtable = memtable;
 		this.ssTableManager = ssTableManager;
 	}

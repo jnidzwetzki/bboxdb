@@ -42,7 +42,7 @@ import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.Storage;
+import org.bboxdb.storage.registry.DiskStorage;
 import org.bboxdb.storage.registry.StorageRegistry;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.util.RejectedException;
@@ -113,7 +113,7 @@ public class RecoveryService implements BBoxDBService {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 			
-			for(final Storage storage : storageRegistry.getAllStorages()) {
+			for(final DiskStorage storage : storageRegistry.getAllStorages()) {
 				checkGroupVersion(storage, distributionGroupName, zookeeperClient);
 			}
 					
@@ -130,7 +130,7 @@ public class RecoveryService implements BBoxDBService {
 		
 	}
 
-	protected void checkGroupVersion(final Storage storage, final DistributionGroupName distributionGroupName,
+	protected void checkGroupVersion(final DiskStorage storage, final DistributionGroupName distributionGroupName,
 			final ZookeeperClient zookeeperClient) {
 		
 		try {

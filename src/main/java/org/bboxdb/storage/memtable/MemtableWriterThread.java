@@ -23,8 +23,8 @@ import java.util.concurrent.BlockingQueue;
 
 import org.bboxdb.storage.SSTableFlushCallback;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.registry.MemtableAndSSTableManager;
-import org.bboxdb.storage.registry.Storage;
+import org.bboxdb.storage.registry.MemtableAndSSTableManagerPair;
+import org.bboxdb.storage.registry.DiskStorage;
 import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableManagerState;
 import org.bboxdb.storage.sstable.SSTableWriter;
@@ -39,7 +39,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * The unflushed memtables
 	 */
-	protected final BlockingQueue<MemtableAndSSTableManager> flushQueue;
+	protected final BlockingQueue<MemtableAndSSTableManagerPair> flushQueue;
 
 	/**
 	 * The basedir
@@ -49,7 +49,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * The storage
 	 */
-	protected Storage storage;
+	protected DiskStorage storage;
 
 	/**
 	 * The logger
@@ -60,7 +60,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * @param ssTableManager
 	 */
-	public MemtableWriterThread(final Storage storage, final File basedir) {
+	public MemtableWriterThread(final DiskStorage storage, final File basedir) {
 		this.storage = storage;
 		this.flushQueue = storage.getMemtablesToFlush();
 		this.basedir = basedir;	
@@ -83,7 +83,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	protected void runThread() {
 		while (! Thread.currentThread().isInterrupted()) {
 			try {
-				final MemtableAndSSTableManager memtableAndSSTableManager = flushQueue.take();
+				final MemtableAndSSTableManagerPair memtableAndSSTableManager = flushQueue.take();
 				final Memtable memtable = memtableAndSSTableManager.getMemtable();
 				final SSTableManager sstableManager = memtableAndSSTableManager.getSsTableManager();
 				flushMemtableToDisk(memtable, sstableManager);
