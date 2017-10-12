@@ -38,6 +38,7 @@ import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.SSTableHelper;
+import org.bboxdb.storage.sstable.SSTableLocator;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +114,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		// Populate the sstable location map
 		for(final String directory : storageDirs) {
 			try {
-				scanDirectory(directory);
+				sstableLocations.putAll(SSTableLocator.scanDirectoryForExistingTables(directory));
 				final int flushThreadsPerStorage = configuration.getMemtableFlushThreadsPerStorage();
 				final DiskStorage storage = new DiskStorage(this, new File(directory), flushThreadsPerStorage);
 				storage.init();
@@ -352,42 +353,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		return tables;
 	}
 	
-	/**
-	 * Scan the given directory for existing sstables and add them
-	 * to the sstable location map
-	 * @param storageDirectory
-	 * @throws StorageManagerException 
-	 */
-	protected void scanDirectory(final String storageDirectory) throws StorageManagerException {
-	
-		final String dataDirString = SSTableHelper.getDataDir(storageDirectory);
-		final File dataDir = new File(dataDirString);
-		
-		if(! dataDir.exists()) {
-			throw new StorageManagerException("Root dir does not exist: " + dataDir);
-		}
 
-		// Distribution groups
-		for (final File fileEntry : dataDir.listFiles()) {
-			
-	        if (fileEntry.isDirectory()) {
-	        	final String distributionGroup = fileEntry.getName();
-	        	final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
-	        	
-	        	assert(distributionGroupName.isValid()) : "Invalid name: " + distributionGroup;
-	        	
-	        	// Tables
-	    		for (final File tableEntry : fileEntry.listFiles()) {
-			        if (tableEntry.isDirectory()) {
-			        	final String tablename = tableEntry.getName();
-			        	final String fullname = distributionGroupName.getFullname() + "_" + tablename;
-			        	final SSTableName sstableName = new SSTableName(fullname);
-						sstableLocations.put(sstableName, storageDirectory);
-			        }
-	    		}
-	        } 
-	    }
-	}
 	
 	/**
 	 * Get all tables for the given distribution group and region id
