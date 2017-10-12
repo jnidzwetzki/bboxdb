@@ -15,16 +15,16 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.registry;
+package org.bboxdb.storage.tuplestore.manager;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 
 /**
  * This class holds references to all known tuple storages (sstables, memtables) for 
@@ -131,8 +131,8 @@ public class TupleStoreInstanceManager {
 	 * Get a list with all active storages
 	 * @return
 	 */
-	public synchronized List<ReadOnlyTupleStorage> getAllTupleStorages() {
-		final List<ReadOnlyTupleStorage> allStorages = new ArrayList<>();
+	public synchronized List<ReadOnlyTupleStore> getAllTupleStorages() {
+		final List<ReadOnlyTupleStore> allStorages = new ArrayList<>();
 		
 		allStorages.add(memtable);
 		allStorages.addAll(unflushedMemtables);
@@ -171,8 +171,8 @@ public class TupleStoreInstanceManager {
 	 * Get all in memory storages
 	 * @return 
 	 */
-	public synchronized List<ReadOnlyTupleStorage> getAllInMemoryStorages() {
-		final List<ReadOnlyTupleStorage> resultList = new ArrayList<ReadOnlyTupleStorage>();
+	public synchronized List<ReadOnlyTupleStore> getAllInMemoryStorages() {
+		final List<ReadOnlyTupleStore> resultList = new ArrayList<ReadOnlyTupleStore>();
 		resultList.add(memtable);
 		resultList.addAll(unflushedMemtables);
 		return resultList;

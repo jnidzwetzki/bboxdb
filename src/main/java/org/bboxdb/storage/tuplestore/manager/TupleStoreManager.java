@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.registry;
+package org.bboxdb.storage.tuplestore.manager;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
@@ -42,6 +41,9 @@ import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
+import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.MemtableAndSSTableManagerPair;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.util.RejectedException;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.ServiceState.State;
@@ -420,12 +422,12 @@ public class TupleStoreManager implements BBoxDBService {
 		}
 		
 		Tuple mostRecentTuple = null;
-		final List<ReadOnlyTupleStorage> aquiredStorages = new ArrayList<ReadOnlyTupleStorage>();
+		final List<ReadOnlyTupleStore> aquiredStorages = new ArrayList<ReadOnlyTupleStore>();
 		
 		try {
 			aquiredStorages.addAll(aquireStorage());
 			
-			for(final ReadOnlyTupleStorage tupleStorage : aquiredStorages) {
+			for(final ReadOnlyTupleStore tupleStorage : aquiredStorages) {
 				if(TupleHelper.canStorageContainNewerTuple(mostRecentTuple, tupleStorage)) {
 					final Tuple facadeTuple = tupleStorage.get(key);
 					mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
@@ -445,14 +447,14 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @return 
 	 * @throws StorageManagerException 
 	 */
-	public List<ReadOnlyTupleStorage> aquireStorage() throws StorageManagerException {
+	public List<ReadOnlyTupleStore> aquireStorage() throws StorageManagerException {
 
 		for(int execution = 0; execution < Const.OPERATION_RETRY; execution++) {
 			
-			final List<ReadOnlyTupleStorage> aquiredStorages = new ArrayList<>();
-			final List<ReadOnlyTupleStorage> knownStorages = tupleStoreInstances.getAllTupleStorages();
+			final List<ReadOnlyTupleStore> aquiredStorages = new ArrayList<>();
+			final List<ReadOnlyTupleStore> knownStorages = tupleStoreInstances.getAllTupleStorages();
 						
-			for(final ReadOnlyTupleStorage tupleStorage : knownStorages) {
+			for(final ReadOnlyTupleStore tupleStorage : knownStorages) {
 				final boolean canBeUsed = tupleStorage.acquire();
 								
 				if(! canBeUsed ) {
@@ -490,8 +492,8 @@ public class TupleStoreManager implements BBoxDBService {
 	/**
 	 * Release all acquired tables
 	 */
-	public void releaseStorage(List<ReadOnlyTupleStorage> storagesToRelease) {
-		for(final ReadOnlyTupleStorage storage : storagesToRelease) {
+	public void releaseStorage(List<ReadOnlyTupleStore> storagesToRelease) {
+		for(final ReadOnlyTupleStore storage : storagesToRelease) {
 			storage.release();
 		}		
 	}
@@ -659,7 +661,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 * In memory delegate
 	 * @return
 	 */
-	public List<ReadOnlyTupleStorage> getAllInMemoryStorages() {
+	public List<ReadOnlyTupleStore> getAllInMemoryStorages() {
 		return tupleStoreInstances.getAllInMemoryStorages();
 	}
 	
@@ -667,7 +669,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Get all tuple storages delegate
 	 * @return
 	 */
-	public List<ReadOnlyTupleStorage> getAllTupleStorages() {
+	public List<ReadOnlyTupleStore> getAllTupleStorages() {
 		return tupleStoreInstances.getAllTupleStorages();
 	}
 
@@ -685,7 +687,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public long getSize() throws StorageManagerException {
-		List<ReadOnlyTupleStorage> storages = null;
+		List<ReadOnlyTupleStore> storages = null;
 		
 		try {
 			storages = aquireStorage();

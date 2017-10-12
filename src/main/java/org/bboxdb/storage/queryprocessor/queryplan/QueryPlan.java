@@ -19,8 +19,8 @@ package org.bboxdb.storage.queryprocessor.queryplan;
 
 import java.util.Iterator;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 
 public interface QueryPlan {
 	
@@ -29,5 +29,5 @@ public interface QueryPlan {
 	 * @param readOnlyTupleStorage
 	 * @return
 	 */
-	public Iterator<Tuple> execute(final ReadOnlyTupleStorage readOnlyTupleStorage);
+	public Iterator<Tuple> execute(final ReadOnlyTupleStore readOnlyTupleStorage);
 }

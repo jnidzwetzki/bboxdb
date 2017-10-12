@@ -33,7 +33,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
 import org.bboxdb.storage.queryprocessor.QueryProcessor;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
-import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

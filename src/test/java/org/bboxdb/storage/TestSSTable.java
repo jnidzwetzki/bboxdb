@@ -31,6 +31,7 @@ import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.util.io.FileUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -164,7 +165,7 @@ public class TestSSTable {
 		Assert.assertTrue(sstableFile.exists());
 		Assert.assertTrue(sstableIndexFile.exists());
 		
-		final ReadOnlyTupleStorage ssTableFacade = new SSTableFacade(STORAGE_DIRECTORY, TEST_RELATION, 1, 0);
+		final ReadOnlyTupleStore ssTableFacade = new SSTableFacade(STORAGE_DIRECTORY, TEST_RELATION, 1, 0);
 		ssTableFacade.acquire();
 		ssTableFacade.deleteOnClose();
 		

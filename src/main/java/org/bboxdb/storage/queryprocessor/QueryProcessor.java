@@ -23,12 +23,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
-import org.bboxdb.storage.registry.TupleStoreManager;
 import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,12 +57,12 @@ public class QueryProcessor {
 	/**
 	 * The unprocessed storages
 	 */
-	protected final List<ReadOnlyTupleStorage> unprocessedStorages;
+	protected final List<ReadOnlyTupleStore> unprocessedStorages;
 
 	/**
 	 * The aquired storages
 	 */
-	protected final List<ReadOnlyTupleStorage> aquiredStorages;
+	protected final List<ReadOnlyTupleStore> aquiredStorages;
 
 	
 	/**
@@ -76,8 +76,8 @@ public class QueryProcessor {
 		this.ssTableManager = ssTableManager;
 		this.ready = false;
 		this.seenTuples = new HashMap<String, Long>();
-		this.aquiredStorages = new LinkedList<ReadOnlyTupleStorage>();
-		this.unprocessedStorages = new LinkedList<ReadOnlyTupleStorage>();
+		this.aquiredStorages = new LinkedList<ReadOnlyTupleStore>();
+		this.unprocessedStorages = new LinkedList<ReadOnlyTupleStore>();
 	}
 	
 	public CloseableIterator<Tuple> iterator() {
@@ -94,7 +94,7 @@ public class QueryProcessor {
 			/**
 			 * The active storage
 			 */
-			protected ReadOnlyTupleStorage activeStorage = null;
+			protected ReadOnlyTupleStore activeStorage = null;
 			
 			/**
 			 * The next precomputed tuple
@@ -178,7 +178,7 @@ public class QueryProcessor {
 				
 				Tuple resultTuple = activeStorage.get(tuple.getKey());
 				
-				for(final ReadOnlyTupleStorage readOnlyTupleStorage : unprocessedStorages) {
+				for(final ReadOnlyTupleStore readOnlyTupleStorage : unprocessedStorages) {
 					if(TupleHelper.canStorageContainNewerTuple(resultTuple, readOnlyTupleStorage)) {
 						final Tuple possibleTuple = readOnlyTupleStorage.get(tuple.getKey());
 						resultTuple = TupleHelper.returnMostRecentTuple(resultTuple, possibleTuple);

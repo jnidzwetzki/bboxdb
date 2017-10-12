@@ -19,23 +19,23 @@ package org.bboxdb.storage.queryprocessor.datasource;
 
 import java.util.Iterator;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 
 public class SpatialIndexDataSource implements DataSource {
 
 	/**
 	 * The tuple storage
 	 */
-	protected final ReadOnlyTupleStorage tupleStorage;
+	protected final ReadOnlyTupleStore tupleStorage;
 	
 	/**
 	 * The bounding box
 	 */
 	protected final BoundingBox boundingBox;
 	
-	public SpatialIndexDataSource(final ReadOnlyTupleStorage tupleStorage, 
+	public SpatialIndexDataSource(final ReadOnlyTupleStore tupleStorage, 
 			final BoundingBox boundingBox) {
 		
 		this.tupleStorage = tupleStorage;

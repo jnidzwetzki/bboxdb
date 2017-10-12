@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.registry.DiskStorage;
-import org.bboxdb.storage.registry.TupleStoreManager;
-import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.FileSizeHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.bboxdb.util.io.UnsafeMemoryHelper;
@@ -122,7 +122,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 */
 	protected boolean isCheckpointNeeded(final TupleStoreManager ssTableManager) {
 		
-		final List<ReadOnlyTupleStorage> inMemoryStores 
+		final List<ReadOnlyTupleStore> inMemoryStores 
 			= ssTableManager.getAllInMemoryStorages();
 	
 		if(inMemoryStores.isEmpty()) {

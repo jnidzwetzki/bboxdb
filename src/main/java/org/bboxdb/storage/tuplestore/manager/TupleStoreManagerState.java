@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.registry;
+package org.bboxdb.storage.tuplestore.manager;
 
 public enum TupleStoreManagerState {
 	READ_ONLY,

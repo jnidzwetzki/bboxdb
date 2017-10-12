@@ -64,7 +64,7 @@ import org.bboxdb.network.server.handler.request.NextPageHandler;
 import org.bboxdb.network.server.handler.request.RequestHandler;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.CloseableHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.bboxdb.util.concurrent.ExecutorUtil;

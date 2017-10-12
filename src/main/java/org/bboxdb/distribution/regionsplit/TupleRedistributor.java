@@ -32,8 +32,8 @@ import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.DiskStorage;
-import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

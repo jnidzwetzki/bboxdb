@@ -21,13 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.util.MathUtil;
 
 public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
@@ -104,7 +104,7 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 			final TupleStoreManager sstableManager = storage.getStorageRegistry()
 					.getSSTableManager(ssTableName);
 			
-			final List<ReadOnlyTupleStorage> tupleStores = sstableManager.getAllTupleStorages();
+			final List<ReadOnlyTupleStore> tupleStores = sstableManager.getAllTupleStorages();
 			processTupleStores(tupleStores, splitDimension, boundingBox);
 			logger.info("Create split samples for table: {} DONE", ssTableName.getFullname());
 		}
@@ -118,14 +118,14 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	 * @param floatIntervals 
 	 * @throws StorageManagerException 
 	 */
-	protected void processTupleStores(final List<ReadOnlyTupleStorage> storages, final int splitDimension, 
+	protected void processTupleStores(final List<ReadOnlyTupleStore> storages, final int splitDimension, 
 			final BoundingBox boundingBox) throws StorageManagerException {
 		
 		final int samplesPerStorage = 100;
 		
 		logger.debug("Fetching {} samples per storage", samplesPerStorage);
 		
-		for(final ReadOnlyTupleStorage storage : storages) {
+		for(final ReadOnlyTupleStore storage : storages) {
 			if(! storage.acquire() ) {
 				continue;
 			}

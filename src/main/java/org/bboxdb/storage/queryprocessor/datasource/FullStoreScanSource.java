@@ -19,17 +19,17 @@ package org.bboxdb.storage.queryprocessor.datasource;
 
 import java.util.Iterator;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 
 public class FullStoreScanSource implements DataSource {
 	
 	/**
 	 * The tuple storage
 	 */
-	protected final ReadOnlyTupleStorage tupleStorage;
+	protected final ReadOnlyTupleStore tupleStorage;
 
-	public FullStoreScanSource(final ReadOnlyTupleStorage readOnlyTupleStorage) {
+	public FullStoreScanSource(final ReadOnlyTupleStore readOnlyTupleStorage) {
 		this.tupleStorage = readOnlyTupleStorage;
 	}
 

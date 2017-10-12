@@ -19,13 +19,13 @@ package org.bboxdb.storage.queryprocessor.queryplan;
 
 import java.util.Iterator;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.datasource.DataSource;
 import org.bboxdb.storage.queryprocessor.datasource.FullStoreScanSource;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsInsertedTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 
 public class NewerAsInsertTimeQueryPlan implements QueryPlan {
 	
@@ -39,7 +39,7 @@ public class NewerAsInsertTimeQueryPlan implements QueryPlan {
 	}
 
 	@Override
-	public Iterator<Tuple> execute(final ReadOnlyTupleStorage readOnlyTupleStorage) {
+	public Iterator<Tuple> execute(final ReadOnlyTupleStore readOnlyTupleStorage) {
 		
 		// All tuples are older than our predicate
 		if(readOnlyTupleStorage.getNewestTupleInsertedTimestamp() < timestamp) {

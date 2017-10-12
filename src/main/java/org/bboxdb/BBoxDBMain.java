@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bboxdb.distribution.DistributedRecoveryService;
 import org.bboxdb.distribution.SSTableFlushZookeeperAdapter;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
@@ -31,8 +32,7 @@ import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.server.NetworkConnectionService;
-import org.bboxdb.storage.RecoveryService;
-import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.io.UnsafeMemoryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class BBoxDBMain {
 		services.add(connectionHandler);	
 		
 		// The recovery service
-		final RecoveryService recoveryService = new RecoveryService(storageRegistry);
+		final DistributedRecoveryService recoveryService = new DistributedRecoveryService(storageRegistry);
 		services.add(recoveryService);
 		
 		// The JMX service

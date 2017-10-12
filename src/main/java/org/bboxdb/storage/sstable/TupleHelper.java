@@ -25,10 +25,10 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.util.DuplicateResolver;
 import org.bboxdb.util.io.DataEncoderHelper;
 
@@ -108,7 +108,7 @@ public class TupleHelper {
 	 * @param storage
 	 * @return
 	 */
-	public static boolean canStorageContainNewerTuple(final Tuple tuple, final ReadOnlyTupleStorage storage) {
+	public static boolean canStorageContainNewerTuple(final Tuple tuple, final ReadOnlyTupleStore storage) {
 		if(tuple == null) {
 			return true;
 		}

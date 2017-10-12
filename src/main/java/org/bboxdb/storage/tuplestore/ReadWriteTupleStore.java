@@ -15,40 +15,32 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.registry;
+package org.bboxdb.storage.tuplestore;
 
-import org.bboxdb.storage.memtable.Memtable;
+import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.Tuple;
 
-public class MemtableAndSSTableManagerPair {
+public interface ReadWriteTupleStore extends ReadOnlyTupleStore {
 
 	/**
-	 * The memtale
+	 * Store a tuple
+	 * @param tuple
+	 * @throws StorageManagerException
 	 */
-	protected final Memtable memtable;
+	public void put(final Tuple tuple) throws StorageManagerException;
+
+	/**
+	 * Delete a tuple
+	 * @param key
+	 * @param timestamp
+	 * @throws StorageManagerException
+	 */
+	public void delete(final String key, final long timestamp) throws StorageManagerException;
 	
 	/**
-	 * The sstable manager
+	 * Truncate the stored data
+	 * @throws StorageManagerException
 	 */
-	protected final TupleStoreManager ssTableManager;
-
-	public MemtableAndSSTableManagerPair(final Memtable memtable, final TupleStoreManager ssTableManager) {
-		this.memtable = memtable;
-		this.ssTableManager = ssTableManager;
-	}
+	public void clear() throws StorageManagerException;
 	
-	/**
-	 * Get the memtable
-	 * @return
-	 */
-	public Memtable getMemtable() {
-		return memtable;
-	}
-	
-	/**
-	 * Get the sstable manager
-	 * @return
-	 */
-	public TupleStoreManager getSsTableManager() {
-		return ssTableManager;
-	}
 }

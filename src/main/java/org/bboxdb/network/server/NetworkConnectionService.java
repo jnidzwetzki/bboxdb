@@ -26,7 +26,7 @@ import java.util.concurrent.Executors;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
-import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;

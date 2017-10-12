@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.registry;
+package org.bboxdb.storage.tuplestore.manager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,6 +39,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableLocator;
+import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

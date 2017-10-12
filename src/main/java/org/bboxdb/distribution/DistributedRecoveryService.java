@@ -15,17 +15,11 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage;
+package org.bboxdb.distribution;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.bboxdb.distribution.DistributionGroupCache;
-import org.bboxdb.distribution.DistributionGroupMetadataHelper;
-import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionHelper;
-import org.bboxdb.distribution.OutdatedDistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
@@ -39,17 +33,18 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.DiskStorage;
-import org.bboxdb.storage.registry.TupleStoreManager;
-import org.bboxdb.storage.registry.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RecoveryService implements BBoxDBService {
+public class DistributedRecoveryService implements BBoxDBService {
 	
 	/**
 	 * The storage registry
@@ -59,9 +54,9 @@ public class RecoveryService implements BBoxDBService {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(RecoveryService.class);
+	private final static Logger logger = LoggerFactory.getLogger(DistributedRecoveryService.class);
 	
-	public RecoveryService(final TupleStoreManagerRegistry storageRegistry) {
+	public DistributedRecoveryService(final TupleStoreManagerRegistry storageRegistry) {
 		this.storageRegistry = storageRegistry;
 	}
 

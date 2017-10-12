@@ -19,11 +19,11 @@ package org.bboxdb.storage.queryprocessor.queryplan;
 
 import java.util.Iterator;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.datasource.DataSource;
 import org.bboxdb.storage.queryprocessor.datasource.SpatialIndexDataSource;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 
 public class BoundingBoxQueryPlan implements QueryPlan {
 
@@ -37,7 +37,7 @@ public class BoundingBoxQueryPlan implements QueryPlan {
 	}
 
 	@Override
-	public Iterator<Tuple> execute(final ReadOnlyTupleStorage readOnlyTupleStorage) {
+	public Iterator<Tuple> execute(final ReadOnlyTupleStore readOnlyTupleStorage) {
 		final DataSource dataSource = new SpatialIndexDataSource(readOnlyTupleStorage, boundingBox);
 		
 		return dataSource.iterator();

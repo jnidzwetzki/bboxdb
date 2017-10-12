@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.BloomFilterBuilder;
-import org.bboxdb.storage.ReadWriteTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
@@ -36,12 +35,13 @@ import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
+import org.bboxdb.storage.tuplestore.ReadWriteTupleStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.BloomFilter;
 
-public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
+public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	
 	/**
 	 * The name of the corresponding table

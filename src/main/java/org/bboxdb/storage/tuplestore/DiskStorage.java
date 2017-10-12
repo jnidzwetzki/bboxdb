@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.registry;
+package org.bboxdb.storage.tuplestore;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ import org.bboxdb.storage.memtable.MemtableWriterThread;
 import org.bboxdb.storage.sstable.SSTableCheckpointThread;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.concurrent.ThreadHelper;
 import org.slf4j.Logger;

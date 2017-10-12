@@ -34,12 +34,12 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.DiskStorage;
-import org.bboxdb.storage.registry.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -279,10 +279,10 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		for(final SSTableName ssTableName : localTables) {
 			final TupleStoreManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
 			
-			final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
+			final List<ReadOnlyTupleStore> storages = new ArrayList<>();
 			
 			try {
-				final List<ReadOnlyTupleStorage> aquiredStorages = ssTableManager.aquireStorage();
+				final List<ReadOnlyTupleStore> aquiredStorages = ssTableManager.aquireStorage();
 				storages.addAll(aquiredStorages);
 				storages.forEach(s -> s.deleteOnClose());	
 			} catch (Exception e) {
@@ -379,16 +379,16 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	protected void spreadTupleStores(final TupleStoreManager ssTableManager, 
 			final TupleRedistributor tupleRedistributor) throws Exception {
 		
-		final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
+		final List<ReadOnlyTupleStore> storages = new ArrayList<>();
 		
 		try {
-			final List<ReadOnlyTupleStorage> aquiredStorages = ssTableManager.aquireStorage();
+			final List<ReadOnlyTupleStore> aquiredStorages = ssTableManager.aquireStorage();
 			storages.addAll(aquiredStorages);
 			
 			final int totalSotrages = aquiredStorages.size();
 			
 			for(int i = 0; i < totalSotrages; i++) {
-				final ReadOnlyTupleStorage storage = aquiredStorages.get(i);
+				final ReadOnlyTupleStore storage = aquiredStorages.get(i);
 				logger.info("Spread sstable facade {} number {} of {}", 
 						storage.getInternalName(), i, totalSotrages - 1);
 						spreadStorage(tupleRedistributor, storage);
@@ -414,7 +414,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @throws Exception 
 	 */
 	protected void spreadStorage(final TupleRedistributor tupleRedistributor,
-			final ReadOnlyTupleStorage storage) throws Exception {
+			final ReadOnlyTupleStore storage) throws Exception {
 		
 		for(final Tuple tuple : storage) {
 			tupleRedistributor.redistributeTuple(tuple);

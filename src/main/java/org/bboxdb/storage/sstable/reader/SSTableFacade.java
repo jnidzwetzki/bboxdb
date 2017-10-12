@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.BloomFilterBuilder;
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.SSTableMetaData;
@@ -37,12 +36,13 @@ import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReader;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReaderFactory;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.BloomFilter;
 
-public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
+public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 	 
 	/**
 	 * The name of the table
