@@ -7,6 +7,11 @@ order: 1
 ---
 ### Version 0.3.4 (Stable) - TBA
 - New Feature: Added a experiment to determine the bloom filter efficiency
+- New Feature: Tuple Storages now have a configuration
+- New Feature: Implemented duplicate key tuple stores
+- New Feature: Implemented TTL tuple stores
+- New Feature: get(key) can now return multiple tuples
+- Impromement: Added a glossary and renamed a lot of classes
 
 ### Version 0.3.3 (Stable) - 07.09.2017
 - New Feature: Added routing header to delete and query packages
