@@ -17,6 +17,19 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
+
 public class TupleStoreConfiguration {
 	
 	/**
@@ -44,6 +57,18 @@ public class TupleStoreConfiguration {
 	 */
 	protected String spatialIndexReader = "org.bboxdb.storage.sstable.spatialindex.rtree.mmf.RTreeMMFReader";
 
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(TupleStoreManager.class);
+
+	/**
+	 * Needed for YAML deserializer
+	 */
+	public TupleStoreConfiguration() {
+
+	}
+	
 	public boolean isAllowDuplicates() {
 		return allowDuplicates;
 	}
@@ -131,4 +156,76 @@ public class TupleStoreConfiguration {
 		return true;
 	}
 
+	
+	/**
+	 * Export the data to YAML
+	 * @return
+	 */
+	public String exportToYaml() {
+	    final Map<String, Object> data = getPropertyMap();
+	    
+	    final Yaml yaml = new Yaml();
+	    return yaml.dump(data);
+	}
+	
+	/**
+	 * Export the data to YAML File
+	 * @return
+	 * @throws IOException 
+	 */
+	public void exportToYamlFile(final File outputFile) throws IOException {
+	    final Map<String, Object> data = getPropertyMap();
+	    
+	    final FileWriter writer = new FileWriter(outputFile);
+	    logger.debug("Output data to: " + outputFile);
+	    
+	    final Yaml yaml = new Yaml();
+	    yaml.dump(data, writer);
+	    writer.close();
+	}
+
+	/**
+	 * Generate a map with the properties of this class
+	 * @return
+	 */
+	protected Map<String, Object> getPropertyMap() {
+		final Map<String, Object> data = new HashMap<String, Object>();	
+		data.put("allowDuplicates", allowDuplicates);
+	    data.put("spatialIndexReader", spatialIndexReader);
+	    data.put("spatialIndexWriter", spatialIndexWriter);
+	    data.put("ttl", ttl);
+		data.put("versions", versions);
+		return data;
+	}
+	
+	/**
+	 * Create a instance from yaml data - read data from string
+	 * 
+	 * @param yaml
+	 * @return
+	 */
+	public static TupleStoreConfiguration importFromYaml(final String yamlString) {
+		  final Yaml yaml = new Yaml(); 
+	      return yaml.loadAs(yamlString, TupleStoreConfiguration.class);
+	}
+	
+	/**
+	 * Create a instance from yaml data - read data from file
+	 * 
+	 * @param tmpFile
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	public static TupleStoreConfiguration importFromYamlFile(final File tmpFile) {
+		  final Yaml yaml = new Yaml(); 
+		  FileReader reader;
+		try {
+			reader = new FileReader(tmpFile);
+		} catch (FileNotFoundException e) {
+			logger.warn("Unable to load file: " + tmpFile, e);
+			return null;
+		}
+		
+		return yaml.loadAs(reader, TupleStoreConfiguration.class);
+	}
 }

@@ -76,6 +76,10 @@ public class SSTableConst {
 	 */
 	public static final String DISTRIBUTION_GROUP_MEDATADATA = "group.meta";
 
+	/**
+	 * Tuple store metadata file
+	 */
+	public static final String TUPLE_STORE_METADATA = "tuplestore.meta";
 
 	/**
 	 * Format of the index file:

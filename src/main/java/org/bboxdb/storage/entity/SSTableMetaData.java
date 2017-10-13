@@ -67,9 +67,9 @@ public class SSTableMetaData {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableMetaData.class);
 
-
-
-
+	/**
+	 * Needed for YAML deserializer
+	 */
 	public SSTableMetaData() {
 		
 	}

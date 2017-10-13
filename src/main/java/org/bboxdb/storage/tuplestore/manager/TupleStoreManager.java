@@ -35,10 +35,11 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
-import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.memtable.Memtable;
+import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
@@ -62,6 +63,11 @@ public class TupleStoreManager implements BBoxDBService {
 	 * The tuple store instances
 	 */
 	protected final TupleStoreInstanceManager tupleStoreInstances;
+	
+	/**
+	 * The tuple store configuration
+	 */
+	protected TupleStoreConfiguration tupleStoreConfiguration;
 	
 	/**
 	 * The Storage configuration
@@ -126,6 +132,7 @@ public class TupleStoreManager implements BBoxDBService {
 
 			initNewMemtable();
 			scanForExistingTables();
+			loadTuplstoreMetaData();
 			
 			nextFreeTableNumber.set(getLastSequencenumberFromReader() + 1);
 			tupleStoreInstances.setReadWrite();
@@ -243,15 +250,44 @@ public class TupleStoreManager implements BBoxDBService {
 	public void create(final TupleStoreConfiguration configuration) throws StorageManagerException {
 		createSSTableDirIfNeeded();
 		
-		writeSSTableMetaData(configuration);
+		writeTupleStoreMetaData(configuration);
 	}
 	
 	/**
-	 * Write the SSTable meta data
+	 * Write the Tuplestore meta data
 	 * @param configuration
+	 * @throws IOException 
 	 */
-	protected void writeSSTableMetaData(final TupleStoreConfiguration configuration) {
+	protected void writeTupleStoreMetaData(final TupleStoreConfiguration configuration) 
+			throws StorageManagerException {
 		
+		final File metadataFile = getTuplestoreMetadataFile();
+		
+		assert (metadataFile.exists()) : "Tuple store metadata file already exist: " + metadataFile;
+
+		try {
+			configuration.exportToYamlFile(metadataFile);
+		} catch (IOException e) {
+			throw new StorageManagerException(e);
+		}
+	}
+	
+	protected void loadTuplstoreMetaData() {
+		final File metadataFile = getTuplestoreMetadataFile();
+
+		assert (! metadataFile.exists()) : "Tuple store metadata file don't exist: " + metadataFile;
+		
+		tupleStoreConfiguration = TupleStoreConfiguration.importFromYaml(metadataFile.getAbsolutePath());
+	}
+
+	/**
+	 * Get the tuplestore metadata file
+	 * @return
+	 */
+	protected File getTuplestoreMetadataFile() {
+		final String storageDir = storage.getBasedir().getAbsolutePath();
+		final String ssTableDir = SSTableHelper.getSSTableDir(storageDir, sstablename);
+		return new File(ssTableDir + File.separatorChar + SSTableConst.TUPLE_STORE_METADATA);
 	}
 
 	/**
@@ -742,4 +778,11 @@ public class TupleStoreManager implements BBoxDBService {
 		return tupleStoreInstances.getState();
 	}
 
+	/**
+	 * Get the tuple store configuration
+	 * @return
+	 */
+	public TupleStoreConfiguration getTupleStoreConfiguration() {
+		return tupleStoreConfiguration;
+	}
 }
