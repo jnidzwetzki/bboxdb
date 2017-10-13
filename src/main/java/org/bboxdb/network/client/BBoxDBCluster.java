@@ -42,7 +42,7 @@ import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
-import org.bboxdb.storage.entity.SSTableConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.MicroSecondTimestampProvider;
@@ -116,7 +116,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#createTable(java.lang.String)
 	 */
 	@Override
-	public EmptyResultFuture createTable(final String table, final SSTableConfiguration configuration) 
+	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) 
 			throws BBoxDBException {
 	
 		if(membershipConnectionService.getNumberOfConnections() == 0) {

@@ -27,8 +27,8 @@ import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
-import org.bboxdb.storage.entity.SSTableConfiguration;
-import org.bboxdb.storage.entity.SSTableConfigurationBuilder;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 
 
@@ -89,7 +89,7 @@ public class BBoxDBClientExample {
 		}
 		
 		// Create the table
-		final SSTableConfiguration tableConfig = SSTableConfigurationBuilder.create()
+		final TupleStoreConfiguration tableConfig = TupleStoreConfigurationBuilder.create()
 				.allowDuplicates(false)
 				.build();
 		

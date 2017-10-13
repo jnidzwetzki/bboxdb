@@ -26,7 +26,7 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.storage.entity.SSTableConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.SSTableName;
 
 public class CreateTableRequest extends NetworkRequestPackage {
@@ -39,10 +39,10 @@ public class CreateTableRequest extends NetworkRequestPackage {
 	/**
 	 * The configuration of the SSTable
 	 */
-	protected final SSTableConfiguration ssTableConfiguration;
+	protected final TupleStoreConfiguration ssTableConfiguration;
 
 	public CreateTableRequest(final short sequenceNumber, final String table, 
-			final SSTableConfiguration ssTableConfiguration) {
+			final TupleStoreConfiguration ssTableConfiguration) {
 		super(sequenceNumber);
 		
 		this.ssTableConfiguration = ssTableConfiguration;
@@ -152,7 +152,7 @@ public class CreateTableRequest extends NetworkRequestPackage {
 		encodedPackage.get(spatialWriterBytes, 0, spatialWriterBytes.length);
 		final String spatialIndexWriter = new String(spatialWriterBytes);
 				
-		final SSTableConfiguration ssTableConfiguration = new SSTableConfiguration();
+		final TupleStoreConfiguration ssTableConfiguration = new TupleStoreConfiguration();
 		ssTableConfiguration.setAllowDuplicates(allowDuplicates);
 		ssTableConfiguration.setTtl(ttl);
 		ssTableConfiguration.setVersions(versions);
@@ -175,7 +175,7 @@ public class CreateTableRequest extends NetworkRequestPackage {
 		return table;
 	}
 
-	public SSTableConfiguration getSsTableConfiguration() {
+	public TupleStoreConfiguration getSsTableConfiguration() {
 		return ssTableConfiguration;
 	}
 

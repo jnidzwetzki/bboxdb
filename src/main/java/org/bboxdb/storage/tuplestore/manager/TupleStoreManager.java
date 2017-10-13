@@ -35,6 +35,7 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.memtable.Memtable;
@@ -123,7 +124,6 @@ public class TupleStoreManager implements BBoxDBService {
 			
 			tupleStoreInstances.clear();
 
-			createSSTableDirIfNeeded();
 			initNewMemtable();
 			scanForExistingTables();
 			
@@ -193,17 +193,19 @@ public class TupleStoreManager implements BBoxDBService {
 	public boolean flush() {
 		final Memtable activeMemtable = tupleStoreInstances.getMemtable();
 		
-		if(activeMemtable != null) {
-			// Flush in memory data	
-			initNewMemtable();
-			
-			try {
-				tupleStoreInstances.waitForMemtableFlush(activeMemtable);
-			} catch (InterruptedException e) {
-				logger.info("Got interrupted exception while waiting for memtable flush");
-				Thread.currentThread().interrupt();
-				return false;
-			}
+		if(activeMemtable == null) {
+			return true;
+		}
+		
+		// Flush in memory data	
+		initNewMemtable();
+		
+		try {
+			tupleStoreInstances.waitForMemtableFlush(activeMemtable);
+		} catch (InterruptedException e) {
+			logger.info("Got interrupted exception while waiting for memtable flush");
+			Thread.currentThread().interrupt();
+			return false;
 		}
 		
 		return true;
@@ -234,6 +236,25 @@ public class TupleStoreManager implements BBoxDBService {
 	}
 	
 	/**
+	 * Create the given SSTable
+	 * @param configuration
+	 * @throws StorageManagerException 
+	 */
+	public void create(final TupleStoreConfiguration configuration) throws StorageManagerException {
+		createSSTableDirIfNeeded();
+		
+		writeSSTableMetaData(configuration);
+	}
+	
+	/**
+	 * Write the SSTable meta data
+	 * @param configuration
+	 */
+	protected void writeSSTableMetaData(final TupleStoreConfiguration configuration) {
+		
+	}
+
+	/**
 	 * Ensure that the directory for the given table exists
 	 * @throws StorageManagerException 
 	 * 
@@ -253,7 +274,7 @@ public class TupleStoreManager implements BBoxDBService {
 			assert (mkdirResult == true) : "Unable to create dir: " + dgroupDirHandle;
 			
 			try {
-				writeMetaData();
+				writeDistributionGroupMetaData();
 			} catch (Exception e) {
 				logger.error("Unable to write meta data", e);
 			}
@@ -274,7 +295,8 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @throws ZookeeperNotFoundException
 	 * @throws IOException 
 	 */
-	protected void writeMetaData() throws ZookeeperException, ZookeeperNotFoundException, IOException {
+	protected void writeDistributionGroupMetaData() throws ZookeeperException, 
+		ZookeeperNotFoundException, IOException {
 		
 		if(! sstablename.isDistributedTable()) {	
 			return;

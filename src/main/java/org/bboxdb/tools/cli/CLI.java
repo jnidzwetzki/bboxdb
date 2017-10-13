@@ -48,8 +48,8 @@ import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
-import org.bboxdb.storage.entity.SSTableConfiguration;
-import org.bboxdb.storage.entity.SSTableConfigurationBuilder;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.bboxdb.util.MathUtil;
@@ -225,7 +225,7 @@ public class CLI implements Runnable, AutoCloseable {
 			printHelpAndExit();
 		}
 		
-		final SSTableConfigurationBuilder ssTableConfigurationBuilder = SSTableConfigurationBuilder
+		final TupleStoreConfigurationBuilder ssTableConfigurationBuilder = TupleStoreConfigurationBuilder
 				.create();
 		
 		// Duplicates
@@ -266,7 +266,7 @@ public class CLI implements Runnable, AutoCloseable {
 			ssTableConfigurationBuilder.withSpatialIndexWriter(spatialIndexWriter);
 		}	
 		
-		final SSTableConfiguration configuration = ssTableConfigurationBuilder.build();
+		final TupleStoreConfiguration configuration = ssTableConfigurationBuilder.build();
 		
 		try {
 			final String table = line.getOptionValue(CLIParameter.TABLE);

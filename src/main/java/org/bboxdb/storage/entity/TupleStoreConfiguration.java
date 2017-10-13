@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
-public class SSTableConfiguration {
+public class TupleStoreConfiguration {
 	
 	/**
 	 * Allow duplicates
@@ -111,7 +111,7 @@ public class SSTableConfiguration {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SSTableConfiguration other = (SSTableConfiguration) obj;
+		TupleStoreConfiguration other = (TupleStoreConfiguration) obj;
 		if (allowDuplicates != other.allowDuplicates)
 			return false;
 		if (spatialIndexReader == null) {

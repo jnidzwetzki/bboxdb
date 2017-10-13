@@ -61,8 +61,8 @@ import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
-import org.bboxdb.storage.entity.SSTableConfiguration;
-import org.bboxdb.storage.entity.SSTableConfigurationBuilder;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.MicroSecondTimestampProvider;
@@ -399,7 +399,7 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeCreateTable() throws IOException, PackageEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final SSTableConfiguration ssTableConfiguration = SSTableConfigurationBuilder
+		final TupleStoreConfiguration ssTableConfiguration = TupleStoreConfigurationBuilder
 				.create()
 				.withTTL(10)
 				.withVersions(666)

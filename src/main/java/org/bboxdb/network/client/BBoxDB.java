@@ -23,7 +23,7 @@ import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
-import org.bboxdb.storage.entity.SSTableConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 
 public interface BBoxDB {
@@ -52,7 +52,7 @@ public interface BBoxDB {
 	 * @return
 	 * @throws BBoxDBException
 	 */
-	public EmptyResultFuture createTable(final String table, final SSTableConfiguration configuration) throws BBoxDBException;
+	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) throws BBoxDBException;
 	
 	/**
 	 * Delete a table on the bboxdb server

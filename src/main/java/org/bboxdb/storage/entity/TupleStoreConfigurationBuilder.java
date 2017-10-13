@@ -17,20 +17,20 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
-public class SSTableConfigurationBuilder {
+public class TupleStoreConfigurationBuilder {
 
-	protected final SSTableConfiguration ssTableConfiguration;
+	protected final TupleStoreConfiguration ssTableConfiguration;
 	
-	protected SSTableConfigurationBuilder() {
-		ssTableConfiguration = new SSTableConfiguration();
+	protected TupleStoreConfigurationBuilder() {
+		ssTableConfiguration = new TupleStoreConfiguration();
 	}
 	
 	/**
 	 * Create a new configuration builder
 	 * @return
 	 */
-	public static SSTableConfigurationBuilder create() {
-		return new SSTableConfigurationBuilder();
+	public static TupleStoreConfigurationBuilder create() {
+		return new TupleStoreConfigurationBuilder();
 	}
 	
 	/**
@@ -38,7 +38,7 @@ public class SSTableConfigurationBuilder {
 	 * @param duplicates
 	 * @return
 	 */
-	public SSTableConfigurationBuilder allowDuplicates(final boolean duplicates) {
+	public TupleStoreConfigurationBuilder allowDuplicates(final boolean duplicates) {
 		ssTableConfiguration.setAllowDuplicates(duplicates);
 		return this;
 	}
@@ -48,7 +48,7 @@ public class SSTableConfigurationBuilder {
 	 * @param ttl
 	 * @return
 	 */
-	public SSTableConfigurationBuilder withTTL(final long ttl) {
+	public TupleStoreConfigurationBuilder withTTL(final long ttl) {
 		ssTableConfiguration.setTtl(ttl);
 		return this;
 	}
@@ -58,7 +58,7 @@ public class SSTableConfigurationBuilder {
 	 * @param versions
 	 * @return
 	 */
-	public SSTableConfigurationBuilder withVersions(final int versions) {
+	public TupleStoreConfigurationBuilder withVersions(final int versions) {
 		ssTableConfiguration.setVersions(versions);
 		return this;
 	}
@@ -68,7 +68,7 @@ public class SSTableConfigurationBuilder {
 	 * @param spatialIndexReader
 	 * @return
 	 */
-	public SSTableConfigurationBuilder withSpatialIndexReader(final String spatialIndexReader) {
+	public TupleStoreConfigurationBuilder withSpatialIndexReader(final String spatialIndexReader) {
 		ssTableConfiguration.setSpatialIndexReader(spatialIndexReader);
 		return this;
 	}
@@ -78,7 +78,7 @@ public class SSTableConfigurationBuilder {
 	 * @param spatialIndexWriter
 	 * @return
 	 */
-	public SSTableConfigurationBuilder withSpatialIndexWriter(final String spatialIndexWriter) {
+	public TupleStoreConfigurationBuilder withSpatialIndexWriter(final String spatialIndexWriter) {
 		ssTableConfiguration.setSpatialIndexWriter(spatialIndexWriter);
 		return this;
 	}
@@ -87,7 +87,7 @@ public class SSTableConfigurationBuilder {
 	 * Return the resulting configuration object
 	 * @return
 	 */
-	public SSTableConfiguration build() {
+	public TupleStoreConfiguration build() {
 		return ssTableConfiguration;
 	}
 

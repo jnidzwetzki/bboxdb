@@ -87,7 +87,7 @@ import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
-import org.bboxdb.storage.entity.SSTableConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.CloseableHelper;
@@ -494,7 +494,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#createTable(java.lang.String)
 	 */
 	@Override
-	public EmptyResultFuture createTable(final String table, final SSTableConfiguration configuration) throws BBoxDBException {
+	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) throws BBoxDBException {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedFuture("createTable called, but connection not ready: " + this);
