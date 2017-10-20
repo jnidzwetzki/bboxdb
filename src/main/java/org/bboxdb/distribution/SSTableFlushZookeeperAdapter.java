@@ -26,11 +26,11 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableFlushZookeeperAdapter implements BiConsumer<SSTableName, Long> {
+public class SSTableFlushZookeeperAdapter implements BiConsumer<TupleStoreName, Long> {
 
 	/**
 	 * The Logger
@@ -38,7 +38,7 @@ public class SSTableFlushZookeeperAdapter implements BiConsumer<SSTableName, Lon
 	private final static Logger logger = LoggerFactory.getLogger(SSTableFlushZookeeperAdapter.class);
 	
 	@Override
-	public void accept(final SSTableName ssTableName, final Long flushTimestamp) {
+	public void accept(final TupleStoreName ssTableName, final Long flushTimestamp) {
 		
 		// Fetch the local instance
 		final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();

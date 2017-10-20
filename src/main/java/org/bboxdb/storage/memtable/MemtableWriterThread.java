@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.BiConsumer;
 
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.tuplestore.DiskStorage;
@@ -113,7 +113,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 		try {			
 			// Don't write empty memtables to disk
 			if (! memtable.isEmpty()) {
-				final SSTableName sstableName = sstableManager.getSSTableName();
+				final TupleStoreName sstableName = sstableManager.getSSTableName();
 				final String dataDirectory = basedir.getAbsolutePath();
 				final int tableNumber = writeMemtable(dataDirectory, memtable, sstableManager);
 				
@@ -167,10 +167,10 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	 */
 	protected void sendCallbacks(final Memtable memtable, TupleStoreManager sstableManager) {
 		final long timestamp = memtable.getCreatedTimestamp();
-		final List<BiConsumer<SSTableName, Long>> callbacks 
+		final List<BiConsumer<TupleStoreName, Long>> callbacks 
 			= storage.getStorageRegistry().getSSTableFlushCallbacks();
 		
-		for(final BiConsumer<SSTableName, Long> callback : callbacks) {
+		for(final BiConsumer<TupleStoreName, Long> callback : callbacks) {
 			try {
 				callback.accept(sstableManager.getSSTableName(), timestamp);
 			} catch(Exception e) {

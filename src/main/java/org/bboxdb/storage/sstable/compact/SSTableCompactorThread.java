@@ -26,7 +26,7 @@ import org.bboxdb.distribution.regionsplit.AbstractRegionSplitStrategy;
 import org.bboxdb.distribution.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
@@ -89,14 +89,14 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 		final TupleStoreManagerRegistry storageRegistry = storage.getStorageRegistry();
 		final String location = storage.getBasedir().getAbsolutePath();
-		final List<SSTableName> sstables = storageRegistry.getSSTablesForLocation(location);
+		final List<TupleStoreName> sstables = storageRegistry.getSSTablesForLocation(location);
 		
 		if(sstables.isEmpty()) {
 			logger.warn("SSables list is empty");
 			return;
 		}
 		
-		for(final SSTableName ssTableName: sstables) {
+		for(final TupleStoreName ssTableName: sstables) {
 		
 			try {
 				logger.debug("Running compact for: {}", ssTableName);
@@ -201,7 +201,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 */
 	protected void testForRegionSplit(final TupleStoreManager sstableManager) throws StorageManagerException {
 		
-		final SSTableName ssTableName = sstableManager.getSSTableName();
+		final TupleStoreName ssTableName = sstableManager.getSSTableName();
 		
 		final DistributionGroupName distributionGroup = ssTableName.getDistributionGroupObject();
 		final int regionId = ssTableName.getRegionId();

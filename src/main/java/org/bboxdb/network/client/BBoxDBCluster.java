@@ -43,7 +43,7 @@ import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.slf4j.Logger;
@@ -155,7 +155,7 @@ public class BBoxDBCluster implements BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
 		try {
-			final SSTableName ssTableName = new SSTableName(table);
+			final TupleStoreName ssTableName = new TupleStoreName(table);
 			
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					ssTableName, zookeeperClient);
@@ -316,7 +316,7 @@ public class BBoxDBCluster implements BBoxDB {
 		final TupleListFuture future = new TupleListFuture();
 		
 		try {
-			final SSTableName sstableName = new SSTableName(table);
+			final TupleStoreName sstableName = new TupleStoreName(table);
 
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					sstableName, zookeeperClient);
@@ -353,7 +353,7 @@ public class BBoxDBCluster implements BBoxDB {
 		final TupleListFuture future = new TupleListFuture();
 		
 		try {
-			final SSTableName sstableName = new SSTableName(table);
+			final TupleStoreName sstableName = new TupleStoreName(table);
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					sstableName, zookeeperClient);
 

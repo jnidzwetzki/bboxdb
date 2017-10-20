@@ -29,7 +29,7 @@ import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
@@ -57,13 +57,13 @@ public class HandleKeyQuery implements QueryHandler {
 			@Override
 			public void runThread() throws Exception {
 				final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
-				final SSTableName requestTable = queryKeyRequest.getTable();
+				final TupleStoreName requestTable = queryKeyRequest.getTable();
 				
 				// Send the call to the storage manager
 				final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-				final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
+				final Collection<TupleStoreName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 				
-				for(final SSTableName ssTableName : localTables) {
+				for(final TupleStoreName ssTableName : localTables) {
 					
 					final TupleStoreManager storageManager = clientConnectionHandler
 							.getStorageRegistry()

@@ -24,7 +24,7 @@ import java.util.List;
 import org.bboxdb.PersonEntity;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
@@ -51,7 +51,7 @@ public class TestMemtable {
 			memtable.shutdown();
 		}
 		
-		memtable = new Memtable(new SSTableName("3_mygroup_test"), 1000, 10000);
+		memtable = new Memtable(new TupleStoreName("3_mygroup_test"), 1000, 10000);
 		memtable.init();
 		memtable.acquire();
 	}

@@ -28,7 +28,7 @@ import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
 import org.bboxdb.storage.queryprocessor.QueryProcessor;
@@ -57,7 +57,7 @@ public class ClientQuery implements Closeable {
 	/**
 	 * The local tables to query
 	 */
-	protected final List<SSTableName> localTables;
+	protected final List<TupleStoreName> localTables;
 	
 	/**
 	 * The client connection handler
@@ -72,7 +72,7 @@ public class ClientQuery implements Closeable {
 	/**
 	 * The request table
 	 */
-	protected final SSTableName requestTable;
+	protected final TupleStoreName requestTable;
 	
 	/**
 	 * The current iterator
@@ -92,7 +92,7 @@ public class ClientQuery implements Closeable {
 
 	public ClientQuery(final QueryPlan queryPlan, final boolean pageResult,
 			final short tuplesPerPage, final ClientConnectionHandler clientConnectionHandler, 
-			final short querySequence, final SSTableName requestTable) {
+			final short querySequence, final TupleStoreName requestTable) {
 
 		this.queryPlan = queryPlan;
 		this.pageResult = pageResult;
@@ -196,7 +196,7 @@ public class ClientQuery implements Closeable {
 		}
 		
 		try {
-			final SSTableName sstableName = localTables.remove(0);
+			final TupleStoreName sstableName = localTables.remove(0);
 			
 			final TupleStoreManager storageManager = clientConnectionHandler
 					.getStorageRegistry()

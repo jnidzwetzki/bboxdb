@@ -25,7 +25,7 @@ import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 
 public class DistributionGroupCache {
 	
@@ -61,7 +61,7 @@ public class DistributionGroupCache {
 	 * @throws ZookeeperException 
 	 * @throws BBoxDBException 
 	 */
-	public static synchronized KDtreeZookeeperAdapter getGroupForTableName(final SSTableName ssTableName, final ZookeeperClient zookeeperClient) throws ZookeeperException, BBoxDBException {
+	public static synchronized KDtreeZookeeperAdapter getGroupForTableName(final TupleStoreName ssTableName, final ZookeeperClient zookeeperClient) throws ZookeeperException, BBoxDBException {
 		
 		if(! ssTableName.isValid()) {
 			throw new BBoxDBException("Invalid tablename: " + ssTableName);

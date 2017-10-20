@@ -24,7 +24,7 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
@@ -45,7 +45,7 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	protected boolean performSplit(final DistributionRegion regionToSplit) {
 		final int splitDimension = regionToSplit.getSplitDimension();
 	
-		final List<SSTableName> tables = storage.getStorageRegistry()
+		final List<TupleStoreName> tables = storage.getStorageRegistry()
 				.getAllTablesForDistributionGroupAndRegionId
 				(region.getDistributionGroupName(), region.getRegionId());
 		
@@ -71,7 +71,7 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	 * @throws StorageManagerException
 	 */
 	protected double caclculateSplitPoint(final BoundingBox boundingBox, final int splitDimension,
-			final List<SSTableName> tables) throws StorageManagerException {
+			final List<TupleStoreName> tables) throws StorageManagerException {
 		
 		// Get the samples
 		getPointSamples(boundingBox, splitDimension, tables);
@@ -96,9 +96,9 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 	 * @throws StorageManagerException
 	 */
 	protected void getPointSamples(final BoundingBox boundingBox, final int splitDimension,
-			final List<SSTableName> tables) throws StorageManagerException {
+			final List<TupleStoreName> tables) throws StorageManagerException {
 		
-		for(final SSTableName ssTableName : tables) {
+		for(final TupleStoreName ssTableName : tables) {
 			logger.info("Create split samples for table: {} ", ssTableName.getFullname());
 			
 			final TupleStoreManager sstableManager = storage.getStorageRegistry()

@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-public class SSTableMetaData {
+public class TupleStoreMetaData {
 	
 	/**
 	 * The amount of tuples
@@ -65,16 +65,16 @@ public class SSTableMetaData {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableMetaData.class);
+	private final static Logger logger = LoggerFactory.getLogger(TupleStoreMetaData.class);
 
 	/**
 	 * Needed for YAML deserializer
 	 */
-	public SSTableMetaData() {
+	public TupleStoreMetaData() {
 		
 	}
 	
-	public SSTableMetaData(final long tuples, final long oldestTuple, final long newestTuple, 
+	public TupleStoreMetaData(final long tuples, final long oldestTuple, final long newestTuple, 
 			final long newestTupleInsertedTimstamp, final double[] boundingBoxData) {
 		
 		this.tuples = tuples;
@@ -133,9 +133,9 @@ public class SSTableMetaData {
 	 * @param yaml
 	 * @return
 	 */
-	public static SSTableMetaData importFromYaml(final String yamlString) {
+	public static TupleStoreMetaData importFromYaml(final String yamlString) {
 		  final Yaml yaml = new Yaml(); 
-	      return yaml.loadAs(yamlString, SSTableMetaData.class);
+	      return yaml.loadAs(yamlString, TupleStoreMetaData.class);
 	}
 	
 	/**
@@ -145,7 +145,7 @@ public class SSTableMetaData {
 	 * @return
 	 * @throws FileNotFoundException
 	 */
-	public static SSTableMetaData importFromYamlFile(final File tmpFile) {
+	public static TupleStoreMetaData importFromYamlFile(final File tmpFile) {
 		  final Yaml yaml = new Yaml(); 
 		  FileReader reader;
 		try {
@@ -155,7 +155,7 @@ public class SSTableMetaData {
 			return null;
 		}
 		
-		return yaml.loadAs(reader, SSTableMetaData.class);
+		return yaml.loadAs(reader, TupleStoreMetaData.class);
 	}
 
 	public long getOldestTupleVersionTimestamp() {
@@ -228,7 +228,7 @@ public class SSTableMetaData {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SSTableMetaData other = (SSTableMetaData) obj;
+		TupleStoreMetaData other = (TupleStoreMetaData) obj;
 		if (!Arrays.equals(boundingBoxData, other.boundingBoxData))
 			return false;
 		if (dimensions != other.dimensions)

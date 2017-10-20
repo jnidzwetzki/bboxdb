@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableNameListFuture extends OperationFutureImpl<List<SSTableName>> implements Iterable<SSTableName> {
+public class SSTableNameListFuture extends OperationFutureImpl<List<TupleStoreName>> implements Iterable<TupleStoreName> {
 
 	/**
 	 * The Logger
@@ -41,14 +41,14 @@ public class SSTableNameListFuture extends OperationFutureImpl<List<SSTableName>
 	}
 
 	@Override
-	public Iterator<SSTableName> iterator() {
+	public Iterator<TupleStoreName> iterator() {
 		
 		try {
 			waitForAll();
 
-			final List<SSTableName> resultList = new ArrayList<SSTableName>();
+			final List<TupleStoreName> resultList = new ArrayList<TupleStoreName>();
 			
-			for(final FutureImplementation<List<SSTableName>> future : futures) {
+			for(final FutureImplementation<List<TupleStoreName>> future : futures) {
 				resultList.addAll(future.get());
 			}
 			
@@ -57,7 +57,7 @@ public class SSTableNameListFuture extends OperationFutureImpl<List<SSTableName>
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			logger.error("Got an exception while creating iterator", e);
-			return new ArrayList<SSTableName>().iterator();
+			return new ArrayList<TupleStoreName>().iterator();
 		}
 	}
 

@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class TestRegionIdMapper {
 	/**
 	 * The default table name as SSTableName
 	 */
-	protected final static SSTableName DEFAULT_SSTABLE_NAME = new SSTableName(DEFAULT_TABLE_NAME);
+	protected final static TupleStoreName DEFAULT_SSTABLE_NAME = new TupleStoreName(DEFAULT_TABLE_NAME);
 
 	/**
 	 * Test the mapping with no entries
@@ -152,13 +152,13 @@ public class TestRegionIdMapper {
 		region3.setConveringBox(new BoundingBox(15d, 18d, 15d, 18d));
 		regionIdMapper.addMapping(region3);
 
-		final Collection<SSTableName> mappingResult = regionIdMapper.getLocalTablesForRegion(
+		final Collection<TupleStoreName> mappingResult = regionIdMapper.getLocalTablesForRegion(
 				new BoundingBox(1.5d, 55d, 1.5d, 55d), DEFAULT_SSTABLE_NAME);
 		
-		Assert.assertTrue(mappingResult.contains(new SSTableName(DEFAULT_TABLE_NAME + "_1")));
-		Assert.assertTrue(mappingResult.contains(new SSTableName(DEFAULT_TABLE_NAME + "_2")));
-		Assert.assertTrue(mappingResult.contains(new SSTableName(DEFAULT_TABLE_NAME + "_3")));
-		Assert.assertFalse(mappingResult.contains(new SSTableName(DEFAULT_TABLE_NAME + "_4")));
+		Assert.assertTrue(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_1")));
+		Assert.assertTrue(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_2")));
+		Assert.assertTrue(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_3")));
+		Assert.assertFalse(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_4")));
 	}
 	
 	/**
@@ -183,13 +183,13 @@ public class TestRegionIdMapper {
 		region3.setConveringBox(new BoundingBox(15d, 18d, 15d, 18d));
 		regionIdMapper.addMapping(region3);
 
-		final Collection<SSTableName> mappingResult = regionIdMapper.getLocalTablesForRegion(
+		final Collection<TupleStoreName> mappingResult = regionIdMapper.getLocalTablesForRegion(
 				new BoundingBox(1.5d, 1.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME);
 		
-		Assert.assertTrue(mappingResult.contains(new SSTableName(DEFAULT_TABLE_NAME + "_1")));
-		Assert.assertFalse(mappingResult.contains(new SSTableName(DEFAULT_TABLE_NAME + "_2")));
-		Assert.assertFalse(mappingResult.contains(new SSTableName(DEFAULT_TABLE_NAME + "_3")));
-		Assert.assertFalse(mappingResult.contains(new SSTableName(DEFAULT_TABLE_NAME + "_4")));		
+		Assert.assertTrue(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_1")));
+		Assert.assertFalse(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_2")));
+		Assert.assertFalse(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_3")));
+		Assert.assertFalse(mappingResult.contains(new TupleStoreName(DEFAULT_TABLE_NAME + "_4")));		
 	}
 	
 	/**
@@ -214,7 +214,7 @@ public class TestRegionIdMapper {
 		region3.setConveringBox(new BoundingBox(15d, 18d, 15d, 18d));
 		regionIdMapper.addMapping(region3);
 
-		final List<SSTableName> mappingResult = regionIdMapper.getAllLocalTables(DEFAULT_SSTABLE_NAME);
+		final List<TupleStoreName> mappingResult = regionIdMapper.getAllLocalTables(DEFAULT_SSTABLE_NAME);
 		Assert.assertEquals(3, mappingResult.size());
 	}
 }

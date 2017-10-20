@@ -24,7 +24,7 @@ import java.util.List;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.ListTablesResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 
 public class ListTablesHandler implements RequestHandler {
 
@@ -36,7 +36,7 @@ public class ListTablesHandler implements RequestHandler {
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
 
-		final List<SSTableName> allTables = clientConnectionHandler
+		final List<TupleStoreName> allTables = clientConnectionHandler
 				.getStorageRegistry()
 				.getAllTables();
 		

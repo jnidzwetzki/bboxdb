@@ -21,7 +21,7 @@ import java.io.File;
 import java.util.Arrays;
 
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -49,7 +49,7 @@ public class SSTableTupleStore implements TupleStore {
 	/**
 	 * The sstable name
 	 */
-	protected final static SSTableName SSTABLE_NAME = new SSTableName("2_group1_test");
+	protected final static TupleStoreName SSTABLE_NAME = new TupleStoreName("2_group1_test");
 
 	/**
 	 * The service state

@@ -20,7 +20,7 @@ package org.bboxdb.storage;
 import org.bboxdb.PersonEntity;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -43,7 +43,7 @@ public class TestStorageManager {
 	/**
 	 * The name of the test relation
 	 */
-	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_abc");
+	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("1_testgroup1_abc");
 	
 	/**
 	 * The amount of tuples for the big insert test

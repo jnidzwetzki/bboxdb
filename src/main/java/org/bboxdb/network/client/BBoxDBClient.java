@@ -88,7 +88,7 @@ import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.CloseableHelper;
 import org.bboxdb.util.MicroSecondTimestampProvider;
@@ -560,7 +560,7 @@ public class BBoxDBClient implements BBoxDB {
 	protected RoutingHeader getRoutingHeaderForLocalSystem(final String table, final BoundingBox boundingBox)
 			throws ZookeeperException, BBoxDBException, InterruptedException {
 		
-		final SSTableName ssTableName = new SSTableName(table);
+		final TupleStoreName ssTableName = new TupleStoreName(table);
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 
 		final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
@@ -595,7 +595,7 @@ public class BBoxDBClient implements BBoxDB {
 		}
 		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		final SSTableName ssTableName = new SSTableName(table);
+		final TupleStoreName ssTableName = new TupleStoreName(table);
 		final short sequenceNumber = getNextSequenceNumber();
 		
 		final InsertTupleRequest requestPackage = new InsertTupleRequest(

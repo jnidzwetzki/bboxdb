@@ -35,7 +35,7 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.memtable.Memtable;
@@ -57,7 +57,7 @@ public class TupleStoreManager implements BBoxDBService {
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName sstablename;
+	protected final TupleStoreName sstablename;
 	
 	/**
 	 * The tuple store instances
@@ -94,7 +94,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(TupleStoreManager.class);
 
-	public TupleStoreManager(final DiskStorage storage, final SSTableName sstablename, 
+	public TupleStoreManager(final DiskStorage storage, final TupleStoreName sstablename, 
 			final BBoxDBConfiguration configuration) {
 		
 		this.storage = storage;
@@ -422,7 +422,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Delete the persistent data of the table
 	 * @return
 	 */
-	public static boolean deletePersistentTableData(final String dataDirectory, final SSTableName sstableName) {
+	public static boolean deletePersistentTableData(final String dataDirectory, final TupleStoreName sstableName) {
 		logger.info("Delete all existing SSTables for relation: {}", sstableName.getFullname());
 
 		final File directoryHandle = new File(SSTableHelper.getSSTableDir(dataDirectory, sstableName));
@@ -568,7 +568,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Get the sstable name for this instance
 	 * @return
 	 */
-	public SSTableName getSSTableName() {
+	public TupleStoreName getSSTableName() {
 		return sstablename;
 	}
 

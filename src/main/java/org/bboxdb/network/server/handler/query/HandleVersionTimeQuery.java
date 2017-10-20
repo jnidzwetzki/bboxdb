@@ -26,7 +26,7 @@ import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.queryplan.NewerAsVersionTimeQueryPlan;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class HandleVersionTimeQuery implements QueryHandler {
 			}
 			
 			final QueryVersionTimeRequest queryRequest = QueryVersionTimeRequest.decodeTuple(encodedPackage);
-			final SSTableName requestTable = queryRequest.getTable();
+			final TupleStoreName requestTable = queryRequest.getTable();
 			final QueryPlan queryPlan = new NewerAsVersionTimeQueryPlan(queryRequest.getTimestamp());
 			
 			final ClientQuery clientQuery = new ClientQuery(queryPlan, queryRequest.isPagingEnabled(), 

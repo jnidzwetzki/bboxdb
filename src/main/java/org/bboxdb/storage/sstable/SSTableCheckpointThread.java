@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
@@ -66,10 +66,10 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 			
 			logMemoryStatistics();
 			
-			final List<SSTableName> allTables = storageRegistry.getSSTablesForLocation(
+			final List<TupleStoreName> allTables = storageRegistry.getSSTablesForLocation(
 					storage.getBasedir().getAbsolutePath());
 	
-			for(final SSTableName ssTableName : allTables) {
+			for(final TupleStoreName ssTableName : allTables) {
 				logger.debug("Executing checkpoint check for: {}", ssTableName);
 				
 				if(Thread.currentThread().isInterrupted()) {
@@ -94,7 +94,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 * @param ssTableName
 	 */
 	protected void createCheckpointIfNedded(final TupleStoreManagerRegistry storageRegistry, 
-			final SSTableName ssTableName) {
+			final TupleStoreName ssTableName) {
 		try {
 			final TupleStoreManager ssTableManager = storageRegistry.getSSTableManager(ssTableName);
 			createCheckpoint(ssTableManager);

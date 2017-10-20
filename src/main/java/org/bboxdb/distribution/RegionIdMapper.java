@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,8 +68,8 @@ public class RegionIdMapper {
 	 * @param ssTableName
 	 * @return
 	 */
-	public Collection<SSTableName> getLocalTablesForRegion(final BoundingBox region, 
-			final SSTableName ssTableName) {
+	public Collection<TupleStoreName> getLocalTablesForRegion(final BoundingBox region, 
+			final TupleStoreName ssTableName) {
 	
 		Collection<Integer> namprefixes = null;
 		
@@ -101,7 +101,7 @@ public class RegionIdMapper {
 	 * @param ssTableName
 	 * @return
 	 */
-	public List<SSTableName> getAllLocalTables(final SSTableName ssTableName) {
+	public List<TupleStoreName> getAllLocalTables(final TupleStoreName ssTableName) {
 		final Collection<Integer> namprefixes = getAllRegionIds();
 		
 		if(namprefixes.isEmpty() && logger.isWarnEnabled()) {
@@ -117,7 +117,7 @@ public class RegionIdMapper {
 	 * @param regionIds
 	 * @return
 	 */
-	public List<SSTableName> convertRegionIdToTableNames(final SSTableName ssTableName,
+	public List<TupleStoreName> convertRegionIdToTableNames(final TupleStoreName ssTableName,
 			final Collection<Integer> regionIds) {
 		
 		return regionIds

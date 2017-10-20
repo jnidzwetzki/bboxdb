@@ -26,7 +26,7 @@ import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class CreateTableHandler implements RequestHandler {
 		
 		try {			
 			final CreateTableRequest createPackage = CreateTableRequest.decodeTuple(encodedPackage);
-			final SSTableName requestTable = createPackage.getTable();
+			final TupleStoreName requestTable = createPackage.getTable();
 			logger.info("Got create call for table: " + requestTable);
 			
 			// TODO:

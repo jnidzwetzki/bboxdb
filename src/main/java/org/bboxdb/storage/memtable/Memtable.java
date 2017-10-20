@@ -29,7 +29,7 @@ import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
@@ -46,7 +46,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	/**
 	 * The name of the corresponding table
 	 */
-	protected final SSTableName table;
+	protected final TupleStoreName table;
 	
 	/**
 	 * The memtable
@@ -113,7 +113,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
 	
-	public Memtable(final SSTableName table, final int entries, final long maxSizeInMemory) {
+	public Memtable(final TupleStoreName table, final int entries, final long maxSizeInMemory) {
 		this.table = table;
 		this.maxEntries = entries;
 		this.maxSizeInMemory = maxSizeInMemory;
@@ -439,7 +439,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	}
 	
 	@Override
-	public SSTableName getSStableName() {
+	public TupleStoreName getSStableName() {
 		return table;
 	}
 	

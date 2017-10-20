@@ -27,7 +27,7 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 
 
 public class DeleteTupleRequest extends NetworkRequestPackage {
@@ -35,7 +35,7 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName table;
+	protected final TupleStoreName table;
 	
 	/**
 	 * The key to delete
@@ -57,7 +57,7 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 		
 		super(sequenceNumber);
 		
-		this.table = new SSTableName(table);
+		this.table = new TupleStoreName(table);
 		this.routingHeader = routingHeader;
 		this.key = key;
 		this.timestamp = timestamp;
@@ -138,7 +138,7 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 		return NetworkConst.REQUEST_TYPE_DELETE_TUPLE;
 	}
 
-	public SSTableName getTable() {
+	public TupleStoreName getTable() {
 		return table;
 	}
 

@@ -29,7 +29,7 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.util.io.DataEncoderHelper;
 
 public class ListTablesResponse extends NetworkResponsePackage {
@@ -37,9 +37,9 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	/**
 	 * The tables
 	 */
-	protected final List<SSTableName> tables;
+	protected final List<TupleStoreName> tables;
 
-	public ListTablesResponse(final short sequenceNumber, final List<SSTableName> allTables) {
+	public ListTablesResponse(final short sequenceNumber, final List<TupleStoreName> allTables) {
 		super(sequenceNumber);
 		this.tables = allTables;
 	}
@@ -73,7 +73,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 		final ByteBuffer totalTables = DataEncoderHelper.intToByteBuffer(tables.size());			
 		bodyStream.write(totalTables.array(), 0, totalTables.array().length);
 		
-		for(final SSTableName table : tables) {
+		for(final TupleStoreName table : tables) {
 			final byte[] tableBytes = table.getFullnameBytes();
 			
 			// Write table length
@@ -92,7 +92,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	 * Returns the relations of this request
 	 * @return
 	 */
-	public List<SSTableName> getTables() {
+	public List<TupleStoreName> getTables() {
 		return Collections.unmodifiableList(tables);
 	}
 
@@ -114,7 +114,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 		
 		// Read the total amount of tables
 		final int totalTables = encodedPackage.getInt();
-		final List<SSTableName> tables = new ArrayList<SSTableName>(totalTables);
+		final List<TupleStoreName> tables = new ArrayList<TupleStoreName>(totalTables);
 
 		// Read and decode tables
 		for(short readTables = 0; readTables < totalTables; readTables++) {
@@ -125,7 +125,7 @@ public class ListTablesResponse extends NetworkResponsePackage {
 			// Read table name and decode
 			encodedPackage.get(tablenameBytes, 0, tablenameBytes.length);
 			final String tablename = new String(tablenameBytes);
-			final SSTableName sstableName = new SSTableName(tablename);
+			final TupleStoreName sstableName = new TupleStoreName(tablename);
 			tables.add(sstableName);
 		}
 		

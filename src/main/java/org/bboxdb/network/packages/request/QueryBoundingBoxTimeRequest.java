@@ -28,14 +28,14 @@ import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 
 public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 	
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName table;
+	protected final TupleStoreName table;
 
 	/**
 	 * The the query bounding box
@@ -69,7 +69,7 @@ public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 		super(sequenceNumber);
 		
 		this.routingHeader = routingHeader;
-		this.table = new SSTableName(table);
+		this.table = new TupleStoreName(table);
 		this.box = box;
 		this.timestamp = timestamp;
 		this.pagingEnabled = pagingEnabled;
@@ -183,7 +183,7 @@ public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 		return NetworkConst.REQUEST_QUERY_BBOX_AND_TIME;
 	}
 	
-	public SSTableName getTable() {
+	public TupleStoreName getTable() {
 		return table;
 	}
 

@@ -35,7 +35,7 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
@@ -171,10 +171,10 @@ public class DistributedRecoveryService implements BBoxDBService {
 			
 			final int regionId = outdatedDistributionRegion.getDistributedRegion().getRegionId();
 			
-			final List<SSTableName> allTables = storageRegistry
+			final List<TupleStoreName> allTables = storageRegistry
 					.getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
 			
-			for(final SSTableName ssTableName : allTables) {
+			for(final TupleStoreName ssTableName : allTables) {
 				try {
 					runRecoveryForTable(ssTableName, outdatedDistributionRegion, connection);
 				} catch (RejectedException | StorageManagerException | ExecutionException e) {
@@ -197,7 +197,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 	 * @throws ExecutionException
 	 * @throws RejectedException 
 	 */
-	protected void runRecoveryForTable(final SSTableName ssTableName,
+	protected void runRecoveryForTable(final TupleStoreName ssTableName,
 			final OutdatedDistributionRegion outdatedDistributionRegion,
 			final BBoxDBClient connection) throws StorageManagerException,
 			InterruptedException, ExecutionException, RejectedException {

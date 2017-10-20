@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.BufferUnderflowException;
 
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
@@ -45,7 +45,7 @@ public class SSTableExaminer implements Runnable {
 	/**
 	 * The name of the relation
 	 */
-	protected final SSTableName relationname;
+	protected final TupleStoreName relationname;
 	
 	/**
 	 * The key to examine
@@ -59,7 +59,7 @@ public class SSTableExaminer implements Runnable {
 
 	
 	
-	public SSTableExaminer(final String baseDirectory, final SSTableName relationname, final int tableNumber, final String examineKey) {
+	public SSTableExaminer(final String baseDirectory, final TupleStoreName relationname, final int tableNumber, final String examineKey) {
 		this.baseDirectory = baseDirectory;
 		this.tableNumber = tableNumber;
 		this.relationname = relationname;
@@ -164,7 +164,7 @@ public class SSTableExaminer implements Runnable {
 		
 		final String baseDirectory = args[0];
 		
-		final SSTableName relationname = new SSTableName(args[1]);
+		final TupleStoreName relationname = new TupleStoreName(args[1]);
 		if(! relationname.isValid()) {
 			logger.error("Relationname {} is invalid, exiting", args[0]);
 			System.exit(-1);

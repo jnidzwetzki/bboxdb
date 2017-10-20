@@ -21,7 +21,7 @@ import java.util.Iterator;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 
 public interface ReadOnlyTupleStore extends Iterable<Tuple> {
@@ -36,7 +36,7 @@ public interface ReadOnlyTupleStore extends Iterable<Tuple> {
 	 * Get the sstable name
 	 * @return
 	 */
-	public SSTableName getSStableName();
+	public TupleStoreName getSStableName();
 	
 	/**
 	 * Search for tuple and return the most recent version

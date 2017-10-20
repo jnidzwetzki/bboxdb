@@ -27,14 +27,14 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 
 public class CreateTableRequest extends NetworkRequestPackage {
 	
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName table;
+	protected final TupleStoreName table;
 	
 	/**
 	 * The configuration of the SSTable
@@ -46,7 +46,7 @@ public class CreateTableRequest extends NetworkRequestPackage {
 		super(sequenceNumber);
 		
 		this.ssTableConfiguration = ssTableConfiguration;
-		this.table = new SSTableName(table);
+		this.table = new TupleStoreName(table);
 	}
 	
 	@Override
@@ -171,7 +171,7 @@ public class CreateTableRequest extends NetworkRequestPackage {
 		return NetworkConst.REQUEST_TYPE_CREATE_TABLE;
 	}
 
-	public SSTableName getTable() {
+	public TupleStoreName getTable() {
 		return table;
 	}
 

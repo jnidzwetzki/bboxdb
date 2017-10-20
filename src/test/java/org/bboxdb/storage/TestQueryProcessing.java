@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
 import org.bboxdb.storage.queryprocessor.QueryProcessor;
@@ -43,7 +43,7 @@ public class TestQueryProcessing {
 	/**
 	 * The table name for tests
 	 */
-	protected static final SSTableName TABLE = new SSTableName("2_junitgroup_table1");
+	protected static final TupleStoreName TABLE = new TupleStoreName("2_junitgroup_table1");
 	
 	/**
 	 * The storage registry

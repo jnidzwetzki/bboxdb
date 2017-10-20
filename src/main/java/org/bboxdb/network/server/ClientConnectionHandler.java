@@ -62,7 +62,7 @@ import org.bboxdb.network.server.handler.request.KeepAliveHandler;
 import org.bboxdb.network.server.handler.request.ListTablesHandler;
 import org.bboxdb.network.server.handler.request.NextPageHandler;
 import org.bboxdb.network.server.handler.request.RequestHandler;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.CloseableHelper;
@@ -402,7 +402,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * @throws PackageEncodeException 
 	 * @throws IOException 
 	 */
-	public void writeResultTuple(final short packageSequence, final SSTableName requestTable, final Tuple tuple) throws IOException, PackageEncodeException {
+	public void writeResultTuple(final short packageSequence, final TupleStoreName requestTable, final Tuple tuple) throws IOException, PackageEncodeException {
 		
 		final TupleResponse responsePackage = new TupleResponse(
 				packageSequence, 

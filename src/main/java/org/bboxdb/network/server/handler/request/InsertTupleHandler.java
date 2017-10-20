@@ -34,7 +34,7 @@ import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -66,7 +66,7 @@ public class InsertTupleHandler implements RequestHandler {
 			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 			
 			final Tuple tuple = insertTupleRequest.getTuple();			
-			final SSTableName requestTable = insertTupleRequest.getTable();
+			final TupleStoreName requestTable = insertTupleRequest.getTable();
 			final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
 			final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
 			
@@ -100,7 +100,7 @@ public class InsertTupleHandler implements RequestHandler {
 	 * @throws RejectedException
 	 * @throws BBoxDBException
 	 */
-	protected void handleRoutedPackage(final Tuple tuple, final SSTableName requestTable, 
+	protected void handleRoutedPackage(final Tuple tuple, final TupleStoreName requestTable, 
 			final TupleStoreManagerRegistry storageRegistry,
 			final RoutingHeader routingHeader) 
 			throws StorageManagerException, RejectedException, BBoxDBException {
@@ -113,10 +113,10 @@ public class InsertTupleHandler implements RequestHandler {
 		
 		final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
 
-		final Collection<SSTableName> localTables = regionIdMapper.convertRegionIdToTableNames(
+		final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
 					requestTable, localHop.getDistributionRegions());
 
-		for(final SSTableName ssTableName : localTables) {
+		for(final TupleStoreName ssTableName : localTables) {
 			final TupleStoreManager storageManager = storageRegistry.getSSTableManager(ssTableName);
 			storageManager.put(tuple);			
 		}

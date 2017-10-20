@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.SSTableMetaData;
+import org.bboxdb.storage.entity.TupleStoreMetaData;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableMetadataBuilder;
 import org.junit.Assert;
@@ -36,7 +36,7 @@ public class TestSSTableMetadataBuilder {
 	@Test
 	public void testSSTableIndexBuilder1() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		final SSTableMetaData metadata = ssTableIndexBuilder.getMetaData();
+		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(new double[] {}, metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(0, metadata.getTuples());
 	}
@@ -52,7 +52,7 @@ public class TestSSTableMetadataBuilder {
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		
 		ssTableIndexBuilder.addTuple(tuple1);
-		final SSTableMetaData metadata = ssTableIndexBuilder.getMetaData();
+		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox1.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(metadata.getOldestTupleVersionTimestamp(), metadata.getNewestTupleVersionTimestamp());
 		Assert.assertEquals(1, metadata.getTuples());
@@ -73,7 +73,7 @@ public class TestSSTableMetadataBuilder {
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
 		
-		final SSTableMetaData metadata = ssTableIndexBuilder.getMetaData();
+		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox1.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
@@ -93,7 +93,7 @@ public class TestSSTableMetadataBuilder {
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
 		
-		final SSTableMetaData metadata = ssTableIndexBuilder.getMetaData();
+		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox2.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
@@ -113,7 +113,7 @@ public class TestSSTableMetadataBuilder {
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
 		
-		final SSTableMetaData metadata = ssTableIndexBuilder.getMetaData();
+		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(boundingBox1.toDoubleArray(), metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
@@ -133,7 +133,7 @@ public class TestSSTableMetadataBuilder {
 		ssTableIndexBuilder.addTuple(tuple1);
 		ssTableIndexBuilder.addTuple(tuple2);
 		
-		final SSTableMetaData metadata = ssTableIndexBuilder.getMetaData();
+		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(new double[] {}, metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
@@ -148,7 +148,7 @@ public class TestSSTableMetadataBuilder {
 		
 		addTwoTuples(ssTableIndexBuilder);
 		
-		final SSTableMetaData metadata = ssTableIndexBuilder.getMetaData();
+		final TupleStoreMetaData metadata = ssTableIndexBuilder.getMetaData();
 		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 5f}, metadata.getBoundingBoxData(), 0.001d);
 		Assert.assertEquals(2, metadata.getTuples());
 	}
@@ -221,10 +221,10 @@ public class TestSSTableMetadataBuilder {
 		final Tuple tuple1 = new Tuple("abc", boundingBox1, "".getBytes());
 		ssTableIndexBuilder.addTuple(tuple1);
 
-		final SSTableMetaData metaData = ssTableIndexBuilder.getMetaData();
+		final TupleStoreMetaData metaData = ssTableIndexBuilder.getMetaData();
 		final String yamlData = metaData.exportToYaml();
 				
-		final SSTableMetaData metaDataRead = SSTableMetaData.importFromYaml(yamlData);
+		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYaml(yamlData);
 		Assert.assertEquals(metaData, metaDataRead);
 	}
 	
@@ -237,10 +237,10 @@ public class TestSSTableMetadataBuilder {
 		
 		addTwoTuples(ssTableIndexBuilder);
 
-		final SSTableMetaData metaData = ssTableIndexBuilder.getMetaData();
+		final TupleStoreMetaData metaData = ssTableIndexBuilder.getMetaData();
 		final String yamlData = metaData.exportToYaml();
 			
-		final SSTableMetaData metaDataRead = SSTableMetaData.importFromYaml(yamlData);
+		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYaml(yamlData);
 		Assert.assertEquals(metaData, metaDataRead);
 	}
 	
@@ -254,10 +254,10 @@ public class TestSSTableMetadataBuilder {
 				
 		final File tmpFile = File.createTempFile("test", ".tmp");
 
-		final SSTableMetaData metaData = ssTableIndexBuilder.getMetaData();
+		final TupleStoreMetaData metaData = ssTableIndexBuilder.getMetaData();
 		metaData.exportToYamlFile(tmpFile);
 			
-		final SSTableMetaData metaDataRead = SSTableMetaData.importFromYamlFile(tmpFile);
+		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYamlFile(tmpFile);
 		Assert.assertEquals(metaData, metaDataRead);
 		tmpFile.delete();
 	}
@@ -275,10 +275,10 @@ public class TestSSTableMetadataBuilder {
 		
 		final File tmpFile = File.createTempFile("test", ".tmp");
 
-		final SSTableMetaData metaData = ssTableIndexBuilder.getMetaData();
+		final TupleStoreMetaData metaData = ssTableIndexBuilder.getMetaData();
 		metaData.exportToYamlFile(tmpFile);
 			
-		final SSTableMetaData metaDataRead = SSTableMetaData.importFromYamlFile(tmpFile);
+		final TupleStoreMetaData metaDataRead = TupleStoreMetaData.importFromYamlFile(tmpFile);
 		Assert.assertEquals(metaData, metaDataRead);
 		tmpFile.delete();
 	}

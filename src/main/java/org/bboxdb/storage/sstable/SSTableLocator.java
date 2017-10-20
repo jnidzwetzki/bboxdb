@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 
 public class SSTableLocator {
 
@@ -33,7 +33,7 @@ public class SSTableLocator {
 	 * @return 
 	 * @throws StorageManagerException 
 	 */
-	public static Map<SSTableName, String> scanDirectoryForExistingTables(final String storageDirectory) 
+	public static Map<TupleStoreName, String> scanDirectoryForExistingTables(final String storageDirectory) 
 			throws StorageManagerException {
 	
 		final String dataDirString = SSTableHelper.getDataDir(storageDirectory);
@@ -43,7 +43,7 @@ public class SSTableLocator {
 			throw new StorageManagerException("Root dir does not exist: " + dataDir);
 		}
 		
-		final Map<SSTableName, String> sstableLocations = new HashMap<>();
+		final Map<TupleStoreName, String> sstableLocations = new HashMap<>();
 
 		// Distribution groups
 		for (final File fileEntry : dataDir.listFiles()) {
@@ -62,7 +62,7 @@ public class SSTableLocator {
 		        if (tableEntry.isDirectory()) {
 		        	final String tablename = tableEntry.getName();
 		        	final String fullname = distributionGroupName.getFullname() + "_" + tablename;
-		        	final SSTableName sstableName = new SSTableName(fullname);
+		        	final TupleStoreName sstableName = new TupleStoreName(fullname);
 					sstableLocations.put(sstableName, storageDirectory);
 		        }
     		}

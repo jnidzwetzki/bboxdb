@@ -25,7 +25,7 @@ import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
@@ -41,7 +41,7 @@ public class TestStorageRegistry {
 	/**
 	 * The name of the test relation
 	 */
-	protected static final SSTableName RELATION_NAME = new SSTableName("3_grouptest1_table1_2");
+	protected static final TupleStoreName RELATION_NAME = new TupleStoreName("3_grouptest1_table1_2");
 
 	/**
 	 * The storage registry
@@ -131,7 +131,7 @@ public class TestStorageRegistry {
 		// Wait for requests to settle
 		Thread.sleep(10000);
 		
-		final List<SSTableName> tablesBeforeDelete = storageRegistry.getAllTables();
+		final List<TupleStoreName> tablesBeforeDelete = storageRegistry.getAllTables();
 		System.out.println(tablesBeforeDelete);
 		Assert.assertTrue(tablesBeforeDelete.contains(RELATION_NAME));
 		
@@ -142,7 +142,7 @@ public class TestStorageRegistry {
 		
 		storageRegistry.deleteTable(RELATION_NAME);
 		
-		final List<SSTableName> tablesAfterDelete = storageRegistry.getAllTables();
+		final List<TupleStoreName> tablesAfterDelete = storageRegistry.getAllTables();
 		System.out.println(tablesAfterDelete);
 		Assert.assertFalse(tablesAfterDelete.contains(RELATION_NAME));
 		

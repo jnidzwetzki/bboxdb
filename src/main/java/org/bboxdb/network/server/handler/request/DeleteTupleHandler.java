@@ -33,7 +33,7 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ public class DeleteTupleHandler implements RequestHandler {
 		
 		try {
 			final DeleteTupleRequest deleteTupleRequest = DeleteTupleRequest.decodeTuple(encodedPackage);
-			final SSTableName requestTable = deleteTupleRequest.getTable();
+			final TupleStoreName requestTable = deleteTupleRequest.getTable();
 			final RoutingHeader routingHeader = deleteTupleRequest.getRoutingHeader();
 
 			if(! routingHeader.isRoutedPackage()) {
@@ -73,10 +73,10 @@ public class DeleteTupleHandler implements RequestHandler {
 				
 				final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
 
-				final Collection<SSTableName> localTables = regionIdMapper.convertRegionIdToTableNames(
+				final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
 							requestTable, localHop.getDistributionRegions());
 
-				for(final SSTableName ssTableName : localTables) {
+				for(final TupleStoreName ssTableName : localTables) {
 					final TupleStoreManager storageManager = clientConnectionHandler
 							.getStorageRegistry()
 							.getSSTableManager(ssTableName);

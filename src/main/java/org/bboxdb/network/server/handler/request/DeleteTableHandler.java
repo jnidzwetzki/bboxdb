@@ -30,7 +30,7 @@ import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,14 +52,14 @@ public class DeleteTableHandler implements RequestHandler {
 		
 		try {			
 			final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);
-			final SSTableName requestTable = deletePackage.getTable();
+			final TupleStoreName requestTable = deletePackage.getTable();
 			logger.info("Got delete call for table: " + requestTable);
 			
 			// Send the call to the storage manager
 			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-			final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
+			final Collection<TupleStoreName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 			
-			for(final SSTableName ssTableName : localTables) {
+			for(final TupleStoreName ssTableName : localTables) {
 				clientConnectionHandler.getStorageRegistry().deleteTable(ssTableName);	
 			}
 			

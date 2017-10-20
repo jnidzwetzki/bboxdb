@@ -24,7 +24,7 @@ import java.util.List;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableWriter;
@@ -46,7 +46,7 @@ public class TestSSTable {
 	/**
 	 * The name of the test relation
 	 */
-	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_relation3");
+	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("1_testgroup1_relation3");
 	
 	/**
 	 * The max number of expected tuples in the sstable

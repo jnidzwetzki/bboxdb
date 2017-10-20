@@ -36,7 +36,7 @@ import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableLocator;
 import org.bboxdb.storage.tuplestore.DiskStorage;
@@ -62,17 +62,17 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	/**
 	 * A map that contains the storage directory for the sstable
 	 */
-	protected final Map<SSTableName, String> sstableLocations;
+	protected final Map<TupleStoreName, String> sstableLocations;
 	
 	/**
 	 * A map with all created storage instances
 	 */
-	protected final Map<SSTableName, TupleStoreManager> managerInstances;
+	protected final Map<TupleStoreName, TupleStoreManager> managerInstances;
 	
 	/**
 	 * The flush callbacks
 	 */
-	protected final List<BiConsumer<SSTableName, Long>> flushCallbacks;
+	protected final List<BiConsumer<TupleStoreName, Long>> flushCallbacks;
 
 	/**
 	 * The service state
@@ -136,7 +136,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * 
 	 * @return
 	 */
-	public synchronized TupleStoreManager getSSTableManager(final SSTableName table) 
+	public synchronized TupleStoreManager getSSTableManager(final TupleStoreName table) 
 			throws StorageManagerException {
 		
 		if(! table.isValid()) {
@@ -169,7 +169,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param table
 	 * @return
 	 */
-	public synchronized boolean shutdownSStable(final SSTableName table) {
+	public synchronized boolean shutdownSStable(final TupleStoreName table) {
 		
 		if(! managerInstances.containsKey(table)) {
 			return false;
@@ -243,7 +243,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param table
 	 * @throws StorageManagerException 
 	 */
-	public synchronized void deleteTable(final SSTableName table) throws StorageManagerException {
+	public synchronized void deleteTable(final TupleStoreName table) throws StorageManagerException {
 		
 		if(! table.isValid()) {
 			throw new StorageManagerException("Invalid tablename: " + table);
@@ -278,16 +278,16 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		logger.info("Shuting down active memtables for distribution group: " + distributionGroupString);
 		
 		// Create a copy of the key set to allow deletions (performed by shutdown) during iteration
-		final Set<SSTableName> copyOfInstances = new HashSet<SSTableName>(managerInstances.keySet());
-		for(final SSTableName ssTableName : copyOfInstances) {
+		final Set<TupleStoreName> copyOfInstances = new HashSet<TupleStoreName>(managerInstances.keySet());
+		for(final TupleStoreName ssTableName : copyOfInstances) {
 			if(ssTableName.getDistributionGroup().equals(distributionGroupString)) {
 				shutdownSStable(ssTableName);
 			}
 		}
 		
 		// Storage on disk
-		final List<SSTableName> allTables = getAllTables();
-		for(final SSTableName ssTableName : allTables) {
+		final List<TupleStoreName> allTables = getAllTables();
+		for(final TupleStoreName ssTableName : allTables) {
 			if(ssTableName.getDistributionGroup().equals(distributionGroupString)) {
 				deleteTable(ssTableName);
 			}
@@ -339,7 +339,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param table
 	 * @return
 	 */
-	public synchronized boolean isStorageManagerActive(final SSTableName table) {
+	public synchronized boolean isStorageManagerActive(final TupleStoreName table) {
 		return managerInstances.containsKey(table);
 	}
 	
@@ -348,8 +348,8 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * 
 	 * @return
 	 */
-	public List<SSTableName> getAllTables() {
-		final List<SSTableName> tables = new ArrayList<>(sstableLocations.size());
+	public List<TupleStoreName> getAllTables() {
+		final List<TupleStoreName> tables = new ArrayList<>(sstableLocations.size());
 		tables.addAll(sstableLocations.keySet());
 		return tables;
 	}
@@ -362,10 +362,10 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param regionId
 	 * @return
 	 */
-	public List<SSTableName> getAllTablesForDistributionGroupAndRegionId
+	public List<TupleStoreName> getAllTablesForDistributionGroupAndRegionId
 		(final DistributionGroupName distributionGroupName, final int regionId) {
 		
-		final List<SSTableName> groupTables = getAllTablesForDistributionGroup(distributionGroupName);
+		final List<TupleStoreName> groupTables = getAllTablesForDistributionGroup(distributionGroupName);
 		
 		return groupTables
 			.stream()
@@ -384,12 +384,12 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		(final DistributionGroupName distributionGroupName, final int regionId) 
 				throws StorageManagerException {
 		
-		final List<SSTableName> tables 
+		final List<TupleStoreName> tables 
 			= getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
 		
 		long totalSize = 0;
 		
-		for(SSTableName ssTableName : tables) {
+		for(TupleStoreName ssTableName : tables) {
 			totalSize = totalSize + getSSTableManager(ssTableName).getSize();
 		}
 		
@@ -400,7 +400,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Get all tables for a given distribution group
 	 * @return
 	 */
-	public synchronized List<SSTableName> getAllTablesForDistributionGroup
+	public synchronized List<TupleStoreName> getAllTablesForDistributionGroup
 		(final DistributionGroupName distributionGroupName) {
 		
 		return sstableLocations.keySet()
@@ -413,7 +413,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Register a new SSTable flush callback
 	 * @param callback
 	 */
-	public void registerSSTableFlushCallback(final BiConsumer<SSTableName, Long> callback) {
+	public void registerSSTableFlushCallback(final BiConsumer<TupleStoreName, Long> callback) {
 		flushCallbacks.add(callback);
 	}
 	
@@ -422,7 +422,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @return 
 	 * @return
 	 */
-	public List<BiConsumer<SSTableName, Long>> getSSTableFlushCallbacks() {
+	public List<BiConsumer<TupleStoreName, Long>> getSSTableFlushCallbacks() {
 		return Collections.unmodifiableList(flushCallbacks);
 	}
 	
@@ -431,7 +431,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param basedir
 	 * @return 
 	 */
-	public synchronized List<SSTableName> getSSTablesForLocation(final String basedir) {
+	public synchronized List<TupleStoreName> getSSTablesForLocation(final String basedir) {
 		return sstableLocations.entrySet().stream()
 				.filter(e -> e.getValue().equals(basedir))
 				.map(e -> e.getKey())

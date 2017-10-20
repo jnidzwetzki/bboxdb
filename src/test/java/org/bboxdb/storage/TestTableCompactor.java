@@ -27,7 +27,7 @@ import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableWriter;
@@ -47,7 +47,7 @@ public class TestTableCompactor {
 	/**
 	 * The output relation name
 	 */
-	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_relation1");
+	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("1_testgroup1_relation1");
 	
 	/**
 	 * The storage directory
