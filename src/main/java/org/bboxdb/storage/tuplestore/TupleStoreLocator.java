@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.sstable;
+package org.bboxdb.storage.tuplestore;
 
 import java.io.File;
 import java.util.HashMap;
@@ -24,8 +24,9 @@ import java.util.Map;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.sstable.SSTableHelper;
 
-public class SSTableLocator {
+public class TupleStoreLocator {
 
 	/**
 	 * Scan the given directory for existing sstables

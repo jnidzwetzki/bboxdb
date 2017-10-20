@@ -39,8 +39,8 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.bboxdb.storage.sstable.SSTableLocator;
 import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.TupleStoreLocator;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,7 +116,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		// Populate the sstable location map
 		for(final String directory : storageDirs) {
 			try {
-				tupleStoreLocations.putAll(SSTableLocator.scanDirectoryForExistingTables(directory));
+				tupleStoreLocations.putAll(TupleStoreLocator.scanDirectoryForExistingTables(directory));
 				final int flushThreadsPerStorage = configuration.getMemtableFlushThreadsPerStorage();
 				final DiskStorage storage = new DiskStorage(this, new File(directory), flushThreadsPerStorage);
 				storage.init();
