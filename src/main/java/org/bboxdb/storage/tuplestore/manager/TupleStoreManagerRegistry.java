@@ -272,7 +272,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @return 
 	 * @throws StorageManagerException 
 	 */
-	public TupleStoreManager createTable(final TupleStoreName tupleStoreName, 
+	public synchronized TupleStoreManager createTable(final TupleStoreName tupleStoreName, 
 			final TupleStoreConfiguration tupleStoreConfiguration) throws StorageManagerException {
 		
 		// Find a new storage directory for the sstable manager
@@ -383,9 +383,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @return
 	 */
 	public List<TupleStoreName> getAllTables() {
-		final List<TupleStoreName> tables = new ArrayList<>(tupleStoreLocations.size());
-		tables.addAll(tupleStoreLocations.keySet());
-		return tables;
+		return new ArrayList<>(tupleStoreLocations.keySet());
 	}
 	
 	/**
