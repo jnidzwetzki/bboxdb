@@ -277,7 +277,7 @@ public class TupleStoreManager implements BBoxDBService {
 
 		assert (! metadataFile.exists()) : "Tuple store metadata file don't exist: " + metadataFile;
 		
-		tupleStoreConfiguration = TupleStoreConfiguration.importFromYaml(metadataFile.getAbsolutePath());
+		tupleStoreConfiguration = TupleStoreConfiguration.importFromYamlFile(metadataFile);
 	}
 
 	/**

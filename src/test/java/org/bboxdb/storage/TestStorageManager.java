@@ -22,6 +22,8 @@ import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.MicroSecondTimestampProvider;
@@ -71,7 +73,14 @@ public class TestStorageManager {
 
 	@Before
 	public void init() throws StorageManagerException {
+		// Delete the old table
 		storageRegistry.deleteTable(TEST_RELATION);
+		
+		// Create a new table
+		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder.create().build();
+		storageRegistry.createTable(TEST_RELATION, tupleStoreConfiguration);
+		
+		// Assure table is created sucessfully
 		storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
 	}
