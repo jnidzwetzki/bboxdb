@@ -64,7 +64,7 @@ public class LocalSelftest {
 			storageRegistry.init();
 			
 			final TupleStoreName sstable = new TupleStoreName(TABLENAME);
-			final TupleStoreManager storageManager = storageRegistry.getSSTableManager(sstable);
+			final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(sstable);
 
 			for(int iteration = 0; iteration < iterations; iteration++) {
 				logger.info("Running iteration {}", iteration);

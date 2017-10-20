@@ -277,7 +277,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			throws StorageManagerException, Exception, InterruptedException {
 		
 		for(final TupleStoreName ssTableName : localTables) {
-			final TupleStoreManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
+			final TupleStoreManager ssTableManager = storage.getStorageRegistry().getTupleStoreManager(ssTableName);
 			
 			final List<ReadOnlyTupleStore> storages = new ArrayList<>();
 			
@@ -326,7 +326,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
-		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
+		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getTupleStoreManager(ssTableName);
 		
 		// Spread data
 		final TupleRedistributor tupleRedistributor = getTupleRedistributor(region, ssTableName);
@@ -341,7 +341,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @throws StorageManagerException
 	 */
 	protected void stopFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
-		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
+		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getTupleStoreManager(ssTableName);
 		
 		// Stop flush thread, so new data remains in memory
 		ssTableManager.setToReadOnly();

@@ -71,7 +71,7 @@ public class TestStorageRegistry {
 	@Test
 	public void testRegisterAndUnregister() throws StorageManagerException {
 		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
-		storageRegistry.getSSTableManager(RELATION_NAME);
+		storageRegistry.getTupleStoreManager(RELATION_NAME);
 		Assert.assertTrue(storageRegistry.isStorageManagerActive(RELATION_NAME));
 		storageRegistry.shutdownSStable(RELATION_NAME);
 		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
@@ -86,7 +86,7 @@ public class TestStorageRegistry {
 	@Test
 	public void testDeleteTable() throws StorageManagerException, InterruptedException, RejectedException {
 		
-		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(RELATION_NAME);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -121,7 +121,7 @@ public class TestStorageRegistry {
 	@Test
 	public void testCalculateSize() throws StorageManagerException, InterruptedException, RejectedException {
 		
-		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(RELATION_NAME);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());

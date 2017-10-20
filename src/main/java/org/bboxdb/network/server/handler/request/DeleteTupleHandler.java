@@ -79,7 +79,7 @@ public class DeleteTupleHandler implements RequestHandler {
 				for(final TupleStoreName ssTableName : localTables) {
 					final TupleStoreManager storageManager = clientConnectionHandler
 							.getStorageRegistry()
-							.getSSTableManager(ssTableName);
+							.getTupleStoreManager(ssTableName);
 					
 					storageManager.delete(deleteTupleRequest.getKey(), deleteTupleRequest.getTimestamp());
 				}

@@ -66,7 +66,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 			
 			logMemoryStatistics();
 			
-			final List<TupleStoreName> allTables = storageRegistry.getSSTablesForLocation(
+			final List<TupleStoreName> allTables = storageRegistry.getTupleStoresForLocation(
 					storage.getBasedir().getAbsolutePath());
 	
 			for(final TupleStoreName ssTableName : allTables) {
@@ -96,7 +96,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	protected void createCheckpointIfNedded(final TupleStoreManagerRegistry storageRegistry, 
 			final TupleStoreName ssTableName) {
 		try {
-			final TupleStoreManager ssTableManager = storageRegistry.getSSTableManager(ssTableName);
+			final TupleStoreManager ssTableManager = storageRegistry.getTupleStoreManager(ssTableName);
 			createCheckpoint(ssTableManager);
 		} catch (InterruptedException e) {
 			logger.debug("Got interrupted exception, stopping checkpoint thread");

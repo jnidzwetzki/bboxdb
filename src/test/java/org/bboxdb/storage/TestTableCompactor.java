@@ -97,7 +97,7 @@ public class TestTableCompactor {
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 				
 		storageRegistry.deleteTable(TEST_RELATION);
-		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.executeCompactation();
@@ -336,7 +336,7 @@ public class TestTableCompactor {
 			throws StorageManagerException {
 		
 		storageRegistry.deleteTable(TEST_RELATION);
-		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.setMajorCompaction(majorCompaction);

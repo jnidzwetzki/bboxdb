@@ -200,7 +200,7 @@ public class ClientQuery implements Closeable {
 			
 			final TupleStoreManager storageManager = clientConnectionHandler
 					.getStorageRegistry()
-					.getSSTableManager(sstableName);
+					.getTupleStoreManager(sstableName);
 			
 			final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
 			currentIterator = queryProcessor.iterator();

@@ -67,7 +67,7 @@ public class HandleKeyQuery implements QueryHandler {
 					
 					final TupleStoreManager storageManager = clientConnectionHandler
 							.getStorageRegistry()
-							.getSSTableManager(ssTableName);
+							.getTupleStoreManager(ssTableName);
 					
 					final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
 					

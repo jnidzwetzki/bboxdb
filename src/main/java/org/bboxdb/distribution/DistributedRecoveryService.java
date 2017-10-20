@@ -205,7 +205,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 		final String sstableName = ssTableName.getFullname();
 		
 		logger.info("Recovery: starting recovery for table {}", sstableName);
-		final TupleStoreManager tableManager = storageRegistry.getSSTableManager(ssTableName);
+		final TupleStoreManager tableManager = storageRegistry.getTupleStoreManager(ssTableName);
 		
 		// Even with NTP, the clock of the nodes can have a delta.
 		// We subtract this delta from the checkpoint timestamp to ensure

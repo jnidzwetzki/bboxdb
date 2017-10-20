@@ -102,7 +102,7 @@ public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
 			logger.info("Create split samples for table: {} ", ssTableName.getFullname());
 			
 			final TupleStoreManager sstableManager = storage.getStorageRegistry()
-					.getSSTableManager(ssTableName);
+					.getTupleStoreManager(ssTableName);
 			
 			final List<ReadOnlyTupleStore> tupleStores = sstableManager.getAllTupleStorages();
 			processTupleStores(tupleStores, splitDimension, boundingBox);

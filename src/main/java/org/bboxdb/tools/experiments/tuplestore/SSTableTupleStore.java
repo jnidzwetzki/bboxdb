@@ -122,7 +122,7 @@ public class SSTableTupleStore implements TupleStore {
 		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 		
-		storageManager = storageRegistry.getSSTableManager(SSTABLE_NAME);
+		storageManager = storageRegistry.getTupleStoreManager(SSTABLE_NAME);
 		
 		serviceState.dispatchToRunning();
 	}

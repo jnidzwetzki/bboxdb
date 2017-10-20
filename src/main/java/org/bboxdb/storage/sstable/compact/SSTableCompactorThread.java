@@ -89,7 +89,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 		final TupleStoreManagerRegistry storageRegistry = storage.getStorageRegistry();
 		final String location = storage.getBasedir().getAbsolutePath();
-		final List<TupleStoreName> sstables = storageRegistry.getSSTablesForLocation(location);
+		final List<TupleStoreName> sstables = storageRegistry.getTupleStoresForLocation(location);
 		
 		if(sstables.isEmpty()) {
 			logger.warn("SSables list is empty");
@@ -100,7 +100,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 			try {
 				logger.debug("Running compact for: {}", ssTableName);
-				final TupleStoreManager sstableManager = storageRegistry.getSSTableManager(ssTableName);
+				final TupleStoreManager sstableManager = storageRegistry.getTupleStoreManager(ssTableName);
 				
 				if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
 					logger.debug("Skipping compact for read only sstable manager: {}" , ssTableName);

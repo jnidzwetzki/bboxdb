@@ -100,7 +100,7 @@ public class TupleRedistributor {
 				
 				final TupleStoreManager storageManager = storage
 						.getStorageRegistry()
-						.getSSTableManager(localTableName);
+						.getTupleStoreManager(localTableName);
 				
 				regionMap.get(distributionRegion).add(new LocalTupleSink(sstableName, storageManager));
 			

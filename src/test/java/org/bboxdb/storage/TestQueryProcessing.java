@@ -73,7 +73,7 @@ public class TestQueryProcessing {
 	public void testBBoxQuery1() throws StorageManagerException, RejectedException {
 
 		storageRegistry.deleteTable(TABLE);
-		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -106,7 +106,7 @@ public class TestQueryProcessing {
 	public void testBBoxQuery2() throws StorageManagerException, RejectedException {
 		
 		storageRegistry.deleteTable(TABLE);
-		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -142,7 +142,7 @@ public class TestQueryProcessing {
 	@Test
 	public void testBBoxQuery3() throws StorageManagerException, InterruptedException, RejectedException {
 		storageRegistry.deleteTable(TABLE);
-		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -180,7 +180,7 @@ public class TestQueryProcessing {
 	@Test
 	public void testBBoxQuery4() throws StorageManagerException, InterruptedException, RejectedException {
 		storageRegistry.deleteTable(TABLE);
-		final TupleStoreManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());

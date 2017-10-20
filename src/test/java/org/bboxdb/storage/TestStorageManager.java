@@ -72,7 +72,7 @@ public class TestStorageManager {
 	@Before
 	public void init() throws StorageManagerException {
 		storageRegistry.deleteTable(TEST_RELATION);
-		storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
+		storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
 	}
 	
