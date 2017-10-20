@@ -50,7 +50,7 @@ public class DiskStorage implements BBoxDBService {
 	/**
 	 * The queue for the memtable flush thread
 	 */
-	protected final BlockingQueue<MemtableAndSSTableManagerPair> memtablesToFlush;
+	protected final BlockingQueue<MemtableAndTupleStoreManagerPair> memtablesToFlush;
 	
 	/**
 	 * The storage base dir
@@ -165,7 +165,7 @@ public class DiskStorage implements BBoxDBService {
 		return "Storage instance for: " + basedir.getAbsolutePath();
 	}
 	
-	public void scheduleMemtableFlush(final MemtableAndSSTableManagerPair memtable) {
+	public void scheduleMemtableFlush(final MemtableAndTupleStoreManagerPair memtable) {
 		
 		if(memtable == null) {
 			return;
@@ -184,7 +184,7 @@ public class DiskStorage implements BBoxDBService {
 	 * Get the memtable flush queue
 	 * @return
 	 */
-	public BlockingQueue<MemtableAndSSTableManagerPair> getMemtablesToFlush() {
+	public BlockingQueue<MemtableAndTupleStoreManagerPair> getMemtablesToFlush() {
 		return memtablesToFlush;
 	}
 	

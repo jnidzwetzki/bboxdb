@@ -44,7 +44,7 @@ import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.tuplestore.DiskStorage;
-import org.bboxdb.storage.tuplestore.MemtableAndSSTableManagerPair;
+import org.bboxdb.storage.tuplestore.MemtableAndTupleStoreManagerPair;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.util.RejectedException;
 import org.bboxdb.util.ServiceState;
@@ -602,7 +602,7 @@ public class TupleStoreManager implements BBoxDBService {
 		
 		final Memtable oldMemtable = tupleStoreInstances.activateNewMemtable(memtable);	
 		
-		final MemtableAndSSTableManagerPair memtableTask = new MemtableAndSSTableManagerPair(oldMemtable, this);
+		final MemtableAndTupleStoreManagerPair memtableTask = new MemtableAndTupleStoreManagerPair(oldMemtable, this);
 		storage.scheduleMemtableFlush(memtableTask);
 		
 		logger.debug("Activated a new memtable: {}", memtable.getInternalName());

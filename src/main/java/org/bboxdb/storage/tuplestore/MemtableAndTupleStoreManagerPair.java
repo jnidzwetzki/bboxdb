@@ -20,7 +20,7 @@ package org.bboxdb.storage.tuplestore;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 
-public class MemtableAndSSTableManagerPair {
+public class MemtableAndTupleStoreManagerPair {
 
 	/**
 	 * The memtale
@@ -30,11 +30,11 @@ public class MemtableAndSSTableManagerPair {
 	/**
 	 * The sstable manager
 	 */
-	protected final TupleStoreManager ssTableManager;
+	protected final TupleStoreManager tupleStoreManager;
 
-	public MemtableAndSSTableManagerPair(final Memtable memtable, final TupleStoreManager ssTableManager) {
+	public MemtableAndTupleStoreManagerPair(final Memtable memtable, final TupleStoreManager tupleStoreManager) {
 		this.memtable = memtable;
-		this.ssTableManager = ssTableManager;
+		this.tupleStoreManager = tupleStoreManager;
 	}
 	
 	/**
@@ -46,10 +46,10 @@ public class MemtableAndSSTableManagerPair {
 	}
 	
 	/**
-	 * Get the sstable manager
+	 * Get the tuple store manager
 	 * @return
 	 */
-	public TupleStoreManager getSsTableManager() {
-		return ssTableManager;
+	public TupleStoreManager getTupleStoreManager() {
+		return tupleStoreManager;
 	}
 }

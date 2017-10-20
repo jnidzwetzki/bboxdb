@@ -26,7 +26,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.tuplestore.DiskStorage;
-import org.bboxdb.storage.tuplestore.MemtableAndSSTableManagerPair;
+import org.bboxdb.storage.tuplestore.MemtableAndTupleStoreManagerPair;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerState;
 import org.bboxdb.util.FileSizeHelper;
@@ -39,7 +39,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * The unflushed memtables
 	 */
-	protected final BlockingQueue<MemtableAndSSTableManagerPair> flushQueue;
+	protected final BlockingQueue<MemtableAndTupleStoreManagerPair> flushQueue;
 
 	/**
 	 * The basedir
@@ -83,9 +83,9 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	protected void runThread() {
 		while (! Thread.currentThread().isInterrupted()) {
 			try {
-				final MemtableAndSSTableManagerPair memtableAndSSTableManager = flushQueue.take();
+				final MemtableAndTupleStoreManagerPair memtableAndSSTableManager = flushQueue.take();
 				final Memtable memtable = memtableAndSSTableManager.getMemtable();
-				final TupleStoreManager sstableManager = memtableAndSSTableManager.getSsTableManager();
+				final TupleStoreManager sstableManager = memtableAndSSTableManager.getTupleStoreManager();
 				flushMemtableToDisk(memtable, sstableManager);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
