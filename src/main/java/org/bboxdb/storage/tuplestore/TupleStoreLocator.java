@@ -58,16 +58,36 @@ public class TupleStoreLocator {
         	
         	assert(distributionGroupName.isValid()) : "Invalid name: " + distributionGroup;
         	
-        	// Tables
-    		for (final File tableEntry : fileEntry.listFiles()) {
-		        if (tableEntry.isDirectory()) {
-		        	final String tablename = tableEntry.getName();
-		        	final String fullname = distributionGroupName.getFullname() + "_" + tablename;
-		        	final TupleStoreName sstableName = new TupleStoreName(fullname);
-					sstableLocations.put(sstableName, storageDirectory);
-		        }
-    		}
+        	final Map<TupleStoreName, String> tablesInDir 
+        		= handleDistributionGroupEntry(storageDirectory, fileEntry, distributionGroupName);
+        	
+        	sstableLocations.putAll(tablesInDir);
 	    }
+		
+		return sstableLocations;
+	}
+
+	/**
+	 * Handle the subdirs of the distribution group
+	 * @param storageDirectory
+	 * @param fileEntry
+	 * @param distributionGroupName
+	 * @return
+	 */
+	protected static Map<TupleStoreName, String> handleDistributionGroupEntry(final String storageDirectory,
+			final File fileEntry, final DistributionGroupName distributionGroupName) {
+		
+		final Map<TupleStoreName, String> sstableLocations = new HashMap<>();
+		
+		// Tables
+		for (final File tableEntry : fileEntry.listFiles()) {
+		    if (tableEntry.isDirectory()) {
+		    	final String tablename = tableEntry.getName();
+		    	final String fullname = distributionGroupName.getFullname() + "_" + tablename;
+		    	final TupleStoreName sstableName = new TupleStoreName(fullname);
+				sstableLocations.put(sstableName, storageDirectory);
+		    }
+		}
 		
 		return sstableLocations;
 	}
