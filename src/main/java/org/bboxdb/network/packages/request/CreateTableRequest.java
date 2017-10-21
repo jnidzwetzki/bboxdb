@@ -28,6 +28,7 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.entity.UpdateAnomalyResolver;
 
 public class CreateTableRequest extends NetworkRequestPackage {
 	
@@ -63,8 +64,8 @@ public class CreateTableRequest extends NetworkRequestPackage {
 				bb.put((byte) 0x00);
 			}
 			
-			// Unused byte
-			bb.put((byte) 0x00);
+			// Update anomaly resolver
+			bb.put(ssTableConfiguration.getUpdateAnomalyResolver().getValue());
 			
 			// TTL
 			bb.putLong(ssTableConfiguration.getTTL());
@@ -123,11 +124,12 @@ public class CreateTableRequest extends NetworkRequestPackage {
 			allowDuplicates = true;
 		}
 		
-		// Unused 
-		encodedPackage.get();
+		// Update anomyly resolver
+		final byte updateAnomalyResolver = encodedPackage.get();
 		
 		// TTL
-		final long ttl = encodedPackage.getLong();		
+		final long ttl = encodedPackage.getLong();
+		
 		// Versions
 		final int versions = encodedPackage.getInt();
 		
@@ -152,18 +154,28 @@ public class CreateTableRequest extends NetworkRequestPackage {
 		encodedPackage.get(spatialWriterBytes, 0, spatialWriterBytes.length);
 		final String spatialIndexWriter = new String(spatialWriterBytes);
 				
-		final TupleStoreConfiguration ssTableConfiguration = new TupleStoreConfiguration();
-		ssTableConfiguration.setAllowDuplicates(allowDuplicates);
-		ssTableConfiguration.setTtl(ttl);
-		ssTableConfiguration.setVersions(versions);
-		ssTableConfiguration.setSpatialIndexReader(spatialIndexReader);
-		ssTableConfiguration.setSpatialIndexWriter(spatialIndexWriter);
+		final TupleStoreConfiguration tupleStoreConfiguration = new TupleStoreConfiguration();
+		tupleStoreConfiguration.setAllowDuplicates(allowDuplicates);
+		tupleStoreConfiguration.setTtl(ttl);
+		tupleStoreConfiguration.setVersions(versions);
+		tupleStoreConfiguration.setSpatialIndexReader(spatialIndexReader);
+		tupleStoreConfiguration.setSpatialIndexWriter(spatialIndexWriter);
+		
+		if(updateAnomalyResolver == (byte) 0) {
+			tupleStoreConfiguration.setUpdateAnomalyResolver(UpdateAnomalyResolver.NONE);
+		} else if(updateAnomalyResolver == (byte) 1) {
+			tupleStoreConfiguration.setUpdateAnomalyResolver(UpdateAnomalyResolver.RESOLVE_ON_READ);
+		} else if(updateAnomalyResolver == (byte) 2) {
+			tupleStoreConfiguration.setUpdateAnomalyResolver(UpdateAnomalyResolver.RESOLVE_ON_WRITE);
+		} else {
+			throw new PackageEncodeException("Illegal update anomaly resolver: " + updateAnomalyResolver);
+		}
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new CreateTableRequest(sequenceNumber, table, ssTableConfiguration);
+		return new CreateTableRequest(sequenceNumber, table, tupleStoreConfiguration);
 	}
 
 	@Override
@@ -175,7 +187,7 @@ public class CreateTableRequest extends NetworkRequestPackage {
 		return table;
 	}
 
-	public TupleStoreConfiguration getSsTableConfiguration() {
+	public TupleStoreConfiguration getTupleStoreConfiguration() {
 		return ssTableConfiguration;
 	}
 

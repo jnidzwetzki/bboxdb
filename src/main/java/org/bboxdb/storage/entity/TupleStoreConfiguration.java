@@ -60,22 +60,7 @@ public class TupleStoreConfiguration {
 	/**
 	 * The update anomaly resolver
 	 */
-	protected String updateAnomalyResolver = UPDATE_ANOMALY_RESOLVER_NONE;
-	
-	/**
-	 * The update anomalay resolver - none
-	 */
-	public static String UPDATE_ANOMALY_RESOLVER_NONE = "none";
-	
-	/**
-	 * The update anomalay resolver - by read
-	 */
-	public static String UPDATE_ANOMALY_REOLSVER_READ = "read";
-	
-	/**
-	 * The update anomalay resolver - by write
-	 */
-	public static String UPDATE_ANOMALY_RESOLVER_WRITE = "write";
+	protected UpdateAnomalyResolver updateAnomalyResolver = UpdateAnomalyResolver.NONE;
 	
 	/**
 	 * The logger
@@ -129,11 +114,11 @@ public class TupleStoreConfiguration {
 		this.spatialIndexReader = spatialIndexReader;
 	}
 	
-	public String getUpdateAnomalyResolver() {
+	public UpdateAnomalyResolver getUpdateAnomalyResolver() {
 		return updateAnomalyResolver;
 	}
 	
-	public void setUpdateAnomalyResolver(final String updateAnomalyResolver) {
+	public void setUpdateAnomalyResolver(final UpdateAnomalyResolver updateAnomalyResolver) {
 		this.updateAnomalyResolver = updateAnomalyResolver;
 	}
 

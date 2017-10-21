@@ -20,6 +20,9 @@ package org.bboxdb.network.server.handler.request;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -40,7 +43,7 @@ public class CreateTableHandler implements RequestHandler {
 
 	@Override
 	/**
-	 * Handle the delete table call
+	 * Handle the create table call
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
@@ -51,7 +54,10 @@ public class CreateTableHandler implements RequestHandler {
 			final TupleStoreName requestTable = createPackage.getTable();
 			logger.info("Got create call for table: " + requestTable);
 			
-			// TODO:
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+			tupleStoreAdapter.writeTuplestoreConfiguration(requestTable, 
+					createPackage.getTupleStoreConfiguration());
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (PackageEncodeException e) {

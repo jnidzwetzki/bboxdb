@@ -64,6 +64,7 @@ import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.entity.UpdateAnomalyResolver;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.junit.Assert;
@@ -405,6 +406,7 @@ public class TestNetworkClasses {
 				.withVersions(666)
 				.withSpatialIndexReader("reader")
 				.withSpatialIndexWriter("writer")
+				.withUpdateAnomalyResolver(UpdateAnomalyResolver.RESOLVE_ON_READ)
 				.build();
 		
 		final CreateTableRequest createPackage = new CreateTableRequest(sequenceNumber, "test", ssTableConfiguration);
@@ -416,7 +418,7 @@ public class TestNetworkClasses {
 		final CreateTableRequest decodedPackage = CreateTableRequest.decodeTuple(bb);
 				
 		Assert.assertEquals(createPackage.getTable(), decodedPackage.getTable());
-		Assert.assertEquals(createPackage.getSsTableConfiguration(), ssTableConfiguration);
+		Assert.assertEquals(createPackage.getTupleStoreConfiguration(), ssTableConfiguration);
 		Assert.assertEquals(createPackage, decodedPackage);
 	}
 	

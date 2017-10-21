@@ -88,7 +88,9 @@ public class TupleStoreConfigurationBuilder {
 	 * @param updateAnomalyResolver
 	 * @return
 	 */
-	public TupleStoreConfigurationBuilder withUpdateAnomalyResolver(final String updateAnomalyResolver) {
+	public TupleStoreConfigurationBuilder withUpdateAnomalyResolver(
+			final UpdateAnomalyResolver updateAnomalyResolver) {
+		
 		ssTableConfiguration.setUpdateAnomalyResolver(updateAnomalyResolver);
 		return this;
 	}
