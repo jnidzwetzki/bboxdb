@@ -378,6 +378,15 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	}
 	
 	/**
+	 * Is the given tupe store known?
+	 * @param table
+	 * @return
+	 */
+	public synchronized boolean isStorageManagerKnown(final TupleStoreName table) {
+		return tupleStoreLocations.containsKey(table);
+	}
+	
+	/**
 	 * Returns a list with all known tables
 	 * 
 	 * @return
