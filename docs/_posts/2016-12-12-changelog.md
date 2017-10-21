@@ -11,6 +11,7 @@ order: 1
 - New Feature: Implemented duplicate key tuple stores
 - New Feature: Implemented TTL tuple stores
 - New Feature: get(key) can now return multiple tuples
+- New Feature: Added a update anomaly resolver
 - Impromement: Added a glossary and renamed a lot of classes
 
 ### Version 0.3.3 (Stable) - 07.09.2017
