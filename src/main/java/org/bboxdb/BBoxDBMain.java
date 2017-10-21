@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.distribution.DistributedRecoveryService;
-import org.bboxdb.distribution.SSTableFlushZookeeperAdapter;
+import org.bboxdb.distribution.TupleStoreFlushZookeeperAdapter;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -83,7 +83,7 @@ public class BBoxDBMain {
 		services.add(jmxService);
 		
 		// Send flush events to zookeeper
-		storageRegistry.registerSSTableFlushCallback(new SSTableFlushZookeeperAdapter());
+		storageRegistry.registerSSTableFlushCallback(new TupleStoreFlushZookeeperAdapter());
 	}
 
 	/**

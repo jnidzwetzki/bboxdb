@@ -30,12 +30,12 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableFlushZookeeperAdapter implements BiConsumer<TupleStoreName, Long> {
+public class TupleStoreFlushZookeeperAdapter implements BiConsumer<TupleStoreName, Long> {
 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableFlushZookeeperAdapter.class);
+	private final static Logger logger = LoggerFactory.getLogger(TupleStoreFlushZookeeperAdapter.class);
 	
 	@Override
 	public void accept(final TupleStoreName ssTableName, final Long flushTimestamp) {
