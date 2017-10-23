@@ -116,8 +116,8 @@ public class InsertTupleHandler implements RequestHandler {
 		final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
 					requestTable, localHop.getDistributionRegions());
 
-		for(final TupleStoreName ssTableName : localTables) {
-			final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(ssTableName);
+		for(final TupleStoreName tupleStoreName : localTables) {
+			final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
 			storageManager.put(tuple);			
 		}
 	}
