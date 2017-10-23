@@ -446,12 +446,14 @@ public class TupleStoreManager implements BBoxDBService {
 			} else if(SSTableHelper.isFileNameSSTableBloomFilter(filename)) {
 				logger.info("Deleting bloom filter file: {} ", file);
 				file.delete();
-			} else if(SSTableHelper.isFileNameSSTableMetadata(filename)) {
+			} else if(SSTableHelper.isFileNameMetadata(filename)) {
 				logger.info("Deleting meta file: {}", file);
 				file.delete();
 			} else if(SSTableHelper.isFileNameSpatialIndex(filename)) {
 				logger.info("Deleting spatial index file: {}", file);
 				file.delete();
+			} else {
+				logger.warn("NOT deleting unknown file: {}", file);
 			}
 		}
 		

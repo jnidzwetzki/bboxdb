@@ -245,4 +245,13 @@ public class SSTableHelper {
 		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
 				&& filename.endsWith(SSTableConst.SST_META_SUFFIX);
 	}
+	
+	/**
+	 * Belongs the given filename meta file?
+	 * @param filename
+	 * @return
+	 */
+	public static boolean isFileNameMetadata(final String filename) {
+		return filename.endsWith(SSTableConst.SST_META_SUFFIX);
+	}
 }

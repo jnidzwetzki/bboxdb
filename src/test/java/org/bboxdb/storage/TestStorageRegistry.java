@@ -27,6 +27,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -70,7 +71,9 @@ public class TestStorageRegistry {
 	 */
 	@Test
 	public void testRegisterAndUnregister() throws StorageManagerException {
+		storageRegistry.deleteTable(RELATION_NAME);
 		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
+		storageRegistry.createTable(RELATION_NAME, new TupleStoreConfiguration());
 		storageRegistry.getTupleStoreManager(RELATION_NAME);
 		Assert.assertTrue(storageRegistry.isStorageManagerActive(RELATION_NAME));
 		storageRegistry.shutdownSStable(RELATION_NAME);
@@ -85,6 +88,9 @@ public class TestStorageRegistry {
 	 */
 	@Test
 	public void testDeleteTable() throws StorageManagerException, InterruptedException, RejectedException {
+		storageRegistry.deleteTable(RELATION_NAME);
+		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
+		storageRegistry.createTable(RELATION_NAME, new TupleStoreConfiguration());
 		
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(RELATION_NAME);
 		
@@ -120,6 +126,10 @@ public class TestStorageRegistry {
 	 */
 	@Test
 	public void testCalculateSize() throws StorageManagerException, InterruptedException, RejectedException {
+		
+		storageRegistry.deleteTable(RELATION_NAME);
+		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
+		storageRegistry.createTable(RELATION_NAME, new TupleStoreConfiguration());
 		
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(RELATION_NAME);
 		
