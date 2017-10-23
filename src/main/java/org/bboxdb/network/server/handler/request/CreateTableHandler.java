@@ -60,7 +60,7 @@ public class CreateTableHandler implements RequestHandler {
 					createPackage.getTupleStoreConfiguration());
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		} catch (PackageEncodeException e) {
+		} catch (Exception e) {
 			logger.warn("Error while delete tuple", e);
 
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);

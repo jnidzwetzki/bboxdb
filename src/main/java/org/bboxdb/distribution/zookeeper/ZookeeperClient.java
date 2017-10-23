@@ -665,6 +665,17 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	}
 
 	/**
+	 * Get the path for the systems
+	 * 
+	 * @param clustername
+	 * @return
+	 */
+	protected String getTablesPath() {
+		return getClusterPath() + "/" + ZookeeperNodeNames.NAME_TABLES;
+	}
+
+	
+	/**
 	 * Get the path of the zookeeper nodes
 	 */
 	protected String getActiveInstancesPath() {
@@ -800,6 +811,18 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		}
 	}
 
+	/**
+	 * Reat the given path and return a string - simple version
+	 * @param pathName
+	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public String readPathAndReturnString(final String pathName) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		return readPathAndReturnString(pathName, false, null);
+	}
+	
 	/**
 	 * Read the given path and returns a string result
 	 * 

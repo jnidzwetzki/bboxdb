@@ -161,15 +161,9 @@ public class CreateTableRequest extends NetworkRequestPackage {
 		tupleStoreConfiguration.setSpatialIndexReader(spatialIndexReader);
 		tupleStoreConfiguration.setSpatialIndexWriter(spatialIndexWriter);
 		
-		if(updateAnomalyResolver == (byte) 0) {
-			tupleStoreConfiguration.setUpdateAnomalyResolver(UpdateAnomalyResolver.NONE);
-		} else if(updateAnomalyResolver == (byte) 1) {
-			tupleStoreConfiguration.setUpdateAnomalyResolver(UpdateAnomalyResolver.RESOLVE_ON_READ);
-		} else if(updateAnomalyResolver == (byte) 2) {
-			tupleStoreConfiguration.setUpdateAnomalyResolver(UpdateAnomalyResolver.RESOLVE_ON_WRITE);
-		} else {
-			throw new PackageEncodeException("Illegal update anomaly resolver: " + updateAnomalyResolver);
-		}
+		final UpdateAnomalyResolver updateAnomalyResolverEnum 
+			= UpdateAnomalyResolver.buildFromByte(updateAnomalyResolver);
+		tupleStoreConfiguration.setUpdateAnomalyResolver(updateAnomalyResolverEnum);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
@@ -177,7 +171,7 @@ public class CreateTableRequest extends NetworkRequestPackage {
 		
 		return new CreateTableRequest(sequenceNumber, table, tupleStoreConfiguration);
 	}
-
+	
 	@Override
 	public byte getPackageType() {
 		return NetworkConst.REQUEST_TYPE_CREATE_TABLE;

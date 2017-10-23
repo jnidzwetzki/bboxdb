@@ -32,4 +32,25 @@ public enum UpdateAnomalyResolver {
 	public byte getValue() {
 		return value;
 	}
+	
+
+	/**
+	 * Construct update anomaly resolver from byte
+	 * @param updateAnomalyResolver
+	 * @param tupleStoreConfiguration
+	 * @return
+	 */
+	public static UpdateAnomalyResolver buildFromByte(final byte updateAnomalyResolver) {
+		
+		if(updateAnomalyResolver == (byte) 0) {
+			return UpdateAnomalyResolver.NONE;
+		} else if(updateAnomalyResolver == (byte) 1) {
+			return UpdateAnomalyResolver.RESOLVE_ON_READ;
+		} else if(updateAnomalyResolver == (byte) 2) {
+			return UpdateAnomalyResolver.RESOLVE_ON_WRITE;
+		} else {
+			throw new IllegalArgumentException("Illegal update anomaly resolver: " + updateAnomalyResolver);
+		}
+	}
+
 }
