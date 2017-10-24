@@ -151,13 +151,31 @@ public class SSTableCompactor {
 	}
 
 	/**
+	 *  Deleted tuples can be removed in a major compactification
+	 *  only when no duplicate keys are allowed. Otherwise this is needed to 
+	 *  invalidate tuples in the tuple history
+	 * @return
+	 */
+	protected boolean skipDeletedTuplesToOutput() {
+		if(! isMajorCompaction()) {
+			return false;
+		}
+		
+		if(sstableManager.getTupleStoreConfiguration().isAllowDuplicates()) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
 	 * Add the given tuple to the output file
 	 * @param tuple
 	 * @throws StorageManagerException
 	 */
 	protected void addTupleToWriter(final Tuple tuple) throws StorageManagerException {
-		// Don't add deleted tuples to output in a major compaction
-		if(isMajorCompaction() && tuple instanceof DeletedTuple) {
+		
+		if(tuple instanceof DeletedTuple && skipDeletedTuplesToOutput()) {
 			return;
 		}
 		
