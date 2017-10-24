@@ -29,6 +29,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.compact.SSTableCompactor;
@@ -97,6 +98,7 @@ public class TestTableCompactor {
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 				
 		storageRegistry.deleteTable(TEST_RELATION);
+		storageRegistry.createTable(TEST_RELATION, new TupleStoreConfiguration());
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
@@ -336,6 +338,7 @@ public class TestTableCompactor {
 			throws StorageManagerException {
 		
 		storageRegistry.deleteTable(TEST_RELATION);
+		storageRegistry.createTable(TEST_RELATION, new TupleStoreConfiguration());
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
