@@ -59,6 +59,7 @@ import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -876,7 +877,30 @@ public class TestNetworkClasses {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		final TupleResponse responseDecoded = TupleResponse.decodePackage(bb);
 		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
-		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());		
+		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());
+		Assert.assertFalse(singleTupleResponse.getTuple() instanceof DeletedTuple);
+	}
+	
+	/**
+	 * Try to encode and decode the single tuple response - with deleted tuple
+	 * @throws PackageEncodeException 
+	 * @throws IOException 
+	 */
+	@Test
+	public void testSingleTupleDeletedResponse() throws PackageEncodeException, IOException {
+		final String tablename = "table1";
+		final Tuple tuple = new DeletedTuple("abc", 12);
+		
+		final TupleResponse singleTupleResponse = new TupleResponse((short) 4, tablename, tuple);
+		final byte[] encodedPackage = networkPackageToByte(singleTupleResponse);
+		
+		Assert.assertNotNull(encodedPackage);
+		
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		final TupleResponse responseDecoded = TupleResponse.decodePackage(bb);
+		Assert.assertEquals(singleTupleResponse.getTable(), responseDecoded.getTable());
+		Assert.assertEquals(singleTupleResponse.getTuple(), responseDecoded.getTuple());	
+		Assert.assertTrue(singleTupleResponse.getTuple() instanceof DeletedTuple);
 	}
 
 	/**

@@ -50,7 +50,7 @@ public class TupleHelper {
 		t.clear();
 		t.add(newestTuple);
 	};
-
+	
 	/**
 	 * Compare the tuples by key
 	 */
@@ -257,7 +257,7 @@ public class TupleHelper {
 	 * @param dataBytes
 	 * @return
 	 */
-	protected static boolean isDeletedTuple(final byte[] boxBytes, final byte[] dataBytes) {
+	public static boolean isDeletedTuple(final byte[] boxBytes, final byte[] dataBytes) {
 		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
 			if(Arrays.equals(boxBytes, SSTableConst.DELETED_MARKER)) {
 				return true;
