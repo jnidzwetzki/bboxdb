@@ -138,4 +138,31 @@ public class TestTupleStoreAdapter {
 		Assert.assertTrue(tupleStoreAdapter.isTableKnown(tupleStoreName));
 	}
 
+	@Test
+	public void testDeleteDistributionGroup() throws ZookeeperException {
+		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder
+				.create()
+				.build();
+		
+		final TupleStoreName tupleStoreName1 = new TupleStoreName("2_dg_table1");
+		final TupleStoreName tupleStoreName2 = new TupleStoreName("2_dg_table2");
+		tupleStoreAdapter.deleteTable(tupleStoreName1);
+		tupleStoreAdapter.deleteTable(tupleStoreName2);
+		
+		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName1));
+		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName2));
+
+		tupleStoreAdapter.writeTuplestoreConfiguration(tupleStoreName1, tupleStoreConfiguration);
+		tupleStoreAdapter.writeTuplestoreConfiguration(tupleStoreName2, tupleStoreConfiguration);
+
+		Assert.assertTrue(tupleStoreAdapter.isTableKnown(tupleStoreName1));
+		Assert.assertTrue(tupleStoreAdapter.isTableKnown(tupleStoreName2));
+		
+		// Delete the whole distribution group
+		tupleStoreAdapter.deleteDistributionGroup("2_dg");
+		
+		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName1));
+		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName2));
+
+	}
 }
