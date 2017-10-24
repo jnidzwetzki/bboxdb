@@ -29,27 +29,11 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
-import org.bboxdb.util.DuplicateResolver;
 import org.bboxdb.util.io.DataEncoderHelper;
 
 import com.google.common.io.ByteStreams;
 
 public class TupleHelper {
-	
-	/**
-	 * Remove outdated tuples from the given list
-	 */
-	public final static DuplicateResolver<Tuple> NEWEST_TUPLE_DUPLICATE_RESOLVER = (t) -> {
-		
-		Tuple newestTuple = null;
-		
-		for(final Tuple tuple : t) {
-			newestTuple = TupleHelper.returnMostRecentTuple(newestTuple, tuple);
-		}
-		
-		t.clear();
-		t.add(newestTuple);
-	};
 	
 	/**
 	 * Compare the tuples by key

@@ -144,7 +144,7 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 				}
 				
 				assert (! unconsumedDuplicates.isEmpty());
-				duplicateResolver.handleDuplicates(unconsumedDuplicates);
+				duplicateResolver.removeDuplicates(unconsumedDuplicates);
 				assert (! unconsumedDuplicates.isEmpty());
 				
 				

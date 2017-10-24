@@ -15,20 +15,26 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.util;
+package org.bboxdb.storage.sstable.duplicateresolver;
 
 import java.util.List;
 
-@FunctionalInterface
-public interface DuplicateResolver<E> {
-	
-	/**
-	 * Process the list with duplicates and return only the 
-	 * valid elements
-	 * 
-	 * @param unconsumedDuplicates
-	 * @return
-	 */
-	public void removeDuplicates(final List<E> duplicates);
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.util.DuplicateResolver;
+
+public class NewestTupleDuplicateResolver implements DuplicateResolver<Tuple> {
+
+	@Override
+	public void removeDuplicates(final List<Tuple> unconsumedDuplicates) {
+		Tuple newestTuple = null;
+		
+		for(final Tuple tuple : unconsumedDuplicates) {
+			newestTuple = TupleHelper.returnMostRecentTuple(newestTuple, tuple);
+		}
+		
+		unconsumedDuplicates.clear();
+		unconsumedDuplicates.add(newestTuple);
+	}
 
 }

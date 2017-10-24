@@ -28,8 +28,10 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.sstable.duplicateresolver.NewestTupleDuplicateResolver;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.util.DuplicateResolver;
 import org.bboxdb.util.SortedIteratorMerger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,10 +119,12 @@ public class SSTableCompactor {
 					.map(r -> r.iterator())
 					.collect(Collectors.toList());
 			
+			final DuplicateResolver<Tuple> newestKeyResolver = new NewestTupleDuplicateResolver();
+			
 			final SortedIteratorMerger<Tuple> sortedIteratorMerger = new SortedIteratorMerger<>(
 					iterators, 
 					TupleHelper.TUPLE_KEY_COMPARATOR, 
-					TupleHelper.NEWEST_TUPLE_DUPLICATE_RESOLVER);
+					newestKeyResolver);
 						
 			for(final Tuple tuple : sortedIteratorMerger) {
 				checkForThreadTermination();

@@ -15,20 +15,38 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.util;
+package org.bboxdb.storage.sstable.duplicateresolver;
 
 import java.util.List;
 
-@FunctionalInterface
-public interface DuplicateResolver<E> {
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.DuplicateResolver;
+
+public class TTLTupleDuplicateResolver implements DuplicateResolver<Tuple> {
+
+	/**
+	 * The TTL
+	 */
+	protected final long ttl;
 	
 	/**
-	 * Process the list with duplicates and return only the 
-	 * valid elements
-	 * 
-	 * @param unconsumedDuplicates
-	 * @return
+	 * The base time
 	 */
-	public void removeDuplicates(final List<E> duplicates);
+	protected final long baseTime;
+
+	public TTLTupleDuplicateResolver(final long ttl) {
+		this(ttl, System.currentTimeMillis());
+	}
+	
+	public TTLTupleDuplicateResolver(final long ttl, final long baseTime) {
+		this.ttl = ttl;
+		this.baseTime = baseTime;
+	}
+
+	@Override
+	public void removeDuplicates(final List<Tuple> unconsumedDuplicates) {
+		final long removalTimestamp = baseTime - ttl;
+		unconsumedDuplicates.removeIf(t -> t.getVersionTimestamp() < removalTimestamp);
+	}
 
 }
