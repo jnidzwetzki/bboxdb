@@ -71,6 +71,8 @@ public class TupleStoreAdapter {
 	public void writeTuplestoreConfiguration(final TupleStoreName tupleStoreName, 
 			final TupleStoreConfiguration tupleStoreConfiguration) throws ZookeeperException {
 		
+		deleteTable(tupleStoreName);
+		
 		zookeeperClient.createDirectoryStructureRecursive(tablePath + "/" + tupleStoreName.getFullname());
 		
 		final String spatialIndexReader = tupleStoreConfiguration.getSpatialIndexReader();
