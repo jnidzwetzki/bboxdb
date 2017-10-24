@@ -53,7 +53,7 @@ public class NetworkQueryHelper {
 			throws BBoxDBException, InterruptedException {
 		
 		final String distributionGroup = "2_testgroup"; 
-		final String table = distributionGroup + "_relation9999";
+		final String table = distributionGroup + "_relation9990";
 		
 		// Delete distribution group
 		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
@@ -109,7 +109,7 @@ public class NetworkQueryHelper {
 		
 		System.out.println("=== Running testInsertAndBoundingBoxQuery");
 		final String distributionGroup = "2_testgroup"; 
-		final String table = distributionGroup + "_relation9999";
+		final String table = distributionGroup + "_relation9991";
 		
 		// Delete distribution group
 		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
