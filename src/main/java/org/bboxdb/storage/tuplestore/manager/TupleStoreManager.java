@@ -266,7 +266,6 @@ public class TupleStoreManager implements BBoxDBService {
 		assert (! metadataFile.exists()) : "Tuple store metadata file already exist: " + metadataFile;
 
 		try {
-			System.out.println("-----> Write data to: " + metadataFile);
 			configuration.exportToYamlFile(metadataFile);
 		} catch (IOException e) {
 			throw new StorageManagerException(e);
