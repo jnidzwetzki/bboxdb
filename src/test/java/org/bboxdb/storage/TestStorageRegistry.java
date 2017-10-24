@@ -20,11 +20,16 @@ package org.bboxdb.storage;
 import java.io.File;
 import java.util.List;
 
+import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -50,9 +55,12 @@ public class TestStorageRegistry {
 	protected static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
-	public static void beforeClass() throws InterruptedException, BBoxDBException {
+	public static void beforeClass() throws InterruptedException, BBoxDBException, ZookeeperException {
 		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		final DistributionGroupZookeeperAdapter adapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+		adapter.createDistributionGroup(RELATION_NAME.getDistributionGroup(), new DistributionGroupConfiguration());
 	}
 	
 	@AfterClass
