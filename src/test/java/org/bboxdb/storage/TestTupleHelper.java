@@ -29,6 +29,7 @@ import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.duplicateresolver.NewestTupleDuplicateResolver;
+import org.bboxdb.storage.sstable.duplicateresolver.TTLAndVersionTupleDuplicateResolver;
 import org.bboxdb.storage.sstable.duplicateresolver.TTLTupleDuplicateResolver;
 import org.bboxdb.storage.sstable.duplicateresolver.VersionTupleDuplicateResolver;
 import org.bboxdb.util.DuplicateResolver;
@@ -75,6 +76,56 @@ public class TestTupleHelper {
 		Assert.assertEquals(1, tupleList.size());
 	}
 	
+	/**
+	 * Test the tuple resolver
+	 */
+	@Test
+	public void testTupleDuplicateResolverTTLAndVersion1() {
+		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		
+		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
+				tupleD, tupleE, tupleF));
+		
+		// basetime = 6, ttl = 3 / tuple older than 2 are removed with 10 duplicates
+		final DuplicateResolver<Tuple> resolver = new TTLAndVersionTupleDuplicateResolver(4, 10, 6);
+		resolver.removeDuplicates(tupleList);
+		
+		Assert.assertEquals(3, tupleList.size());
+		Assert.assertTrue(tupleList.contains(tupleD));
+		Assert.assertTrue(tupleList.contains(tupleE));
+		Assert.assertTrue(tupleList.contains(tupleB));
+	}
+	
+	/**
+	 * Test the tuple resolver
+	 */
+	@Test
+	public void testTupleDuplicateResolverTTLAndVersion2() {
+		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		
+		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
+				tupleD, tupleE, tupleF));
+		
+		
+		// basetime = 6, ttl = 3 / tuple older than 2 are removed with 10 duplicates
+		final DuplicateResolver<Tuple> resolver = new TTLAndVersionTupleDuplicateResolver(4, 1, 6);
+		resolver.removeDuplicates(tupleList);
+		
+		Assert.assertEquals(1, tupleList.size());
+		Assert.assertTrue(tupleList.contains(tupleD));
+	}
+	
+
 	/**
 	 * Test the tuple resolver
 	 */

@@ -25,10 +25,14 @@ import java.util.stream.Collectors;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.duplicateresolver.NewestTupleDuplicateResolver;
+import org.bboxdb.storage.sstable.duplicateresolver.TTLAndVersionTupleDuplicateResolver;
+import org.bboxdb.storage.sstable.duplicateresolver.TTLTupleDuplicateResolver;
+import org.bboxdb.storage.sstable.duplicateresolver.VersionTupleDuplicateResolver;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.util.DuplicateResolver;
@@ -67,7 +71,7 @@ public class SSTableCompactor {
 	/**
 	 * The SStable manager
 	 */
-	protected final TupleStoreManager sstableManager;
+	protected final TupleStoreManager tupleStoreManager;
 	
 	/**
 	 * The resulting writer
@@ -87,7 +91,7 @@ public class SSTableCompactor {
 	public SSTableCompactor(final TupleStoreManager sstableManager, 
 			final List<SSTableKeyIndexReader> sstableIndexReader) {
 		
-		this.sstableManager = sstableManager;
+		this.tupleStoreManager = sstableManager;
 		this.sstableIndexReader = sstableIndexReader;
 		this.readTuples = 0;
 		this.writtenTuples = 0;
@@ -119,7 +123,7 @@ public class SSTableCompactor {
 					.map(r -> r.iterator())
 					.collect(Collectors.toList());
 			
-			final DuplicateResolver<Tuple> newestKeyResolver = new NewestTupleDuplicateResolver();
+			final DuplicateResolver<Tuple> newestKeyResolver = getDuplicateResolver();
 			
 			final SortedIteratorMerger<Tuple> sortedIteratorMerger = new SortedIteratorMerger<>(
 					iterators, 
@@ -138,6 +142,36 @@ public class SSTableCompactor {
 		} finally {
 			closeSSTableWriter();
 		}
+	}
+
+	/**
+	 * Get the duplicate resolver for the tuple store configuration
+	 * @return
+	 */
+	protected DuplicateResolver<Tuple> getDuplicateResolver() {
+		final TupleStoreConfiguration tupleStoreConfiguration = tupleStoreManager.getTupleStoreConfiguration();
+		
+		final boolean allowDuplicates = tupleStoreConfiguration.isAllowDuplicates();
+		final int versions = tupleStoreConfiguration.getVersions();
+		final long ttl = tupleStoreConfiguration.getTTL();
+		
+		if(! allowDuplicates) {
+			return new NewestTupleDuplicateResolver();
+		} 
+
+		if(versions > 0 && ttl > 0) {
+			return new TTLAndVersionTupleDuplicateResolver(ttl, versions);
+		}
+		
+		if(versions > 0) {
+			return new VersionTupleDuplicateResolver(versions);
+		}
+		
+		if(ttl > 0) {
+			return new TTLTupleDuplicateResolver(ttl);
+		}
+		
+		throw new IllegalArgumentException("Duplicates are allowed and ttl = 0 and versions = 0");
 	}
 	
 	/**
@@ -161,7 +195,7 @@ public class SSTableCompactor {
 			return false;
 		}
 		
-		if(sstableManager.getTupleStoreConfiguration().isAllowDuplicates()) {
+		if(tupleStoreManager.getTupleStoreConfiguration().isAllowDuplicates()) {
 			return false;
 		}
 		
@@ -248,9 +282,9 @@ public class SSTableCompactor {
 		final long estimatedMaxNumberOfEntries = calculateNumberOfEntries(sstableIndexReader);
 
 		final String directory = sstableIndexReader.get(0).getDirectory();		
-		final int tablenumber = sstableManager.increaseTableNumber();
+		final int tablenumber = tupleStoreManager.increaseTableNumber();
 		
-		final SSTableWriter sstableWriter = new SSTableWriter(directory, sstableManager.getSSTableName(), 
+		final SSTableWriter sstableWriter = new SSTableWriter(directory, tupleStoreManager.getSSTableName(), 
 				tablenumber, estimatedMaxNumberOfEntries);
 				
 		sstableWriter.open();
