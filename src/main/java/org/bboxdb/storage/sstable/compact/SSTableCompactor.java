@@ -25,14 +25,10 @@ import java.util.stream.Collectors;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.TupleHelper;
-import org.bboxdb.storage.sstable.duplicateresolver.NewestTupleDuplicateResolver;
-import org.bboxdb.storage.sstable.duplicateresolver.TTLAndVersionTupleDuplicateResolver;
-import org.bboxdb.storage.sstable.duplicateresolver.TTLTupleDuplicateResolver;
-import org.bboxdb.storage.sstable.duplicateresolver.VersionTupleDuplicateResolver;
+import org.bboxdb.storage.sstable.duplicateresolver.DuplicateResolverFactory;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.util.DuplicateResolver;
@@ -123,7 +119,8 @@ public class SSTableCompactor {
 					.map(r -> r.iterator())
 					.collect(Collectors.toList());
 			
-			final DuplicateResolver<Tuple> newestKeyResolver = getDuplicateResolver();
+			final DuplicateResolver<Tuple> newestKeyResolver = DuplicateResolverFactory.build(
+					tupleStoreManager.getTupleStoreConfiguration());
 			
 			final SortedIteratorMerger<Tuple> sortedIteratorMerger = new SortedIteratorMerger<>(
 					iterators, 
@@ -144,35 +141,6 @@ public class SSTableCompactor {
 		}
 	}
 
-	/**
-	 * Get the duplicate resolver for the tuple store configuration
-	 * @return
-	 */
-	protected DuplicateResolver<Tuple> getDuplicateResolver() {
-		final TupleStoreConfiguration tupleStoreConfiguration = tupleStoreManager.getTupleStoreConfiguration();
-		
-		final boolean allowDuplicates = tupleStoreConfiguration.isAllowDuplicates();
-		final int versions = tupleStoreConfiguration.getVersions();
-		final long ttl = tupleStoreConfiguration.getTTL();
-		
-		if(! allowDuplicates) {
-			return new NewestTupleDuplicateResolver();
-		} 
-
-		if(versions > 0 && ttl > 0) {
-			return new TTLAndVersionTupleDuplicateResolver(ttl, versions);
-		}
-		
-		if(versions > 0) {
-			return new VersionTupleDuplicateResolver(versions);
-		}
-		
-		if(ttl > 0) {
-			return new TTLTupleDuplicateResolver(ttl);
-		}
-		
-		throw new IllegalArgumentException("Duplicates are allowed and ttl = 0 and versions = 0");
-	}
 	
 	/**
 	 * Check for the thread termination
