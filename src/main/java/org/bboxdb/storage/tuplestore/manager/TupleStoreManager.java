@@ -491,14 +491,14 @@ public class TupleStoreManager implements BBoxDBService {
 			aquiredStorages.addAll(aquireStorage());
 			
 			for(final ReadOnlyTupleStore tupleStorage : aquiredStorages) {
-				tupleList.addAll(tupleStorage.get(key));			
+				tupleList.addAll(tupleStorage.get(key));
 			}
 		} catch (Exception e) {
 			throw e;
 		} finally {
 			releaseStorage(aquiredStorages);
 		}
-		
+				
 		final DuplicateResolver<Tuple> resolver = TupleDuplicateResolverFactory.build(tupleStoreConfiguration);
 		resolver.removeDuplicates(tupleList);
 		

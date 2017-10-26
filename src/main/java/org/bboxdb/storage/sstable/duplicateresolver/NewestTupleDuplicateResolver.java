@@ -34,7 +34,10 @@ public class NewestTupleDuplicateResolver implements DuplicateResolver<Tuple> {
 		}
 		
 		unconsumedDuplicates.clear();
-		unconsumedDuplicates.add(newestTuple);
+		
+		if(newestTuple != null) {
+			unconsumedDuplicates.add(newestTuple);
+		}
 	}
 
 }

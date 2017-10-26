@@ -22,6 +22,7 @@ import java.util.List;
 import org.bboxdb.PersonEntity;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -91,7 +92,7 @@ public class TestStorageManager {
 	public void testInsertElements1() throws Exception {
 		final Tuple tuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
 		storageManager.put(tuple);
-		Assert.assertEquals(tuple, storageManager.get("1"));
+		Assert.assertEquals(tuple, storageManager.get("1").get(0));
 	}
 	
 	@Test
@@ -102,7 +103,7 @@ public class TestStorageManager {
 		storageManager.put(tuple1);
 		storageManager.put(tuple2);
 		
-		Assert.assertEquals(tuple2, storageManager.get("1"));
+		Assert.assertEquals(tuple2, storageManager.get("1").get(0));
 	}
 	
 	@Test
@@ -125,8 +126,8 @@ public class TestStorageManager {
 	
 	@Test
 	public void getNonExisting() throws Exception {
-		Assert.assertEquals(null, storageManager.get("1"));
-		Assert.assertEquals(null, storageManager.get("1000"));
+		Assert.assertTrue(storageManager.get("1").isEmpty());
+		Assert.assertTrue(storageManager.get("1000").isEmpty());
 	}
 	
 	@Test(expected=NullPointerException.class)
@@ -141,10 +142,10 @@ public class TestStorageManager {
 		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
 		storageManager.put(createdTuple);
 		
-		Assert.assertEquals(createdTuple, storageManager.get("1"));
+		Assert.assertEquals(createdTuple, storageManager.get("1").get(0));
 		
 		storageManager.delete("1", MicroSecondTimestampProvider.getNewTimestamp());
-		Assert.assertEquals(null, storageManager.get("1"));
+		Assert.assertTrue(storageManager.get("1").get(0) instanceof DeletedTuple);
 	}
 	
 	@Test
@@ -192,7 +193,9 @@ public class TestStorageManager {
 		
 		// Fetch the deleted tuple
 		final List<Tuple> readTuples2 = storageManager.get(Integer.toString(SPECIAL_TUPLE));
-		Assert.assertTrue(readTuples2.isEmpty());
+				
+		Assert.assertEquals(1, readTuples2.size());
+		Assert.assertTrue(readTuples2.get(0) instanceof DeletedTuple);
 	}
 	
 	/**
@@ -225,7 +228,8 @@ public class TestStorageManager {
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final List<Tuple> readTuples = storageManager.get(Integer.toString(i));
 			
-			Assert.assertTrue(readTuples.isEmpty());
+			Assert.assertEquals(1, readTuples.size());
+			Assert.assertTrue(readTuples.get(0) instanceof DeletedTuple);
 		}
 	}
 	/*
