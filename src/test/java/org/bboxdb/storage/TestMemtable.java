@@ -90,8 +90,10 @@ public class TestMemtable {
 		final Tuple createdTuple = new Tuple("1", null, serializer.serialize(person1));
 		
 		memtable.put(createdTuple);
-		final Tuple readTuple = memtable.get("1");
+		final List<Tuple> readTupleList = memtable.get("1");
+		Assert.assertTrue(readTupleList.size() == 1);
 		
+		final Tuple readTuple = readTupleList.get(0);
 		final PersonEntity readPerson1 = serializer.deserialize(readTuple.getDataBytes());
 		
 		Assert.assertEquals(person1, readPerson1);

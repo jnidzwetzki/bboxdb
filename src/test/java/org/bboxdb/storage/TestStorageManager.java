@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.storage;
 
+import java.util.List;
+
 import org.bboxdb.PersonEntity;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -110,7 +112,11 @@ public class TestStorageManager {
 		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, serializer.serialize(person1));
 		
 		storageManager.put(createdTuple);
-		final Tuple readTuple = storageManager.get("1");
+		final List<Tuple> readTuples = storageManager.get("1");
+		
+		Assert.assertTrue(readTuples.size() == 1);
+		
+		final Tuple readTuple = readTuples.get(0);
 		
 		final PersonEntity readPerson1 = serializer.deserialize(readTuple.getDataBytes());
 		
@@ -157,9 +163,9 @@ public class TestStorageManager {
 		
 		storageManager.flush();
 		
-		final Tuple resultTuple = storageManager.get(Integer.toString(SPECIAL_TUPLE));
+		final List<Tuple> readTuples = storageManager.get(Integer.toString(SPECIAL_TUPLE));
 		
-		Assert.assertEquals(null, resultTuple);
+		Assert.assertTrue(readTuples.isEmpty());
 	}
 	
 	@Test
@@ -169,8 +175,8 @@ public class TestStorageManager {
 		int DELETE_AFTER = (int) (MAX_TUPLES * 0.75);
 		
 		// Ensure that the tuple is not contained in the storage manager
-		final Tuple resultTuple = storageManager.get(Integer.toString(SPECIAL_TUPLE));
-		Assert.assertEquals(null, resultTuple);
+		final List<Tuple> readTuples = storageManager.get(Integer.toString(SPECIAL_TUPLE));
+		Assert.assertTrue(readTuples.isEmpty());
 		
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -185,8 +191,8 @@ public class TestStorageManager {
 		storageManager.flush();	
 		
 		// Fetch the deleted tuple
-		final Tuple resultTuple2 = storageManager.get(Integer.toString(SPECIAL_TUPLE));
-		Assert.assertEquals(null, resultTuple2);
+		final List<Tuple> readTuples2 = storageManager.get(Integer.toString(SPECIAL_TUPLE));
+		Assert.assertTrue(readTuples2.isEmpty());
 	}
 	
 	/**
@@ -217,8 +223,9 @@ public class TestStorageManager {
 		System.out.println("Reading tuples...");
 		// Fetch the deleted tuples
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple resultTuple2 = storageManager.get(Integer.toString(i));
-			Assert.assertEquals(null, resultTuple2);
+			final List<Tuple> readTuples = storageManager.get(Integer.toString(i));
+			
+			Assert.assertTrue(readTuples.isEmpty());
 		}
 	}
 	/*

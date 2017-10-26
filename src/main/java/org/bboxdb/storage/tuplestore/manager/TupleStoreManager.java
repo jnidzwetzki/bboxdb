@@ -35,17 +35,18 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
-import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactory;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.MemtableAndTupleStoreManagerPair;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.util.DuplicateResolver;
 import org.bboxdb.util.RejectedException;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.ServiceState.State;
@@ -476,25 +477,21 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @return The tuple or null
 	 * @throws StorageManagerException
 	 */
-	public Tuple get(final String key) throws StorageManagerException {
+	public List<Tuple> get(final String key) throws StorageManagerException {
 			
 		if(! serviceState.isInRunningState()) {
 			throw new StorageManagerException("Storage manager is not ready: " 
-					+ sstablename.getFullname() 
-					+ " state: " + serviceState);
+					+ sstablename.getFullname() + " state: " + serviceState);
 		}
 		
-		Tuple mostRecentTuple = null;
 		final List<ReadOnlyTupleStore> aquiredStorages = new ArrayList<ReadOnlyTupleStore>();
+		final List<Tuple> tupleList = new ArrayList<>();
 		
 		try {
 			aquiredStorages.addAll(aquireStorage());
 			
 			for(final ReadOnlyTupleStore tupleStorage : aquiredStorages) {
-				if(TupleHelper.canStorageContainNewerTuple(mostRecentTuple, tupleStorage)) {
-					final Tuple facadeTuple = tupleStorage.get(key);
-					mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, facadeTuple);
-				}
+				tupleList.addAll(tupleStorage.get(key));			
 			}
 		} catch (Exception e) {
 			throw e;
@@ -502,7 +499,10 @@ public class TupleStoreManager implements BBoxDBService {
 			releaseStorage(aquiredStorages);
 		}
 		
-		return TupleHelper.replaceDeletedTupleWithNull(mostRecentTuple);
+		final DuplicateResolver<Tuple> resolver = TupleDuplicateResolverFactory.build(tupleStoreConfiguration);
+		resolver.removeDuplicates(tupleList);
+		
+		return tupleList;
 	}	
 	
 	/**

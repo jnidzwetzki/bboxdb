@@ -28,7 +28,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.TupleHelper;
-import org.bboxdb.storage.sstable.duplicateresolver.DuplicateResolverFactory;
+import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactory;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.util.DuplicateResolver;
@@ -119,7 +119,7 @@ public class SSTableCompactor {
 					.map(r -> r.iterator())
 					.collect(Collectors.toList());
 			
-			final DuplicateResolver<Tuple> newestKeyResolver = DuplicateResolverFactory.build(
+			final DuplicateResolver<Tuple> newestKeyResolver = TupleDuplicateResolverFactory.build(
 					tupleStoreManager.getTupleStoreConfiguration());
 			
 			final SortedIteratorMerger<Tuple> sortedIteratorMerger = new SortedIteratorMerger<>(

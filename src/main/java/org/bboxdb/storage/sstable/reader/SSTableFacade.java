@@ -20,6 +20,7 @@ package org.bboxdb.storage.sstable.reader;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -378,7 +379,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 	}
 
 	@Override
-	public Tuple get(final String key) throws StorageManagerException {
+	public List<Tuple> get(final String key) throws StorageManagerException {
 		
 		assert (usage.get() > 0);
 
@@ -387,18 +388,19 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 			logger.warn("File {} does not have a bloom filter", tablename);
 		} else {
 			if(! bloomfilter.mightContain(key)) {
-				return null;
+				// Not found
+				return new ArrayList<>();
 			}
 		}
 		
-		final int position = ssTableKeyIndexReader.getPositionForTuple(key);
+		final List<Tuple> resultList = new ArrayList<>();
+		final List<Integer> positions = ssTableKeyIndexReader.getPositionsForTuple(key);
 		
-		// Does the tuple exist?
-		if(position == -1) {
-			return null;
+		for(final Integer position : positions) {
+			resultList.add(ssTableReader.getTupleAtPosition(position));
 		}
 		
-		return ssTableReader.getTupleAtPosition(position);
+		return resultList;
 	}
 
 	@Override

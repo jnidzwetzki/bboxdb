@@ -19,8 +19,11 @@ package org.bboxdb.storage.sstable.reader;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -96,17 +99,8 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	 * @return
 	 * @throws StorageManagerException 
 	 */
-	public int getPositionForTuple(final String key) throws StorageManagerException {
-		return getKeyPosFromIndex(key);
-	}
+	public List<Integer> getPositionsForTuple(final String key) throws StorageManagerException {
 
-	/**
-	 * Scan the index file for the tuple position
-	 * @param key
-	 * @return
-	 * @throws StorageManagerException 
-	 */
-	protected int getKeyPosFromIndex(final String key) throws StorageManagerException {
 		try {
 			int firstEntry = 0;
 			int lastEntry = getNumberOfEntries() - 1;
@@ -114,20 +108,23 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 			// Check key is > then first value
 			final String firstValue = getKeyForIndexEntry(firstEntry);
 			if(firstValue.equals(key)) {
-				return convertEntryToPosition(firstEntry);
+				return fillKeyPositionArrayFromIndexEntry(key, firstEntry);
 			}
 			
+			// Not found
 			if(firstValue.compareTo(key) > 0) {
-				return -1;
+				return new ArrayList<>();
 			}
 			
 			// Check if key is < then first value
 			final String lastValue = getKeyForIndexEntry(lastEntry);
 			if(lastValue.equals(key)) {
-				return convertEntryToPosition(lastEntry);
+				return fillKeyPositionArrayFromIndexEntry(key, lastEntry);
 			}
+			
+			// Not found
 			if(lastValue.compareTo(key) < 0) {
-				return -1;
+				return new ArrayList<>();
 			}
 
 			// Binary search for key
@@ -141,7 +138,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 				final String curEntryValue = getKeyForIndexEntry(curEntry);
 				
 				if(curEntryValue.equals(key)) {
-					return convertEntryToPosition(curEntry);
+					return fillKeyPositionArrayFromIndexEntry(key, curEntry);
 				}
 				
 				if(key.compareTo(curEntryValue) > 0) {
@@ -156,7 +153,59 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 			throw new StorageManagerException("Error while reading index file", e);
 		}
 		
-		return -1;
+		// Not found during binary scan
+		return new ArrayList<>();
+	}
+	
+	/**
+	 * The SSTable can contain duplicates, so we nee to scan up and down from 
+	 * the given position to retrive all keys
+	 * 
+	 * @param indexEntry
+	 * @throws StorageManagerException 
+	 * @throws IOException 
+	 */
+	protected List<Integer> fillKeyPositionArrayFromIndexEntry(final String key, final int indexEntry) 
+			throws IOException, StorageManagerException {
+		
+		final List<Integer> resultList = new ArrayList<>();
+		final int lastEntry = getNumberOfEntries() - 1;
+
+		resultList.add(indexEntry);
+		
+		// Scan upper index entries
+		int indexEntryTest = indexEntry + 1;
+		while(indexEntryTest <= lastEntry) {
+			final String curEntryValue = getKeyForIndexEntry(indexEntryTest);
+			
+			if(curEntryValue.equals(key)) {
+				resultList.add(indexEntryTest);
+			} else {
+				break;
+			}
+			
+			indexEntryTest++;
+		}
+		
+		// Scan lower index entries
+		indexEntryTest = indexEntry - 1;
+				
+		while(indexEntryTest >= 0) {
+			final String curEntryValue = getKeyForIndexEntry(indexEntryTest);
+			
+			if(curEntryValue.equals(key)) {
+				resultList.add(indexEntryTest);
+			} else {
+				break;
+			}
+			
+			indexEntryTest--;
+		}
+		
+		// Convert index positions
+		return resultList.stream()
+			.map((e) -> convertEntryToPosition(e))
+			.collect(Collectors.toList());
 	}
 
 	/**

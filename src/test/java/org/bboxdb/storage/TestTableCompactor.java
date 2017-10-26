@@ -169,8 +169,8 @@ public class TestTableCompactor {
 		
 		// Check the consistency of the index
 		for(int i = 1; i < 500; i++) {
-			int pos = ssTableIndexReader.getPositionForTuple(Integer.toString(i));
-			Assert.assertTrue(pos != -1);
+			final List<Integer> positions = ssTableIndexReader.getPositionsForTuple(Integer.toString(i));
+			Assert.assertTrue(positions.size() == 1);
 		}
 		
 	}

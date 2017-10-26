@@ -434,7 +434,7 @@ public class TestNetworkClasses {
 		final String key = "key1";
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryKeyRequest queryKeyRequest = new QueryKeyRequest(sequenceNumber, new RoutingHeader(false), table, key);
+		final QueryKeyRequest queryKeyRequest = new QueryKeyRequest(sequenceNumber, new RoutingHeader(false), table, key, false, (short) 10);
 		final byte[] encodedPackage = networkPackageToByte(queryKeyRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -445,7 +445,8 @@ public class TestNetworkClasses {
 		final QueryKeyRequest decodedPackage = QueryKeyRequest.decodeTuple(bb);
 		Assert.assertEquals(queryKeyRequest.getKey(), decodedPackage.getKey());
 		Assert.assertEquals(queryKeyRequest.getTable(), decodedPackage.getTable());
-		
+		Assert.assertEquals(queryKeyRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
+		Assert.assertEquals(queryKeyRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_KEY, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 	}
 	

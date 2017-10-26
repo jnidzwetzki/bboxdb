@@ -19,6 +19,7 @@ package org.bboxdb.tools;
 
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
+import java.util.List;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -101,12 +102,12 @@ public class SSTableExaminer implements Runnable {
 			throws StorageManagerException {
 		
 		System.out.println("Step3: Seach via index");
-		int pos = ssTableIndexReader.getPositionForTuple(examineKey);
-		System.out.println("Got index pos: " + pos);
+		final List<Integer> positions = ssTableIndexReader.getPositionsForTuple(examineKey);
+		System.out.println("Got index pos: " + positions);
 		
 		// Tuple found
-		if(pos != -1) {
-			System.out.println(ssTableReader.getTupleAtPosition(pos));
+		for(final Integer position : positions) {
+			System.out.println(ssTableReader.getTupleAtPosition(position));
 		}
 	}
 

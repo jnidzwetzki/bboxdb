@@ -29,9 +29,8 @@ import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -184,26 +183,26 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	 * 
 	 */
 	@Override
-	public Tuple get(final String key) {
+	public List<Tuple> get(final String key) {
 		
-		assert (usage.get() > 0);
+		assert (usage.get() > 0) : "Usage is 0";
+		
+		final List<Tuple> resultList = new ArrayList<>();
 		
 		// The element is not contained in the bloom filter
 		if(! bloomFilter.mightContain(key)) {
-			return null;
+			return resultList;
 		}
-		
-		Tuple mostRecentTuple = null;
-		
+				
 		for(int i = 0; i < freePos; i++) {
 			final Tuple possibleTuple = data[i];
 			
 			if(possibleTuple != null && possibleTuple.getKey().equals(key)) {
-				mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, possibleTuple);
+				resultList.add(possibleTuple);
 			}
 		}
 		
-		return mostRecentTuple;
+		return resultList;
 	}
 	
 	/**

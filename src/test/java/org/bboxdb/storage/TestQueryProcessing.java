@@ -27,6 +27,7 @@ import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
 import org.bboxdb.storage.queryprocessor.QueryProcessor;
 import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
+import org.bboxdb.storage.queryprocessor.queryplan.KeyQueryPlan;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -70,6 +71,36 @@ public class TestQueryProcessing {
 	public void init() throws StorageManagerException {
 		storageRegistry.deleteTable(TABLE);
 		storageRegistry.createTable(TABLE, new TupleStoreConfiguration());
+	}
+	
+	/** 
+	 * Simple key query
+	 * @throws StorageManagerException
+	 * @throws RejectedException 
+	 */
+	@Test
+	public void testKeyQuery1() throws StorageManagerException, RejectedException {
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE);
+
+		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
+		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
+		final Tuple tuple3 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
+
+		storageManager.put(tuple1);
+		storageManager.put(tuple2);
+		storageManager.put(tuple3);
+		
+		final QueryPlan queryPlan = new KeyQueryPlan("1");
+
+		final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
+		final CloseableIterator<Tuple> iterator = queryProcessor.iterator();
+		
+		final List<Tuple> resultList = Lists.newArrayList(iterator);
+		
+		Assert.assertEquals(1, resultList.size());
+		Assert.assertFalse(resultList.contains(tuple1));
+		Assert.assertFalse(resultList.contains(tuple2));
+		Assert.assertTrue(resultList.contains(tuple3));
 	}
 	
 	/** 

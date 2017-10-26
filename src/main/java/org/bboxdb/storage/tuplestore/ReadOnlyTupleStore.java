@@ -18,6 +18,7 @@
 package org.bboxdb.storage.tuplestore;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -44,7 +45,7 @@ public interface ReadOnlyTupleStore extends Iterable<Tuple> {
 	 * @return
 	 * @throws StorageManagerException
 	 */
-	public Tuple get(final String key) throws StorageManagerException;
+	public List<Tuple> get(final String key) throws StorageManagerException;
 
 	/**
 	 * Get all tuples that are inside the bounding box

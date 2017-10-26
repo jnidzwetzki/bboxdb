@@ -21,7 +21,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.util.DuplicateResolver;
 
-public class DuplicateResolverFactory {
+public class TupleDuplicateResolverFactory {
 
 	/**
 	 * Get the duplicate resolver for the tuple store configuration

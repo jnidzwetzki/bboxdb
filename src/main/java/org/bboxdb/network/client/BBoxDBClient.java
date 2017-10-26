@@ -727,7 +727,7 @@ public class BBoxDBClient implements BBoxDB {
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1);
 			
 			final QueryKeyRequest requestPackage = new QueryKeyRequest(getNextSequenceNumber(), routingHeader, 
-					table, key);
+					table, key, pagingEnabled, tuplesPerPage);
 			
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);

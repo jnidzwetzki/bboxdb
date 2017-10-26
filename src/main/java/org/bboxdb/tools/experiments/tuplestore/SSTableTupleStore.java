@@ -19,6 +19,7 @@ package org.bboxdb.tools.experiments.tuplestore;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -73,13 +74,13 @@ public class SSTableTupleStore implements TupleStore {
 
 	@Override
 	public Tuple readTuple(final String key) throws Exception {
-		final Tuple tuple = storageManager.get(key);
+		final List<Tuple> tuples = storageManager.get(key);
 		
-		if(tuple == null) {
+		if(tuples.isEmpty()) {
 			throw new RuntimeException("Unable to locate tuple for key: " + key);
 		}
 		
-		return tuple;
+		return tuples.get(0);
 	}
 
 	@Override

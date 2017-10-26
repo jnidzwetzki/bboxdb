@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.network.client.BBoxDBException;
@@ -109,8 +110,8 @@ public class LocalSelftest {
 			logger.info("Query deleted keys ({})...", iteration);
 			// Fetch the deleted tuples
 			for(int i = 0; i < TUPLES; i++) {
-				final Tuple resultTuple = storageManager.get(Integer.toString(i));
-				Assert.assertEquals(null, resultTuple);
+				final List<Tuple> resultTuples = storageManager.get(Integer.toString(i));
+				Assert.assertTrue(resultTuples.isEmpty());
 			}
 		}
 		Thread.sleep(1000);
