@@ -76,7 +76,7 @@ public class TestMemtable {
 		final Tuple tuple = new Tuple("1", null, "abc".getBytes());
 		memtable.put(tuple);
 		
-		Assert.assertEquals(tuple, memtable.get("1"));
+		Assert.assertEquals(tuple, memtable.get("1").get(0));
 	}
 	
 	/**
@@ -105,8 +105,8 @@ public class TestMemtable {
 	 */
 	@Test
 	public void getNonExisting() throws Exception {
-		Assert.assertEquals(null, memtable.get("1"));
-		Assert.assertEquals(null, memtable.get("1000"));
+		Assert.assertTrue(memtable.get("1").isEmpty());
+		Assert.assertTrue(memtable.get("1000").isEmpty());
 	}
 	
 	/**
@@ -129,9 +129,9 @@ public class TestMemtable {
 		final Tuple createdTuple = new Tuple("1", null, "abc".getBytes());
 		memtable.put(createdTuple);
 		
-		Assert.assertEquals(createdTuple, memtable.get("1"));
+		Assert.assertEquals(createdTuple, memtable.get("1").get(0));
 		memtable.delete("1", MicroSecondTimestampProvider.getNewTimestamp());
-		Assert.assertTrue(memtable.get("1") instanceof DeletedTuple);
+		Assert.assertTrue(memtable.get("1").get(1) instanceof DeletedTuple);
 	}
 	
 	/**
