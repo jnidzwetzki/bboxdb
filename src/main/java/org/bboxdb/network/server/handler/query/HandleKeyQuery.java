@@ -24,7 +24,7 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
-import org.bboxdb.network.server.ClientQuery;
+import org.bboxdb.network.server.StreamClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.queryplan.KeyQueryPlan;
@@ -64,7 +64,7 @@ public class HandleKeyQuery implements QueryHandler {
 					final TupleStoreName requestTable = queryKeyRequest.getTable();
 					final QueryPlan queryPlan = new KeyQueryPlan(queryKeyRequest.getKey());
 					
-					final ClientQuery clientQuery = new ClientQuery(queryPlan, queryKeyRequest.isPagingEnabled(), 
+					final StreamClientQuery clientQuery = new StreamClientQuery(queryPlan, queryKeyRequest.isPagingEnabled(), 
 							queryKeyRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, requestTable);
 					
 					clientConnectionHandler.getActiveQueries().put(packageSequence, clientQuery);

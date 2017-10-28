@@ -19,6 +19,7 @@ package org.bboxdb.network.server.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CancelQueryRequest;
@@ -36,7 +37,6 @@ public class CancelQueryHandler implements RequestHandler {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(CancelQueryHandler.class);
-	
 
 	@Override
 	/**
@@ -49,11 +49,13 @@ public class CancelQueryHandler implements RequestHandler {
 			final CancelQueryRequest nextPagePackage = CancelQueryRequest.decodeTuple(encodedPackage);
 			logger.debug("Cancel query {} requested", nextPagePackage.getQuerySequence());
 			
-			if(! clientConnectionHandler.getActiveQueries().containsKey(packageSequence)) {
+			final Map<Short, ClientQuery> activeQueries = clientConnectionHandler.getActiveQueries();
+			
+			if(! activeQueries.containsKey(packageSequence)) {
 				logger.error("Unable to cancel query {} - not found", packageSequence);
 				clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_QUERY_NOT_FOUND));
 			} else {
-				final ClientQuery clientQuery = clientConnectionHandler.getActiveQueries().remove(packageSequence);
+				final ClientQuery clientQuery = activeQueries.remove(packageSequence);
 				clientQuery.close();
 				clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 			}

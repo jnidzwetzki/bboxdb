@@ -178,7 +178,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		}
 		
 		// The active queries
-		activeQueries = new HashMap<Short, ClientQuery>();
+		activeQueries = new HashMap<>();
 		
 		// Create a thread pool that blocks after submitting more than MAX_PENDING_REQUESTS
 		threadPool = ExecutorUtil.getBoundThreadPoolExecutor(10, MAX_PENDING_REQUESTS);
