@@ -34,6 +34,7 @@ import org.bboxdb.storage.queryprocessor.CloseableIterator;
 import org.bboxdb.storage.queryprocessor.QueryProcessor;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.util.CloseableHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,14 +112,10 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	 * Close the iterator
 	 */
 	protected void closeIteratorNE() {
-		if(currentIterator != null) {
-			try {
-				currentIterator.close();
-				currentIterator = null;
-			} catch (Exception e) {
-				logger.warn("Got an exception while closing iterator", e);
-			}
-		}
+		CloseableHelper.closeWithoutException(currentIterator, 
+				(e) -> logger.warn("Got an exception while closing iterator", e)); 
+		
+		currentIterator = null;
 	}
 	
 	/* (non-Javadoc)
