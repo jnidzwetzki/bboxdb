@@ -32,23 +32,28 @@ public class TupleDuplicateResolverFactory {
 		final int versions = tupleStoreConfiguration.getVersions();
 		final long ttl = tupleStoreConfiguration.getTTL();
 		
+		// Remove all tuples, except the newest
 		if(! allowDuplicates) {
 			return new NewestTupleDuplicateResolver();
 		} 
 
+		// Remove tuples by time and version
 		if(versions > 0 && ttl > 0) {
 			return new TTLAndVersionTupleDuplicateResolver(ttl, versions);
 		}
 		
+		// Remove tuples by versions
 		if(versions > 0) {
 			return new VersionTupleDuplicateResolver(versions);
 		}
 		
+		// Remove tuples by time
 		if(ttl > 0) {
 			return new TTLTupleDuplicateResolver(ttl);
 		}
 		
-		throw new IllegalArgumentException("Duplicates are allowed and ttl = 0 and versions = 0");
+		// Don't remove old tuples
+		return new DoNothingDuplicateResolver();
 	}
 	
 }
