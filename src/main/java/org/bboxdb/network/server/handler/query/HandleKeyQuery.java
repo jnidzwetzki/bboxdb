@@ -24,11 +24,10 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
-import org.bboxdb.network.server.StreamClientQuery;
+import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
+import org.bboxdb.network.server.KeyClientQuery;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.queryprocessor.queryplan.KeyQueryPlan;
-import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,9 +61,9 @@ public class HandleKeyQuery implements QueryHandler {
 					
 					final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
 					final TupleStoreName requestTable = queryKeyRequest.getTable();
-					final QueryPlan queryPlan = new KeyQueryPlan(queryKeyRequest.getKey());
+					final String key = queryKeyRequest.getKey();
 					
-					final StreamClientQuery clientQuery = new StreamClientQuery(queryPlan, queryKeyRequest.isPagingEnabled(), 
+					final ClientQuery clientQuery = new KeyClientQuery(key, queryKeyRequest.isPagingEnabled(), 
 							queryKeyRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, requestTable);
 					
 					clientConnectionHandler.getActiveQueries().put(packageSequence, clientQuery);
@@ -73,7 +72,6 @@ public class HandleKeyQuery implements QueryHandler {
 					logger.warn("Got exception while decoding package", e);
 					clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 				}
-
 			}			
 			
 			@Override

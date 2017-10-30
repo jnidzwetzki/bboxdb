@@ -21,6 +21,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -102,7 +103,8 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 		this.querySequence = querySequence;
 		this.requestTable = requestTable;
 
-		final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+		final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
+		final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
 		this.localTables = nameprefixManager.getAllLocalTables(requestTable);
 		
 		this.totalSendTuples = 0;
