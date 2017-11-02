@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import java.util.concurrent.TimeUnit;
+
 public class TupleStoreConfigurationBuilder {
 
 	protected final TupleStoreConfiguration ssTableConfiguration;
@@ -48,8 +50,8 @@ public class TupleStoreConfigurationBuilder {
 	 * @param ttl
 	 * @return
 	 */
-	public TupleStoreConfigurationBuilder withTTL(final long ttl) {
-		ssTableConfiguration.setTtl(ttl);
+	public TupleStoreConfigurationBuilder withTTL(final long ttl, final TimeUnit timeUnit) {
+		ssTableConfiguration.setTtl(timeUnit.toMillis(ttl));
 		return this;
 	}
 	

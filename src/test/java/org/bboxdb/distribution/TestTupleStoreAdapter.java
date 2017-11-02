@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
+import java.util.concurrent.TimeUnit;
+
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -100,7 +102,7 @@ public class TestTupleStoreAdapter {
 	public void testTupleStoreConfig2() throws ZookeeperException {
 		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder.create()
 				.allowDuplicates(true)
-				.withTTL(10000)
+				.withTTL(10000, TimeUnit.MILLISECONDS)
 				.withVersions(100)
 				.build();
 		

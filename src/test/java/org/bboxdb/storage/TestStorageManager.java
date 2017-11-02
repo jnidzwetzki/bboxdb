@@ -18,6 +18,7 @@
 package org.bboxdb.storage;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.PersonEntity;
 import org.bboxdb.network.client.BBoxDBException;
@@ -380,7 +381,7 @@ public class TestStorageManager {
 		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder
 				.create()
 				.allowDuplicates(true)
-				.withTTL(TTL_IN_MS)
+				.withTTL(TTL_IN_MS, TimeUnit.MILLISECONDS)
 				.build();
 		
 		storageRegistry.createTable(TEST_RELATION, tupleStoreConfiguration);

@@ -20,6 +20,7 @@ package org.bboxdb.tools.cli;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -243,7 +244,7 @@ public class CLI implements Runnable, AutoCloseable {
 			final String ttlString = line.getOptionValue(CLIParameter.TTL);
 			final int ttl = MathUtil.tryParseIntOrExit(ttlString, 
 					() -> "Unable to parse the region size: " + ttlString);
-			ssTableConfigurationBuilder.withTTL(ttl);
+			ssTableConfigurationBuilder.withTTL(ttl, TimeUnit.MILLISECONDS);
 		}
 			
 		// Versions

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.bboxdb.distribution.membership.DistributedInstance;
@@ -403,7 +404,7 @@ public class TestNetworkClasses {
 
 		final TupleStoreConfiguration ssTableConfiguration = TupleStoreConfigurationBuilder
 				.create()
-				.withTTL(10)
+				.withTTL(10, TimeUnit.MILLISECONDS)
 				.withVersions(666)
 				.withSpatialIndexReader("reader")
 				.withSpatialIndexWriter("writer")
