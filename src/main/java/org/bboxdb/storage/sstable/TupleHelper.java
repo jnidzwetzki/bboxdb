@@ -28,7 +28,6 @@ import java.util.Comparator;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.util.io.DataEncoderHelper;
 
 import com.google.common.io.ByteStreams;
@@ -65,23 +64,6 @@ public class TupleHelper {
 		}
 		
 		return tuple2;
-	}
-	
-	/**
-	 * Can the given storage contain a newer tuple than the recent tuple?
-	 * @param storage
-	 * @return
-	 */
-	public static boolean canStorageContainNewerTuple(final Tuple tuple, final ReadOnlyTupleStore storage) {
-		if(tuple == null) {
-			return true;
-		}
-		
-		if(storage.getNewestTupleVersionTimestamp() > tuple.getVersionTimestamp()) {
-			return true;
-		}
-		
-		return false;
 	}
 	
 	/**
