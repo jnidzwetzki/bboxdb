@@ -18,6 +18,7 @@
 package org.bboxdb.storage.sstable.duplicateresolver;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.DuplicateResolver;
@@ -27,25 +28,26 @@ public class TTLTupleDuplicateResolver implements DuplicateResolver<Tuple> {
 	/**
 	 * The TTL
 	 */
-	protected final long ttl;
+	protected final long ttlInMicroseconds;
 	
 	/**
 	 * The base time
 	 */
 	protected final long baseTime;
 
-	public TTLTupleDuplicateResolver(final long ttl) {
-		this(ttl, System.currentTimeMillis());
+	public TTLTupleDuplicateResolver(final long ttl, final TimeUnit timeUnit) {
+		// Tuple timestamp is in microseconds
+		this(ttl, timeUnit, System.currentTimeMillis() * 1000);
 	}
 	
-	public TTLTupleDuplicateResolver(final long ttl, final long baseTime) {
-		this.ttl = ttl;
+	public TTLTupleDuplicateResolver(final long ttl, final TimeUnit timeUnit, final long baseTime) {
+		this.ttlInMicroseconds = timeUnit.toMicros(ttl);
 		this.baseTime = baseTime;
 	}
 
 	@Override
 	public void removeDuplicates(final List<Tuple> unconsumedDuplicates) {
-		final long removalTimestamp = baseTime - ttl;
+		final long removalTimestamp = baseTime - ttlInMicroseconds;		
 		unconsumedDuplicates.removeIf(t -> t.getVersionTimestamp() < removalTimestamp);
 	}
 

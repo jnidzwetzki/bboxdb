@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.duplicateresolver;
 
+import java.util.concurrent.TimeUnit;
+
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.util.DuplicateResolver;
@@ -39,7 +41,7 @@ public class TupleDuplicateResolverFactory {
 
 		// Remove tuples by time and version
 		if(versions > 0 && ttl > 0) {
-			return new TTLAndVersionTupleDuplicateResolver(ttl, versions);
+			return new TTLAndVersionTupleDuplicateResolver(ttl, TimeUnit.MILLISECONDS, versions);
 		}
 		
 		// Remove tuples by versions
@@ -49,7 +51,7 @@ public class TupleDuplicateResolverFactory {
 		
 		// Remove tuples by time
 		if(ttl > 0) {
-			return new TTLTupleDuplicateResolver(ttl);
+			return new TTLTupleDuplicateResolver(ttl, TimeUnit.MILLISECONDS);
 		}
 		
 		// Don't remove old tuples

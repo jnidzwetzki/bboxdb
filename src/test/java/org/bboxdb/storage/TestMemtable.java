@@ -24,8 +24,8 @@ import java.util.List;
 import org.bboxdb.PersonEntity;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
@@ -173,7 +173,24 @@ public class TestMemtable {
 		// Update Key 1
 		final Tuple createdTuple2 = new Tuple("1", null, "defh".getBytes());
 		memtable.put(createdTuple2);
+		Assert.assertEquals(memtable.getSortedTupleList().size(), 2);
+	}
+	
+
+	/**
+	 * Test the sorted tuple list
+	 * @throws StorageManagerException 
+	 */
+	@Test
+	public void testSortedList3() throws StorageManagerException {
+		// Insert key 1
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
+		memtable.put(createdTuple1);
 		Assert.assertEquals(memtable.getSortedTupleList().size(), 1);
+		
+		// Delete Key 1
+		memtable.delete("1", System.currentTimeMillis());
+		Assert.assertEquals(memtable.getSortedTupleList().size(), 2);
 	}
 	
 	/**

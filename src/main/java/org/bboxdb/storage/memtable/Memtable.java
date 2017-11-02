@@ -20,8 +20,6 @@ package org.bboxdb.storage.memtable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.misc.BBoxDBService;
@@ -31,6 +29,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -225,27 +224,13 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	public List<Tuple> getSortedTupleList() {
 		assert (usage.get() > 0);
 
-		final SortedMap<String, Tuple> allTuples = new TreeMap<>();
+		final List<Tuple> resultList = new ArrayList<>(freePos + 1);
 		
 		for(int i = 0; i < freePos; i++) {
-			final String key = data[i].getKey();
-			
-			if(! allTuples.containsKey(key)) {
-				allTuples.put(key, data[i]);
-			} else {
-				if(allTuples.get(key).getVersionTimestamp() < data[i].getVersionTimestamp()) {
-					
-					if(data[i] instanceof DeletedTuple) {
-						allTuples.remove(key);
-					} else {
-						allTuples.put(key, data[i]);
-					}
-				}
-			}
+			resultList.add(data[i]);
 		}
 		
-		final List<Tuple> resultList = new ArrayList<>(allTuples.size());
-		resultList.addAll(allTuples.values());
+		resultList.sort(TupleHelper.TUPLE_KEY_AND_VERSION_COMPARATOR);
 		
 		return resultList;
 	}

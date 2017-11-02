@@ -35,10 +35,19 @@ import com.google.common.io.ByteStreams;
 public class TupleHelper {
 	
 	/**
-	 * Compare the tuples by key
+	 * Compare the tuples by key and version
 	 */
-	public final static Comparator<Tuple> TUPLE_KEY_COMPARATOR = 
-			(t1, t2) -> (t1.getKey().compareTo(t2.getKey()));
+	public final static Comparator<Tuple> TUPLE_KEY_AND_VERSION_COMPARATOR = 
+			(t1, t2) -> {
+				
+				final int keyCompare = t1.getKey().compareTo(t2.getKey());
+				
+				if(keyCompare != 0) {
+					return keyCompare;
+				}
+				
+				return Long.compare(t1.getVersionTimestamp(), t2.getVersionTimestamp());
+			};
 	
 	/**
 	 * Return the most recent version of the tuple

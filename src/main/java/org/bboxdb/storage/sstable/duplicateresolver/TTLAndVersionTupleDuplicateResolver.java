@@ -19,6 +19,7 @@ package org.bboxdb.storage.sstable.duplicateresolver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.DuplicateResolver;
@@ -27,15 +28,17 @@ public class TTLAndVersionTupleDuplicateResolver implements DuplicateResolver<Tu
 	
 	protected final List<DuplicateResolver<Tuple>> duplicateResolver;
 
-	public TTLAndVersionTupleDuplicateResolver(final long ttl, final int versions) {
-		this(ttl, versions, System.currentTimeMillis());
+	public TTLAndVersionTupleDuplicateResolver(final long ttl, final TimeUnit timeUnit, final int versions) {
+		this(ttl, timeUnit, versions, System.currentTimeMillis());
 	}
 	
-	public TTLAndVersionTupleDuplicateResolver(final long ttl, final int versions, final long baseTime) {
+	public TTLAndVersionTupleDuplicateResolver(final long ttl, final TimeUnit timeUnit,
+			final int versions, final long baseTime) {
+		
 		duplicateResolver = new ArrayList<DuplicateResolver<Tuple>>();
 		
 		// The resolver sorts the key by version timestamp
-		duplicateResolver.add(new TTLTupleDuplicateResolver(ttl, baseTime));
+		duplicateResolver.add(new TTLTupleDuplicateResolver(ttl, timeUnit, baseTime));
 		
 		// If more then versions tuples are available, the oldest tuples are removed
 		duplicateResolver.add(new VersionTupleDuplicateResolver(versions));
