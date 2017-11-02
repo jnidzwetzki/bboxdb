@@ -66,26 +66,6 @@ public class TupleHelper {
 		
 		return tuple2;
 	}
-
-	/**
-	 * If the tuple is a deleted tuple, return null
-	 * Otherwise, return the given tuple
-	 * @param tuple
-	 * @return
-	 */
-	public static Tuple replaceDeletedTupleWithNull(final Tuple tuple) {
-		
-		if(tuple == null) {
-			return null;
-		}
-		
-		if(tuple instanceof DeletedTuple) {
-			return null;
-		}
-		
-		return tuple;
-	}
-	
 	
 	/**
 	 * Can the given storage contain a newer tuple than the recent tuple?
