@@ -307,6 +307,7 @@ public class TestMemtable {
 	 * Test newest and oldest timestamp
 	 * @throws StorageManagerException
 	 */
+	@Test
 	public void testNewestOldest() throws StorageManagerException {
 		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
 		memtable.put(createdTuple1);
@@ -323,5 +324,5 @@ public class TestMemtable {
 		Assert.assertEquals(1, memtable.getOldestTupleVersionTimestamp());
 		Assert.assertEquals(500, memtable.getNewestTupleVersionTimestamp());
 	}
-	
+
 }
