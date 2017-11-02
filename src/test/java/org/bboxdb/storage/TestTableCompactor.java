@@ -229,11 +229,11 @@ public class TestTableCompactor {
 		
 		int counter = 0;
 		for(final Tuple tuple : ssTableIndexReader) {
+			Assert.assertTrue(tuple.getKey().equals("1"));
 			counter++;
-			Assert.assertEquals("def", new String(tuple.getDataBytes()));
 		}		
 				
-		Assert.assertEquals(1, counter);
+		Assert.assertEquals(2, counter);
 	}	
 	
 	/**
