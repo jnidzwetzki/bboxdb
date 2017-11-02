@@ -15,17 +15,11 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage;
+package org.bboxdb.distribution;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.bboxdb.distribution.DistributionGroupCache;
-import org.bboxdb.distribution.DistributionGroupMetadataHelper;
-import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionHelper;
-import org.bboxdb.distribution.OutdatedDistributionRegion;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
@@ -39,29 +33,30 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.Storage;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RecoveryService implements BBoxDBService {
+public class DistributedRecoveryService implements BBoxDBService {
 	
 	/**
 	 * The storage registry
 	 */
-	protected final StorageRegistry storageRegistry;
+	protected final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(RecoveryService.class);
+	private final static Logger logger = LoggerFactory.getLogger(DistributedRecoveryService.class);
 	
-	public RecoveryService(final StorageRegistry storageRegistry) {
+	public DistributedRecoveryService(final TupleStoreManagerRegistry storageRegistry) {
 		this.storageRegistry = storageRegistry;
 	}
 
@@ -113,7 +108,7 @@ public class RecoveryService implements BBoxDBService {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 			
-			for(final Storage storage : storageRegistry.getAllStorages()) {
+			for(final DiskStorage storage : storageRegistry.getAllStorages()) {
 				checkGroupVersion(storage, distributionGroupName, zookeeperClient);
 			}
 					
@@ -130,7 +125,7 @@ public class RecoveryService implements BBoxDBService {
 		
 	}
 
-	protected void checkGroupVersion(final Storage storage, final DistributionGroupName distributionGroupName,
+	protected void checkGroupVersion(final DiskStorage storage, final DistributionGroupName distributionGroupName,
 			final ZookeeperClient zookeeperClient) {
 		
 		try {
@@ -176,10 +171,10 @@ public class RecoveryService implements BBoxDBService {
 			
 			final int regionId = outdatedDistributionRegion.getDistributedRegion().getRegionId();
 			
-			final List<SSTableName> allTables = storageRegistry
+			final List<TupleStoreName> allTables = storageRegistry
 					.getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
 			
-			for(final SSTableName ssTableName : allTables) {
+			for(final TupleStoreName ssTableName : allTables) {
 				try {
 					runRecoveryForTable(ssTableName, outdatedDistributionRegion, connection);
 				} catch (RejectedException | StorageManagerException | ExecutionException e) {
@@ -202,7 +197,7 @@ public class RecoveryService implements BBoxDBService {
 	 * @throws ExecutionException
 	 * @throws RejectedException 
 	 */
-	protected void runRecoveryForTable(final SSTableName ssTableName,
+	protected void runRecoveryForTable(final TupleStoreName ssTableName,
 			final OutdatedDistributionRegion outdatedDistributionRegion,
 			final BBoxDBClient connection) throws StorageManagerException,
 			InterruptedException, ExecutionException, RejectedException {
@@ -210,7 +205,7 @@ public class RecoveryService implements BBoxDBService {
 		final String sstableName = ssTableName.getFullname();
 		
 		logger.info("Recovery: starting recovery for table {}", sstableName);
-		final SSTableManager tableManager = storageRegistry.getSSTableManager(ssTableName);
+		final TupleStoreManager tableManager = storageRegistry.getTupleStoreManager(ssTableName);
 		
 		// Even with NTP, the clock of the nodes can have a delta.
 		// We subtract this delta from the checkpoint timestamp to ensure

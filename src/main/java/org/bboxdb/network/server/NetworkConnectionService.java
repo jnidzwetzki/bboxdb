@@ -26,7 +26,7 @@ import java.util.concurrent.Executors;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
@@ -63,14 +63,14 @@ public class NetworkConnectionService implements BBoxDBService {
 	/**
 	 * The storage reference
 	 */
-	protected final StorageRegistry storageRegistry;
+	protected final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(NetworkConnectionService.class);
 	
-	public NetworkConnectionService(final StorageRegistry storageRegistry) {
+	public NetworkConnectionService(final TupleStoreManagerRegistry storageRegistry) {
 		this.storageRegistry = storageRegistry;
 	}
 	

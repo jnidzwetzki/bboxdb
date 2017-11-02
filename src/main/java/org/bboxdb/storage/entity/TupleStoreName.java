@@ -21,7 +21,7 @@ import org.bboxdb.distribution.DistributionGroupName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableName {
+public class TupleStoreName {
 
 	/**
 	 * The full name of the table
@@ -81,15 +81,15 @@ public class SSTableName {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableName.class);
+	private final static Logger logger = LoggerFactory.getLogger(TupleStoreName.class);
 	
-	public SSTableName(final String fullname) {
+	public TupleStoreName(final String fullname) {
 		super();
 		this.fullname = fullname;
 		this.valid = splitTablename();
 	}
 	
-	public SSTableName(final short dimension, final String distributionGroup, 
+	public TupleStoreName(final short dimension, final String distributionGroup, 
 			final String tablename, final int regionid) {
 		super();
 		
@@ -107,8 +107,8 @@ public class SSTableName {
 	 * @param regionId
 	 * @return
 	 */
-	public SSTableName cloneWithDifferntRegionId(final int regionId) {
-		return new SSTableName(dimension, group, tablename, regionId);
+	public TupleStoreName cloneWithDifferntRegionId(final int regionId) {
+		return new TupleStoreName(dimension, group, tablename, regionId);
 	}
 	
 	/**
@@ -276,7 +276,7 @@ public class SSTableName {
 
 	@Override
 	public String toString() {
-		return "SSTableName [fullname=" + fullname + ", valid=" + valid + ", dimension=" + dimension + ", group="
+		return "TupleStoreName [fullname=" + fullname + ", valid=" + valid + ", dimension=" + dimension + ", group="
 				+ group + ", tablename=" + tablename + ", regionid=" + regionid + "]";
 	}
 
@@ -302,7 +302,7 @@ public class SSTableName {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SSTableName other = (SSTableName) obj;
+		TupleStoreName other = (TupleStoreName) obj;
 		if (dimension != other.dimension)
 			return false;
 		if (group == null) {

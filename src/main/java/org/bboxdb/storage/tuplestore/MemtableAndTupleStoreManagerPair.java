@@ -15,16 +15,41 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage;
+package org.bboxdb.storage.tuplestore;
 
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.memtable.Memtable;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 
-public interface SSTableFlushCallback {
+public class MemtableAndTupleStoreManagerPair {
 
 	/**
-	 * An SSTable has been flushed to disk callback
-	 * @param ssTableName
-	 * @param flushTimestamp
+	 * The memtale
 	 */
-	public void flushCallback(final SSTableName ssTableName, final long flushTimestamp);
+	protected final Memtable memtable;
+	
+	/**
+	 * The sstable manager
+	 */
+	protected final TupleStoreManager tupleStoreManager;
+
+	public MemtableAndTupleStoreManagerPair(final Memtable memtable, final TupleStoreManager tupleStoreManager) {
+		this.memtable = memtable;
+		this.tupleStoreManager = tupleStoreManager;
+	}
+	
+	/**
+	 * Get the memtable
+	 * @return
+	 */
+	public Memtable getMemtable() {
+		return memtable;
+	}
+	
+	/**
+	 * Get the tuple store manager
+	 * @return
+	 */
+	public TupleStoreManager getTupleStoreManager() {
+		return tupleStoreManager;
+	}
 }

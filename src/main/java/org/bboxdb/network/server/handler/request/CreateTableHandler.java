@@ -20,13 +20,16 @@ package org.bboxdb.network.server.handler.request;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +43,7 @@ public class CreateTableHandler implements RequestHandler {
 
 	@Override
 	/**
-	 * Handle the delete table call
+	 * Handle the create table call
 	 */
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
@@ -48,13 +51,16 @@ public class CreateTableHandler implements RequestHandler {
 		
 		try {			
 			final CreateTableRequest createPackage = CreateTableRequest.decodeTuple(encodedPackage);
-			final SSTableName requestTable = createPackage.getTable();
+			final TupleStoreName requestTable = createPackage.getTable();
 			logger.info("Got create call for table: " + requestTable);
 			
-			// TODO:
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+			tupleStoreAdapter.writeTuplestoreConfiguration(requestTable, 
+					createPackage.getTupleStoreConfiguration());
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-		} catch (PackageEncodeException e) {
+		} catch (Exception e) {
 			logger.warn("Error while delete tuple", e);
 
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);

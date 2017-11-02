@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.registry;
+package org.bboxdb.storage.tuplestore;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,12 +29,13 @@ import org.bboxdb.storage.memtable.MemtableWriterThread;
 import org.bboxdb.storage.sstable.SSTableCheckpointThread;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.concurrent.ThreadHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Storage implements BBoxDBService {
+public class DiskStorage implements BBoxDBService {
 
 	/**
 	 * The running flush threads
@@ -49,7 +50,7 @@ public class Storage implements BBoxDBService {
 	/**
 	 * The queue for the memtable flush thread
 	 */
-	protected final BlockingQueue<MemtableAndSSTableManager> memtablesToFlush;
+	protected final BlockingQueue<MemtableAndTupleStoreManagerPair> memtablesToFlush;
 	
 	/**
 	 * The storage base dir
@@ -64,14 +65,14 @@ public class Storage implements BBoxDBService {
 	/**
 	 * The storage registry
 	 */
-	protected final StorageRegistry storageRegistry;
+	protected final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(Storage.class);
+	private final static Logger logger = LoggerFactory.getLogger(DiskStorage.class);
 	
-	public Storage(final StorageRegistry storageRegistry, 
+	public DiskStorage(final TupleStoreManagerRegistry storageRegistry, 
 			final File basedir, 
 			final int flushThreadsPerStorage) {
 		
@@ -164,20 +165,18 @@ public class Storage implements BBoxDBService {
 		return "Storage instance for: " + basedir.getAbsolutePath();
 	}
 	
-	public void scheduleMemtableFlush(final MemtableAndSSTableManager memtable) {
+	public void scheduleMemtableFlush(final MemtableAndTupleStoreManagerPair memtable) {
+		
+		if(memtable == null) {
+			return;
+		}
+		
 		// The put call can block when more than
 		// MAX_UNFLUSHED_MEMTABLES_PER_TABLE are unflushed.
-		//
-		// So we wait otside of the synchonized area.
-		// Because, otherwise no other threads could call
-		// replaceMemtableWithSSTable() and reduce
-		// the queue size
-		if(memtable != null) {
-			try {
-				memtablesToFlush.put(memtable);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
+		try {
+			memtablesToFlush.put(memtable);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 	}
 	
@@ -185,7 +184,7 @@ public class Storage implements BBoxDBService {
 	 * Get the memtable flush queue
 	 * @return
 	 */
-	public BlockingQueue<MemtableAndSSTableManager> getMemtablesToFlush() {
+	public BlockingQueue<MemtableAndTupleStoreManagerPair> getMemtablesToFlush() {
 		return memtablesToFlush;
 	}
 	
@@ -201,7 +200,7 @@ public class Storage implements BBoxDBService {
 	 * Get the storage registry
 	 * @return
 	 */
-	public StorageRegistry getStorageRegistry() {
+	public TupleStoreManagerRegistry getStorageRegistry() {
 		return storageRegistry;
 	}
 }

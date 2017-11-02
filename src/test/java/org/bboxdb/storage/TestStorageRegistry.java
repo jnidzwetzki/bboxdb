@@ -20,16 +20,22 @@ package org.bboxdb.storage;
 import java.io.File;
 import java.util.List;
 
+import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.RejectedException;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -41,17 +47,20 @@ public class TestStorageRegistry {
 	/**
 	 * The name of the test relation
 	 */
-	protected static final SSTableName RELATION_NAME = new SSTableName("3_grouptest1_table1_2");
+	protected static final TupleStoreName RELATION_NAME = new TupleStoreName("3_grouptest5_table100_2");
 
 	/**
 	 * The storage registry
 	 */
-	protected static StorageRegistry storageRegistry;
+	protected static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
-	public static void beforeClass() throws InterruptedException, BBoxDBException {
-		storageRegistry = new StorageRegistry();
+	public static void beforeClass() throws InterruptedException, BBoxDBException, ZookeeperException {
+		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		final DistributionGroupZookeeperAdapter adapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
+		adapter.createDistributionGroup(RELATION_NAME.getDistributionGroup(), new DistributionGroupConfiguration());
 	}
 	
 	@AfterClass
@@ -70,8 +79,10 @@ public class TestStorageRegistry {
 	 */
 	@Test
 	public void testRegisterAndUnregister() throws StorageManagerException {
+		storageRegistry.deleteTable(RELATION_NAME);
 		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
-		storageRegistry.getSSTableManager(RELATION_NAME);
+		storageRegistry.createTable(RELATION_NAME, new TupleStoreConfiguration());
+		storageRegistry.getTupleStoreManager(RELATION_NAME);
 		Assert.assertTrue(storageRegistry.isStorageManagerActive(RELATION_NAME));
 		storageRegistry.shutdownSStable(RELATION_NAME);
 		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
@@ -85,8 +96,11 @@ public class TestStorageRegistry {
 	 */
 	@Test
 	public void testDeleteTable() throws StorageManagerException, InterruptedException, RejectedException {
+		storageRegistry.deleteTable(RELATION_NAME);
+		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
+		storageRegistry.createTable(RELATION_NAME, new TupleStoreConfiguration());
 		
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(RELATION_NAME);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -121,7 +135,11 @@ public class TestStorageRegistry {
 	@Test
 	public void testCalculateSize() throws StorageManagerException, InterruptedException, RejectedException {
 		
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(RELATION_NAME);
+		storageRegistry.deleteTable(RELATION_NAME);
+		Assert.assertFalse(storageRegistry.isStorageManagerActive(RELATION_NAME));
+		storageRegistry.createTable(RELATION_NAME, new TupleStoreConfiguration());
+		
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -131,7 +149,7 @@ public class TestStorageRegistry {
 		// Wait for requests to settle
 		Thread.sleep(10000);
 		
-		final List<SSTableName> tablesBeforeDelete = storageRegistry.getAllTables();
+		final List<TupleStoreName> tablesBeforeDelete = storageRegistry.getAllTables();
 		System.out.println(tablesBeforeDelete);
 		Assert.assertTrue(tablesBeforeDelete.contains(RELATION_NAME));
 		
@@ -142,7 +160,7 @@ public class TestStorageRegistry {
 		
 		storageRegistry.deleteTable(RELATION_NAME);
 		
-		final List<SSTableName> tablesAfterDelete = storageRegistry.getAllTables();
+		final List<TupleStoreName> tablesAfterDelete = storageRegistry.getAllTables();
 		System.out.println(tablesAfterDelete);
 		Assert.assertFalse(tablesAfterDelete.contains(RELATION_NAME));
 		

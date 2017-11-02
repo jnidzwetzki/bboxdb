@@ -15,15 +15,17 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage;
+package org.bboxdb.storage.tuplestore;
 
 import java.util.Iterator;
+import java.util.List;
 
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 
-public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
+public interface ReadOnlyTupleStore extends Iterable<Tuple> {
 	
 	/**
 	 * Get the internal name of the tuple store
@@ -35,7 +37,7 @@ public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	 * Get the sstable name
 	 * @return
 	 */
-	public SSTableName getSStableName();
+	public TupleStoreName getSStableName();
 	
 	/**
 	 * Search for tuple and return the most recent version
@@ -43,7 +45,7 @@ public interface ReadOnlyTupleStorage extends Iterable<Tuple> {
 	 * @return
 	 * @throws StorageManagerException
 	 */
-	public Tuple get(final String key) throws StorageManagerException;
+	public List<Tuple> get(final String key) throws StorageManagerException;
 
 	/**
 	 * Get all tuples that are inside the bounding box

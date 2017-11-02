@@ -87,8 +87,8 @@ import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
-import org.bboxdb.storage.entity.SSTableConfiguration;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.CloseableHelper;
 import org.bboxdb.util.MicroSecondTimestampProvider;
@@ -494,7 +494,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#createTable(java.lang.String)
 	 */
 	@Override
-	public EmptyResultFuture createTable(final String table, final SSTableConfiguration configuration) throws BBoxDBException {
+	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) throws BBoxDBException {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedFuture("createTable called, but connection not ready: " + this);
@@ -560,7 +560,7 @@ public class BBoxDBClient implements BBoxDB {
 	protected RoutingHeader getRoutingHeaderForLocalSystem(final String table, final BoundingBox boundingBox)
 			throws ZookeeperException, BBoxDBException, InterruptedException {
 		
-		final SSTableName ssTableName = new SSTableName(table);
+		final TupleStoreName ssTableName = new TupleStoreName(table);
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 
 		final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
@@ -595,7 +595,7 @@ public class BBoxDBClient implements BBoxDB {
 		}
 		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		final SSTableName ssTableName = new SSTableName(table);
+		final TupleStoreName ssTableName = new TupleStoreName(table);
 		final short sequenceNumber = getNextSequenceNumber();
 		
 		final InsertTupleRequest requestPackage = new InsertTupleRequest(
@@ -727,7 +727,7 @@ public class BBoxDBClient implements BBoxDB {
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1);
 			
 			final QueryKeyRequest requestPackage = new QueryKeyRequest(getNextSequenceNumber(), routingHeader, 
-					table, key);
+					table, key, pagingEnabled, tuplesPerPage);
 			
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);

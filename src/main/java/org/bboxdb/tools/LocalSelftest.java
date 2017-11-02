@@ -17,15 +17,16 @@
  *******************************************************************************/
 package org.bboxdb.tools;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.RejectedException;
 import org.junit.Assert;
@@ -60,11 +61,11 @@ public class LocalSelftest {
 			final int iterations = Integer.parseInt(args[0]);
 			logger.info("Running selftest......");
 			
-			final StorageRegistry storageRegistry = new StorageRegistry();
+			final TupleStoreManagerRegistry storageRegistry = new TupleStoreManagerRegistry();
 			storageRegistry.init();
 			
-			final SSTableName sstable = new SSTableName(TABLENAME);
-			final SSTableManager storageManager = storageRegistry.getSSTableManager(sstable);
+			final TupleStoreName sstable = new TupleStoreName(TABLENAME);
+			final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(sstable);
 
 			for(int iteration = 0; iteration < iterations; iteration++) {
 				logger.info("Running iteration {}", iteration);
@@ -90,7 +91,7 @@ public class LocalSelftest {
 	 * @throws InterruptedException
 	 * @throws RejectedException 
 	 */
-	protected static void testInsertDelete(final SSTableManager storageManager) throws StorageManagerException, InterruptedException, RejectedException {
+	protected static void testInsertDelete(final TupleStoreManager storageManager) throws StorageManagerException, InterruptedException, RejectedException {
 
 		logger.info("Inserting tuples...");
 		for(int i = 0; i < TUPLES; i++) {
@@ -109,8 +110,8 @@ public class LocalSelftest {
 			logger.info("Query deleted keys ({})...", iteration);
 			// Fetch the deleted tuples
 			for(int i = 0; i < TUPLES; i++) {
-				final Tuple resultTuple = storageManager.get(Integer.toString(i));
-				Assert.assertEquals(null, resultTuple);
+				final List<Tuple> resultTuples = storageManager.get(Integer.toString(i));
+				Assert.assertTrue(resultTuples.isEmpty());
 			}
 		}
 		Thread.sleep(1000);

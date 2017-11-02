@@ -23,8 +23,10 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleAndTable;
+import org.bboxdb.storage.sstable.TupleHelper;
 
 public class NetworkTupleEncoderDecoder {
 	
@@ -56,7 +58,12 @@ public class NetworkTupleEncoderDecoder {
 		
 		final BoundingBox boundingBox = BoundingBox.fromByteArray(boxBytes);
 		
-		final Tuple tuple = new Tuple(key, boundingBox, dataBytes, timestamp);
+		Tuple tuple = null;
+		if(TupleHelper.isDeletedTuple(boxBytes, dataBytes)) {
+			tuple = new DeletedTuple(key, timestamp);
+		} else {
+			tuple = new Tuple(key, boundingBox, dataBytes, timestamp);
+		}
 		
 		return new TupleAndTable(tuple, table);
 	}
@@ -96,5 +103,4 @@ public class NetworkTupleEncoderDecoder {
 		
 		return bos.toByteArray();
 	}
-
 }

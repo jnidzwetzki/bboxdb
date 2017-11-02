@@ -15,31 +15,18 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage;
+package org.bboxdb.storage.sstable.duplicateresolver;
+
+import java.util.List;
 
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.DuplicateResolver;
 
-public interface ReadWriteTupleStorage extends ReadOnlyTupleStorage {
+public class DoNothingDuplicateResolver implements DuplicateResolver<Tuple> {
 
-	/**
-	 * Store a tuple
-	 * @param tuple
-	 * @throws StorageManagerException
-	 */
-	public void put(final Tuple tuple) throws StorageManagerException;
+	@Override
+	public void removeDuplicates(final List<Tuple> unconsumedDuplicates) {
 
-	/**
-	 * Delete a tuple
-	 * @param key
-	 * @param timestamp
-	 * @throws StorageManagerException
-	 */
-	public void delete(final String key, final long timestamp) throws StorageManagerException;
-	
-	/**
-	 * Truncate the stored data
-	 * @throws StorageManagerException
-	 */
-	public void clear() throws StorageManagerException;
-	
+	}
+
 }

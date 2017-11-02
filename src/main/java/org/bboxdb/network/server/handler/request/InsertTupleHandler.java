@@ -24,6 +24,10 @@ import java.util.Collection;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
@@ -34,10 +38,11 @@ import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.RejectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,9 +71,9 @@ public class InsertTupleHandler implements RequestHandler {
 			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 			
 			final Tuple tuple = insertTupleRequest.getTuple();			
-			final SSTableName requestTable = insertTupleRequest.getTable();
+			final TupleStoreName requestTable = insertTupleRequest.getTable();
 			final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
-			final StorageRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
+			final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
 			
 			if(! routingHeader.isRoutedPackage()) {
 				final String errorMessage = "Error while insering tuple - package is not routed";
@@ -100,8 +105,8 @@ public class InsertTupleHandler implements RequestHandler {
 	 * @throws RejectedException
 	 * @throws BBoxDBException
 	 */
-	protected void handleRoutedPackage(final Tuple tuple, final SSTableName requestTable, 
-			final StorageRegistry storageRegistry,
+	protected void handleRoutedPackage(final Tuple tuple, final TupleStoreName requestTable, 
+			final TupleStoreManagerRegistry storageRegistry,
 			final RoutingHeader routingHeader) 
 			throws StorageManagerException, RejectedException, BBoxDBException {
 		
@@ -113,12 +118,46 @@ public class InsertTupleHandler implements RequestHandler {
 		
 		final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
 
-		final Collection<SSTableName> localTables = regionIdMapper.convertRegionIdToTableNames(
+		final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
 					requestTable, localHop.getDistributionRegions());
 
-		for(final SSTableName ssTableName : localTables) {
-			final SSTableManager storageManager = storageRegistry.getSSTableManager(ssTableName);
+		// Are some tables unknown and needs to be created?
+		final boolean unknownTables = localTables.stream()
+			.anyMatch((t) -> ! storageRegistry.isStorageManagerKnown(t)); 
+		
+		// Expensive call (involves Zookeeper interaction)
+		if(unknownTables) {
+			createMissingTables(requestTable, storageRegistry, localTables);
+		}
+		
+		// Insert tuples
+		for(final TupleStoreName tupleStoreName : localTables) {
+			final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
 			storageManager.put(tuple);			
+		}
+	}
+
+	/**
+	 * Create all miising tables
+	 */
+	protected void createMissingTables(final TupleStoreName requestTable,
+			final TupleStoreManagerRegistry storageRegistry, final Collection<TupleStoreName> localTables)
+			throws StorageManagerException {
+		
+		try {
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+			final TupleStoreConfiguration config = tupleStoreAdapter.readTuplestoreConfiguration(requestTable);
+
+			for(final TupleStoreName tupleStoreName : localTables) {
+				final boolean alreadyKnown = storageRegistry.isStorageManagerKnown(tupleStoreName);
+				
+				if(! alreadyKnown) {
+					storageRegistry.createTable(tupleStoreName, config);
+				}
+			}
+		} catch (ZookeeperException e) {
+			throw new StorageManagerException(e);
 		}
 	}
 

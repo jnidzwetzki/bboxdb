@@ -20,7 +20,7 @@ package org.bboxdb.storage;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -52,11 +52,11 @@ public class TestTablenameParser {
 		invalidNames.add("_____");
 
 		for(final String invalidTablename : invalidNames) {
-			final SSTableName tablename = new SSTableName(invalidTablename);
+			final TupleStoreName tablename = new TupleStoreName(invalidTablename);
 			Assert.assertFalse(tablename.isValid());
-			Assert.assertEquals(SSTableName.INVALID_GROUP, tablename.getGroup());
-			Assert.assertEquals(SSTableName.INVALID_DIMENSION, tablename.getDimension());
-			Assert.assertEquals(SSTableName.INVALID_TABLENAME, tablename.getTablename());
+			Assert.assertEquals(TupleStoreName.INVALID_GROUP, tablename.getGroup());
+			Assert.assertEquals(TupleStoreName.INVALID_DIMENSION, tablename.getDimension());
+			Assert.assertEquals(TupleStoreName.INVALID_TABLENAME, tablename.getTablename());
 		}
 		
 	}
@@ -76,7 +76,7 @@ public class TestTablenameParser {
 		validNames.add("122_12def_table21_4711");
 		
 		for(final String validTablename : validNames) {
-			final SSTableName tablename = new SSTableName(validTablename);
+			final TupleStoreName tablename = new TupleStoreName(validTablename);
 			Assert.assertTrue(tablename.isValid());
 			Assert.assertNotNull(tablename.getGroup());
 			Assert.assertNotNull(tablename.getDimension());

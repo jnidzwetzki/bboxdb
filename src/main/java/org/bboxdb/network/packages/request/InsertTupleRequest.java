@@ -27,7 +27,7 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.NetworkTupleEncoderDecoder;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleAndTable;
 
@@ -36,7 +36,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName table;
+	protected final TupleStoreName table;
 	
 	/**
 	 * The Tuple
@@ -58,7 +58,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	 * @param data
 	 */
 	public InsertTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
-			final SSTableName table, final Tuple tuple) {
+			final TupleStoreName table, final Tuple tuple) {
 		
 		super(sequenceNumber);
 		
@@ -93,7 +93,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 		
-		final SSTableName ssTableName = new SSTableName(tupleAndTable.getTable());
+		final TupleStoreName ssTableName = new TupleStoreName(tupleAndTable.getTable());
 		return new InsertTupleRequest(sequenceNumber, routingHeader, ssTableName, tupleAndTable.getTuple());
 	}
 
@@ -120,7 +120,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	 * Get the referenced table
 	 * @return
 	 */
-	public SSTableName getTable() {
+	public TupleStoreName getTable() {
 		return table;
 	}
 

@@ -27,15 +27,16 @@ import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.compact.SSTableCompactor;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,7 +48,7 @@ public class TestTableCompactor {
 	/**
 	 * The output relation name
 	 */
-	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_relation1");
+	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("1_testgroup1_relation1");
 	
 	/**
 	 * The storage directory
@@ -62,11 +63,11 @@ public class TestTableCompactor {
 	/**
 	 * The storage registry
 	 */
-	protected static StorageRegistry storageRegistry;
+	protected static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException, BBoxDBException {
-		storageRegistry = new StorageRegistry();
+		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 	}
 	
@@ -97,7 +98,8 @@ public class TestTableCompactor {
 		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
 				
 		storageRegistry.deleteTable(TEST_RELATION);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
+		storageRegistry.createTable(TEST_RELATION, new TupleStoreConfiguration());
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.executeCompactation();
@@ -167,8 +169,8 @@ public class TestTableCompactor {
 		
 		// Check the consistency of the index
 		for(int i = 1; i < 500; i++) {
-			int pos = ssTableIndexReader.getPositionForTuple(Integer.toString(i));
-			Assert.assertTrue(pos != -1);
+			final List<Integer> positions = ssTableIndexReader.getPositionsForTuple(Integer.toString(i));
+			Assert.assertTrue(positions.size() == 1);
 		}
 		
 	}
@@ -227,11 +229,11 @@ public class TestTableCompactor {
 		
 		int counter = 0;
 		for(final Tuple tuple : ssTableIndexReader) {
+			Assert.assertTrue(tuple.getKey().equals("1"));
 			counter++;
-			Assert.assertEquals("def", new String(tuple.getDataBytes()));
 		}		
 				
-		Assert.assertEquals(1, counter);
+		Assert.assertEquals(2, counter);
 	}	
 	
 	/**
@@ -336,7 +338,8 @@ public class TestTableCompactor {
 			throws StorageManagerException {
 		
 		storageRegistry.deleteTable(TEST_RELATION);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
+		storageRegistry.createTable(TEST_RELATION, new TupleStoreConfiguration());
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		
 		final SSTableCompactor compactor = new SSTableCompactor(storageManager, Arrays.asList(reader1, reader2));
 		compactor.setMajorCompaction(majorCompaction);

@@ -19,19 +19,15 @@ package org.bboxdb.network.server.handler.query;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Collection;
 
-import org.bboxdb.distribution.RegionIdMapper;
-import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
-import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
+import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
-import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.network.server.KeyClientQuery;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,29 +52,26 @@ public class HandleKeyQuery implements QueryHandler {
 
 			@Override
 			public void runThread() throws Exception {
-				final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
-				final SSTableName requestTable = queryKeyRequest.getTable();
 				
-				// Send the call to the storage manager
-				final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
-				final Collection<SSTableName> localTables = regionIdMapper.getAllLocalTables(requestTable);
-				
-				for(final SSTableName ssTableName : localTables) {
-					
-					final SSTableManager storageManager = clientConnectionHandler
-							.getStorageRegistry()
-							.getSSTableManager(ssTableName);
-					
-					final Tuple tuple = storageManager.get(queryKeyRequest.getKey());
-					
-					if(tuple != null) {
-						clientConnectionHandler.writeResultTuple(packageSequence, requestTable, tuple);
+				try {	
+					if(clientConnectionHandler.getActiveQueries().containsKey(packageSequence)) {
+						logger.error("Query sequence {} is allready known, please close old query first", packageSequence);
 						return;
 					}
+					
+					final QueryKeyRequest queryKeyRequest = QueryKeyRequest.decodeTuple(encodedPackage);
+					final TupleStoreName requestTable = queryKeyRequest.getTable();
+					final String key = queryKeyRequest.getKey();
+					
+					final ClientQuery clientQuery = new KeyClientQuery(key, queryKeyRequest.isPagingEnabled(), 
+							queryKeyRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, requestTable);
+					
+					clientConnectionHandler.getActiveQueries().put(packageSequence, clientQuery);
+					clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
+				} catch (PackageEncodeException e) {
+					logger.warn("Got exception while decoding package", e);
+					clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
 				}
-
-				clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
-				return;
 			}			
 			
 			@Override

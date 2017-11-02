@@ -31,7 +31,7 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.io.TupleFileReader;
 import org.slf4j.Logger;
@@ -101,7 +101,7 @@ public class TestCompressionRatio implements Runnable {
 	 * @throws PackageEncodeException 
 	 */
 	protected long runExperiment(final Integer batchSize) throws ClassNotFoundException, IOException, PackageEncodeException {
-		final SSTableName tableName = new SSTableName("2_group1_table1");
+		final TupleStoreName tableName = new TupleStoreName("2_group1_table1");
 		final List<Long> experimentSize = new ArrayList<>();
 		
 		final List<Tuple> buffer = new ArrayList<>();
@@ -137,7 +137,7 @@ public class TestCompressionRatio implements Runnable {
 	 * @throws PackageEncodeException
 	 * @throws IOException
 	 */
-	protected long handleCompressedData(final SSTableName tableName, final List<Tuple> buffer) {
+	protected long handleCompressedData(final TupleStoreName tableName, final List<Tuple> buffer) {
 		
 		final List<NetworkRequestPackage> packages = 
 				buffer
@@ -158,7 +158,7 @@ public class TestCompressionRatio implements Runnable {
 	 * @param tableName 
 	 * @return
 	 */
-	protected long handleUncompressedData(final SSTableName tableName, final Tuple tuple) {
+	protected long handleUncompressedData(final TupleStoreName tableName, final Tuple tuple) {
 	
 		final InsertTupleRequest insertTupleRequest = new InsertTupleRequest(
 				(short) 4, 

@@ -27,6 +27,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.junit.Assert;
 
 import com.google.common.collect.Lists;
@@ -52,7 +53,7 @@ public class NetworkQueryHelper {
 			throws BBoxDBException, InterruptedException {
 		
 		final String distributionGroup = "2_testgroup"; 
-		final String table = distributionGroup + "_relation9999";
+		final String table = distributionGroup + "_relation9990";
 		
 		// Delete distribution group
 		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
@@ -65,6 +66,11 @@ public class NetworkQueryHelper {
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
+		
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForAll();
+		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes(), 4);
@@ -103,7 +109,7 @@ public class NetworkQueryHelper {
 		
 		System.out.println("=== Running testInsertAndBoundingBoxQuery");
 		final String distributionGroup = "2_testgroup"; 
-		final String table = distributionGroup + "_relation9999";
+		final String table = distributionGroup + "_relation9991";
 		
 		// Delete distribution group
 		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
@@ -116,6 +122,13 @@ public class NetworkQueryHelper {
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
+		
+		
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForAll();
+		Assert.assertFalse(resultCreateTable.isFailed());
+		
 		
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes());
@@ -166,6 +179,11 @@ public class NetworkQueryHelper {
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
+		
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForAll();
+		Assert.assertFalse(resultCreateTable.isFailed());
 		
 		System.out.println("Delete tuple");
 		final EmptyResultFuture deleteResult1 = bboxDBClient.deleteTuple(table, key);

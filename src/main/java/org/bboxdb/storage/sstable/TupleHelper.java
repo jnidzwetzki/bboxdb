@@ -25,11 +25,9 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.util.DuplicateResolver;
 import org.bboxdb.util.io.DataEncoderHelper;
 
 import com.google.common.io.ByteStreams;
@@ -37,25 +35,19 @@ import com.google.common.io.ByteStreams;
 public class TupleHelper {
 	
 	/**
-	 * Remove outdated tuples from the given list
+	 * Compare the tuples by key and version
 	 */
-	public final static DuplicateResolver<Tuple> NEWEST_TUPLE_DUPLICATE_RESOLVER = (t) -> {
-		
-		Tuple newestTuple = null;
-		
-		for(final Tuple tuple : t) {
-			newestTuple = TupleHelper.returnMostRecentTuple(newestTuple, tuple);
-		}
-		
-		t.clear();
-		t.add(newestTuple);
-	};
-
-	/**
-	 * Compare the tuples by key
-	 */
-	public final static Comparator<Tuple> TUPLE_KEY_COMPARATOR = 
-			(t1, t2) -> (t1.getKey().compareTo(t2.getKey()));
+	public final static Comparator<Tuple> TUPLE_KEY_AND_VERSION_COMPARATOR = 
+			(t1, t2) -> {
+				
+				final int keyCompare = t1.getKey().compareTo(t2.getKey());
+				
+				if(keyCompare != 0) {
+					return keyCompare;
+				}
+				
+				return Long.compare(t1.getVersionTimestamp(), t2.getVersionTimestamp());
+			};
 	
 	/**
 	 * Return the most recent version of the tuple
@@ -81,43 +73,6 @@ public class TupleHelper {
 		}
 		
 		return tuple2;
-	}
-
-	/**
-	 * If the tuple is a deleted tuple, return null
-	 * Otherwise, return the given tuple
-	 * @param tuple
-	 * @return
-	 */
-	public static Tuple replaceDeletedTupleWithNull(final Tuple tuple) {
-		
-		if(tuple == null) {
-			return null;
-		}
-		
-		if(tuple instanceof DeletedTuple) {
-			return null;
-		}
-		
-		return tuple;
-	}
-	
-	
-	/**
-	 * Can the given storage contain a newer tuple than the recent tuple?
-	 * @param storage
-	 * @return
-	 */
-	public static boolean canStorageContainNewerTuple(final Tuple tuple, final ReadOnlyTupleStorage storage) {
-		if(tuple == null) {
-			return true;
-		}
-		
-		if(storage.getNewestTupleVersionTimestamp() > tuple.getVersionTimestamp()) {
-			return true;
-		}
-		
-		return false;
 	}
 	
 	/**
@@ -257,7 +212,7 @@ public class TupleHelper {
 	 * @param dataBytes
 	 * @return
 	 */
-	protected static boolean isDeletedTuple(final byte[] boxBytes, final byte[] dataBytes) {
+	public static boolean isDeletedTuple(final byte[] boxBytes, final byte[] dataBytes) {
 		if(Arrays.equals(dataBytes,SSTableConst.DELETED_MARKER)) {
 			if(Arrays.equals(boxBytes, SSTableConst.DELETED_MARKER)) {
 				return true;

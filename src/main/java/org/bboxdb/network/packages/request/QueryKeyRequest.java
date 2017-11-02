@@ -27,14 +27,14 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 
 public class QueryKeyRequest extends NetworkQueryRequestPackage {
 	
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName table;
+	protected final TupleStoreName table;
 
 	/**
 	 * The name of the key
@@ -42,17 +42,30 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 	protected final String key;
 	
 	/**
+	 * Paging enables
+	 */
+	protected final boolean pagingEnabled;
+	
+	/**
+	 * The max tuples per page
+	 */
+	protected final short tuplesPerPage;
+	
+	/**
 	 * A routing header for custom routing
 	 */
 	protected final RoutingHeader routingHeader;
 
 	public QueryKeyRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
-			final String table, final String key) {
+			final String table, final String key, final boolean pagingEnabled, 
+			final short tuplesPerPage) {
 		
 		super(sequenceNumber);
 		
 		this.routingHeader = routingHeader;
-		this.table = new SSTableName(table);
+		this.pagingEnabled = pagingEnabled;
+		this.tuplesPerPage = tuplesPerPage;
+		this.table = new TupleStoreName(table);
 		this.key = key;
 	}
 
@@ -63,10 +76,18 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 			final byte[] tableBytes = table.getFullnameBytes();
 			final byte[] keyBytes = key.getBytes();
 			
-			final ByteBuffer bb = ByteBuffer.allocate(5);
+			final ByteBuffer bb = ByteBuffer.allocate(8);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			
 			bb.put(getQueryType());
+			
+			if(pagingEnabled) {
+				bb.put((byte) 1);
+			} else {
+				bb.put((byte) 0);
+			}
+			
+			bb.putShort(tuplesPerPage);
 			bb.putShort((short) tableBytes.length);
 			bb.putShort((short) keyBytes.length);
 			
@@ -108,6 +129,13 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 	    	throw new PackageEncodeException("Wrong query type: " + queryType);
 	    }
 		
+	    boolean pagingEnabled = false;
+	    if(encodedPackage.get() != 0) {
+	    	pagingEnabled = true;
+	    }
+	    
+	    final short tuplesPerPage = encodedPackage.getShort();
+	    
 		final short tableLength = encodedPackage.getShort();
 		final short keyLength = encodedPackage.getShort();
 		
@@ -125,7 +153,7 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 		
-		return new QueryKeyRequest(sequenceNumber, routingHeader, table, key);
+		return new QueryKeyRequest(sequenceNumber, routingHeader, table, key, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override
@@ -138,7 +166,7 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 		return NetworkConst.REQUEST_QUERY_KEY;
 	}
 	
-	public SSTableName getTable() {
+	public TupleStoreName getTable() {
 		return table;
 	}
 
@@ -146,4 +174,11 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 		return key;
 	}
 
+	public short getTuplesPerPage() {
+		return tuplesPerPage;
+	}
+	
+	public boolean isPagingEnabled() {
+		return pagingEnabled;
+	}
 }

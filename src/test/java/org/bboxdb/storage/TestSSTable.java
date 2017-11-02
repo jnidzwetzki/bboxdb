@@ -24,13 +24,14 @@ import java.util.List;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.util.io.FileUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,7 +46,7 @@ public class TestSSTable {
 	/**
 	 * The name of the test relation
 	 */
-	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_relation3");
+	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("1_testgroup1_relation3");
 	
 	/**
 	 * The max number of expected tuples in the sstable
@@ -164,7 +165,7 @@ public class TestSSTable {
 		Assert.assertTrue(sstableFile.exists());
 		Assert.assertTrue(sstableIndexFile.exists());
 		
-		final ReadOnlyTupleStorage ssTableFacade = new SSTableFacade(STORAGE_DIRECTORY, TEST_RELATION, 1, 0);
+		final ReadOnlyTupleStore ssTableFacade = new SSTableFacade(STORAGE_DIRECTORY, TEST_RELATION, 1, 0);
 		ssTableFacade.acquire();
 		ssTableFacade.deleteOnClose();
 		

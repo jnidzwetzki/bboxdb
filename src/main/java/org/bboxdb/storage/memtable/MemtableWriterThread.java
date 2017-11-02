@@ -20,15 +20,15 @@ package org.bboxdb.storage.memtable;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.function.BiConsumer;
 
-import org.bboxdb.storage.SSTableFlushCallback;
-import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.registry.MemtableAndSSTableManager;
-import org.bboxdb.storage.registry.Storage;
-import org.bboxdb.storage.sstable.SSTableManager;
-import org.bboxdb.storage.sstable.SSTableManagerState;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
+import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.MemtableAndTupleStoreManagerPair;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerState;
 import org.bboxdb.util.FileSizeHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * The unflushed memtables
 	 */
-	protected final BlockingQueue<MemtableAndSSTableManager> flushQueue;
+	protected final BlockingQueue<MemtableAndTupleStoreManagerPair> flushQueue;
 
 	/**
 	 * The basedir
@@ -49,7 +49,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * The storage
 	 */
-	protected Storage storage;
+	protected DiskStorage storage;
 
 	/**
 	 * The logger
@@ -60,7 +60,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * @param ssTableManager
 	 */
-	public MemtableWriterThread(final Storage storage, final File basedir) {
+	public MemtableWriterThread(final DiskStorage storage, final File basedir) {
 		this.storage = storage;
 		this.flushQueue = storage.getMemtablesToFlush();
 		this.basedir = basedir;	
@@ -83,9 +83,9 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	protected void runThread() {
 		while (! Thread.currentThread().isInterrupted()) {
 			try {
-				final MemtableAndSSTableManager memtableAndSSTableManager = flushQueue.take();
+				final MemtableAndTupleStoreManagerPair memtableAndSSTableManager = flushQueue.take();
 				final Memtable memtable = memtableAndSSTableManager.getMemtable();
-				final SSTableManager sstableManager = memtableAndSSTableManager.getSsTableManager();
+				final TupleStoreManager sstableManager = memtableAndSSTableManager.getTupleStoreManager();
 				flushMemtableToDisk(memtable, sstableManager);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
@@ -102,7 +102,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	 * @param sstableManager 
 	 * 
 	 */
-	protected void flushMemtableToDisk(final Memtable memtable, final SSTableManager sstableManager) {
+	protected void flushMemtableToDisk(final Memtable memtable, final TupleStoreManager sstableManager) {
 		
 		if(memtable == null) {
 			return;
@@ -113,7 +113,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 		try {			
 			// Don't write empty memtables to disk
 			if (! memtable.isEmpty()) {
-				final SSTableName sstableName = sstableManager.getSSTableName();
+				final TupleStoreName sstableName = sstableManager.getSSTableName();
 				final String dataDirectory = basedir.getAbsolutePath();
 				final int tableNumber = writeMemtable(dataDirectory, memtable, sstableManager);
 				
@@ -133,7 +133,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 		}  catch (Exception e) {
 			deleteWrittenFacade(facade);
 
-			if(sstableManager.getSstableManagerState() == SSTableManagerState.READ_ONLY) {
+			if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
 				logger.debug("Rejected memtable write:", e);
 				return;
 			}
@@ -165,13 +165,14 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	 * @param memtable
 	 * @param sstableManager 
 	 */
-	protected void sendCallbacks(final Memtable memtable, SSTableManager sstableManager) {
+	protected void sendCallbacks(final Memtable memtable, TupleStoreManager sstableManager) {
 		final long timestamp = memtable.getCreatedTimestamp();
-		final List<SSTableFlushCallback> callbacks = storage.getStorageRegistry().getSSTableFlushCallbacks();
+		final List<BiConsumer<TupleStoreName, Long>> callbacks 
+			= storage.getStorageRegistry().getSSTableFlushCallbacks();
 		
-		for(final SSTableFlushCallback callback : callbacks) {
+		for(final BiConsumer<TupleStoreName, Long> callback : callbacks) {
 			try {
-				callback.flushCallback(sstableManager.getSSTableName(), timestamp);
+				callback.accept(sstableManager.getSSTableName(), timestamp);
 			} catch(Exception e) {
 				logger.error("Got exception while executing callback", e);
 			}
@@ -188,7 +189,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	 * @throws Exception
 	 */
 	protected int writeMemtable(final String dataDirectory, final Memtable memtable, 
-			final SSTableManager sstableManager) throws Exception {
+			final TupleStoreManager sstableManager) throws Exception {
 		
 		final int tableNumber = sstableManager.increaseTableNumber();
 		

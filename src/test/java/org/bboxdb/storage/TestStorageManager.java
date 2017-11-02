@@ -17,13 +17,19 @@
  *******************************************************************************/
 package org.bboxdb.storage;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import org.bboxdb.PersonEntity;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.DeletedTuple;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.ObjectSerializer;
 import org.bboxdb.util.RejectedException;
@@ -38,12 +44,12 @@ public class TestStorageManager {
 	/**
 	 * The instance of the storage manager
 	 */
-	protected SSTableManager storageManager;
+	protected TupleStoreManager storageManager;
 	
 	/**
 	 * The name of the test relation
 	 */
-	protected final static SSTableName TEST_RELATION = new SSTableName("1_testgroup1_abc");
+	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("1_testgroup1_abc");
 	
 	/**
 	 * The amount of tuples for the big insert test
@@ -53,11 +59,11 @@ public class TestStorageManager {
 	/**
 	 * The storage registry
 	 */
-	protected static StorageRegistry storageRegistry;
+	protected static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException, BBoxDBException {
-		storageRegistry = new StorageRegistry();
+		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 	}
 	
@@ -71,8 +77,15 @@ public class TestStorageManager {
 
 	@Before
 	public void init() throws StorageManagerException {
+		// Delete the old table
 		storageRegistry.deleteTable(TEST_RELATION);
-		storageManager = storageRegistry.getSSTableManager(TEST_RELATION);
+		
+		// Create a new table
+		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder.create().build();
+		storageRegistry.createTable(TEST_RELATION, tupleStoreConfiguration);
+		
+		// Assure table is created successfully
+		storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
 	}
 	
@@ -80,7 +93,7 @@ public class TestStorageManager {
 	public void testInsertElements1() throws Exception {
 		final Tuple tuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
 		storageManager.put(tuple);
-		Assert.assertEquals(tuple, storageManager.get("1"));
+		Assert.assertEquals(tuple, storageManager.get("1").get(0));
 	}
 	
 	@Test
@@ -91,7 +104,7 @@ public class TestStorageManager {
 		storageManager.put(tuple1);
 		storageManager.put(tuple2);
 		
-		Assert.assertEquals(tuple2, storageManager.get("1"));
+		Assert.assertEquals(tuple2, storageManager.get("1").get(0));
 	}
 	
 	@Test
@@ -101,7 +114,11 @@ public class TestStorageManager {
 		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, serializer.serialize(person1));
 		
 		storageManager.put(createdTuple);
-		final Tuple readTuple = storageManager.get("1");
+		final List<Tuple> readTuples = storageManager.get("1");
+		
+		Assert.assertTrue(readTuples.size() == 1);
+		
+		final Tuple readTuple = readTuples.get(0);
 		
 		final PersonEntity readPerson1 = serializer.deserialize(readTuple.getDataBytes());
 		
@@ -110,8 +127,8 @@ public class TestStorageManager {
 	
 	@Test
 	public void getNonExisting() throws Exception {
-		Assert.assertEquals(null, storageManager.get("1"));
-		Assert.assertEquals(null, storageManager.get("1000"));
+		Assert.assertTrue(storageManager.get("1").isEmpty());
+		Assert.assertTrue(storageManager.get("1000").isEmpty());
 	}
 	
 	@Test(expected=NullPointerException.class)
@@ -126,10 +143,10 @@ public class TestStorageManager {
 		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
 		storageManager.put(createdTuple);
 		
-		Assert.assertEquals(createdTuple, storageManager.get("1"));
+		Assert.assertEquals(createdTuple, storageManager.get("1").get(0));
 		
 		storageManager.delete("1", MicroSecondTimestampProvider.getNewTimestamp());
-		Assert.assertEquals(null, storageManager.get("1"));
+		Assert.assertTrue(storageManager.get("1").get(0) instanceof DeletedTuple);
 	}
 	
 	@Test
@@ -148,9 +165,10 @@ public class TestStorageManager {
 		
 		storageManager.flush();
 		
-		final Tuple resultTuple = storageManager.get(Integer.toString(SPECIAL_TUPLE));
+		final List<Tuple> readTuples = storageManager.get(Integer.toString(SPECIAL_TUPLE));
 		
-		Assert.assertEquals(null, resultTuple);
+		Assert.assertEquals(1, readTuples.size());
+		Assert.assertTrue(readTuples.get(0) instanceof DeletedTuple);
 	}
 	
 	@Test
@@ -160,8 +178,8 @@ public class TestStorageManager {
 		int DELETE_AFTER = (int) (MAX_TUPLES * 0.75);
 		
 		// Ensure that the tuple is not contained in the storage manager
-		final Tuple resultTuple = storageManager.get(Integer.toString(SPECIAL_TUPLE));
-		Assert.assertEquals(null, resultTuple);
+		final List<Tuple> readTuples = storageManager.get(Integer.toString(SPECIAL_TUPLE));
+		Assert.assertTrue(readTuples.isEmpty());
 		
 		for(int i = 0; i < MAX_TUPLES; i++) {
 			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
@@ -176,8 +194,10 @@ public class TestStorageManager {
 		storageManager.flush();	
 		
 		// Fetch the deleted tuple
-		final Tuple resultTuple2 = storageManager.get(Integer.toString(SPECIAL_TUPLE));
-		Assert.assertEquals(null, resultTuple2);
+		final List<Tuple> readTuples2 = storageManager.get(Integer.toString(SPECIAL_TUPLE));
+				
+		Assert.assertEquals(1, readTuples2.size());
+		Assert.assertTrue(readTuples2.get(0) instanceof DeletedTuple);
 	}
 	
 	/**
@@ -208,8 +228,10 @@ public class TestStorageManager {
 		System.out.println("Reading tuples...");
 		// Fetch the deleted tuples
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple resultTuple2 = storageManager.get(Integer.toString(i));
-			Assert.assertEquals(null, resultTuple2);
+			final List<Tuple> readTuples = storageManager.get(Integer.toString(i));
+			
+			Assert.assertEquals(1, readTuples.size());
+			Assert.assertTrue(readTuples.get(0) instanceof DeletedTuple);
 		}
 	}
 	/*
@@ -244,5 +266,152 @@ public class TestStorageManager {
 	 */
 	protected int getNumberOfTuplesForBigInsert() {
 		return 1000000;
+	}
+	
+
+	/**
+	 * Test the storage manager with duplicates
+	 * @throws StorageManagerException 
+	 * @throws RejectedException 
+	 */
+	@Test
+	public void testWithDuplicates() throws StorageManagerException, RejectedException {
+		
+		// Delete the old table
+		storageRegistry.deleteTable(TEST_RELATION);
+		
+		// Create a new table
+		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder
+				.create()
+				.allowDuplicates(true)
+				.build();
+		
+		storageRegistry.createTable(TEST_RELATION, tupleStoreConfiguration);
+		
+		// Assure table is created successfully
+		storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
+		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
+		
+		final Tuple tuple1 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc1".getBytes());
+		storageManager.put(tuple1);
+		
+		final Tuple tuple2 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc2".getBytes());
+		storageManager.put(tuple2);
+
+		final Tuple tuple3 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc3".getBytes());
+		storageManager.put(tuple3);
+
+		final Tuple tuple4 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc4".getBytes());
+		storageManager.put(tuple4);
+
+		final Tuple tuple5 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc5".getBytes());
+		storageManager.put(tuple5);
+
+		final List<Tuple> readTuples = storageManager.get("abc");
+		Assert.assertEquals(5, readTuples.size());
+		Assert.assertTrue(readTuples.contains(tuple1));
+		Assert.assertTrue(readTuples.contains(tuple2));
+		Assert.assertTrue(readTuples.contains(tuple3));
+		Assert.assertTrue(readTuples.contains(tuple4));
+		Assert.assertTrue(readTuples.contains(tuple5));
+	}
+	
+	/**
+	 * Test the storage manager with duplicates
+	 * @throws StorageManagerException 
+	 * @throws RejectedException 
+	 */
+	@Test
+	public void testVersionDuplicates() throws StorageManagerException, RejectedException {
+		
+		// Delete the old table
+		storageRegistry.deleteTable(TEST_RELATION);
+		
+		// Create a new table
+		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder
+				.create()
+				.allowDuplicates(true)
+				.withVersions(3)
+				.build();
+		
+		storageRegistry.createTable(TEST_RELATION, tupleStoreConfiguration);
+		
+		// Assure table is created successfully
+		storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
+		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
+		
+		final Tuple tuple1 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc1".getBytes());
+		storageManager.put(tuple1);
+		
+		final Tuple tuple2 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc2".getBytes());
+		storageManager.put(tuple2);
+
+		final Tuple tuple3 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc3".getBytes());
+		storageManager.put(tuple3);
+
+		final Tuple tuple4 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc4".getBytes());
+		storageManager.put(tuple4);
+
+		final Tuple tuple5 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc5".getBytes());
+		storageManager.put(tuple5);
+
+		final List<Tuple> readTuples = storageManager.get("abc");
+		Assert.assertEquals(3, readTuples.size());
+		Assert.assertTrue(readTuples.contains(tuple3));
+		Assert.assertTrue(readTuples.contains(tuple4));
+		Assert.assertTrue(readTuples.contains(tuple5));
+	}
+	
+	/**
+	 * Test the storage manager with duplicates - ttl version
+	 * @throws StorageManagerException 
+	 * @throws RejectedException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testTTLDuplicates() throws StorageManagerException, RejectedException, InterruptedException {
+		
+		// The TTL
+		final int TTL_IN_MS = 5000;
+		
+		// Delete the old table
+		storageRegistry.deleteTable(TEST_RELATION);
+		
+		// Create a new table
+		final TupleStoreConfiguration tupleStoreConfiguration = TupleStoreConfigurationBuilder
+				.create()
+				.allowDuplicates(true)
+				.withTTL(TTL_IN_MS, TimeUnit.MILLISECONDS)
+				.build();
+		
+		storageRegistry.createTable(TEST_RELATION, tupleStoreConfiguration);
+		
+		// Assure table is created successfully
+		storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
+		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
+		
+		final Tuple tuple1 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc1".getBytes());
+		storageManager.put(tuple1);
+		
+		final Tuple tuple2 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc2".getBytes());
+		storageManager.put(tuple2);
+
+		final Tuple tuple3 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc3".getBytes());
+		storageManager.put(tuple3);
+
+		final Tuple tuple4 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc4".getBytes());
+		storageManager.put(tuple4);
+
+		final Tuple tuple5 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc5".getBytes());
+		storageManager.put(tuple5);
+
+		final List<Tuple> readTuples = storageManager.get("abc");
+		Assert.assertFalse(readTuples.isEmpty());
+		
+		// Sleep longer than TTL
+		Thread.sleep(TTL_IN_MS * 2);
+		
+		final List<Tuple> readTuples2 = storageManager.get("abc");
+		Assert.assertTrue(readTuples2.isEmpty());
 	}
 }

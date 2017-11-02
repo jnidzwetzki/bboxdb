@@ -21,7 +21,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
@@ -30,7 +30,7 @@ import org.bboxdb.util.io.DataEncoderHelper;
 
 public class SSTableReader extends AbstractTableReader {
 
-	public SSTableReader(final String directory, final SSTableName tablename, final int tablenumer) throws StorageManagerException {
+	public SSTableReader(final String directory, final TupleStoreName tablename, final int tablenumer) throws StorageManagerException {
 		super(directory, tablename, tablenumer);
 	}
 	

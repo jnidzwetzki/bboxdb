@@ -26,10 +26,12 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableConst;
-import org.bboxdb.storage.sstable.SSTableManager;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactory;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.util.DuplicateResolver;
 import org.bboxdb.util.SortedIteratorMerger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +67,7 @@ public class SSTableCompactor {
 	/**
 	 * The SStable manager
 	 */
-	protected final SSTableManager sstableManager;
+	protected final TupleStoreManager tupleStoreManager;
 	
 	/**
 	 * The resulting writer
@@ -82,10 +84,10 @@ public class SSTableCompactor {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactor.class);
 
-	public SSTableCompactor(final SSTableManager sstableManager, 
+	public SSTableCompactor(final TupleStoreManager sstableManager, 
 			final List<SSTableKeyIndexReader> sstableIndexReader) {
 		
-		this.sstableManager = sstableManager;
+		this.tupleStoreManager = sstableManager;
 		this.sstableIndexReader = sstableIndexReader;
 		this.readTuples = 0;
 		this.writtenTuples = 0;
@@ -117,10 +119,13 @@ public class SSTableCompactor {
 					.map(r -> r.iterator())
 					.collect(Collectors.toList());
 			
+			final DuplicateResolver<Tuple> newestKeyResolver = TupleDuplicateResolverFactory.build(
+					tupleStoreManager.getTupleStoreConfiguration());
+			
 			final SortedIteratorMerger<Tuple> sortedIteratorMerger = new SortedIteratorMerger<>(
 					iterators, 
-					TupleHelper.TUPLE_KEY_COMPARATOR, 
-					TupleHelper.NEWEST_TUPLE_DUPLICATE_RESOLVER);
+					TupleHelper.TUPLE_KEY_AND_VERSION_COMPARATOR, 
+					newestKeyResolver);
 						
 			for(final Tuple tuple : sortedIteratorMerger) {
 				checkForThreadTermination();
@@ -135,6 +140,7 @@ public class SSTableCompactor {
 			closeSSTableWriter();
 		}
 	}
+
 	
 	/**
 	 * Check for the thread termination
@@ -147,13 +153,31 @@ public class SSTableCompactor {
 	}
 
 	/**
+	 *  Deleted tuples can be removed in a major compactification
+	 *  only when no duplicate keys are allowed. Otherwise this is needed to 
+	 *  invalidate tuples in the tuple history
+	 * @return
+	 */
+	protected boolean skipDeletedTuplesToOutput() {
+		if(! isMajorCompaction()) {
+			return false;
+		}
+		
+		if(tupleStoreManager.getTupleStoreConfiguration().isAllowDuplicates()) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
 	 * Add the given tuple to the output file
 	 * @param tuple
 	 * @throws StorageManagerException
 	 */
 	protected void addTupleToWriter(final Tuple tuple) throws StorageManagerException {
-		// Don't add deleted tuples to output in a major compaction
-		if(isMajorCompaction() && tuple instanceof DeletedTuple) {
+		
+		if(tuple instanceof DeletedTuple && skipDeletedTuplesToOutput()) {
 			return;
 		}
 		
@@ -226,9 +250,9 @@ public class SSTableCompactor {
 		final long estimatedMaxNumberOfEntries = calculateNumberOfEntries(sstableIndexReader);
 
 		final String directory = sstableIndexReader.get(0).getDirectory();		
-		final int tablenumber = sstableManager.increaseTableNumber();
+		final int tablenumber = tupleStoreManager.increaseTableNumber();
 		
-		final SSTableWriter sstableWriter = new SSTableWriter(directory, sstableManager.getSSTableName(), 
+		final SSTableWriter sstableWriter = new SSTableWriter(directory, tupleStoreManager.getSSTableName(), 
 				tablenumber, estimatedMaxNumberOfEntries);
 				
 		sstableWriter.open();

@@ -26,7 +26,7 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.util.io.DataEncoderHelper;
 
 public class DeleteTableRequest extends NetworkRequestPackage {
@@ -34,12 +34,12 @@ public class DeleteTableRequest extends NetworkRequestPackage {
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName table;
+	protected final TupleStoreName table;
 
 	public DeleteTableRequest(final short sequenceNumber, final String table) {
 		super(sequenceNumber);
 		
-		this.table = new SSTableName(table);
+		this.table = new TupleStoreName(table);
 	}
 	
 	@Override
@@ -98,7 +98,7 @@ public class DeleteTableRequest extends NetworkRequestPackage {
 		return NetworkConst.REQUEST_TYPE_DELETE_TABLE;
 	}
 
-	public SSTableName getTable() {
+	public TupleStoreName getTable() {
 		return table;
 	}
 

@@ -20,7 +20,7 @@ package org.bboxdb.storage.sstable;
 import java.io.File;
 
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 
 public class SSTableHelper {
 	/**
@@ -30,7 +30,7 @@ public class SSTableHelper {
 	 * @return the sequence number
 	 * @throws StorageManagerException 
 	 */
-	public static int extractSequenceFromFilename(final SSTableName tablename, final String filename)
+	public static int extractSequenceFromFilename(final TupleStoreName tablename, final String filename)
 			throws StorageManagerException {
 		
 		final String sequence = filename
@@ -53,7 +53,7 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/2_dgroup1
 	 */
-	public static String getDistributionGroupDir(final String directory, final SSTableName name) {
+	public static String getDistributionGroupDir(final String directory, final TupleStoreName name) {
 		return getDistributionGroupDir(directory, name.getDistributionGroup());
 	}
 	
@@ -100,10 +100,10 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/2_dgroup1/relation1(_regionid)
 	 */
-	public static String getSSTableDir(final String directory, final SSTableName name) {
+	public static String getSSTableDir(final String directory, final TupleStoreName name) {
 		
 		final StringBuilder regionSuffix = new StringBuilder();
-		if(name.getRegionId() != SSTableName.INVALID_REGIONID) {
+		if(name.getRegionId() != TupleStoreName.INVALID_REGIONID) {
 			regionSuffix.append("_");
 			regionSuffix.append(name.getRegionId());
 		}
@@ -122,7 +122,7 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/2_dgroup1/relation1/sstable_relation1_2
 	 */
-	public static String getSSTableBase(final String directory, final SSTableName name, final int tablenumber) {
+	public static String getSSTableBase(final String directory, final TupleStoreName name, final int tablenumber) {
 		return getSSTableDir(directory, name)
 				+ File.separator 
 				+ SSTableConst.SST_FILE_PREFIX 
@@ -137,7 +137,7 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.sst
 	 */
-	public static String getSSTableFilename(final String directory, final SSTableName name, final int tablenumber) {
+	public static String getSSTableFilename(final String directory, final TupleStoreName name, final int tablenumber) {
 		return getSSTableBase(directory, name, tablenumber)
 				+ SSTableConst.SST_FILE_SUFFIX;
 	}
@@ -150,7 +150,7 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.idx
 	 */
-	public static String getSSTableIndexFilename(final String directory, final SSTableName name, final int tablenumber) {
+	public static String getSSTableIndexFilename(final String directory, final TupleStoreName name, final int tablenumber) {
 		return getSSTableBase(directory, name, tablenumber)
 				+ SSTableConst.SST_INDEX_SUFFIX;
 	}
@@ -163,7 +163,7 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.blm
 	 */
-	public static String getSSTableBloomFilterFilename(final String directory, final SSTableName name, int tablebumber) {
+	public static String getSSTableBloomFilterFilename(final String directory, final TupleStoreName name, int tablebumber) {
 		return getSSTableBase(directory, name, tablebumber)
 				+ SSTableConst.SST_BLOOM_SUFFIX;
 	}
@@ -176,7 +176,7 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.sidx
 	 */
-	public static String getSSTableSpatialIndexFilename(final String directory, final SSTableName name, final int tablenumber) {
+	public static String getSSTableSpatialIndexFilename(final String directory, final TupleStoreName name, final int tablenumber) {
 		return getSSTableBase(directory, name, tablenumber)
 				+ SSTableConst.SST_SPATIAL_INDEX_SUFFIX;
 	}
@@ -189,7 +189,7 @@ public class SSTableHelper {
 	 * 
 	 * @return e.g. /tmp/bboxdb/data/relation1/sstable_relation1_2.meta
 	 */
-	public static String getSSTableMetadataFilename(final String directory, final SSTableName name, final int tablenumber) {
+	public static String getSSTableMetadataFilename(final String directory, final TupleStoreName name, final int tablenumber) {
 		return getSSTableBase(directory, name, tablenumber)
 				+ SSTableConst.SST_META_SUFFIX;
 	}
@@ -244,5 +244,14 @@ public class SSTableHelper {
 	public static boolean isFileNameSSTableMetadata(final String filename) {
 		return filename.startsWith(SSTableConst.SST_FILE_PREFIX) 
 				&& filename.endsWith(SSTableConst.SST_META_SUFFIX);
+	}
+	
+	/**
+	 * Belongs the given filename meta file?
+	 * @param filename
+	 * @return
+	 */
+	public static boolean isFileNameMetadata(final String filename) {
+		return filename.endsWith(SSTableConst.SST_META_SUFFIX);
 	}
 }

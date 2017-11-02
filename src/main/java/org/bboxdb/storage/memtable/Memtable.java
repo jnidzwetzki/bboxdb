@@ -20,33 +20,31 @@ package org.bboxdb.storage.memtable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.BloomFilterBuilder;
-import org.bboxdb.storage.ReadWriteTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
+import org.bboxdb.storage.tuplestore.ReadWriteTupleStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.BloomFilter;
 
-public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
+public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	
 	/**
 	 * The name of the corresponding table
 	 */
-	protected final SSTableName table;
+	protected final TupleStoreName table;
 	
 	/**
 	 * The memtable
@@ -113,7 +111,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(Memtable.class);
 	
-	public Memtable(final SSTableName table, final int entries, final long maxSizeInMemory) {
+	public Memtable(final TupleStoreName table, final int entries, final long maxSizeInMemory) {
 		this.table = table;
 		this.maxEntries = entries;
 		this.maxSizeInMemory = maxSizeInMemory;
@@ -184,26 +182,26 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	 * 
 	 */
 	@Override
-	public Tuple get(final String key) {
+	public List<Tuple> get(final String key) {
 		
-		assert (usage.get() > 0);
+		assert (usage.get() > 0) : "Usage is 0";
+		
+		final List<Tuple> resultList = new ArrayList<>();
 		
 		// The element is not contained in the bloom filter
 		if(! bloomFilter.mightContain(key)) {
-			return null;
+			return resultList;
 		}
-		
-		Tuple mostRecentTuple = null;
-		
+				
 		for(int i = 0; i < freePos; i++) {
 			final Tuple possibleTuple = data[i];
 			
 			if(possibleTuple != null && possibleTuple.getKey().equals(key)) {
-				mostRecentTuple = TupleHelper.returnMostRecentTuple(mostRecentTuple, possibleTuple);
+				resultList.add(possibleTuple);
 			}
 		}
 		
-		return mostRecentTuple;
+		return resultList;
 	}
 	
 	/**
@@ -226,27 +224,13 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	public List<Tuple> getSortedTupleList() {
 		assert (usage.get() > 0);
 
-		final SortedMap<String, Tuple> allTuples = new TreeMap<>();
+		final List<Tuple> resultList = new ArrayList<>(freePos + 1);
 		
 		for(int i = 0; i < freePos; i++) {
-			final String key = data[i].getKey();
-			
-			if(! allTuples.containsKey(key)) {
-				allTuples.put(key, data[i]);
-			} else {
-				if(allTuples.get(key).getVersionTimestamp() < data[i].getVersionTimestamp()) {
-					
-					if(data[i] instanceof DeletedTuple) {
-						allTuples.remove(key);
-					} else {
-						allTuples.put(key, data[i]);
-					}
-				}
-			}
+			resultList.add(data[i]);
 		}
 		
-		final List<Tuple> resultList = new ArrayList<>(allTuples.size());
-		resultList.addAll(allTuples.values());
+		resultList.sort(TupleHelper.TUPLE_KEY_AND_VERSION_COMPARATOR);
 		
 		return resultList;
 	}
@@ -439,7 +423,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStorage {
 	}
 	
 	@Override
-	public SSTableName getSStableName() {
+	public TupleStoreName getSStableName() {
 		return table;
 	}
 	

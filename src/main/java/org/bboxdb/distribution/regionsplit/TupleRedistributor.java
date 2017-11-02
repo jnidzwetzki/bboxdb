@@ -30,10 +30,10 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.Storage;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class TupleRedistributor {
 	/**
 	 * The sstable name for data redistribution
 	 */
-	protected final SSTableName sstableName;
+	protected final TupleStoreName sstableName;
 	
 	/**
 	 * The list with the distribution regions
@@ -57,7 +57,7 @@ public class TupleRedistributor {
 	/**
 	 * The storage reference
 	 */
-	protected Storage storage;
+	protected DiskStorage storage;
 	
 	/**
 	 * The Logger
@@ -65,7 +65,7 @@ public class TupleRedistributor {
 	protected final static Logger logger = LoggerFactory.getLogger(TupleRedistributor.class);
 
 	
-	public TupleRedistributor(final Storage storage, final SSTableName ssTableName) {
+	public TupleRedistributor(final DiskStorage storage, final TupleStoreName ssTableName) {
 		this.storage = storage;
 		this.sstableName = ssTableName;
 		this.regionMap = new HashMap<DistributionRegion, List<TupleSink>>();
@@ -95,12 +95,12 @@ public class TupleRedistributor {
 			
 			if(instance.socketAddressEquals(localInstance)) {
 				
-				final SSTableName localTableName = sstableName.cloneWithDifferntRegionId(
+				final TupleStoreName localTableName = sstableName.cloneWithDifferntRegionId(
 						distributionRegion.getRegionId());
 				
-				final SSTableManager storageManager = storage
+				final TupleStoreManager storageManager = storage
 						.getStorageRegistry()
-						.getSSTableManager(localTableName);
+						.getTupleStoreManager(localTableName);
 				
 				regionMap.get(distributionRegion).add(new LocalTupleSink(sstableName, storageManager));
 			
@@ -181,7 +181,7 @@ abstract class TupleSink {
 	 */
 	public long sinkedTuples;
 	
-	public TupleSink(final SSTableName tablename) {
+	public TupleSink(final TupleStoreName tablename) {
 		this.tablename = tablename.getFullname();
 		this.sinkedTuples = 0;
 	}
@@ -209,7 +209,7 @@ class NetworkTupleSink extends TupleSink {
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(NetworkTupleSink.class);
 	
-	public NetworkTupleSink(final SSTableName tablename, final BBoxDBClient connection) {
+	public NetworkTupleSink(final TupleStoreName tablename, final BBoxDBClient connection) {
 		super(tablename);
 		this.connection = connection;
 	}
@@ -231,9 +231,9 @@ class LocalTupleSink extends TupleSink {
 	/**
 	 * The storage manager to store the tuple
 	 */
-	protected final SSTableManager storageManager;
+	protected final TupleStoreManager storageManager;
 	
-	public LocalTupleSink(final SSTableName tablename, final SSTableManager storageManager) {
+	public LocalTupleSink(final TupleStoreName tablename, final TupleStoreManager storageManager) {
 		super(tablename);
 		this.storageManager = storageManager;
 	}

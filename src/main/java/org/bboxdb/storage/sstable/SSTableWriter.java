@@ -29,8 +29,8 @@ import java.util.List;
 
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableMetaData;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreMetaData;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
@@ -52,7 +52,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName name;
+	protected final TupleStoreName name;
 	
 	/**
 	 * The directory for the SSTables
@@ -124,7 +124,7 @@ public class SSTableWriter implements AutoCloseable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableWriter.class);
 	
-	public SSTableWriter(final String directory, final SSTableName name, 
+	public SSTableWriter(final String directory, final TupleStoreName name, 
 			final int tablenumber, final long estimatedNumberOfTuples) {
 		
 		this.directory = directory;
@@ -298,7 +298,7 @@ public class SSTableWriter implements AutoCloseable {
 	 * @throws IOException
 	 */
 	protected void writeMetadata() throws IOException {
-		final SSTableMetaData metadata = metadataBuilder.getMetaData();
+		final TupleStoreMetaData metadata = metadataBuilder.getMetaData();
 		metadata.exportToYamlFile(metadatafile);
 	}
 	
@@ -409,7 +409,7 @@ public class SSTableWriter implements AutoCloseable {
 	/**
 	 * Get the sstable name
 	 */
-	public SSTableName getName() {
+	public TupleStoreName getName() {
 		return name;
 	}
 	

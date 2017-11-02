@@ -24,8 +24,8 @@ import java.util.List;
 import org.bboxdb.PersonEntity;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
@@ -51,7 +51,7 @@ public class TestMemtable {
 			memtable.shutdown();
 		}
 		
-		memtable = new Memtable(new SSTableName("3_mygroup_test"), 1000, 10000);
+		memtable = new Memtable(new TupleStoreName("3_mygroup_test"), 1000, 10000);
 		memtable.init();
 		memtable.acquire();
 	}
@@ -76,7 +76,7 @@ public class TestMemtable {
 		final Tuple tuple = new Tuple("1", null, "abc".getBytes());
 		memtable.put(tuple);
 		
-		Assert.assertEquals(tuple, memtable.get("1"));
+		Assert.assertEquals(tuple, memtable.get("1").get(0));
 	}
 	
 	/**
@@ -90,8 +90,10 @@ public class TestMemtable {
 		final Tuple createdTuple = new Tuple("1", null, serializer.serialize(person1));
 		
 		memtable.put(createdTuple);
-		final Tuple readTuple = memtable.get("1");
+		final List<Tuple> readTupleList = memtable.get("1");
+		Assert.assertTrue(readTupleList.size() == 1);
 		
+		final Tuple readTuple = readTupleList.get(0);
 		final PersonEntity readPerson1 = serializer.deserialize(readTuple.getDataBytes());
 		
 		Assert.assertEquals(person1, readPerson1);
@@ -103,8 +105,8 @@ public class TestMemtable {
 	 */
 	@Test
 	public void getNonExisting() throws Exception {
-		Assert.assertEquals(null, memtable.get("1"));
-		Assert.assertEquals(null, memtable.get("1000"));
+		Assert.assertTrue(memtable.get("1").isEmpty());
+		Assert.assertTrue(memtable.get("1000").isEmpty());
 	}
 	
 	/**
@@ -127,9 +129,9 @@ public class TestMemtable {
 		final Tuple createdTuple = new Tuple("1", null, "abc".getBytes());
 		memtable.put(createdTuple);
 		
-		Assert.assertEquals(createdTuple, memtable.get("1"));
+		Assert.assertEquals(createdTuple, memtable.get("1").get(0));
 		memtable.delete("1", MicroSecondTimestampProvider.getNewTimestamp());
-		Assert.assertTrue(memtable.get("1") instanceof DeletedTuple);
+		Assert.assertTrue(memtable.get("1").get(1) instanceof DeletedTuple);
 	}
 	
 	/**
@@ -171,7 +173,24 @@ public class TestMemtable {
 		// Update Key 1
 		final Tuple createdTuple2 = new Tuple("1", null, "defh".getBytes());
 		memtable.put(createdTuple2);
+		Assert.assertEquals(memtable.getSortedTupleList().size(), 2);
+	}
+	
+
+	/**
+	 * Test the sorted tuple list
+	 * @throws StorageManagerException 
+	 */
+	@Test
+	public void testSortedList3() throws StorageManagerException {
+		// Insert key 1
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes());
+		memtable.put(createdTuple1);
 		Assert.assertEquals(memtable.getSortedTupleList().size(), 1);
+		
+		// Delete Key 1
+		memtable.delete("1", System.currentTimeMillis());
+		Assert.assertEquals(memtable.getSortedTupleList().size(), 2);
 	}
 	
 	/**
@@ -305,6 +324,7 @@ public class TestMemtable {
 	 * Test newest and oldest timestamp
 	 * @throws StorageManagerException
 	 */
+	@Test
 	public void testNewestOldest() throws StorageManagerException {
 		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
 		memtable.put(createdTuple1);
@@ -321,5 +341,5 @@ public class TestMemtable {
 		Assert.assertEquals(1, memtable.getOldestTupleVersionTimestamp());
 		Assert.assertEquals(500, memtable.getNewestTupleVersionTimestamp());
 	}
-	
+
 }

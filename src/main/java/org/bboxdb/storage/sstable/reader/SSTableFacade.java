@@ -20,6 +20,7 @@ package org.bboxdb.storage.sstable.reader;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,27 +28,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.BloomFilterBuilder;
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableMetaData;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreMetaData;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReader;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReaderFactory;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.BloomFilter;
 
-public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
+public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 	 
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName tablename;
+	protected final TupleStoreName tablename;
 	
 	/**
 	 * The Directory for the SSTables
@@ -67,7 +68,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	/**
 	 * The metadata of the sstable
 	 */
-	protected final SSTableMetaData ssTableMetadata;
+	protected final TupleStoreMetaData ssTableMetadata;
 	
 	/**
 	 * The spatial index
@@ -105,7 +106,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	protected static final Logger logger = LoggerFactory.getLogger(SSTableFacade.class);
 	
 
-	public SSTableFacade(final String directory, final SSTableName tablename, final int tablenumber, 
+	public SSTableFacade(final String directory, final TupleStoreName tablename, final int tablenumber, 
 			final int keyCacheElements) throws StorageManagerException {
 		super();
 		this.tablename = tablename;
@@ -117,7 +118,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		
 		// Meta data
 		final File metadataFile = getMetadataFile(directory, tablename, tablenumber);
-		ssTableMetadata = SSTableMetaData.importFromYamlFile(metadataFile);
+		ssTableMetadata = TupleStoreMetaData.importFromYamlFile(metadataFile);
 		
 		this.usage = new AtomicInteger(0);
 		deleteOnClose = false;
@@ -131,7 +132,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	 * @param tablenumber
 	 * @return
 	 */
-	protected File getSpatialIndexFile(final String directory, final SSTableName tablename, final int tablenumber) {
+	protected File getSpatialIndexFile(final String directory, final TupleStoreName tablename, final int tablenumber) {
 		final String spatialIndexFileName = SSTableHelper.getSSTableSpatialIndexFilename(directory, tablename, tablenumber);
 		final File spatialIndexFile = new File(spatialIndexFileName);
 		return spatialIndexFile;
@@ -144,7 +145,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	 * @param tablenumber
 	 * @return
 	 */
-	protected File getBloomFilterFile(final String directory, final SSTableName tablename, final int tablenumber) {
+	protected File getBloomFilterFile(final String directory, final TupleStoreName tablename, final int tablenumber) {
 		final String bloomFilterFileName = SSTableHelper.getSSTableBloomFilterFilename(directory, tablename, tablenumber);
 		final File bloomFilterFile = new File(bloomFilterFileName);
 		return bloomFilterFile;
@@ -198,7 +199,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	 * @return
 	 */
 	protected File getMetadataFile(final String directory,
-			final SSTableName tablename, final int tablenumber) {
+			final TupleStoreName tablename, final int tablenumber) {
 		final String metadatafile = SSTableHelper.getSSTableMetadataFilename(directory, tablename, tablenumber);
 		return new File(metadatafile);
 	}
@@ -342,7 +343,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	}
 
 	@Override
-	public SSTableName getSStableName() {
+	public TupleStoreName getSStableName() {
 		return tablename;
 	}
 	
@@ -358,7 +359,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 		return usage;
 	}
 
-	public SSTableMetaData getSsTableMetadata() {
+	public TupleStoreMetaData getSsTableMetadata() {
 		return ssTableMetadata;
 	}
 
@@ -378,7 +379,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 	}
 
 	@Override
-	public Tuple get(final String key) throws StorageManagerException {
+	public List<Tuple> get(final String key) throws StorageManagerException {
 		
 		assert (usage.get() > 0);
 
@@ -387,18 +388,19 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStorage {
 			logger.warn("File {} does not have a bloom filter", tablename);
 		} else {
 			if(! bloomfilter.mightContain(key)) {
-				return null;
+				// Not found
+				return new ArrayList<>();
 			}
 		}
 		
-		final int position = ssTableKeyIndexReader.getPositionForTuple(key);
+		final List<Tuple> resultList = new ArrayList<>();
+		final List<Integer> positions = ssTableKeyIndexReader.getPositionsForTuple(key);
 		
-		// Does the tuple exist?
-		if(position == -1) {
-			return null;
+		for(final Integer position : positions) {
+			resultList.add(ssTableReader.getTupleAtPosition(position));
 		}
 		
-		return ssTableReader.getTupleAtPosition(position);
+		return resultList;
 	}
 
 	@Override

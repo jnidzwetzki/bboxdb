@@ -19,9 +19,10 @@ package org.bboxdb.tools;
 
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
+import java.util.List;
 
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
@@ -45,7 +46,7 @@ public class SSTableExaminer implements Runnable {
 	/**
 	 * The name of the relation
 	 */
-	protected final SSTableName relationname;
+	protected final TupleStoreName relationname;
 	
 	/**
 	 * The key to examine
@@ -59,7 +60,7 @@ public class SSTableExaminer implements Runnable {
 
 	
 	
-	public SSTableExaminer(final String baseDirectory, final SSTableName relationname, final int tableNumber, final String examineKey) {
+	public SSTableExaminer(final String baseDirectory, final TupleStoreName relationname, final int tableNumber, final String examineKey) {
 		this.baseDirectory = baseDirectory;
 		this.tableNumber = tableNumber;
 		this.relationname = relationname;
@@ -101,12 +102,12 @@ public class SSTableExaminer implements Runnable {
 			throws StorageManagerException {
 		
 		System.out.println("Step3: Seach via index");
-		int pos = ssTableIndexReader.getPositionForTuple(examineKey);
-		System.out.println("Got index pos: " + pos);
+		final List<Integer> positions = ssTableIndexReader.getPositionsForTuple(examineKey);
+		System.out.println("Got index pos: " + positions);
 		
 		// Tuple found
-		if(pos != -1) {
-			System.out.println(ssTableReader.getTupleAtPosition(pos));
+		for(final Integer position : positions) {
+			System.out.println(ssTableReader.getTupleAtPosition(position));
 		}
 	}
 
@@ -164,7 +165,7 @@ public class SSTableExaminer implements Runnable {
 		
 		final String baseDirectory = args[0];
 		
-		final SSTableName relationname = new SSTableName(args[1]);
+		final TupleStoreName relationname = new TupleStoreName(args[1]);
 		if(! relationname.isValid()) {
 			logger.error("Relationname {} is invalid, exiting", args[0]);
 			System.exit(-1);

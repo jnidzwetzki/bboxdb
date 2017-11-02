@@ -21,11 +21,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
-import org.bboxdb.storage.registry.Storage;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.FileSizeHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.bboxdb.util.io.UnsafeMemoryHelper;
@@ -37,7 +38,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	/**
 	 * The storage
 	 */
-	protected Storage storage;
+	protected DiskStorage storage;
 	
 	/**
 	 * The maximal number of seconds for data to stay in memory
@@ -49,7 +50,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableCheckpointThread.class);
 
-	public SSTableCheckpointThread(final Storage storage, final int maxUncheckpointedSeconds) {
+	public SSTableCheckpointThread(final DiskStorage storage, final int maxUncheckpointedSeconds) {
 		this.storage = storage;
 		this.maxUncheckpointedMiliseconds = TimeUnit.SECONDS.toMillis(maxUncheckpointedSeconds);
 	}
@@ -59,16 +60,16 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 */
 	protected void runThread() {
 
-		final StorageRegistry storageRegistry = storage.getStorageRegistry();
+		final TupleStoreManagerRegistry storageRegistry = storage.getStorageRegistry();
 
 		while(! Thread.currentThread().isInterrupted()) {
 			
 			logMemoryStatistics();
 			
-			final List<SSTableName> allTables = storageRegistry.getSSTablesForLocation(
+			final List<TupleStoreName> allTables = storageRegistry.getTupleStoresForLocation(
 					storage.getBasedir().getAbsolutePath());
 	
-			for(final SSTableName ssTableName : allTables) {
+			for(final TupleStoreName ssTableName : allTables) {
 				logger.debug("Executing checkpoint check for: {}", ssTableName);
 				
 				if(Thread.currentThread().isInterrupted()) {
@@ -92,10 +93,10 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 * @param storageRegistry
 	 * @param ssTableName
 	 */
-	protected void createCheckpointIfNedded(final StorageRegistry storageRegistry, 
-			final SSTableName ssTableName) {
+	protected void createCheckpointIfNedded(final TupleStoreManagerRegistry storageRegistry, 
+			final TupleStoreName ssTableName) {
 		try {
-			final SSTableManager ssTableManager = storageRegistry.getSSTableManager(ssTableName);
+			final TupleStoreManager ssTableManager = storageRegistry.getTupleStoreManager(ssTableName);
 			createCheckpoint(ssTableManager);
 		} catch (InterruptedException e) {
 			logger.debug("Got interrupted exception, stopping checkpoint thread");
@@ -119,9 +120,9 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 * Decide if a new checkpoint is needed
 	 * @return
 	 */
-	protected boolean isCheckpointNeeded(final SSTableManager ssTableManager) {
+	protected boolean isCheckpointNeeded(final TupleStoreManager ssTableManager) {
 		
-		final List<ReadOnlyTupleStorage> inMemoryStores 
+		final List<ReadOnlyTupleStore> inMemoryStores 
 			= ssTableManager.getAllInMemoryStorages();
 	
 		if(inMemoryStores.isEmpty()) {
@@ -145,7 +146,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 * Create a new checkpoint, this means flush all old memtables to disk
 	 * @throws InterruptedException 
 	 */
-	protected void createCheckpoint(final SSTableManager ssTableManager) throws InterruptedException {
+	protected void createCheckpoint(final TupleStoreManager ssTableManager) throws InterruptedException {
 		if(isCheckpointNeeded(ssTableManager)) {
 			final String fullname = ssTableManager.getSSTableName().getFullname();
 			logger.debug("Create a checkpoint for: {}", fullname);

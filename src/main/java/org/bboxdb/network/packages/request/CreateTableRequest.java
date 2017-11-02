@@ -26,27 +26,28 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.storage.entity.SSTableConfiguration;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.entity.UpdateAnomalyResolver;
 
 public class CreateTableRequest extends NetworkRequestPackage {
 	
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName table;
+	protected final TupleStoreName table;
 	
 	/**
 	 * The configuration of the SSTable
 	 */
-	protected final SSTableConfiguration ssTableConfiguration;
+	protected final TupleStoreConfiguration ssTableConfiguration;
 
 	public CreateTableRequest(final short sequenceNumber, final String table, 
-			final SSTableConfiguration ssTableConfiguration) {
+			final TupleStoreConfiguration ssTableConfiguration) {
 		super(sequenceNumber);
 		
 		this.ssTableConfiguration = ssTableConfiguration;
-		this.table = new SSTableName(table);
+		this.table = new TupleStoreName(table);
 	}
 	
 	@Override
@@ -63,8 +64,8 @@ public class CreateTableRequest extends NetworkRequestPackage {
 				bb.put((byte) 0x00);
 			}
 			
-			// Unused byte
-			bb.put((byte) 0x00);
+			// Update anomaly resolver
+			bb.put(ssTableConfiguration.getUpdateAnomalyResolver().getValue());
 			
 			// TTL
 			bb.putLong(ssTableConfiguration.getTTL());
@@ -123,11 +124,12 @@ public class CreateTableRequest extends NetworkRequestPackage {
 			allowDuplicates = true;
 		}
 		
-		// Unused 
-		encodedPackage.get();
+		// Update anomyly resolver
+		final byte updateAnomalyResolver = encodedPackage.get();
 		
 		// TTL
-		final long ttl = encodedPackage.getLong();		
+		final long ttl = encodedPackage.getLong();
+		
 		// Versions
 		final int versions = encodedPackage.getInt();
 		
@@ -152,30 +154,34 @@ public class CreateTableRequest extends NetworkRequestPackage {
 		encodedPackage.get(spatialWriterBytes, 0, spatialWriterBytes.length);
 		final String spatialIndexWriter = new String(spatialWriterBytes);
 				
-		final SSTableConfiguration ssTableConfiguration = new SSTableConfiguration();
-		ssTableConfiguration.setAllowDuplicates(allowDuplicates);
-		ssTableConfiguration.setTtl(ttl);
-		ssTableConfiguration.setVersions(versions);
-		ssTableConfiguration.setSpatialIndexReader(spatialIndexReader);
-		ssTableConfiguration.setSpatialIndexWriter(spatialIndexWriter);
+		final TupleStoreConfiguration tupleStoreConfiguration = new TupleStoreConfiguration();
+		tupleStoreConfiguration.setAllowDuplicates(allowDuplicates);
+		tupleStoreConfiguration.setTtl(ttl);
+		tupleStoreConfiguration.setVersions(versions);
+		tupleStoreConfiguration.setSpatialIndexReader(spatialIndexReader);
+		tupleStoreConfiguration.setSpatialIndexWriter(spatialIndexWriter);
+		
+		final UpdateAnomalyResolver updateAnomalyResolverEnum 
+			= UpdateAnomalyResolver.buildFromByte(updateAnomalyResolver);
+		tupleStoreConfiguration.setUpdateAnomalyResolver(updateAnomalyResolverEnum);
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new CreateTableRequest(sequenceNumber, table, ssTableConfiguration);
+		return new CreateTableRequest(sequenceNumber, table, tupleStoreConfiguration);
 	}
-
+	
 	@Override
 	public byte getPackageType() {
 		return NetworkConst.REQUEST_TYPE_CREATE_TABLE;
 	}
 
-	public SSTableName getTable() {
+	public TupleStoreName getTable() {
 		return table;
 	}
 
-	public SSTableConfiguration getSsTableConfiguration() {
+	public TupleStoreConfiguration getTupleStoreConfiguration() {
 		return ssTableConfiguration;
 	}
 

@@ -62,9 +62,9 @@ import org.bboxdb.network.server.handler.request.KeepAliveHandler;
 import org.bboxdb.network.server.handler.request.ListTablesHandler;
 import org.bboxdb.network.server.handler.request.NextPageHandler;
 import org.bboxdb.network.server.handler.request.RequestHandler;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.CloseableHelper;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.bboxdb.util.concurrent.ExecutorUtil;
@@ -149,14 +149,14 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	/**
 	 * The storage reference
 	 */
-	protected StorageRegistry storageRegistry;
+	protected TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
 
-	public ClientConnectionHandler(final StorageRegistry storageRegistry, final Socket clientSocket) {
+	public ClientConnectionHandler(final TupleStoreManagerRegistry storageRegistry, final Socket clientSocket) {
 		
 		// Client socket
 		this.clientSocket = clientSocket;
@@ -178,7 +178,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		}
 		
 		// The active queries
-		activeQueries = new HashMap<Short, ClientQuery>();
+		activeQueries = new HashMap<>();
 		
 		// Create a thread pool that blocks after submitting more than MAX_PENDING_REQUESTS
 		threadPool = ExecutorUtil.getBoundThreadPoolExecutor(10, MAX_PENDING_REQUESTS);
@@ -402,7 +402,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * @throws PackageEncodeException 
 	 * @throws IOException 
 	 */
-	public void writeResultTuple(final short packageSequence, final SSTableName requestTable, final Tuple tuple) throws IOException, PackageEncodeException {
+	public void writeResultTuple(final short packageSequence, final TupleStoreName requestTable, final Tuple tuple) throws IOException, PackageEncodeException {
 		
 		final TupleResponse responsePackage = new TupleResponse(
 				packageSequence, 
@@ -671,7 +671,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * Get the storage registry
 	 * @return
 	 */
-	public StorageRegistry getStorageRegistry() {
+	public TupleStoreManagerRegistry getStorageRegistry() {
 		return storageRegistry;
 	}
 }

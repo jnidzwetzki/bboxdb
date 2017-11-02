@@ -17,18 +17,21 @@
  *******************************************************************************/
 package org.bboxdb.storage.queryprocessor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
-import org.bboxdb.storage.sstable.SSTableManager;
-import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactory;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.util.DuplicateResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +45,7 @@ public class QueryProcessor {
 	/**
 	 * The sstable manager
 	 */
-	protected final SSTableManager ssTableManager;
+	protected final TupleStoreManager tupleStoreManager;
 
 	/**
 	 * Is the iterator ready?
@@ -57,12 +60,12 @@ public class QueryProcessor {
 	/**
 	 * The unprocessed storages
 	 */
-	protected final List<ReadOnlyTupleStorage> unprocessedStorages;
+	protected final List<ReadOnlyTupleStore> unprocessedStorages;
 
 	/**
 	 * The aquired storages
 	 */
-	protected final List<ReadOnlyTupleStorage> aquiredStorages;
+	protected final List<ReadOnlyTupleStore> aquiredStorages;
 
 	
 	/**
@@ -71,13 +74,13 @@ public class QueryProcessor {
 	protected static final Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
 	
 	
-	public QueryProcessor(final QueryPlan queryplan, final SSTableManager ssTableManager) {
+	public QueryProcessor(final QueryPlan queryplan, final TupleStoreManager ssTableManager) {
 		this.queryplan = queryplan;
-		this.ssTableManager = ssTableManager;
+		this.tupleStoreManager = ssTableManager;
 		this.ready = false;
 		this.seenTuples = new HashMap<String, Long>();
-		this.aquiredStorages = new LinkedList<ReadOnlyTupleStorage>();
-		this.unprocessedStorages = new LinkedList<ReadOnlyTupleStorage>();
+		this.aquiredStorages = new LinkedList<ReadOnlyTupleStore>();
+		this.unprocessedStorages = new LinkedList<ReadOnlyTupleStore>();
 	}
 	
 	public CloseableIterator<Tuple> iterator() {
@@ -94,12 +97,12 @@ public class QueryProcessor {
 			/**
 			 * The active storage
 			 */
-			protected ReadOnlyTupleStorage activeStorage = null;
+			protected ReadOnlyTupleStore activeStorage = null;
 			
 			/**
 			 * The next precomputed tuple
 			 */
-			protected Tuple nextTuple;
+			protected final List<Tuple> nextTuples = new ArrayList<>();
 			
 			/**
 			 * Setup the next iterator
@@ -134,10 +137,8 @@ public class QueryProcessor {
 				if(ready == false) {
 					throw new IllegalStateException("Iterator is not ready");
 				}
-
-				nextTuple = null;
 				
-				while(nextTuple == null) {
+				while(nextTuples.isEmpty()) {
 					if(activeIterator == null || ! activeIterator.hasNext()) {
 						setupNewIterator();
 					}
@@ -159,7 +160,7 @@ public class QueryProcessor {
 						}
 					} else {
 						// Set nextTuple != null to exit the loop
-						nextTuple = getMostRecentVersionForTuple(possibleTuple);
+						nextTuples.addAll(getVersionsForTuple(possibleTuple));
 						seenTuples.put(possibleTuple.getKey(), possibleTuple.getVersionTimestamp());
 					}
 				}
@@ -174,32 +175,40 @@ public class QueryProcessor {
 			 * @return
 			 * @throws StorageManagerException 
 			 */
-			public Tuple getMostRecentVersionForTuple(final Tuple tuple) throws StorageManagerException {
+			public List<Tuple> getVersionsForTuple(final Tuple tuple) throws StorageManagerException {
 				
-				Tuple resultTuple = activeStorage.get(tuple.getKey());
+				final List<Tuple> resultTuples = new ArrayList<>();
+				resultTuples.addAll(activeStorage.get(tuple.getKey()));
 				
-				for(final ReadOnlyTupleStorage readOnlyTupleStorage : unprocessedStorages) {
-					if(TupleHelper.canStorageContainNewerTuple(resultTuple, readOnlyTupleStorage)) {
-						final Tuple possibleTuple = readOnlyTupleStorage.get(tuple.getKey());
-						resultTuple = TupleHelper.returnMostRecentTuple(resultTuple, possibleTuple);
-					}
+				for(final ReadOnlyTupleStore readOnlyTupleStorage : unprocessedStorages) {
+					final List<Tuple> possibleTuples = readOnlyTupleStorage.get(tuple.getKey());
+					resultTuples.addAll(possibleTuples);
 				}
 				
-				return resultTuple;
+				final TupleStoreConfiguration tupleStoreConfiguration 
+					= tupleStoreManager.getTupleStoreConfiguration();
+				
+				final DuplicateResolver<Tuple> resolver 
+					= TupleDuplicateResolverFactory.build(tupleStoreConfiguration);
+				
+				// Removed unwanted tuples for key
+				resolver.removeDuplicates(resultTuples);
+				
+				return resultTuples;
 			}
 			
 			@Override
 			public boolean hasNext() {
 		
 				try {
-					if(nextTuple == null) {
+					if(nextTuples.isEmpty()) {
 						setupNextTuple();
 					}
 				} catch (StorageManagerException e) {
 					logger.error("Got an exception while locating next tuple", e);
 				}
 				
-				return nextTuple != null;
+				return (! nextTuples.isEmpty());
 			}
 
 			@Override
@@ -209,13 +218,11 @@ public class QueryProcessor {
 					throw new IllegalStateException("Iterator is not ready");
 				}
 				
-				if(nextTuple == null) {
-					throw new IllegalStateException("Next tuple is null, did you really call hasNext() before?");
+				if(nextTuples.isEmpty()) {
+					throw new IllegalStateException("Next tuple is empty, did you really call hasNext() before?");
 				}
 				
-				final Tuple resultTuple = nextTuple;
-				nextTuple = null;
-				return resultTuple;
+				return nextTuples.remove(0);
 			}
 
 			@Override
@@ -230,7 +237,7 @@ public class QueryProcessor {
 	 */
 	protected void cleanup() {
 		ready = false;
-		ssTableManager.releaseStorage(aquiredStorages);
+		tupleStoreManager.releaseStorage(aquiredStorages);
 		aquiredStorages.clear();
 		unprocessedStorages.clear();
 	}
@@ -243,7 +250,7 @@ public class QueryProcessor {
 		
 		try {
 			aquiredStorages.clear();
-			aquiredStorages.addAll(ssTableManager.aquireStorage());
+			aquiredStorages.addAll(tupleStoreManager.aquireStorage());
 			
 			unprocessedStorages.clear();
 			unprocessedStorages.addAll(aquiredStorages);

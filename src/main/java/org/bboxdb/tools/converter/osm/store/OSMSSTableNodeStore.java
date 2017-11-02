@@ -25,10 +25,10 @@ import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
 import org.bboxdb.util.RejectedException;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
@@ -45,12 +45,12 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
     /**
      * The sstable manager
      */
-    protected  SSTableManager storageManager;
+    protected  TupleStoreManager storageManager;
 	
 	/**
 	 * The storage registry
 	 */
-	protected StorageRegistry storageRegistry;
+	protected TupleStoreManagerRegistry storageRegistry;
 	
 	/**
 	 * The Logger
@@ -59,16 +59,16 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 
 
 	public OSMSSTableNodeStore(final List<String> storageDirectories, final long inputLength) {
-		final SSTableName tableName = new SSTableName("2_group1_test");
+		final TupleStoreName tableName = new TupleStoreName("2_group1_test");
 
-		storageRegistry = new StorageRegistry();
+		storageRegistry = new TupleStoreManagerRegistry();
 		
 		try {
 			storageRegistry.init();
 
 			BBoxDBConfigurationManager.getConfiguration().setStorageDirectories(storageDirectories);
 			storageRegistry.deleteTable(tableName);
-			storageManager = storageRegistry.getSSTableManager(tableName);
+			storageManager = storageRegistry.getTupleStoreManager(tableName);
 		} catch (StorageManagerException | InterruptedException | BBoxDBException e) {
 			logger.error("Got an exception while getting sstable manager: ", e);
 		}
@@ -118,13 +118,13 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 	 * @throws StorageManagerException 
 	 */
 	public SerializableNode getNodeForId(final long nodeId) throws StorageManagerException {
-		final Tuple tuple = storageManager.get(Long.toString(nodeId));
+		final List<Tuple> tuples = storageManager.get(Long.toString(nodeId));
 		
-		if(tuple == null) {
+		if(tuples.isEmpty()) {
 			throw new StorageManagerException("Unable to locate tuple for: " + nodeId);
 		}
 		
-		final byte[] nodeBytes = tuple.getDataBytes();
+		final byte[] nodeBytes = tuples.get(0).getDataBytes();
 		return SerializableNode.fromByteArray(nodeBytes);
 	}
 

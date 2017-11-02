@@ -23,11 +23,18 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
+import org.bboxdb.storage.sstable.duplicateresolver.NewestTupleDuplicateResolver;
+import org.bboxdb.storage.sstable.duplicateresolver.TTLAndVersionTupleDuplicateResolver;
+import org.bboxdb.storage.sstable.duplicateresolver.TTLTupleDuplicateResolver;
+import org.bboxdb.storage.sstable.duplicateresolver.VersionTupleDuplicateResolver;
+import org.bboxdb.util.DuplicateResolver;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,10 +58,10 @@ public class TestTupleHelper {
 	}
 	
 	/**
-	 * Test the tuple resolver
+	 * Test the duplicate tuple resolver
 	 */
 	@Test
-	public void testTupleDuplicateResolver() {
+	public void testTupleDuplicateResolverNewest() {
 		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
 		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
 		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
@@ -65,27 +72,197 @@ public class TestTupleHelper {
 		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
 				tupleD, tupleE, tupleF));
 		
-		TupleHelper.NEWEST_TUPLE_DUPLICATE_RESOLVER.handleDuplicates(tupleList);
+		final DuplicateResolver<Tuple> resolver = new NewestTupleDuplicateResolver();
+		resolver.removeDuplicates(tupleList);
+		
+		Assert.assertEquals(1, tupleList.size());
+	}
+	
+	/**
+	 * Test the tuple resolver
+	 */
+	@Test
+	public void testTupleDuplicateResolverTTLAndVersion1() {
+		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		
+		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
+				tupleD, tupleE, tupleF));
+		
+		// basetime = 6, ttl = 3 / tuple older than 2 are removed with 10 duplicates
+		final DuplicateResolver<Tuple> resolver = new TTLAndVersionTupleDuplicateResolver(4, 
+				TimeUnit.MICROSECONDS, 10, 6);
+		
+		resolver.removeDuplicates(tupleList);
+		
+		Assert.assertEquals(3, tupleList.size());
+		Assert.assertTrue(tupleList.contains(tupleD));
+		Assert.assertTrue(tupleList.contains(tupleE));
+		Assert.assertTrue(tupleList.contains(tupleB));
+	}
+	
+	/**
+	 * Test the tuple resolver
+	 */
+	@Test
+	public void testTupleDuplicateResolverTTLAndVersion2() {
+		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		
+		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
+				tupleD, tupleE, tupleF));
+		
+		
+		// basetime = 6, ttl = 3 / tuple older than 2 are removed with 10 duplicates
+		final DuplicateResolver<Tuple> resolver = new TTLAndVersionTupleDuplicateResolver(4, 
+				TimeUnit.MICROSECONDS, 1, 6);
+		
+		resolver.removeDuplicates(tupleList);
+		
 		Assert.assertEquals(1, tupleList.size());
 		Assert.assertTrue(tupleList.contains(tupleD));
 	}
+	
+
+	/**
+	 * Test the tuple resolver
+	 */
+	@Test
+	public void testTupleDuplicateResolverTTL() {
+		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		
+		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
+				tupleD, tupleE, tupleF));
+		
+		// basetime = 6, ttl = 3 / tuple older than 3 are removed
+		final DuplicateResolver<Tuple> resolver = new TTLTupleDuplicateResolver(3, TimeUnit.MICROSECONDS, 6);
+		resolver.removeDuplicates(tupleList);
+		
+		Assert.assertEquals(2, tupleList.size());
+		Assert.assertTrue(tupleList.contains(tupleD));
+		Assert.assertTrue(tupleList.contains(tupleE));
+	}
+	
+	/**
+	 * Test the tuple resolver - versions
+	 */
+	@Test
+	public void testTupleDuplicateResolverVersions() {
+		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		
+		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
+				tupleD, tupleE, tupleF));
+		
+		final DuplicateResolver<Tuple> resolver = new VersionTupleDuplicateResolver(3);
+		resolver.removeDuplicates(tupleList);
+		
+		Assert.assertEquals(3, tupleList.size());
+		Assert.assertTrue(tupleList.contains(tupleB));
+		Assert.assertTrue(tupleList.contains(tupleD));
+		Assert.assertTrue(tupleList.contains(tupleE));
+	}
+	
+	/**
+	 * Test the do nothing tuple resolver
+	 */
+	@Test
+	public void testDoNothingTupleDuplicateResolverVersions() {
+		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		
+		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
+				tupleD, tupleE, tupleF));
+		
+		final DuplicateResolver<Tuple> resolver = new DoNothingDuplicateResolver();
+		resolver.removeDuplicates(tupleList);
+		
+		Assert.assertEquals(6, tupleList.size());
+		Assert.assertTrue(tupleList.contains(tupleA));
+		Assert.assertTrue(tupleList.contains(tupleB));
+		Assert.assertTrue(tupleList.contains(tupleC));
+		Assert.assertTrue(tupleList.contains(tupleD));
+		Assert.assertTrue(tupleList.contains(tupleF));
+	}
+	
 	
 	/**
 	 * Test the tuple key comparator
 	 */
 	@Test
-	public void testTupleKeyComparator() {
+	public void testTupleKeyComparator1() {
 		final Tuple tupleA = new Tuple("xyz", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
 		final Tuple tupleB = new Tuple("ijk", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
 		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
 		
 		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC));
 		
-		tupleList.sort(TupleHelper.TUPLE_KEY_COMPARATOR);
+		tupleList.sort(TupleHelper.TUPLE_KEY_AND_VERSION_COMPARATOR);
 		
 		Assert.assertEquals(tupleC, tupleList.get(0));
 		Assert.assertEquals(tupleB, tupleList.get(1));
 		Assert.assertEquals(tupleA, tupleList.get(2));
+	}
+	
+	/**
+	 * Test the tuple key comparator
+	 */
+	@Test
+	public void testTupleKeyComparator2() {
+		final Tuple tupleA = new Tuple("xyz", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("ijk", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 5);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+
+		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, tupleD));
+		
+		tupleList.sort(TupleHelper.TUPLE_KEY_AND_VERSION_COMPARATOR);
+		
+		Assert.assertEquals(tupleD, tupleList.get(0));
+		Assert.assertEquals(tupleC, tupleList.get(1));
+		Assert.assertEquals(tupleB, tupleList.get(2));
+		Assert.assertEquals(tupleA, tupleList.get(3));
+	}
+	
+	/**
+	 * Test the tuple key comparator
+	 */
+	@Test
+	public void testTupleKeyComparator3() {
+		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 5);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+
+		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, tupleD));
+		
+		tupleList.sort(TupleHelper.TUPLE_KEY_AND_VERSION_COMPARATOR);
+		
+		Assert.assertEquals(tupleB, tupleList.get(0));
+		Assert.assertEquals(tupleD, tupleList.get(1));
+		Assert.assertEquals(tupleA, tupleList.get(2));
+		Assert.assertEquals(tupleC, tupleList.get(3));
 	}
 	
 	/**

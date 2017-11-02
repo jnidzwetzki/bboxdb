@@ -34,12 +34,12 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.Storage;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +68,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	/**
 	 * The storage reference
 	 */
-	protected Storage storage;
+	protected DiskStorage storage;
 	
 	/**
 	 * The Logger
@@ -86,7 +86,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param region
 	 * @throws StorageManagerException 
 	 */
-	public void initFromSSTablename(final Storage storage, final SSTableName ssTableName) throws StorageManagerException {
+	public void initFromSSTablename(final DiskStorage storage, final TupleStoreName ssTableName) throws StorageManagerException {
 		
 		assert (treeAdapter == null) : "Unable to reinit instance";
 		assert (region == null) : "Unable to reinit instance";
@@ -228,7 +228,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			
 			final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
 			
-			final List<SSTableName> localTables = storage.getStorageRegistry()
+			final List<TupleStoreName> localTables = storage.getStorageRegistry()
 					.getAllTablesForDistributionGroupAndRegionId
 					(distributionGroupName, region.getRegionId());
 	
@@ -239,7 +239,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 			assert (removeResult == true) : "Unable to remove mapping for: " + region;
 			
 			// Redistribute data
-			for(final SSTableName ssTableName : localTables) {
+			for(final TupleStoreName ssTableName : localTables) {
 				// Reject new writes and flush to disk
 				stopFlushToDisk(ssTableName);
 				distributeData(ssTableName);	
@@ -273,16 +273,16 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @throws Exception
 	 * @throws InterruptedException
 	 */
-	protected void deleteLocalData(final List<SSTableName> localTables)
+	protected void deleteLocalData(final List<TupleStoreName> localTables)
 			throws StorageManagerException, Exception, InterruptedException {
 		
-		for(final SSTableName ssTableName : localTables) {
-			final SSTableManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
+		for(final TupleStoreName ssTableName : localTables) {
+			final TupleStoreManager ssTableManager = storage.getStorageRegistry().getTupleStoreManager(ssTableName);
 			
-			final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
+			final List<ReadOnlyTupleStore> storages = new ArrayList<>();
 			
 			try {
-				final List<ReadOnlyTupleStorage> aquiredStorages = ssTableManager.aquireStorage();
+				final List<ReadOnlyTupleStore> aquiredStorages = ssTableManager.aquireStorage();
 				storages.addAll(aquiredStorages);
 				storages.forEach(s -> s.deleteOnClose());	
 			} catch (Exception e) {
@@ -322,11 +322,11 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param ssTableName
 	 * @throws StorageManagerException 
 	 */
-	protected void distributeData(final SSTableName ssTableName) throws Exception {
+	protected void distributeData(final TupleStoreName ssTableName) throws Exception {
 		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
-		final SSTableManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
+		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getTupleStoreManager(ssTableName);
 		
 		// Spread data
 		final TupleRedistributor tupleRedistributor = getTupleRedistributor(region, ssTableName);
@@ -340,8 +340,8 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param ssTableName
 	 * @throws StorageManagerException
 	 */
-	protected void stopFlushToDisk(final SSTableName ssTableName) throws StorageManagerException {
-		final SSTableManager ssTableManager = storage.getStorageRegistry().getSSTableManager(ssTableName);
+	protected void stopFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
+		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getTupleStoreManager(ssTableName);
 		
 		// Stop flush thread, so new data remains in memory
 		ssTableManager.setToReadOnly();
@@ -354,7 +354,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @return
 	 * @throws StorageManagerException
 	 */
-	protected TupleRedistributor getTupleRedistributor(final DistributionRegion region, final SSTableName ssTableName)
+	protected TupleRedistributor getTupleRedistributor(final DistributionRegion region, final TupleStoreName ssTableName)
 			throws StorageManagerException {
 		
 		final DistributionRegion leftRegion = region.getLeftChild();
@@ -376,19 +376,19 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @param onlyInMemoryData 
 	 * @throws StorageManagerException 
 	 */
-	protected void spreadTupleStores(final SSTableManager ssTableManager, 
+	protected void spreadTupleStores(final TupleStoreManager ssTableManager, 
 			final TupleRedistributor tupleRedistributor) throws Exception {
 		
-		final List<ReadOnlyTupleStorage> storages = new ArrayList<>();
+		final List<ReadOnlyTupleStore> storages = new ArrayList<>();
 		
 		try {
-			final List<ReadOnlyTupleStorage> aquiredStorages = ssTableManager.aquireStorage();
+			final List<ReadOnlyTupleStore> aquiredStorages = ssTableManager.aquireStorage();
 			storages.addAll(aquiredStorages);
 			
 			final int totalSotrages = aquiredStorages.size();
 			
 			for(int i = 0; i < totalSotrages; i++) {
-				final ReadOnlyTupleStorage storage = aquiredStorages.get(i);
+				final ReadOnlyTupleStore storage = aquiredStorages.get(i);
 				logger.info("Spread sstable facade {} number {} of {}", 
 						storage.getInternalName(), i, totalSotrages - 1);
 						spreadStorage(tupleRedistributor, storage);
@@ -414,7 +414,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * @throws Exception 
 	 */
 	protected void spreadStorage(final TupleRedistributor tupleRedistributor,
-			final ReadOnlyTupleStorage storage) throws Exception {
+			final ReadOnlyTupleStore storage) throws Exception {
 		
 		for(final Tuple tuple : storage) {
 			tupleRedistributor.redistributeTuple(tuple);

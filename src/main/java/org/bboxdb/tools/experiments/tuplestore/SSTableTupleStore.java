@@ -19,12 +19,13 @@ package org.bboxdb.tools.experiments.tuplestore;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class SSTableTupleStore implements TupleStore {
 	/**
 	 * The storage manager
 	 */
-	private SSTableManager storageManager;
+	private TupleStoreManager storageManager;
 	
 	/**
 	 * The database dir
@@ -44,12 +45,12 @@ public class SSTableTupleStore implements TupleStore {
 	/**
 	 * The storage registry
 	 */
-	protected StorageRegistry storageRegistry;
+	protected TupleStoreManagerRegistry storageRegistry;
 
 	/**
 	 * The sstable name
 	 */
-	protected final static SSTableName SSTABLE_NAME = new SSTableName("2_group1_test");
+	protected final static TupleStoreName SSTABLE_NAME = new TupleStoreName("2_group1_test");
 
 	/**
 	 * The service state
@@ -73,13 +74,13 @@ public class SSTableTupleStore implements TupleStore {
 
 	@Override
 	public Tuple readTuple(final String key) throws Exception {
-		final Tuple tuple = storageManager.get(key);
+		final List<Tuple> tuples = storageManager.get(key);
 		
-		if(tuple == null) {
+		if(tuples.isEmpty()) {
 			throw new RuntimeException("Unable to locate tuple for key: " + key);
 		}
 		
-		return tuple;
+		return tuples.get(0);
 	}
 
 	@Override
@@ -119,10 +120,10 @@ public class SSTableTupleStore implements TupleStore {
 		final File dataDir = new File(dir.getAbsoluteFile() + "/data");
 		dataDir.mkdirs();
 		
-		storageRegistry = new StorageRegistry();
+		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 		
-		storageManager = storageRegistry.getSSTableManager(SSTABLE_NAME);
+		storageManager = storageRegistry.getTupleStoreManager(SSTABLE_NAME);
 		
 		serviceState.dispatchToRunning();
 	}
@@ -131,7 +132,7 @@ public class SSTableTupleStore implements TupleStore {
 	 * Get the storage registry
 	 * @return
 	 */
-	public StorageRegistry getStorageRegistry() {
+	public TupleStoreManagerRegistry getStorageRegistry() {
 		return storageRegistry;
 	}
 }

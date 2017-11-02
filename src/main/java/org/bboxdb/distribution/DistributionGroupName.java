@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class DistributionGroupName implements Comparable<DistributionGroupName> 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableName.class);
+	private final static Logger logger = LoggerFactory.getLogger(TupleStoreName.class);
 	
 
 	public DistributionGroupName(final String fullname) {

@@ -27,7 +27,7 @@ import java.util.Arrays;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.util.io.UnsafeMemoryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	/**
 	 * The name of the table
 	 */
-	protected final SSTableName name;
+	protected final TupleStoreName name;
 	
 	/**
 	 * The filename of the table
@@ -74,7 +74,7 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
 	
-	public AbstractTableReader(final String directory, final SSTableName name, final int tablenumer) throws StorageManagerException {
+	public AbstractTableReader(final String directory, final TupleStoreName name, final int tablenumer) throws StorageManagerException {
 		this.name = name;
 		this.directory = directory;
 		this.tablebumber = tablenumer;
@@ -202,7 +202,7 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	 * Get the name
 	 * @return the file handle
 	 */
-	public SSTableName getName() {
+	public TupleStoreName getName() {
 		return name;
 	}
 

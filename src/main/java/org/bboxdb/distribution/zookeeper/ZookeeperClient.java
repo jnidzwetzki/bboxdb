@@ -66,7 +66,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	/**
 	 * Is the membership observer active?
 	 */
-	protected volatile boolean membershipObserver = false;
+	protected volatile boolean membershipObserverActive = false;
 
 	/**
 	 * Service state
@@ -195,7 +195,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			return false;
 		}
 
-		membershipObserver = true;
+		membershipObserverActive = true;
 		readMembershipAndRegisterWatch();
 
 		return true;
@@ -207,12 +207,12 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 */
 	public void stopMembershipObserver() {
 
-		if (membershipObserver == true) {
+		if (membershipObserverActive == true) {
 			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
 			distributedInstanceManager.zookeeperDisconnect();
 		}
 
-		membershipObserver = false;
+		membershipObserverActive = false;
 	}
 
 	/**
@@ -221,7 +221,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 */
 	protected boolean readMembershipAndRegisterWatch() {
 
-		if (!membershipObserver) {
+		if (! membershipObserverActive) {
 			logger.info("Ignore membership event, because observer is not active");
 			return false;
 		}
@@ -665,6 +665,17 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	}
 
 	/**
+	 * Get the path for the systems
+	 * 
+	 * @param clustername
+	 * @return
+	 */
+	protected String getTablesPath() {
+		return getClusterPath() + "/" + ZookeeperNodeNames.NAME_TABLES;
+	}
+
+	
+	/**
 	 * Get the path of the zookeeper nodes
 	 */
 	protected String getActiveInstancesPath() {
@@ -800,6 +811,18 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		}
 	}
 
+	/**
+	 * Reat the given path and return a string - simple version
+	 * @param pathName
+	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public String readPathAndReturnString(final String pathName) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		return readPathAndReturnString(pathName, false, null);
+	}
+	
 	/**
 	 * Read the given path and returns a string result
 	 * 

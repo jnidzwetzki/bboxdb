@@ -21,17 +21,19 @@ import java.util.List;
 
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.SSTableName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
 import org.bboxdb.storage.queryprocessor.QueryProcessor;
 import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
-import org.bboxdb.storage.registry.StorageRegistry;
-import org.bboxdb.storage.sstable.SSTableManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.RejectedException;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -43,16 +45,16 @@ public class TestQueryProcessing {
 	/**
 	 * The table name for tests
 	 */
-	protected static final SSTableName TABLE = new SSTableName("2_junitgroup_table1");
+	protected static final TupleStoreName TABLE = new TupleStoreName("2_junitgroup_table1");
 	
 	/**
 	 * The storage registry
 	 */
-	protected static StorageRegistry storageRegistry;
+	protected static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException, BBoxDBException {
-		storageRegistry = new StorageRegistry();
+		storageRegistry = new TupleStoreManagerRegistry();
 		storageRegistry.init();
 	}
 	
@@ -64,6 +66,12 @@ public class TestQueryProcessing {
 		}
 	}
 	
+	@Before
+	public void init() throws StorageManagerException {
+		storageRegistry.deleteTable(TABLE);
+		storageRegistry.createTable(TABLE, new TupleStoreConfiguration());
+	}
+	
 	/** 
 	 * Simple BBox query
 	 * @throws StorageManagerException
@@ -71,9 +79,7 @@ public class TestQueryProcessing {
 	 */
 	@Test
 	public void testBBoxQuery1() throws StorageManagerException, RejectedException {
-
-		storageRegistry.deleteTable(TABLE);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -104,9 +110,7 @@ public class TestQueryProcessing {
 	 */
 	@Test
 	public void testBBoxQuery2() throws StorageManagerException, RejectedException {
-		
-		storageRegistry.deleteTable(TABLE);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -141,8 +145,7 @@ public class TestQueryProcessing {
 	 */
 	@Test
 	public void testBBoxQuery3() throws StorageManagerException, InterruptedException, RejectedException {
-		storageRegistry.deleteTable(TABLE);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());
@@ -179,8 +182,7 @@ public class TestQueryProcessing {
 	 */
 	@Test
 	public void testBBoxQuery4() throws StorageManagerException, InterruptedException, RejectedException {
-		storageRegistry.deleteTable(TABLE);
-		final SSTableManager storageManager = storageRegistry.getSSTableManager(TABLE);
+		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
 		final Tuple tuple2 = new Tuple("2", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value2".getBytes());

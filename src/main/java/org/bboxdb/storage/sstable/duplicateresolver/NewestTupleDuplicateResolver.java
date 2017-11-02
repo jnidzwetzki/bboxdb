@@ -15,41 +15,29 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.registry;
+package org.bboxdb.storage.sstable.duplicateresolver;
 
-import org.bboxdb.storage.memtable.Memtable;
-import org.bboxdb.storage.sstable.SSTableManager;
+import java.util.List;
 
-public class MemtableAndSSTableManager {
+import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.util.DuplicateResolver;
 
-	/**
-	 * The memtale
-	 */
-	protected final Memtable memtable;
-	
-	/**
-	 * The sstable manager
-	 */
-	protected final SSTableManager ssTableManager;
+public class NewestTupleDuplicateResolver implements DuplicateResolver<Tuple> {
 
-	public MemtableAndSSTableManager(final Memtable memtable, final SSTableManager ssTableManager) {
-		this.memtable = memtable;
-		this.ssTableManager = ssTableManager;
+	@Override
+	public void removeDuplicates(final List<Tuple> unconsumedDuplicates) {
+		Tuple newestTuple = null;
+		
+		for(final Tuple tuple : unconsumedDuplicates) {
+			newestTuple = TupleHelper.returnMostRecentTuple(newestTuple, tuple);
+		}
+		
+		unconsumedDuplicates.clear();
+		
+		if(newestTuple != null) {
+			unconsumedDuplicates.add(newestTuple);
+		}
 	}
-	
-	/**
-	 * Get the memtable
-	 * @return
-	 */
-	public Memtable getMemtable() {
-		return memtable;
-	}
-	
-	/**
-	 * Get the sstable manager
-	 * @return
-	 */
-	public SSTableManager getSsTableManager() {
-		return ssTableManager;
-	}
+
 }

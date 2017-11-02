@@ -22,6 +22,8 @@ import java.nio.ByteBuffer;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
@@ -49,14 +51,20 @@ public class DeleteDistributionGroupHandler implements RequestHandler {
 
 		try {
 			final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
-			logger.info("Delete distribution group: " + deletePackage.getDistributionGroup());
+			final String distributionGroup = deletePackage.getDistributionGroup();
+			
+			logger.info("Delete distribution group: " + distributionGroup);
 			
 			// Delete in Zookeeper
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			distributionGroupZookeeperAdapter.deleteDistributionGroup(deletePackage.getDistributionGroup());
+			distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
+			
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+			tupleStoreAdapter.deleteDistributionGroup(distributionGroup);
 			
 			// Delete local stored data
-			final DistributionGroupName distributionGroupName = new DistributionGroupName(deletePackage.getDistributionGroup());
+			final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
 			clientConnectionHandler.getStorageRegistry().deleteAllTablesInDistributionGroup(distributionGroupName);
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));

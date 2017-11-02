@@ -29,6 +29,6 @@ public interface DuplicateResolver<E> {
 	 * @param unconsumedDuplicates
 	 * @return
 	 */
-	public void handleDuplicates(final List<E> unconsumedDuplicates);
+	public void removeDuplicates(final List<E> duplicates);
 
 }

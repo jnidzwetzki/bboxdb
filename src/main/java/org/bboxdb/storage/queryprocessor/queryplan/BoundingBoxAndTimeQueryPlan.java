@@ -19,13 +19,13 @@ package org.bboxdb.storage.queryprocessor.queryplan;
 
 import java.util.Iterator;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.datasource.DataSource;
 import org.bboxdb.storage.queryprocessor.datasource.SpatialIndexDataSource;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 
 public class BoundingBoxAndTimeQueryPlan implements QueryPlan {
 
@@ -48,7 +48,7 @@ public class BoundingBoxAndTimeQueryPlan implements QueryPlan {
 	}
 
 	@Override
-	public Iterator<Tuple> execute(ReadOnlyTupleStorage readOnlyTupleStorage) {
+	public Iterator<Tuple> execute(ReadOnlyTupleStore readOnlyTupleStorage) {
 		final DataSource dataSource = new SpatialIndexDataSource(readOnlyTupleStorage, boundingBox);
 		
 		final NewerAsVersionTimePredicate predicate = new NewerAsVersionTimePredicate(timestamp);

@@ -93,4 +93,10 @@ public class ZookeeperNodeNames {
 	 */
 	public static final String NAME_REGION_SIZE = "regionsize";
 	
+	/**
+	 * The tables node name
+	 */
+	public static final String NAME_TABLES = "tables";
+	
+	
 }

@@ -15,16 +15,16 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.sstable;
+package org.bboxdb.storage.tuplestore.manager;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.bboxdb.storage.ReadOnlyTupleStorage;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
+import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 
 /**
  * This class holds references to all known tuple storages (sstables, memtables) for 
@@ -51,13 +51,13 @@ public class TupleStoreInstanceManager {
 	/**
 	 * The state (read only / read write) of the manager
 	 */
-	protected volatile SSTableManagerState sstableManagerState;
+	protected volatile TupleStoreManagerState sstableManagerState;
 	
 	
 	public TupleStoreInstanceManager() {		
 		this.sstableFacades = new ArrayList<>();
 		this.unflushedMemtables = new ArrayList<>();
-		this.sstableManagerState = SSTableManagerState.READ_WRITE;
+		this.sstableManagerState = TupleStoreManagerState.READ_WRITE;
 	}
 	
 	/**
@@ -131,8 +131,8 @@ public class TupleStoreInstanceManager {
 	 * Get a list with all active storages
 	 * @return
 	 */
-	public synchronized List<ReadOnlyTupleStorage> getAllTupleStorages() {
-		final List<ReadOnlyTupleStorage> allStorages = new ArrayList<>();
+	public synchronized List<ReadOnlyTupleStore> getAllTupleStorages() {
+		final List<ReadOnlyTupleStore> allStorages = new ArrayList<>();
 		
 		allStorages.add(memtable);
 		allStorages.addAll(unflushedMemtables);
@@ -171,8 +171,8 @@ public class TupleStoreInstanceManager {
 	 * Get all in memory storages
 	 * @return 
 	 */
-	public synchronized List<ReadOnlyTupleStorage> getAllInMemoryStorages() {
-		final List<ReadOnlyTupleStorage> resultList = new ArrayList<ReadOnlyTupleStorage>();
+	public synchronized List<ReadOnlyTupleStore> getAllInMemoryStorages() {
+		final List<ReadOnlyTupleStore> resultList = new ArrayList<ReadOnlyTupleStore>();
 		resultList.add(memtable);
 		resultList.addAll(unflushedMemtables);
 		return resultList;
@@ -204,7 +204,7 @@ public class TupleStoreInstanceManager {
 	 * Set to read only
 	 */
 	public synchronized void setReadOnly() {
-		sstableManagerState = SSTableManagerState.READ_ONLY;
+		sstableManagerState = TupleStoreManagerState.READ_ONLY;
 		this.notifyAll();
 	}
 	
@@ -212,7 +212,7 @@ public class TupleStoreInstanceManager {
 	 * Set to read write
 	 */
 	public synchronized void setReadWrite() {
-		sstableManagerState = SSTableManagerState.READ_WRITE;
+		sstableManagerState = TupleStoreManagerState.READ_WRITE;
 		this.notifyAll();
 	}
 	
@@ -220,7 +220,7 @@ public class TupleStoreInstanceManager {
 	 * Get the state
 	 * @return
 	 */
-	public SSTableManagerState getState() {
+	public TupleStoreManagerState getState() {
 		return sstableManagerState;
 	}
 }

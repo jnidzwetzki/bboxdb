@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
+import java.util.function.BiConsumer;
+
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
@@ -24,20 +26,19 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
-import org.bboxdb.storage.SSTableFlushCallback;
-import org.bboxdb.storage.entity.SSTableName;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableFlushZookeeperAdapter implements SSTableFlushCallback {
+public class TupleStoreFlushZookeeperAdapter implements BiConsumer<TupleStoreName, Long> {
 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableFlushZookeeperAdapter.class);
+	private final static Logger logger = LoggerFactory.getLogger(TupleStoreFlushZookeeperAdapter.class);
 	
 	@Override
-	public void flushCallback(final SSTableName ssTableName, final long flushTimestamp) {
+	public void accept(final TupleStoreName ssTableName, final Long flushTimestamp) {
 		
 		// Fetch the local instance
 		final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
@@ -71,4 +72,5 @@ public class SSTableFlushZookeeperAdapter implements SSTableFlushCallback {
 			return;
 		}
 	}
+
 }
