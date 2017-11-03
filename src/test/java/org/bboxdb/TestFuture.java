@@ -24,6 +24,7 @@ import java.util.concurrent.TimeoutException;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.OperationFutureImpl;
 import org.bboxdb.network.client.future.TupleListFuture;
+import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -182,7 +183,7 @@ public class TestFuture {
 	 */
 	@Test
 	public void testTupleListFuture() {
-		final TupleListFuture tupleListFuture = new TupleListFuture(2);
+		final TupleListFuture tupleListFuture = new TupleListFuture(2, new DoNothingDuplicateResolver());
 		
 		Assert.assertFalse(tupleListFuture.isCompleteResult(0));
 		Assert.assertFalse(tupleListFuture.isCompleteResult(1));

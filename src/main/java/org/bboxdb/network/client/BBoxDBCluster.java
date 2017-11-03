@@ -24,6 +24,7 @@ import java.util.Objects;
 
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
@@ -44,7 +45,9 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.util.DuplicateResolver;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -292,7 +295,10 @@ public class BBoxDBCluster implements BBoxDB {
 			throw new BBoxDBException("queryKey called, but connection list is empty");
 		}
 		
-		final TupleListFuture future = new TupleListFuture();
+		final DuplicateResolver<Tuple> duplicateResolver 
+			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
+		
+		final TupleListFuture future = new TupleListFuture(duplicateResolver);
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for key {} in table {}", key, table);
@@ -313,7 +319,7 @@ public class BBoxDBCluster implements BBoxDB {
 			throw new BBoxDBException("queryBoundingBox called, but connection list is empty");
 		}
 		
-		final TupleListFuture future = new TupleListFuture();
+		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
 		
 		try {
 			final TupleStoreName sstableName = new TupleStoreName(table);
@@ -350,7 +356,7 @@ public class BBoxDBCluster implements BBoxDB {
 			throw new BBoxDBException("queryBoundingBoxAndTime called, but connection list is empty");
 		}
 		
-		final TupleListFuture future = new TupleListFuture();
+		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
 		
 		try {
 			final TupleStoreName sstableName = new TupleStoreName(table);
@@ -387,7 +393,7 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
 		
-		final TupleListFuture future = new TupleListFuture();
+		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
 
 		membershipConnectionService.getAllConnections()
 		 	.stream()
@@ -408,7 +414,7 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
 		
-		final TupleListFuture future = new TupleListFuture();
+		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
 		
 		membershipConnectionService.getAllConnections()
 		 	.stream()

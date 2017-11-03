@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -69,6 +70,9 @@ public class DeleteTableHandler implements RequestHandler {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
 			tupleStoreAdapter.deleteTable(requestTable);
+			
+			// Clear cached data
+			TupleStoreConfigurationCache.getInstance().clear();
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {

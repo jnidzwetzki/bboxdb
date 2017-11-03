@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.distribution.DistributionGroupName;
+import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -66,6 +67,9 @@ public class DeleteDistributionGroupHandler implements RequestHandler {
 			// Delete local stored data
 			final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
 			clientConnectionHandler.getStorageRegistry().deleteAllTablesInDistributionGroup(distributionGroupName);
+			
+			// Clear cached data
+			TupleStoreConfigurationCache.getInstance().clear();
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {

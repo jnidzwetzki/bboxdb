@@ -24,6 +24,7 @@ import java.util.List;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.TupleListFutureStore;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.bboxdb.util.RejectedException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -51,7 +52,7 @@ public class TestTupleListFutureStore {
 	public void testRejectedExeption() throws InterruptedException, RejectedException {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
 		tupleListFutureStore.shutdown();
-		tupleListFutureStore.put(new TupleListFuture());
+		tupleListFutureStore.put(new TupleListFuture(new DoNothingDuplicateResolver()));
 	}
 
 	@Test
@@ -101,6 +102,10 @@ public class TestTupleListFutureStore {
  */
 class TestTupleListFuture extends TupleListFuture {
 	
+	public TestTupleListFuture() {
+		super(new DoNothingDuplicateResolver());
+	}
+
 	public final static int ELEMENTS = 100;
 	
 	protected int iteratorCalls = 0;

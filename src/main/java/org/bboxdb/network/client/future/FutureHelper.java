@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
+import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
+
 public class FutureHelper {
 
 	/**
@@ -36,7 +38,7 @@ public class FutureHelper {
 	 * @return
 	 */
 	public static TupleListFuture getFailedTupleListFuture(final String failedMessage) {
-		final TupleListFuture future = new TupleListFuture(1);
+		final TupleListFuture future = new TupleListFuture(1, new DoNothingDuplicateResolver());
 		future.setMessage(0, failedMessage);
 		future.setFailedState();
 		future.fireCompleteEvent();

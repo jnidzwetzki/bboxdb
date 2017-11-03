@@ -35,6 +35,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
 import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.util.DuplicateResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -275,16 +276,23 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 	protected final Map<Integer, BBoxDBClient> connections = new HashMap<>();
 	
 	/**
+	 * The duplicate resolver
+	 */
+	protected final DuplicateResolver<Tuple> duplicateResolver;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(TupleListFuture.class);
 
-	public TupleListFuture() {
+	public TupleListFuture(final DuplicateResolver<Tuple> duplicateResolver) {
 		super();
+		this.duplicateResolver = duplicateResolver;
 	}
 
-	public TupleListFuture(final int numberOfFutures) {
+	public TupleListFuture(final int numberOfFutures, final DuplicateResolver<Tuple> duplicateResolver) {
 		super(numberOfFutures);
+		this.duplicateResolver = duplicateResolver;
 	}
 
 	
@@ -392,6 +400,9 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		}
 		
 		allTuples.sort(TupleHelper.TUPLE_KEY_AND_VERSION_COMPARATOR);
+		
+		// Remove duplicates
+		duplicateResolver.removeDuplicates(allTuples);
 		
 		return allTuples.iterator();
 	}

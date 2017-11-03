@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -89,8 +90,10 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.CloseableHelper;
+import org.bboxdb.util.DuplicateResolver;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.NetworkInterfaceHelper;
 import org.slf4j.Logger;
@@ -471,7 +474,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	protected TupleListFuture createFailedTupleListFuture(final String errorMessage) {
-		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
+		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 		clientOperationFuture.setMessage(0, errorMessage);
 		clientOperationFuture.setFailedState();
 		clientOperationFuture.fireCompleteEvent(); 
@@ -724,7 +727,9 @@ public class BBoxDBClient implements BBoxDB {
 
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1);
+			final DuplicateResolver<Tuple> duplicateResolver 
+				= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, duplicateResolver);
 			
 			final QueryKeyRequest requestPackage = new QueryKeyRequest(getNextSequenceNumber(), routingHeader, 
 					table, key, pagingEnabled, tuplesPerPage);
@@ -760,7 +765,7 @@ public class BBoxDBClient implements BBoxDB {
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
 	
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1);
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 			final QueryBoundingBoxRequest requestPackage = new QueryBoundingBoxRequest(getNextSequenceNumber(), 
 					routingHeader, table, boundingBox, pagingEnabled, tuplesPerPage);
 			
@@ -796,7 +801,7 @@ public class BBoxDBClient implements BBoxDB {
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
 	
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1);
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 			final QueryBoundingBoxTimeRequest requestPackage = new QueryBoundingBoxTimeRequest(getNextSequenceNumber(), 
 					routingHeader, table, boundingBox, timestamp, pagingEnabled, tuplesPerPage);
 			
@@ -831,7 +836,7 @@ public class BBoxDBClient implements BBoxDB {
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
 	
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1);
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 			final QueryVersionTimeRequest requestPackage = new QueryVersionTimeRequest(getNextSequenceNumber(), 
 					routingHeader, table, timestamp, pagingEnabled, tuplesPerPage);
 			
@@ -866,7 +871,7 @@ public class BBoxDBClient implements BBoxDB {
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
 	
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1);
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 			final QueryInsertTimeRequest requestPackage = new QueryInsertTimeRequest(getNextSequenceNumber(), 
 					routingHeader, table, timestamp, pagingEnabled, tuplesPerPage);
 			
@@ -923,7 +928,7 @@ public class BBoxDBClient implements BBoxDB {
 			return createFailedTupleListFuture(errorMessage);
 		}
 		
-		final TupleListFuture clientOperationFuture = new TupleListFuture(1);
+		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 		final NextPageRequest requestPackage = new NextPageRequest(
 				getNextSequenceNumber(), queryPackageId);
 		
