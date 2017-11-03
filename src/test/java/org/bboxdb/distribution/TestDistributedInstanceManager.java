@@ -29,7 +29,7 @@ import org.bboxdb.distribution.membership.event.DistributedInstanceChangedEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
-import org.bboxdb.distribution.zookeeper.InstanceRegisterer;
+import org.bboxdb.distribution.zookeeper.ZookeeperInstanceRegisterer;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfiguration;
@@ -322,13 +322,14 @@ public class TestDistributedInstanceManager {
 		final Collection<String> zookeepernodes = scalephantConfiguration.getZookeepernodes();
 
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, CLUSTER_NAME);
-		
-		if(instance != null) {
-			zookeeperClient.registerAfterConnectCallback(new InstanceRegisterer(instance));
-		}
-		
 		zookeeperClient.init();
-		
+
+		if(instance != null) {
+			final ZookeeperInstanceRegisterer registerer 
+				= new ZookeeperInstanceRegisterer(instance, zookeeperClient);
+			registerer.init();
+		}
+	
 		return zookeeperClient;
 	}
 	

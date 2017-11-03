@@ -16,6 +16,7 @@ order: 1
 - Improvement: Added a glossary and renamed a lot of classes
 - Improvement: Added logging parameter to CLI
 - Improvement: Shortened BBox output in CLI
+- Bugfix: The CLI don't unregister the local node in Zookeeper
 
 ### Version 0.3.3 (Stable) - 07.09.2017
 - New Feature: Added routing header to delete and query packages

@@ -68,7 +68,6 @@ public class ZookeeperClientFactory {
 		final String clustername = bboxdbConfiguration.getClustername();
 
 		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, clustername);
-		zookeeperClient.registerAfterConnectCallback(new InstanceRegisterer());
 		
 		// Register instance
 		instances.put(bboxdbConfiguration, zookeeperClient);

@@ -25,8 +25,8 @@ import org.bboxdb.distribution.DistributedRecoveryService;
 import org.bboxdb.distribution.TupleStoreFlushZookeeperAdapter;
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperInstanceRegisterer;
 import org.bboxdb.jmx.JMXService;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
@@ -46,7 +46,7 @@ public class BBoxDBMain {
 	/**
 	 * The instances to manage
 	 */
-	protected final List<BBoxDBService> services = new ArrayList<BBoxDBService>();
+	protected final List<BBoxDBService> services = new ArrayList<>();
 
 	/**
 	 * The Logger
@@ -62,8 +62,8 @@ public class BBoxDBMain {
 		final TupleStoreManagerRegistry storageRegistry = new TupleStoreManagerRegistry();
 		services.add(storageRegistry);
 		
-		// The zookeeper client
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		// The zookeeper registerer
+		final ZookeeperInstanceRegisterer zookeeperClient = new ZookeeperInstanceRegisterer();
 		services.add(zookeeperClient);
 		
 		// The membership connection service

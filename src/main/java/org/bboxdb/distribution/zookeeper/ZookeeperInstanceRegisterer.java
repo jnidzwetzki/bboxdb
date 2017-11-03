@@ -19,29 +19,36 @@ package org.bboxdb.distribution.zookeeper;
 
 import java.io.File;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.bboxdb.distribution.membership.DistributedInstance;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.util.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InstanceRegisterer implements Consumer<ZookeeperClient> {
+public class ZookeeperInstanceRegisterer implements BBoxDBService {
 	
 	/**
 	 * The name of the instance
 	 */
 	protected final DistributedInstance instance;
+	
+	/**
+	 * The zookeeper client
+	 */
+	private final ZookeeperClient zookeeperClient;
 
-	public InstanceRegisterer() {
-		instance = ZookeeperClientFactory.getLocalInstanceName();
+	public ZookeeperInstanceRegisterer() {
+		this.instance = ZookeeperClientFactory.getLocalInstanceName();
+		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 	}
 	
-	public InstanceRegisterer(final DistributedInstance instance) {
+	public ZookeeperInstanceRegisterer(final DistributedInstance instance, final ZookeeperClient zookeeperClient) {
 		this.instance = instance;
+		this.zookeeperClient = zookeeperClient;
 	}
 	
 	/**
@@ -50,13 +57,13 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
 	
 	@Override
-	public void accept(final ZookeeperClient zookeeperClient) {
+	public void init() {
 		
 		if (instance == null) {
 			logger.error("Unable to determine local instance name");
 			return;
 		}
-
+		
 		try {
 			updateNodeInfo(zookeeperClient);
 			updateStateData(zookeeperClient);
@@ -115,6 +122,17 @@ public class InstanceRegisterer implements Consumer<ZookeeperClient> {
 			final String totalDiskspacePath = zookeeperClient.getInstancesDiskspaceTotalPath(instance, directory);
 			zookeeperClient.replacePersistentNode(totalDiskspacePath, Long.toString(totalDiskspace).getBytes());
 		}
+	}
+
+
+	@Override
+	public void shutdown() {
+		// Do nothing
+	}
+
+	@Override
+	public String getServicename() {
+		return "Instance registerer for: " + instance;
 	}
 }
 

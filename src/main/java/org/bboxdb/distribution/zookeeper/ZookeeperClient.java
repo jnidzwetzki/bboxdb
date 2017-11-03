@@ -17,14 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -82,11 +80,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * The connect timeout in seconds
 	 */
 	protected final static int ZOOKEEPER_CONNCT_TIMEOUT = 30;
-	
-	/**
-	 * The after connect callbacks
-	 */
-	protected final List<Consumer<ZookeeperClient>> afterConnectCallbacks;
 
 	/**
 	 * The logger
@@ -97,7 +90,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		this.zookeeperHosts = zookeeperHosts;
 		this.clustername = clustername;
 		this.serviceState = new ServiceState();
-		this.afterConnectCallbacks = new ArrayList<Consumer<ZookeeperClient>>();
 	}
 
 	/**
@@ -134,9 +126,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			}
 
 			createDirectoryStructureIfNeeded();
-			
-			// Notify the callbacks
-			afterConnectCallbacks.forEach(c -> c.accept(this));
 			
 			serviceState.dispatchToRunning();
 		} catch (Exception e) {
@@ -1089,14 +1078,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 */
 	public ZooKeeper getZookeeper() {
 		return zookeeper;
-	}
-	
-	/**
-	 * Register a after connect callback
-	 * @param callback
-	 */
-	public void registerAfterConnectCallback(final Consumer<ZookeeperClient> callback) {
-		afterConnectCallbacks.add(callback);
 	}
 
 }
