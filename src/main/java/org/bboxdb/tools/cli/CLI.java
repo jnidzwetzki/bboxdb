@@ -871,6 +871,30 @@ public class CLI implements Runnable, AutoCloseable {
 				.build();
 		options.addOption(spacePartitionerConfig);
 		
+		// Table duplicates
+		final Option duplplicatesInTable = Option.builder(CLIParameter.DUPLICATES)
+				.hasArg()
+				.argName("duplicates")
+				.desc("Allow duplicates in the table, default: false")
+				.build();
+		options.addOption(duplplicatesInTable);
+		
+		// Table ttl
+		final Option ttlForTable = Option.builder(CLIParameter.TTL)
+				.hasArg()
+				.argName("ttl")
+				.desc("The TTL of the tuple versions in milliseconds")
+				.build();
+		options.addOption(ttlForTable);
+		
+		// Table versions
+		final Option versionsForTable = Option.builder(CLIParameter.TTL)
+				.hasArg()
+				.argName("versions")
+				.desc("The amount of versions for a tuple")
+				.build();
+		options.addOption(versionsForTable);
+		
 		// Filename
 		final Option file = Option.builder(CLIParameter.FILE)
 				.hasArg()
