@@ -340,6 +340,27 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		sb.append("]");
 		return sb.toString();
 	}
+	
+	/**
+	 * Return a compact string that describes the box
+	 * @return
+	 */
+	public String toCompactString() {
+		final StringBuilder sb = new StringBuilder("[");
+		for(int d = 0; d < getDimension(); d++) {
+			
+			if(d != 0) {
+				sb.append(",");
+			}
+			
+			sb.append(getCoordinateLow(d));
+			sb.append(":");
+			sb.append(getCoordinateHigh(d));
+		}
+		sb.append("]");
+		
+		return sb.toString();
+	}
 
 	/**
 	 * Convert into a hashcode

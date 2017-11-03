@@ -355,8 +355,8 @@ public class CLI implements Runnable, AutoCloseable {
 							tuple.getKey(), tuple.getVersionTimestamp());
 				} else {
 					System.out.format("Key %s, BoundingBox=%s, value=%s, version timestamp=%d\n",
-							tuple.getKey(), tuple.getBoundingBox(), new String(tuple.getDataBytes()), 
-							tuple.getVersionTimestamp());
+							tuple.getKey(), tuple.getBoundingBox().toCompactString(), 
+							new String(tuple.getDataBytes()), tuple.getVersionTimestamp());
 				}
 			}
 			
@@ -438,7 +438,7 @@ public class CLI implements Runnable, AutoCloseable {
 	protected BoundingBox getBoundingBoxFromArgs(final CommandLine line) {
 		final String bbox = line.getOptionValue(CLIParameter.BOUNDING_BOX);
 		
-		final String[] bboxStringParts = bbox.split(":");
+		final String[] bboxStringParts = bbox.split(":|,");
 		
 		if(bboxStringParts.length % 2 != 0) {
 			System.err.println("Invalid bounding box: " + bbox);
