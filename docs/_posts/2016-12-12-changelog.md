@@ -14,6 +14,7 @@ order: 1
 - New Feature: Added an update anomaly resolver
 - New Feature: Added the possibility to transfer deleted tuples as a result (needed for recovery and tuple stores that allow duplicates)
 - Improvement: Added a glossary and renamed a lot of classes
+- Improvement: Added logging parameter to CLI
 
 ### Version 0.3.3 (Stable) - 07.09.2017
 - New Feature: Added routing header to delete and query packages

@@ -14,6 +14,23 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-java $jvm_ops_tools -Dlog4j.configuration=log4j_warn.properties -cp $classpath org.bboxdb.tools.cli.CLI "$@"
+# Logging
+debug_args=""
+
+if [ ! -z "$BBOXDB_LOG" ]; then
+   if [ "$BBOXDB_LOG" == "debug" ]; then
+        echo "Debug startup......"
+        debug_args+="-Dlog4j.configuration=log4j_debug.properties"
+   fi
+   
+   if [ "$BBOXDB_LOG" == "trace" ]; then
+        echo "Trace startup......"
+        debug_args+="-Dlog4j.configuration=log4j_trace.properties"
+   fi
+else
+   debug_args+="-Dlog4j.configuration=log4j_warn.properties"
+fi
+
+java $jvm_ops_tools $debug_args -cp $classpath org.bboxdb.tools.cli.CLI "$@"
 
 exit 0
