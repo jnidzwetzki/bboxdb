@@ -208,6 +208,21 @@ public class TupleHelper {
 	
 	/**
 	 * Is this a deleted tuple?
+	 * @param tuple
+	 * @return
+	 */
+	public static boolean isDeletedTuple(final Tuple tuple) {
+		if(tuple.getBoundingBox() == null) {
+			if(Arrays.equals(tuple.getDataBytes(), SSTableConst.DELETED_MARKER)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Is this a deleted tuple?
 	 * @param boxBytes
 	 * @param dataBytes
 	 * @return
