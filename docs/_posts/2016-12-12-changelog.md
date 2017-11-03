@@ -5,6 +5,8 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
+### Version 0.3.5 (Stable) - TBA
+
 ### Version 0.3.4 (Stable) - 03.11.2017
 - New Feature: Added a experiment to determine the bloom filter efficiency
 - New Feature: Tuple Storages now have a configuration
