@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,6 +34,7 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.CloseableIterator;
+import org.bboxdb.storage.sstable.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -372,7 +374,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 	 * @return
 	 */
 	protected Iterator<Tuple> createSimpleIterator() {
-		final Map<String, Tuple> allTuples = new HashMap<String, Tuple>();
+		final List<Tuple> allTuples = new ArrayList<Tuple>();
 		
 		for(int i = 0; i < getNumberOfResultObjets(); i++) {
 			try {
@@ -380,8 +382,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 				
 				if(tupleResult != null) {
 					for(final Tuple tuple : tupleResult) {
-						// Hash map <Key, Tuple> is used to eleminate duplicates
-						allTuples.put(tuple.getKey(), tuple);
+						allTuples.add(tuple);
 					}
 				}
 				
@@ -390,6 +391,8 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 			}
 		}
 		
-		return allTuples.values().iterator();
+		allTuples.sort(TupleHelper.TUPLE_KEY_AND_VERSION_COMPARATOR);
+		
+		return allTuples.iterator();
 	}
 }
