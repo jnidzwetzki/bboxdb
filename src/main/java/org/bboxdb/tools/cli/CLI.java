@@ -888,7 +888,7 @@ public class CLI implements Runnable, AutoCloseable {
 		options.addOption(ttlForTable);
 		
 		// Table versions
-		final Option versionsForTable = Option.builder(CLIParameter.TTL)
+		final Option versionsForTable = Option.builder(CLIParameter.VERSIONS)
 				.hasArg()
 				.argName("versions")
 				.desc("The amount of versions for a tuple")
