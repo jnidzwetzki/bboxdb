@@ -225,7 +225,7 @@ public class OSMDataConverter {
 			reader.setSink(new Sink() {
 				
 				@Override
-				public void release() {}
+				public void close() {}
 				
 				@Override
 				public void complete() {}
@@ -255,6 +255,7 @@ public class OSMDataConverter {
 						return;
 					}
 				}
+
 			});
 			
 			// The way consumer
