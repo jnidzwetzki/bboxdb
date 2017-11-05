@@ -9,6 +9,7 @@ order: 1
 - New Feature: Made project compatible with sonatype.org hosting
 - New Feature: This project is now available in maven central
 - New Feature: Added an example how to work with duplicate keys and the tuple history
+- New Feature: Added client software section in documentation
 - Improvement: Updated dependencies (SnakeYAML, osmosis, org.json, Mockito)
 
 ### Version 0.3.4 (Stable) - 03.11.2017
