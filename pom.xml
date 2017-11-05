@@ -1,10 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.bboxdb</groupId>
 	<artifactId>bboxdb</artifactId>
 	<version>0.3.5</version>
+	
 	<name>BBoxDB</name>
+	<description>BBoxDB is a key-boundingbox-value store for multi-dimensional big data</description>
+	<url>http://bboxdb.org</url>
 
 	<properties>
 		<assembly.skipAssembly>false</assembly.skipAssembly>
@@ -78,19 +82,11 @@
 			<version>1.4</version>
 		</dependency>
 
-		<!-- Used by some experiments 
-			<dependency> 
-				<groupId>org.apache.derby</groupId> 
-				<artifactId>derby</artifactId> 
-				<version>10.13.1.1</version> 
-			</dependency> -->
+		<!-- Used by some experiments <dependency> <groupId>org.apache.derby</groupId> 
+			<artifactId>derby</artifactId> <version>10.13.1.1</version> </dependency> -->
 
-		<!-- Used by some experiments 
-		<dependency> 
-			<groupId>com.h2database</groupId> 
-			<artifactId>h2</artifactId> 
-			<version>1.4.195</version> 
-		</dependency> -->
+		<!-- Used by some experiments <dependency> <groupId>com.h2database</groupId> 
+			<artifactId>h2</artifactId> <version>1.4.195</version> </dependency> -->
 
 	</dependencies>
 
@@ -113,9 +109,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:git:git@github.com:jnidzwetzki/bboxdb.git</connection>
-		<url>https://github.com/jnidzwetzki/bboxdb</url>
-		<tag>HEAD</tag>
+		<connection>scm:git:git://github.com/jnidzwetzki/bboxdb.git</connection>
+		<developerConnection>scm:git:git://github.com/jnidzwetzki/bboxdb.git</developerConnection>
+		<url>https://github.com/jnidzwetzki/bboxdb/tree/master</url>
 	</scm>
 
 	<developers>
@@ -151,7 +147,7 @@
 				<version>3.5</version>
 				<configuration>
 					<source>1.8</source>
-					<target>1.8</target>	
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 
