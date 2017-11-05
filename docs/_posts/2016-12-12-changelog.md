@@ -6,7 +6,9 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.3.5 (Stable) - TBA
-- Improvement: Updates dependencies (SnakeYAML, osmosis, org.json, Mockito)
+- New Feature: Made project compatible with sonatype.org hosting
+- New Feature: This project is now available in maven central
+- Improvement: Updated dependencies (SnakeYAML, osmosis, org.json, Mockito)
 
 ### Version 0.3.4 (Stable) - 03.11.2017
 - New Feature: Added a experiment to determine the bloom filter efficiency
