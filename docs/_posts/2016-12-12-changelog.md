@@ -5,6 +5,9 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
+
+### Version 0.3.6 (Stable) - TBA
+
 ### Version 0.3.5 (Stable) - 06.11.2017
 - New Feature: Made project compatible with sonatype.org hosting
 - New Feature: This project is now available in the 'Maven Central Repository'
