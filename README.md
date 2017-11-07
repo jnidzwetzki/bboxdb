@@ -13,8 +13,9 @@ BBoxDB is a distributed storage manager, designed to handle multi-dimensional bi
   <img src="https://codecov.io/gh/jnidzwetzki/bboxdb/branch/master/graph/badge.svg" alt="Codecov" />
 </a> <a href="https://gitter.im/bboxdb/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
   <img alt="Join the chat at https://gitter.im/bboxdb/Lobby" src="https://badges.gitter.im/Join%20Chat.svg">
-  <img alt="Maven Central Version" src="https://maven-badges.herokuapp.com/maven-central/org.bboxdb/bboxdb/badge.svg" />
-</a>
+  </a> <a href="https://repo1.maven.org/maven2/org/bboxdb/bboxdb/"><img alt="Maven Central Version" src="https://maven-badges.herokuapp.com/maven-central/org.bboxdb/bboxdb/badge.svg" />
+  </a>
+
 
 ## Documentation 
 The documentation of the project is located at [http://jnidzwetzki.github.io/bboxdb/](http://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
