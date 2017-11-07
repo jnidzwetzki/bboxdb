@@ -77,6 +77,7 @@ import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
 import org.bboxdb.network.packages.request.ListTablesRequest;
 import org.bboxdb.network.packages.request.NextPageRequest;
+import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
 import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
@@ -768,6 +769,41 @@ public class BBoxDBClient implements BBoxDB {
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 			final QueryBoundingBoxRequest requestPackage = new QueryBoundingBoxRequest(getNextSequenceNumber(), 
 					routingHeader, table, boundingBox, pagingEnabled, tuplesPerPage);
+			
+			registerPackageCallback(requestPackage, clientOperationFuture);
+			sendPackageToServer(requestPackage, clientOperationFuture);
+			
+			// Send query immediately
+			flushPendingCompressionPackages();
+			
+			return clientOperationFuture;
+		} catch (BBoxDBException | ZookeeperException e) {
+			// Return after exception
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+		} catch (InterruptedException e) {
+			logger.warn("Interrupted while waiting for systems list");
+			Thread.currentThread().interrupt();
+			// Return after exception
+			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+		}
+	}
+	
+	/**
+	 * Execute a continuous bounding box query
+	 * 
+	 */
+	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) {
+		
+		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			return createFailedTupleListFuture("queryBoundingBoxContinuous called, but connection not ready: " + this);
+		}
+		
+		try {
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
+	
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
+			final QueryBoundingBoxContinuousRequest requestPackage = new QueryBoundingBoxContinuousRequest(getNextSequenceNumber(), 
+					routingHeader, table, boundingBox);
 			
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);

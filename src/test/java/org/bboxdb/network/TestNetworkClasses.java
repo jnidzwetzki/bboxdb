@@ -36,6 +36,7 @@ import org.bboxdb.network.packages.NetworkPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CancelQueryRequest;
 import org.bboxdb.network.packages.request.CompressionEnvelopeRequest;
+import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
@@ -63,11 +64,11 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.UpdateAnomalyResolver;
-import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.junit.Assert;
 import org.junit.Test;
@@ -476,6 +477,31 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
+	}
+	
+	/**
+	 * Test decode bounding box query
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test
+	public void testDecodeCointinousBoundingBoxQuery() throws IOException, PackageEncodeException {
+		final String table = "table1";
+		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final QueryBoundingBoxContinuousRequest queryRequest = new QueryBoundingBoxContinuousRequest(sequenceNumber, ROUTING_HEADER, table, boundingBox);
+		byte[] encodedPackage = networkPackageToByte(queryRequest);
+		Assert.assertNotNull(encodedPackage);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
+		Assert.assertTrue(result);
+
+		final QueryBoundingBoxContinuousRequest decodedPackage = QueryBoundingBoxContinuousRequest.decodeTuple(bb);
+		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
+		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 	}
 	
 	/**

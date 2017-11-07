@@ -123,6 +123,11 @@ public class NetworkConst {
 	 * Query type bounding box and Time
 	 */
 	public static final byte REQUEST_QUERY_BBOX_AND_TIME = 0x05;
+
+	/**
+	 * Query type continuous bounding box
+	 */
+	public static final byte REQUEST_QUERY_CONTINUOUS_BBOX = 0x06;
 	
 	
 	/**

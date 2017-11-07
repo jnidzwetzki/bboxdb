@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.3.6 (Stable) - TBA
+- New Feature: Added continuous bounding box query
 
 ### Version 0.3.5 (Stable) - 06.11.2017
 - New Feature: Made project compatible with sonatype.org hosting
