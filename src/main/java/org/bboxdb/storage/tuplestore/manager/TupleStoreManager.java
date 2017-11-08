@@ -83,7 +83,7 @@ public class TupleStoreManager implements BBoxDBService {
 	/**
 	 * The corresponding storage manager state
 	 */
-	protected ServiceState serviceState;
+	protected final ServiceState serviceState;
 
 	/**
 	 * The storage
