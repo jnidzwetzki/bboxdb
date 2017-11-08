@@ -20,7 +20,6 @@ package org.bboxdb.network.server.handler.request;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.HelloRequest;
@@ -55,7 +54,7 @@ public class HandshakeHandler implements RequestHandler {
 			final HelloResponse responsePackage = new HelloResponse(packageSequence, NetworkConst.PROTOCOL_VERSION, clientConnectionHandler.getConnectionCapabilities());
 			clientConnectionHandler.writeResultPackage(responsePackage);
 
-			clientConnectionHandler.setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_OPEN);
+			clientConnectionHandler.setConnectionStateToOpen();
 			return true;
 		} catch(Exception e) {
 			logger.warn("Error while reading network package", e);

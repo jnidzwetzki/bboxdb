@@ -31,7 +31,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
 import org.bboxdb.misc.Const;
-import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
@@ -64,10 +63,11 @@ import org.bboxdb.network.server.handler.request.KeepAliveHandler;
 import org.bboxdb.network.server.handler.request.ListTablesHandler;
 import org.bboxdb.network.server.handler.request.NextPageHandler;
 import org.bboxdb.network.server.handler.request.RequestHandler;
-import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.CloseableHelper;
+import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.bboxdb.util.concurrent.ExecutorUtil;
 import org.slf4j.Logger;
@@ -95,7 +95,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	/**
 	 * The connection state
 	 */
-	protected volatile NetworkConnectionState connectionState;
+	protected ServiceState serviceState;
 
 	/**
 	 * The capabilities of the connection
@@ -154,11 +154,6 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	protected final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
-	 * The connection shutdown handler
-	 */
-	protected final List<Consumer<ClientConnectionHandler>> connectionShutdownHandler;
-	
-	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ClientConnectionHandler.class);
@@ -171,8 +166,8 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		// The storage reference
 		this.storageRegistry = storageRegistry;
 		
-		// Connection state
-		this.setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING);
+		// Connection state set to starting until handshake is ready
+		serviceState.dipatchToStarting();
 		
 		try {
 			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
@@ -180,7 +175,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		} catch (IOException e) {
 			inputStream = null;
 			outputStream = null;
-			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSED);
+			serviceState.dispatchToFailed(e);
 			logger.error("Exception while creating IO stream", e);
 		}
 		
@@ -195,12 +190,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		
 		// The pending packages for compression 
 		pendingCompressionPackages = new ArrayList<>();
-		
-		/**
-		 * The connection shutdown handler
-		 */
-		connectionShutdownHandler = new ArrayList<>();
-		
+
 		maintenanceThread = new ConnectionMaintenanceThread();
 		final Thread thread = new Thread(maintenanceThread);
 		thread.start();
@@ -322,30 +312,28 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		try {
 			logger.debug("Handling new connection from: " + clientSocket.getInetAddress());
 
-			while(getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_OPEN ||
-					getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
+			while(serviceState.isInRunningState() || serviceState.isInStartingState()) {
 				handleNextPackage(inputStream);
 			}
-			
-			// Run the shutdown handler
-			connectionShutdownHandler.forEach(c -> c.accept(this));
-			
+
 			// Flush all pending results to client
 			flushPendingCompressionPackages();
 			
 			// Conenction is down
-			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSED);
+			if(! serviceState.isInStoppingState()) {
+				serviceState.dispatchToStopping();
+			}
+			
+			serviceState.dispatchToTerminated();
+			
 			logger.info("Closing connection to: {}", clientSocket.getInetAddress());
 		} catch (IOException | PackageEncodeException e) {
 			// Ignore exception on closing sockets
-			if(getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+			if(serviceState.isInRunningState()) {
 				
 				logger.error("Socket to {} closed unexpectly (state: {}), closing connection",
 						clientSocket.getInetAddress(), getConnectionState());
-				
-				// Run the shutdown handler
-				connectionShutdownHandler.forEach(c -> c.accept(this));
-				
+
 				logger.debug("Socket exception", e);
 			}
 		} 
@@ -378,7 +366,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 			encodedPackage.put(packageHeader.array());
 			ByteStreams.readFully(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
 		} catch (IOException e) {
-			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSING);
+			serviceState.dispatchToStopping();
 			throw e;
 		}
 		
@@ -396,10 +384,11 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		final short packageSequence = NetworkPackageDecoder.getRequestIDFromRequestPackage(packageHeader);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromRequest(packageHeader);
 		
-		if(getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
+		if(serviceState.isInStartingState()) {
 			if(packageType != NetworkConst.REQUEST_TYPE_HELLO) {
-				logger.error("Connection is in handshake state but got package: " + packageType);
-				setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSING);
+				final String errorMessage = "Connection is in handshake state but got package: " + packageType;
+				logger.error(errorMessage);
+				serviceState.dispatchToFailed(new IllegalStateException(errorMessage));
 				return;
 			}
 		}
@@ -409,7 +398,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		final boolean readFurtherPackages = handleBufferedPackage(encodedPackage, packageSequence, packageType);
 
 		if(readFurtherPackages == false) {
-			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSING);
+			serviceState.dispatchToStopping();
 		}	
 	}
 
@@ -503,7 +492,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 			return handleFurtherPackages;
 		} else {
 			logger.error("Got unknown package type, closing connection: " + packageType);
-			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
+			serviceState.dispatchToStopping();
 			return false;
 		}
 	}
@@ -609,12 +598,12 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		this.connectionCapabilities = connectionCapabilities;
 	}
 
-	public NetworkConnectionState getConnectionState() {
-		return connectionState;
+	public ServiceState getConnectionState() {
+		return serviceState;
 	}
 
-	public void setConnectionState(NetworkConnectionState connectionState) {
-		this.connectionState = connectionState;
+	public void setConnectionStateToOpen() {
+		serviceState.dispatchToRunning();
 	}
 
 	public Map<Short, ClientQuery> getActiveQueries() {
@@ -670,8 +659,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 
 		@Override
 		protected void runThread() throws Exception {
-			while(getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_OPEN ||
-					getConnectionState() == NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
+			while(serviceState.isInStartingState() || serviceState.isInRunningState()) {
 				
 				// Write all waiting for compression packages
 				flushPendingCompressionPackages();
@@ -699,7 +687,13 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * The connection shutdown handler
 	 * @param handler
 	 */
-	public void addShutdownHandler(final Consumer<ClientConnectionHandler> handler) {
-		connectionShutdownHandler.add(handler);
+	public void addConnectionClosedHandler(final Consumer<ClientConnectionHandler> handler) {
+		
+		serviceState.registerCallback(c -> {
+			if(c.isInFinishedState()) { 
+				handler.accept(this); 
+			}
+		});
+		
 	}
 }
