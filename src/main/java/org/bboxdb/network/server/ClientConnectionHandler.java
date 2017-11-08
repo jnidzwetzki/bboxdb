@@ -95,7 +95,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	/**
 	 * The connection state
 	 */
-	protected ServiceState serviceState;
+	protected final ServiceState serviceState;
 
 	/**
 	 * The capabilities of the connection
@@ -167,6 +167,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		this.storageRegistry = storageRegistry;
 		
 		// Connection state set to starting until handshake is ready
+		this.serviceState = new ServiceState();
 		serviceState.dipatchToStarting();
 		
 		try {
