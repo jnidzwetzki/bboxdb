@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConnectionState;
@@ -44,6 +45,7 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
 import org.bboxdb.network.server.handler.query.HandleBoundingBoxQuery;
 import org.bboxdb.network.server.handler.query.HandleBoundingBoxTimeQuery;
+import org.bboxdb.network.server.handler.query.HandleContinuousBoundingBoxQuery;
 import org.bboxdb.network.server.handler.query.HandleInsertTimeQuery;
 import org.bboxdb.network.server.handler.query.HandleKeyQuery;
 import org.bboxdb.network.server.handler.query.HandleVersionTimeQuery;
@@ -149,7 +151,12 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	/**
 	 * The storage reference
 	 */
-	protected TupleStoreManagerRegistry storageRegistry;
+	protected final TupleStoreManagerRegistry storageRegistry;
+	
+	/**
+	 * The connection shutdown handler
+	 */
+	protected final List<Consumer<ClientConnectionHandler>> connectionShutdownHandler;
 	
 	/**
 	 * The Logger
@@ -188,6 +195,11 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		
 		// The pending packages for compression 
 		pendingCompressionPackages = new ArrayList<>();
+		
+		/**
+		 * The connection shutdown handler
+		 */
+		connectionShutdownHandler = new ArrayList<>();
 		
 		maintenanceThread = new ConnectionMaintenanceThread();
 		final Thread thread = new Thread(maintenanceThread);
@@ -315,9 +327,13 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 				handleNextPackage(inputStream);
 			}
 			
+			// Run the shutdown handler
+			connectionShutdownHandler.forEach(c -> c.accept(this));
+			
 			// Flush all pending results to client
 			flushPendingCompressionPackages();
 			
+			// Conenction is down
 			setConnectionState(NetworkConnectionState.NETWORK_CONNECTION_CLOSED);
 			logger.info("Closing connection to: {}", clientSocket.getInetAddress());
 		} catch (IOException | PackageEncodeException e) {
@@ -326,6 +342,9 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 				
 				logger.error("Socket to {} closed unexpectly (state: {}), closing connection",
 						clientSocket.getInetAddress(), getConnectionState());
+				
+				// Run the shutdown handler
+				connectionShutdownHandler.forEach(c -> c.accept(this));
 				
 				logger.debug("Socket exception", e);
 			}
@@ -520,6 +539,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_VERSION_TIME, new HandleVersionTimeQuery());
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_INSERT_TIME, new HandleInsertTimeQuery());
 		queryHandlerList.put(NetworkConst.REQUEST_QUERY_BBOX_AND_TIME, new HandleBoundingBoxTimeQuery());
+		queryHandlerList.put(NetworkConst.REQUEST_QUERY_CONTINUOUS_BBOX, new HandleContinuousBoundingBoxQuery());
 	}
 
 	/**
@@ -673,5 +693,13 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 */
 	public TupleStoreManagerRegistry getStorageRegistry() {
 		return storageRegistry;
+	}
+	
+	/**
+	 * The connection shutdown handler
+	 * @param handler
+	 */
+	public void addShutdownHandler(final Consumer<ClientConnectionHandler> handler) {
+		connectionShutdownHandler.add(handler);
 	}
 }
