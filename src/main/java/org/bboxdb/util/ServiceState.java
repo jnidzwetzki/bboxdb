@@ -237,6 +237,22 @@ public class ServiceState {
 	public boolean isInNewState() {
 		return state == State.NEW;
 	}
+	
+	/**
+	 * Is this service in stating state
+	 * @return
+	 */
+	public boolean isInStartingState() {
+		return state == State.STARTING;
+	}
+	
+	/**
+	 * Is this service in stopping state
+	 * @return
+	 */
+	public boolean isInStoppingState() {
+		return state == State.STOPPING;
+	}
 
 	@Override
 	public String toString() {
