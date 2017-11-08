@@ -17,17 +17,19 @@
  *******************************************************************************/
 package org.bboxdb.storage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.bboxdb.PersonEntity;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
-import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.bboxdb.util.MicroSecondTimestampProvider;
@@ -136,6 +138,32 @@ public class TestStorageManager {
 		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, null); // This should cause an NPE
 		storageManager.put(createdTuple);
 		Assert.assertTrue(false);
+	}
+	
+	@Test
+	public void testInsertCallbacks() throws StorageManagerException, RejectedException {
+		final List<Tuple> receivedTuples = new ArrayList<>();
+		final Consumer<Tuple> callback = ((t) -> receivedTuples.add(t));
+		
+		storageManager.registerInsertCallback(callback);
+		
+		final Tuple createdTuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final Tuple createdTuple2 = new Tuple("2", BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final Tuple createdTuple3 = new Tuple("3", BoundingBox.EMPTY_BOX, "abc".getBytes());
+
+		storageManager.put(createdTuple1);
+		Assert.assertEquals(1, receivedTuples.size());
+		
+		storageManager.put(createdTuple2);
+		Assert.assertEquals(2, receivedTuples.size());
+		
+		final boolean removeResult1 = storageManager.removeInsertCallback(callback);
+		Assert.assertTrue(removeResult1);
+		final boolean removeResult2 = storageManager.removeInsertCallback(callback);
+		Assert.assertTrue(removeResult2);
+		
+		storageManager.put(createdTuple3);
+		Assert.assertEquals(2, receivedTuples.size());
 	}
 	
 	@Test

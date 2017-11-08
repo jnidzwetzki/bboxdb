@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
@@ -91,6 +92,11 @@ public class TupleStoreManager implements BBoxDBService {
 	protected final DiskStorage storage;
 	
 	/**
+	 * The insert callbacks
+	 */
+	protected final List<Consumer<Tuple>> insertCallbacks;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(TupleStoreManager.class);
@@ -103,6 +109,7 @@ public class TupleStoreManager implements BBoxDBService {
 		this.sstablename = sstablename;
 		this.nextFreeTableNumber = new AtomicInteger();
 		this.tupleStoreInstances = new TupleStoreInstanceManager();
+		this.insertCallbacks = new ArrayList<>();
 		
 		// Close open resources when the failed state is entered
 		this.serviceState = new ServiceState(); 
@@ -640,6 +647,10 @@ public class TupleStoreManager implements BBoxDBService {
 				
 				getMemtable().put(tuple);
 			}
+			
+			// Notify callbacks
+			insertCallbacks.forEach(c -> c.accept(tuple));
+			
 		} catch (StorageManagerException e) {
 			serviceState.dispatchToFailed(e);
 			throw e;
@@ -789,5 +800,21 @@ public class TupleStoreManager implements BBoxDBService {
 	 */
 	public TupleStoreConfiguration getTupleStoreConfiguration() {
 		return tupleStoreConfiguration;
+	}
+	
+	/**
+	 * Register a new insert callback
+	 * @param callback
+	 */
+	public void registerInsertCallback(final Consumer<Tuple> callback) {
+		insertCallbacks.add(callback);
+	}
+	
+	/**
+	 * Remove a insert callback
+	 * @return 
+	 */
+	public boolean removeInsertCallback(final Consumer<Tuple> callback) {
+		return insertCallbacks.remove(callback);
 	}
 }
