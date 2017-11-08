@@ -385,8 +385,10 @@ public class CLI implements Runnable, AutoCloseable {
 				System.exit(-1);
 			}
 			
-			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
-			final TupleListFuture resultFuture = bboxDbConnection.queryBoundingBox(table, boundingBox);
+			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);
+			
+			final TupleListFuture resultFuture = bboxDbConnection.queryBoundingBoxContinuous
+					(table, boundingBox);
 			
 			if(resultFuture == null) {
 				System.err.println("Unable to get query");

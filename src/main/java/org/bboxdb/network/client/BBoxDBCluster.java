@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
@@ -347,7 +348,45 @@ public class BBoxDBCluster implements BBoxDB {
 		return future;
 	}
 	
-
+	/**
+	 * Execute a continuous bounding box query
+	 * @throws BBoxDBException 
+	 * 
+	 */
+	@Override
+	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) 
+			throws BBoxDBException {
+		
+		try {
+			if(membershipConnectionService.getNumberOfConnections() == 0) {
+				throw new BBoxDBException("queryBoundingBox called, but connection list is empty");
+			}
+			
+			final TupleStoreName sstableName = new TupleStoreName(table);
+	
+			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
+					sstableName, zookeeperClient);
+			
+			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+			final Set<DistributionRegion> regions 
+				= distributionRegion.getDistributionRegionsForBoundingBox(boundingBox);
+			
+			if(regions.size() != 1) {
+				throw new BBoxDBException("The bounding box belongs to more than one distribution region, "
+						+ "this is not supported in continuous queries");
+			}
+			
+			final DistributionRegion region = regions.iterator().next();
+			
+			final DistributedInstance firstSystem = region.getSystems().iterator().next();
+			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(firstSystem);
+			
+			return connection.queryBoundingBoxContinuous(table, boundingBox);
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
+		}
+	}
+	
 	@Override
 	public TupleListFuture queryBoundingBoxAndTime(final String table,
 			final BoundingBox boundingBox, final long timestamp) throws BBoxDBException {

@@ -126,6 +126,16 @@ public interface BBoxDB {
 	 */
 	public TupleListFuture queryBoundingBox(final String table,
 			final BoundingBox boundingBox) throws BBoxDBException;
+	
+	/**
+	 * Execute a continuous bounding box query on the given table
+	 * @param table
+	 * @param boundingBox
+	 * @return
+	 * @throws BBoxDBException
+	 */
+	public TupleListFuture queryBoundingBoxContinuous(final String table,
+			final BoundingBox boundingBox) throws BBoxDBException;
 
 	/**
 	 * Query the given table for all tuples that have a newer version timestamp
