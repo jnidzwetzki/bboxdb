@@ -35,7 +35,7 @@ public class CLIAction {
 	/**
 	 * The name of the query action
 	 */
-	protected static final String CONTINUES_QUERY = "continues-query";
+	protected static final String CONTINUOUS_QUERY = "continuous-query";
 	
 	/**
 	 * The name of the insert action

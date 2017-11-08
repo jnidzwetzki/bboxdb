@@ -194,8 +194,8 @@ public class CLI implements Runnable, AutoCloseable {
 			actionExecuteQuery(line);
 			break;
 		
-		case CLIAction.CONTINUES_QUERY:
-			actionExecuteContinuesQuery(line);
+		case CLIAction.CONTINUOUS_QUERY:
+			actionExecuteContinuousQuery(line);
 			break;
 			
 		case CLIAction.INSERT:
@@ -367,17 +367,17 @@ public class CLI implements Runnable, AutoCloseable {
 	}
 
 	/**
-	 * Execute a continues bounding box query
+	 * Execute a continuous bounding box query
 	 * @param line
 	 */
-	protected void actionExecuteContinuesQuery(final CommandLine line) {
+	protected void actionExecuteContinuousQuery(final CommandLine line) {
 		if(! line.hasOption(CLIParameter.TABLE)) {
 			System.err.println("Query should be performed, but no table was specified");
 			printHelpAndExit();
 		}
 				
 		try {			
-			System.out.println("Executing bounding box query...");
+			System.out.println("Executing continuous bounding box query...");
 			final String table = line.getOptionValue(CLIParameter.TABLE);
 
 			if(! line.hasOption(CLIParameter.BOUNDING_BOX)) {
