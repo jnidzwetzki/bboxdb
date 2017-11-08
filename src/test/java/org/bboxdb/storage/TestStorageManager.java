@@ -160,7 +160,7 @@ public class TestStorageManager {
 		final boolean removeResult1 = storageManager.removeInsertCallback(callback);
 		Assert.assertTrue(removeResult1);
 		final boolean removeResult2 = storageManager.removeInsertCallback(callback);
-		Assert.assertTrue(removeResult2);
+		Assert.assertFalse(removeResult2);
 		
 		storageManager.put(createdTuple3);
 		Assert.assertEquals(2, receivedTuples.size());
