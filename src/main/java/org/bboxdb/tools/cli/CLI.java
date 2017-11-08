@@ -193,6 +193,10 @@ public class CLI implements Runnable, AutoCloseable {
 		case CLIAction.QUERY:
 			actionExecuteQuery(line);
 			break;
+		
+		case CLIAction.CONTINUES_QUERY:
+			actionExecuteContinuesQuery(line);
+			break;
 			
 		case CLIAction.INSERT:
 			actionInsertTuple(line);
@@ -349,15 +353,7 @@ public class CLI implements Runnable, AutoCloseable {
 			}
 			
 			for(final Tuple tuple : resultFuture) {
-				
-				if(TupleHelper.isDeletedTuple(tuple)) {
-					System.out.format("Key %s, DELETED, version timestamp=%d\n", 
-							tuple.getKey(), tuple.getVersionTimestamp());
-				} else {
-					System.out.format("Key %s, BoundingBox=%s, value=%s, version timestamp=%d\n",
-							tuple.getKey(), tuple.getBoundingBox().toCompactString(), 
-							new String(tuple.getDataBytes()), tuple.getVersionTimestamp());
-				}
+				printTuple(tuple);
 			}
 			
 			System.out.println("Query done");
@@ -368,9 +364,73 @@ public class CLI implements Runnable, AutoCloseable {
 			Thread.currentThread().interrupt();
 			return;
 		}
-
 	}
 
+	/**
+	 * Execute a continues bounding box query
+	 * @param line
+	 */
+	protected void actionExecuteContinuesQuery(final CommandLine line) {
+		if(! line.hasOption(CLIParameter.TABLE)) {
+			System.err.println("Query should be performed, but no table was specified");
+			printHelpAndExit();
+		}
+				
+		try {			
+			System.out.println("Executing bounding box query...");
+			final String table = line.getOptionValue(CLIParameter.TABLE);
+
+			if(! line.hasOption(CLIParameter.BOUNDING_BOX)) {
+				System.err.println("Bounding box is not given");
+				System.exit(-1);
+			}
+			
+			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
+			final TupleListFuture resultFuture = bboxDbConnection.queryBoundingBox(table, boundingBox);
+			
+			if(resultFuture == null) {
+				System.err.println("Unable to get query");
+				System.exit(-1);
+			}
+			
+			resultFuture.waitForAll();
+			
+			if(resultFuture.isFailed()) {
+				System.err.println("Unable to execute query: " + resultFuture.getAllMessages());
+				System.exit(-1);
+			}
+			
+			for(final Tuple tuple : resultFuture) {
+				printTuple(tuple);
+			}
+			
+			System.out.println("Query done");
+		} catch (BBoxDBException e) {
+			System.err.println("Got an exception while performing query: " + e);
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+	}
+	
+	/**
+	 * Print the given tuple
+	 * @param tuple
+	 */
+	protected void printTuple(final Tuple tuple) {
+		
+		if(TupleHelper.isDeletedTuple(tuple)) {
+			System.out.format("Key %s, DELETED, version timestamp=%d\n", 
+					tuple.getKey(), tuple.getVersionTimestamp());
+		} else {
+			System.out.format("Key %s, BoundingBox=%s, value=%s, version timestamp=%d\n",
+					tuple.getKey(), tuple.getBoundingBox().toCompactString(), 
+					new String(tuple.getDataBytes()), tuple.getVersionTimestamp());
+		}
+		
+	}
+	
 	/**
 	 * Build the query future
 	 * @param line
