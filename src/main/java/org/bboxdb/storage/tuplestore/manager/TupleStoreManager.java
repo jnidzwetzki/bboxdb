@@ -78,7 +78,7 @@ public class TupleStoreManager implements BBoxDBService {
 	/**
 	 * The number of the next SSTable name
 	 */
-	protected AtomicInteger nextFreeTableNumber;
+	protected final AtomicInteger nextFreeTableNumber;
 	
 	/**
 	 * The corresponding storage manager state
