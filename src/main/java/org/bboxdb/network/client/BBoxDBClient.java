@@ -792,6 +792,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * Execute a continuous bounding box query
 	 * 
 	 */
+	@Override
 	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) {
 		
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
