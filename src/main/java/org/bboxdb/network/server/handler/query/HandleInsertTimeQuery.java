@@ -66,8 +66,6 @@ public class HandleInsertTimeQuery implements QueryHandler {
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
-		}
-		
-		return;
+		}		
 	}
 }
