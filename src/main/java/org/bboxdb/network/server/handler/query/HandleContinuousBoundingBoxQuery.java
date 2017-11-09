@@ -24,7 +24,11 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
+import org.bboxdb.network.server.ClientQuery;
+import org.bboxdb.network.server.ContinuousBoundingBoxClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
+import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,10 +56,15 @@ public class HandleContinuousBoundingBoxQuery implements QueryHandler {
 			
 			final QueryBoundingBoxContinuousRequest queryRequest 
 				= QueryBoundingBoxContinuousRequest.decodeTuple(encodedPackage);
-			queryRequest.getTable();
 			
-			//TODO: Implement
+			final TupleStoreName requestTable = queryRequest.getTable();
+			final BoundingBox boundingBox = queryRequest.getBoundingBox();
 			
+			final ClientQuery clientQuery = new ContinuousBoundingBoxClientQuery(boundingBox,
+					clientConnectionHandler, packageSequence, requestTable);
+			
+			clientConnectionHandler.getActiveQueries().put(packageSequence, clientQuery);
+			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	
