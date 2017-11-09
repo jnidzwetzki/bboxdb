@@ -21,14 +21,6 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The key query is implemented in an own class, because the 
- * result can not be lazy evacuated from the tuple stores.
- * 
- * All tuples for a given key needs to be computed at once
- * so that the duplicates can be removed
- *
- */
 public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 
 	/**
