@@ -17,11 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.network.server;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 import org.bboxdb.network.packages.PackageEncodeException;
 
-public interface ClientQuery {
+public interface ClientQuery extends Closeable {
 
 	/**
 	 * Calculate the next tuples of the query
@@ -30,20 +31,23 @@ public interface ClientQuery {
 	 * @throws PackageEncodeException 
 	 * @throws IOException 
 	 */
-	void fetchAndSendNextTuples(short packageSequence) throws IOException, PackageEncodeException;
+	public void fetchAndSendNextTuples(short packageSequence) throws IOException, PackageEncodeException;
 
 	/**
 	 * Is the current query done
 	 * @return
 	 */
-	boolean isQueryDone();
-
-	void close();
+	public boolean isQueryDone();
+	
+	/**
+	 * Close the client query
+	 */
+	public void close();
 
 	/**
 	 * Get the amount of total send tuples
 	 * @return
 	 */
-	long getTotalSendTuples();
+	public long getTotalSendTuples();
 
 }
