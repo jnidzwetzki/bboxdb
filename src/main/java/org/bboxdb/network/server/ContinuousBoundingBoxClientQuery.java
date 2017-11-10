@@ -138,6 +138,7 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 
 			final TupleStoreName tupleStoreName = localTables.iterator().next();
 			storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
+			storageManager.registerInsertCallback(tupleInsertCallback);
 			
 			// Remove tuple store insert listener on connection close
 			clientConnectionHandler.addConnectionClosedHandler((c) -> close());
