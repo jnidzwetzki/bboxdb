@@ -19,11 +19,9 @@ package org.bboxdb.network.client.future;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -79,12 +77,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		 * @param tupleListFuture
 		 */
 		protected final TupleListFuture tupleListFuture;
-		
-		/**
-		 * The set is used to eleminate duplicate keys
-		 */
-		protected final Set<String> seenKeys = new HashSet<String>();
-		
+
 		/**
 		 * The executor pool
 		 */
@@ -228,13 +221,6 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 					seenTerminals++;
 					nextTuple = null;
 					continue;
-				}
-				
-				// Remove duplicates
-				if(seenKeys.contains(nextTuple.getKey())) {
-					nextTuple = null;
-				} else {
-					seenKeys.add(nextTuple.getKey());
 				}
 			}
 			
