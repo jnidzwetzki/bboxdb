@@ -22,11 +22,11 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.BiConsumer;
 
+import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableWriter;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.tuplestore.DiskStorage;
-import org.bboxdb.storage.tuplestore.MemtableAndTupleStoreManagerPair;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerState;
 import org.bboxdb.util.FileSizeHelper;

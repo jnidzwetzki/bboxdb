@@ -29,11 +29,11 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.tuplestore.ReadWriteTupleStore;
+import org.bboxdb.storage.util.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

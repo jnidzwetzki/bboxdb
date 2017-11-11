@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.sstable;
+package org.bboxdb.storage.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,6 +28,7 @@ import java.util.Comparator;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.util.io.DataEncoderHelper;
 
 import com.google.common.io.ByteStreams;

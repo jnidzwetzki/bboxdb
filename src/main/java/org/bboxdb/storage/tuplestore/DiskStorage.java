@@ -25,6 +25,7 @@ import java.util.concurrent.BlockingQueue;
 
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBService;
+import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
 import org.bboxdb.storage.memtable.MemtableWriterThread;
 import org.bboxdb.storage.sstable.SSTableCheckpointThread;
 import org.bboxdb.storage.sstable.SSTableConst;

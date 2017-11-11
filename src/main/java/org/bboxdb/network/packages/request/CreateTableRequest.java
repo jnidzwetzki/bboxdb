@@ -28,7 +28,7 @@ import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.entity.UpdateAnomalyResolver;
+import org.bboxdb.storage.util.UpdateAnomalyResolver;
 
 public class CreateTableRequest extends NetworkRequestPackage {
 	

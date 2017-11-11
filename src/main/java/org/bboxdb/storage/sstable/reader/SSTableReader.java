@@ -25,7 +25,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
-import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.util.TupleHelper;
 import org.bboxdb.util.io.DataEncoderHelper;
 
 public class SSTableReader extends AbstractTableReader {

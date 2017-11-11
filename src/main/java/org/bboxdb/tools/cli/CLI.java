@@ -51,7 +51,7 @@ import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
-import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.util.TupleHelper;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.bboxdb.util.MathUtil;

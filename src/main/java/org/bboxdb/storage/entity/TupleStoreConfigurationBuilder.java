@@ -19,6 +19,8 @@ package org.bboxdb.storage.entity;
 
 import java.util.concurrent.TimeUnit;
 
+import org.bboxdb.storage.util.UpdateAnomalyResolver;
+
 public class TupleStoreConfigurationBuilder {
 
 	protected final TupleStoreConfiguration ssTableConfiguration;

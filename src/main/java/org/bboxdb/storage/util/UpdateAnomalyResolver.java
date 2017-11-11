@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.entity;
+package org.bboxdb.storage.util;
 
 public enum UpdateAnomalyResolver {
 

@@ -29,7 +29,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.util.TupleHelper;
 
 public abstract class AbstractJDBCTupleStore implements TupleStore {
 	

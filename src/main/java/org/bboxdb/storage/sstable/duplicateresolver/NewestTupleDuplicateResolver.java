@@ -20,7 +20,7 @@ package org.bboxdb.storage.sstable.duplicateresolver;
 import java.util.List;
 
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.util.TupleHelper;
 import org.bboxdb.util.DuplicateResolver;
 
 public class NewestTupleDuplicateResolver implements DuplicateResolver<Tuple> {

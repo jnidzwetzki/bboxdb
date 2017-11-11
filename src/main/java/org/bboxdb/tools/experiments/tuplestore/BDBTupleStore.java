@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.sstable.TupleHelper;
+import org.bboxdb.storage.util.TupleHelper;
 
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;

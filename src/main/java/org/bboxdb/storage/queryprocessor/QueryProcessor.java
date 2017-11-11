@@ -31,6 +31,7 @@ import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactory;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.util.CloseableIterator;
 import org.bboxdb.util.DuplicateResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

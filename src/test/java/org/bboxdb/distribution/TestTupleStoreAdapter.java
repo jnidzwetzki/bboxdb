@@ -26,7 +26,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.entity.UpdateAnomalyResolver;
+import org.bboxdb.storage.util.UpdateAnomalyResolver;
 import org.junit.Assert;
 import org.junit.Test;
 

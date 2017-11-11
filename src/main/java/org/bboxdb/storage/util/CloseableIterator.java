@@ -15,41 +15,10 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.tuplestore;
+package org.bboxdb.storage.util;
 
-import org.bboxdb.storage.memtable.Memtable;
-import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import java.util.Iterator;
 
-public class MemtableAndTupleStoreManagerPair {
+public interface CloseableIterator<T> extends Iterator<T>, AutoCloseable {
 
-	/**
-	 * The memtale
-	 */
-	protected final Memtable memtable;
-	
-	/**
-	 * The sstable manager
-	 */
-	protected final TupleStoreManager tupleStoreManager;
-
-	public MemtableAndTupleStoreManagerPair(final Memtable memtable, final TupleStoreManager tupleStoreManager) {
-		this.memtable = memtable;
-		this.tupleStoreManager = tupleStoreManager;
-	}
-	
-	/**
-	 * Get the memtable
-	 * @return
-	 */
-	public Memtable getMemtable() {
-		return memtable;
-	}
-	
-	/**
-	 * Get the tuple store manager
-	 * @return
-	 */
-	public TupleStoreManager getTupleStoreManager() {
-		return tupleStoreManager;
-	}
 }

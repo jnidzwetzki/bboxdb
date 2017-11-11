@@ -24,10 +24,10 @@ import java.util.List;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.sstable.TupleHelper;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.sstable.reader.SSTableKeyIndexReader;
 import org.bboxdb.storage.sstable.reader.SSTableReader;
+import org.bboxdb.storage.util.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

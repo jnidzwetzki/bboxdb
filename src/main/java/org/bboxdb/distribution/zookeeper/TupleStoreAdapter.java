@@ -19,7 +19,7 @@ package org.bboxdb.distribution.zookeeper;
 
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.entity.UpdateAnomalyResolver;
+import org.bboxdb.storage.util.UpdateAnomalyResolver;
 
 public class TupleStoreAdapter {
 

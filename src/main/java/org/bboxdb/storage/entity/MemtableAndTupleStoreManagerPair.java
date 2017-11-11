@@ -15,10 +15,41 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.queryprocessor;
+package org.bboxdb.storage.entity;
 
-import java.util.Iterator;
+import org.bboxdb.storage.memtable.Memtable;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 
-public interface CloseableIterator<T> extends Iterator<T>, AutoCloseable {
+public class MemtableAndTupleStoreManagerPair {
 
+	/**
+	 * The memtale
+	 */
+	protected final Memtable memtable;
+	
+	/**
+	 * The sstable manager
+	 */
+	protected final TupleStoreManager tupleStoreManager;
+
+	public MemtableAndTupleStoreManagerPair(final Memtable memtable, final TupleStoreManager tupleStoreManager) {
+		this.memtable = memtable;
+		this.tupleStoreManager = tupleStoreManager;
+	}
+	
+	/**
+	 * Get the memtable
+	 * @return
+	 */
+	public Memtable getMemtable() {
+		return memtable;
+	}
+	
+	/**
+	 * Get the tuple store manager
+	 * @return
+	 */
+	public TupleStoreManager getTupleStoreManager() {
+		return tupleStoreManager;
+	}
 }

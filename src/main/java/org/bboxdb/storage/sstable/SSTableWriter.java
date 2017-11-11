@@ -35,6 +35,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
+import org.bboxdb.storage.util.TupleHelper;
 import org.bboxdb.util.io.DataEncoderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
