@@ -32,6 +32,7 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.util.CloseableIterator;
+import org.bboxdb.storage.util.TupleDuplicateRemover;
 import org.bboxdb.storage.util.TupleHelper;
 import org.bboxdb.util.DuplicateResolver;
 import org.slf4j.Logger;
@@ -83,6 +84,10 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		 */
 		protected final ExecutorService executor = Executors.newCachedThreadPool();
 
+		/**
+		 * The tuple duplicate remover
+		 */
+		protected final TupleDuplicateRemover tupleDuplicateRemover = new TupleDuplicateRemover();
 		
 		/**
 		 * The Logger
@@ -221,6 +226,11 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 					seenTerminals++;
 					nextTuple = null;
 					continue;
+				}
+				
+				// Tuple was received from another instance
+				if(tupleDuplicateRemover.isTupleAlreadySeen(nextTuple)) {
+					nextTuple = null;
 				}
 			}
 			
