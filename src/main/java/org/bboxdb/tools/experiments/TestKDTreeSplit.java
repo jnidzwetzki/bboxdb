@@ -161,7 +161,7 @@ public class TestKDTreeSplit implements Runnable {
 		boxesToSplit.forEach(e -> splitRegion(e));
 		
 		// Remove split regions
-		elements.entrySet().removeIf(e -> boxesToSplit.contains(e));
+		elements.entrySet().removeIf(e -> boxesToSplit.contains(e.getKey()));
 	}
 	
 	/**
