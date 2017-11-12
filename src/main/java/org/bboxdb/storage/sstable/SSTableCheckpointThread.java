@@ -20,6 +20,7 @@ package org.bboxdb.storage.sstable;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.LongPredicate;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -131,13 +132,17 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 		
 		final long currentTime = System.currentTimeMillis();
 	
+		// The checkpoint predicate
+		final LongPredicate checkpointPredicate = m -> {
+			final long checkpointThreshold = TimeUnit.MICROSECONDS.toMillis(m) + maxUncheckpointedMiliseconds;
+			return checkpointThreshold < currentTime;
+		};
+		
 		final boolean checkpointNeeded = inMemoryStores
 				.stream()
 				.filter(Objects::nonNull)
 				.mapToLong(m -> m.getOldestTupleVersionTimestamp())
-				.anyMatch(m -> 
-					(TimeUnit.MICROSECONDS.toMillis(m) + maxUncheckpointedMiliseconds)
-				    < currentTime);
+				.anyMatch(checkpointPredicate);
 		
 		return checkpointNeeded;
 	}
