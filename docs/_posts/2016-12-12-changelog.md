@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.3.6 (Stable) - TBA
 - New Feature: Added continuous bounding box query
+- Improvement: Made memory statistics logging configurable via Const
 - Bugfix: Paging results can now contain equal keys
 
 ### Version 0.3.5 (Stable) - 06.11.2017

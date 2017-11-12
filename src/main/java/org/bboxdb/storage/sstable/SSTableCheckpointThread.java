@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongPredicate;
 
+import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.DiskStorage;
@@ -65,7 +66,9 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 
 		while(! Thread.currentThread().isInterrupted()) {
 			
-			logMemoryStatistics();
+			if(Const.LOG_MEMORY_STATISTICS) {
+				logMemoryStatistics();
+			}
 			
 			final List<TupleStoreName> allTables = storageRegistry.getTupleStoresForLocation(
 					storage.getBasedir().getAbsolutePath());
@@ -80,12 +83,19 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 				createCheckpointIfNedded(storageRegistry, ssTableName);
 			}
 			
-			try {
-				Thread.sleep(SSTableConst.CHECKPOINT_THREAD_DELAY);
-			} catch (InterruptedException e) {
-				logger.info("Chekpoint thread was interrupted");
-				return;
-			}
+			waitForNextRun();
+		}
+	}
+
+	/**
+	 * Wait for the next thread run
+	 */
+	protected void waitForNextRun() {
+		try {
+			Thread.sleep(SSTableConst.CHECKPOINT_THREAD_DELAY);
+		} catch (InterruptedException e) {
+			logger.info("Chekpoint thread was interrupted");
+			Thread.currentThread().interrupt();
 		}
 	}
 
