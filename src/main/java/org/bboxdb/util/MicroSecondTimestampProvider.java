@@ -25,13 +25,13 @@ public class MicroSecondTimestampProvider {
 	protected static long lastTimestampMillis = -1;
 	
 	/**
-	 * The counter for this milisecond
+	 * The counter for this millisecond
 	 */
 	protected static int counter = 0;
 	
 	/**
 	 * Get a faked micro seconds timestamp. Millisecond collisions are avoided
-	 * by adding a faked micro seconds counter to the timestmap
+	 * by adding a faked micro seconds counter to the timestamp
 	 * @return 
 	 */
 	public synchronized static long getNewTimestamp() {
