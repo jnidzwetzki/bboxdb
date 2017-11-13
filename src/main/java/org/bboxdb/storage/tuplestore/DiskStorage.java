@@ -198,7 +198,7 @@ public class DiskStorage implements BBoxDBService {
 	 */
 	public void scheduleMemtableFlush(final MemtableAndTupleStoreManagerPair memtable) {
 		
-		if(memtable == null) {
+		if(memtable == null || memtable.getMemtable() == null) {
 			return;
 		}
 		
