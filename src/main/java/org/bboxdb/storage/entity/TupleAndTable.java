@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import java.util.Objects;
 
 public class TupleAndTable {
 
@@ -31,9 +32,8 @@ public class TupleAndTable {
 	protected String table;
 	
 	public TupleAndTable(final Tuple tuple, final String table) {
-		super();
-		this.tuple = tuple;
-		this.table = table;
+		this.tuple = Objects.requireNonNull(tuple);
+		this.table = Objects.requireNonNull(table);
 	}
 
 	public Tuple getTuple() {
