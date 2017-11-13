@@ -108,9 +108,14 @@ public class NetworkConnectionService implements BBoxDBService {
 	}
 	
 	/**
-	 * Shutdown our thread pool
+	 * Shutdown the network connection
 	 */
 	public synchronized void shutdown() {
+		
+		if(! state.isInRunningState()) {
+			logger.info("shutdown() called non running instance, ignoring: {}", state.getState());
+			return;
+		}
 		
 		logger.info("Shutdown the network connection handler");
 		state.dispatchToStopping();
