@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import java.util.Objects;
+
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 
@@ -33,8 +35,8 @@ public class MemtableAndTupleStoreManagerPair {
 	protected final TupleStoreManager tupleStoreManager;
 
 	public MemtableAndTupleStoreManagerPair(final Memtable memtable, final TupleStoreManager tupleStoreManager) {
-		this.memtable = memtable;
-		this.tupleStoreManager = tupleStoreManager;
+		this.memtable = Objects.requireNonNull(memtable);
+		this.tupleStoreManager = Objects.requireNonNull(tupleStoreManager);
 	}
 	
 	/**
