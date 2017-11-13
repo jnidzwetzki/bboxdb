@@ -87,8 +87,8 @@ public class DiskStorage implements BBoxDBService {
 	 * The unflushed memtable bytes counter
 	 */
 	protected final static Gauge unflushedMemtablesBytes = Gauge.build()
-			.name("bboxdb_unflushed_memtables_total")
-			.help("Total unflushed memtables")
+			.name("bboxdb_unflushed_memtables_bytes")
+			.help("Unflushed memtable bytes")
 			.labelNames("storage").register();
 	
 	/**
