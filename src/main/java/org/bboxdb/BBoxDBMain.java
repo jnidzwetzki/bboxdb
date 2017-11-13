@@ -33,6 +33,7 @@ import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.server.NetworkConnectionService;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.tools.performance.PerformanceCounterService;
 import org.bboxdb.util.io.UnsafeMemoryHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +82,10 @@ public class BBoxDBMain {
 		// The JMX service
 		final JMXService jmxService = new JMXService(this);
 		services.add(jmxService);
+		
+		// The performance counter service
+		final PerformanceCounterService performanceCounterService = new PerformanceCounterService();
+		services.add(performanceCounterService);
 		
 		// Send flush events to zookeeper
 		storageRegistry.registerSSTableFlushCallback(new TupleStoreFlushZookeeperAdapter());
