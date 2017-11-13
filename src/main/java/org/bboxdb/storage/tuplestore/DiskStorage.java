@@ -71,9 +71,17 @@ public class DiskStorage implements BBoxDBService {
 	protected final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
+	 * The storage label
+	 */
+	protected final String performanceCounterLabel;
+	
+	/**
 	 * The unflushed memtable performance counter
 	 */
-	protected final Gauge unflushedMemtablesCounter;
+	protected final static Gauge unflushedMemtablesCounter = Gauge.build()
+			.name("bboxdb_unflushed_memtables_total")
+			.help("Total unflushed memtables")
+			.labelNames("storage").register();
 	
 	/**
 	 * The logger
@@ -89,15 +97,12 @@ public class DiskStorage implements BBoxDBService {
 		this.flushThreadsPerStorage = flushThreadsPerStorage;
 		this.memtablesToFlush = new ArrayBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
 		
-		final String counterName = "bboxdb_unflushed_memtables" + basedir.toString().replace('/', '_');
-		final String performanceCounterName = "Unflushed memtables on " + basedir.toString();
-		
-		this.unflushedMemtablesCounter = Gauge.build().name(counterName).help(performanceCounterName).register();
+		this.performanceCounterLabel = basedir.toString().replace('/', '_');
+		unflushedMemtablesCounter.labels(performanceCounterLabel).set(0);
 	}
 
 	@Override
 	public void init() {
-
 		if(serviceState.isInRunningState()) {
 			logger.warn("Unable to init service, is already in {} state", serviceState);
 			return;
@@ -188,7 +193,7 @@ public class DiskStorage implements BBoxDBService {
 		// MAX_UNFLUSHED_MEMTABLES_PER_TABLE are unflushed.
 		try {
 			memtablesToFlush.put(memtable);
-			unflushedMemtablesCounter.inc();
+			unflushedMemtablesCounter.labels(performanceCounterLabel).inc();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
@@ -201,7 +206,7 @@ public class DiskStorage implements BBoxDBService {
 	 */
 	public MemtableAndTupleStoreManagerPair takeNextUnflushedMemtable() throws InterruptedException {
 		final MemtableAndTupleStoreManagerPair memtable = memtablesToFlush.take();
-		unflushedMemtablesCounter.dec();
+		unflushedMemtablesCounter.labels(performanceCounterLabel).dec();
 		return memtable;
 	}
 	
