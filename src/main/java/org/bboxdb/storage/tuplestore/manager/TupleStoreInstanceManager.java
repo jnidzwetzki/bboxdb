@@ -101,7 +101,7 @@ public class TupleStoreInstanceManager {
 				+ memtable + "/" + unflushedMemtables;
 		
 		// Notify waiter (e.g. the checkpoint thread)
-		this.notifyAll();
+		notifyAll();
 	}
 	
 	/**
@@ -185,7 +185,7 @@ public class TupleStoreInstanceManager {
 	 */
 	public synchronized void waitForMemtableFlush(final Memtable memtable) throws InterruptedException {
 		while(unflushedMemtables.contains(memtable)) {
-			this.wait();
+			wait();
 		}
 	}
 	
@@ -196,7 +196,7 @@ public class TupleStoreInstanceManager {
 	 */
 	public synchronized void waitForAllMemtablesFlushed() throws InterruptedException {
 		while(! unflushedMemtables.isEmpty()) {
-			this.wait();
+			wait();
 		}
 	}
 	
@@ -205,7 +205,7 @@ public class TupleStoreInstanceManager {
 	 */
 	public synchronized void setReadOnly() {
 		sstableManagerState = TupleStoreManagerState.READ_ONLY;
-		this.notifyAll();
+		notifyAll();
 	}
 	
 	/**
@@ -213,7 +213,7 @@ public class TupleStoreInstanceManager {
 	 */
 	public synchronized void setReadWrite() {
 		sstableManagerState = TupleStoreManagerState.READ_WRITE;
-		this.notifyAll();
+		notifyAll();
 	}
 	
 	/**
