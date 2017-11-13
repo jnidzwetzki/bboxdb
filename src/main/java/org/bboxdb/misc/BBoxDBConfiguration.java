@@ -94,6 +94,11 @@ public class BBoxDBConfiguration {
 	protected int sstableKeyCacheEntries = 1000;
 	
 	/**
+	 * The port where the performance counter will be exposed
+	 */
+	protected int performanceCounterPort = 10085;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBConfiguration.class);
@@ -206,8 +211,16 @@ public class BBoxDBConfiguration {
 		return sstableKeyCacheEntries;
 	}
 
-	public void setSstableKeyCacheEntries(int sstableKeyCacheEntries) {
+	public void setSstableKeyCacheEntries(final int sstableKeyCacheEntries) {
 		this.sstableKeyCacheEntries = sstableKeyCacheEntries;
+	}
+
+	public int getPerformanceCounterPort() {
+		return performanceCounterPort;
+	}
+
+	public void setPerformanceCounterPort(final int performanceCounterPort) {
+		this.performanceCounterPort = performanceCounterPort;
 	}
 	
 }
