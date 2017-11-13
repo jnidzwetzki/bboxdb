@@ -76,9 +76,17 @@ public class DiskStorage implements BBoxDBService {
 	protected final String performanceCounterLabel;
 	
 	/**
-	 * The unflushed memtable performance counter
+	 * The unflushed memtable total counter
 	 */
-	protected final static Gauge unflushedMemtablesCounter = Gauge.build()
+	protected final static Gauge unflushedMemtablesTotal = Gauge.build()
+			.name("bboxdb_unflushed_memtables_total")
+			.help("Total unflushed memtables")
+			.labelNames("storage").register();
+	
+	/**
+	 * The unflushed memtable bytes counter
+	 */
+	protected final static Gauge unflushedMemtablesBytes = Gauge.build()
 			.name("bboxdb_unflushed_memtables_total")
 			.help("Total unflushed memtables")
 			.labelNames("storage").register();
@@ -98,7 +106,8 @@ public class DiskStorage implements BBoxDBService {
 		this.memtablesToFlush = new ArrayBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
 		
 		this.performanceCounterLabel = basedir.toString();
-		unflushedMemtablesCounter.labels(performanceCounterLabel).set(0);
+		unflushedMemtablesTotal.labels(performanceCounterLabel).set(0);
+		unflushedMemtablesBytes.labels(performanceCounterLabel).set(0);
 	}
 
 	@Override
@@ -183,6 +192,10 @@ public class DiskStorage implements BBoxDBService {
 		return "Storage instance for: " + basedir.getAbsolutePath();
 	}
 	
+	/**
+	 * Schedule a memtable flush
+	 * @param memtable
+	 */
 	public void scheduleMemtableFlush(final MemtableAndTupleStoreManagerPair memtable) {
 		
 		if(memtable == null) {
@@ -193,7 +206,10 @@ public class DiskStorage implements BBoxDBService {
 		// MAX_UNFLUSHED_MEMTABLES_PER_TABLE are unflushed.
 		try {
 			memtablesToFlush.put(memtable);
-			unflushedMemtablesCounter.labels(performanceCounterLabel).inc();
+			
+			// Update performance counter
+			unflushedMemtablesTotal.labels(performanceCounterLabel).inc();
+			unflushedMemtablesBytes.labels(performanceCounterLabel).inc(memtable.getMemtable().getSize());
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
@@ -206,7 +222,11 @@ public class DiskStorage implements BBoxDBService {
 	 */
 	public MemtableAndTupleStoreManagerPair takeNextUnflushedMemtable() throws InterruptedException {
 		final MemtableAndTupleStoreManagerPair memtable = memtablesToFlush.take();
-		unflushedMemtablesCounter.labels(performanceCounterLabel).dec();
+		
+		// Update performance counter
+		unflushedMemtablesTotal.labels(performanceCounterLabel).dec();
+		unflushedMemtablesBytes.labels(performanceCounterLabel).dec(memtable.getMemtable().getSize());
+		
 		return memtable;
 	}
 	
