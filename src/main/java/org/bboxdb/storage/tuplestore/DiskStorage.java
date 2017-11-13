@@ -97,7 +97,7 @@ public class DiskStorage implements BBoxDBService {
 		this.flushThreadsPerStorage = flushThreadsPerStorage;
 		this.memtablesToFlush = new ArrayBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
 		
-		this.performanceCounterLabel = basedir.toString().replace('/', '_');
+		this.performanceCounterLabel = basedir.toString();
 		unflushedMemtablesCounter.labels(performanceCounterLabel).set(0);
 	}
 
