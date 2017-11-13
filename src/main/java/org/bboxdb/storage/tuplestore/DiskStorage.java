@@ -36,6 +36,8 @@ import org.bboxdb.util.concurrent.ThreadHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.prometheus.client.Gauge;
+
 public class DiskStorage implements BBoxDBService {
 
 	/**
@@ -69,6 +71,11 @@ public class DiskStorage implements BBoxDBService {
 	protected final TupleStoreManagerRegistry storageRegistry;
 	
 	/**
+	 * The unflushed memtable performance counter
+	 */
+	protected final Gauge unflushedMemtablesCounter;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DiskStorage.class);
@@ -81,6 +88,9 @@ public class DiskStorage implements BBoxDBService {
 		this.basedir = basedir;
 		this.flushThreadsPerStorage = flushThreadsPerStorage;
 		this.memtablesToFlush = new ArrayBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
+		
+		this.unflushedMemtablesCounter = Gauge.build()
+			     .name("unflushed_tables_" + basedir.toString()).help("Unflushed memtables").register();
 	}
 
 	@Override
@@ -176,17 +186,21 @@ public class DiskStorage implements BBoxDBService {
 		// MAX_UNFLUSHED_MEMTABLES_PER_TABLE are unflushed.
 		try {
 			memtablesToFlush.put(memtable);
+			unflushedMemtablesCounter.inc();
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 		}
 	}
 	
 	/**
-	 * Get the memtable flush queue
+	 * Get the next memtable to flush
 	 * @return
+	 * @throws InterruptedException 
 	 */
-	public BlockingQueue<MemtableAndTupleStoreManagerPair> getMemtablesToFlush() {
-		return memtablesToFlush;
+	public MemtableAndTupleStoreManagerPair takeNextUnflushedMemtable() throws InterruptedException {
+		final MemtableAndTupleStoreManagerPair memtable = memtablesToFlush.take();
+		unflushedMemtablesCounter.dec();
+		return memtable;
 	}
 	
 	/**

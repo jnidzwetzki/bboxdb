@@ -19,7 +19,6 @@ package org.bboxdb.storage.memtable;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 import java.util.function.BiConsumer;
 
 import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
@@ -37,11 +36,6 @@ import org.slf4j.LoggerFactory;
 public class MemtableWriterThread extends ExceptionSafeThread {
 
 	/**
-	 * The unflushed memtables
-	 */
-	protected final BlockingQueue<MemtableAndTupleStoreManagerPair> flushQueue;
-
-	/**
 	 * The basedir
 	 */
 	protected final File basedir;
@@ -54,15 +48,13 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory
-			.getLogger(MemtableWriterThread.class);
+	private final static Logger logger = LoggerFactory.getLogger(MemtableWriterThread.class);
 
 	/**
 	 * @param ssTableManager
 	 */
 	public MemtableWriterThread(final DiskStorage storage, final File basedir) {
 		this.storage = storage;
-		this.flushQueue = storage.getMemtablesToFlush();
 		this.basedir = basedir;	
 	}
 
@@ -83,7 +75,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	protected void runThread() {
 		while (! Thread.currentThread().isInterrupted()) {
 			try {
-				final MemtableAndTupleStoreManagerPair memtableAndSSTableManager = flushQueue.take();
+				final MemtableAndTupleStoreManagerPair memtableAndSSTableManager = storage.takeNextUnflushedMemtable();
 				final Memtable memtable = memtableAndSSTableManager.getMemtable();
 				final TupleStoreManager sstableManager = memtableAndSSTableManager.getTupleStoreManager();
 				flushMemtableToDisk(memtable, sstableManager);
