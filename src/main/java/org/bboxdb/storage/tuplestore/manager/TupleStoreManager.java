@@ -614,8 +614,12 @@ public class TupleStoreManager implements BBoxDBService {
 		
 		final Memtable oldMemtable = tupleStoreInstances.activateNewMemtable(memtable);	
 		
-		final MemtableAndTupleStoreManagerPair memtableTask = new MemtableAndTupleStoreManagerPair(oldMemtable, this);
-		storage.scheduleMemtableFlush(memtableTask);
+		if(oldMemtable != null) {
+			final MemtableAndTupleStoreManagerPair memtableTask 
+				= new MemtableAndTupleStoreManagerPair(oldMemtable, this);
+			
+			storage.scheduleMemtableFlush(memtableTask);
+		}
 		
 		logger.debug("Activated a new memtable: {}", memtable.getInternalName());
 	}
