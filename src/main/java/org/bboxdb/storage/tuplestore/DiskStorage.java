@@ -89,7 +89,7 @@ public class DiskStorage implements BBoxDBService {
 		this.flushThreadsPerStorage = flushThreadsPerStorage;
 		this.memtablesToFlush = new ArrayBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
 		
-		final String counterName = "unflushed_tables" + basedir.toString().replace('/', '_');
+		final String counterName = "bboxdb_unflushed_memtables" + basedir.toString().replace('/', '_');
 		final String performanceCounterName = "Unflushed memtables on " + basedir.toString();
 		
 		this.unflushedMemtablesCounter = Gauge.build().name(counterName).help(performanceCounterName).register();
