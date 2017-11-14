@@ -21,14 +21,37 @@ import java.io.File;
 import java.io.IOException;
 
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.util.TupleHelper;
 import org.bboxdb.util.io.DataEncoderHelper;
 
+import io.prometheus.client.Counter;
+
 public class SSTableReader extends AbstractTableReader {
+	
+	/**
+	 * The total read tuple keys counter
+	 */
+	protected final static Counter readTupleKeysTotal = Counter.build()
+			.name("bboxdb_read_tuple_keys_total")
+			.help("Total read tuple keys").register();
+	
+	/**
+	 * The total read tuples counter
+	 */
+	protected final static Counter readTuplesTotal = Counter.build()
+			.name("bboxdb_read_tuples_total")
+			.help("Total read tuples").register();
+	
+	/**
+	 * The total read tuples bytes counter
+	 */
+	protected final static Counter readTuplesBytes = Counter.build()
+			.name("bboxdb_read_tuples_bytes")
+			.help("Total read tuple bytes").register();
 
 	public SSTableReader(final String directory, final TupleStoreName tablename, final int tablenumer) throws StorageManagerException {
 		super(directory, tablename, tablenumer);
@@ -75,7 +98,7 @@ public class SSTableReader extends AbstractTableReader {
 	 * @return The tuple
 	 * @throws StorageManagerException
 	 */
-	public synchronized Tuple getTupleAtPosition(int position) throws StorageManagerException {
+	public synchronized Tuple getTupleAtPosition(final int position) throws StorageManagerException {
 		
 		try {
 			// The memory was unmapped
@@ -86,7 +109,14 @@ public class SSTableReader extends AbstractTableReader {
 			
 			memory.position(position);
 			
-			return TupleHelper.decodeTuple(memory);
+			final Tuple tuple = TupleHelper.decodeTuple(memory);
+			final int newPosition = memory.position();
+			final int readBytes = newPosition - position;
+
+			readTuplesTotal.inc();
+			readTuplesBytes.inc(readBytes);
+			
+			return tuple;
 		} catch (Exception e) {
 			try {
 				throw new StorageManagerException("Exception while decoding Position: " + position +  " Size "  + fileChannel.size(), e);
@@ -116,6 +146,8 @@ public class SSTableReader extends AbstractTableReader {
 		
 		final byte[] keyBytes = new byte[keyLength];
 		memory.get(keyBytes, 0, keyBytes.length);
+		
+		readTupleKeysTotal.inc();
 		
 		return new String(keyBytes);
 	}
