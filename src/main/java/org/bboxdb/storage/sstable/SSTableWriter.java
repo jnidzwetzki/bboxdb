@@ -29,9 +29,9 @@ import java.util.List;
 
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreMetaData;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.BloomFilter;
 import com.google.common.io.CountingOutputStream;
+
+import io.prometheus.client.Counter;
 
 public class SSTableWriter implements AutoCloseable {
 	
@@ -114,11 +116,22 @@ public class SSTableWriter implements AutoCloseable {
 	 * The error flag
 	 */
 	protected boolean exceptionDuringWrite;
+
+	/**
+	 * The amount of written tuple bytes
+	 */
+	protected final static Counter writtenTuplesBytes = Counter.build()
+			.name("bboxdb_written_tuple_bytes")
+			.help("Written tuple bytes")
+			.register();
 	
 	/**
 	 * The amount of written tuples
 	 */
-	protected int writtenTuples;
+	protected final static Counter writtenTuplesTotal = Counter.build()
+			.name("bboxdb_written_tuple_total")
+			.help("Written tuples total")
+			.register();
 	
 	/**
 	 * The Logger
@@ -133,7 +146,6 @@ public class SSTableWriter implements AutoCloseable {
 		this.tablenumber = tablenumber;		
 		this.metadataBuilder = new SSTableMetadataBuilder();
 		this.exceptionDuringWrite = false;
-		writtenTuples = 0;
 		
 		// Bloom Filter
 		final String sstableBloomFilterFilename = SSTableHelper.getSSTableBloomFilterFilename(directory, name, tablenumber);
@@ -337,6 +349,9 @@ public class SSTableWriter implements AutoCloseable {
 			final int tuplePosition = (int) sstableOutputStream.getCount();
 			writeIndexEntry(tuplePosition);
 			
+			final int newPosition = (int) sstableOutputStream.getCount();
+			final int writtenBytes = newPosition - tuplePosition;
+			
 			// Add Tuple to the SSTable file
 			TupleHelper.writeTupleToStream(tuple, sstableOutputStream);
 			metadataBuilder.addTuple(tuple);
@@ -349,7 +364,8 @@ public class SSTableWriter implements AutoCloseable {
 				= new SpatialIndexEntry(tuple.getBoundingBox(), tuplePosition);
 			spatialIndex.insert(sIndexentry);
 
-			writtenTuples++;
+			writtenTuplesTotal.inc();
+			writtenTuplesBytes.inc(writtenBytes);
 		} catch (IOException e) {
 			exceptionDuringWrite = true;
 			throw new StorageManagerException("Unable to write tuple to SSTable", e);
