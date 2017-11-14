@@ -420,13 +420,15 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @throws StorageManagerException 
 	 */
 	public void checkSSTableDir(final File directoryHandle) throws StorageManagerException {
+		
 		if(! directoryHandle.isDirectory()) {
 			final String message = "Storage directory is not an directory: " + directoryHandle;
 			final StorageManagerException exception = new StorageManagerException(message);
 			serviceState.dispatchToFailed(exception);
 			logger.error(message);
 			throw exception;
-		}		
+		}
+		
 	}
 
 	/**
@@ -444,28 +446,9 @@ public class TupleStoreManager implements BBoxDBService {
 		}
 
 		final File[] entries = directoryHandle.listFiles();
-				
-		for(final File file : entries) {
-			final String filename = file.getName();
-			
-			if(SSTableHelper.isFileNameSSTable(filename)) {
-				logger.info("Deleting file: {} ", file);
-				file.delete();
-			} else if(SSTableHelper.isFileNameSSTableIndex(filename)) {
-				logger.info("Deleting index file: {} ", file);
-				file.delete();
-			} else if(SSTableHelper.isFileNameSSTableBloomFilter(filename)) {
-				logger.info("Deleting bloom filter file: {} ", file);
-				file.delete();
-			} else if(SSTableHelper.isFileNameMetadata(filename)) {
-				logger.info("Deleting meta file: {}", file);
-				file.delete();
-			} else if(SSTableHelper.isFileNameSpatialIndex(filename)) {
-				logger.info("Deleting spatial index file: {}", file);
-				file.delete();
-			} else {
-				logger.warn("NOT deleting unknown file: {}", file);
-			}
+		
+		for(final File file : entries) {			
+			deleteFileIfKnown(file);
 		}
 		
 		// Delete the directory if empty
@@ -475,6 +458,34 @@ public class TupleStoreManager implements BBoxDBService {
 		} else {
 			directoryHandle.delete();
 			return true;
+		}
+	}
+
+	/**
+	 * Delete the file if it belongs to BBoxDB
+	 * @param file
+	 */
+	protected static void deleteFileIfKnown(final File file) {
+		
+		final String filename = file.getName();
+
+		if(SSTableHelper.isFileNameSSTable(filename)) {
+			logger.info("Deleting file: {} ", file);
+			file.delete();
+		} else if(SSTableHelper.isFileNameSSTableIndex(filename)) {
+			logger.info("Deleting index file: {} ", file);
+			file.delete();
+		} else if(SSTableHelper.isFileNameSSTableBloomFilter(filename)) {
+			logger.info("Deleting bloom filter file: {} ", file);
+			file.delete();
+		} else if(SSTableHelper.isFileNameMetadata(filename)) {
+			logger.info("Deleting meta file: {}", file);
+			file.delete();
+		} else if(SSTableHelper.isFileNameSpatialIndex(filename)) {
+			logger.info("Deleting spatial index file: {}", file);
+			file.delete();
+		} else {
+			logger.warn("NOT deleting unknown file: {}", file);
 		}
 	}
 	
@@ -498,7 +509,8 @@ public class TupleStoreManager implements BBoxDBService {
 			aquiredStorages.addAll(aquireStorage());
 			
 			for(final ReadOnlyTupleStore tupleStorage : aquiredStorages) {
-				tupleList.addAll(tupleStorage.get(key));
+				final List<Tuple> resultTuples = tupleStorage.get(key);
+				tupleList.addAll(resultTuples);
 			}
 		} catch (Exception e) {
 			throw e;
@@ -770,8 +782,7 @@ public class TupleStoreManager implements BBoxDBService {
 		try {
 			storages = aquireStorage();
 			
-			return storages
-					.stream()
+			return storages.stream()
 					.mapToLong(s -> s.getSize())
 					.sum();
 			
