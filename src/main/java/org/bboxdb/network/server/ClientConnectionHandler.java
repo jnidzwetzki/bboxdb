@@ -158,16 +158,23 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	/**
 	 * The read bytes counter
 	 */
-	protected final static Gauge readBytesTotal = Gauge.build()
-			.name("bboxdb_read_network_bytes")
+	protected final static Gauge readBytesCounter = Gauge.build()
+			.name("bboxdb_betwork_read_bytes")
 			.help("Total read bytes from network").register();
 	
 	/**
 	 * The written bytes counter
 	 */
-	protected final static Gauge writtenBytesTotal = Gauge.build()
-			.name("bboxdb_write_network_bytes")
+	protected final static Gauge writtenBytesCounter = Gauge.build()
+			.name("bboxdb_network_write_bytes")
 			.help("Total written bytes to network").register();
+	
+	/**
+	 * The active connections counter
+	 */
+	protected final static Gauge activeConnectionsTotal = Gauge.build()
+			.name("bboxdb_network_connections_total")
+			.help("Total amount of active network connections").register();
 	
 	/**
 	 * The Logger
@@ -184,6 +191,9 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		
 		// Connection state set to starting until handshake is ready
 		this.serviceState = new ServiceState();
+		serviceState.registerCallback((s) -> { if(s.isInStartingState()) { activeConnectionsTotal.inc(); }});
+		serviceState.registerCallback((s) -> { if(s.isInFinishedState()) { activeConnectionsTotal.dec(); }});
+
 		serviceState.dipatchToStarting();
 		
 		try {
@@ -320,7 +330,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		
 		synchronized (outputStream) {
 			final long writtenBytes = responsePackage.writeToOutputStream(outputStream);
-			writtenBytesTotal.inc(writtenBytes);
+			writtenBytesCounter.inc(writtenBytes);
 			outputStream.flush();
 		}
 	}
@@ -384,7 +394,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());			
 			encodedPackage.put(packageHeader.array());
 			ByteStreams.readFully(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
-			readBytesTotal.inc(packageLength);
+			readBytesCounter.inc(packageLength);
 		} catch (IOException e) {
 			serviceState.dispatchToStopping();
 			throw e;
