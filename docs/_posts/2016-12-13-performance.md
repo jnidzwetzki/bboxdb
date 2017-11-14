@@ -11,7 +11,7 @@ To analyze the bottlenecks and to optimize the performance of BBoxDB, the softwa
 ## Enabling performance counter in BBoxDB
 First of all, to work with performance counter, these counter needs to be enabled in BBoxDB. The performance counter is published via HTTP on a specific port. The port is controlled via the ``performanceCounterPort`` variable in the `bboxdb.yaml`` configuration file. The default setting is port 10085; a value of -1 disables the HTTP service. 
 
-After the server was activated, you can open the URL ``http://node-ip:10085/`` in your browser. A text page with some counter should be displayed. You will find counter such as ``bboxdb_read_tuples_bytes`` or ``bboxdb_read_tuple_keys_total`` on the page. Also, details about the JVM are shown. All BBoxDB related counters are starting with the prefix ``bboxdb``.
+After the server was activated, you can open the URL ``http://node-ip:10085/`` in your browser. A text page with some counter should be displayed. You will find counter such as ``bboxdb_read_tuples_bytes`` or ``bboxdb_read_tuple_keys_total`` on the page. Also, details about the JVM are shown. All BBoxDB related counters are starting with the prefix ``bboxdb_``.
 
 ## Capture the performance counter with Prometheus
 [Prometheus](https://prometheus.io) is used as the data store for the performance counter. To work with the software, download and unpack it into a certain directory. 
@@ -64,11 +64,16 @@ After the configuration file is created, start Prometheus with the following com
 Now you can open the URL ``http://your-node:9090`` and see on the page ``Status`` -> ``Targets`` whether the data can be read by all nodes or not. 
 
 ## Visualize the data with Grafana
-<img src="/bboxdb/images/grafana_dashboard.jpg" width="800">
+[Grafana](https://grafana.com/) is widely used for the virtualization of time series. Also, Grafana allows querying Prometheus as a data source. The installation is quite easy; the software needs to be downloaded, unpacked and started. The configuration is done via the web interface.
 
 ```bash
 wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana-4.3.2.linux-x64.tar.gz
 tar zxvf grafana-4.3.2.linux-x64.tar.gz
 cd grafana-4.3.2.linux
 ./grafana-server
-``` 
+```
+
+After adding the Prometheus server, the BBoxDB performance counter could be printed on a dashboard. The virtualization will look like the following screenshot:
+
+<img src="/bboxdb/images/grafana_dashboard.jpg" width="800">
+
