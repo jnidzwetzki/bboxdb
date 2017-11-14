@@ -159,7 +159,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * The read bytes counter
 	 */
 	protected final static Gauge readBytesCounter = Gauge.build()
-			.name("bboxdb_betwork_read_bytes")
+			.name("bboxdb_network_read_bytes")
 			.help("Total read bytes from network").register();
 	
 	/**
