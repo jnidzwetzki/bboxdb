@@ -11,6 +11,7 @@ order: 1
 - New Feature: Added performance counter (implemented with prometheus) 
 - Improvement: Made memory statistics logging configurable via const
 - Improvement: Added insert callback to TupleStore
+- Improvement: The spatial index now contains the tuple byte positions
 - Bugfix: Paging results can now contain equal keys
 - Bugfix: Improved exception handling on network header encoding
 

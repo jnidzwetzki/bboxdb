@@ -45,7 +45,7 @@ public class SpatialIndexEntry implements BoundingBoxEntity {
 	 * Get the value
 	 * @return
 	 */
-	public long getValue() {
+	public int getValue() {
 		return value;
 	}
 	

@@ -334,8 +334,8 @@ public class SSTableWriter implements AutoCloseable {
 	public void addNextTuple(final Tuple tuple) throws StorageManagerException {
 		try {
 			// Add Tuple to the index
-			final long tuplePosition = sstableOutputStream.getCount();
-			writeIndexEntry((int) tuplePosition);
+			final int tuplePosition = (int) sstableOutputStream.getCount();
+			writeIndexEntry(tuplePosition);
 			
 			// Add Tuple to the SSTable file
 			TupleHelper.writeTupleToStream(tuple, sstableOutputStream);
@@ -346,7 +346,7 @@ public class SSTableWriter implements AutoCloseable {
 			
 			// Add tuple to the spatial index
 			final SpatialIndexEntry sIndexentry 
-				= new SpatialIndexEntry(tuple.getBoundingBox(), writtenTuples);
+				= new SpatialIndexEntry(tuple.getBoundingBox(), tuplePosition);
 			spatialIndex.insert(sIndexentry);
 
 			writtenTuples++;

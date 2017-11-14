@@ -44,7 +44,7 @@ public class RTreeTestHelper {
 			final List<? extends SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
 			Assert.assertTrue(resultList.size() >= 1);
 			
-			final List<Long> keyResult = resultList
+			final List<Integer> keyResult = resultList
 					.stream()
 					.map(e -> e.getValue())
 					.filter(k -> k.equals(entry.getValue()))
@@ -66,7 +66,7 @@ public class RTreeTestHelper {
 			final List<? extends SpatialIndexEntry> resultList = index.getEntriesForRegion(entry.getBoundingBox());
 			Assert.assertTrue(resultList.size() >= 1);
 			
-			final List<Long> keyResult = resultList
+			final List<Integer> keyResult = resultList
 					.stream()
 					.map(e -> e.getValue())
 					.filter(k -> k.equals(entry.getValue()))

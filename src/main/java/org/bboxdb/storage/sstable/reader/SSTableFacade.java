@@ -462,12 +462,12 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 
 			@Override
 			public Tuple next() {
-				final SpatialIndexEntry entry = (SpatialIndexEntry) entryIterator.next();
-				final long tupleNumber = entry.getValue();
+				final SpatialIndexEntry entry = entryIterator.next();
+				final int tuplePosition = entry.getValue();
 				
 				try {
-					return ssTableKeyIndexReader.getTupleForIndexEntry(tupleNumber);
-				} catch (StorageManagerException | IOException e) {
+					return ssTableReader.getTupleAtPosition(tuplePosition);
+				} catch (StorageManagerException e) {
 					throw new RuntimeException(e);
 				}
 			}
