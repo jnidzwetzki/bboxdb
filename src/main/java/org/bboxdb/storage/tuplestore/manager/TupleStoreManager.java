@@ -491,7 +491,7 @@ public class TupleStoreManager implements BBoxDBService {
 					+ sstablename.getFullname() + " state: " + serviceState);
 		}
 		
-		final List<ReadOnlyTupleStore> aquiredStorages = new ArrayList<ReadOnlyTupleStore>();
+		final List<ReadOnlyTupleStore> aquiredStorages = new ArrayList<>();
 		final List<Tuple> tupleList = new ArrayList<>();
 		
 		try {
