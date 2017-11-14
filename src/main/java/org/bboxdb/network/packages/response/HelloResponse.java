@@ -48,7 +48,7 @@ public class HelloResponse extends NetworkResponsePackage {
 	}
 	
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 		
 		try {
 			final ByteBuffer bb = DataEncoderHelper.intToByteBuffer(protocolVersion);
@@ -56,12 +56,13 @@ public class HelloResponse extends NetworkResponsePackage {
 			
 			// Body length
 			final long bodyLength = bb.capacity() + peerCapabilitiesBytes.length;
-			appendResponsePackageHeader(bodyLength, outputStream);
+			final long headerLength = appendResponsePackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());
 			outputStream.write(peerCapabilitiesBytes);
 			
+			return headerLength + bodyLength;
 		} catch (Exception e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}			

@@ -51,7 +51,7 @@ public class CreateTableRequest extends NetworkRequestPackage {
 	}
 	
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -87,13 +87,15 @@ public class CreateTableRequest extends NetworkRequestPackage {
 			
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
-			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());
 			outputStream.write(tableBytes);
 			outputStream.write(spatialIndexReaderBytes);
 			outputStream.write(spatialIndexWriterBytes);
+			
+			return headerLength + bodyLength;
 		} catch (IOException e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}

@@ -50,7 +50,7 @@ public class HelloRequest extends NetworkRequestPackage {
 	}
 	
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
 			final ByteBuffer bb = DataEncoderHelper.intToByteBuffer(protocolVersion);
@@ -61,10 +61,12 @@ public class HelloRequest extends NetworkRequestPackage {
 			
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
-			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 
 			outputStream.write(bb.array());
 			outputStream.write(peerCapabilitiesBytes);
+			
+			return headerLength + bodyLength;
 		} catch (Exception e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}	

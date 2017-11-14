@@ -77,7 +77,7 @@ public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -102,15 +102,15 @@ public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 			bb.putInt((int) bboxBytes.length);
 			bb.putLong(timestamp);
 			
-			// Body length
-			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;
-			
-			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;			
+			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());
 			outputStream.write(tableBytes);
 			outputStream.write(bboxBytes);
+			
+			return headerLength + bodyLength;
 		} catch (IOException e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}	

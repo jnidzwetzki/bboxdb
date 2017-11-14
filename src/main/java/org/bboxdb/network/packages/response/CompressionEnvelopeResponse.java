@@ -60,7 +60,7 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
 			if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
@@ -88,12 +88,13 @@ public class CompressionEnvelopeResponse extends NetworkResponsePackage {
 			final long bodyLength = bb.capacity() + compressedBytes.length;
 
 			// Write body length
-			appendResponsePackageHeader(bodyLength, outputStream);
+			final long headerLength = appendResponsePackageHeader(bodyLength, outputStream);
 			
 			// Write body
 			outputStream.write(bb.array());
 			outputStream.write(compressedBytes);
 			
+			return headerLength + bodyLength;
 		} catch (IOException e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}

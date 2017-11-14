@@ -40,7 +40,7 @@ public class NextPageRequest extends NetworkRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
 			final ByteBuffer bb = ByteBuffer.allocate(2);
@@ -52,11 +52,12 @@ public class NextPageRequest extends NetworkRequestPackage {
 			
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
-			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 			
 			// Write body
 			outputStream.write(bb.array());
 
+			return headerLength + bodyLength;
 		} catch (Exception e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}	

@@ -56,7 +56,7 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 		this.networkRequestPackages = networkRequestPackages;
 	}
 
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 		try {
 			if(compressionType != NetworkConst.COMPRESSION_TYPE_GZIP) {
 				throw new PackageEncodeException("Unknown compression method: " + compressionType);
@@ -84,12 +84,13 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
-			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 			
 			// Write body
 			outputStream.write(bb.array());
 			outputStream.write(compressedBytes);
-
+			
+			return headerLength + bodyLength;
 		} catch (IOException e) {
 			throw new PackageEncodeException("Got an IO Exception while writing compressed data");
 		}

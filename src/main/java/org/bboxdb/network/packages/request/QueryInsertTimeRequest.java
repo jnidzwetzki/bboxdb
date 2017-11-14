@@ -70,7 +70,7 @@ public class QueryInsertTimeRequest extends NetworkQueryRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
 			final byte[] tableBytes = table.getFullnameBytes();
@@ -90,14 +90,14 @@ public class QueryInsertTimeRequest extends NetworkQueryRequestPackage {
 			bb.putLong(timestamp);
 			bb.putShort((short) tableBytes.length);
 			
-			// Body length
 			final long bodyLength = bb.capacity() + tableBytes.length;
-			
-			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());
 			outputStream.write(tableBytes);
+			
+			return headerLength + bodyLength;
 		} catch (IOException e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}	

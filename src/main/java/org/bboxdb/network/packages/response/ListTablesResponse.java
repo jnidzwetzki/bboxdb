@@ -50,12 +50,14 @@ public class ListTablesResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 		
 		try {
 			final byte[] bodyBytes = createBody();			
-			appendResponsePackageHeader(bodyBytes.length, outputStream);
+			final long headerLength = appendResponsePackageHeader(bodyBytes.length, outputStream);
 			outputStream.write(bodyBytes);
+			
+			return headerLength + bodyBytes.length;
 		} catch (IOException e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}	

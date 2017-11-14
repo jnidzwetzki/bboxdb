@@ -12,6 +12,7 @@ order: 1
 - Improvement: Made memory statistics logging configurable via const
 - Improvement: Added insert callback to TupleStore
 - Bugfix: Paging results can now contain equal keys
+- Bugfix: Improved exception handling on network header encoding
 
 ### Version 0.3.5 (Stable) - 06.11.2017
 - New Feature: Made project compatible with sonatype.org hosting

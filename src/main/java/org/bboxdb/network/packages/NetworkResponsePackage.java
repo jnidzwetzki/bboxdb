@@ -22,15 +22,8 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.misc.Const;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class NetworkResponsePackage extends NetworkPackage {
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(NetworkResponsePackage.class);
 
 	public NetworkResponsePackage(final short sequenceNumber) {
 		super(sequenceNumber);
@@ -41,8 +34,11 @@ public abstract class NetworkResponsePackage extends NetworkPackage {
 	 * @param sequenceNumber
 	 * @param packageType 
 	 * @param bos
+	 * @return length of the reader
+	 * @throws PackageEncodeException 
 	 */
-	protected void appendResponsePackageHeader(final long bodyLength, final OutputStream bos) {
+	protected long appendResponsePackageHeader(final long bodyLength, final OutputStream bos) 
+			throws PackageEncodeException {
 		
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(12);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
@@ -53,7 +49,9 @@ public abstract class NetworkResponsePackage extends NetworkPackage {
 		try {
 			bos.write(byteBuffer.array());
 		} catch (IOException e) {
-			logger.error("Exception while writing", e);
+			throw new PackageEncodeException(e);
 		}
+		
+		return byteBuffer.capacity();
 	}
 }

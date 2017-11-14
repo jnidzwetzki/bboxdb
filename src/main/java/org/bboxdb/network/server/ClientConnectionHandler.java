@@ -75,6 +75,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
+import io.prometheus.client.Gauge;
+
 public class ClientConnectionHandler extends ExceptionSafeThread {
 
 	/**
@@ -152,6 +154,20 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * The storage reference
 	 */
 	protected final TupleStoreManagerRegistry storageRegistry;
+	
+	/**
+	 * The read bytes counter
+	 */
+	protected final static Gauge readBytesTotal = Gauge.build()
+			.name("bboxdb_read_network_bytes")
+			.help("Total read bytes from network").register();
+	
+	/**
+	 * The written bytes counter
+	 */
+	protected final static Gauge writtenBytesTotal = Gauge.build()
+			.name("bboxdb_write_network_bytes")
+			.help("Total written bytes to network").register();
 	
 	/**
 	 * The Logger
@@ -303,7 +319,8 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 			throws IOException, PackageEncodeException {
 		
 		synchronized (outputStream) {
-			responsePackage.writeToOutputStream(outputStream);
+			final long writtenBytes = responsePackage.writeToOutputStream(outputStream);
+			writtenBytesTotal.inc(writtenBytes);
 			outputStream.flush();
 		}
 	}
@@ -359,18 +376,20 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		
 		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromRequestPackage(packageHeader);
 		final int headerLength = packageHeader.limit();
+		final int packageLength = headerLength + bodyLength;
 		
-		final ByteBuffer encodedPackage = ByteBuffer.allocate(headerLength + bodyLength);
+		final ByteBuffer encodedPackage = ByteBuffer.allocate(packageLength);
 		
 		try {
 			//System.out.println("Trying to read: " + bodyLength + " avail " + in.available());			
 			encodedPackage.put(packageHeader.array());
 			ByteStreams.readFully(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
+			readBytesTotal.inc(packageLength);
 		} catch (IOException e) {
 			serviceState.dispatchToStopping();
 			throw e;
 		}
-		
+		 
 		return encodedPackage;
 	}
 

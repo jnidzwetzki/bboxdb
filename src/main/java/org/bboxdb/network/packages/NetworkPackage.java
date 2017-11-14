@@ -46,11 +46,12 @@ public abstract class NetworkPackage {
 	}
 
 	/**
-	 * Encode the package
+	 * Write the package to the stream
 	 * 
 	 * @param outputStream 
 	 * @throws PackageEncodeException 
+	 * @return written bytes
 	 */
-	public abstract void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException;
+	public abstract long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException;
 
 }

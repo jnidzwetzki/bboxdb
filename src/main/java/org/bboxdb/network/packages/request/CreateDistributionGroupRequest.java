@@ -53,7 +53,7 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 	}
 	
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
 			final byte[] groupBytes = distributionGroup.getBytes();
@@ -80,7 +80,7 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 
 			// Unrouted package
 			final RoutingHeader routingHeader = new RoutingHeader(false);
-			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 			
 			// Write body
 			outputStream.write(bb.array());
@@ -90,6 +90,7 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 			outputStream.write(spacePartitionierBytes);			
 			outputStream.write(spacePartitionierConfigBytes);			
 
+			return headerLength + bodyLength;
 		} catch (IOException e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}

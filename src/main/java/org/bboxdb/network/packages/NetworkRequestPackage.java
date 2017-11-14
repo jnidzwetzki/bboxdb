@@ -24,16 +24,8 @@ import java.nio.ByteBuffer;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public abstract class NetworkRequestPackage extends NetworkPackage {
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(NetworkRequestPackage.class);
 
 	public NetworkRequestPackage(final short sequenceNumber) {
 		super(sequenceNumber);
@@ -46,9 +38,11 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 	 * @param sequenceNumberGenerator 
 	 * @param packageType
 	 * @param bos
+	 * @return 
+	 * @throws PackageEncodeException 
 	 */
-	protected void appendRequestPackageHeader(final long bodyLength, final RoutingHeader routingHeader, 
-			final OutputStream bos) {
+	protected int appendRequestPackageHeader(final long bodyLength, final RoutingHeader routingHeader, 
+			final OutputStream bos) throws PackageEncodeException {
 		
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(12);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
@@ -62,8 +56,10 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 			// Write routing header
 			final byte[] routingHeaderBytes = RoutingHeaderParser.encodeHeader(routingHeader);
 			bos.write(routingHeaderBytes);
+			
+			return byteBuffer.capacity() + routingHeaderBytes.length;
 		} catch (IOException e) {
-			logger.error("Exception while writing", e);
+			throw new PackageEncodeException(e);
 		}
 	}
 }

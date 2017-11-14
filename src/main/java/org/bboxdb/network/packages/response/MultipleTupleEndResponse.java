@@ -37,8 +37,8 @@ public class MultipleTupleEndResponse extends NetworkResponsePackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
-		appendResponsePackageHeader(0, outputStream);
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+		return appendResponsePackageHeader(0, outputStream);
 	}
 	
 	/**

@@ -98,7 +98,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	}
 
 	@Override
-	public void writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
+	public long writeToOutputStream(final OutputStream outputStream) throws PackageEncodeException {
 
 		try {
 			final byte[] tupleAsByte = NetworkTupleEncoderDecoder.encode(tuple, table.getFullname());
@@ -107,10 +107,12 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 			final long bodyLength = tupleAsByte.length;
 			
 			// Unrouted package
-			appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
 
 			// Write tuple
 			outputStream.write(tupleAsByte);
+			
+			return headerLength + bodyLength;
 		} catch (IOException e) {
 			throw new PackageEncodeException("Got exception while converting package into bytes", e);
 		}		
