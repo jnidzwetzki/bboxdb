@@ -54,6 +54,8 @@ import org.bboxdb.util.ServiceState.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.prometheus.client.Summary;
+
 public class TupleStoreManager implements BBoxDBService {
 		
 	/**
@@ -95,6 +97,13 @@ public class TupleStoreManager implements BBoxDBService {
 	 * The insert callbacks
 	 */
 	protected final List<Consumer<Tuple>> insertCallbacks;
+	
+	/**
+	 * The get performance counter
+	 */
+	private final static Summary getRequestLatency = Summary.build()
+		     .name("bboxdb_request_get_latency_seconds")
+		     .help("Get request latency in seconds.").register();
 	
 	/**
 	 * The logger
@@ -502,6 +511,8 @@ public class TupleStoreManager implements BBoxDBService {
 					+ sstablename.getFullname() + " state: " + serviceState);
 		}
 		
+	    final Summary.Timer requestTimer = getRequestLatency.startTimer();
+		
 		final List<ReadOnlyTupleStore> aquiredStorages = new ArrayList<>();
 		final List<Tuple> tupleList = new ArrayList<>();
 		
@@ -516,6 +527,7 @@ public class TupleStoreManager implements BBoxDBService {
 			throw e;
 		} finally {
 			releaseStorage(aquiredStorages);
+			requestTimer.observeDuration();
 		}
 				
 		final DuplicateResolver<Tuple> resolver = TupleDuplicateResolverFactory.build(tupleStoreConfiguration);
