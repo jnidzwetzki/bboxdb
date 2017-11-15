@@ -18,7 +18,7 @@ source $BBOXDB_HOME/bin/bootstrap.sh
 # Discover zookeeper nodes
 zookeeper_nodes=$(read_nodes_file $zookeeper_node_file)
 if [ -z "$zookeeper_nodes" ]; then
-   echo -e "Your zzokeeper nodes ($zookeeper_node_file) are empty, please check your configuration $failed" 
+   echo -e "Your Zookeeper nodes ($zookeeper_node_file) are empty, please check your configuration $failed" 
    exit -1
 fi
 
@@ -217,7 +217,7 @@ EOF
        # Dump PID into file
        echo -n $! > $zookeeper_pid 
     else
-       echo -e "Unable to start zookeeper, check the logfiles for further information $failed"
+       echo -e "Unable to start Zookeeper, check the logfiles for further information $failed"
        exit -1
     fi
    
