@@ -27,6 +27,9 @@ After the server was activated, you can open the URL ``http://node-ip:10085/`` i
 | ``bboxdb_unflushed_memtables_bytes``   | The amount of bytes allocated by unflushed memtables                 |
 | ``bboxdb_request_get_latency_seconds`` | The latency time of get() operations (across memtables and SSTables) |
 
+
+<img src="/bboxdb/images/bboxdb_performance_counter.jpg" width="800" alt="BBoxDB performance counter">
+
 ## Capture the performance counter with Prometheus
 [Prometheus](https://prometheus.io) is used as the data store for the performance counter. To work with the software, download and unpack it into a certain directory. 
 
@@ -89,5 +92,5 @@ cd grafana-4.3.2.linux
 
 After adding the Prometheus server, the BBoxDB performance counter could be printed on a dashboard. The virtualization will look like the following screenshot:
 
-<img src="/bboxdb/images/grafana_dashboard.jpg" width="800">
+<img src="/bboxdb/images/grafana_dashboard.jpg" width="800" alt="Performance counter visualized with grafana">
 
