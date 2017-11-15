@@ -3,7 +3,7 @@ layout: page
 title: "Getting started"
 category: doc
 date: 2016-12-12 22:46:12
-order: 2
+order: 1
 ---
 
 # An Example with OpenStreetmap Data
