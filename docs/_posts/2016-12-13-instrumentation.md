@@ -17,19 +17,19 @@ After the server was activated, you can open the URL ``http://node-ip:10085/`` i
 
 All BBoxDB related counters are starting with the prefix ``bboxdb_``. Also, details about the JVM are shown. The following performance counters are implemented at the moment:
 
-|                   Name                 |                                Description                           |
-|----------------------------------------|----------------------------------------------------------------------|
-| ``bboxdb_network_read_bytes``          | The amount of read bytes from the network connection                 |
-| ``bboxdb_network_write_bytes``         | The amount of written bytes from the network connection              |
-| ``bboxdb_network_connections_total``   | The amount of active client connections to the instance              |
-| ``bboxdb_read_tuple_keys_total``       | The amount of read keys from SSTables                                |
-| ``bboxdb_read_tuple_total``            | The amount of read tuples from SSTables                              |
-| ``bboxdb_read_tuple_bytes``            | The amount of bytes caused by tuple load operations                  |
-| ``bboxdb_written_tuple_total``         | The amount of written tuples to disk                                 |
-| ``bboxdb_written_tuple_bytes``         | The amount of bytes caused by tuple write operations                 |
-| ``bboxdb_unflushed_memtables_total``   | The amount of unflushed memtables (grouped by disk storage)          |
-| ``bboxdb_unflushed_memtables_bytes``   | The amount of bytes allocated by unflushed memtables                 |
-| ``bboxdb_request_get_latency_seconds`` | The latency time of get() operations (across memtables and SSTables) |
+|                   Name                 |  Dimension  |                                Description                           |
+|----------------------------------------|-------------|----------------------------------------------------------------------|
+| ``bboxdb_network_read_bytes``          | Bytes       | The amount of read bytes from the network connection                 |
+| ``bboxdb_network_write_bytes``         | Bytes       | The amount of written bytes from the network connection              |
+| ``bboxdb_network_connections_total``   | Connections | The amount of active client connections to the instance              |
+| ``bboxdb_read_tuple_keys_total``       | Keys        | The amount of read keys from SSTables                                |
+| ``bboxdb_read_tuple_total``            | Tuples      | The amount of read tuples from SSTables                              |
+| ``bboxdb_read_tuple_bytes``            | Bytes       | The amount of bytes caused by tuple load operations                  |
+| ``bboxdb_written_tuple_total``         | Tuples      | The amount of written tuples to disk                                 |
+| ``bboxdb_written_tuple_bytes``         | Bytes       | The amount of bytes caused by tuple write operations                 |
+| ``bboxdb_unflushed_memtables_total``   | Memtables   | The amount of unflushed memtables (grouped by disk storage)          |
+| ``bboxdb_unflushed_memtables_bytes``   | Bytes       | The amount of bytes allocated by unflushed memtables                 |
+| ``bboxdb_request_get_latency_seconds`` | Seconds     | The latency time of get() operations (across memtables and SSTables) |
 
 ## Capture the performance counter with Prometheus
 [Prometheus](https://prometheus.io) is used as the data store for the performance counter. To work with the software, download and unpack it into a certain directory. 
