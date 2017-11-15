@@ -103,12 +103,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.io.ByteStreams;
 
 public class BBoxDBClient implements BBoxDB {
-	
+
 	/**
 	 * The sequence number generator
 	 */
 	protected final SequenceNumberGenerator sequenceNumberGenerator;
-	
+
 	/**
 	 * The socket of the connection
 	 */
@@ -123,7 +123,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * The output stream of the socket
 	 */
 	protected BufferedOutputStream outputStream;
-	
+
 	/**
 	 * The pending calls
 	 */
@@ -133,42 +133,42 @@ public class BBoxDBClient implements BBoxDB {
 	 * The result buffer
 	 */
 	protected final Map<Short, List<Tuple>> resultBuffer = new HashMap<Short, List<Tuple>>();
-	
+
 	/**
 	 * The retryer
 	 */
 	protected final NetworkOperationRetryer networkOperationRetryer;
-	
+
 	/**
 	 * The server response reader
 	 */
 	protected ServerResponseReader serverResponseReader;
-	
+
 	/**
 	 * The server response reader thread
 	 */
 	protected Thread serverResponseReaderThread;
-	
+
 	/**
 	 * The maintenance handler instance
 	 */
 	protected ConnectionMainteinanceThread mainteinanceHandler;
-	
+
 	/**
 	 * The maintenance thread
 	 */
 	protected Thread mainteinanceThread;
-	
+
 	/**
 	 * The default timeout
 	 */
 	protected static final long DEFAULT_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
-	
+
 	/**
 	 * The connection state
 	 */
 	protected volatile NetworkConnectionState connectionState;
-	
+
 	/**
 	 * The number of in flight requests
 	 * @return
@@ -179,22 +179,22 @@ public class BBoxDBClient implements BBoxDB {
 	 * The capabilities of the connection
 	 */
 	protected PeerCapabilities connectionCapabilities = new PeerCapabilities();
-	
+
 	/**
 	 * The capabilities of the client
 	 */
 	protected PeerCapabilities clientCapabilities = new PeerCapabilities();
-	
+
 	/**
 	 * Is the paging for queries enabled?
 	 */
 	protected boolean pagingEnabled;
-	
+
 	/**
 	 * The amount of tuples per page
 	 */
 	protected short tuplesPerPage;
-	
+
 	/**
 	 * The pending packages for compression
 	 */
@@ -204,7 +204,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * The Server response handler
 	 */
 	protected final Map<Short, ServerResponseHandler> serverResponseHandler;
-	
+
 	/**
 	 * The server address
 	 */
@@ -216,9 +216,9 @@ public class BBoxDBClient implements BBoxDB {
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBClient.class);
 
 	public BBoxDBClient(final InetSocketAddress serverAddress) {
-		
+
 		this.serverAddress = serverAddress;
-		
+
 		// External IP is used to create propper package routing
 		if(serverAddress.getAddress().isLoopbackAddress()) {
 			try {
@@ -229,20 +229,20 @@ public class BBoxDBClient implements BBoxDB {
 						+ " requested and unable replace the IP with external IP", e);
 			}
 		} 
-		
+
 		this.sequenceNumberGenerator = new SequenceNumberGenerator();
 		this.connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
-		
+
 		// Default: Enable gzip compression
 		clientCapabilities.setGZipCompression();
-		
+
 		pagingEnabled = true;
 		tuplesPerPage = 50;
 		pendingCompressionPackages = new ArrayList<>();
 		serverResponseHandler = new HashMap<>();
-		
+
 		networkOperationRetryer = new NetworkOperationRetryer((p, f) -> {sendPackageToServer(p, f);});
-		
+
 		initResponseHandler();
 	}
 
@@ -260,39 +260,39 @@ public class BBoxDBClient implements BBoxDB {
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END, new MultipleTupleEndHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_PAGE_END, new PageEndHandler());
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#connect()
 	 */
 	@Override
 	public boolean connect() {
-		
+
 		if(clientSocket != null) {
 			logger.warn("Connect() called on an active connection, ignoring");
 			return true;
 		}
-		
+
 		logger.debug("Connecting to server: {}", getConnectionName());
-		
+
 		try {
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING;
 			clientSocket = new Socket(serverAddress.getAddress(), serverAddress.getPort());
-			
+
 			inputStream = new BufferedInputStream(clientSocket.getInputStream());
 			outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
-			
+
 			synchronized (pendingCalls) {
 				pendingCalls.clear();
 			}
-			
+
 			getResultBuffer().clear();
-			
+
 			// Start up the response reader
 			serverResponseReader = new ServerResponseReader(this);
 			serverResponseReaderThread = new Thread(serverResponseReader);
 			serverResponseReaderThread.setName("Server response reader for " + getConnectionName());
 			serverResponseReaderThread.start();
-			
+
 			runHandshake();
 		} catch (Exception e) {
 			logger.error("Got an exception while connecting to server", e);
@@ -300,10 +300,10 @@ public class BBoxDBClient implements BBoxDB {
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED;
 			return false;
 		} 
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * The name of the connection
 	 * @return
@@ -311,7 +311,7 @@ public class BBoxDBClient implements BBoxDB {
 	public String getConnectionName() {
 		return serverAddress.getHostString() + " / " + serverAddress.getPort();
 	}
-	
+
 	/**
 	 * Get the next sequence number
 	 * @return
@@ -319,65 +319,65 @@ public class BBoxDBClient implements BBoxDB {
 	protected short getNextSequenceNumber() {
 		return sequenceNumberGenerator.getNextSequenceNummber();
 	}
-	
+
 	/**
 	 * Run the handshake with the server
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
 	 */
 	protected void runHandshake() throws Exception {
-		
+
 		final HelloFuture operationFuture = new HelloFuture(1);
 
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_HANDSHAKING) {
 			logger.error("Handshaking called in wrong state: " + connectionState);
 		}
-		
+
 		// Capabilities are reported to server; now freeze client capabilities. 
 		clientCapabilities.freeze();
 		final HelloRequest requestPackage = new HelloRequest(getNextSequenceNumber(), 
 				NetworkConst.PROTOCOL_VERSION, clientCapabilities);
-		
+
 		registerPackageCallback(requestPackage, operationFuture);
 		sendPackageToServer(requestPackage, operationFuture);
-		
+
 		operationFuture.waitForAll();
-		
+
 		if(operationFuture.isFailed()) {
 			throw new Exception("Got an error during handshake");
 		}
-		
+
 		final HelloResponse helloResponse = operationFuture.get(0);
 		connectionCapabilities = helloResponse.getPeerCapabilities();
 
 		connectionState = NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 		logger.debug("Handshaking with {} done", getConnectionName());
-		
+
 		mainteinanceHandler = new ConnectionMainteinanceThread(this);
 		mainteinanceThread = new Thread(mainteinanceHandler);
 		mainteinanceThread.setName("Connection mainteinace thread for: " + getConnectionName());
 		mainteinanceThread.start();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#disconnect()
 	 */
 	@Override
 	public void disconnect() {
-		
+
 		synchronized (this) {
 			logger.info("Disconnecting from server: {}", getConnectionName());
 			connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSING;
-			
+
 			final DisconnectRequest requestPackage = new DisconnectRequest(getNextSequenceNumber());
 			final EmptyResultFuture operationFuture = new EmptyResultFuture(1);
-			
+
 			registerPackageCallback(requestPackage, operationFuture);
 			sendPackageToServer(requestPackage, operationFuture);
 		}
 
 		settlePendingCalls();
-		
+
 		terminateConnection();
 	}
 
@@ -385,28 +385,28 @@ public class BBoxDBClient implements BBoxDB {
 	 * Settle all pending calls
 	 */
 	protected void settlePendingCalls() {
-		
+
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
-			
+
 			if(pendingCalls.isEmpty()) {
 				return;
 			}
-			
+
 			logger.info("Waiting up to {} seconds for pending requests to settle", 
 					TimeUnit.MILLISECONDS.toSeconds(DEFAULT_TIMEOUT));		
-			
+
 			final long shutdownStarted = System.currentTimeMillis();
-			
+
 			while(! pendingCalls.keySet().isEmpty()) {
 				try {
 					final long shutdownDuration = System.currentTimeMillis() - shutdownStarted;
 					final long timeoutLeft = DEFAULT_TIMEOUT - shutdownDuration;
-					
+
 					if(DEFAULT_TIMEOUT <= 0) {
 						break;
 					}
-					
+
 					pendingCalls.wait(timeoutLeft);
 				} catch (InterruptedException e) {
 					logger.debug("Got an InterruptedException during pending calls wait.");
@@ -414,13 +414,13 @@ public class BBoxDBClient implements BBoxDB {
 					return;
 				}
 			}
-			
+
 			if(! pendingCalls.isEmpty()) {
 				logger.warn("Connection is closed. Still pending calls: {} ", pendingCalls);
 			}
 		}
 	}
-	
+
 	/**
 	 * Kill all pending requests
 	 */
@@ -428,13 +428,13 @@ public class BBoxDBClient implements BBoxDB {
 		synchronized (pendingCalls) {
 			if(! pendingCalls.isEmpty()) {
 				logger.warn("Socket is closed unexpected, killing pending calls: " + pendingCalls.size());
-							
+
 				for(final short requestId : pendingCalls.keySet()) {
 					final OperationFuture future = pendingCalls.get(requestId);
 					future.setFailedState();
 					future.fireCompleteEvent();
 				}
-				
+
 				pendingCalls.clear();
 				pendingCalls.notifyAll();
 			}
@@ -450,7 +450,7 @@ public class BBoxDBClient implements BBoxDB {
 
 		killPendingCalls();
 		getResultBuffer().clear();
-		
+
 		CloseableHelper.closeWithoutException(clientSocket);
 		clientSocket = null;
 
@@ -469,7 +469,7 @@ public class BBoxDBClient implements BBoxDB {
 		clientOperationFuture.fireCompleteEvent(); 
 		return clientOperationFuture;
 	}
-	
+
 	/**
 	 * Create a failed tuple list future
 	 * @return
@@ -481,7 +481,7 @@ public class BBoxDBClient implements BBoxDB {
 		clientOperationFuture.fireCompleteEvent(); 
 		return clientOperationFuture;
 	}
-	
+
 	/**
 	 * Create a new failed future object
 	 * @return
@@ -493,17 +493,17 @@ public class BBoxDBClient implements BBoxDB {
 		clientOperationFuture.fireCompleteEvent();
 		return clientOperationFuture;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#createTable(java.lang.String)
 	 */
 	@Override
 	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) throws BBoxDBException {
-		
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedFuture("createTable called, but connection not ready: " + this);
 		}
-		
+
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 		final CreateTableRequest requestPackage = new CreateTableRequest(getNextSequenceNumber(), table, configuration);
 		registerPackageCallback(requestPackage, clientOperationFuture);
@@ -516,11 +516,11 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture deleteTable(final String table) {
-		
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedFuture("deleteTable called, but connection not ready: " + this);
 		}
-		
+
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 		final DeleteTableRequest requestPackage = new DeleteTableRequest(getNextSequenceNumber(), table);
 		registerPackageCallback(requestPackage, clientOperationFuture);
@@ -563,7 +563,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	protected RoutingHeader getRoutingHeaderForLocalSystem(final String table, final BoundingBox boundingBox)
 			throws ZookeeperException, BBoxDBException, InterruptedException {
-		
+
 		final TupleStoreName ssTableName = new TupleStoreName(table);
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 
@@ -593,24 +593,24 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
 			final RoutingHeader routingHeader) {
-		
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedFuture("insertTuple called, but connection not ready: " + this);
 		}
-		
+
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 		final TupleStoreName ssTableName = new TupleStoreName(table);
 		final short sequenceNumber = getNextSequenceNumber();
-		
+
 		final InsertTupleRequest requestPackage = new InsertTupleRequest(
 				sequenceNumber, 
 				routingHeader, 
 				ssTableName, 
 				tuple);
-		
+
 		networkOperationRetryer.registerOperation(sequenceNumber, 
 				requestPackage, clientOperationFuture);
-		
+
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 
@@ -626,15 +626,15 @@ public class BBoxDBClient implements BBoxDB {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedFuture("deleteTuple called, but connection not ready: " + this);
 		}
-		
+
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		
+
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
-	
+
 			final DeleteTupleRequest requestPackage = new DeleteTupleRequest(getNextSequenceNumber(), 
 					routingHeader, table, key, timestamp);
-			
+
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);
 			return clientOperationFuture;
@@ -648,7 +648,7 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
 		} 
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#deleteTuple(java.lang.String, java.lang.String)
 	 */
@@ -657,13 +657,13 @@ public class BBoxDBClient implements BBoxDB {
 		final long timestamp = MicroSecondTimestampProvider.getNewTimestamp();
 		return deleteTuple(table, key, timestamp);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#listTables()
 	 */
 	@Override
 	public SSTableNameListFuture listTables() {
-		
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedSStableNameFuture("listTables called, but connection not ready: " + this);
 		}
@@ -674,14 +674,14 @@ public class BBoxDBClient implements BBoxDB {
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#createDistributionGroup(java.lang.String, short)
 	 */
 	@Override
 	public EmptyResultFuture createDistributionGroup(final String distributionGroup, 
 			final DistributionGroupConfiguration distributionGroupConfiguration) {
-		
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedFuture("listTables called, but connection not ready: " + this);
 		}
@@ -690,18 +690,18 @@ public class BBoxDBClient implements BBoxDB {
 		final CreateDistributionGroupRequest requestPackage = new CreateDistributionGroupRequest(
 				getNextSequenceNumber(), distributionGroup, 
 				distributionGroupConfiguration);
-		
+
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#deleteDistributionGroup(java.lang.String)
 	 */
 	@Override
 	public EmptyResultFuture deleteDistributionGroup(final String distributionGroup) {
-		
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedFuture("delete distribution group called, but connection not ready: " + this);
 		}
@@ -709,38 +709,40 @@ public class BBoxDBClient implements BBoxDB {
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 		final DeleteDistributionGroupRequest requestPackage = new DeleteDistributionGroupRequest(
 				getNextSequenceNumber(), distributionGroup);
-		
+
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
-		
+
 		return clientOperationFuture;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#queryKey(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public TupleListFuture queryKey(final String table, final String key) {
-		
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedTupleListFuture("queryKey called, but connection not ready: " + this);
 		}
 
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
+			
 			final DuplicateResolver<Tuple> duplicateResolver 
 				= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1, duplicateResolver);
 			
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, duplicateResolver);
+
 			final QueryKeyRequest requestPackage = new QueryKeyRequest(getNextSequenceNumber(), routingHeader, 
 					table, key, pagingEnabled, tuplesPerPage);
-			
+
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);
-			
+
 			// Send query immediately
 			flushPendingCompressionPackages();
-			
+
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
@@ -752,30 +754,30 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#queryBoundingBox(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
 	 */
 	@Override
 	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
-		
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this);
 		}
-		
+
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
-	
+
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 			final QueryBoundingBoxRequest requestPackage = new QueryBoundingBoxRequest(getNextSequenceNumber(), 
 					routingHeader, table, boundingBox, pagingEnabled, tuplesPerPage);
-			
+
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);
-			
+
 			// Send query immediately
 			flushPendingCompressionPackages();
-			
+
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
@@ -787,31 +789,31 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Execute a continuous bounding box query
 	 * 
 	 */
 	@Override
 	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) {
-		
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedTupleListFuture("queryBoundingBoxContinuous called, but connection not ready: " + this);
 		}
-		
+
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
-	
+
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 			final QueryBoundingBoxContinuousRequest requestPackage = new QueryBoundingBoxContinuousRequest(getNextSequenceNumber(), 
 					routingHeader, table, boundingBox);
-			
+
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);
-			
+
 			// Send query immediately
 			flushPendingCompressionPackages();
-			
+
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
@@ -823,7 +825,7 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#queryBoundingBoxAndTime(java.lang.String, org.bboxdb.storage.entity.BoundingBox)
 	 */
@@ -834,20 +836,20 @@ public class BBoxDBClient implements BBoxDB {
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this);
 		}
-				
+
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
-	
+
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 			final QueryBoundingBoxTimeRequest requestPackage = new QueryBoundingBoxTimeRequest(getNextSequenceNumber(), 
 					routingHeader, table, boundingBox, timestamp, pagingEnabled, tuplesPerPage);
-			
+
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);
-			
+
 			// Send query immediately
 			flushPendingCompressionPackages();
-			
+
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
@@ -859,30 +861,30 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#queryTime(java.lang.String, long)
 	 */
 	@Override
 	public TupleListFuture queryVersionTime(final String table, final long timestamp) {
-		
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedTupleListFuture("queryTime called, but connection not ready: " + this);
 		}
 
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
-	
+
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 			final QueryVersionTimeRequest requestPackage = new QueryVersionTimeRequest(getNextSequenceNumber(), 
 					routingHeader, table, timestamp, pagingEnabled, tuplesPerPage);
-			
+
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);
-			
+
 			// Send query immediately
 			flushPendingCompressionPackages();
-			
+
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
@@ -894,30 +896,30 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#queryTime(java.lang.String, long)
 	 */
 	@Override
 	public TupleListFuture queryInsertedTime(final String table, final long timestamp) {
-		
+
 		if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 			return createFailedTupleListFuture("queryTime called, but connection not ready: " + this);
 		}
 
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
-	
+
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 			final QueryInsertTimeRequest requestPackage = new QueryInsertTimeRequest(getNextSequenceNumber(), 
 					routingHeader, table, timestamp, pagingEnabled, tuplesPerPage);
-			
+
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);
-			
+
 			// Send query immediately
 			flushPendingCompressionPackages();
-			
+
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
@@ -929,55 +931,55 @@ public class BBoxDBClient implements BBoxDB {
 			return FutureHelper.getFailedTupleListFuture(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Send a keep alive package to the server, to keep the TCP connection open.
 	 * @return
 	 */
 	public EmptyResultFuture sendKeepAlivePackage() {
-		
+
 		synchronized (this) {
 			if(connectionState != NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
 				return createFailedFuture("sendKeepAlivePackage called, but connection not ready: " + this);
 			}
-			
+
 			final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 			final KeepAliveRequest requestPackage = new KeepAliveRequest(getNextSequenceNumber());
 			registerPackageCallback(requestPackage, clientOperationFuture);
 			sendPackageToServer(requestPackage, clientOperationFuture);
 			return clientOperationFuture;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Get the next page for a given query
 	 * @param queryPackageId
 	 * @return
 	 */
 	public OperationFuture getNextPage(final short queryPackageId) {
-		
+
 		if(! getResultBuffer().containsKey(queryPackageId)) {
 			final String errorMessage = "Query package " + queryPackageId 
 					+ " not found in the result buffer";
-			
+
 			logger.error(errorMessage);
 			return createFailedTupleListFuture(errorMessage);
 		}
-		
+
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
 		final NextPageRequest requestPackage = new NextPageRequest(
 				getNextSequenceNumber(), queryPackageId);
-		
+
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
-		
+
 		// Send query immediately
 		flushPendingCompressionPackages();
-		
+
 		return clientOperationFuture;
 	}
-	
+
 	/**
 	 * Cancel the given query on the server
 	 * @param queryPackageId
@@ -985,14 +987,14 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public EmptyResultFuture cancelQuery(final short queryPackageId) {
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		
+
 		final CancelQueryRequest requestPackage = new CancelQueryRequest(getNextSequenceNumber(), queryPackageId);
-		
+
 		sendPackageToServer(requestPackage, clientOperationFuture);
-		
+
 		return clientOperationFuture;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#isConnected()
 	 */
@@ -1001,10 +1003,10 @@ public class BBoxDBClient implements BBoxDB {
 		if(clientSocket != null) {
 			return ! clientSocket.isClosed();
 		}
-		
+
 		return false;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#getConnectionState()
 	 */
@@ -1022,7 +1024,7 @@ public class BBoxDBClient implements BBoxDB {
 			return pendingCalls.size();
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#getMaxInFlightCalls()
 	 */
@@ -1047,7 +1049,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	protected void sendPackageToServer(final NetworkRequestPackage requestPackage, 
 			final OperationFuture future) {
-		
+
 		future.setConnectionName(0, getConnectionName());
 
 		try {
@@ -1057,13 +1059,13 @@ public class BBoxDBClient implements BBoxDB {
 					pendingCalls.wait();
 				}	
 			}
-			
+
 		} catch(InterruptedException e) {
 			logger.warn("Got an exception while waiting for pending requests", e);
 			Thread.currentThread().interrupt();
 			return;
 		}
-		
+
 		if(connectionCapabilities.hasGZipCompression()) {
 			writePackageWithCompression(requestPackage, future);
 		} else {
@@ -1078,7 +1080,7 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	protected void writePackageUncompressed(final NetworkRequestPackage requestPackage, 
 			final OperationFuture future) {
-		
+
 		try {	
 			writePackageToSocket(requestPackage);
 		} catch (IOException | PackageEncodeException e) {
@@ -1094,50 +1096,50 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param future
 	 */
 	protected void writePackageWithCompression(NetworkRequestPackage requestPackage, OperationFuture future) {
-		
+
 		boolean queueFull = false;
-		
+
 		synchronized (pendingCompressionPackages) {
 			pendingCompressionPackages.add(requestPackage);
 			queueFull = pendingCompressionPackages.size() >= Const.MAX_UNCOMPRESSED_QUEUE_SIZE;
 		}
-		
+
 		if(queueFull) {
 			flushPendingCompressionPackages();
 		}
 	}
-	
+
 	/**
 	 * Write all pending compression packages to server, called by the maintainance thread
 	 * 
 	 */
 	protected void flushPendingCompressionPackages() {
-		
+
 		final List<NetworkRequestPackage> packagesToWrite = new ArrayList<>();
-		
+
 		synchronized (pendingCompressionPackages) {
 			if(pendingCompressionPackages.isEmpty()) {
 				return;
 			}
-			
+
 			packagesToWrite.addAll(pendingCompressionPackages);
 			pendingCompressionPackages.clear();
 		}
-			
+
 		if(logger.isDebugEnabled()) {
 			logger.debug("Chunk size is: {}", packagesToWrite.size());
 		}
-		
+
 		final NetworkRequestPackage compressionEnvelopeRequest 
-			= new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
-		
+		= new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
+
 		try {
 			writePackageToSocket(compressionEnvelopeRequest);
 		} catch (PackageEncodeException | IOException e) {
 			logger.error("Got an exception while write pending compression packages to server", e);
 		}
 	}
-	
+
 	/**
 	 * Write the package onto the socket
 	 * @param requestPackage
@@ -1146,12 +1148,12 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	protected void writePackageToSocket(final NetworkRequestPackage requestPackage) 
 			throws PackageEncodeException, IOException {
-			
+
 		synchronized (outputStream) {
 			requestPackage.writeToOutputStream(outputStream);
 			outputStream.flush();
 		}
-		
+
 		// Could be null during handshake
 		if(mainteinanceHandler != null) {
 			mainteinanceHandler.updateLastDataSendTimestamp();
@@ -1161,16 +1163,16 @@ public class BBoxDBClient implements BBoxDB {
 	protected short registerPackageCallback(final NetworkRequestPackage requestPackage, final OperationFuture future) {
 		final short sequenceNumber = requestPackage.getSequenceNumber();
 		future.setRequestId(0, sequenceNumber);
-				
+
 		synchronized (pendingCalls) {
 			assert (! pendingCalls.containsKey(sequenceNumber)) 
-				: "Old call exists: " + pendingCalls.get(sequenceNumber);
-			
+			: "Old call exists: " + pendingCalls.get(sequenceNumber);
+
 			pendingCalls.put(sequenceNumber, future);
 		}
 		return sequenceNumber;
 	}
-	
+
 	/**
 	 * Handle the next result package
 	 * @param packageHeader
@@ -1179,26 +1181,26 @@ public class BBoxDBClient implements BBoxDB {
 	protected void handleResultPackage(final ByteBuffer encodedPackage) throws PackageEncodeException {
 		final short sequenceNumber = NetworkPackageDecoder.getRequestIDFromResponsePackage(encodedPackage);
 		final short packageType = NetworkPackageDecoder.getPackageTypeFromResponse(encodedPackage);
-	
+
 		OperationFuture future = null;
-		
+
 		synchronized (pendingCalls) {
 			future = pendingCalls.get(Short.valueOf(sequenceNumber));
 		}
-		
+
 		if(! serverResponseHandler.containsKey(packageType)) {
 			logger.error("Unknown respose package type: " + packageType);
-			
+
 			if(future != null) {
 				future.setFailedState();
 				future.fireCompleteEvent();
 			}
-			
+
 		} else {
-			
+
 			final ServerResponseHandler handler = serverResponseHandler.get(packageType);
 			final boolean removeFuture = handler.handleServerResult(this, encodedPackage, future);
-			
+
 			// Remove pending call
 			if(removeFuture) {
 				synchronized (pendingCalls) {
@@ -1208,7 +1210,7 @@ public class BBoxDBClient implements BBoxDB {
 			}
 		}
 	}
-	
+
 
 	/**
 	 * Read the full package
@@ -1219,11 +1221,11 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	protected ByteBuffer readFullPackage(final ByteBuffer packageHeader,
 			final InputStream inputStream) throws IOException {
-		
+
 		final int bodyLength = (int) NetworkPackageDecoder.getBodyLengthFromResponsePackage(packageHeader);
 		final int headerLength = packageHeader.limit();
 		final ByteBuffer encodedPackage = ByteBuffer.allocate(headerLength + bodyLength);
-		
+
 		//System.out.println("Trying to read: " + bodyLength + " avail " + inputStream.available());
 		encodedPackage.put(packageHeader.array());
 		ByteStreams.readFully(inputStream, encodedPackage.array(), encodedPackage.position(), bodyLength);
@@ -1243,8 +1245,8 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public String toString() {
 		return "BBoxDBClient [serverHostname=" + serverAddress.getHostString() 
-				+ ", serverPort=" + serverAddress.getPort() + ", pendingCalls="
-				+ pendingCalls.size() + ", connectionState=" + connectionState + "]";
+		+ ", serverPort=" + serverAddress.getPort() + ", pendingCalls="
+		+ pendingCalls.size() + ", connectionState=" + connectionState + "]";
 	}
 
 	/**
@@ -1253,7 +1255,7 @@ public class BBoxDBClient implements BBoxDB {
 	public PeerCapabilities getConnectionCapabilities() {
 		return connectionCapabilities;
 	}
-	
+
 	/**
 	 * Get the capabilities of the client
 	 * @return
@@ -1301,7 +1303,7 @@ public class BBoxDBClient implements BBoxDB {
 	public Map<Short, List<Tuple>> getResultBuffer() {
 		return resultBuffer;
 	}
-	
+
 	/**
 	 * Get the network operation retryer
 	 * @return
