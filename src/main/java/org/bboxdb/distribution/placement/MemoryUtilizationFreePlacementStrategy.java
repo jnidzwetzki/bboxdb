@@ -43,7 +43,15 @@ public class MemoryUtilizationFreePlacementStrategy extends AbstractUtilizationP
 	 */
 	protected double calculateUsageFactor(final Multiset<DistributedInstance> systemUsage,
 			final DistributedInstance distributedInstance) {
-		return distributedInstance.getMemory() / systemUsage.count(distributedInstance);
+		
+		final int count = systemUsage.count(distributedInstance);
+		
+		if(count == 0) {
+			logger.error("Got an invalid count");
+			return 0;
+		}
+		
+		return distributedInstance.getMemory() / count;
 	}
 	
 	@Override

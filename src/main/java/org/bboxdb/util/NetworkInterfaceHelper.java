@@ -38,6 +38,11 @@ public class NetworkInterfaceHelper {
 		final List<InetAddress> allAddresses = new ArrayList<>();
 		
 	    final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+	    
+	    if(interfaces == null) {
+	    		return new ArrayList<>();
+	    }
+	    
 	    for(final NetworkInterface iface : Collections.list(interfaces)) {
 	        final Enumeration<InetAddress> inetAddresses = iface.getInetAddresses();
 	        allAddresses.addAll(Collections.list(inetAddresses));

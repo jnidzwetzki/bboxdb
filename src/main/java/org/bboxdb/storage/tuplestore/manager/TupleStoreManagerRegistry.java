@@ -99,7 +99,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @throws BBoxDBException 
 	 */
 	@Override
-	public void init() throws InterruptedException, BBoxDBException {
+	public synchronized void init() throws InterruptedException, BBoxDBException {
 		
 		if(! serviceState.isInNewState()) {
 			throw new BBoxDBException("Unable to init service is in state: " + serviceState.getState());
@@ -196,7 +196,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Shutdown the storage registry
 	 * @throws BBoxDBException 
 	 */
-	public void shutdown() {
+	public synchronized void shutdown() {
 		
 		if(! serviceState.isInRunningState()) {
 			logger.warn("Igonring shutdown, service is in state: {}", serviceState.getState());

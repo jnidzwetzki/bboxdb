@@ -45,7 +45,14 @@ public class CoreUtilizationPlacementStrategy extends AbstractUtilizationPlaceme
 	protected double calculateUsageFactor(final Multiset<DistributedInstance> systemUsage,
 			final DistributedInstance distributedInstance) {
 		
-		return distributedInstance.getCpuCores() / systemUsage.count(distributedInstance);
+		final int count = systemUsage.count(distributedInstance);
+		
+		if(count == 0) {
+			logger.error("Got an invalid count");
+			return 0;
+		}
+		
+		return distributedInstance.getCpuCores() / count;
 	}
 
 	@Override

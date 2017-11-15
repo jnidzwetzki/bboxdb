@@ -52,7 +52,7 @@ public class MinRegionsResourcePlacementStrategy extends AbstractUtilizationPlac
 		}
 		
 		// Lower utilization is preferred by the algorithm
-		return (1 / usageCount);
+		return (1.0 / usageCount);
 	}
 
 	

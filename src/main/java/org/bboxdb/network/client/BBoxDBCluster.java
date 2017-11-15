@@ -269,6 +269,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 		
 		final DistributedInstance system = resourcePlacementStrategy.getInstancesForNewRessource(serverConnections);
+		
 		return membershipConnectionService.getConnectionForInstance(system);
 	}
 

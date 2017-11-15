@@ -44,7 +44,14 @@ public class StorageUtilizationPlacementStrategy extends AbstractUtilizationPlac
 	protected double calculateUsageFactor(final Multiset<DistributedInstance> systemUsage,
 			final DistributedInstance distributedInstance) {
 		
-		return distributedInstance.getNumberOfStorages() / systemUsage.count(distributedInstance);
+		final int count = systemUsage.count(distributedInstance);
+		
+		if(count == 0) {
+			logger.error("Got an invalid count");
+			return 0;
+		}
+		
+		return distributedInstance.getNumberOfStorages() / count;
 	}
 
 	@Override

@@ -15,6 +15,7 @@ order: 1
 - Improvement: Switched from Zookeeper 3.4.10 to Zookeeper 3.4.11
 - Bugfix: Paging results can now contain equal keys
 - Bugfix: Improved exception handling on network header encoding
+- Bugfix: Fixed some bugs found by coverty scan
 
 ### Version 0.3.5 (Stable) - 06.11.2017
 - New Feature: Made project compatible with sonatype.org hosting
@@ -113,8 +114,8 @@ order: 1
 - Bugfix: Prevent the creation of tuples with 'null' data
 - Bugfix: Fixed a bug in the bounding box calculation of the GeoJSON parser
 - Bugfix: Fixed a bug in the query complete handler, finished queries were sent to the server
-- Bugfix: Fixed some ressource leaks found by coverty scan
-- Bugfix: Fixed a reace condition when a busy table should be redistributed
+- Bugfix: Fixed some resource leaks found by coverty scan
+- Bugfix: Fixed a race condition when a busy table should be redistributed
 - Bugfix: Introduced the memtable flush mode. After the flush thread is stopped, all data can stay in memory
 - Bugfix: Loopback IPs (e.g. 127.0.0.1) are now filtered, when the local instancename is determined
 
