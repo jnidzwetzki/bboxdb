@@ -11,7 +11,21 @@ To analyze the bottlenecks and to optimize the performance of BBoxDB, the softwa
 ## Enabling performance counter in BBoxDB
 First of all, to work with performance counter, these counter needs to be enabled in BBoxDB. The performance counter is published via HTTP on a specific port. The port is controlled via the ``performanceCounterPort`` variable in the `bboxdb.yaml`` configuration file. The default setting is port 10085; a value of -1 disables the HTTP service. 
 
-After the server was activated, you can open the URL ``http://node-ip:10085/`` in your browser. A text page with some counter should be displayed. You will find counter such as ``bboxdb_read_tuples_bytes`` or ``bboxdb_read_tuple_keys_total`` on the page. Also, details about the JVM are shown. All BBoxDB related counters are starting with the prefix ``bboxdb_``.
+After the server was activated, you can open the URL ``http://node-ip:10085/`` in your browser. A text page with some counter should be displayed. You will find counter such as ``bboxdb_read_tuples_bytes`` or ``bboxdb_read_tuple_keys_total`` on the page. All BBoxDB related counters are starting with the prefix ``bboxdb_``. Also, details about the JVM are shown. The following performance counters are implemented at the moment:
+
+|                   Name                 |                                Description                           |
+|----------------------------------------|----------------------------------------------------------------------|
+| ``bboxdb_network_read_bytes``          | The amount of read bytes from the network connection                 |
+| ``bboxdb_network_write_bytes``         | The amount of written bytes from the network connection              |
+| ``bboxdb_network_connections_total``   | The amount of active client connections to the instance              |
+| ``bboxdb_read_tuple_keys_total``       | The amount of read keys from SSTables                                |
+| ``bboxdb_read_tuple_total``            | The amount of read tuples from SSTables                              |
+| ``bboxdb_read_tuple_bytes``            | The amount of bytes caused by tuple load operations                  |
+| ``bboxdb_written_tuple_total``         | The amount of written tuples to disk                                 |
+| ``bboxdb_written_tuple_bytes``         | The amount of bytes caused by tuple write operations                 |
+| ``bboxdb_unflushed_memtables_total``   | The amount of unflushed memtables (grouped by disk storage)          |
+| ``bboxdb_unflushed_memtables_bytes``   | The amount of bytes allocated by unflushed memtables                 |
+| ``bboxdb_request_get_latency_seconds`` | The latency time of get() operations (across memtables and SSTables) |
 
 ## Capture the performance counter with Prometheus
 [Prometheus](https://prometheus.io) is used as the data store for the performance counter. To work with the software, download and unpack it into a certain directory. 
