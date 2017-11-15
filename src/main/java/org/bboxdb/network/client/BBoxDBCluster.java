@@ -54,28 +54,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BBoxDBCluster implements BBoxDB {
-	
+
 	/**
 	 * The Zookeeper connection
 	 */
 	protected final ZookeeperClient zookeeperClient;
-	
+
 	/**
 	 * The number of in flight requests
 	 * @return
 	 */
 	protected volatile short maxInFlightCalls = MAX_IN_FLIGHT_CALLS;
-	
+
 	/**
 	 * The resource placement strategy
 	 */
 	protected final ResourcePlacementStrategy resourcePlacementStrategy;
-	
+
 	/**
 	 * The membership connection service
 	 */
 	protected final MembershipConnectionService membershipConnectionService;
-	
+
 	/**
 	 * The Logger
 	 */
@@ -91,7 +91,7 @@ public class BBoxDBCluster implements BBoxDB {
 		resourcePlacementStrategy = new RandomResourcePlacementStrategy();
 		membershipConnectionService = MembershipConnectionService.getInstance();
 	}
-	
+
 	/**
 	 * Create a new instance of the BBoxDB cluster
 	 * @param zookeeperNodes
@@ -100,7 +100,7 @@ public class BBoxDBCluster implements BBoxDB {
 	public BBoxDBCluster(final String zookeeperNode, final String clustername) {
 		this(Arrays.asList(zookeeperNode), clustername);
 	}
-	
+
 
 	@Override
 	public boolean connect() {
@@ -115,21 +115,21 @@ public class BBoxDBCluster implements BBoxDB {
 		membershipConnectionService.shutdown();
 		zookeeperClient.shutdown();		
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#createTable(java.lang.String)
 	 */
 	@Override
 	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) 
 			throws BBoxDBException {
-	
+
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("createTable called, but connection list is empty");
 		}
 
 		try {
 			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
-			
+
 			return bboxdbClient.createTable(table, configuration);
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);
@@ -139,19 +139,19 @@ public class BBoxDBCluster implements BBoxDB {
 
 	@Override
 	public EmptyResultFuture deleteTable(final String table) throws BBoxDBException {
-		
+
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("deleteTable called, but connection list is empty");
 		}
-		
+
 		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();
 		final EmptyResultFuture future = new EmptyResultFuture();
-		
+
 		connections.stream()
-		 	.map(c -> c.deleteTable(table))
-		 	.filter(Objects::nonNull)
-		 	.forEach(f -> future.merge(f));
-		
+		.map(c -> c.deleteTable(table))
+		.filter(Objects::nonNull)
+		.forEach(f -> future.merge(f));
+
 		return future;
 	}
 
@@ -160,35 +160,35 @@ public class BBoxDBCluster implements BBoxDB {
 
 		try {
 			final TupleStoreName ssTableName = new TupleStoreName(table);
-			
+
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					ssTableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			
+
 			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(tuple.getBoundingBox(), 
 					distributionRegion);
-			
+
 			if(hops.isEmpty()) {
 				final String errorMessage = "Insert tuple called, but hop list for bounding box is empty: " 
 						+ tuple.getBoundingBox(); 
 				logger.error(errorMessage);
 				return FutureHelper.getFailedEmptyResultFuture(errorMessage);
 			}
-			
+
 			// Determine the first system, it will route the request to the remaining systems
 			final DistributedInstance system = hops.iterator().next().getDistributedInstance();
 			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
-			
+
 			if(connection == null) {
 				final String errorMessage = "Unable to insert tuple, no connection to system: " 
 						+ system; 
 				logger.error(errorMessage);
 				return FutureHelper.getFailedEmptyResultFuture(errorMessage);
 			}
-			
+
 			final RoutingHeader routingHeader = new RoutingHeader((short) 0, hops);
-			
+
 			return connection.insertTuple(table, tuple, routingHeader);
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
@@ -204,22 +204,22 @@ public class BBoxDBCluster implements BBoxDB {
 		final long timestamp = MicroSecondTimestampProvider.getNewTimestamp();
 		return deleteTuple(table, key, timestamp);
 	}
-	
+
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws BBoxDBException {
 		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();
-		
+
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("deleteTuple called, but connection list is empty");
 		}
-		
+
 		final EmptyResultFuture future = new EmptyResultFuture();
-		
+
 		connections.stream()
-		 	.map(c -> c.deleteTuple(table, key, timestamp))
-		 	.filter(Objects::nonNull)
-		 	.forEach(f -> future.merge(f));
-		
+		.map(c -> c.deleteTuple(table, key, timestamp))
+		.filter(Objects::nonNull)
+		.forEach(f -> future.merge(f));
+
 		return future;
 	}
 
@@ -247,9 +247,9 @@ public class BBoxDBCluster implements BBoxDB {
 
 		try {
 			final BBoxDBClient bboxdbClient = getSystemForNewRessources();
-			
+
 			return bboxdbClient.createDistributionGroup(distributionGroup, distributionGroupConfiguration);
-			
+
 		} catch (ResourceAllocationException e) {
 			logger.warn("createDistributionGroup called, but no ressoures are available", e);
 			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
@@ -263,13 +263,13 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	protected BBoxDBClient getSystemForNewRessources() throws ResourceAllocationException {
 		final List<DistributedInstance> serverConnections = membershipConnectionService.getAllInstances();
-		
+
 		if(serverConnections == null) {
 			throw new ResourceAllocationException("Server connections are null");
 		}
-		
+
 		final DistributedInstance system = resourcePlacementStrategy.getInstancesForNewRessource(serverConnections);
-		
+
 		return membershipConnectionService.getConnectionForInstance(system);
 	}
 
@@ -279,14 +279,14 @@ public class BBoxDBCluster implements BBoxDB {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("deleteDistributionGroup called, but connection list is empty");
 		}
-		
+
 		final EmptyResultFuture future = new EmptyResultFuture();
 
 		membershipConnectionService.getAllConnections()
-			.stream()
-		 	.map(c -> c.deleteDistributionGroup(distributionGroup))
-		 	.filter(Objects::nonNull)
-		 	.forEach(f -> future.merge(f));
+		.stream()
+		.map(c -> c.deleteDistributionGroup(distributionGroup))
+		.filter(Objects::nonNull)
+		.forEach(f -> future.merge(f));
 
 		return future;
 	}
@@ -296,21 +296,21 @@ public class BBoxDBCluster implements BBoxDB {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryKey called, but connection list is empty");
 		}
-		
+
 		final DuplicateResolver<Tuple> duplicateResolver 
-			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
-		
+		= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
+
 		final TupleListFuture future = new TupleListFuture(duplicateResolver);
-		
+
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for key {} in table {}", key, table);
 		}
 
 		membershipConnectionService.getAllConnections()
-			.stream()
-		 	.map(c -> c.queryKey(table, key))
-		 	.filter(Objects::nonNull)
-		 	.forEach(f -> future.merge(f));
+		.stream()
+		.map(c -> c.queryKey(table, key))
+		.filter(Objects::nonNull)
+		.forEach(f -> future.merge(f));
 
 		return future;
 	}
@@ -320,9 +320,9 @@ public class BBoxDBCluster implements BBoxDB {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryBoundingBox called, but connection list is empty");
 		}
-		
+
 		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
-		
+
 		try {
 			final TupleStoreName sstableName = new TupleStoreName(table);
 
@@ -331,24 +331,24 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			final Collection<RoutingHop> hops = distributionRegion.getRoutingHopsForRead(boundingBox);
-			
+
 			if(logger.isDebugEnabled()) {
 				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, hops);
 			}
-			
+
 			hops.stream()
-				.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
-			 	.map(c -> c.queryBoundingBox(table, boundingBox))
-			 	.filter(Objects::nonNull)
-			 	.forEach(f -> future.merge(f));
-			
+			.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
+			.map(c -> c.queryBoundingBox(table, boundingBox))
+			.filter(Objects::nonNull)
+			.forEach(f -> future.merge(f));
+
 		} catch (ZookeeperException e) {
 			e.printStackTrace();
 		}
-		
+
 		return future;
 	}
-	
+
 	/**
 	 * Execute a continuous bounding box query
 	 * @throws BBoxDBException 
@@ -357,47 +357,47 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) 
 			throws BBoxDBException {
-		
+
 		try {
 			if(membershipConnectionService.getNumberOfConnections() == 0) {
 				throw new BBoxDBException("queryBoundingBox called, but connection list is empty");
 			}
-			
+
 			final TupleStoreName sstableName = new TupleStoreName(table);
-	
+
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					sstableName, zookeeperClient);
-			
+
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			final Set<DistributionRegion> regions 
-				= distributionRegion.getDistributionRegionsForBoundingBox(boundingBox);
-			
+			= distributionRegion.getDistributionRegionsForBoundingBox(boundingBox);
+
 			if(regions.size() != 1) {
 				throw new BBoxDBException("The bounding box belongs to more than one distribution region, "
 						+ "this is not supported in continuous queries");
 			}
-			
+
 			final DistributionRegion region = regions.iterator().next();
-			
+
 			final DistributedInstance firstSystem = region.getSystems().iterator().next();
 			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(firstSystem);
-			
+
 			return connection.queryBoundingBoxContinuous(table, boundingBox);
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
 		}
 	}
-	
+
 	@Override
 	public TupleListFuture queryBoundingBoxAndTime(final String table,
 			final BoundingBox boundingBox, final long timestamp) throws BBoxDBException {
-		
+
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryBoundingBoxAndTime called, but connection list is empty");
 		}
-		
+
 		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
-		
+
 		try {
 			final TupleStoreName sstableName = new TupleStoreName(table);
 			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
@@ -405,21 +405,21 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			final Collection<RoutingHop> hops = distributionRegion.getRoutingHopsForRead(boundingBox);
-			
+
 			if(logger.isDebugEnabled()) {
 				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, hops);
 			}
-			
+
 			hops.stream()
-				.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
-			 	.map(c -> c.queryBoundingBoxAndTime(table, boundingBox, timestamp))
-			 	.filter(Objects::nonNull)
-			 	.forEach(f -> future.merge(f));
-			
+			.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
+			.map(c -> c.queryBoundingBoxAndTime(table, boundingBox, timestamp))
+			.filter(Objects::nonNull)
+			.forEach(f -> future.merge(f));
+
 		} catch (ZookeeperException e) {
 			e.printStackTrace();
 		}
-		
+
 		return future;
 	}
 
@@ -428,39 +428,39 @@ public class BBoxDBCluster implements BBoxDB {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryTime called, but connection list is empty");
 		}
-		
+
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
-		
+
 		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
 
 		membershipConnectionService.getAllConnections()
-		 	.stream()
-		 	.map(c -> c.queryVersionTime(table, timestamp))
-		 	.filter(Objects::nonNull)
-		 	.forEach(f -> future.merge(f));
+		.stream()
+		.map(c -> c.queryVersionTime(table, timestamp))
+		.filter(Objects::nonNull)
+		.forEach(f -> future.merge(f));
 
 		return future;
 	}
-	
+
 	@Override
 	public TupleListFuture queryInsertedTime(final String table, final long timestamp) throws BBoxDBException {
 		if(membershipConnectionService.getNumberOfConnections() == 0) {
 			throw new BBoxDBException("queryTime called, but connection list is empty");
 		}
-		
+
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
-		
+
 		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
-		
+
 		membershipConnectionService.getAllConnections()
-		 	.stream()
-		 	.map(c -> c.queryInsertedTime(table, timestamp))
-		 	.filter(Objects::nonNull)
-		 	.forEach(f -> future.merge(f));
+		.stream()
+		.map(c -> c.queryInsertedTime(table, timestamp))
+		.filter(Objects::nonNull)
+		.forEach(f -> future.merge(f));
 
 		return future;
 	}
@@ -493,7 +493,7 @@ public class BBoxDBCluster implements BBoxDB {
 	public void setMaxInFlightCalls(final short maxInFlightCalls) {
 		this.maxInFlightCalls = maxInFlightCalls;
 	}
-	
+
 	/**
 	 * Is the paging for queries enables
 	 * @return
@@ -525,5 +525,5 @@ public class BBoxDBCluster implements BBoxDB {
 	public void setTuplesPerPage(final short tuplesPerPage) {
 		membershipConnectionService.setTuplesPerPage(tuplesPerPage);
 	}
-	
+
 }
