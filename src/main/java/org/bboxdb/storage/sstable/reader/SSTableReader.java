@@ -43,14 +43,14 @@ public class SSTableReader extends AbstractTableReader {
 	 * The total read tuples counter
 	 */
 	protected final static Counter readTuplesTotal = Counter.build()
-			.name("bboxdb_read_tuples_total")
+			.name("bboxdb_read_tuple_total")
 			.help("Total read tuples").register();
 	
 	/**
 	 * The total read tuples bytes counter
 	 */
 	protected final static Counter readTuplesBytes = Counter.build()
-			.name("bboxdb_read_tuples_bytes")
+			.name("bboxdb_read_tuple_bytes")
 			.help("Total read tuple bytes").register();
 
 	public SSTableReader(final String directory, final TupleStoreName tablename, final int tablenumer) throws StorageManagerException {
