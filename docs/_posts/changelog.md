@@ -8,7 +8,7 @@ order: 1
 
 ### Version 0.3.6 (Stable) - TBA
 - New Feature: Added continuous bounding box query
-- New Feature: Added performance counter (implemented with prometheus) 
+- New Feature: Added performance counter / instrumentation (implemented with prometheus) 
 - Improvement: Made memory statistics logging configurable via const
 - Improvement: Added insert callback to TupleStore
 - Improvement: The spatial index now contains the tuple byte positions
