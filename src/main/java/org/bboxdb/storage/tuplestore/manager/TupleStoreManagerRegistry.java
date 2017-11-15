@@ -481,7 +481,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Get all storages
 	 * @return 
 	 */
-	public Collection<DiskStorage> getAllStorages() {
+	public synchronized Collection<DiskStorage> getAllStorages() {
 		return storages.values();
 	}
 	
