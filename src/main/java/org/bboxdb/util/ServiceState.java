@@ -144,7 +144,7 @@ public class ServiceState {
 		}
 		
 		if(state != State.STOPPING) {
-			throw new IllegalStateException("State is not terminated: " + state);
+			throw new IllegalStateException("State is not stopping: " + state);
 		}
 		
 		setNewState(State.TERMINATED);
