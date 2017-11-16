@@ -151,6 +151,17 @@ public class ServiceState {
 	}
 	
 	/**
+	 * Force the dispatch to terminated
+	 */
+	public void forceDispatchToTerminated() {
+		if(state == State.FAILED) {
+			return;
+		}
+		
+		setNewState(State.TERMINATED);
+	}
+	
+	/**
 	 * Dispatch to the failed state
 	 */
 	public void dispatchToFailed(final Throwable throwable) {		
@@ -196,7 +207,7 @@ public class ServiceState {
 	}
 	
 	/**
-	 * Await at leat the terminated state
+	 * Await at least the terminated state
 	 * @throws InterruptedException
 	 */
 	public void awaitTerminatedOrFailed() throws InterruptedException {
@@ -252,6 +263,14 @@ public class ServiceState {
 	 */
 	public boolean isInStoppingState() {
 		return state == State.STOPPING;
+	}
+	
+	/**
+	 * Is the service in terminated state
+	 * @return
+	 */
+	public boolean isInTerminatedState() {
+		return state == State.TERMINATED;
 	}
 
 	@Override

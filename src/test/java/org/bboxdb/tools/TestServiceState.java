@@ -118,6 +118,20 @@ public class TestServiceState {
 	}
 	
 	/**
+	 * Force dispatch
+	 * @throws InterruptedException 
+	 */
+	@Test(timeout=1000)
+	public void testTransition6() throws InterruptedException {
+		final ServiceState state = new ServiceState();
+		Assert.assertFalse(state.isInFinishedState());
+		Assert.assertFalse(state.isInTerminatedState());
+		state.forceDispatchToTerminated();
+		Assert.assertTrue(state.isInFinishedState());
+		Assert.assertTrue(state.isInTerminatedState());
+	}
+	
+	/**
 	 * Test the to string method
 	 */
 	@Test
