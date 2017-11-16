@@ -106,7 +106,7 @@ public class TestNetworkCommunication {
 		
 		Assert.assertTrue(result.isDone());
 		Assert.assertFalse(result.isFailed());
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, bboxDBClient.getConnectionState());
+		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
 		
 		disconnectFromServer(bboxDBClient);
 		Assert.assertFalse(bboxDBClient.isConnected());
@@ -123,11 +123,11 @@ public class TestNetworkCommunication {
 
 		final int port = BBoxDBConfigurationManager.getConfiguration().getNetworkListenPort();
 		final BBoxDBClient bboxDBClient = new BBoxDBClient(new InetSocketAddress("127.0.0.1", port));
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, bboxDBClient.getConnectionState());
+		Assert.assertTrue(bboxDBClient.getConnectionState().isInNewState());
 		bboxDBClient.connect();
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, bboxDBClient.getConnectionState());
+		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
 		bboxDBClient.disconnect();
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_CLOSED, bboxDBClient.getConnectionState());
+		Assert.assertTrue(bboxDBClient.getConnectionState().isInTerminatedState());
 	
 		System.out.println("=== End testConnectionState");
 	}
@@ -148,7 +148,7 @@ public class TestNetworkCommunication {
 		result1.waitForAll();
 		Assert.assertTrue(result1.isDone());
 		Assert.assertFalse(result1.isFailed());
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, bboxDBClient.getConnectionState());
+		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
 		
 		// Wait for command processing
 		Thread.sleep(1000);
@@ -158,7 +158,7 @@ public class TestNetworkCommunication {
 		result2.waitForAll();
 		Assert.assertTrue(result2.isDone());
 		Assert.assertFalse(result2.isFailed());
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, bboxDBClient.getConnectionState());
+		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
 		
 		disconnectFromServer(bboxDBClient);
 		Assert.assertFalse(bboxDBClient.isConnected());		
@@ -321,7 +321,7 @@ public class TestNetworkCommunication {
 		
 		Assert.assertTrue(result.isDone());
 		Assert.assertFalse(result.isFailed());
-		Assert.assertEquals(NetworkConnectionState.NETWORK_CONNECTION_OPEN, bboxDBClient.getConnectionState());
+		Assert.assertTrue(bboxDBClient.getConnectionState().isInRunningState());
 		
 		disconnectFromServer(bboxDBClient);
 		Assert.assertFalse(bboxDBClient.isConnected());

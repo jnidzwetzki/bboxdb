@@ -17,14 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
-import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
-import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 
 public interface BBoxDB {
 	
@@ -166,12 +165,6 @@ public interface BBoxDB {
 	 * @return
 	 */
 	public boolean isConnected();
-
-	/**
-	 * Returns the state of the connection
-	 * @return
-	 */
-	public NetworkConnectionState getConnectionState();
 
 	/**
 	 * Get the amount of in flight (running) calls

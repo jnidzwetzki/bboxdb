@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
@@ -62,40 +61,19 @@ public class ServerResponseReader extends ExceptionSafeThread {
 	
 	/**
 	 * Process the next server answer
+	 * @throws PackageEncodeException 
+	 * @throws IOException 
 	 */
-	protected boolean processNextResponsePackage(final InputStream inputStream) {
-		try {
-			final ByteBuffer bb = readNextResponsePackageHeader(inputStream);
-			
-			if(bb == null) {
-				// Ignore exceptions when connection is closing
-				if(bboxDBClient.connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-					logger.error("Read error from socket, exiting");
-				}
-				return false;
-			}
-			
-			final ByteBuffer encodedPackage = bboxDBClient.readFullPackage(bb, inputStream);
-			bboxDBClient.handleResultPackage(encodedPackage);
-			
-		} catch (IOException | PackageEncodeException e) {
-			
-			// Ignore exceptions when connection is closing
-			if(bboxDBClient.connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
-				logger.error("Unable to read data from server (state: " + bboxDBClient.connectionState + ")", e);
-				return false;
-			}
+	public void processNextResponsePackage(final InputStream inputStream) throws PackageEncodeException, IOException {
+
+		final ByteBuffer bb = readNextResponsePackageHeader(inputStream);
+		
+		if(bb == null) {
+			throw new IOException("Read error from socket, exiting");
 		}
 		
-		return true;
-	}
-
-	/**
-	 * Kill pending calls
-	 */
-	protected void handleSocketClosedUnexpected() {
-		bboxDBClient.connectionState = NetworkConnectionState.NETWORK_CONNECTION_CLOSED_WITH_ERRORS;
-		bboxDBClient.killPendingCalls();
+		final ByteBuffer encodedPackage = bboxDBClient.readFullPackage(bb, inputStream);
+		bboxDBClient.handleResultPackage(encodedPackage);
 	}
 
 	@Override
@@ -112,11 +90,13 @@ public class ServerResponseReader extends ExceptionSafeThread {
 	public void runThread() {
 		
 		while(bboxDBClient.clientSocket != null) {
-			boolean result = processNextResponsePackage(bboxDBClient.inputStream);
-			
-			if(result == false) {
-				handleSocketClosedUnexpected();
-				break;
+			try {
+				processNextResponsePackage(bboxDBClient.inputStream);
+			} catch(Exception e) {
+				// Ignore exceptions when connection is closing
+				if(bboxDBClient.getConnectionState().isInRunningState()) {
+					bboxDBClient.getConnectionState().dispatchToFailed(e);
+				}
 			}
 		}
 		

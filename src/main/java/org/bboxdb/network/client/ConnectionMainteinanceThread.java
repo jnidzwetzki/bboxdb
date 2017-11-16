@@ -19,7 +19,6 @@ package org.bboxdb.network.client;
 
 import java.util.concurrent.TimeUnit;
 
-import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.util.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
@@ -65,15 +64,14 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 	@Override
 	public void runThread() {
 
-		while(bboxDBClient.connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN
-				|| bboxDBClient.connectionState == NetworkConnectionState.NETWORK_CONNECTION_CLOSING) {
+		while(! bboxDBClient.getConnectionState().isInTerminatedState()) {
 			
 			// Write all waiting for compression packages
 			bboxDBClient.flushPendingCompressionPackages();
 						
 			if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
 				// Send keep alive only on open connections
-				if(bboxDBClient.connectionState == NetworkConnectionState.NETWORK_CONNECTION_OPEN) {
+				if(bboxDBClient.getConnectionState().isInRunningState()) {
 					bboxDBClient.sendKeepAlivePackage();
 				}
 			}

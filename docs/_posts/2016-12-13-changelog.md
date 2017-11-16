@@ -13,6 +13,7 @@ order: 1
 - Improvement: Added insert callback to TupleStore
 - Improvement: The spatial index now contains the tuple byte positions
 - Improvement: Switched from Zookeeper 3.4.10 to Zookeeper 3.4.11
+- Improvement: Improved client connection error handling
 - Bugfix: Paging results can now contain equal keys
 - Bugfix: Improved exception handling on network header encoding
 - Bugfix: Fixed some bugs found by coverty scan

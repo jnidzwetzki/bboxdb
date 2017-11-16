@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.ServerResponseReader;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
@@ -47,11 +48,12 @@ public class CompressionHandler implements ServerResponseHandler {
 			logger.debug("Handle compression package");
 		}
 		
+		final ServerResponseReader serverResponseReader = bboxDBClient.getServerResponseReader();
 		final InputStream uncompressedStream = CompressionEnvelopeResponse.decodePackage(encodedPackage);
 		
 		try {
 			while(uncompressedStream.available() > 0) {
-				bboxDBClient.processNextResponsePackage(uncompressedStream);
+				serverResponseReader.processNextResponsePackage(uncompressedStream);
 			}
 		} catch (IOException e) {
 			logger.error("Got IO error while handling compressed packages", e);

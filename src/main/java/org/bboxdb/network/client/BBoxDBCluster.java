@@ -34,7 +34,6 @@ import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.NetworkConnectionState;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureHelper;
 import org.bboxdb.network.client.future.SSTableNameListFuture;
@@ -44,10 +43,10 @@ import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
-import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.DuplicateResolver;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.slf4j.Logger;
@@ -468,11 +467,6 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public boolean isConnected() {
 		return (membershipConnectionService.getNumberOfConnections() > 0);
-	}
-
-	@Override
-	public NetworkConnectionState getConnectionState() {
-		return NetworkConnectionState.NETWORK_CONNECTION_OPEN;
 	}
 
 	@Override
