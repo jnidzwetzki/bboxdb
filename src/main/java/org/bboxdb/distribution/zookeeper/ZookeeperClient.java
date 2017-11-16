@@ -81,7 +81,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	/**
 	 * The connect timeout in seconds
 	 */
-	protected final static int ZOOKEEPER_CONNCT_TIMEOUT = 30;
+	protected final static int ZOOKEEPER_CONNECT_TIMEOUT = 30;
 
 	/**
 	 * The logger
@@ -121,10 +121,10 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 				}
 			});
 
-			final boolean waitResult = connectLatch.await(ZOOKEEPER_CONNCT_TIMEOUT, TimeUnit.SECONDS);
+			final boolean waitResult = connectLatch.await(ZOOKEEPER_CONNECT_TIMEOUT, TimeUnit.SECONDS);
 
 			if (waitResult == false) {
-				logger.warn("Unable to connect in " + ZOOKEEPER_CONNCT_TIMEOUT + " seconds");
+				logger.warn("Unable to connect in " + ZOOKEEPER_CONNECT_TIMEOUT + " seconds");
 				closeZookeeperConnectionNE();
 				return;
 			}
