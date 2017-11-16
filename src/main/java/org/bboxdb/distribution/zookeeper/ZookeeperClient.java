@@ -20,9 +20,11 @@ package org.bboxdb.distribution.zookeeper;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -87,9 +89,14 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
 
 	public ZookeeperClient(final Collection<String> zookeeperHosts, final String clustername) {
-		this.zookeeperHosts = zookeeperHosts;
-		this.clustername = clustername;
+		this.zookeeperHosts = Objects.requireNonNull(zookeeperHosts);
+		this.clustername = Objects.requireNonNull(clustername);
+		
 		this.serviceState = new ServiceState();
+		
+		if (zookeeperHosts.isEmpty()) {
+			throw new IllegalArgumentException("No Zookeeper hosts are defined");
+		}
 	}
 
 	/**
@@ -97,18 +104,15 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 */
 	@Override
 	public void init() {
-		if (zookeeperHosts == null || zookeeperHosts.isEmpty()) {
-			logger.warn("No Zookeeper hosts are defined, not connecting to zookeeper");
-			return;
-		}
 
 		try {
 			serviceState.reset();
 			serviceState.dipatchToStarting();
 
 			final CountDownLatch connectLatch = new CountDownLatch(1);
-
-			zookeeper = new ZooKeeper(generateConnectString(), ZOOKEEPER_SESSION_TIMEOUT, new Watcher() {
+			final String connectionString = zookeeperHosts.stream().collect(Collectors.joining(","));
+			
+			zookeeper = new ZooKeeper(connectionString, ZOOKEEPER_SESSION_TIMEOUT, new Watcher() {
 				@Override
 				public void process(final WatchedEvent event) {
 					if (event.getState() == Watcher.Event.KeeperState.SyncConnected) {
@@ -449,33 +453,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
-	}
-
-	/**
-	 * Build a comma separated list of the zookeeper nodes
-	 * 
-	 * @return
-	 */
-	protected String generateConnectString() {
-
-		// No zookeeper hosts are defined
-		if (zookeeperHosts == null) {
-			logger.warn("No zookeeper hosts are defined");
-			return "";
-		}
-
-		final StringBuilder sb = new StringBuilder();
-
-		for (final String zookeeperHost : zookeeperHosts) {
-
-			if (sb.length() != 0) {
-				sb.append(",");
-			}
-
-			sb.append(zookeeperHost);
-		}
-
-		return sb.toString();
 	}
 
 	/**
