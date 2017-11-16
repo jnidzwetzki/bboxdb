@@ -57,6 +57,11 @@ public class JMXService implements BBoxDBService {
 			final MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 			final ObjectName name = new ObjectName(MBEAN_LIFECYCLE);
 
+			if (server.isRegistered(name)) {
+				logger.debug("MBean is already registered");
+				return;
+			}
+			
 			server.registerMBean(monitor, name);
 		} catch (Exception e) {
 			logger.warn("Got exception while creating mbean", e);
