@@ -509,7 +509,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public EmptyResultFuture createTable(final String table, final TupleStoreConfiguration configuration) throws BBoxDBException {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedFuture("createTable called, but connection not ready: " + this);
 		}
 
@@ -526,7 +526,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public EmptyResultFuture deleteTable(final String table) {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedFuture("deleteTable called, but connection not ready: " + this);
 		}
 
@@ -544,7 +544,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
 		try {
-			if(connectionState.isInRunningState()) {
+			if(! connectionState.isInRunningState()) {
 				return createFailedFuture("insertTuple called, but connection not ready: " + this);
 			}
 
@@ -603,7 +603,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
 			final RoutingHeader routingHeader) {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedFuture("insertTuple called, but connection not ready: " + this);
 		}
 
@@ -632,7 +632,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedFuture("deleteTuple called, but connection not ready: " + this);
 		}
 
@@ -673,7 +673,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public SSTableNameListFuture listTables() {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedSStableNameFuture("listTables called, but connection not ready: " + this);
 		}
 
@@ -691,7 +691,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture createDistributionGroup(final String distributionGroup, 
 			final DistributionGroupConfiguration distributionGroupConfiguration) {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedFuture("listTables called, but connection not ready: " + this);
 		}
 
@@ -711,7 +711,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public EmptyResultFuture deleteDistributionGroup(final String distributionGroup) {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedFuture("delete distribution group called, but connection not ready: " + this);
 		}
 
@@ -731,7 +731,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public TupleListFuture queryKey(final String table, final String key) {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedTupleListFuture("queryKey called, but connection not ready: " + this);
 		}
 
@@ -770,7 +770,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this);
 		}
 
@@ -806,7 +806,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedTupleListFuture("queryBoundingBoxContinuous called, but connection not ready: " + this);
 		}
 
@@ -842,7 +842,7 @@ public class BBoxDBClient implements BBoxDB {
 	public TupleListFuture queryBoundingBoxAndTime(final String table,
 			final BoundingBox boundingBox, final long timestamp) {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this);
 		}
 
@@ -877,7 +877,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public TupleListFuture queryVersionTime(final String table, final long timestamp) {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedTupleListFuture("queryTime called, but connection not ready: " + this);
 		}
 
@@ -912,7 +912,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public TupleListFuture queryInsertedTime(final String table, final long timestamp) {
 
-		if(connectionState.isInRunningState()) {
+		if(! connectionState.isInRunningState()) {
 			return createFailedTupleListFuture("queryTime called, but connection not ready: " + this);
 		}
 
@@ -948,7 +948,7 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture sendKeepAlivePackage() {
 
 		synchronized (this) {
-			if(connectionState.isInRunningState()) {
+			if(! connectionState.isInRunningState()) {
 				return createFailedFuture("sendKeepAlivePackage called, but connection not ready: " + this);
 			}
 
