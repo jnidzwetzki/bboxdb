@@ -212,7 +212,7 @@ public class ServiceState {
 	 */
 	public void awaitTerminatedOrFailed() throws InterruptedException {
 		synchronized (this) {
-			while(state != State.TERMINATED && state != State.FAILED) {
+			while(! isInFinishedState()) {
 				this.wait();
 			}
 		}
@@ -272,6 +272,15 @@ public class ServiceState {
 	public boolean isInTerminatedState() {
 		return state == State.TERMINATED;
 	}
+	
+	/**
+	 * Is the service in the failed state
+	 * @return
+	 */
+	public boolean isInFailedState() {
+		return state == State.FAILED;
+	}
+	
 
 	@Override
 	public String toString() {
