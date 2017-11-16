@@ -124,9 +124,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			final boolean waitResult = connectLatch.await(ZOOKEEPER_CONNECT_TIMEOUT, TimeUnit.SECONDS);
 
 			if (waitResult == false) {
-				logger.warn("Unable to connect in " + ZOOKEEPER_CONNECT_TIMEOUT + " seconds");
-				closeZookeeperConnectionNE();
-				return;
+				throw new ZookeeperException("Unable to connect in " + ZOOKEEPER_CONNECT_TIMEOUT +" seconds");
 			}
 
 			createDirectoryStructureIfNeeded();
@@ -134,6 +132,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			serviceState.dispatchToRunning();
 		} catch (Exception e) {
 			logger.warn("Got exception while connecting to zookeeper", e);
+			closeZookeeperConnectionNE();
+			serviceState.dispatchToFailed(e);
 		}
 	}
 
@@ -589,7 +589,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
 		}
-
 	}
 
 	/**
