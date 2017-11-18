@@ -126,10 +126,7 @@ public class BBoxDBInstanceManager {
 	 */
 	protected void sendEvent(final DistributedInstanceEvent event) {
 		logger.debug("Sending event: {}", event);
-
-		for(final DistributedInstanceEventCallback callback : listener) {
-			callback.distributedInstanceEvent(event);
-		}
+		listener.forEach((l) -> l.distributedInstanceEvent(event));
 	}
 	
 	/**
@@ -167,13 +164,8 @@ public class BBoxDBInstanceManager {
 	 * Disconnect from zookeeper, all instances are unregistered
 	 */
 	public void zookeeperDisconnect() {
-		
 		logger.debug("Zookeeper disconnected, sending delete events for all instances");
-		
-		for(final BBoxDBInstance instance : instances.values()) {
-			sendEvent(new DistributedInstanceDeleteEvent(instance));
-		}
-		
+		instances.values().forEach((i) -> sendEvent(new DistributedInstanceDeleteEvent(i)));
 		instances.clear();
 	}
 }

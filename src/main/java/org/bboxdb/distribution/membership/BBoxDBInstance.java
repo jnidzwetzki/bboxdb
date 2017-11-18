@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
+import org.bboxdb.util.InputParseException;
+import org.bboxdb.util.MathUtil;
 
 public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	
@@ -93,10 +95,9 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 		}
 		
 		try {
-			final Integer portInterger = Integer.parseInt(parts[1]);
-			this.port = portInterger;
-		} catch(NumberFormatException e) {
-			throw new IllegalArgumentException("Unable to parse: " + parts[1], e);
+			this.port = MathUtil.tryParseInt(parts[1], MathUtil.DEFAULT_ERROR_SUPPLIER);
+		} catch(InputParseException e) {
+			throw new IllegalArgumentException(e);
 		}
 		
 		this.ip = parts[0];
