@@ -67,16 +67,8 @@ public class MembershipConnectionService implements BBoxDBService {
 	/**
 	 * The event handler
 	 */
-	protected Consumer<DistributedInstanceEvent> eventConsumer = (event) -> {
-		if(event instanceof DistributedInstanceAddEvent) {
-			createOrTerminateConnetion(event.getInstance());
-		} else if(event instanceof DistributedInstanceChangedEvent) {
-			createOrTerminateConnetion(event.getInstance());
-		} else if(event instanceof DistributedInstanceDeleteEvent) {
-			terminateConnection(event.getInstance());
-		} else {
-			logger.warn("Unknown event: " + event);
-		}
+	protected Consumer<DistributedInstanceEvent> distributedEventConsumer = (event) -> {
+		handleDistributedEvent(event);
 	};
 	
 	/**
@@ -100,6 +92,21 @@ public class MembershipConnectionService implements BBoxDBService {
 		tuplesPerPage = 0;
 	}
 	
+	/**
+	* Handle membership events	
+	*/
+	protected void handleDistributedEvent(final DistributedInstanceEvent event) {
+		if(event instanceof DistributedInstanceAddEvent) {
+			createOrTerminateConnetion(event.getInstance());
+		} else if(event instanceof DistributedInstanceChangedEvent) {
+			createOrTerminateConnetion(event.getInstance());
+		} else if(event instanceof DistributedInstanceDeleteEvent) {
+			terminateConnection(event.getInstance());
+		} else {
+			logger.warn("Unknown event: " + event);
+		}		
+	}
+
 	/**
 	 * Get the instance of the membership connection service
 	 * @return
@@ -137,7 +144,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 */
 	@Override
 	public void init() {
-		BBoxDBInstanceManager.getInstance().registerListener(eventConsumer);
+		BBoxDBInstanceManager.getInstance().registerListener(distributedEventConsumer);
 		
 		// Create connections to existing instances
 		final List<BBoxDBInstance> instances = BBoxDBInstanceManager.getInstance().getInstances();
@@ -154,7 +161,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	 */
 	@Override
 	public void shutdown() {
-		BBoxDBInstanceManager.getInstance().removeListener(eventConsumer);
+		BBoxDBInstanceManager.getInstance().removeListener(distributedEventConsumer);
 		
 		// Close all connections
 		synchronized (serverConnections) {

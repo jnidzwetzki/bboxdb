@@ -39,7 +39,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GuiModel implements Consumer<DistributedInstanceEvent>, DistributionRegionChangedCallback {
+public class GuiModel implements DistributionRegionChangedCallback {
 
 	/**
 	 * The BBoxDB instances
@@ -75,12 +75,18 @@ public class GuiModel implements Consumer<DistributedInstanceEvent>, Distributio
 	 * The distribution group adapter
 	 */
 	protected final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	
+	/**
+	 * The event handler
+	 */
+	protected Consumer<DistributedInstanceEvent> distributedEventConsumer = (event) -> {
+		handleDistributedEvent(event);
+	};
 
 	/**
 	 * The logger
 	 */
-	protected final static Logger logger = LoggerFactory
-			.getLogger(GuiModel.class);
+	protected final static Logger logger = LoggerFactory.getLogger(GuiModel.class);
 
 	public GuiModel(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
@@ -88,14 +94,14 @@ public class GuiModel implements Consumer<DistributedInstanceEvent>, Distributio
 				zookeeperClient);
 		bboxdbInstances = new ArrayList<BBoxDBInstance>();
 
-		BBoxDBInstanceManager.getInstance().registerListener(this);
+		BBoxDBInstanceManager.getInstance().registerListener(distributedEventConsumer);
 	}
 
 	/**
 	 * Shutdown the GUI model
 	 */
 	public void shutdown() {
-		BBoxDBInstanceManager.getInstance().removeListener(this);
+		BBoxDBInstanceManager.getInstance().removeListener(distributedEventConsumer);
 		unregisterTreeChangeListener();
 	}
 
@@ -198,10 +204,8 @@ public class GuiModel implements Consumer<DistributedInstanceEvent>, Distributio
 	/**
 	 * A group membership event is occurred
 	 */
-	@Override
-	public void accept(final DistributedInstanceEvent event) {
+	public void handleDistributedEvent(final DistributedInstanceEvent event) {
 		updateBBoxDBInstances();
-
 		updateModel();
 	}
 
