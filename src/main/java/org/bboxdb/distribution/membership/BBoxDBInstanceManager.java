@@ -24,12 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
-import org.bboxdb.distribution.membership.event.DistributedInstanceAddEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceChangedEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceDeleteEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +34,8 @@ public class BBoxDBInstanceManager {
 	/**
 	 * The event listener
 	 */
-	protected final List<Consumer<DistributedInstanceEvent>> listener = new CopyOnWriteArrayList<>();
+	protected final List<BiConsumer<DistributedInstanceEvent, BBoxDBInstance>> listener 
+		= new CopyOnWriteArrayList<>();
 	
 	/**
 	 * The active BBoxDB instances
@@ -98,7 +95,7 @@ public class BBoxDBInstanceManager {
 		
 		for(final InetSocketAddress inetSocketAddress : deletedInstances) {
 			final BBoxDBInstance deletedInstance = instances.remove(inetSocketAddress);
-			sendEvent(new DistributedInstanceDeleteEvent(deletedInstance));
+			sendEvent(DistributedInstanceEvent.DELETED, deletedInstance);
 		}
 
 		for(final BBoxDBInstance instance : newInstances) {
@@ -108,12 +105,12 @@ public class BBoxDBInstanceManager {
 			// Any new member?
 			if( ! instances.containsKey(inetSocketAddress)) {
 				instances.put(inetSocketAddress, instance);
-				sendEvent(new DistributedInstanceAddEvent(instance));
+				sendEvent(DistributedInstanceEvent.ADD, instance);
 			} else {
 				// Changed member?
 				if(! instances.get(inetSocketAddress).equals(instance)) {
 					instances.put(inetSocketAddress, instance);
-					sendEvent(new DistributedInstanceChangedEvent(instance));
+					sendEvent(DistributedInstanceEvent.CHANGED, instance);
 				}
 			}
 		}
@@ -124,16 +121,16 @@ public class BBoxDBInstanceManager {
 	 * 
 	 * @param event
 	 */
-	protected void sendEvent(final DistributedInstanceEvent event) {
+	protected void sendEvent(final DistributedInstanceEvent event, final BBoxDBInstance instance) {
 		logger.debug("Sending event: {}", event);
-		listener.forEach((l) -> l.accept(event));
+		listener.forEach((l) -> l.accept(event, instance));
 	}
 	
 	/**
 	 * Register a callback listener
 	 * @param callback
 	 */
-	public void registerListener(final Consumer<DistributedInstanceEvent> callback) {
+	public void registerListener(final BiConsumer<DistributedInstanceEvent, BBoxDBInstance> callback) {
 		listener.add(callback);
 	}
 	
@@ -141,7 +138,7 @@ public class BBoxDBInstanceManager {
 	 * Remove a callback listener
 	 * @param callback
 	 */
-	public void removeListener(final Consumer<DistributedInstanceEvent> callback) {
+	public void removeListener(final BiConsumer<DistributedInstanceEvent, BBoxDBInstance> callback) {
 		listener.remove(callback);
 	}
 	
@@ -165,7 +162,7 @@ public class BBoxDBInstanceManager {
 	 */
 	public void zookeeperDisconnect() {
 		logger.debug("Zookeeper disconnected, sending delete events for all instances");
-		instances.values().forEach((i) -> sendEvent(new DistributedInstanceDeleteEvent(i)));
+		instances.values().forEach((i) -> sendEvent(DistributedInstanceEvent.DELETED, i));
 		instances.clear();
 	}
 }

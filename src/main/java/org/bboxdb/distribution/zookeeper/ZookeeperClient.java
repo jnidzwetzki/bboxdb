@@ -38,7 +38,7 @@ import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
-import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
+import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;

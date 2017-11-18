@@ -21,14 +21,12 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
-import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
-import org.bboxdb.distribution.membership.event.DistributedInstanceAddEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceChangedEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
+import org.bboxdb.distribution.membership.BBoxDBInstanceState;
+import org.bboxdb.distribution.membership.DistributedInstanceEvent;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperInstanceRegisterer;
@@ -185,12 +183,12 @@ public class TestDistributedInstanceManager {
 		
 		final CountDownLatch changedLatch = new CountDownLatch(1);
 
-		distributedInstanceManager.registerListener(new Consumer<DistributedInstanceEvent>() {
+		distributedInstanceManager.registerListener(new BiConsumer<DistributedInstanceEvent, BBoxDBInstance>() {
 			
 			@Override
-			public void accept(final DistributedInstanceEvent event) {
-				if(event instanceof DistributedInstanceAddEvent) {
-					if(event.getInstance().socketAddressEquals(instance2)) {
+			public void accept(final DistributedInstanceEvent event, final BBoxDBInstance instance) {
+				if(event == DistributedInstanceEvent.ADD) {
+					if(instance.socketAddressEquals(instance2)) {
 						changedLatch.countDown();
 					}
 				} else {
@@ -234,14 +232,14 @@ public class TestDistributedInstanceManager {
 		
 		final CountDownLatch changedLatch = new CountDownLatch(1);
 
-		distributedInstanceManager.registerListener(new Consumer<DistributedInstanceEvent>() {
+		distributedInstanceManager.registerListener(new BiConsumer<DistributedInstanceEvent, BBoxDBInstance>() {
 			
 			@Override
-			public void accept(final DistributedInstanceEvent event) {
+			public void accept(final DistributedInstanceEvent event, final BBoxDBInstance instance) {
 
-				if(event instanceof DistributedInstanceChangedEvent) {
-					if(event.getInstance().socketAddressEquals(instance2)) {
-						Assert.assertTrue(event.getInstance().getState() == BBoxDBInstanceState.OUTDATED);
+				if(event == DistributedInstanceEvent.CHANGED) {
+					if(instance.socketAddressEquals(instance2)) {
+						Assert.assertTrue(instance.getState() == BBoxDBInstanceState.OUTDATED);
 						changedLatch.countDown();
 					}
 				} else {
@@ -283,13 +281,13 @@ public class TestDistributedInstanceManager {
 		
 		final CountDownLatch changedLatch = new CountDownLatch(1);
 
-		distributedInstanceManager.registerListener(new Consumer<DistributedInstanceEvent>() {
+		distributedInstanceManager.registerListener(new BiConsumer<DistributedInstanceEvent, BBoxDBInstance>() {
 			
 			@Override
-			public void accept(final DistributedInstanceEvent event) {
+			public void accept(final DistributedInstanceEvent event, final BBoxDBInstance instance) {
 
-				if(event instanceof DistributedInstanceChangedEvent) {
-					if(event.getInstance().socketAddressEquals(instance2)) {
+				if(event == DistributedInstanceEvent.CHANGED) {
+					if(instance.socketAddressEquals(instance2)) {
 						changedLatch.countDown();
 					}
 				} else {

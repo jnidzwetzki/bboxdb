@@ -25,13 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
-import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
-import org.bboxdb.distribution.membership.event.DistributedInstanceAddEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceChangedEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceDeleteEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.slf4j.Logger;
@@ -67,8 +62,8 @@ public class MembershipConnectionService implements BBoxDBService {
 	/**
 	 * The event handler
 	 */
-	protected Consumer<DistributedInstanceEvent> distributedEventConsumer = (event) -> {
-		handleDistributedEvent(event);
+	protected BiConsumer<DistributedInstanceEvent, BBoxDBInstance> distributedEventConsumer = (event, instance) -> {
+		handleDistributedEvent(event, instance);
 	};
 	
 	/**
@@ -94,14 +89,15 @@ public class MembershipConnectionService implements BBoxDBService {
 	
 	/**
 	* Handle membership events	
+	 * @param instance 
 	*/
-	protected void handleDistributedEvent(final DistributedInstanceEvent event) {
-		if(event instanceof DistributedInstanceAddEvent) {
-			createOrTerminateConnetion(event.getInstance());
-		} else if(event instanceof DistributedInstanceChangedEvent) {
-			createOrTerminateConnetion(event.getInstance());
-		} else if(event instanceof DistributedInstanceDeleteEvent) {
-			terminateConnection(event.getInstance());
+	protected void handleDistributedEvent(final DistributedInstanceEvent event, final BBoxDBInstance instance) {
+		if(event == DistributedInstanceEvent.ADD) {
+			createOrTerminateConnetion(instance);
+		} else if(event == DistributedInstanceEvent.CHANGED) {
+			createOrTerminateConnetion(instance);
+		} else if(event == DistributedInstanceEvent.DELETED) {
+			terminateConnection(instance);
 		} else {
 			logger.warn("Unknown event: " + event);
 		}		

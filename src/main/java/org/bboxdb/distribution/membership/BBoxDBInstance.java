@@ -21,7 +21,6 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.bboxdb.util.InputParseException;
 import org.bboxdb.util.MathUtil;
 

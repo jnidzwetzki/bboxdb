@@ -15,19 +15,29 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.membership.event;
+package org.bboxdb.distribution.membership;
 
-import org.bboxdb.distribution.membership.BBoxDBInstance;
-
-public class DistributedInstanceDeleteEvent extends DistributedInstanceEvent {
-
-	public DistributedInstanceDeleteEvent(final BBoxDBInstance instance) {
-		super(instance);
+public enum BBoxDBInstanceState {
+	
+	UNKNOWN("unknown"), 
+	OUTDATED("outdated"), 
+	READY("ready");
+	
+	/**
+	 * The zookeeper value
+	 */
+	private final String zookeeperValue;
+	
+	BBoxDBInstanceState(final String zookeeperValue) {
+		this.zookeeperValue = zookeeperValue;
 	}
 	
-	@Override
-	public String toString() {
-		return "DistributedInstanceDeleteEvent [instance=" + instance + "]";
+	/**
+	 * Get the zookeeper representation of the state
+	 * @return
+	 */
+	public String getZookeeperValue() {
+		return zookeeperValue;
 	}
 
 }

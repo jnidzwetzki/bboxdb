@@ -21,7 +21,7 @@ import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import javax.swing.SwingUtilities;
 
@@ -29,7 +29,7 @@ import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
-import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
+import org.bboxdb.distribution.membership.DistributedInstanceEvent;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionChangedCallback;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
@@ -79,8 +79,8 @@ public class GuiModel implements DistributionRegionChangedCallback {
 	/**
 	 * The event handler
 	 */
-	protected Consumer<DistributedInstanceEvent> distributedEventConsumer = (event) -> {
-		handleDistributedEvent(event);
+	protected BiConsumer<DistributedInstanceEvent, BBoxDBInstance> distributedEventConsumer = (event, instance) -> {
+		handleDistributedEvent(event, instance);
 	};
 
 	/**
@@ -203,8 +203,9 @@ public class GuiModel implements DistributionRegionChangedCallback {
 
 	/**
 	 * A group membership event is occurred
+	 * @param instance 
 	 */
-	public void handleDistributedEvent(final DistributedInstanceEvent event) {
+	public void handleDistributedEvent(final DistributedInstanceEvent event, final BBoxDBInstance instance) {
 		updateBBoxDBInstances();
 		updateModel();
 	}

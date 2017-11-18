@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
+import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.junit.Assert;
 import org.junit.Test;
 

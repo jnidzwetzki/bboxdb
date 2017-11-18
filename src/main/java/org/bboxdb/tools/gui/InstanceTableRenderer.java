@@ -23,7 +23,7 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
+import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 
 public class InstanceTableRenderer extends DefaultTableCellRenderer {
 	

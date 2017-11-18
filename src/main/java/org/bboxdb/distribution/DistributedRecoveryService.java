@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
-import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
