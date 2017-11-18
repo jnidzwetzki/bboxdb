@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -59,19 +59,19 @@ public class TestStorageUtilizationRessourcePlacement extends TestRandomRessourc
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<>();
 		
-		final BBoxDBInstance instance1 = new BBoxDBInstance("node1:123", "0.1", DistributedInstanceState.READY);
+		final BBoxDBInstance instance1 = new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.READY);
 		systems.add(instance1);
 		instance1.addFreeSpace("/tmp", 10);
 		instance1.addTotalSpace("/tmp", 10);
 		
-		final BBoxDBInstance instance2 = new BBoxDBInstance("node2:123", "0.1", DistributedInstanceState.READY);
+		final BBoxDBInstance instance2 = new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.READY);
 		systems.add(instance2);
 		instance2.addFreeSpace("/tmp", 10);
 		instance2.addTotalSpace("/tmp", 10);
 		instance2.addFreeSpace("/tmp2", 10);
 		instance2.addTotalSpace("/tmp2", 10);
 		
-		final BBoxDBInstance instance3 = new BBoxDBInstance("node3:123", "0.1", DistributedInstanceState.READY);
+		final BBoxDBInstance instance3 = new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.READY);
 		systems.add(instance3);
 		instance3.addFreeSpace("/tmp", 10);
 		instance3.addTotalSpace("/tmp", 10);
@@ -80,7 +80,7 @@ public class TestStorageUtilizationRessourcePlacement extends TestRandomRessourc
 		instance3.addFreeSpace("/tmp3", 10);
 		instance3.addTotalSpace("/tmp3", 10);
 		
-		final BBoxDBInstance instance4 = new BBoxDBInstance("node4:123", "0.1", DistributedInstanceState.READY);
+		final BBoxDBInstance instance4 = new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.READY);
 		systems.add(instance4);
 		instance4.addFreeSpace("/tmp", 10);
 		instance4.addTotalSpace("/tmp", 10);

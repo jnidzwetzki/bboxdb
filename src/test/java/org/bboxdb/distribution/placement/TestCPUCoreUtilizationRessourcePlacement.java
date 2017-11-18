@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -59,16 +59,16 @@ public class TestCPUCoreUtilizationRessourcePlacement extends TestRandomRessourc
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<>();
 		
-		final BBoxDBInstance instance1 = new BBoxDBInstance("node1:123", "0.1", DistributedInstanceState.READY);
+		final BBoxDBInstance instance1 = new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.READY);
 		systems.add(instance1);
 		instance1.setCpuCores(1);
-		final BBoxDBInstance instance2 = new BBoxDBInstance("node2:123", "0.1", DistributedInstanceState.READY);
+		final BBoxDBInstance instance2 = new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.READY);
 		systems.add(instance2);
 		instance2.setCpuCores(4);
-		final BBoxDBInstance instance3 = new BBoxDBInstance("node3:123", "0.1", DistributedInstanceState.READY);
+		final BBoxDBInstance instance3 = new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.READY);
 		systems.add(instance3);
 		instance3.setCpuCores(16);
-		final BBoxDBInstance instance4 = new BBoxDBInstance("node4:123", "0.1", DistributedInstanceState.READY);
+		final BBoxDBInstance instance4 = new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.READY);
 		systems.add(instance4);
 		instance4.setCpuCores(64);
 		

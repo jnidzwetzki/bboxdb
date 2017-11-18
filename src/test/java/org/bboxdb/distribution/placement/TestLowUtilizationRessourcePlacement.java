@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -59,10 +59,10 @@ public class TestLowUtilizationRessourcePlacement extends TestRandomRessourcePla
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<>();
 		
-		systems.add(new BBoxDBInstance("node1:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new BBoxDBInstance("node2:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new BBoxDBInstance("node3:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new BBoxDBInstance("node4:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.READY));
+		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.READY));
+		systems.add(new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.READY));
+		systems.add(new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.READY));
 		
 		utilization.clear();
 		utilization.setCount(systems.get(0), 1);

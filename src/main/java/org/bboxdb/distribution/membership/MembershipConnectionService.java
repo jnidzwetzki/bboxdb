@@ -31,7 +31,7 @@ import org.bboxdb.distribution.membership.event.DistributedInstanceChangedEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceDeleteEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback;
-import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.slf4j.Logger;
@@ -169,7 +169,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	protected synchronized void createOrTerminateConnetion(final BBoxDBInstance distributedInstance) {
 
 		// Create only connections to readonly or readwrite systems
-		if(distributedInstance.getState() == DistributedInstanceState.UNKNOWN) {			
+		if(distributedInstance.getState() == BBoxDBInstanceState.UNKNOWN) {			
 			terminateConnection(distributedInstance);
 		} else {
 			createConnection(distributedInstance);

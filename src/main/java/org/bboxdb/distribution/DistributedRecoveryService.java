@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
-import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -65,14 +65,14 @@ public class DistributedRecoveryService implements BBoxDBService {
 		try {
 			final BBoxDBInstance distributedInstance = ZookeeperClientFactory.getLocalInstanceName();
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			zookeeperClient.setLocalInstanceState(distributedInstance, DistributedInstanceState.OUTDATED);
+			zookeeperClient.setLocalInstanceState(distributedInstance, BBoxDBInstanceState.OUTDATED);
 			logger.info("Running recovery for local stored data");
 			
 			runRecovery();
 			
 			logger.info("Running recovery for local stored data DONE");
 
-			zookeeperClient.setLocalInstanceState(distributedInstance, DistributedInstanceState.READY);
+			zookeeperClient.setLocalInstanceState(distributedInstance, BBoxDBInstanceState.READY);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			logger.error("Got an exception during recovery: ", e);
 		}

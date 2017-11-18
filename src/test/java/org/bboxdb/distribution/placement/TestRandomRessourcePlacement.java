@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,10 +54,10 @@ public class TestRandomRessourcePlacement {
 	public void testPlacement1() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
-		systems.add(new BBoxDBInstance("node1:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new BBoxDBInstance("node2:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new BBoxDBInstance("node3:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new BBoxDBInstance("node4:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.READY));
+		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.READY));
+		systems.add(new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.READY));
+		systems.add(new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.READY));
 		
 		Assert.assertEquals(systems.get(0), resourcePlacementStrategy.getInstancesForNewRessource(systems, systems));
 	}
@@ -70,7 +70,7 @@ public class TestRandomRessourcePlacement {
 	public void testPlacement2() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
-		systems.add(new BBoxDBInstance("node1:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.READY));
 
 		Assert.assertEquals(systems.get(0), resourcePlacementStrategy.getInstancesForNewRessource(systems));
 		Assert.assertEquals(systems.get(0), resourcePlacementStrategy.getInstancesForNewRessource(systems));
@@ -86,10 +86,10 @@ public class TestRandomRessourcePlacement {
 	public void testNonReadySystems1() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
-		systems.add(new BBoxDBInstance("node1:123", "0.1", DistributedInstanceState.OUTDATED));
-		systems.add(new BBoxDBInstance("node2:123", "0.1", DistributedInstanceState.UNKNOWN));
-		systems.add(new BBoxDBInstance("node3:123", "0.1", DistributedInstanceState.UNKNOWN));
-		systems.add(new BBoxDBInstance("node4:123", "0.1", DistributedInstanceState.UNKNOWN));
+		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.OUTDATED));
+		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.UNKNOWN));
+		systems.add(new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.UNKNOWN));
+		systems.add(new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.UNKNOWN));
 		
 		resourcePlacementStrategy.getInstancesForNewRessource(systems);
 	}
@@ -102,10 +102,10 @@ public class TestRandomRessourcePlacement {
 	public void testNonReadySystems2() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
-		systems.add(new BBoxDBInstance("node1:123", "0.1", DistributedInstanceState.OUTDATED));
-		systems.add(new BBoxDBInstance("node2:123", "0.1", DistributedInstanceState.UNKNOWN));
-		systems.add(new BBoxDBInstance("node3:123", "0.1", DistributedInstanceState.UNKNOWN));
-		systems.add(new BBoxDBInstance("node4:123", "0.1", DistributedInstanceState.UNKNOWN));
+		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.OUTDATED));
+		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.UNKNOWN));
+		systems.add(new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.UNKNOWN));
+		systems.add(new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.UNKNOWN));
 		
 		resourcePlacementStrategy.getInstancesForNewRessource(systems);
 	}
@@ -118,10 +118,10 @@ public class TestRandomRessourcePlacement {
 	public void testNonReadySystems3() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
-		systems.add(new BBoxDBInstance("node1:123", "0.1", DistributedInstanceState.OUTDATED));
-		systems.add(new BBoxDBInstance("node2:123", "0.1", DistributedInstanceState.UNKNOWN));
-		systems.add(new BBoxDBInstance("node3:123", "0.1", DistributedInstanceState.UNKNOWN));
-		systems.add(new BBoxDBInstance("node4:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.OUTDATED));
+		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.UNKNOWN));
+		systems.add(new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.UNKNOWN));
+		systems.add(new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.READY));
 		
 		for(int i = 0; i < 100; i++) {
 			Assert.assertEquals(systems.get(3), resourcePlacementStrategy.getInstancesForNewRessource(systems));

@@ -23,7 +23,7 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 
 public class InstanceTableRenderer extends DefaultTableCellRenderer {
 	
@@ -54,9 +54,9 @@ public class InstanceTableRenderer extends DefaultTableCellRenderer {
 		if(column != 4) {
 			setForeground(table.getForeground());
 		} else {
-			if(DistributedInstanceState.OUTDATED.getZookeeperValue().equals(state)) {
+			if(BBoxDBInstanceState.OUTDATED.getZookeeperValue().equals(state)) {
 				setForeground(Color.YELLOW);
-			} else if(DistributedInstanceState.READY.getZookeeperValue().equals(state)) {
+			} else if(BBoxDBInstanceState.READY.getZookeeperValue().equals(state)) {
 				setForeground(OUR_GREEN);
 			} else {
 				setForeground(OUR_RED);

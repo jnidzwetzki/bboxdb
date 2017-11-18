@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 
 public abstract class ResourcePlacementStrategy {
 
@@ -55,7 +55,7 @@ public abstract class ResourcePlacementStrategy {
 	 * @param systems
 	 */
 	public static void removeAllNonReadySystems(final List<BBoxDBInstance> systems) {
-		systems.removeIf(s -> s.getState() != DistributedInstanceState.READY);
+		systems.removeIf(s -> s.getState() != BBoxDBInstanceState.READY);
 	}
 
 }

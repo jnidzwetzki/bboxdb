@@ -38,7 +38,7 @@ import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
-import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
@@ -268,7 +268,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		instance.setVersion(instanceVersion);
 		
 		// State
-		final DistributedInstanceState state = getStateForInstance(instanceName);
+		final BBoxDBInstanceState state = getStateForInstance(instanceName);
 		instance.setState(state);
 		
 		// CPU cores
@@ -292,22 +292,22 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected DistributedInstanceState getStateForInstance(final String member) {
+	protected BBoxDBInstanceState getStateForInstance(final String member) {
 		final String nodesPath = getActiveInstancesPath();
 		final String statePath = nodesPath + "/" + member;
 
 		try {
 			final String state = readPathAndReturnString(statePath, true, this);
-			if (DistributedInstanceState.OUTDATED.getZookeeperValue().equals(state)) {
-				return DistributedInstanceState.OUTDATED;
-			} else if (DistributedInstanceState.READY.getZookeeperValue().equals(state)) {
-				return DistributedInstanceState.READY;
+			if (BBoxDBInstanceState.OUTDATED.getZookeeperValue().equals(state)) {
+				return BBoxDBInstanceState.OUTDATED;
+			} else if (BBoxDBInstanceState.READY.getZookeeperValue().equals(state)) {
+				return BBoxDBInstanceState.READY;
 			}
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			// Ignore exception, instance state is unknown
 		}
 
-		return DistributedInstanceState.UNKNOWN;
+		return BBoxDBInstanceState.UNKNOWN;
 	}
 
 	/**
@@ -576,7 +576,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @throws ZookeeperException
 	 */
 	public void setLocalInstanceState(final BBoxDBInstance instance, 
-			final DistributedInstanceState distributedInstanceState)
+			final BBoxDBInstanceState distributedInstanceState)
 			throws ZookeeperException {
 	
 		final String statePath = getActiveInstancesPath() + "/" + instance.getStringValue();

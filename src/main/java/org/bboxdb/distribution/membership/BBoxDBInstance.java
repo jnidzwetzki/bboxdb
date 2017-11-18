@@ -21,7 +21,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bboxdb.distribution.membership.event.DistributedInstanceState;
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 
 public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	
@@ -73,14 +73,14 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	/**
 	 * The state of the instance
 	 */
-	protected DistributedInstanceState state = DistributedInstanceState.UNKNOWN;
+	protected BBoxDBInstanceState state = BBoxDBInstanceState.UNKNOWN;
 
-	public BBoxDBInstance(final String connectionString, final String version, final DistributedInstanceState state) {
+	public BBoxDBInstance(final String connectionString, final String version, final BBoxDBInstanceState state) {
 		this(connectionString, state);
 		this.version = version;
 	}
 	
-	public BBoxDBInstance(final String connectionString, final DistributedInstanceState state) {
+	public BBoxDBInstance(final String connectionString, final BBoxDBInstanceState state) {
 		this(connectionString);
 		this.state = state;
 	}
@@ -89,7 +89,7 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 		final String[] parts = connectionString.split(":");
 		
 		if(parts.length != 2) {
-			throw new IllegalArgumentException("Unable to parse:" + connectionString);
+			throw new IllegalArgumentException("Unable to parse: " + connectionString);
 		}
 		
 		try {
@@ -220,7 +220,7 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	 * Get the state of the instance
 	 * @return
 	 */
-	public DistributedInstanceState getState() {
+	public BBoxDBInstanceState getState() {
 		return state;
 	}
 	
@@ -228,7 +228,7 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	 * Set the state of the instance
 	 * @param state
 	 */
-	public void setState(final DistributedInstanceState state) {
+	public void setState(final BBoxDBInstanceState state) {
 		this.state = state;
 	}
 

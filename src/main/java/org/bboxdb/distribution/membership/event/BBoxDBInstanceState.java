@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.membership.event;
 
-public enum DistributedInstanceState {
+public enum BBoxDBInstanceState {
 	
 	UNKNOWN("unknown"), 
 	OUTDATED("outdated"), 
@@ -28,7 +28,7 @@ public enum DistributedInstanceState {
 	 */
 	private final String zookeeperValue;
 	
-	DistributedInstanceState(final String zookeeperValue) {
+	BBoxDBInstanceState(final String zookeeperValue) {
 		this.zookeeperValue = zookeeperValue;
 	}
 	
