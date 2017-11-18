@@ -94,12 +94,13 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 		
 		try {
 			final Integer portInterger = Integer.parseInt(parts[1]);
-			this.ip = parts[0];
 			this.port = portInterger;
-			this.socketAddress = new InetSocketAddress(ip, port);
 		} catch(NumberFormatException e) {
 			throw new IllegalArgumentException("Unable to parse: " + parts[1], e);
 		}
+		
+		this.ip = parts[0];
+		this.socketAddress = new InetSocketAddress(ip, port);
 	}
 
 	public BBoxDBInstance(final String localIp, final Integer localPort, final String version) {

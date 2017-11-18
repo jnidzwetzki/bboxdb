@@ -19,10 +19,10 @@ package org.bboxdb.tools;
 
 import java.util.function.Supplier;
 
+import org.bboxdb.util.InputParseException;
 import org.bboxdb.util.MathUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class TestMathUtil {
 
@@ -30,6 +30,12 @@ public class TestMathUtil {
 	 * The default assert delta
 	 */
 	private static final double DEFAULT_ASSERT_DELTA = 0.0000001;
+	
+	/**
+	 * The default error supplier
+	 */
+	private final static Supplier<String> DEFAULT_ERROR_SUPPLIER = () -> "Parse error";
+
 
 	@Test
 	public void testRound() {
@@ -51,41 +57,98 @@ public class TestMathUtil {
 		Assert.assertEquals(1.53434, MathUtil.round(d7, 5), DEFAULT_ASSERT_DELTA);
 		Assert.assertEquals(1.53440, MathUtil.round(d8, 5), DEFAULT_ASSERT_DELTA);
 	}
-
-	/**
-	 * Get a mocked error supplier
-	 */
-	protected Supplier<String> getMockedSupplier() {
-		@SuppressWarnings("unchecked")
-		final Supplier<String> errorSuppilier = (Supplier<String>) Mockito.mock(Supplier.class);
-		return errorSuppilier;
-	}
 	
 	@Test
-	public void testParseInteger() {
-		final Supplier<String> errorSupplier1 = getMockedSupplier();
-		final int result1 = MathUtil.tryParseInt("abc", errorSupplier1, false);
-		Assert.assertEquals(MathUtil.RESULT_PARSE_FAILED_AND_NO_EXIT_INT, result1);
-		(Mockito.verify(errorSupplier1, Mockito.atLeastOnce())).get();
+	public void testParseInteger(){
+		try {
+			MathUtil.tryParseInt("abc", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(false);
+		} catch(InputParseException e) {
+			
+		}
 		
-		final Supplier<String> errorSupplier2 = getMockedSupplier();
-		final int result2 = MathUtil.tryParseInt("234", errorSupplier2, false);
-		Assert.assertEquals(234, result2);
-		(Mockito.verify(errorSupplier2, Mockito.never())).get();
+		try {
+			MathUtil.tryParseInt(null, DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(false);
+		} catch(InputParseException e) {
+			
+		}
+		
+		try {
+			final int result2 = MathUtil.tryParseInt("234", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertEquals(234, result2);
+		} catch (InputParseException e) {
+			Assert.assertTrue(false);
+		}
 	}
 
 	
 	@Test
 	public void testParseDouble() {
-		final Supplier<String> errorSupplier1 = getMockedSupplier();
-		final double result1 = MathUtil.tryParseDouble("abc", errorSupplier1, false);
-		Assert.assertEquals(MathUtil.RESULT_PARSE_FAILED_AND_NO_EXIT_INT, result1, DEFAULT_ASSERT_DELTA);
-		(Mockito.verify(errorSupplier1, Mockito.atLeastOnce())).get();
+		try {
+			MathUtil.tryParseDouble("abc", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(false);
+		} catch(InputParseException e) {
+			
+		}
 		
-		final Supplier<String> errorSupplier2 = getMockedSupplier();
-		final double result2 = MathUtil.tryParseDouble("234", errorSupplier2, false);
-		Assert.assertEquals(234, result2, DEFAULT_ASSERT_DELTA);
-		(Mockito.verify(errorSupplier2, Mockito.never())).get();
+		try {
+			MathUtil.tryParseDouble(null, DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(false);
+		} catch(InputParseException e) {
+			
+		}
+		
+		try {
+			final double result2 = MathUtil.tryParseDouble("234.567", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertEquals(234.567, result2, DEFAULT_ASSERT_DELTA);
+		} catch (InputParseException e) {
+			Assert.assertTrue(false);
+		}
 	}
 	
+	@Test
+	public void testParseBoolean() {
+		try {
+			MathUtil.tryParseBoolean("true1234", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(false);
+		} catch(InputParseException e) {
+			
+		}
+		
+		try {
+			MathUtil.tryParseBoolean(null, DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(false);
+		} catch(InputParseException e) {
+			
+		}
+		
+		try {
+			final boolean result1 = MathUtil.tryParseBoolean("true", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(result1);
+			
+			final boolean result2 = MathUtil.tryParseBoolean("TRUE", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(result2);
+			
+			final boolean result3 = MathUtil.tryParseBoolean("TrUE", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(result3);
+			
+			final boolean result4 = MathUtil.tryParseBoolean("1", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(result4);
+			
+			final boolean result5 = MathUtil.tryParseBoolean("false", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertFalse(result5);
+			
+			final boolean result6 = MathUtil.tryParseBoolean("FALSE", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertFalse(result6);
+			
+			final boolean result7 = MathUtil.tryParseBoolean("false", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertFalse(result7);
+			
+			final boolean result8 = MathUtil.tryParseBoolean("0", DEFAULT_ERROR_SUPPLIER);
+			Assert.assertFalse(result8);
+		} catch (InputParseException e) {
+			Assert.assertTrue(false);
+		}
+	}
 }

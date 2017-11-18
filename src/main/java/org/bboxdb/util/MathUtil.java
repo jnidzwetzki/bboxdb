@@ -53,7 +53,7 @@ public class MathUtil {
 	 * @return
 	 */
 	public static int tryParseIntOrExit(final String valueToParse) {
-		return tryParseInt(valueToParse, () -> "Unable to convert to integer: " + valueToParse, true);
+		return tryParseIntOrExit(valueToParse, () -> "Unable to convert to integer: " + valueToParse);
 	}
 
 	/**
@@ -65,7 +65,15 @@ public class MathUtil {
 	public static int tryParseIntOrExit(final String valueToParse, 
 			final Supplier<String> errorMessageSupplier) {
 
-		return tryParseInt(valueToParse, errorMessageSupplier, true);
+		try {
+			return tryParseInt(valueToParse, errorMessageSupplier);
+		} catch (InputParseException e) {
+			System.err.println(e.getMessage());
+			System.exit(-1);	
+		}
+
+		// Unreachable code
+		return RESULT_PARSE_FAILED_AND_NO_EXIT_INT;
 	}
 
 	/**
@@ -73,23 +81,21 @@ public class MathUtil {
 	 * @param valueToParse
 	 * @param errorMessageSupplier
 	 * @return
+	 * @throws InputParseException 
 	 */
 	@VisibleForTesting
 	public static int tryParseInt(final String valueToParse, 
-			final Supplier<String> errorMessageSupplier, final boolean exitOnException) {
+			final Supplier<String> errorMessageSupplier) throws InputParseException {
 
-		try {
-			final int parsedInteger = Integer.parseInt(valueToParse);
-			return parsedInteger;
-		} catch (NumberFormatException e) {
-			System.err.println(errorMessageSupplier.get());
-
-			if(exitOnException) {
-				System.exit(-1);
-			}
+		if(valueToParse == null) {
+			throw new InputParseException(errorMessageSupplier.get());
 		}
 
-		return RESULT_PARSE_FAILED_AND_NO_EXIT_INT;
+		try {
+			return Integer.parseInt(valueToParse);
+		} catch (NumberFormatException e) {
+			throw new InputParseException(errorMessageSupplier.get());
+		}
 	}
 
 
@@ -100,7 +106,7 @@ public class MathUtil {
 	 * @return
 	 */
 	public static double tryParseDoubleOrExit(final String valueToParse) {
-		return tryParseDouble(valueToParse, () -> "Unable to convert to double: " + valueToParse, true);
+		return tryParseDoubleOrExit(valueToParse, () -> "Unable to convert to double: " + valueToParse);
 	}
 
 	/**
@@ -112,7 +118,15 @@ public class MathUtil {
 	public static double tryParseDoubleOrExit(final String valueToParse, 
 			final Supplier<String> errorMessageSupplier) {
 
-		return tryParseDouble(valueToParse, errorMessageSupplier, true);
+		try {
+			return tryParseDouble(valueToParse, errorMessageSupplier);
+		} catch (InputParseException e) {
+			System.err.println(e.getMessage());
+			System.exit(-1);	
+		}
+
+		// Unreachable code
+		return RESULT_PARSE_FAILED_AND_NO_EXIT_INT;
 	}
 
 	/**
@@ -120,22 +134,21 @@ public class MathUtil {
 	 * @param valueToParse
 	 * @param message
 	 * @return
+	 * @throws InputParseException 
 	 */
 	@VisibleForTesting
 	public static double tryParseDouble(final String valueToParse,
-			final Supplier<String> errorMessageSupplier, final boolean exitOnException) {
-		try {
-			final double parsedInteger = Double.parseDouble(valueToParse);
-			return parsedInteger;
-		} catch (NumberFormatException e) {
-			System.err.println(errorMessageSupplier.get());
+			final Supplier<String> errorMessageSupplier) throws InputParseException {
 
-			if(exitOnException) {
-				System.exit(-1);
-			}
+		if(valueToParse == null) {
+			throw new InputParseException(errorMessageSupplier.get());
 		}
 
-		return RESULT_PARSE_FAILED_AND_NO_EXIT_INT;
+		try {
+			return Double.parseDouble(valueToParse);
+		} catch (NumberFormatException e) {
+			throw new InputParseException(errorMessageSupplier.get());
+		}
 	}
 
 
@@ -146,7 +159,7 @@ public class MathUtil {
 	 * @return
 	 */
 	public static boolean tryParseBooleanOrExit(final String valueToParse) {
-		return tryParseBooleanOrExit(valueToParse, () -> "Unable to convert to double: " + valueToParse, true);
+		return tryParseBooleanOrExit(valueToParse, () -> "Unable to convert to double: " + valueToParse);
 	}
 
 	/**
@@ -158,7 +171,15 @@ public class MathUtil {
 	public static boolean tryParseBooleanOrExit(final String valueToParse, 
 			final Supplier<String> errorMessageSupplier) {
 
-		return tryParseBooleanOrExit(valueToParse, errorMessageSupplier, true);
+		try {
+			return tryParseBoolean(valueToParse, errorMessageSupplier);
+		} catch (InputParseException e) {
+			System.err.println(e.getMessage());
+			System.exit(-1);	
+		}
+
+		// Unreachable code
+		return RESULT_PARSE_FAILED_AND_NO_EXIT_BOOL;
 	}
 
 	/**
@@ -166,22 +187,26 @@ public class MathUtil {
 	 * @param valueToParse
 	 * @param message
 	 * @return
+	 * @throws InputParseException 
 	 */
 	@VisibleForTesting
-	public static boolean tryParseBooleanOrExit(final String valueToParse,
-			final Supplier<String> errorMessageSupplier, final boolean exitOnException) {
-		
-		try {
-			final boolean parsedBoolean = Boolean.parseBoolean(valueToParse);
-			return parsedBoolean;
-		} catch (NumberFormatException e) {
-			System.err.println(errorMessageSupplier.get());
+	public static boolean tryParseBoolean(final String valueToParse,
+			final Supplier<String> errorMessageSupplier) throws InputParseException {
 
-			if(exitOnException) {
-				System.exit(-1);
-			}
+		// Boolean.parseBoolean(valueToParse) does not thow an exception on invalid input
+
+		if(valueToParse == null) {
+			throw new InputParseException(errorMessageSupplier.get());
 		}
 
-		return RESULT_PARSE_FAILED_AND_NO_EXIT_BOOL;
+		if(valueToParse.toLowerCase().equals("true") || valueToParse.equals("1")) {
+			return true;
+		}
+
+		if(valueToParse.toLowerCase().equals("false") || valueToParse.equals("0")) {
+			return false;
+		}
+
+		throw new InputParseException(errorMessageSupplier.get());
 	}
 }
