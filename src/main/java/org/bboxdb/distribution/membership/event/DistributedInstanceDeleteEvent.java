@@ -17,11 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.distribution.membership.event;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 
 public class DistributedInstanceDeleteEvent extends DistributedInstanceEvent {
 
-	public DistributedInstanceDeleteEvent(final DistributedInstance instance) {
+	public DistributedInstanceDeleteEvent(final BBoxDBInstance instance) {
 		super(instance);
 	}
 	

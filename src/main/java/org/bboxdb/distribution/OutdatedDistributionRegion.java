@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 
 public class OutdatedDistributionRegion {
 	
@@ -29,14 +29,14 @@ public class OutdatedDistributionRegion {
 	/**
 	 * The instance which contains the newest data
 	 */
-	protected final DistributedInstance newestInstance;
+	protected final BBoxDBInstance newestInstance;
 	
 	/**
 	 * The local version of the data
 	 */
 	protected final long localVersion;
 	
-	public OutdatedDistributionRegion(final DistributionRegion distributedRegion, final DistributedInstance newestInstance, final long localVersion) {
+	public OutdatedDistributionRegion(final DistributionRegion distributedRegion, final BBoxDBInstance newestInstance, final long localVersion) {
 		this.distributedRegion = distributedRegion;
 		this.newestInstance = newestInstance;
 		this.localVersion = localVersion;
@@ -99,7 +99,7 @@ public class OutdatedDistributionRegion {
 	 * The newest instance for the region
 	 * @return
 	 */
-	public DistributedInstance getNewestInstance() {
+	public BBoxDBInstance getNewestInstance() {
 		return newestInstance;
 	}
 

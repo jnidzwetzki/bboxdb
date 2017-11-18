@@ -19,21 +19,21 @@ package org.bboxdb.network.routing;
 
 import java.util.List;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 
 public class RoutingHop {
 
 	/**
 	 * The distributed instance
 	 */
-	protected final DistributedInstance distributedInstance;
+	protected final BBoxDBInstance distributedInstance;
 	
 	/**
 	 * The distribution regions
 	 */
 	protected final List<Integer> distributionRegions;
 
-	public RoutingHop(final DistributedInstance distributedInstance, final List<Integer> distributionRegions) {
+	public RoutingHop(final BBoxDBInstance distributedInstance, final List<Integer> distributionRegions) {
 		this.distributedInstance = distributedInstance;
 		this.distributionRegions = distributionRegions;
 	}
@@ -75,7 +75,7 @@ public class RoutingHop {
 				+ "]";
 	}
 
-	public DistributedInstance getDistributedInstance() {
+	public BBoxDBInstance getDistributedInstance() {
 		return distributedInstance;
 	}
 

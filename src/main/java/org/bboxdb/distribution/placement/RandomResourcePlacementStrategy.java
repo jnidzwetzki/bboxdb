@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,14 +43,14 @@ public class RandomResourcePlacementStrategy extends ResourcePlacementStrategy {
 	}
 	
 	@Override
-	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems, 
-			final Collection<DistributedInstance> blacklist) throws ResourceAllocationException {
+	public BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems, 
+			final Collection<BBoxDBInstance> blacklist) throws ResourceAllocationException {
 		
 		if(systems.isEmpty()) {
 			throw new ResourceAllocationException("Unable to choose a system, list of systems is empty");
 		}
 		
-		final List<DistributedInstance> availableSystems = new ArrayList<>(systems);
+		final List<BBoxDBInstance> availableSystems = new ArrayList<>(systems);
 		availableSystems.removeAll(blacklist);
 		removeAllNonReadySystems(availableSystems);
 		

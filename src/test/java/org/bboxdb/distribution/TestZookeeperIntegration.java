@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
@@ -288,22 +288,22 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testSystemRegisterAndUnregister() throws ZookeeperException, ZookeeperNotFoundException {
-		final DistributedInstance systemName = new DistributedInstance("192.168.1.10:5050");
+		final BBoxDBInstance systemName = new BBoxDBInstance("192.168.1.10:5050");
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
-		final Collection<DistributedInstance> systems1 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, null);
+		final Collection<BBoxDBInstance> systems1 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, null);
 		Assert.assertEquals(0, systems1.size());
 		
 		// Add a system
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName);
-		final Collection<DistributedInstance> systems2 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, null);
+		final Collection<BBoxDBInstance> systems2 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, null);
 		Assert.assertEquals(1, systems2.size());
 		Assert.assertTrue(systems2.contains(systemName));
 		
 		distributionGroupZookeeperAdapter.deleteSystemFromDistributionRegion(region, systemName);
-		final Collection<DistributedInstance> systems3 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, null);
+		final Collection<BBoxDBInstance> systems3 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, null);
 		Assert.assertEquals(0, systems3.size());
 	}
 	
@@ -314,8 +314,8 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testSystemCheckpoint1() throws ZookeeperException, InterruptedException {
-		final DistributedInstance systemName1 = new DistributedInstance("192.168.1.10:5050");
-		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
+		final BBoxDBInstance systemName1 = new BBoxDBInstance("192.168.1.10:5050");
+		final BBoxDBInstance systemName2 = new BBoxDBInstance("192.168.1.20:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
@@ -354,8 +354,8 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testSystemCheckpoint2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
-		final DistributedInstance systemName1 = new DistributedInstance("192.168.1.10:5050");
-		final DistributedInstance systemName2 = new DistributedInstance("192.168.1.20:5050");
+		final BBoxDBInstance systemName1 = new BBoxDBInstance("192.168.1.10:5050");
+		final BBoxDBInstance systemName2 = new BBoxDBInstance("192.168.1.20:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
@@ -396,7 +396,7 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testSystems() throws ZookeeperException, InterruptedException {
-		final DistributedInstance systemName = new DistributedInstance("192.168.1.10:5050");
+		final BBoxDBInstance systemName = new BBoxDBInstance("192.168.1.10:5050");
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		

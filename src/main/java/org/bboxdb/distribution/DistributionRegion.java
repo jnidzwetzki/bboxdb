@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -83,7 +83,7 @@ public class DistributionRegion {
 	/**
 	 * The systems
 	 */
-	protected Collection<DistributedInstance> systems;
+	protected Collection<BBoxDBInstance> systems;
 	
 	/**
 	 * The id of the region
@@ -124,7 +124,7 @@ public class DistributionRegion {
 		// Update the total amount of levels
 		totalLevel.set(Math.max(totalLevel.get(), level + 1));
 		
-		systems = new ArrayList<DistributedInstance>();
+		systems = new ArrayList<BBoxDBInstance>();
 	}
 	
 	/**
@@ -388,15 +388,15 @@ public class DistributionRegion {
 	 * Get all systems that are responsible for this DistributionRegion
 	 * @return
 	 */
-	public Collection<DistributedInstance> getSystems() {
-		return new ArrayList<DistributedInstance>(systems);
+	public Collection<BBoxDBInstance> getSystems() {
+		return new ArrayList<BBoxDBInstance>(systems);
 	}
 	
 	/**
 	 * Add a system to this DistributionRegion
 	 * @param system
 	 */
-	public void addSystem(final DistributedInstance system) {
+	public void addSystem(final BBoxDBInstance system) {
 		systems.add(system);
 	}
 	
@@ -404,15 +404,15 @@ public class DistributionRegion {
 	 * Set the systems for this DistributionRegion
 	 * @param newSystems
 	 */
-	public void setSystems(final Collection<DistributedInstance> newSystems) {
+	public void setSystems(final Collection<BBoxDBInstance> newSystems) {
 		
 		if(newSystems == null || newSystems.isEmpty()) {
 			this.systems.clear();
 			return;
 		}
 		
-		final ArrayList<DistributedInstance> newSystemsList 
-			= new ArrayList<DistributedInstance>(newSystems.size());
+		final ArrayList<BBoxDBInstance> newSystemsList 
+			= new ArrayList<BBoxDBInstance>(newSystems.size());
 		
 		newSystemsList.addAll(newSystems);
 		
@@ -462,7 +462,7 @@ public class DistributionRegion {
 		}
 		
 		if(statePredicate.test(state)) {
-			for(final DistributedInstance system : systems) {
+			for(final BBoxDBInstance system : systems) {
 				if(! hops.containsKey(system.getInetSocketAddress())) {
 					final RoutingHop routingHop = new RoutingHop(system, new ArrayList<Integer>());
 					hops.put(system.getInetSocketAddress(), routingHop);

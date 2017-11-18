@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 
 public abstract class ResourcePlacementStrategy {
@@ -33,8 +33,8 @@ public abstract class ResourcePlacementStrategy {
 	 * @return
 	 * @throws ResourceAllocationException 
 	 */
-	public abstract DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems, 
-			final Collection<DistributedInstance> blacklist) throws ResourceAllocationException;
+	public abstract BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems, 
+			final Collection<BBoxDBInstance> blacklist) throws ResourceAllocationException;
 
 	/**
 	 * Get a set with distributed instances. These instances will be responsible for 
@@ -43,10 +43,10 @@ public abstract class ResourcePlacementStrategy {
 	 * @return
 	 * @throws ResourceAllocationException 
 	 */
-	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems) 
+	public BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems) 
 			throws ResourceAllocationException {
 		
-		final HashSet<DistributedInstance> emptyBlacklist = new HashSet<DistributedInstance>();
+		final HashSet<BBoxDBInstance> emptyBlacklist = new HashSet<BBoxDBInstance>();
 		return getInstancesForNewRessource(systems, emptyBlacklist);
 	}
 	
@@ -54,7 +54,7 @@ public abstract class ResourcePlacementStrategy {
 	 * Remove all non ready (state != READWRITE) systems 
 	 * @param systems
 	 */
-	public static void removeAllNonReadySystems(final List<DistributedInstance> systems) {
+	public static void removeAllNonReadySystems(final List<BBoxDBInstance> systems) {
 		systems.removeIf(s -> s.getState() != DistributedInstanceState.READY);
 	}
 

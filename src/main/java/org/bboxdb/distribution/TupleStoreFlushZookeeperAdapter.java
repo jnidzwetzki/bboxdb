@@ -19,7 +19,7 @@ package org.bboxdb.distribution;
 
 import java.util.function.BiConsumer;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -41,7 +41,7 @@ public class TupleStoreFlushZookeeperAdapter implements BiConsumer<TupleStoreNam
 	public void accept(final TupleStoreName ssTableName, final Long flushTimestamp) {
 		
 		// Fetch the local instance
-		final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
+		final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 	
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();

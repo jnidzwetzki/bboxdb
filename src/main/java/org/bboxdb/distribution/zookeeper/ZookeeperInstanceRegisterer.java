@@ -20,7 +20,7 @@ package org.bboxdb.distribution.zookeeper;
 import java.io.File;
 import java.util.List;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
@@ -34,7 +34,7 @@ public class ZookeeperInstanceRegisterer implements BBoxDBService {
 	/**
 	 * The name of the instance
 	 */
-	protected final DistributedInstance instance;
+	protected final BBoxDBInstance instance;
 	
 	/**
 	 * The zookeeper client
@@ -46,7 +46,7 @@ public class ZookeeperInstanceRegisterer implements BBoxDBService {
 		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 	}
 	
-	public ZookeeperInstanceRegisterer(final DistributedInstance instance, final ZookeeperClient zookeeperClient) {
+	public ZookeeperInstanceRegisterer(final BBoxDBInstance instance, final ZookeeperClient zookeeperClient) {
 		this.instance = instance;
 		this.zookeeperClient = zookeeperClient;
 	}

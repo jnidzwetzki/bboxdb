@@ -33,7 +33,7 @@ import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DistributedInstanceManager {
+public class BBoxDBInstanceManager {
 
 	/**
 	 * The event listener
@@ -43,25 +43,25 @@ public class DistributedInstanceManager {
 	/**
 	 * The active BBoxDB instances
 	 */
-	protected final Map<InetSocketAddress, DistributedInstance> instances = new HashMap<>();
+	protected final Map<InetSocketAddress, BBoxDBInstance> instances = new HashMap<>();
 	
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(DistributedInstanceManager.class);
+	private final static Logger logger = LoggerFactory.getLogger(BBoxDBInstanceManager.class);
 
 	/**
 	 * The instance
 	 */
-	protected static DistributedInstanceManager instance;
+	protected static BBoxDBInstanceManager instance;
 	
 	/**
 	 * Get the instance
 	 * @return
 	 */
-	public static synchronized DistributedInstanceManager getInstance() {
+	public static synchronized BBoxDBInstanceManager getInstance() {
 		if(instance == null) {
-			instance = new DistributedInstanceManager();
+			instance = new BBoxDBInstanceManager();
 		}
 		
 		return instance;
@@ -70,7 +70,7 @@ public class DistributedInstanceManager {
 	/**
 	 * Private constructor to prevent instantiation
 	 */
-	private DistributedInstanceManager() {
+	private BBoxDBInstanceManager() {
 	}
 	
 	/**
@@ -85,23 +85,23 @@ public class DistributedInstanceManager {
 	 * Update the instance list, called from zookeeper client
 	 * @param newInstances
 	 */
-	public void updateInstanceList(final Set<DistributedInstance> newInstances) {
+	public void updateInstanceList(final Set<BBoxDBInstance> newInstances) {
 		
 		// Are members removed?
 		final List<InetSocketAddress> deletedInstances = new ArrayList<>(instances.size());
 		deletedInstances.addAll(instances.keySet());
 		
 		// Remove still existing instances from 'to delete list'
-		for(final DistributedInstance newInstance : newInstances) {
+		for(final BBoxDBInstance newInstance : newInstances) {
 			deletedInstances.remove(newInstance.getInetSocketAddress());
 		}
 		
 		for(final InetSocketAddress inetSocketAddress : deletedInstances) {
-			final DistributedInstance deletedInstance = instances.remove(inetSocketAddress);
+			final BBoxDBInstance deletedInstance = instances.remove(inetSocketAddress);
 			sendEvent(new DistributedInstanceDeleteEvent(deletedInstance));
 		}
 
-		for(final DistributedInstance instance : newInstances) {
+		for(final BBoxDBInstance instance : newInstances) {
 			
 			final InetSocketAddress inetSocketAddress = instance.getInetSocketAddress();
 			
@@ -159,8 +159,8 @@ public class DistributedInstanceManager {
 	 * Get the list of the instances
 	 * @return
 	 */
-	public List<DistributedInstance> getInstances() {
-		return new ArrayList<DistributedInstance>(instances.values());
+	public List<BBoxDBInstance> getInstances() {
+		return new ArrayList<BBoxDBInstance>(instances.values());
 	}
 	
 	/**
@@ -170,7 +170,7 @@ public class DistributedInstanceManager {
 		
 		logger.debug("Zookeeper disconnected, sending delete events for all instances");
 		
-		for(final DistributedInstance instance : instances.values()) {
+		for(final BBoxDBInstance instance : instances.values()) {
 			sendEvent(new DistributedInstanceDeleteEvent(instance));
 		}
 		

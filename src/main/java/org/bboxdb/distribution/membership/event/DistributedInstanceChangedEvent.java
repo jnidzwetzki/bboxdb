@@ -17,11 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.distribution.membership.event;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 
 public class DistributedInstanceChangedEvent extends DistributedInstanceEvent {
 
-	public DistributedInstanceChangedEvent(final DistributedInstance instance) {
+	public DistributedInstanceChangedEvent(final BBoxDBInstance instance) {
 		super(instance);
 	}
 

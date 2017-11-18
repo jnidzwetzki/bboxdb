@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
@@ -34,7 +34,7 @@ public class ZookeeperClientFactory {
 	/**
 	 * The name of the local instance
 	 */
-	protected static DistributedInstance localInstanceName;
+	protected static BBoxDBInstance localInstanceName;
 	
 	static {
 		instances = new HashMap<BBoxDBConfiguration, ZookeeperClient>();
@@ -84,13 +84,13 @@ public class ZookeeperClientFactory {
 	 * @param bboxdbConfiguration
 	 * @return
 	 */
-	public static synchronized DistributedInstance getLocalInstanceName() {
+	public static synchronized BBoxDBInstance getLocalInstanceName() {
 		
 		if(localInstanceName == null) {
 			final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 			final String localIp = configuration.getLocalip();
 			final int localPort = configuration.getNetworkListenPort();
-			localInstanceName = new DistributedInstance(localIp, localPort, Const.VERSION);
+			localInstanceName = new BBoxDBInstance(localIp, localPort, Const.VERSION);
 		}
 		
 		return localInstanceName;

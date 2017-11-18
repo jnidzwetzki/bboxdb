@@ -17,13 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.distribution.membership.event;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 
 public abstract class DistributedInstanceEvent {
 
-	protected final DistributedInstance instance;
+	protected final BBoxDBInstance instance;
 
-	public DistributedInstanceEvent(final DistributedInstance instance) {
+	public DistributedInstanceEvent(final BBoxDBInstance instance) {
 		super();
 		this.instance = instance;
 	}
@@ -32,7 +32,7 @@ public abstract class DistributedInstanceEvent {
 	 * Get the instance from the event
 	 * @return
 	 */
-	public DistributedInstance getInstance() {
+	public BBoxDBInstance getInstance() {
 		return instance;
 	}
 	

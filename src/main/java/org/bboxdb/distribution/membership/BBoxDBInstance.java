@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 
-public class DistributedInstance implements Comparable<DistributedInstance> {
+public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	
 	/**
 	 * The string when the property is unknown
@@ -75,17 +75,17 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	 */
 	protected DistributedInstanceState state = DistributedInstanceState.UNKNOWN;
 
-	public DistributedInstance(final String connectionString, final String version, final DistributedInstanceState state) {
+	public BBoxDBInstance(final String connectionString, final String version, final DistributedInstanceState state) {
 		this(connectionString, state);
 		this.version = version;
 	}
 	
-	public DistributedInstance(final String connectionString, final DistributedInstanceState state) {
+	public BBoxDBInstance(final String connectionString, final DistributedInstanceState state) {
 		this(connectionString);
 		this.state = state;
 	}
 
-	public DistributedInstance(final String connectionString) {
+	public BBoxDBInstance(final String connectionString) {
 		final String[] parts = connectionString.split(":");
 		
 		if(parts.length != 2) {
@@ -102,7 +102,7 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 		}
 	}
 
-	public DistributedInstance(final String localIp, final Integer localPort, final String version) {
+	public BBoxDBInstance(final String localIp, final Integer localPort, final String version) {
 		this.ip = localIp;
 		this.port = localPort;
 		this.version = version;
@@ -144,7 +144,7 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DistributedInstance other = (DistributedInstance) obj;
+		BBoxDBInstance other = (BBoxDBInstance) obj;
 		if (ip == null) {
 			if (other.ip != null)
 				return false;
@@ -167,7 +167,7 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	 * @param instance
 	 * @return
 	 */
-	public boolean socketAddressEquals(final DistributedInstance instance) {
+	public boolean socketAddressEquals(final BBoxDBInstance instance) {
 		if(instance == null) {
 			return false;
 		}
@@ -212,7 +212,7 @@ public class DistributedInstance implements Comparable<DistributedInstance> {
 	}
 
 	@Override
-	public int compareTo(final DistributedInstance otherInstance) {
+	public int compareTo(final BBoxDBInstance otherInstance) {
 		return getStringValue().compareTo(otherInstance.getStringValue());
 	}
 	

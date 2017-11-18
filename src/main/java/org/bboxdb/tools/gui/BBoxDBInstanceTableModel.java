@@ -21,7 +21,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.util.FileSizeHelper;
 
 final class BBoxDBInstanceTableModel extends AbstractTableModel {
@@ -36,9 +36,9 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 	/**
 	 * The running bboxdb instances
 	 */
-	protected final List<DistributedInstance> instances;
+	protected final List<BBoxDBInstance> instances;
 	
-	public BBoxDBInstanceTableModel(final List<DistributedInstance> distributedInstances) {
+	public BBoxDBInstanceTableModel(final List<BBoxDBInstance> distributedInstances) {
 		this.instances = distributedInstances;
 	}
 
@@ -57,7 +57,7 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 				return "";
 			}
 			
-			final DistributedInstance instance = instances.get(rowIndex);
+			final BBoxDBInstance instance = instances.get(rowIndex);
 		
 			if(instances.size() < rowIndex) {
 				return "";

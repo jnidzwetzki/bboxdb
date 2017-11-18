@@ -26,7 +26,7 @@ import java.util.Set;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.placement.RandomResourcePlacementStrategy;
@@ -176,7 +176,7 @@ public class BBoxDBCluster implements BBoxDB {
 			}
 
 			// Determine the first system, it will route the request to the remaining systems
-			final DistributedInstance system = hops.iterator().next().getDistributedInstance();
+			final BBoxDBInstance system = hops.iterator().next().getDistributedInstance();
 			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 
 			if(connection == null) {
@@ -261,13 +261,13 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @throws ResourceAllocationException 
 	 */
 	protected BBoxDBClient getSystemForNewRessources() throws ResourceAllocationException {
-		final List<DistributedInstance> serverConnections = membershipConnectionService.getAllInstances();
+		final List<BBoxDBInstance> serverConnections = membershipConnectionService.getAllInstances();
 
 		if(serverConnections == null) {
 			throw new ResourceAllocationException("Server connections are null");
 		}
 
-		final DistributedInstance system = resourcePlacementStrategy.getInstancesForNewRessource(serverConnections);
+		final BBoxDBInstance system = resourcePlacementStrategy.getInstancesForNewRessource(serverConnections);
 
 		return membershipConnectionService.getConnectionForInstance(system);
 	}
@@ -378,7 +378,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final DistributionRegion region = regions.iterator().next();
 
-			final DistributedInstance firstSystem = region.getSystems().iterator().next();
+			final BBoxDBInstance firstSystem = region.getSystems().iterator().next();
 			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(firstSystem);
 
 			return connection.queryBoundingBoxContinuous(table, boundingBox);

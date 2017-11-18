@@ -29,8 +29,8 @@ import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
-import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.distribution.membership.DistributedInstanceManager;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
@@ -397,7 +397,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		assert (destination.getSystems().isEmpty()) 
 			: "Systems are not empty: " + destination.getSystems();
 		
-		for(final DistributedInstance system : source.getSystems()) {
+		for(final BBoxDBInstance system : source.getSystems()) {
 			distributionGroupZookeeperAdapter.addSystemToDistributionRegion(destination, system);
 		}
 	}
@@ -416,8 +416,8 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		final String distributionGroupName = region.getDistributionGroupName().getFullname();
 		final short replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroupName);
 		
-		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
-		final List<DistributedInstance> availableSystems = distributedInstanceManager.getInstances();
+		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
+		final List<BBoxDBInstance> availableSystems = distributedInstanceManager.getInstances();
 		
 		final String placementStrategy = distributionGroupZookeeperAdapter
 				.getPlacementStrategyForDistributionGroup(distributionGroupName);
@@ -431,17 +431,17 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		}
 		
 		// The blacklist, to prevent duplicate allocations
-		final Set<DistributedInstance> allocationSystems = new HashSet<DistributedInstance>();
+		final Set<BBoxDBInstance> allocationSystems = new HashSet<BBoxDBInstance>();
 		
 		for(short i = 0; i < replicationFactor; i++) {
-			final DistributedInstance instance = resourcePlacementStrategy.getInstancesForNewRessource(availableSystems, allocationSystems);
+			final BBoxDBInstance instance = resourcePlacementStrategy.getInstancesForNewRessource(availableSystems, allocationSystems);
 			allocationSystems.add(instance);
 		}
 		
 		logger.info("Allocating region {} to {}", region.getIdentifier(), allocationSystems);
 		
 		// Resource allocation successfully, write data to zookeeper
-		for(final DistributedInstance instance : allocationSystems) {
+		for(final BBoxDBInstance instance : allocationSystems) {
 			distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, instance);
 		}
 	}
@@ -634,7 +634,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			throws ZookeeperException {
 		
 		try {
-			final Collection<DistributedInstance> systemsForDistributionRegion 
+			final Collection<BBoxDBInstance> systemsForDistributionRegion 
 				= distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, this);
 			
 			region.setSystems(systemsForDistributionRegion);
@@ -661,9 +661,9 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * @param systems
 	 */
 	protected void updateLocalMappings(final DistributionRegion region, 
-			final Collection<DistributedInstance> systems) {
+			final Collection<BBoxDBInstance> systems) {
 		
-		final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
+		final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 
 		if(localInstance == null) {
 			logger.debug("Local instance name is not set, so no local mapping is possible");
@@ -681,7 +681,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 		}
 		
 		// Add the mapping to the nameprefix mapper
-		for(final DistributedInstance instance : systems) {
+		for(final BBoxDBInstance instance : systems) {
 			if(instance.socketAddressEquals(localInstance)) {
 				final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName());
 				regionIdMapper.addMapping(region);

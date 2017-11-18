@@ -43,7 +43,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.tools.gui.views.KDTreeOSMView;
 import org.bboxdb.tools.gui.views.KDTreeView;
 import org.bboxdb.tools.gui.views.View;
@@ -171,7 +171,7 @@ public class BBoxDBGui {
 	 * @return The table model
 	 */
 	private BBoxDBInstanceTableModel getTableModel() {
-		final List<DistributedInstance> bboxDBInstances = guiModel.getBBoxDBInstances();
+		final List<BBoxDBInstance> bboxDBInstances = guiModel.getBBoxDBInstances();
 		return new BBoxDBInstanceTableModel(bboxDBInstances);
 	}
 

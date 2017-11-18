@@ -19,7 +19,7 @@ package org.bboxdb.distribution.placement;
 
 import java.util.function.Predicate;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,14 +36,14 @@ public class MinRegionsResourcePlacementStrategy extends AbstractUtilizationPlac
 	}
 	
 	@Override
-	protected Predicate<? super DistributedInstance> getUnusableSystemsFilterPredicate() {
+	protected Predicate<? super BBoxDBInstance> getUnusableSystemsFilterPredicate() {
 		return i -> true;
 	}
 
 
 	@Override
-	protected double calculateUsageFactor(Multiset<DistributedInstance> systemUsage,
-			DistributedInstance distributedInstance) {
+	protected double calculateUsageFactor(Multiset<BBoxDBInstance> systemUsage,
+			BBoxDBInstance distributedInstance) {
 		
 		final int usageCount = systemUsage.count(distributedInstance);
 		

@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBClient;
@@ -139,7 +139,7 @@ public class PackageRouter {
 		} 
 		
 		final RoutingHop routingHop = routingHeader.getRoutingHop();
-		final DistributedInstance receiverInstance = routingHop.getDistributedInstance();
+		final BBoxDBInstance receiverInstance = routingHop.getDistributedInstance();
 		
 		final BBoxDBClient connection = MembershipConnectionService
 				.getInstance()
@@ -173,8 +173,8 @@ public class PackageRouter {
 	 * @throws BBoxDBException
 	 */
 	public static void checkLocalSystemNameMatches(final RoutingHop localHop) throws BBoxDBException {
-		final DistributedInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
-		final DistributedInstance routingInstanceName = localHop.getDistributedInstance();
+		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
+		final BBoxDBInstance routingInstanceName = localHop.getDistributedInstance();
 		
 		if(! localInstanceName.socketAddressEquals(routingInstanceName)) {
 			throw new BBoxDBException("Routing hop " + routingInstanceName 

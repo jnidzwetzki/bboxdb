@@ -20,7 +20,7 @@ package org.bboxdb.distribution.placement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,11 +43,11 @@ public class TestRoundRobinRessourcePlacement extends TestRandomRessourcePlaceme
 	@Test
 	public void testRoundRobinPlacement1() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
-		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
-		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READY));
+		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
+		systems.add(new BBoxDBInstance("node1:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node2:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node3:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node4:123", "0.1", DistributedInstanceState.READY));
 		
 		Assert.assertEquals(systems.get(0), resourcePlacementStrategy.getInstancesForNewRessource(systems));
 		Assert.assertEquals(systems.get(1), resourcePlacementStrategy.getInstancesForNewRessource(systems));
@@ -63,11 +63,11 @@ public class TestRoundRobinRessourcePlacement extends TestRandomRessourcePlaceme
 	@Test
 	public void testRoundRobinPlacement2() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
-		final List<DistributedInstance> systems = new ArrayList<DistributedInstance>();
-		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READY));
+		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
+		systems.add(new BBoxDBInstance("node1:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node2:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node3:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node4:123", "0.1", DistributedInstanceState.READY));
 		
 		Assert.assertEquals(systems.get(0), resourcePlacementStrategy.getInstancesForNewRessource(systems));
 		Assert.assertEquals(systems.get(1), resourcePlacementStrategy.getInstancesForNewRessource(systems));

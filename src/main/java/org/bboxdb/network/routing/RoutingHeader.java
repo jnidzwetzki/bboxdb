@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,7 +201,7 @@ public class RoutingHeader {
 				
 				assert (regionParts.length > 1) : "Unable to split into regions: " + hostPart;
 				
-				final DistributedInstance distributedInstance = new DistributedInstance(regionParts[0]);
+				final BBoxDBInstance distributedInstance = new BBoxDBInstance(regionParts[0]);
 				final List<Integer> distributionRegions = new ArrayList<>();
 				
 				for(int i = 1; i < regionParts.length; i++) {

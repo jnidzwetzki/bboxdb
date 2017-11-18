@@ -20,7 +20,7 @@ package org.bboxdb.distribution;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
@@ -63,7 +63,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 	@Override
 	public void init() {
 		try {
-			final DistributedInstance distributedInstance = ZookeeperClientFactory.getLocalInstanceName();
+			final BBoxDBInstance distributedInstance = ZookeeperClientFactory.getLocalInstanceName();
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			zookeeperClient.setLocalInstanceState(distributedInstance, DistributedInstanceState.OUTDATED);
 			logger.info("Running recovery for local stored data");
@@ -106,7 +106,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 	protected void runRecoveryForDistributionGroup(final DistributionGroupName distributionGroupName) {
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
+			final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 			
 			for(final DiskStorage storage : storageRegistry.getAllStorages()) {
 				checkGroupVersion(storage, distributionGroupName, zookeeperClient);

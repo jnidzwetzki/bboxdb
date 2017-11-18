@@ -26,7 +26,7 @@ import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -57,11 +57,11 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 	 * @return
 	 * @throws ResourceAllocationException
 	 */
-	protected DistributedInstance getSystemWithLowestUsage(final List<DistributedInstance> availableSystems, 
-			final Multiset<DistributedInstance> systemUsage) throws ResourceAllocationException {
+	protected BBoxDBInstance getSystemWithLowestUsage(final List<BBoxDBInstance> availableSystems, 
+			final Multiset<BBoxDBInstance> systemUsage) throws ResourceAllocationException {
 		
 		// Unknown = Empty instance
-		final DistributedInstance emptyInstance = availableSystems.stream()
+		final BBoxDBInstance emptyInstance = availableSystems.stream()
 			.filter(i -> systemUsage.count(i) == 0)
 			.findAny()
 			.orElse(null);
@@ -84,7 +84,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException 
 	 */
-	protected Multiset<DistributedInstance> calculateSystemUsage() 
+	protected Multiset<BBoxDBInstance> calculateSystemUsage() 
 			throws ZookeeperException, ZookeeperNotFoundException {
 				
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
@@ -93,7 +93,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 		final List<DistributionGroupName> distributionGroups = zookeeperAdapter.getDistributionGroups();
 		
 		// The overall usage
-	    final ImmutableMultiset.Builder<DistributedInstance> builder = ImmutableMultiset.builder();
+	    final ImmutableMultiset.Builder<BBoxDBInstance> builder = ImmutableMultiset.builder();
 	    
 		// Calculate usage for each distribution group
 		for(final DistributionGroupName groupName : distributionGroups) {
@@ -101,7 +101,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 				= DistributionGroupCache.getGroupForGroupName(groupName.getFullname(), zookeeperClient);
 			
 			final DistributionRegion region = distributionAdapter.getRootNode();
-			final Multiset<DistributedInstance> regionSystemUsage 
+			final Multiset<BBoxDBInstance> regionSystemUsage 
 				= DistributionRegionHelper.getSystemUtilization(region);
 		
 			// Merge results
@@ -113,14 +113,14 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 	
 
 	@Override
-	public DistributedInstance getInstancesForNewRessource(final List<DistributedInstance> systems, 
-			final Collection<DistributedInstance> blacklist) throws ResourceAllocationException {
+	public BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems, 
+			final Collection<BBoxDBInstance> blacklist) throws ResourceAllocationException {
 		
 		if(systems.isEmpty()) {
 			throw new ResourceAllocationException("Unable to choose a system, list of systems is empty");
 		}
 		
-		final List<DistributedInstance> availableSystems = new ArrayList<>(systems);
+		final List<BBoxDBInstance> availableSystems = new ArrayList<>(systems);
 		availableSystems.removeAll(blacklist);
 		removeAllNonReadySystems(availableSystems);
 		
@@ -129,7 +129,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 		}
 		
 		try {
-			final Multiset<DistributedInstance> systemUsage = calculateSystemUsage();
+			final Multiset<BBoxDBInstance> systemUsage = calculateSystemUsage();
 			return getSystemWithLowestUsage(availableSystems, systemUsage);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new ResourceAllocationException("Got an zookeeper exception while ressource allocation", e);
@@ -140,7 +140,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 	 * Filter unusable instances
 	 * @return
 	 */
-	protected abstract Predicate<? super DistributedInstance> getUnusableSystemsFilterPredicate();
+	protected abstract Predicate<? super BBoxDBInstance> getUnusableSystemsFilterPredicate();
 
 	/**
 	 * Calculate the usage factor
@@ -148,7 +148,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 	 * @param distributedInstance
 	 * @return
 	 */
-	protected abstract double calculateUsageFactor(final Multiset<DistributedInstance> systemUsage,
-			final DistributedInstance distributedInstance);
+	protected abstract double calculateUsageFactor(final Multiset<BBoxDBInstance> systemUsage,
+			final BBoxDBInstance distributedInstance);
 
 }

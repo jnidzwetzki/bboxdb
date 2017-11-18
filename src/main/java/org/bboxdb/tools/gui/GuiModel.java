@@ -26,8 +26,8 @@ import javax.swing.SwingUtilities;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.distribution.membership.DistributedInstanceManager;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
@@ -45,7 +45,7 @@ public class GuiModel implements DistributedInstanceEventCallback,
 	/**
 	 * The BBoxDB instances
 	 */
-	protected final List<DistributedInstance> bboxdbInstances;
+	protected final List<BBoxDBInstance> bboxdbInstances;
 
 	/**
 	 * The distribution group to display
@@ -87,16 +87,16 @@ public class GuiModel implements DistributedInstanceEventCallback,
 		this.zookeeperClient = zookeeperClient;
 		this.distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(
 				zookeeperClient);
-		bboxdbInstances = new ArrayList<DistributedInstance>();
+		bboxdbInstances = new ArrayList<BBoxDBInstance>();
 
-		DistributedInstanceManager.getInstance().registerListener(this);
+		BBoxDBInstanceManager.getInstance().registerListener(this);
 	}
 
 	/**
 	 * Shutdown the GUI model
 	 */
 	public void shutdown() {
-		DistributedInstanceManager.getInstance().removeListener(this);
+		BBoxDBInstanceManager.getInstance().removeListener(this);
 		unregisterTreeChangeListener();
 	}
 
@@ -127,7 +127,7 @@ public class GuiModel implements DistributedInstanceEventCallback,
 	protected void updateBBoxDBInstances() {
 		synchronized (bboxdbInstances) {
 			bboxdbInstances.clear();
-			bboxdbInstances.addAll(DistributedInstanceManager.getInstance()
+			bboxdbInstances.addAll(BBoxDBInstanceManager.getInstance()
 					.getInstances());
 			Collections.sort(bboxdbInstances);
 		}
@@ -219,7 +219,7 @@ public class GuiModel implements DistributedInstanceEventCallback,
 	 * 
 	 * @return
 	 */
-	public List<DistributedInstance> getBBoxDBInstances() {
+	public List<BBoxDBInstance> getBBoxDBInstances() {
 		return bboxdbInstances;
 	}
 

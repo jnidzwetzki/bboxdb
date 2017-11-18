@@ -20,7 +20,7 @@ package org.bboxdb.distribution.placement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class TestLowUtilizationRessourcePlacement extends TestRandomRessourcePla
 	/**
 	 * System Utilization
 	 */
-	final Multiset<DistributedInstance> utilization = HashMultiset.create();
+	final Multiset<BBoxDBInstance> utilization = HashMultiset.create();
 	
 	/**
 	 * Get the placement strategy for the test
@@ -44,7 +44,7 @@ public class TestLowUtilizationRessourcePlacement extends TestRandomRessourcePla
 		
 		return new MinRegionsResourcePlacementStrategy() {
 			@Override
-			protected Multiset<DistributedInstance> calculateSystemUsage() {
+			protected Multiset<BBoxDBInstance> calculateSystemUsage() {
 				return utilization;
 			}
 		};
@@ -57,12 +57,12 @@ public class TestLowUtilizationRessourcePlacement extends TestRandomRessourcePla
 	@Test
 	public void testUtilPlacement() throws ResourceAllocationException {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
-		final List<DistributedInstance> systems = new ArrayList<>();
+		final List<BBoxDBInstance> systems = new ArrayList<>();
 		
-		systems.add(new DistributedInstance("node1:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new DistributedInstance("node2:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new DistributedInstance("node3:123", "0.1", DistributedInstanceState.READY));
-		systems.add(new DistributedInstance("node4:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node1:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node2:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node3:123", "0.1", DistributedInstanceState.READY));
+		systems.add(new BBoxDBInstance("node4:123", "0.1", DistributedInstanceState.READY));
 		
 		utilization.clear();
 		utilization.setCount(systems.get(0), 1);

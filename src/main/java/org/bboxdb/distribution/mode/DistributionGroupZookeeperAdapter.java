@@ -27,7 +27,7 @@ import java.util.Set;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
@@ -375,10 +375,10 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public Collection<DistributedInstance> getSystemsForDistributionRegion(
+	public Collection<BBoxDBInstance> getSystemsForDistributionRegion(
 			final DistributionRegion region, final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
 	
-		final Set<DistributedInstance> result = new HashSet<DistributedInstance>();
+		final Set<BBoxDBInstance> result = new HashSet<BBoxDBInstance>();
 		
 		final String path = getZookeeperPathForDistributionRegion(region) 
 				+ "/" + ZookeeperNodeNames.NAME_SYSTEMS;
@@ -392,7 +392,7 @@ public class DistributionGroupZookeeperAdapter {
 		
 		if(childs != null && !childs.isEmpty()) {
 			for(final String childName : childs) {
-				result.add(new DistributedInstance(childName));
+				result.add(new BBoxDBInstance(childName));
 			}
 		}
 		
@@ -407,7 +407,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param system
 	 * @throws ZookeeperException 
 	 */
-	public void addSystemToDistributionRegion(final DistributionRegion region, final DistributedInstance system) throws ZookeeperException {
+	public void addSystemToDistributionRegion(final DistributionRegion region, final BBoxDBInstance system) throws ZookeeperException {
 		
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to add system with value null");
@@ -428,7 +428,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException
 	 * @throws InterruptedException 
 	 */
-	public void setCheckpointForDistributionRegion(final DistributionRegion region, final DistributedInstance system, final long checkpoint) throws ZookeeperException, InterruptedException {
+	public void setCheckpointForDistributionRegion(final DistributionRegion region, final BBoxDBInstance system, final long checkpoint) throws ZookeeperException, InterruptedException {
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
@@ -452,7 +452,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @return 
 	 * @throws ZookeeperException
 	 */
-	public long getCheckpointForDistributionRegion(final DistributionRegion region, final DistributedInstance system) throws ZookeeperException {
+	public long getCheckpointForDistributionRegion(final DistributionRegion region, final BBoxDBInstance system) throws ZookeeperException {
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
@@ -484,7 +484,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @return 
 	 * @throws ZookeeperException 
 	 */
-	public boolean deleteSystemFromDistributionRegion(final DistributionRegion region, final DistributedInstance system) throws ZookeeperException {
+	public boolean deleteSystemFromDistributionRegion(final DistributionRegion region, final BBoxDBInstance system) throws ZookeeperException {
 		
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to delete system with value null");

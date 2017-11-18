@@ -20,8 +20,8 @@ package org.bboxdb.distribution.regionsplit;
 import java.util.List;
 
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.distribution.membership.DistributedInstanceManager;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.storage.entity.DoubleInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +39,8 @@ public class SimpleSplitStrategy extends AbstractRegionSplitStrategy {
 	@Override
 	protected boolean performSplit(final DistributionRegion region) {
 		
-		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
-		final List<DistributedInstance> systems = distributedInstanceManager.getInstances();
+		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
+		final List<BBoxDBInstance> systems = distributedInstanceManager.getInstances();
 		
 		if(systems.isEmpty()) {
 			logger.warn("Unable to split region, no ressources are avilable: " + region);

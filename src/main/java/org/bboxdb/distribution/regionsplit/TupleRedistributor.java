@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBClient;
@@ -84,14 +84,14 @@ public class TupleRedistributor {
 		
 		regionMap.put(distributionRegion, new ArrayList<TupleSink>());
 		
-		final Collection<DistributedInstance> instances = distributionRegion.getSystems();
+		final Collection<BBoxDBInstance> instances = distributionRegion.getSystems();
 
 		final MembershipConnectionService membershipConnectionService 	
 			= MembershipConnectionService.getInstance();
 				
-		final DistributedInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
+		final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 		
-		for(final DistributedInstance instance : instances) {
+		for(final BBoxDBInstance instance : instances) {
 			
 			if(instance.socketAddressEquals(localInstance)) {
 				

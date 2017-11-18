@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.network.routing.RoutingHop;
@@ -166,8 +166,8 @@ public class TestDistributionGroup {
 	 */
 	@Test
 	public void testFindSystems() {
-		final DistributedInstance SYSTEM_A = new DistributedInstance("192.168.1.200:5050");
-		final DistributedInstance SYSTEM_B = new DistributedInstance("192.168.1.201:5050");
+		final BBoxDBInstance SYSTEM_A = new BBoxDBInstance("192.168.1.200:5050");
+		final BBoxDBInstance SYSTEM_B = new BBoxDBInstance("192.168.1.201:5050");
 		
 		final DistributionGroupName distributionGroupName = new DistributionGroupName("1_foo");
 		final DistributionRegion level0 = DistributionRegion.createRootElement(distributionGroupName);
@@ -195,7 +195,7 @@ public class TestDistributionGroup {
 	 * @param collection
 	 * @return
 	 */
-	protected Collection<DistributedInstance> convertHopsToSystems(final Collection<RoutingHop> hops) {
+	protected Collection<BBoxDBInstance> convertHopsToSystems(final Collection<RoutingHop> hops) {
 		return hops.stream()
 				.map(h -> h.getDistributedInstance())
 				.collect(Collectors.toList());
@@ -258,9 +258,9 @@ public class TestDistributionGroup {
 		level0.setState(DistributionRegionState.SPLITTING);
 		level0.makeChildsActive();
 		
-		level0.addSystem(new DistributedInstance("node1:123"));
-		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
-		level0.getRightChild().addSystem(new DistributedInstance("node3:123"));
+		level0.addSystem(new BBoxDBInstance("node1:123"));
+		level0.getLeftChild().addSystem(new BBoxDBInstance("node2:123"));
+		level0.getRightChild().addSystem(new BBoxDBInstance("node3:123"));
 		
 		final Collection<RoutingHop> systemsRead = level0.getRoutingHopsForRead(BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(3, systemsRead.size());
@@ -282,9 +282,9 @@ public class TestDistributionGroup {
 		level0.setState(DistributionRegionState.SPLITTING);
 		level0.makeChildsActive();
 		
-		level0.addSystem(new DistributedInstance("node1:123"));
-		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
-		level0.getRightChild().addSystem(new DistributedInstance("node2:123"));
+		level0.addSystem(new BBoxDBInstance("node1:123"));
+		level0.getLeftChild().addSystem(new BBoxDBInstance("node2:123"));
+		level0.getRightChild().addSystem(new BBoxDBInstance("node2:123"));
 		
 		final Collection<RoutingHop> systemsRead = level0.getRoutingHopsForRead(BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(2, systemsRead.size());
@@ -305,9 +305,9 @@ public class TestDistributionGroup {
 		level0.getRightChild().setRegionId(3);
 		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
 
-		level0.addSystem(new DistributedInstance("node1:123"));
-		level0.getLeftChild().addSystem(new DistributedInstance("node2:123"));
-		level0.getRightChild().addSystem(new DistributedInstance("node2:123"));
+		level0.addSystem(new BBoxDBInstance("node1:123"));
+		level0.getLeftChild().addSystem(new BBoxDBInstance("node2:123"));
+		level0.getRightChild().addSystem(new BBoxDBInstance("node2:123"));
 		
 		final Set<DistributionRegion> regions = level0.getDistributionRegionsForBoundingBox(BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(3, regions.size());

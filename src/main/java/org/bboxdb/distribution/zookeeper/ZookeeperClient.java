@@ -36,8 +36,8 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
-import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.distribution.membership.DistributedInstanceManager;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.event.DistributedInstanceState;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.util.ServiceState;
@@ -74,7 +74,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	protected final ServiceState serviceState;
 
 	/**
-	 * The timeout for the zookeeper session in miliseconds
+	 * The timeout for the zookeeper session in milliseconds
 	 */
 	protected final static int ZOOKEEPER_SESSION_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(30);
 
@@ -201,7 +201,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	public void stopMembershipObserver() {
 
 		if (membershipObserverActive == true) {
-			final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
+			final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
 			distributedInstanceManager.zookeeperDisconnect();
 		}
 
@@ -220,8 +220,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		}
 
 		try {
-			final DistributedInstanceManager distributedInstanceManager 
-				= DistributedInstanceManager.getInstance();
+			final BBoxDBInstanceManager distributedInstanceManager 
+				= BBoxDBInstanceManager.getInstance();
 
 			// Reregister watch on membership
 			final String activeInstancesPath = getActiveInstancesPath();
@@ -231,10 +231,10 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			final String detailsPath = getDetailsPath();
 			final List<String> instances = zookeeper.getChildren(detailsPath, null);
 			
-			final Set<DistributedInstance> instanceSet = new HashSet<>();
+			final Set<BBoxDBInstance> instanceSet = new HashSet<>();
 			
 			for (final String instanceName : instances) {
-				final DistributedInstance distributedInstance = readInstance(instanceName);
+				final BBoxDBInstance distributedInstance = readInstance(instanceName);
 				instanceSet.add(distributedInstance);
 			}
 
@@ -258,10 +258,10 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @throws ZookeeperNotFoundException
 	 * @throws ZookeeperException 
 	 */
-	protected DistributedInstance readInstance(final String instanceName) 
+	protected BBoxDBInstance readInstance(final String instanceName) 
 			throws ZookeeperNotFoundException, ZookeeperException {
 		
-		final DistributedInstance instance = new DistributedInstance(instanceName);
+		final BBoxDBInstance instance = new BBoxDBInstance(instanceName);
 
 		// Version
 		final String instanceVersion = getVersionForInstance(instance);
@@ -317,7 +317,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected String getVersionForInstance(final DistributedInstance instance) throws ZookeeperNotFoundException {
+	protected String getVersionForInstance(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
 		final String versionPath = getInstancesVersionPath(instance);
 
 		try {
@@ -326,7 +326,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 			logger.error("Unable to read version for: {}", versionPath);
 		}
 
-		return DistributedInstance.UNKOWN_PROPERTY;
+		return BBoxDBInstance.UNKOWN_PROPERTY;
 	}
 	
 	/**
@@ -335,7 +335,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected int getCpuCoresForInstnace(final DistributedInstance instance) throws ZookeeperNotFoundException {
+	protected int getCpuCoresForInstnace(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
 		final String versionPath = getInstancesCpuCorePath(instance);
 
 		String versionString = null;
@@ -358,7 +358,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected long getMemoryForInstance(final DistributedInstance instance) throws ZookeeperNotFoundException {
+	protected long getMemoryForInstance(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
 		final String memoryPath = getInstancesMemoryPath(instance);
 
 		String memoryString = null;
@@ -381,7 +381,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @throws ZookeeperNotFoundException
 	 * @throws ZookeeperException 
 	 */
-	protected void readDiskSpaceForInstance(final DistributedInstance instance) 
+	protected void readDiskSpaceForInstance(final BBoxDBInstance instance) 
 			throws ZookeeperNotFoundException, ZookeeperException {
 		
 		final String diskspacePath = getInstancesDiskspacePath(instance);
@@ -575,7 +575,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @return
 	 * @throws ZookeeperException
 	 */
-	public void setLocalInstanceState(final DistributedInstance instance, 
+	public void setLocalInstanceState(final BBoxDBInstance instance, 
 			final DistributedInstanceState distributedInstanceState)
 			throws ZookeeperException {
 	
@@ -660,14 +660,14 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @param distributedInstance 
 	 * @return
 	 */
-	protected String getInstanceDetailsPath(final DistributedInstance distributedInstance) {
+	protected String getInstanceDetailsPath(final BBoxDBInstance distributedInstance) {
 		return getDetailsPath() + "/" + distributedInstance.getStringValue();
 	}
 	
 	/**
 	 * Get the path of the version node
 	 */
-	protected String getInstancesVersionPath(final DistributedInstance distributedInstance) {
+	protected String getInstancesVersionPath(final BBoxDBInstance distributedInstance) {
 		return getInstanceDetailsPath(distributedInstance) + "/version";
 	}
 	
@@ -675,28 +675,28 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	/**
 	 * Get the path of the cpu core node
 	 */
-	protected String getInstancesCpuCorePath(final DistributedInstance distributedInstance) {
+	protected String getInstancesCpuCorePath(final BBoxDBInstance distributedInstance) {
 		return getInstanceDetailsPath(distributedInstance) + "/cpucore";
 	}
 	
 	/**
 	 * Get the path of the memory node
 	 */
-	protected String getInstancesMemoryPath(final DistributedInstance distributedInstance) {
+	protected String getInstancesMemoryPath(final BBoxDBInstance distributedInstance) {
 		return getInstanceDetailsPath(distributedInstance) + "/memory";
 	}
 	
 	/**
 	 * Get the path of the diskspace node
 	 */
-	protected String getInstancesDiskspacePath(final DistributedInstance distributedInstance) {
+	protected String getInstancesDiskspacePath(final BBoxDBInstance distributedInstance) {
 		return getInstanceDetailsPath(distributedInstance) + "/diskspace";
 	}
 
 	/**
 	 * Get the free space of the diskspace node
 	 */
-	protected String getInstancesDiskspaceFreePath(final DistributedInstance distributedInstance, 
+	protected String getInstancesDiskspaceFreePath(final BBoxDBInstance distributedInstance, 
 			final String path) {
 		final String zookeeperPath = quotePath(path);
 		return getInstancesDiskspacePath(distributedInstance) + "/" + zookeeperPath + "/free";
@@ -705,7 +705,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	/**
 	 * Get the total space of the diskspace node
 	 */
-	protected String getInstancesDiskspaceTotalPath(final DistributedInstance distributedInstance, 
+	protected String getInstancesDiskspaceTotalPath(final BBoxDBInstance distributedInstance, 
 			final String path) {
 		final String zookeeperPath = quotePath(path);
 		return getInstancesDiskspacePath(distributedInstance) + "/" + zookeeperPath + "/total";

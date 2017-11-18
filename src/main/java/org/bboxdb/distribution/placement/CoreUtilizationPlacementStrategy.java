@@ -19,7 +19,7 @@ package org.bboxdb.distribution.placement;
 
 import java.util.function.Predicate;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +42,8 @@ public class CoreUtilizationPlacementStrategy extends AbstractUtilizationPlaceme
 	 * @param distributedInstance
 	 * @return
 	 */
-	protected double calculateUsageFactor(final Multiset<DistributedInstance> systemUsage,
-			final DistributedInstance distributedInstance) {
+	protected double calculateUsageFactor(final Multiset<BBoxDBInstance> systemUsage,
+			final BBoxDBInstance distributedInstance) {
 		
 		final int count = systemUsage.count(distributedInstance);
 		
@@ -56,7 +56,7 @@ public class CoreUtilizationPlacementStrategy extends AbstractUtilizationPlaceme
 	}
 
 	@Override
-	protected Predicate<? super DistributedInstance> getUnusableSystemsFilterPredicate() {
+	protected Predicate<? super BBoxDBInstance> getUnusableSystemsFilterPredicate() {
 		return i -> (i.getCpuCores() > 0);
 	}
 }

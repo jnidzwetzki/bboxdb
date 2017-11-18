@@ -32,8 +32,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.membership.DistributedInstance;
-import org.bboxdb.distribution.membership.DistributedInstanceManager;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -684,8 +684,8 @@ public class CLI implements Runnable, AutoCloseable {
 	protected void actionShowInstances(final CommandLine line) {
 		System.out.println("Show all discovered BBoxDB instances");
 
-		final DistributedInstanceManager distributedInstanceManager = DistributedInstanceManager.getInstance();
-		final List<DistributedInstance> allInstances = distributedInstanceManager.getInstances();
+		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
+		final List<BBoxDBInstance> allInstances = distributedInstanceManager.getInstances();
 		
 		allInstances.sort((i1, i2) -> i1.getIp().compareTo(i2.getIp()));
 		

@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.bboxdb.distribution.DistributedRecoveryService;
 import org.bboxdb.distribution.TupleStoreFlushZookeeperAdapter;
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperInstanceRegisterer;
@@ -99,7 +99,7 @@ public class BBoxDBMain {
 		final MembershipConnectionService membershipService = MembershipConnectionService.getInstance();
 		
 		// Prevent network connections to ourself
-		final DistributedInstance localhost = ZookeeperClientFactory.getLocalInstanceName();
+		final BBoxDBInstance localhost = ZookeeperClientFactory.getLocalInstanceName();
 		membershipService.addSystemToBlacklist(localhost);
 		
 		return membershipService;

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -102,7 +102,7 @@ public class DistributionRegionHelper {
 	 * @param region
 	 * @return
 	 */
-	public static Multiset<DistributedInstance> getSystemUtilization(final DistributionRegion region) {
+	public static Multiset<BBoxDBInstance> getSystemUtilization(final DistributionRegion region) {
 		final CalculateSystemUtilization calculateSystemUtilization = new CalculateSystemUtilization();
 		
 		if(region != null) {
@@ -119,7 +119,7 @@ public class DistributionRegionHelper {
 	 * @return
 	 */
 	public static List<OutdatedDistributionRegion> getOutdatedRegions(final DistributionRegion region, 
-			final DistributedInstance distributedInstance) {
+			final BBoxDBInstance distributedInstance) {
 		
 		final DistributionRegionOutdatedRegionFinder distributionRegionOutdatedRegionFinder 
 			= new DistributionRegionOutdatedRegionFinder(distributedInstance);
@@ -178,11 +178,11 @@ class CalculateSystemUtilization implements DistributionRegionVisitor {
 	/**
 	 * The utilization
 	 */
-	protected Multiset<DistributedInstance> utilization = HashMultiset.create();
+	protected Multiset<BBoxDBInstance> utilization = HashMultiset.create();
 	
 	@Override
 	public boolean visitRegion(final DistributionRegion distributionRegion) {
-		final Collection<DistributedInstance> systems = distributionRegion.getSystems();
+		final Collection<BBoxDBInstance> systems = distributionRegion.getSystems();
 		systems.forEach(i -> utilization.add(i));
 
 		// Visit remaining nodes
@@ -193,7 +193,7 @@ class CalculateSystemUtilization implements DistributionRegionVisitor {
 	 * Get the result
 	 * @return
 	 */
-	public Multiset<DistributedInstance> getResult() {
+	public Multiset<BBoxDBInstance> getResult() {
 		return utilization;
 	}
 	
@@ -204,7 +204,7 @@ class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisito
 	/**
 	 * The instance
 	 */
-	protected final DistributedInstance instanceToSearch;
+	protected final BBoxDBInstance instanceToSearch;
 	
 	/**
 	 * The result of the operation
@@ -221,7 +221,7 @@ class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisito
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionOutdatedRegionFinder.class);
 
-	public DistributionRegionOutdatedRegionFinder(final DistributedInstance instanceToSearch) {
+	public DistributionRegionOutdatedRegionFinder(final BBoxDBInstance instanceToSearch) {
 		this.instanceToSearch = instanceToSearch;
 		this.result = new ArrayList<OutdatedDistributionRegion>();
 		this.distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
@@ -235,10 +235,10 @@ class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisito
 		}
 		
 		try {
-			DistributedInstance newestInstance = null;
+			BBoxDBInstance newestInstance = null;
 			long newestVersion = Long.MIN_VALUE;
 			
-			for(final DistributedInstance instance : distributionRegion.getSystems()) {
+			for(final BBoxDBInstance instance : distributionRegion.getSystems()) {
 				if(instance.socketAddressEquals(instanceToSearch)) {
 					continue;
 				}

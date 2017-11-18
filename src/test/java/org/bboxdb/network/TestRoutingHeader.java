@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
@@ -56,9 +56,9 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testRoutingHeaderHopParser2() {
-		final RoutingHop hop1 = new RoutingHop(new DistributedInstance("host1:50500"), Arrays.asList(123));
-		final RoutingHop hop2 = new RoutingHop(new DistributedInstance("host2:50500"), Arrays.asList(456));
-		final RoutingHop hop3 = new RoutingHop(new DistributedInstance("host3:50500"), Arrays.asList(789));
+		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123));
+		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), Arrays.asList(456));
+		final RoutingHop hop3 = new RoutingHop(new BBoxDBInstance("host3:50500"), Arrays.asList(789));
 		
 		final List<RoutingHop> routingList = new ArrayList<>();
 		routingList.add(hop1);
@@ -216,8 +216,8 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testDispatchHeader() {
-		final RoutingHop hop1 = new RoutingHop(new DistributedInstance("host1:50500"), Arrays.asList(123));
-		final RoutingHop hop2 = new RoutingHop(new DistributedInstance("host2:50500"), Arrays.asList(456));
+		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123));
+		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), Arrays.asList(456));
 		
 		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] {hop1, hop2} );
 		

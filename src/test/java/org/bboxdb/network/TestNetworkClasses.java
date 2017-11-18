@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.compress.utils.IOUtils;
-import org.bboxdb.distribution.membership.DistributedInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.client.SequenceNumberGenerator;
@@ -83,7 +83,7 @@ public class TestNetworkClasses {
 	/**
 	 * A routing hop
 	 */
-	protected final RoutingHop ROUTING_HOP = new RoutingHop(new DistributedInstance("127.0.0.1:8080"), Arrays.asList(1, 6));
+	protected final RoutingHop ROUTING_HOP = new RoutingHop(new BBoxDBInstance("127.0.0.1:8080"), Arrays.asList(1, 6));
 	
 	/**
 	 * A routing header
@@ -231,7 +231,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeInsertTupleWithCustomHeader() throws IOException, PackageEncodeException {
-		final RoutingHop hop1 = new RoutingHop(new DistributedInstance("host1:50500"), Arrays.asList(123));
+		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123));
 		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] { hop1 });
 		final RoutingHeader routingHeader = new RoutingHeader((short) 12, routingList);
 		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
@@ -938,7 +938,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testCompression1Request() throws IOException, PackageEncodeException {
-		final RoutingHop hop1 = new RoutingHop(new DistributedInstance("host1:50500"), Arrays.asList(123));
+		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123));
 		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] { hop1 });
 		
 		final RoutingHeader routingHeader = new RoutingHeader((short) 12, routingList);
@@ -980,7 +980,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testCompression2Request() throws IOException, PackageEncodeException {
-		final RoutingHop hop1 = new RoutingHop(new DistributedInstance("host1:50500"), Arrays.asList(123));
+		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123));
 		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] { hop1 });
 		
 		final RoutingHeader routingHeader = new RoutingHeader((short) 12, routingList);

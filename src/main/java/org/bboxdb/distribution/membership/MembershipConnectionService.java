@@ -47,7 +47,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	/**
 	 * The known instances
 	 */
-	protected final Map<InetSocketAddress, DistributedInstance> knownInstances;
+	protected final Map<InetSocketAddress, BBoxDBInstance> knownInstances;
 	
 	/**
 	 * The blacklisted instances, no connection will be created to these systems
@@ -78,7 +78,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 		final HashMap<InetSocketAddress, BBoxDBClient> connectionMap = new HashMap<InetSocketAddress, BBoxDBClient>();
 		serverConnections = Collections.synchronizedMap(connectionMap);
 		
-		final HashMap<InetSocketAddress, DistributedInstance> instanceMap = new HashMap<InetSocketAddress, DistributedInstance>();
+		final HashMap<InetSocketAddress, BBoxDBInstance> instanceMap = new HashMap<InetSocketAddress, BBoxDBInstance>();
 		knownInstances = Collections.synchronizedMap(instanceMap);
 		
 		pagingEnabled = false;
@@ -106,7 +106,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 * Add a system to the blacklist
 	 * @param distributedInstance
 	 */
-	public void addSystemToBlacklist(final DistributedInstance distributedInstance) {
+	public void addSystemToBlacklist(final BBoxDBInstance distributedInstance) {
 		blacklist.add(distributedInstance.getInetSocketAddress());
 	}
 	
@@ -122,10 +122,10 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 */
 	@Override
 	public void init() {
-		DistributedInstanceManager.getInstance().registerListener(this);
+		BBoxDBInstanceManager.getInstance().registerListener(this);
 		
 		// Create connections to existing instances
-		final List<DistributedInstance> instances = DistributedInstanceManager.getInstance().getInstances();
+		final List<BBoxDBInstance> instances = BBoxDBInstanceManager.getInstance().getInstances();
 		
 		if(instances.isEmpty()) {
 			logger.warn("The list of instances is empty");
@@ -139,7 +139,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 */
 	@Override
 	public void shutdown() {
-		DistributedInstanceManager.getInstance().removeListener(this);
+		BBoxDBInstanceManager.getInstance().removeListener(this);
 		
 		// Close all connections
 		synchronized (serverConnections) {
@@ -166,7 +166,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 * Add a new connection to a bboxdb system
 	 * @param distributedInstance
 	 */
-	protected synchronized void createOrTerminateConnetion(final DistributedInstance distributedInstance) {
+	protected synchronized void createOrTerminateConnetion(final BBoxDBInstance distributedInstance) {
 
 		// Create only connections to readonly or readwrite systems
 		if(distributedInstance.getState() == DistributedInstanceState.UNKNOWN) {			
@@ -181,7 +181,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 * Create a new connection to the given instance
 	 * @param distributedInstance
 	 */
-	protected void createConnection(final DistributedInstance distributedInstance) {
+	protected void createConnection(final BBoxDBInstance distributedInstance) {
 		
 		if(serverConnections.containsKey(distributedInstance.getInetSocketAddress())) {
 			logger.info("We have already a connection to: " + distributedInstance);
@@ -213,7 +213,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 * Terminate the connection to a missing bboxdb system
 	 * @param distributedInstance 
 	 */
-	protected synchronized void terminateConnection(final DistributedInstance distributedInstance) {
+	protected synchronized void terminateConnection(final BBoxDBInstance distributedInstance) {
 		
 		if(! serverConnections.containsKey(distributedInstance.getInetSocketAddress())) {
 			return;
@@ -247,7 +247,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 * @param instance
 	 * @return
 	 */
-	public BBoxDBClient getConnectionForInstance(final DistributedInstance instance) {
+	public BBoxDBClient getConnectionForInstance(final BBoxDBInstance instance) {
 		return serverConnections.get(instance.getInetSocketAddress());
 	}
 	
@@ -271,8 +271,8 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 * Get a list with all distributed instances we have connections to
 	 * @return
 	 */
-	public List<DistributedInstance> getAllInstances() {
-		return new ArrayList<DistributedInstance>(knownInstances.values());
+	public List<BBoxDBInstance> getAllInstances() {
+		return new ArrayList<BBoxDBInstance>(knownInstances.values());
 	}
 	
 	/**
