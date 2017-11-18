@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 import org.bboxdb.distribution.membership.event.DistributedInstanceAddEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceChangedEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceDeleteEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ public class BBoxDBInstanceManager {
 	/**
 	 * The event listener
 	 */
-	protected final List<DistributedInstanceEventCallback> listener = new CopyOnWriteArrayList<>();
+	protected final List<Consumer<DistributedInstanceEvent>> listener = new CopyOnWriteArrayList<>();
 	
 	/**
 	 * The active BBoxDB instances
@@ -126,14 +126,14 @@ public class BBoxDBInstanceManager {
 	 */
 	protected void sendEvent(final DistributedInstanceEvent event) {
 		logger.debug("Sending event: {}", event);
-		listener.forEach((l) -> l.distributedInstanceEvent(event));
+		listener.forEach((l) -> l.accept(event));
 	}
 	
 	/**
 	 * Register a callback listener
 	 * @param callback
 	 */
-	public void registerListener(final DistributedInstanceEventCallback callback) {
+	public void registerListener(final Consumer<DistributedInstanceEvent> callback) {
 		listener.add(callback);
 	}
 	
@@ -141,7 +141,7 @@ public class BBoxDBInstanceManager {
 	 * Remove a callback listener
 	 * @param callback
 	 */
-	public void removeListener(final DistributedInstanceEventCallback callback) {
+	public void removeListener(final Consumer<DistributedInstanceEvent> callback) {
 		listener.remove(callback);
 	}
 	

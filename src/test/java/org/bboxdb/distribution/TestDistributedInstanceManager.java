@@ -21,17 +21,17 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.bboxdb.distribution.membership.event.DistributedInstanceAddEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceChangedEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback;
-import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
-import org.bboxdb.distribution.zookeeper.ZookeeperInstanceRegisterer;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperInstanceRegisterer;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.util.SystemInfo;
@@ -185,11 +185,10 @@ public class TestDistributedInstanceManager {
 		
 		final CountDownLatch changedLatch = new CountDownLatch(1);
 
-		distributedInstanceManager.registerListener(new DistributedInstanceEventCallback() {
+		distributedInstanceManager.registerListener(new Consumer<DistributedInstanceEvent>() {
 			
 			@Override
-			public void distributedInstanceEvent(final DistributedInstanceEvent event) {
-
+			public void accept(final DistributedInstanceEvent event) {
 				if(event instanceof DistributedInstanceAddEvent) {
 					if(event.getInstance().socketAddressEquals(instance2)) {
 						changedLatch.countDown();
@@ -198,7 +197,7 @@ public class TestDistributedInstanceManager {
 					// Unexpected event
 					System.out.println("Got unexpeceted event: " + event);
 					Assert.assertTrue(false);
-				}
+				}				
 			}
 		});
 		
@@ -235,10 +234,10 @@ public class TestDistributedInstanceManager {
 		
 		final CountDownLatch changedLatch = new CountDownLatch(1);
 
-		distributedInstanceManager.registerListener(new DistributedInstanceEventCallback() {
+		distributedInstanceManager.registerListener(new Consumer<DistributedInstanceEvent>() {
 			
 			@Override
-			public void distributedInstanceEvent(final DistributedInstanceEvent event) {
+			public void accept(final DistributedInstanceEvent event) {
 
 				if(event instanceof DistributedInstanceChangedEvent) {
 					if(event.getInstance().socketAddressEquals(instance2)) {
@@ -284,10 +283,10 @@ public class TestDistributedInstanceManager {
 		
 		final CountDownLatch changedLatch = new CountDownLatch(1);
 
-		distributedInstanceManager.registerListener(new DistributedInstanceEventCallback() {
+		distributedInstanceManager.registerListener(new Consumer<DistributedInstanceEvent>() {
 			
 			@Override
-			public void distributedInstanceEvent(final DistributedInstanceEvent event) {
+			public void accept(final DistributedInstanceEvent event) {
 
 				if(event instanceof DistributedInstanceChangedEvent) {
 					if(event.getInstance().socketAddressEquals(instance2)) {

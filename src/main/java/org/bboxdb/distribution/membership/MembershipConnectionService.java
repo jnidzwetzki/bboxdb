@@ -25,19 +25,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
+import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.bboxdb.distribution.membership.event.DistributedInstanceAddEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceChangedEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceDeleteEvent;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback;
-import org.bboxdb.distribution.membership.event.BBoxDBInstanceState;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MembershipConnectionService implements BBoxDBService, DistributedInstanceEventCallback {
+public class MembershipConnectionService implements BBoxDBService, Consumer<DistributedInstanceEvent> {
 	
 	/**
 	 * The server connections
@@ -230,7 +230,7 @@ public class MembershipConnectionService implements BBoxDBService, DistributedIn
 	 * Handle membership events	
 	 */
 	@Override
-	public void distributedInstanceEvent(final DistributedInstanceEvent event) {
+	public void accept(final DistributedInstanceEvent event) {
 		if(event instanceof DistributedInstanceAddEvent) {
 			createOrTerminateConnetion(event.getInstance());
 		} else if(event instanceof DistributedInstanceChangedEvent) {

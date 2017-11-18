@@ -21,6 +21,7 @@ import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.SwingUtilities;
 
@@ -29,7 +30,6 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.event.DistributedInstanceEvent;
-import org.bboxdb.distribution.membership.event.DistributedInstanceEventCallback;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionChangedCallback;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
@@ -39,8 +39,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GuiModel implements DistributedInstanceEventCallback,
-		DistributionRegionChangedCallback {
+public class GuiModel implements Consumer<DistributedInstanceEvent>, DistributionRegionChangedCallback {
 
 	/**
 	 * The BBoxDB instances
@@ -200,7 +199,7 @@ public class GuiModel implements DistributedInstanceEventCallback,
 	 * A group membership event is occurred
 	 */
 	@Override
-	public void distributedInstanceEvent(final DistributedInstanceEvent event) {
+	public void accept(final DistributedInstanceEvent event) {
 		updateBBoxDBInstances();
 
 		updateModel();
