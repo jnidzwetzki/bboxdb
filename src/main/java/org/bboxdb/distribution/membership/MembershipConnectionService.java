@@ -37,7 +37,7 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MembershipConnectionService implements BBoxDBService, Consumer<DistributedInstanceEvent> {
+public class MembershipConnectionService implements BBoxDBService {
 	
 	/**
 	 * The server connections
@@ -63,6 +63,21 @@ public class MembershipConnectionService implements BBoxDBService, Consumer<Dist
 	 * The amount of tuples per page
 	 */
 	protected short tuplesPerPage;
+	
+	/**
+	 * The event handler
+	 */
+	protected Consumer<DistributedInstanceEvent> eventConsumer = (event) -> {
+		if(event instanceof DistributedInstanceAddEvent) {
+			createOrTerminateConnetion(event.getInstance());
+		} else if(event instanceof DistributedInstanceChangedEvent) {
+			createOrTerminateConnetion(event.getInstance());
+		} else if(event instanceof DistributedInstanceDeleteEvent) {
+			terminateConnection(event.getInstance());
+		} else {
+			logger.warn("Unknown event: " + event);
+		}
+	};
 	
 	/**
 	 * The singleton instance
@@ -122,7 +137,7 @@ public class MembershipConnectionService implements BBoxDBService, Consumer<Dist
 	 */
 	@Override
 	public void init() {
-		BBoxDBInstanceManager.getInstance().registerListener(this);
+		BBoxDBInstanceManager.getInstance().registerListener(eventConsumer);
 		
 		// Create connections to existing instances
 		final List<BBoxDBInstance> instances = BBoxDBInstanceManager.getInstance().getInstances();
@@ -139,7 +154,7 @@ public class MembershipConnectionService implements BBoxDBService, Consumer<Dist
 	 */
 	@Override
 	public void shutdown() {
-		BBoxDBInstanceManager.getInstance().removeListener(this);
+		BBoxDBInstanceManager.getInstance().removeListener(eventConsumer);
 		
 		// Close all connections
 		synchronized (serverConnections) {
@@ -224,22 +239,6 @@ public class MembershipConnectionService implements BBoxDBService, Consumer<Dist
 		knownInstances.remove(distributedInstance.getInetSocketAddress());
 		final BBoxDBClient client = serverConnections.remove(distributedInstance.getInetSocketAddress());
 		client.terminateConnection();
-	}
-
-	/**
-	 * Handle membership events	
-	 */
-	@Override
-	public void accept(final DistributedInstanceEvent event) {
-		if(event instanceof DistributedInstanceAddEvent) {
-			createOrTerminateConnetion(event.getInstance());
-		} else if(event instanceof DistributedInstanceChangedEvent) {
-			createOrTerminateConnetion(event.getInstance());
-		} else if(event instanceof DistributedInstanceDeleteEvent) {
-			terminateConnection(event.getInstance());
-		} else {
-			logger.warn("Unknown event: " + event);
-		}
 	}
 
 	/**
