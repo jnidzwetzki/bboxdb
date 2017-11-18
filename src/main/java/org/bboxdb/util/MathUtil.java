@@ -33,6 +33,10 @@ public class MathUtil {
 	 */
 	public static boolean RESULT_PARSE_FAILED_AND_NO_EXIT_BOOL = false;
 
+	/**
+	 * The default error supplier
+	 */
+	public final static Supplier<String> DEFAULT_ERROR_SUPPLIER = () -> "Parse error";
 
 	/**
 	 * Round the given number of fractions

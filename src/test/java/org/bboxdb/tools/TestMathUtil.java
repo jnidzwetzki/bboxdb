@@ -17,8 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.tools;
 
-import java.util.function.Supplier;
-
 import org.bboxdb.util.InputParseException;
 import org.bboxdb.util.MathUtil;
 import org.junit.Assert;
@@ -30,12 +28,6 @@ public class TestMathUtil {
 	 * The default assert delta
 	 */
 	private static final double DEFAULT_ASSERT_DELTA = 0.0000001;
-	
-	/**
-	 * The default error supplier
-	 */
-	private final static Supplier<String> DEFAULT_ERROR_SUPPLIER = () -> "Parse error";
-
 
 	@Test
 	public void testRound() {
@@ -61,21 +53,21 @@ public class TestMathUtil {
 	@Test
 	public void testParseInteger(){
 		try {
-			MathUtil.tryParseInt("abc", DEFAULT_ERROR_SUPPLIER);
+			MathUtil.tryParseInt("abc", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertTrue(false);
 		} catch(InputParseException e) {
 			
 		}
 		
 		try {
-			MathUtil.tryParseInt(null, DEFAULT_ERROR_SUPPLIER);
+			MathUtil.tryParseInt(null, MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertTrue(false);
 		} catch(InputParseException e) {
 			
 		}
 		
 		try {
-			final int result2 = MathUtil.tryParseInt("234", DEFAULT_ERROR_SUPPLIER);
+			final int result2 = MathUtil.tryParseInt("234", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertEquals(234, result2);
 		} catch (InputParseException e) {
 			Assert.assertTrue(false);
@@ -86,21 +78,21 @@ public class TestMathUtil {
 	@Test
 	public void testParseDouble() {
 		try {
-			MathUtil.tryParseDouble("abc", DEFAULT_ERROR_SUPPLIER);
+			MathUtil.tryParseDouble("abc", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertTrue(false);
 		} catch(InputParseException e) {
 			
 		}
 		
 		try {
-			MathUtil.tryParseDouble(null, DEFAULT_ERROR_SUPPLIER);
+			MathUtil.tryParseDouble(null, MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertTrue(false);
 		} catch(InputParseException e) {
 			
 		}
 		
 		try {
-			final double result2 = MathUtil.tryParseDouble("234.567", DEFAULT_ERROR_SUPPLIER);
+			final double result2 = MathUtil.tryParseDouble("234.567", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertEquals(234.567, result2, DEFAULT_ASSERT_DELTA);
 		} catch (InputParseException e) {
 			Assert.assertTrue(false);
@@ -110,42 +102,42 @@ public class TestMathUtil {
 	@Test
 	public void testParseBoolean() {
 		try {
-			MathUtil.tryParseBoolean("true1234", DEFAULT_ERROR_SUPPLIER);
+			MathUtil.tryParseBoolean("true1234", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertTrue(false);
 		} catch(InputParseException e) {
 			
 		}
 		
 		try {
-			MathUtil.tryParseBoolean(null, DEFAULT_ERROR_SUPPLIER);
+			MathUtil.tryParseBoolean(null, MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertTrue(false);
 		} catch(InputParseException e) {
 			
 		}
 		
 		try {
-			final boolean result1 = MathUtil.tryParseBoolean("true", DEFAULT_ERROR_SUPPLIER);
+			final boolean result1 = MathUtil.tryParseBoolean("true", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertTrue(result1);
 			
-			final boolean result2 = MathUtil.tryParseBoolean("TRUE", DEFAULT_ERROR_SUPPLIER);
+			final boolean result2 = MathUtil.tryParseBoolean("TRUE", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertTrue(result2);
 			
-			final boolean result3 = MathUtil.tryParseBoolean("TrUE", DEFAULT_ERROR_SUPPLIER);
+			final boolean result3 = MathUtil.tryParseBoolean("TrUE", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertTrue(result3);
 			
-			final boolean result4 = MathUtil.tryParseBoolean("1", DEFAULT_ERROR_SUPPLIER);
+			final boolean result4 = MathUtil.tryParseBoolean("1", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertTrue(result4);
 			
-			final boolean result5 = MathUtil.tryParseBoolean("false", DEFAULT_ERROR_SUPPLIER);
+			final boolean result5 = MathUtil.tryParseBoolean("false", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertFalse(result5);
 			
-			final boolean result6 = MathUtil.tryParseBoolean("FALSE", DEFAULT_ERROR_SUPPLIER);
+			final boolean result6 = MathUtil.tryParseBoolean("FALSE", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertFalse(result6);
 			
-			final boolean result7 = MathUtil.tryParseBoolean("false", DEFAULT_ERROR_SUPPLIER);
+			final boolean result7 = MathUtil.tryParseBoolean("false", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertFalse(result7);
 			
-			final boolean result8 = MathUtil.tryParseBoolean("0", DEFAULT_ERROR_SUPPLIER);
+			final boolean result8 = MathUtil.tryParseBoolean("0", MathUtil.DEFAULT_ERROR_SUPPLIER);
 			Assert.assertFalse(result8);
 		} catch (InputParseException e) {
 			Assert.assertTrue(false);
