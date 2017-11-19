@@ -18,6 +18,7 @@ order: 1
 - Bugfix: Improved exception handling on network header encoding
 - Bugfix: Fixed some bugs found by coverty scan
 - Bugfix: Prevent duplicate MBean register exception
+- Bugfix: Fixed a bug in the string to boolean converter
 
 ### Version 0.3.5 (Stable) - 06.11.2017
 - New Feature: Made project compatible with sonatype.org hosting
