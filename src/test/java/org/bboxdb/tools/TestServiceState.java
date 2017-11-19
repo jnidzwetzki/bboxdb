@@ -18,6 +18,7 @@
 package org.bboxdb.tools;
 
 import java.util.concurrent.Semaphore;
+import java.util.function.Consumer;
 
 import org.bboxdb.util.ServiceState;
 import org.bboxdb.util.ServiceState.State;
@@ -170,6 +171,30 @@ public class TestServiceState {
 		state.dispatchToTerminated();
 		Assert.assertEquals(1, semaphore.availablePermits());
 	}
+	
+	/**
+	 * Test the register and unregister method
+	 */
+	@Test
+	public void testCallbackListenerRegisterAndUnregister() {
+		final ServiceState state = new ServiceState();
+		
+		final Consumer<? super ServiceState> consumer = (s) -> { 
+		
+		};
+		
+		// Callback is unkown
+		Assert.assertFalse(state.removeCallback(consumer));
+		
+		state.registerCallback(consumer);
+		
+		// Callback is known
+		Assert.assertTrue(state.removeCallback(consumer));
+		
+		// Callback is unkown
+		Assert.assertFalse(state.removeCallback(consumer));
+	}
+
 	
 	/**
 	 * Test the reset call

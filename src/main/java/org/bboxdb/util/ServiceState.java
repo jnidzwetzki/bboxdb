@@ -329,7 +329,7 @@ public class ServiceState {
 	 * @param consumer
 	 * @return
 	 */
-	public boolean removeCallback(final Consumer<? super State> consumer) {
+	public boolean removeCallback(final Consumer<? super ServiceState> consumer) {
 		return callbacks.remove(consumer);
 	}
 }
