@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.3.6 (Stable) - TBA
+### Version 0.3.6 (Stable) - 20.11.2017
 - New Feature: Added continuous bounding box query
 - New Feature: Added performance counter / instrumentation (implemented with prometheus) 
 - Improvement: Made memory statistics logging configurable via const
