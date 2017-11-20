@@ -40,9 +40,9 @@ import org.slf4j.LoggerFactory;
 public class TupleRedistributor {
 	
 	/**
-	 * The sstable name for data redistribution
+	 * The tuple store name for data redistribution
 	 */
-	protected final TupleStoreName sstableName;
+	protected final TupleStoreName tupleStoreName;
 	
 	/**
 	 * The list with the distribution regions
@@ -67,7 +67,7 @@ public class TupleRedistributor {
 	
 	public TupleRedistributor(final DiskStorage storage, final TupleStoreName tupleStoreName) {
 		this.storage = storage;
-		this.sstableName = tupleStoreName;
+		this.tupleStoreName = tupleStoreName;
 		this.regionMap = new HashMap<DistributionRegion, List<TupleSink>>();
 		this.redistributedTuples = 0;
 		
@@ -95,19 +95,19 @@ public class TupleRedistributor {
 			
 			if(instance.socketAddressEquals(localInstance)) {
 				
-				final TupleStoreName localTableName = sstableName.cloneWithDifferntRegionId(
+				final TupleStoreName localTableName = tupleStoreName.cloneWithDifferntRegionId(
 						distributionRegion.getRegionId());
 				
 				final TupleStoreManager storageManager = storage
 						.getStorageRegistry()
 						.getTupleStoreManager(localTableName);
 				
-				regionMap.get(distributionRegion).add(new LocalTupleSink(sstableName, storageManager));
+				regionMap.get(distributionRegion).add(new LocalTupleSink(tupleStoreName, storageManager));
 			
 				logger.info("Redistributing data to local table {}", localTableName.getFullname());
 			} else {
 				final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(instance);
-				regionMap.get(distributionRegion).add(new NetworkTupleSink(sstableName, connection));
+				regionMap.get(distributionRegion).add(new NetworkTupleSink(tupleStoreName, connection));
 			
 				logger.info("Redistributing data to remote system {}", instance.getInetSocketAddress());
 			}
