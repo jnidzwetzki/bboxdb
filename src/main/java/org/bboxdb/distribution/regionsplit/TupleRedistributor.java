@@ -57,7 +57,7 @@ public class TupleRedistributor {
 	/**
 	 * The storage reference
 	 */
-	protected DiskStorage storage;
+	protected final DiskStorage storage;
 	
 	/**
 	 * The Logger
@@ -65,13 +65,13 @@ public class TupleRedistributor {
 	protected final static Logger logger = LoggerFactory.getLogger(TupleRedistributor.class);
 
 	
-	public TupleRedistributor(final DiskStorage storage, final TupleStoreName ssTableName) {
+	public TupleRedistributor(final DiskStorage storage, final TupleStoreName tupleStoreName) {
 		this.storage = storage;
-		this.sstableName = ssTableName;
+		this.sstableName = tupleStoreName;
 		this.regionMap = new HashMap<DistributionRegion, List<TupleSink>>();
 		this.redistributedTuples = 0;
 		
-		assert(ssTableName.isValid());
+		assert(tupleStoreName.isValid());
 	}
 
 	/**
@@ -203,27 +203,17 @@ class NetworkTupleSink extends TupleSink {
 	 * The connection to spread data too
 	 */
 	protected final BBoxDBClient connection;
-	
-	/**
-	 * The Logger
-	 */
-	protected final static Logger logger = LoggerFactory.getLogger(NetworkTupleSink.class);
-	
+
 	public NetworkTupleSink(final TupleStoreName tablename, final BBoxDBClient connection) {
 		super(tablename);
 		this.connection = connection;
 	}
 
 	@Override
-	public void sinkTuple(final Tuple tuple) {
-		try {
-			connection.insertTuple(tablename, tuple);
-		} catch (BBoxDBException e) {
-			logger.error("Got an exception while distributing tuple", e);
-		}
+	public void sinkTuple(final Tuple tuple) throws BBoxDBException {
 		sinkedTuples++;
+		connection.insertTuple(tablename, tuple);
 	}
-	
 }
 
 class LocalTupleSink extends TupleSink {
@@ -244,5 +234,3 @@ class LocalTupleSink extends TupleSink {
 		storageManager.put(tuple);
 	}
 }
-
-
