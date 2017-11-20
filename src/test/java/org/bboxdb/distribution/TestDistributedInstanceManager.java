@@ -422,4 +422,34 @@ public class TestDistributedInstanceManager {
 
 		zookeeperClient1.shutdown();
 	}
+	
+	/**
+	 * Test the reconnect
+	 * @throws ZookeeperException 
+	 */
+	@Test
+	public void testReconnect() throws InterruptedException, ZookeeperException {
+		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
+
+		final BBoxDBInstance instance = new BBoxDBInstance("node1:5050");
+		final ZookeeperClient zookeeperClient = getNewZookeeperClient(instance);
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
+		Assert.assertTrue(zookeeperClient.isConnected());
+		Assert.assertEquals(1, distributedInstanceManager.getInstances().size());
+		
+		Thread.sleep(1000);
+		
+		// Disconnect
+		zookeeperClient.shutdown();
+		Assert.assertEquals(0, distributedInstanceManager.getInstances().size());
+
+		// Reconnect
+		Assert.assertFalse(zookeeperClient.isConnected());
+		zookeeperClient.init();
+		Assert.assertTrue(zookeeperClient.isConnected());
+
+		// Wait for instances read
+		Thread.sleep(1000);
+		Assert.assertEquals(1, distributedInstanceManager.getInstances().size());
+	}
 }

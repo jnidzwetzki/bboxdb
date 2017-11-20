@@ -55,7 +55,13 @@ public class BBoxDBInstanceManager {
 	 */
 	protected final Consumer<? super ServiceState> zookeeperShutdownCallback = (c) 
 			-> {if(c.isInTerminatedState()) { zookeeperDisconnect();}};
-			
+		
+	/** 
+	 * Connection is re-established callback
+	 */
+	protected final Consumer<? super ServiceState> zookeeperStartedCallback = (c) 
+			-> {if(c.isInRunningState()) { zookeeperBBoxDBInstanceAdapter.readMembershipAndRegisterWatch();}};
+
 	/**
 	 * The instance
 	 */
@@ -109,6 +115,7 @@ public class BBoxDBInstanceManager {
 		zookeeperBBoxDBInstanceAdapter = new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
 		zookeeperBBoxDBInstanceAdapter.readMembershipAndRegisterWatch();
 		zookeeperClient.getServiceState().registerCallback(zookeeperShutdownCallback);
+		zookeeperClient.getServiceState().registerCallback(zookeeperStartedCallback);
 	}
 
 	/**
@@ -119,6 +126,7 @@ public class BBoxDBInstanceManager {
 
 		if (zookeeperBBoxDBInstanceAdapter != null) {
 			final ZookeeperClient zookeeper = zookeeperBBoxDBInstanceAdapter.getZookeeperClient();
+			zookeeper.getServiceState().removeCallback(zookeeperStartedCallback);
 			zookeeper.getServiceState().removeCallback(zookeeperShutdownCallback);
 			zookeeperBBoxDBInstanceAdapter = null;
 		}
