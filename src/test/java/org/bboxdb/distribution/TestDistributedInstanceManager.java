@@ -57,6 +57,63 @@ public class TestDistributedInstanceManager {
 	}
 	
 	/**
+	 * test unregister
+	 */
+	@Test
+	public void testRegisterUnregister() throws InterruptedException {
+		final BBoxDBInstance instance = new BBoxDBInstance("node1:5050");
+		final ZookeeperClient zookeeperClient = getNewZookeeperClient(instance);
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
+		Assert.assertTrue(zookeeperClient.isConnected());
+		Thread.sleep(1000);
+		
+		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
+		
+		Assert.assertFalse(distributedInstanceManager.getInstances().isEmpty());
+		Assert.assertEquals(1, distributedInstanceManager.getInstances().size());
+		
+		Assert.assertEquals(instance.getInetSocketAddress(), distributedInstanceManager.getInstances().get(0).getInetSocketAddress());
+		
+		zookeeperClient.shutdown();
+		Assert.assertTrue(distributedInstanceManager.getInstances().isEmpty());
+	}
+	
+	/**
+	 * test unregister
+	 */
+	@Test
+	public void testRegisterUnregister2() throws InterruptedException {
+		final BBoxDBInstance instance = new BBoxDBInstance("node1:5050");
+		final ZookeeperClient zookeeperClient = getNewZookeeperClient(instance);
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
+		Assert.assertTrue(zookeeperClient.isConnected());
+		Thread.sleep(1000);
+		
+		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
+		
+		Assert.assertFalse(distributedInstanceManager.getInstances().isEmpty());
+		Assert.assertEquals(1, distributedInstanceManager.getInstances().size());
+		
+		Assert.assertEquals(instance.getInetSocketAddress(), distributedInstanceManager.getInstances().get(0).getInetSocketAddress());
+		
+		zookeeperClient.shutdown();
+		Assert.assertTrue(distributedInstanceManager.getInstances().isEmpty());
+		
+		final BBoxDBInstance instance2 = new BBoxDBInstance("node1:5050");
+		final ZookeeperClient zookeeperClient2 = getNewZookeeperClient(instance2);
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient2);
+		Assert.assertTrue(zookeeperClient2.isConnected());
+		Thread.sleep(1000);
+				
+		Assert.assertFalse(distributedInstanceManager.getInstances().isEmpty());
+		Assert.assertEquals(1, distributedInstanceManager.getInstances().size());
+		
+		Assert.assertEquals(instance.getInetSocketAddress(), distributedInstanceManager.getInstances().get(0).getInetSocketAddress());
+		
+		zookeeperClient2.shutdown();
+	}
+	
+	/**
 	 * No instance is known - but zookeeper init is called
 	 */
 	@Test

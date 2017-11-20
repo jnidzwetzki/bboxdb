@@ -55,13 +55,7 @@ public class BBoxDBInstanceManager {
 	 */
 	protected final Consumer<? super ServiceState> zookeeperShutdownCallback = (c) 
 			-> {if(c.isInTerminatedState()) { zookeeperDisconnect();}};
-
-	/** 
-	 * Connection is re-established callback
-	 */
-	protected final Consumer<? super ServiceState> zookeeperStartedCallback = (c) 
-			-> {if(c.isInRunningState()) { zookeeperBBoxDBInstanceAdapter.readMembershipAndRegisterWatch();}};
-
+			
 	/**
 	 * The instance
 	 */
@@ -107,13 +101,14 @@ public class BBoxDBInstanceManager {
 	 * @return
 	 */
 	public synchronized void startMembershipObserver(final ZookeeperClient zookeeperClient) {
-		if(zookeeperBBoxDBInstanceAdapter == null) {
-			zookeeperBBoxDBInstanceAdapter = new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
-			zookeeperBBoxDBInstanceAdapter.readMembershipAndRegisterWatch();
 		
-			zookeeperClient.getServiceState().registerCallback(zookeeperShutdownCallback);
-			zookeeperClient.getServiceState().registerCallback(zookeeperStartedCallback);
+		if (zookeeperBBoxDBInstanceAdapter != null) {
+			stopMembershipObserver();
 		}
+		
+		zookeeperBBoxDBInstanceAdapter = new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
+		zookeeperBBoxDBInstanceAdapter.readMembershipAndRegisterWatch();
+		zookeeperClient.getServiceState().registerCallback(zookeeperShutdownCallback);
 	}
 
 	/**
@@ -123,13 +118,12 @@ public class BBoxDBInstanceManager {
 	public synchronized void stopMembershipObserver() {
 
 		if (zookeeperBBoxDBInstanceAdapter != null) {
-			final ZookeeperClient zookeeperClient = zookeeperBBoxDBInstanceAdapter.getZookeeperClient();
-			zookeeperClient.getServiceState().removeCallback(zookeeperShutdownCallback);
-			zookeeperClient.getServiceState().removeCallback(zookeeperStartedCallback);
-			
-			zookeeperDisconnect();
+			final ZookeeperClient zookeeper = zookeeperBBoxDBInstanceAdapter.getZookeeperClient();
+			zookeeper.getServiceState().removeCallback(zookeeperShutdownCallback);
 			zookeeperBBoxDBInstanceAdapter = null;
 		}
+		
+		zookeeperDisconnect();
 	}
 	
 	/**
@@ -212,11 +206,12 @@ public class BBoxDBInstanceManager {
 	}
 	
 	/**
-	 * Disconnect from zookeeper, all instances are unregistered
+	 * The zookeeper disconnect event
 	 */
-	public void zookeeperDisconnect() {
+	protected void zookeeperDisconnect() {
 		logger.debug("Zookeeper disconnected, sending delete events for all instances");
 		instances.values().forEach((i) -> sendEvent(DistributedInstanceEvent.DELETED, i));
-		instances.clear();
+		instances.clear();		
 	}
+	
 }
