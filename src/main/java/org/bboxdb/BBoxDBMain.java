@@ -24,7 +24,9 @@ import java.util.List;
 import org.bboxdb.distribution.DistributedRecoveryService;
 import org.bboxdb.distribution.TupleStoreFlushZookeeperAdapter;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperInstanceRegisterer;
 import org.bboxdb.jmx.JMXService;
@@ -137,7 +139,8 @@ public class BBoxDBMain {
 		}
 		
 		// Read membership
-		ZookeeperClientFactory.getZookeeperClient().startMembershipObserver();
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
 	}
 
 	/**

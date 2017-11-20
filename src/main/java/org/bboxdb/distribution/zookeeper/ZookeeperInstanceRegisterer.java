@@ -17,15 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
-import java.io.File;
-import java.util.List;
-
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.misc.BBoxDBConfiguration;
-import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.misc.BBoxDBService;
-import org.bboxdb.misc.Const;
-import org.bboxdb.util.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,65 +59,16 @@ public class ZookeeperInstanceRegisterer implements BBoxDBService {
 		}
 		
 		try {
-			updateNodeInfo(zookeeperClient);
-			updateStateData(zookeeperClient);
+			final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter 
+				= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
+			
+			zookeeperBBoxDBInstanceAdapter.updateNodeInfo(instance);
+			zookeeperBBoxDBInstanceAdapter.updateStateData(instance);
+			
 		} catch (ZookeeperException e) {
 			logger.error("Exception while registering instance", e);
 		}
-	}
-
-	/**
-	 * Update the instance data
-	 * @param zookeeperClient
-	 * @throws ZookeeperException 
-	 */
-	protected void updateStateData(final ZookeeperClient zookeeperClient) throws ZookeeperException {
-		
-		final String statePath = zookeeperClient.getActiveInstancesPath() + "/" + instance.getStringValue();
-		
-		logger.info("Register instance on: {}", statePath);
-		zookeeperClient.replaceEphemeralNode(statePath, instance.getState().getZookeeperValue().getBytes());
-	}
-	
-	/**
-	 * Update the hardware info
-	 * @param zookeeperClient
-	 * @throws ZookeeperException 
-	 */
-	protected void updateNodeInfo(final ZookeeperClient zookeeperClient) throws ZookeeperException {
-		
-		// Version 
-		final String versionPath = zookeeperClient.getInstancesVersionPath(instance);
-		zookeeperClient.replacePersistentNode(versionPath, Const.VERSION.getBytes());
-		
-		// CPUs
-		final int cpuCores = SystemInfo.getCPUCores();
-		final String cpuCoresPath = zookeeperClient.getInstancesCpuCorePath(instance);
-		zookeeperClient.replacePersistentNode(cpuCoresPath, Integer.toString(cpuCores).getBytes());
-
-		// Memory
-		final long memory = SystemInfo.getAvailableMemory();
-		final String memoryPath = zookeeperClient.getInstancesMemoryPath(instance);
-		zookeeperClient.replacePersistentNode(memoryPath, Long.toString(memory).getBytes());
-
-		// Diskspace
-		final BBoxDBConfiguration bboxDBConfiguration = BBoxDBConfigurationManager.getConfiguration();
-		final List<String> directories = bboxDBConfiguration.getStorageDirectories();
-		for(final String directory : directories) {
-			final File path = new File(directory);
-			
-			// Free
-			final long freeDiskspace = SystemInfo.getFreeDiskspace(path);
-			final String freeDiskspacePath = zookeeperClient.getInstancesDiskspaceFreePath(instance, directory);
-			zookeeperClient.replacePersistentNode(freeDiskspacePath, Long.toString(freeDiskspace).getBytes());
-
-			// Total
-			final long totalDiskspace = SystemInfo.getTotalDiskspace(path);
-			final String totalDiskspacePath = zookeeperClient.getInstancesDiskspaceTotalPath(instance, directory);
-			zookeeperClient.replacePersistentNode(totalDiskspacePath, Long.toString(totalDiskspace).getBytes());
-		}
-	}
-
+	}	
 
 	@Override
 	public void shutdown() {

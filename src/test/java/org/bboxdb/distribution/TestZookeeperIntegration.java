@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionState;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
@@ -578,9 +579,9 @@ public class TestZookeeperIntegration {
 		
 		for(final String path : paths) {
 			Assert.assertTrue(path.contains("/"));
-			final String quotedPath = ZookeeperClient.quotePath(path);
+			final String quotedPath = ZookeeperBBoxDBInstanceAdapter.quotePath(path);
 			Assert.assertFalse(quotedPath.contains("/"));
-			final String unquotedPath = ZookeeperClient.unquotePath(quotedPath);
+			final String unquotedPath = ZookeeperBBoxDBInstanceAdapter.unquotePath(quotedPath);
 			Assert.assertEquals(path, unquotedPath);
 		}
 		

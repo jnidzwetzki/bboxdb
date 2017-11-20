@@ -18,10 +18,8 @@
 package org.bboxdb.distribution.zookeeper;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -31,22 +29,18 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.KeeperException.Code;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.primitives.Longs;
-
-public class ZookeeperClient implements BBoxDBService, Watcher {
+public class ZookeeperClient implements BBoxDBService {
 
 	/**
 	 * The list of the zookeeper hosts
@@ -62,12 +56,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * The zookeeper client instance
 	 */
 	protected ZooKeeper zookeeper;
-
-	/**
-	 * Is the membership observer active?
-	 */
-	protected volatile boolean membershipObserverActive = false;
-
+	
 	/**
 	 * Service state
 	 */
@@ -146,13 +135,12 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	@Override
 	public synchronized void shutdown() {
 
-		if (!serviceState.isInRunningState()) {
+		if (! serviceState.isInRunningState()) {
 			logger.warn("Unable to shutdown, service is in {} state", serviceState);
 			return;
 		}
 
 		serviceState.dispatchToStopping();
-		stopMembershipObserver();
 		closeZookeeperConnectionNE();
 		serviceState.dispatchToTerminated();
 	}
@@ -174,251 +162,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		}
 
 		zookeeper = null;
-	}
-
-	/**
-	 * Start the membership observer
-	 * 
-	 * @return
-	 */
-	public boolean startMembershipObserver() {
-
-		if (zookeeper == null) {
-			logger.error("startMembershipObserver() called before init()");
-			return false;
-		}
-
-		membershipObserverActive = true;
-		readMembershipAndRegisterWatch();
-
-		return true;
-	}
-
-	/**
-	 * Stop the membership observer. This will send a delete event for all known
-	 * instances if the membership observer was active.
-	 */
-	public void stopMembershipObserver() {
-
-		if (membershipObserverActive == true) {
-			final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
-			distributedInstanceManager.zookeeperDisconnect();
-		}
-
-		membershipObserverActive = false;
-	}
-
-	/**
-	 * Register a watch on membership changes. A watch is a one-time operation,
-	 * the watch is reregistered on each method call.
-	 */
-	protected boolean readMembershipAndRegisterWatch() {
-
-		if (! membershipObserverActive) {
-			logger.info("Ignore membership event, because observer is not active");
-			return false;
-		}
-
-		try {
-			final BBoxDBInstanceManager distributedInstanceManager 
-				= BBoxDBInstanceManager.getInstance();
-
-			// Reregister watch on membership
-			final String activeInstancesPath = getActiveInstancesPath();
-			zookeeper.getChildren(activeInstancesPath, this);
-			
-			// Read version data
-			final String detailsPath = getDetailsPath();
-			final List<String> instances = zookeeper.getChildren(detailsPath, null);
-			
-			final Set<BBoxDBInstance> instanceSet = new HashSet<>();
-			
-			for (final String instanceName : instances) {
-				final BBoxDBInstance distributedInstance = readInstance(instanceName);
-				instanceSet.add(distributedInstance);
-			}
-
-			distributedInstanceManager.updateInstanceList(instanceSet);
-		} catch (KeeperException | ZookeeperNotFoundException | ZookeeperException e) {
-			logger.warn("Unable to read membership and create a watch", e);
-			return false;
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			logger.warn("Unable to read membership and create a watch", e);
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Read the given instance
-	 * @param instanceName
-	 * @return
-	 * @throws ZookeeperNotFoundException
-	 * @throws ZookeeperException 
-	 */
-	protected BBoxDBInstance readInstance(final String instanceName) 
-			throws ZookeeperNotFoundException, ZookeeperException {
-		
-		final BBoxDBInstance instance = new BBoxDBInstance(instanceName);
-
-		// Version
-		final String instanceVersion = getVersionForInstance(instance);
-		instance.setVersion(instanceVersion);
-		
-		// State
-		final BBoxDBInstanceState state = getStateForInstance(instanceName);
-		instance.setState(state);
-		
-		// CPU cores
-		final int cpuCores = getCpuCoresForInstnace(instance);
-		instance.setCpuCores(cpuCores);
-		
-		// Memory
-		final long memory = getMemoryForInstance(instance);
-		instance.setMemory(memory);
-		
-		// Diskspace
-		readDiskSpaceForInstance(instance);
-		
-		return instance;
-	}
-
-	/**
-	 * Read the state for the given instance
-	 * 
-	 * @param member
-	 * @return
-	 * @throws ZookeeperNotFoundException
-	 */
-	protected BBoxDBInstanceState getStateForInstance(final String member) {
-		final String nodesPath = getActiveInstancesPath();
-		final String statePath = nodesPath + "/" + member;
-
-		try {
-			final String state = readPathAndReturnString(statePath, true, this);
-			if (BBoxDBInstanceState.OUTDATED.getZookeeperValue().equals(state)) {
-				return BBoxDBInstanceState.OUTDATED;
-			} else if (BBoxDBInstanceState.READY.getZookeeperValue().equals(state)) {
-				return BBoxDBInstanceState.READY;
-			}
-		} catch (ZookeeperException | ZookeeperNotFoundException e) {
-			// Ignore exception, instance state is unknown
-		}
-
-		return BBoxDBInstanceState.UNKNOWN;
-	}
-
-	/**
-	 * Read the version for the given instance
-	 * 
-	 * @param instance
-	 * @return
-	 * @throws ZookeeperNotFoundException
-	 */
-	protected String getVersionForInstance(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
-		final String versionPath = getInstancesVersionPath(instance);
-
-		try {
-			return readPathAndReturnString(versionPath, true, null);
-		} catch (ZookeeperException e) {
-			logger.error("Unable to read version for: {}", versionPath);
-		}
-
-		return BBoxDBInstance.UNKOWN_PROPERTY;
-	}
-	
-	/**
-	 * Get the amount of CPU cores fot the instance
-	 * @param instance
-	 * @return
-	 * @throws ZookeeperNotFoundException
-	 */
-	protected int getCpuCoresForInstnace(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
-		final String versionPath = getInstancesCpuCorePath(instance);
-
-		String versionString = null;
-		
-		try {
-			versionString = readPathAndReturnString(versionPath, true, null);
-			return Integer.parseInt(versionString);
-		} catch (ZookeeperException e) {
-			logger.error("Unable to read cpu cores for: {}", versionPath);
-		} catch(NumberFormatException e) {
-			logger.error("Unable to parse {} as CPU cores", versionString);
-		}
-
-		return -1;
-	}
-	
-	/**
-	 * Get the total memory for the given instance
-	 * @param instance
-	 * @return
-	 * @throws ZookeeperNotFoundException
-	 */
-	protected long getMemoryForInstance(final BBoxDBInstance instance) throws ZookeeperNotFoundException {
-		final String memoryPath = getInstancesMemoryPath(instance);
-
-		String memoryString = null;
-
-		try {
-			memoryString = readPathAndReturnString(memoryPath, true, null);
-			return Long.parseLong(memoryString);
-		} catch (ZookeeperException e) {
-			logger.error("Unable to read memory for: {}", memoryPath);
-		} catch(NumberFormatException e) {
-			logger.error("Unable to parse {} as memory", memoryString);
-		}
-
-		return -1;
-	}
-	
-	/**
-	 * Read the free and the total diskspace for the given instance
-	 * @param instance
-	 * @throws ZookeeperNotFoundException
-	 * @throws ZookeeperException 
-	 */
-	protected void readDiskSpaceForInstance(final BBoxDBInstance instance) 
-			throws ZookeeperNotFoundException, ZookeeperException {
-		
-		final String diskspacePath = getInstancesDiskspacePath(instance);
-		
-		try {
-			final List<String> diskspaceChilds = zookeeper.getChildren(diskspacePath, null);
-			
-			for(final String path : diskspaceChilds) {
-				final String unquotedPath = unquotePath(path);
-				final String totalDiskspacePath = getInstancesDiskspaceTotalPath(instance, unquotedPath);
-				final String freeDiskspacePath = getInstancesDiskspaceFreePath(instance, unquotedPath);
-				
-				final String totalDiskspaceString = readPathAndReturnString(totalDiskspacePath, true, null);
-				final String freeDiskspaceString = readPathAndReturnString(freeDiskspacePath, true, null);
-				
-				final Long totalDiskspace = Longs.tryParse(totalDiskspaceString);
-				final Long freeDiskspace = Longs.tryParse(freeDiskspaceString);
-								
-				if(totalDiskspace == null) {
-					logger.error("Unable to parse {} as total diskspace", totalDiskspaceString);
-				} else {
-					instance.addTotalSpace(unquotedPath, totalDiskspace);
-				}
-				
-				if(freeDiskspace == null) {
-					logger.error("Unable to parse {} as free diskspace", freeDiskspaceString);
-				} else {
-					instance.addFreeSpace(unquotedPath, freeDiskspace);
-				}
-			}
-			
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			logger.error("Unable to read diskspace for: {}", instance.getStringValue(), e);
-		} catch (KeeperException e) {
-			logger.error("Unable to read diskspace for: {}", instance.getStringValue(), e);
-		}
 	}
 
 	/**
@@ -452,54 +195,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new ZookeeperException(e);
-		}
-	}
-
-	/**
-	 * Zookeeper watched event
-	 */
-	@Override
-	public void process(final WatchedEvent watchedEvent) {
-
-		try {
-			logger.debug("Got zookeeper event: {} " + watchedEvent);
-			processZookeeperEvent(watchedEvent);
-		} catch (Throwable e) {
-			logger.error("Got uncought exception while processing event", e);
-		}
-
-	}
-
-	/**
-	 * Process zooekeeper events
-	 * 
-	 * @param watchedEvent
-	 */
-	protected synchronized void processZookeeperEvent(final WatchedEvent watchedEvent) {
-		// Ignore null parameter
-		if (watchedEvent == null) {
-			logger.warn("process called with an null argument");
-			return;
-		}
-
-		// Shutdown is pending, stop event processing
-		if (!serviceState.isInRunningState()) {
-			logger.debug("Ignoring event {}, because service state is {}", watchedEvent, serviceState);
-			return;
-		}
-
-		// Ignore type=none event
-		if (watchedEvent.getType() == EventType.None) {
-			return;
-		}
-
-		// Process events
-		if (watchedEvent.getPath() != null) {
-			if (watchedEvent.getPath().startsWith(getInstancesPath())) {
-				readMembershipAndRegisterWatch();
-			}
-		} else {
-			logger.warn("Got unknown zookeeper event: {}", watchedEvent);
 		}
 	}
 
@@ -625,7 +320,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @param clustername
 	 * @return
 	 */
-	protected String getInstancesPath() {
+	public String getInstancesPath() {
 		return getClusterPath() + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
 	}
 
@@ -643,7 +338,7 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	/**
 	 * Get the path of the zookeeper nodes
 	 */
-	protected String getActiveInstancesPath() {
+	public String getActiveInstancesPath() {
 		return getInstancesPath() + "/active";
 	}
 
@@ -651,84 +346,8 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * Get the details path
 	 * @return
 	 */
-	protected String getDetailsPath() {
+	public String getDetailsPath() {
 		return getInstancesPath() + "/details";
-	}
-	
-	/**
-	 * Get the node info path
-	 * @param distributedInstance 
-	 * @return
-	 */
-	protected String getInstanceDetailsPath(final BBoxDBInstance distributedInstance) {
-		return getDetailsPath() + "/" + distributedInstance.getStringValue();
-	}
-	
-	/**
-	 * Get the path of the version node
-	 */
-	protected String getInstancesVersionPath(final BBoxDBInstance distributedInstance) {
-		return getInstanceDetailsPath(distributedInstance) + "/version";
-	}
-	
-
-	/**
-	 * Get the path of the cpu core node
-	 */
-	protected String getInstancesCpuCorePath(final BBoxDBInstance distributedInstance) {
-		return getInstanceDetailsPath(distributedInstance) + "/cpucore";
-	}
-	
-	/**
-	 * Get the path of the memory node
-	 */
-	protected String getInstancesMemoryPath(final BBoxDBInstance distributedInstance) {
-		return getInstanceDetailsPath(distributedInstance) + "/memory";
-	}
-	
-	/**
-	 * Get the path of the diskspace node
-	 */
-	protected String getInstancesDiskspacePath(final BBoxDBInstance distributedInstance) {
-		return getInstanceDetailsPath(distributedInstance) + "/diskspace";
-	}
-
-	/**
-	 * Get the free space of the diskspace node
-	 */
-	protected String getInstancesDiskspaceFreePath(final BBoxDBInstance distributedInstance, 
-			final String path) {
-		final String zookeeperPath = quotePath(path);
-		return getInstancesDiskspacePath(distributedInstance) + "/" + zookeeperPath + "/free";
-	}
-	
-	/**
-	 * Get the total space of the diskspace node
-	 */
-	protected String getInstancesDiskspaceTotalPath(final BBoxDBInstance distributedInstance, 
-			final String path) {
-		final String zookeeperPath = quotePath(path);
-		return getInstancesDiskspacePath(distributedInstance) + "/" + zookeeperPath + "/total";
-	}
-	
-	/**
-	 * Quote the file system path (replace all '/' with '__') to get 
-	 * a valid zookeeper node name
-	 * 
-	 * @param path
-	 * @return
-	 */
-	public static String quotePath(final String path) {
-		return path.replaceAll("/", "__");
-	}
-	
-	/**
-	 * Unquote the given path
-	 * @param path
-	 * @return
-	 */
-	public static String unquotePath(final String path) {
-		return path.replaceAll("__", "/");
 	}
 	
 	@Override
@@ -888,8 +507,6 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 * @throws ZookeeperException
 	 */
 	public void deleteCluster() throws ZookeeperException {
-		stopMembershipObserver();
-
 		final String path = getClusterPath();
 		deleteNodesRecursive(path);
 	}
@@ -1054,6 +671,14 @@ public class ZookeeperClient implements BBoxDBService, Watcher {
 	 */
 	public ZooKeeper getZookeeper() {
 		return zookeeper;
+	}
+	
+	/**
+	 * Get the service state
+	 * @return
+	 */
+	public ServiceState getServiceState() {
+		return serviceState;
 	}
 
 }

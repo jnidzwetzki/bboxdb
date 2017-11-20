@@ -27,6 +27,7 @@ import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.placement.RandomResourcePlacementStrategy;
@@ -104,7 +105,7 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public boolean connect() {
 		zookeeperClient.init();
-		zookeeperClient.startMembershipObserver();
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
 		membershipConnectionService.init();
 		return zookeeperClient.isConnected();
 	}

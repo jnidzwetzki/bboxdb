@@ -27,6 +27,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
+import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,7 +155,8 @@ public class ConnectDialog {
 				
 				showMainDialog(zookeeperClient);
 				
-				zookeeperClient.startMembershipObserver();
+				BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
+				
 				mainframe.dispose();
 			}
 

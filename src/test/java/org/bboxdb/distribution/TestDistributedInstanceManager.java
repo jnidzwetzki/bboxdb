@@ -62,7 +62,7 @@ public class TestDistributedInstanceManager {
 	@Test
 	public void testRegisterInstance1() throws InterruptedException {
 		final ZookeeperClient zookeeperClient = getNewZookeeperClient(null);
-		zookeeperClient.startMembershipObserver();
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
 		Assert.assertTrue(zookeeperClient.isConnected());
 		Thread.sleep(1000);
 		Assert.assertTrue(BBoxDBInstanceManager.getInstance().getInstances().isEmpty());
@@ -77,7 +77,7 @@ public class TestDistributedInstanceManager {
 	public void testRegisterInstance2() throws InterruptedException {
 		final BBoxDBInstance instance = new BBoxDBInstance("node1:5050");
 		final ZookeeperClient zookeeperClient = getNewZookeeperClient(instance);
-		zookeeperClient.startMembershipObserver();
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
 		Assert.assertTrue(zookeeperClient.isConnected());
 		Thread.sleep(1000);
 		
@@ -99,7 +99,7 @@ public class TestDistributedInstanceManager {
 	public void testRegisterInstance3() throws InterruptedException, ZookeeperException {
 		final BBoxDBInstance instance = new BBoxDBInstance("node1:5050");
 		final ZookeeperClient zookeeperClient = getNewZookeeperClient(instance);
-		zookeeperClient.startMembershipObserver();
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
 		Assert.assertTrue(zookeeperClient.isConnected());
 		Thread.sleep(1000);
 		
@@ -131,7 +131,7 @@ public class TestDistributedInstanceManager {
 		final ZookeeperClient zookeeperClient1 = getNewZookeeperClient(instance1);
 		final ZookeeperClient zookeeperClient2 = getNewZookeeperClient(instance2);
 		
-		zookeeperClient1.startMembershipObserver();
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient1);
 
 		Thread.sleep(1000);
 		Assert.assertEquals(2, distributedInstanceManager.getInstances().size());
@@ -178,7 +178,7 @@ public class TestDistributedInstanceManager {
 		final BBoxDBInstance instance2 = new BBoxDBInstance("node5:5050");
 
 		final ZookeeperClient zookeeperClient1 = getNewZookeeperClient(instance1);
-		zookeeperClient1.startMembershipObserver();
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient1);
 		Thread.sleep(5000);
 		
 		final CountDownLatch changedLatch = new CountDownLatch(1);
@@ -222,7 +222,7 @@ public class TestDistributedInstanceManager {
 		final BBoxDBInstance instance2 = new BBoxDBInstance("node7:5050");
 
 		final ZookeeperClient zookeeperClient1 = getNewZookeeperClient(instance1);
-		zookeeperClient1.startMembershipObserver();
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient1);
 		final ZookeeperClient zookeeperClient2 = getNewZookeeperClient(instance2);
 
 		zookeeperClient1.setLocalInstanceState(instance1, BBoxDBInstanceState.READY);
@@ -271,7 +271,7 @@ public class TestDistributedInstanceManager {
 		final BBoxDBInstance instance2 = new BBoxDBInstance("node7:5050");
 
 		final ZookeeperClient zookeeperClient1 = getNewZookeeperClient(instance1);
-		zookeeperClient1.startMembershipObserver();
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient1);
 		final ZookeeperClient zookeeperClient2 = getNewZookeeperClient(instance2);
 
 		zookeeperClient1.setLocalInstanceState(instance1, BBoxDBInstanceState.READY);
@@ -337,7 +337,7 @@ public class TestDistributedInstanceManager {
 	public void testWriteSystemInfo() {
 		final BBoxDBInstance instance1 = new BBoxDBInstance("node6:5050");
 		final ZookeeperClient zookeeperClient1 = getNewZookeeperClient(instance1);
-		zookeeperClient1.startMembershipObserver();
+		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient1);
 		
 		final List<BBoxDBInstance> distributedInstances 
 			= BBoxDBInstanceManager.getInstance().getInstances();

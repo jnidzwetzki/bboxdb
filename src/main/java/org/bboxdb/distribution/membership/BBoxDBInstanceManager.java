@@ -25,7 +25,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,23 +37,41 @@ public class BBoxDBInstanceManager {
 	/**
 	 * The event listener
 	 */
-	protected final List<BiConsumer<DistributedInstanceEvent, BBoxDBInstance>> listener 
-		= new CopyOnWriteArrayList<>();
+	protected final List<BiConsumer<DistributedInstanceEvent, BBoxDBInstance>> listener;
 	
 	/**
 	 * The active BBoxDB instances
 	 */
-	protected final Map<InetSocketAddress, BBoxDBInstance> instances = new HashMap<>();
+	protected final Map<InetSocketAddress, BBoxDBInstance> instances;
 	
 	/**
-	 * The logger
+	 * The zookeeper adapter
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(BBoxDBInstanceManager.class);
+	protected ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter;
+	
+	
+	/** 
+	 * Disconnect on shutdown callback
+	 */
+	protected final Consumer<? super ServiceState> zookeeperShutdownCallback = (c) 
+			-> {if(c.isInTerminatedState()) { zookeeperDisconnect();}};
+
+	/** 
+	 * Connection is re-established callback
+	 */
+	protected final Consumer<? super ServiceState> zookeeperStartedCallback = (c) 
+			-> {if(c.isInRunningState()) { zookeeperBBoxDBInstanceAdapter.readMembershipAndRegisterWatch();}};
 
 	/**
 	 * The instance
 	 */
 	protected static BBoxDBInstanceManager instance;
+		
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(BBoxDBInstanceManager.class);
+
 	
 	/**
 	 * Get the instance
@@ -68,6 +89,8 @@ public class BBoxDBInstanceManager {
 	 * Private constructor to prevent instantiation
 	 */
 	private BBoxDBInstanceManager() {
+		this.listener = new CopyOnWriteArrayList<>();
+		this.instances = new HashMap<>();
 	}
 	
 	/**
@@ -79,10 +102,41 @@ public class BBoxDBInstanceManager {
 	}
 	
 	/**
+	 * Start the membership observer
+	 * 
+	 * @return
+	 */
+	public synchronized void startMembershipObserver(final ZookeeperClient zookeeperClient) {
+		if(zookeeperBBoxDBInstanceAdapter == null) {
+			zookeeperBBoxDBInstanceAdapter = new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
+			zookeeperBBoxDBInstanceAdapter.readMembershipAndRegisterWatch();
+		
+			zookeeperClient.getServiceState().registerCallback(zookeeperShutdownCallback);
+			zookeeperClient.getServiceState().registerCallback(zookeeperStartedCallback);
+		}
+	}
+
+	/**
+	 * Stop the membership observer. This will send a delete event for all known
+	 * instances if the membership observer was active.
+	 */
+	public synchronized void stopMembershipObserver() {
+
+		if (zookeeperBBoxDBInstanceAdapter != null) {
+			final ZookeeperClient zookeeperClient = zookeeperBBoxDBInstanceAdapter.getZookeeperClient();
+			zookeeperClient.getServiceState().removeCallback(zookeeperShutdownCallback);
+			zookeeperClient.getServiceState().removeCallback(zookeeperStartedCallback);
+			
+			zookeeperDisconnect();
+			zookeeperBBoxDBInstanceAdapter = null;
+		}
+	}
+	
+	/**
 	 * Update the instance list, called from zookeeper client
 	 * @param newInstances
 	 */
-	public void updateInstanceList(final Set<BBoxDBInstance> newInstances) {
+	protected void updateInstanceList(final Set<BBoxDBInstance> newInstances) {
 		
 		// Are members removed?
 		final List<InetSocketAddress> deletedInstances = new ArrayList<>(instances.size());
@@ -154,7 +208,7 @@ public class BBoxDBInstanceManager {
 	 * @return
 	 */
 	public List<BBoxDBInstance> getInstances() {
-		return new ArrayList<BBoxDBInstance>(instances.values());
+		return new ArrayList<>(instances.values());
 	}
 	
 	/**
