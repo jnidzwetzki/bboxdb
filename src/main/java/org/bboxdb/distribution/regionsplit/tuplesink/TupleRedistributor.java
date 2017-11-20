@@ -151,7 +151,9 @@ public class TupleRedistributor {
 			}
 		}
 		
-		assert (tupleRedistributed == true) : "Tuple " + tuple + " was not redistribured";
+		if(tupleRedistributed == false) {
+			throw new StorageManagerException("Tuple " + tuple + " was not redistributed");
+		}
 	}
 	
 	/**
