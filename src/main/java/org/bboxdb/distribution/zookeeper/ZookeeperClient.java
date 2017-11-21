@@ -164,6 +164,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 			logger.info("Disconnecting from zookeeper");
 			
 			// Wait until nobody uses the instance
+			assert (! usage.isTerminated()) : "Usage counter is terminated";
 			usage.arriveAndAwaitAdvance();
 			
 			zookeeper.close();
@@ -676,10 +677,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 			return false;
 		}
 		
-		if(usage.isTerminated()) {
-			logger.error("Usage counter is terminated");
-			return false;
-		}
+		assert (! usage.isTerminated()) : "Usage counter is terminated";
 
 		usage.register();
 		return true;
@@ -688,6 +686,8 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 	@Override
 	public void release() {
 		assert (usage.getUnarrivedParties() > 0) : "Usage counter is: " + usage.getUnarrivedParties();
+		assert (! usage.isTerminated()) : "Usage counter is terminated";
+		
 		usage.arriveAndDeregister();
 	}
 
