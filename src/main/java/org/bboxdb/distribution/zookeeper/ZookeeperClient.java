@@ -33,8 +33,6 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
-import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.util.ServiceState;
 import org.slf4j.Logger;
@@ -262,29 +260,6 @@ public class ZookeeperClient implements BBoxDBService {
 	 */
 	public String getData(final String path) throws ZookeeperException {
 		return getData(path, null);
-	}
-
-	/**
-	 * Set the state for the local instance
-	 * 
-	 * @param distributedInstanceState
-	 * @return
-	 * @throws ZookeeperException
-	 */
-	public void setLocalInstanceState(final BBoxDBInstance instance, 
-			final BBoxDBInstanceState distributedInstanceState)
-			throws ZookeeperException {
-	
-		final String statePath = getActiveInstancesPath() + "/" + instance.getStringValue();
-
-		try {
-			zookeeper.setData(statePath, distributedInstanceState.getZookeeperValue().getBytes(), -1);
-		} catch (KeeperException e) {
-			throw new ZookeeperException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new ZookeeperException(e);
-		}
 	}
 
 	/**

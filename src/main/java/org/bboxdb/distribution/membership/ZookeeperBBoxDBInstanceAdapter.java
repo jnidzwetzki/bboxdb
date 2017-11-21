@@ -432,10 +432,20 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	 * @throws ZookeeperException 
 	 */
 	public void updateStateData(final BBoxDBInstance instance) throws ZookeeperException {
+		updateStateData(instance, instance.getState());
+	}
+	
+	/**
+	 * Update the instance data
+	 * @param zookeeperClient
+	 * @throws ZookeeperException 
+	 */
+	public void updateStateData(final BBoxDBInstance instance, final BBoxDBInstanceState newState) 
+			throws ZookeeperException {
 		
 		final String statePath = zookeeperClient.getActiveInstancesPath() + "/" + instance.getStringValue();
 		
 		logger.info("Register instance on: {}", statePath);
-		zookeeperClient.replaceEphemeralNode(statePath, instance.getState().getZookeeperValue().getBytes());
+		zookeeperClient.replaceEphemeralNode(statePath, newState.getZookeeperValue().getBytes());
 	}
 }

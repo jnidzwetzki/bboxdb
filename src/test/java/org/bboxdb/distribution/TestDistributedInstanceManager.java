@@ -27,6 +27,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.bboxdb.distribution.membership.DistributedInstanceEvent;
+import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperInstanceRegisterer;
@@ -160,15 +161,18 @@ public class TestDistributedInstanceManager {
 		Assert.assertTrue(zookeeperClient.isConnected());
 		Thread.sleep(1000);
 		
+		final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter 
+			= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
+	
 		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
 		Assert.assertTrue(BBoxDBInstanceState.UNKNOWN == distributedInstanceManager.getInstances().get(0).getState());
 	
-		zookeeperClient.setLocalInstanceState(instance, BBoxDBInstanceState.OUTDATED);
+		zookeeperBBoxDBInstanceAdapter.updateStateData(instance, BBoxDBInstanceState.OUTDATED);
 		Thread.sleep(2000);
 		System.out.println(distributedInstanceManager.getInstances());
 		Assert.assertTrue(BBoxDBInstanceState.OUTDATED == distributedInstanceManager.getInstances().get(0).getState());
 		
-		zookeeperClient.setLocalInstanceState(instance, BBoxDBInstanceState.READY);
+		zookeeperBBoxDBInstanceAdapter.updateStateData(instance, BBoxDBInstanceState.READY);
 		Thread.sleep(1000);
 		Assert.assertTrue(BBoxDBInstanceState.READY == distributedInstanceManager.getInstances().get(0).getState());
 		
@@ -186,7 +190,12 @@ public class TestDistributedInstanceManager {
 		final BBoxDBInstance instance2 = new BBoxDBInstance("node2:5050");
 
 		final ZookeeperClient zookeeperClient1 = getNewZookeeperClient(instance1);
+		final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter1 
+			= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient1);
+		
 		final ZookeeperClient zookeeperClient2 = getNewZookeeperClient(instance2);
+		final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter2 
+			= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient2);
 		
 		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient1);
 
@@ -197,7 +206,7 @@ public class TestDistributedInstanceManager {
 		Assert.assertTrue(BBoxDBInstanceState.UNKNOWN == distributedInstanceManager.getInstances().get(1).getState());
 
 		// Change instance 1
-		zookeeperClient1.setLocalInstanceState(instance1, BBoxDBInstanceState.OUTDATED);
+		zookeeperBBoxDBInstanceAdapter1.updateStateData(instance1, BBoxDBInstanceState.OUTDATED);
 		Thread.sleep(1000);
 		for(final BBoxDBInstance instance : distributedInstanceManager.getInstances()) {
 			if(instance.socketAddressEquals(instance1)) {
@@ -208,8 +217,8 @@ public class TestDistributedInstanceManager {
 		}
 		
 		// Change instance 2
-		zookeeperClient2.setLocalInstanceState(instance2, BBoxDBInstanceState.READY);
-		Thread.sleep(1000);
+		zookeeperBBoxDBInstanceAdapter2.updateStateData(instance2, BBoxDBInstanceState.READY);
+		Thread.sleep(2000);
 		for(final BBoxDBInstance instance : distributedInstanceManager.getInstances()) {
 			if(instance.socketAddressEquals(instance1)) {
 				Assert.assertTrue(instance.getState() == BBoxDBInstanceState.OUTDATED);
@@ -279,11 +288,17 @@ public class TestDistributedInstanceManager {
 		final BBoxDBInstance instance2 = new BBoxDBInstance("node7:5050");
 
 		final ZookeeperClient zookeeperClient1 = getNewZookeeperClient(instance1);
+		final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter1 
+			= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient1);
+		
 		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient1);
-		final ZookeeperClient zookeeperClient2 = getNewZookeeperClient(instance2);
 
-		zookeeperClient1.setLocalInstanceState(instance1, BBoxDBInstanceState.READY);
-		zookeeperClient2.setLocalInstanceState(instance2, BBoxDBInstanceState.READY);
+		final ZookeeperClient zookeeperClient2 = getNewZookeeperClient(instance2);
+		final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter2 
+			= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient2);
+
+		zookeeperBBoxDBInstanceAdapter1.updateStateData(instance1, BBoxDBInstanceState.READY);
+		zookeeperBBoxDBInstanceAdapter2.updateStateData(instance2, BBoxDBInstanceState.READY);
 		
 		Thread.sleep(5000);
 		
@@ -305,8 +320,8 @@ public class TestDistributedInstanceManager {
 				}
 			}
 		});
-		
-		zookeeperClient2.setLocalInstanceState(instance2, BBoxDBInstanceState.OUTDATED);
+
+		zookeeperBBoxDBInstanceAdapter2.updateStateData(instance2, BBoxDBInstanceState.OUTDATED);
 
 		changedLatch.await();
 		distributedInstanceManager.removeAllListener();
@@ -328,11 +343,18 @@ public class TestDistributedInstanceManager {
 		final BBoxDBInstance instance2 = new BBoxDBInstance("node7:5050");
 
 		final ZookeeperClient zookeeperClient1 = getNewZookeeperClient(instance1);
+		final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter1 
+			= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient1);
+		
 		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient1);
+		
 		final ZookeeperClient zookeeperClient2 = getNewZookeeperClient(instance2);
+		final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter2 
+			= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient2);
+		
 
-		zookeeperClient1.setLocalInstanceState(instance1, BBoxDBInstanceState.READY);
-		zookeeperClient2.setLocalInstanceState(instance2, BBoxDBInstanceState.READY);
+		zookeeperBBoxDBInstanceAdapter1.updateStateData(instance1, BBoxDBInstanceState.READY);
+		zookeeperBBoxDBInstanceAdapter2.updateStateData(instance2, BBoxDBInstanceState.READY);
 		
 		Thread.sleep(5000);
 		
