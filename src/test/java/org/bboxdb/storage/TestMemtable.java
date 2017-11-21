@@ -58,8 +58,10 @@ public class TestMemtable {
 	
 	@AfterClass
 	public static void shutdown() {
-		memtable.release();
-		memtable.shutdown();
+		if(memtable != null) {
+			memtable.release();
+			memtable.shutdown();
+		}
 	}
 	
 	@Before
@@ -340,6 +342,95 @@ public class TestMemtable {
 
 		Assert.assertEquals(1, memtable.getOldestTupleVersionTimestamp());
 		Assert.assertEquals(500, memtable.getNewestTupleVersionTimestamp());
+	}
+	
+	/**
+	 * Test the newest tuple insert timestamp
+	 * @throws StorageManagerException 
+	 */
+	@Test
+	public void newestTupleInsertTimestamp() throws StorageManagerException {
+		final long timestamp1 = memtable.getNewestTupleInsertedTimestamp();
+		Assert.assertTrue(timestamp1 > 0);
+		
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
+		memtable.put(createdTuple1);
+		final long timestamp2 = memtable.getNewestTupleInsertedTimestamp();
+		
+		Assert.assertTrue(timestamp2 >= timestamp1);
+	}
+	
+	/**
+	 * Test the number of tuples
+	 * @throws StorageManagerException 
+	 */
+	@Test
+	public void testNumberOfTuples() throws StorageManagerException {
+		Assert.assertEquals(0, memtable.getNumberOfTuples());
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
+		memtable.put(createdTuple1);
+
+		Assert.assertEquals(1, memtable.getNumberOfTuples());
+	}
+	
+	/**
+	 * Test the delete on close
+	 * @throws StorageManagerException 
+	 */
+	@Test
+	public void testDeleteOnShutdown() throws StorageManagerException {
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
+		memtable.put(createdTuple1);
+		Assert.assertEquals(1, memtable.getNumberOfTuples());
+		
+		final boolean aquireResult1 = memtable.acquire();
+		Assert.assertTrue(aquireResult1);
+
+		Assert.assertFalse(memtable.isDeletePending());
+		memtable.deleteOnClose();
+		Assert.assertTrue(memtable.isDeletePending());
+		Assert.assertFalse(memtable.isPersistent());
+		
+		// Release first aquire
+		memtable.release();
+		Assert.assertEquals(1, memtable.getNumberOfTuples());
+
+		// Release second aquire
+		memtable.release();
+		Assert.assertEquals(0, memtable.getNumberOfTuples());
+
+		// Aquire is not possible on deleted tables
+		final boolean aquireResultAfterDelete = memtable.acquire();
+		Assert.assertFalse(aquireResultAfterDelete);
+	}
+	
+	/**
+	 * Test get tuple at position
+	 * @throws StorageManagerException 
+	 */
+	@Test
+	public void getTupleAtPosition() throws StorageManagerException {
+		final Tuple createdTuple1 = new Tuple("1", null, "abc".getBytes(), 60);
+		memtable.put(createdTuple1);
+		
+		final Tuple createdTuple2 = new Tuple("2", null, "def".getBytes(), 1);
+		memtable.put(createdTuple2);
+		
+		final Tuple createdTuple3 = new Tuple("3", null, "def".getBytes(), 1);
+		memtable.put(createdTuple3);
+		
+		Assert.assertEquals(createdTuple1, memtable.getTupleAtPosition(0));
+		Assert.assertEquals(createdTuple2, memtable.getTupleAtPosition(1));
+		Assert.assertEquals(createdTuple3, memtable.getTupleAtPosition(2));
+	}
+	
+	/**
+	 * Test the service name
+	 */
+	@Test
+	public void testServicenameAndTablename() {
+		Assert.assertTrue(memtable.getServicename() != null);
+		Assert.assertTrue(memtable.getSStableName() != null);
 	}
 
 }
