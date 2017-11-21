@@ -32,10 +32,9 @@ import org.bboxdb.storage.queryprocessor.predicate.Predicate;
 import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
 import org.bboxdb.util.MicroSecondTimestampProvider;
 import org.bboxdb.util.ObjectSerializer;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.common.collect.Iterators;
@@ -44,29 +43,20 @@ public class TestMemtable {
 	
 	protected static Memtable memtable;
 	
-	@BeforeClass
-	public static void init() {
-		
-		if(memtable != null) {
-			memtable.shutdown();
-		}
-		
+	@Before
+	public void before() {
 		memtable = new Memtable(new TupleStoreName("3_mygroup_test"), 1000, 10000);
 		memtable.init();
 		memtable.acquire();
 	}
 	
-	@AfterClass
-	public static void shutdown() {
+	@After
+	public void after() {
 		if(memtable != null) {
 			memtable.release();
 			memtable.shutdown();
+			memtable = null;
 		}
-	}
-	
-	@Before
-	public void reinit() {
-		memtable.clear();
 	}
 	
 	/**
@@ -287,7 +277,6 @@ public class TestMemtable {
 	 */
 	@Test
 	public void testEmptyCall() throws StorageManagerException {
-		init();
 		Assert.assertTrue(memtable.isEmpty());
 		memtable.clear();
 		Assert.assertTrue(memtable.isEmpty());
@@ -402,6 +391,9 @@ public class TestMemtable {
 		// Aquire is not possible on deleted tables
 		final boolean aquireResultAfterDelete = memtable.acquire();
 		Assert.assertFalse(aquireResultAfterDelete);
+		
+		// Prevent release call in @after
+		memtable = null;
 	}
 	
 	/**
