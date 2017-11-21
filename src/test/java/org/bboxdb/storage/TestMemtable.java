@@ -430,7 +430,7 @@ public class TestMemtable {
 	@Test
 	public void testServicenameAndTablename() {
 		Assert.assertTrue(memtable.getServicename() != null);
-		Assert.assertTrue(memtable.getSStableName() != null);
+		Assert.assertTrue(memtable.getTupleStoreName() != null);
 	}
 
 }

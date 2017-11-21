@@ -415,7 +415,7 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	}
 	
 	@Override
-	public TupleStoreName getSStableName() {
+	public TupleStoreName getTupleStoreName() {
 		return table;
 	}
 	

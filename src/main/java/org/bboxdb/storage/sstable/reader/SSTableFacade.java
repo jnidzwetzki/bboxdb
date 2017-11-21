@@ -343,7 +343,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 	}
 
 	@Override
-	public TupleStoreName getSStableName() {
+	public TupleStoreName getTupleStoreName() {
 		return tablename;
 	}
 	

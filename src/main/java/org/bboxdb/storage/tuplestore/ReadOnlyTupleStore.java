@@ -38,7 +38,7 @@ public interface ReadOnlyTupleStore extends Iterable<Tuple>, AcquirableRessource
 	 * Get the sstable name
 	 * @return
 	 */
-	public TupleStoreName getSStableName();
+	public TupleStoreName getTupleStoreName();
 	
 	/**
 	 * Search for tuple and return the most recent version
