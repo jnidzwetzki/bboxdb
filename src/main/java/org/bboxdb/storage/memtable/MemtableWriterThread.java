@@ -187,7 +187,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 		
 		logger.info("Writing memtable number {} with {} entries and a size of {}", 
 				tableNumber, 
-				memtable.getTotalEntries(), 
+				memtable.getNumberOfTuples(), 
 				FileSizeHelper.readableFileSize(memtable.getSize()));
 
 		try (final SSTableWriter ssTableWriter = new SSTableWriter(

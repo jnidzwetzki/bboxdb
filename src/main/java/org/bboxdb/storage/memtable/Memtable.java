@@ -288,14 +288,6 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	public int getMaxEntries() {
 		return maxEntries;
 	}
-	
-	/**
-	 * Get the total amount of entries in the table
-	 * @return
-	 */
-	public int getTotalEntries() {
-		return freePos;
-	}
 
 	/**
 	 * The size of the memtable in memory
@@ -429,8 +421,6 @@ public class Memtable implements BBoxDBService, ReadWriteTupleStore {
 	
 	@Override
 	public long getNumberOfTuples() {
-		assert (usage.get() > 0);
-
 		return freePos;
 	}
 
