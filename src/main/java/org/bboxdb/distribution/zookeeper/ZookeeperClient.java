@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -35,10 +36,11 @@ import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.Stat;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.util.ServiceState;
+import org.bboxdb.util.concurrent.AcquirableRessource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ZookeeperClient implements BBoxDBService {
+public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 
 	/**
 	 * The list of the zookeeper hosts
@@ -59,6 +61,11 @@ public class ZookeeperClient implements BBoxDBService {
 	 * Service state
 	 */
 	protected final ServiceState serviceState;
+	
+	/**
+	 * The usage counter
+	 */
+	protected Phaser usage;
 
 	/**
 	 * The timeout for the zookeeper session in milliseconds
@@ -97,6 +104,7 @@ public class ZookeeperClient implements BBoxDBService {
 		try {
 			serviceState.reset();
 			serviceState.dipatchToStarting();
+			usage = new Phaser(1);
 
 			final CountDownLatch connectLatch = new CountDownLatch(1);
 			
@@ -154,6 +162,10 @@ public class ZookeeperClient implements BBoxDBService {
 
 		try {
 			logger.info("Disconnecting from zookeeper");
+			
+			// Wait until nobody uses the instance
+			usage.arriveAndAwaitAdvance();
+			
 			zookeeper.close();
 		} catch (InterruptedException e) {
 			logger.warn("Got exception while closing zookeeper connection", e);
@@ -655,6 +667,23 @@ public class ZookeeperClient implements BBoxDBService {
 	 */
 	public ServiceState getServiceState() {
 		return serviceState;
+	}
+
+	@Override
+	public boolean acquire() {
+		
+		if(! serviceState.isInRunningState()) {
+			return false;
+		}
+
+		usage.register();
+		return true;
+	}
+
+	@Override
+	public void release() {
+		assert (usage.getUnarrivedParties() > 0) : "Usage counter is: " + usage.getUnarrivedParties();
+		usage.arrive();
 	}
 
 }

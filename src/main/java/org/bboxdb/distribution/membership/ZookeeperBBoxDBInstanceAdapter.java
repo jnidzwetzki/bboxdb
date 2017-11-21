@@ -258,11 +258,23 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 	@Override
 	public void process(final WatchedEvent watchedEvent) {
 
+		final boolean aquired = zookeeperClient.acquire();
+
 		try {
 			logger.debug("Got zookeeper event: {} " + watchedEvent);
-			processZookeeperEvent(watchedEvent);
+			
+			if(aquired) {
+				processZookeeperEvent(watchedEvent);
+			} else {
+				logger.info("Ignoring zookeeper event, unable to aquire zookeeper");
+			}
+			
 		} catch (Throwable e) {
 			logger.error("Got uncought exception while processing event", e);
+		} finally {
+			if(aquired) {
+				zookeeperClient.release();
+			}
 		}
 
 	}

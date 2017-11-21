@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.4.0 (Stable) - TBA
+- Improvement: Added usage counter to Zookeeper connection to prevent shutdown during event handler runs
 
 ### Version 0.3.6 (Stable) - 20.11.2017
 - New Feature: Added continuous bounding box query
