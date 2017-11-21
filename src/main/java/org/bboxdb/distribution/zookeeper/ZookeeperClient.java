@@ -683,7 +683,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 	@Override
 	public void release() {
 		assert (usage.getUnarrivedParties() > 0) : "Usage counter is: " + usage.getUnarrivedParties();
-		usage.arrive();
+		usage.arriveAndDeregister();
 	}
 
 }
