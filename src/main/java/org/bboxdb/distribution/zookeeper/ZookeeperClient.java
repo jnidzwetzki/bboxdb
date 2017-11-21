@@ -675,6 +675,11 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 		if(! serviceState.isInRunningState()) {
 			return false;
 		}
+		
+		if(usage.isTerminated()) {
+			logger.error("Usage counter is terminated");
+			return false;
+		}
 
 		usage.register();
 		return true;
