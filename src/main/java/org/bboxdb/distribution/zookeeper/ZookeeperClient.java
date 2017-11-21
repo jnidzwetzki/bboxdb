@@ -45,7 +45,7 @@ public class ZookeeperClient implements BBoxDBService {
 	/**
 	 * The list of the zookeeper hosts
 	 */
-	protected final Collection<String> zookeeperHosts;
+	protected final String connectionString;
 
 	/**
 	 * The name of the bboxdb cluster
@@ -78,14 +78,16 @@ public class ZookeeperClient implements BBoxDBService {
 	private final static Logger logger = LoggerFactory.getLogger(ZookeeperClient.class);
 
 	public ZookeeperClient(final Collection<String> zookeeperHosts, final String clustername) {
-		this.zookeeperHosts = Objects.requireNonNull(zookeeperHosts);
-		this.clustername = Objects.requireNonNull(clustername);
 		
-		this.serviceState = new ServiceState();
+		Objects.requireNonNull(zookeeperHosts);
 		
 		if (zookeeperHosts.isEmpty()) {
 			throw new IllegalArgumentException("No Zookeeper hosts are defined");
 		}
+		
+		this.connectionString = zookeeperHosts.stream().collect(Collectors.joining(","));
+		this.clustername = Objects.requireNonNull(clustername);
+		this.serviceState = new ServiceState();
 	}
 
 	/**
@@ -99,7 +101,6 @@ public class ZookeeperClient implements BBoxDBService {
 			serviceState.dipatchToStarting();
 
 			final CountDownLatch connectLatch = new CountDownLatch(1);
-			final String connectionString = zookeeperHosts.stream().collect(Collectors.joining(","));
 			
 			zookeeper = new ZooKeeper(connectionString, ZOOKEEPER_SESSION_TIMEOUT, new Watcher() {
 				@Override
