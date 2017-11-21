@@ -22,10 +22,11 @@ import java.util.List;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.util.concurrent.AcquirableRessource;
 
-public interface ReadOnlyTupleStore extends Iterable<Tuple> {
+public interface ReadOnlyTupleStore extends Iterable<Tuple>, AcquirableRessource {
 	
 	/**
 	 * Get the internal name of the tuple store
@@ -96,17 +97,6 @@ public interface ReadOnlyTupleStore extends Iterable<Tuple> {
 	 * @return
 	 */
 	public boolean isDeletePending(); 
-
-	/** 
-	 * Increment the usage counter
-	 * @return
-	 */
-	public abstract boolean acquire();
-
-	/**
-	 * Decrement the usage counter
-	 */
-	public abstract void release();
 	
 	/**
 	 * Get the size of the storage
