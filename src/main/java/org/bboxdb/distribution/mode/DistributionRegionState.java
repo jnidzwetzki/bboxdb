@@ -25,7 +25,9 @@ public enum DistributionRegionState {
 	ACTIVE("active"),
 	ACTIVE_FULL("active-full"),
 	SPLITTING("splitting"),
-	SPLIT("split");
+	SPLIT("split"),
+	SPLIT_MERGING("split-merging"),
+	MERGING("merging");
 
 	/**
 	 * The string representation
