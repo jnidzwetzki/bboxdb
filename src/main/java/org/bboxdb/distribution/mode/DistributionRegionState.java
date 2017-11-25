@@ -33,7 +33,7 @@ public enum DistributionRegionState {
 	 * The string representation
 	 */
 	protected final String stringValue;
-	
+		
 	private DistributionRegionState(final String stringValue) {
 		this.stringValue = stringValue;
 	}
