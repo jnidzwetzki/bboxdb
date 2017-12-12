@@ -187,7 +187,7 @@ console2> $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_data -key ke
 console2> $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_data -key key3 -bbox 2:10,2:10 -value value3
 ```
 
-As soon as the tuple is inserted, the query reports the two tuple:
+As soon as the three tuples are inserted, the query reports two tuples:
 
 ```bash
 console1> $BBOXDB_HOME/bin/cli.sh -action continuous-query -table 2_testgroup_data -bbox 0:5,0:5
