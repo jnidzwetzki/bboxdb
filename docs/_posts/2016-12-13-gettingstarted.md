@@ -177,16 +177,24 @@ Executing continuous bounding box query...
 On another console, a new tuple is inserted in the query bounding box:
 
 ```bash
+# Tuple (bbox completely contained in query)
 console2> $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_data -key key1 -bbox 1:2,1:2 -value value1
+
+# Tuple (bbox not contained in query)
+console2> $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_data -key key2 -bbox 10:15,10:15 -value value2
+
+# Tuple (bbox partially contained in query)
+console2> $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_data -key key3 -bbox 2:10,2:10 -value value3
 ```
 
-As soon as the tuple is inserted, the query reports the tuple:
+As soon as the tuple is inserted, the query reports the two tuple:
 
 ```bash
 console1> $BBOXDB_HOME/bin/cli.sh -action continuous-query -table 2_testgroup_data -bbox 0:5,0:5
 Connecting to BBoxDB cluster... [Established]
 Executing continuous bounding box query...
 Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value1, version timestamp=1510325620579000
+Key key3, BoundingBox=[2.0:10.0,2.0:10.0], value=value3, version timestamp=1510325620643000
 ```
 
 # What's Next
