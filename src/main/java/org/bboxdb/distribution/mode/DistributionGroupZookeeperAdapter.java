@@ -284,7 +284,7 @@ public class DistributionGroupZookeeperAdapter {
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.ACTIVE.getStringValue().getBytes());
 		
-		setRegionSizeForDistributionGroup(distributionGroup, configuration.getRegionSize());
+		setRegionSizeForDistributionGroup(distributionGroup, configuration.getMaximumRegionSize());
 		setPlacementStrategyForDistributionGroup(distributionGroup, configuration.getPlacementStrategy());
 		setPlacementConfigForDistributionGroup(distributionGroup, configuration.getPlacementStrategyConfig());
 		setSpacePartitionerForDistributionGroup(distributionGroup, configuration.getSpacePartitioner());

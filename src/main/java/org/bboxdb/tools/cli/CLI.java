@@ -800,7 +800,7 @@ public class CLI implements Runnable, AutoCloseable {
 		try {
 			final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
 					.withReplicationFactor((short) replicationFactor)
-					.withRegionSize(regionSize)
+					.withMaximumRegionSize(regionSize)
 					.withPlacementStrategy(resourcePlacement, resourcePlacementConfig)
 					.withSpacePartitioner(spacePartitioner, spacePartitionerConfig)
 					.build();

@@ -48,12 +48,22 @@ public class DistributionGroupConfigurationBuilder {
 	}
 	
 	/**
-	 * Set the region size
-	 * @param regionSize
+	 * Set the maximal region size
+	 * @param maximumRegionSize
 	 * @return
 	 */
-	public DistributionGroupConfigurationBuilder withRegionSize(final int regionSize) {
-		distributionGroupConfiguration.setRegionSize(regionSize);
+	public DistributionGroupConfigurationBuilder withMaximumRegionSize(final int maximumRegionSize) {
+		distributionGroupConfiguration.setMaximumRegionSize(maximumRegionSize);
+		return this;
+	}
+	
+	/**
+	 * Set the minimal region size
+	 * @param minimumRegionSize
+	 * @return
+	 */
+	public DistributionGroupConfigurationBuilder withMinimumRegionSize(final int minimumRegionSize) {
+		distributionGroupConfiguration.setMinimumRegionSize(minimumRegionSize);
 		return this;
 	}
 	

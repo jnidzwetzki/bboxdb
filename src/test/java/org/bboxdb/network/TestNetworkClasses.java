@@ -290,7 +290,8 @@ public class TestNetworkClasses {
 		final DistributionGroupConfiguration distributionGroupConfiguration = DistributionGroupConfigurationBuilder.create()
 				.withPlacementStrategy("abc", "def")
 				.withSpacePartitioner("efg", "ijh")
-				.withRegionSize(33333)
+				.withMaximumRegionSize(33333)
+				.withMinimumRegionSize(1111)
 				.withReplicationFactor((short) 11)
 				.build();
 				

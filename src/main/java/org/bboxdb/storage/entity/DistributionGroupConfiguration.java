@@ -27,9 +27,14 @@ public class DistributionGroupConfiguration {
 	protected short replicationFactor = 3;
 	
 	/**
-	 * The dafault region size
+	 * The maximal region size
 	 */
-	protected int regionSize = Const.DEFAULT_REGION_SIZE;
+	protected int maximumRegionSize = Const.DEFAULT_REGION_SIZE;
+	
+	/**
+	 * The minimal region size
+	 */
+	protected int minimumRegionSize = maximumRegionSize / 2;
 	
 	/**
 	 * The default placement strategy
@@ -55,23 +60,31 @@ public class DistributionGroupConfiguration {
 		return replicationFactor;
 	}
 
-	public void setReplicationFactor(short replicationFactor) {
+	public void setReplicationFactor(final short replicationFactor) {
 		this.replicationFactor = replicationFactor;
 	}
 
-	public int getRegionSize() {
-		return regionSize;
+	public int getMaximumRegionSize() {
+		return maximumRegionSize;
 	}
 
-	public void setRegionSize(int regionSize) {
-		this.regionSize = regionSize;
+	public void setMaximumRegionSize(final int maximalRegionSize) {
+		this.maximumRegionSize = maximalRegionSize;
+	}
+	
+	public int getMinimumRegionSize() {
+		return minimumRegionSize;
+	}
+
+	public void setMinimumRegionSize(final int minimalRegionSize) {
+		this.minimumRegionSize = minimalRegionSize;
 	}
 
 	public String getPlacementStrategy() {
 		return placementStrategy;
 	}
 
-	public void setPlacementStrategy(String placementStrategy) {
+	public void setPlacementStrategy(final String placementStrategy) {
 		this.placementStrategy = placementStrategy;
 	}
 
@@ -79,7 +92,7 @@ public class DistributionGroupConfiguration {
 		return placementStrategyConfig;
 	}
 
-	public void setPlacementStrategyConfig(String placementStrategyConfig) {
+	public void setPlacementStrategyConfig(final String placementStrategyConfig) {
 		this.placementStrategyConfig = placementStrategyConfig;
 	}
 
@@ -87,7 +100,7 @@ public class DistributionGroupConfiguration {
 		return spacePartitioner;
 	}
 
-	public void setSpacePartitioner(String spacePartitioner) {
+	public void setSpacePartitioner(final String spacePartitioner) {
 		this.spacePartitioner = spacePartitioner;
 	}
 
@@ -95,24 +108,26 @@ public class DistributionGroupConfiguration {
 		return spacePartitionerConfig;
 	}
 
-	public void setSpacePartitionerConfig(String spacePartitionerConfig) {
+	public void setSpacePartitionerConfig(final String spacePartitionerConfig) {
 		this.spacePartitionerConfig = spacePartitionerConfig;
 	}
-
+	
 	@Override
 	public String toString() {
-		return "DistributionGroupConfiguration [replicationFactor=" + replicationFactor + ", regionSize=" + regionSize
-				+ ", placementStrategy=" + placementStrategy + ", placementStrategyConfig=" + placementStrategyConfig
-				+ ", spacePartitioner=" + spacePartitioner + ", spacePartitionerConfig=" + spacePartitionerConfig + "]";
+		return "DistributionGroupConfiguration [replicationFactor=" + replicationFactor + ", maximumRegionSize="
+				+ maximumRegionSize + ", minimumRegionSize=" + minimumRegionSize + ", placementStrategy="
+				+ placementStrategy + ", placementStrategyConfig=" + placementStrategyConfig + ", spacePartitioner="
+				+ spacePartitioner + ", spacePartitionerConfig=" + spacePartitionerConfig + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + maximumRegionSize;
+		result = prime * result + minimumRegionSize;
 		result = prime * result + ((placementStrategy == null) ? 0 : placementStrategy.hashCode());
 		result = prime * result + ((placementStrategyConfig == null) ? 0 : placementStrategyConfig.hashCode());
-		result = prime * result + regionSize;
 		result = prime * result + replicationFactor;
 		result = prime * result + ((spacePartitioner == null) ? 0 : spacePartitioner.hashCode());
 		result = prime * result + ((spacePartitionerConfig == null) ? 0 : spacePartitionerConfig.hashCode());
@@ -128,6 +143,10 @@ public class DistributionGroupConfiguration {
 		if (getClass() != obj.getClass())
 			return false;
 		DistributionGroupConfiguration other = (DistributionGroupConfiguration) obj;
+		if (maximumRegionSize != other.maximumRegionSize)
+			return false;
+		if (minimumRegionSize != other.minimumRegionSize)
+			return false;
 		if (placementStrategy == null) {
 			if (other.placementStrategy != null)
 				return false;
@@ -137,8 +156,6 @@ public class DistributionGroupConfiguration {
 			if (other.placementStrategyConfig != null)
 				return false;
 		} else if (!placementStrategyConfig.equals(other.placementStrategyConfig))
-			return false;
-		if (regionSize != other.regionSize)
 			return false;
 		if (replicationFactor != other.replicationFactor)
 			return false;
@@ -153,8 +170,5 @@ public class DistributionGroupConfiguration {
 		} else if (!spacePartitionerConfig.equals(other.spacePartitionerConfig))
 			return false;
 		return true;
-	}
-	
-	
-	
+	}	
 }

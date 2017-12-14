@@ -62,7 +62,7 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 			final byte[] spacePartitionierBytes = distributionGroupConfiguration.getSpacePartitioner().getBytes();
 			final byte[] spacePartitionierConfigBytes = distributionGroupConfiguration.getSpacePartitionerConfig().getBytes();
 
-			final ByteBuffer bb = ByteBuffer.allocate(20);
+			final ByteBuffer bb = ByteBuffer.allocate(24);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
 			bb.putShort(distributionGroupConfiguration.getReplicationFactor());
 			bb.putShort((short) groupBytes.length);
@@ -70,8 +70,9 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 			bb.putShort((short) spacePartitionierBytes.length);
 			bb.putInt((int) placementConfigBytes.length);
 			bb.putInt((int) spacePartitionierConfigBytes.length);
-			bb.putInt(distributionGroupConfiguration.getRegionSize());
-			
+			bb.putInt(distributionGroupConfiguration.getMaximumRegionSize());
+			bb.putInt(distributionGroupConfiguration.getMinimumRegionSize());
+
 			// Body length
 			final long bodyLength = bb.capacity() + groupBytes.length 
 					+ placementBytes.length + placementConfigBytes.length 
@@ -118,7 +119,8 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 		final short spacePartitionerLength = encodedPackage.getShort();
 		final int placementConfigLength = encodedPackage.getInt();
 		final int spacePartitionerConfigLength = encodedPackage.getInt();
-		final int regionSize = encodedPackage.getInt();
+		final int maximumRegionSize = encodedPackage.getInt();
+		final int minimumRegionSize = encodedPackage.getInt();
 		
 		// Distribution group
 		final byte[] groupBytes = new byte[groupLength];
@@ -152,7 +154,8 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
 				.withPlacementStrategy(placemeneStrategy, placementConfig)
 				.withSpacePartitioner(spacePartitioner, spacePartitionerConfig)
-				.withRegionSize(regionSize)
+				.withMaximumRegionSize(maximumRegionSize)
+				.withMinimumRegionSize(minimumRegionSize)
 				.withReplicationFactor(replicationFactor)
 				.build();
 				
