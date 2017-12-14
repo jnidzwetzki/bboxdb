@@ -6,9 +6,10 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.4.0 (Stable) - TBA
+### Version 0.3.7 (Stable) - 14.12.2017
 - New Feature: Distribution regions now have a minimal size
 - Improvement: Added usage counter to Zookeeper connection to prevent shutdown during event handler runs
+- Improvement: Modulize maven project
 
 ### Version 0.3.6 (Stable) - 20.11.2017
 - New Feature: Added continuous bounding box query
