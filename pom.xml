@@ -178,6 +178,7 @@
 						<version>2.16</version>
 						<configuration>
 							<skipTests>true</skipTests>
+							<assembly.skipAssembly>true</assembly.skipAssembly>
 						</configuration>
 					</plugin>
 				</plugins>
