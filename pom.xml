@@ -6,7 +6,7 @@
 	<artifactId>bboxdb-parent</artifactId>
 	<version>0.4.0</version>
 	<packaging>pom</packaging>
-	
+
 	<name>BBoxDB</name>
 	<description>BBoxDB is a key-boundingbox-value store for multi-dimensional big data</description>
 	<url>http://bboxdb.org</url>
@@ -58,7 +58,7 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.mockito</groupId>
@@ -97,7 +97,7 @@
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<outputDirectory>${project.parent.build.directory}/lib</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>
