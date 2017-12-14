@@ -19,8 +19,6 @@ package org.bboxdb.commons;
 
 import java.util.function.Supplier;
 
-import com.google.common.annotations.VisibleForTesting;
-
 public class MathUtil {
 
 	/**
@@ -87,7 +85,6 @@ public class MathUtil {
 	 * @return
 	 * @throws InputParseException 
 	 */
-	@VisibleForTesting
 	public static int tryParseInt(final String valueToParse, 
 			final Supplier<String> errorMessageSupplier) throws InputParseException {
 
@@ -140,7 +137,6 @@ public class MathUtil {
 	 * @return
 	 * @throws InputParseException 
 	 */
-	@VisibleForTesting
 	public static double tryParseDouble(final String valueToParse,
 			final Supplier<String> errorMessageSupplier) throws InputParseException {
 
@@ -193,7 +189,6 @@ public class MathUtil {
 	 * @return
 	 * @throws InputParseException 
 	 */
-	@VisibleForTesting
 	public static boolean tryParseBoolean(final String valueToParse,
 			final Supplier<String> errorMessageSupplier) throws InputParseException {
 

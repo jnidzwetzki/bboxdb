@@ -17,11 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.commons;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
-import com.google.common.base.Throwables;
 
 public class ServiceState {
 	
@@ -313,7 +313,9 @@ public class ServiceState {
 			return "";
 		}
 		
-		return Throwables.getStackTraceAsString(throwable);
+		final StringWriter stringWriter = new StringWriter();
+	    throwable.printStackTrace(new PrintWriter(stringWriter));
+	    return stringWriter.toString();		
 	}
 	
 	/**
