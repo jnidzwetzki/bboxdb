@@ -284,7 +284,9 @@ public class DistributionGroupZookeeperAdapter {
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.ACTIVE.getStringValue().getBytes());
 		
-		setRegionSizeForDistributionGroup(distributionGroup, configuration.getMaximumRegionSize());
+		setRegionSizeForDistributionGroup(distributionGroup, configuration.getMaximumRegionSize(), 
+				configuration.getMaximumRegionSize());
+		
 		setPlacementStrategyForDistributionGroup(distributionGroup, configuration.getPlacementStrategy());
 		setPlacementConfigForDistributionGroup(distributionGroup, configuration.getPlacementStrategyConfig());
 		setSpacePartitionerForDistributionGroup(distributionGroup, configuration.getSpacePartitioner());
@@ -784,29 +786,57 @@ public class DistributionGroupZookeeperAdapter {
 	
 	/**
 	 * Set the region size
-	 * @param regionSize
+	 * @param maxRegionSize
 	 * @throws ZookeeperException 
 	 */
-	public void setRegionSizeForDistributionGroup(final String distributionGroup, final int regionSize) 
+	public void setRegionSizeForDistributionGroup(final String distributionGroup, 
+			final int maxRegionSize, final int minRegionSize) 
 			throws ZookeeperException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
-		final String regionSizePath = path + "/" + ZookeeperNodeNames.NAME_REGION_SIZE;
-		zookeeperClient.replacePersistentNode(regionSizePath, Integer.toString(regionSize).getBytes());
+		
+		// Max region size
+		final String maxRegionSizePath = path + "/" + ZookeeperNodeNames.NAME_MAX_REGION_SIZE;
+		zookeeperClient.replacePersistentNode(maxRegionSizePath, Integer.toString(maxRegionSize).getBytes());
+		
+		// Min region size
+		final String minRegionSizePath = path + "/" + ZookeeperNodeNames.NAME_MIN_REGION_SIZE;
+		zookeeperClient.replacePersistentNode(minRegionSizePath, Integer.toString(minRegionSize).getBytes());
 	}
 	
 	/**
-	 * Get the region size
+	 * Get the max region size
 	 * @return
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public int getRegionSizeForDistributionGroup(final String distributionGroup) 
+	public int getMaxRegionSizeForDistributionGroup(final String distributionGroup) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
-		final String regionSizePath = path + "/" + ZookeeperNodeNames.NAME_REGION_SIZE;
-		final String sizeString = zookeeperClient.readPathAndReturnString(regionSizePath, false, null);
+		final String regionSizePath = path + "/" + ZookeeperNodeNames.NAME_MAX_REGION_SIZE;
+		final String sizeString = zookeeperClient.readPathAndReturnString(regionSizePath);
+
+		try {
+			return Integer.parseInt(sizeString);
+		} catch(NumberFormatException e) {
+			logger.warn("Unable to parse number: " + sizeString, e);
+			throw new ZookeeperException(e);
+		}
+	}
+	
+	/**
+	 * Get the min region size
+	 * @return
+	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
+	 */
+	public int getMinRegionSizeForDistributionGroup(final String distributionGroup) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final String path = getDistributionGroupPath(distributionGroup);
+		final String regionSizePath = path + "/" + ZookeeperNodeNames.NAME_MIN_REGION_SIZE;
+		final String sizeString = zookeeperClient.readPathAndReturnString(regionSizePath);
 
 		try {
 			return Integer.parseInt(sizeString);

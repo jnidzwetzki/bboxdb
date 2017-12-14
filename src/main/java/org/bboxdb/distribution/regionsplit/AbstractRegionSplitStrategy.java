@@ -170,7 +170,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 */
 	protected long getRegionMaxSizeInMB() throws ZookeeperException, ZookeeperNotFoundException {
 		final String fullname = region.getDistributionGroupName().getFullname();
-		return distributionGroupZookeeperAdapter.getRegionSizeForDistributionGroup(fullname);
+		return distributionGroupZookeeperAdapter.getMaxRegionSizeForDistributionGroup(fullname);
 	}
 	
 	/**

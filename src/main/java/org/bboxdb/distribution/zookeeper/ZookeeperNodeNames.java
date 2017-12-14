@@ -89,14 +89,17 @@ public class ZookeeperNodeNames {
 	public static final String NAME_PLACEMENT_CONFIG = "placementconfig";	
 
 	/**
-	 * Name of the region size node
+	 * Name of the max region size node
 	 */
-	public static final String NAME_REGION_SIZE = "regionsize";
+	public static final String NAME_MAX_REGION_SIZE = "maxregionsize";
+	
+	/**
+	 * Name of the min region size node
+	 */
+	public static final String NAME_MIN_REGION_SIZE = "minregionsize";
 	
 	/**
 	 * The tables node name
 	 */
 	public static final String NAME_TABLES = "tables";
-	
-	
 }

@@ -54,7 +54,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 		try {
 			final CreateDistributionGroupRequest createPackage = CreateDistributionGroupRequest.decodeTuple(encodedPackage);
 			final String distributionGroup = createPackage.getDistributionGroup();
-			logger.info("Create distribution group: " + distributionGroup);
+			logger.info("Create distribution group: {}", distributionGroup);
 			
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
