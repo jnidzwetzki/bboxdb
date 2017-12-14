@@ -65,7 +65,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
-					<descriptor>src/assembly.xml</descriptor>
+					<descriptor>misc/assembly.xml</descriptor>
 					<finalName>bboxdb-${project.version}</finalName>
 					<skipAssembly>${assembly.skipAssembly}</skipAssembly>
 				</configuration>
