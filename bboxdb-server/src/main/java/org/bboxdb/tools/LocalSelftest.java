@@ -29,7 +29,6 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +110,8 @@ public class LocalSelftest {
 			// Fetch the deleted tuples
 			for(int i = 0; i < TUPLES; i++) {
 				final List<Tuple> resultTuples = storageManager.get(Integer.toString(i));
-				Assert.assertTrue(resultTuples.isEmpty());
+				
+				assert (resultTuples.isEmpty()) : "List is not empty";
 			}
 		}
 		Thread.sleep(1000);
