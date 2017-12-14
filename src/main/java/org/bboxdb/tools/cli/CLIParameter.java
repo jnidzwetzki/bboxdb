@@ -55,9 +55,14 @@ public class CLIParameter {
 	protected static final String REPLICATION_FACTOR = "replicationfactor";
 	
 	/**
-	 * Resource placement strategy
+	 * Max region size
 	 */
-	protected static final String REGION_SIZE = "regionsize";
+	protected static final String MAX_REGION_SIZE = "maxregionsize";
+	
+	/**
+	 * Max region size
+	 */
+	protected static final String MIN_REGION_SIZE = "minregionsize";
 	
 	/**
 	 * Resource placement strategy

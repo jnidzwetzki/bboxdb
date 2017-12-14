@@ -69,9 +69,14 @@ public class Const {
 	public final static String DEFAULT_SPACE_PARTITIONER_CONFIG = "";
 	
 	/**
-	 * The default region size in MB
+	 * The default max region size in MB
 	 */
-	public final static int DEFAULT_REGION_SIZE = 256;
+	public final static int DEFAULT_MAX_REGION_SIZE = 256;
+	
+	/**
+	 * The default min region size in MB
+	 */
+	public final static int DEFAULT_MIN_REGION_SIZE = DEFAULT_MAX_REGION_SIZE /3;
 	
 	/**
 	 * Max tuples in uncompressed queue

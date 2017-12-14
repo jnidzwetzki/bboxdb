@@ -770,11 +770,17 @@ public class CLI implements Runnable, AutoCloseable {
 			
 		checkRequiredArgs(requiredArgs);
 		
-		final String regionSizeString = CLIHelper.getParameterOrDefault(
-				line, CLIParameter.REGION_SIZE, Integer.toString(Const.DEFAULT_REGION_SIZE));
+		final String maxRegionSizeString = CLIHelper.getParameterOrDefault(
+				line, CLIParameter.MAX_REGION_SIZE, Integer.toString(Const.DEFAULT_MAX_REGION_SIZE));
 		
-		final int regionSize = MathUtil.tryParseIntOrExit(regionSizeString, 
-				() -> "Unable to parse the region size: " + regionSizeString);
+		final String minRegionSizeString = CLIHelper.getParameterOrDefault(
+				line, CLIParameter.MIN_REGION_SIZE, Integer.toString(Const.DEFAULT_MIN_REGION_SIZE));
+		
+		final int maxRegionSize = MathUtil.tryParseIntOrExit(maxRegionSizeString, 
+				() -> "Unable to parse the max region size: " + maxRegionSizeString);
+		
+		final int minRegionSize = MathUtil.tryParseIntOrExit(minRegionSizeString, 
+				() -> "Unable to parse the min region size: " + minRegionSizeString);
 		
 		final String resourcePlacement = CLIHelper.getParameterOrDefault(
 				line, CLIParameter.RESOURCE_PLACEMENT, Const.DEFAULT_PLACEMENT_STRATEGY);
@@ -800,7 +806,8 @@ public class CLI implements Runnable, AutoCloseable {
 		try {
 			final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
 					.withReplicationFactor((short) replicationFactor)
-					.withMaximumRegionSize(regionSize)
+					.withMaximumRegionSize(maxRegionSize)
+					.withMinimumRegionSize(minRegionSize)
 					.withPlacementStrategy(resourcePlacement, resourcePlacementConfig)
 					.withSpacePartitioner(spacePartitioner, spacePartitionerConfig)
 					.build();
@@ -900,13 +907,21 @@ public class CLI implements Runnable, AutoCloseable {
 				.build();
 		options.addOption(replicationFactor);
 		
-		// Region size
-		final Option regionSize = Option.builder(CLIParameter.REGION_SIZE)
+		// Max region size
+		final Option maxRegionSize = Option.builder(CLIParameter.MAX_REGION_SIZE)
 				.hasArg()
-				.argName("region size (in MB)")
-				.desc("Default: " + Const.DEFAULT_REGION_SIZE)
+				.argName("max region size (in MB)")
+				.desc("Default: " + Const.DEFAULT_MAX_REGION_SIZE)
 				.build();
-		options.addOption(regionSize);
+		options.addOption(maxRegionSize);
+		
+		// Min region size
+		final Option minRegionSize = Option.builder(CLIParameter.MIN_REGION_SIZE)
+				.hasArg()
+				.argName("min region size (in MB)")
+				.desc("Default: " + Const.DEFAULT_MIN_REGION_SIZE)
+				.build();
+		options.addOption(minRegionSize);
 		
 		// Resource placement
 		final Option resourcePlacement = Option.builder(CLIParameter.RESOURCE_PLACEMENT)

@@ -29,12 +29,12 @@ public class DistributionGroupConfiguration {
 	/**
 	 * The maximal region size
 	 */
-	protected int maximumRegionSize = Const.DEFAULT_REGION_SIZE;
+	protected int maximumRegionSize = Const.DEFAULT_MAX_REGION_SIZE;
 	
 	/**
 	 * The minimal region size
 	 */
-	protected int minimumRegionSize = maximumRegionSize / 2;
+	protected int minimumRegionSize = Const.DEFAULT_MIN_REGION_SIZE;
 	
 	/**
 	 * The default placement strategy
