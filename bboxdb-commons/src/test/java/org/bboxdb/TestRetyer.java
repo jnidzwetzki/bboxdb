@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools;
+package org.bboxdb;
 
 import java.util.concurrent.Callable;
 

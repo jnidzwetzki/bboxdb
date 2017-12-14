@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools;
+package org.bboxdb;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
