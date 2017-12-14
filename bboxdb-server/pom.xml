@@ -10,12 +10,6 @@
 		<version>0.3.7</version>
 	</parent>
 
-	<properties>
-		<assembly.skipAssembly>false</assembly.skipAssembly>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-
-
 	<!-- Needed for berkeley db (com.sleepycat) -->
 	<repositories>
 		<repository>
