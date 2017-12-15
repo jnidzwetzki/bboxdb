@@ -21,7 +21,7 @@ BBoxDB is a distributed storage manager, designed to handle multi-dimensional bi
 The documentation of the project is located at [http://jnidzwetzki.github.io/bboxdb/](http://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
 
 ## Getting started
-See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/started.html) chapter in the documentation. We also recommend to read the examples located in the [examples](examples/) directory.
+See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/started.html) chapter in the documentation. We also recommend to read the examples located in the [bboxdb-examples/src/main/java](bboxdb-examples/src/main/java/) directory.
 
 ## Screenshots
 <p><img src="docs/images/bboxdb_gui1.jpg" width="400"> <img src="docs/images/bboxdb_gui2.jpg" width="400"><br>

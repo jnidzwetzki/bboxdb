@@ -201,7 +201,7 @@ Key key3, BoundingBox=[2.0:10.0,2.0:10.0], value=value3, version timestamp=15103
 
 * Visit our [website](http://bboxdb.org)
 * Read the [documentation](http://jnidzwetzki.github.io/bboxdb/).
-* Integrate the _BBoxDB Client_ into your own applications. You find an example and some documentation [here](http://jnidzwetzki.github.io/bboxdb//doc/client.html).
+* Integrate the _BBoxDB Client_ into your own applications. You find an example and some documentation [here](http://jnidzwetzki.github.io/bboxdb/doc/client.html).
 * Follow us on [Twitter](https://twitter.com/bboxdb) to stay informed.
 * Read the [source code](https://github.com/jnidzwetzki/bboxdb/).
 * Report Bugs [here](https://github.com/jnidzwetzki/bboxdb/issues).
