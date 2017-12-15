@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.performance;
+package org.bboxdb.performance;
 
 import java.io.IOException;
 

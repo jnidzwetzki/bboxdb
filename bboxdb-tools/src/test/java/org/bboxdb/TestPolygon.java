@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools;
+package org.bboxdb;
 
 import org.bboxdb.tools.converter.osm.util.Polygon;
 import org.junit.Assert;

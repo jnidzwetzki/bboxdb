@@ -7,6 +7,8 @@ order: 1
 ---
 
 ### Version 0.4.0 (Stable) - TBA
+- Improvement: Created bboxdb_tools module
+- Improvement: Clean up dependencies of the modules
 
 ### Version 0.3.7 (Stable) - 14.12.2017
 - New Feature: Distribution regions now have a minimal size

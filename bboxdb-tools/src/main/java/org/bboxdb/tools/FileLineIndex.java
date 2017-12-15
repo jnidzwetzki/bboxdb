@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.util;
+package org.bboxdb.tools;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -28,6 +28,7 @@ import java.util.Objects;
 
 import org.apache.commons.compress.utils.CountingInputStream;
 import org.bboxdb.commons.io.FileUtil;
+import org.bboxdb.util.DataEncoderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -7,6 +7,5 @@ coverage:
     patch: off
 
 ignore:
-   - "bboxdb-server/src/main/java/org/bboxdb/performance"
-   - "bboxdb-server/src/main/java/org/bboxdb/tools"
+   - "bboxdb-tools/src/main/java/org/bboxdb/performance"
 

@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools;
+package org.bboxdb;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,9 +28,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.tools.TupleFileReader;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
-import org.bboxdb.util.TupleFileReader;
 import org.junit.Assert;
 import org.junit.Test;
 

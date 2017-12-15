@@ -54,8 +54,8 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.util.TupleHelper;
+import org.bboxdb.tools.TupleFileReader;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
-import org.bboxdb.util.TupleFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

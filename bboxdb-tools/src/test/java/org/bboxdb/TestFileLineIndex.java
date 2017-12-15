@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools;
+package org.bboxdb;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,7 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.bboxdb.util.FileLineIndex;
+import org.bboxdb.tools.FileLineIndex;
 import org.junit.Assert;
 import org.junit.Test;
 

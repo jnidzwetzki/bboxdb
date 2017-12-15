@@ -33,7 +33,7 @@ import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.util.TupleFileReader;
+import org.bboxdb.tools.TupleFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

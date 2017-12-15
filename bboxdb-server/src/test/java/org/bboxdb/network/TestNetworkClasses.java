@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.compress.utils.IOUtils;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.misc.Const;
@@ -72,6 +71,8 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.util.UpdateAnomalyResolver;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.io.ByteStreams;
 
 public class TestNetworkClasses {
 	
@@ -962,7 +963,7 @@ public class TestNetworkClasses {
 		Assert.assertNotNull(bb);
 
 		final InputStream uncompressedByteStream = CompressionEnvelopeRequest.decodePackage(bb);
-		final byte[] uncompressedBytes = IOUtils.toByteArray(uncompressedByteStream);
+		final byte[] uncompressedBytes = ByteStreams.toByteArray(uncompressedByteStream);
 		final ByteBuffer uncompressedByteBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedBytes);
 		
 		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(uncompressedByteBuffer);
@@ -1005,7 +1006,7 @@ public class TestNetworkClasses {
 		Assert.assertNotNull(bb);
 
 		final InputStream uncompressedByteStream = CompressionEnvelopeRequest.decodePackage(bb);
-		final byte[] uncompressedBytes = IOUtils.toByteArray(uncompressedByteStream);
+		final byte[] uncompressedBytes = ByteStreams.toByteArray(uncompressedByteStream);
 		final ByteBuffer uncompressedByteBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedBytes);
 		
 		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(uncompressedByteBuffer);
@@ -1034,7 +1035,7 @@ public class TestNetworkClasses {
 		
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		final InputStream uncompressedByteStream = CompressionEnvelopeResponse.decodePackage(bb);
-		final byte[] uncompressedBytes = IOUtils.toByteArray(uncompressedByteStream);
+		final byte[] uncompressedBytes = ByteStreams.toByteArray(uncompressedByteStream);
 		final ByteBuffer uncompressedByteBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedBytes);
 
 		final TupleResponse responseDecoded = TupleResponse.decodePackage(uncompressedByteBuffer);
@@ -1063,7 +1064,7 @@ public class TestNetworkClasses {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
 		final InputStream uncompressedByteStream = CompressionEnvelopeResponse.decodePackage(bb);
 		
-		final byte[] uncompressedBytes = IOUtils.toByteArray(uncompressedByteStream);
+		final byte[] uncompressedBytes = ByteStreams.toByteArray(uncompressedByteStream);
 		final ByteBuffer uncompressedByteBuffer = NetworkPackageDecoder.encapsulateBytes(uncompressedBytes);
 
 		final HelloResponse decodedPackage = HelloResponse.decodePackage(uncompressedByteBuffer);
