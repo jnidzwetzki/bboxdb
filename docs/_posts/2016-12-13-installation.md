@@ -39,11 +39,15 @@ export BBOXDB_HOME=/opt/bboxdb
 echo 'export BBOXDB_HOME=/opt/bboxdb' >> .bashrc
 ```
 
-## Downloading the Software
+## Downloading and compiling the Software
 ```bash
 git clone https://github.com/jnidzwetzki/bboxdb
 mv bboxdb $BBOXDB_HOME
+cd $BBOXDB_HOME
+./bin/manage_instance.sh bboxdb_update
 ```
+
+The last command executed maven, downloads all needed dependencies and complies BBoxDB.
 
 # Initial Setup
 The following sections are covering the initial setup of the BBoxDB.
