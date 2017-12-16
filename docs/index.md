@@ -11,4 +11,4 @@ Welcome to the documentation of BBoxDB. BBoxDB is a research project to evaluate
 
 In contrast to traditional key-value stores, BBoxDB can handle multi-dimensional data. The data is placed into an n-dimensional space and parts of the space are handled by different nodes. SSTables (string sorted tables) are used as data storage, which provides a fast read and write access. [Apache Zookeeper](https://zookeeper.apache.org/) is used to coordinate the whole system. 
 
-Tools like a _graphical user interface_ (GUI) and a _command line interface_ (CLI) are available to work with the system. In addition, a [client](/bboxdb/doc/client.html) for the Java programming language is also available in the _maven central repository_.
+Tools like a _graphical user interface_ (GUI) and a _command line interface_ (CLI) are available to work with the system. In addition, a [client](/bboxdb/doc/client.html) for the Java programming language is also available in the [maven central repository](https://search.maven.org/#search%7Cga%7C1%7Cbboxdb).
