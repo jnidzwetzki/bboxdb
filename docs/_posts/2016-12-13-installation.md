@@ -13,13 +13,23 @@ BBoxDB depends on the following programs:
 - Git
 - Maven
 
-On Debian and Ubuntu, you can install them by typing:
+On Ubuntu, you can install them by typing:
 
 ```bash
-apt-get install openjdk-8-jdk ant maven git
+apt-get install oracle-java8-installer ant maven git
 ```
 
-_Notice:_ We recommend using an Oracle JVM. BBoxDB uses memory mapped files, features such as cleaning allocated memory is not available in all JVMs. Also, we recommend using a 64-bit operating system. Due to the memory mapped files, BBoxDB needs a huge virtual address space. 32-bit systems can address up to 4 GB memory, which makes it hard to handle big datasets.
+On Debian, you can install them by typing:
+
+```bash
+apt-get install java-package ant maven git
+
+# Download the JDK from Oracle
+make-jpkg jdk-$version-linux-x64.tar.gz
+dpkg -i oracle-java8-jdk_$version_amd64.deb
+```
+
+_Notice:_ You could also use OpenJDK, but we are recommending the Oracle JVM. BBoxDB uses memory mapped files, features such as cleaning allocated memory is not available in all JVMs. Also, we recommend using a 64-bit operating system. Due to the memory mapped files, BBoxDB needs a huge virtual address space. 32-bit systems can address up to 4 GB memory, which makes it hard to handle big datasets.
 
 The software is tested on Debian and Ubuntu Linux.
 
