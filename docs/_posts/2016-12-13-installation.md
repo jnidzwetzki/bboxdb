@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-# Building from Source
+# Building from source
 The software is tested on Debian and Ubuntu Linux.
 
 ## Dependencies 
@@ -39,7 +39,7 @@ export BBOXDB_HOME=/opt/bboxdb
 echo 'export BBOXDB_HOME=/opt/bboxdb' >> .bashrc
 ```
 
-## Downloading and compiling the Software
+## Downloading and compiling the s	oftware
 ```bash
 git clone https://github.com/jnidzwetzki/bboxdb
 mv bboxdb $BBOXDB_HOME
@@ -68,7 +68,7 @@ __Notice:__ At least, the parameter `jmx_password` should be customized. Otherwi
 vi $BBOXDB_HOME/bin/bboxdb-env.sh
 ```
 
-## Starting and Stopping the system
+## Starting and stopping the system
 To manage the processes of BBoxDB, two scripts are provided: ```$BBOXDB_HOME/bin/manage_instance.sh``` is used to start and stop the processes on the local node. ```$BBOXDB_HOME/bin/manage_cluster.sh``` is used to managed a whole cluster of nodes.
 
 Both scripts require one parameter. This parameter determines the operation of the script. Depending on the script, the task is performed only on the local system or on the whole cluster.
