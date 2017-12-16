@@ -43,8 +43,7 @@ echo 'export BBOXDB_HOME=/opt/bboxdb' >> .bashrc
 ```bash
 git clone https://github.com/jnidzwetzki/bboxdb
 mv bboxdb $BBOXDB_HOME
-cd $BBOXDB_HOME
-./bin/manage_instance.sh bboxdb_update
+$BBOXDB_HOME/bin/manage_instance.sh bboxdb_update
 ```
 
 The last command executed maven, downloads all needed dependencies and complies BBoxDB.
