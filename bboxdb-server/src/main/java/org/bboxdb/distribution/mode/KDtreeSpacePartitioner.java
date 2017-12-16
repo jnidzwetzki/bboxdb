@@ -84,14 +84,10 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KDtreeSpacePartitioner.class);
 
-	public KDtreeSpacePartitioner(final ZookeeperClient zookeeperClient,
-			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
-			final String distributionGroup) throws ZookeeperException {
-		
+	public KDtreeSpacePartitioner() throws ZookeeperException {
 		this.callbacks = new HashSet<>();		
 	}
 	
-
 	/**
 	 * Reread and handle the dgroup version
 	 * @param distributionGroupName
