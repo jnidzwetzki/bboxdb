@@ -92,19 +92,20 @@ public class DistributionGroupZookeeperAdapter {
 	 * Read the structure of a distribution group
 	 * @return
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public KDtreeZookeeperAdapter readDistributionGroup(final String distributionGroup) throws ZookeeperException {
+	public KDtreeZookeeperAdapter readDistributionGroup(final String distributionGroup) 
+			throws ZookeeperException {
+		
 		final String path = getDistributionGroupPath(distributionGroup);
 
 		if(! zookeeperClient.exists(path)) {
 			final String exceptionMessage = MessageFormat.format("Unable to read {0}. Path {1} does not exist", distributionGroup, path);
 			throw new ZookeeperException(exceptionMessage);
 		}
-				
-		final KDtreeZookeeperAdapter kDtreeZookeeperAdapter 
-			= new KDtreeZookeeperAdapter(zookeeperClient, this, distributionGroup);
 		
-		return kDtreeZookeeperAdapter;
+		return SpacePartitionerFactory.getSpacePartitionerForDistributionGroup(zookeeperClient, 
+				this, distributionGroup);
 	}
 	
 	/**

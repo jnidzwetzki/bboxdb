@@ -24,6 +24,7 @@ import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.TupleStoreName;
 
@@ -43,8 +44,11 @@ public class DistributionGroupCache {
 	 * @param groupName
 	 * @return
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized KDtreeZookeeperAdapter getGroupForGroupName(final String groupName, final ZookeeperClient zookeeperClient) throws ZookeeperException {
+	public static synchronized KDtreeZookeeperAdapter getGroupForGroupName(final String groupName, 
+			final ZookeeperClient zookeeperClient) throws ZookeeperException {
+		
 		if(! groupGroupMap.containsKey(groupName)) {
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
 			final KDtreeZookeeperAdapter adapter = distributionGroupZookeeperAdapter.readDistributionGroup(groupName);
@@ -60,8 +64,11 @@ public class DistributionGroupCache {
 	 * @return
 	 * @throws ZookeeperException 
 	 * @throws BBoxDBException 
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized KDtreeZookeeperAdapter getGroupForTableName(final TupleStoreName ssTableName, final ZookeeperClient zookeeperClient) throws ZookeeperException, BBoxDBException {
+	public static synchronized KDtreeZookeeperAdapter getGroupForTableName(
+			final TupleStoreName ssTableName, final ZookeeperClient zookeeperClient) 
+					throws ZookeeperException, BBoxDBException {
 		
 		if(! ssTableName.isValid()) {
 			throw new BBoxDBException("Invalid tablename: " + ssTableName);

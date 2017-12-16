@@ -42,22 +42,22 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KDtreeZookeeperAdapter implements Watcher {
+public class KDtreeZookeeperAdapter implements Watcher, SpacePartitioner {
 	
 	/**
 	 * The zookeeper client
 	 */
-	protected final ZookeeperClient zookeeperClient;
+	protected ZookeeperClient zookeeperClient;
 	
 	/**
 	 * The distribution group adapter
 	 */
-	protected final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	protected DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The name of the distribution group
 	 */
-	protected final DistributionGroupName distributionGroupName;
+	protected DistributionGroupName distributionGroupName;
 	
 	/**
 	 * The root node of the K-D-Tree
@@ -88,12 +88,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
 			final String distributionGroup) throws ZookeeperException {
 		
-		this.zookeeperClient = zookeeperClient;
-		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
-		this.distributionGroupName = new DistributionGroupName(distributionGroup);
-		this.callbacks = new HashSet<DistributionRegionChangedCallback>();
-		
-		readAndHandleVersion();
+		this.callbacks = new HashSet<DistributionRegionChangedCallback>();		
 	}
 	
 
@@ -102,7 +97,8 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 * @param distributionGroupName
 	 * @throws ZookeeperException
 	 */
-	protected void readAndHandleVersion() throws ZookeeperException {
+	@Override
+	public void init() throws ZookeeperException {
 		
 		try {
 			final String zookeeperVersion 
@@ -175,7 +171,7 @@ public class KDtreeZookeeperAdapter implements Watcher {
 	 */
 	protected void readAndHandleVersionNE() {
 		try {
-			readAndHandleVersion();
+			init();
 		} catch (ZookeeperException e) {
 			logger.warn("Got zookeeper exception", e);
 		}
@@ -687,5 +683,20 @@ public class KDtreeZookeeperAdapter implements Watcher {
 				regionIdMapper.addMapping(region);
 			}
 		}
+	}
+
+	@Override
+	public void setDistributionGroup(final DistributionGroupName distributionGroupName) {
+		this.distributionGroupName = distributionGroupName;
+	}
+
+	@Override
+	public void setZookeeperClient(final ZookeeperClient zookeeperClient) {
+		this.zookeeperClient = zookeeperClient;
+	}
+
+	@Override
+	public void setDistributionGroupAdapter(final DistributionGroupZookeeperAdapter distributionGroupAdapter) {
+		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
 	}
 }

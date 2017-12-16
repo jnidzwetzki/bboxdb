@@ -18,6 +18,7 @@
 package org.bboxdb.distribution.zookeeper;
 
 public class ZookeeperNodeNames {
+	
 	/**
 	 * The prefix for nodes in sequential queues
 	 */
