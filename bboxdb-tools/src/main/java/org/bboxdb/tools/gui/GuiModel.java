@@ -32,7 +32,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.DistributedInstanceEvent;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionChangedCallback;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
+import org.bboxdb.distribution.mode.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -69,7 +69,7 @@ public class GuiModel implements DistributionRegionChangedCallback {
 	/**
 	 * The tree adapter
 	 */
-	private KDtreeZookeeperAdapter treeAdapter;
+	private KDtreeSpacePartitioner treeAdapter;
 
 	/**
 	 * The distribution group adapter
@@ -292,7 +292,7 @@ public class GuiModel implements DistributionRegionChangedCallback {
 	 * 
 	 * @return
 	 */
-	public KDtreeZookeeperAdapter getTreeAdapter() {
+	public KDtreeSpacePartitioner getTreeAdapter() {
 		return treeAdapter;
 	}
 

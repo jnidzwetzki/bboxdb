@@ -61,7 +61,7 @@ public class Const {
 	/**
 	 * The default space partitioner
 	 */
-	public final static String DEFAULT_SPACE_PARTITIONER = "org.bboxdb.distribution.mode.KDtreeZookeeperAdapter";
+	public final static String DEFAULT_SPACE_PARTITIONER = "org.bboxdb.distribution.mode.KDtreeSpacePartitioner";
 	
 	/**
 	 * The default space partitioner configuration

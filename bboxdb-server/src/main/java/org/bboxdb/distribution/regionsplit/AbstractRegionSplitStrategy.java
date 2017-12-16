@@ -28,7 +28,7 @@ import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.mode.DistributionRegionState;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
+import org.bboxdb.distribution.mode.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -54,7 +54,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	/**
 	 * The tree adapter
 	 */
-	protected KDtreeZookeeperAdapter treeAdapter = null;
+	protected KDtreeSpacePartitioner treeAdapter = null;
 	
 	/**
 	 * The distribution group adapter 

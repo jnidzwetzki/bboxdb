@@ -26,7 +26,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
+import org.bboxdb.distribution.mode.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -116,7 +116,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 				checkGroupVersion(storage, distributionGroupName, zookeeperClient);
 			}
 					
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+			final KDtreeSpacePartitioner distributionAdapter = DistributionGroupCache.getGroupForGroupName(
 					distributionGroupName.getFullname(), zookeeperClient);
 			
 			final DistributionRegion distributionGroup = distributionAdapter.getRootNode();

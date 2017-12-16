@@ -42,7 +42,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KDtreeZookeeperAdapter implements Watcher, SpacePartitioner {
+public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	
 	/**
 	 * The zookeeper client
@@ -82,9 +82,9 @@ public class KDtreeZookeeperAdapter implements Watcher, SpacePartitioner {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(KDtreeZookeeperAdapter.class);
+	private final static Logger logger = LoggerFactory.getLogger(KDtreeSpacePartitioner.class);
 
-	public KDtreeZookeeperAdapter(final ZookeeperClient zookeeperClient,
+	public KDtreeSpacePartitioner(final ZookeeperClient zookeeperClient,
 			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
 			final String distributionGroup) throws ZookeeperException {
 		

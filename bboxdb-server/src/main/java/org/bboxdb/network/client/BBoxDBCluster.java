@@ -31,7 +31,7 @@ import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
+import org.bboxdb.distribution.mode.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.placement.RandomResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
@@ -161,7 +161,7 @@ public class BBoxDBCluster implements BBoxDB {
 		try {
 			final TupleStoreName ssTableName = new TupleStoreName(table);
 
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
+			final KDtreeSpacePartitioner distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					ssTableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
@@ -326,7 +326,7 @@ public class BBoxDBCluster implements BBoxDB {
 		try {
 			final TupleStoreName sstableName = new TupleStoreName(table);
 
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
+			final KDtreeSpacePartitioner distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					sstableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
@@ -365,7 +365,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final TupleStoreName sstableName = new TupleStoreName(table);
 
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
+			final KDtreeSpacePartitioner distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					sstableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
@@ -400,7 +400,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 		try {
 			final TupleStoreName sstableName = new TupleStoreName(table);
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
+			final KDtreeSpacePartitioner distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					sstableName, zookeeperClient);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();

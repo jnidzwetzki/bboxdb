@@ -28,7 +28,7 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
+import org.bboxdb.distribution.mode.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -97,7 +97,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 	    
 		// Calculate usage for each distribution group
 		for(final DistributionGroupName groupName : distributionGroups) {
-			final KDtreeZookeeperAdapter distributionAdapter 
+			final KDtreeSpacePartitioner distributionAdapter 
 				= DistributionGroupCache.getGroupForGroupName(groupName.getFullname(), zookeeperClient);
 			
 			final DistributionRegion region = distributionAdapter.getRootNode();

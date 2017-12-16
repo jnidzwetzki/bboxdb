@@ -94,7 +94,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public KDtreeZookeeperAdapter readDistributionGroup(final String distributionGroup) 
+	public KDtreeSpacePartitioner readDistributionGroup(final String distributionGroup) 
 			throws ZookeeperException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);

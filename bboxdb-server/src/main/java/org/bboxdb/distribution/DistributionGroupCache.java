@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
+import org.bboxdb.distribution.mode.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -33,10 +33,10 @@ public class DistributionGroupCache {
 	/**
 	 * Mapping between the string group and the group object
 	 */
-	protected final static Map<String, KDtreeZookeeperAdapter> groupGroupMap;
+	protected final static Map<String, KDtreeSpacePartitioner> groupGroupMap;
 
 	static {
-		groupGroupMap = new HashMap<String, KDtreeZookeeperAdapter>();
+		groupGroupMap = new HashMap<String, KDtreeSpacePartitioner>();
 	}
 	
 	/**
@@ -46,12 +46,12 @@ public class DistributionGroupCache {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized KDtreeZookeeperAdapter getGroupForGroupName(final String groupName, 
+	public static synchronized KDtreeSpacePartitioner getGroupForGroupName(final String groupName, 
 			final ZookeeperClient zookeeperClient) throws ZookeeperException {
 		
 		if(! groupGroupMap.containsKey(groupName)) {
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
-			final KDtreeZookeeperAdapter adapter = distributionGroupZookeeperAdapter.readDistributionGroup(groupName);
+			final KDtreeSpacePartitioner adapter = distributionGroupZookeeperAdapter.readDistributionGroup(groupName);
 			groupGroupMap.put(groupName, adapter);
 		}
 		
@@ -66,7 +66,7 @@ public class DistributionGroupCache {
 	 * @throws BBoxDBException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized KDtreeZookeeperAdapter getGroupForTableName(
+	public static synchronized KDtreeSpacePartitioner getGroupForTableName(
 			final TupleStoreName ssTableName, final ZookeeperClient zookeeperClient) 
 					throws ZookeeperException, BBoxDBException {
 		

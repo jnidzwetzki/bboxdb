@@ -21,7 +21,7 @@ import java.util.function.BiConsumer;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
+import org.bboxdb.distribution.mode.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -46,7 +46,7 @@ public class TupleStoreFlushZookeeperAdapter implements BiConsumer<TupleStoreNam
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			
-			final KDtreeZookeeperAdapter distributionAdapter = DistributionGroupCache.getGroupForTableName(
+			final KDtreeSpacePartitioner distributionAdapter = DistributionGroupCache.getGroupForTableName(
 					ssTableName, zookeeperClient);
 
 			final DistributionRegion distributionGroupRoot = distributionAdapter.getRootNode();

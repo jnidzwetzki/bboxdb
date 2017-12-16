@@ -36,7 +36,7 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.mode.KDtreeZookeeperAdapter;
+import org.bboxdb.distribution.mode.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -715,7 +715,7 @@ public class CLI implements Runnable, AutoCloseable {
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
 				= new DistributionGroupZookeeperAdapter(zookeeperClient);
 			
-			final KDtreeZookeeperAdapter treeAdapter = distributionGroupZookeeperAdapter
+			final KDtreeSpacePartitioner treeAdapter = distributionGroupZookeeperAdapter
 					.readDistributionGroup(distributionGroup);
 			
 			final short replicationFactor = distributionGroupZookeeperAdapter
