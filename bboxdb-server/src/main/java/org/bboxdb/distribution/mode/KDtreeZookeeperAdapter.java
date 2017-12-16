@@ -88,7 +88,7 @@ public class KDtreeZookeeperAdapter implements Watcher, SpacePartitioner {
 			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
 			final String distributionGroup) throws ZookeeperException {
 		
-		this.callbacks = new HashSet<DistributionRegionChangedCallback>();		
+		this.callbacks = new HashSet<>();		
 	}
 	
 
