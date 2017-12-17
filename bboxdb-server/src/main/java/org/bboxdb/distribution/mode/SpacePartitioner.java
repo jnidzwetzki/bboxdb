@@ -25,25 +25,12 @@ public interface SpacePartitioner {
 	
 	/**
 	 * All dependencies are set, init the partitioner
+	 * @param spacePartitionerConfig 
 	 * @throws ZookeeperException
 	 */
-	public void init() throws ZookeeperException;
+	public void init(final String spacePartitionerConfig, 
+			final DistributionGroupName distributionGroupName, 
+			final ZookeeperClient zookeeperClient, 
+			final DistributionGroupZookeeperAdapter distributionGroupAdapter) throws ZookeeperException;
 
-	/**
-	 * Inject the distribution group
-	 * @param distributionGroupName
-	 */
-	public void setDistributionGroup(final DistributionGroupName distributionGroupName);
-
-	/**
-	 * Inject the zookeeper client
-	 * @param zookeeperClient
-	 */
-	public void setZookeeperClient(final ZookeeperClient zookeeperClient);
-
-	/**
-	 * Inject the distribution group adapter
-	 * @param distributionGroupAdapter
-	 */
-	public void setDistributionGroupAdapter(final DistributionGroupZookeeperAdapter distributionGroupAdapter);
 }

@@ -78,6 +78,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * The mutex for sync operations
 	 */
 	protected final Object MUTEX = new Object();
+
+	/**
+	 * The space partitioner config
+	 */
+	protected String spacePartitionerConfig;
 	
 	/**
 	 * The logger
@@ -94,8 +99,24 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ZookeeperException
 	 */
 	@Override
-	public void init() throws ZookeeperException {
+	public void init(final String spacePartitionerConfig, 
+			final DistributionGroupName distributionGroupName, 
+			final ZookeeperClient zookeeperClient, 
+			final DistributionGroupZookeeperAdapter distributionGroupAdapter) throws ZookeeperException {
 		
+		this.spacePartitionerConfig = spacePartitionerConfig;
+		this.distributionGroupName = distributionGroupName;
+		this.zookeeperClient = zookeeperClient;
+		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
+		
+		readAndHandleVersion();
+	}
+
+	/**
+	 * Read and handle the version
+	 * @throws ZookeeperException
+	 */
+	private void readAndHandleVersion() throws ZookeeperException {
 		try {
 			final String zookeeperVersion 
 				= distributionGroupZookeeperAdapter.getVersionForDistributionGroup(
@@ -167,7 +188,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	protected void readAndHandleVersionNE() {
 		try {
-			init();
+			readAndHandleVersion();
 		} catch (ZookeeperException e) {
 			logger.warn("Got zookeeper exception", e);
 		}
@@ -679,20 +700,5 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 				regionIdMapper.addMapping(region);
 			}
 		}
-	}
-
-	@Override
-	public void setDistributionGroup(final DistributionGroupName distributionGroupName) {
-		this.distributionGroupName = distributionGroupName;
-	}
-
-	@Override
-	public void setZookeeperClient(final ZookeeperClient zookeeperClient) {
-		this.zookeeperClient = zookeeperClient;
-	}
-
-	@Override
-	public void setDistributionGroupAdapter(final DistributionGroupZookeeperAdapter distributionGroupAdapter) {
-		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
 	}
 }

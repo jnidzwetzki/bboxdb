@@ -45,6 +45,8 @@ public class SpacePartitionerFactory {
 
 		// Instance the classname
 		try {
+			final String spacePartitionerConfig = distributionGroupAdapter
+					.getSpacePartitionerConfigForDistributionGroup(distributionGroup);
 
 			final Class<?> classObject = Class.forName(spacePartitionerString);
 
@@ -61,10 +63,9 @@ public class SpacePartitionerFactory {
 			final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
 
 			final SpacePartitioner spacePartitioner = (SpacePartitioner) factoryObject;   
-			spacePartitioner.setZookeeperClient(zookeeperClient);
-			spacePartitioner.setDistributionGroupAdapter(distributionGroupAdapter);
-			spacePartitioner.setDistributionGroup(distributionGroupName);
-			spacePartitioner.init();
+			
+			spacePartitioner.init(spacePartitionerConfig, distributionGroupName, 
+					zookeeperClient, distributionGroupAdapter);
 
 			// FIXME: Add support for further space partitioner
 			return (KDtreeSpacePartitioner) spacePartitioner;
