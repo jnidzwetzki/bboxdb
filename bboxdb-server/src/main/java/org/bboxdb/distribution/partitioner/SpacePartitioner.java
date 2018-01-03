@@ -17,8 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.util.Set;
+
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -49,9 +52,9 @@ public interface SpacePartitioner {
 	 * @throws ResourceAllocationException
 	 * @throws ZookeeperNotFoundException
 	 */
-	public void allocateSystemsToRegion(final DistributionRegion region) 
-			throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException;
-
+	public void allocateSystemsToRegion(final DistributionRegion region, 
+			final Set<BBoxDBInstance> allocationSystems) throws ZookeeperException;
+	
 	/**
 	 * Split the node on the given position
 	 * @param regionToSplit

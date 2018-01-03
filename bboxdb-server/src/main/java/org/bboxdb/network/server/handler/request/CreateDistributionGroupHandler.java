@@ -25,6 +25,7 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -67,7 +68,8 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 
 			final DistributionRegion region = distributionAdapter.getRootNode();
 			
-			distributionAdapter.allocateSystemsToRegion(region);
+			SpacePartitionerHelper.allocateSystemsToRegion(region, distributionAdapter, 
+					distributionGroupZookeeperAdapter);
 			
 			// Let the data settle down
 			Thread.sleep(5000);

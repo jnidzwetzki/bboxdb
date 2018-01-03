@@ -30,10 +30,7 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
-import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
-import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -89,7 +86,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KDtreeSpacePartitioner.class);
 
-	public KDtreeSpacePartitioner() throws ZookeeperException {
+	public KDtreeSpacePartitioner() {
 		this.callbacks = new HashSet<>();		
 	}
 	
@@ -342,8 +339,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		waitUntilChildIsCreated(regionToSplit);
 
 		// Allocate systems (the data of the left node is stored locally)
-		copySystemsToRegion(regionToSplit, regionToSplit.getLeftChild());
-		allocateSystemsToRegion(regionToSplit.getRightChild());
+		SpacePartitionerHelper.copySystemsToRegion(regionToSplit, regionToSplit.getLeftChild(), 
+				this, distributionGroupZookeeperAdapter);
+		
+		SpacePartitionerHelper.allocateSystemsToRegion(regionToSplit.getRightChild(), 
+				this, distributionGroupZookeeperAdapter);
 		
 		// update state
 		distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
@@ -391,60 +391,16 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			}
 		}
 	}
-	
+
 	/**
-	 * Copy the system allocation of one distribution region to another
-	 * @param source
-	 * @param destination
-	 * @throws ZookeeperException 
-	 */
-	protected void copySystemsToRegion(final DistributionRegion source, 
-			final DistributionRegion destination) throws ZookeeperException {
-		
-		assert (destination.getSystems().isEmpty()) 
-			: "Systems are not empty: " + destination.getSystems();
-		
-		for(final BBoxDBInstance system : source.getSystems()) {
-			distributionGroupZookeeperAdapter.addSystemToDistributionRegion(destination, system);
-		}
-	}
-	
-	/**
-	 * Allocate the required amount of systems to the given region
-	 * 
+	 * Allocate the given list of systems to a region
 	 * @param region
-	 * @param zookeeperClient
+	 * @param allocationSystems
 	 * @throws ZookeeperException
-	 * @throws ResourceAllocationException
-	 * @throws ZookeeperNotFoundException 
 	 */
 	@Override
-	public void allocateSystemsToRegion(final DistributionRegion region) throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException {
-		
-		final String distributionGroupName = region.getDistributionGroupName().getFullname();
-		final short replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroupName);
-		
-		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
-		final List<BBoxDBInstance> availableSystems = distributedInstanceManager.getInstances();
-		
-		final String placementStrategy = distributionGroupZookeeperAdapter
-				.getPlacementStrategyForDistributionGroup(distributionGroupName);
-		
-		final ResourcePlacementStrategy resourcePlacementStrategy 
-			= ResourcePlacementStrategyFactory.getInstance(placementStrategy);
-
-		if(resourcePlacementStrategy == null) {
-			throw new ResourceAllocationException("Unable to instanciate the ressource "
-					+ "placement strategy");
-		}
-		
-		// The blacklist, to prevent duplicate allocations
-		final Set<BBoxDBInstance> allocationSystems = new HashSet<BBoxDBInstance>();
-		
-		for(short i = 0; i < replicationFactor; i++) {
-			final BBoxDBInstance instance = resourcePlacementStrategy.getInstancesForNewRessource(availableSystems, allocationSystems);
-			allocationSystems.add(instance);
-		}
+	public void allocateSystemsToRegion(final DistributionRegion region, final Set<BBoxDBInstance> allocationSystems)
+			throws ZookeeperException {
 		
 		logger.info("Allocating region {} to {}", region.getIdentifier(), allocationSystems);
 		
