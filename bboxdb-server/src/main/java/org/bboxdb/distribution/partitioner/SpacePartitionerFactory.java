@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.mode;
+package org.bboxdb.distribution.partitioner;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;

@@ -25,8 +25,8 @@ import java.util.function.Predicate;
 
 import org.bboxdb.commons.Retryer;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.mode.DistributionRegionState;
+import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.Const;

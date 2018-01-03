@@ -21,7 +21,7 @@ import java.io.File;
 import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
-import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;

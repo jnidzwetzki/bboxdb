@@ -20,8 +20,8 @@ package org.bboxdb.distribution;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.mode.KDtreeSpacePartitioner;
+import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;

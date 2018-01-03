@@ -30,7 +30,7 @@ import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.ServiceState.State;
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
-import org.bboxdb.distribution.mode.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;

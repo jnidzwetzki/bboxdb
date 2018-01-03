@@ -15,15 +15,29 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.mode;
+package org.bboxdb.distribution.partitioner;
 
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 
-public interface DistributionRegionChangedCallback {
+public interface SpacePartitioner {
 	
 	/**
-	 * Notify about a region change
-	 * @param distributionRegion
+	 * All dependencies are set, init the partitioner
+	 * @param spacePartitionerConfig 
+	 * @throws ZookeeperException
 	 */
-	public void regionChanged(final DistributionRegion distributionRegion);
+	public void init(final String spacePartitionerConfig, 
+			final DistributionGroupName distributionGroupName, 
+			final ZookeeperClient zookeeperClient, 
+			final DistributionGroupZookeeperAdapter distributionGroupAdapter) throws ZookeeperException;
+
+	/**
+	 * Get the root node
+	 * @return
+	 */
+	public DistributionRegion getRootNode();
+
 }
