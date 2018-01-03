@@ -24,7 +24,7 @@ import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
-import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -62,7 +62,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			distributionGroupZookeeperAdapter.createDistributionGroup(distributionGroup, 
 					createPackage.getDistributionGroupConfiguration());
 			
-			final KDtreeSpacePartitioner distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+			final SpacePartitioner distributionAdapter = DistributionGroupCache.getSpacepartitionerForGroupName(
 					distributionGroup, zookeeperClient);
 
 			final DistributionRegion region = distributionAdapter.getRootNode();

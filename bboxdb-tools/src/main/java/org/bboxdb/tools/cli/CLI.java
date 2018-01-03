@@ -716,7 +716,7 @@ public class CLI implements Runnable, AutoCloseable {
 				= new DistributionGroupZookeeperAdapter(zookeeperClient);
 			
 			final KDtreeSpacePartitioner treeAdapter = distributionGroupZookeeperAdapter
-					.readDistributionGroup(distributionGroup);
+					.getSpaceparitioner(distributionGroup);
 			
 			final short replicationFactor = distributionGroupZookeeperAdapter
 					.getReplicationFactorForDistributionGroup(distributionGroup);

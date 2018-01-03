@@ -28,7 +28,7 @@ import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
-import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -54,7 +54,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	/**
 	 * The tree adapter
 	 */
-	protected KDtreeSpacePartitioner treeAdapter = null;
+	protected SpacePartitioner spacePartitioner = null;
 	
 	/**
 	 * The distribution group adapter 
@@ -89,16 +89,16 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 */
 	public void initFromSSTablename(final DiskStorage storage, final TupleStoreName ssTableName) throws StorageManagerException {
 		
-		assert (treeAdapter == null) : "Unable to reinit instance";
+		assert (spacePartitioner == null) : "Unable to reinit instance";
 		assert (region == null) : "Unable to reinit instance";
 
 		try {
 			this.storage = storage;
 			
-			treeAdapter = DistributionGroupCache.getGroupForGroupName(
+			spacePartitioner = DistributionGroupCache.getSpacepartitionerForGroupName(
 					ssTableName.getDistributionGroup(), zookeeperClient);
 
-			final DistributionRegion distributionGroup = treeAdapter.getRootNode();
+			final DistributionRegion distributionGroup = spacePartitioner.getRootNode();
 			
 			final int nameprefix = ssTableName.getRegionId();
 			
@@ -430,7 +430,7 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	protected void performSplitAtPosition(final DistributionRegion region, final double splitPosition) {
 		try {
 			logger.info("Set split for {} at: {}", region.getIdentifier(), splitPosition);
-			treeAdapter.splitNode(region, splitPosition);
+			spacePartitioner.splitNode(region, splitPosition);
 			assertChildIsReady(region);
 		} catch (ZookeeperException | ResourceAllocationException | ZookeeperNotFoundException e) {
 			logger.warn("Unable to split region " + region.getIdentifier() + " at " + splitPosition, e);

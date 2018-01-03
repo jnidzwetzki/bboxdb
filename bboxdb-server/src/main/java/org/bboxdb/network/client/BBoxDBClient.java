@@ -42,7 +42,7 @@ import org.bboxdb.commons.ServiceState;
 import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
-import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -576,10 +576,10 @@ public class BBoxDBClient implements BBoxDB {
 		final TupleStoreName ssTableName = new TupleStoreName(table);
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 
-		final KDtreeSpacePartitioner distributionAdapter = DistributionGroupCache.getGroupForTableName(
+		final SpacePartitioner spacepartitioner = DistributionGroupCache.getSpaceparitionerForTableName(
 				ssTableName, zookeeperClient);
 
-		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+		final DistributionRegion distributionRegion = spacepartitioner.getRootNode();
 
 		final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(boundingBox, distributionRegion);
 

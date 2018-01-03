@@ -26,7 +26,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -116,12 +116,14 @@ public class DistributedRecoveryService implements BBoxDBService {
 				checkGroupVersion(storage, distributionGroupName, zookeeperClient);
 			}
 					
-			final KDtreeSpacePartitioner distributionAdapter = DistributionGroupCache.getGroupForGroupName(
+			final SpacePartitioner spacePartitioner = DistributionGroupCache.getSpacepartitionerForGroupName(
 					distributionGroupName.getFullname(), zookeeperClient);
 			
-			final DistributionRegion distributionGroup = distributionAdapter.getRootNode();
+			final DistributionRegion distributionGroup = spacePartitioner.getRootNode();
 		
-			final List<OutdatedDistributionRegion> outdatedRegions = DistributionRegionHelper.getOutdatedRegions(distributionGroup, localInstance);
+			final List<OutdatedDistributionRegion> outdatedRegions 
+				= DistributionRegionHelper.getOutdatedRegions(distributionGroup, localInstance);
+			
 			handleOutdatedRegions(distributionGroupName, outdatedRegions);
 		} catch (ZookeeperException e) {
 			logger.error("Got exception while running recovery for distribution group: " + distributionGroupName, e);

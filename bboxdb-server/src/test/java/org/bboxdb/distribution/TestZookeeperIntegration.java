@@ -26,7 +26,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
-import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -180,7 +180,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		// Split and update
-		final KDtreeSpacePartitioner distributionGroupAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final SpacePartitioner distributionGroupAdapter = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion distributionGroup = distributionGroupAdapter.getRootNode();
 		Assert.assertEquals(TEST_GROUP, distributionGroup.getDistributionGroupName().getFullname());
 		
@@ -212,10 +212,10 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final KDtreeSpacePartitioner adapter1 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final SpacePartitioner adapter1 = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion distributionGroup1 = adapter1.getRootNode();
 		
-		final KDtreeSpacePartitioner adapter2 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final SpacePartitioner adapter2 = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion distributionGroup2 = adapter2.getRootNode();
 
 		// Update object 1
@@ -249,10 +249,10 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final KDtreeSpacePartitioner adapter1 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final SpacePartitioner adapter1 = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion distributionGroup1 = adapter1.getRootNode();
 		
-		final KDtreeSpacePartitioner adapter2 = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final SpacePartitioner adapter2 = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion distributionGroup2 = adapter2.getRootNode();
 
 		Assert.assertEquals(0, distributionGroup1.getLevel());
@@ -293,7 +293,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
+		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 		final Collection<BBoxDBInstance> systems1 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, null);
 		Assert.assertEquals(0, systems1.size());
 		
@@ -321,7 +321,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
+		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName1);
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName2);
@@ -361,7 +361,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final KDtreeSpacePartitioner distributionGroupAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final SpacePartitioner distributionGroupAdapter = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion region = distributionGroupAdapter.getRootNode();
 		try {
 			distributionGroupAdapter.splitNode(region, 50);
@@ -401,7 +401,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
+		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName);
 		
 		// Sleep 2 seconds to wait for the update
@@ -421,7 +421,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final DistributionRegion region = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP).getRootNode();
+		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 		Assert.assertEquals(0, region.getRegionId());
 	}
 	
@@ -437,7 +437,7 @@ public class TestZookeeperIntegration {
  		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final KDtreeSpacePartitioner distributionGroupAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final SpacePartitioner distributionGroupAdapter = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion region = distributionGroupAdapter.getRootNode();
 		try {
 			distributionGroupAdapter.splitNode(region, 10);
@@ -538,7 +538,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final KDtreeSpacePartitioner cacheGroup = DistributionGroupCache.getGroupForGroupName(TEST_GROUP, zookeeperClient);
+		final SpacePartitioner cacheGroup = DistributionGroupCache.getSpacepartitionerForGroupName(TEST_GROUP, zookeeperClient);
 		Assert.assertTrue(cacheGroup.getRootNode().isLeafRegion());
 
 		System.out.println("---> Delete");
@@ -549,7 +549,7 @@ public class TestZookeeperIntegration {
 		
 		System.out.println("---> Split");
 
-		final KDtreeSpacePartitioner kdTreeAdapter = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final SpacePartitioner kdTreeAdapter = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		try {
 			kdTreeAdapter.splitNode(kdTreeAdapter.getRootNode(), (float) 20.0);
 		} catch (ResourceAllocationException e) {
@@ -559,7 +559,7 @@ public class TestZookeeperIntegration {
 		System.out.println("---> Split done");
 
 		// Test fresh copy
-		final KDtreeSpacePartitioner freshGroup = distributionGroupZookeeperAdapter.readDistributionGroup(TEST_GROUP);
+		final SpacePartitioner freshGroup = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		Assert.assertEquals((float) 20.0, freshGroup.getRootNode().getSplit(), 0.00001);
 		
 		// Test cached instance

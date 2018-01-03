@@ -172,7 +172,7 @@ public class GuiModel implements DistributionRegionChangedCallback {
 
 			try {
 				treeAdapter = distributionGroupZookeeperAdapter
-						.readDistributionGroup(distributionGroup);
+						.getSpaceparitioner(distributionGroup);
 				
 				replicationFactor = distributionGroupZookeeperAdapter
 						.getReplicationFactorForDistributionGroup(distributionGroup);

@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -33,10 +33,10 @@ public class DistributionGroupCache {
 	/**
 	 * Mapping between the string group and the group object
 	 */
-	protected final static Map<String, KDtreeSpacePartitioner> groupGroupMap;
+	protected final static Map<String, SpacePartitioner> groupGroupMap;
 
 	static {
-		groupGroupMap = new HashMap<String, KDtreeSpacePartitioner>();
+		groupGroupMap = new HashMap<String, SpacePartitioner>();
 	}
 	
 	/**
@@ -46,12 +46,14 @@ public class DistributionGroupCache {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized KDtreeSpacePartitioner getGroupForGroupName(final String groupName, 
+	public static synchronized SpacePartitioner getSpacepartitionerForGroupName(final String groupName, 
 			final ZookeeperClient zookeeperClient) throws ZookeeperException {
 		
 		if(! groupGroupMap.containsKey(groupName)) {
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
-			final KDtreeSpacePartitioner adapter = distributionGroupZookeeperAdapter.readDistributionGroup(groupName);
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+				= new DistributionGroupZookeeperAdapter(zookeeperClient);
+			
+			final SpacePartitioner adapter = distributionGroupZookeeperAdapter.getSpaceparitioner(groupName);
 			groupGroupMap.put(groupName, adapter);
 		}
 		
@@ -66,7 +68,7 @@ public class DistributionGroupCache {
 	 * @throws BBoxDBException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized KDtreeSpacePartitioner getGroupForTableName(
+	public static synchronized SpacePartitioner getSpaceparitionerForTableName(
 			final TupleStoreName ssTableName, final ZookeeperClient zookeeperClient) 
 					throws ZookeeperException, BBoxDBException {
 		
@@ -74,6 +76,6 @@ public class DistributionGroupCache {
 			throw new BBoxDBException("Invalid tablename: " + ssTableName);
 		}
 		
-		return getGroupForGroupName(ssTableName.getDistributionGroup(), zookeeperClient);
+		return getSpacepartitionerForGroupName(ssTableName.getDistributionGroup(), zookeeperClient);
 	}
 }
