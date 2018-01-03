@@ -223,15 +223,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * Get the root node
 	 * @return
 	 */
+	@Override
 	public DistributionRegion getRootNode() {
-		return rootNode;
-	}
-	
-	/**
-	 * Wait until the root node is created
-	 * @return
-	 */
-	public DistributionRegion getAndWaitForRootNode() {
 		synchronized (MUTEX) {
 			while(rootNode == null) {
 				try {
