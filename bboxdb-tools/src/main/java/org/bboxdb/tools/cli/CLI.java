@@ -36,7 +36,7 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -715,7 +715,7 @@ public class CLI implements Runnable, AutoCloseable {
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
 				= new DistributionGroupZookeeperAdapter(zookeeperClient);
 			
-			final KDtreeSpacePartitioner treeAdapter = distributionGroupZookeeperAdapter
+			final SpacePartitioner spacePartitioner = distributionGroupZookeeperAdapter
 					.getSpaceparitioner(distributionGroup);
 			
 			final short replicationFactor = distributionGroupZookeeperAdapter
@@ -723,7 +723,7 @@ public class CLI implements Runnable, AutoCloseable {
 			
 			System.out.println("Replication factor is: " + replicationFactor);
 			
-			printDistributionRegionRecursive(treeAdapter.getRootNode());
+			printDistributionRegionRecursive(spacePartitioner.getRootNode());
 
 		} catch (ZookeeperException e) {
 			System.err.println("Got an exception during reading distribution group:" + e);

@@ -32,7 +32,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.DistributedInstanceEvent;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionChangedCallback;
-import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -67,9 +67,9 @@ public class GuiModel implements DistributionRegionChangedCallback {
 	protected final ZookeeperClient zookeeperClient;
 
 	/**
-	 * The tree adapter
+	 * The space partitioner
 	 */
-	private KDtreeSpacePartitioner treeAdapter;
+	private SpacePartitioner spacePartitioner;
 
 	/**
 	 * The distribution group adapter
@@ -109,8 +109,8 @@ public class GuiModel implements DistributionRegionChangedCallback {
 	 * Unregister the tree change listener
 	 */
 	protected void unregisterTreeChangeListener() {
-		if (treeAdapter != null) {
-			treeAdapter.unregisterCallback(this);
+		if (spacePartitioner != null) {
+			spacePartitioner.unregisterCallback(this);
 		}
 	}
 
@@ -166,12 +166,12 @@ public class GuiModel implements DistributionRegionChangedCallback {
 			unregisterTreeChangeListener();
 
 			if (distributionGroup == null) {
-				treeAdapter = null;
+				spacePartitioner = null;
 				return;
 			}
 
 			try {
-				treeAdapter = distributionGroupZookeeperAdapter
+				spacePartitioner = distributionGroupZookeeperAdapter
 						.getSpaceparitioner(distributionGroup);
 				
 				replicationFactor = distributionGroupZookeeperAdapter
@@ -180,7 +180,7 @@ public class GuiModel implements DistributionRegionChangedCallback {
 				logger.warn("Got exception", e);
 			}
 
-			treeAdapter.registerCallback(GuiModel.this);
+			spacePartitioner.registerCallback(GuiModel.this);
 			
 			final StringBuilder sb = new StringBuilder();
 			sb.append("Cluster name: " + getClustername());
@@ -292,8 +292,8 @@ public class GuiModel implements DistributionRegionChangedCallback {
 	 * 
 	 * @return
 	 */
-	public KDtreeSpacePartitioner getTreeAdapter() {
-		return treeAdapter;
+	public SpacePartitioner getTreeAdapter() {
+		return spacePartitioner;
 	}
 
 	/**
