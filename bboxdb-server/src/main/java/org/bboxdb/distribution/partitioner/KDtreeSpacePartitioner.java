@@ -213,7 +213,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	/**
 	 * The root element is deleted
 	 */
-	public void handleRootElementDeleted() {
+	private void handleRootElementDeleted() {
 		logger.info("Root element for {} is deleted", distributionGroupName);
 		RegionIdMapperInstanceManager.getInstance(distributionGroupName).clear();
 		rootNode = null;
@@ -322,6 +322,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ResourceAllocationException 
 	 * @throws ZookeeperNotFoundException 
 	 */
+	@Override
 	public void splitNode(final DistributionRegion regionToSplit, final double splitPosition) 
 			throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException {
 		
@@ -338,11 +339,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		distributionGroupZookeeperAdapter.setSplitPositionForPath(zookeeperPath, splitPosition);
 		distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, DistributionRegionState.SPLITTING);
 		
-		waitForChildCreateZookeeperCallback(regionToSplit);
+		waitUntilChildIsCreated(regionToSplit);
 
 		// Allocate systems (the data of the left node is stored locally)
 		copySystemsToRegion(regionToSplit, regionToSplit.getLeftChild());
-		allocateSystemsToNewRegion(regionToSplit.getRightChild());
+		allocateSystemsToRegion(regionToSplit.getRightChild());
 		
 		// update state
 		distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
@@ -355,7 +356,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * Wait for zookeeper split callback
 	 * @param regionToSplit
 	 */
-	public void waitForChildCreateZookeeperCallback(final DistributionRegion regionToSplit) {
+	private void waitUntilChildIsCreated(final DistributionRegion regionToSplit) {
 		
 		// Wait for zookeeper callback
 		synchronized (MUTEX) {
@@ -375,7 +376,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * Wait for zookeeper split callback
 	 * @param regionToSplit
 	 */
-	public void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit) {
+	private void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit) {
 		
 		// Wait for zookeeper callback
 		synchronized (MUTEX) {
@@ -417,7 +418,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ResourceAllocationException
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public void allocateSystemsToNewRegion(final DistributionRegion region) throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException {
+	@Override
+	public void allocateSystemsToRegion(final DistributionRegion region) throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException {
 		
 		final String distributionGroupName = region.getDistributionGroupName().getFullname();
 		final short replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroupName);
@@ -613,10 +615,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	}
 	
 	/**
-	 * Register a new callbacl
+	 * Register a new callback
 	 * @param callback
 	 * @return
 	 */
+	@Override
 	public boolean registerCallback(final DistributionRegionChangedCallback callback) {
 		return callbacks.add(callback);
 	}
@@ -626,6 +629,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @param callback
 	 * @return 
 	 */
+	@Override
 	public boolean unregisterCallback(final DistributionRegionChangedCallback callback) {
 		return callbacks.remove(callback);
 	}

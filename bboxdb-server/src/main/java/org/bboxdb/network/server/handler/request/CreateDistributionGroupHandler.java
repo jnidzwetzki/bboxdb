@@ -67,7 +67,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 
 			final DistributionRegion region = distributionAdapter.getRootNode();
 			
-			distributionAdapter.allocateSystemsToNewRegion(region);
+			distributionAdapter.allocateSystemsToRegion(region);
 			
 			// Let the data settle down
 			Thread.sleep(5000);

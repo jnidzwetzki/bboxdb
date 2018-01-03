@@ -19,8 +19,10 @@ package org.bboxdb.distribution.partitioner;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 
 public interface SpacePartitioner {
 	
@@ -39,5 +41,39 @@ public interface SpacePartitioner {
 	 * @return
 	 */
 	public DistributionRegion getRootNode();
+	
+	/**
+	 * Allocate systems to a new region
+	 * @param region
+	 * @throws ZookeeperException
+	 * @throws ResourceAllocationException
+	 * @throws ZookeeperNotFoundException
+	 */
+	public void allocateSystemsToRegion(final DistributionRegion region) 
+			throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException;
 
+	/**
+	 * Split the node on the given position
+	 * @param regionToSplit
+	 * @param splitPosition
+	 * @throws ZookeeperException
+	 * @throws ResourceAllocationException
+	 * @throws ZookeeperNotFoundException
+	 */
+	public void splitNode(final DistributionRegion regionToSplit, final double splitPosition) 
+			throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException;
+	
+	/**
+	 * Register a changed callback
+	 * @param callback
+	 * @return
+	 */
+	public boolean registerCallback(final DistributionRegionChangedCallback callback);
+	
+	/**
+	 * Remove a changed callback
+	 * @param callback
+	 * @return
+	 */
+	public boolean unregisterCallback(final DistributionRegionChangedCallback callback);
 }
