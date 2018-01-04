@@ -15,20 +15,19 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution;
+package org.bboxdb.distribution.partitioner;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.TupleStoreName;
 
-public class DistributionGroupCache {
+public class SpacePartitionerCache {
 	
 	/**
 	 * Mapping between the string group and the group object
@@ -46,8 +45,10 @@ public class DistributionGroupCache {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized SpacePartitioner getSpacepartitionerForGroupName(final String groupName, 
-			final ZookeeperClient zookeeperClient) throws ZookeeperException {
+	public static synchronized SpacePartitioner getSpacePartitionerForGroupName(final String groupName) 
+			throws ZookeeperException {
+		
+		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		
 		if(! groupGroupMap.containsKey(groupName)) {
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
@@ -68,14 +69,13 @@ public class DistributionGroupCache {
 	 * @throws BBoxDBException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized SpacePartitioner getSpaceparitionerForTableName(
-			final TupleStoreName ssTableName, final ZookeeperClient zookeeperClient) 
-					throws ZookeeperException, BBoxDBException {
+	public static synchronized SpacePartitioner getSpaceParitionerForTableName(
+			final TupleStoreName ssTableName) throws ZookeeperException, BBoxDBException {
 		
 		if(! ssTableName.isValid()) {
 			throw new BBoxDBException("Invalid tablename: " + ssTableName);
 		}
-		
-		return getSpacepartitionerForGroupName(ssTableName.getDistributionGroup(), zookeeperClient);
+
+		return getSpacePartitionerForGroupName(ssTableName.getDistributionGroup());
 	}
 }

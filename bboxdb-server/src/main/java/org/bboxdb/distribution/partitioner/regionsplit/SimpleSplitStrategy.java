@@ -15,18 +15,14 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.regionsplit;
-
-import java.util.List;
+package org.bboxdb.distribution.partitioner.regionsplit;
 
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.storage.entity.DoubleInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SimpleSplitStrategy extends AbstractRegionSplitStrategy {
+public class SimpleSplitStrategy implements SplitpointStrategy {
 
 	/**
 	 * The Logger
@@ -37,27 +33,15 @@ public class SimpleSplitStrategy extends AbstractRegionSplitStrategy {
 	 * Perform a split of the given distribution region
 	 */
 	@Override
-	protected boolean performSplit(final DistributionRegion region) {
-		
-		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
-		final List<BBoxDBInstance> systems = distributedInstanceManager.getInstances();
-		
-		if(systems.isEmpty()) {
-			logger.warn("Unable to split region, no ressources are avilable: " + region);
-			return false;
-		}
-		
-		logger.info("Performing split of region: " + region);
+	public double getSplitPoint(final DistributionRegion region) {
+				
+		logger.info("Performing split of region: {}", region);
 		
 		// Split region
 		final int splitDimension = region.getSplitDimension();
 		final DoubleInterval interval = region.getConveringBox().getIntervalForDimension(splitDimension);
 		
 		logger.info("Split at dimension:" + splitDimension + " interval: " + interval);
-		final double midpoint = interval.getMidpoint();
-		
-		performSplitAtPosition(region, midpoint);
-		
-		return true;
+		return interval.getMidpoint();
 	}
 }

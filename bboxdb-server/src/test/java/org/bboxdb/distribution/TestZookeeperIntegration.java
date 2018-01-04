@@ -26,13 +26,16 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -46,8 +49,11 @@ public class TestZookeeperIntegration {
 	 */
 	protected static ZookeeperClient zookeeperClient;
 	
+	/**
+	 * The distribution group adapter
+	 */
 	protected static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
-	
+
 	/**
 	 * The name of the test region
 	 */
@@ -55,11 +61,10 @@ public class TestZookeeperIntegration {
 	
 	@BeforeClass
 	public static void before() {
-		final BBoxDBConfiguration scalephantConfiguration 
-			= BBoxDBConfigurationManager.getConfiguration();
+		final BBoxDBConfiguration configuration = BBoxDBConfigurationManager.getConfiguration();
 	
-		final Collection<String> zookeepernodes = scalephantConfiguration.getZookeepernodes();
-		final String clustername = scalephantConfiguration.getClustername();
+		final Collection<String> zookeepernodes = configuration.getZookeepernodes();
+		final String clustername = configuration.getClustername();
 
 		System.out.println("Zookeeper nodes are: " + zookeepernodes);
 		System.out.println("Zookeeper cluster is: " + clustername);
@@ -172,21 +177,22 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testDistributionRegionSplit() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
+	public void testDistributionRegionSplit() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		// Split and update
-		final SpacePartitioner distributionGroupAdapter = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
-		final DistributionRegion distributionGroup = distributionGroupAdapter.getRootNode();
+		final KDtreeSpacePartitioner spacePartitioner = (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		final DistributionRegion distributionGroup = spacePartitioner.getRootNode();
 		Assert.assertEquals(TEST_GROUP, distributionGroup.getDistributionGroupName().getFullname());
 		
 		Assert.assertEquals(DistributionRegionState.ACTIVE, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup, null));
 		try {
-			distributionGroupAdapter.splitNode(distributionGroup, 10);
+			spacePartitioner.splitNode(distributionGroup, 10);
 		} catch (ResourceAllocationException e) {
 			// Ignore this for the unit test
 		}
@@ -196,7 +202,7 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(DistributionRegionState.SPLITTING, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup, null));
 
 		// Reread group from zookeeper
-		final DistributionRegion newDistributionGroup = distributionGroupAdapter.getRootNode();
+		final DistributionRegion newDistributionGroup = spacePartitioner.getRootNode();
 		Assert.assertEquals(10.0, newDistributionGroup.getSplit(), 0.0001);
 	}
 	
@@ -205,17 +211,20 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testDistributionRegionSplitWithZookeeperPropergate() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
+	public void testDistributionRegionSplitWithZookeeperPropergate() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final SpacePartitioner adapter1 = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		final KDtreeSpacePartitioner adapter1 = 
+				(KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion distributionGroup1 = adapter1.getRootNode();
 		
-		final SpacePartitioner adapter2 = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		final KDtreeSpacePartitioner adapter2 = 
+				(KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion distributionGroup2 = adapter2.getRootNode();
 
 		// Update object 1
@@ -242,17 +251,20 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testDistributionRegionSplitWithZookeeperPropergate2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
+	public void testDistributionRegionSplitWithZookeeperPropergate2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final SpacePartitioner adapter1 = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		final KDtreeSpacePartitioner adapter1 
+			= (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion distributionGroup1 = adapter1.getRootNode();
 		
-		final SpacePartitioner adapter2 = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		final KDtreeSpacePartitioner adapter2 
+			= (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion distributionGroup2 = adapter2.getRootNode();
 
 		Assert.assertEquals(0, distributionGroup1.getLevel());
@@ -351,17 +363,19 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testSystemCheckpoint2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
+	public void testSystemCheckpoint2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		final BBoxDBInstance systemName1 = new BBoxDBInstance("192.168.1.10:5050");
 		final BBoxDBInstance systemName2 = new BBoxDBInstance("192.168.1.20:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final SpacePartitioner distributionGroupAdapter = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		final KDtreeSpacePartitioner distributionGroupAdapter 
+			= (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion region = distributionGroupAdapter.getRootNode();
 		try {
 			distributionGroupAdapter.splitNode(region, 50);
@@ -430,15 +444,18 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testNameprefix2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
+	public void testNameprefix2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
  		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final SpacePartitioner distributionGroupAdapter = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		final KDtreeSpacePartitioner distributionGroupAdapter 
+			= (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion region = distributionGroupAdapter.getRootNode();
+		
 		try {
 			distributionGroupAdapter.splitNode(region, 10);
 		} catch (ResourceAllocationException e) {
@@ -529,16 +546,18 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
 	public void testCreateAndDeleteDistributionGroup() 
-			throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
+			throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		final SpacePartitioner cacheGroup = DistributionGroupCache.getSpacepartitionerForGroupName(TEST_GROUP, zookeeperClient);
+		final KDtreeSpacePartitioner cacheGroup 
+			= (KDtreeSpacePartitioner) SpacePartitionerCache.getSpacePartitionerForGroupName(TEST_GROUP);
 		Assert.assertTrue(cacheGroup.getRootNode().isLeafRegion());
 
 		System.out.println("---> Delete");
@@ -549,7 +568,9 @@ public class TestZookeeperIntegration {
 		
 		System.out.println("---> Split");
 
-		final SpacePartitioner kdTreeAdapter = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		final KDtreeSpacePartitioner kdTreeAdapter 
+			= (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		
 		try {
 			kdTreeAdapter.splitNode(kdTreeAdapter.getRootNode(), (float) 20.0);
 		} catch (ResourceAllocationException e) {

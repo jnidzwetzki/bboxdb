@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.regionsplit.tuplesink;
+package org.bboxdb.distribution.partitioner.regionsplit.tuplesink;
 
 import java.util.ArrayList;
 import java.util.Collection;

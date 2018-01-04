@@ -22,14 +22,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
-import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -87,9 +86,9 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 	protected Multiset<BBoxDBInstance> calculateSystemUsage() 
 			throws ZookeeperException, ZookeeperNotFoundException {
 				
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		final DistributionGroupZookeeperAdapter zookeeperAdapter 
 			= ZookeeperClientFactory.getDistributionGroupAdapter();
+		
 		final List<DistributionGroupName> distributionGroups = zookeeperAdapter.getDistributionGroups();
 		
 		// The overall usage
@@ -98,7 +97,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 		// Calculate usage for each distribution group
 		for(final DistributionGroupName groupName : distributionGroups) {
 			final SpacePartitioner spacepartitioner 
-				= DistributionGroupCache.getSpacepartitionerForGroupName(groupName.getFullname(), zookeeperClient);
+				= SpacePartitionerCache.getSpacePartitionerForGroupName(groupName.getFullname());
 			
 			final DistributionRegion region = spacepartitioner.getRootNode();
 			final Multiset<BBoxDBInstance> regionSystemUsage 

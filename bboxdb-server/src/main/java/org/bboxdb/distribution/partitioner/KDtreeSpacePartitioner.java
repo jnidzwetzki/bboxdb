@@ -30,12 +30,16 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
+import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.network.client.BBoxDBException;
+import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +89,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KDtreeSpacePartitioner.class);
+
 
 	public KDtreeSpacePartitioner() {
 		this.callbacks = new HashSet<>();		
@@ -320,36 +325,60 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	@Override
-	public void splitNode(final DistributionRegion regionToSplit, final double splitPosition) 
-			throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException {
+	public void splitNode(final DistributionRegion regionToSplit, final DiskStorage diskStorage) 
+			throws BBoxDBException {
 		
-		logger.debug("Write split at pos {} into zookeeper", splitPosition);
-		final String zookeeperPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
-		
-		final String leftPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_LEFT;
-		createNewChild(leftPath);
-		
-		final String rightPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_RIGHT;
-		createNewChild(rightPath);
-		
-		// Write split position
-		distributionGroupZookeeperAdapter.setSplitPositionForPath(zookeeperPath, splitPosition);
-		distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, DistributionRegionState.SPLITTING);
-		
-		waitUntilChildIsCreated(regionToSplit);
+		try {
+			final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(diskStorage);
+			final double splitPosition = splitpointStrategy.getSplitPoint(regionToSplit);
+			
+			splitNode(regionToSplit, splitPosition);
+		} catch (Exception e) {
+			throw new BBoxDBException(e);
+		} 
+	}
 
-		// Allocate systems (the data of the left node is stored locally)
-		SpacePartitionerHelper.copySystemsToRegion(regionToSplit, regionToSplit.getLeftChild(), 
-				this, distributionGroupZookeeperAdapter);
+	/**
+	 * Split the node at the given split point
+	 * @param regionToSplit
+	 * @param splitPosition
+	 * @throws BBoxDBException
+	 * @throws ResourceAllocationException 
+	 */
+	public void splitNode(final DistributionRegion regionToSplit, final double splitPosition)
+			throws BBoxDBException, ResourceAllocationException {
 		
-		SpacePartitionerHelper.allocateSystemsToRegion(regionToSplit.getRightChild(), 
-				this, distributionGroupZookeeperAdapter);
-		
-		// update state
-		distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
-		distributionGroupZookeeperAdapter.setStateForDistributionGroup(rightPath, DistributionRegionState.ACTIVE);	
+		try {
+			logger.debug("Write split at pos {} into zookeeper", splitPosition);
+			final String zookeeperPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
+			
+			final String leftPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_LEFT;
+			createNewChild(leftPath);
+			
+			final String rightPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_RIGHT;
+			createNewChild(rightPath);
+			
+			// Write split position
+			distributionGroupZookeeperAdapter.setSplitPositionForPath(zookeeperPath, splitPosition);
+			distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, DistributionRegionState.SPLITTING);
+			
+			waitUntilChildIsCreated(regionToSplit);
 	
-		waitForSplitZookeeperCallback(regionToSplit);
+			// Allocate systems (the data of the left node is stored locally)
+			SpacePartitionerHelper.copySystemsToRegion(regionToSplit, regionToSplit.getLeftChild(), 
+					this, distributionGroupZookeeperAdapter);
+			
+			SpacePartitionerHelper.allocateSystemsToRegion(regionToSplit.getRightChild(), 
+					this, distributionGroupZookeeperAdapter);
+			
+			// update state
+			distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
+			distributionGroupZookeeperAdapter.setStateForDistributionGroup(rightPath, DistributionRegionState.ACTIVE);	
+	
+			waitForSplitZookeeperCallback(regionToSplit);
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
+			throw new BBoxDBException(e);
+		} 
 	}
 
 	/**
@@ -653,5 +682,10 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 				regionIdMapper.addMapping(region);
 			}
 		}
+	}
+	
+	@Override
+	public boolean isMergingSupported() {
+		return false;
 	}
 }

@@ -39,12 +39,10 @@ import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.commons.NetworkInterfaceHelper;
 import org.bboxdb.commons.ServiceState;
-import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
@@ -574,10 +572,9 @@ public class BBoxDBClient implements BBoxDB {
 			throws ZookeeperException, BBoxDBException, InterruptedException {
 
 		final TupleStoreName ssTableName = new TupleStoreName(table);
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 
-		final SpacePartitioner spacepartitioner = DistributionGroupCache.getSpaceparitionerForTableName(
-				ssTableName, zookeeperClient);
+		final SpacePartitioner spacepartitioner = SpacePartitionerCache.getSpaceParitionerForTableName(
+				ssTableName);
 
 		final DistributionRegion distributionRegion = spacepartitioner.getRootNode();
 

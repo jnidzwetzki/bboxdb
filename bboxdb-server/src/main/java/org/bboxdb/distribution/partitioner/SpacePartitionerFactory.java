@@ -35,7 +35,7 @@ public class SpacePartitionerFactory {
 	 * Return the space partitioner for the distriburion group
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static KDtreeSpacePartitioner getSpacePartitionerForDistributionGroup(
+	public static SpacePartitioner getSpacePartitionerForDistributionGroup(
 			final ZookeeperClient zookeeperClient,
 			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
 			final String distributionGroup) throws ZookeeperException {
@@ -67,8 +67,7 @@ public class SpacePartitionerFactory {
 			spacePartitioner.init(spacePartitionerConfig, distributionGroupName, 
 					zookeeperClient, distributionGroupAdapter);
 
-			// FIXME: Add support for further space partitioner
-			return (KDtreeSpacePartitioner) spacePartitioner;
+			return spacePartitioner;
 
 		} catch (Exception e) {
 			logger.warn("Unable to instance class: " + spacePartitionerString, e);

@@ -24,8 +24,13 @@ import java.util.stream.Collectors;
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.concurrent.ExceptionSafeThread;
 import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.regionsplit.AbstractRegionSplitStrategy;
-import org.bboxdb.distribution.regionsplit.SamplingBasedSplitStrategy;
+import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.DistributionRegionHelper;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
+import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitter;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -125,24 +130,6 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	}
 
 	/**
-	 * Init the region spliter, if needed (distributed version if a table)
-	 * @return 
-	 * @throws StorageManagerException 
-	 */
-	protected AbstractRegionSplitStrategy getRegionSplitter(final TupleStoreManager ssTableManager) 
-			throws StorageManagerException {
-		
-		assert(ssTableManager.getSSTableName().isDistributedTable()) 
-			: ssTableManager.getSSTableName() + " is not a distributed table";
-		
-		final AbstractRegionSplitStrategy regionSplitter = new SamplingBasedSplitStrategy();
-
-		regionSplitter.initFromSSTablename(storage, ssTableManager.getSSTableName());
-		
-		return regionSplitter;		
-	}
-
-	/**
 	 * Merge multiple facades into a new one
 	 * @param sstableManager 
 	 *
@@ -189,34 +176,54 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		if(sstableManager.getSSTableName().isDistributedTable()) {
 			// Read only = table is in splitting mode
 			if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_WRITE) {
-				testForRegionSplit(sstableManager);
+				testOverflowUnderflow(sstableManager);
 			}
 		}
 	}
 
 	/**
-	 * Test and perform an table split if needed
+	 * Test and perform a table split or merge if needed
 	 * @param totalWrittenTuples 
 	 * @throws StorageManagerException 
 	 */
-	protected void testForRegionSplit(final TupleStoreManager sstableManager) throws StorageManagerException {
+	protected void testOverflowUnderflow(final TupleStoreManager sstableManager) throws StorageManagerException {
 		
-		final TupleStoreName ssTableName = sstableManager.getSSTableName();
-		
-		final DistributionGroupName distributionGroup = ssTableName.getDistributionGroupObject();
-		final int regionId = ssTableName.getRegionId();
-		
-		final long totalSize = storage
-				.getStorageRegistry().getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
-		
-		final long totalSizeInMb = totalSize / (1024 * 1024);
-		logger.info("Test for region split: {}. Size in MB: {}", distributionGroup, totalSizeInMb);
-						
-		final AbstractRegionSplitStrategy regionSplitter = getRegionSplitter(sstableManager);
-		
-		if(regionSplitter.isSplitNeeded(totalSize)) {
-			regionSplitter.run();
-		}
+		try {
+			final TupleStoreName ssTableName = sstableManager.getSSTableName();
+			
+			final DistributionGroupName distributionGroup = ssTableName.getDistributionGroupObject();
+			final int regionId = ssTableName.getRegionId();
+			
+			final long totalSize = storage
+					.getStorageRegistry().getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
+			
+			final long totalSizeInMb = totalSize / (1024 * 1024);
+			logger.info("Test for region split: {}. Size in MB: {}", distributionGroup, totalSizeInMb);
+							
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(
+					ssTableName.getDistributionGroup());
+
+			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
+			
+			final DistributionRegion regionToSplit = DistributionRegionHelper.getDistributionRegionForNamePrefix(
+					distributionRegion, regionId);
+					
+			final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
+			final RegionSplitter regionSplitter = new RegionSplitter();
+
+			if(regionSplitHelper.isRegionOverflow(regionToSplit, totalSizeInMb)) {
+				regionSplitter.splitRegion(regionToSplit, spacePartitioner, storage);
+			} else if(regionSplitHelper.isRegionUnderflow(regionToSplit, totalSizeInMb)) {
+				if(spacePartitioner.isMergingSupported()) {
+					regionSplitter.mergeRegion(regionToSplit, spacePartitioner, storage);
+				}
+			}
+		} catch (ZookeeperException | BBoxDBException e) {
+			throw new StorageManagerException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		} 
 	}
 
 	/**

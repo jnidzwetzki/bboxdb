@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.regionsplit;
+package org.bboxdb.distribution.partitioner.regionsplit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,39 +27,45 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class SamplingBasedSplitStrategy extends AbstractRegionSplitStrategy {
+public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	
 	/**
 	 * The point samples
 	 */
-	protected final List<Double> pointSamples;
+	private final List<Double> pointSamples;
+	
+	/**
+	 * The disk storage
+	 */
+	private DiskStorage storage;
 
-	public SamplingBasedSplitStrategy() {
-		pointSamples = new ArrayList<>();
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(SamplingBasedSplitStrategy.class);
+
+
+	public SamplingBasedSplitStrategy(final DiskStorage storage) {
+		this.storage = storage;
+		this.pointSamples = new ArrayList<>();
 	}
 
 	@Override
-	protected boolean performSplit(final DistributionRegion regionToSplit) {
-		final int splitDimension = regionToSplit.getSplitDimension();
+	public double getSplitPoint(final DistributionRegion region) throws StorageManagerException {
+		
+		final int splitDimension = region.getSplitDimension();
 	
 		final List<TupleStoreName> tables = storage.getStorageRegistry()
 				.getAllTablesForDistributionGroupAndRegionId
 				(region.getDistributionGroupName(), region.getRegionId());
-		
-		try {
-			final double splitPositonRound = caclculateSplitPoint(regionToSplit.getConveringBox(), 
-					splitDimension, tables);
-			
-			performSplitAtPosition(regionToSplit, splitPositonRound);
-			
-			return true;
-		} catch (StorageManagerException e) {
-			logger.error("Got exception while performing split", e);
-			return false;
-		}
+	
+		return caclculateSplitPoint(region.getConveringBox(), splitDimension, tables);
 	}
 
 	/**

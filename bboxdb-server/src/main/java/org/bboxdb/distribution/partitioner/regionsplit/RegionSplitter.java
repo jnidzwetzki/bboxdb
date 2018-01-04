@@ -1,26 +1,8 @@
-/*******************************************************************************
- *
- *    Copyright (C) 2015-2018 the BBoxDB project
- *  
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *  
- *      http://www.apache.org/licenses/LICENSE-2.0
- *  
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License. 
- *    
- *******************************************************************************/
-package org.bboxdb.distribution.regionsplit;
+package org.bboxdb.distribution.partitioner.regionsplit;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
@@ -29,12 +11,12 @@ import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
-import org.bboxdb.distribution.regionsplit.tuplesink.TupleRedistributor;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -44,8 +26,8 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractRegionSplitStrategy implements Runnable {
-	
+public class RegionSplitter {
+
 	/**
 	 * The zookeeper client
 	 */
@@ -70,16 +52,75 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 	 * The storage reference
 	 */
 	protected DiskStorage storage;
-	
+
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(AbstractRegionSplitStrategy.class);
-
-
-	public AbstractRegionSplitStrategy() {
+	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitter.class);
+	
+	public RegionSplitter() {
 		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		this.distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+	}
+	
+	/**
+	 * Perform a distribution region split
+	 * @param region
+	 * @param distributionGroupZookeeperAdapter
+	 * @param spacePartitioner
+	 * @param diskStorage
+	 */
+	public void splitRegion(final DistributionRegion region, 
+			final SpacePartitioner spacePartitioner, final DiskStorage diskStorage) {
+		
+		assert(region != null);
+		assert(region.isLeafRegion()) : "Unable to perform split on: " + region;
+		
+		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+			= ZookeeperClientFactory.getDistributionGroupAdapter();
+		
+		logger.info("Performing split for: {}", region.getIdentifier());
+		
+		try {
+			// Try to set region state to full. If this fails, another node is already 
+			// splits the region
+			final boolean setToFullResult = distributionGroupZookeeperAdapter.setToFull(region);
+			
+			if(! setToFullResult) {
+				logger.info("Unable to set state to full for region: {}, stopping split", region.getIdentifier());
+				logger.info("Old state was {}", distributionGroupZookeeperAdapter.getStateForDistributionRegion(region));
+				return;
+			}
+			
+			try {
+				spacePartitioner.splitNode(region, diskStorage);
+				redistributeData(region);
+			} catch (BBoxDBException e) {
+				logger.error("Unable to split region {}, stopping split!", region.getIdentifier());
+				logger.error("Exception is:", e);
+			}
+	
+		} catch (Throwable e) {
+			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
+		}
+
+		logger.info("Performing split for: {} is done", region.getIdentifier());
+	}
+	
+	
+	/**
+	 * Merge the given region
+	 * @param region
+	 * @param distributionGroupZookeeperAdapter
+	 * @param spacePartitioner
+	 * @param diskStorage
+	 */
+	public void mergeRegion(final DistributionRegion region, final SpacePartitioner spacePartitioner,
+			final DiskStorage diskStorage) {
+		// FIXME: TODO
+		
+		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+
 	}
 
 	/**
@@ -95,8 +136,8 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		try {
 			this.storage = storage;
 			
-			spacePartitioner = DistributionGroupCache.getSpacepartitionerForGroupName(
-					ssTableName.getDistributionGroup(), zookeeperClient);
+			spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(
+					ssTableName.getDistributionGroup());
 
 			final DistributionRegion distributionGroup = spacePartitioner.getRootNode();
 			
@@ -123,100 +164,6 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		}
 	}
 	
-	/**
-	 * Is a split needed?
-	 * @param totalTuplesInTable
-	 * @return
-	 */
-	public boolean isSplitNeeded(final long sizeOfRegion) {
-		
-		// Is the data of the parent completely distributed?
-		if(! isParentDataRedistributed()) {
-			return false;
-		}
-		
-		long maxSize;
-		try {
-			maxSize = getRegionMaxSizeInMB();
-			return (((sizeOfRegion / 1024) / 1024) > maxSize);
-		} catch (ZookeeperException | ZookeeperNotFoundException e) {
-			logger.error("Unable to read max size from zookeeper", e);
-		} 
-		
-		// Return after exception
-		return false;
-	}
-	
-	/**
-	 * Is the data of the region parent completely redistributed, 
-	 * if not, wait with local split
-	 * @return
-	 */
-	protected boolean isParentDataRedistributed() {
-		
-		// Root region
-		if(region.getParent() == DistributionRegion.ROOT_NODE_ROOT_POINTER) {
-			return true;
-		}
-		
-		return region.getParent().getState() == DistributionRegionState.SPLIT;
-	}
-
-	/**
-	 * Get maximal size of a region
-	 * @return
-	 * @throws ZookeeperNotFoundException 
-	 * @throws ZookeeperException 
-	 */
-	protected long getRegionMaxSizeInMB() throws ZookeeperException, ZookeeperNotFoundException {
-		final String fullname = region.getDistributionGroupName().getFullname();
-		return distributionGroupZookeeperAdapter.getMaxRegionSizeForDistributionGroup(fullname);
-	}
-	
-	/**
-	 * Perform a split of the given region
-	 * @param region
-	 * @return 
-	 */
-	protected abstract boolean performSplit(final DistributionRegion region);
-
-	/**
-	 * Perform a SSTable split
-	 * @param sstableManager
-	 * @return Split performed or not
-	 */
-	public void run() {
-		
-		assert(region != null);
-		assert(region.isLeafRegion()) : "Unable to perform split on: " + region;
-		
-		logger.info("Performing split for: {}", region.getIdentifier());
-		
-		try {
-			// Try to set region state to full. If this fails, another node is already 
-			// splits the region
-			final boolean setToFullResult = distributionGroupZookeeperAdapter.setToFull(region);
-			
-			if(! setToFullResult) {
-				logger.info("Unable to set state to full for region: {}, stopping split", region.getIdentifier());
-				logger.info("Old state was {}", distributionGroupZookeeperAdapter.getStateForDistributionRegion(region));
-				return;
-			}
-			
-			final boolean splitResult = performSplit(region);
-			
-			if(splitResult == false) {
-				logger.error("Unable to split region {}, stopping split!", region.getIdentifier());
-			} else {
-				redistributeData(region);
-			}
-		} catch (Throwable e) {
-			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
-		}
-
-		logger.info("Performing split for: {} is done", region.getIdentifier());
-	}
-
 	/**
 	 * Redistribute data after region split
 	 * @param region
@@ -420,20 +367,5 @@ public abstract class AbstractRegionSplitStrategy implements Runnable {
 		for(final Tuple tuple : storage) {
 			tupleRedistributor.redistributeTuple(tuple);
 		}		
-	}
-
-	/**
-	 * Perform a split at the given position
-	 * @param region
-	 * @param splitPosition
-	 */
-	protected void performSplitAtPosition(final DistributionRegion region, final double splitPosition) {
-		try {
-			logger.info("Set split for {} at: {}", region.getIdentifier(), splitPosition);
-			spacePartitioner.splitNode(region, splitPosition);
-			assertChildIsReady(region);
-		} catch (ZookeeperException | ResourceAllocationException | ZookeeperNotFoundException e) {
-			logger.warn("Unable to split region " + region.getIdentifier() + " at " + splitPosition, e);
-		} 
 	}
 }

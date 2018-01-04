@@ -25,13 +25,13 @@ import java.util.Set;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
-import org.bboxdb.distribution.DistributionGroupCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.placement.RandomResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
@@ -161,8 +161,8 @@ public class BBoxDBCluster implements BBoxDB {
 		try {
 			final TupleStoreName ssTableName = new TupleStoreName(table);
 
-			final SpacePartitioner distributionAdapter = DistributionGroupCache.getSpaceparitionerForTableName(
-					ssTableName, zookeeperClient);
+			final SpacePartitioner distributionAdapter 
+				= SpacePartitionerCache.getSpaceParitionerForTableName(ssTableName);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 
@@ -326,8 +326,8 @@ public class BBoxDBCluster implements BBoxDB {
 		try {
 			final TupleStoreName sstableName = new TupleStoreName(table);
 
-			final SpacePartitioner distributionAdapter = DistributionGroupCache.getSpaceparitionerForTableName(
-					sstableName, zookeeperClient);
+			final SpacePartitioner distributionAdapter 
+				= SpacePartitionerCache.getSpaceParitionerForTableName(sstableName);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			final Collection<RoutingHop> hops = distributionRegion.getRoutingHopsForRead(boundingBox);
@@ -365,8 +365,8 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final TupleStoreName sstableName = new TupleStoreName(table);
 
-			final SpacePartitioner distributionAdapter = DistributionGroupCache.getSpaceparitionerForTableName(
-					sstableName, zookeeperClient);
+			final SpacePartitioner distributionAdapter 
+				= SpacePartitionerCache.getSpaceParitionerForTableName(sstableName);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			final Set<DistributionRegion> regions 
@@ -400,8 +400,8 @@ public class BBoxDBCluster implements BBoxDB {
 
 		try {
 			final TupleStoreName sstableName = new TupleStoreName(table);
-			final SpacePartitioner distributionAdapter = DistributionGroupCache.getSpaceparitionerForTableName(
-					sstableName, zookeeperClient);
+			final SpacePartitioner distributionAdapter 
+				= SpacePartitionerCache.getSpaceParitionerForTableName(sstableName);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 			final Collection<RoutingHop> hops = distributionRegion.getRoutingHopsForRead(boundingBox);

@@ -20,8 +20,8 @@ package org.bboxdb.distribution;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.bboxdb.distribution.regionsplit.tuplesink.AbstractTupleSink;
-import org.bboxdb.distribution.regionsplit.tuplesink.TupleRedistributor;
+import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.AbstractTupleSink;
+import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;

@@ -15,35 +15,19 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.regionsplit.tuplesink;
+package org.bboxdb.distribution.partitioner.regionsplit;
 
-import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.storage.StorageManagerException;
 
-public abstract class AbstractTupleSink {
+public interface SplitpointStrategy {
 	
 	/**
-	 * The table name for the sink
-	 */
-	protected final String tablename;
-	
-	/**
-	 * The amount of sinked tuples
-	 */
-	public long sinkedTuples;
-	
-	public AbstractTupleSink(final TupleStoreName tablename) {
-		this.tablename = tablename.getFullname();
-		this.sinkedTuples = 0;
-	}
-	
-	/**
-	 * Get the amount of sinked tuples
+	 * Get the point for the split
+	 * @param regionToSplit
 	 * @return
+	 * @throws StorageManagerException 
 	 */
-	public long getSinkedTuples() {
-		return sinkedTuples;
-	}
-	
-	public abstract void sinkTuple(final Tuple tuple) throws Exception;
+	public double getSplitPoint(final DistributionRegion regionToSplit) throws StorageManagerException;
+
 }

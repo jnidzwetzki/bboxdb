@@ -85,7 +85,6 @@ public class DistributionGroupZookeeperAdapter {
 			logger.warn("Unable to parse number: " + splittedName[1], e);
 			throw new ZookeeperException(e);
 		}
-
 	}
 	
 	/**

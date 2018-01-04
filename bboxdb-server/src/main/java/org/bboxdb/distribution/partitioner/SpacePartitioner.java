@@ -26,6 +26,8 @@ import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.network.client.BBoxDBException;
+import org.bboxdb.storage.tuplestore.DiskStorage;
 
 public interface SpacePartitioner {
 	
@@ -62,9 +64,9 @@ public interface SpacePartitioner {
 	 * @throws ZookeeperException
 	 * @throws ResourceAllocationException
 	 * @throws ZookeeperNotFoundException
+	 * @throws BBoxDBException 
 	 */
-	public void splitNode(final DistributionRegion regionToSplit, final double splitPosition) 
-			throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException;
+	public void splitNode(final DistributionRegion regionToSplit, final DiskStorage diskStorage) throws BBoxDBException;
 	
 	/**
 	 * Register a changed callback
@@ -79,4 +81,10 @@ public interface SpacePartitioner {
 	 * @return
 	 */
 	public boolean unregisterCallback(final DistributionRegionChangedCallback callback);
+	
+	/**
+	 * Is the merging of regions supported?
+	 * @return
+	 */
+	public boolean isMergingSupported();
 }
