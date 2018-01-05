@@ -66,7 +66,21 @@ public interface SpacePartitioner {
 	 * @throws ZookeeperNotFoundException
 	 * @throws BBoxDBException 
 	 */
-	public void splitNode(final DistributionRegion regionToSplit, final DiskStorage diskStorage) throws BBoxDBException;
+	public void splitRegion(final DistributionRegion regionToSplit, final DiskStorage diskStorage) throws BBoxDBException;
+	
+	/**
+	 * Merge the given region
+	 * @param regionToMerge
+	 * @param diskStorage
+	 * @throws BBoxDBException
+	 */
+	public void mergeRegion(final DistributionRegion regionToMerge, final DiskStorage diskStorage) throws BBoxDBException;
+	
+	/**
+	 * Is the merging of regions supported?
+	 * @return
+	 */
+	public boolean isMergingSupported();
 	
 	/**
 	 * Register a changed callback
@@ -81,10 +95,5 @@ public interface SpacePartitioner {
 	 * @return
 	 */
 	public boolean unregisterCallback(final DistributionRegionChangedCallback callback);
-	
-	/**
-	 * Is the merging of regions supported?
-	 * @return
-	 */
-	public boolean isMergingSupported();
+
 }

@@ -325,7 +325,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	@Override
-	public void splitNode(final DistributionRegion regionToSplit, final DiskStorage diskStorage) 
+	public void splitRegion(final DistributionRegion regionToSplit, final DiskStorage diskStorage) 
 			throws BBoxDBException {
 		
 		try {
@@ -687,5 +687,12 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	@Override
 	public boolean isMergingSupported() {
 		return false;
+	}
+
+	@Override
+	public void mergeRegion(final DistributionRegion regionToMerge, final DiskStorage diskStorage) 
+			throws BBoxDBException {
+		
+		throw new IllegalArgumentException("Unable to merge region, this is not supported");
 	}
 }

@@ -51,7 +51,7 @@ public class QuadtreeSpacePartitioner implements SpacePartitioner {
 	}
 
 	@Override
-	public void splitNode(DistributionRegion regionToSplit,final DiskStorage diskStorage) 
+	public void splitRegion(DistributionRegion regionToSplit,final DiskStorage diskStorage) 
 			throws BBoxDBException {
 		// TODO Auto-generated method stub
 		
@@ -74,4 +74,10 @@ public class QuadtreeSpacePartitioner implements SpacePartitioner {
 		return false;
 	}
 
+	@Override
+	public void mergeRegion(final DistributionRegion regionToMerge, final DiskStorage diskStorage) 
+			throws BBoxDBException {
+		
+		throw new IllegalArgumentException("Unable to merge region, this is not supported");
+	}
 }

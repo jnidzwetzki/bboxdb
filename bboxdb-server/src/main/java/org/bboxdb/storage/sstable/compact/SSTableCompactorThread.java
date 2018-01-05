@@ -208,22 +208,35 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final DistributionRegion regionToSplit = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 					distributionRegion, regionId);
 					
-			final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
-			final RegionSplitter regionSplitter = new RegionSplitter();
-
-			if(regionSplitHelper.isRegionOverflow(regionToSplit, totalSizeInMb)) {
-				regionSplitter.splitRegion(regionToSplit, spacePartitioner, storage);
-			} else if(regionSplitHelper.isRegionUnderflow(regionToSplit, totalSizeInMb)) {
-				if(spacePartitioner.isMergingSupported()) {
-					regionSplitter.mergeRegion(regionToSplit, spacePartitioner, storage);
-				}
-			}
+			splitOrMergeRegion(totalSizeInMb, spacePartitioner, regionToSplit);
 		} catch (ZookeeperException | BBoxDBException e) {
 			throw new StorageManagerException(e);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return;
 		} 
+	}
+
+	/**
+	 * Split or merge the given region
+	 * @param totalSizeInMb
+	 * @param spacePartitioner
+	 * @param regionToSplit
+	 * @throws BBoxDBException
+	 */
+	private void splitOrMergeRegion(final long totalSizeInMb, final SpacePartitioner spacePartitioner,
+			final DistributionRegion regionToSplit) throws BBoxDBException {
+		
+		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
+		final RegionSplitter regionSplitter = new RegionSplitter();
+
+		if(regionSplitHelper.isRegionOverflow(regionToSplit, totalSizeInMb)) {
+			regionSplitter.splitRegion(regionToSplit, spacePartitioner, storage);
+		} else if(regionSplitHelper.isRegionUnderflow(regionToSplit, totalSizeInMb)) {
+			if(regionToSplit.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
+				regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, storage);
+			}
+		}
 	}
 
 	/**

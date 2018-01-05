@@ -16,7 +16,6 @@ import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistribu
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -92,14 +91,8 @@ public class RegionSplitter {
 				return;
 			}
 			
-			try {
-				spacePartitioner.splitNode(region, diskStorage);
-				redistributeData(region);
-			} catch (BBoxDBException e) {
-				logger.error("Unable to split region {}, stopping split!", region.getIdentifier());
-				logger.error("Exception is:", e);
-			}
-	
+			spacePartitioner.splitRegion(region, diskStorage);
+			redistributeData(region);
 		} catch (Throwable e) {
 			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
 		}
@@ -117,10 +110,31 @@ public class RegionSplitter {
 	 */
 	public void mergeRegion(final DistributionRegion region, final SpacePartitioner spacePartitioner,
 			final DiskStorage diskStorage) {
-		// FIXME: TODO
+		
+		assert(region != null);
+		assert(! region.isLeafRegion()) : "Unable to perform merge on: " + region + " is leaf";
+
+		logger.info("Performing merge for: {}", region.getIdentifier());
 		
 		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 
+		try {
+			// Try to set region state to full. If this fails, another node is already 
+			// splits the region
+			final boolean setToMergeResult = distributionGroupZookeeperAdapter.setToSplitMerging(region);
+			
+			if(! setToMergeResult) {
+				logger.info("Unable to set state to split merge for region: {}, stopping merge", region.getIdentifier());
+				logger.info("Old state was {}", distributionGroupZookeeperAdapter.getStateForDistributionRegion(region));
+				return;
+			}
+			
+			spacePartitioner.mergeRegion(region, diskStorage);
+			redistributeData(region);
+			
+		} catch (Throwable e) {
+			logger.warn("Got uncought exception during merge: " + region.getIdentifier(), e);
+		}
 	}
 
 	/**

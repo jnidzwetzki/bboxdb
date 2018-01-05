@@ -197,6 +197,32 @@ public class DistributionGroupZookeeperAdapter {
 	}
 	
 	/**
+	 * Set the given region to full (if possible)
+	 * @param region
+	 * @return
+	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
+	 */
+	public boolean setToSplitMerging(final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		logger.debug("Set state for {} to merging", region.getIdentifier());
+		
+		final String zookeeperPath = getZookeeperPathForDistributionRegionState(region);
+				
+		final DistributionRegionState oldState = getStateForDistributionRegion(region);
+		
+		if(oldState != DistributionRegionState.SPLIT) {
+			logger.debug("Old state is not active (old value {})" , oldState);
+			return false;
+		}
+		
+		return zookeeperClient.testAndReplaceValue(zookeeperPath, 
+				DistributionRegionState.SPLIT.getStringValue(), 
+				DistributionRegionState.SPLIT_MERGING.getStringValue());
+	}
+	
+	/**
 	 * Get the state for a given path - without watcher
 	 * @return 
 	 * @throws ZookeeperException 
