@@ -26,10 +26,12 @@ import org.bboxdb.commons.concurrent.ExceptionSafeThread;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
+import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
@@ -194,20 +196,28 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final DistributionGroupName distributionGroup = ssTableName.getDistributionGroupObject();
 			final int regionId = ssTableName.getRegionId();
 			
-			final long totalSize = storage
-					.getStorageRegistry().getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
+			final TupleStoreManagerRegistry storageRegistry = storage.getStorageRegistry();
+			
+			final long totalSize = storageRegistry.getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
+			final long totalTuples = storageRegistry.getTuplesInDistributionGroupAndRegionId(distributionGroup, regionId);
 			
 			final long totalSizeInMb = totalSize / (1024 * 1024);
-			logger.info("Test for region split: {}. Size in MB: {}", distributionGroup, totalSizeInMb);
+			
+			logger.info("Test for region split: {}. Size in MB: {} / Tuples: {}", 
+					distributionGroup, totalSizeInMb, totalTuples);
 							
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(
 					ssTableName.getDistributionGroup());
 
 			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
-			
+
 			final DistributionRegion regionToSplit = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 					distributionRegion, regionId);
 					
+			final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+			adapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
+					totalSize, totalTuples);
+			
 			splitOrMergeRegion(totalSizeInMb, spacePartitioner, regionToSplit);
 		} catch (ZookeeperException | BBoxDBException e) {
 			throw new StorageManagerException(e);

@@ -436,6 +436,29 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	}
 	
 	/**
+	 * Get the amount of tuples  in the distribution group and region id
+	 * @param distributionGroupName
+	 * @param regionId
+	 * @return
+	 * @throws StorageManagerException
+	 */
+	public long getTuplesInDistributionGroupAndRegionId
+		(final DistributionGroupName distributionGroupName, final int regionId) 
+				throws StorageManagerException {
+		
+		final List<TupleStoreName> tables 
+			= getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
+		
+		long tuples = 0;
+		
+		for(TupleStoreName ssTableName : tables) {
+			tuples = tuples + getTupleStoreManager(ssTableName).getNumberOfTuples();
+		}
+		
+		return tuples;
+	}
+	
+	/**
 	 * Get all tables for a given distribution group
 	 * @return
 	 */

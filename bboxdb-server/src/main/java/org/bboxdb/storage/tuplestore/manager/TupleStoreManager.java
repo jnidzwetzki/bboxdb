@@ -801,6 +801,28 @@ public class TupleStoreManager implements BBoxDBService {
 			}
 		}
 	}
+	
+	/**
+	 * Get the amount of tuples
+	 * @return
+	 * @throws StorageManagerException
+	 */
+	public long getNumberOfTuples() throws StorageManagerException {
+		List<ReadOnlyTupleStore> storages = null;
+
+		try {
+			storages = aquireStorage();
+
+			return storages.stream()
+					.mapToLong(s -> s.getNumberOfTuples())
+					.sum();
+
+		} finally {
+			if(storages != null) {
+				releaseStorage(storages);
+			}
+		}
+	}
 
 	/**
 	 * Get the service state
