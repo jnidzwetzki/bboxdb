@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
@@ -30,6 +31,7 @@ import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -55,6 +57,11 @@ public class TestZookeeperIntegration {
 	 * The distribution group adapter
 	 */
 	protected static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	
+	/**
+	 * The compare delta
+	 */
+	private final static double DELTA = 0.0001;
 
 	/**
 	 * The name of the test region
@@ -328,16 +335,18 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	@Test
-	public void testStatistics() throws ZookeeperException, ZookeeperNotFoundException {
+	public void testStatistics1() throws ZookeeperException, ZookeeperNotFoundException {
 		final BBoxDBInstance system1 = new BBoxDBInstance("192.168.1.10:5050");
 		final BBoxDBInstance system2 = new BBoxDBInstance("192.168.1.11:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, system1);
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, system2);
 
+		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
+		final double size1 = regionSplitHelper.getMaxRegionSizeFromStatistics(region);
+		Assert.assertEquals(0, size1, DELTA);
+		
 		final Map<BBoxDBInstance, Map<String, Long>> statistics1 = distributionGroupZookeeperAdapter.getRegionStatistics(region);
 		Assert.assertTrue(statistics1.isEmpty());
 		
@@ -346,6 +355,8 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(1, statistics2.size());
 		Assert.assertEquals(12, statistics2.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE).longValue());
 		Assert.assertEquals(999, statistics2.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES).longValue());
+		final double size2 = regionSplitHelper.getMaxRegionSizeFromStatistics(region);
+		Assert.assertEquals(12, size2, DELTA);
 		
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region, system2, 33, 1234);
 		final Map<BBoxDBInstance, Map<String, Long>> statistics3 = distributionGroupZookeeperAdapter.getRegionStatistics(region);
@@ -354,6 +365,35 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(999, statistics3.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES).longValue());
 		Assert.assertEquals(33, statistics3.get(system2).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE).longValue());
 		Assert.assertEquals(1234, statistics3.get(system2).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES).longValue());
+		final double size3 = regionSplitHelper.getMaxRegionSizeFromStatistics(region);
+		Assert.assertEquals(33, size3, DELTA);
+	}
+	
+	/**
+	 * Test the statistics of child regions
+	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
+	 */
+	@Test
+	public void testStatistics2() throws ZookeeperException, InterruptedException {
+		final BBoxDBInstance system1 = new BBoxDBInstance("192.168.1.10:5050");
+
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
+
+		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
+		final double totalSize1 = regionSplitHelper.getTotalRegionSize(region);
+		Assert.assertEquals(0, totalSize1, DELTA);
+		
+		region.setSplit(12);
+		Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+		
+		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getLeftChild(), system1, 12, 999);
+		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getRightChild(), system1, 33, 999);
+
+		final double totalSize2 = regionSplitHelper.getTotalRegionSize(region);
+		Assert.assertEquals(45, totalSize2, DELTA);
 	}
 	
 	/**

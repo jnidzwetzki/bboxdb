@@ -196,29 +196,17 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final DistributionGroupName distributionGroup = ssTableName.getDistributionGroupObject();
 			final int regionId = ssTableName.getRegionId();
 			
-			final TupleStoreManagerRegistry storageRegistry = storage.getStorageRegistry();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache
+					.getSpacePartitionerForGroupName(ssTableName.getDistributionGroup());
 			
-			final long totalSize = storageRegistry.getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
-			final long totalTuples = storageRegistry.getTuplesInDistributionGroupAndRegionId(distributionGroup, regionId);
-			
-			final long totalSizeInMb = totalSize / (1024 * 1024);
-			
-			logger.info("Test for region split: {}. Size in MB: {} / Tuples: {}", 
-					distributionGroup, totalSizeInMb, totalTuples);
-							
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(
-					ssTableName.getDistributionGroup());
-
 			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
 
 			final DistributionRegion regionToSplit = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 					distributionRegion, regionId);
-					
-			final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			adapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
-					totalSize, totalTuples);
 			
-			splitOrMergeRegion(totalSizeInMb, spacePartitioner, regionToSplit);
+			updateRegionStatistics(regionToSplit, distributionGroup, regionId, spacePartitioner);
+			
+			splitOrMergeRegion(spacePartitioner, regionToSplit);
 		} catch (ZookeeperException | BBoxDBException e) {
 			throw new StorageManagerException(e);
 		} catch (InterruptedException e) {
@@ -228,23 +216,51 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	}
 
 	/**
+	 * Update the statstics of the region
+	 */
+	private void updateRegionStatistics(final DistributionRegion regionToSplit,
+			final DistributionGroupName distributionGroup, 
+			final int regionId, 
+			final SpacePartitioner spacePartitioner)
+			throws StorageManagerException, InterruptedException, ZookeeperException {
+		
+		final TupleStoreManagerRegistry storageRegistry = storage.getStorageRegistry();
+		
+		final long totalSize = storageRegistry.getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
+		final long totalTuples = storageRegistry.getTuplesInDistributionGroupAndRegionId(distributionGroup, regionId);
+		
+		final long totalSizeInMb = totalSize / (1024 * 1024);
+		
+		logger.info("Test for region split: {}. Size in MB: {} / Tuples: {}", 
+				distributionGroup, totalSizeInMb, totalTuples);
+										
+		final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		
+		adapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
+				totalSize, totalTuples);
+	}
+
+	/**
 	 * Split or merge the given region
 	 * @param totalSizeInMb
 	 * @param spacePartitioner
 	 * @param regionToSplit
 	 * @throws BBoxDBException
 	 */
-	private void splitOrMergeRegion(final long totalSizeInMb, final SpacePartitioner spacePartitioner,
+	private void splitOrMergeRegion(final SpacePartitioner spacePartitioner,
 			final DistributionRegion regionToSplit) throws BBoxDBException {
 		
 		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
 		final RegionSplitter regionSplitter = new RegionSplitter();
 
-		if(regionSplitHelper.isRegionOverflow(regionToSplit, totalSizeInMb)) {
+		if(regionSplitHelper.isRegionOverflow(regionToSplit)) {
 			regionSplitter.splitRegion(regionToSplit, spacePartitioner, storage);
-		} else if(regionSplitHelper.isRegionUnderflow(regionToSplit, totalSizeInMb)) {
-			if(regionToSplit.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
-				regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, storage);
+		} 
+		
+		// Don't split the root node
+		if(regionToSplit.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
+			if(regionSplitHelper.isRegionUnderflow(regionToSplit.getParent())) {
+				regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, storage);	
 			}
 		}
 	}

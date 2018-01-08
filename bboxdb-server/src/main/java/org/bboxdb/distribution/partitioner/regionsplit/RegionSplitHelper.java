@@ -17,11 +17,19 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner.regionsplit;
 
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.slf4j.Logger;
@@ -49,7 +57,7 @@ public class RegionSplitHelper {
 	 * @return
 	 * @throws BBoxDBException 
 	 */
-	public boolean isRegionOverflow(final DistributionRegion region, final long sizeOfRegionInMB) 
+	public boolean isRegionOverflow(final DistributionRegion region) 
 			throws BBoxDBException {
 		
 		// Is the data of the parent completely distributed?
@@ -58,10 +66,39 @@ public class RegionSplitHelper {
 		}
 		
 		try {
+			final double sizeOfRegionInMB = getMaxRegionSizeFromStatistics(region);				
 			final long maxSize = getRegionMaxSizeInMB(region);
+			
 			return (sizeOfRegionInMB > maxSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
+		} 
+	}
+
+	/**
+	 * Get the max total size from the statistics map
+	 * @param statistics
+	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public double getMaxRegionSizeFromStatistics(final DistributionRegion region) {
+		
+		try {
+			final Map<BBoxDBInstance, Map<String, Long>> statistics 
+				= distributionGroupZookeeperAdapter.getRegionStatistics(region);
+			
+			return statistics
+				.values()
+				.stream()
+				.mapToDouble(p -> p.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE))
+				.filter(Objects::nonNull)
+				.max()
+				.orElse(0);
+			
+		} catch (Exception e) {
+			logger.error("Got an exception while reading statistics", e);
+			return 0;
 		} 
 	}
 	
@@ -71,15 +108,37 @@ public class RegionSplitHelper {
 	 * @return
 	 * @throws BBoxDBException 
 	 */
-	public boolean isRegionUnderflow(final DistributionRegion region, final long sizeOfRegionInMB) 
-			throws BBoxDBException {
+	public boolean isRegionUnderflow(final DistributionRegion region) throws BBoxDBException {
+		
+		// This might be the root region
+		if(region == null) {
+			return false;
+		}
 		
 		try {
+			final double childRegionSize = getTotalRegionSize(region);
 			final long minSize = getRegionMInSizeInMB(region);
-			return (sizeOfRegionInMB < minSize);
+			return (childRegionSize < minSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		} 
+	}
+
+	/**
+	 * Get the total size of the child regions
+	 * @param region
+	 * @return
+	 */
+	public double getTotalRegionSize(final DistributionRegion region) {
+		
+		final List<DistributionRegion> childRegions = Arrays.asList(
+				region.getLeftChild(), region.getRightChild());
+		
+		return childRegions
+				.stream()
+				.filter(Objects::nonNull)
+				.mapToDouble(r -> getMaxRegionSizeFromStatistics(r))
+				.sum();
 	}
 	
 	/**
