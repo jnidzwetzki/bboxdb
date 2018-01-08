@@ -896,6 +896,8 @@ public class DistributionGroupZookeeperAdapter {
 		final String path = getZookeeperPathForDistributionRegion(region) 
 				+ "/" + ZookeeperNodeNames.NAME_STATISTICS + "/" + system.getStringValue();
 		
+		zookeeperClient.createDirectoryStructureRecursive(path);
+		
 		final String sizePath = path + "/" + ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE;
 		zookeeperClient.createPersistentNode(sizePath, Long.toString(size).getBytes());
 		
