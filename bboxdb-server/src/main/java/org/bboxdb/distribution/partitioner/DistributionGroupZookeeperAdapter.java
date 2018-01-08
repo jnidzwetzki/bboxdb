@@ -20,11 +20,15 @@ package org.bboxdb.distribution.partitioner;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.zookeeper.Watcher;
+import org.bboxdb.commons.InputParseException;
+import org.bboxdb.commons.MathUtil;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -403,8 +407,8 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public Collection<BBoxDBInstance> getSystemsForDistributionRegion(
-			final DistributionRegion region, final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
+	public Collection<BBoxDBInstance> getSystemsForDistributionRegion(final DistributionRegion region, 
+			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
 	
 		final Set<BBoxDBInstance> result = new HashSet<BBoxDBInstance>();
 		
@@ -427,15 +431,14 @@ public class DistributionGroupZookeeperAdapter {
 		return result;
 	}
 	
-
-	
 	/**
 	 * Add a system to a distribution region
 	 * @param region
 	 * @param system
 	 * @throws ZookeeperException 
 	 */
-	public void addSystemToDistributionRegion(final DistributionRegion region, final BBoxDBInstance system) throws ZookeeperException {
+	public void addSystemToDistributionRegion(final DistributionRegion region, 
+			final BBoxDBInstance system) throws ZookeeperException {
 		
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to add system with value null");
@@ -871,4 +874,75 @@ public class DistributionGroupZookeeperAdapter {
 			throw new ZookeeperException(e);
 		}
 	}
+	
+	/**
+	 * Update the region statistics
+	 * @param region
+	 * @param system
+	 * @param size
+	 * @param tuple
+	 * @return
+	 * @throws ZookeeperException
+	 */
+	public void updateRegionStatistics(final DistributionRegion region, 
+			final BBoxDBInstance system, final long size, final long tuple) throws ZookeeperException {
+		
+		if(system == null) {
+			throw new IllegalArgumentException("Unable to add system with value null");
+		}
+		
+		logger.debug("Update region statistics for {} / {}", region.getDistributionGroupName().getFullname(), system);
+	
+		final String path = getZookeeperPathForDistributionRegion(region) 
+				+ "/" + ZookeeperNodeNames.NAME_STATISTICS + "/" + system.getStringValue();
+		
+		final String sizePath = path + "/" + ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE;
+		zookeeperClient.createPersistentNode(sizePath, Long.toString(size).getBytes());
+		
+		final String tuplePath = path + "/" + ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES;
+		zookeeperClient.createPersistentNode(tuplePath, Long.toString(tuple).getBytes());
+	}
+	
+	/**
+	 * Get the statistics for a given region
+	 * @param region
+	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public Map<BBoxDBInstance, Map<String, Long>> getRegionStatistics(final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final  Map<BBoxDBInstance, Map<String, Long>> result = new HashMap<>();
+		
+		logger.debug("Get statistics for {}", region.getDistributionGroupName().getFullname());
+		
+		final Collection<BBoxDBInstance> systems = getSystemsForDistributionRegion(region, null);
+		
+		for(final BBoxDBInstance system : systems) {
+			final String path = getZookeeperPathForDistributionRegion(region) 
+					+ "/" + ZookeeperNodeNames.NAME_STATISTICS + "/" + system.getStringValue();
+		
+			final Map<String, Long> systemMap = new HashMap<>();
+			
+			try {
+				final String sizePath = path + "/" + ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE;
+				final String sizeString = zookeeperClient.readPathAndReturnString(sizePath);
+				final long size = MathUtil.tryParseLong(sizeString, () -> "Unable to parse " + sizeString);
+				systemMap.put(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE, size);
+				
+				final String tuplePath = path + "/" + ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES;
+				final String tuplesString = zookeeperClient.readPathAndReturnString(tuplePath);
+				final long tuples = MathUtil.tryParseLong(tuplesString, () -> "Unable to parse " + tuplesString);
+				systemMap.put(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES, tuples);
+				
+				result.put(system, systemMap);
+			} catch (InputParseException e) {
+				logger.error("Unable to read statistics", e);
+			}
+		}		
+		
+		return result;
+	}
+
 }

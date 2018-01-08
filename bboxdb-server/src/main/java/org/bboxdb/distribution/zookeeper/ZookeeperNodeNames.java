@@ -60,6 +60,21 @@ public class ZookeeperNodeNames {
 	public final static String NAME_SYSTEMS = "systems";
 	
 	/**
+	 * Name of the systems node
+	 */
+	public final static String NAME_STATISTICS = "statistics";
+	
+	/**
+	 * Name of the statistics total tuple node
+	 */
+	public final static String NAME_STATISTICS_TOTAL_TUPLES = "total_tuples";
+	
+	/**
+	 * Name of the statistics total size node
+	 */
+	public final static String NAME_STATISTICS_TOTAL_SIZE = "total_size";
+	
+	/**
 	 * Name of the version node
 	 */
 	public final static String NAME_SYSTEMS_VERSION = "version";
