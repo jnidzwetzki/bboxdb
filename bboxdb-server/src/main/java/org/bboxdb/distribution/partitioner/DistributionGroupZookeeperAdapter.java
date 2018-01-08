@@ -918,27 +918,38 @@ public class DistributionGroupZookeeperAdapter {
 		final  Map<BBoxDBInstance, Map<String, Long>> result = new HashMap<>();
 		
 		logger.debug("Get statistics for {}", region.getDistributionGroupName().getFullname());
+				
+		final String statisticsPath = getZookeeperPathForDistributionRegion(region) 
+				+ "/" + ZookeeperNodeNames.NAME_STATISTICS;
 		
-		final Collection<BBoxDBInstance> systems = getSystemsForDistributionRegion(region, null);
+		final List<String> childs = zookeeperClient.getChildren(statisticsPath, null);
 		
-		for(final BBoxDBInstance system : systems) {
-			final String path = getZookeeperPathForDistributionRegion(region) 
-					+ "/" + ZookeeperNodeNames.NAME_STATISTICS + "/" + system.getStringValue();
+		// No statistics found
+		if(childs == null) {
+			return result;
+		}
+		
+		for(final String system : childs) {
+			final String path = statisticsPath + "/" + system;
 		
 			final Map<String, Long> systemMap = new HashMap<>();
 			
 			try {
 				final String sizePath = path + "/" + ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE;
-				final String sizeString = zookeeperClient.readPathAndReturnString(sizePath);
-				final long size = MathUtil.tryParseLong(sizeString, () -> "Unable to parse " + sizeString);
-				systemMap.put(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE, size);
+				if(zookeeperClient.exists(sizePath)) {
+					final String sizeString = zookeeperClient.readPathAndReturnString(sizePath);
+					final long size = MathUtil.tryParseLong(sizeString, () -> "Unable to parse " + sizeString);
+					systemMap.put(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE, size);
+				}
 				
 				final String tuplePath = path + "/" + ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES;
-				final String tuplesString = zookeeperClient.readPathAndReturnString(tuplePath);
-				final long tuples = MathUtil.tryParseLong(tuplesString, () -> "Unable to parse " + tuplesString);
-				systemMap.put(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES, tuples);
+				if(zookeeperClient.exists(tuplePath)) {
+					final String tuplesString = zookeeperClient.readPathAndReturnString(tuplePath);
+					final long tuples = MathUtil.tryParseLong(tuplesString, () -> "Unable to parse " + tuplesString);
+					systemMap.put(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES, tuples);
+				}
 				
-				result.put(system, systemMap);
+				result.put(new BBoxDBInstance(system), systemMap);
 			} catch (InputParseException e) {
 				logger.error("Unable to read statistics", e);
 			}

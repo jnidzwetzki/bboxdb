@@ -335,6 +335,8 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, system1);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, system2);
 
 		final Map<BBoxDBInstance, Map<String, Long>> statistics1 = distributionGroupZookeeperAdapter.getRegionStatistics(region);
 		Assert.assertTrue(statistics1.isEmpty());
@@ -344,11 +346,10 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(1, statistics2.size());
 		Assert.assertEquals(12, statistics2.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE).longValue());
 		Assert.assertEquals(999, statistics2.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES).longValue());
-	
 		
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region, system2, 33, 1234);
 		final Map<BBoxDBInstance, Map<String, Long>> statistics3 = distributionGroupZookeeperAdapter.getRegionStatistics(region);
-		Assert.assertEquals(1, statistics3.size());
+		Assert.assertEquals(2, statistics3.size());
 		Assert.assertEquals(12, statistics3.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE).longValue());
 		Assert.assertEquals(999, statistics3.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES).longValue());
 		Assert.assertEquals(33, statistics3.get(system2).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE).longValue());
