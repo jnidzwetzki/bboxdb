@@ -99,7 +99,6 @@ public class MathUtil {
 		}
 	}
 
-
 	/**
 	 * Try to convert the given string into a double
 	 * @param valueToParse
@@ -131,6 +130,58 @@ public class MathUtil {
 	}
 
 	/**
+	 * Try to convert the given string into a long
+	 * @param valueToParse
+	 * @param message
+	 * @return
+	 * @throws InputParseException 
+	 */
+	public static long tryParseLong(final String valueToParse,
+			final Supplier<String> errorMessageSupplier) throws InputParseException {
+
+		if(valueToParse == null) {
+			throw new InputParseException(errorMessageSupplier.get());
+		}
+
+		try {
+			return Long.parseLong(valueToParse);
+		} catch (NumberFormatException e) {
+			throw new InputParseException(errorMessageSupplier.get());
+		}
+	}
+
+
+	/**
+	 * Try to convert the given string into a long
+	 * @param valueToParse
+	 * @param message
+	 * @return
+	 */
+	public static double tryParseLongOrExit(final String valueToParse) {
+		return tryParseLongOrExit(valueToParse, () -> "Unable to convert to long: " + valueToParse);
+	}
+
+	/**
+	 * Try to convert the given string into a long
+	 * @param valueToParse
+	 * @param message
+	 * @return
+	 */
+	public static double tryParseLongOrExit(final String valueToParse, 
+			final Supplier<String> errorMessageSupplier) {
+
+		try {
+			return tryParseLong(valueToParse, errorMessageSupplier);
+		} catch (InputParseException e) {
+			System.err.println(e.getMessage());
+			System.exit(-1);	
+		}
+
+		// Unreachable code
+		return RESULT_PARSE_FAILED_AND_NO_EXIT_INT;
+	}
+
+	/**
 	 * Try to convert the given string into a double
 	 * @param valueToParse
 	 * @param message
@@ -150,7 +201,6 @@ public class MathUtil {
 			throw new InputParseException(errorMessageSupplier.get());
 		}
 	}
-
 
 	/**
 	 * Try to convert the given string into a double

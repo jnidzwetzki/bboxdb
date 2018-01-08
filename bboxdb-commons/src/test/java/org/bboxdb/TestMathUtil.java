@@ -100,6 +100,37 @@ public class TestMathUtil {
 	}
 	
 	@Test
+	public void testParseLong() {
+		try {
+			MathUtil.tryParseLong("abc", MathUtil.DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(false);
+		} catch(InputParseException e) {
+			
+		}
+		
+		try {
+			MathUtil.tryParseLong(null, MathUtil.DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(false);
+		} catch(InputParseException e) {
+			
+		}
+		
+		try {
+			MathUtil.tryParseLong("3.14159", MathUtil.DEFAULT_ERROR_SUPPLIER);
+			Assert.assertTrue(false);
+		} catch(InputParseException e) {
+			
+		}
+		
+		try {
+			final long result2 = MathUtil.tryParseLong("454545435", MathUtil.DEFAULT_ERROR_SUPPLIER);
+			Assert.assertEquals(454545435l, result2);
+		} catch (InputParseException e) {
+			Assert.assertTrue(false);
+		}
+	}
+	
+	@Test
 	public void testParseBoolean() {
 		try {
 			MathUtil.tryParseBoolean("true1234", MathUtil.DEFAULT_ERROR_SUPPLIER);
