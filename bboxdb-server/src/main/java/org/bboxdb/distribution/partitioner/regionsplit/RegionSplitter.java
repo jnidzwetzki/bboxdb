@@ -1,6 +1,7 @@
 package org.bboxdb.distribution.partitioner.regionsplit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bboxdb.distribution.DistributionGroupName;
@@ -17,6 +18,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.DiskStorage;
@@ -92,7 +94,7 @@ public class RegionSplitter {
 			}
 			
 			spacePartitioner.splitRegion(region, diskStorage);
-			redistributeData(region);
+			redistributeDataSplit(region);
 		} catch (Throwable e) {
 			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
 		}
@@ -129,8 +131,8 @@ public class RegionSplitter {
 				return;
 			}
 			
-			spacePartitioner.mergeRegion(region, diskStorage);
-			redistributeData(region);
+			spacePartitioner.prepareMerge(region, diskStorage);
+			redistributeDataMerge(region);
 			
 		} catch (Throwable e) {
 			logger.warn("Got uncought exception during merge: " + region.getIdentifier(), e);
@@ -179,10 +181,45 @@ public class RegionSplitter {
 	}
 	
 	/**
+	 * Redistribute the data in region merge
+	 * @param region
+	 * @throws StorageManagerException 
+	 */
+	protected void redistributeDataMerge(final DistributionRegion region) 
+			throws StorageManagerException {
+		
+		logger.info("Redistributing all data for region (merge): " + region.getIdentifier());
+
+		final List<DistributionRegion> childRegions = Arrays.asList(region.getLeftChild(), 
+				region.getRightChild());
+		
+		final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
+		
+		final List<TupleStoreName> localTables = storage.getStorageRegistry()
+				.getAllTablesForDistributionGroupAndRegionId
+				(distributionGroupName, region.getRegionId());
+
+		// Remove the local mapping, no new data is written to the region
+		final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(distributionGroupName);
+		final boolean addResult = mapper.addMapping(region);
+		
+		assert (addResult == true) : "Unable to add mapping for: " + region;
+		
+		// Redistribute data
+		for(final TupleStoreName ssTableName : localTables) {
+			startFlushToDisk(ssTableName);
+		}
+		
+		for(final DistributionRegion childRegion : childRegions) {
+			final BoundingBox bbox = childRegion.getConveringBox();
+		}
+	}
+	
+	/**
 	 * Redistribute data after region split
 	 * @param region
 	 */
-	protected void redistributeData(final DistributionRegion region) {
+	protected void redistributeDataSplit(final DistributionRegion region) {
 		try {
 			logger.info("Redistributing all data for region: " + region.getIdentifier());
 			
@@ -214,9 +251,7 @@ public class RegionSplitter {
 			// Remove local data
 			logger.info("Deleting local data for {}", region.getIdentifier());
 			deleteLocalData(localTables);
-		} catch (ZookeeperException e) {
-			logger.error("Got an exception while setting region state to splitted", e);
-		}  catch (InterruptedException e) {
+		} catch (InterruptedException e) {
 			logger.warn("Thread was interrupted");
 			Thread.currentThread().interrupt();
 			return;
@@ -307,6 +342,16 @@ public class RegionSplitter {
 		
 		// Stop flush thread, so new data remains in memory
 		ssTableManager.setToReadOnly();
+	}
+	
+	/**
+	 * Start the to disk flushing
+	 * @param ssTableName
+	 * @throws StorageManagerException
+	 */
+	protected void startFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
+		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getTupleStoreManager(ssTableName);		
+		ssTableManager.setToReadWrite();
 	}
 
 	/**

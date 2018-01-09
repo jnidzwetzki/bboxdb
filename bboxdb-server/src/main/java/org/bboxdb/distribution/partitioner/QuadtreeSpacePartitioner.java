@@ -75,9 +75,14 @@ public class QuadtreeSpacePartitioner implements SpacePartitioner {
 	}
 
 	@Override
-	public void mergeRegion(final DistributionRegion regionToMerge, final DiskStorage diskStorage) 
+	public void prepareMerge(final DistributionRegion regionToMerge, final DiskStorage diskStorage) 
 			throws BBoxDBException {
 		
+		throw new IllegalArgumentException("Unable to merge region, this is not supported");
+	}
+	
+	@Override
+	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException {
 		throw new IllegalArgumentException("Unable to merge region, this is not supported");
 	}
 }

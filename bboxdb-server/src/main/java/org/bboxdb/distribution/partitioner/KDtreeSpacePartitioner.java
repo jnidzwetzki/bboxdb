@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -380,6 +381,49 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			throw new BBoxDBException(e);
 		} 
 	}
+	
+	@Override
+	public boolean isMergingSupported() {
+		return true;
+	}
+
+	@Override
+	public void prepareMerge(final DistributionRegion regionToMerge, final DiskStorage diskStorage) 
+			throws BBoxDBException {
+		
+		try {
+			logger.debug("Merging region: {}", regionToMerge);
+			final String zookeeperPath = distributionGroupZookeeperAdapter
+					.getZookeeperPathForDistributionRegion(regionToMerge);
+			
+			distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, 
+					DistributionRegionState.ACTIVE);
+
+			final List<DistributionRegion> childRegions = Arrays.asList(regionToMerge.getLeftChild(), 
+					regionToMerge.getRightChild());
+			
+			for(final DistributionRegion childRegion : childRegions) {
+				final String zookeeperPathChild = distributionGroupZookeeperAdapter
+						.getZookeeperPathForDistributionRegion(childRegion);
+				
+				distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPathChild, 
+					DistributionRegionState.MERGING);
+				
+			}
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
+		}
+	}
+	
+	@Override
+	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException {
+		final List<DistributionRegion> childRegions = Arrays.asList(regionToMerge.getLeftChild(), 
+				regionToMerge.getRightChild());
+		
+		for(final DistributionRegion childRegion : childRegions) {
+			deleteChild(childRegion);
+		}
+	}
 
 	/**
 	 * Wait for zookeeper split callback
@@ -490,6 +534,27 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.CREATING.getStringValue().getBytes());
+	}
+	
+	/**
+	 * Delete the given child
+	 * @param region
+	 * @throws BBoxDBException 
+	 * @throws ZookeeperException 
+	 */
+	private void deleteChild(final DistributionRegion region) throws BBoxDBException {
+		if(region.getState() != DistributionRegionState.MERGING) {
+			throw new BBoxDBException("State for region is not merging: " + region);
+		}
+		
+		try {
+			final String zookeeperPath = distributionGroupZookeeperAdapter
+					.getZookeeperPathForDistributionRegion(region);
+			
+			zookeeperClient.deleteNodesRecursive(zookeeperPath);
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
+		}
 	}
 	
 	/**
@@ -682,17 +747,5 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 				regionIdMapper.addMapping(region);
 			}
 		}
-	}
-	
-	@Override
-	public boolean isMergingSupported() {
-		return false;
-	}
-
-	@Override
-	public void mergeRegion(final DistributionRegion regionToMerge, final DiskStorage diskStorage) 
-			throws BBoxDBException {
-		
-		throw new IllegalArgumentException("Unable to merge region, this is not supported");
 	}
 }

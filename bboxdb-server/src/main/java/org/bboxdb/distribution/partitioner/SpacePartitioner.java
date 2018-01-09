@@ -74,7 +74,14 @@ public interface SpacePartitioner {
 	 * @param diskStorage
 	 * @throws BBoxDBException
 	 */
-	public void mergeRegion(final DistributionRegion regionToMerge, final DiskStorage diskStorage) throws BBoxDBException;
+	public void prepareMerge(final DistributionRegion regionToMerge, final DiskStorage diskStorage) throws BBoxDBException;
+	
+	/**
+	 * Merging of the region is done 
+	 * @param regionToMerge
+	 * @throws BBoxDBException
+	 */
+	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException;
 	
 	/**
 	 * Is the merging of regions supported?

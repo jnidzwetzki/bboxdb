@@ -249,6 +249,14 @@ public class TupleStoreManager implements BBoxDBService {
 	}
 
 	/**
+	 * Set the mode to read only
+	 */
+	public void setToReadWrite() {
+		// Set the flush mode to read write
+		tupleStoreInstances.setReadWrite();
+	}
+	
+	/**
 	 * Is the shutdown complete?
 	 * @return
 	 */
