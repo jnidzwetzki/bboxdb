@@ -161,6 +161,17 @@ public class DistributionGroupZookeeperAdapter {
 	}
 	
 	/**
+	 * Get the state for a given path - version without a watcher
+	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
+	 */
+	public DistributionRegionState getStateForDistributionRegion(final String path) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		return getStateForDistributionRegion(path, null);
+	}
+	
+	/**
 	 * Get the state for a given path
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
