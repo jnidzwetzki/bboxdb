@@ -26,6 +26,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -37,9 +38,7 @@ public class TestTupleSink {
 	 */
 	@Test(expected=StorageManagerException.class)
 	public void testTupleWithoutRegions() throws Exception {
-		final TupleStoreName tupleStoreName = new TupleStoreName("3_region_abc");
-				
-		final TupleRedistributor tupleRedistributor = new TupleRedistributor(null, tupleStoreName);
+		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
 		final Tuple tuple1 = new Tuple("abc", BoundingBox.EMPTY_BOX, "".getBytes());
 		
@@ -70,7 +69,7 @@ public class TestTupleSink {
 	protected TupleRedistributor createTupleRedistributor() {
 		final TupleStoreName tupleStoreName = new TupleStoreName("3_region_abc");
 
-		return new TupleRedistributor(null, tupleStoreName);
+		return new TupleRedistributor(new TupleStoreManagerRegistry(), tupleStoreName);
 	}
 	
 	/**
