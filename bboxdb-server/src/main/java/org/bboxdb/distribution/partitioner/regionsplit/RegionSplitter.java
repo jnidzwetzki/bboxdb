@@ -367,7 +367,9 @@ public class RegionSplitter {
 		final DistributionRegion leftRegion = region.getLeftChild();
 		final DistributionRegion rightRegion = region.getRightChild();
 		
-		final TupleRedistributor tupleRedistributor = new TupleRedistributor(storage, ssTableName);
+		final TupleRedistributor tupleRedistributor = new TupleRedistributor(
+				storage.getStorageRegistry(), ssTableName);
+		
 		tupleRedistributor.registerRegion(leftRegion);
 		tupleRedistributor.registerRegion(rightRegion);
 		

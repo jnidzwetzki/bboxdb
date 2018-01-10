@@ -31,8 +31,8 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,9 +54,9 @@ public class TupleRedistributor {
 	protected long redistributedTuples;
 
 	/**
-	 * The storage reference
+	 * The storage registry
 	 */
-	protected final DiskStorage storage;
+	protected final TupleStoreManagerRegistry tupleStoreManagerRegistry;
 	
 	/**
 	 * The Logger
@@ -64,8 +64,8 @@ public class TupleRedistributor {
 	protected final static Logger logger = LoggerFactory.getLogger(TupleRedistributor.class);
 
 	
-	public TupleRedistributor(final DiskStorage storage, final TupleStoreName tupleStoreName) {
-		this.storage = storage;
+	public TupleRedistributor(final TupleStoreManagerRegistry tupleStoreManagerRegistry, final TupleStoreName tupleStoreName) {
+		this.tupleStoreManagerRegistry = tupleStoreManagerRegistry;
 		this.tupleStoreName = tupleStoreName;
 		this.regionMap = new HashMap<DistributionRegion, List<AbstractTupleSink>>();
 		this.redistributedTuples = 0;
@@ -112,8 +112,7 @@ public class TupleRedistributor {
 				final TupleStoreName localTableName = tupleStoreName.cloneWithDifferntRegionId(
 						distributionRegion.getRegionId());
 				
-				final TupleStoreManager storageManager = storage
-						.getStorageRegistry()
+				final TupleStoreManager storageManager = tupleStoreManagerRegistry
 						.getTupleStoreManager(localTableName);
 				
 				final LocalTupleSink tupleSink = new LocalTupleSink(tupleStoreName, storageManager);
