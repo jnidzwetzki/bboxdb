@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.experiments;
+package org.bboxdb.experiments;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,10 +28,10 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.io.FileUtil;
+import org.bboxdb.experiments.tuplestore.SSTableTupleStore;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.experiments.tuplestore.SSTableTupleStore;
 import org.bboxdb.tools.generator.SyntheticDataGenerator;
 
 import com.google.common.base.Stopwatch;

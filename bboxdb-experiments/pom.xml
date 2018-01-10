@@ -19,7 +19,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>bboxdb-examples</artifactId>
+	<artifactId>bboxdb-experiments</artifactId>
 
 	<parent>
 		<groupId>org.bboxdb</groupId>
@@ -27,13 +27,24 @@
 		<version>0.4.0</version>
 	</parent>
 
+	<!-- Needed for berkeley db (com.sleepycat) -->
+	<repositories>
+		<repository>
+			<id>oracleReleases</id>
+			<name>Oracle Released Java Packages</name>
+			<url>http://download.oracle.com/maven</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+
 	<dependencies>
+		<!-- Project dependencies -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bboxdb-server</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bboxdb-tools</artifactId>
@@ -41,11 +52,27 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>bboxdb-experiments</artifactId>
-			<version>${project.version}</version>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>slf4j-api</artifactId>
+		    <version>1.7.25</version>
+		</dependency>
+	
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>2.11.0</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+
 	<build>
 		<resources>
 			<resource>

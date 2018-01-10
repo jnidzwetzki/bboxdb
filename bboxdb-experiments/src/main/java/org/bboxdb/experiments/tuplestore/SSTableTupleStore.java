@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.experiments.tuplestore;
+package org.bboxdb.experiments.tuplestore;
 
 import java.io.File;
 import java.util.Arrays;

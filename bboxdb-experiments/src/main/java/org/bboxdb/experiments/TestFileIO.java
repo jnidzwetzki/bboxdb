@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.experiments;
+package org.bboxdb.experiments;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

@@ -15,37 +15,37 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.experiments;
+package org.bboxdb.experiments;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.io.FileUtil;
+import org.bboxdb.experiments.tuplestore.SSTableTupleStore;
+import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.tools.experiments.tuplestore.TupleStore;
-import org.bboxdb.tools.experiments.tuplestore.TupleStoreFactory;
 import org.bboxdb.tools.generator.SyntheticDataGenerator;
 
 import com.google.common.base.Stopwatch;
 
-public class TestRWPerformance implements Runnable {
+public class TestSSTableBloomFilter implements Runnable {
 
-	/**
-	 * The tuple store
-	 */
-	protected TupleStore tupleStore = null;
-	
 	/**
 	 * The amount of tuples
 	 */
-	public final static int TUPLES = 100000;
+	public final static int TUPLES = 1000000;
+	
+	/**
+	 * Tuple length
+	 */
+	public final static int TUPLE_LENGTH = 1000;
 	
 	/** 
 	 * The retry counter
@@ -53,47 +53,48 @@ public class TestRWPerformance implements Runnable {
 	public final static int RETRY = 3;
 
 	/**
-	 * The name of the adapter
-	 */
-	private String adapterName;
-
-	/**
 	 * The storage directory
 	 */
 	private File dir;
 
-	public TestRWPerformance(final String adapterName, final File dir) throws Exception {
-		this.adapterName = adapterName;
+	public TestSSTableBloomFilter(final File dir) throws Exception {
 		this.dir = dir;
-		System.out.println("#Using backend: " + adapterName);
 	}
 
 	@Override
 	public void run() {
 		
-		final List<Integer> dataSizes = Arrays.asList(1024, 5120, 10240, 51200, 102400);
-		System.out.println("#Size\tWrite\tRead");
+		System.out.println("#Memtable size\tRead sequence\tRead random\t");
+
+		final List<Integer> memtableSizes = Arrays.asList(1000, 5000, 10000, 50000, 100000, 500000, 1000000, 5000000);
 		
-		for(final int dataSize : dataSizes) {
-			
-			try {					
-				long timeRead = 0;
-				long timeWrite = 0;
-				
-				final String data = SyntheticDataGenerator.getRandomString(dataSize);
+		for(final int memtableSize : memtableSizes) {
+		
+			BBoxDBConfigurationManager.getConfiguration().setMemtableEntriesMax(memtableSize);
 	
-				for(int i = 0; i < RETRY; i++) {
-					FileUtil.deleteRecursive(dir.toPath());
-					dir.mkdirs();
-					tupleStore = TupleStoreFactory.getTupleStore(adapterName, dir);
-					
-					timeWrite += writeTuples(data);
-					timeRead += readTuples();
+			// Delete old data
+			FileUtil.deleteRecursive(dir.toPath());
+			dir.mkdirs();
+			
+			generateDataset();
+			
+			SSTableTupleStore tupleStore = null;
+			
+			try {			
+	
+				tupleStore = new SSTableTupleStore(dir);
+				tupleStore.open();
+	
+				long timeReadSequence = 0;
+				long timeReadRandom = 0;
+	
+				for(int i = 0; i < RETRY; i++) {				
+					timeReadRandom += readTuplesRandom(tupleStore);
 				}
 				
-				System.out.format("%d\t%d\t%d\n", dataSize, timeWrite / RETRY, timeRead / RETRY);
+				System.out.format("%d\t%d\t%d\n", memtableSize, timeReadSequence / RETRY, timeReadRandom / RETRY);
 			} catch (Exception e) {
-				System.out.println("Got exception: " + e);
+				e.printStackTrace();
 			} finally {
 				CloseableHelper.closeWithoutException(tupleStore, CloseableHelper.PRINT_EXCEPTION_ON_STDERR);
 				tupleStore = null;
@@ -102,14 +103,33 @@ public class TestRWPerformance implements Runnable {
 	}
 
 	/**
+	 * Generate a new dataset
+	 */
+	protected void generateDataset() {
+		SSTableTupleStore tupleStore = null;
+		try {
+			tupleStore = new SSTableTupleStore(dir);
+			tupleStore.open();
+			final String data = SyntheticDataGenerator.getRandomString(TUPLE_LENGTH);
+			writeTuples(data, tupleStore);
+		} catch (Exception e) {
+			System.err.println("Got an exception while creating dataset: " + e);
+			System.exit(-1);
+		} finally {
+			CloseableHelper.closeWithoutException(tupleStore, CloseableHelper.PRINT_EXCEPTION_ON_STDERR);
+			tupleStore = null;
+		}
+	}
+
+	/**
 	 * Write the tuples
 	 * @param data 
+	 * @param tupleStore 
 	 * @return 
 	 * @throws IOException 
 	 */
-	protected long writeTuples(final String data) throws Exception {
+	protected long writeTuples(final String data, SSTableTupleStore tupleStore) throws Exception {
 		System.out.println("# Writing Tuples");
-		tupleStore.open();
 		
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		
@@ -118,27 +138,27 @@ public class TestRWPerformance implements Runnable {
 			tupleStore.writeTuple(tuple);
 		}
 		
-		tupleStore.close();
 		return stopwatch.elapsed(TimeUnit.MILLISECONDS);
 	}
 
 	/**
 	 * Read the tuples
+	 * @param tupleStore 
 	 * @return 
 	 * @throws IOException 
 	 */
-	protected long readTuples() throws Exception {
-		System.out.println("# Reading Tuples");
-		tupleStore.open();
+	protected long readTuplesRandom(final SSTableTupleStore tupleStore) throws Exception {
+		System.out.println("# Reading Tuples random");
 		final Stopwatch stopwatch = Stopwatch.createStarted();
+		final Random random = new Random();
 
 		for(int i = 0; i < TUPLES; i++) {
-			tupleStore.readTuple(Integer.toString(i));
+			tupleStore.readTuple(Integer.toString(random.nextInt(TUPLES)));
 		}
 		
-		tupleStore.close();
 		return stopwatch.elapsed(TimeUnit.MILLISECONDS);
 	}
+	
 	
 	/**
 	 * Main * Main * Main
@@ -146,35 +166,23 @@ public class TestRWPerformance implements Runnable {
 	 */
 	public static void main(final String[] args) throws Exception {
 		// Check parameter
-		if(args.length != 2) {
-			System.err.println("Usage: programm <adapter> <dir>");
+		if(args.length != 1) {
+			System.err.println("Usage: programm <dir>");
 			System.exit(-1);
 		}
 		
-		final String adapter = Objects.requireNonNull(args[0]);
-		final String dirName = Objects.requireNonNull(args[1]);
-		
-		if(! TupleStoreFactory.ALL_STORES.contains(adapter)) {
-			System.err.println("Unknown adapter: " + adapter);
-			
-			final String adapterList = TupleStoreFactory.ALL_STORES
-					.stream()
-					.collect(Collectors.joining(",", "[", "]"));
-			
-			System.err.println("Known adapter: " + adapterList);
-			System.exit(-1);
-		}
+		final String dirName = Objects.requireNonNull(args[0]);
 		
 		final File dir = new File(dirName);
 		if(dir.exists()) {
 			System.err.println("Dir already exists, please remove");
 			System.exit(-1);
 		}
-		
+				
 		// Delete database on exit
 		FileUtil.deleteDirOnExit(dir.toPath());
 
-		final TestRWPerformance testSplit = new TestRWPerformance(adapter, dir);
+		final TestSSTableBloomFilter testSplit = new TestSSTableBloomFilter(dir);
 		testSplit.run();
 	}
 

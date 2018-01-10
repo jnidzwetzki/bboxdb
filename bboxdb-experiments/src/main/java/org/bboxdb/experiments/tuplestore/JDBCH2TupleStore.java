@@ -15,33 +15,33 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools.experiments.tuplestore;
+package org.bboxdb.experiments.tuplestore;
 
-import java.io.IOException;
+import java.io.File;
 
-import org.bboxdb.storage.entity.Tuple;
-
-public interface TupleStore extends AutoCloseable {
-
-	/**
-	 * Store the given tuple
-	 * @param tuple
-	 * @throws IOException 
-	 */
-	public void writeTuple(final Tuple tuple) throws Exception;
+public class JDBCH2TupleStore extends AbstractJDBCTupleStore {
 	
-	/**
-	 * Read the given tuple
-	 * @param key
-	 * @throws IOException
-	 * @return
-	 */
-	public Tuple readTuple(final String key) throws Exception;
-	
-	/**
-	 * Open the given tuple store
-	 * @throws Exception
-	 */
-	public void open() throws Exception;
+    /**	
+     * The H2 DB file flags
+     */
+    protected final static String DB_FLAGS = ";CACHE_SIZE=131072";
+    
+	public JDBCH2TupleStore(final File dir) throws Exception {
+		super(dir);
+	}
 
+	@Override
+	protected String getConnectionURL() {
+		return "jdbc:h2:nio:" + getDBFile().getAbsolutePath() + DB_FLAGS;
+	}
+
+	@Override
+	public String getCreateTableSQL() {
+		return "CREATE TABLE IF NOT EXISTS tuples (id INT PRIMARY KEY, data BLOB)";
+	}
+
+	@Override
+	public File getDBFile() {
+		return new File(dir.getAbsolutePath() + "/dbtest.db");
+	}
 }
