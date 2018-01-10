@@ -62,7 +62,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 */
 	protected void runThread() {
 
-		final TupleStoreManagerRegistry storageRegistry = storage.getStorageRegistry();
+		final TupleStoreManagerRegistry storageRegistry = storage.getTupleStoreManagerRegistry();
 
 		while(! Thread.currentThread().isInterrupted()) {
 			

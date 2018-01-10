@@ -195,7 +195,7 @@ public class RegionSplitter {
 		
 		final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
 		
-		final List<TupleStoreName> localTables = storage.getStorageRegistry()
+		final List<TupleStoreName> localTables = storage.getTupleStoreManagerRegistry()
 				.getAllTablesForDistributionGroupAndRegionId
 				(distributionGroupName, region.getRegionId());
 
@@ -227,7 +227,7 @@ public class RegionSplitter {
 			
 			final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
 			
-			final List<TupleStoreName> localTables = storage.getStorageRegistry()
+			final List<TupleStoreName> localTables = storage.getTupleStoreManagerRegistry()
 					.getAllTablesForDistributionGroupAndRegionId
 					(distributionGroupName, region.getRegionId());
 	
@@ -274,7 +274,7 @@ public class RegionSplitter {
 			throws StorageManagerException, Exception, InterruptedException {
 		
 		for(final TupleStoreName ssTableName : localTables) {
-			final TupleStoreManager ssTableManager = storage.getStorageRegistry().getTupleStoreManager(ssTableName);
+			final TupleStoreManager ssTableManager = storage.getTupleStoreManagerRegistry().getTupleStoreManager(ssTableName);
 			
 			final List<ReadOnlyTupleStore> storages = new ArrayList<>();
 			
@@ -323,7 +323,7 @@ public class RegionSplitter {
 		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
-		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getTupleStoreManager(ssTableName);
+		final TupleStoreManager ssTableManager = storage.getTupleStoreManagerRegistry().getTupleStoreManager(ssTableName);
 		
 		// Spread data
 		final TupleRedistributor tupleRedistributor = getTupleRedistributor(region, ssTableName);
@@ -338,7 +338,7 @@ public class RegionSplitter {
 	 * @throws StorageManagerException
 	 */
 	protected void stopFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
-		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getTupleStoreManager(ssTableName);
+		final TupleStoreManager ssTableManager = storage.getTupleStoreManagerRegistry().getTupleStoreManager(ssTableName);
 		
 		// Stop flush thread, so new data remains in memory
 		ssTableManager.setToReadOnly();
@@ -350,7 +350,7 @@ public class RegionSplitter {
 	 * @throws StorageManagerException
 	 */
 	protected void startFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
-		final TupleStoreManager ssTableManager = storage.getStorageRegistry().getTupleStoreManager(ssTableName);		
+		final TupleStoreManager ssTableManager = storage.getTupleStoreManagerRegistry().getTupleStoreManager(ssTableName);		
 		ssTableManager.setToReadWrite();
 	}
 
@@ -368,7 +368,7 @@ public class RegionSplitter {
 		final DistributionRegion rightRegion = region.getRightChild();
 		
 		final TupleRedistributor tupleRedistributor = new TupleRedistributor(
-				storage.getStorageRegistry(), ssTableName);
+				storage.getTupleStoreManagerRegistry(), ssTableName);
 		
 		tupleRedistributor.registerRegion(leftRegion);
 		tupleRedistributor.registerRegion(rightRegion);

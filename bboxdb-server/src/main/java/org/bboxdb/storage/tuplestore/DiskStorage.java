@@ -66,9 +66,9 @@ public class DiskStorage implements BBoxDBService {
 	protected int flushThreadsPerStorage;
 	
 	/**
-	 * The storage registry
+	 * The tuple store manager registry
 	 */
-	protected final TupleStoreManagerRegistry storageRegistry;
+	protected final TupleStoreManagerRegistry tupleStoreManagerRegistry;
 	
 	/**
 	 * The storage label
@@ -100,7 +100,7 @@ public class DiskStorage implements BBoxDBService {
 			final File basedir, 
 			final int flushThreadsPerStorage) {
 		
-		this.storageRegistry = storageRegistry;
+		this.tupleStoreManagerRegistry = storageRegistry;
 		this.basedir = basedir;
 		this.flushThreadsPerStorage = flushThreadsPerStorage;
 		this.memtablesToFlush = new ArrayBlockingQueue<>(SSTableConst.MAX_UNFLUSHED_MEMTABLES_PER_TABLE);
@@ -157,7 +157,7 @@ public class DiskStorage implements BBoxDBService {
 	 * Start the checkpoint thread for the storage
 	 */
 	protected void startCheckpointThread() {
-		final BBoxDBConfiguration configuration = storageRegistry.getConfiguration();
+		final BBoxDBConfiguration configuration = tupleStoreManagerRegistry.getConfiguration();
 		if(configuration.getStorageCheckpointInterval() > 0) {
 			final int maxUncheckpointedSeconds = configuration.getStorageCheckpointInterval();
 			final SSTableCheckpointThread ssTableCheckpointThread = new SSTableCheckpointThread(this, maxUncheckpointedSeconds);
@@ -235,7 +235,7 @@ public class DiskStorage implements BBoxDBService {
 	 * Get the storage registry
 	 * @return
 	 */
-	public TupleStoreManagerRegistry getStorageRegistry() {
-		return storageRegistry;
+	public TupleStoreManagerRegistry getTupleStoreManagerRegistry() {
+		return tupleStoreManagerRegistry;
 	}
 }

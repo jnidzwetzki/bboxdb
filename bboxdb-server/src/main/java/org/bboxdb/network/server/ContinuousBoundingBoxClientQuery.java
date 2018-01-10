@@ -133,7 +133,7 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 	
 	/**
 	 * Init the query
-	 * @param storageRegistry 
+	 * @param tupleStoreManagerRegistry 
 	 */
 	protected void init() {
 		

@@ -61,7 +61,7 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 		
 		final int splitDimension = region.getSplitDimension();
 	
-		final List<TupleStoreName> tables = storage.getStorageRegistry()
+		final List<TupleStoreName> tables = storage.getTupleStoreManagerRegistry()
 				.getAllTablesForDistributionGroupAndRegionId
 				(region.getDistributionGroupName(), region.getRegionId());
 	
@@ -107,7 +107,7 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 		for(final TupleStoreName ssTableName : tables) {
 			logger.info("Create split samples for table: {} ", ssTableName.getFullname());
 			
-			final TupleStoreManager sstableManager = storage.getStorageRegistry()
+			final TupleStoreManager sstableManager = storage.getTupleStoreManagerRegistry()
 					.getTupleStoreManager(ssTableName);
 			
 			final List<ReadOnlyTupleStore> tupleStores = sstableManager.getAllTupleStorages();

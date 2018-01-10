@@ -94,7 +94,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 */
 	public synchronized void execute() {
 		
-		final TupleStoreManagerRegistry storageRegistry = storage.getStorageRegistry();
+		final TupleStoreManagerRegistry storageRegistry = storage.getTupleStoreManagerRegistry();
 		final String location = storage.getBasedir().getAbsolutePath();
 		final List<TupleStoreName> sstables = storageRegistry.getTupleStoresForLocation(location);
 		
@@ -224,7 +224,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final SpacePartitioner spacePartitioner)
 			throws StorageManagerException, InterruptedException, ZookeeperException {
 		
-		final TupleStoreManagerRegistry storageRegistry = storage.getStorageRegistry();
+		final TupleStoreManagerRegistry storageRegistry = storage.getTupleStoreManagerRegistry();
 		
 		final long totalSize = storageRegistry.getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
 		final long totalTuples = storageRegistry.getTuplesInDistributionGroupAndRegionId(distributionGroup, regionId);
@@ -282,7 +282,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		// Open new facedes
 		for(final SSTableWriter writer : newTableWriter) {
 			
-			final int sstableKeyCacheEntries = storage.getStorageRegistry().getConfiguration()
+			final int sstableKeyCacheEntries = storage.getTupleStoreManagerRegistry().getConfiguration()
 					.getSstableKeyCacheEntries();
 			
 			final SSTableFacade newFacade = new SSTableFacade(writer.getDirectory(), 

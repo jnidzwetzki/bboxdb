@@ -109,7 +109,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 				final String dataDirectory = basedir.getAbsolutePath();
 				final int tableNumber = writeMemtable(dataDirectory, memtable, sstableManager);
 				
-				final int sstableKeyCacheEntries = storage.getStorageRegistry().getConfiguration()
+				final int sstableKeyCacheEntries = storage.getTupleStoreManagerRegistry().getConfiguration()
 						.getSstableKeyCacheEntries();
 				
 				facade = new SSTableFacade(dataDirectory, sstableName, tableNumber, sstableKeyCacheEntries);
@@ -160,7 +160,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	protected void sendCallbacks(final Memtable memtable, TupleStoreManager sstableManager) {
 		final long timestamp = memtable.getCreatedTimestamp();
 		final List<BiConsumer<TupleStoreName, Long>> callbacks 
-			= storage.getStorageRegistry().getSSTableFlushCallbacks();
+			= storage.getTupleStoreManagerRegistry().getSSTableFlushCallbacks();
 		
 		for(final BiConsumer<TupleStoreName, Long> callback : callbacks) {
 			try {
