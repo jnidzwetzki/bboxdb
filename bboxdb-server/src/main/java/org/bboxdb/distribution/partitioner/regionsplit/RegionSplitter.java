@@ -9,6 +9,7 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
@@ -17,6 +18,9 @@ import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistribu
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.network.client.BBoxDBException;
+import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
@@ -184,9 +188,10 @@ public class RegionSplitter {
 	 * Redistribute the data in region merge
 	 * @param region
 	 * @throws StorageManagerException 
+	 * @throws BBoxDBException 
 	 */
 	protected void redistributeDataMerge(final DistributionRegion region) 
-			throws StorageManagerException {
+			throws StorageManagerException, BBoxDBException {
 		
 		logger.info("Redistributing all data for region (merge): " + region.getIdentifier());
 
@@ -206,12 +211,59 @@ public class RegionSplitter {
 		assert (addResult == true) : "Unable to add mapping for: " + region;
 		
 		// Redistribute data
-		for(final TupleStoreName ssTableName : localTables) {
-			startFlushToDisk(ssTableName);
+		for(final TupleStoreName tupleStoreName : localTables) {
+			logger.info("Merging data of tuple store {}", tupleStoreName);
+			startFlushToDisk(tupleStoreName);
+			
+			final TupleRedistributor tupleRedistributor 
+				= new TupleRedistributor(storage.getTupleStoreManagerRegistry(), tupleStoreName);
+			tupleRedistributor.registerRegion(region);
+			
+			for(final DistributionRegion childRegion : childRegions) {
+				mergeDataFromChildRrgion(region, tupleStoreName, tupleRedistributor, childRegion);					
+			}
+
+			spacePartitioner.mergeComplete(region);
 		}
+	}
+
+	/**
+	 * Merge the data from the given child region
+	 * @param region
+	 * @param tupleStoreName
+	 * @param tupleRedistributor
+	 * @param childRegion
+	 * @throws StorageManagerException
+	 */
+	private void mergeDataFromChildRrgion(final DistributionRegion region, 
+			final TupleStoreName tupleStoreName,	final TupleRedistributor tupleRedistributor, 
+			final DistributionRegion childRegion) throws StorageManagerException {
 		
-		for(final DistributionRegion childRegion : childRegions) {
+		try {
 			final BoundingBox bbox = childRegion.getConveringBox();
+			
+			final BBoxDBClient connection = MembershipConnectionService.getInstance()
+					.getConnectionForInstance(region.getSystems().iterator().next());
+			
+			final TupleListFuture result = connection.queryBoundingBox(tupleStoreName.getFullname(),
+					bbox);
+			
+			result.waitForAll();
+			
+			if(result.isFailed()) {
+				throw new StorageManagerException("Exception while fetching tuples: " 
+						+ result.getAllMessages());
+			}
+			
+			for(final Tuple tuple : result) {
+				tupleRedistributor.redistributeTuple(tuple);
+			}
+			
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new StorageManagerException(e);
+		} catch (Exception e) {
+			throw new StorageManagerException(e);
 		}
 	}
 	
@@ -319,7 +371,8 @@ public class RegionSplitter {
 	 * @param ssTableName
 	 * @throws StorageManagerException 
 	 */
-	protected void distributeData(final TupleStoreName ssTableName) throws Exception {
+	protected void distributeData(final TupleStoreName ssTableName) 
+			throws BBoxDBException, StorageManagerException {
 		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
@@ -386,7 +439,7 @@ public class RegionSplitter {
 	 * @throws StorageManagerException 
 	 */
 	protected void spreadTupleStores(final TupleStoreManager ssTableManager, 
-			final TupleRedistributor tupleRedistributor) throws Exception {
+			final TupleRedistributor tupleRedistributor) throws BBoxDBException {
 		
 		final List<ReadOnlyTupleStore> storages = new ArrayList<>();
 		
@@ -408,7 +461,7 @@ public class RegionSplitter {
 					tupleRedistributor.getStatistics());
 			
 		} catch (Exception e) {
-			throw e;
+			throw new BBoxDBException(e);
 		} finally {
 			ssTableManager.releaseStorage(storages);
 		}
