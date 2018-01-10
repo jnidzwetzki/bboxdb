@@ -28,7 +28,6 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBClient;
-import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -187,40 +186,3 @@ public class TupleRedistributor {
 	}
 }
 
-class NetworkTupleSink extends AbstractTupleSink {
-	
-	/**
-	 * The connection to spread data too
-	 */
-	protected final BBoxDBClient connection;
-
-	public NetworkTupleSink(final TupleStoreName tablename, final BBoxDBClient connection) {
-		super(tablename);
-		this.connection = connection;
-	}
-
-	@Override
-	public void sinkTuple(final Tuple tuple) throws BBoxDBException {
-		sinkedTuples++;
-		connection.insertTuple(tablename, tuple);
-	}
-}
-
-class LocalTupleSink extends AbstractTupleSink {
-
-	/**
-	 * The storage manager to store the tuple
-	 */
-	protected final TupleStoreManager storageManager;
-	
-	public LocalTupleSink(final TupleStoreName tablename, final TupleStoreManager storageManager) {
-		super(tablename);
-		this.storageManager = storageManager;
-	}
-
-	@Override
-	public void sinkTuple(final Tuple tuple) throws Exception {
-		sinkedTuples++;
-		storageManager.put(tuple);
-	}
-}
