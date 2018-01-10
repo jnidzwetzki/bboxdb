@@ -8,4 +8,4 @@ coverage:
 
 ignore:
    - "bboxdb-tools/src"
-
+   - "bboxdb-experiments/src"
