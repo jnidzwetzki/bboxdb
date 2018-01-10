@@ -64,13 +64,17 @@ public class TupleRedistributor {
 	protected final static Logger logger = LoggerFactory.getLogger(TupleRedistributor.class);
 
 	
-	public TupleRedistributor(final TupleStoreManagerRegistry tupleStoreManagerRegistry, final TupleStoreName tupleStoreName) {
+	public TupleRedistributor(final TupleStoreManagerRegistry tupleStoreManagerRegistry, 
+			final TupleStoreName tupleStoreName) {
+		
+		assert (tupleStoreManagerRegistry != null) : "Tuple store registry is null";
+		assert (tupleStoreName != null) : "Tuple store name is null";
+		assert (tupleStoreName.isValid()) : "Invalid tuple store name";
+
 		this.tupleStoreManagerRegistry = tupleStoreManagerRegistry;
 		this.tupleStoreName = tupleStoreName;
 		this.regionMap = new HashMap<DistributionRegion, List<AbstractTupleSink>>();
 		this.redistributedTuples = 0;
-		
-		assert(tupleStoreName.isValid());
 	}
 
 	/**
@@ -184,4 +188,3 @@ public class TupleRedistributor {
 		return sb.toString();
 	}
 }
-
