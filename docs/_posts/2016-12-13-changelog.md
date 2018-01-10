@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.4.0 (Stable) - TBA
 - New Feature: Size in byte and tuples are stored in Zookeeper
+- New Feature: Added merge code
 - Improvement: Introduced the generic space partitioner interface
 - Improvement: Created bboxdb_tools module
 - Improvement: Clean up dependencies of the modules
