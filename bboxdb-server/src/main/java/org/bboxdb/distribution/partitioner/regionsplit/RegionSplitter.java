@@ -220,7 +220,7 @@ public class RegionSplitter {
 			tupleRedistributor.registerRegion(region);
 			
 			for(final DistributionRegion childRegion : childRegions) {
-				mergeDataFromChildRrgion(region, tupleStoreName, tupleRedistributor, childRegion);					
+				mergeDataFromChildRegion(region, tupleStoreName, tupleRedistributor, childRegion);					
 			}
 
 			spacePartitioner.mergeComplete(region);
@@ -235,7 +235,7 @@ public class RegionSplitter {
 	 * @param childRegion
 	 * @throws StorageManagerException
 	 */
-	private void mergeDataFromChildRrgion(final DistributionRegion region, 
+	private void mergeDataFromChildRegion(final DistributionRegion region, 
 			final TupleStoreName tupleStoreName,	final TupleRedistributor tupleRedistributor, 
 			final DistributionRegion childRegion) throws StorageManagerException {
 		
@@ -258,6 +258,10 @@ public class RegionSplitter {
 			for(final Tuple tuple : result) {
 				tupleRedistributor.redistributeTuple(tuple);
 			}
+			
+			logger.info("Final statistics for merge ({}): {}", 
+					tupleStoreName.getFullname(),
+					tupleRedistributor.getStatistics());
 			
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
