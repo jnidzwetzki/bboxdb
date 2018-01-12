@@ -18,6 +18,7 @@
 package org.bboxdb.distribution;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -39,22 +40,30 @@ import com.google.common.collect.Multiset;
 public class DistributionRegionHelper {
 	
 	/**
+	 * The states for read operations
+	 */
+	private 	final static Collection<DistributionRegionState> STATES_READ = Arrays.asList(
+			DistributionRegionState.ACTIVE, 
+			DistributionRegionState.ACTIVE_FULL, 
+			DistributionRegionState.SPLITTING, 
+			DistributionRegionState.MERGING);
+	/**
 	 * System for read operations
 	 */
-	protected static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_READ = (s) -> {
-		return s == DistributionRegionState.ACTIVE 
-				|| s == DistributionRegionState.ACTIVE_FULL
-				|| s == DistributionRegionState.SPLITTING
-				|| s == DistributionRegionState.MERGING;
-	};
+	protected static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_READ 
+		= (s) -> (STATES_READ.contains(s));
 	
+	/**
+	 * The states for write operations
+	 */
+	private	final static Collection<DistributionRegionState> STATES_WRITE = Arrays.asList(
+				DistributionRegionState.ACTIVE, 
+				DistributionRegionState.ACTIVE_FULL);
 	/**
 	 * Systems for write operations
 	 */
-	protected static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_WRITE = (s) -> {
-		return s == DistributionRegionState.ACTIVE 
-				|| s == DistributionRegionState.ACTIVE_FULL;
-	};
+	protected static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_WRITE 
+		= (s) -> (STATES_WRITE.contains(s));
 	
 	/**
 	 * Find the region for the given name prefix
