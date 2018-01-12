@@ -44,7 +44,8 @@ public class DistributionRegionHelper {
 	protected static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_READ = (s) -> {
 		return s == DistributionRegionState.ACTIVE 
 				|| s == DistributionRegionState.ACTIVE_FULL
-				|| s == DistributionRegionState.SPLITTING;
+				|| s == DistributionRegionState.SPLITTING
+				|| s == DistributionRegionState.MERGING;
 	};
 	
 	/**
