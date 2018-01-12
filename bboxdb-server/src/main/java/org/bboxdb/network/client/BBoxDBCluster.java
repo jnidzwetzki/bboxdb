@@ -283,10 +283,10 @@ public class BBoxDBCluster implements BBoxDB {
 		final EmptyResultFuture future = new EmptyResultFuture();
 
 		membershipConnectionService.getAllConnections()
-		.stream()
-		.map(c -> c.deleteDistributionGroup(distributionGroup))
-		.filter(Objects::nonNull)
-		.forEach(f -> future.merge(f));
+			.stream()
+			.map(c -> c.deleteDistributionGroup(distributionGroup))
+			.filter(Objects::nonNull)
+			.forEach(f -> future.merge(f));
 
 		return future;
 	}
@@ -298,7 +298,7 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		final DuplicateResolver<Tuple> duplicateResolver 
-		= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
+			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
 
 		final TupleListFuture future = new TupleListFuture(duplicateResolver);
 
@@ -307,10 +307,10 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		membershipConnectionService.getAllConnections()
-		.stream()
-		.map(c -> c.queryKey(table, key))
-		.filter(Objects::nonNull)
-		.forEach(f -> future.merge(f));
+			.stream()
+			.map(c -> c.queryKey(table, key))
+			.filter(Objects::nonNull)
+			.forEach(f -> future.merge(f));
 
 		return future;
 	}
@@ -337,10 +337,10 @@ public class BBoxDBCluster implements BBoxDB {
 			}
 
 			hops.stream()
-			.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
-			.map(c -> c.queryBoundingBox(table, boundingBox))
-			.filter(Objects::nonNull)
-			.forEach(f -> future.merge(f));
+				.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
+				.map(c -> c.queryBoundingBox(table, boundingBox))
+				.filter(Objects::nonNull)
+				.forEach(f -> future.merge(f));
 
 		} catch (ZookeeperException e) {
 			e.printStackTrace();
