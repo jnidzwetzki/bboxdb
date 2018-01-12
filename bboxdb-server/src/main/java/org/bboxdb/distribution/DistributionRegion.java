@@ -306,6 +306,14 @@ public class DistributionRegion {
 	}
 	
 	/**
+	 * Remove the children
+	 */
+	public void removeChildren() {
+		leftChild = null;
+		rightChild = null;
+	}
+	
+	/**
 	 * Child nodes are in creation?
 	 * @return
 	 */

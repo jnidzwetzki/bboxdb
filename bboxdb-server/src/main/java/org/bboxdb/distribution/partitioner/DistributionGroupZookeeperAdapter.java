@@ -346,14 +346,16 @@ public class DistributionGroupZookeeperAdapter {
 		
 		DistributionRegion tmpRegion = distributionRegion;
 		
-		while(tmpRegion.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
-			if(tmpRegion.isLeftChild()) {
-				sb.insert(0, "/" + ZookeeperNodeNames.NAME_LEFT);
-			} else {
-				sb.insert(0, "/" + ZookeeperNodeNames.NAME_RIGHT);
+		if(tmpRegion != null) {
+			while(tmpRegion.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
+				if(tmpRegion.isLeftChild()) {
+					sb.insert(0, "/" + ZookeeperNodeNames.NAME_LEFT);
+				} else {
+					sb.insert(0, "/" + ZookeeperNodeNames.NAME_RIGHT);
+				}
+				
+				tmpRegion = tmpRegion.getParent();
 			}
-			
-			tmpRegion = tmpRegion.getParent();
 		}
 		
 		final String name = distributionRegion.getDistributionGroupName().getFullname();
@@ -383,18 +385,11 @@ public class DistributionGroupZookeeperAdapter {
 		DistributionRegion resultElement = distributionRegion;
 		
 		while(sb.length() > 0) {
-			
 			// Remove '/'
 			if(sb.length() > 0) {
 				sb.delete(0, 1);
 			}
-			
-			if(resultElement.getLeftChild() == null || resultElement.getRightChild() == null) {
-				throw new IllegalArgumentException(
-						"Unable to go to child at path, node is leaf region: " + sb 
-						+ " and path is: " + path);
-			}
-			
+
 			if(sb.indexOf(ZookeeperNodeNames.NAME_LEFT) == 0) {
 				resultElement = resultElement.getLeftChild();
 				sb.delete(0, ZookeeperNodeNames.NAME_LEFT.length());
@@ -408,7 +403,6 @@ public class DistributionGroupZookeeperAdapter {
 		
 		return resultElement;
 	}
-	
 	
 	/**
 	 * Get the systems for the distribution region

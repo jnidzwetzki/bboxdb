@@ -91,7 +91,6 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KDtreeSpacePartitioner.class);
 
-
 	public KDtreeSpacePartitioner() {
 		this.callbacks = new HashSet<>();		
 	}
@@ -112,31 +111,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		this.zookeeperClient = zookeeperClient;
 		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
 		
-		readAndHandleVersion();
-	}
-
-	/**
-	 * Read and handle the version
-	 * @throws ZookeeperException
-	 */
-	private void readAndHandleVersion() throws ZookeeperException {
-		try {
-			final String zookeeperVersion 
-				= distributionGroupZookeeperAdapter.getVersionForDistributionGroup(
-					distributionGroupName.getFullname(), this);
-			
-			if(version == null || ! zookeeperVersion.equals(version)) {
-				// First read after start
-				version = zookeeperVersion;
-				handleNewRootElement();
-			} 
-			
-		} catch (ZookeeperNotFoundException e) {
-			logger.info("Version for {} not found, deleting in memory version", distributionGroupName);
-			handleRootElementDeleted();
-		}
-		
-		registerDistributionGroupChangeListener();
+		refreshWholeTree();
 	}
 	
 	/**
@@ -166,18 +141,16 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		// Wait for state node to appear
 		for(int retry = 0; retry < 10; retry++) {
 			try {
-				distributionGroupZookeeperAdapter.getStateForDistributionRegion(dgroupPath, null);
-				handleNewRootElement();
+				distributionGroupZookeeperAdapter.getStateForDistributionRegion(dgroupPath);
+				refreshWholeTree();
 				break;
 			} catch (ZookeeperNotFoundException e) {
-				
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e1) {
 					Thread.currentThread().interrupt();
 					return;
 				}
-				
 			}
 		}
 		
@@ -189,37 +162,64 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	/**
 	 * Reread and handle the dgroup version
 	 */
-	protected void readAndHandleVersionNE() {
+	protected void refreshWholeTreeNE() {
 		try {
-			readAndHandleVersion();
+			refreshWholeTree();
 		} catch (ZookeeperException e) {
 			logger.warn("Got zookeeper exception", e);
 		}
 	}
 	
 	/**
-	 * Create and reread the distribution group
-	 * @throws ZookeeperException
+	 * Refresh the whole tree
+	 * @throws ZookeeperException 
 	 */
-	protected void handleNewRootElement() throws ZookeeperException {
-
-		// Delete old mappings
-		handleRootElementDeleted();
+	private void refreshWholeTree() throws ZookeeperException {
 		
-		logger.info("Create new root element for {}", distributionGroupName);
-		rootNode = DistributionRegion.createRootElement(distributionGroupName);
+		try {
+			final String zookeeperVersion 
+				= distributionGroupZookeeperAdapter.getVersionForDistributionGroup(
+					distributionGroupName.getFullname(), this);
 			
-		final String path = distributionGroupZookeeperAdapter.getDistributionGroupPath(distributionGroupName.getFullname());
+			if(version == null || ! version.equals(zookeeperVersion)) {
+				logger.info("Our tree version is {}, zookeeper version is {}", version, zookeeperVersion);
+				version = zookeeperVersion;
+				rootNode = null;
+				handleRootNodeChanged();
+			} 
+			
+		} catch (ZookeeperNotFoundException e) {
+			logger.info("Version for {} not found, deleting in memory version", distributionGroupName);
+			version = null;
+			rootNode = null;
+			
+			// The distribution group listener will notify us,
+			// as soon as the distribution group is recreated
+			handleRootNodeChanged();
+			registerDistributionGroupChangeListener();
+
+			return;
+		}
+
+		if(rootNode == null) {
+			logger.info("Create new root element for {}", distributionGroupName);
+			rootNode = DistributionRegion.createRootElement(distributionGroupName);
+		}
+		
+		final String fullname = distributionGroupName.getFullname();
+		final String path = distributionGroupZookeeperAdapter.getDistributionGroupPath(fullname);
+			
 		readDistributionGroupRecursive(path, rootNode);
 	}
-	
+
 	/**
-	 * The root element is deleted
+	 * Root node has changed, clear local mapppings 
 	 */
-	private void handleRootElementDeleted() {
-		logger.info("Root element for {} is deleted", distributionGroupName);
-		RegionIdMapperInstanceManager.getInstance(distributionGroupName).clear();
-		rootNode = null;
+	private void handleRootNodeChanged() {
+		if(rootNode == null) {
+			logger.info("Root element for {} is deleted", distributionGroupName);
+			RegionIdMapperInstanceManager.getInstance(distributionGroupName).clear();
+		}
 	}
 	
 	/**
@@ -253,7 +253,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 
 		if(path.equals(distributionGroupZookeeperAdapter.getClusterPath())) {
 			// Amount of distribution groups have changed
-			readAndHandleVersionNE();
+			refreshWholeTreeNE();
 		} else if(path.endsWith(ZookeeperNodeNames.NAME_SYSTEMS)) {
 			// Some systems were added or deleted
 			handleSystemNodeUpdateEvent(event);
@@ -388,8 +388,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	}
 
 	@Override
-	public void prepareMerge(final DistributionRegion regionToMerge, final DiskStorage diskStorage) 
-			throws BBoxDBException {
+	public void prepareMerge(final DistributionRegion regionToMerge) throws BBoxDBException {
 		
 		try {
 			logger.debug("Merging region: {}", regionToMerge);
@@ -408,8 +407,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 				
 				distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPathChild, 
 					DistributionRegionState.MERGING);
-				
 			}
+			
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
 		}
@@ -567,31 +566,31 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	protected void readDistributionGroupRecursive(final String path, final DistributionRegion region) throws ZookeeperException {
 			
-			logger.debug("Reading path: {}", path);
+		logger.debug("Reading path: {}", path);
+		
+		try {
+			final DistributionRegionState regionState 
+				= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
 			
-			try {
-				final DistributionRegionState regionState 
-					= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
-				
-				// Read region id
-				updateIdForRegion(path, region);
+			// Read region id
+			updateIdForRegion(path, region);
 
-				// Handle systems and mappings
-				updateSystemsForRegion(region);
-				
-				// Update split position and read childs
-				updateSplitAndChildsForRegion(path, region);
-				
-				// Handle state updates at the end.
-				// Otherwise, we could set the region to splitted 
-				// and the child regions are not ready
-				region.setState(regionState);
+			// Handle systems and mappings
+			updateSystemsForRegion(region);
+			
+			// Update split position and read childs
+			updateSplitAndChildsForRegion(path, region);
+			
+			// Handle state updates at the end.
+			// Otherwise, we could set the region to splitted 
+			// and the child regions are not ready
+			region.setState(regionState);
 
-			} catch (ZookeeperNotFoundException e) {
-				handleRootElementDeleted();
-			}
-	
-			fireDataChanged(region);
+		} catch (ZookeeperNotFoundException e) {
+			refreshWholeTree();
+		}
+
+		fireDataChanged(region);
 	}
 
 	/**
@@ -619,11 +618,19 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			}
 		}
 		
-		readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_LEFT, 
-				region.getLeftChild());
+		final String leftPath = path + "/" + ZookeeperNodeNames.NAME_LEFT;
+		if(zookeeperClient.exists(leftPath)) {
+			readDistributionGroupRecursive(leftPath, region.getLeftChild());
+		} else {
+			region.removeChildren();
+		}
 		
-		readDistributionGroupRecursive(path + "/" + ZookeeperNodeNames.NAME_RIGHT, 
-				region.getRightChild());
+		final String rightPath = path + "/" + ZookeeperNodeNames.NAME_RIGHT;
+		if(zookeeperClient.exists(rightPath)) {
+			readDistributionGroupRecursive(rightPath, region.getRightChild());
+		} else {
+			region.removeChildren();
+		}
 	}
 
 	/**

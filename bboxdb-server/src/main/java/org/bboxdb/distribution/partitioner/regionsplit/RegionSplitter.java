@@ -152,7 +152,7 @@ public class RegionSplitter {
 				return;
 			}
 			
-			spacePartitioner.prepareMerge(region, diskStorage);
+			spacePartitioner.prepareMerge(region);
 			redistributeDataMerge(region);
 			
 		} catch (Throwable e) {

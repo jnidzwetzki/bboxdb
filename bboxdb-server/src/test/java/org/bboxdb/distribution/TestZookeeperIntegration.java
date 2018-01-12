@@ -190,29 +190,51 @@ public class TestZookeeperIntegration {
 	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testDistributionRegionSplit() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
+	public void testDistributionRegionSplitAndMerge() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
 		// Split and update
+		System.out.println("---> Get space partitioner");
 		final KDtreeSpacePartitioner spacePartitioner = (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		System.out.println("---> Get space partitioner - DONE");
 		final DistributionRegion distributionGroup = spacePartitioner.getRootNode();
+		System.out.println("---> Get root node - DONE");
+
 		Assert.assertEquals(TEST_GROUP, distributionGroup.getDistributionGroupName().getFullname());
 		
-		Assert.assertEquals(DistributionRegionState.ACTIVE, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup, null));
+		final DistributionRegionState stateForDistributionRegion1 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup);
+		Assert.assertEquals(DistributionRegionState.ACTIVE, stateForDistributionRegion1);
 		try {
+			System.out.println("--> Set split for node");
 			spacePartitioner.splitNode(distributionGroup, 10);
 		} catch (ResourceAllocationException e) {
 			// Ignore this for the unit test
 		}
 		
 		Thread.sleep(5000);
-		Assert.assertEquals(10.0, distributionGroup.getSplit(), 0.0001);
-		Assert.assertEquals(DistributionRegionState.SPLITTING, distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup, null));
+		Assert.assertEquals(10.0, distributionGroup.getSplit(), DELTA);
+		final DistributionRegionState stateForDistributionRegion2 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup);
+		Assert.assertEquals(DistributionRegionState.SPLITTING, stateForDistributionRegion2);
 
 		// Reread group from zookeeper
 		final DistributionRegion newDistributionGroup = spacePartitioner.getRootNode();
-		Assert.assertEquals(10.0, newDistributionGroup.getSplit(), 0.0001);
+		Assert.assertEquals(10.0, newDistributionGroup.getSplit(), DELTA);
+		final DistributionRegionState stateForDistributionRegion3 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(newDistributionGroup);
+		Assert.assertEquals(DistributionRegionState.SPLITTING, stateForDistributionRegion3);
+		
+		// Delete childs
+		System.out.println("---> Calling prepare merge");
+		spacePartitioner.prepareMerge(spacePartitioner.getRootNode());
+		
+		// Sleep some seconds to wait for the update
+		Thread.sleep(5000);
+		
+		System.out.println("---> Calling merge complete");
+		spacePartitioner.mergeComplete(spacePartitioner.getRootNode());
+		final DistributionRegion newDistributionGroup2 = spacePartitioner.getRootNode();
+		final DistributionRegionState stateForDistributionRegion4 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(newDistributionGroup2);
+		Assert.assertEquals(DistributionRegionState.ACTIVE, stateForDistributionRegion4);
 	}
 	
 	/**
@@ -247,7 +269,7 @@ public class TestZookeeperIntegration {
 		Thread.sleep(5000);
 
 		// Read update from the second object
-		Assert.assertEquals(10.0, distributionGroup2.getSplit(), 0.0001);
+		Assert.assertEquals(10.0, distributionGroup2.getSplit(), DELTA);
 		
 		// Check region ids
 		Assert.assertEquals(0, distributionGroup2.getRegionId());
@@ -299,8 +321,8 @@ public class TestZookeeperIntegration {
 		Thread.sleep(2000);
 
 		// Read update from the second object
-		Assert.assertEquals(10.0, distributionGroup2.getSplit(), 0.0001);
-		Assert.assertEquals(50.0, distributionGroup2.getLeftChild().getSplit(), 0.0001);
+		Assert.assertEquals(10.0, distributionGroup2.getSplit(), DELTA);
+		Assert.assertEquals(50.0, distributionGroup2.getLeftChild().getSplit(), DELTA);
 	}
 	
 	/**

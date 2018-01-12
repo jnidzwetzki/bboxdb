@@ -71,10 +71,9 @@ public interface SpacePartitioner {
 	/**
 	 * Merge the given region
 	 * @param regionToMerge
-	 * @param diskStorage
 	 * @throws BBoxDBException
 	 */
-	public void prepareMerge(final DistributionRegion regionToMerge, final DiskStorage diskStorage) throws BBoxDBException;
+	public void prepareMerge(final DistributionRegion regionToMerge) throws BBoxDBException;
 	
 	/**
 	 * Merging of the region is done 
