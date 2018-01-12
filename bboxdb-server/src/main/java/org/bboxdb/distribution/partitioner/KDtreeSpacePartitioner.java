@@ -49,40 +49,40 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	/**
 	 * The zookeeper client
 	 */
-	protected ZookeeperClient zookeeperClient;
+	private ZookeeperClient zookeeperClient;
 	
 	/**
 	 * The distribution group adapter
 	 */
-	protected DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	private DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The name of the distribution group
 	 */
-	protected DistributionGroupName distributionGroupName;
+	private DistributionGroupName distributionGroupName;
 	
 	/**
 	 * The root node of the K-D-Tree
 	 */
-	protected DistributionRegion rootNode;
+	private DistributionRegion rootNode;
 	
 	/**
 	 * The version of the distribution group
 	 */
-	protected String version;
+	private String version;
 	
 	/**
 	 * The callbacls
 	 */
-	protected final Set<DistributionRegionChangedCallback> callbacks;
+	private final Set<DistributionRegionChangedCallback> callbacks;
 	
 	/**
 	 * The mutex for sync operations
 	 */
-	protected final Object MUTEX = new Object();
+	private final Object MUTEX = new Object();
 
 	/**
-	 * The space partitioner config
+	 * The space partitioner configuration
 	 */
 	protected String spacePartitionerConfig;
 	
@@ -117,7 +117,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	/**
 	 * Register a listener for distribution group changes
 	 */
-	protected void registerDistributionGroupChangeListener() {
+	private void registerDistributionGroupChangeListener() {
 		try {
 			final List<DistributionGroupName> distributionGroups = distributionGroupZookeeperAdapter.getDistributionGroups(this);
 			
@@ -135,7 +135,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * Wait for the state node of the new distribution group
 	 * @throws ZookeeperException
 	 */
-	protected void waitForGroupToAppear() throws ZookeeperException{
+	private void waitForGroupToAppear() throws ZookeeperException{
 		final String dgroupPath = distributionGroupZookeeperAdapter.getDistributionGroupPath(distributionGroupName.getFullname());
 		
 		// Wait for state node to appear
@@ -162,7 +162,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	/**
 	 * Reread and handle the dgroup version
 	 */
-	protected void refreshWholeTreeNE() {
+	private void refreshWholeTreeNE() {
 		try {
 			refreshWholeTree();
 		} catch (ZookeeperException e) {
@@ -269,7 +269,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * Handle node updates
 	 * @param event
 	 */
-	protected void handleNodeUpdateEvent(final WatchedEvent event) {
+	private void handleNodeUpdateEvent(final WatchedEvent event) {
 	
 		if(rootNode == null) {
 			logger.debug("Ignore systems update event, because root not node is null: {}", distributionGroupName);
@@ -299,7 +299,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * Handle system update events
 	 * @param event
 	 */
-	protected void handleSystemNodeUpdateEvent(final WatchedEvent event) {
+	private void handleSystemNodeUpdateEvent(final WatchedEvent event) {
 		
 		if(rootNode == null) {
 			logger.debug("Ignore systems update event, because root not node is null: {}", distributionGroupName);
@@ -489,7 +489,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @param region
 	 * @return
 	 */
-	protected boolean isSplitForNodeComplete(final DistributionRegion region) {
+	private boolean isSplitForNodeComplete(final DistributionRegion region) {
 		
 		if(region.getSplit() == Float.MIN_VALUE) {
 			return false;
@@ -519,7 +519,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @param path
 	 * @throws ZookeeperException
 	 */
-	protected void createNewChild(final String path) throws ZookeeperException {
+	private void createNewChild(final String path) throws ZookeeperException {
 		logger.debug("Creating: {}", path);
 
 		zookeeperClient.createPersistentNode(path, "".getBytes());
@@ -566,7 +566,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	protected void readDistributionGroupRecursive(final String path, final DistributionRegion region) throws ZookeeperException {
+	private void readDistributionGroupRecursive(final String path, final DistributionRegion region) throws ZookeeperException {
 			
 		logger.debug("Reading path: {}", path);
 		
@@ -602,7 +602,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected void updateSplitAndChildsForRegion(final String path, final DistributionRegion region) 
+	private void updateSplitAndChildsForRegion(final String path, final DistributionRegion region) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		if(! distributionGroupZookeeperAdapter.isGroupSplitted(path)) {
@@ -642,7 +642,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 */
-	protected void updateIdForRegion(final String path, final DistributionRegion region) 
+	private void updateIdForRegion(final String path, final DistributionRegion region) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final int regionId = distributionGroupZookeeperAdapter.getRegionIdForPath(path);
@@ -655,12 +655,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		region.setRegionId(regionId);
 	}
 
-
 	/**
 	 * Fire data changed event
 	 * @param region 
 	 */
-	protected void fireDataChanged(final DistributionRegion region) {
+	private void fireDataChanged(final DistributionRegion region) {
 		
 		// Wake up all pending waiters
 		synchronized (MUTEX) {
@@ -699,7 +698,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException 
 	 */
-	protected void updateSystemsForRegion(final DistributionRegion region)
+	private void updateSystemsForRegion(final DistributionRegion region)
 			throws ZookeeperException {
 		
 		try {
@@ -717,7 +716,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * Remove the local mappings for a given regions
 	 * @param region
 	 */
-	protected void removeLocalMappings(final DistributionRegion region) {
+	private void removeLocalMappings(final DistributionRegion region) {
 		// Remove the mapping from the regionid mapper	
 		final int regionId = region.getRegionId();		
 		logger.info("Remove local mapping for: {} / nameprefix {}", region, regionId);
@@ -729,7 +728,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @param region
 	 * @param systems
 	 */
-	protected void updateLocalMappings(final DistributionRegion region, 
+	private void updateLocalMappings(final DistributionRegion region, 
 			final Collection<BBoxDBInstance> systems) {
 		
 		final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
