@@ -311,7 +311,9 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		final DistributionRegion nodeToUpdate = distributionGroupZookeeperAdapter.getNodeForPath(rootNode, path);
 		
 		try {
-			updateSystemsForRegion(nodeToUpdate);
+			if(nodeToUpdate != null) {
+				updateSystemsForRegion(nodeToUpdate);
+			}
 		} catch (ZookeeperException e) {
 			logger.warn("Got exception while updating systems for: " + path, e);
 		}

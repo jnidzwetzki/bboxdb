@@ -389,6 +389,11 @@ public class DistributionGroupZookeeperAdapter {
 			if(sb.length() > 0) {
 				sb.delete(0, 1);
 			}
+			
+			// Element is removed
+			if(resultElement == null) {
+				return null;
+			}
 
 			if(sb.indexOf(ZookeeperNodeNames.NAME_LEFT) == 0) {
 				resultElement = resultElement.getLeftChild();
