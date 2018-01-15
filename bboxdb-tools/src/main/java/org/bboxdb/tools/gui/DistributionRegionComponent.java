@@ -21,12 +21,18 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.tools.gui.views.KDTreeJPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DistributionRegionComponent {
 	
@@ -69,6 +75,12 @@ public class DistributionRegionComponent {
 	 * The panel
 	 */
 	protected final KDTreeJPanel panel;
+	
+	/**
+	 * The logger
+	 */
+	protected final static Logger logger = LoggerFactory.getLogger(ConnectDialog.class);
+	
 
 	public DistributionRegionComponent(final DistributionRegion distributionRegion, 
 			final KDTreeJPanel distributionGroupJPanel) {
@@ -273,9 +285,33 @@ public class DistributionRegionComponent {
 		
 		sb.append("Systems: ");
 		sb.append(systemsString);
-
+		
+		appendStatistics(sb);
+		
 		sb.append("</html>");
 		return sb.toString();
+	}
+
+	/**
+	 * Append the statistics to the tooltip
+	 * @param sb
+	 */
+	private void appendStatistics(final StringBuilder sb) {
+		try {
+			final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+			final Map<BBoxDBInstance, Map<String, Long>> statistics = adapter.getRegionStatistics(distributionRegion);
+
+			for(final BBoxDBInstance instance : statistics.keySet()) {
+				final Map<String, Long> statisticData = statistics.get(instance);
+				sb.append("System: ");
+				sb.append(instance);
+				sb.append(" ");
+				sb.append(statisticData);
+				sb.append("<br>");
+			}
+		} catch (Exception e) {
+			logger.error("Got an exception while reading statistics for distribution group", e);
+		} 
 	}
 
 	/**
