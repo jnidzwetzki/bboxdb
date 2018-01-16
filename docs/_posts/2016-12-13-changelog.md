@@ -12,7 +12,8 @@ order: 1
 - Improvement: Introduced the generic space partitioner interface
 - Improvement: Created bboxdb_tools module
 - Improvement: Clean up dependencies of the modules
-- Improvement: Moved exepriements to a new subproject
+- Improvement: Moved experiments to a new subproject
+- Improvement: Size and tuples per distribution region are shown in the GUI
 
 ### Version 0.3.7 (Stable) - 14.12.2017
 - New Feature: Distribution regions now have a minimal size
