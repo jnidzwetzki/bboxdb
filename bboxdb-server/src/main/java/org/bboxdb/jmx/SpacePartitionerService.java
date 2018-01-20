@@ -21,9 +21,12 @@ import javax.management.MBeanException;
 
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +67,18 @@ public class SpacePartitionerService implements SpacePartitionerServiceMBean {
 			final DistributionRegion regionToSplit 
 				= DistributionRegionHelper.getDistributionRegionForNamePrefix(region, regionId);
 
+			final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
+
+			final boolean isOnLocalSystem = regionToSplit.getSystems()
+					.stream()
+					.map(r -> r.getInetSocketAddress())
+					.anyMatch(r -> r.equals(localInstance.getInetSocketAddress()));
+			
+			if(! isOnLocalSystem) {
+				throw new BBoxDBException("Unable to split region, this system is not responsible: " 
+						+ regionToSplit.getSystems());
+			}
+			
 			regionSplitter.splitRegion(regionToSplit, spacePartitioner, storageRegistry);
 			
 			logger.info("Split the region {} in group {} - DONE", regionId, distributionGroup);
