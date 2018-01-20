@@ -157,7 +157,7 @@ public class MathUtil {
 	 * @param message
 	 * @return
 	 */
-	public static double tryParseLongOrExit(final String valueToParse) {
+	public static long tryParseLongOrExit(final String valueToParse) {
 		return tryParseLongOrExit(valueToParse, () -> "Unable to convert to long: " + valueToParse);
 	}
 
@@ -167,7 +167,7 @@ public class MathUtil {
 	 * @param message
 	 * @return
 	 */
-	public static double tryParseLongOrExit(final String valueToParse, 
+	public static long tryParseLongOrExit(final String valueToParse, 
 			final Supplier<String> errorMessageSupplier) {
 
 		try {
