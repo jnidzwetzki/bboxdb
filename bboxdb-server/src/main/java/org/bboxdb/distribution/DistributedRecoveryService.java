@@ -176,7 +176,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 			final BBoxDBClient connection = MembershipConnectionService.getInstance()
 					.getConnectionForInstance(outdatedDistributionRegion.getNewestInstance());
 			
-			final int regionId = outdatedDistributionRegion.getDistributedRegion().getRegionId();
+			final long regionId = outdatedDistributionRegion.getDistributedRegion().getRegionId();
 			
 			final List<TupleStoreName> allTables = storageRegistry
 					.getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);

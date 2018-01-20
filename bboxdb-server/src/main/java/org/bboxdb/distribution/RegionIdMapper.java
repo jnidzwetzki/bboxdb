@@ -43,7 +43,7 @@ public class RegionIdMapper {
 	/**
 	 * Search the region ids that are overlapped by the bounding box
 	 */
-	public Collection<Integer> getRegionIdsForRegion(final BoundingBox region) {
+	public Collection<Long> getRegionIdsForRegion(final BoundingBox region) {
 		return regions
 			.stream()
 			.filter(r -> r.getBoundingBox().overlaps(region))
@@ -55,7 +55,7 @@ public class RegionIdMapper {
 	 * Get all region ids
 	 * @return
 	 */
-	public Collection<Integer> getAllRegionIds() {
+	public Collection<Long> getAllRegionIds() {
 		return regions
 			.stream()
 			.map(r -> r.getRegionId())
@@ -71,7 +71,7 @@ public class RegionIdMapper {
 	public Collection<TupleStoreName> getLocalTablesForRegion(final BoundingBox region, 
 			final TupleStoreName ssTableName) {
 	
-		Collection<Integer> namprefixes = null;
+		Collection<Long> namprefixes = null;
 		
 		for(int execution = 0; execution < Const.OPERATION_RETRY; execution++) {
 			namprefixes = getRegionIdsForRegion(region);
@@ -102,7 +102,7 @@ public class RegionIdMapper {
 	 * @return
 	 */
 	public List<TupleStoreName> getAllLocalTables(final TupleStoreName ssTableName) {
-		final Collection<Integer> namprefixes = getAllRegionIds();
+		final Collection<Long> namprefixes = getAllRegionIds();
 		
 		if(namprefixes.isEmpty() && logger.isWarnEnabled()) {
 			logger.warn("Got an empty result list by query all regions");
@@ -118,7 +118,7 @@ public class RegionIdMapper {
 	 * @return
 	 */
 	public List<TupleStoreName> convertRegionIdToTableNames(final TupleStoreName ssTableName,
-			final Collection<Integer> regionIds) {
+			final Collection<Long> regionIds) {
 		
 		return regionIds
 				.stream()
@@ -133,7 +133,7 @@ public class RegionIdMapper {
 	 */
 	public boolean addMapping(final DistributionRegion region) {
 				
-		final int regionId = region.getRegionId();
+		final long regionId = region.getRegionId();
 		final BoundingBox converingBox = region.getConveringBox();	
 		
 		final boolean known = regions.stream().anyMatch(r -> r.getRegionId() == regionId);
@@ -153,7 +153,7 @@ public class RegionIdMapper {
 	 * Remove a mapping
 	 * @return
 	 */
-	public boolean removeMapping(final int regionId) {
+	public boolean removeMapping(final long regionId) {
 		// Removal is supported by COW array list
 		final boolean removed = regions.removeIf(r -> r.getRegionId() == regionId);
 		
@@ -175,10 +175,9 @@ public class RegionIdMapper {
 
 class RegionTablenameEntry {
 	protected final BoundingBox boundingBox;
-	protected final int regionId;
+	protected final long regionId;
 	
-	public RegionTablenameEntry(final BoundingBox boundingBox, final int regionId) {
-		super();
+	public RegionTablenameEntry(final BoundingBox boundingBox, final long regionId) {
 		this.boundingBox = boundingBox;
 		this.regionId = regionId;
 	}
@@ -187,7 +186,7 @@ class RegionTablenameEntry {
 		return boundingBox;
 	}
 
-	public int getRegionId() {
+	public long getRegionId() {
 		return regionId;
 	}
 	

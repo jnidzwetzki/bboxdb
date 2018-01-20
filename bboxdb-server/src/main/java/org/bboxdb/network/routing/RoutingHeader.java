@@ -202,10 +202,10 @@ public class RoutingHeader {
 				assert (regionParts.length > 1) : "Unable to split into regions: " + hostPart;
 				
 				final BBoxDBInstance distributedInstance = new BBoxDBInstance(regionParts[0]);
-				final List<Integer> distributionRegions = new ArrayList<>();
+				final List<Long> distributionRegions = new ArrayList<>();
 				
 				for(int i = 1; i < regionParts.length; i++) {
-					final int distributionRegion = Integer.parseInt(regionParts[i]);
+					final long distributionRegion = Long.parseLong(regionParts[i]);
 					distributionRegions.add(distributionRegion);
 				}
 				
@@ -230,7 +230,7 @@ public class RoutingHeader {
 			final String regionString = routingHop
 					.getDistributionRegions()
 					.stream()
-					.map(i -> Integer.toString(i))
+					.map(i -> Long.toString(i))
 					.collect(Collectors.joining(SEPARATOR_CHAR_REGION));
 
 			if(sb.length() != 0) {

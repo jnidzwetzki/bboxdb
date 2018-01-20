@@ -718,7 +718,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	private void removeLocalMappings(final DistributionRegion region) {
 		// Remove the mapping from the regionid mapper	
-		final int regionId = region.getRegionId();		
+		final long regionId = region.getRegionId();		
 		logger.info("Remove local mapping for: {} / nameprefix {}", region, regionId);
 		RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName()).removeMapping(regionId);
 	}

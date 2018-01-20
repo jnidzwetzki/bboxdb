@@ -56,9 +56,9 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testRoutingHeaderHopParser2() {
-		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123));
-		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), Arrays.asList(456));
-		final RoutingHop hop3 = new RoutingHop(new BBoxDBInstance("host3:50500"), Arrays.asList(789));
+		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123l));
+		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), Arrays.asList(456l));
+		final RoutingHop hop3 = new RoutingHop(new BBoxDBInstance("host3:50500"), Arrays.asList(789l));
 		
 		final List<RoutingHop> routingList = new ArrayList<>();
 		routingList.add(hop1);
@@ -87,8 +87,8 @@ public class TestRoutingHeader {
 		Assert.assertEquals(2, routingHeader.getRoutingList().size());
 		Assert.assertEquals(1, routingHeader.getRoutingList().get(0).getDistributionRegions().size());
 		Assert.assertEquals(1, routingHeader.getRoutingList().get(1).getDistributionRegions().size());
-		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(1));
-		Assert.assertTrue(routingHeader.getRoutingList().get(1).getDistributionRegions().contains(2));
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(1l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(1).getDistributionRegions().contains(2l));
 	}
 	
 	/**
@@ -100,10 +100,10 @@ public class TestRoutingHeader {
 		Assert.assertEquals(2, routingHeader.getRoutingList().size());
 		Assert.assertEquals(3, routingHeader.getRoutingList().get(0).getDistributionRegions().size());
 		Assert.assertEquals(1, routingHeader.getRoutingList().get(1).getDistributionRegions().size());
-		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(1));
-		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(2));
-		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(3));
-		Assert.assertTrue(routingHeader.getRoutingList().get(1).getDistributionRegions().contains(2));
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(1l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(2l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(0).getDistributionRegions().contains(3l));
+		Assert.assertTrue(routingHeader.getRoutingList().get(1).getDistributionRegions().contains(2l));
 	}
 	
 	/**
@@ -216,8 +216,8 @@ public class TestRoutingHeader {
 	 */
 	@Test
 	public void testDispatchHeader() {
-		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123));
-		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), Arrays.asList(456));
+		final RoutingHop hop1 = new RoutingHop(new BBoxDBInstance("host1:50500"), Arrays.asList(123l));
+		final RoutingHop hop2 = new RoutingHop(new BBoxDBInstance("host2:50500"), Arrays.asList(456l));
 		
 		final List<RoutingHop> routingList = Arrays.asList(new RoutingHop[] {hop1, hop2} );
 		

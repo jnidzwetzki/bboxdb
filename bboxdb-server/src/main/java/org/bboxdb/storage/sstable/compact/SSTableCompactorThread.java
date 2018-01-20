@@ -194,7 +194,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final TupleStoreName ssTableName = sstableManager.getSSTableName();
 			
 			final DistributionGroupName distributionGroup = ssTableName.getDistributionGroupObject();
-			final int regionId = ssTableName.getRegionId();
+			final long regionId = ssTableName.getRegionId();
 			
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache
 					.getSpacePartitionerForGroupName(ssTableName.getDistributionGroup());
@@ -220,7 +220,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 */
 	private void updateRegionStatistics(final DistributionRegion regionToSplit,
 			final DistributionGroupName distributionGroup, 
-			final int regionId, 
+			final long regionId, 
 			final SpacePartitioner spacePartitioner)
 			throws StorageManagerException, InterruptedException, ZookeeperException {
 		

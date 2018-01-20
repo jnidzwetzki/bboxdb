@@ -402,7 +402,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @return
 	 */
 	public List<TupleStoreName> getAllTablesForDistributionGroupAndRegionId
-		(final DistributionGroupName distributionGroupName, final int regionId) {
+		(final DistributionGroupName distributionGroupName, final long regionId) {
 		
 		final List<TupleStoreName> groupTables = getAllTablesForDistributionGroup(distributionGroupName);
 		
@@ -420,7 +420,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public long getSizeOfDistributionGroupAndRegionId
-		(final DistributionGroupName distributionGroupName, final int regionId) 
+		(final DistributionGroupName distributionGroupName, final long regionId) 
 				throws StorageManagerException {
 		
 		final List<TupleStoreName> tables 
@@ -443,7 +443,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @throws StorageManagerException
 	 */
 	public long getTuplesInDistributionGroupAndRegionId
-		(final DistributionGroupName distributionGroupName, final int regionId) 
+		(final DistributionGroupName distributionGroupName, final long regionId) 
 				throws StorageManagerException {
 		
 		final List<TupleStoreName> tables 

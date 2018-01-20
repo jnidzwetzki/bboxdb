@@ -31,9 +31,9 @@ public class RoutingHop {
 	/**
 	 * The distribution regions
 	 */
-	protected final List<Integer> distributionRegions;
+	protected final List<Long> distributionRegions;
 
-	public RoutingHop(final BBoxDBInstance distributedInstance, final List<Integer> distributionRegions) {
+	public RoutingHop(final BBoxDBInstance distributedInstance, final List<Long> distributionRegions) {
 		this.distributedInstance = distributedInstance;
 		this.distributionRegions = distributionRegions;
 	}
@@ -79,14 +79,14 @@ public class RoutingHop {
 		return distributedInstance;
 	}
 
-	public List<Integer> getDistributionRegions() {
+	public List<Long> getDistributionRegions() {
 		return distributionRegions;
 	}
 
 	/** 
 	 * Add a ID to the routing
 	 */
-	public void addRegion(final int regionId) {
+	public void addRegion(final long regionId) {
 		distributionRegions.add(regionId);
 	}
 

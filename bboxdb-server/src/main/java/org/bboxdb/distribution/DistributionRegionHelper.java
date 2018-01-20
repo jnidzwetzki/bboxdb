@@ -71,8 +71,8 @@ public class DistributionRegionHelper {
 	 * @return
 	 * @throws InterruptedException 
 	 */
-	public static DistributionRegion getDistributionRegionForNamePrefix(final DistributionRegion region, 
-			final int searchNameprefix) throws InterruptedException {
+	public static DistributionRegion getDistributionRegionForNamePrefix(
+			final DistributionRegion region, final long searchNameprefix) throws InterruptedException {
 		
 		if(region == null) {
 			return null;
@@ -148,14 +148,14 @@ class DistributionRegionNameprefixFinder implements DistributionRegionVisitor {
 	/**
 	 * The name prefix to search
 	 */
-	protected int nameprefix;
+	protected long nameprefix;
 	
 	/**
 	 * The result
 	 */
 	protected DistributionRegion result = null;
 	
-	public DistributionRegionNameprefixFinder(final int nameprefix) {
+	public DistributionRegionNameprefixFinder(final long nameprefix) {
 		this.nameprefix = nameprefix;
 	}
 	

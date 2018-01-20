@@ -88,7 +88,7 @@ public class DistributionRegion {
 	/**
 	 * The id of the region
 	 */
-	protected volatile int regionid = INVALID_REGION_ID;
+	protected volatile long regionid = INVALID_REGION_ID;
 
 	/**
 	 * The invalid value for the region id
@@ -472,7 +472,7 @@ public class DistributionRegion {
 		if(statePredicate.test(state)) {
 			for(final BBoxDBInstance system : systems) {
 				if(! hops.containsKey(system.getInetSocketAddress())) {
-					final RoutingHop routingHop = new RoutingHop(system, new ArrayList<Integer>());
+					final RoutingHop routingHop = new RoutingHop(system, new ArrayList<Long>());
 					hops.put(system.getInetSocketAddress(), routingHop);
 				}
 				
@@ -541,7 +541,7 @@ public class DistributionRegion {
 	 * Get the region id of the node
 	 * @return
 	 */
-	public int getRegionId() {
+	public long getRegionId() {
 		return regionid;
 	}
 

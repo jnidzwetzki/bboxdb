@@ -56,7 +56,7 @@ public class TupleStoreName {
 	/**
 	 * The region id
 	 */
-	protected int regionid;
+	protected long regionid;
 	
 	/**
 	 * The value for an invalid dimension
@@ -90,7 +90,7 @@ public class TupleStoreName {
 	}
 	
 	public TupleStoreName(final short dimension, final String distributionGroup, 
-			final String tablename, final int regionid) {
+			final String tablename, final long regionid) {
 		super();
 		
 		this.fullname = dimension + "_" + distributionGroup + "_" + tablename + "_" + regionid;
@@ -107,7 +107,7 @@ public class TupleStoreName {
 	 * @param regionId
 	 * @return
 	 */
-	public TupleStoreName cloneWithDifferntRegionId(final int regionId) {
+	public TupleStoreName cloneWithDifferntRegionId(final long regionId) {
 		return new TupleStoreName(dimension, group, tablename, regionId);
 	}
 	
@@ -246,7 +246,7 @@ public class TupleStoreName {
 	 * Get the region id of the table
 	 * @return
 	 */
-	public int getRegionId() {
+	public long getRegionId() {
 		return regionid;
 	}
 	

@@ -178,7 +178,7 @@ public class RegionSplitter {
 
 			final DistributionRegion distributionGroup = spacePartitioner.getRootNode();
 			
-			final int nameprefix = ssTableName.getRegionId();
+			final long nameprefix = ssTableName.getRegionId();
 			
 			region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 					distributionGroup, nameprefix);
