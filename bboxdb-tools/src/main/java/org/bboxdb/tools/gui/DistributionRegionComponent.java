@@ -171,7 +171,7 @@ public class DistributionRegionComponent {
 		g.drawRect(xOffset, yOffset, WIDTH, HEIGHT);
 
 		// Write the region id
-		final String regionId = "Region: " + Integer.toString(distributionRegion.getRegionId());
+		final String regionId = "Region: " + Long.toString(distributionRegion.getRegionId());
 		writeStringCentered(g, regionId, 0.3);
 		
 		// Write the state
