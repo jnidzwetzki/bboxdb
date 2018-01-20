@@ -15,6 +15,7 @@ order: 1
 - Improvement: Moved experiments to a new subproject
 - Improvement: Size and tuples per distribution region are shown in the GUI
 - Improvement: Changed distribution region id form int to long
+- Improvement: Added JMX call to redistribute regions
 
 ### Version 0.3.7 (Stable) - 14.12.2017
 - New Feature: Distribution regions now have a minimal size

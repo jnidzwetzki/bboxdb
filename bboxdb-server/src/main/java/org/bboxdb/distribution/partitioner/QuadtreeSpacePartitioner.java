@@ -25,7 +25,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
-import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 
 public class QuadtreeSpacePartitioner implements SpacePartitioner {
 
@@ -51,8 +51,8 @@ public class QuadtreeSpacePartitioner implements SpacePartitioner {
 	}
 
 	@Override
-	public void splitRegion(DistributionRegion regionToSplit,final DiskStorage diskStorage) 
-			throws BBoxDBException {
+	public void splitRegion(DistributionRegion regionToSplit, 
+			final TupleStoreManagerRegistry tupleStoreManagerRegistry) throws BBoxDBException {
 		// TODO Auto-generated method stub
 		
 	}

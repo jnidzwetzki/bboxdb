@@ -24,6 +24,7 @@ import javax.management.ObjectName;
 
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.misc.BBoxDBService;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,34 +36,59 @@ public class JMXService implements BBoxDBService {
 	public static final String MBEAN_LIFECYCLE = "org.bboxdb:type=LifecycleManager";
 
 	/**
+	 * The name of the space partitoner mbean
+	 */
+	public static final String MBEAN_SPACEPARTITIONER = "org.bboxdb:type=SpacePartitionerService";
+
+	/**
 	 * The instance of the application
 	 */
-	protected final BBoxDBMain bBoxDBMain;
+	private final BBoxDBMain bBoxDBMain;
 	
+	/**
+	 * The storeage registry
+	 */
+	private final TupleStoreManagerRegistry storageRegistry;
+
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(JMXService.class);
 
-
-	public JMXService(final BBoxDBMain bboxDBMain) {
+	public JMXService(final BBoxDBMain bboxDBMain, TupleStoreManagerRegistry storageRegistry) {
 		this.bBoxDBMain = bboxDBMain;
+		this.storageRegistry = storageRegistry;
 	}
 
 	@Override
 	public void init() {
+		
+		// Register lifecycle mbean
+		final LifecycleMBean monitor = new Lifecycle(bBoxDBMain);
+		registerBean(monitor, MBEAN_LIFECYCLE);
+		
+		// Register space partitioner service mbean
+		final SpacePartitionerServiceMBean spacePartitionerService = new SpacePartitionerService(storageRegistry);
+		registerBean(spacePartitionerService, MBEAN_SPACEPARTITIONER);
+	}
+
+	/**
+	 * Register a new MBean
+	 * @param bean
+	 * @param beanName
+	 */
+	private void registerBean(final Object bean, final String beanName) {
 		try {
-			// Register lifecycle mbean
-			final LifecycleMBean monitor = new Lifecycle(bBoxDBMain);
+		
 			final MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-			final ObjectName name = new ObjectName(MBEAN_LIFECYCLE);
+			final ObjectName name = new ObjectName(beanName);
 
 			if (server.isRegistered(name)) {
-				logger.debug("MBean is already registered");
+				logger.debug("MBean {} is already registered", name);
 				return;
 			}
 			
-			server.registerMBean(monitor, name);
+			server.registerMBean(bean, name);
 		} catch (Exception e) {
 			logger.warn("Got exception while creating mbean", e);
 		}
@@ -77,5 +103,4 @@ public class JMXService implements BBoxDBService {
 	public String getServicename() {
 		return "JMX service";
 	}
-
 }

@@ -27,9 +27,9 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	/**
 	 * The disk storage
 	 */
-	private DiskStorage storage;
+	private TupleStoreManagerRegistry tupleStoreManagerRegistry;
 
 	/**
 	 * The logger
@@ -51,8 +51,8 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	private final static Logger logger = LoggerFactory.getLogger(SamplingBasedSplitStrategy.class);
 
 
-	public SamplingBasedSplitStrategy(final DiskStorage storage) {
-		this.storage = storage;
+	public SamplingBasedSplitStrategy(final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
+		this.tupleStoreManagerRegistry = tupleStoreManagerRegistry;
 		this.pointSamples = new ArrayList<>();
 	}
 
@@ -61,7 +61,7 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 		
 		final int splitDimension = region.getSplitDimension();
 	
-		final List<TupleStoreName> tables = storage.getTupleStoreManagerRegistry()
+		final List<TupleStoreName> tables = tupleStoreManagerRegistry
 				.getAllTablesForDistributionGroupAndRegionId
 				(region.getDistributionGroupName(), region.getRegionId());
 	
@@ -107,7 +107,7 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 		for(final TupleStoreName ssTableName : tables) {
 			logger.info("Create split samples for table: {} ", ssTableName.getFullname());
 			
-			final TupleStoreManager sstableManager = storage.getTupleStoreManagerRegistry()
+			final TupleStoreManager sstableManager = tupleStoreManagerRegistry
 					.getTupleStoreManager(ssTableName);
 			
 			final List<ReadOnlyTupleStore> tupleStores = sstableManager.getAllTupleStorages();

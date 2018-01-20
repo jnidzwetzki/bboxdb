@@ -27,7 +27,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
-import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 
 public interface SpacePartitioner {
 	
@@ -66,7 +66,8 @@ public interface SpacePartitioner {
 	 * @throws ZookeeperNotFoundException
 	 * @throws BBoxDBException 
 	 */
-	public void splitRegion(final DistributionRegion regionToSplit, final DiskStorage diskStorage) throws BBoxDBException;
+	public void splitRegion(final DistributionRegion regionToSplit, 
+			final TupleStoreManagerRegistry tupleStoreManagerRegistry) throws BBoxDBException;
 	
 	/**
 	 * Merge the given region

@@ -45,6 +45,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +94,8 @@ public class RegionSplitter {
 	 * @param diskStorage
 	 */
 	public void splitRegion(final DistributionRegion region, 
-			final SpacePartitioner spacePartitioner, final DiskStorage diskStorage) {
+			final SpacePartitioner spacePartitioner, 
+			final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
 		
 		assert(region != null);
 		assert(region.isLeafRegion()) : "Unable to perform split on: " + region;
@@ -114,7 +116,7 @@ public class RegionSplitter {
 				return;
 			}
 			
-			spacePartitioner.splitRegion(region, diskStorage);
+			spacePartitioner.splitRegion(region, tupleStoreManagerRegistry);
 			redistributeDataSplit(region);
 		} catch (Throwable e) {
 			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
@@ -132,7 +134,7 @@ public class RegionSplitter {
 	 * @param diskStorage
 	 */
 	public void mergeRegion(final DistributionRegion region, final SpacePartitioner spacePartitioner,
-			final DiskStorage diskStorage) {
+			final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
 		
 		assert(region != null);
 		assert(! region.isLeafRegion()) : "Unable to perform merge on: " + region + " is leaf";

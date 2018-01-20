@@ -40,7 +40,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
-import org.bboxdb.storage.tuplestore.DiskStorage;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -328,11 +328,12 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	@Override
-	public void splitRegion(final DistributionRegion regionToSplit, final DiskStorage diskStorage) 
+	public void splitRegion(final DistributionRegion regionToSplit, 
+			final TupleStoreManagerRegistry tupleStoreManagerRegistry) 
 			throws BBoxDBException {
 		
 		try {
-			final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(diskStorage);
+			final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(tupleStoreManagerRegistry);
 			final double splitPosition = splitpointStrategy.getSplitPoint(regionToSplit);
 			
 			splitNode(regionToSplit, splitPosition);

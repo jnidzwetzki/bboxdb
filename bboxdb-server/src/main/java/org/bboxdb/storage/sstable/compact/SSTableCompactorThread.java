@@ -254,13 +254,15 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		final RegionSplitter regionSplitter = new RegionSplitter();
 
 		if(regionSplitHelper.isRegionOverflow(regionToSplit)) {
-			regionSplitter.splitRegion(regionToSplit, spacePartitioner, storage);
+			regionSplitter.splitRegion(regionToSplit, spacePartitioner, 
+					storage.getTupleStoreManagerRegistry());
 		} 
 		
 		// Don't split the root node
 		if(regionToSplit.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
 			if(regionSplitHelper.isRegionUnderflow(regionToSplit.getParent())) {
-				regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, storage);	
+				regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, 
+						storage.getTupleStoreManagerRegistry());	
 			}
 		}
 	}
