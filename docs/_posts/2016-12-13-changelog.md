@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.4.0 (Stable) - TBA
+### Version 0.4.0 (Stable) - 21.01.2018
 - New Feature: Size in byte and tuples are stored in Zookeeper
 - New Feature: Added merge code
 - Improvement: Introduced the generic space partitioner interface
