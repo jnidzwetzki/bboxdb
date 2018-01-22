@@ -36,10 +36,6 @@ public class JoinedTuple {
 			throw new IllegalArgumentException("Unable to create joined tuple with different argument sizes");
 		}
 		
-		if(tuples.size() == 1) {
-			throw new IllegalArgumentException("Unable to create joined tuple with only one tuple");
-		}
-		
 		this.tuples = tuples;
 		this.tupleStoreNames = tupleStoreNames;
 	}
@@ -49,12 +45,30 @@ public class JoinedTuple {
 		return "JoinedTuple [tuples=" + tuples + ", tupleStoreNames=" + tupleStoreNames + "]";
 	}
 
+	/**
+	 * Get the tuple for the given position
+	 * @param tupleNumber
+	 * @return
+	 */
 	public Tuple getTuple(final int tupleNumber) {
 		return tuples.get(tupleNumber);
 	}
 
+	/**
+	 * Get the tuple store names
+	 * @param tupleNumber
+	 * @return
+	 */
 	public String getTupleStoreNames(final int tupleNumber) {
 		return tupleStoreNames.get(0);
+	}
+	
+	/**
+	 * Return the number of tuples
+	 * @return
+	 */
+	public int getNumberOfTuples() {
+		return tuples.size();
 	}
 	
 }
