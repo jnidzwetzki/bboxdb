@@ -27,6 +27,7 @@ import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactory;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
@@ -87,7 +88,7 @@ public class AbstractQueryProcessor {
 	 * Prepare the unprocessed storage list
 	 * @throws StorageManagerException 
 	 */
-	protected void prepareUnprocessedStorage() {
+	protected void aquireStorage() {
 		
 		try {
 			aquiredStorages.clear();
@@ -119,15 +120,10 @@ public class AbstractQueryProcessor {
 	 * @return
 	 * @throws StorageManagerException 
 	 */
-	protected List<Tuple> getVersionsForTuple(final Tuple tuple, final ReadOnlyTupleStore activeStorage) throws StorageManagerException {
+	protected List<Tuple> getVersionsForTuple(final Tuple tuple, final ReadOnlyTupleStore activeStorage) 
+			throws StorageManagerException {
 		
-		final List<Tuple> resultTuples = new ArrayList<>();
-		resultTuples.addAll(activeStorage.get(tuple.getKey()));
-		
-		for(final ReadOnlyTupleStore readOnlyTupleStorage : unprocessedStorages) {
-			final List<Tuple> possibleTuples = readOnlyTupleStorage.get(tuple.getKey());
-			resultTuples.addAll(possibleTuples);
-		}
+		final List<Tuple> resultTuples = getAllTupleVersionsForKey(tuple.getKey(), activeStorage);
 		
 		final TupleStoreConfiguration tupleStoreConfiguration 
 			= tupleStoreManager.getTupleStoreConfiguration();
@@ -141,4 +137,32 @@ public class AbstractQueryProcessor {
 		return resultTuples;
 	}
 
+	/**
+	 * Get all tuples for a given key
+	 * @param tuple
+	 * @param activeStorage
+	 * @return
+	 * @throws StorageManagerException
+	 */
+	protected List<Tuple> getAllTupleVersionsForKey(final String key, 
+			final ReadOnlyTupleStore activeStorage) throws StorageManagerException {
+		
+		final List<Tuple> resultTuples = new ArrayList<>();
+		resultTuples.addAll(activeStorage.get(key));
+		
+		for(final ReadOnlyTupleStore readOnlyTupleStorage : unprocessedStorages) {
+			final List<Tuple> possibleTuples = readOnlyTupleStorage.get(key);
+			resultTuples.addAll(possibleTuples);
+		}
+		
+		return resultTuples;
+	}
+	
+	/**
+	 * Get the tuple store name
+	 * @return
+	 */
+	public TupleStoreName getTupleStoreName() {
+		return tupleStoreManager.getTupleStoreName();
+	}
 }

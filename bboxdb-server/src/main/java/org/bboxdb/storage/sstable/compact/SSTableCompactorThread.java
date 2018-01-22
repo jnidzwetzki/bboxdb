@@ -175,7 +175,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 		registerNewFacadeAndDeleteOldInstances(sstableManager, facades, newTables);
 		
-		if(sstableManager.getSSTableName().isDistributedTable()) {
+		if(sstableManager.getTupleStoreName().isDistributedTable()) {
 			// Read only = table is in splitting mode
 			if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_WRITE) {
 				testOverflowUnderflow(sstableManager);
@@ -191,7 +191,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	protected void testOverflowUnderflow(final TupleStoreManager sstableManager) throws StorageManagerException {
 		
 		try {
-			final TupleStoreName ssTableName = sstableManager.getSSTableName();
+			final TupleStoreName ssTableName = sstableManager.getTupleStoreName();
 			
 			final DistributionGroupName distributionGroup = ssTableName.getDistributionGroupObject();
 			final long regionId = ssTableName.getRegionId();

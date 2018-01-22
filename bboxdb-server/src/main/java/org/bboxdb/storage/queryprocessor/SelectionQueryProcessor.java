@@ -42,7 +42,7 @@ public class SelectionQueryProcessor extends AbstractQueryProcessor {
 	
 	public CloseableIterator<Tuple> iterator() {
 
-		prepareUnprocessedStorage();
+		aquireStorage();
 		
 		return new CloseableIterator<Tuple>() {
 

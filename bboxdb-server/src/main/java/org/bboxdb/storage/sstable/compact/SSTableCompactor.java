@@ -252,7 +252,7 @@ public class SSTableCompactor {
 		final String directory = sstableIndexReader.get(0).getDirectory();		
 		final int tablenumber = tupleStoreManager.increaseTableNumber();
 		
-		final SSTableWriter sstableWriter = new SSTableWriter(directory, tupleStoreManager.getSSTableName(), 
+		final SSTableWriter sstableWriter = new SSTableWriter(directory, tupleStoreManager.getTupleStoreName(), 
 				tablenumber, estimatedMaxNumberOfEntries);
 				
 		sstableWriter.open();

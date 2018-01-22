@@ -105,7 +105,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 		try {			
 			// Don't write empty memtables to disk
 			if (! memtable.isEmpty()) {
-				final TupleStoreName sstableName = sstableManager.getSSTableName();
+				final TupleStoreName sstableName = sstableManager.getTupleStoreName();
 				final String dataDirectory = basedir.getAbsolutePath();
 				final int tableNumber = writeMemtable(dataDirectory, memtable, sstableManager);
 				
@@ -164,7 +164,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 		
 		for(final BiConsumer<TupleStoreName, Long> callback : callbacks) {
 			try {
-				callback.accept(sstableManager.getSSTableName(), timestamp);
+				callback.accept(sstableManager.getTupleStoreName(), timestamp);
 			} catch(Exception e) {
 				logger.error("Got exception while executing callback", e);
 			}
@@ -191,7 +191,7 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 				FileSizeHelper.readableFileSize(memtable.getSize()));
 
 		try (final SSTableWriter ssTableWriter = new SSTableWriter(
-				dataDirectory, sstableManager.getSSTableName(), tableNumber,
+				dataDirectory, sstableManager.getTupleStoreName(), tableNumber,
 				memtable.getMaxEntries())) {
 
 			ssTableWriter.open();

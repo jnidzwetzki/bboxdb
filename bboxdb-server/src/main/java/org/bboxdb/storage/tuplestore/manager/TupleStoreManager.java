@@ -609,7 +609,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Get the sstable name for this instance
 	 * @return
 	 */
-	public TupleStoreName getSSTableName() {
+	public TupleStoreName getTupleStoreName() {
 		return sstablename;
 	}
 

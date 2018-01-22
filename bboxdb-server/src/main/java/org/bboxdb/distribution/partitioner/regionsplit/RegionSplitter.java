@@ -480,7 +480,7 @@ public class RegionSplitter {
 			}
 
 			logger.info("Final statistics for spread ({}): {}", 
-					ssTableManager.getSSTableName().getFullname(),
+					ssTableManager.getTupleStoreName().getFullname(),
 					tupleRedistributor.getStatistics());
 			
 		} catch (Exception e) {
