@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class JoinedTuple {
@@ -31,13 +32,20 @@ public class JoinedTuple {
 	private final List<String> tupleStoreNames;
 	
 	public JoinedTuple(final List<Tuple> tuples, final List<String> tupleStoreNames) {
-		
 		if(tuples.size() != tupleStoreNames.size()) {
 			throw new IllegalArgumentException("Unable to create joined tuple with different argument sizes");
 		}
 		
 		this.tuples = tuples;
 		this.tupleStoreNames = tupleStoreNames;
+	}
+	
+	public JoinedTuple(final Tuple tuple, final String tupleStoreName) {
+		this.tuples = new ArrayList<>();
+		this.tupleStoreNames = new ArrayList<>();
+		
+		this.tuples.add(tuple);
+		this.tupleStoreNames.add(tupleStoreName);
 	}
 
 	@Override
