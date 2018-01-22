@@ -67,8 +67,24 @@ public class JoinedTuple {
 	 * @param tupleNumber
 	 * @return
 	 */
-	public String getTupleStoreNames(final int tupleNumber) {
+	public String getTupleStoreName(final int tupleNumber) {
 		return tupleStoreNames.get(0);
+	}
+	
+	/**
+	 * Get all tuples
+	 * @return
+	 */
+	public List<Tuple> getTuples() {
+		return new ArrayList<Tuple>(tuples);
+	}
+	
+	/**
+	 * Get all tuple store names
+	 * @return
+	 */
+	public List<String> getTupleStoreNames() {
+		return new ArrayList<String>(tupleStoreNames);
 	}
 	
 	/**
