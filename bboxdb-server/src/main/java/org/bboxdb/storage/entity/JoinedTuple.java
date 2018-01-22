@@ -79,4 +79,18 @@ public class JoinedTuple {
 		return tuples.size();
 	}
 	
+	/**
+	 * Get the intersection bounding box of all tuples
+	 * @return
+	 */
+	public BoundingBox getBoundingBox() {
+		BoundingBox intersectionBox = tuples.get(0).getBoundingBox();
+		
+		for(int i = 1; i < tuples.size(); i++) {
+			intersectionBox = intersectionBox.getIntersection(tuples.get(i).getBoundingBox());
+		}
+		
+		return intersectionBox;
+	}
+	
 }
