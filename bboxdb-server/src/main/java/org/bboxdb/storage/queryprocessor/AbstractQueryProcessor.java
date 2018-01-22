@@ -63,7 +63,7 @@ public class AbstractQueryProcessor {
 	/**
 	 * The Logger
 	 */
-	protected static final Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
+	protected static final Logger logger = LoggerFactory.getLogger(SelectionQueryProcessor.class);
 	
 	public AbstractQueryProcessor(final TupleStoreManager tupleStoreManager) {
 		this.tupleStoreManager = tupleStoreManager;

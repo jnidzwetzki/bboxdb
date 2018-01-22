@@ -25,7 +25,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.queryprocessor.QueryProcessor;
+import org.bboxdb.storage.queryprocessor.SelectionQueryProcessor;
 import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
@@ -92,7 +92,7 @@ public class TestQueryProcessing {
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
 		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
 
-		final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
+		final SelectionQueryProcessor queryProcessor = new SelectionQueryProcessor(queryPlan, storageManager);
 		final CloseableIterator<Tuple> iterator = queryProcessor.iterator();
 		
 		final List<Tuple> resultList = Lists.newArrayList(iterator);
@@ -126,7 +126,7 @@ public class TestQueryProcessing {
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
 		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
 
-		final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
+		final SelectionQueryProcessor queryProcessor = new SelectionQueryProcessor(queryPlan, storageManager);
 		final CloseableIterator<Tuple> iterator = queryProcessor.iterator();
 		
 		final List<Tuple> resultList = Lists.newArrayList(iterator);
@@ -163,7 +163,7 @@ public class TestQueryProcessing {
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
 		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
 		
-		final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
+		final SelectionQueryProcessor queryProcessor = new SelectionQueryProcessor(queryPlan, storageManager);
 		final CloseableIterator<Tuple> iterator = queryProcessor.iterator();
 		
 		final List<Tuple> resultList = Lists.newArrayList(iterator);
@@ -200,7 +200,7 @@ public class TestQueryProcessing {
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
 		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
 		
-		final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
+		final SelectionQueryProcessor queryProcessor = new SelectionQueryProcessor(queryPlan, storageManager);
 		final CloseableIterator<Tuple> iterator = queryProcessor.iterator();
 		
 		final List<Tuple> resultList = Lists.newArrayList(iterator);

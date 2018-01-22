@@ -28,14 +28,14 @@ import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.util.CloseableIterator;
 
-public class QueryProcessor extends AbstractQueryProcessor {
+public class SelectionQueryProcessor extends AbstractQueryProcessor {
 
 	/**
 	 * The query plan to evaluate
 	 */
 	protected final QueryPlan queryplan;
 	
-	public QueryProcessor(final QueryPlan queryplan, final TupleStoreManager ssTableManager) {
+	public SelectionQueryProcessor(final QueryPlan queryplan, final TupleStoreManager ssTableManager) {
 		super(ssTableManager);
 		this.queryplan = queryplan;
 	}

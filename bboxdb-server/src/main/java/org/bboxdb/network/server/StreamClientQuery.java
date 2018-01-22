@@ -32,7 +32,7 @@ import org.bboxdb.network.packages.response.PageEndResponse;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.queryprocessor.QueryProcessor;
+import org.bboxdb.storage.queryprocessor.SelectionQueryProcessor;
 import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.util.CloseableIterator;
@@ -200,7 +200,7 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 					.getStorageRegistry()
 					.getTupleStoreManager(sstableName);
 			
-			final QueryProcessor queryProcessor = new QueryProcessor(queryPlan, storageManager);
+			final SelectionQueryProcessor queryProcessor = new SelectionQueryProcessor(queryPlan, storageManager);
 			currentIterator = queryProcessor.iterator();
 			return true;
 		} catch (StorageManagerException e) {
