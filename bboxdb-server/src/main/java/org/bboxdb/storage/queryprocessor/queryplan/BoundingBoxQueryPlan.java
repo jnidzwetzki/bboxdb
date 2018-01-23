@@ -43,4 +43,8 @@ public class BoundingBoxQueryPlan implements QueryPlan {
 		return dataSource.iterator();
 	}
 
+	@Override
+	public BoundingBox getSpatialRestriction() {
+		return boundingBox;
+	}
 }

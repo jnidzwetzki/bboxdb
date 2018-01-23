@@ -120,7 +120,9 @@ public class SelectionQueryProcessor extends AbstractQueryProcessor {
 						}
 					} else {
 						// Set nextTuple != null to exit the loop
-						final List<Tuple> tupleVersions = getVersionsForTuple(possibleTuple, activeStorage);
+						final List<Tuple> tupleVersions = getVersionsForTuple(possibleTuple, 
+								activeStorage, queryplan);
+						
 						nextTuples.addAll(tupleVersions);
 						seenTuples.put(possibleTuple.getKey(), possibleTuple.getVersionTimestamp());
 					}

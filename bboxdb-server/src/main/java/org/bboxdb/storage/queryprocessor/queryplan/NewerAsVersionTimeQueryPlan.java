@@ -19,6 +19,7 @@ package org.bboxdb.storage.queryprocessor.queryplan;
 
 import java.util.Iterator;
 
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.datasource.DataSource;
 import org.bboxdb.storage.queryprocessor.datasource.FullStoreScanSource;
@@ -54,6 +55,11 @@ public class NewerAsVersionTimeQueryPlan implements QueryPlan {
 			= new PredicateFilterIterator(fullStoreScanSource.iterator(), predicate);
 		
 		return predicateFilterIterator;
+	}
+
+	@Override
+	public BoundingBox getSpatialRestriction() {
+		return BoundingBox.EMPTY_BOX;
 	}
 
 }

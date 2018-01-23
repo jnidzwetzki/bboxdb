@@ -58,4 +58,9 @@ public class BoundingBoxAndTimeQueryPlan implements QueryPlan {
 		
 		return predicateFilterIterator;
 	}
+	
+	@Override
+	public BoundingBox getSpatialRestriction() {
+		return boundingBox;
+	}
 }

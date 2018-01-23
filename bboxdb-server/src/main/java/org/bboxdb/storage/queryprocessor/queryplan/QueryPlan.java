@@ -19,6 +19,7 @@ package org.bboxdb.storage.queryprocessor.queryplan;
 
 import java.util.Iterator;
 
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 
@@ -30,4 +31,11 @@ public interface QueryPlan {
 	 * @return
 	 */
 	public Iterator<Tuple> execute(final ReadOnlyTupleStore readOnlyTupleStorage);
+	
+	/**
+	 * The spatial restriction of the query plan. This is used, when the query
+	 * processor find a more up-todate version of the tuple. 
+	 * @return
+	 */
+	public BoundingBox getSpatialRestriction();
 }

@@ -28,6 +28,7 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
 import org.bboxdb.storage.sstable.duplicateresolver.TupleDuplicateResolverFactory;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
@@ -120,8 +121,8 @@ public class AbstractQueryProcessor {
 	 * @return
 	 * @throws StorageManagerException 
 	 */
-	protected List<Tuple> getVersionsForTuple(final Tuple tuple, final ReadOnlyTupleStore activeStorage) 
-			throws StorageManagerException {
+	protected List<Tuple> getVersionsForTuple(final Tuple tuple, final ReadOnlyTupleStore activeStorage, 
+			final QueryPlan queryPlan) throws StorageManagerException {
 		
 		final List<Tuple> resultTuples = getAllTupleVersionsForKey(tuple.getKey(), activeStorage);
 		
@@ -133,6 +134,9 @@ public class AbstractQueryProcessor {
 		
 		// Removed unwanted tuples for key
 		resolver.removeDuplicates(resultTuples);
+		
+		// Remove versions of the tuple that don't apply our query region
+		resultTuples.removeIf(t -> ! t.getBoundingBox().overlaps(queryPlan.getSpatialRestriction()));
 		
 		return resultTuples;
 	}
