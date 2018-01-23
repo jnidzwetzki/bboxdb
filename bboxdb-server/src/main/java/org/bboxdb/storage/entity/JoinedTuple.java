@@ -101,9 +101,10 @@ public class JoinedTuple {
 	 */
 	public BoundingBox getBoundingBox() {
 		BoundingBox intersectionBox = tuples.get(0).getBoundingBox();
-		
+				
 		for(int i = 1; i < tuples.size(); i++) {
-			intersectionBox = intersectionBox.getIntersection(tuples.get(i).getBoundingBox());
+			final BoundingBox tupleBox = tuples.get(i).getBoundingBox();
+			intersectionBox = intersectionBox.getIntersection(tupleBox);
 		}
 		
 		return intersectionBox;

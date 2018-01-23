@@ -55,6 +55,11 @@ public class TestQueryProcessing {
 	protected static final TupleStoreName TABLE_2 = new TupleStoreName("2_junitgroup_table2");
 
 	/**
+	 * The 3. table name for tests
+	 */
+	protected static final TupleStoreName TABLE_3 = new TupleStoreName("2_junitgroup_table3");
+
+	/**
 	 * The storage registry
 	 */
 	protected static TupleStoreManagerRegistry storageRegistry;
@@ -80,6 +85,9 @@ public class TestQueryProcessing {
 		
 		storageRegistry.deleteTable(TABLE_2);
 		storageRegistry.createTable(TABLE_2, new TupleStoreConfiguration());
+		
+		storageRegistry.deleteTable(TABLE_3);
+		storageRegistry.createTable(TABLE_3, new TupleStoreConfiguration());
 	}
 	
 	/** 
@@ -231,11 +239,31 @@ public class TestQueryProcessing {
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 
+		final JoinQueryProcessor joinQueryProcessor = new JoinQueryProcessor(storageManager1, 
+				storageManager2, BoundingBox.EMPTY_BOX);
+		
+		final CloseableIterator<JoinedTuple> iterator = joinQueryProcessor.iterator();
+		
+		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		
+		Assert.assertEquals(0, resultList.size());
+	}
+	
+	/** 
+	 * Simple Join
+	 * @throws StorageManagerException
+	 * @throws RejectedException 
+	 */
+	@Test
+	public void testJoin3() throws StorageManagerException, RejectedException {
+		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
+		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
+
 		final Tuple tuple1 = new Tuple("1a", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
 		final Tuple tuple2 = new Tuple("2a", new BoundingBox(4.0, 5.0, 4.0, 5.0), "value2".getBytes());
 		
 		final Tuple tuple3 = new Tuple("1b", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value3".getBytes());
-		final Tuple tuple4 = new Tuple("1b", new BoundingBox(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
+		final Tuple tuple4 = new Tuple("2b", new BoundingBox(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
 
 		// Table1
 		storageManager1.put(tuple1);
@@ -246,12 +274,64 @@ public class TestQueryProcessing {
 		storageManager2.put(tuple4);
 		
 		final JoinQueryProcessor joinQueryProcessor = new JoinQueryProcessor(storageManager1, 
-				storageManager2, BoundingBox.EMPTY_BOX);
+				storageManager2, new BoundingBox(3.0, 10.0, 3.0, 10.0));
 		
 		final CloseableIterator<JoinedTuple> iterator = joinQueryProcessor.iterator();
 		
 		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
 		
-		Assert.assertEquals(2, resultList.size());
+		Assert.assertEquals(1, resultList.size());
+		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());
+		Assert.assertEquals(2, resultList.get(0).getBoundingBox().getDimension());
+		Assert.assertEquals(new BoundingBox(4.0d, 5.0d, 4.0d, 5.0d), resultList.get(0).getBoundingBox());
 	}
+	
+	/** 
+	 * Simple Join
+	 * @throws StorageManagerException
+	 * @throws RejectedException 
+	 */
+	@Test
+	public void testDoubleJoin1() throws StorageManagerException, RejectedException {
+		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
+		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
+		final TupleStoreManager storageManager3 = storageRegistry.getTupleStoreManager(TABLE_3);
+
+		final Tuple tuple1 = new Tuple("1a", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value1".getBytes());
+		final Tuple tuple2 = new Tuple("2a", new BoundingBox(4.0, 5.0, 4.0, 5.0), "value2".getBytes());
+		
+		final Tuple tuple3 = new Tuple("1b", new BoundingBox(1.5, 2.5, 1.5, 2.5), "value3".getBytes());
+		final Tuple tuple4 = new Tuple("2b", new BoundingBox(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
+
+		final Tuple tuple5 = new Tuple("1c", new BoundingBox(2.5, 5.5, 2.5, 5.5), "value4".getBytes());
+
+		// Table1
+		storageManager1.put(tuple1);
+		storageManager1.put(tuple2);
+		
+		// Table2
+		storageManager2.put(tuple3);
+		storageManager2.put(tuple4);
+		
+		// Table3
+		storageManager3.put(tuple5);
+
+		final JoinQueryProcessor joinQueryProcessor1 = new JoinQueryProcessor(storageManager1, 
+				storageManager2, BoundingBox.EMPTY_BOX);
+		
+		final JoinQueryProcessor joinQueryProcessor2 = new JoinQueryProcessor(joinQueryProcessor1.iterator(), 
+				storageManager3);
+		
+		final CloseableIterator<JoinedTuple> iterator = joinQueryProcessor2.iterator();
+		
+		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+				
+		Assert.assertEquals(1, resultList.size());
+		Assert.assertEquals(3, resultList.get(0).getNumberOfTuples());
+		
+		Assert.assertEquals(2, resultList.get(0).getBoundingBox().getDimension());
+		
+		Assert.assertEquals(new BoundingBox(4.0d, 5.0d, 4.0d, 5.0d), resultList.get(0).getBoundingBox());
+	}	
+
 }

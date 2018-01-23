@@ -53,7 +53,7 @@ public class JoinQueryProcessor {
 		
 		return new CloseableIterator<JoinedTuple>() {
 			
-			private JoinedTuple tupleToJoin = null;
+			private JoinedTuple tupleFromStreamSource = null;
 			
 			private CloseableIterator<Tuple> candidatesForCurrentTuple = null;
 			
@@ -67,19 +67,19 @@ public class JoinQueryProcessor {
 					if(candidatesForCurrentTuple.hasNext()) {
 						return true;
 					} else {
-						tupleToJoin = null;
+						tupleFromStreamSource = null;
 						CloseableHelper.closeWithoutException(candidatesForCurrentTuple);
 					}
 				}
 				
-				while(tupleToJoin == null) {
+				while(tupleFromStreamSource == null) {
 					// Fetch next tuple from stream source
 					if(! tupleStreamSource.hasNext()) { 
 						return false;
 					} else {
-						tupleToJoin = tupleStreamSource.next();
+						tupleFromStreamSource = tupleStreamSource.next();
 						
-						final QueryPlan queryplan = new BoundingBoxQueryPlan(tupleToJoin.getBoundingBox());
+						final QueryPlan queryplan = new BoundingBoxQueryPlan(tupleFromStreamSource.getBoundingBox());
 						final SelectionQueryProcessor queryProcessor = 
 								new SelectionQueryProcessor(queryplan, tupleStoreManager);
 						
@@ -88,15 +88,19 @@ public class JoinQueryProcessor {
 					
 					// No tuples to join in tuple store manager, try next tuple
 					if(! candidatesForCurrentTuple.hasNext()) {
-						tupleToJoin = null;
+						tupleFromStreamSource = null;
 					}
 				}
 				
-				final List<String> tupleStoreNames = tupleToJoin.getTupleStoreNames();
-				final List<Tuple> tuples = tupleToJoin.getTuples();
+				final List<String> tupleStoreNames = tupleFromStreamSource.getTupleStoreNames();
+				final List<Tuple> tuples = tupleFromStreamSource.getTuples();
 				
 				tupleStoreNames.add(tupleStoreManager.getTupleStoreName().getFullname());
-				tuples.add(candidatesForCurrentTuple.next());
+				final Tuple nextCandidateTuple = candidatesForCurrentTuple.next();
+				tuples.add(nextCandidateTuple);
+	
+				assert(nextCandidateTuple.getBoundingBox().overlaps(tupleFromStreamSource.getBoundingBox())) : "Wrong join, no overlap";
+				
 				nextTuple = new JoinedTuple(tuples, tupleStoreNames);
 				
 				return true;
