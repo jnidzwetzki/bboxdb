@@ -68,7 +68,7 @@ public class JoinedTuple {
 	 * @return
 	 */
 	public String getTupleStoreName(final int tupleNumber) {
-		return tupleStoreNames.get(0);
+		return tupleStoreNames.get(tupleNumber);
 	}
 	
 	/**
