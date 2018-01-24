@@ -66,6 +66,8 @@ public class JoinedTupleResponse extends NetworkResponsePackage {
 				bStream.write(encodedBytes);
 			}
 			
+			bStream.close();
+			
 			final byte[] allTupleBytes = bStream.toByteArray();
 			final long headerLength = appendResponsePackageHeader(allTupleBytes.length, outputStream);
 			outputStream.write(allTupleBytes);
