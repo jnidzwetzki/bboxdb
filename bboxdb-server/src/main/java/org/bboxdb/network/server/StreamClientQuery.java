@@ -30,6 +30,7 @@ import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.SelectionQueryProcessor;
@@ -150,7 +151,10 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 				
 				// Send next tuple
 				final Tuple tuple = currentIterator.next();
-				clientConnectionHandler.writeResultTuple(packageSequence, requestTable, tuple);
+				
+				final JoinedTuple joinedTuple = new JoinedTuple(tuple, requestTable.getFullname());
+				
+				clientConnectionHandler.writeResultTuple(packageSequence, joinedTuple);
 				totalSendTuples++;
 				sendTuplesInThisPage++;
 			}

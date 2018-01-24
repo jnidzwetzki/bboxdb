@@ -42,6 +42,7 @@ import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
 import org.bboxdb.network.packages.response.ErrorResponse;
+import org.bboxdb.network.packages.response.JoinedTupleResponse;
 import org.bboxdb.network.packages.response.TupleResponse;
 import org.bboxdb.network.routing.PackageRouter;
 import org.bboxdb.network.routing.RoutingHeader;
@@ -67,8 +68,7 @@ import org.bboxdb.network.server.handler.request.KeepAliveHandler;
 import org.bboxdb.network.server.handler.request.ListTablesHandler;
 import org.bboxdb.network.server.handler.request.NextPageHandler;
 import org.bboxdb.network.server.handler.request.RequestHandler;
-import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -440,14 +440,23 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 	 * @throws PackageEncodeException 
 	 * @throws IOException 
 	 */
-	public void writeResultTuple(final short packageSequence, final TupleStoreName requestTable, final Tuple tuple) throws IOException, PackageEncodeException {
+	public void writeResultTuple(final short packageSequence, final JoinedTuple joinedTuple) 
+			throws IOException, PackageEncodeException {
 		
-		final TupleResponse responsePackage = new TupleResponse(
-				packageSequence, 
-				requestTable.getFullname(), 
-				tuple);
+		if(joinedTuple.getNumberOfTuples() == 1) {
+			final TupleResponse responsePackage = new TupleResponse(
+					packageSequence, 
+					joinedTuple.getTupleStoreName(0), 
+					joinedTuple.getTuple(0));
+			
+			writeResultPackage(responsePackage);
+		} else {
+			final JoinedTupleResponse responsePackage = new JoinedTupleResponse(
+					packageSequence, joinedTuple);
+			
+			writeResultPackage(responsePackage);
+		}
 		
-		writeResultPackage(responsePackage);
 	}
 
 	/**
