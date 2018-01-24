@@ -110,4 +110,17 @@ public class JoinedTuple {
 		return intersectionBox;
 	}
 	
+	/**
+	 * Convert the joined tuple into a single tuple if possible
+	 * @return
+	 */
+	public Tuple convertToSingleTupleIfPossible() {
+		if(tuples.size() == 1) {
+			throw new IllegalArgumentException("Unable to convert to single tuple, size is: " 
+					+ tuples.size());
+		}
+		
+		return tuples.get(0);
+	}
+	
 }
