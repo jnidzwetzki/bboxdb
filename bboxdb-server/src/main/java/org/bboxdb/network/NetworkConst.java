@@ -129,6 +129,10 @@ public class NetworkConst {
 	 */
 	public static final byte REQUEST_QUERY_CONTINUOUS_BBOX = 0x06;
 	
+	/**
+	 * Query type join
+	 */
+	public static final byte REQUEST_QUERY_JOIN = 0x07;
 	
 	/**
 	 * Response type helo

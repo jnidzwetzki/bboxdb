@@ -51,6 +51,7 @@ import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxTimeRequest;
 import org.bboxdb.network.packages.request.QueryInsertTimeRequest;
+import org.bboxdb.network.packages.request.QueryJoinRequest;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
@@ -628,6 +629,34 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
+	}
+	
+	/**
+	 * Test decode bounding box query
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test
+	public void testDecodeJoinQuery() throws IOException, PackageEncodeException {
+		final List<String> tables = Arrays.asList("table1", "table2", "table3");
+		
+		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final QueryJoinRequest queryRequest = new QueryJoinRequest(sequenceNumber, ROUTING_HEADER, tables, boundingBox, false, (short) 10);
+		byte[] encodedPackage = networkPackageToByte(queryRequest);
+		Assert.assertNotNull(encodedPackage);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedPackage);
+		boolean result = NetworkPackageDecoder.validateRequestPackageHeader(bb, NetworkConst.REQUEST_TYPE_QUERY);
+		Assert.assertTrue(result);
+
+		final QueryJoinRequest decodedPackage = QueryJoinRequest.decodeTuple(bb);
+		Assert.assertEquals(queryRequest.getBoundingBox(), decodedPackage.getBoundingBox());
+		Assert.assertEquals(tables, decodedPackage.getTables());
+		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
+		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
+		Assert.assertEquals(NetworkConst.REQUEST_QUERY_JOIN, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
 	}
 	
 	/**
