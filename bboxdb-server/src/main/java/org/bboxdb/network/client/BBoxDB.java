@@ -160,6 +160,8 @@ public interface BBoxDB {
 	 */
 	public TupleListFuture queryBoundingBoxAndTime(final String table, final BoundingBox boundingBox, final long timestamp) throws BBoxDBException;
 
+	
+	
 	/**
 	 * Is the client connected?
 	 * @return
