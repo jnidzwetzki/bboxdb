@@ -171,6 +171,11 @@ public class NetworkConst {
 	public static final short RESPONSE_TYPE_PAGE_END = 0x07;
 	
 	/**
+	 * Page has ended
+	 */
+	public static final short RESPONSE_TYPE_JOINED_TUPLE = 0x08;
+	
+	/**
 	 * Compression envelope request
 	 */
 	public static final short RESPONSE_TYPE_COMPRESSION = 0x10;

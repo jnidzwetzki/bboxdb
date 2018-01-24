@@ -55,6 +55,7 @@ import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.CompressionEnvelopeResponse;
 import org.bboxdb.network.packages.response.HelloResponse;
+import org.bboxdb.network.packages.response.JoinedTupleResponse;
 import org.bboxdb.network.packages.response.ListTablesResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
 import org.bboxdb.network.packages.response.TupleResponse;
@@ -64,6 +65,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
@@ -223,6 +225,41 @@ public class TestNetworkClasses {
 		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
 		Assert.assertEquals(insertPackage.getRoutingHeader(), new RoutingHeader(false));
 		Assert.assertEquals(insertPackage, decodedPackage);
+	}
+	
+	/**
+	 * Test the decoding and the encoding of a joined tuple
+	 * @throws PackageEncodeException 
+	 * @throws IOException 
+	 */
+	@Test
+	public void encodeAndDecodeJoinedTuple() throws IOException, PackageEncodeException {
+		final Tuple tuple1 = new Tuple("key1", new BoundingBox(1.3244343224, 232.232333343, 34324.343, 343243.0), "abc".getBytes(), 12);
+		final Tuple tuple2 = new Tuple("key2", new BoundingBox(1.32443453224, 545334.03, 34324.343, 343243.0), "abc".getBytes(), 12);
+		final Tuple tuple3 = new Tuple("key3", new BoundingBox(1.35433224, 5453.43, 34324.343, 343243.0), "abc".getBytes(), 12);
+
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final List<Tuple> tupleList = Arrays.asList(tuple1, tuple2, tuple3);
+		final List<String> tableNames = Arrays.asList("abc", "def", "geh");
+		
+		final JoinedTuple joinedTuple = new JoinedTuple(tupleList, tableNames);
+		
+		final JoinedTupleResponse joinedResponse = new JoinedTupleResponse(sequenceNumber, joinedTuple);
+
+		byte[] encodedVersion = networkPackageToByte(joinedResponse);
+		Assert.assertNotNull(encodedVersion);
+		
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final JoinedTupleResponse decodedPackage = JoinedTupleResponse.decodePackage(bb);
+		
+		final JoinedTuple decodedJoinedTuple = decodedPackage.getJoinedTuple();
+		Assert.assertEquals(3, decodedJoinedTuple.getNumberOfTuples());
+				
+		for(int i = 0; i < 3; i++) {
+			Assert.assertEquals(tupleList.get(i), decodedJoinedTuple.getTuple(i));
+			Assert.assertEquals(tableNames.get(i), decodedJoinedTuple.getTupleStoreName(i));
+		}
 	}
 	
 	/**
