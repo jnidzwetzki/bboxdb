@@ -28,20 +28,15 @@ public class StorageManagerException extends Exception {
 		super();
 	}
 
-	public StorageManagerException(String message, Throwable cause,
-			boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
-	}
-
-	public StorageManagerException(String message, Throwable cause) {
+	public StorageManagerException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
-	public StorageManagerException(String message) {
+	public StorageManagerException(final String message) {
 		super(message);
 	}
 
-	public StorageManagerException(Throwable cause) {
+	public StorageManagerException(final Throwable cause) {
 		super(cause);
 	}
 	
