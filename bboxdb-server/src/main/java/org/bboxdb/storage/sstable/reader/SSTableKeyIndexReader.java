@@ -27,8 +27,6 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.predicate.Predicate;
-import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.slf4j.Logger;
@@ -340,15 +338,6 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 		};
 	}
 	
-	/**
-	 * Get a iterator for all predicate matching tuples
-	 * @param predicate
-	 * @return
-	 */
-	public Iterator<Tuple> getMatchingTuples(final Predicate predicate) {
-		return new PredicateFilterIterator(iterator(), predicate);
-	}
-
 	@Override
 	public String getServicename() {
 		return "SSTable key index reader";
