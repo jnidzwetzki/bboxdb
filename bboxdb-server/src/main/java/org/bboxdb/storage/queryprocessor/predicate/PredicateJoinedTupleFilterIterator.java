@@ -45,6 +45,11 @@ public class PredicateJoinedTupleFilterIterator implements Iterator<JoinedTuple>
 
 	@Override
 	public boolean hasNext() {
+		
+		if(nextTuple != null) {
+			return true;
+		}
+		
 		// Search for the next predicate matching tuple
 		while(baseIterator.hasNext()) {
 			final JoinedTuple tuple = baseIterator.next();
@@ -68,7 +73,7 @@ public class PredicateJoinedTupleFilterIterator implements Iterator<JoinedTuple>
 		if(nextTuple == null) {
 			throw new IllegalArgumentException("Invalid state, did you really called hasNext()?");
 		}
-		
+				
 		final JoinedTuple resultTuple = nextTuple;
 		nextTuple = null;
 		return resultTuple;

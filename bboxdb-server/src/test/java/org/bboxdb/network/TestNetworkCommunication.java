@@ -241,6 +241,7 @@ public class TestNetworkCommunication {
 		bboxDBClient.insertTuple(table, tuple5);
 
 		// Without paging
+		System.out.println("Pages = unlimited");
 		bboxDBClient.setPagingEnabled(false);
 		bboxDBClient.setTuplesPerPage((short) 0);
 		final TupleListFuture future = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
@@ -249,6 +250,7 @@ public class TestNetworkCommunication {
 		Assert.assertEquals(5, resultList.size());
 		
 		// With paging (tuples per page 10)
+		System.out.println("Pages = 10");
 		bboxDBClient.setPagingEnabled(true);
 		bboxDBClient.setTuplesPerPage((short) 10);
 		final TupleListFuture future2 = bboxDBClient.queryBoundingBox(table, new BoundingBox(-10d, 10d, -10d, 10d));
