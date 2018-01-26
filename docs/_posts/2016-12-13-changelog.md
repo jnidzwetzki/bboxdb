@@ -9,6 +9,7 @@ order: 1
 - New Feature: Implemented the spatial join
 - Improvement: Re-implemented server side query processor
 - Bugfix: Don't include non overlapping tuple versions in the bounding box query
+- Bugfix: Fixed NPE in closeable helper
 
 ### Version 0.4.0 (Stable) - 21.01.2018
 - New Feature: Size in byte and tuples are stored in Zookeeper

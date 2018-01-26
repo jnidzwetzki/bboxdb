@@ -141,6 +141,14 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 			}
 		}
 	}
+	
+	/**
+	 * Get the number of tables to process
+	 * @return
+	 */
+	private int getNumberOfTablesToProcess() {
+		return localTables.get(requestTables.get(0)).size();
+	}
 
 	/**
 	 * Close the iterator
@@ -202,7 +210,7 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	 * @return
 	 */
 	protected boolean isDataExhausted() {
-		if(! localTables.isEmpty()) {
+		if(getNumberOfTablesToProcess() > 0) {
 			return false;
 		}
 		
@@ -222,7 +230,7 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 			return false;
 		}
 		
-		if(localTables.isEmpty()) {
+		if(getNumberOfTablesToProcess() == 0) {
 			logger.warn("setupNewIterator() called, but localTables are empty");
 			return false;
 		}
@@ -255,7 +263,7 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	 */
 	@Override
 	public boolean isQueryDone() {
-		return (activeOperatorIterator == null && localTables.isEmpty());
+		return (activeOperatorIterator == null && getNumberOfTablesToProcess() == 0);
 	}
 
 	/* (non-Javadoc)
