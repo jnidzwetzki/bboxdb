@@ -43,6 +43,10 @@ public class CloseableHelper {
 	 */
 	public static void closeWithoutException(final Closeable closeable, final Consumer<Exception> consumer) {
 		
+		if(closeable == null) {
+			return;
+		}
+		
 		/**
 		 * Wrap the Closeable interface into a AutoCloseable interface and resuse the
 		 * AutoCloseable close logic
@@ -70,6 +74,7 @@ public class CloseableHelper {
 	 * @param closeable
 	 */
 	public static void closeWithoutException(final AutoCloseable closeable, final Consumer<Exception> consumer) {
+		
 		if(closeable == null) {
 			return;
 		}
