@@ -17,7 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.storage;
 
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.network.client.BBoxDBException;
@@ -26,13 +29,13 @@ import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.queryprocessor.JoinQueryProcessor;
-import org.bboxdb.storage.queryprocessor.SelectionQueryProcessor;
-import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
-import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
+import org.bboxdb.storage.queryprocessor.operator.BoundingBoxSelectOperator;
+import org.bboxdb.storage.queryprocessor.operator.FullTablescanOperator;
+import org.bboxdb.storage.queryprocessor.operator.IndexedSpatialJoinOperator;
+import org.bboxdb.storage.queryprocessor.operator.Operator;
+import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
-import org.bboxdb.storage.util.CloseableIterator;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -94,9 +97,10 @@ public class TestQueryProcessing {
 	 * Simple BBox query
 	 * @throws StorageManagerException
 	 * @throws RejectedException 
+	 * @throws IOException 
 	 */
 	@Test
-	public void testBBoxQuery1() throws StorageManagerException, RejectedException {
+	public void testBBoxQuery1() throws StorageManagerException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
@@ -108,26 +112,41 @@ public class TestQueryProcessing {
 		storageManager.put(tuple3);
 		
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
-		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
+		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
+		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
 
-		final SelectionQueryProcessor queryProcessor = new SelectionQueryProcessor(queryPlan, storageManager);
-		final CloseableIterator<Tuple> iterator = queryProcessor.iterator();
+		final Iterator<JoinedTuple> iterator = queryPlan.iterator();
 		
-		final List<Tuple> resultList = Lists.newArrayList(iterator);
-		
+		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<Tuple> resultTupleList = resultList.stream().map(t -> t.convertToSingleTupleIfPossible()).collect(Collectors.toList());
+		queryPlan.close();
+
 		Assert.assertEquals(2, resultList.size());
-		Assert.assertFalse(resultList.contains(tuple1));
-		Assert.assertTrue(resultList.contains(tuple2));
-		Assert.assertTrue(resultList.contains(tuple3));
+		Assert.assertFalse(resultTupleList.contains(tuple1));
+		Assert.assertTrue(resultTupleList.contains(tuple2));
+		Assert.assertTrue(resultTupleList.contains(tuple3));
+		
+		// Reopen 
+		final Iterator<JoinedTuple> iterator2 = queryPlan.iterator();
+		
+		final List<JoinedTuple> resultList2 = Lists.newArrayList(iterator2);
+		final List<Tuple> resultTupleList2 = resultList2.stream().map(t -> t.convertToSingleTupleIfPossible()).collect(Collectors.toList());
+		queryPlan.close();
+
+		Assert.assertEquals(2, resultList2.size());
+		Assert.assertFalse(resultTupleList2.contains(tuple1));
+		Assert.assertTrue(resultTupleList2.contains(tuple2));
+		Assert.assertTrue(resultTupleList2.contains(tuple3));
 	}
 	
 	/** 
 	 * Simple BBox query - across multiple tables
 	 * @throws StorageManagerException
 	 * @throws RejectedException 
+	 * @throws IOException 
 	 */
 	@Test
-	public void testBBoxQuery2() throws StorageManagerException, RejectedException {
+	public void testBBoxQuery2() throws StorageManagerException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
@@ -142,17 +161,19 @@ public class TestQueryProcessing {
 		storageManager.initNewMemtable();
 		
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
-		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
+		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
+		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
 
-		final SelectionQueryProcessor queryProcessor = new SelectionQueryProcessor(queryPlan, storageManager);
-		final CloseableIterator<Tuple> iterator = queryProcessor.iterator();
+		final Iterator<JoinedTuple> iterator = queryPlan.iterator();
 		
-		final List<Tuple> resultList = Lists.newArrayList(iterator);
-		
+		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<Tuple> resultTupleList = resultList.stream().map(t -> t.convertToSingleTupleIfPossible()).collect(Collectors.toList());
+		queryPlan.close();
+
 		Assert.assertEquals(2, resultList.size());
-		Assert.assertFalse(resultList.contains(tuple1));
-		Assert.assertTrue(resultList.contains(tuple2));
-		Assert.assertTrue(resultList.contains(tuple3));
+		Assert.assertFalse(resultTupleList.contains(tuple1));
+		Assert.assertTrue(resultTupleList.contains(tuple2));
+		Assert.assertTrue(resultTupleList.contains(tuple3));
 	}
 	
 	/** 
@@ -160,9 +181,10 @@ public class TestQueryProcessing {
 	 * @throws StorageManagerException
 	 * @throws InterruptedException 
 	 * @throws RejectedException 
+	 * @throws IOException 
 	 */
 	@Test
-	public void testBBoxQuery3() throws StorageManagerException, InterruptedException, RejectedException {
+	public void testBBoxQuery3() throws StorageManagerException, InterruptedException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
@@ -179,17 +201,19 @@ public class TestQueryProcessing {
 		storageManager.flush();
 		
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
-		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
+		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
+		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
+
+		final Iterator<JoinedTuple> iterator = queryPlan.iterator();
 		
-		final SelectionQueryProcessor queryProcessor = new SelectionQueryProcessor(queryPlan, storageManager);
-		final CloseableIterator<Tuple> iterator = queryProcessor.iterator();
-		
-		final List<Tuple> resultList = Lists.newArrayList(iterator);
-		
+		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<Tuple> resultTupleList = resultList.stream().map(t -> t.convertToSingleTupleIfPossible()).collect(Collectors.toList());
+		queryPlan.close();
+
 		Assert.assertEquals(2, resultList.size());
-		Assert.assertFalse(resultList.contains(tuple1));
-		Assert.assertTrue(resultList.contains(tuple2));
-		Assert.assertTrue(resultList.contains(tuple3));
+		Assert.assertFalse(resultTupleList.contains(tuple1));
+		Assert.assertTrue(resultTupleList.contains(tuple2));
+		Assert.assertTrue(resultTupleList.contains(tuple3));
 	}
 	
 	/** 
@@ -197,9 +221,10 @@ public class TestQueryProcessing {
 	 * @throws StorageManagerException
 	 * @throws InterruptedException 
 	 * @throws RejectedException 
+	 * @throws IOException 
 	 */
 	@Test
-	public void testBBoxQuery4() throws StorageManagerException, InterruptedException, RejectedException {
+	public void testBBoxQuery4() throws StorageManagerException, InterruptedException, RejectedException, IOException {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(TABLE_1);
 
 		final Tuple tuple1 = new Tuple("1", new BoundingBox(1.0, 2.0, 1.0, 2.0), "value".getBytes());
@@ -216,17 +241,19 @@ public class TestQueryProcessing {
 		storageManager.flush();
 		
 		final BoundingBox queryBoundingBox = new BoundingBox(0.0, 5.0, 0.0, 5.0);
-		final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryBoundingBox);
+		final Operator spatialIndexReadOperator = new FullTablescanOperator(storageManager);
+		final Operator queryPlan = new BoundingBoxSelectOperator(queryBoundingBox, spatialIndexReadOperator);
+
+		final Iterator<JoinedTuple> iterator = queryPlan.iterator();
 		
-		final SelectionQueryProcessor queryProcessor = new SelectionQueryProcessor(queryPlan, storageManager);
-		final CloseableIterator<Tuple> iterator = queryProcessor.iterator();
-		
-		final List<Tuple> resultList = Lists.newArrayList(iterator);
-		
+		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+		final List<Tuple> resultTupleList = resultList.stream().map(t -> t.convertToSingleTupleIfPossible()).collect(Collectors.toList());
+		queryPlan.close();
+
 		Assert.assertEquals(2, resultList.size());
-		Assert.assertFalse(resultList.contains(tuple1));
-		Assert.assertTrue(resultList.contains(tuple2));
-		Assert.assertTrue(resultList.contains(tuple3));
+		Assert.assertFalse(resultTupleList.contains(tuple1));
+		Assert.assertTrue(resultTupleList.contains(tuple2));
+		Assert.assertTrue(resultTupleList.contains(tuple3));
 	}	
 
 	/** 
@@ -239,13 +266,17 @@ public class TestQueryProcessing {
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 
-		final JoinQueryProcessor joinQueryProcessor = new JoinQueryProcessor(storageManager1, 
-				storageManager2, BoundingBox.EMPTY_BOX);
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.EMPTY_BOX);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.EMPTY_BOX);
 		
-		final CloseableIterator<JoinedTuple> iterator = joinQueryProcessor.iterator();
+		final IndexedSpatialJoinOperator joinQueryProcessor = new IndexedSpatialJoinOperator(operator1, 
+				operator2);
+		
+		final Iterator<JoinedTuple> iterator = joinQueryProcessor.iterator();
 		
 		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
-		
+		joinQueryProcessor.close();
+
 		Assert.assertEquals(0, resultList.size());
 	}
 	
@@ -273,13 +304,18 @@ public class TestQueryProcessing {
 		storageManager2.put(tuple3);
 		storageManager2.put(tuple4);
 		
-		final JoinQueryProcessor joinQueryProcessor = new JoinQueryProcessor(storageManager1, 
-				storageManager2, new BoundingBox(3.0, 10.0, 3.0, 10.0));
+		final BoundingBox queryBox = new BoundingBox(3.0, 10.0, 3.0, 10.0);
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, queryBox);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, queryBox);
 		
-		final CloseableIterator<JoinedTuple> iterator = joinQueryProcessor.iterator();
+		final IndexedSpatialJoinOperator joinQueryProcessor = new IndexedSpatialJoinOperator(operator1, 
+				operator2);
 		
+		final Iterator<JoinedTuple> iterator = joinQueryProcessor.iterator();
+	
 		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
-		
+		joinQueryProcessor.close();
+
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());
 		Assert.assertEquals(2, resultList.get(0).getBoundingBox().getDimension());
@@ -315,17 +351,23 @@ public class TestQueryProcessing {
 		
 		// Table3
 		storageManager3.put(tuple5);
+		
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.EMPTY_BOX);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.EMPTY_BOX);
+		final SpatialIndexReadOperator operator3 = new SpatialIndexReadOperator(storageManager3, BoundingBox.EMPTY_BOX);
 
-		final JoinQueryProcessor joinQueryProcessor1 = new JoinQueryProcessor(storageManager1, 
-				storageManager2, BoundingBox.EMPTY_BOX);
+		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator1, 
+				operator2);
 		
-		final JoinQueryProcessor joinQueryProcessor2 = new JoinQueryProcessor(joinQueryProcessor1.iterator(), 
-				storageManager3);
+		final IndexedSpatialJoinOperator joinQueryProcessor2 = new IndexedSpatialJoinOperator(joinQueryProcessor1, 
+				operator3);
 		
-		final CloseableIterator<JoinedTuple> iterator = joinQueryProcessor2.iterator();
+		final Iterator<JoinedTuple> iterator = joinQueryProcessor2.iterator();
 		
 		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
-				
+			
+		joinQueryProcessor2.close();
+		
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertEquals(3, resultList.get(0).getNumberOfTuples());
 		
@@ -359,12 +401,17 @@ public class TestQueryProcessing {
 		storageManager2.put(tuple3);
 		storageManager2.put(tuple4);
 		
-		final JoinQueryProcessor joinQueryProcessor = new JoinQueryProcessor(storageManager1, 
-				storageManager2, BoundingBox.EMPTY_BOX);
-		
-		final CloseableIterator<JoinedTuple> iterator = joinQueryProcessor.iterator();
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.EMPTY_BOX);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.EMPTY_BOX);
+
+		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator1, 
+				operator2);
+
+		final Iterator<JoinedTuple> iterator = joinQueryProcessor1.iterator();
 		
 		final List<JoinedTuple> resultList = Lists.newArrayList(iterator);
+			
+		joinQueryProcessor1.close();
 		
 		Assert.assertEquals(1, resultList.size());
 		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());

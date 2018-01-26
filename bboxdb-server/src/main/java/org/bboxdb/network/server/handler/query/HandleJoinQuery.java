@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
 import org.bboxdb.network.packages.request.QueryJoinRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
@@ -30,8 +29,11 @@ import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.StreamClientQuery;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
-import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
+import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
+import org.bboxdb.storage.queryprocessor.operator.IndexedSpatialJoinOperator;
+import org.bboxdb.storage.queryprocessor.operator.Operator;
+import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,18 +60,36 @@ public class HandleJoinQuery implements QueryHandler {
 			}
 			
 			final QueryJoinRequest queryRequest = QueryJoinRequest.decodeTuple(encodedPackage);
-			final List<String> requestTables = queryRequest.getTables();
+			final List<TupleStoreName> requestTables = queryRequest.getTables();
 			final BoundingBox boundingBox = queryRequest.getBoundingBox();
 			
-			final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryRequest.getBoundingBox());
-		
-			// TODO:
-			
-		/*	final StreamClientQuery clientQuery = new StreamClientQuery(queryPlan, queryRequest.isPagingEnabled(), 
-					queryRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, requestTable);
+			final OperatorTreeBuilder operatorTreeBuilder = new OperatorTreeBuilder() {
+				
+				@Override
+				public Operator buildOperatorTree(final List<TupleStoreManager> storageManager) {
+					
+					if(storageManager.size() <= 1) {
+						throw new IllegalArgumentException("This operator tree needs more than one storage manager");
+					}
+					
+					Operator operator1 = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
+					SpatialIndexReadOperator indexReader = new SpatialIndexReadOperator(storageManager.get(1));
+					operator1 = new IndexedSpatialJoinOperator(operator1, indexReader);
+					
+					for(int i = 3; i < storageManager.size(); i++) {
+						indexReader = new SpatialIndexReadOperator(storageManager.get(i));
+						operator1 = new IndexedSpatialJoinOperator(operator1, indexReader);
+					}
+					
+					return operator1;
+				}
+			};
+					
+			final StreamClientQuery clientQuery = new StreamClientQuery(operatorTreeBuilder, queryRequest.isPagingEnabled(), 
+					queryRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, requestTables);
 			
 			clientConnectionHandler.getActiveQueries().put(packageSequence, clientQuery);
-			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);*/
+			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);
 		} catch (PackageEncodeException e) {
 			logger.warn("Got exception while decoding package", e);
 			clientConnectionHandler.writeResultPackage(new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION));	

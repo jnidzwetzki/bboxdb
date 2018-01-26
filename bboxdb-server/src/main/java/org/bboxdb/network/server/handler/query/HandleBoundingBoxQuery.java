@@ -19,6 +19,8 @@ package org.bboxdb.network.server.handler.query;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
@@ -27,8 +29,11 @@ import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.StreamClientQuery;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.queryprocessor.queryplan.BoundingBoxQueryPlan;
-import org.bboxdb.storage.queryprocessor.queryplan.QueryPlan;
+import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
+import org.bboxdb.storage.queryprocessor.operator.BoundingBoxSelectOperator;
+import org.bboxdb.storage.queryprocessor.operator.FullTablescanOperator;
+import org.bboxdb.storage.queryprocessor.operator.Operator;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,10 +61,27 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 			
 			final QueryBoundingBoxRequest queryRequest = QueryBoundingBoxRequest.decodeTuple(encodedPackage);
 			final TupleStoreName requestTable = queryRequest.getTable();
-			final QueryPlan queryPlan = new BoundingBoxQueryPlan(queryRequest.getBoundingBox());
 			
-			final StreamClientQuery clientQuery = new StreamClientQuery(queryPlan, queryRequest.isPagingEnabled(), 
-					queryRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, requestTable);
+			final OperatorTreeBuilder operatorTreeBuilder = new OperatorTreeBuilder() {
+				
+				@Override
+				public Operator buildOperatorTree(final List<TupleStoreManager> storageManager) {
+					
+					if(storageManager.size() != 1) {
+						throw new IllegalArgumentException("This operator tree needs 1 storage manager");
+					}
+					
+					
+					final FullTablescanOperator tablescanOperator = new FullTablescanOperator(storageManager.get(0));
+					final Operator opeator = new BoundingBoxSelectOperator(queryRequest.getBoundingBox(),
+							tablescanOperator);
+					
+					return opeator;
+				}
+			};
+			
+			final StreamClientQuery clientQuery = new StreamClientQuery(operatorTreeBuilder, queryRequest.isPagingEnabled(), 
+					queryRequest.getTuplesPerPage(), clientConnectionHandler, packageSequence, Arrays.asList(requestTable));
 			
 			clientConnectionHandler.getActiveQueries().put(packageSequence, clientQuery);
 			clientConnectionHandler.sendNextResultsForQuery(packageSequence, packageSequence);

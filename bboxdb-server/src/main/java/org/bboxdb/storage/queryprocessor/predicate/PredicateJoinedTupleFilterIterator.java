@@ -19,14 +19,14 @@ package org.bboxdb.storage.queryprocessor.predicate;
 
 import java.util.Iterator;
 
-import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.JoinedTuple;
 
-public class PredicateFilterIterator implements Iterator<Tuple> {
+public class PredicateJoinedTupleFilterIterator implements Iterator<JoinedTuple> {
 
 	/**
 	 * The base iterator
 	 */
-	protected final Iterator<Tuple> baseIterator;
+	protected final Iterator<JoinedTuple> baseIterator;
 	
 	/**
 	 * The filter predicate
@@ -36,9 +36,9 @@ public class PredicateFilterIterator implements Iterator<Tuple> {
 	/**
 	 * The next available tuple
 	 */
-	protected Tuple nextTuple = null;
+	protected JoinedTuple nextTuple = null;
 	
-	public PredicateFilterIterator(final Iterator<Tuple> baseIterator, final Predicate predicate) {
+	public PredicateJoinedTupleFilterIterator(final Iterator<JoinedTuple> baseIterator, final Predicate predicate) {
 		this.baseIterator = baseIterator;
 		this.predicate = predicate;
 	}
@@ -47,9 +47,13 @@ public class PredicateFilterIterator implements Iterator<Tuple> {
 	public boolean hasNext() {
 		// Search for the next predicate matching tuple
 		while(baseIterator.hasNext()) {
-			final Tuple tuple = baseIterator.next();
+			final JoinedTuple tuple = baseIterator.next();
 			
-			if(predicate.matches(tuple)) {
+			if(tuple.getNumberOfTuples() != 1) {
+				throw new IllegalArgumentException("Unable to filter tuple: " + tuple);
+			}
+			
+			if(predicate.matches(tuple.getTuple(0))) {
 				nextTuple = tuple;
 				return true;
 			}
@@ -59,13 +63,13 @@ public class PredicateFilterIterator implements Iterator<Tuple> {
 	}
 
 	@Override
-	public Tuple next() {
+	public JoinedTuple next() {
 
 		if(nextTuple == null) {
 			throw new IllegalArgumentException("Invalid state, did you really called hasNext()?");
 		}
 		
-		final Tuple resultTuple = nextTuple;
+		final JoinedTuple resultTuple = nextTuple;
 		nextTuple = null;
 		return resultTuple;
 	}

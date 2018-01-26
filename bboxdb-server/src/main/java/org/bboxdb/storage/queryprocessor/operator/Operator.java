@@ -15,27 +15,19 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.queryprocessor.queryplan;
+package org.bboxdb.storage.queryprocessor.operator;
 
+import java.io.Closeable;
 import java.util.Iterator;
 
-import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.entity.JoinedTuple;
 
-public interface QueryPlan {
-	
+public interface Operator extends Closeable {
+
 	/**
-	 * Execute the query plan on the tuple storage
-	 * @param readOnlyTupleStorage
+	 * Get the tuple iterator
 	 * @return
 	 */
-	public Iterator<Tuple> execute(final ReadOnlyTupleStore readOnlyTupleStorage);
+	public Iterator<JoinedTuple> iterator();
 	
-	/**
-	 * The spatial restriction of the query plan. This is used, when the query
-	 * processor find a more up-todate version of the tuple. 
-	 * @return
-	 */
-	public BoundingBox getSpatialRestriction();
 }

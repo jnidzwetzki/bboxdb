@@ -638,7 +638,8 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testDecodeJoinQuery() throws IOException, PackageEncodeException {
-		final List<String> tables = Arrays.asList("table1", "table2", "table3");
+		final List<TupleStoreName> tables = Arrays.asList(new TupleStoreName("3dgroup_table1"),
+				new TupleStoreName("3dgroup_table2"), new TupleStoreName("3dgroup_table3"));
 		
 		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();

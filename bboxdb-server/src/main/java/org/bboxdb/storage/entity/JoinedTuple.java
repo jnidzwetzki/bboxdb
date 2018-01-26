@@ -115,7 +115,7 @@ public class JoinedTuple {
 	 * @return
 	 */
 	public Tuple convertToSingleTupleIfPossible() {
-		if(tuples.size() == 1) {
+		if(tuples.size() != 1) {
 			throw new IllegalArgumentException("Unable to convert to single tuple, size is: " 
 					+ tuples.size());
 		}

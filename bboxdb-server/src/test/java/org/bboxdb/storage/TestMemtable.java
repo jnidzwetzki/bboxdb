@@ -31,7 +31,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
-import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
+import org.bboxdb.storage.queryprocessor.predicate.PredicateTupleFilterIterator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -209,8 +209,13 @@ public class TestMemtable {
 		Assert.assertEquals(0, countTuplesForPredicate(new NewerAsVersionTimePredicate(createdTuple3.getVersionTimestamp())));
 	}
 	
-	protected int countTuplesForPredicate(Predicate predicate) {
-		final Iterator<Tuple> iterator = new PredicateFilterIterator(memtable.iterator(), predicate);
+	/**
+	 * Count the tuple for the given predicate
+	 * @param predicate
+	 * @return
+	 */
+	protected int countTuplesForPredicate(final Predicate predicate) {
+		final Iterator<Tuple> iterator = new PredicateTupleFilterIterator(memtable.iterator(), predicate);
 		return Iterators.size(iterator);
 	}
 

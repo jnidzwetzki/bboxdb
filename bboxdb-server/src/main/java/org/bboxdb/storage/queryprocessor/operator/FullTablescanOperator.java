@@ -15,36 +15,28 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.queryprocessor.queryplan;
+package org.bboxdb.storage.queryprocessor.operator;
 
 import java.util.Iterator;
+import java.util.List;
 
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.datasource.DataSource;
-import org.bboxdb.storage.queryprocessor.datasource.SpatialIndexDataSource;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 
-public class BoundingBoxQueryPlan implements QueryPlan {
-
-	/**
-	 * The bounding box for the query
-	 */
-	protected final BoundingBox boundingBox;
+public class FullTablescanOperator extends AbstractTablescanOperator {
 	
-	public BoundingBoxQueryPlan(final BoundingBox boundingBox) {
-		this.boundingBox = boundingBox;
+	public FullTablescanOperator(final TupleStoreManager tupleStoreManager) {
+		super(tupleStoreManager);
 	}
 
 	@Override
-	public Iterator<Tuple> execute(final ReadOnlyTupleStore readOnlyTupleStorage) {
-		final DataSource dataSource = new SpatialIndexDataSource(readOnlyTupleStorage, boundingBox);
-		
-		return dataSource.iterator();
+	protected Iterator<Tuple> setupNewTuplestore(final ReadOnlyTupleStore nextStorage) {
+		return nextStorage.iterator();
 	}
-
+	
 	@Override
-	public BoundingBox getSpatialRestriction() {
-		return boundingBox;
+	protected void filterTupleVersions(List<Tuple> tupleVersions) {
+		// Do nothing
 	}
 }

@@ -15,27 +15,20 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.queryprocessor.datasource;
+package org.bboxdb.storage.queryprocessor;
 
-import java.util.Iterator;
+import java.util.List;
 
-import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.queryprocessor.operator.Operator;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 
-public class FullStoreScanSource implements DataSource {
-	
+@FunctionalInterface
+public interface OperatorTreeBuilder {
+
 	/**
-	 * The tuple storage
+	 * Build the operator tree for the given tuple stores
+	 * @param storageManager
+	 * @return
 	 */
-	protected final ReadOnlyTupleStore tupleStorage;
-
-	public FullStoreScanSource(final ReadOnlyTupleStore readOnlyTupleStorage) {
-		this.tupleStorage = readOnlyTupleStorage;
-	}
-
-	@Override
-	public Iterator<Tuple> iterator() {
-		return tupleStorage.iterator();
-	}
-
+	public Operator buildOperatorTree(final List<TupleStoreManager> storageManager);
 }

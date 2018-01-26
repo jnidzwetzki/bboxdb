@@ -15,36 +15,42 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.queryprocessor.datasource;
+package org.bboxdb.storage.queryprocessor.operator;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.queryprocessor.predicate.OverlapsBoundingBoxPredicate;
+import org.bboxdb.storage.queryprocessor.predicate.Predicate;
+import org.bboxdb.storage.queryprocessor.predicate.PredicateJoinedTupleFilterIterator;
 
-public class SpatialIndexDataSource implements DataSource {
+public class BoundingBoxSelectOperator implements Operator {
 
 	/**
-	 * The tuple storage
-	 */
-	protected final ReadOnlyTupleStore tupleStorage;
-	
-	/**
-	 * The bounding box
+	 * The bounding box for the query
 	 */
 	protected final BoundingBox boundingBox;
 	
-	public SpatialIndexDataSource(final ReadOnlyTupleStore tupleStorage, 
-			final BoundingBox boundingBox) {
-		
-		this.tupleStorage = tupleStorage;
+	/**
+	 * The operator
+	 */
+	private Operator operator;
+	
+	public BoundingBoxSelectOperator(final BoundingBox boundingBox, final Operator operator) {
 		this.boundingBox = boundingBox;
+		this.operator = operator;
 	}
 
 	@Override
-	public Iterator<Tuple> iterator() {
-		return tupleStorage.getAllTuplesInBoundingBox(boundingBox);
+	public Iterator<JoinedTuple> iterator() {
+		final Predicate predicate = new OverlapsBoundingBoxPredicate(boundingBox);
+		return new PredicateJoinedTupleFilterIterator(operator.iterator(), predicate);		
 	}
 
+	@Override
+	public void close() throws IOException {
+		operator.close();
+	}
 }

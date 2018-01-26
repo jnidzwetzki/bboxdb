@@ -7,11 +7,12 @@ order: 1
 ---
 ### Version 0.4.1 (Stable) - TBA
 - New Feature: Implemented the spatial join
+- Improvement: Re-implemented server side query processor
 - Bugfix: Don't include non overlapping tuple versions in the bounding box query
 
 ### Version 0.4.0 (Stable) - 21.01.2018
 - New Feature: Size in byte and tuples are stored in Zookeeper
-- New Feature: Added merge code
+- New Feature: Added distribution region merge feature
 - Improvement: Introduced the generic space partitioner interface
 - Improvement: Created bboxdb_tools module
 - Improvement: Clean up dependencies of the modules

@@ -15,50 +15,41 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.queryprocessor.queryplan;
+package org.bboxdb.storage.queryprocessor.operator;
 
+import java.io.IOException;
 import java.util.Iterator;
 
-import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.queryprocessor.datasource.DataSource;
-import org.bboxdb.storage.queryprocessor.datasource.FullStoreScanSource;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsInsertedTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
-import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
-import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.bboxdb.storage.queryprocessor.predicate.PredicateJoinedTupleFilterIterator;
 
-public class NewerAsInsertTimeQueryPlan implements QueryPlan {
+public class NewerAsInsertTimeSeclectionOperator implements Operator {
 	
 	/**
 	 * The timestamp for the predicate
 	 */
 	protected final long timestamp;
+	
+	/**
+	 * The operator
+	 */
+	private Operator operator;
 
-	public NewerAsInsertTimeQueryPlan(final long timestamp) {
+	public NewerAsInsertTimeSeclectionOperator(final long timestamp, final Operator operator) {
 		this.timestamp = timestamp;
+		this.operator = operator;
 	}
 
 	@Override
-	public Iterator<Tuple> execute(final ReadOnlyTupleStore readOnlyTupleStorage) {
-		
-		// All tuples are older than our predicate
-		if(readOnlyTupleStorage.getNewestTupleInsertedTimestamp() < timestamp) {
-			return null;
-		}
-		
-		final DataSource fullStoreScanSource = new FullStoreScanSource(readOnlyTupleStorage);
-		
+	public Iterator<JoinedTuple> iterator() {
 		final Predicate predicate = new NewerAsInsertedTimePredicate(timestamp);
-		
-		final PredicateFilterIterator predicateFilterIterator 
-			= new PredicateFilterIterator(fullStoreScanSource.iterator(), predicate);
-		
-		return predicateFilterIterator;
+		return new PredicateJoinedTupleFilterIterator(operator.iterator(), predicate);		
 	}
-
+	
 	@Override
-	public BoundingBox getSpatialRestriction() {
-		return BoundingBox.EMPTY_BOX;
+	public void close() throws IOException {
+		operator.close();
 	}
 }

@@ -28,7 +28,7 @@ import org.bboxdb.storage.queryprocessor.predicate.AndPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;
 import org.bboxdb.storage.queryprocessor.predicate.OverlapsBoundingBoxPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;
-import org.bboxdb.storage.queryprocessor.predicate.PredicateFilterIterator;
+import org.bboxdb.storage.queryprocessor.predicate.PredicateTupleFilterIterator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -138,7 +138,7 @@ public class TestPredicates {
 	protected Collection<Tuple> getTuplesFromPredicate(final List<Tuple> tupleList, 
 			final Predicate predicate) {
 		
-		final Iterator<Tuple> iterator = new PredicateFilterIterator(tupleList.iterator(), predicate);
+		final Iterator<Tuple> iterator = new PredicateTupleFilterIterator(tupleList.iterator(), predicate);
 
 		final Collection<Tuple> result = new ArrayList<>();
 		

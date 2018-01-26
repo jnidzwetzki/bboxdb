@@ -592,6 +592,11 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Release all acquired tables
 	 */
 	public void releaseStorage(List<ReadOnlyTupleStore> storagesToRelease) {
+		
+		if(storagesToRelease == null) {
+			return;
+		}
+		
 		for(final ReadOnlyTupleStore storage : storagesToRelease) {
 			storage.release();
 		}		
@@ -870,5 +875,60 @@ public class TupleStoreManager implements BBoxDBService {
 	 */
 	public boolean removeInsertCallback(final Consumer<Tuple> callback) {
 		return insertCallbacks.remove(callback);
+	}
+	
+	/**
+	 * Get the most recent version of the tuple
+	 * e.g. Memtables can contain multiple versions of the key
+	 * The iterator can return an outdated version
+	 * 
+	 * @param tuple
+	 * @return
+	 * @throws StorageManagerException 
+	 */
+	public List<Tuple> getVersionsForTuple(final String key) 
+			throws StorageManagerException {
+		
+		final List<Tuple> resultTuples = getAllTupleVersionsForKey(key);
+		
+		final TupleStoreConfiguration tupleStoreConfiguration 
+			= getTupleStoreConfiguration();
+				
+		final DuplicateResolver<Tuple> resolver 
+			= TupleDuplicateResolverFactory.build(tupleStoreConfiguration);
+				
+		// Removed unwanted tuples for key
+		resolver.removeDuplicates(resultTuples);
+		
+		return resultTuples;
+	}
+
+	/**
+	 * Get all tuples for a given key
+	 * @param tuple
+	 * @param activeStorage
+	 * @return
+	 * @throws StorageManagerException
+	 */
+	public List<Tuple> getAllTupleVersionsForKey(final String key) throws StorageManagerException {
+		
+		List<ReadOnlyTupleStore> aquiredStorages = null;
+		
+		try {
+			aquiredStorages = aquireStorage();
+			
+			final List<Tuple> resultTuples = new ArrayList<>();
+			
+			for(final ReadOnlyTupleStore readOnlyTupleStorage : aquiredStorages) {
+				final List<Tuple> possibleTuples = readOnlyTupleStorage.get(key);
+				resultTuples.addAll(possibleTuples);
+			}
+			
+			return resultTuples;
+		} catch(Exception e) {
+			throw e;
+		} finally {
+			releaseStorage(aquiredStorages);
+		}
 	}
 }

@@ -31,6 +31,7 @@ import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.util.DataEncoderHelper;
 
 public class QueryJoinRequest extends NetworkQueryRequestPackage {
@@ -38,7 +39,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	/**
 	 * The tables to join
 	 */
-	protected final List<String> tables;
+	protected final List<TupleStoreName> tables;
 
 	/**
 	 * The the query bounding box
@@ -61,7 +62,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	protected final short tuplesPerPage;
 
 	public QueryJoinRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
-			final List<String> tables, final BoundingBox box, final boolean pagingEnabled, 
+			final List<TupleStoreName> tables, final BoundingBox box, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
 		super(sequenceNumber);
@@ -98,7 +99,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 			final ByteArrayOutputStream bStream = new ByteArrayOutputStream();
 			
 			for(int i = 0; i < tables.size(); i++) {
-				final byte[] tablename = tables.get(i).getBytes();
+				final byte[] tablename = tables.get(i).getFullnameBytes();
 				bStream.write(DataEncoderHelper.shortToByteBuffer((short) tablename.length).array());
 				bStream.write(tablename);
 			}
@@ -155,14 +156,14 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		encodedPackage.get(bboxBytes, 0, bboxBytes.length);
 		final BoundingBox boundingBox = BoundingBox.fromByteArray(bboxBytes);
 				
-		final List<String> tableNames = new ArrayList<>();
+		final List<TupleStoreName> tableNames = new ArrayList<>();
 		
 		for(int i = 0; i < numberOfTables; i++) {
 			final short tableNameLength = encodedPackage.getShort();
 			final byte[] tableBytes = new byte[tableNameLength];
 			encodedPackage.get(tableBytes, 0, tableBytes.length);
 			final String tablename = new java.lang.String(tableBytes);
-			tableNames.add(tablename);
+			tableNames.add(new TupleStoreName(tablename));
 		}
 		
 		if(encodedPackage.remaining() != 0) {
@@ -189,7 +190,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		return box;
 	}
 	
-	public List<String> getTables() {
+	public List<TupleStoreName> getTables() {
 		return tables;
 	}
 

@@ -28,7 +28,7 @@ public class NewestTupleDuplicateResolver implements DuplicateResolver<Tuple> {
 	@Override
 	public void removeDuplicates(final List<Tuple> unconsumedDuplicates) {
 		Tuple newestTuple = null;
-		
+				
 		for(final Tuple tuple : unconsumedDuplicates) {
 			newestTuple = TupleHelper.returnMostRecentTuple(newestTuple, tuple);
 		}
@@ -38,6 +38,7 @@ public class NewestTupleDuplicateResolver implements DuplicateResolver<Tuple> {
 		if(newestTuple != null) {
 			unconsumedDuplicates.add(newestTuple);
 		}
+		
 	}
 
 }
