@@ -90,10 +90,10 @@ public class NetworkQueryHelper {
 		future.waitForAll();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
 		
-		Assert.assertEquals(2, resultList.size());
+		Assert.assertEquals(3, resultList.size());
 		Assert.assertTrue(resultList.contains(tuple1));
 		Assert.assertTrue(resultList.contains(tuple2));
-		Assert.assertFalse(resultList.contains(tuple3));
+		Assert.assertTrue(resultList.contains(tuple3));
 		Assert.assertFalse(resultList.contains(tuple4));
 		Assert.assertFalse(resultList.contains(tuple5));
 	}
