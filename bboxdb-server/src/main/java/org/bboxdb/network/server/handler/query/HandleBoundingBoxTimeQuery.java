@@ -28,12 +28,12 @@ import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.StreamClientQuery;
+import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
-import org.bboxdb.storage.queryprocessor.operator.BoundingBoxSelectOperator;
-import org.bboxdb.storage.queryprocessor.operator.FullTablescanOperator;
 import org.bboxdb.storage.queryprocessor.operator.NewerAsInsertTimeSeclectionOperator;
 import org.bboxdb.storage.queryprocessor.operator.Operator;
+import org.bboxdb.storage.queryprocessor.operator.SpatialIndexReadOperator;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,13 +71,13 @@ public class HandleBoundingBoxTimeQuery implements QueryHandler {
 						throw new IllegalArgumentException("This operator tree needs 1 storage manager");
 					}
 					
-					final FullTablescanOperator tablescanOperator = new FullTablescanOperator(storageManager.get(0));
-					final Operator operator1 = new NewerAsInsertTimeSeclectionOperator(queryRequest.getTimestamp(), 
-							tablescanOperator);
+					final BoundingBox boundingBox = queryRequest.getBoundingBox();
+					final SpatialIndexReadOperator operator = new SpatialIndexReadOperator(storageManager.get(0), boundingBox);
 					
-					final Operator operator2 = new BoundingBoxSelectOperator(queryRequest.getBoundingBox(), operator1);
-
-					return operator2;
+					final Operator operator1 = new NewerAsInsertTimeSeclectionOperator(queryRequest.getTimestamp(), 
+							operator);
+					
+					return operator1;
 				}
 			};
 			
