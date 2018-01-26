@@ -21,7 +21,7 @@ import org.bboxdb.distribution.DistributionGroupName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TupleStoreName {
+public class TupleStoreName implements Comparable<TupleStoreName> {
 
 	/**
 	 * The full name of the table
@@ -323,6 +323,11 @@ public class TupleStoreName {
 		if (valid != other.valid)
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(final TupleStoreName otherStoreName) {
+		return fullname.compareTo(otherStoreName.getFullname());
 	}
 	
 }
