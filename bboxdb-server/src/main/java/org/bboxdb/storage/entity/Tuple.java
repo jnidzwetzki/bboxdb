@@ -22,7 +22,7 @@ import java.util.Objects;
 
 import org.bboxdb.commons.MicroSecondTimestampProvider;
 
-public class Tuple implements Comparable<Tuple> {
+public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 	
 	/**
 	 * The key of the tuple
