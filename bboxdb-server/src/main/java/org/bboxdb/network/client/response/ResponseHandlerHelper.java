@@ -20,6 +20,7 @@ package org.bboxdb.network.client.response;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
@@ -38,8 +39,8 @@ public class ResponseHandlerHelper {
 	 * @throws PackageEncodeException
 	 */
 	public static void castAndSetFutureResult(final OperationFuture future, 
-			final List<PagedTransferableEntity> resultList, final boolean completeResult) 
-			throws PackageEncodeException {
+			final List<PagedTransferableEntity> resultList, final boolean completeResult,
+			final BBoxDBClient bboxDBClient) throws PackageEncodeException {
 		
 		if(future instanceof TupleListFuture) {
 			final TupleListFuture pendingCall = (TupleListFuture) future;
@@ -49,6 +50,7 @@ public class ResponseHandlerHelper {
 				tupleList.add((Tuple) entity);
 			}
 			
+			pendingCall.setConnectionForResult(0, bboxDBClient);
 			pendingCall.setCompleteResult(0, completeResult);	
 			pendingCall.setOperationResult(0, tupleList);
 			pendingCall.fireCompleteEvent();
@@ -60,6 +62,7 @@ public class ResponseHandlerHelper {
 				tupleList.add((JoinedTuple) entity);
 			}
 			
+			pendingCall.setConnectionForResult(0, bboxDBClient);
 			pendingCall.setCompleteResult(0, completeResult);	
 			pendingCall.setOperationResult(0, tupleList);
 			pendingCall.fireCompleteEvent();

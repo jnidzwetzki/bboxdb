@@ -67,8 +67,8 @@ public class PageEndHandler implements ServerResponseHandler {
 			future.fireCompleteEvent();
 			return true;
 		}
-		
-		ResponseHandlerHelper.castAndSetFutureResult(future, resultList, false);
+				
+		ResponseHandlerHelper.castAndSetFutureResult(future, resultList, false, bboxDBClient);
 		
 		return true;
 	}
