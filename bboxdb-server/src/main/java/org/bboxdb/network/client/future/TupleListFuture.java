@@ -38,7 +38,7 @@ import org.bboxdb.storage.util.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements Iterable<Tuple> {
+public class TupleListFuture extends AbstractListFuture<Tuple> {
 
 	private static final class ThreadedTupleListFutureIterator implements CloseableIterator<Tuple> {
 		/**
@@ -291,7 +291,6 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		this.duplicateResolver = duplicateResolver;
 	}
 
-	
 	/**
 	 * Check whether the result is only a page or complete
 	 * 
@@ -378,7 +377,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 	 * @return
 	 */
 	protected Iterator<Tuple> createSimpleIterator() {
-		final List<Tuple> allTuples = new ArrayList<Tuple>();
+		final List<Tuple> allTuples = new ArrayList<>();
 		
 		for(int i = 0; i < getNumberOfResultObjets(); i++) {
 			try {
@@ -402,4 +401,5 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		
 		return allTuples.iterator();
 	}
+	
 }
