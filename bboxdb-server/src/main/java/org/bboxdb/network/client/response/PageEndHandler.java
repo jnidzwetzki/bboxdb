@@ -18,6 +18,7 @@
 package org.bboxdb.network.client.response;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.network.client.BBoxDBClient;
@@ -53,9 +54,11 @@ public class PageEndHandler implements ServerResponseHandler {
 		final short sequenceNumber = result.getSequenceNumber();
 		final List<PagedTransferableEntity> resultList = bboxDBClient.getResultBuffer().remove(sequenceNumber);
 
+		// Collect tuples of the next page in new list
+		bboxDBClient.getResultBuffer().put(sequenceNumber, new ArrayList<>());
+
 		if(future == null) {
-			logger.warn("Got handleMultiTupleEnd and pendingCall is empty (package {}) ",
-					sequenceNumber);
+			logger.warn("Got handleMultiTupleEnd and pendingCall is empty");
 			return true;
 		}
 		
