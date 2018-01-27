@@ -45,6 +45,7 @@ import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -193,6 +194,10 @@ public class CLI implements Runnable, AutoCloseable {
 		case CLIAction.QUERY:
 			actionExecuteQuery(line);
 			break;
+			
+		case CLIAction.JOIN:
+			actionExecuteJoin(line);
+			break;
 		
 		case CLIAction.CONTINUOUS_QUERY:
 			actionExecuteContinuousQuery(line);
@@ -328,7 +333,7 @@ public class CLI implements Runnable, AutoCloseable {
 	}
 	
 	/**
-	 * Execute a given query
+	 * Execute the given query
 	 * @param line
 	 */
 	protected void actionExecuteQuery(final CommandLine line) {
@@ -357,6 +362,50 @@ public class CLI implements Runnable, AutoCloseable {
 			}
 			
 			System.out.println("Query done");
+		} catch (BBoxDBException e) {
+			System.err.println("Got an exception while performing query: " + e);
+			System.exit(-1);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+	}
+	
+	/**
+	 * Execute the given query
+	 * @param line
+	 */
+	protected void actionExecuteJoin(final CommandLine line) {
+		if(! line.hasOption(CLIParameter.TABLE)) {
+			System.err.println("Query should be performed, but no table was specified");
+			printHelpAndExit();
+		}
+				
+		try {
+			final String tables = line.getOptionValue(CLIParameter.TABLE);
+			final List<String> tableList = Arrays.asList(tables.split(":"));
+
+			System.out.println("Executing join query...");
+			final BoundingBox boundingBox = getBoundingBoxFromArgs(line);	
+			final JoinedTupleListFuture resultFuture = bboxDbConnection.queryJoin(tableList, boundingBox);
+						
+			if(resultFuture == null) {
+				System.err.println("Unable to get query");
+				System.exit(-1);
+			}
+			
+			resultFuture.waitForAll();
+			
+			if(resultFuture.isFailed()) {
+				System.err.println("Unable to execute query: " + resultFuture.getAllMessages());
+				System.exit(-1);
+			}
+			
+			for(final JoinedTuple tuple : resultFuture) {
+				printJoinedTuple(tuple);
+			}
+			
+			System.out.println("Join done");
 		} catch (BBoxDBException e) {
 			System.err.println("Got an exception while performing query: " + e);
 			System.exit(-1);

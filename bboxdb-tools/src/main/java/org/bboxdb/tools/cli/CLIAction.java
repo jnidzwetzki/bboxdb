@@ -31,6 +31,11 @@ public class CLIAction {
 	 * The name of the query action
 	 */
 	protected static final String QUERY = "query";
+	
+	/**
+	 * The name of the join action
+	 */
+	protected static final String JOIN = "join";
 		
 	/**
 	 * The name of the query action
@@ -81,7 +86,7 @@ public class CLIAction {
 	 * All known actions
 	 */
 	protected static List<String> ALL_ACTIONS 
-		= Arrays.asList(IMPORT, QUERY, DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP, 
+		= Arrays.asList(IMPORT, QUERY, JOIN, DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP, 
 				SHOW_DGROUP, SHOW_INSTANCES, CREATE_TABLE, DELETE_TABLE);
 
 }
