@@ -34,10 +34,12 @@ public class ResponseHandlerHelper {
 	 * Cast the content on the result list according to the future type
 	 * @param future
 	 * @param resultList
+	 * @param completeResult 
 	 * @throws PackageEncodeException
 	 */
 	public static void castAndSetFutureResult(final OperationFuture future, 
-			final List<PagedTransferableEntity> resultList) throws PackageEncodeException {
+			final List<PagedTransferableEntity> resultList, final boolean completeResult) 
+			throws PackageEncodeException {
 		
 		if(future instanceof TupleListFuture) {
 			final TupleListFuture pendingCall = (TupleListFuture) future;
@@ -47,7 +49,10 @@ public class ResponseHandlerHelper {
 				tupleList.add((Tuple) entity);
 			}
 			
-			pendingCall.setCompleteResult(0, true);
+			if(completeResult) {
+				pendingCall.setCompleteResult(0, true);
+			}
+			
 			pendingCall.setOperationResult(0, tupleList);
 			pendingCall.fireCompleteEvent();
 		} else if(future instanceof JoinedTupleListFuture) {
@@ -58,7 +63,10 @@ public class ResponseHandlerHelper {
 				tupleList.add((JoinedTuple) entity);
 			}
 			
-			pendingCall.setCompleteResult(0, true);
+			if(completeResult) {
+				pendingCall.setCompleteResult(0, true);
+			}
+			
 			pendingCall.setOperationResult(0, tupleList);
 			pendingCall.fireCompleteEvent();
 		} else {

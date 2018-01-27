@@ -68,7 +68,7 @@ public class PageEndHandler implements ServerResponseHandler {
 			return true;
 		}
 		
-		ResponseHandlerHelper.castAndSetFutureResult(future, resultList);
+		ResponseHandlerHelper.castAndSetFutureResult(future, resultList, false);
 		
 		return true;
 	}

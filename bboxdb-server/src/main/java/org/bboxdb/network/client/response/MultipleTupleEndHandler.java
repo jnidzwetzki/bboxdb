@@ -64,7 +64,7 @@ public class MultipleTupleEndHandler implements ServerResponseHandler {
 			return true;
 		}
 		
-		ResponseHandlerHelper.castAndSetFutureResult(future, resultList);
+		ResponseHandlerHelper.castAndSetFutureResult(future, resultList, true);
 
 		return true;
 	}
