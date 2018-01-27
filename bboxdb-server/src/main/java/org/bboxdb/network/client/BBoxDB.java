@@ -17,7 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
+import java.util.List;
+
 import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
@@ -160,7 +163,13 @@ public interface BBoxDB {
 	 */
 	public TupleListFuture queryBoundingBoxAndTime(final String table, final BoundingBox boundingBox, final long timestamp) throws BBoxDBException;
 
-	
+	/**
+	 * Execute a join
+	 * @param tableNames
+	 * @param boundingBox
+	 * @return
+	 */
+	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final BoundingBox boundingBox) throws BBoxDBException;
 	
 	/**
 	 * Is the client connected?

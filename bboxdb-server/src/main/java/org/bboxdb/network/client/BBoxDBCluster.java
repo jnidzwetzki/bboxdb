@@ -39,6 +39,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureHelper;
+import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.routing.RoutingHeader;
@@ -459,6 +460,30 @@ public class BBoxDBCluster implements BBoxDB {
 		membershipConnectionService.getAllConnections()
 		.stream()
 		.map(c -> c.queryInsertedTime(table, timestamp))
+		.filter(Objects::nonNull)
+		.forEach(f -> future.merge(f));
+
+		return future;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.bboxdb.network.client.BBoxDB#queryJoin
+	 */
+	@Override
+	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final BoundingBox boundingBox) throws BBoxDBException {
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			throw new BBoxDBException("queryTime called, but connection list is empty");
+		}
+
+		if(logger.isDebugEnabled()) {
+			logger.debug("Query by for join {} on tables {}", boundingBox, tableNames);
+		}
+
+		final JoinedTupleListFuture future = new JoinedTupleListFuture();
+
+		membershipConnectionService.getAllConnections()
+		.stream()
+		.map(c -> c.queryJoin(tableNames, boundingBox))
 		.filter(Objects::nonNull)
 		.forEach(f -> future.merge(f));
 

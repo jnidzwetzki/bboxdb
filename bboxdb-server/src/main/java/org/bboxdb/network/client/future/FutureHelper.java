@@ -44,4 +44,29 @@ public class FutureHelper {
 		future.fireCompleteEvent();
 		return future;
 	}
+	
+	/**
+	 * Create and return an empty joinedtuple list future
+	 * @return
+	 */
+	public static JoinedTupleListFuture getFailedJoinedTupleListFuture(final String failedMessage) {
+		final JoinedTupleListFuture future = new JoinedTupleListFuture(1);
+		future.setMessage(0, failedMessage);
+		future.setFailedState();
+		future.fireCompleteEvent();
+		return future;
+	}
+	
+	/**
+	 * Create a failed SSTableNameListFuture
+	 * @return
+	 */
+	public static SSTableNameListFuture getFailedSStableNameFuture(final String errorMessage) {
+		final SSTableNameListFuture clientOperationFuture = new SSTableNameListFuture(1);
+		clientOperationFuture.setMessage(0, errorMessage);
+		clientOperationFuture.setFailedState();
+		clientOperationFuture.fireCompleteEvent(); 
+		return clientOperationFuture;
+	}
+
 }
