@@ -50,10 +50,10 @@ import org.bboxdb.network.client.tools.FixedSizeFutureStore;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
-import org.bboxdb.storage.util.TupleHelper;
 import org.bboxdb.tools.TupleFileReader;
 import org.bboxdb.tools.converter.tuple.TupleBuilderFactory;
 import org.slf4j.Logger;
@@ -421,16 +421,15 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param tuple
 	 */
 	protected void printTuple(final Tuple tuple) {
-		
-		if(TupleHelper.isDeletedTuple(tuple)) {
-			System.out.format("Key %s, DELETED, version timestamp=%d\n", 
-					tuple.getKey(), tuple.getVersionTimestamp());
-		} else {
-			System.out.format("Key %s, BoundingBox=%s, value=%s, version timestamp=%d\n",
-					tuple.getKey(), tuple.getBoundingBox().toCompactString(), 
-					new String(tuple.getDataBytes()), tuple.getVersionTimestamp());
-		}
-		
+		System.out.println(tuple.getFormatedString());
+	}
+	
+	/**
+	 * Print the given joined tuple
+	 * @param joinedTuple
+	 */
+	protected void printJoinedTuple(final JoinedTuple joinedTuple) {
+		System.out.println(joinedTuple.getFormatedString());
 	}
 	
 	/**

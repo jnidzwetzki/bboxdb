@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.bboxdb.commons.MicroSecondTimestampProvider;
+import org.bboxdb.storage.util.TupleHelper;
 
 public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 	
@@ -197,8 +198,26 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 		return res;
 	}
 	
+	/**
+	 * Get the received timestamp
+	 * @return
+	 */
 	public long getReceivedTimestamp() {
 		return receivedTimestamp;
 	}
 
+	/**
+	 * Get the formated string
+	 * @return
+	 */
+	public String getFormatedString() {
+		if(TupleHelper.isDeletedTuple(this)) {
+			return String.format("Key %s, DELETED, version timestamp=%d\n", 
+					getKey(), getVersionTimestamp());
+		} else {
+			return String.format("Key %s, BoundingBox=%s, value=%s, version timestamp=%d\n",
+					getKey(), getBoundingBox().toCompactString(), 
+					new String(getDataBytes()), getVersionTimestamp());
+		}
+	}
 }
