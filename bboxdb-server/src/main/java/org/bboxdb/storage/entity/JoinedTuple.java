@@ -20,7 +20,8 @@ package org.bboxdb.storage.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JoinedTuple {
+public class JoinedTuple implements Comparable<JoinedTuple> {
+	
 	/**
 	 * The joined tuples
 	 */
@@ -121,6 +122,20 @@ public class JoinedTuple {
 		}
 		
 		return tuples.get(0);
+	}
+
+	@Override
+	public int compareTo(final JoinedTuple o) {
+		final int elements = Math.min(o.getNumberOfTuples(), getNumberOfTuples());
+		
+		for(int i = 0; i < elements; i++) {
+			final int result = getTuple(i).compareTo(o.getTuple(i));
+			if(result != 0) {
+				return result;
+			}
+		}
+		
+		return getNumberOfTuples() - o.getNumberOfTuples();
 	}
 	
 }
