@@ -18,10 +18,8 @@
 package org.bboxdb.network.client.future;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -262,16 +260,6 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 	}
 
 	/**
-	 * Is the result complete or only a page?
-	 */
-	protected final Map<Integer, Boolean> resultComplete = new HashMap<>();
-	
-	/**
-	 * The connections for the paging
-	 */
-	protected final Map<Integer, BBoxDBClient> connections = new HashMap<>();
-	
-	/**
 	 * The duplicate resolver
 	 */
 	protected final DuplicateResolver<Tuple> duplicateResolver;
@@ -291,61 +279,6 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 		this.duplicateResolver = duplicateResolver;
 	}
 
-	/**
-	 * Check whether the result is only a page or complete
-	 * 
-	 * @param resultId
-	 * @return
-	 */
-	public boolean isCompleteResult(final int resultId) {
-		checkFutureSize(resultId);
-		
-		if(! resultComplete.containsKey(resultId)) {
-			return false;
-		}
-
-		return resultComplete.get(resultId);
-	}
-
-	/**
-	 * Set the completed flag for a result
-	 * 
-	 * @param resultId
-	 * @param completeResult
-	 */
-	public void setCompleteResult(final int resultId, final boolean completeResult) {
-		checkFutureSize(resultId);
-
-		resultComplete.put(resultId, completeResult);
-	}
-	
-	/**
-	 * Set the BBoxDB connection for paging
-	 * @param resultId
-	 * @param bboxdbClient
-	 */
-	public void setConnectionForResult(final int resultId, final BBoxDBClient bboxdbClient) {
-		checkFutureSize(resultId);
-
-		connections.put(resultId, bboxdbClient);
-	}
-	
-	/**
-	 * Get the bboxdbClient for the given resultId (needed to request next pages)
-	 * @param resultId
-	 * @return
-	 */
-	public BBoxDBClient getConnectionForResult(final int resultId) {
-		checkFutureSize(resultId);
-
-		if(! connections.containsKey(resultId)) {
-			logger.error("getConnectionForResult() called with id {}, but connection is unknown", resultId);
-			return null;
-		}
-		
-		return connections.get(resultId);
-	}
-		
 	/**
 	 * Return a iterator for all tuples
 	 * @return
