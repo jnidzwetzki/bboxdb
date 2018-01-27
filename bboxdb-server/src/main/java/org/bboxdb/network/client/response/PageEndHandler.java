@@ -18,15 +18,13 @@
 package org.bboxdb.network.client.response;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.OperationFuture;
-import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.PageEndResponse;
-import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,34 +48,28 @@ public class PageEndHandler implements ServerResponseHandler {
 			logger.debug("Handle page end package");
 		}
 		
-		final TupleListFuture pendingCall = (TupleListFuture) future;
-		
-		if(pendingCall == null) {
-			logger.warn("Got handleMultiTupleEnd and pendingCall is empty");
+		final PageEndResponse result = PageEndResponse.decodePackage(encodedPackage);
+
+		final short sequenceNumber = result.getSequenceNumber();
+		final List<PagedTransferableEntity> resultList = bboxDBClient.getResultBuffer().remove(sequenceNumber);
+
+		if(future == null) {
+			logger.warn("Got handleMultiTupleEnd and pendingCall is empty (package {}) ",
+					sequenceNumber);
 			return true;
 		}
-
-		final PageEndResponse result = PageEndResponse.decodePackage(encodedPackage);
-		final short sequenceNumber = result.getSequenceNumber();
-
-		final List<Tuple> resultList = bboxDBClient.getResultBuffer().remove(sequenceNumber);
-		
-		// Collect tuples of the next page in new list
-		bboxDBClient.getResultBuffer().put(sequenceNumber, new ArrayList<Tuple>());
 		
 		if(resultList == null) {
-			logger.warn("Got handleMultiTupleEnd and resultList is empty");
-			pendingCall.setFailedState();
-			pendingCall.fireCompleteEvent();
+			logger.warn("Got handleMultiTupleEnd and resultList is empty (package {})",
+					sequenceNumber);
+			
+			future.setFailedState();
+			future.fireCompleteEvent();
 			return true;
 		}
-
-		pendingCall.setConnectionForResult(0, bboxDBClient);
-		pendingCall.setCompleteResult(0, false);
-		pendingCall.setOperationResult(0, resultList);
-		pendingCall.fireCompleteEvent();
+		
+		ResponseHandlerHelper.castAndSetFutureResult(future, resultList);
 		
 		return true;
 	}
-
 }

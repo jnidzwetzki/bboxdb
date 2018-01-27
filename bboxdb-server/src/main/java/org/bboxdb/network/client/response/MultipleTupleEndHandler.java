@@ -22,10 +22,9 @@ import java.util.List;
 
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.OperationFuture;
-import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
-import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +34,7 @@ public class MultipleTupleEndHandler implements ServerResponseHandler {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(MultipleTupleEndHandler.class);
-	
 
-	
 	@Override
 	public boolean handleServerResult(final BBoxDBClient bboxDBClient, 
 			final ByteBuffer encodedPackage, final OperationFuture future)
@@ -47,14 +44,12 @@ public class MultipleTupleEndHandler implements ServerResponseHandler {
 			logger.debug("Handle multuple tuple end package");
 		}
 		
-		final TupleListFuture pendingCall = (TupleListFuture) future;
-		
 		final MultipleTupleEndResponse result = MultipleTupleEndResponse.decodePackage(encodedPackage);
 		
 		final short sequenceNumber = result.getSequenceNumber();
-		final List<Tuple> resultList = bboxDBClient.getResultBuffer().remove(sequenceNumber);
+		final List<PagedTransferableEntity> resultList = bboxDBClient.getResultBuffer().remove(sequenceNumber);
 
-		if(pendingCall == null) {
+		if(future == null) {
 			logger.warn("Got handleMultiTupleEnd and pendingCall is empty (package {}) ",
 					sequenceNumber);
 			return true;
@@ -64,15 +59,13 @@ public class MultipleTupleEndHandler implements ServerResponseHandler {
 			logger.warn("Got handleMultiTupleEnd and resultList is empty (package {})",
 					sequenceNumber);
 			
-			pendingCall.setFailedState();
-			pendingCall.fireCompleteEvent();
+			future.setFailedState();
+			future.fireCompleteEvent();
 			return true;
 		}
 		
-		pendingCall.setCompleteResult(0, true);
-		pendingCall.setOperationResult(0, resultList);
-		pendingCall.fireCompleteEvent();
-		
+		ResponseHandlerHelper.castAndSetFutureResult(future, resultList);
+
 		return true;
 	}
 }

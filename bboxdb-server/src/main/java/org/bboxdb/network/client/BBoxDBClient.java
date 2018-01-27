@@ -58,6 +58,7 @@ import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.response.CompressionHandler;
 import org.bboxdb.network.client.response.ErrorHandler;
 import org.bboxdb.network.client.response.HelloHandler;
+import org.bboxdb.network.client.response.JoinedTupleHandler;
 import org.bboxdb.network.client.response.ListTablesHandler;
 import org.bboxdb.network.client.response.MultipleTupleEndHandler;
 import org.bboxdb.network.client.response.MultipleTupleStartHandler;
@@ -93,6 +94,7 @@ import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -127,12 +129,12 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * The pending calls
 	 */
-	protected final Map<Short, OperationFuture> pendingCalls = new HashMap<Short, OperationFuture>();
+	protected final Map<Short, OperationFuture> pendingCalls = new HashMap<>();
 
 	/**
 	 * The result buffer
 	 */
-	protected final Map<Short, List<Tuple>> resultBuffer = new HashMap<Short, List<Tuple>>();
+	protected final Map<Short, List<PagedTransferableEntity>> resultBuffer = new HashMap<>();
 
 	/**
 	 * The retryer
@@ -259,6 +261,7 @@ public class BBoxDBClient implements BBoxDB {
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_START, new MultipleTupleStartHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END, new MultipleTupleEndHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_PAGE_END, new PageEndHandler());
+		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_JOINED_TUPLE, new JoinedTupleHandler());
 	}
 
 	/* (non-Javadoc)
@@ -1303,7 +1306,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * Get the result buffer
 	 * @return
 	 */
-	public Map<Short, List<Tuple>> getResultBuffer() {
+	public Map<Short, List<PagedTransferableEntity>> getResultBuffer() {
 		return resultBuffer;
 	}
 
