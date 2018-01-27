@@ -52,7 +52,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		protected final BlockingQueue<Tuple> tupleQueue = new LinkedBlockingQueue<Tuple>(QUEUE_SIZE);
 		
 		/**
-		 * The amount of seen terminals, the iterator is exaustet, 
+		 * The amount of seen terminals, the iterator is exhausted, 
 		 * when all producers are terminated and the queue is empty
 		 */
 		protected int seenTerminals = 0;
@@ -68,7 +68,7 @@ public class TupleListFuture extends OperationFutureImpl<List<Tuple>> implements
 		protected Tuple nextTuple = null;
 		
 		/**
-		 * The number of results, that needs to be queired
+		 * The number of results, that needs to be queried
 		 */
 		protected final int futuresToQuery;
 		
