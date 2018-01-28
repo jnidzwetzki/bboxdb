@@ -89,7 +89,7 @@ public class IndexedSpatialJoinOperator implements Operator {
 				final List<String> tupleStoreNames = tupleFromStreamSource.getTupleStoreNames();
 				final List<Tuple> tuples = tupleFromStreamSource.getTuples();
 				
-				tupleStoreNames.add(indexReader.getTupleStoreName().getFullname());
+				tupleStoreNames.add(indexReader.getTupleStoreName().getFullnameWithoutPrefix());
 				tuples.add(nextCandidateTuple);
 
 				return new JoinedTuple(tuples, tupleStoreNames);
