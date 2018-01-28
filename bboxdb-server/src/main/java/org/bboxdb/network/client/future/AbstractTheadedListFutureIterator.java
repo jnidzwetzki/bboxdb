@@ -115,7 +115,7 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 			public void run() {
 
 				try {
-					final List<?> tupleList = abstractLisFuture.get(resultId);
+					final List<T> tupleList = abstractLisFuture.get(resultId);
 					
 					addTupleListToQueue(tupleList);
 								
@@ -139,6 +139,7 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 			 * @throws ExecutionException 
 			 * @throws InterruptedException 
 			 */
+			@SuppressWarnings("unchecked")
 			protected void handleAdditionalPages() throws InterruptedException, ExecutionException {
 				final BBoxDBClient bboxdbClient = abstractLisFuture.getConnectionForResult(resultId);
 				final short queryRequestId = abstractLisFuture.getRequestId(resultId);
@@ -148,9 +149,9 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 					return;
 				}
 				
-				TupleListFuture nextPage = null;
+				AbstractListFuture<T> nextPage = null;
 				do {
-					 nextPage = (TupleListFuture) bboxdbClient.getNextPage(queryRequestId);
+					 nextPage = (AbstractListFuture<T>) bboxdbClient.getNextPage(queryRequestId);
 
 					 nextPage.waitForAll();
 
@@ -175,10 +176,8 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 			 * @param tupleList
 			 * @throws InterruptedException
 			 */
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			protected void addTupleListToQueue(final List tupleList) throws InterruptedException {
-				for(final Object object : tupleList) {
-					final T element = (T) object;
+			protected void addTupleListToQueue(final List<T> tupleList) throws InterruptedException {
+				for(final T element : tupleList) {
 					tupleQueue.put(element);
 				}
 			}
