@@ -32,7 +32,7 @@ import org.bboxdb.storage.util.EntityDuplicateRemover;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ThreadedTupleListFutureIterator implements CloseableIterator<Tuple>{
+public class ThreadedTupleListFutureIterator implements CloseableIterator<Tuple> {
 	
 	/**
 	 * The size of the transfer queue
@@ -42,7 +42,7 @@ public class ThreadedTupleListFutureIterator implements CloseableIterator<Tuple>
 	/**
 	 * The transfer queue
 	 */
-	protected final BlockingQueue<Tuple> tupleQueue = new LinkedBlockingQueue<Tuple>(QUEUE_SIZE);
+	protected final static BlockingQueue<Tuple> tupleQueue = buildQueueTerminal();
 	
 	/**
 	 * The amount of seen terminals, the iterator is exhausted, 
@@ -95,6 +95,14 @@ public class ThreadedTupleListFutureIterator implements CloseableIterator<Tuple>
 		for(int i = 0; i < tupleListFuture.getNumberOfResultObjets(); i++) {
 			setupProducer(i);
 		}
+	}
+	
+	/**
+	 * Build the queue terminal
+	 * @return
+	 */
+	private static LinkedBlockingQueue<Tuple> buildQueueTerminal() {
+		return new LinkedBlockingQueue<Tuple>(QUEUE_SIZE);
 	}
 	
 	/**
