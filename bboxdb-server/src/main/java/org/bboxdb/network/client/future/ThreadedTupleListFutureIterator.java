@@ -42,7 +42,7 @@ public class ThreadedTupleListFutureIterator implements CloseableIterator<Tuple>
 	/**
 	 * The transfer queue
 	 */
-	protected final static BlockingQueue<Tuple> tupleQueue = buildQueueTerminal();
+	protected final BlockingQueue<Tuple> tupleQueue = new LinkedBlockingQueue<Tuple>(QUEUE_SIZE);
 	
 	/**
 	 * The amount of seen terminals, the iterator is exhausted, 
@@ -53,7 +53,7 @@ public class ThreadedTupleListFutureIterator implements CloseableIterator<Tuple>
 	/**
 	 * The terminal (or poison) element
 	 */
-	protected final static Tuple QUEUE_TERMINAL = new Tuple("", BoundingBox.EMPTY_BOX, "".getBytes());
+	protected final static Tuple QUEUE_TERMINAL = buildQueueTerminal();
 	
 	/**
 	 * The next tuple for the next operation
@@ -101,8 +101,8 @@ public class ThreadedTupleListFutureIterator implements CloseableIterator<Tuple>
 	 * Build the queue terminal
 	 * @return
 	 */
-	private static LinkedBlockingQueue<Tuple> buildQueueTerminal() {
-		return new LinkedBlockingQueue<Tuple>(QUEUE_SIZE);
+	private static Tuple buildQueueTerminal() {
+		return new Tuple("", BoundingBox.EMPTY_BOX, "".getBytes());
 	}
 	
 	/**
