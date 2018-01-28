@@ -17,15 +17,18 @@
  *******************************************************************************/
 package org.bboxdb.network;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
+import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.junit.Assert;
@@ -263,17 +266,58 @@ public class NetworkQueryHelper {
 		Assert.assertFalse(resultCreate.isFailed());
 		
 		// Create table1
+		System.out.println("Create table 1");
 		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table1, new TupleStoreConfiguration());
 		resultCreateTable1.waitForAll();
 		Assert.assertFalse(resultCreateTable1.isFailed());
 		
+		System.out.println("Create table 2");
 		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(table2, new TupleStoreConfiguration());
 		resultCreateTable2.waitForAll();
 		Assert.assertFalse(resultCreateTable2.isFailed());
-		
-		
-		System.out.println("=== End Execute join");
+				
+		// Insert tuples
+		System.out.println("Insert tuple 1");
+		final Tuple tuple1 = new Tuple("abc", new BoundingBox(1.0, 2.0, 1.0, 2.0), "abc".getBytes());
+		final EmptyResultFuture insertResult1 = bboxDBClient.insertTuple(table1, tuple1);
+		insertResult1.waitForAll();
+		Assert.assertFalse(insertResult1.isFailed());
+		Assert.assertTrue(insertResult1.isDone());
 
+		System.out.println("Insert tuple 2");
+		final Tuple tuple2 = new Tuple("def", new BoundingBox(1.5, 2.5, 1.5, 2.5), "abc".getBytes());
+		final EmptyResultFuture insertResult2 = bboxDBClient.insertTuple(table1, tuple2);
+		insertResult2.waitForAll();
+		Assert.assertFalse(insertResult2.isFailed());
+		Assert.assertTrue(insertResult2.isDone());
+
+		System.out.println("Insert tuple 3");
+		final Tuple tuple3 = new Tuple("123", new BoundingBox(0.0, 5.0, 0.0, 5.0), "abc".getBytes());
+		final EmptyResultFuture insertResult3 = bboxDBClient.insertTuple(table2, tuple3);
+		insertResult3.waitForAll();
+		Assert.assertFalse(insertResult3.isFailed());
+		Assert.assertTrue(insertResult3.isDone());
+		
+		Thread.sleep(10000);
+		
+		// Execute the join
+		final JoinedTupleListFuture joinResult = bboxDBClient.queryJoin(Arrays.asList(table1, table2), new BoundingBox(0.0, 10.0, 0.0, 10.0));
+		joinResult.waitForAll();
+		final List<JoinedTuple> resultList = Lists.newArrayList(joinResult.iterator());
+
+		System.out.println(resultList);
+		Assert.assertEquals(2, resultList.size());
+		Assert.assertEquals(2, resultList.get(0).getNumberOfTuples());
+		Assert.assertEquals(table1, resultList.get(0).getTupleStoreName(0));
+		Assert.assertEquals(table2, resultList.get(0).getTupleStoreName(1));
+		Assert.assertEquals(new BoundingBox(1.0, 2.0, 1.0, 2.0), resultList.get(0).getBoundingBox());
+
+		Assert.assertEquals(2, resultList.get(1).getNumberOfTuples());
+		Assert.assertEquals(table1, resultList.get(1).getTupleStoreName(0));
+		Assert.assertEquals(table2, resultList.get(1).getTupleStoreName(1));
+		Assert.assertEquals(new BoundingBox(1.5, 2.5, 1.5, 2.5), resultList.get(1).getBoundingBox());
+
+		System.out.println("=== End Execute join");
 	}
 
 }

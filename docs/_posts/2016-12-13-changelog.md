@@ -6,7 +6,8 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 ### Version 0.4.1 (Stable) - TBA
-- New Feature: Implemented the spatial join
+- New Feature: Implemented the spatial join operation
+- New Feature: Added Joinable Tuple to the network protocol
 - Improvement: Re-implemented server side query processor
 - Bugfix: Don't include non overlapping tuple versions in the bounding box query
 - Bugfix: Fixed NPE in closeable helper
