@@ -17,7 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -105,5 +107,64 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 		
 		return connections.get(resultId);
 	}
+
+	/**
+	 * Get a list with all results
+	 * @return
+	 */
+	protected List<T> getListWithAllResults() {
+		final List<T> allTuples = new ArrayList<>();
 		
+		for(int i = 0; i < getNumberOfResultObjets(); i++) {
+			try {
+				final List<T> tupleResult = get(i);
+				
+				if(tupleResult != null) {
+					for(final T tuple : tupleResult) {
+						allTuples.add(tuple);
+					}
+				}
+				
+			} catch (Exception e) {
+				logger.error("Got exception while iterating", e);
+			}
+		}
+		return allTuples;
+	}
+	
+	/**
+	 * Return a iterator for all tuples
+	 * @return
+	 */
+	@Override
+	public Iterator<T> iterator() {
+		if(! isDone() ) {
+			throw new IllegalStateException("Future is not done, unable to build iterator");
+		}
+		
+		if( isFailed() ) {
+			throw new IllegalStateException("The future has failed, unable to build iterator");
+		}
+		
+		// Is at least result paged? So, we use the threaded iterator 
+		// that requests more tuples/pages in the background
+		final boolean pagedResult = resultComplete.values().stream().anyMatch(e -> e == false);
+		
+		if(pagedResult) {
+			return createThreadedIterator();
+		} else {
+			return createSimpleIterator();
+		}	
+	}
+	
+	/**
+	 * Create the threaded iterator
+	 */
+	protected abstract Iterator<T> createThreadedIterator();
+
+	/**
+	 * Create the simple iterator
+	 */
+	protected abstract Iterator<T> createSimpleIterator();
+
 }

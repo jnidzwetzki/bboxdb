@@ -18,6 +18,7 @@
 package org.bboxdb.network.client.future;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.bboxdb.storage.entity.JoinedTuple;
 
@@ -32,9 +33,15 @@ public class JoinedTupleListFuture extends AbstractListFuture<JoinedTuple>{
 	}
 
 	@Override
-	public Iterator<JoinedTuple> iterator() {
+	protected Iterator<JoinedTuple> createThreadedIterator() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	protected Iterator<JoinedTuple> createSimpleIterator() {
+		final List<JoinedTuple> allTuples = getListWithAllResults();
+		return allTuples.iterator();
 	}
 
 }
