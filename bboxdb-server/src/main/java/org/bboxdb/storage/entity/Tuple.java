@@ -220,4 +220,10 @@ public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {
 					new String(getDataBytes()), getVersionTimestamp());
 		}
 	}
+
+	@Override
+	public EntityIdentifier getEntityIdentifier() {
+		return new TupleEntityIdentifier(key, versionTimestamp);
+	}
+	
 }

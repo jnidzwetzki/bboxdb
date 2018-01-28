@@ -156,5 +156,10 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 	
 		return sb.toString();
 	}
+
+	@Override
+	public EntityIdentifier getEntityIdentifier() {
+		return new JoinedTupleIdentifier(tuples, tupleStoreNames);
+	}
 	
 }

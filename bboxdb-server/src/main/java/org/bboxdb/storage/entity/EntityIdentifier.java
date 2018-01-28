@@ -17,11 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
-public interface PagedTransferableEntity {
+public interface EntityIdentifier {
 
-	/**
-	 * Get the entity identifier
-	 * @return
-	 */
-	public EntityIdentifier getEntityIdentifier();
 }

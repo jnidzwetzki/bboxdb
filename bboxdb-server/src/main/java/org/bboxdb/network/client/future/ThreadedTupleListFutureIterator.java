@@ -28,7 +28,7 @@ import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.util.CloseableIterator;
-import org.bboxdb.storage.util.TupleDuplicateRemover;
+import org.bboxdb.storage.util.EntityDuplicateRemover;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +80,7 @@ public class ThreadedTupleListFutureIterator implements CloseableIterator<Tuple>
 	/**
 	 * The tuple duplicate remover
 	 */
-	protected final TupleDuplicateRemover tupleDuplicateRemover = new TupleDuplicateRemover();
+	protected final EntityDuplicateRemover tupleDuplicateRemover = new EntityDuplicateRemover();
 	
 	/**
 	 * The Logger
@@ -222,7 +222,7 @@ public class ThreadedTupleListFutureIterator implements CloseableIterator<Tuple>
 			}
 			
 			// Tuple was received from another instance
-			if(tupleDuplicateRemover.isTupleAlreadySeen(nextTuple)) {
+			if(tupleDuplicateRemover.isElementAlreadySeen(nextTuple)) {
 				nextTuple = null;
 			}
 		}

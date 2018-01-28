@@ -15,13 +15,29 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.entity;
+package org.bboxdb.storage.util;
 
-public interface PagedTransferableEntity {
+import java.util.HashSet;
+import java.util.Set;
+
+import org.bboxdb.storage.entity.EntityIdentifier;
+import org.bboxdb.storage.entity.PagedTransferableEntity;
+
+public class EntityDuplicateRemover {
 
 	/**
-	 * Get the entity identifier
-	 * @return
+	 * The seen keys and versions
 	 */
-	public EntityIdentifier getEntityIdentifier();
+	protected Set<EntityIdentifier> seenKeysAndVersions = new HashSet<>();
+	
+	public boolean isElementAlreadySeen(final PagedTransferableEntity entity) {
+		
+		if(! seenKeysAndVersions.contains(entity.getEntityIdentifier())) {
+			seenKeysAndVersions.add(entity.getEntityIdentifier());
+			return false;
+		}
+		
+		return true;
+	}
+	
 }
