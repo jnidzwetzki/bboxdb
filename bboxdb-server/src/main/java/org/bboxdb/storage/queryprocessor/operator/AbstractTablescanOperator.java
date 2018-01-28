@@ -189,7 +189,7 @@ public abstract class AbstractTablescanOperator implements Operator {
 												
 						filterTupleVersions(tupleVersions);
 						
-						final String tupelStorename = tupleStoreManager.getTupleStoreName().getFullname();
+						final String tupelStorename = tupleStoreManager.getTupleStoreName().getFullnameWithoutPrefix();
 
 						tupleVersions
 							.stream()
