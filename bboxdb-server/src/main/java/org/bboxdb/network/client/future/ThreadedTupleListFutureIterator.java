@@ -22,7 +22,7 @@ import org.bboxdb.storage.entity.Tuple;
 
 public class ThreadedTupleListFutureIterator extends AbstractTheadedListFutureIterator<Tuple> {
 	
-	public ThreadedTupleListFutureIterator(AbstractListFuture<Tuple> abstractListFuture) {
+	public ThreadedTupleListFutureIterator(final AbstractListFuture<Tuple> abstractListFuture) {
 		super(abstractListFuture);
 	}
 

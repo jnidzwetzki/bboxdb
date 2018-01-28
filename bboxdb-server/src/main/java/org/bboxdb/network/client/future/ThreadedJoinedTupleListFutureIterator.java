@@ -17,30 +17,19 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList;
 
 import org.bboxdb.storage.entity.JoinedTuple;
 
-public class JoinedTupleListFuture extends AbstractListFuture<JoinedTuple>{
-
-	public JoinedTupleListFuture(final int numberOfFutures) {
-		super(numberOfFutures);
-	}
+public class ThreadedJoinedTupleListFutureIterator extends AbstractTheadedListFutureIterator<JoinedTuple> {
 	
-	public JoinedTupleListFuture() {
-		super();
+	public ThreadedJoinedTupleListFutureIterator(final AbstractListFuture<JoinedTuple> abstractListFuture) {
+		super(abstractListFuture);
 	}
 
 	@Override
-	protected Iterator<JoinedTuple> createThreadedIterator() {
-		return new ThreadedJoinedTupleListFutureIterator(this);
-	}
-
-	@Override
-	protected Iterator<JoinedTuple> createSimpleIterator() {
-		final List<JoinedTuple> allTuples = getListWithAllResults();
-		return allTuples.iterator();
+	protected JoinedTuple buildQueueTerminal() {
+		return new JoinedTuple(new ArrayList<>(), new ArrayList<>());
 	}
 
 }
