@@ -132,4 +132,22 @@ public class TestBBoxDBCluster {
 		System.out.println("=== End cluster testInsertAndDelete");
 
 	}
+	
+	
+	/**
+	 * Test the tuple join
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	@Test
+	public void testJoin() throws InterruptedException, ExecutionException, BBoxDBException {
+		System.out.println("=== Running cluster testJoin");
+
+		final BBoxDB bboxdbClient = connectToServer();
+
+		NetworkQueryHelper.executeJoinQuery(bboxdbClient);
+		
+		System.out.println("=== End cluster testJoin");
+	}
 }

@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
@@ -191,6 +192,23 @@ public class TestNetworkCommunication {
 		final BBoxDBClient bboxDBClient = connectToServer();
 
 		NetworkQueryHelper.testBoundingBoxQuery(bboxDBClient);
+	}
+	
+	/**
+	 * Test the tuple join
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	@Test
+	public void testJoin() throws InterruptedException, ExecutionException, BBoxDBException {
+		System.out.println("=== Running network testJoin");
+
+		final BBoxDB bboxdbClient = connectToServer();
+
+		NetworkQueryHelper.executeJoinQuery(bboxdbClient);
+		
+		System.out.println("=== End network testJoin");
 	}
 	
 	/**

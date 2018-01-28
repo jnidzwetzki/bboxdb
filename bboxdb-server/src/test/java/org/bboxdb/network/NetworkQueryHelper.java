@@ -157,6 +157,12 @@ public class NetworkQueryHelper {
 		System.out.println("=== End testInsertAndBoundingBoxQuery");
 	}
 
+	/**
+	 * Inset and delete tuple
+	 * @param bboxDBClient
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
 	public static void testInsertAndDeleteTuple(final BBoxDB bboxDBClient) 
 			throws BBoxDBException, InterruptedException {
 		
@@ -226,4 +232,48 @@ public class NetworkQueryHelper {
 		
 		System.out.println("=== End testInsertAndDelete");
 	}
+
+	/**
+	 * Execute a join
+	 * @param bboxDBClient
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	public static void executeJoinQuery(final BBoxDB bboxDBClient) 
+			throws InterruptedException, BBoxDBException {
+		
+		System.out.println("=== Execute join");
+		
+		final String distributionGroup = "2_testgroupjoin"; 
+		final String table1 = distributionGroup + "_table1";
+		final String table2 = distributionGroup + "_table2";
+		
+		// Delete distribution group
+		System.out.println("Delete distribution group");
+		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
+		resultDelete.waitForAll();
+		Assert.assertFalse(resultDelete.isFailed());
+		
+		// Create distribution group
+		System.out.println("Create distribution group");
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
+				CONFIGURATION);
+		
+		resultCreate.waitForAll();
+		Assert.assertFalse(resultCreate.isFailed());
+		
+		// Create table1
+		final EmptyResultFuture resultCreateTable1 = bboxDBClient.createTable(table1, new TupleStoreConfiguration());
+		resultCreateTable1.waitForAll();
+		Assert.assertFalse(resultCreateTable1.isFailed());
+		
+		final EmptyResultFuture resultCreateTable2 = bboxDBClient.createTable(table2, new TupleStoreConfiguration());
+		resultCreateTable2.waitForAll();
+		Assert.assertFalse(resultCreateTable2.isFailed());
+		
+		
+		System.out.println("=== End Execute join");
+
+	}
+
 }
