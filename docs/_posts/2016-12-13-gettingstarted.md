@@ -126,11 +126,13 @@ After connecting to BBoxDB, the GUI shows all discovered distribution groups on 
 BBoxDB can store a history for each tuple. The history stores a certain amount of old values for each tuple. To use this function, the corresponding table must be allowed to contain duplicates for keys. To prevent the tables from becoming infinitely large, BBoxDB can automatically delete old tuples. This is done, when more then a certain amount of _versions_ for a key contained in the table or then the tuples become older than a certain amount of time (_time to live_).
 
 In the following example, a table is created that contains up to three versions for a certain key:
+
 ```bash
 $ $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup 2_testgroup -replicationfactor 1
 $ $BBOXDB_HOME/bin/cli.sh -action create_table -table 2_testgroup_data -duplicates true -versions 3
 ```
 Now five versions for the key are inserted with the values _value1_, _value2_, _value3_, _value4_ and _value5_:
+
 ```bash
 $ $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_data -key key1 -bbox 1:2,1:2 -value value1
 $ $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_data -key key1 -bbox 1:2,1:2 -value value2
@@ -139,7 +141,8 @@ $ $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_data -key key1 -bbox
 $ $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_data -key key1 -bbox 1:2,1:2 -value value5
 ```
 
-The key query retuns the three most recent versions for the key:
+The key query returns the three most recent versions for the key:
+
 ```bash
 $ $BBOXDB_HOME/bin/cli.sh -action query -table 2_testgroup_data -key key1 
 Connecting to BBoxDB cluster... [Established]
@@ -196,6 +199,72 @@ Executing continuous bounding box query...
 Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value1, version timestamp=1510325620579000
 Key key3, BoundingBox=[2.0:10.0,2.0:10.0], value=value3, version timestamp=1510325620643000
 ```
+
+# Executing a join
+In this example, a join on two tables is executed. All tuples of the tables `2_testgroup_table1` and `2_testgroup_table2` are reported by the join query. First of all, both tables are created and some tuples are inserted:
+
+```bash
+$ $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup 2_testgroup -replicationfactor 1
+$ $BBOXDB_HOME/bin/cli.sh -action create_table -table 2_testgroup_table1
+$ $BBOXDB_HOME/bin/cli.sh -action create_table -table 2_testgroup_table2
+
+# Tuples of table1
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_table1 -key key1 -bbox 1:2,1:2 -value value1
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_table1 -key key2 -bbox 5:7,5:7 -value value2
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_table1 -key key3 -bbox 10:12,10:12 -value value3
+
+# Tuples of table2
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_table2 -key key1 -bbox 1:20,1:20 -value value1
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table 2_testgroup_table2 -key key2 -bbox 1:3,1:3 -value value2
+```
+
+After the data is prepared, the join can be executed:
+
+```bash
+$ $BBOXDB_HOME/bin/cli.sh -action join -table 2_testgroup_table1:2_testgroup_table2 -bbox 0:20:0:20
+Executing join query...
+===============
+Joined bounding box: [1.0:2.0,1.0:2.0]
+
+Table: 2_testgroup_table1
+Tuple: Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value1, version timestamp=1517232010086000
+
+Table: 2_testgroup_table2
+Tuple: Key key1, BoundingBox=[1.0:20.0,1.0:20.0], value=value1, version timestamp=1517232044346000
+===============
+
+===============
+Joined bounding box: [1.0:2.0,1.0:2.0]
+
+Table: 2_testgroup_table1
+Tuple: Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value1, version timestamp=1517232010086000
+
+Table: 2_testgroup_table2
+Tuple: Key key2, BoundingBox=[1.0:3.0,1.0:3.0], value=value2, version timestamp=1517232048595000
+===============
+
+===============
+Joined bounding box: [5.0:7.0,5.0:7.0]
+
+Table: 2_testgroup_table1
+Tuple: Key key2, BoundingBox=[5.0:7.0,5.0:7.0], value=value2, version timestamp=1517232030282000
+
+Table: 2_testgroup_table2
+Tuple: Key key1, BoundingBox=[1.0:20.0,1.0:20.0], value=value1, version timestamp=1517232044346000
+===============
+
+===============
+Joined bounding box: [10.0:12.0,10.0:12.0]
+
+Table: 2_testgroup_table1
+Tuple: Key key3, BoundingBox=[10.0:12.0,10.0:12.0], value=value3, version timestamp=1517232033667000
+
+Table: 2_testgroup_table2
+Tuple: Key key1, BoundingBox=[1.0:20.0,1.0:20.0], value=value1, version timestamp=1517232044346000
+===============
+
+Join done
+``` 
 
 # What's Next
 
