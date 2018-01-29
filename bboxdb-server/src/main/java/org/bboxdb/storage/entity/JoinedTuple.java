@@ -145,7 +145,7 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 	public String getFormatedString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("===============\n");
-		sb.append("Joined bounding box: " + getBoundingBox().toCompactString());
+		sb.append("Joined bounding box: " + getBoundingBox().toCompactString() + "\n\n");
 		
 		for(int i = 0; i < getNumberOfTuples(); i++) {
 			sb.append("Table: " + getTupleStoreName(i) + "\n");
