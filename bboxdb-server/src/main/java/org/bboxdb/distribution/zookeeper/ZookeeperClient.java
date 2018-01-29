@@ -120,7 +120,8 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 			final boolean waitResult = connectLatch.await(ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 
 			if (waitResult == false) {
-				throw new ZookeeperException("Unable to connect in " + ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC +" seconds");
+				throw new ZookeeperException("Unable to connect in " + ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC 
+						+" seconds. Connect string is: " + connectionString);
 			}
 
 			createDirectoryStructureIfNeeded();
