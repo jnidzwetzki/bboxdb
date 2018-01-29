@@ -75,7 +75,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 	/**
 	 * The connect timeout in seconds
 	 */
-	protected final static int ZOOKEEPER_CONNECT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5);
+	protected final static int ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC = 5;
 
 	/**
 	 * The logger
@@ -117,10 +117,10 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 				}
 			});
 
-			final boolean waitResult = connectLatch.await(ZOOKEEPER_CONNECT_TIMEOUT, TimeUnit.SECONDS);
+			final boolean waitResult = connectLatch.await(ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 
 			if (waitResult == false) {
-				throw new ZookeeperException("Unable to connect in " + ZOOKEEPER_CONNECT_TIMEOUT +" seconds");
+				throw new ZookeeperException("Unable to connect in " + ZOOKEEPER_CONNECT_TIMEOUT_IN_SEC +" seconds");
 			}
 
 			createDirectoryStructureIfNeeded();
