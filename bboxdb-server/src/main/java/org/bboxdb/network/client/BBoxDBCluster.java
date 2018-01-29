@@ -471,23 +471,35 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	@Override
 	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final BoundingBox boundingBox) throws BBoxDBException {
-		if(membershipConnectionService.getNumberOfConnections() == 0) {
-			throw new BBoxDBException("queryTime called, but connection list is empty");
+		try {
+			if(membershipConnectionService.getNumberOfConnections() == 0) {
+				throw new BBoxDBException("queryJoin called, but connection list is empty");
+			}
+
+			if(logger.isDebugEnabled()) {
+				logger.debug("Query by for join {} on tables {}", boundingBox, tableNames);
+			}
+
+			final TupleStoreName sstableName = new TupleStoreName(tableNames.get(0));
+			final SpacePartitioner distributionAdapter 
+				= SpacePartitionerCache.getSpaceParitionerForTableName(sstableName);
+
+			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+			
+			final Collection<RoutingHop> hops = distributionRegion.getRoutingHopsForRead(boundingBox);
+			
+			final JoinedTupleListFuture future = new JoinedTupleListFuture();
+
+			hops.stream()
+				.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
+				.map(c -> c.queryJoin(tableNames, boundingBox))
+				.filter(Objects::nonNull)
+				.forEach(f -> future.merge(f));
+
+			return future;
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
 		}
-
-		if(logger.isDebugEnabled()) {
-			logger.debug("Query by for join {} on tables {}", boundingBox, tableNames);
-		}
-
-		final JoinedTupleListFuture future = new JoinedTupleListFuture();
-
-		membershipConnectionService.getAllConnections()
-		.stream()
-		.map(c -> c.queryJoin(tableNames, boundingBox))
-		.filter(Objects::nonNull)
-		.forEach(f -> future.merge(f));
-
-		return future;
 	}
 
 	@Override
