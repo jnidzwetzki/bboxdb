@@ -473,6 +473,18 @@ public class TestBoundingBox {
 	}
 	
 	/**
+	 * Test the intersection of two bounding boxes
+	 */
+	@Test
+	public void testIntersection6() {
+		final BoundingBox boundingBox1 = new BoundingBox(1.0d, 2.0d, 1.0d, 2.0d);
+		final BoundingBox boundingBox2 = new BoundingBox(1.0d, 3.0d, 1.0d, 3.0d);
+		
+		Assert.assertEquals(boundingBox1, boundingBox1.getIntersection(boundingBox2));
+		Assert.assertEquals(boundingBox1, boundingBox2.getIntersection(boundingBox1));
+	}
+	
+	/**
 	 * Test the is covered method
 	 */
 	@Test

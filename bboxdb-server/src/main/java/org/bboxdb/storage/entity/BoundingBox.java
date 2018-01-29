@@ -572,7 +572,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			final DoubleInterval ourInterval = getIntervalForDimension(d);
 			final DoubleInterval otherInterval = otherBox.getIntervalForDimension(d);
 			final DoubleInterval intersection = ourInterval.getIntersection(otherInterval);
-			
+
 			if(intersection == null) {
 				return EMPTY_BOX;
 			}

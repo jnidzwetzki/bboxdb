@@ -286,7 +286,7 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 					&& endIncluded == false) {
 				return null;
 			}
-			
+
 			return new DoubleInterval(otherInterval.getBegin(), end, otherInterval.isBeginIncluded(), endIncluded);
 		}
 		
@@ -296,7 +296,12 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 			return null;
 		}
 		
-		// Right overlapping
+		if(beginIncluded && otherInterval.beginIncluded) {
+			if(begin == otherInterval.getBegin()) {
+				return new DoubleInterval(begin, Math.min(getEnd(), otherInterval.getEnd()), true, true);
+			}
+		}
+	
 		return new DoubleInterval(begin, otherInterval.getEnd(), beginIncluded, otherInterval.isEndIncluded());
 	}
 	

@@ -312,6 +312,30 @@ public class TestDoubleInterval {
 		Assert.assertTrue(floatInterval1.getIntersection(floatInterval2) == null);
 	}
 	
+	
+	
+	/**
+	 * Test intersection calculation
+	 */
+	@Test
+	public void testIntersection7() {
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, true, true);
+		final DoubleInterval floatInterval2 = new DoubleInterval(1, 3, true, true);
+		Assert.assertEquals(floatInterval1, floatInterval2.getIntersection(floatInterval1));
+		Assert.assertEquals(floatInterval1, floatInterval1.getIntersection(floatInterval2));
+	}
+	
+	/**
+	 * Test intersection calculation
+	 */
+	@Test
+	public void testIntersection8() {
+		final DoubleInterval floatInterval1 = new DoubleInterval(2, 3, true, true);
+		final DoubleInterval floatInterval2 = new DoubleInterval(1, 3, true, true);
+		Assert.assertEquals(floatInterval1, floatInterval2.getIntersection(floatInterval1));
+		Assert.assertEquals(floatInterval1, floatInterval1.getIntersection(floatInterval2));
+	}
+	
 	/**
 	 * The the covering method
 	 */
