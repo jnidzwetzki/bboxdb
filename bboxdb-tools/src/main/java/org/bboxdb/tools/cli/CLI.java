@@ -380,6 +380,11 @@ public class CLI implements Runnable, AutoCloseable {
 			System.err.println("Query should be performed, but no table was specified");
 			printHelpAndExit();
 		}
+		
+		if(! line.hasOption(CLIParameter.BOUNDING_BOX)) {
+			System.err.println("Bounding box is not given");
+			System.exit(-1);
+		}
 				
 		try {
 			final String tables = line.getOptionValue(CLIParameter.TABLE);
