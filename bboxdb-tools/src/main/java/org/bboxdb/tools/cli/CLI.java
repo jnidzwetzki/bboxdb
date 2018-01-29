@@ -130,26 +130,28 @@ public class CLI implements Runnable, AutoCloseable {
 	}
 	
 	public void run() {
-		// Default values
+		// Default Zookeeper values
 		String zookeeperHost = "localhost:2181";
-		String clustername = "mycluster";
+		String zookeeperClustername = "mycluster";
 		
 		if(line.hasOption(CLIParameter.HOST)) {
 			zookeeperHost = line.getOptionValue(CLIParameter.HOST);
 		}
 		
 		if(line.hasOption(CLIParameter.CLUSTER_NAME)) {
-			clustername = line.getOptionValue(CLIParameter.CLUSTER_NAME);
+			zookeeperClustername = line.getOptionValue(CLIParameter.CLUSTER_NAME);
 		}
 		
 		// Connect to zookeeper and BBoxDB
 		System.out.print("Connecting to BBoxDB cluster...");
 		System.out.flush();
-		bboxDbConnection = new BBoxDBCluster(zookeeperHost, clustername);
+		bboxDbConnection = new BBoxDBCluster(zookeeperHost, zookeeperClustername);
 		
 		if( ! bboxDbConnection.connect() ) {
-			System.err.println(" ERROR");
-			System.err.println("Unable to connect to the BBoxDB Server");
+			System.err.println("\n\n");
+			System.err.println("Error: Unable to connect to the BBoxDB cluster.");
+			System.err.format("Error: Did you specified the correct Zookeeper host (%s) "
+					+ "and cluster (%s)\n", zookeeperHost, zookeeperClustername);
 			System.exit(-1);
 		}
 		
