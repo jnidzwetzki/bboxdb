@@ -22,12 +22,12 @@ public class CLIParameter {
 	/**
 	 * The zookeeper host
 	 */
-	protected static final String HOST = "host";
+	protected static final String ZOOKEEPER_HOST = "host";
 
 	/**
 	 * The name of the cluster
 	 */
-	protected static final String CLUSTER_NAME = "cluster";
+	protected static final String ZOOKEEPER_CLUSTER_NAME = "cluster";
 	
 	/**
 	 * The name of the action parameter

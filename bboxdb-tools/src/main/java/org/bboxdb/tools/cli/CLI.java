@@ -134,12 +134,12 @@ public class CLI implements Runnable, AutoCloseable {
 		String zookeeperHost = "localhost:2181";
 		String zookeeperClustername = "mycluster";
 		
-		if(line.hasOption(CLIParameter.HOST)) {
-			zookeeperHost = line.getOptionValue(CLIParameter.HOST);
+		if(line.hasOption(CLIParameter.ZOOKEEPER_HOST)) {
+			zookeeperHost = line.getOptionValue(CLIParameter.ZOOKEEPER_HOST);
 		}
 		
-		if(line.hasOption(CLIParameter.CLUSTER_NAME)) {
-			zookeeperClustername = line.getOptionValue(CLIParameter.CLUSTER_NAME);
+		if(line.hasOption(CLIParameter.ZOOKEEPER_CLUSTER_NAME)) {
+			zookeeperClustername = line.getOptionValue(CLIParameter.ZOOKEEPER_CLUSTER_NAME);
 		}
 		
 		// Connect to zookeeper and BBoxDB
@@ -150,8 +150,10 @@ public class CLI implements Runnable, AutoCloseable {
 		if( ! bboxDbConnection.connect() ) {
 			System.err.println("\n\n");
 			System.err.println("Error: Unable to connect to the BBoxDB cluster.");
-			System.err.format("Error: Did you specified the correct Zookeeper host (%s) "
-					+ "and cluster (%s)\n", zookeeperHost, zookeeperClustername);
+			System.err.format("Error: Did you specified the correct Zookeeper host (%s=%s) "
+					+ "and cluster (%s=%s)?\n", CLIParameter.ZOOKEEPER_HOST, zookeeperHost, 
+					CLIParameter.ZOOKEEPER_CLUSTER_NAME, zookeeperClustername);
+			
 			System.exit(-1);
 		}
 		
@@ -931,7 +933,7 @@ public class CLI implements Runnable, AutoCloseable {
 		options.addOption(action);
 		
 		// Host
-		final Option host = Option.builder(CLIParameter.HOST)
+		final Option host = Option.builder(CLIParameter.ZOOKEEPER_HOST)
 				.hasArg()
 				.argName("host")
 				.desc("The Zookeeper endpoint to connect to (default: 127.0.0.1:2181)")
@@ -939,7 +941,7 @@ public class CLI implements Runnable, AutoCloseable {
 		options.addOption(host);
 		
 		// Cluster name
-		final Option clusterName = Option.builder(CLIParameter.CLUSTER_NAME)
+		final Option clusterName = Option.builder(CLIParameter.ZOOKEEPER_CLUSTER_NAME)
 				.hasArg()
 				.argName("clustername")
 				.desc("The name of the cluster (default: mycluster)")
