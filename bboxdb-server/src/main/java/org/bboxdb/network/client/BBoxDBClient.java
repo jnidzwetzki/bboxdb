@@ -555,7 +555,7 @@ public class BBoxDBClient implements BBoxDB {
 				.collect(Collectors.toList());
 
 		if(connectionHop.isEmpty()) {
-			throw new BBoxDBException("Unable to find host for this connection in global routing list: " 
+			throw new BBoxDBException("Unable to find host " + serverAddress + " in global routing list: " 
 					+ hops);
 		}
 
