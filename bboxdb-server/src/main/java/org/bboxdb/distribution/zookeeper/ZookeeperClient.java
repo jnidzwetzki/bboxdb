@@ -75,7 +75,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 	/**
 	 * The connect timeout in seconds
 	 */
-	protected final static int ZOOKEEPER_CONNECT_TIMEOUT = 30;
+	protected final static int ZOOKEEPER_CONNECT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5);
 
 	/**
 	 * The logger
@@ -187,9 +187,12 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 	 */
 	public List<String> getChildren(final String path, final Watcher watcher)
 			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		if(! serviceState.isInRunningState()) {
+			throw new ZookeeperException("Zookeeper is not connected");
+		}
 
 		try {
-
 			if (zookeeper.exists(path, false) == null) {
 				return null;
 			}

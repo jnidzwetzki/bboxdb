@@ -13,6 +13,7 @@ order: 1
 - Bugfix: Don't include non overlapping tuple versions in the bounding box query
 - Bugfix: Fixed NPE in closeable helper
 - Bugfix: Fixed a bug in the interval overlapping calculation
+- Bugfix: Handle zookeeper connect failed
 
 ### Version 0.4.0 (Stable) - 21.01.2018
 - New Feature: Size in byte and tuples are stored in Zookeeper
