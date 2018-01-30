@@ -102,6 +102,7 @@ import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.ByteStreams;
 
 public class BBoxDBClient implements BBoxDB {
@@ -164,7 +165,7 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * The default timeout
 	 */
-	protected static final long DEFAULT_TIMEOUT = TimeUnit.SECONDS.toMillis(30);
+	public static final long DEFAULT_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(30);
 
 	/**
 	 * The connection state
@@ -216,6 +217,11 @@ public class BBoxDBClient implements BBoxDB {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(BBoxDBClient.class);
+	
+	@VisibleForTesting
+	public BBoxDBClient() {
+		this(new InetSocketAddress("localhost", 1234));
+	}
 
 	public BBoxDBClient(final InetSocketAddress serverAddress) {
 
@@ -386,7 +392,7 @@ public class BBoxDBClient implements BBoxDB {
 			sendPackageToServer(requestPackage, operationFuture);
 		}
 
-		settlePendingCalls();
+		settlePendingCalls(DEFAULT_TIMEOUT_MILLIS);
 
 		terminateConnection();
 	}
@@ -394,26 +400,26 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * Settle all pending calls
 	 */
-	protected void settlePendingCalls() {
+	public void settlePendingCalls(final long shutdownTimeMillis) {
 
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
 
-			if(pendingCalls.isEmpty()) {
+			if(getInFlightCalls() == 0) {
 				return;
 			}
 
 			logger.info("Waiting up to {} seconds for pending requests to settle", 
-					TimeUnit.MILLISECONDS.toSeconds(DEFAULT_TIMEOUT));		
+					TimeUnit.MILLISECONDS.toSeconds(shutdownTimeMillis));		
 
 			final long shutdownStarted = System.currentTimeMillis();
 
-			while(! pendingCalls.keySet().isEmpty()) {
+			while(getInFlightCalls() > 0) {
 				try {
 					final long shutdownDuration = System.currentTimeMillis() - shutdownStarted;
-					final long timeoutLeft = DEFAULT_TIMEOUT - shutdownDuration;
+					final long timeoutLeft = shutdownTimeMillis - shutdownDuration;
 
-					if(DEFAULT_TIMEOUT <= 0) {
+					if(timeoutLeft <= 0) {
 						break;
 					}
 
@@ -1175,6 +1181,12 @@ public class BBoxDBClient implements BBoxDB {
 		}	
 	}
 
+	/**
+	 * Register a new package callback
+	 * @param requestPackage
+	 * @param future
+	 * @return
+	 */
 	protected short registerPackageCallback(final NetworkRequestPackage requestPackage, final OperationFuture future) {
 		final short sequenceNumber = requestPackage.getSequenceNumber();
 		future.setRequestId(0, sequenceNumber);
