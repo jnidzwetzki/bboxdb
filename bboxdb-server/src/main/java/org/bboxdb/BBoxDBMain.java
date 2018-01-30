@@ -119,7 +119,7 @@ public class BBoxDBMain {
 	 * Start all services
 	 */
 	public void start() {
-		logger.info("Starting up the BBoxDB - version: {}", Const.VERSION);	
+		logger.info("Starting up BBoxDB - version: {}", Const.VERSION);	
 		
 		if (! runBaseChecks() ) {
 			logger.error("Some of the base checks have failed, exiting");
