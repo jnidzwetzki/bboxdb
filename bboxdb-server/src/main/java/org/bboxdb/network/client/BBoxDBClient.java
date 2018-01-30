@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -225,7 +226,7 @@ public class BBoxDBClient implements BBoxDB {
 
 	public BBoxDBClient(final InetSocketAddress serverAddress) {
 
-		this.serverAddress = serverAddress;
+		this.serverAddress = Objects.requireNonNull(serverAddress);
 
 		// External IP is used to create proper package routing
 		if(serverAddress.getAddress().isLoopbackAddress()) {
