@@ -158,7 +158,7 @@ public class BBoxDBMain {
 		final boolean memoryCleanerOk = UnsafeMemoryHelper.isDirectMemoryUnmapperAvailable();
 		
 		if(memoryCleanerOk == false) {
-			logger.error("Cannot initialize un-mmaper. Please use a Oracle JVM");
+			logger.error("Cannot initialize memory un-mmaper. Please use a Oracle JVM");
 			return false;
 		}
 		
