@@ -1153,7 +1153,7 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		final NetworkRequestPackage compressionEnvelopeRequest 
-		= new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
+			= new CompressionEnvelopeRequest(NetworkConst.COMPRESSION_TYPE_GZIP, packagesToWrite);
 
 		try {
 			writePackageToSocket(compressionEnvelopeRequest);
