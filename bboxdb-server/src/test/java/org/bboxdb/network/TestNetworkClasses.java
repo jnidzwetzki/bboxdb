@@ -326,7 +326,7 @@ public class TestNetworkClasses {
 	public void encodeAndDecodeCreateDistributionGroup() throws IOException, PackageEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final DistributionGroupConfiguration distributionGroupConfiguration = DistributionGroupConfigurationBuilder.create()
+		final DistributionGroupConfiguration distributionGroupConfiguration = DistributionGroupConfigurationBuilder.create(4)
 				.withPlacementStrategy("abc", "def")
 				.withSpacePartitioner("efg", "ijh")
 				.withMaximumRegionSize(33333)

@@ -50,6 +50,11 @@ public class ZookeeperNodeNames {
 	public static final String NAME_PREFIXQUEUE = "nameprefixqueue";
 
 	/**
+	 * Name of the dimensions node
+	 */
+	public final static String NAME_DIMENSIONS = "dimensions";
+	
+	/**
 	 * Name of the replication node
 	 */
 	public final static String NAME_REPLICATION = "replication";

@@ -62,8 +62,9 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 			final byte[] spacePartitionierBytes = distributionGroupConfiguration.getSpacePartitioner().getBytes();
 			final byte[] spacePartitionierConfigBytes = distributionGroupConfiguration.getSpacePartitionerConfig().getBytes();
 
-			final ByteBuffer bb = ByteBuffer.allocate(24);
+			final ByteBuffer bb = ByteBuffer.allocate(28);
 			bb.order(Const.APPLICATION_BYTE_ORDER);
+			bb.putInt(distributionGroupConfiguration.getDimensions());
 			bb.putShort(distributionGroupConfiguration.getReplicationFactor());
 			bb.putShort((short) groupBytes.length);
 			bb.putShort((short) placementBytes.length);
@@ -113,6 +114,7 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 			throw new PackageEncodeException("Unable to decode package");
 		}
 		
+		final int dimensions = encodedPackage.getInt();
 		final short replicationFactor = encodedPackage.getShort();
 		final short groupLength = encodedPackage.getShort();
 		final short placementLength = encodedPackage.getShort();
@@ -151,7 +153,7 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(dimensions)
 				.withPlacementStrategy(placemeneStrategy, placementConfig)
 				.withSpacePartitioner(spacePartitioner, spacePartitionerConfig)
 				.withMaximumRegionSize(maximumRegionSize)

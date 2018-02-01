@@ -74,7 +74,7 @@ public class BBoxDBClientExample {
 		}
 		
 		// Create a new distribution group
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
 				.withReplicationFactor((short) 3)
 				.build();
 		

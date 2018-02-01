@@ -52,6 +52,11 @@ public class CLIParameter {
 	/**
 	 * Replication factor
 	 */
+	protected static final String DIMENSIONS = "dimensions";
+	
+	/**
+	 * Replication factor
+	 */
 	protected static final String REPLICATION_FACTOR = "replicationfactor";
 	
 	/**

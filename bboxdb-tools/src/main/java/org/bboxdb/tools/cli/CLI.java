@@ -823,7 +823,7 @@ public class CLI implements Runnable, AutoCloseable {
 	protected void actionCreateDgroup(final CommandLine line) {
 		
 		final List<String> requiredArgs = Arrays.asList(CLIParameter.DISTRIBUTION_GROUP, 
-				CLIParameter.REPLICATION_FACTOR);
+				CLIParameter.DIMENSIONS, CLIParameter.REPLICATION_FACTOR);
 			
 		checkRequiredArgs(requiredArgs);
 		
@@ -855,13 +855,19 @@ public class CLI implements Runnable, AutoCloseable {
 		
 		final String replicationFactorString = line.getOptionValue(CLIParameter.REPLICATION_FACTOR);
 		
-		final int replicationFactor =  MathUtil.tryParseIntOrExit(replicationFactorString, 
+		final int replicationFactor = MathUtil.tryParseIntOrExit(replicationFactorString, 
 				() -> "This is not a valid replication factor: " + replicationFactorString);
+		
+		final String dimensionsString = line.getOptionValue(CLIParameter.DIMENSIONS);
+		
+		final int dimensions = MathUtil.tryParseIntOrExit(dimensionsString, 
+				() -> "This is not a valid dimension: " + dimensionsString);
 		
 		System.out.println("Create new distribution group: " + distributionGroup);
 		
 		try {
-			final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
+			final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
+					.create(dimensions)
 					.withReplicationFactor((short) replicationFactor)
 					.withMaximumRegionSize(maxRegionSize)
 					.withMinimumRegionSize(minRegionSize)
@@ -955,6 +961,14 @@ public class CLI implements Runnable, AutoCloseable {
 				.desc("The distribution group")
 				.build();
 		options.addOption(distributionGroup);
+		
+		// Dimensions
+		final Option dimensions = Option.builder(CLIParameter.DIMENSIONS)
+				.hasArg()
+				.argName("dimensions")
+				.desc("The number of dimensions")
+				.build();
+		options.addOption(dimensions);
 		
 		// Replication factor
 		final Option replicationFactor = Option.builder(CLIParameter.REPLICATION_FACTOR)

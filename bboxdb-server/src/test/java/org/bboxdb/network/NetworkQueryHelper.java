@@ -38,12 +38,13 @@ import com.google.common.collect.Lists;
 public class NetworkQueryHelper {
 
 	/**
-	 * The replication factor for the unit tests
+	 * The configuration for the unit tests
 	 */
-	public final static DistributionGroupConfiguration CONFIGURATION;
-	
-	static {
-		CONFIGURATION = DistributionGroupConfigurationBuilder.create().withReplicationFactor((short) 1).build();
+	public static DistributionGroupConfiguration getConfiguration(final int dimensions) {
+		return DistributionGroupConfigurationBuilder
+				.create(dimensions)
+				.withReplicationFactor((short) 1)
+				.build();
 	}
 	
 	/**
@@ -65,7 +66,7 @@ public class NetworkQueryHelper {
 		
 		// Create distribution group
 		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				CONFIGURATION);
+				getConfiguration(2));
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
@@ -121,7 +122,7 @@ public class NetworkQueryHelper {
 		
 		// Create distribution group
 		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				CONFIGURATION);
+				getConfiguration(2));
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
@@ -184,7 +185,7 @@ public class NetworkQueryHelper {
 		// Create distribution group
 		System.out.println("Create distribution group");
 		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				CONFIGURATION);
+				getConfiguration(1));
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());
@@ -260,7 +261,7 @@ public class NetworkQueryHelper {
 		// Create distribution group
 		System.out.println("Create distribution group");
 		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				CONFIGURATION);
+				getConfiguration(2));
 		
 		resultCreate.waitForAll();
 		Assert.assertFalse(resultCreate.isFailed());

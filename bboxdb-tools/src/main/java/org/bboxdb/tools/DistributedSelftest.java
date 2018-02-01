@@ -110,7 +110,7 @@ public class DistributedSelftest {
 		Thread.sleep(5000);
 		
 		logger.info("Create new distribution group: " + DISTRIBUTION_GROUP);
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
 				.withReplicationFactor((short) 2)
 				.build();
 		

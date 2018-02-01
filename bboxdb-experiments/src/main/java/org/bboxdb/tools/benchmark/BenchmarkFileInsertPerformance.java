@@ -114,7 +114,7 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder.create()
+		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder.create(2)
 				.withReplicationFactor(replicationFactor)
 				.build();
 		

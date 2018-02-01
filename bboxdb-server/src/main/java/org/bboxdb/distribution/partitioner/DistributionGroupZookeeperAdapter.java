@@ -313,6 +313,9 @@ public class DistributionGroupZookeeperAdapter {
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
 				Integer.toString(nameprefix).getBytes());
 		
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_DIMENSIONS, 
+				Integer.toString(configuration.getDimensions()).getBytes());
+		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_REPLICATION, 
 				Short.toString(configuration.getReplicationFactor()).getBytes());
 		

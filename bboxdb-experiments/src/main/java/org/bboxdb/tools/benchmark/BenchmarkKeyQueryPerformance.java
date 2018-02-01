@@ -75,7 +75,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 		deleteResult.waitForAll();
 		
 		// Create a new distribution group
-		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder.create()
+		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder.create(3)
 				.withReplicationFactor((short) 3)
 				.build();
 		

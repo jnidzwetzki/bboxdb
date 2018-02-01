@@ -21,6 +21,11 @@ import org.bboxdb.misc.Const;
 
 public class DistributionGroupConfiguration {
 
+	/**
+	 * The dimension
+	 */
+	protected int dimensions = -1;
+	
 	/** 
 	 * The replication factor
 	 */
@@ -111,19 +116,28 @@ public class DistributionGroupConfiguration {
 	public void setSpacePartitionerConfig(final String spacePartitionerConfig) {
 		this.spacePartitionerConfig = spacePartitionerConfig;
 	}
-	
+
+	public int getDimensions() {
+		return dimensions;
+	}
+
+	public void setDimensions(final int dimensions) {
+		this.dimensions = dimensions;
+	}
+
 	@Override
 	public String toString() {
-		return "DistributionGroupConfiguration [replicationFactor=" + replicationFactor + ", maximumRegionSize="
-				+ maximumRegionSize + ", minimumRegionSize=" + minimumRegionSize + ", placementStrategy="
-				+ placementStrategy + ", placementStrategyConfig=" + placementStrategyConfig + ", spacePartitioner="
-				+ spacePartitioner + ", spacePartitionerConfig=" + spacePartitionerConfig + "]";
+		return "DistributionGroupConfiguration [dimensions=" + dimensions + ", replicationFactor=" + replicationFactor
+				+ ", maximumRegionSize=" + maximumRegionSize + ", minimumRegionSize=" + minimumRegionSize
+				+ ", placementStrategy=" + placementStrategy + ", placementStrategyConfig=" + placementStrategyConfig
+				+ ", spacePartitioner=" + spacePartitioner + ", spacePartitionerConfig=" + spacePartitionerConfig + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + dimensions;
 		result = prime * result + maximumRegionSize;
 		result = prime * result + minimumRegionSize;
 		result = prime * result + ((placementStrategy == null) ? 0 : placementStrategy.hashCode());
@@ -143,6 +157,8 @@ public class DistributionGroupConfiguration {
 		if (getClass() != obj.getClass())
 			return false;
 		DistributionGroupConfiguration other = (DistributionGroupConfiguration) obj;
+		if (dimensions != other.dimensions)
+			return false;
 		if (maximumRegionSize != other.maximumRegionSize)
 			return false;
 		if (minimumRegionSize != other.minimumRegionSize)
@@ -170,5 +186,7 @@ public class DistributionGroupConfiguration {
 		} else if (!spacePartitionerConfig.equals(other.spacePartitionerConfig))
 			return false;
 		return true;
-	}	
+	}
+
+	
 }

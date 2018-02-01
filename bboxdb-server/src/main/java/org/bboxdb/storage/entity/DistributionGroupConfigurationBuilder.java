@@ -24,16 +24,17 @@ public class DistributionGroupConfigurationBuilder {
 	 */
 	protected final DistributionGroupConfiguration distributionGroupConfiguration;
 	
-	protected DistributionGroupConfigurationBuilder() {
+	protected DistributionGroupConfigurationBuilder(final int dimensions) {
 		distributionGroupConfiguration = new DistributionGroupConfiguration();
+		distributionGroupConfiguration.setDimensions(dimensions);
 	}
 	
 	/**
 	 * Create a new configuration builder
 	 * @return
 	 */
-	public static DistributionGroupConfigurationBuilder create() {
-		final DistributionGroupConfigurationBuilder builder = new DistributionGroupConfigurationBuilder();
+	public static DistributionGroupConfigurationBuilder create(final int dimensions) {
+		final DistributionGroupConfigurationBuilder builder = new DistributionGroupConfigurationBuilder(dimensions);
 		return builder;
 	}
 	

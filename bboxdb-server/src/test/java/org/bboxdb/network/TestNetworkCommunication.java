@@ -231,7 +231,7 @@ public class TestNetworkCommunication {
 		Assert.assertFalse(resultDelete.isFailed());
 		
 		// Create distribution group
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create()
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
 				.withReplicationFactor((short) 1)
 				.build();
 		
