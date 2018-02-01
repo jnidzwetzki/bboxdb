@@ -15,37 +15,27 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.commons;
+package org.bboxdb;
 
-public class MicroSecondTimestampProvider {
+import org.bboxdb.commons.MicroSecondTimestampProvider;
+import org.junit.Assert;
+import org.junit.Test;
 
-	/**
-	 * The last currentTimeMillis
-	 */
-	protected static long lastTimestampMillis = -1;
+public class TestMicroSecondTimestampProvider {
 	
 	/**
-	 * The counter for this millisecond
+	 * Test the timestamp generator
+	 * @throws InterruptedException 
 	 */
-	protected static int counter = 0;
-	
-	/**
-	 * Get a faked micro seconds timestamp. Millisecond collisions are avoided
-	 * by adding a faked micro seconds counter to the timestamp
-	 * @return 
-	 */
-	public synchronized static long getNewTimestamp() {
-		final long currentMillis = System.currentTimeMillis();
+	@Test
+	public void testGetTimestamp() {
 		
-		if(currentMillis != lastTimestampMillis) {
-			counter = 0;
-			lastTimestampMillis = currentMillis;
+		long oldValue = 0;
+		
+		for(int i = 0; i < 1000; i++) {
+			long newValue = MicroSecondTimestampProvider.getNewTimestamp();
+			Assert.assertTrue(newValue > oldValue);
+			oldValue = newValue;
 		}
-		
-		final long resultValue = currentMillis * 1000 + counter;
-		
-		counter++;
-		
-		return resultValue;
 	}
 }
