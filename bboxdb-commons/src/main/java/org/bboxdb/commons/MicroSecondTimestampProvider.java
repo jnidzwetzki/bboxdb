@@ -35,6 +35,15 @@ public class MicroSecondTimestampProvider {
 	 * @return 
 	 */
 	public synchronized static long getNewTimestamp() {
+		
+		if(counter >= 999) {
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				// Ignore exception
+			}
+		}
+		
 		final long currentMillis = System.currentTimeMillis();
 		
 		if(currentMillis != lastTimestampMillis) {

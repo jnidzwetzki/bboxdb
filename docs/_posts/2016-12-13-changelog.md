@@ -15,6 +15,7 @@ order: 1
 - Bugfix: Fixed a bug in the interval overlapping calculation
 - Bugfix: Handle zookeeper connect failed
 - Bugfix: Fixed forced connection shutdown timeout
+- Bugfix: Ensure that the microsecond timestamp provider does not return duplicate timestamps
 
 ### Version 0.4.0 (Stable) - 21.01.2018
 - New Feature: Size in byte and tuples are stored in Zookeeper
