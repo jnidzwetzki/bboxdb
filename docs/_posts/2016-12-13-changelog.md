@@ -10,6 +10,8 @@ order: 1
 - New Feature: Added Joinable Tuple to the network protocol
 - Improvement: Re-implemented server side query processor
 - Improvement: Updated prometheus dependency
+- Improvement: Changed the naming of the distribution groups/tabes to dgroup_table
+- Improvement: Introduced the distribution group config cache
 - Bugfix: Don't include non overlapping tuple versions in the bounding box query
 - Bugfix: Fixed NPE in closeable helper
 - Bugfix: Fixed a bug in the interval overlapping calculation
