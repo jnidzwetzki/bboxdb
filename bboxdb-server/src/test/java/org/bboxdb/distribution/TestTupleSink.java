@@ -24,14 +24,28 @@ import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.AbstractTupleSi
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 public class TestTupleSink {
 
+	/**
+	 * The distribution region
+	 */
+	private static final String DREGION = "region";
+
+
+	@BeforeClass
+	public static void before() {
+		DistributionGroupConfigurationCache.getInstance().clear();
+		DistributionGroupConfigurationCache.getInstance().addNewConfiguration(DREGION, new DistributionGroupConfiguration(2));
+	}
+	
 	/**
 	 * Redistribute a tuple without any registered regions
 	 * @throws Exception
@@ -51,7 +65,7 @@ public class TestTupleSink {
 	 */
 	@Test(expected=StorageManagerException.class)
 	public void testRegisterRegionDuplicate() throws StorageManagerException {
-		final DistributionGroupName distributionGroupName = new DistributionGroupName("region");
+		final DistributionGroupName distributionGroupName = new DistributionGroupName(DREGION);
 		
 		final DistributionRegion distributionRegion = new DistributionRegion(
 				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER);
@@ -78,7 +92,7 @@ public class TestTupleSink {
 	 */
 	@Test
 	public void testTupleRedistribution1() throws Exception {
-		final DistributionGroupName distributionGroupName = new DistributionGroupName("region");
+		final DistributionGroupName distributionGroupName = new DistributionGroupName(DREGION);
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
 				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER);
@@ -107,7 +121,7 @@ public class TestTupleSink {
 	 */
 	@Test
 	public void testTupleRedistribution2() throws Exception {
-		final DistributionGroupName distributionGroupName = new DistributionGroupName("region");
+		final DistributionGroupName distributionGroupName = new DistributionGroupName(DREGION);
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
 				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER);
