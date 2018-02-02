@@ -51,7 +51,7 @@ public class TestTupleSink {
 	 */
 	@Test(expected=StorageManagerException.class)
 	public void testRegisterRegionDuplicate() throws StorageManagerException {
-		final DistributionGroupName distributionGroupName = new DistributionGroupName("3_region");
+		final DistributionGroupName distributionGroupName = new DistributionGroupName("region");
 		
 		final DistributionRegion distributionRegion = new DistributionRegion(
 				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER);
@@ -67,7 +67,7 @@ public class TestTupleSink {
 	 * @return
 	 */
 	protected TupleRedistributor createTupleRedistributor() {
-		final TupleStoreName tupleStoreName = new TupleStoreName("3_region_abc");
+		final TupleStoreName tupleStoreName = new TupleStoreName("region_abc");
 
 		return new TupleRedistributor(new TupleStoreManagerRegistry(), tupleStoreName);
 	}
@@ -78,7 +78,7 @@ public class TestTupleSink {
 	 */
 	@Test
 	public void testTupleRedistribution1() throws Exception {
-		final DistributionGroupName distributionGroupName = new DistributionGroupName("3_region");
+		final DistributionGroupName distributionGroupName = new DistributionGroupName("region");
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
 				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER);
@@ -107,7 +107,7 @@ public class TestTupleSink {
 	 */
 	@Test
 	public void testTupleRedistribution2() throws Exception {
-		final DistributionGroupName distributionGroupName = new DistributionGroupName("3_region");
+		final DistributionGroupName distributionGroupName = new DistributionGroupName("region");
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
 				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER);

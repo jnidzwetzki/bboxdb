@@ -66,7 +66,7 @@ public class TestZookeeperIntegration {
 	/**
 	 * The name of the test region
 	 */
-	protected static final String TEST_GROUP = "4_abc";
+	protected static final String TEST_GROUP = "abc";
 	
 	@BeforeClass
 	public static void before() {
@@ -179,7 +179,7 @@ public class TestZookeeperIntegration {
 		DistributionGroupConfigurationCache.getInstance().clear();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 				.getInstance().getDistributionGroupConfiguration(TEST_GROUP);
@@ -198,7 +198,7 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testDistributionRegionSplitAndMerge() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		// Split and update
 		System.out.println("---> Get space partitioner");
@@ -254,7 +254,7 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testDistributionRegionSplitWithZookeeperPropergate() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final KDtreeSpacePartitioner adapter1 = 
 				(KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
@@ -294,7 +294,7 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testDistributionRegionSplitWithZookeeperPropergate2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 
 		
 		final KDtreeSpacePartitioner adapter1 
 			= (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
@@ -340,7 +340,7 @@ public class TestZookeeperIntegration {
 	public void testSystemRegisterAndUnregister() throws ZookeeperException, ZookeeperNotFoundException {
 		final BBoxDBInstance systemName = new BBoxDBInstance("192.168.1.10:5050");
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 		final Collection<BBoxDBInstance> systems1 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, null);
@@ -368,7 +368,7 @@ public class TestZookeeperIntegration {
 		final BBoxDBInstance system2 = new BBoxDBInstance("192.168.1.11:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 
 		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
@@ -407,7 +407,7 @@ public class TestZookeeperIntegration {
 		final BBoxDBInstance system1 = new BBoxDBInstance("192.168.1.10:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 
 		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
@@ -435,7 +435,7 @@ public class TestZookeeperIntegration {
 		final BBoxDBInstance systemName2 = new BBoxDBInstance("192.168.1.20:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 
@@ -476,7 +476,7 @@ public class TestZookeeperIntegration {
 		final BBoxDBInstance systemName2 = new BBoxDBInstance("192.168.1.20:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final KDtreeSpacePartitioner distributionGroupAdapter 
 			= (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
@@ -517,7 +517,7 @@ public class TestZookeeperIntegration {
 	public void testSystems() throws ZookeeperException, InterruptedException {
 		final BBoxDBInstance systemName = new BBoxDBInstance("192.168.1.10:5050");
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName);
@@ -537,7 +537,7 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testNameprefix1() throws ZookeeperException, InterruptedException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 		Assert.assertEquals(0, region.getRegionId());
@@ -554,7 +554,7 @@ public class TestZookeeperIntegration {
 	@Test
 	public void testNameprefix2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
  		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final KDtreeSpacePartitioner distributionGroupAdapter 
 			= (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
@@ -580,11 +580,15 @@ public class TestZookeeperIntegration {
 	
 	/**
 	 * Test the path decoding and encoding
+	 * @throws ZookeeperException 
 	 */
 	@Test
-	public void testPathDecodeAndEncode() {
+	public void testPathDecodeAndEncode() throws ZookeeperException {
 
-		final DistributionGroupName distributionGroupName = new DistributionGroupName("2_foo");
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 
+		
+		final DistributionGroupName distributionGroupName = new DistributionGroupName(TEST_GROUP);
 		final DistributionRegion level0 = DistributionRegion.createRootElement(distributionGroupName);
 		level0.setRegionId(1);
 		level0.setSplit(50);
@@ -658,7 +662,7 @@ public class TestZookeeperIntegration {
 			throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final KDtreeSpacePartitioner cacheGroup 
 			= (KDtreeSpacePartitioner) SpacePartitionerCache.getSpacePartitionerForGroupName(TEST_GROUP);
@@ -668,7 +672,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		System.out.println("---> Create");
 
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		System.out.println("---> Split");
 

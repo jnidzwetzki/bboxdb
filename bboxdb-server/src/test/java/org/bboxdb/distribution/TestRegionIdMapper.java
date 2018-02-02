@@ -30,7 +30,7 @@ public class TestRegionIdMapper {
 	/**
 	 * The tablename as string
 	 */
-	protected static final String DEFAULT_TABLE_NAME = "2_region_table";
+	protected static final String DEFAULT_TABLE_NAME = "region_table";
 	
 	/**
 	 * The default table name as SSTableName

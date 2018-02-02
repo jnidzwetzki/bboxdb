@@ -61,6 +61,13 @@ public class DistributionGroupConfiguration {
 	 */
 	protected String spacePartitionerConfig = Const.DEFAULT_SPACE_PARTITIONER_CONFIG;
 
+	public DistributionGroupConfiguration() {
+	}
+
+	public DistributionGroupConfiguration(final int dimensions) {
+		this.dimensions = dimensions;
+	}
+
 	public short getReplicationFactor() {
 		return replicationFactor;
 	}
