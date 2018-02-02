@@ -45,8 +45,8 @@ public class TestTupleStoreAdapter {
 	 */
 	@Test
 	public void deleteAndCreateTable() throws ZookeeperException {
-		final TupleStoreName tupleStoreName1 = new TupleStoreName("2_dg_table1");
-		final TupleStoreName tupleStoreName2 = new TupleStoreName("2_dg_table2");
+		final TupleStoreName tupleStoreName1 = new TupleStoreName("dg_table1");
+		final TupleStoreName tupleStoreName2 = new TupleStoreName("dg_table2");
 
 		tupleStoreAdapter.deleteTable(tupleStoreName1);
 		tupleStoreAdapter.deleteTable(tupleStoreName2);
@@ -83,7 +83,7 @@ public class TestTupleStoreAdapter {
 				.create()
 				.build();
 		
-		final TupleStoreName tupleStoreName = new TupleStoreName("2_dg_table1");
+		final TupleStoreName tupleStoreName = new TupleStoreName("dg_table1");
 		tupleStoreAdapter.deleteTable(tupleStoreName);
 		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName));
 		
@@ -106,7 +106,7 @@ public class TestTupleStoreAdapter {
 				.withVersions(100)
 				.build();
 		
-		final TupleStoreName tupleStoreName = new TupleStoreName("2_dg_table1");
+		final TupleStoreName tupleStoreName = new TupleStoreName("dg_table1");
 		tupleStoreAdapter.deleteTable(tupleStoreName);
 		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName));
 		
@@ -129,7 +129,7 @@ public class TestTupleStoreAdapter {
 				.withUpdateAnomalyResolver(UpdateAnomalyResolver.RESOLVE_ON_READ)
 				.build();
 		
-		final TupleStoreName tupleStoreName = new TupleStoreName("2_dg_table1");
+		final TupleStoreName tupleStoreName = new TupleStoreName("dg_table1");
 		tupleStoreAdapter.deleteTable(tupleStoreName);
 		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName));
 		
@@ -146,8 +146,8 @@ public class TestTupleStoreAdapter {
 				.create()
 				.build();
 		
-		final TupleStoreName tupleStoreName1 = new TupleStoreName("2_dg_table1");
-		final TupleStoreName tupleStoreName2 = new TupleStoreName("2_dg_table2");
+		final TupleStoreName tupleStoreName1 = new TupleStoreName("dg_table1");
+		final TupleStoreName tupleStoreName2 = new TupleStoreName("dg_table2");
 		tupleStoreAdapter.deleteTable(tupleStoreName1);
 		tupleStoreAdapter.deleteTable(tupleStoreName2);
 		
@@ -161,7 +161,7 @@ public class TestTupleStoreAdapter {
 		Assert.assertTrue(tupleStoreAdapter.isTableKnown(tupleStoreName2));
 		
 		// Delete the whole distribution group
-		tupleStoreAdapter.deleteDistributionGroup("2_dg");
+		tupleStoreAdapter.deleteDistributionGroup("dg");
 		
 		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName1));
 		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName2));
