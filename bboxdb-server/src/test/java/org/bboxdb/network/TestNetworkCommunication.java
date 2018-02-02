@@ -220,7 +220,7 @@ public class TestNetworkCommunication {
 	@Test
 	public void testPaging() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running testPaging");
-		final String distributionGroup = "2_testgroup"; 
+		final String distributionGroup = "testgroup"; 
 		final String table = distributionGroup + "_relation9999";
 		
 		final BBoxDBClient bboxDBClient = connectToServer();
