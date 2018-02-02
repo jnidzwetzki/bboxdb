@@ -29,6 +29,7 @@ import java.util.function.Predicate;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -245,10 +246,12 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public int getDimension() {
-		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache.getInstance()
-			.getDistributionGroupConfiguration(distributionGroupName);
-		
-		return config.getDimensions();
+		try {
+			final DistributionGroupConfiguration config = DistributionGroupConfigurationCache.getInstance().getDistributionGroupConfiguration(distributionGroupName);
+			return config.getDimensions();
+		} catch (ZookeeperNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/**

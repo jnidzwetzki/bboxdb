@@ -101,7 +101,7 @@ public class TestNetworkCommunication {
 
 		final BBoxDBClient bboxDBClient = connectToServer();
 		
-		final EmptyResultFuture result = bboxDBClient.deleteTable("1_testgroup1_relation3");
+		final EmptyResultFuture result = bboxDBClient.deleteTable("testgroup1_relation3");
 		
 		result.waitForAll();
 		
@@ -145,7 +145,7 @@ public class TestNetworkCommunication {
 		final BBoxDBClient bboxDBClient = connectToServer();
 		
 		// First call
-		final EmptyResultFuture result1 = bboxDBClient.deleteTable("1_testgroup1_relation3");
+		final EmptyResultFuture result1 = bboxDBClient.deleteTable("testgroup1_relation3");
 		result1.waitForAll();
 		Assert.assertTrue(result1.isDone());
 		Assert.assertFalse(result1.isFailed());
@@ -155,7 +155,7 @@ public class TestNetworkCommunication {
 		Thread.sleep(1000);
 		
 		// Second call
-		final EmptyResultFuture result2 = bboxDBClient.deleteTable("1_testgroup1_relation3");
+		final EmptyResultFuture result2 = bboxDBClient.deleteTable("testgroup1_relation3");
 		result2.waitForAll();
 		Assert.assertTrue(result2.isDone());
 		Assert.assertFalse(result2.isFailed());

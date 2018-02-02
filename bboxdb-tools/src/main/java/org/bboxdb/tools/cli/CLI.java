@@ -41,6 +41,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
@@ -785,7 +786,7 @@ public class CLI implements Runnable, AutoCloseable {
 			
 			printDistributionRegionRecursive(spacePartitioner.getRootNode());
 
-		} catch (ZookeeperException e) {
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			System.err.println("Got an exception during reading distribution group:" + e);
 			System.exit(-1);
 		}

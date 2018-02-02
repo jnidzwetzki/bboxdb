@@ -126,7 +126,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 				= DistributionRegionHelper.getOutdatedRegions(distributionGroup, localInstance);
 			
 			handleOutdatedRegions(distributionGroupName, outdatedRegions);
-		} catch (ZookeeperException e) {
+		} catch (Throwable e) {
 			logger.error("Got exception while running recovery for distribution group: " + distributionGroupName, e);
 		}
 		

@@ -157,7 +157,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		}
 		
 		if(rootNode == null) {
-			logger.error("DGroup was created but state field does not appear...");
+			logger.error("DGroup {} was created but state field does not appear...", distributionGroupName);
 		}
 	}
 	
@@ -235,7 +235,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		synchronized (MUTEX) {
 			while(rootNode == null) {
 				try {
-					MUTEX.wait();
+					MUTEX.wait(30000);
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 				}

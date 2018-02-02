@@ -172,9 +172,10 @@ public class TestZookeeperIntegration {
 	/**
 	 * Test the replication factor of a distribution group
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
 	@Test
-	public void testDistributionGroupReplicationFactor() throws ZookeeperException {
+	public void testDistributionGroupReplicationFactor() throws ZookeeperException, ZookeeperNotFoundException {
 		DistributionGroupConfigurationCache.getInstance().clear();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);

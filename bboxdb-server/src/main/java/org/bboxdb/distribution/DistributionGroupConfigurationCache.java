@@ -20,10 +20,15 @@ package org.bboxdb.distribution;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bboxdb.commons.InputParseException;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DistributionGroupConfigurationCache {
 
@@ -36,6 +41,13 @@ public class DistributionGroupConfigurationCache {
 	 * The cache
 	 */
 	protected final Map<String, DistributionGroupConfiguration> cache;
+	
+
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(DistributionGroupConfigurationCache.class);
+	
 	
 	static {
 		instance = new DistributionGroupConfigurationCache();
@@ -63,8 +75,11 @@ public class DistributionGroupConfigurationCache {
 	 * Get the distribution group configuration
 	 * @param distributionGroupName
 	 * @return
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public synchronized DistributionGroupConfiguration getDistributionGroupConfiguration(final DistributionGroupName distributionGroupName) {
+	public synchronized DistributionGroupConfiguration getDistributionGroupConfiguration(
+			final DistributionGroupName distributionGroupName) throws ZookeeperNotFoundException {
+		
 		return getDistributionGroupConfiguration(distributionGroupName.getFullname());
 	}
 	
@@ -72,8 +87,10 @@ public class DistributionGroupConfigurationCache {
 	 * Get the distribution group configuration
 	 * @param distributionGroupName
 	 * @return
+	 * @throws ZookeeperNotFoundException 
 	 */
-	public synchronized DistributionGroupConfiguration getDistributionGroupConfiguration(final String distributionGroupName) {
+	public synchronized DistributionGroupConfiguration getDistributionGroupConfiguration(
+			final String distributionGroupName) throws ZookeeperNotFoundException {
 		
 		if(! cache.containsKey(distributionGroupName)) {
 			try {
@@ -83,8 +100,9 @@ public class DistributionGroupConfigurationCache {
 				final DistributionGroupConfiguration configuration = distributionGroupZookeeperAdapter.getDistributionGroupConfiguration(distributionGroupName);
 				
 				addNewConfiguration(distributionGroupName, configuration);
-			} catch (Exception e) {
-				throw new RuntimeException("Exception while reading zokeeper data", e);
+			} catch (InputParseException | ZookeeperException e) {
+				logger.error("Exception while reading zokeeper data", e);
+				return new DistributionGroupConfiguration();
 			} 
 		}
 		

@@ -42,12 +42,13 @@ public class SpacePartitionerFactory {
 			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
 			final String distributionGroup) throws ZookeeperException {
 
-		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
-				.getInstance().getDistributionGroupConfiguration(distributionGroup);
 
-		final String spacePartitionerString = config.getSpacePartitioner();
-		
 		try {
+			final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
+					.getInstance().getDistributionGroupConfiguration(distributionGroup);
+
+			final String spacePartitionerString = config.getSpacePartitioner();
+			
 			// Instance the classname
 			final Class<?> classObject = Class.forName(spacePartitionerString);
 
@@ -71,7 +72,7 @@ public class SpacePartitionerFactory {
 			return spacePartitioner;
 
 		} catch (Exception e) {
-			logger.warn("Unable to instance class: " + spacePartitionerString, e);
+			logger.warn("Unable to instance class: " + distributionGroup, e);
 			throw new RuntimeException(e);
 		} 
 	}

@@ -56,7 +56,7 @@ public class NetworkQueryHelper {
 	public static void executeBoudingboxAndTimeQuery(final BBoxDB bboxDBClient) 
 			throws BBoxDBException, InterruptedException {
 		
-		final String distributionGroup = "2_testgroup"; 
+		final String distributionGroup = "testgroup"; 
 		final String table = distributionGroup + "_relation9990";
 		
 		// Delete distribution group
@@ -112,7 +112,7 @@ public class NetworkQueryHelper {
 			throws BBoxDBException, InterruptedException {
 		
 		System.out.println("=== Running testInsertAndBoundingBoxQuery");
-		final String distributionGroup = "2_testgroup"; 
+		final String distributionGroup = "testgroup"; 
 		final String table = distributionGroup + "_relation9991";
 		
 		// Delete distribution group
@@ -172,7 +172,7 @@ public class NetworkQueryHelper {
 		
 		System.out.println("=== Running testInsertAndDelete");
 
-		final String distributionGroup = "1_testgroupdel"; 
+		final String distributionGroup = "testgroupdel"; 
 		final String table = distributionGroup + "_relation4";
 		final String key = "key12";
 		
@@ -248,7 +248,7 @@ public class NetworkQueryHelper {
 		
 		System.out.println("=== Execute join");
 		
-		final String distributionGroup = "2_testgroupjoin"; 
+		final String distributionGroup = "testgroupjoin"; 
 		final String table1 = distributionGroup + "_table1";
 		final String table2 = distributionGroup + "_table2";
 		
