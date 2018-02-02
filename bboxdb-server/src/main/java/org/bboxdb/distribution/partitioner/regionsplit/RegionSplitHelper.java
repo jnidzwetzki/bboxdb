@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
@@ -32,6 +33,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,7 +151,11 @@ public class RegionSplitHelper {
 	 */
 	private long getRegionMaxSizeInMB(final DistributionRegion region) throws ZookeeperException, ZookeeperNotFoundException {
 		final String fullname = region.getDistributionGroupName().getFullname();
-		return distributionGroupZookeeperAdapter.getMaxRegionSizeForDistributionGroup(fullname);
+		
+		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
+				.getInstance().getDistributionGroupConfiguration(fullname);
+
+		return config.getMaximumRegionSize();
 	}
 	
 	/**
@@ -160,7 +166,11 @@ public class RegionSplitHelper {
 	 */
 	private long getRegionMInSizeInMB(final DistributionRegion region) throws ZookeeperException, ZookeeperNotFoundException {
 		final String fullname = region.getDistributionGroupName().getFullname();
-		return distributionGroupZookeeperAdapter.getMinRegionSizeForDistributionGroup(fullname);
+		
+		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
+				.getInstance().getDistributionGroupConfiguration(fullname);
+
+		return config.getMinimumRegionSize();
 	}
 	
 	/**

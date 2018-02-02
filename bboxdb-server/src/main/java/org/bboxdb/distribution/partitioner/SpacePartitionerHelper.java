@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
@@ -29,6 +30,7 @@ import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 
 public class SpacePartitionerHelper {
 	/**
@@ -64,13 +66,16 @@ public class SpacePartitionerHelper {
 					throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException {
 		
 		final String distributionGroupName = region.getDistributionGroupName().getFullname();
-		final short replicationFactor = distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(distributionGroupName);
+		
+		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
+				.getInstance().getDistributionGroupConfiguration(distributionGroupName);
+
+		final short replicationFactor = config.getReplicationFactor();
 		
 		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
 		final List<BBoxDBInstance> availableSystems = distributedInstanceManager.getInstances();
 		
-		final String placementStrategy = distributionGroupZookeeperAdapter
-				.getPlacementStrategyForDistributionGroup(distributionGroupName);
+		final String placementStrategy = config.getPlacementStrategy();
 		
 		final ResourcePlacementStrategy resourcePlacementStrategy 
 			= ResourcePlacementStrategyFactory.getInstance(placementStrategy);

@@ -175,10 +175,15 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testDistributionGroupReplicationFactor() throws ZookeeperException {
+		DistributionGroupConfigurationCache.getInstance().clear();
+		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration()); 
 		
-		Assert.assertEquals(3, distributionGroupZookeeperAdapter.getReplicationFactorForDistributionGroup(TEST_GROUP));
+		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
+				.getInstance().getDistributionGroupConfiguration(TEST_GROUP);
+
+		Assert.assertEquals(3, config.getReplicationFactor());
 	}
 	
 	/**

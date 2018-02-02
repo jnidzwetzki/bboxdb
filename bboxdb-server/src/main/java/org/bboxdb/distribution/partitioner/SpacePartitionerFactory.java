@@ -17,10 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,14 +42,13 @@ public class SpacePartitionerFactory {
 			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
 			final String distributionGroup) throws ZookeeperException {
 
-		final String spacePartitionerString 
-			= getSpacePartitioner(distributionGroupAdapter, distributionGroup);
+		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
+				.getInstance().getDistributionGroupConfiguration(distributionGroup);
 
-		// Instance the classname
+		final String spacePartitionerString = config.getSpacePartitioner();
+		
 		try {
-			final String spacePartitionerConfig = distributionGroupAdapter
-					.getSpacePartitionerConfigForDistributionGroup(distributionGroup);
-
+			// Instance the classname
 			final Class<?> classObject = Class.forName(spacePartitionerString);
 
 			if(classObject == null) {
@@ -64,7 +65,7 @@ public class SpacePartitionerFactory {
 
 			final SpacePartitioner spacePartitioner = (SpacePartitioner) factoryObject;   
 			
-			spacePartitioner.init(spacePartitionerConfig, distributionGroupName, 
+			spacePartitioner.init(config.getSpacePartitionerConfig(), distributionGroupName, 
 					zookeeperClient, distributionGroupAdapter);
 
 			return spacePartitioner;
@@ -73,23 +74,5 @@ public class SpacePartitionerFactory {
 			logger.warn("Unable to instance class: " + spacePartitionerString, e);
 			throw new RuntimeException(e);
 		} 
-	}
-
-	/**
-	 * Get the space partitioner
-	 * @param distributionGroupAdapter
-	 * @param distributionGroup
-	 * @return
-	 * @throws ZookeeperException
-	 */
-	private static String getSpacePartitioner(final DistributionGroupZookeeperAdapter distributionGroupAdapter,
-			final String distributionGroup) throws ZookeeperException {
-		
-		try {
-			return distributionGroupAdapter
-					.getSpacePartitionerForDistributionGroup(distributionGroup);
-		} catch (ZookeeperNotFoundException e) {
-			throw new ZookeeperException(e);
-		}
 	}
 }

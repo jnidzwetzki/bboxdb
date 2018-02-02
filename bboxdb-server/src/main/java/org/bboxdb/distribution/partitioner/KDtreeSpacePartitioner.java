@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.RegionIdMapper;
@@ -221,6 +222,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			logger.info("Root element for {} is deleted", distributionGroupName);
 			RegionIdMapperInstanceManager.getInstance(distributionGroupName).clear();
 			TupleStoreConfigurationCache.getInstance().clear();
+			DistributionGroupConfigurationCache.getInstance().clear();
 		}
 	}
 	
