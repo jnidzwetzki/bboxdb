@@ -37,7 +37,7 @@ public class LocalSelftest {
 	/**
 	 * The destination table
 	 */
-	protected final static String TABLENAME = "2_testgroup_testtable";
+	protected final static String TABLENAME = "testgroup_testtable";
 	
 	/**
 	 * The amount of tuples 

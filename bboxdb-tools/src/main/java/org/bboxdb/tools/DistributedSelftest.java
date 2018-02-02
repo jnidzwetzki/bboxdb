@@ -40,7 +40,7 @@ public class DistributedSelftest {
 	/**
 	 * The name of the distribution group
 	 */
-	private static final String DISTRIBUTION_GROUP = "2_testgroup";
+	private static final String DISTRIBUTION_GROUP = "testgroup";
 	
 	/**
 	 * The table to query

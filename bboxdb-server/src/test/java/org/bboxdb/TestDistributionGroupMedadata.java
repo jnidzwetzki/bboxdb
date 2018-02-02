@@ -37,7 +37,7 @@ public class TestDistributionGroupMedadata {
 	/**
 	 * The distribution group name for the tests
 	 */
-	protected final static DistributionGroupName DGROUP_NAME = new DistributionGroupName("2_testgroup");
+	protected final static DistributionGroupName DGROUP_NAME = new DistributionGroupName("testgroup");
 	
 	/**
 	 * The storage directory
