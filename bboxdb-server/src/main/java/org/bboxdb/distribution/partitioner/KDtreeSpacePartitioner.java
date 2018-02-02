@@ -30,6 +30,7 @@ import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
@@ -219,6 +220,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		if(rootNode == null) {
 			logger.info("Root element for {} is deleted", distributionGroupName);
 			RegionIdMapperInstanceManager.getInstance(distributionGroupName).clear();
+			TupleStoreConfigurationCache.getInstance().clear();
 		}
 	}
 	
