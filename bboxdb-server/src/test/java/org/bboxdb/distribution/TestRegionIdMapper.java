@@ -21,8 +21,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestRegionIdMapper {
@@ -37,6 +39,12 @@ public class TestRegionIdMapper {
 	 */
 	protected final static TupleStoreName DEFAULT_SSTABLE_NAME = new TupleStoreName(DEFAULT_TABLE_NAME);
 
+	@BeforeClass
+	public static void before() {
+		DistributionGroupConfigurationCache.getInstance().clear();
+		DistributionGroupConfigurationCache.getInstance().addNewConfiguration("region", new DistributionGroupConfiguration(2));
+	}
+	
 	/**
 	 * Test the mapping with no entries
 	 */
