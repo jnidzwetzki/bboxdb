@@ -32,6 +32,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
@@ -775,8 +776,10 @@ public class CLI implements Runnable, AutoCloseable {
 			final SpacePartitioner spacePartitioner = distributionGroupZookeeperAdapter
 					.getSpaceparitioner(distributionGroup);
 			
-			final short replicationFactor = distributionGroupZookeeperAdapter
-					.getReplicationFactorForDistributionGroup(distributionGroup);
+			final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
+					.getInstance().getDistributionGroupConfiguration(distributionGroup);
+			
+			final short replicationFactor = config.getReplicationFactor();
 			
 			System.out.println("Replication factor is: " + replicationFactor);
 			

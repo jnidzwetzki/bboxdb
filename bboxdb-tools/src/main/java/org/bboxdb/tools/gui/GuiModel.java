@@ -25,6 +25,7 @@ import java.util.function.BiConsumer;
 
 import javax.swing.SwingUtilities;
 
+import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -36,6 +37,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,8 +176,11 @@ public class GuiModel implements DistributionRegionChangedCallback {
 				spacePartitioner = distributionGroupZookeeperAdapter
 						.getSpaceparitioner(distributionGroup);
 				
-				replicationFactor = distributionGroupZookeeperAdapter
-						.getReplicationFactorForDistributionGroup(distributionGroup);
+				final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
+						.getInstance().getDistributionGroupConfiguration(distributionGroup);
+				
+				replicationFactor = config.getReplicationFactor();
+
 			} catch (Exception e) {
 				logger.warn("Got exception", e);
 			}
