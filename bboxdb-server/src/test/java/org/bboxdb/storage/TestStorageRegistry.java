@@ -46,7 +46,7 @@ public class TestStorageRegistry {
 	/**
 	 * The name of the test relation
 	 */
-	protected static final TupleStoreName RELATION_NAME = new TupleStoreName("3_grouptest5_table100_2");
+	protected static final TupleStoreName RELATION_NAME = new TupleStoreName("grouptest5_table100_2");
 
 	/**
 	 * The storage registry

@@ -54,8 +54,7 @@ public class TestTablenameParser {
 		for(final String invalidTablename : invalidNames) {
 			final TupleStoreName tablename = new TupleStoreName(invalidTablename);
 			Assert.assertFalse(tablename.isValid());
-			Assert.assertEquals(TupleStoreName.INVALID_GROUP, tablename.getGroup());
-			Assert.assertEquals(TupleStoreName.INVALID_DIMENSION, tablename.getDimension());
+			Assert.assertEquals(TupleStoreName.INVALID_GROUP, tablename.getDistributionGroup());
 			Assert.assertEquals(TupleStoreName.INVALID_TABLENAME, tablename.getTablename());
 		}
 		
@@ -67,19 +66,18 @@ public class TestTablenameParser {
 	@Test
 	public void testTablenameParserValid() {
 		final List<String> validNames = new ArrayList<String>();
-		validNames.add("3_abc_def");
-		validNames.add("15_34_34");
-		validNames.add("122_def_34");
-		validNames.add("122_def_table21");
-		validNames.add("122_12def_table21");
-		validNames.add("122_12def_table21_1");
-		validNames.add("122_12def_table21_4711");
+		validNames.add("abc_def");
+		validNames.add("34_34");
+		validNames.add("def_34");
+		validNames.add("def_table21");
+		validNames.add("12def_table21");
+		validNames.add("12def_table21_1");
+		validNames.add("12def_table21_4711");
 		
 		for(final String validTablename : validNames) {
 			final TupleStoreName tablename = new TupleStoreName(validTablename);
 			Assert.assertTrue(tablename.isValid());
-			Assert.assertNotNull(tablename.getGroup());
-			Assert.assertNotNull(tablename.getDimension());
+			Assert.assertNotNull(tablename.getDistributionGroup());
 			Assert.assertNotNull(tablename.getTablename());
 		}
 	}

@@ -51,7 +51,7 @@ public class TestStorageManager {
 	/**
 	 * The name of the test relation
 	 */
-	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("1_testgroup1_abc");
+	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("testgroup1_abc");
 	
 	/**
 	 * The amount of tuples for the big insert test

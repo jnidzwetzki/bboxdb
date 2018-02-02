@@ -17,27 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
-import org.bboxdb.storage.entity.TupleStoreName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class DistributionGroupName implements Comparable<DistributionGroupName> {
 
 	/**
-	 * The name of the distribution group (e.g. 3_mygroup)
+	 * The name of the distribution group (e.g. mygroup)
 	 */
 	protected final String fullname;
-	
-	/**
-	 * The value for an invalid dimension
-	 */
-	public final static int INVALID_DIMENSION = -1;
-	
-	/**
-	 * The dimension of the distribution group
-	 */
-	protected int dimension = INVALID_DIMENSION;
-	
+
 	/**
 	 * The name for an invalid group
 	 */
@@ -47,15 +33,8 @@ public class DistributionGroupName implements Comparable<DistributionGroupName> 
 	 * The name of the distribution group
 	 */
 	protected String groupname = INVALID_GROUPNAME;
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(TupleStoreName.class);
-	
 
 	public DistributionGroupName(final String fullname) {
-		super();
 		this.fullname = fullname;
 		splitTablename();
 	}
@@ -65,7 +44,7 @@ public class DistributionGroupName implements Comparable<DistributionGroupName> 
 	 * @return
 	 */
 	public boolean isValid() {
-		return (dimension != INVALID_DIMENSION) && (groupname != INVALID_GROUPNAME);
+		return (groupname != INVALID_GROUPNAME);
 	}
 	
 	/**
@@ -78,34 +57,15 @@ public class DistributionGroupName implements Comparable<DistributionGroupName> 
 			return;
 		}
 		
-		final String[] parts = fullname.split("_");
-		
-		if(parts.length != 2) {
-			logger.debug("Got invalid groupname: "+ fullname);
+		if(fullname.contains("_")) {
 			return;
 		}
 		
-		try {
-			dimension = Short.parseShort(parts[0]);
-		} catch(NumberFormatException e) {
-			logger.debug("Invalid dimension: " + parts[0]);
-			return;
-		}
-		
-		if(dimension <= 0) {
-			logger.debug("Got invalid dimension: " + dimension);
-			return;
-		}
-		
-		groupname = parts[1];
+		groupname = fullname;
 	}
 
 	public String getFullname() {
 		return fullname;
-	}
-
-	public int getDimension() {
-		return dimension;
 	}
 
 	public String getGroupname() {

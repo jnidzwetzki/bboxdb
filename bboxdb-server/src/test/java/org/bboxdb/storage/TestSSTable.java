@@ -46,7 +46,7 @@ public class TestSSTable {
 	/**
 	 * The name of the test relation
 	 */
-	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("1_testgroup1_relation3");
+	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("testgroup1_relation3");
 	
 	/**
 	 * The max number of expected tuples in the sstable

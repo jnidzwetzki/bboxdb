@@ -26,9 +26,9 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	/**
 	 * The full name of the table
 	 * 
-	 * Format: dimension_groupname_tablename_tablenumber
+	 * Format: groupname_tablename_tablenumber
 	 * 
-	 * e.g. 3_mydata_mytable2
+	 * e.g. mydata_mytable2
 	 * 
 	 */
 	protected final String fullname;
@@ -37,11 +37,6 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	 * Is the tablename valid?
 	 */
 	protected final boolean valid;
-	
-	/**
-	 * The dimension of the table
-	 */
-	protected short dimension;
 	
 	/**
 	 * The group of the table
@@ -57,11 +52,6 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	 * The region id
 	 */
 	protected long regionid;
-	
-	/**
-	 * The value for an invalid dimension
-	 */
-	public final static short INVALID_DIMENSION = -1;
 	
 	/**
 	 * The value for an invalid group
@@ -84,19 +74,15 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	private final static Logger logger = LoggerFactory.getLogger(TupleStoreName.class);
 	
 	public TupleStoreName(final String fullname) {
-		super();
 		this.fullname = fullname;
 		this.valid = splitTablename();
 	}
 	
-	public TupleStoreName(final short dimension, final String distributionGroup, 
-			final String tablename, final long regionid) {
-		super();
-		
-		this.fullname = dimension + "_" + distributionGroup + "_" + tablename + "_" + regionid;
+	public TupleStoreName(final String distributionGroup, 
+			final String tablename, final long regionid) {		
+		this.fullname = distributionGroup + "_" + tablename + "_" + regionid;
 		this.valid = true;
 
-		this.dimension = dimension;
 		this.group = distributionGroup;
 		this.tablename = tablename;
 		this.regionid = regionid;
@@ -108,7 +94,7 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	 * @return
 	 */
 	public TupleStoreName cloneWithDifferntRegionId(final long regionId) {
-		return new TupleStoreName(dimension, group, tablename, regionId);
+		return new TupleStoreName(group, tablename, regionId);
 	}
 	
 	/**
@@ -122,8 +108,14 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 		}
 		
 		final String[] parts = fullname.split("_");
+		final long terminals = fullname.chars().filter(ch -> ch =='_').count();
+
+		if(parts.length - 1 != terminals) {
+			logger.warn("Got invalid tablename: " + fullname);
+			return false;
+		}
 		
-		if(parts.length != 3 && parts.length != 4) {
+		if(parts.length != 2 && parts.length != 3) {
 			logger.warn("Got invalid tablename: " + fullname);
 			
 			/*
@@ -137,26 +129,26 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 			return false;
 		}
 		
-		try {
-			dimension = Short.parseShort(parts[0]);
-		} catch(NumberFormatException e) {
-			logger.warn("Invalid dimension: " + parts[0]);
+		group = parts[0];
+		tablename = parts[1];
+		
+		if(group.length() == 0 || tablename.length() == 0) {
+			logger.warn("Got invalid tablename: " + fullname);
 			return false;
 		}
-		
-		if(dimension <= 0) {
-			logger.warn("Got invalid dimension: " + dimension);
-			return false;
-		}
-		
-		group = parts[1];
-		tablename = parts[2];
-		
-		if(parts.length == 4) {
+				
+		if(parts.length == 3) {
+			final String regionIdString = parts[2];
+
+			if(regionIdString.length() == 0) {
+				logger.warn("Got invalid tablename: " + fullname);
+				return false;
+			}
+			
 			try {
-				regionid = Short.parseShort(parts[3]);
+				regionid = Short.parseShort(regionIdString);
 			} catch(NumberFormatException e) {
-				logger.warn("Invalid tablenumber: " + parts[3]);
+				logger.warn("Invalid tablenumber: " + regionIdString);
 				return false;
 			}			
 		} else {
@@ -183,35 +175,15 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	}
 
 	/**
-	 * Get the dimension from the tablename
-	 * @return
-	 */
-	public short getDimension() {
-		if(! isValid()) {
-			return INVALID_DIMENSION;
-		}
-		
-		return dimension;
-	}
-	
-	/**
 	 * Get the group from the tablename
 	 * @return
 	 */
-	public String getGroup() {
+	public String getDistributionGroup() {
 		if(! isValid()) {
 			return INVALID_GROUP;
 		}
 		
 		return group;
-	}
-	
-	/**
-	 * Get the name of the distribution group
-	 * @return
-	 */
-	public String getDistributionGroup() {
-		return dimension + "_" + group;
 	}
 	
 	/**
@@ -275,21 +247,13 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	}
 
 	@Override
-	public String toString() {
-		return "TupleStoreName [fullname=" + fullname + ", valid=" + valid + ", dimension=" + dimension + ", group="
-				+ group + ", tablename=" + tablename + ", regionid=" + regionid + "]";
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + dimension;
+		result = prime * result + ((fullname == null) ? 0 : fullname.hashCode());
 		result = prime * result + ((group == null) ? 0 : group.hashCode());
-		result = prime * result
-				+ ((tablename == null) ? 0 : tablename.hashCode());
-		result = prime * result
-				+ ((fullname == null) ? 0 : fullname.hashCode());
+		result = prime * result + (int) (regionid ^ (regionid >>> 32));
+		result = prime * result + ((tablename == null) ? 0 : tablename.hashCode());
 		result = prime * result + (valid ? 1231 : 1237);
 		return result;
 	}
@@ -303,26 +267,32 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 		if (getClass() != obj.getClass())
 			return false;
 		TupleStoreName other = (TupleStoreName) obj;
-		if (dimension != other.dimension)
+		if (fullname == null) {
+			if (other.fullname != null)
+				return false;
+		} else if (!fullname.equals(other.fullname))
 			return false;
 		if (group == null) {
 			if (other.group != null)
 				return false;
 		} else if (!group.equals(other.group))
 			return false;
+		if (regionid != other.regionid)
+			return false;
 		if (tablename == null) {
 			if (other.tablename != null)
 				return false;
 		} else if (!tablename.equals(other.tablename))
 			return false;
-		if (fullname == null) {
-			if (other.fullname != null)
-				return false;
-		} else if (!fullname.equals(other.fullname))
-			return false;
 		if (valid != other.valid)
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "TupleStoreName [fullname=" + fullname + ", valid=" + valid + ", group=" + group + ", tablename="
+				+ tablename + ", regionid=" + regionid + "]";
 	}
 
 	@Override

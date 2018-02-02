@@ -82,13 +82,23 @@ public class DistributionGroupConfigurationCache {
 				
 				final DistributionGroupConfiguration configuration = distributionGroupZookeeperAdapter.getDistributionGroupConfiguration(distributionGroupName);
 				
-				cache.put(distributionGroupName, configuration);
+				addNewConfiguration(distributionGroupName, configuration);
 			} catch (Exception e) {
 				throw new RuntimeException("Exception while reading zokeeper data", e);
 			} 
 		}
 		
 		return cache.get(distributionGroupName);
+	}
+
+	/**
+	 * @param distributionGroupName
+	 * @param configuration
+	 */
+	public synchronized void addNewConfiguration(final String distributionGroupName,
+			final DistributionGroupConfiguration configuration) {
+		
+		cache.put(distributionGroupName, configuration);
 	}
 	
 	/**

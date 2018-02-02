@@ -45,7 +45,8 @@ public class BBoxDBClientExample {
 	public static void main(String[] args) throws InterruptedException, ExecutionException, BBoxDBException {
 		
 		// A 2 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
-		final String distributionGroup = "2_mygroup3"; 
+		final int dimensions = 2;
+		final String distributionGroup = "mygroup3"; 
 		final String mytable = distributionGroup + "_testdata";
 		
 		// The name of the cluster
@@ -74,7 +75,7 @@ public class BBoxDBClientExample {
 		}
 		
 		// Create a new distribution group
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(dimensions)
 				.withReplicationFactor((short) 3)
 				.build();
 		

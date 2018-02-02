@@ -31,6 +31,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 
 public class DistributionRegion {
 
@@ -110,7 +111,7 @@ public class DistributionRegion {
 		this.distributionGroupName = name;
 		this.parent = parent;
 
-		this.converingBox = BoundingBox.createFullCoveringDimensionBoundingBox(name.getDimension());
+		this.converingBox = BoundingBox.createFullCoveringDimensionBoundingBox(getDimension());
 		
 		// The level for the root node is 0
 		if(parent == ROOT_NODE_ROOT_POINTER) {
@@ -244,7 +245,10 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public int getDimension() {
-		return distributionGroupName.getDimension();
+		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache.getInstance()
+			.getDistributionGroupConfiguration(distributionGroupName);
+		
+		return config.getDimensions();
 	}
 	
 	/**

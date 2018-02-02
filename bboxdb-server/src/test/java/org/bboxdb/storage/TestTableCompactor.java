@@ -48,7 +48,7 @@ public class TestTableCompactor {
 	/**
 	 * The output relation name
 	 */
-	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("1_testgroup1_relation1");
+	protected final static TupleStoreName TEST_RELATION = new TupleStoreName("testgroup1_relation1");
 	
 	/**
 	 * The storage directory

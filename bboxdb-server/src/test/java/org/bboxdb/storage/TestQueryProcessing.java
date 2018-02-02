@@ -50,17 +50,17 @@ public class TestQueryProcessing {
 	/**
 	 * The 1. table name for tests
 	 */
-	protected static final TupleStoreName TABLE_1 = new TupleStoreName("2_junitgroup_table1");
+	protected static final TupleStoreName TABLE_1 = new TupleStoreName("junitgroup_table1");
 	
 	/**
 	 * The 2. table name for tests
 	 */
-	protected static final TupleStoreName TABLE_2 = new TupleStoreName("2_junitgroup_table2");
+	protected static final TupleStoreName TABLE_2 = new TupleStoreName("junitgroup_table2");
 
 	/**
 	 * The 3. table name for tests
 	 */
-	protected static final TupleStoreName TABLE_3 = new TupleStoreName("2_junitgroup_table3");
+	protected static final TupleStoreName TABLE_3 = new TupleStoreName("junitgroup_table3");
 
 	/**
 	 * The storage registry
