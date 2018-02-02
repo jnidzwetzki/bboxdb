@@ -5,7 +5,10 @@ category: dev
 date: 2016-12-12 22:46:12
 order: 1
 ---
-### Version 0.4.2 (Stable) - 02.02.2018
+
+### Version 0.4.2 (Stable) - TBA
+
+### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation
 - New Feature: Added Joinable Tuple to the network protocol
 - Improvement: Re-implemented server side query processor
