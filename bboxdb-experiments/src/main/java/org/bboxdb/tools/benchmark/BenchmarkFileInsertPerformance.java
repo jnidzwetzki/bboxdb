@@ -43,7 +43,7 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 	/** 
 	 * A 2 dimensional distribution group 
 	 */
-	protected final static String DISTRIBUTION_GROUP = "2_osmgroup";
+	protected final static String DISTRIBUTION_GROUP = "osmgroup";
 	
 	/**
 	 * The name of the table to insert data into
