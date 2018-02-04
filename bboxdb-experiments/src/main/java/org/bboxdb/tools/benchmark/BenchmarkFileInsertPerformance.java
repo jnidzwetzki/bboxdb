@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import org.bboxdb.commons.MathUtil;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -179,7 +180,6 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 		
 		final String filename = args[0];
 		final String replicationFactorString = args[1];
-		short replicationFactor = -1;
 		
 		// Check file
 		final File inputFile = new File(filename);
@@ -188,13 +188,10 @@ public class BenchmarkFileInsertPerformance extends AbstractBenchmark {
 			System.exit(-1);
 		}
 		
-		try {
-			replicationFactor = Short.parseShort(replicationFactorString);
-		} catch(NumberFormatException e) {
-			System.err.println("Invalid replication factor: " + replicationFactorString);
-			System.exit(-1);
-		}
-		
+		final short replicationFactor 
+			= (short) MathUtil.tryParseIntOrExit(replicationFactorString,
+					() -> "Invalid replication factor: " + replicationFactorString);
+
 		final Runnable benchmarkInsertPerformance 
 			= new BenchmarkFileInsertPerformance(filename, replicationFactor);
 		benchmarkInsertPerformance.run();
