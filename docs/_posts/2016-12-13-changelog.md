@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.4.2 (Stable) - TBA
+- New Feature: Added data loader for re-balance demonstration
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation
