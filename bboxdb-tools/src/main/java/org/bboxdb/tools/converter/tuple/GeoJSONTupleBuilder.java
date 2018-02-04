@@ -22,15 +22,13 @@ import org.bboxdb.tools.converter.osm.util.Polygon;
 
 public class GeoJSONTupleBuilder implements TupleBuilder {
 
-
 	@Override
-	public Tuple buildTuple(final String keyData, final String valueData) {	
+	public Tuple buildTuple(final String keyData, final String valueData) {
 		final Polygon polygon = Polygon.fromGeoJson(valueData);
-    	final byte[] tupleBytes = polygon.toGeoJson().getBytes();
+		final byte[] tupleBytes = polygon.toGeoJson().getBytes();
 
-		final Tuple tuple = new Tuple(keyData, 
-				polygon.getBoundingBox(), tupleBytes);
-		
+		final Tuple tuple = new Tuple(keyData, polygon.getBoundingBox(), tupleBytes);
+
 		return tuple;
 	}
 
