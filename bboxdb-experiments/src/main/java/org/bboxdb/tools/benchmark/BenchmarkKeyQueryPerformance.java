@@ -84,7 +84,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 		
 		createResult.waitForAll();
 		
-		logger.info("Inserting " + tuplesToInsert + " tuples");
+		logger.info("Inserting {} tuples", tuplesToInsert);
 	
 		// Insert the tuples
 		for(; insertedTuples.get() < tuplesToInsert; insertedTuples.incrementAndGet()) {
@@ -94,7 +94,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 		// Wait for requests to settle
 		logger.info("Wait for insert requests to settle");
 		while(bboxdbClient.getInFlightCalls() != 0) {
-			logger.info(bboxdbClient.getInFlightCalls() + " are pending");
+			logger.info("{} tuples are pending", bboxdbClient.getInFlightCalls());
 			Thread.sleep(1000);
 		}
 		logger.info("All insert requests are settled");
@@ -117,7 +117,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 			result.waitForAll();
 
 			if(result.isFailed()) {
-				logger.warn("Query failed: " + result.getAllMessages());
+				logger.warn("Query failed: {}", result.getAllMessages());
 			}
 			
 			final long end = System.nanoTime();
