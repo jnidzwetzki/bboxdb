@@ -47,7 +47,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	/** 
 	 * A 3 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
 	 */
-	protected final static String DISTRIBUTION_GROUP = "3_testgroup3";
+	protected final static String DISTRIBUTION_GROUP = "testgroup3";
 	
 	/** 
 	 * A 3 dimensional table (member of distribution group 'mygroup3') with the name 'testdata'
