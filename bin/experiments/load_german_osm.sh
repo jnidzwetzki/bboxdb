@@ -21,11 +21,14 @@
 baseurl="http://download.geofabrik.de/europe/germany/"
 
 # The regions to download
-regions="baden-wuerttemberg bayern berlin brandenburg bremen hamburg hessen mecklenburg-vorpommern niedersachsen nordrhein-westfalen rheinland-pfalz saarland sachs
-en sachsen-anhalt schleswig-holstein thueringen"
+regions="baden-wuerttemberg bayern berlin brandenburg bremen hamburg hessen mecklenburg-vorpommern niedersachsen nordrhein-westfalen rheinland-pfalz saarland sachsen sachsen-anhalt schleswig-holstein thueringen"
 
 # workfolder
 workfolder="/tmp/work"
+
+if [ ! -d $workfolder ]; then
+    mkdir $workfolder
+fi
 
 cd $workfolder
 
@@ -35,10 +38,10 @@ for region in $regions; do
    if [ ! -d $region ]; then
       mkdir $region
       cd $region
-      filename="$region-latest.shp.zip"
+      filename="$region-latest.osm.pbf"
       echo "Downloading region $region"
       wget $baseurl/$filename
-      unzip $filename
+      $BBOXDB_HOME/bin/osm_data_converter.sh -input $workfolder/$region/$filename -backend bdb -workfolder /tmp -output $workfolder/$region/osm
       cd ..
    fi
 done
