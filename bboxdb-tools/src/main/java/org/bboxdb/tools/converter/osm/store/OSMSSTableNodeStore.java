@@ -22,10 +22,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
+import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
@@ -59,7 +61,9 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 
 
 	public OSMSSTableNodeStore(final List<String> storageDirectories, final long inputLength) {
-		final TupleStoreName tableName = new TupleStoreName("2_group1_test");
+		final TupleStoreName tableName = new TupleStoreName("group1_test");
+		final DistributionGroupConfiguration configuration = new DistributionGroupConfiguration(2);
+		DistributionGroupConfigurationCache.getInstance().addNewConfiguration("group1", configuration);
 
 		storageRegistry = new TupleStoreManagerRegistry();
 		
