@@ -23,17 +23,26 @@ baseurl="http://download.geofabrik.de/europe/germany/"
 # The regions to download
 regions="baden-wuerttemberg bayern berlin brandenburg bremen hamburg hessen mecklenburg-vorpommern niedersachsen nordrhein-westfalen rheinland-pfalz saarland sachsen sachsen-anhalt schleswig-holstein thueringen"
 
-# workfolder
-workfolder="/tmp/work"
+# outputfolder
+outputfolder="/tmp/work"
 
-if [ ! -d $workfolder ]; then
-    mkdir $workfolder
+if [ ! -d $outputfolder ]; then
+    mkdir $outputfolder
 fi
 
-cd $workfolder
+cd $outputfolder
+
+workfolder="/tmp/importosm"
 
 # Import the regions
 for region in $regions; do
+
+   if [ -d $workfolder ]; then
+       rm -r $workfolder
+   fi
+
+   mkdir $workfolder
+
    # Download the region if needed
    if [ ! -d $region ]; then
       mkdir $region
@@ -41,7 +50,8 @@ for region in $regions; do
       filename="$region-latest.osm.pbf"
       echo "Downloading region $region"
       wget $baseurl/$filename
-      $BBOXDB_HOME/bin/osm_data_converter.sh -input $workfolder/$region/$filename -backend bdb -workfolder /tmp -output $workfolder/$region/osm
+
+      $BBOXDB_HOME/bin/osm_data_converter.sh -input $outputfolder/$region/$filename -backend bdb -workfolder $workfolder -output $outputfolder/$region/osm
       cd ..
    fi
 done
