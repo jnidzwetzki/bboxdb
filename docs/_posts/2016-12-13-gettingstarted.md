@@ -35,7 +35,7 @@ The conversion can be executed with the following commands:
 ```bash
 $ wget http://download.geofabrik.de/europe/germany-latest.osm.pbf
 $ cd $BBOXDB_HOME
-$ $BBOXDB_HOME/bin/osm_data_conveter.sh -input /path/to/germany-latest.osm.pbf -backend bdb -workfolder /tmp -output /path/to/outputdir/germany
+$ $BBOXDB_HOME/bin/osm_data_converter.sh -input /path/to/germany-latest.osm.pbf -backend bdb -workfolder /tmp -output /path/to/outputdir/germany
 ```
 
 After the conversion has finished, the data in the output directory looks like this:
