@@ -54,7 +54,7 @@ public class BDBWriterThread extends ExceptionSafeThread {
 					try {
 						pendingWriteQueue.wait();
 					} catch (InterruptedException e) {
-						// Handle interrupt dirctly
+						// Handle interrupt directly
 						return;
 					}
 				}
