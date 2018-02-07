@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools;
+package org.bboxdb;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,10 +28,8 @@ import org.bboxdb.commons.SortedIteratorMerger;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
 public class TestSortedIteratorMerger {
-
+	
 	/**
 	 * Default String comparator
 	 */
@@ -41,8 +39,7 @@ public class TestSortedIteratorMerger {
 	 * The return all duplicate resolver
 	 */
 	protected final DuplicateResolver<String> DEFAULT_DUPLICATE_RESOLVER = (e) -> {};
-
-
+	
 	/**
 	 * The return the first element resolver
 	 */
@@ -51,6 +48,74 @@ public class TestSortedIteratorMerger {
 		e.clear();
 		e.add(element);
 	};
+
+	/**
+	 * Test merger with one iterator
+	 */
+	@Test
+	public void testMergeOneIterator1() {
+		final String stringA = "a";
+		
+		final List<String> list1 = Arrays.asList(stringA);
+		
+		final List<Iterator<String>> iteratorList = Arrays.asList(list1.iterator());
+		
+		final SortedIteratorMerger<String> sortedIteratorMerger = new SortedIteratorMerger<>(iteratorList, STRING_COMPARATOR, DEFAULT_DUPLICATE_RESOLVER);
+
+		final List<String> resultList = getResultList(sortedIteratorMerger);
+		
+		Assert.assertEquals(1, resultList.size());
+	}
+
+	/**
+	 * Test merger with one iterator
+	 */
+	@Test
+	public void testMergeOneIterator2() {
+		final String stringA = "a";
+		final String stringB = "b";
+		final String stringC = "c";
+
+		final List<String> list1 = Arrays.asList(stringA, stringB, stringC);
+		
+		final List<Iterator<String>> iteratorList = Arrays.asList(list1.iterator());
+		
+		final SortedIteratorMerger<String> sortedIteratorMerger = new SortedIteratorMerger<>(iteratorList, STRING_COMPARATOR, DEFAULT_DUPLICATE_RESOLVER);
+
+		final List<String> resultList = getResultList(sortedIteratorMerger);
+		
+		Assert.assertEquals(3, resultList.size());
+	}
+	
+	/**
+	 * Test merger with one iterator
+	 */
+	@Test
+	public void testMergeTwoIterator1() {
+		final String stringA = "a";
+		final String stringB = "b";
+		final String stringC = "c";
+
+		final List<String> list1 = Arrays.asList(stringA, stringB, stringC);
+		
+		final List<Iterator<String>> iteratorList = Arrays.asList(list1.iterator(), list1.iterator());
+		final SortedIteratorMerger<String> sortedIteratorMerger = new SortedIteratorMerger<>(iteratorList, STRING_COMPARATOR, DEFAULT_DUPLICATE_RESOLVER);
+
+		final List<String> resultList = getResultList(sortedIteratorMerger);
+		
+		Assert.assertEquals(6, resultList.size());
+	}
+	
+	/**
+	 * @param iteratorList
+	 * @return 
+	 */
+	private List<String> getResultList(final SortedIteratorMerger<String> iterator) {	
+		final List<String> resultList = new ArrayList<>();
+		iterator.iterator().forEachRemaining(resultList::add);
+		
+		return resultList;
+	}
 	
 	/**
 	 * Test empty list
@@ -69,8 +134,8 @@ public class TestSortedIteratorMerger {
 				new ArrayList<Iterator<String>>(), 
 				STRING_COMPARATOR, 
 				FIRST_ELEMENT_DUPLICATE_RESOLVER);
+		
 		Assert.assertFalse(mergeIterator2.iterator().hasNext());
-
 	}
 	
 	/**
@@ -106,7 +171,7 @@ public class TestSortedIteratorMerger {
 				STRING_COMPARATOR, 
 				DEFAULT_DUPLICATE_RESOLVER);
 		
-		final List<String> resultList = Lists.newArrayList(mergeIterator);
+		final List<String> resultList = getResultList(mergeIterator);
 		Assert.assertEquals(list1, resultList);
 	}
 	
@@ -124,7 +189,7 @@ public class TestSortedIteratorMerger {
 				STRING_COMPARATOR, 
 				DEFAULT_DUPLICATE_RESOLVER);
 		
-		final List<String> resultList = Lists.newArrayList(mergeIterator);
+		final List<String> resultList = getResultList(mergeIterator);
 		Assert.assertEquals(4, resultList.size());
 	}
 	
@@ -142,7 +207,7 @@ public class TestSortedIteratorMerger {
 				STRING_COMPARATOR, 
 				DEFAULT_DUPLICATE_RESOLVER);
 		
-		final List<String> resultList = Lists.newArrayList(mergeIterator);
+		final List<String> resultList = getResultList(mergeIterator);
 		Assert.assertEquals(6, resultList.size());
 	}
 	
@@ -158,7 +223,7 @@ public class TestSortedIteratorMerger {
 				STRING_COMPARATOR, 
 				DEFAULT_DUPLICATE_RESOLVER);
 		
-		final List<String> resultList = Lists.newArrayList(mergeIterator);
+		final List<String> resultList = getResultList(mergeIterator);
 		Assert.assertEquals(9, resultList.size());
 		Assert.assertEquals(9, mergeIterator.getReadElements());
 	}
@@ -175,7 +240,7 @@ public class TestSortedIteratorMerger {
 				STRING_COMPARATOR, 
 				FIRST_ELEMENT_DUPLICATE_RESOLVER);
 		
-		final List<String> resultList = Lists.newArrayList(mergeIterator);
+		final List<String> resultList = getResultList(mergeIterator);
 		Assert.assertEquals(3, resultList.size());
 		Assert.assertEquals(list1, resultList);
 		Assert.assertEquals(9, mergeIterator.getReadElements());
@@ -195,12 +260,11 @@ public class TestSortedIteratorMerger {
 				STRING_COMPARATOR, 
 				FIRST_ELEMENT_DUPLICATE_RESOLVER);
 
-		final List<String> resultList = Lists.newArrayList(mergeIterator);
+		final List<String> resultList = getResultList(mergeIterator);
 		Assert.assertEquals(3, resultList.size());
 		Assert.assertTrue(resultList.contains("abc"));
 		Assert.assertTrue(resultList.contains("def"));
 		Assert.assertTrue(resultList.contains("geh"));
 		Assert.assertEquals(7, mergeIterator.getReadElements());
 	}
-
 }
