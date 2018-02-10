@@ -167,7 +167,7 @@ bboxdb_stop() {
     waits=0
     while [ -f $bboxdb_pid ]; do
        
-       if [ $waits > 30 ]; then
+       if [ $waits -gt 30 ]; then
           break; 
        fi
        
