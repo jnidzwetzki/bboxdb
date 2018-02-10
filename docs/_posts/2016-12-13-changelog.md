@@ -9,6 +9,7 @@ order: 1
 ### Version 0.4.2 (Stable) - TBA
 - New Feature: Added data loader for re-balance demonstration
 - Improvement: Updated dependencies (json / guava)
+- Improvement: Rewrote shutdown code
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connection
 
