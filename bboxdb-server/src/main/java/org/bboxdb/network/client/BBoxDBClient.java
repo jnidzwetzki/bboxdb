@@ -320,6 +320,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * Close the socket
 	 */
 	public void closeSocket() {
+		logger.info("Closing socket to server: {}", getConnectionName());
 		CloseableHelper.closeWithoutException(clientSocket);
 		clientSocket = null;
 	}
