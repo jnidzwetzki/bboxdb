@@ -173,7 +173,7 @@ bboxdb_stop() {
        
        sleep 1
        waits=$((waits + 1))
-    fi
+    done
     
     pid=$(cat $bboxdb_pid)
     rm $bboxdb_pid
