@@ -13,6 +13,7 @@ order: 1
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel
+- Bugfix: Network sockets are closed, when a IOException has occurred
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation
