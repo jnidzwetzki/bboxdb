@@ -379,7 +379,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 						logger.info("Path '{}' not found, creating", partialPath);
 						zookeeper.create(partialPath, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 					} catch(KeeperException e) {
-						if(e.code() != Code.NODEEXISTS) {
+						if(e.code() == Code.NODEEXISTS) {
 							// Ignore exception if node was created already
 						} else {
 							throw e;
