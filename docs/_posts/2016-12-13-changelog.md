@@ -9,7 +9,8 @@ order: 1
 ### Version 0.4.2 (Stable) - TBA
 - New Feature: Added data loader for re-balance demonstration
 - Improvement: Updated dependencies (json / guava)
-- Improvement: Rewrote shutdown code
+- Improvement: Rewrote shutdown code 
+- Improvement: If the server is still running 60 seconds after a shutdown, it is killed
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel

@@ -169,7 +169,7 @@ bboxdb_stop() {
     waits=0
     while [ -d /proc/$pid ]; do
        
-       if [ $waits -gt 30 ]; then
+       if [ $waits -gt 60 ]; then
           break; 
        fi
        
