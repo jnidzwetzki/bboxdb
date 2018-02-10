@@ -12,6 +12,7 @@ order: 1
 - Improvement: Rewrote shutdown code
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connection
+- Bugfix: Zookeeper initial polutation can be done in parallel
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

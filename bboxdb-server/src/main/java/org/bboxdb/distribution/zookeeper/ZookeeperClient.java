@@ -375,9 +375,16 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 				final String partialPath = sb.toString();
 
 				if (zookeeper.exists(partialPath, false) == null) {
-					logger.info("Path '{}' not found, creating", partialPath);
-
-					zookeeper.create(partialPath, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+					try {
+						logger.info("Path '{}' not found, creating", partialPath);
+						zookeeper.create(partialPath, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+					} catch(KeeperException e) {
+						if(e.code() != Code.NODEEXISTS) {
+							// Ignore exception if node was created already
+						} else {
+							throw e;
+						}
+					}
 				}
 			}
 		} catch (KeeperException e) {
