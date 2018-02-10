@@ -93,6 +93,9 @@ public class ServerResponseReader extends ExceptionSafeThread {
 			try {
 				processNextResponsePackage(bboxDBClient.inputStream);
 			} catch(Exception e) {
+				
+				bboxDBClient.closeSocket();
+				
 				// Ignore exceptions when connection is closing
 				if(bboxDBClient.getConnectionState().isInRunningState()) {
 					bboxDBClient.getConnectionState().dispatchToFailed(e);

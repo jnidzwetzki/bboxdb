@@ -308,13 +308,20 @@ public class BBoxDBClient implements BBoxDB {
 			runHandshake();
 		} catch (Exception e) {
 			logger.error("Got an exception while connecting to server", e);
-			CloseableHelper.closeWithoutException(clientSocket);
-			clientSocket = null;
+			closeSocket();
 			connectionState.dispatchToFailed(e);
 			return false;
 		} 
 
 		return true;
+	}
+
+	/**
+	 * Close the socket
+	 */
+	public void closeSocket() {
+		CloseableHelper.closeWithoutException(clientSocket);
+		clientSocket = null;
 	}
 
 	/**
@@ -476,11 +483,9 @@ public class BBoxDBClient implements BBoxDB {
 		killPendingCalls();
 		getResultBuffer().clear();
 
-		CloseableHelper.closeWithoutException(clientSocket);
-		clientSocket = null;
+		closeSocket();
 
 		logger.info("Disconnected from server: {}", getConnectionName());
-		
 		connectionState.forceDispatchToTerminated();
 	}
 

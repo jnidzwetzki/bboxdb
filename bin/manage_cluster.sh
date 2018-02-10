@@ -115,8 +115,7 @@ bboxdb_start_remote_debug() {
 # Stop the bboxdb
 ###
 bboxdb_stop() {
-   # Stop only one BBoxDB in parallel, so connection can be flushed and closed before the next node is shutting down
-   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh bboxdb_stop" "Stopping BBoxDB" "$bboxdb_nodes" 1
+   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh bboxdb_stop" "Stopping BBoxDB" "$bboxdb_nodes" $max_pending
 }
 
 ###
