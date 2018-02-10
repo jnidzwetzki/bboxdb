@@ -478,7 +478,8 @@ public class BBoxDBClient implements BBoxDB {
 		CloseableHelper.closeWithoutException(clientSocket);
 		clientSocket = null;
 
-		logger.info("Disconnected from server");
+		logger.info("Disconnected from server: {}", getConnectionName());
+		
 		connectionState.forceDispatchToTerminated();
 	}
 
