@@ -164,14 +164,23 @@ bboxdb_stop() {
     java -cp $classpath org.bboxdb.Shutdown $jmx_port $jmx_password
 
     # Was stop successfully?
-    if [ -f $bboxdb_pid ]; then
-        pid=$(cat $bboxdb_pid)
-        if [ -d /proc/$pid ]; then
-            echo "Normal shutdown was not successfully, killing process...."
-            kill -9 $pid
-        fi
-        
-        rm $bboxdb_pid
+    waits=0
+    while [ -f $bboxdb_pid ]; do
+       
+       if [ $waits > 30 ]; then
+          break; 
+       fi
+       
+       sleep 1
+       waits=$((waits + 1))
+    fi
+    
+    pid=$(cat $bboxdb_pid)
+    rm $bboxdb_pid
+    
+    if [ -d /proc/$pid ]; then
+        echo "Normal shutdown was not successfully, killing process...."
+        kill -9 $pid
     fi
     
     echo -e "BBoxDB is successfully stopped $done"
