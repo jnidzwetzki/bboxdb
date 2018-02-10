@@ -10,6 +10,7 @@ order: 1
 - New Feature: Added data loader for re-balance demonstration
 - Improvement: Updated dependencies (json / guava)
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
+- Bugfix: Prevent waiting on already closed network connection
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

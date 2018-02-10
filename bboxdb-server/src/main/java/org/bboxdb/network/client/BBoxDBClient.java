@@ -403,27 +403,29 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public void settlePendingCalls(final long shutdownTimeMillis) {
 
+		final long shutdownStarted = System.currentTimeMillis();
+
 		// Wait for all pending calls to settle
 		synchronized (pendingCalls) {
-
-			if(getInFlightCalls() == 0) {
-				return;
-			}
-
-			logger.info("Waiting up to {} seconds for pending requests to settle", 
-					TimeUnit.MILLISECONDS.toSeconds(shutdownTimeMillis));		
-
-			final long shutdownStarted = System.currentTimeMillis();
-
+			
 			while(getInFlightCalls() > 0) {
+				
+				final long shutdownDuration = System.currentTimeMillis() - shutdownStarted;
+				final long timeoutLeft = shutdownTimeMillis - shutdownDuration;
+
+				if(timeoutLeft <= 0) {
+					break;
+				}
+				
+				if(! isConnected()) {
+					logger.warn("Connection already closed but {} requests are pending");
+					return;
+				}
+				
+				logger.info("Waiting up to {} seconds for pending requests to settle (pending {})", 
+						TimeUnit.MILLISECONDS.toSeconds(timeoutLeft), getInFlightCalls());
+				
 				try {
-					final long shutdownDuration = System.currentTimeMillis() - shutdownStarted;
-					final long timeoutLeft = shutdownTimeMillis - shutdownDuration;
-
-					if(timeoutLeft <= 0) {
-						break;
-					}
-
 					pendingCalls.wait(timeoutLeft);
 				} catch (InterruptedException e) {
 					logger.debug("Got an InterruptedException during pending calls wait.");
