@@ -163,9 +163,11 @@ bboxdb_stop() {
     # Call shutdown MBean
     java -cp $classpath org.bboxdb.Shutdown $jmx_port $jmx_password
 
-    # Was stop successfully?
+    pid=$(cat $bboxdb_pid)
+
+    # Wait up to 30 seconds for shutdown
     waits=0
-    while [ -f $bboxdb_pid ]; do
+    while [ -d /proc/$pid ]; do
        
        if [ $waits -gt 30 ]; then
           break; 
@@ -175,7 +177,6 @@ bboxdb_stop() {
        waits=$((waits + 1))
     done
     
-    pid=$(cat $bboxdb_pid)
     rm $bboxdb_pid
     
     if [ -d /proc/$pid ]; then
