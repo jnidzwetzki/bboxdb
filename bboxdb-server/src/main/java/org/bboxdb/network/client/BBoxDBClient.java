@@ -418,7 +418,8 @@ public class BBoxDBClient implements BBoxDB {
 				}
 				
 				if(! isConnected()) {
-					logger.warn("Connection already closed but {} requests are pending");
+					logger.warn("Connection already closed but {} requests are pending", 
+							getInFlightCalls());
 					return;
 				}
 				
