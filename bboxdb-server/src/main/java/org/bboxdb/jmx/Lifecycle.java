@@ -18,6 +18,7 @@
 package org.bboxdb.jmx;
 
 import org.bboxdb.BBoxDBMain;
+import org.bboxdb.commons.concurrent.ExceptionSafeThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,15 +47,25 @@ public class Lifecycle implements LifecycleMBean {
 	@Override
 	public void shutdown() {
 		
-		logger.info("Got shutdown call via MBean");
+		final Runnable shutdownRunable = new ExceptionSafeThread() {
+			
+			@Override
+			protected void runThread() throws Exception {
+				logger.info("Got shutdown call via MBean");
+				
+				try {
+					bBoxDBMain.stop();
+				} catch (Exception e) {
+					logger.warn("Got an exception while stopping application");
+				}
+				
+				System.exit(0);
+			}
+		};
 		
-		try {
-			bBoxDBMain.stop();
-		} catch (Exception e) {
-			logger.warn("Got an exception while stopping application");
-		}
-		
-		System.exit(0);
+		final Thread shutdownThread = new Thread(shutdownRunable);
+		shutdownThread.setName("Shutdown thread");
+		shutdownThread.start();
 	}
 
 }
