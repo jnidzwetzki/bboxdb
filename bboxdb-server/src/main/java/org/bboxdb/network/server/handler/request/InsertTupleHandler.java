@@ -120,6 +120,10 @@ public class InsertTupleHandler implements RequestHandler {
 
 		final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
 					requestTable, localHop.getDistributionRegions());
+		
+		if(localTables.isEmpty()) {
+			throw new BBoxDBException("Got no local tables for routed package");
+		}
 
 		// Are some tables unknown and needs to be created?
 		final boolean unknownTables = localTables.stream()
