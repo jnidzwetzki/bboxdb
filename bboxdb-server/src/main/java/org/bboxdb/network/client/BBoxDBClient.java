@@ -308,6 +308,7 @@ public class BBoxDBClient implements BBoxDB {
 			runHandshake();
 		} catch (Exception e) {
 			logger.error("Got an exception while connecting to server", e);
+			CloseableHelper.closeWithoutException(clientSocket);
 			clientSocket = null;
 			connectionState.dispatchToFailed(e);
 			return false;
@@ -1113,6 +1114,7 @@ public class BBoxDBClient implements BBoxDB {
 			logger.warn("Got an exception while sending package to server", e);
 			future.setFailedState();
 			future.fireCompleteEvent();
+			terminateConnection();
 		}
 	}
 
@@ -1163,6 +1165,7 @@ public class BBoxDBClient implements BBoxDB {
 			writePackageToSocket(compressionEnvelopeRequest);
 		} catch (PackageEncodeException | IOException e) {
 			logger.error("Got an exception while write pending compression packages to server", e);
+			terminateConnection();
 		}
 	}
 
