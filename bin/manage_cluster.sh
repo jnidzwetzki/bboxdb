@@ -115,7 +115,7 @@ bboxdb_start_remote_debug() {
 # Stop the bboxdb
 ###
 bboxdb_stop() {
-   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh bboxdb_stop" "Stopping BBoxDB" "$bboxdb_nodes" $max_pending
+   execute_parallel "\$BBOXDB_HOME/bin/manage_instance.sh bboxdb_stop" "Stopping BBoxDB" "$bboxdb_nodes" 1
 }
 
 ###
