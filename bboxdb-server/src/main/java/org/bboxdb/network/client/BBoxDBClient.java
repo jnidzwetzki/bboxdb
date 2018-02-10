@@ -409,7 +409,6 @@ public class BBoxDBClient implements BBoxDB {
 		synchronized (pendingCalls) {
 			
 			while(getInFlightCalls() > 0) {
-				
 				final long shutdownDuration = System.currentTimeMillis() - shutdownStarted;
 				final long timeoutLeft = shutdownTimeMillis - shutdownDuration;
 
@@ -427,7 +426,9 @@ public class BBoxDBClient implements BBoxDB {
 						TimeUnit.MILLISECONDS.toSeconds(timeoutLeft), getInFlightCalls());
 				
 				try {
-					pendingCalls.wait(timeoutLeft);
+					// Recheck connection state all 5 seconds
+					final long maxWaitTime = Math.min(timeoutLeft, TimeUnit.SECONDS.toMillis(5));
+					pendingCalls.wait(maxWaitTime);
 				} catch (InterruptedException e) {
 					logger.debug("Got an InterruptedException during pending calls wait.");
 					Thread.currentThread().interrupt();
