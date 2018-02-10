@@ -423,8 +423,9 @@ public class BBoxDBClient implements BBoxDB {
 					return;
 				}
 				
-				logger.info("Waiting up to {} seconds for pending requests to settle (pending {})", 
-						TimeUnit.MILLISECONDS.toSeconds(timeoutLeft), getInFlightCalls());
+				logger.info("Waiting up to {} seconds for pending requests to settle "
+						+ "(pending {} / server {})", TimeUnit.MILLISECONDS.toSeconds(timeoutLeft), 
+						getInFlightCalls(), getConnectionName());
 				
 				try {
 					// Recheck connection state all 5 seconds
