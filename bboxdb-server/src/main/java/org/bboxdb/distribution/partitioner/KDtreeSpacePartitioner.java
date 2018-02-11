@@ -736,6 +736,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	private void updateLocalMappings(final DistributionRegion region, 
 			final Collection<BBoxDBInstance> systems) {
 		
+		logger.info("Update local mapping called {} / {}", region, systems);
+		
 		final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 
 		if(localInstance == null) {
