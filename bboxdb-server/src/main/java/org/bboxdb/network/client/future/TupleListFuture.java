@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.util.EntityDuplicateTracker;
 import org.bboxdb.storage.util.TupleHelper;
 
 public class TupleListFuture extends AbstractListFuture<Tuple> {
@@ -63,6 +64,17 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 		
 		// Remove duplicates
 		duplicateResolver.removeDuplicates(allTuples);
+		
+		final EntityDuplicateTracker entityDuplicateTracker = new EntityDuplicateTracker();
+		
+		final Iterator<Tuple> iterator = allTuples.iterator();
+		while(iterator.hasNext()) {
+			final Tuple nextElement = iterator.next();
+			
+			if(entityDuplicateTracker.isElementAlreadySeen(nextElement)) {
+				iterator.remove();
+			}
+		}
 		
 		return allTuples.iterator();
 	}
