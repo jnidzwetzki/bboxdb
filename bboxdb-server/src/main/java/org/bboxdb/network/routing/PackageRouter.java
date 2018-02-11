@@ -141,6 +141,8 @@ public class PackageRouter {
 		final RoutingHop routingHop = routingHeader.getRoutingHop();
 		final BBoxDBInstance receiverInstance = routingHop.getDistributedInstance();
 		
+		logger.info("Sending package to {} ", routingHop);
+		
 		final BBoxDBClient connection = MembershipConnectionService
 				.getInstance()
 				.getConnectionForInstance(receiverInstance);
