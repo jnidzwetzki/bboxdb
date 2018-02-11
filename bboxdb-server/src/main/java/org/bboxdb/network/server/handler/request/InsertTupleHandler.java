@@ -20,6 +20,7 @@ package org.bboxdb.network.server.handler.request;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.distribution.DistributionGroupName;
@@ -82,10 +83,11 @@ public class InsertTupleHandler implements RequestHandler {
 				clientConnectionHandler.writeResultPackage(responsePackage);
 			} else {
 				final RoutingHop localHop = routingHeader.getRoutingHop();
-				PackageRouter.checkLocalSystemNameMatches(localHop);
-				
+				PackageRouter.checkLocalSystemNameMatches(localHop);				
+				final List<Long> distributionRegions = localHop.getDistributionRegions();
+
 				// The local insert is executed as soon as the routing is confirmed
-				final Runnable localInsert = () -> processInsertPackage(tuple, requestTable, storageRegistry, routingHeader);
+				final Runnable localInsert = () -> processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions);
 				
 				final PackageRouter packageRouter = clientConnectionHandler.getPackageRouter();
 				packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest, localInsert);
@@ -112,17 +114,16 @@ public class InsertTupleHandler implements RequestHandler {
 	 */
 	protected void processInsertPackage(final Tuple tuple, final TupleStoreName requestTable, 
 			final TupleStoreManagerRegistry storageRegistry,
-			final RoutingHeader routingHeader) {
+			List<Long> distributionRegions) {
 		
 		try {
-			final RoutingHop localHop = routingHeader.getRoutingHop();
-			
 			final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
 			
 			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
 
+			
 			final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
-						requestTable, localHop.getDistributionRegions());
+						requestTable, distributionRegions);
 			
 			if(localTables.isEmpty()) {
 				throw new BBoxDBException("Got no local tables for routed package");
