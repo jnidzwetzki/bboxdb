@@ -301,7 +301,7 @@ public class DataRedistributionLoader implements Runnable {
 		final BBoxDBCluster bboxDBCluster = new BBoxDBCluster(zookeeperEndpoint, clustername);
 		bboxDBCluster.connect();
 		
-		if(bboxDBCluster.isConnected()) {
+		if(! bboxDBCluster.isConnected()) {
 			System.err.println("Unable to connect to zookeeper at: " + zookeeperEndpoint);
 			System.exit(-1);
 		}
