@@ -215,6 +215,10 @@ public class DataRedistributionLoader implements Runnable {
 				} catch (BBoxDBException e) {
 					logger.error("Got error while inserting tuple", e);
 				}
+				
+				if(lineNumber.get() % 1000 == 0) {
+					System.out.format("Loaded %d elements\n", lineNumber.get());
+				}
 			});
 		} catch (IOException e) {
 			System.err.println("Got an exeption while reading file: " + e);
@@ -250,6 +254,10 @@ public class DataRedistributionLoader implements Runnable {
 				try {
 					final EmptyResultFuture resultFuture = bboxDBCluster.deleteTuple(TABLE, key);
 					pendingFutures.put(resultFuture);
+					
+					if(lineNumber.get() % 1000 == 0) {
+						System.out.format("Deleted %d elements\n", lineNumber.get());
+					}
 				} catch (BBoxDBException e) {
 					logger.error("Got error while deleting tuple", e);
 				}
