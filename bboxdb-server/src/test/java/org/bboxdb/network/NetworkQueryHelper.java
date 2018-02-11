@@ -78,17 +78,23 @@ public class NetworkQueryHelper {
 		
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes(), 4);
-		bboxDBClient.insertTuple(table, tuple1);
+		final EmptyResultFuture result1 = bboxDBClient.insertTuple(table, tuple1);
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(0d, 0.5d, 0d, 0.5d), "def".getBytes(), 4);
-		bboxDBClient.insertTuple(table, tuple2);
+		final EmptyResultFuture result2 = bboxDBClient.insertTuple(table, tuple2);
 		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes(), 1);
-		bboxDBClient.insertTuple(table, tuple3);
+		final EmptyResultFuture result3 = bboxDBClient.insertTuple(table, tuple3);
 		
 		// Outside our bbox query
 		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10d, -9d, -10d, -9d), "ijk".getBytes());
-		bboxDBClient.insertTuple(table, tuple4);
+		final EmptyResultFuture result4 = bboxDBClient.insertTuple(table, tuple4);
 		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000d, 1001d, 1000d, 1001d), "lmn".getBytes());
-		bboxDBClient.insertTuple(table, tuple5);
+		final EmptyResultFuture result5 = bboxDBClient.insertTuple(table, tuple5);
+		
+		result1.waitForAll();
+		result2.waitForAll();
+		result3.waitForAll();
+		result4.waitForAll();
+		result5.waitForAll();
 
 		final TupleListFuture future = bboxDBClient.queryBoundingBoxAndTime(table, new BoundingBox(-1d, 2d, -1d, 2d), 2);
 		future.waitForAll();
@@ -136,18 +142,24 @@ public class NetworkQueryHelper {
 		
 		// Inside our bbox query
 		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes());
-		bboxDBClient.insertTuple(table, tuple1);
+		final EmptyResultFuture result1 = bboxDBClient.insertTuple(table, tuple1);
 		final Tuple tuple2 = new Tuple("def", new BoundingBox(0d, 0.5d, 0d, 0.5d), "def".getBytes());
-		bboxDBClient.insertTuple(table, tuple2);
+		final EmptyResultFuture result2 = bboxDBClient.insertTuple(table, tuple2);
 		final Tuple tuple3 = new Tuple("geh", new BoundingBox(0.5d, 1.5d, 0.5d, 1.5d), "geh".getBytes());
-		bboxDBClient.insertTuple(table, tuple3);
+		final EmptyResultFuture result3 = bboxDBClient.insertTuple(table, tuple3);
 		
 		// Outside our bbox query
 		final Tuple tuple4 = new Tuple("ijk", new BoundingBox(-10d, -9d, -10d, -9d), "ijk".getBytes());
-		bboxDBClient.insertTuple(table, tuple4);
+		final EmptyResultFuture result4 = bboxDBClient.insertTuple(table, tuple4);
 		final Tuple tuple5 = new Tuple("lmn", new BoundingBox(1000d, 1001d, 1000d, 1001d), "lmn".getBytes());
-		bboxDBClient.insertTuple(table, tuple5);
+		final EmptyResultFuture result5 = bboxDBClient.insertTuple(table, tuple5);
 
+		result1.waitForAll();
+		result2.waitForAll();
+		result3.waitForAll();
+		result4.waitForAll();
+		result5.waitForAll();
+		
 		final TupleListFuture future = bboxDBClient.queryBoundingBox(table, new BoundingBox(-1d, 2d, -1d, 2d));
 		future.waitForAll();
 		final List<Tuple> resultList = Lists.newArrayList(future.iterator());
