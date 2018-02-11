@@ -20,6 +20,7 @@ package org.bboxdb.distribution;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.slf4j.Logger;
@@ -52,7 +53,11 @@ public class RegionIdMapperInstanceManager {
 			
 			// Read distribution group to generate the local mappings
 			try {
-				SpacePartitionerCache.getSpacePartitionerForGroupName(distributionGroupName.getFullname());
+				final SpacePartitioner partitioner 
+					= SpacePartitionerCache.getSpacePartitionerForGroupName(
+							distributionGroupName.getFullname());
+				
+				partitioner.getRootNode();
 			} catch (ZookeeperException e) {
 				logger.error("Got an expcetion by reading the space partitioner", e);
 			}
