@@ -11,6 +11,7 @@ order: 1
 - Improvement: Updated dependencies (json / guava)
 - Improvement: Rewrote shutdown code 
 - Improvement: If the server is still running 60 seconds after a shutdown, it is killed
+- Improvement: Tuple insert is only executed when the package routing was successfully
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel

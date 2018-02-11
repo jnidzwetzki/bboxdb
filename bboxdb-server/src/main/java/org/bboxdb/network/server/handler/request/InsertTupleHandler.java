@@ -81,9 +81,14 @@ public class InsertTupleHandler implements RequestHandler {
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
 				clientConnectionHandler.writeResultPackage(responsePackage);
 			} else {
-				handleRoutedPackage(tuple, requestTable, storageRegistry, routingHeader);
+				final RoutingHop localHop = routingHeader.getRoutingHop();
+				PackageRouter.checkLocalSystemNameMatches(localHop);
+				
+				// The local insert is executed as soon as the routing is confirmed
+				final Runnable localInsert = () -> processInsertPackage(tuple, requestTable, storageRegistry, routingHeader);
+				
 				final PackageRouter packageRouter = clientConnectionHandler.getPackageRouter();
-				packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest);
+				packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest, localInsert);
 			}
 			
 		} catch (Exception e) {
@@ -105,40 +110,41 @@ public class InsertTupleHandler implements RequestHandler {
 	 * @throws RejectedException
 	 * @throws BBoxDBException
 	 */
-	protected void handleRoutedPackage(final Tuple tuple, final TupleStoreName requestTable, 
+	protected void processInsertPackage(final Tuple tuple, final TupleStoreName requestTable, 
 			final TupleStoreManagerRegistry storageRegistry,
-			final RoutingHeader routingHeader) 
-			throws StorageManagerException, RejectedException, BBoxDBException {
+			final RoutingHeader routingHeader) {
 		
-		final RoutingHop localHop = routingHeader.getRoutingHop();
-		
-		PackageRouter.checkLocalSystemNameMatches(localHop);
-		
-		final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
-		
-		final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
+		try {
+			final RoutingHop localHop = routingHeader.getRoutingHop();
+			
+			final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
+			
+			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
 
-		final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
-					requestTable, localHop.getDistributionRegions());
-		
-		if(localTables.isEmpty()) {
-			throw new BBoxDBException("Got no local tables for routed package");
-		}
-		
-		// Are some tables unknown and needs to be created?
-		final boolean unknownTables = localTables.stream()
-			.anyMatch((t) -> ! storageRegistry.isStorageManagerKnown(t)); 
-		
-		// Expensive call (involves Zookeeper interaction)
-		if(unknownTables) {
-			createMissingTables(requestTable, storageRegistry, localTables);
-		}
-		
-		// Insert tuples
-		for(final TupleStoreName tupleStoreName : localTables) {
-			final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
-			storageManager.put(tuple);			
-		}
+			final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
+						requestTable, localHop.getDistributionRegions());
+			
+			if(localTables.isEmpty()) {
+				throw new BBoxDBException("Got no local tables for routed package");
+			}
+			
+			// Are some tables unknown and needs to be created?
+			final boolean unknownTables = localTables.stream()
+				.anyMatch((t) -> ! storageRegistry.isStorageManagerKnown(t)); 
+			
+			// Expensive call (involves Zookeeper interaction)
+			if(unknownTables) {
+				createMissingTables(requestTable, storageRegistry, localTables);
+			}
+			
+			// Insert tuples
+			for(final TupleStoreName tupleStoreName : localTables) {
+				final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
+				storageManager.put(tuple);			
+			}
+		} catch (Exception e) {
+			logger.error("Got exception while inserting tuple");
+		} 
 	}
 
 	/**
