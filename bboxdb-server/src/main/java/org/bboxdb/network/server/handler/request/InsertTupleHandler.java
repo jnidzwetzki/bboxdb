@@ -124,6 +124,8 @@ public class InsertTupleHandler implements RequestHandler {
 		if(localTables.isEmpty()) {
 			throw new BBoxDBException("Got no local tables for routed package");
 		}
+		
+		logger.info("Inserting routed package into: {}", localTables);
 
 		// Are some tables unknown and needs to be created?
 		final boolean unknownTables = localTables.stream()
