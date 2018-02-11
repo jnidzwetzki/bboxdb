@@ -55,7 +55,7 @@ public class RegionIdMapper {
 	 * Get all region ids
 	 * @return
 	 */
-	public Collection<Long> getAllRegionIds() {
+	private Collection<Long> getAllRegionIds() {
 		return regions
 			.stream()
 			.map(r -> r.getRegionId())

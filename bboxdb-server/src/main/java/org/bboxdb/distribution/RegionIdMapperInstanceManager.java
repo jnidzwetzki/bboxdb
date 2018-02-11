@@ -20,12 +20,23 @@ package org.bboxdb.distribution;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RegionIdMapperInstanceManager {
 	
 	/**
 	 * The local mappings for a distribution group
 	 */
 	protected final static Map<DistributionGroupName, RegionIdMapper> instances;
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(RegionIdMapperInstanceManager.class);
+
 	
 	static {
 		instances = new HashMap<DistributionGroupName, RegionIdMapper>();
@@ -38,6 +49,14 @@ public class RegionIdMapperInstanceManager {
 	public static synchronized RegionIdMapper getInstance(final DistributionGroupName distributionGroupName) {
 		if(! instances.containsKey(distributionGroupName)) {
 			instances.put(distributionGroupName, new RegionIdMapper());
+			
+			// Read distribution group to generate the local mappings
+			try {
+				SpacePartitionerCache.getSpacePartitionerForGroupName(distributionGroupName.getFullname());
+			} catch (ZookeeperException e) {
+				logger.error("Got an expcetion by reading the space partitioner", e);
+			}
+			
 		}
 		
 		return instances.get(distributionGroupName);
