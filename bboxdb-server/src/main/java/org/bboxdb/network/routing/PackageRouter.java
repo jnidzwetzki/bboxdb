@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.network.routing;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +29,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
-import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
@@ -88,27 +86,31 @@ public class PackageRouter {
 			@Override
 			protected void runThread() {
 				
+				boolean operationSuccess = true;
+
 				try {
-					assert (insertTupleRequest.getRoutingHeader().isRoutedPackage()) : "Tuple is not a routed package";
+					final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
 					
-					insertTupleRequest.getRoutingHeader().dispatchToNextHop();				
-					final boolean routeResult = sendInsertPackage(insertTupleRequest);
-	
-					if(routeResult) {
-						final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
-						clientConnectionHandler.writeResultPackage(responsePackage);
-						return;
-					} 
+					assert (routingHeader.isRoutedPackage()) : "Tuple is not a routed package";
+					
+					if(! routingHeader.reachedFinalInstance()) {
+						routingHeader.dispatchToNextHop();				
+						operationSuccess = sendInsertPackage(insertTupleRequest);
+					}
 					
 				}  catch(InterruptedException e) {
 					logger.error("Exception while routing package", e);
 					Thread.currentThread().interrupt();
-				} catch (IOException | PackageEncodeException e) {
-					logger.error("Exception while routing package", e);
+					operationSuccess = false;
 				} 
 				
-				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_ROUTING_FAILED);
-				clientConnectionHandler.writeResultPackageNE(responsePackage);
+				if(operationSuccess) {
+					final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
+					clientConnectionHandler.writeResultPackageNE(responsePackage);
+				} else {
+					final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_ROUTING_FAILED);
+					clientConnectionHandler.writeResultPackageNE(responsePackage);
+				}
 			}
 		};
 		
@@ -133,11 +135,6 @@ public class PackageRouter {
 			throws InterruptedException {
 		
 		final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
-		
-		if(routingHeader.reachedFinalInstance()) {
-			return true;
-		} 
-		
 		final RoutingHop routingHop = routingHeader.getRoutingHop();
 		final BBoxDBInstance receiverInstance = routingHop.getDistributedInstance();
 		
