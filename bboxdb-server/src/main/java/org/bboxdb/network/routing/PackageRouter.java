@@ -137,9 +137,7 @@ public class PackageRouter {
 		final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
 		final RoutingHop routingHop = routingHeader.getRoutingHop();
 		final BBoxDBInstance receiverInstance = routingHop.getDistributedInstance();
-		
-		logger.info("Sending package to {} ", routingHop);
-		
+				
 		final BBoxDBClient connection = MembershipConnectionService
 				.getInstance()
 				.getConnectionForInstance(receiverInstance);
