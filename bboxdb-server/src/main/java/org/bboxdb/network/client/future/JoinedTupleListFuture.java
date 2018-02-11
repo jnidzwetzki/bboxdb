@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.storage.entity.JoinedTuple;
+import org.bboxdb.storage.util.EntityDuplicateTracker;
 
 public class JoinedTupleListFuture extends AbstractListFuture<JoinedTuple>{
 
@@ -40,6 +41,17 @@ public class JoinedTupleListFuture extends AbstractListFuture<JoinedTuple>{
 	@Override
 	protected Iterator<JoinedTuple> createSimpleIterator() {
 		final List<JoinedTuple> allTuples = getListWithAllResults();
+		final EntityDuplicateTracker entityDuplicateTracker = new EntityDuplicateTracker();
+		
+		final Iterator<JoinedTuple> iterator = allTuples.iterator();
+		while(iterator.hasNext()) {
+			final JoinedTuple nextElement = iterator.next();
+			
+			if(entityDuplicateTracker.isElementAlreadySeen(nextElement)) {
+				iterator.remove();
+			}
+		}
+		
 		return allTuples.iterator();
 	}
 
