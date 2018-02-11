@@ -108,6 +108,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			final ZookeeperClient zookeeperClient, 
 			final DistributionGroupZookeeperAdapter distributionGroupAdapter) throws ZookeeperException {
 		
+		logger.info("Init called");
+		
 		this.spacePartitionerConfig = spacePartitionerConfig;
 		this.distributionGroupName = distributionGroupName;
 		this.zookeeperClient = zookeeperClient;
@@ -177,6 +179,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ZookeeperException 
 	 */
 	private void refreshWholeTree() throws ZookeeperException {
+		
+		logger.info("Refresh whole tree called");
 		
 		try {
 			final String zookeeperVersion 
@@ -572,8 +576,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws KeeperException 
 	 */
 	private void readDistributionGroupRecursive(final String path, final DistributionRegion region) throws ZookeeperException {
-			
-		logger.debug("Reading path: {}", path);
+		
+		logger.info("Reading path: {}", path);
 		
 		try {
 			final DistributionRegionState regionState 
