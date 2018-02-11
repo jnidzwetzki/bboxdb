@@ -23,7 +23,7 @@ import java.util.List;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.util.EntityDuplicateRemover;
+import org.bboxdb.storage.util.EntityDuplicateTracker;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class TestTupleDuplicateRemover {
 
 	@Test
 	public void testTupleDuplicateRemoverDiffKey() {
-		final EntityDuplicateRemover tupleDuplicateRemover = new EntityDuplicateRemover();
+		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		
 		final Tuple tuple1 = new Tuple("key1", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
@@ -44,7 +44,7 @@ public class TestTupleDuplicateRemover {
 	
 	@Test
 	public void testTupleDuplicateRemoverEqualKeyDiffVesion() {
-		final EntityDuplicateRemover tupleDuplicateRemover = new EntityDuplicateRemover();
+		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		
 		final Tuple tuple1 = new Tuple("key1", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
@@ -57,7 +57,7 @@ public class TestTupleDuplicateRemover {
 	
 	@Test
 	public void testTupleDuplicateRemoverEqualKeyEqualVesion() {
-		final EntityDuplicateRemover tupleDuplicateRemover = new EntityDuplicateRemover();
+		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		
 		final Tuple tuple1 = new Tuple("key1", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
@@ -70,7 +70,7 @@ public class TestTupleDuplicateRemover {
 	
 	@Test
 	public void testJoinedTuple() {
-	final EntityDuplicateRemover tupleDuplicateRemover = new EntityDuplicateRemover();
+	final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		
 		final Tuple tuple1 = new Tuple("key1", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
 		final Tuple tuple2 = new Tuple("key2", BoundingBox.EMPTY_BOX, "".getBytes(), 1);

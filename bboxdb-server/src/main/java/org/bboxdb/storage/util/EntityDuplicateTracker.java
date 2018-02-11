@@ -23,7 +23,7 @@ import java.util.Set;
 import org.bboxdb.storage.entity.EntityIdentifier;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
 
-public class EntityDuplicateRemover {
+public class EntityDuplicateTracker {
 
 	/**
 	 * The seen keys and versions

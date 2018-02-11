@@ -27,7 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.bboxdb.storage.util.CloseableIterator;
-import org.bboxdb.storage.util.EntityDuplicateRemover;
+import org.bboxdb.storage.util.EntityDuplicateTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +79,7 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 	/**
 	 * The tuple duplicate remover
 	 */
-	protected final EntityDuplicateRemover tupleDuplicateRemover = new EntityDuplicateRemover();
+	protected final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 	
 	/**
 	 * The Logger
