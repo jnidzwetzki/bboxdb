@@ -145,7 +145,7 @@ public class InsertTupleHandler implements RequestHandler {
 				storageManager.put(tuple);			
 			}
 		} catch (Exception e) {
-			logger.error("Got exception while inserting tuple");
+			logger.error("Got exception while inserting tuple", e);
 		} 
 	}
 
