@@ -77,7 +77,7 @@ public class InsertTupleHandler implements RequestHandler {
 			final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
 			
 			if(! routingHeader.isRoutedPackage()) {
-				final String errorMessage = "Error while insering tuple - package is not routed";
+				final String errorMessage = "Error while inserting tuple - package is not routed";
 				logger.error(errorMessage);
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
 				clientConnectionHandler.writeResultPackage(responsePackage);
@@ -144,7 +144,7 @@ public class InsertTupleHandler implements RequestHandler {
 				final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
 				storageManager.put(tuple);			
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("Got exception while inserting tuple", e);
 		} 
 	}
