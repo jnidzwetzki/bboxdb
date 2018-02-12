@@ -70,7 +70,7 @@ public class BBoxDBMain {
 		services.add(zookeeperClient);
 		
 		// The membership connection service
-		final MembershipConnectionService membershipService = createMembershipService();
+		final MembershipConnectionService membershipService = createMembershipService(storageRegistry);
 		services.add(membershipService);
 		
 		// The network connection handler
@@ -95,14 +95,20 @@ public class BBoxDBMain {
 
 	/**
 	 * Returns a new instance of the membership service
+	 * @param storageRegistry 
 	 * @return
 	 */
-	public MembershipConnectionService createMembershipService() {
+	public MembershipConnectionService createMembershipService(
+			final TupleStoreManagerRegistry storageRegistry) {
+		
 		final MembershipConnectionService membershipService = MembershipConnectionService.getInstance();
 		
 		// Prevent network connections to ourself
 		final BBoxDBInstance localhost = ZookeeperClientFactory.getLocalInstanceName();
 		membershipService.addSystemToBlacklist(localhost);
+		
+		// The storage registry for gossip
+		membershipService.setTupleStoreManagerRegistry(storageRegistry);
 		
 		return membershipService;
 	}

@@ -29,6 +29,7 @@ import java.util.function.BiConsumer;
 
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.network.client.BBoxDBClient;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +61,15 @@ public class MembershipConnectionService implements BBoxDBService {
 	protected short tuplesPerPage;
 	
 	/**
+	 * The tuple store manager registry (used for gossip, between server<->server connections)
+	 */
+	private TupleStoreManagerRegistry tupleStoreManagerRegistry;
+	
+	/**
 	 * The event handler
 	 */
-	protected BiConsumer<DistributedInstanceEvent, BBoxDBInstance> distributedEventConsumer = (event, instance) -> {
-		handleDistributedEvent(event, instance);
-	};
+	protected BiConsumer<DistributedInstanceEvent, BBoxDBInstance> distributedEventConsumer 
+		= this::handleDistributedEvent;
 	
 	/**
 	 * The singleton instance
@@ -77,10 +82,10 @@ public class MembershipConnectionService implements BBoxDBService {
 	private final static Logger logger = LoggerFactory.getLogger(MembershipConnectionService.class);
 	
 	private MembershipConnectionService() {
-		final HashMap<InetSocketAddress, BBoxDBClient> connectionMap = new HashMap<InetSocketAddress, BBoxDBClient>();
+		final HashMap<InetSocketAddress, BBoxDBClient> connectionMap = new HashMap<>();
 		serverConnections = Collections.synchronizedMap(connectionMap);
 		
-		final HashMap<InetSocketAddress, BBoxDBInstance> instanceMap = new HashMap<InetSocketAddress, BBoxDBInstance>();
+		final HashMap<InetSocketAddress, BBoxDBInstance> instanceMap = new HashMap<>();
 		knownInstances = Collections.synchronizedMap(instanceMap);
 		
 		pagingEnabled = false;
@@ -203,26 +208,27 @@ public class MembershipConnectionService implements BBoxDBService {
 	protected void createConnection(final BBoxDBInstance distributedInstance) {
 		
 		if(serverConnections.containsKey(distributedInstance.getInetSocketAddress())) {
-			logger.info("We have already a connection to: " + distributedInstance);
+			logger.info("We have already a connection to: {}", distributedInstance);
 			return;
 		}
 		
 		if(blacklist.contains(distributedInstance.getInetSocketAddress())) {
-			logger.info("Not creating a connection to the blacklisted system: " + distributedInstance);
+			logger.info("Not creating a connection to the blacklisted system: {}", distributedInstance);
 			return;
 		}
 		
-		logger.info("Opening connection to instance: " + distributedInstance);
+		logger.info("Opening connection to instance: {}", distributedInstance);
 		
 		final BBoxDBClient client = new BBoxDBClient(distributedInstance.getInetSocketAddress());
 		client.setPagingEnabled(pagingEnabled);
 		client.setTuplesPerPage(tuplesPerPage);
+		client.setTupleStoreManagerRegistry(tupleStoreManagerRegistry);
 		final boolean result = client.connect();
 		
 		if(! result) {
-			logger.info("Unable to open connection to: " + distributedInstance);
+			logger.info("Unable to open connection to: {}", distributedInstance);
 		} else {
-			logger.info("Connection successfully established: " + distributedInstance);
+			logger.info("Connection successfully established: {}", distributedInstance);
 			serverConnections.put(distributedInstance.getInetSocketAddress(), client);
 			knownInstances.put(distributedInstance.getInetSocketAddress(), distributedInstance);
 		}
@@ -238,7 +244,7 @@ public class MembershipConnectionService implements BBoxDBService {
 			return;
 		}
 		
-		logger.info("Closing connection to dead instance: " + distributedInstance);
+		logger.info("Closing connection to dead instance: {}", distributedInstance);
 		
 		knownInstances.remove(distributedInstance.getInetSocketAddress());
 		final BBoxDBClient client = serverConnections.remove(distributedInstance.getInetSocketAddress());
@@ -311,5 +317,20 @@ public class MembershipConnectionService implements BBoxDBService {
 		this.tuplesPerPage = tuplesPerPage;
 		serverConnections.values().forEach(c -> c.setTuplesPerPage(tuplesPerPage));
 	}
-	
+
+	/**
+	 * Get the tuple store manager registry (used for gossip in keep alive)
+	 * @return
+	 */
+	public TupleStoreManagerRegistry getTupleStoreManagerRegistry() {
+		return tupleStoreManagerRegistry;
+	}
+
+	/**
+	 * Get the tuple store manager registry (used for gossip in keep alive)
+	 * @param tupleStoreManagerRegistry
+	 */
+	public void setTupleStoreManagerRegistry(TupleStoreManagerRegistry tupleStoreManagerRegistry) {
+		this.tupleStoreManagerRegistry = tupleStoreManagerRegistry;
+	}	
 }

@@ -100,6 +100,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,6 +199,11 @@ public class BBoxDBClient implements BBoxDB {
 	 * The amount of tuples per page
 	 */
 	protected short tuplesPerPage;
+	
+	/**
+	 * The tuple store manager registry (used for gossip)
+	 */
+	protected TupleStoreManagerRegistry tupleStoreManagerRegistry;
 
 	/**
 	 * The pending packages for compression
@@ -1352,5 +1358,21 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public ServerResponseReader getServerResponseReader() {
 		return serverResponseReader;
+	}
+
+	/**
+	 * The tuple store manager registry
+	 * @return
+	 */
+	public TupleStoreManagerRegistry getTupleStoreManagerRegistry() {
+		return tupleStoreManagerRegistry;
+	}
+
+	/**
+	 * The tuple store manager registry
+	 * @param tupleStoreManagerRegistry
+	 */
+	public void setTupleStoreManagerRegistry(final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
+		this.tupleStoreManagerRegistry = tupleStoreManagerRegistry;
 	}
 }
