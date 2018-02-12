@@ -47,7 +47,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	/**
 	 * The blacklisted instances, no connection will be created to these systems
 	 */
-	protected Set<InetSocketAddress> blacklist = new HashSet<>();
+	protected final Set<InetSocketAddress> blacklist;
 	
 	/**
 	 * Is the paging for queries enabled?
@@ -85,6 +85,7 @@ public class MembershipConnectionService implements BBoxDBService {
 		
 		pagingEnabled = false;
 		tuplesPerPage = 0;
+		blacklist = new HashSet<>();
 	}
 	
 	/**
