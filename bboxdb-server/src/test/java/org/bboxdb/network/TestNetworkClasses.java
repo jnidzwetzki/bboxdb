@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.MicroSecondTimestampProvider;
@@ -1147,10 +1148,36 @@ public class TestNetworkClasses {
 	 * @throws PackageEncodeException 
 	 */
 	@Test
-	public void encodeAndDecodeKeepAlive() throws IOException, PackageEncodeException {
+	public void encodeAndDecodeKeepAlive1() throws IOException, PackageEncodeException {
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final KeepAliveRequest keepAlivePackage = new KeepAliveRequest(sequenceNumber);
+		
+		byte[] encodedVersion = networkPackageToByte(keepAlivePackage);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final KeepAliveRequest decodedPackage = KeepAliveRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(keepAlivePackage, decodedPackage);
+	}
+	
+	/**
+	 * The the encoding and decoding of a keep alive package
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test
+	public void encodeAndDecodeKeepAlive2() throws IOException, PackageEncodeException {
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final String tablename = "testgroup_abc";
+		
+		final Map<String, Long> hashValues = new HashMap<>();
+		hashValues.put("abc", 22l);
+		hashValues.put("def", 3432423l);
+		
+		final KeepAliveRequest keepAlivePackage = new KeepAliveRequest(sequenceNumber, tablename, hashValues);
 		
 		byte[] encodedVersion = networkPackageToByte(keepAlivePackage);
 		Assert.assertNotNull(encodedVersion);
