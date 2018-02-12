@@ -20,8 +20,8 @@ package org.bboxdb.network.packages.request;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
@@ -29,6 +29,8 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
+import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.util.DataEncoderHelper;
 
 public class KeepAliveRequest extends NetworkRequestPackage {
@@ -39,20 +41,20 @@ public class KeepAliveRequest extends NetworkRequestPackage {
 	private final String tablename;
 	
 	/**
-	 * The keep alive hash values (key, hash value)
+	 * The tuple versions
 	 */
-	private final Map<String, Long> hashValues;
+	private final List<Tuple> tuples;
 
 	public KeepAliveRequest(final short sequenceNumber) {
-		this(sequenceNumber, "", new HashMap<>());
+		this(sequenceNumber, "", new ArrayList<>());
 	}
 	
 	public KeepAliveRequest(final short sequenceNumber, final String tablename, 
-			final Map<String, Long> hashValues) {
+			final List<Tuple> tuples) {
 		
 		super(sequenceNumber);
 		this.tablename = tablename;
-		this.hashValues = hashValues;
+		this.tuples = tuples;
 	}
 
 	@Override
@@ -66,19 +68,24 @@ public class KeepAliveRequest extends NetworkRequestPackage {
 			bb.putShort((short) tableBytes.length);
 			bb.put(NetworkConst.UNUSED_BYTE);
 			bb.put(NetworkConst.UNUSED_BYTE);
-			bb.putInt(hashValues.size());
+			bb.putInt(tuples.size());
 			
 			final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			bos.write(bb.array());
 			bos.write(tableBytes);
 			
-			for(final String key : hashValues.keySet()) {
-				final byte[] keyArray = key.getBytes();
-				final ByteBuffer keyLengthBytes = DataEncoderHelper.intToByteBuffer(keyArray.length);
-				final ByteBuffer checksumBytes = DataEncoderHelper.longToByteBuffer(hashValues.get(key));
+			for(final Tuple tuple : tuples) {
+				final byte[] keyByteArray = tuple.getKey().getBytes();
+				final byte[] boundingBoxBytes = tuple.getBoundingBoxBytes();
+				final ByteBuffer keyLengthBytes = DataEncoderHelper.intToByteBuffer(keyByteArray.length);
+				final ByteBuffer boundingBoxLength = DataEncoderHelper.intToByteBuffer(boundingBoxBytes.length);
+				final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(tuple.getVersionTimestamp());
+				
 				bos.write(keyLengthBytes.array());
-				bos.write(keyArray);
-				bos.write(checksumBytes.array());
+				bos.write(keyByteArray);
+				bos.write(boundingBoxLength.array());
+				bos.write(boundingBoxBytes);
+				bos.write(versionBytes.array());
 			}
 			
 			bos.flush();
@@ -116,30 +123,37 @@ public class KeepAliveRequest extends NetworkRequestPackage {
 			throw new PackageEncodeException("Unable to decode package");
 		}
 		
-		final Map<String, Long> hashValue = new HashMap<>();
+		final List<Tuple> tuples = new ArrayList<>();
 		final short tableLength = encodedPackage.getShort();
 		encodedPackage.get(); // Unused
 		encodedPackage.get(); // Unused
-		final int hashValues = encodedPackage.getInt();
+		final int elements = encodedPackage.getInt();
 		
 		final byte[] tableNameBytes = new byte[tableLength];
 		encodedPackage.get(tableNameBytes, 0, tableNameBytes.length);
 		final String tableName = new String(tableNameBytes);
 		
-		for(int i = 0; i < hashValues; i++) {
+		for(int i = 0; i < elements; i++) {
 			final int keyLength = encodedPackage.getInt();
 			final byte[] keyBytes = new byte[keyLength];
 			encodedPackage.get(keyBytes, 0, keyBytes.length);
 			final String key = new String(keyBytes);
-			final long value = encodedPackage.getLong();
-			hashValue.put(key, value);
+			
+			final int boundingBoxLength = encodedPackage.getInt();
+			final byte[] boundingBoxBytes = new byte[boundingBoxLength];
+			encodedPackage.get(boundingBoxBytes, 0, boundingBoxBytes.length);
+			final BoundingBox boundingBox = BoundingBox.fromByteArray(boundingBoxBytes);
+			
+			final long version = encodedPackage.getLong();
+			final Tuple tuple = new Tuple(key, boundingBox, "".getBytes(), version);
+			tuples.add(tuple);
 		}
 		
 		if(encodedPackage.remaining() != 0) {
 			throw new PackageEncodeException("Some bytes are left after decoding: " + encodedPackage.remaining());
 		}
 		
-		return new KeepAliveRequest(sequenceNumber, tableName, hashValue);
+		return new KeepAliveRequest(sequenceNumber, tableName, tuples);
 	}
 
 	@Override
@@ -151,7 +165,7 @@ public class KeepAliveRequest extends NetworkRequestPackage {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((hashValues == null) ? 0 : hashValues.hashCode());
+		result = prime * result + ((tuples == null) ? 0 : tuples.hashCode());
 		result = prime * result + ((tablename == null) ? 0 : tablename.hashCode());
 		return result;
 	}
@@ -165,10 +179,10 @@ public class KeepAliveRequest extends NetworkRequestPackage {
 		if (getClass() != obj.getClass())
 			return false;
 		final KeepAliveRequest other = (KeepAliveRequest) obj;
-		if (hashValues == null) {
-			if (other.hashValues != null)
+		if (tuples == null) {
+			if (other.tuples != null)
 				return false;
-		} else if (!hashValues.equals(other.hashValues))
+		} else if (!tuples.equals(other.tuples))
 			return false;
 		if (tablename == null) {
 			if (other.tablename != null)
@@ -182,7 +196,7 @@ public class KeepAliveRequest extends NetworkRequestPackage {
 		return tablename;
 	}
 	
-	public Map<String, Long> getHashValues() {
-		return hashValues;
+	public List<Tuple> getTuples() {
+		return tuples;
 	}
 }

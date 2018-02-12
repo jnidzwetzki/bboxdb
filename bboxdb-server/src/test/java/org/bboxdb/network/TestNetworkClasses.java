@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.MicroSecondTimestampProvider;
@@ -1173,11 +1172,12 @@ public class TestNetworkClasses {
 
 		final String tablename = "testgroup_abc";
 		
-		final Map<String, Long> hashValues = new HashMap<>();
-		hashValues.put("abc", 22l);
-		hashValues.put("def", 3432423l);
-		
-		final KeepAliveRequest keepAlivePackage = new KeepAliveRequest(sequenceNumber, tablename, hashValues);
+		final List<Tuple> tuples = new ArrayList<>();
+		tuples.add(new Tuple("abc", new BoundingBox(1d, 2d, 1d, 2d), "".getBytes()));
+		tuples.add(new Tuple("def", new BoundingBox(2d, 2d, 4d, 20d), "".getBytes()));
+		tuples.add(new Tuple("xyz", new BoundingBox(10d, 20d, 10d, 20d), "".getBytes()));
+
+		final KeepAliveRequest keepAlivePackage = new KeepAliveRequest(sequenceNumber, tablename, tuples);
 		
 		byte[] encodedVersion = networkPackageToByte(keepAlivePackage);
 		Assert.assertNotNull(encodedVersion);
@@ -1185,7 +1185,8 @@ public class TestNetworkClasses {
 		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
 		final KeepAliveRequest decodedPackage = KeepAliveRequest.decodeTuple(bb);
 				
-		Assert.assertEquals(keepAlivePackage, decodedPackage);
+		Assert.assertEquals(keepAlivePackage.getTablename(), decodedPackage.getTablename());
+		Assert.assertEquals(keepAlivePackage.getTuples().size(), decodedPackage.getTuples().size());
 	}
 }
 	
