@@ -980,18 +980,15 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	public EmptyResultFuture sendKeepAlivePackage() {
 
-		synchronized (this) {
-			if(! connectionState.isInRunningState()) {
-				return FutureHelper.getFailedEmptyResultFuture("sendKeepAlivePackage called, but connection not ready: " + this);
-			}
-
-			final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-			final KeepAliveRequest requestPackage = new KeepAliveRequest(getNextSequenceNumber());
-			registerPackageCallback(requestPackage, clientOperationFuture);
-			sendPackageToServer(requestPackage, clientOperationFuture);
-			return clientOperationFuture;
+		if(! connectionState.isInRunningState()) {
+			return FutureHelper.getFailedEmptyResultFuture("sendKeepAlivePackage called, but connection not ready: " + this);
 		}
 
+		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
+		final KeepAliveRequest requestPackage = new KeepAliveRequest(getNextSequenceNumber());
+		registerPackageCallback(requestPackage, clientOperationFuture);
+		sendPackageToServer(requestPackage, clientOperationFuture);
+		return clientOperationFuture;
 	}
 
 	/**
