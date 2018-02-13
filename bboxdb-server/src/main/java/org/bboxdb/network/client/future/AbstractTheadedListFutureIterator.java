@@ -141,7 +141,8 @@ public abstract class AbstractTheadedListFutureIterator<T extends PagedTransfera
 			 */
 			@SuppressWarnings("unchecked")
 			protected void handleAdditionalPages() throws InterruptedException, ExecutionException {
-				final BBoxDBClient bboxdbClient = abstractLisFuture.getConnectionForResult(resultId);
+				final BBoxDBClient bboxdbClient = abstractLisFuture.getConnection(resultId);
+						
 				final short queryRequestId = abstractLisFuture.getRequestId(resultId);
 				
 				if(bboxdbClient == null) {

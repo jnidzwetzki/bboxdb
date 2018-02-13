@@ -50,7 +50,6 @@ public class ResponseHandlerHelper {
 				tupleList.add((Tuple) entity);
 			}
 			
-			pendingCall.setConnectionForResult(0, bboxDBClient);
 			pendingCall.setCompleteResult(0, completeResult);	
 			pendingCall.setOperationResult(0, tupleList);
 			pendingCall.fireCompleteEvent();
@@ -62,7 +61,6 @@ public class ResponseHandlerHelper {
 				tupleList.add((JoinedTuple) entity);
 			}
 			
-			pendingCall.setConnectionForResult(0, bboxDBClient);
 			pendingCall.setCompleteResult(0, completeResult);	
 			pendingCall.setOperationResult(0, tupleList);
 			pendingCall.fireCompleteEvent();

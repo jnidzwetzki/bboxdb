@@ -21,6 +21,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.bboxdb.network.client.BBoxDBClient;
+
 public class FutureImplementation<T> {
 	
 	/**
@@ -66,7 +68,7 @@ public class FutureImplementation<T> {
 	/**
 	 * The associated connection
 	 */
-	protected String connectionName;
+	protected BBoxDBClient connection;
 	
 	/**
 	 * Empty constructor
@@ -221,7 +223,7 @@ public class FutureImplementation<T> {
 	public String toString() {
 		return "FutureImplementation [requestId=" + requestId + ", operationResult=" + operationResult + ", mutex="
 				+ mutex + ", failed=" + failed + ", done=" + done + ", message=" + message + ", startTime=" + startTime
-				+ ", completionTime=" + completionTime + ", connectionId=" + connectionName + "]";
+				+ ", completionTime=" + completionTime + ", connectionId=" + connection + "]";
 	}
 
 	/**
@@ -240,16 +242,16 @@ public class FutureImplementation<T> {
 	 * Get the id of the connection
 	 * @return
 	 */
-	public String getConnectionName() {
-		return connectionName;
+	public BBoxDBClient getConnection() {
+		return connection;
 	}
 
 	/**
 	 * Set the id of the connection
 	 * @param connectionName
 	 */
-	public void setConnectionName(final String connectionName) {
-		this.connectionName = connectionName;
+	public void setConnection(final BBoxDBClient connection) {
+		this.connection = connection;
 	}
 	
 	/**
@@ -261,7 +263,7 @@ public class FutureImplementation<T> {
 		sb.append("[message=");
 		sb.append(getMessage());
 		sb.append(", connection=");
-		sb.append(getConnectionName());
+		sb.append(getConnection().getConnectionName());
 		sb.append("]");
 		return sb.toString();
 	}

@@ -1103,7 +1103,7 @@ public class BBoxDBClient implements BBoxDB {
 	protected void sendPackageToServer(final NetworkRequestPackage requestPackage, 
 			final OperationFuture future) {
 
-		future.setConnectionName(0, getConnectionName());
+		future.setConnection(0, this);
 
 		try {
 			synchronized (pendingCalls) {

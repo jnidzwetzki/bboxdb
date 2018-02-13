@@ -111,7 +111,7 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 		try {
 			for(int i = 0; i < getNumberOfResultObjets(); i++) {
 				final List<Tuple> tupleResult = get(i);
-				final BBoxDBClient bboxDBConnection = getConnectionForResult(i);
+				final BBoxDBClient bboxDBConnection = getConnection(i);
 				
 				if(bboxDBConnection == null) {
 					// Unable to perform read repair when the connection is not known

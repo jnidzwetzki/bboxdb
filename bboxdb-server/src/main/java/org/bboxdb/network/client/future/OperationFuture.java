@@ -21,6 +21,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.bboxdb.network.client.BBoxDBClient;
+
 public interface OperationFuture {
 
 	/**
@@ -50,16 +52,16 @@ public interface OperationFuture {
 	public String getMessage(final int resultId);
 	
 	/**
-	 * Set the connection id for the future
+	 * Set the connection for the future
 	 * @param resultId
 	 * @param connectionId
 	 */
-	public void setConnectionName(final int resultId, final String connectionName);
+	public void setConnection(final int resultId, final BBoxDBClient connection);
 	
 	/**
 	 * Get the connection id from the future
 	 */
-	public String getConnectonName(final int resultId);
+	public BBoxDBClient getConnection(final int resultId);
 	
 	/**
 	 * Get the additional messages from all results [message1, message2, ...]

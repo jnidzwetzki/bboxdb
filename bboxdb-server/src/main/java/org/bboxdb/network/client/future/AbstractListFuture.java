@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.bboxdb.network.client.BBoxDBClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +32,7 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 	 * Is the result complete or only a page?
 	 */
 	protected final Map<Integer, Boolean> resultComplete = new HashMap<>();
-	
-	/**
-	 * The connections for the paging
-	 */
-	protected final Map<Integer, BBoxDBClient> connections = new HashMap<>();
-	
+
 	/**
 	 * The Logger
 	 */
@@ -81,33 +75,6 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 		resultComplete.put(resultId, completeResult);
 	}
 	
-	/**
-	 * Set the BBoxDB connection for paging
-	 * @param resultId
-	 * @param bboxdbClient
-	 */
-	public void setConnectionForResult(final int resultId, final BBoxDBClient bboxdbClient) {
-		checkFutureSize(resultId);
-
-		connections.put(resultId, bboxdbClient);
-	}
-	
-	/**
-	 * Get the bboxdbClient for the given resultId (needed to request next pages)
-	 * @param resultId
-	 * @return
-	 */
-	public BBoxDBClient getConnectionForResult(final int resultId) {
-		checkFutureSize(resultId);
-
-		if(! connections.containsKey(resultId)) {
-			logger.error("getConnectionForResult() called with id {}, but connection is unknown", resultId);
-			return null;
-		}
-		
-		return connections.get(resultId);
-	}
-
 	/**
 	 * Get a list with all results
 	 * @return
