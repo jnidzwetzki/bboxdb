@@ -40,34 +40,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class KeepAliveHandler implements RequestHandler {
-	
+
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KeepAliveHandler.class);
 
-	@Override
 	/**
 	 * Handle the keep alive package. Simply send a success response package back
 	 */
+	@Override
 	public boolean handleRequest(final ByteBuffer encodedPackage, 
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
-		
+
 		final KeepAliveRequest keepAliveRequst = KeepAliveRequest.decodeTuple(encodedPackage);
 
 		boolean gossipResult = true;
 		if(! keepAliveRequst.getTuples().isEmpty()) {
 			gossipResult = handleGossip(keepAliveRequst, clientConnectionHandler);
 		}
-		
+
 		if(gossipResult) {
 			final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
 			clientConnectionHandler.writeResultPackage(responsePackage);
 		} else {
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, 
 					ErrorMessages.ERROR_OUTDATED_TUPLES);
-			
+
 			clientConnectionHandler.writeResultPackage(responsePackage);
 		}
 
@@ -87,15 +87,15 @@ public class KeepAliveHandler implements RequestHandler {
 		final TupleStoreName tupleStoreName = new TupleStoreName(table);
 		final List<Tuple> tuples = keepAliveRequst.getTuples();
 		final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
-		
+
 		for(final Tuple tuple : tuples) {
-            final boolean result = checkLocalTuples(storageRegistry, tupleStoreName, tuple);
-            
-            if(! result) {
-            		return false;
-            }
+			final boolean result = checkLocalTuples(storageRegistry, tupleStoreName, tuple);
+
+			if(! result) {
+				return false;
+			}
 		}
-		
+
 		return true;
 	}
 
@@ -107,13 +107,13 @@ public class KeepAliveHandler implements RequestHandler {
 	 */
 	private boolean checkLocalTuples(final TupleStoreManagerRegistry tupleStoreManagerRegistry,
 			final TupleStoreName tupleStoreName, final Tuple tuple) {
-		
+
 		final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(tupleStoreName.getDistributionGroupObject());
 
 		final Collection<TupleStoreName> localTables = regionIdMapper.getLocalTablesForRegion(tuple.getBoundingBox(), tupleStoreName);
-         
+
 		for(final TupleStoreName localTupleStoreName : localTables) {
-		    try {
+			try {
 				final TupleStoreManager storageManager = tupleStoreManagerRegistry.getTupleStoreManager(localTupleStoreName);    
 				final List<Tuple> localTuples = storageManager.get(tuple.getKey());
 
@@ -121,16 +121,16 @@ public class KeepAliveHandler implements RequestHandler {
 					logger.error("Got empty tuple list during gossip");
 					return false;
 				}
-				
+
 				final List<Long> localVersions = getSortedVersionList(localTuples);
 				final long gossipTupleVersion = tuple.getVersionTimestamp();
-				
+
 				return checkLocalTupleVersions(localVersions, gossipTupleVersion);
 			} catch (StorageManagerException e) {
 				logger.error("Got exception while reading tuples", e);
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -142,16 +142,16 @@ public class KeepAliveHandler implements RequestHandler {
 	 */
 	private boolean checkLocalTupleVersions(final List<Long> localVersions, 
 			final long gossipTupleVersion) {
-		
+
 		if(gossipTupleVersion > localVersions.get(0)) {
 			if(localVersions.contains(gossipTupleVersion)) {
 				logger.error("Gossip: Tuple version {} is not contained in list {}", 
 						gossipTupleVersion, localVersions);
-				
+
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -164,10 +164,10 @@ public class KeepAliveHandler implements RequestHandler {
 	private List<Long> getSortedVersionList(final List<Tuple> localTuples) {
 		// Get local tuple versions (sorted)
 		final List<Long> localVersions = localTuples.stream()
-			.mapToLong(t -> t.getVersionTimestamp())
-			.sorted()
-			.boxed()
-			.collect(Collectors.toList());
+				.mapToLong(t -> t.getVersionTimestamp())
+				.sorted()
+				.boxed()
+				.collect(Collectors.toList());
 		return localVersions;
 	}
 }
