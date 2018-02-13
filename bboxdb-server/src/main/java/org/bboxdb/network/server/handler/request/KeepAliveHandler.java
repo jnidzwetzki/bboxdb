@@ -144,14 +144,21 @@ public class KeepAliveHandler implements RequestHandler {
 			final long gossipTupleVersion) {
 
 		if(gossipTupleVersion > localVersions.get(0)) {
-			if(localVersions.contains(gossipTupleVersion)) {
-				logger.error("Gossip: Tuple version {} is not contained in list {}", 
-						gossipTupleVersion, localVersions);
-
-				return false;
-			}
+			logger.error("Gossip: Remote knows a newer version {} / local {}", 
+					gossipTupleVersion, localVersions);
+			
+			return false;
 		}
+		
+		if(! localVersions.contains(gossipTupleVersion)) {
+			logger.error("Gossip: Tuple version {} is not contained in list {}", 
+					gossipTupleVersion, localVersions);
 
+			return false;
+		}
+		
+		logger.info("Gossip: Remote version {} / local {}", gossipTupleVersion, localVersions);
+		
 		return true;
 	}
 
