@@ -994,9 +994,12 @@ public class BBoxDBClient implements BBoxDB {
 		if(! connectionState.isInRunningState()) {
 			return FutureHelper.getFailedEmptyResultFuture("sendKeepAlivePackage called, but connection not ready: " + this);
 		}
-
+		
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		final KeepAliveRequest requestPackage = new KeepAliveRequest(getNextSequenceNumber());
+		
+		final KeepAliveRequest requestPackage 
+			= new KeepAliveRequest(getNextSequenceNumber(), tablename, tuples);
+		
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
