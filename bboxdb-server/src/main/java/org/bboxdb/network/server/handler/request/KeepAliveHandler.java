@@ -157,7 +157,7 @@ public class KeepAliveHandler implements RequestHandler {
 			return false;
 		}
 		
-		logger.info("Gossip: Remote version {} / local {}", gossipTupleVersion, localVersions);
+		logger.debug("Gossip: Remote version {} / local {}", gossipTupleVersion, localVersions);
 		
 		return true;
 	}
