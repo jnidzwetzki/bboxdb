@@ -48,4 +48,9 @@ public class ErrorMessages {
 	 * Routing failed
 	 */
 	public final static String ERROR_ROUTING_FAILED = "Package routing faield";
+	
+	/**
+	 * Outdated tuples detected
+	 */
+	public final static String ERROR_OUTDATED_TUPLES = "Outdated tuples found due to gossip";
 }
