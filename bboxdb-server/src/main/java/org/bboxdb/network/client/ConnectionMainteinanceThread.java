@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.commons.ListHelper;
 import org.bboxdb.commons.concurrent.ExceptionSafeThread;
 import org.bboxdb.network.NetworkConst;
-import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -54,22 +53,9 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 	private final BBoxDBClient bboxDBClient;
 	
 	/**
-	 * The tuple in the last keep alive gossip call
-	 */
-	private List<Tuple> lastGossipTuples;
-	
-	/**
-	 * The table name of the last gossip tuples
-	 */
-	private TupleStoreName lastGossipTableName;
-	
-	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ServerResponseReader.class);
-
-	
-
 	
 	public ConnectionMainteinanceThread(final BBoxDBClient bboxDBClient) {
 		this.bboxDBClient = bboxDBClient;
@@ -94,10 +80,13 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 				bboxDBClient.flushPendingCompressionPackages();
 							
 				if(lastDataSendTimestamp + keepAliveTime < System.currentTimeMillis()) {
+					
 					// Send keep alive only on open connections
 					if(bboxDBClient.getConnectionState().isInRunningState()) {
-						final EmptyResultFuture result = sendKeepAlivePackage();
-						//waitForResult(result);
+						final Runnable gossipRunable = sendKeepAlivePackage();
+						final Thread thread = new Thread(gossipRunable);
+						thread.setName("Gossip for " + bboxDBClient.getConnectionName());
+						thread.start();
 					}
 				}
 			
@@ -113,20 +102,20 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 	 * Build a keep alive package (with or without gossip)
 	 * @return
 	 */
-	private EmptyResultFuture sendKeepAlivePackage() {
+	private Runnable sendKeepAlivePackage() {
 		
 		final TupleStoreManagerRegistry tupleStoreManagerRegistry = bboxDBClient.getTupleStoreManagerRegistry();
 		if(tupleStoreManagerRegistry == null) {
-			return bboxDBClient.sendKeepAlivePackage();
+			return new GossipRunable(bboxDBClient);
 		}
 		
 		final List<TupleStoreName> tables = tupleStoreManagerRegistry.getAllTables();
 		
 		if(tables.isEmpty()) {
-			return bboxDBClient.sendKeepAlivePackage();
+			return new GossipRunable(bboxDBClient);
 		}
 		
-		lastGossipTableName = ListHelper.getElementRandom(tables);
+		final TupleStoreName lastGossipTableName = ListHelper.getElementRandom(tables);
 		
 		List<ReadOnlyTupleStore> storages = new ArrayList<>();
 		try {
@@ -136,13 +125,13 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 				storages = tupleStoreManager.aquireStorage();
 				
 				if(storages.isEmpty()) {
-					return bboxDBClient.sendKeepAlivePackage();
+					return new GossipRunable(bboxDBClient);
 				}
 				
 				final ReadOnlyTupleStore tupleStore = ListHelper.getElementRandom(storages);
 
 				if(tupleStore.getNumberOfTuples() > 0) {
-					return sendKeepAliveWithGossip(tupleStoreManager, tupleStore);
+					return sendKeepAliveWithGossip(tupleStoreManager, tupleStore, lastGossipTableName);
 				}
 				
 			} catch (Exception e) {
@@ -154,60 +143,32 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 			logger.error("Got exception while reading tuples", e);
 		}
 		
-		return bboxDBClient.sendKeepAlivePackage();
+		return new GossipRunable(bboxDBClient);
 	}
 
 	/**
 	 * Send a keep alive package with some gossip
 	 * @param tupleStoreManager
 	 * @param tupleStore
+	 * @param lastGossipTableName 
 	 * @return
 	 * @throws StorageManagerException
 	 */
-	private EmptyResultFuture sendKeepAliveWithGossip(final TupleStoreManager tupleStoreManager,
-			final ReadOnlyTupleStore tupleStore) throws StorageManagerException {
+	private Runnable sendKeepAliveWithGossip(final TupleStoreManager tupleStoreManager,
+			final ReadOnlyTupleStore tupleStore, TupleStoreName lastGossipTableName) 
+			throws StorageManagerException {
 		
 		final Random random = new Random();
 		final Tuple tuple = tupleStore.getTupleAtPosition(random.nextInt((int) tupleStore.getNumberOfTuples()));
 		
 		final String key = tuple.getKey();
-		lastGossipTuples = tupleStoreManager.get(key);
+		final List<Tuple> lastGossipTuples = tupleStoreManager.get(key);
 		
 		logger.debug("Payload in keep alive: {}", lastGossipTuples);
 		
 		final String fullnameWithoutPrefix = lastGossipTableName.getFullnameWithoutPrefix();
 		
-		return bboxDBClient.sendKeepAlivePackage(fullnameWithoutPrefix, lastGossipTuples);
-	}
-
-	/**
-	 * @param result
-	 * @throws InterruptedException
-	 */
-	private void waitForResult(final EmptyResultFuture result) throws InterruptedException {
-		
-		// Wait for our keep alive to be processed
-		result.waitForAll();
-		
-		// Gossip has detected an outdated version
-		if(result.isFailed()) {
-			
-			if(lastGossipTuples == null || lastGossipTableName == null) {
-				logger.error("Falied keep alive, but no idea what was our last gossip");
-				return;
-			}
-			
-			logger.info("Got failed message back from keep alive, "
-					+ "outdated tuples detected by gossip {} / {}", lastGossipTableName, lastGossipTuples);
-			
-			for(final Tuple tuple: lastGossipTuples) {
-				try {
-					bboxDBClient.insertTuple(lastGossipTableName.getFullnameWithoutPrefix(), tuple);
-				} catch (BBoxDBException e) {
-					logger.error("Got Exception while performing gossip repair", e);
-				}
-			}
-		}
+		return new GossipRunable(lastGossipTuples, fullnameWithoutPrefix, bboxDBClient);
 	}
 	
 	/**
