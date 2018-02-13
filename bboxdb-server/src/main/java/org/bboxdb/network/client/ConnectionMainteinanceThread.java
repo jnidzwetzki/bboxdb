@@ -97,7 +97,7 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 					// Send keep alive only on open connections
 					if(bboxDBClient.getConnectionState().isInRunningState()) {
 						final EmptyResultFuture result = sendKeepAlivePackage();
-						waitForResult(result);
+						//waitForResult(result);
 					}
 				}
 			
@@ -185,6 +185,8 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 	 * @throws InterruptedException
 	 */
 	private void waitForResult(final EmptyResultFuture result) throws InterruptedException {
+		
+		// Wait for our keep alive to be processed
 		result.waitForAll();
 		
 		// Gossip has detected an outdated version
@@ -195,7 +197,8 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 				return;
 			}
 			
-			logger.info("Got failed message back from keep alive, outdated tuples detected by gossip");
+			logger.info("Got failed message back from keep alive, "
+					+ "outdated tuples detected by gossip {} / {}", lastGossipTableName, lastGossipTuples);
 			
 			for(final Tuple tuple: lastGossipTuples) {
 				try {
