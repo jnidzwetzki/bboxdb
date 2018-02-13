@@ -183,7 +183,7 @@ public class TestFuture {
 	 */
 	@Test
 	public void testTupleListFuture() {
-		final TupleListFuture tupleListFuture = new TupleListFuture(2, new DoNothingDuplicateResolver());
+		final TupleListFuture tupleListFuture = new TupleListFuture(2, new DoNothingDuplicateResolver(), "");
 		
 		Assert.assertFalse(tupleListFuture.isCompleteResult(0));
 		Assert.assertFalse(tupleListFuture.isCompleteResult(1));

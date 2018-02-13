@@ -725,7 +725,7 @@ public class BBoxDBClient implements BBoxDB {
 	public TupleListFuture queryKey(final String table, final String key) {
 
 		if(! connectionState.isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryKey called, but connection not ready: " + this);
+			return FutureHelper.getFailedTupleListFuture("queryKey called, but connection not ready: " + this, table);
 		}
 
 		try {
@@ -734,7 +734,7 @@ public class BBoxDBClient implements BBoxDB {
 			final DuplicateResolver<Tuple> duplicateResolver 
 				= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
 			
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1, duplicateResolver);
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, duplicateResolver, table);
 
 			final QueryKeyRequest requestPackage = new QueryKeyRequest(getNextSequenceNumber(), routingHeader, 
 					table, key, pagingEnabled, tuplesPerPage);
@@ -748,12 +748,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		}
 	}
 
@@ -764,13 +764,13 @@ public class BBoxDBClient implements BBoxDB {
 	public TupleListFuture queryBoundingBox(final String table, final BoundingBox boundingBox) {
 
 		if(! connectionState.isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this);
+			return FutureHelper.getFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this, table);
 		}
 
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
 
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryBoundingBoxRequest requestPackage = new QueryBoundingBoxRequest(getNextSequenceNumber(), 
 					routingHeader, table, boundingBox, pagingEnabled, tuplesPerPage);
 
@@ -783,12 +783,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		}
 	}
 
@@ -800,13 +800,13 @@ public class BBoxDBClient implements BBoxDB {
 	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) {
 
 		if(! connectionState.isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryBoundingBoxContinuous called, but connection not ready: " + this);
+			return FutureHelper.getFailedTupleListFuture("queryBoundingBoxContinuous called, but connection not ready: " + this, table);
 		}
 
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
 
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryBoundingBoxContinuousRequest requestPackage = new QueryBoundingBoxContinuousRequest(getNextSequenceNumber(), 
 					routingHeader, table, boundingBox);
 
@@ -819,12 +819,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		}
 	}
 
@@ -836,13 +836,13 @@ public class BBoxDBClient implements BBoxDB {
 			final BoundingBox boundingBox, final long timestamp) {
 
 		if(! connectionState.isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this);
+			return FutureHelper.getFailedTupleListFuture("queryBoundingBox called, but connection not ready: " + this, table);
 		}
 
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
 
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryBoundingBoxTimeRequest requestPackage = new QueryBoundingBoxTimeRequest(getNextSequenceNumber(), 
 					routingHeader, table, boundingBox, timestamp, pagingEnabled, tuplesPerPage);
 
@@ -855,12 +855,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		}
 	}
 
@@ -871,13 +871,13 @@ public class BBoxDBClient implements BBoxDB {
 	public TupleListFuture queryVersionTime(final String table, final long timestamp) {
 
 		if(! connectionState.isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryTime called, but connection not ready: " + this);
+			return FutureHelper.getFailedTupleListFuture("queryTime called, but connection not ready: " + this, table);
 		}
 
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
 
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryVersionTimeRequest requestPackage = new QueryVersionTimeRequest(getNextSequenceNumber(), 
 					routingHeader, table, timestamp, pagingEnabled, tuplesPerPage);
 
@@ -890,12 +890,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		}
 	}
 
@@ -906,13 +906,13 @@ public class BBoxDBClient implements BBoxDB {
 	public TupleListFuture queryInsertedTime(final String table, final long timestamp) {
 
 		if(! connectionState.isInRunningState()) {
-			return FutureHelper.getFailedTupleListFuture("queryTime called, but connection not ready: " + this);
+			return FutureHelper.getFailedTupleListFuture("queryTime called, but connection not ready: " + this, table);
 		}
 
 		try {
 			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
 
-			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
+			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryInsertTimeRequest requestPackage = new QueryInsertTimeRequest(getNextSequenceNumber(), 
 					routingHeader, table, timestamp, pagingEnabled, tuplesPerPage);
 
@@ -925,12 +925,12 @@ public class BBoxDBClient implements BBoxDB {
 			return clientOperationFuture;
 		} catch (BBoxDBException | ZookeeperException e) {
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		} catch (InterruptedException e) {
 			logger.warn("Interrupted while waiting for systems list");
 			Thread.currentThread().interrupt();
 			// Return after exception
-			return FutureHelper.getFailedTupleListFuture(e.getMessage());
+			return FutureHelper.getFailedTupleListFuture(e.getMessage(), table);
 		}
 	}
 	
@@ -1017,10 +1017,11 @@ public class BBoxDBClient implements BBoxDB {
 					+ " not found in the result buffer";
 
 			logger.error(errorMessage);
-			return FutureHelper.getFailedTupleListFuture(errorMessage);
+			return FutureHelper.getFailedTupleListFuture(errorMessage, "");
 		}
 
-		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver());
+		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), "");
+		
 		final NextPageRequest requestPackage = new NextPageRequest(
 				getNextSequenceNumber(), queryPackageId);
 

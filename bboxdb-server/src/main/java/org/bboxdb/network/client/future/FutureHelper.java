@@ -37,8 +37,8 @@ public class FutureHelper {
 	 * Create and return an empty tuple list future
 	 * @return
 	 */
-	public static TupleListFuture getFailedTupleListFuture(final String failedMessage) {
-		final TupleListFuture future = new TupleListFuture(1, new DoNothingDuplicateResolver());
+	public static TupleListFuture getFailedTupleListFuture(final String failedMessage, final String table) {
+		final TupleListFuture future = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 		future.setMessage(0, failedMessage);
 		future.setFailedState();
 		future.fireCompleteEvent();

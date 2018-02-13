@@ -9,6 +9,7 @@ order: 1
 ### Version 0.4.2 (Stable) - TBA
 - New Feature: Added data loader for re-balance demonstration
 - New Feature: Added gossip for eventual consistency
+- New Feature: Added read repair for eventual consistency
 - Improvement: Updated dependencies (json / guava)
 - Improvement: Rewrote shutdown code 
 - Improvement: If the server is still running 60 seconds after a shutdown, it is killed

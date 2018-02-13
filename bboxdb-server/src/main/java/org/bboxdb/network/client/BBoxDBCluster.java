@@ -301,7 +301,7 @@ public class BBoxDBCluster implements BBoxDB {
 		final DuplicateResolver<Tuple> duplicateResolver 
 			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
 
-		final TupleListFuture future = new TupleListFuture(duplicateResolver);
+		final TupleListFuture future = new TupleListFuture(duplicateResolver, table);
 
 		if(logger.isDebugEnabled()) {
 			logger.debug("Query by for key {} in table {}", key, table);
@@ -322,7 +322,7 @@ public class BBoxDBCluster implements BBoxDB {
 			throw new BBoxDBException("queryBoundingBox called, but connection list is empty");
 		}
 
-		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
+		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver(), table);
 
 		try {
 			final TupleStoreName sstableName = new TupleStoreName(table);
@@ -397,7 +397,7 @@ public class BBoxDBCluster implements BBoxDB {
 			throw new BBoxDBException("queryBoundingBoxAndTime called, but connection list is empty");
 		}
 
-		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
+		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver(), table);
 
 		try {
 			final TupleStoreName sstableName = new TupleStoreName(table);
@@ -434,7 +434,7 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
 
-		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
+		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver(), table);
 
 		membershipConnectionService.getAllConnections()
 		.stream()
@@ -455,7 +455,7 @@ public class BBoxDBCluster implements BBoxDB {
 			logger.debug("Query by for timestamp {} in table {}", timestamp, table);
 		}
 
-		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver());
+		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver(), table);
 
 		membershipConnectionService.getAllConnections()
 		.stream()

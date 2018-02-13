@@ -52,7 +52,7 @@ public class TestTupleListFutureStore {
 	public void testRejectedExeption() throws InterruptedException, RejectedException {
 		final TupleListFutureStore tupleListFutureStore = new TupleListFutureStore();
 		tupleListFutureStore.shutdown();
-		tupleListFutureStore.put(new TupleListFuture(new DoNothingDuplicateResolver()));
+		tupleListFutureStore.put(new TupleListFuture(new DoNothingDuplicateResolver(), ""));
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class TestTupleListFutureStore {
 class TestTupleListFuture extends TupleListFuture {
 	
 	public TestTupleListFuture() {
-		super(new DoNothingDuplicateResolver());
+		super(new DoNothingDuplicateResolver(), "");
 	}
 
 	public final static int ELEMENTS = 100;
