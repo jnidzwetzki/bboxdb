@@ -53,12 +53,12 @@ public class ConnectionMainteinanceThread extends ExceptionSafeThread {
 
 	@Override
 	protected void beginHook() {
-		logger.debug("Starting connection mainteinance thread for: " + bboxDBClient.getConnectionName());
+		logger.debug("Starting connection mainteinance thread for: {}", bboxDBClient.getConnectionName());
 	}
 	
 	@Override
 	protected void endHook() {
-		logger.debug("Mainteinance thread for: " + bboxDBClient.getConnectionName() + " has terminated");
+		logger.debug("Mainteinance thread for: {} has terminated", bboxDBClient.getConnectionName());
 	}
 	
 	@Override
