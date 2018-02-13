@@ -31,14 +31,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.DuplicateResolver;
-import org.bboxdb.commons.ListHelper;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.commons.NetworkInterfaceHelper;
 import org.bboxdb.commons.ServiceState;
@@ -95,7 +93,6 @@ import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
-import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
@@ -103,8 +100,6 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;
-import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
-import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -985,69 +980,26 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	public EmptyResultFuture sendKeepAlivePackage() {
+		return sendKeepAlivePackage("", new ArrayList<>());
+	}
+	
+	/**
+	 * Send a keep alive package with some gossip
+	 * @param tablename
+	 * @param tuples
+	 * @return
+	 */
+	public EmptyResultFuture sendKeepAlivePackage(final String tablename, final List<Tuple> tuples) {
 
 		if(! connectionState.isInRunningState()) {
 			return FutureHelper.getFailedEmptyResultFuture("sendKeepAlivePackage called, but connection not ready: " + this);
 		}
 
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-		final KeepAliveRequest requestPackage = buildKeepAlivePackage();
+		final KeepAliveRequest requestPackage = new KeepAliveRequest(getNextSequenceNumber());
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
-	}
-
-	/**
-	 * Build a keep alive package (with or without gossip)
-	 * @return
-	 */
-	private KeepAliveRequest buildKeepAlivePackage() {
-		if(tupleStoreManagerRegistry == null) {
-			return new KeepAliveRequest(getNextSequenceNumber());
-		}
-		
-		final List<TupleStoreName> tables = tupleStoreManagerRegistry.getAllTables();
-		
-		if(tables.isEmpty()) {
-			return new KeepAliveRequest(getNextSequenceNumber());
-		}
-		
-		final TupleStoreName tupleStoreName = ListHelper.getElementRandom(tables);
-		
-		List<ReadOnlyTupleStore> storages = new ArrayList<>();
-		try {
-			final TupleStoreManager tupleStoreManager = tupleStoreManagerRegistry.getTupleStoreManager(tupleStoreName);
-
-			try {
-				storages = tupleStoreManager.aquireStorage();
-				
-				if(storages.isEmpty()) {
-					return new KeepAliveRequest(getNextSequenceNumber());
-				}
-				
-				final ReadOnlyTupleStore tupleStore = ListHelper.getElementRandom(storages);
-
-				if(tupleStore.getNumberOfTuples() > 0) {
-					final Random random = new Random();
-					final Tuple tuple = tupleStore.getTupleAtPosition(random.nextInt((int) tupleStore.getNumberOfTuples()));
-					
-					final String key = tuple.getKey();
-					final List<Tuple> tuples = tupleStoreManager.get(key);
-					
-					logger.debug("Payload in keep alive: {}", tuples);
-					
-					return new KeepAliveRequest(getNextSequenceNumber(), tupleStoreName.getFullnameWithoutPrefix(), tuples);
-				}
-			} catch (Exception e) {
-				throw e;
-			} finally {
-				tupleStoreManager.releaseStorage(storages);
-			}
-		} catch (StorageManagerException e) {
-			logger.error("Got exception while reading tuples", e);
-		}
-		
-		return new KeepAliveRequest(getNextSequenceNumber());
 	}
 
 	/**
