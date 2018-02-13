@@ -35,7 +35,15 @@ $BBOXDB_HOME/bin/manage_cluster.sh  bboxdb_stop
 $BBOXDB_HOME/bin/manage_cluster.sh  bboxdb_update
 $BBOXDB_HOME/bin/manage_cluster.sh  zookeeper_stop
 
-for node in $nodes; do
+# Nodes
+bboxdb_nodes=$(read_nodes_file $bboxdb_node_file)
+
+if [ -z "$bboxdb_nodes" ]; then
+   echo "Your BBoxDB nodes ($bboxdb_node_file) are empty, please check your configuration" 
+   exit -1
+fi
+
+for node in $bboxdb_nodes; do
    ssh $node "rm -r /tmp/bboxdb"; 
    ssh $node "mkdir -p /tmp/bboxdb/data"; 
 done
