@@ -1034,7 +1034,7 @@ public class BBoxDBClient implements BBoxDB {
 					final String key = tuple.getKey();
 					final List<Tuple> tuples = tupleStoreManager.get(key);
 					
-					logger.info("Payload in keep alive: " + tuples);
+					logger.debug("Payload in keep alive: {}", tuples);
 					
 					return new KeepAliveRequest(getNextSequenceNumber(), tupleStoreName.getFullnameWithoutPrefix(), tuples);
 				}
