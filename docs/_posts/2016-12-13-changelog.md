@@ -21,6 +21,7 @@ order: 1
 - Bugfix: Package was not routed to the last hop of routing list
 - Bugfix: Ensure distribution group is read when local mappings are requsted
 - Bugfix: Duplicates are removed from the simple iterator result set
+- Bugfix: Fixed connection / complete result state in futures on merge operation
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation
