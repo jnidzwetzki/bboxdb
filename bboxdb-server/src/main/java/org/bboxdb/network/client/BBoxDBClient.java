@@ -1007,6 +1007,11 @@ public class BBoxDBClient implements BBoxDB {
 		}
 		
 		final List<TupleStoreName> tables = tupleStoreManagerRegistry.getAllTables();
+		
+		if(tables.isEmpty()) {
+			return new KeepAliveRequest(getNextSequenceNumber());
+		}
+		
 		final TupleStoreName tupleStoreName = ListHelper.getElementRandom(tables);
 		
 		List<ReadOnlyTupleStore> storages = new ArrayList<>();
@@ -1015,17 +1020,24 @@ public class BBoxDBClient implements BBoxDB {
 
 			try {
 				storages = tupleStoreManager.aquireStorage();
+				
+				if(storages.isEmpty()) {
+					return new KeepAliveRequest(getNextSequenceNumber());
+				}
+				
 				final ReadOnlyTupleStore tupleStore = ListHelper.getElementRandom(storages);
 
-				final Random random = new Random();
-				final Tuple tuple = tupleStore.getTupleAtPosition(random.nextInt((int) tupleStore.getNumberOfTuples()));
-				
-				final String key = tuple.getKey();
-				final List<Tuple> tuples = tupleStoreManager.get(key);
-				
-				logger.info("Payload in keep alive: " + tuples);
-				
-				return new KeepAliveRequest(getNextSequenceNumber(), tupleStoreName.getFullnameWithoutPrefix(), tuples);
+				if(tupleStore.getNumberOfTuples() > 0) {
+					final Random random = new Random();
+					final Tuple tuple = tupleStore.getTupleAtPosition(random.nextInt((int) tupleStore.getNumberOfTuples()));
+					
+					final String key = tuple.getKey();
+					final List<Tuple> tuples = tupleStoreManager.get(key);
+					
+					logger.info("Payload in keep alive: " + tuples);
+					
+					return new KeepAliveRequest(getNextSequenceNumber(), tupleStoreName.getFullnameWithoutPrefix(), tuples);
+				}
 			} catch (Exception e) {
 				throw e;
 			} finally {
