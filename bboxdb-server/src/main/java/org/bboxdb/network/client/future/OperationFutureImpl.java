@@ -27,7 +27,10 @@ import org.bboxdb.network.client.BBoxDBClient;
 
 public class OperationFutureImpl<T> implements OperationFuture {
 
-	public final List<FutureImplementation<T>> futures;
+	/**
+	 * The futures
+	 */
+	protected final List<FutureImplementation<T>> futures;
 	
 	public OperationFutureImpl() {
 		this(0);
@@ -103,6 +106,21 @@ public class OperationFutureImpl<T> implements OperationFuture {
 		checkFutureSize(resultId);
 
 		return futures.get(resultId).getConnection();
+	}
+	
+
+	@Override
+	public void setCompleteResult(int resultId, boolean completeResult) {
+		checkFutureSize(resultId);
+		
+		futures.get(resultId).setCompleteResult(completeResult);
+	}
+
+	@Override
+	public boolean isCompleteResult(int resultId) {
+		checkFutureSize(resultId);
+		
+		return futures.get(resultId).isCompleteResult();
 	}
 
 	/* (non-Javadoc)

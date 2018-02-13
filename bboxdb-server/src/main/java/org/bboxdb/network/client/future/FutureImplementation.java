@@ -51,6 +51,11 @@ public class FutureImplementation<T> {
 	protected volatile boolean done = false;
 	
 	/**
+	 * The complete / partial result flag
+	 */
+	protected volatile boolean complete = true;
+	
+	/**
 	 * Additional message
 	 */
 	protected String message;
@@ -219,11 +224,28 @@ public class FutureImplementation<T> {
 		this.message = message;
 	}
 
+	/**
+	 * Is the given result complete?
+	 * @return
+	 */
+	public boolean isCompleteResult() {
+		return complete;
+	}
+
+	/**
+	 * Set the complete flag
+	 * @param complete
+	 */
+	public void setCompleteResult(final boolean complete) {
+		this.complete = complete;
+	}
+
 	@Override
 	public String toString() {
 		return "FutureImplementation [requestId=" + requestId + ", operationResult=" + operationResult + ", mutex="
-				+ mutex + ", failed=" + failed + ", done=" + done + ", message=" + message + ", startTime=" + startTime
-				+ ", completionTime=" + completionTime + ", connectionId=" + connection + "]";
+				+ mutex + ", failed=" + failed + ", done=" + done + ", complete=" + complete + ", message=" + message
+				+ ", startTime=" + startTime + ", completionTime=" + completionTime + ", connection=" + connection
+				+ "]";
 	}
 
 	/**

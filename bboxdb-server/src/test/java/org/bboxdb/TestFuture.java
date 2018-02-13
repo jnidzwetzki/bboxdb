@@ -185,13 +185,13 @@ public class TestFuture {
 	public void testTupleListFuture() {
 		final TupleListFuture tupleListFuture = new TupleListFuture(2, new DoNothingDuplicateResolver(), "");
 		
-		Assert.assertFalse(tupleListFuture.isCompleteResult(0));
-		Assert.assertFalse(tupleListFuture.isCompleteResult(1));
-		
-		tupleListFuture.setCompleteResult(0, true);
-		tupleListFuture.setCompleteResult(1, true);
-
 		Assert.assertTrue(tupleListFuture.isCompleteResult(0));
 		Assert.assertTrue(tupleListFuture.isCompleteResult(1));
+	
+		tupleListFuture.setCompleteResult(0, false);
+		tupleListFuture.setCompleteResult(1, false);
+		
+		Assert.assertFalse(tupleListFuture.isCompleteResult(0));
+		Assert.assertFalse(tupleListFuture.isCompleteResult(1));
 	}
 }

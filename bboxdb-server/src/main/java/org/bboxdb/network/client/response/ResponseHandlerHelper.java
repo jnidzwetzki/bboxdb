@@ -50,7 +50,7 @@ public class ResponseHandlerHelper {
 				tupleList.add((Tuple) entity);
 			}
 			
-			pendingCall.setCompleteResult(0, completeResult);	
+			pendingCall.setCompleteResult(0, completeResult);
 			pendingCall.setOperationResult(0, tupleList);
 			pendingCall.fireCompleteEvent();
 		} else if(future instanceof JoinedTupleListFuture) {
@@ -61,7 +61,7 @@ public class ResponseHandlerHelper {
 				tupleList.add((JoinedTuple) entity);
 			}
 			
-			pendingCall.setCompleteResult(0, completeResult);	
+			pendingCall.setCompleteResult(0, completeResult);
 			pendingCall.setOperationResult(0, tupleList);
 			pendingCall.fireCompleteEvent();
 		} else {

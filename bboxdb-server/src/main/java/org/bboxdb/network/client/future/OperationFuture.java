@@ -59,6 +59,20 @@ public interface OperationFuture {
 	public void setConnection(final int resultId, final BBoxDBClient connection);
 	
 	/**
+	 * Is the result complete?
+	 * @param resultId
+	 * @param complete
+	 */
+	public void setCompleteResult(final int resultId, final boolean complete);
+	
+	/**
+	 * Is the given result complete?
+	 * @param resultId
+	 * @return
+	 */
+	public boolean isCompleteResult(final int resultId);
+	
+	/**
 	 * Get the connection id from the future
 	 */
 	public BBoxDBClient getConnection(final int resultId);

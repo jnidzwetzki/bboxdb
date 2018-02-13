@@ -18,20 +18,13 @@
 package org.bboxdb.network.client.future;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>> implements Iterable<T> {
-
-	/**
-	 * Is the result complete or only a page?
-	 */
-	protected final Map<Integer, Boolean> resultComplete = new HashMap<>();
 
 	/**
 	 * The Logger
@@ -44,35 +37,6 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 
 	public AbstractListFuture(final int numberOfFutures) {
 		super(numberOfFutures);
-	}
-	
-
-	/**
-	 * Check whether the result is only a page or complete
-	 * 
-	 * @param resultId
-	 * @return
-	 */
-	public boolean isCompleteResult(final int resultId) {
-		checkFutureSize(resultId);
-		
-		if(! resultComplete.containsKey(resultId)) {
-			return false;
-		}
-
-		return resultComplete.get(resultId);
-	}
-
-	/**
-	 * Set the completed flag for a result
-	 * 
-	 * @param resultId
-	 * @param completeResult
-	 */
-	public void setCompleteResult(final int resultId, final boolean completeResult) {
-		checkFutureSize(resultId);
-
-		resultComplete.put(resultId, completeResult);
 	}
 	
 	/**
@@ -115,7 +79,7 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 		
 		// Is at least result paged? So, we use the threaded iterator 
 		// that requests more tuples/pages in the background
-		final boolean pagedResult = resultComplete.values().stream().anyMatch(e -> e == false);
+		final boolean pagedResult = futures.stream().map(f -> f.isCompleteResult()).anyMatch(e -> e == false);
 		
 		if(pagedResult) {
 			return createThreadedIterator();
