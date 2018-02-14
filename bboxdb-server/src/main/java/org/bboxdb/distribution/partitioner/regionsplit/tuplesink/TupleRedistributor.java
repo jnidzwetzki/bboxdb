@@ -37,6 +37,7 @@ import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.storage.util.TupleHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,7 +172,7 @@ public class TupleRedistributor {
 		redistributedTuples++;
 		
 		for(final DistributionRegion region : regionMap.keySet()) {
-			if(region.getConveringBox().overlaps(tuple.getBoundingBox())) {
+			if(belongsTupleToRegion(tuple, region)) {
 				for(final AbstractTupleSink tupleSink : regionMap.get(region)) {
 					tupleSink.sinkTuple(tuple);
 					tupleRedistributed = true;
@@ -182,6 +183,27 @@ public class TupleRedistributor {
 		if(tupleRedistributed == false) {
 			throw new StorageManagerException("Tuple " + tuple + " was not redistributed");
 		}
+	}
+
+	/**
+	 * Check if a tuple belongs to the given region
+	 * 
+	 * @param tuple
+	 * @param region
+	 * @return
+	 */
+	private boolean belongsTupleToRegion(final Tuple tuple, final DistributionRegion region) {
+		// Tuple overlaps with region
+		if(region.getConveringBox().overlaps(tuple.getBoundingBox())) {
+			return true;
+		}
+		
+		// Deleted tuples should always be redistributed
+		if(TupleHelper.isDeletedTuple(tuple)) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
