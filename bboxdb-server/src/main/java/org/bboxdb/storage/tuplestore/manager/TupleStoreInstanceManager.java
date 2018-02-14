@@ -90,7 +90,6 @@ public class TupleStoreInstanceManager {
 		//logger.debug("Replacing memtable {} with sstable {}", memtable, sstableFacade);
 		
 		assert(memtable != null) : "Memtable is null";
-		assert(sstableFacade != null) : "Facade is null";
 		
 		// The memtable could be empty and no data was 
 		// written to disk
