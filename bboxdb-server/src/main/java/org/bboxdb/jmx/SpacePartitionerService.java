@@ -59,7 +59,7 @@ public class SpacePartitionerService implements SpacePartitionerServiceMBean {
 		logger.info("Split the region {} in group {}", regionId, distributionGroup);
 		
 		try {
-			final RegionSplitter regionSplitter = new RegionSplitter();
+			final RegionSplitter regionSplitter = new RegionSplitter(storageRegistry);
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache
 					.getSpacePartitionerForGroupName(distributionGroup);
 			

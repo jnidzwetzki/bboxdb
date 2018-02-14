@@ -23,18 +23,15 @@ import java.util.List;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.RegionIdMapper;
 import org.bboxdb.distribution.RegionIdMapperInstanceManager;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
-import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.TupleListFuture;
@@ -42,7 +39,6 @@ import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -55,35 +51,28 @@ public class RegionSplitter {
 	 * The zookeeper client
 	 */
 	protected final ZookeeperClient zookeeperClient;
-	
-	/**
-	 * The tree adapter
-	 */
-	protected SpacePartitioner spacePartitioner = null;
-	
+
 	/**
 	 * The distribution group adapter 
 	 */
-	protected DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = null;
+	protected final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 
-	/**
-	 * The region to split;
-	 */
-	protected DistributionRegion region = null;
-	
 	/**
 	 * The storage reference
 	 */
-	protected DiskStorage storage;
+	protected final TupleStoreManagerRegistry registry;
 
 	/**
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitter.class);
 	
-	public RegionSplitter() {
+	public RegionSplitter(final TupleStoreManagerRegistry registry) {
+		assert (registry != null) : "Unable to init, registry is null";
+		
 		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		this.distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		this.registry = registry;
 	}
 	
 	/**
@@ -156,53 +145,13 @@ public class RegionSplitter {
 			
 			spacePartitioner.prepareMerge(region);
 			redistributeDataMerge(region);
-			
+			spacePartitioner.mergeComplete(region);
+
 		} catch (Throwable e) {
 			logger.warn("Got uncought exception during merge: " + region.getIdentifier(), e);
 		}
 	}
 
-	/**
-	 * Set the distribution region
-	 * @param region
-	 * @throws StorageManagerException 
-	 */
-	public void initFromSSTablename(final DiskStorage storage, final TupleStoreName ssTableName) throws StorageManagerException {
-		
-		assert (spacePartitioner == null) : "Unable to reinit instance";
-		assert (region == null) : "Unable to reinit instance";
-
-		try {
-			this.storage = storage;
-			
-			spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(
-					ssTableName.getDistributionGroup());
-
-			final DistributionRegion distributionGroup = spacePartitioner.getRootNode();
-			
-			final long nameprefix = ssTableName.getRegionId();
-			
-			region = DistributionRegionHelper.getDistributionRegionForNamePrefix(
-					distributionGroup, nameprefix);
-			
-			if(region == null) {
-				throw new StorageManagerException("Region for nameprefix " + nameprefix + " is not found");
-			}
-			
-			if(! region.isLeafRegion()) {
-				throw new StorageManagerException("Region is not a leaf region, unable to split:" 
-						+ region.getIdentifier());
-			}
-		} catch (ZookeeperException e) {
-			logger.error("Got exception while init region splitter", e);
-			region = null;
-			throw new StorageManagerException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			return;
-		}
-	}
-	
 	/**
 	 * Redistribute the data in region merge
 	 * @param region
@@ -219,8 +168,7 @@ public class RegionSplitter {
 		
 		final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
 		
-		final List<TupleStoreName> localTables = storage.getTupleStoreManagerRegistry()
-				.getAllTablesForDistributionGroupAndRegionId
+		final List<TupleStoreName> localTables = registry.getAllTablesForDistributionGroupAndRegionId
 				(distributionGroupName, region.getRegionId());
 
 		// Remove the local mapping, no new data is written to the region
@@ -235,14 +183,13 @@ public class RegionSplitter {
 			startFlushToDisk(tupleStoreName);
 			
 			final TupleRedistributor tupleRedistributor 
-				= new TupleRedistributor(storage.getTupleStoreManagerRegistry(), tupleStoreName);
+				= new TupleRedistributor(registry, tupleStoreName);
+			
 			tupleRedistributor.registerRegion(region);
 			
 			for(final DistributionRegion childRegion : childRegions) {
 				mergeDataFromChildRegion(region, tupleStoreName, tupleRedistributor, childRegion);					
 			}
-
-			spacePartitioner.mergeComplete(region);
 		}
 	}
 
@@ -301,10 +248,9 @@ public class RegionSplitter {
 			assertChildIsReady(region);
 			
 			final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
-			final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
 			final long regionId = region.getRegionId();
 			
-			final List<TupleStoreName> localTables = tupleStoreManagerRegistry
+			final List<TupleStoreName> localTables = registry
 					.getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
 	
 			// Remove the local mapping, no new data is written to the region
@@ -317,7 +263,7 @@ public class RegionSplitter {
 			for(final TupleStoreName ssTableName : localTables) {
 				// Reject new writes and flush to disk
 				stopFlushToDisk(ssTableName);
-				distributeData(ssTableName);	
+				distributeData(ssTableName, region);	
 			}
 			
 			// Update zookeeer
@@ -350,7 +296,7 @@ public class RegionSplitter {
 			throws StorageManagerException, Exception, InterruptedException {
 		
 		for(final TupleStoreName ssTableName : localTables) {
-			final TupleStoreManager ssTableManager = storage.getTupleStoreManagerRegistry().getTupleStoreManager(ssTableName);
+			final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);
 			
 			final List<ReadOnlyTupleStore> storages = new ArrayList<>();
 			
@@ -391,16 +337,16 @@ public class RegionSplitter {
 
 	/**
 	 * Redistribute the given sstable
-	 * @param region
 	 * @param ssTableName
+	 * @param region 
 	 * @throws StorageManagerException 
 	 */
-	protected void distributeData(final TupleStoreName ssTableName) 
+	protected void distributeData(final TupleStoreName ssTableName, final DistributionRegion region) 
 			throws BBoxDBException, StorageManagerException {
 		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
 		
-		final TupleStoreManager ssTableManager = storage.getTupleStoreManagerRegistry().getTupleStoreManager(ssTableName);
+		final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);
 		
 		// Spread data
 		final TupleRedistributor tupleRedistributor = getTupleRedistributor(region, ssTableName);
@@ -415,7 +361,7 @@ public class RegionSplitter {
 	 * @throws StorageManagerException
 	 */
 	protected void stopFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
-		final TupleStoreManager ssTableManager = storage.getTupleStoreManagerRegistry().getTupleStoreManager(ssTableName);
+		final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);
 		
 		// Stop flush thread, so new data remains in memory
 		ssTableManager.setToReadOnly();
@@ -427,7 +373,7 @@ public class RegionSplitter {
 	 * @throws StorageManagerException
 	 */
 	protected void startFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
-		final TupleStoreManager ssTableManager = storage.getTupleStoreManagerRegistry().getTupleStoreManager(ssTableName);		
+		final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);		
 		ssTableManager.setToReadWrite();
 	}
 
@@ -444,9 +390,7 @@ public class RegionSplitter {
 		final DistributionRegion leftRegion = region.getLeftChild();
 		final DistributionRegion rightRegion = region.getRightChild();
 		
-		final TupleRedistributor tupleRedistributor = new TupleRedistributor(
-				storage.getTupleStoreManagerRegistry(), ssTableName);
-		
+		final TupleRedistributor tupleRedistributor = new TupleRedistributor(registry, ssTableName);
 		tupleRedistributor.registerRegion(leftRegion);
 		tupleRedistributor.registerRegion(rightRegion);
 		

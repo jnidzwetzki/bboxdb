@@ -251,7 +251,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final DistributionRegion regionToSplit) throws BBoxDBException {
 		
 		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
-		final RegionSplitter regionSplitter = new RegionSplitter();
+		final RegionSplitter regionSplitter = new RegionSplitter(storage.getTupleStoreManagerRegistry());
 
 		if(regionSplitHelper.isRegionOverflow(regionToSplit)) {
 			regionSplitter.splitRegion(regionToSplit, spacePartitioner, 
