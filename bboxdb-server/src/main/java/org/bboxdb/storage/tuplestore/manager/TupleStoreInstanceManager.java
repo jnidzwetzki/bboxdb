@@ -89,6 +89,9 @@ public class TupleStoreInstanceManager {
 		
 		//logger.debug("Replacing memtable {} with sstable {}", memtable, sstableFacade);
 		
+		assert(memtable != null) : "Memtable is null";
+		assert(sstableFacade != null) : "Facade is null";
+		
 		// The memtable could be empty and no data was 
 		// written to disk
 		if(sstableFacade != null) {
@@ -112,6 +115,13 @@ public class TupleStoreInstanceManager {
 	public synchronized void replaceCompactedSStables(final List<SSTableFacade> newFacedes, 
 			final List<SSTableFacade> oldFacades) {
 		
+		assert(newFacedes != null) : "New facades is null";
+		assert(oldFacades != null) : "Old facades is null";
+		assert(! newFacedes.isEmpty()) : "New facades are empty";
+		assert(! oldFacades.isEmpty()) : "Old facades is empty";
+		assert(! newFacedes.contains(null)) : "New Facades contain null element";
+		assert(! oldFacades.contains(null)) : "Old facades contain null element";
+		
 		sstableFacades.addAll(newFacedes);
 		final boolean removeResult = sstableFacades.removeAll(oldFacades);
 		
@@ -124,6 +134,8 @@ public class TupleStoreInstanceManager {
 	 * @param newSStable
 	 */
 	public synchronized void addNewDetectedSSTable(final SSTableFacade newSStable) {
+		assert(newSStable != null) : "New sstable is null";
+		
 		sstableFacades.add(newSStable);
 	}
 	
