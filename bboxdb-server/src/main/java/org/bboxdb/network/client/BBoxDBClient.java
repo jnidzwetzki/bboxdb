@@ -574,8 +574,17 @@ public class BBoxDBClient implements BBoxDB {
 
 		final DistributionRegion distributionRegion = spacepartitioner.getRootNode();
 
-		final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(boundingBox, distributionRegion);
+		final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(boundingBox, 
+				distributionRegion);
 
+		if(hops.isEmpty()) {
+			if(! allowEmptyHop) {
+				throw new BBoxDBException("Got empty result list when query for write: " + boundingBox);
+			}
+			
+			return new RoutingHeader((short) 0, new ArrayList<>());
+		}
+		
 		// Filter the local hop
 		final List<RoutingHop> connectionHop = hops.stream()
 				.filter(r -> r.getDistributedInstance().getInetSocketAddress().equals(serverAddress))
