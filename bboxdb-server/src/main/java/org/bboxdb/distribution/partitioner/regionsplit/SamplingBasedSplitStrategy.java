@@ -139,9 +139,14 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 			final long numberOfTuples = storage.getNumberOfTuples();
 			final int sampleOffset = Math.max(10, (int) (numberOfTuples / samplesPerStorage));
 			
-			for (int position = 0; position < numberOfTuples; position = position + sampleOffset) {
+			for (long position = 0; position < numberOfTuples; position = position + sampleOffset) {
 				final Tuple tuple = storage.getTupleAtPosition(position);							
 				final BoundingBox tupleBoundingBox = tuple.getBoundingBox();
+				
+				if(tupleBoundingBox == null) {
+					logger.error("Got null bounding box for tuple {} by fetching tuple no {}/{}",
+							tuple, position, numberOfTuples);
+				}
 				
 				// Ignore tuples with an empty box (e.g. deleted tuples)
 				if(tupleBoundingBox.equals(BoundingBox.EMPTY_BOX)) {
