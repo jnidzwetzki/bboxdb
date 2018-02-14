@@ -297,6 +297,23 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	}
 	
 	/**
+	 * Create the given table if not already exists (thread safe / guarded by synchonized)
+	 * @param tupleStoreName
+	 * @param tupleStoreConfiguration
+	 * @return
+	 * @throws StorageManagerException
+	 */
+	public synchronized TupleStoreManager createTableIfNotExist(final TupleStoreName tupleStoreName, 
+			final TupleStoreConfiguration tupleStoreConfiguration) throws StorageManagerException {
+		
+		if(tupleStoreLocations.containsKey(tupleStoreName)) {
+			return getTupleStoreManager(tupleStoreName);
+		}
+		
+		return createTable(tupleStoreName, tupleStoreConfiguration);
+	}
+	
+	/**
 	 * Delete all tables that are part of the distribution group
 	 * @param distributionGroupName
 	 * @throws StorageManagerException 

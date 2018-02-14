@@ -163,7 +163,7 @@ public class InsertTupleHandler implements RequestHandler {
 				final boolean alreadyKnown = storageRegistry.isStorageManagerKnown(tupleStoreName);
 				
 				if(! alreadyKnown) {
-					storageRegistry.createTable(tupleStoreName, config);
+					storageRegistry.createTableIfNotExist(tupleStoreName, config);
 				}
 			}
 		} catch (ZookeeperException e) {
