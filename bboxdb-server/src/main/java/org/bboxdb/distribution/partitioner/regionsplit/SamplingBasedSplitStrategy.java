@@ -36,11 +36,6 @@ import org.slf4j.LoggerFactory;
 public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	
 	/**
-	 * The point samples
-	 */
-	private final List<Double> pointSamples;
-	
-	/**
 	 * The disk storage
 	 */
 	private TupleStoreManagerRegistry tupleStoreManagerRegistry;
@@ -53,7 +48,6 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 
 	public SamplingBasedSplitStrategy(final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
 		this.tupleStoreManagerRegistry = tupleStoreManagerRegistry;
-		this.pointSamples = new ArrayList<>();
 	}
 
 	@Override
@@ -80,7 +74,11 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 			final List<TupleStoreName> tables) throws StorageManagerException {
 		
 		// Get the samples
-		getPointSamples(boundingBox, splitDimension, tables);
+		final List<Double> pointSamples = getPointSamples(boundingBox, splitDimension, tables);
+		
+		if(pointSamples.isEmpty()) {
+			throw new StorageManagerException("Unable to determine split point, samples list is empty");
+		}
 		
 		// Sort points
 		pointSamples.sort((i1, i2) -> Double.compare(i1,i2));
@@ -99,10 +97,13 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	 * @param boundingBox
 	 * @param splitDimension
 	 * @param tables
+	 * @return 
 	 * @throws StorageManagerException
 	 */
-	protected void getPointSamples(final BoundingBox boundingBox, final int splitDimension,
+	protected List<Double> getPointSamples(final BoundingBox boundingBox, final int splitDimension,
 			final List<TupleStoreName> tables) throws StorageManagerException {
+		
+		final List<Double> allPointSamples = new ArrayList<>();
 		
 		for(final TupleStoreName ssTableName : tables) {
 			logger.info("Create split samples for table: {} ", ssTableName.getFullname());
@@ -111,9 +112,17 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 					.getTupleStoreManager(ssTableName);
 			
 			final List<ReadOnlyTupleStore> tupleStores = sstableManager.getAllTupleStorages();
-			processTupleStores(tupleStores, splitDimension, boundingBox);
-			logger.info("Create split samples for table: {} DONE", ssTableName.getFullname());
+			
+			final List<Double> pointSamples 
+				= processTupleStores(tupleStores, splitDimension, boundingBox);
+			
+			allPointSamples.addAll(pointSamples);
+			
+			logger.info("Create split samples for table: {} DONE. Got {} samples.", 
+					ssTableName.getFullname(), pointSamples.size());
 		}
+				
+		return allPointSamples;
 	}
 
 	/**
@@ -122,12 +131,14 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	 * @param splitDimension 
 	 * @param boundingBox 
 	 * @param floatIntervals 
+	 * @return 
 	 * @throws StorageManagerException 
 	 */
-	protected void processTupleStores(final List<ReadOnlyTupleStore> storages, final int splitDimension, 
-			final BoundingBox boundingBox) throws StorageManagerException {
+	protected List<Double> processTupleStores(final List<ReadOnlyTupleStore> storages, 
+			final int splitDimension, final BoundingBox boundingBox) throws StorageManagerException {
 		
 		final int samplesPerStorage = 100;
+		final List<Double> pointSamples = new ArrayList<>();
 		
 		logger.debug("Fetching {} samples per storage", samplesPerStorage);
 		
@@ -169,5 +180,7 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	
 			storage.release();
 		}
+		
+		return pointSamples;
 	}
 }
