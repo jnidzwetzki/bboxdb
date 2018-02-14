@@ -93,7 +93,7 @@ public class InsertTupleHandler implements RequestHandler {
 				packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest, localInsert);
 			}
 			
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error("Error while inserting tuple", e);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);	
@@ -113,8 +113,7 @@ public class InsertTupleHandler implements RequestHandler {
 	 * @throws BBoxDBException
 	 */
 	protected void processInsertPackage(final Tuple tuple, final TupleStoreName requestTable, 
-			final TupleStoreManagerRegistry storageRegistry,
-			List<Long> distributionRegions) {
+			final TupleStoreManagerRegistry storageRegistry, final List<Long> distributionRegions) {
 		
 		try {
 			final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
@@ -142,13 +141,16 @@ public class InsertTupleHandler implements RequestHandler {
 				final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(tupleStoreName);
 				storageManager.put(tuple);			
 			}
+		} catch (RejectedException e) {
+			logger.info("Got rejected exception, retry insert");
+			//TODO: Implement
 		} catch (Throwable e) {
 			logger.error("Got exception while inserting tuple", e);
 		} 
 	}
 
 	/**
-	 * Create all miising tables
+	 * Create all missing tables
 	 */
 	protected void createMissingTables(final TupleStoreName requestTable,
 			final TupleStoreManagerRegistry storageRegistry, final Collection<TupleStoreName> localTables)
