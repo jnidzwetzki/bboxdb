@@ -30,6 +30,7 @@ order: 1
 - Bugfix: Fixed Zookeeper tuplestore path determination with prefix
 - Bugfix: Local tuple store configuration is written in tuple store split
 - Bugfix: Deleted tuples are also redistributed
+- Bugfix: Don't include null memtable in getAllTupleStorages to prevent NPEs
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation
