@@ -26,6 +26,7 @@ order: 1
 - Bugfix: Fixed table creation in parallel in InsertTupleHandler
 - Bugfix: Handle deleted tuples in SamplingBasedSplitStrategy properly
 - Bugfix: Fixed several NPEs in RegionSplitter
+- Bugfix: Fixed Zookeeper tuplestore path determination with prefix
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

@@ -184,7 +184,7 @@ public class TupleStoreAdapter {
 	 */
 	protected String getDuplicateVersionsPath(final TupleStoreName tupleStoreName) {
 		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullname() + "/" + ZOOKEEPER_DUPLICATES_VERSIONS;
+			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_DUPLICATES_VERSIONS;
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class TupleStoreAdapter {
 	 */
 	protected String getDuplicatesTTLPath(final TupleStoreName tupleStoreName) {
 		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullname() + "/" + ZOOKEEPER_DUPLICATES_TTL;
+			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_DUPLICATES_TTL;
 	}
 
 	/**
@@ -204,7 +204,7 @@ public class TupleStoreAdapter {
 	 */
 	protected String getDuplicatesAllowedPath(final TupleStoreName tupleStoreName) {
 		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullname() + "/" + ZOOKEEPER_DUPLICATES_ALLOWED;
+			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_DUPLICATES_ALLOWED;
 	}
 
 	/**
@@ -214,7 +214,7 @@ public class TupleStoreAdapter {
 	 */
 	protected String getUpdateResolverPath(final TupleStoreName tupleStoreName) {
 		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullname() + "/" + ZOOKEEPER_UPDATE_ANOMALY_RESOLVER;
+			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_UPDATE_ANOMALY_RESOLVER;
 	}
 
 	/**
@@ -224,7 +224,7 @@ public class TupleStoreAdapter {
 	 */
 	protected String getIndexWriterPath(final TupleStoreName tupleStoreName) {
 		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullname() + "/" + ZOOKEEPER_SPATIAL_INDEX_WRITER;
+			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_SPATIAL_INDEX_WRITER;
 	}
 
 	/**
@@ -234,7 +234,7 @@ public class TupleStoreAdapter {
 	 */
 	protected String getIndexReaderPath(final TupleStoreName tupleStoreName) {
 		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullname() + "/" + ZOOKEEPER_SPATIAL_INDEX_READER;
+			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_SPATIAL_INDEX_READER;
 	}
 
 }
