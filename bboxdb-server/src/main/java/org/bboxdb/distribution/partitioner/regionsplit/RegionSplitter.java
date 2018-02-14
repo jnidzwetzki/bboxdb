@@ -301,14 +301,15 @@ public class RegionSplitter {
 			assertChildIsReady(region);
 			
 			final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
+			final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
+			final long regionId = region.getRegionId();
 			
-			final List<TupleStoreName> localTables = storage.getTupleStoreManagerRegistry()
-					.getAllTablesForDistributionGroupAndRegionId
-					(distributionGroupName, region.getRegionId());
+			final List<TupleStoreName> localTables = tupleStoreManagerRegistry
+					.getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
 	
 			// Remove the local mapping, no new data is written to the region
 			final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(distributionGroupName);
-			final boolean removeResult = mapper.removeMapping(region.getRegionId());
+			final boolean removeResult = mapper.removeMapping(regionId);
 			
 			assert (removeResult == true) : "Unable to remove mapping for: " + region;
 			
