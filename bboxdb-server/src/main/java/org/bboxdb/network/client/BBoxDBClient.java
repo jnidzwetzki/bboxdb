@@ -1107,12 +1107,10 @@ public class BBoxDBClient implements BBoxDB {
 		final RoutingHeader routingHeader = requestPackage.getRoutingHeader();
 		
 		if(routingHeader.isRoutedPackage()) {
-			if(routingHeader.getHopCount() == 1) {
-				if(routingHeader.getRoutingHop().getDistributionRegions().isEmpty()) {
-					future.setMessage(0, "No distribution regions in next hop, not sending to server");
-					future.fireCompleteEvent();
-					return;
-				}
+			if(routingHeader.getHopCount() == 0) {
+				future.setMessage(0, "No distribution regions in next hop, not sending to server");
+				future.fireCompleteEvent();
+				return;
 			}
 		}
 		
