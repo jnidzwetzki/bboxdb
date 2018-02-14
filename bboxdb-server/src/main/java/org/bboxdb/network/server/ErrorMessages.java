@@ -53,4 +53,9 @@ public class ErrorMessages {
 	 * Outdated tuples detected
 	 */
 	public final static String ERROR_OUTDATED_TUPLES = "Outdated tuples found due to gossip";
+	
+	/**
+	 * Local operation is rejected, retry 
+	 */
+	public final static String ERROR_LOCAL_OPERATION_REJECTED_RETRY = "Local operation rejected, please retry";
 }

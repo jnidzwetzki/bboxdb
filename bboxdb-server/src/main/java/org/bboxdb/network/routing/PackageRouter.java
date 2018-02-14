@@ -79,7 +79,7 @@ public class PackageRouter {
 	 * @param boundingBox
 	 */
 	public void performInsertPackageRoutingAsync(final short packageSequence, 
-			final InsertTupleRequest insertTupleRequest, final Runnable successCallback) {
+			final InsertTupleRequest insertTupleRequest) {
 	
 		final Runnable routeRunable = new ExceptionSafeThread()  {
 
@@ -105,7 +105,6 @@ public class PackageRouter {
 				} 
 				
 				if(operationSuccess) {
-					successCallback.run();
 					final SuccessResponse responsePackage = new SuccessResponse(packageSequence);
 					clientConnectionHandler.writeResultPackageNE(responsePackage);
 				} else {

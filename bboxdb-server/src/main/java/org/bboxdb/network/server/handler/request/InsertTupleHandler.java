@@ -87,12 +87,16 @@ public class InsertTupleHandler implements RequestHandler {
 				final List<Long> distributionRegions = localHop.getDistributionRegions();
 
 				// The local insert is executed as soon as the routing is confirmed
-				final Runnable localInsert = () -> processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions);
+				processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions);
 				
 				final PackageRouter packageRouter = clientConnectionHandler.getPackageRouter();
-				packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest, localInsert);
+				packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest);
 			}
 			
+		} catch(RejectedException e) {
+			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, 
+					ErrorMessages.ERROR_LOCAL_OPERATION_REJECTED_RETRY);
+			clientConnectionHandler.writeResultPackage(responsePackage);	
 		} catch (Throwable e) {
 			logger.error("Error while inserting tuple", e);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
@@ -113,7 +117,7 @@ public class InsertTupleHandler implements RequestHandler {
 	 * @throws BBoxDBException
 	 */
 	protected void processInsertPackage(final Tuple tuple, final TupleStoreName requestTable, 
-			final TupleStoreManagerRegistry storageRegistry, final List<Long> distributionRegions) {
+			final TupleStoreManagerRegistry storageRegistry, final List<Long> distributionRegions) throws RejectedException {
 		
 		try {
 			final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
@@ -142,8 +146,7 @@ public class InsertTupleHandler implements RequestHandler {
 				storageManager.put(tuple);			
 			}
 		} catch (RejectedException e) {
-			logger.info("Got rejected exception, retry insert");
-			//TODO: Implement
+			throw e;
 		} catch (Throwable e) {
 			logger.error("Got exception while inserting tuple", e);
 		} 
