@@ -245,6 +245,14 @@ public class RoutingHeader {
 		return sb.toString();
 	}
 
+	/**
+	 * Get the hop count
+	 * @return
+	 */
+	public int getHopCount() {
+		return routingList.size();
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

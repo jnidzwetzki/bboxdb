@@ -1104,6 +1104,18 @@ public class BBoxDBClient implements BBoxDB {
 
 		future.setConnection(0, this);
 
+		final RoutingHeader routingHeader = requestPackage.getRoutingHeader();
+		
+		if(routingHeader.isRoutedPackage()) {
+			if(routingHeader.getHopCount() == 1) {
+				if(routingHeader.getRoutingHop().getDistributionRegions().isEmpty()) {
+					future.setMessage(0, "No distribution regions in next hop, not sending to server");
+					future.fireCompleteEvent();
+					return;
+				}
+			}
+		}
+		
 		try {
 			synchronized (pendingCalls) {
 				// Ensure that not more then maxInFlightCalls are active
