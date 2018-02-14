@@ -24,6 +24,7 @@ order: 1
 - Bugfix: Duplicates are removed from the simple iterator result set
 - Bugfix: Fixed connection / complete result state in futures on merge operation
 - Bugfix: Fixed table creation in parallel in InsertTupleHandler
+- Bugfix: Handle deleted tuples in SamplingBasedSplitStrategy properly
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation
