@@ -26,10 +26,14 @@ import java.util.Map;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
+import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -96,6 +100,7 @@ public class TupleRedistributor {
 	 * Register a new region for distribution
 	 * @param distributionRegion
 	 * @throws StorageManagerException 
+	 * @throws ZookeeperException 
 	 */
 	public void registerRegion(final DistributionRegion distributionRegion) 
 			throws StorageManagerException {
@@ -116,9 +121,12 @@ public class TupleRedistributor {
 				final TupleStoreName localTableName = tupleStoreName.cloneWithDifferntRegionId(
 						distributionRegion.getRegionId());
 				
-				final TupleStoreManager storageManager = tupleStoreManagerRegistry
-						.getTupleStoreManager(localTableName);
+				final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+				final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
+				final TupleStoreConfiguration config = readTuplestoreConfig(localTableName, tupleStoreAdapter);
 				
+				final TupleStoreManager storageManager = tupleStoreManagerRegistry.createTableIfNotExist(localTableName, config);
+	
 				final LocalTupleSink tupleSink = new LocalTupleSink(tupleStoreName, storageManager);
 				sinks.add(tupleSink);
 				logger.info("Redistributing data to local table {}", localTableName.getFullname());
@@ -131,6 +139,24 @@ public class TupleRedistributor {
 		}
 		
 		registerRegion(distributionRegion, sinks);
+	}
+
+	/**
+	 * Read the given table configuration
+	 * 
+	 * @param localTableName
+	 * @param tupleStoreAdapter
+	 * @return
+	 * @throws StorageManagerException 
+	 */
+	private TupleStoreConfiguration readTuplestoreConfig(final TupleStoreName localTableName,
+			final TupleStoreAdapter tupleStoreAdapter) throws StorageManagerException  {
+		
+		try {
+			return tupleStoreAdapter.readTuplestoreConfiguration(localTableName);
+		} catch (ZookeeperException e) {
+			throw new StorageManagerException(e);
+		}
 	}
 	
 	/**
