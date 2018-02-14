@@ -86,7 +86,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			} 
 		}
 		
-		logger.info("Compact thread is done");
+		logger.info("Compact thread is DONE");
 	}
 
 	/**
@@ -96,14 +96,14 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 		final TupleStoreManagerRegistry storageRegistry = storage.getTupleStoreManagerRegistry();
 		final String location = storage.getBasedir().getAbsolutePath();
-		final List<TupleStoreName> sstables = storageRegistry.getTupleStoresForLocation(location);
+		final List<TupleStoreName> tupleStores = storageRegistry.getTupleStoresForLocation(location);
 		
-		if(sstables.isEmpty()) {
-			logger.warn("SSables list is empty");
+		if(tupleStores.isEmpty()) {
+			logger.debug("Skipping run, tuple stores list is empty");
 			return;
 		}
 		
-		for(final TupleStoreName ssTableName: sstables) {
+		for(final TupleStoreName ssTableName: tupleStores) {
 		
 			try {
 				logger.debug("Running compact for: {}", ssTableName);
