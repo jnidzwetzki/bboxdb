@@ -102,7 +102,9 @@ public class DataRedistributionLoader implements Runnable {
 		this.random = new Random();
 		
 		// Log failed futures
-		pendingFutures.addFailedFutureCallback((f) -> logger.error("Failed future detected: {}", f));
+		pendingFutures.addFailedFutureCallback(
+				(f) -> logger.error("Failed future detected: {} / {}", f, f.getAllMessages()
+		));
 	}
 
 	/**
