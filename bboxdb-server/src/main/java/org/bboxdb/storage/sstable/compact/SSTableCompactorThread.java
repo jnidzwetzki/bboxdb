@@ -103,24 +103,24 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			return;
 		}
 		
-		for(final TupleStoreName ssTableName: tupleStores) {
+		for(final TupleStoreName tupleStoreName: tupleStores) {
 		
 			try {
-				logger.debug("Running compact for: {}", ssTableName);
-				final TupleStoreManager sstableManager = storageRegistry.getTupleStoreManager(ssTableName);
+				logger.debug("Running compact for: {}", tupleStoreName);
+				final TupleStoreManager tupleStoreManager = storageRegistry.getTupleStoreManager(tupleStoreName);
 				
-				if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
-					logger.debug("Skipping compact for read only sstable manager: {}" , ssTableName);
+				if(tupleStoreManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
+					logger.debug("Skipping compact for read only sstable manager: {}" , tupleStoreName);
 					continue;
 				}
 				
 				// Create a copy to ensure, that the list of facades don't change
 				// during the compact run.
 				final List<SSTableFacade> facades = new ArrayList<>();
-				facades.addAll(sstableManager.getSstableFacades());
+				facades.addAll(tupleStoreManager.getSstableFacades());
 				
 				final MergeTask mergeTask = mergeStragegy.getMergeTask(facades);
-				mergeSSTables(mergeTask, sstableManager);
+				mergeTupleStores(mergeTask, tupleStoreManager);
 			} catch (StorageManagerException e) {
 				if(! Thread.currentThread().isInterrupted()) {
 					logger.error("Error while merging tables", e);
@@ -137,7 +137,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 *
 	 * @throws StorageManagerException
 	 */
-	protected void mergeSSTables(final MergeTask mergeTask, final TupleStoreManager sstableManager) 
+	protected void mergeTupleStores(final MergeTask mergeTask, final TupleStoreManager sstableManager) 
 			throws StorageManagerException {
 		
 		if(mergeTask.getTaskType() == MergeTaskType.UNKNOWN) {
