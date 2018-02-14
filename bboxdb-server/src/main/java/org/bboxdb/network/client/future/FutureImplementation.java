@@ -285,7 +285,13 @@ public class FutureImplementation<T> {
 		sb.append("[message=");
 		sb.append(getMessage());
 		sb.append(", connection=");
-		sb.append(getConnection().getConnectionName());
+		
+		if(getConnection() == null) {
+			sb.append("null");
+		} else {
+			sb.append(getConnection().getConnectionName());
+		}
+		
 		sb.append("]");
 		return sb.toString();
 	}
