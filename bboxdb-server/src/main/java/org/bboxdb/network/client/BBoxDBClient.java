@@ -542,7 +542,7 @@ public class BBoxDBClient implements BBoxDB {
 				return FutureHelper.getFailedEmptyResultFuture("insertTuple called, but connection not ready: " + this);
 			}
 
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, tuple.getBoundingBox());
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, tuple.getBoundingBox(), false);
 
 			return insertTuple(table, tuple, routingHeader);
 		} catch (ZookeeperException e) {
@@ -564,8 +564,8 @@ public class BBoxDBClient implements BBoxDB {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	protected RoutingHeader getRoutingHeaderForLocalSystem(final String table, final BoundingBox boundingBox)
-			throws ZookeeperException, BBoxDBException, InterruptedException {
+	protected RoutingHeader getRoutingHeaderForLocalSystem(final String table, final BoundingBox boundingBox, 
+			final boolean allowEmptyHop) throws ZookeeperException, BBoxDBException, InterruptedException {
 
 		final TupleStoreName ssTableName = new TupleStoreName(table);
 
@@ -581,13 +581,12 @@ public class BBoxDBClient implements BBoxDB {
 				.filter(r -> r.getDistributedInstance().getInetSocketAddress().equals(serverAddress))
 				.collect(Collectors.toList());
 
-		if(connectionHop.isEmpty()) {
+		if(! allowEmptyHop && connectionHop.isEmpty()) {
 			throw new BBoxDBException("Unable to find host " + serverAddress + " in global routing list: " 
 					+ hops);
 		}
 
-		final RoutingHeader routingHeader = new RoutingHeader((short) 0, connectionHop);
-		return routingHeader;
+		return new RoutingHeader((short) 0, connectionHop);
 	}
 
 	/* (non-Javadoc)
@@ -632,7 +631,7 @@ public class BBoxDBClient implements BBoxDB {
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX, true);
 
 			final DeleteTupleRequest requestPackage = new DeleteTupleRequest(getNextSequenceNumber(), 
 					routingHeader, table, key, timestamp);
@@ -729,7 +728,7 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX, true);
 			
 			final DuplicateResolver<Tuple> duplicateResolver 
 				= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
@@ -768,7 +767,7 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, boundingBox, false);
 
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryBoundingBoxRequest requestPackage = new QueryBoundingBoxRequest(getNextSequenceNumber(), 
@@ -804,7 +803,7 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, boundingBox, false);
 
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryBoundingBoxContinuousRequest requestPackage = new QueryBoundingBoxContinuousRequest(getNextSequenceNumber(), 
@@ -840,7 +839,7 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, boundingBox, false);
 
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryBoundingBoxTimeRequest requestPackage = new QueryBoundingBoxTimeRequest(getNextSequenceNumber(), 
@@ -875,7 +874,7 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX, true);
 
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryVersionTimeRequest requestPackage = new QueryVersionTimeRequest(getNextSequenceNumber(), 
@@ -910,7 +909,7 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX);
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX, true);
 
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryInsertTimeRequest requestPackage = new QueryInsertTimeRequest(getNextSequenceNumber(), 
@@ -945,7 +944,7 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(tableNames.get(0), BoundingBox.EMPTY_BOX);
+			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(tableNames.get(0), boundingBox, true);
 
 			final JoinedTupleListFuture clientOperationFuture = new JoinedTupleListFuture(1);
 			
