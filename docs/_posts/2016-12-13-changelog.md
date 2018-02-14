@@ -15,6 +15,7 @@ order: 1
 - Improvement: If the server is still running 60 seconds after a shutdown, it is killed
 - Improvement: Tuple insert is only executed when the package routing was successfully
 - Improvement: Check for enough split points on sampling
+- Improvement: Routed packages with empty tuplestore list are not send to server
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel
