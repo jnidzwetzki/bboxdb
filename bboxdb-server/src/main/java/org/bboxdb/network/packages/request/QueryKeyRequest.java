@@ -50,19 +50,13 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 	 * The max tuples per page
 	 */
 	protected final short tuplesPerPage;
-	
-	/**
-	 * A routing header for custom routing
-	 */
-	protected final RoutingHeader routingHeader;
 
 	public QueryKeyRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
 			final String table, final String key, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
-		super(sequenceNumber);
+		super(sequenceNumber, routingHeader);
 		
-		this.routingHeader = routingHeader;
 		this.pagingEnabled = pagingEnabled;
 		this.tuplesPerPage = tuplesPerPage;
 		this.table = new TupleStoreName(table);
@@ -92,7 +86,7 @@ public class QueryKeyRequest extends NetworkQueryRequestPackage {
 			bb.putShort((short) keyBytes.length);
 			
 			final long bodyLength = bb.capacity() + tableBytes.length + keyBytes.length;
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 	
 			// Write body
 			outputStream.write(bb.array());

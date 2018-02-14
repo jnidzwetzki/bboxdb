@@ -17,11 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.network.packages;
 
+import org.bboxdb.network.routing.RoutingHeader;
 
 public abstract class NetworkQueryRequestPackage extends NetworkRequestPackage {
 
-	public NetworkQueryRequestPackage(final short sequenceNumber) {
-		super(sequenceNumber);
+	public NetworkQueryRequestPackage(final short sequenceNumber, final RoutingHeader routingHeader) {
+		super(sequenceNumber, routingHeader);
 	}
 
 	/**

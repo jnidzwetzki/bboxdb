@@ -57,18 +57,12 @@ public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 	 */
 	protected final short tuplesPerPage;
 	
-	/**
-	 * A routing header for custom routing
-	 */
-	protected final RoutingHeader routingHeader;
-
 	public QueryBoundingBoxTimeRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
 			final String table, final BoundingBox box, final long timestamp, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
-		super(sequenceNumber);
+		super(sequenceNumber, routingHeader);
 		
-		this.routingHeader = routingHeader;
 		this.table = new TupleStoreName(table);
 		this.box = box;
 		this.timestamp = timestamp;
@@ -103,7 +97,7 @@ public class QueryBoundingBoxTimeRequest extends NetworkQueryRequestPackage {
 			bb.putLong(timestamp);
 			
 			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;			
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());

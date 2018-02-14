@@ -26,14 +26,31 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHeaderParser;
 
 public abstract class NetworkRequestPackage extends NetworkPackage {
+	
+	/**
+	 * The routing header
+	 */
+	private RoutingHeader routingHeader;
 
-	public NetworkRequestPackage(final short sequenceNumber) {
+	public NetworkRequestPackage(final short sequenceNumber, final RoutingHeader routingHeader) {
 		super(sequenceNumber);
+		this.routingHeader = routingHeader;
+	}
+	
+	public NetworkRequestPackage(final short sequenceNumber) {
+		this(sequenceNumber, new RoutingHeader(false));
 	}
 
 	/**
+	 * Replace the existing routing header with a new one
+	 * @param routingHeader
+	 */
+	public void replaceRoutingHeader(final RoutingHeader routingHeader) {
+		this.routingHeader = routingHeader;
+	}
+	
+	/**
 	 * Append the request package header to the output stream
-	 * @param routingHeader 
 	 * @param bodyLength 
 	 * @param sequenceNumberGenerator 
 	 * @param packageType
@@ -41,8 +58,8 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 	 * @return 
 	 * @throws PackageEncodeException 
 	 */
-	protected int appendRequestPackageHeader(final long bodyLength, final RoutingHeader routingHeader, 
-			final OutputStream bos) throws PackageEncodeException {
+	protected int appendRequestPackageHeader(final long bodyLength, final OutputStream bos) 
+			throws PackageEncodeException {
 		
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(12);
 		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
@@ -61,5 +78,13 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 		} catch (IOException e) {
 			throw new PackageEncodeException(e);
 		}
+	}
+	
+	/**
+	 * Get the routing header
+	 * @return
+	 */
+	public RoutingHeader getRoutingHeader() {
+		return routingHeader;
 	}
 }

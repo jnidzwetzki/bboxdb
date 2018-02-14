@@ -46,19 +46,13 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 	 * The timestmap of the operation
 	 */
 	protected final long timestamp;
-	
-	/**
-	 * A routing header for custom routing
-	 */
-	protected final RoutingHeader routingHeader;
 
 	public DeleteTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
 			final String table, final String key, final long timestamp) {
 		
-		super(sequenceNumber);
+		super(sequenceNumber, routingHeader);
 		
 		this.table = new TupleStoreName(table);
-		this.routingHeader = routingHeader;
 		this.key = key;
 		this.timestamp = timestamp;
 	}
@@ -85,7 +79,7 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 			final long bodyLength = bb.capacity() + tableBytes.length 
 					+ keyBytes.length;
 			
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 	
 			// Write body
 			outputStream.write(bb.array());
@@ -186,12 +180,5 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 			return false;
 		return true;
 	}
-	
-	/**
-	 * Get the routing header
-	 * @return
-	 */
-	public RoutingHeader getRoutingHeader() {
-		return routingHeader;
-	}
+
 }

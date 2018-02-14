@@ -51,18 +51,12 @@ public class QueryVersionTimeRequest extends NetworkQueryRequestPackage {
 	 */
 	protected final short tuplesPerPage;
 	
-	/**
-	 * A routing header for custom routing
-	 */
-	protected final RoutingHeader routingHeader;
-
 	public QueryVersionTimeRequest(final short packageSequene, final RoutingHeader routingHeader, 
 			final String table, final long timestamp, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
-		super(packageSequene);
+		super(packageSequene, routingHeader);
 		
-		this.routingHeader = routingHeader;
 		this.table = new TupleStoreName(table);
 		this.timestamp = timestamp;
 		this.pagingEnabled = pagingEnabled;
@@ -91,7 +85,7 @@ public class QueryVersionTimeRequest extends NetworkQueryRequestPackage {
 			bb.putShort((short) tableBytes.length);
 			
 			final long bodyLength = bb.capacity() + tableBytes.length;
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());

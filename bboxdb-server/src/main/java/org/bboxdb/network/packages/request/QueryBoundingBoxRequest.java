@@ -51,19 +51,13 @@ public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
 	 * The max tuples per page
 	 */
 	protected final short tuplesPerPage;
-	
-	/**
-	 * A routing header for custom routing
-	 */
-	protected final RoutingHeader routingHeader;
 
 	public QueryBoundingBoxRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
 			final String table,  final BoundingBox box, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
-		super(sequenceNumber);
+		super(sequenceNumber, routingHeader);
 		
-		this.routingHeader = routingHeader;
 		this.table = new TupleStoreName(table);
 		this.box = box;
 		this.pagingEnabled = pagingEnabled;
@@ -96,7 +90,7 @@ public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {
 			bb.putInt((int) bboxBytes.length);
 			
 			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());

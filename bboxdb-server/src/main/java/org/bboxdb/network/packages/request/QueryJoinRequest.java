@@ -45,12 +45,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	 * The the query bounding box
 	 */
 	protected final BoundingBox box;
-	
-	/**
-	 * A routing header for custom routing
-	 */
-	protected final RoutingHeader routingHeader;
-	
+
 	/**
 	 * Paging enables
 	 */
@@ -65,9 +60,8 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 			final List<TupleStoreName> tables, final BoundingBox box, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
-		super(sequenceNumber);
+		super(sequenceNumber, routingHeader);
 		
-		this.routingHeader = routingHeader;
 		this.tables = tables;
 		this.box = box;
 		this.pagingEnabled = pagingEnabled;
@@ -107,7 +101,7 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 			final byte[] tablesArray = bStream.toByteArray();
 
 			final long bodyLength = bb.capacity() + tablesArray.length + bboxBytes.length;
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());

@@ -25,7 +25,6 @@ import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.capabilities.PeerCapabilities;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.util.DataEncoderHelper;
 
 public class HelloRequest extends NetworkRequestPackage {
@@ -59,9 +58,7 @@ public class HelloRequest extends NetworkRequestPackage {
 			// Body length
 			final long bodyLength = bb.capacity() + peerCapabilitiesBytes.length;
 			
-			// Unrouted package
-			final RoutingHeader routingHeader = new RoutingHeader(false);
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			outputStream.write(bb.array());
 			outputStream.write(peerCapabilitiesBytes);

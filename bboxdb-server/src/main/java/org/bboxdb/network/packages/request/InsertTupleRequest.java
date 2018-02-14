@@ -42,12 +42,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	 * The Tuple
 	 */
 	protected final Tuple tuple;
-	
-	/**
-	 * A routing header for custom routing
-	 */
-	protected RoutingHeader routingHeader;
-	
+
 	/**
 	 * Create package from parameter
 	 * 
@@ -60,9 +55,8 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	public InsertTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
 			final TupleStoreName table, final Tuple tuple) {
 		
-		super(sequenceNumber);
+		super(sequenceNumber, routingHeader);
 		
-		this.routingHeader = routingHeader;
 		this.table = table;
 		this.tuple = tuple;
 	}
@@ -107,7 +101,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 			final long bodyLength = tupleAsByte.length;
 			
 			// Unrouted package
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write tuple
 			outputStream.write(tupleAsByte);
@@ -132,22 +126,6 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 	 */
 	public Tuple getTuple() {
 		return tuple;
-	}
-
-	/**
-	 * Get the routing header
-	 * @return
-	 */
-	public RoutingHeader getRoutingHeader() {
-		return routingHeader;
-	}
-	
-	/**
-	 * Replace the existing routing header with a new one
-	 * @param routingHeader
-	 */
-	public void replaceRoutingHeader(final RoutingHeader routingHeader) {
-		this.routingHeader = routingHeader;
 	}
 	
 	@Override
@@ -183,7 +161,7 @@ public class InsertTupleRequest extends NetworkRequestPackage {
 
 	@Override
 	public String toString() {
-		return "InsertTupleRequest [table=" + table + ", tuple=" + tuple + ", routingHeader=" + routingHeader + "]";
+		return "InsertTupleRequest [table=" + table + ", tuple=" + tuple + "]";
 	}
 
 	@Override

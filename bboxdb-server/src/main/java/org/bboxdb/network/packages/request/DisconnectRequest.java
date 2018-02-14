@@ -24,7 +24,6 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.routing.RoutingHeader;
 
 public class DisconnectRequest extends NetworkRequestPackage {
 	
@@ -39,9 +38,7 @@ public class DisconnectRequest extends NetworkRequestPackage {
 			// Write body length
 			final long bodyLength = 0;
 			
-			// Unrouted package
-			final RoutingHeader routingHeader = new RoutingHeader(false);
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 			
 			return headerLength + bodyLength;
 		} catch (Exception e) {

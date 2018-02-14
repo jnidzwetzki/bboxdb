@@ -32,7 +32,6 @@ import org.bboxdb.network.NetworkHelper;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.routing.RoutingHeader;
 
 public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 	
@@ -82,9 +81,7 @@ public class CompressionEnvelopeRequest extends NetworkRequestPackage {
 			// Body length
 			final long bodyLength = bb.capacity() + compressedBytes.length;
 
-			// Unrouted package
-			final RoutingHeader routingHeader = new RoutingHeader(false);
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 			
 			// Write body
 			outputStream.write(bb.array());

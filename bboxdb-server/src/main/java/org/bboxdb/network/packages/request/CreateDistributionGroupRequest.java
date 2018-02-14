@@ -26,7 +26,6 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 
@@ -80,9 +79,7 @@ public class CreateDistributionGroupRequest extends NetworkRequestPackage {
 					+ spacePartitionierBytes.length
 					+ spacePartitionierConfigBytes.length;
 
-			// Unrouted package
-			final RoutingHeader routingHeader = new RoutingHeader(false);
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 			
 			// Write body
 			outputStream.write(bb.array());

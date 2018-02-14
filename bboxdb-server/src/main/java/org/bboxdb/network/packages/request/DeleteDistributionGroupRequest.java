@@ -25,7 +25,6 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.util.DataEncoderHelper;
 
 public class DeleteDistributionGroupRequest extends NetworkRequestPackage {
@@ -50,9 +49,7 @@ public class DeleteDistributionGroupRequest extends NetworkRequestPackage {
 			// Body length
 			final long bodyLength = bb.capacity() + groupBytes.length;
 			
-			// Unrouted package
-			final RoutingHeader routingHeader = new RoutingHeader(false);
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());

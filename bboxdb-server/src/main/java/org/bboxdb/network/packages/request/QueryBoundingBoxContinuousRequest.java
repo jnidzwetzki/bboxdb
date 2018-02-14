@@ -42,17 +42,11 @@ public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackag
 	 */
 	protected final BoundingBox box;
 	
-	/**
-	 * A routing header for custom routing
-	 */
-	protected final RoutingHeader routingHeader;
-
 	public QueryBoundingBoxContinuousRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
 			final String table,  final BoundingBox box) {
 		
-		super(sequenceNumber);
+		super(sequenceNumber, routingHeader);
 		
-		this.routingHeader = routingHeader;
 		this.table = new TupleStoreName(table);
 		this.box = box;
 	}
@@ -73,7 +67,7 @@ public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackag
 			bb.putInt((int) bboxBytes.length);
 			
 			final long bodyLength = bb.capacity() + tableBytes.length + bboxBytes.length;
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 
 			// Write body
 			outputStream.write(bb.array());

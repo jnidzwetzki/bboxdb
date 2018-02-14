@@ -25,7 +25,6 @@ import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.network.routing.RoutingHeader;
 
 public class CancelQueryRequest extends NetworkRequestPackage {
 	
@@ -49,10 +48,8 @@ public class CancelQueryRequest extends NetworkRequestPackage {
 			
 			// Calculate body length
 			final long bodyLength = bb.capacity();
-			
-			// Unrouted package
-			final RoutingHeader routingHeader = new RoutingHeader(false);
-			final long headerLength = appendRequestPackageHeader(bodyLength, routingHeader, outputStream);
+		
+			final long headerLength = appendRequestPackageHeader(bodyLength, outputStream);
 			
 			// Write body
 			outputStream.write(bb.array());
