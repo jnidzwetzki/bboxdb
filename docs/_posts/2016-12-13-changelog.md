@@ -33,6 +33,7 @@ order: 1
 - Bugfix: Don't include null memtable in getAllTupleStorages to prevent NPEs
 - Bugfix: The routing list is recalculated on package resubmission
 - Bugfix: Track sequence number usage and prevent duplicate use
+- Bugfix: Fixed handling of null tuples in SpatialIndexReader
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

@@ -58,6 +58,20 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 
 	@Override
 	protected void filterTupleVersions(final List<Tuple> tupleVersions) {
-		tupleVersions.removeIf(t -> ! t.getBoundingBox().overlaps(boundingBox));
+		tupleVersions.removeIf(t -> isNotCovered(t));
+	}
+
+	/**
+	 * Build the deletion predicate
+	 * 
+	 * @return
+	 */
+	private boolean isNotCovered(final Tuple tuple) {
+		
+		if(tuple.getBoundingBox() == null) {
+			return false;
+		}
+		
+		return ! tuple.getBoundingBox().overlaps(boundingBox);
 	}
 }
