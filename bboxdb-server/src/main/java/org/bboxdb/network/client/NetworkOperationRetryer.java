@@ -118,7 +118,7 @@ public class NetworkOperationRetryer implements Closeable {
 			};
 			
 			// Wait some time to let the global index change
-			scheduler.schedule(futureTask, 100, TimeUnit.MILLISECONDS);
+			scheduler.schedule(futureTask, 300, TimeUnit.MILLISECONDS);
 			
 			return true;
 		} else {
