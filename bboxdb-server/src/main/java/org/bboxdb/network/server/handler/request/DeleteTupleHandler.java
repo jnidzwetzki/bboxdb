@@ -104,9 +104,11 @@ public class DeleteTupleHandler implements RequestHandler {
 				}
 			}
 
+			logger.info("Delete successfully, write result ok");
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while delete tuple", e);
+			logger.info("Delete failed, write result error");
 
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
 			clientConnectionHandler.writeResultPackage(responsePackage);
