@@ -1014,7 +1014,7 @@ public class BBoxDBClient implements BBoxDB {
 		
 		// Package don't need to be send
 		if(result == false) {
-			sequenceNumberGenerator.releaseNumber(sequenceNumber);
+			removeFutureAndReleaseSequencenumber(sequenceNumber);
 			return;
 		}
 		
@@ -1205,26 +1205,34 @@ public class BBoxDBClient implements BBoxDB {
 
 		if(! serverResponseHandler.containsKey(packageType)) {
 			logger.error("Unknown respose package type: {}", packageType);
-			sequenceNumberGenerator.releaseNumber(sequenceNumber);
-
+			removeFutureAndReleaseSequencenumber(sequenceNumber);
+			
 			if(future != null) {
 				future.setFailedState();
 				future.fireCompleteEvent();
 			}
 
 		} else {
-
 			final ServerResponseHandler handler = serverResponseHandler.get(packageType);
 			final boolean removeFuture = handler.handleServerResult(this, encodedPackage, future);
 
 			// Remove pending call
 			if(removeFuture) {
-				synchronized (pendingCalls) {
-					sequenceNumberGenerator.releaseNumber(sequenceNumber);
-					pendingCalls.remove(Short.valueOf(sequenceNumber));
-					pendingCalls.notifyAll();
-				}
+				removeFutureAndReleaseSequencenumber(sequenceNumber);
 			}
+		}
+	}
+
+	/**
+	 * Remove the future from list and release the sequence number
+	 * 
+	 * @param sequenceNumber
+	 */
+	private void removeFutureAndReleaseSequencenumber(final short sequenceNumber) {
+		synchronized (pendingCalls) {
+			sequenceNumberGenerator.releaseNumber(sequenceNumber);
+			pendingCalls.remove(Short.valueOf(sequenceNumber));
+			pendingCalls.notifyAll();
 		}
 	}
 
