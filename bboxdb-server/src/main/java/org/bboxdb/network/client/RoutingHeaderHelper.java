@@ -50,7 +50,7 @@ public class RoutingHeaderHelper {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	public static RoutingHeader getRoutingHeaderForLocalSystem(final String table, final BoundingBox boundingBox, 
+	public static RoutingHeader getRoutingHeaderForLocalSystem(final String table, BoundingBox boundingBox, 
 			final boolean allowEmptyHop, final InetSocketAddress serverAddress) 
 			throws ZookeeperException, BBoxDBException, InterruptedException {
 
@@ -61,6 +61,10 @@ public class RoutingHeaderHelper {
 
 		final DistributionRegion distributionRegion = spacepartitioner.getRootNode();
 
+		if(boundingBox == null) {
+			boundingBox = BoundingBox.EMPTY_BOX;
+		}
+		
 		final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(boundingBox, 
 				distributionRegion);
 
