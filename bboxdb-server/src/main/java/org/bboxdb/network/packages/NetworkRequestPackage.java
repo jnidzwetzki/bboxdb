@@ -42,25 +42,15 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 		super(sequenceNumber);
 		this.routingHeaderSupplier = roundingHeaderSupplier;
 	}
-
-	public NetworkRequestPackage(final short sequenceNumber, final RoutingHeader routingHeader) {
-		super(sequenceNumber);
-		this.routingHeader = routingHeader;
-		this.routingHeaderSupplier = null;
-	}
 	
 	public NetworkRequestPackage(final short sequenceNumber) {
-		this(sequenceNumber, new RoutingHeader(false));
+		this(sequenceNumber, () -> (new RoutingHeader(false)));
 	}
 
 	/**
 	 * Recalculate the routing header, e.g. during retry
 	 */
 	public void recalculateRoutingHeaderIfSupported() throws PackageEncodeException {
-		
-		if(routingHeaderSupplier == null) {
-			return;
-		}
 		
 		routingHeader = routingHeaderSupplier.get();
 		

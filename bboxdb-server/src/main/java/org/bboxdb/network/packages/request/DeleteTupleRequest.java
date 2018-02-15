@@ -128,9 +128,7 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
 
-		final Supplier<RoutingHeader> routingHeaderSupplier = () -> {
-			return routingHeader;
-		};
+		final Supplier<RoutingHeader> routingHeaderSupplier = () -> (routingHeader);
 		
 		return new DeleteTupleRequest(sequenceNumber, routingHeaderSupplier, table, key, timestamp);
 	}

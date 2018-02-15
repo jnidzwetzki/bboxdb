@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
@@ -56,11 +57,11 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 	 */
 	protected final short tuplesPerPage;
 
-	public QueryJoinRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
+	public QueryJoinRequest(final short sequenceNumber, final Supplier<RoutingHeader> routingHeaderSupplier,  
 			final List<TupleStoreName> tables, final BoundingBox box, final boolean pagingEnabled, 
 			final short tuplesPerPage) {
 		
-		super(sequenceNumber, routingHeader);
+		super(sequenceNumber, routingHeaderSupplier);
 		
 		this.tables = tables;
 		this.box = box;
@@ -165,8 +166,9 @@ public class QueryJoinRequest extends NetworkQueryRequestPackage {
 		}
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
+		final Supplier<RoutingHeader> routingHeaderSupplier = () -> (routingHeader);
 
-		return new QueryJoinRequest(sequenceNumber, routingHeader, tableNames, boundingBox, pagingEnabled, tuplesPerPage);
+		return new QueryJoinRequest(sequenceNumber, routingHeaderSupplier, tableNames, boundingBox, pagingEnabled, tuplesPerPage);
 	}
 
 	@Override

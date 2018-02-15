@@ -20,6 +20,7 @@ package org.bboxdb.network.packages.request;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.function.Supplier;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
@@ -42,10 +43,11 @@ public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackag
 	 */
 	protected final BoundingBox box;
 	
-	public QueryBoundingBoxContinuousRequest(final short sequenceNumber, final RoutingHeader routingHeader,  
-			final String table,  final BoundingBox box) {
+	public QueryBoundingBoxContinuousRequest(final short sequenceNumber, 
+			final Supplier<RoutingHeader> routingHeaderSupplier,  
+			final String table, final BoundingBox box) {
 		
-		super(sequenceNumber, routingHeader);
+		super(sequenceNumber, routingHeaderSupplier);
 		
 		this.table = new TupleStoreName(table);
 		this.box = box;
@@ -121,8 +123,9 @@ public class QueryBoundingBoxContinuousRequest extends NetworkQueryRequestPackag
 		}
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
+		final Supplier<RoutingHeader> routingHeaderSupplier = () -> (routingHeader);
 
-		return new QueryBoundingBoxContinuousRequest(sequenceNumber, routingHeader, table, boundingBox);
+		return new QueryBoundingBoxContinuousRequest(sequenceNumber, routingHeaderSupplier, table, boundingBox);
 	}
 
 	@Override

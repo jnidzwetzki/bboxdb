@@ -451,7 +451,7 @@ public class TestNetworkClasses {
 		final String key = "key1";
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryKeyRequest queryKeyRequest = new QueryKeyRequest(sequenceNumber, new RoutingHeader(false), table, key, false, (short) 10);
+		final QueryKeyRequest queryKeyRequest = new QueryKeyRequest(sequenceNumber, ROUTING_HEADER_UNROUTED_SUPPLIER, table, key, false, (short) 10);
 		final byte[] encodedPackage = networkPackageToByte(queryKeyRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -478,7 +478,7 @@ public class TestNetworkClasses {
 		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryBoundingBoxRequest queryRequest = new QueryBoundingBoxRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox, false, (short) 10);
+		final QueryBoundingBoxRequest queryRequest = new QueryBoundingBoxRequest(sequenceNumber, ROUTING_HEADER_ROUTED_SUPPLIER, table, boundingBox, false, (short) 10);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -505,7 +505,7 @@ public class TestNetworkClasses {
 		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryBoundingBoxContinuousRequest queryRequest = new QueryBoundingBoxContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox);
+		final QueryBoundingBoxContinuousRequest queryRequest = new QueryBoundingBoxContinuousRequest(sequenceNumber, ROUTING_HEADER_ROUTED_SUPPLIER, table, boundingBox);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -530,7 +530,7 @@ public class TestNetworkClasses {
 		final long timeStamp = 4711;
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryVersionTimeRequest queryRequest = new QueryVersionTimeRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, timeStamp, true, (short) 50);
+		final QueryVersionTimeRequest queryRequest = new QueryVersionTimeRequest(sequenceNumber, ROUTING_HEADER_ROUTED_SUPPLIER, table, timeStamp, true, (short) 50);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -558,7 +558,7 @@ public class TestNetworkClasses {
 		final long timeStamp = 4711;
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryInsertTimeRequest queryRequest = new QueryInsertTimeRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, timeStamp, true, (short) 50);
+		final QueryInsertTimeRequest queryRequest = new QueryInsertTimeRequest(sequenceNumber, ROUTING_HEADER_ROUTED_SUPPLIER, table, timeStamp, true, (short) 50);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -588,7 +588,7 @@ public class TestNetworkClasses {
 
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryBoundingBoxTimeRequest queryRequest = new QueryBoundingBoxTimeRequest(sequenceNumber, ROUTING_HEADER_ROUTED, table, boundingBox, timeStamp, true, (short) 50);
+		final QueryBoundingBoxTimeRequest queryRequest = new QueryBoundingBoxTimeRequest(sequenceNumber, ROUTING_HEADER_ROUTED_SUPPLIER, table, boundingBox, timeStamp, true, (short) 50);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
@@ -619,7 +619,7 @@ public class TestNetworkClasses {
 		final BoundingBox boundingBox = new BoundingBox(10d, 20d);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
-		final QueryJoinRequest queryRequest = new QueryJoinRequest(sequenceNumber, ROUTING_HEADER_ROUTED, tables, boundingBox, false, (short) 10);
+		final QueryJoinRequest queryRequest = new QueryJoinRequest(sequenceNumber, ROUTING_HEADER_ROUTED_SUPPLIER, tables, boundingBox, false, (short) 10);
 		byte[] encodedPackage = networkPackageToByte(queryRequest);
 		Assert.assertNotNull(encodedPackage);
 
