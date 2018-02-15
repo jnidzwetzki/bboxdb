@@ -19,7 +19,6 @@ package org.bboxdb.network;
 
 import java.util.function.BiConsumer;
 
-import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.NetworkOperationRetryer;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.NetworkRequestPackage;
