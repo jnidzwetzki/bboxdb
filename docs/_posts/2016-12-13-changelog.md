@@ -32,6 +32,7 @@ order: 1
 - Bugfix: Deleted tuples are also redistributed
 - Bugfix: Don't include null memtable in getAllTupleStorages to prevent NPEs
 - Bugfix: The routing list is recalculated on package resubmission
+- Bugfix: Check if sequence number is free
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

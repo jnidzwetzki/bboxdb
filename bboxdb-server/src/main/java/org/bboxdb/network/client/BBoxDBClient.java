@@ -341,7 +341,14 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	protected short getNextSequenceNumber() {
-		return sequenceNumberGenerator.getNextSequenceNummber();
+		short nextNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		
+		// Check if sequence number is unused
+		while(pendingCalls.containsKey(nextNumber)) {
+			nextNumber = sequenceNumberGenerator.getNextSequenceNummber();
+		}
+		
+		return nextNumber;
 	}
 
 	/**
