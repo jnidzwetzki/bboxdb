@@ -341,14 +341,7 @@ public class BBoxDBClient implements BBoxDB {
 	 * @return
 	 */
 	protected short getNextSequenceNumber() {
-		short nextNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		
-		// Check if sequence number is unused
-		while(pendingCalls.containsKey(nextNumber)) {
-			nextNumber = sequenceNumberGenerator.getNextSequenceNummber();
-		}
-		
-		return nextNumber;
+		return sequenceNumberGenerator.getNextSequenceNummber();
 	}
 
 	/**
@@ -1270,6 +1263,7 @@ public class BBoxDBClient implements BBoxDB {
 			// Remove pending call
 			if(removeFuture) {
 				synchronized (pendingCalls) {
+					sequenceNumberGenerator.releaseNumber(sequenceNumber);
 					pendingCalls.remove(Short.valueOf(sequenceNumber));
 					pendingCalls.notifyAll();
 				}

@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SequenceNumberGenerator {
@@ -25,6 +27,11 @@ public class SequenceNumberGenerator {
 	 * The next unused free request id
 	 */
 	protected final AtomicInteger sequenceNumber = new AtomicInteger();
+	
+	/**
+	 * The used numbers
+	 */
+	protected final Set<Short> usedNumbers = new HashSet<>();
 	
 	public SequenceNumberGenerator() {
 		sequenceNumber.set(0);
@@ -35,8 +42,16 @@ public class SequenceNumberGenerator {
 	 * 
 	 * @return The sequence number
 	 */
-	public short getNextSequenceNummber() {
-		return (short) sequenceNumber.getAndIncrement();
+	public synchronized short getNextSequenceNummber() {
+		short nextNumber = (short) sequenceNumber.getAndIncrement();
+		
+		// Check if sequence number is unused
+		while(usedNumbers.contains(nextNumber)) {
+			nextNumber = (short) sequenceNumber.getAndIncrement();
+		}
+		
+		usedNumbers.add(nextNumber);
+		return nextNumber;
 	}
 	
 	/**
@@ -46,5 +61,14 @@ public class SequenceNumberGenerator {
 	 */
 	public short getSequeneNumberWithoutIncrement() {
 		return sequenceNumber.shortValue();
+	}
+	
+	/**
+	 * Release the given sequence number
+	 * @param sequenceNumber
+	 * @return
+	 */
+	public synchronized boolean releaseNumber(final short sequenceNumber) {
+		return usedNumbers.remove(sequenceNumber);
 	}
 }
