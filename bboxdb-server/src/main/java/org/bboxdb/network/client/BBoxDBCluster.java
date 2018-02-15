@@ -166,11 +166,31 @@ public class BBoxDBCluster implements BBoxDB {
 			final SpacePartitioner distributionAdapter 
 				= SpacePartitionerCache.getSpaceParitionerForTableName(ssTableName);
 
-			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+			final Supplier<RoutingHeader> routingHeaderSupplier = () -> {
+				try {
+					final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+	
+					final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(tuple.getBoundingBox(), 
+							distributionRegion);
+					
+					return new RoutingHeader((short) 0, hops);	
+				} catch (InterruptedException e) {
+					logger.warn("Interrupted while waiting for systems list");
+					Thread.currentThread().interrupt();
+				}
+				
+				return null;
+			};
 
-			final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(tuple.getBoundingBox(), 
-					distributionRegion);
-
+			// Calculate routing list to determine start system
+			final RoutingHeader routingHeader = routingHeaderSupplier.get();
+			
+			if(routingHeader == null) {
+				throw new BBoxDBException("Routing header is null");
+			}
+			
+			final List<RoutingHop> hops = routingHeader.getRoutingList();
+			
 			if(hops.isEmpty()) {
 				final String errorMessage = "Insert tuple called, but hop list for bounding box is empty: " 
 						+ tuple.getBoundingBox(); 
@@ -189,20 +209,10 @@ public class BBoxDBCluster implements BBoxDB {
 				return FutureHelper.getFailedEmptyResultFuture(errorMessage);
 			}
 
-			final RoutingHeader routingHeader = new RoutingHeader((short) 0, hops);
-
-			final Supplier<RoutingHeader> routingHeaderSupplier = () -> {
-				return routingHeader;
-			};
-			
 			return connection.insertTuple(table, tuple, routingHeaderSupplier);
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
-		} catch (InterruptedException e) {
-			logger.warn("Interrupted while waiting for systems list");
-			Thread.currentThread().interrupt();
-			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
-		}
+		} 
 	}
 
 	@Override
