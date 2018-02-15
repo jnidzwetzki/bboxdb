@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.CloseableHelper;
@@ -40,10 +41,7 @@ import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.commons.NetworkInterfaceHelper;
 import org.bboxdb.commons.ServiceState;
-import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
-import org.bboxdb.distribution.partitioner.SpacePartitioner;
-import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
@@ -91,8 +89,6 @@ import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.network.routing.RoutingHop;
-import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
@@ -536,73 +532,21 @@ public class BBoxDBClient implements BBoxDB {
 	 */
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
-
-		try {
-			if(! connectionState.isInRunningState()) {
-				return FutureHelper.getFailedEmptyResultFuture("insertTuple called, but connection not ready: " + this);
-			}
-
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, tuple.getBoundingBox(), false);
-
-			return insertTuple(table, tuple, routingHeader);
-		} catch (ZookeeperException e) {
-			throw new BBoxDBException(e);
-		} catch (InterruptedException e) {
-			logger.warn("Interrupted while waiting for systems list");
-			Thread.currentThread().interrupt();
-			// Return after exception
-			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
-		}
-	}
-
-	/**
-	 * Get the routing header for the local system
-	 * @param table
-	 * @param tuple
-	 * @return
-	 * @throws ZookeeperException
-	 * @throws BBoxDBException
-	 * @throws InterruptedException
-	 */
-	protected RoutingHeader getRoutingHeaderForLocalSystem(final String table, final BoundingBox boundingBox, 
-			final boolean allowEmptyHop) throws ZookeeperException, BBoxDBException, InterruptedException {
-
-		final TupleStoreName ssTableName = new TupleStoreName(table);
-
-		final SpacePartitioner spacepartitioner = SpacePartitionerCache.getSpaceParitionerForTableName(
-				ssTableName);
-
-		final DistributionRegion distributionRegion = spacepartitioner.getRootNode();
-
-		final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(boundingBox, 
-				distributionRegion);
-
-		if(hops.isEmpty()) {
-			if(! allowEmptyHop) {
-				throw new BBoxDBException("Got empty result list when query for write: " + boundingBox);
-			}
-			
-			return new RoutingHeader((short) 0, new ArrayList<>());
-		}
-		
-		// Filter the local hop
-		final List<RoutingHop> connectionHop = hops.stream()
-				.filter(r -> r.getDistributedInstance().getInetSocketAddress().equals(serverAddress))
-				.collect(Collectors.toList());
-
-		if(! allowEmptyHop && connectionHop.isEmpty()) {
-			throw new BBoxDBException("Unable to find host " + serverAddress + " in global routing list: " 
-					+ hops);
+		if(! connectionState.isInRunningState()) {
+			return FutureHelper.getFailedEmptyResultFuture("insertTuple called, but connection not ready: " + this);
 		}
 
-		return new RoutingHeader((short) 0, connectionHop);
+		final Supplier<RoutingHeader> routingHeader = () -> RoutingHeaderHelper.getRoutingHeaderForLocalSystemNE(
+				table, tuple.getBoundingBox(), false, serverAddress);
+
+		return insertTuple(table, tuple, routingHeader);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#insertTuple(java.lang.String, org.bboxdb.storage.entity.Tuple)
 	 */
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple, 
-			final RoutingHeader routingHeader) {
+			final Supplier<RoutingHeader> routingHeaderSupplier) {
 
 		if(! connectionState.isInRunningState()) {
 			return FutureHelper.getFailedEmptyResultFuture("insertTuple called, but connection not ready: " + this);
@@ -614,7 +558,7 @@ public class BBoxDBClient implements BBoxDB {
 
 		final InsertTupleRequest requestPackage = new InsertTupleRequest(
 				sequenceNumber, 
-				routingHeader, 
+				routingHeaderSupplier, 
 				ssTableName, 
 				tuple);
 
@@ -639,24 +583,22 @@ public class BBoxDBClient implements BBoxDB {
 
 		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
 
-		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX, true);
+		final Supplier<RoutingHeader> routingHeaderSupplier = () 
+				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemNE(
+						table, BoundingBox.EMPTY_BOX, true, serverAddress);
 
-			final DeleteTupleRequest requestPackage = new DeleteTupleRequest(getNextSequenceNumber(), 
-					routingHeader, table, key, timestamp);
+		final short sequenceNumber = getNextSequenceNumber();
+		
+		final DeleteTupleRequest requestPackage = new DeleteTupleRequest(sequenceNumber, 
+				routingHeaderSupplier, table, key, timestamp);
+		
+		networkOperationRetryer.registerOperation(sequenceNumber, 
+				requestPackage, clientOperationFuture);
 
-			registerPackageCallback(requestPackage, clientOperationFuture);
-			sendPackageToServer(requestPackage, clientOperationFuture);
-			return clientOperationFuture;
-		} catch (BBoxDBException | ZookeeperException e) {
-			// Return after exception
-			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
-		} catch (InterruptedException e) {
-			logger.warn("Interrupted while waiting for systems list");
-			Thread.currentThread().interrupt();
-			// Return after exception
-			return FutureHelper.getFailedEmptyResultFuture(e.getMessage());
-		} 
+		registerPackageCallback(requestPackage, clientOperationFuture);
+		sendPackageToServer(requestPackage, clientOperationFuture);
+		return clientOperationFuture;
+		
 	}
 
 	/* (non-Javadoc)
@@ -737,7 +679,8 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX, true);
+			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
+					table, BoundingBox.EMPTY_BOX, true, serverAddress);
 			
 			final DuplicateResolver<Tuple> duplicateResolver 
 				= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
@@ -776,7 +719,8 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, boundingBox, false);
+			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
+					table, boundingBox, false, serverAddress);
 
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryBoundingBoxRequest requestPackage = new QueryBoundingBoxRequest(getNextSequenceNumber(), 
@@ -812,7 +756,8 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, boundingBox, false);
+			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
+					table, boundingBox, false, serverAddress);
 
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryBoundingBoxContinuousRequest requestPackage = new QueryBoundingBoxContinuousRequest(getNextSequenceNumber(), 
@@ -848,7 +793,8 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, boundingBox, false);
+			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
+					table, boundingBox, false, serverAddress);
 
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryBoundingBoxTimeRequest requestPackage = new QueryBoundingBoxTimeRequest(getNextSequenceNumber(), 
@@ -883,7 +829,8 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX, true);
+			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
+					table, BoundingBox.EMPTY_BOX, true, serverAddress);
 
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryVersionTimeRequest requestPackage = new QueryVersionTimeRequest(getNextSequenceNumber(), 
@@ -918,7 +865,8 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(table, BoundingBox.EMPTY_BOX, true);
+			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
+					table, BoundingBox.EMPTY_BOX, true, serverAddress);
 
 			final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 			final QueryInsertTimeRequest requestPackage = new QueryInsertTimeRequest(getNextSequenceNumber(), 
@@ -953,7 +901,8 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		try {
-			final RoutingHeader routingHeader = getRoutingHeaderForLocalSystem(tableNames.get(0), boundingBox, true);
+			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
+					tableNames.get(0), boundingBox, true, serverAddress);
 
 			final JoinedTupleListFuture clientOperationFuture = new JoinedTupleListFuture(1);
 			
@@ -1113,14 +1062,11 @@ public class BBoxDBClient implements BBoxDB {
 
 		future.setConnection(0, this);
 
-		final RoutingHeader routingHeader = requestPackage.getRoutingHeader();
+		final boolean result = recalculateRoutingHeader(requestPackage, future);
 		
-		if(routingHeader.isRoutedPackage()) {
-			if(routingHeader.getHopCount() == 0) {
-				future.setMessage(0, "No distribution regions in next hop, not sending to server");
-				future.fireCompleteEvent();
-				return;
-			}
+		// Package don't need to be send
+		if(result == false) {
+			return;
 		}
 		
 		try {
@@ -1142,6 +1088,40 @@ public class BBoxDBClient implements BBoxDB {
 		} else {
 			writePackageUncompressed(requestPackage, future);
 		}
+	}
+
+	/**
+	 * Recalculate the routing header and handle the exceptions
+	 * @param requestPackage
+	 * @param future
+	 * @return 
+	 */
+	private boolean recalculateRoutingHeader(final NetworkRequestPackage requestPackage, final OperationFuture future) {
+		
+		try {
+			requestPackage.recalculateRoutingHeaderIfSupported();
+			
+			// Check if package needs to be send
+			final RoutingHeader routingHeader = requestPackage.getRoutingHeader();
+			
+			if(routingHeader.isRoutedPackage()) {
+				if(routingHeader.getHopCount() == 0) {
+					future.setMessage(0, "No distribution regions in next hop, not sending to server");
+					future.fireCompleteEvent();
+					return false;
+				}
+			}
+			
+		} catch (PackageEncodeException e) {
+			final String message = "Got a exception during package encoding";
+			logger.error(message);
+			future.setMessage(0, message);
+			future.setFailedState();
+			future.fireCompleteEvent();
+			return false;
+		}
+		
+		return true;
 	}
 
 	/**

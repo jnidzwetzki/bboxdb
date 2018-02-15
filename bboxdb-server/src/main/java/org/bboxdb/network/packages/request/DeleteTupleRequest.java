@@ -20,6 +20,7 @@ package org.bboxdb.network.packages.request;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.function.Supplier;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
@@ -47,10 +48,10 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 	 */
 	protected final long timestamp;
 
-	public DeleteTupleRequest(final short sequenceNumber, final RoutingHeader routingHeader, 
+	public DeleteTupleRequest(final short sequenceNumber, final Supplier<RoutingHeader> routingHeaderSupplier, 
 			final String table, final String key, final long timestamp) {
 		
-		super(sequenceNumber, routingHeader);
+		super(sequenceNumber, routingHeaderSupplier);
 		
 		this.table = new TupleStoreName(table);
 		this.key = key;
@@ -126,8 +127,12 @@ public class DeleteTupleRequest extends NetworkRequestPackage {
 		}
 		
 		final RoutingHeader routingHeader = NetworkPackageDecoder.getRoutingHeaderFromRequestPackage(encodedPackage);
+
+		final Supplier<RoutingHeader> routingHeaderSupplier = () -> {
+			return routingHeader;
+		};
 		
-		return new DeleteTupleRequest(sequenceNumber, routingHeader, table, key, timestamp);
+		return new DeleteTupleRequest(sequenceNumber, routingHeaderSupplier, table, key, timestamp);
 	}
 
 	@Override

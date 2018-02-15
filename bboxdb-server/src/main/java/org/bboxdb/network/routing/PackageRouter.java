@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeThread;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -29,6 +30,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
+import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.packages.response.SuccessResponse;
@@ -102,6 +104,9 @@ public class PackageRouter {
 					logger.error("Exception while routing package", e);
 					Thread.currentThread().interrupt();
 					operationSuccess = false;
+				} catch (PackageEncodeException e) {
+					logger.error("Exception while routing package", e);
+					operationSuccess = false;
 				} 
 				
 				if(operationSuccess) {
@@ -128,11 +133,12 @@ public class PackageRouter {
 	 * @param insertTupleRequest
 	 * @return
 	 * @throws InterruptedException
+	 * @throws PackageEncodeException 
 	 * @throws TimeoutException 
 	 * @throws ExecutionException
 	 */
 	protected boolean sendInsertPackage(final InsertTupleRequest insertTupleRequest) 
-			throws InterruptedException {
+			throws InterruptedException, PackageEncodeException {
 		
 		final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
 		final RoutingHop routingHop = routingHeader.getRoutingHop();
@@ -147,10 +153,12 @@ public class PackageRouter {
 			return false;
 		} 
 		
+		final Supplier<RoutingHeader> routingHeaderSupplier = () -> (routingHeader);
+		
 		final EmptyResultFuture insertFuture = connection.insertTuple(
 				insertTupleRequest.getTable().getFullname(), 
 				insertTupleRequest.getTuple(), 
-				routingHeader);
+				routingHeaderSupplier);
 		
 		try {
 			insertFuture.waitForAll(ROUTING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);

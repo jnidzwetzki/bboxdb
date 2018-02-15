@@ -20,6 +20,7 @@ package org.bboxdb.network.packages;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.function.Supplier;
 
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.routing.RoutingHeader;
@@ -28,13 +29,24 @@ import org.bboxdb.network.routing.RoutingHeaderParser;
 public abstract class NetworkRequestPackage extends NetworkPackage {
 	
 	/**
+	 * The routing handler supplier (used for retry and routing handler recalculation)
+	 */
+	private final Supplier<RoutingHeader> routingHeaderSupplier;
+	
+	/**
 	 * The routing header
 	 */
 	private RoutingHeader routingHeader;
 
+	public NetworkRequestPackage(short sequenceNumber, final Supplier<RoutingHeader> roundingHeaderSupplier) {
+		super(sequenceNumber);
+		this.routingHeaderSupplier = roundingHeaderSupplier;
+	}
+
 	public NetworkRequestPackage(final short sequenceNumber, final RoutingHeader routingHeader) {
 		super(sequenceNumber);
 		this.routingHeader = routingHeader;
+		this.routingHeaderSupplier = null;
 	}
 	
 	public NetworkRequestPackage(final short sequenceNumber) {
@@ -42,11 +54,14 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 	}
 
 	/**
-	 * Replace the existing routing header with a new one
-	 * @param routingHeader
+	 * Recalculate the routing header, e.g. during retry
 	 */
-	public void replaceRoutingHeader(final RoutingHeader routingHeader) {
-		this.routingHeader = routingHeader;
+	public void recalculateRoutingHeaderIfSupported() throws PackageEncodeException {
+		routingHeader = routingHeaderSupplier.get();
+		
+		if(routingHeader == null) {
+			throw new PackageEncodeException("Unable to recalculate new package header");
+		}
 	}
 	
 	/**
@@ -71,7 +86,7 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 			bos.write(byteBuffer.array());
 			
 			// Write routing header
-			final byte[] routingHeaderBytes = RoutingHeaderParser.encodeHeader(routingHeader);
+			final byte[] routingHeaderBytes = RoutingHeaderParser.encodeHeader(getRoutingHeader());
 			bos.write(routingHeaderBytes);
 			
 			return byteBuffer.capacity() + routingHeaderBytes.length;
@@ -83,8 +98,13 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 	/**
 	 * Get the routing header
 	 * @return
+	 * @throws PackageEncodeException 
 	 */
-	public RoutingHeader getRoutingHeader() {
+	public RoutingHeader getRoutingHeader() throws PackageEncodeException {
+		if(routingHeader == null) {
+			recalculateRoutingHeaderIfSupported();
+		}
+		
 		return routingHeader;
 	}
 }

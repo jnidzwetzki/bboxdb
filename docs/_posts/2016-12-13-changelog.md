@@ -13,9 +13,9 @@ order: 1
 - Improvement: Updated dependencies (json / guava)
 - Improvement: Rewrote shutdown code 
 - Improvement: If the server is still running 60 seconds after a shutdown, it is killed
-- Improvement: Tuple insert is only executed when the package routing was successfully
 - Improvement: Check for enough split points on sampling
 - Improvement: Routed packages with empty tuplestore list are not send to server
+- Improvement: The deleted tuple request is resubmitted on failure
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel
@@ -31,6 +31,7 @@ order: 1
 - Bugfix: Local tuple store configuration is written in tuple store split
 - Bugfix: Deleted tuples are also redistributed
 - Bugfix: Don't include null memtable in getAllTupleStorages to prevent NPEs
+- Bugfix: The routing list is recalculated on package resubmission
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

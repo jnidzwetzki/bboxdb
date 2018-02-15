@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
@@ -190,7 +191,11 @@ public class BBoxDBCluster implements BBoxDB {
 
 			final RoutingHeader routingHeader = new RoutingHeader((short) 0, hops);
 
-			return connection.insertTuple(table, tuple, routingHeader);
+			final Supplier<RoutingHeader> routingHeaderSupplier = () -> {
+				return routingHeader;
+			};
+			
+			return connection.insertTuple(table, tuple, routingHeaderSupplier);
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
 		} catch (InterruptedException e) {
