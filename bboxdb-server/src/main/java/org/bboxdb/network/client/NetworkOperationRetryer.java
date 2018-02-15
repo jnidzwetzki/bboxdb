@@ -20,6 +20,9 @@ package org.bboxdb.network.client;
 import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 import org.bboxdb.misc.Const;
@@ -45,6 +48,11 @@ public class NetworkOperationRetryer implements Closeable {
 	 * The retry consumer
 	 */
 	protected final BiConsumer<NetworkRequestPackage, OperationFuture> retryConsumer;
+	
+	/**
+	 * The tuple send delayer
+	 */
+	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	public NetworkOperationRetryer(final BiConsumer<NetworkRequestPackage, OperationFuture> retryConsumer) {
 		this.retryConsumer = retryConsumer;
@@ -106,10 +114,16 @@ public class NetworkOperationRetryer implements Closeable {
 			
 			logger.debug("Got failed package but retry: {}", errorMessage);
 
-			retryConsumer.accept(networkPackage, future);
+			final Runnable futureTask = () -> {
+				retryConsumer.accept(networkPackage, future);
+			};
+			
+			// Wait some time to let the global index change
+			scheduler.schedule(futureTask, 250, TimeUnit.MILLISECONDS);
+			
 			return true;
 		} else {
-			// Retry failed, remove
+			// Retry failed, remove package
 			packages.remove(packageIdShort);
 			return false;
 		}
@@ -136,8 +150,8 @@ public class NetworkOperationRetryer implements Closeable {
 	@Override
 	public void close() {
 		packages.clear();
+		scheduler.shutdown();
 	}
-	
 }
 
 class RetryPackageEntity {

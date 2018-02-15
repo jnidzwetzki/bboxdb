@@ -16,6 +16,7 @@ order: 1
 - Improvement: Check for enough split points on sampling
 - Improvement: Routed packages with empty tuplestore list are not send to server
 - Improvement: All network requests are resubmitted on failure
+- Improvement: Added some delay before failed network requests are resubmitted
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel
