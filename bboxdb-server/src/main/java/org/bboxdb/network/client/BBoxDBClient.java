@@ -1055,15 +1055,16 @@ public class BBoxDBClient implements BBoxDB {
 			final OperationFuture future) {
 
 		future.setConnection(0, this);
-
+		
+		final short sequenceNumber = requestPackage.getSequenceNumber();
 		final boolean result = recalculateRoutingHeader(requestPackage, future);
 		
 		// Package don't need to be send
 		if(result == false) {
+			sequenceNumberGenerator.releaseNumber(sequenceNumber);
 			return;
 		}
 		
-		final short sequenceNumber = requestPackage.getSequenceNumber();
 		if(! networkOperationRetryer.isPackageIdKnown(sequenceNumber)) {
 			networkOperationRetryer.registerOperation(sequenceNumber, 
 				requestPackage, future);
@@ -1225,7 +1226,7 @@ public class BBoxDBClient implements BBoxDB {
 
 		synchronized (pendingCalls) {
 			assert (! pendingCalls.containsKey(sequenceNumber)) 
-			: "Old call exists: " + pendingCalls.get(sequenceNumber);
+				: "Old call exists: " + pendingCalls.get(sequenceNumber);
 
 			pendingCalls.put(sequenceNumber, future);
 		}
@@ -1248,7 +1249,8 @@ public class BBoxDBClient implements BBoxDB {
 		}
 
 		if(! serverResponseHandler.containsKey(packageType)) {
-			logger.error("Unknown respose package type: " + packageType);
+			logger.error("Unknown respose package type: {}", packageType);
+			sequenceNumberGenerator.releaseNumber(sequenceNumber);
 
 			if(future != null) {
 				future.setFailedState();
