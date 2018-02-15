@@ -50,13 +50,20 @@ public class ErrorHandler implements ServerResponseHandler {
 		
 		final AbstractBodyResponse result = ErrorResponse.decodePackage(encodedPackage);
 		
-		boolean ableToRetryOperation = false;
 		final NetworkOperationRetryer networkOperationRetryer = bboxDBClient.getNetworkOperationRetryer();
-		if(networkOperationRetryer.isPackageIdKnown(result.getSequenceNumber())) {
-			ableToRetryOperation = networkOperationRetryer.handleFailure(result.getSequenceNumber());	
+		
+		final short sequenceNumber = result.getSequenceNumber();
+		
+		if(networkOperationRetryer.isPackageIdKnown(sequenceNumber)) {
+			final boolean ableToRetryOperation = networkOperationRetryer.handleFailure(sequenceNumber, result.getBody());
+			
+			if(ableToRetryOperation) {
+				// Let future active
+				return false;
+			}
 		}
 		
-		if(pendingCall != null && ! ableToRetryOperation) {
+		if(pendingCall != null) {
 			pendingCall.setMessage(0, result.getBody());
 			pendingCall.setFailedState();
 			pendingCall.fireCompleteEvent();

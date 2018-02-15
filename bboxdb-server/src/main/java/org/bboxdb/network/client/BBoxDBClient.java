@@ -569,9 +569,6 @@ public class BBoxDBClient implements BBoxDB {
 				ssTableName, 
 				tuple);
 
-		networkOperationRetryer.registerOperation(sequenceNumber, 
-				requestPackage, clientOperationFuture);
-
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 
@@ -593,15 +590,12 @@ public class BBoxDBClient implements BBoxDB {
 		final Supplier<RoutingHeader> routingHeaderSupplier = () 
 				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemNE(
 						table, BoundingBox.EMPTY_BOX, true, serverAddress);
-
+				
 		final short sequenceNumber = getNextSequenceNumber();
 		
 		final DeleteTupleRequest requestPackage = new DeleteTupleRequest(sequenceNumber, 
 				routingHeaderSupplier, table, key, timestamp);
-		
-		networkOperationRetryer.registerOperation(sequenceNumber, 
-				requestPackage, clientOperationFuture);
-
+	
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
 		return clientOperationFuture;
@@ -1074,6 +1068,12 @@ public class BBoxDBClient implements BBoxDB {
 		// Package don't need to be send
 		if(result == false) {
 			return;
+		}
+		
+		final short sequenceNumber = requestPackage.getSequenceNumber();
+		if(! networkOperationRetryer.isPackageIdKnown(sequenceNumber)) {
+			networkOperationRetryer.registerOperation(sequenceNumber, 
+				requestPackage, future);
 		}
 		
 		try {

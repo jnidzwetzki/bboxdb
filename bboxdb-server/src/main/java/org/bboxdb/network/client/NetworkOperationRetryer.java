@@ -24,8 +24,16 @@ import java.util.function.BiConsumer;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NetworkOperationRetryer {
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(NetworkOperationRetryer.class);
+
 	
 	/**
 	 * The pending packages
@@ -78,20 +86,27 @@ public class NetworkOperationRetryer {
 	/**
 	 * Handle operation failure
 	 * @param packageId
+	 * @param errorMessage 
 	 * @return
 	 */
-	public boolean handleFailure(final short packageId) {
+	public boolean handleFailure(final short packageId, final String errorMessage) {
 		final Short packageIdShort = Short.valueOf(packageId);
 		
 		if(! isPackageIdKnown(packageIdShort)) {
 			throw new IllegalArgumentException("Package is now known: " + packageId);
 		}
 		
+		
 		final RetryPackageEntity retryPackageEntity = packages.get(packageIdShort);
 		
 		if(retryPackageEntity.getRetryCounter() < Const.OPERATION_RETRY) {
 			retryPackageEntity.increaseRetryCounter();
-			retryConsumer.accept(retryPackageEntity.getNetworkPackage(), retryPackageEntity.getFuture());
+			final OperationFuture future = retryPackageEntity.getFuture();
+			final NetworkRequestPackage networkPackage = retryPackageEntity.getNetworkPackage();
+			
+			logger.debug("Got failed package but retry: {}", errorMessage);
+
+			retryConsumer.accept(networkPackage, future);
 			return true;
 		} else {
 			// Retry failed, remove
