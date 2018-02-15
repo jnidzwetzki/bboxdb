@@ -500,11 +500,12 @@ public class BBoxDBClient implements BBoxDB {
 
 		killPendingCalls();
 		getResultBuffer().clear();
-
+		
 		closeSocket();
 
 		logger.info("Disconnected from server: {}", getConnectionName());
 		connectionState.forceDispatchToTerminated();
+		mainteinanceThread.interrupt();
 	}
 
 	/* (non-Javadoc)
