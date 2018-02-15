@@ -19,10 +19,14 @@ package org.bboxdb.network.client.future;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
+import org.bboxdb.network.client.RoutingHeaderHelper;
+import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.util.EntityDuplicateTracker;
 import org.bboxdb.storage.util.TupleHelper;
@@ -109,36 +113,56 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 		}
 		
 		try {
-			for(int i = 0; i < getNumberOfResultObjets(); i++) {
-				final List<Tuple> tupleResult = get(i);
-				
-				if(tupleResult == null) {
-					// Got empty result back from server, skip read repair
-					return;
-				}
-				
-				final BBoxDBClient bboxDBConnection = getConnection(i);
-				
-				if(bboxDBConnection == null) {
-					// Unable to perform read repair when the connection is not known
-					return;
-				}
-				
-				for(final Tuple tuple : allTuples) {
-					if(! tupleResult.contains(tuple)) {
-						logger.info("Tuple {} is not contained in result {} from server {}",
-								tuple, tupleResult, bboxDBConnection.getConnectionName());
-						
-						bboxDBConnection.insertTuple(tablename, tuple);
-					}
-				}
-				
+			for(int resultId = 0; resultId < getNumberOfResultObjets(); resultId++) {
+				performReadRepairForResult(allTuples, resultId);	
 			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return;
-		} catch (BBoxDBException e) {
+		} catch (BBoxDBException | ZookeeperException e) {
 			logger.error("Got exception during read repair");
+		}
+	}
+
+	/**
+	 * Perform read repair for the given result
+	 * 
+	 * @param allTuples
+	 * @param resultId
+	 * @throws InterruptedException
+	 * @throws BBoxDBException
+	 * @throws ZookeeperException 
+	 */
+	private void performReadRepairForResult(final List<Tuple> allTuples, int resultId)
+			throws InterruptedException, BBoxDBException, ZookeeperException {
+		
+		final List<Tuple> tupleResult = get(resultId);
+
+		final BBoxDBClient bboxDBConnection = getConnection(resultId);
+		
+		if(bboxDBConnection == null) {
+			// Unable to perform read repair when the connection is not known
+			return;
+		}
+		
+		for(final Tuple tuple : allTuples) {
+			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
+					tablename, tuple.getBoundingBox(), false, bboxDBConnection.getServerAddress());
+					
+			// System is not responsible for the tuple
+			if(routingHeader.getHopCount() == 0) {
+				return;
+			}
+			
+			if(! tupleResult.contains(tuple)) {
+				
+				logger.info("Tuple {} is not contained in result {} from server {}, "
+						+ "performing read repair", tuple, tupleResult, 
+						bboxDBConnection.getConnectionName());
+				
+				final Supplier<RoutingHeader> routingHeaderSupplier = () -> (routingHeader);
+				bboxDBConnection.insertTuple(tablename, tuple, routingHeaderSupplier);
+			}
 		}
 	}	
 }

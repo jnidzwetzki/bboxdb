@@ -1351,4 +1351,12 @@ public class BBoxDBClient implements BBoxDB {
 	public void setTupleStoreManagerRegistry(final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
 		this.tupleStoreManagerRegistry = tupleStoreManagerRegistry;
 	}
+	
+	/**
+	 * Get the server address
+	 * @return
+	 */
+	public InetSocketAddress getServerAddress() {
+		return serverAddress;
+	}
 }
