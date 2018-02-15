@@ -25,7 +25,7 @@ public abstract class NetworkPackage {
 	/**
 	 * The sequence number of the package
 	 */
-	protected short sequenceNumber;
+	protected final short sequenceNumber;
 	
 	public NetworkPackage(final short sequenceNumber) {
 		this.sequenceNumber = sequenceNumber;
@@ -45,14 +45,6 @@ public abstract class NetworkPackage {
 		return sequenceNumber;
 	}
 	
-	/**
-	 * Set a new sequence number
-	 * @param sequenceNumber
-	 */
-	public void setSequenceNumber(final short sequenceNumber) {
-		this.sequenceNumber = sequenceNumber;
-	}
-
 	/**
 	 * Write the package to the stream
 	 * 
