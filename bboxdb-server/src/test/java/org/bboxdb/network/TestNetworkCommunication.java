@@ -318,6 +318,56 @@ public class TestNetworkCommunication {
 	}
 	
 	/**
+	 * Insert a tuple and requet it via key
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 */
+	@Test
+	public void testGetByKey() throws InterruptedException, ExecutionException, BBoxDBException {
+		System.out.println("=== Running testGetByKey");
+		final String distributionGroup = "testgroup"; 
+		final String table = distributionGroup + "_relation12333";
+		
+		final BBoxDBClient bboxDBClient = connectToServer();
+		
+		// Delete distribution group
+		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
+		resultDelete.waitForAll();
+		Assert.assertFalse(resultDelete.isFailed());
+		
+		// Create distribution group
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
+				.withReplicationFactor((short) 1)
+				.build();
+		
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
+				configuration);
+		
+		resultCreate.waitForAll();
+		Assert.assertFalse(resultCreate.isFailed());
+		
+		// Create table
+		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
+		resultCreateTable.waitForAll();
+		Assert.assertFalse(resultCreateTable.isFailed());
+		
+		// Inside our bbox query
+		final Tuple tuple1 = new Tuple("abc", new BoundingBox(0d, 1d, 0d, 1d), "abc".getBytes());
+		final EmptyResultFuture result1 = bboxDBClient.insertTuple(table, tuple1);
+		
+		result1.waitForAll();
+
+		final TupleListFuture future = bboxDBClient.queryKey(table, "abc");
+		future.waitForAll();
+		
+		final List<Tuple> resultList = Lists.newArrayList(future.iterator());		
+		Assert.assertEquals(1, resultList.size());
+	
+		System.out.println("=== End testGetByKey");
+	}
+	
+	/**
 	 * Insert some tuples and start a bounding box query afterwards
 	 * @throws ExecutionException 
 	 * @throws InterruptedException 
@@ -333,7 +383,6 @@ public class TestNetworkCommunication {
 
 		System.out.println("=== End testInsertAndBoundingBoxTimeQuery");
 	}
-	
 	
 	/**
 	 * Send a keep alive package to the server
@@ -358,7 +407,6 @@ public class TestNetworkCommunication {
 		
 		System.out.println("=== End sendKeepAlivePackage");
 	}
-	
 	
 	/**
 	 * Build a new connection to the bboxdb server
