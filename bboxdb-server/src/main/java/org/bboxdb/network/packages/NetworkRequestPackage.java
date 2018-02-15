@@ -57,6 +57,11 @@ public abstract class NetworkRequestPackage extends NetworkPackage {
 	 * Recalculate the routing header, e.g. during retry
 	 */
 	public void recalculateRoutingHeaderIfSupported() throws PackageEncodeException {
+		
+		if(routingHeaderSupplier == null) {
+			return;
+		}
+		
 		routingHeader = routingHeaderSupplier.get();
 		
 		if(routingHeader == null) {
