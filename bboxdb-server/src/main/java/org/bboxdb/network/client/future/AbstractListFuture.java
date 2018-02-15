@@ -20,6 +20,8 @@ package org.bboxdb.network.client.future;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +62,7 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 				logger.error("Got exception while iterating", e);
 			}
 		}
+		
 		return allTuples;
 	}
 	
@@ -86,6 +89,34 @@ public abstract class AbstractListFuture<T> extends OperationFutureImpl<List<T>>
 		} else {
 			return createSimpleIterator();
 		}	
+	}
+	
+	/**
+	 * Prevent null results
+	 */
+	@Override
+	public List<T> get(int resultId) throws InterruptedException {
+		final List<T> result = super.get(resultId);
+		
+		if(result == null) {
+			return new ArrayList<T>();
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Prevent null results
+	 */
+	@Override
+	public List<T> get(int resultId, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
+		final List<T> result = super.get(resultId, timeout, unit);
+		
+		if(result == null) {
+			return new ArrayList<T>();
+		}
+		
+		return result;
 	}
 	
 	/**

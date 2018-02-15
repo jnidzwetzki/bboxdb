@@ -184,7 +184,6 @@ public class OperationFutureImpl<T> implements OperationFuture {
 	 * @return
 	 */
 	public T get(final int resultId) throws InterruptedException {
-		
 		checkFutureSize(resultId);
 		
 		return futures.get(resultId).get();
