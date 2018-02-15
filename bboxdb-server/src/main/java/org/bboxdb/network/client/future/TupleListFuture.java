@@ -120,7 +120,7 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 			Thread.currentThread().interrupt();
 			return;
 		} catch (BBoxDBException | ZookeeperException e) {
-			logger.error("Got exception during read repair");
+			logger.error("Got exception during read repair", e);
 		}
 	}
 
