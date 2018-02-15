@@ -77,7 +77,7 @@ public class TestNetworkOperationRetryer {
 	}
 
 	@Test
-	public void retry() {
+	public void retry() throws InterruptedException {
 		@SuppressWarnings("unchecked")
 		final BiConsumer<NetworkRequestPackage, OperationFuture> consumer = Mockito.mock(BiConsumer.class);
 		
@@ -88,32 +88,10 @@ public class TestNetworkOperationRetryer {
 		
 		final boolean result = retryer.handleFailure((short) 12, "");
 		Assert.assertTrue(result);
+		
+		Thread.sleep(200);
+		
 		(Mockito.verify(consumer, Mockito.atLeastOnce())).accept(emptyPackage, emptyFuture);
-		
-		retryer.close();
-	}
-	
-	@Test
-	public void retryUntilEnd() {
-		@SuppressWarnings("unchecked")
-		final BiConsumer<NetworkRequestPackage, OperationFuture> consumer = Mockito.mock(BiConsumer.class);
-		
-		final NetworkOperationRetryer retryer 
-			= new NetworkOperationRetryer(consumer);
-		
-		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
-		
-		for(int i = 0; i< Const.OPERATION_RETRY; i++) {
-			final boolean result = retryer.handleFailure((short) 12, "");
-			Assert.assertTrue(result);
-			(Mockito.verify(consumer, Mockito.times(i + 1))).accept(emptyPackage, emptyFuture);
-		}
-		
-		final boolean result = retryer.handleFailure((short) 12, "");
-		Assert.assertFalse(result);
-		
-		// Failed, we assume the operation is removed
-		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
 		
 		retryer.close();
 	}
