@@ -32,34 +32,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NetworkOperationRetryer implements Closeable {
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(NetworkOperationRetryer.class);
 
-	
 	/**
 	 * The pending packages
 	 */
-	protected final Map<Short, RetryPackageEntity> packages = new HashMap<>();
+	private final Map<Short, RetryPackageEntity> packages = new HashMap<>();
 	
 	/**
 	 * The retry consumer
 	 */
-	protected final BiConsumer<NetworkRequestPackage, OperationFuture> retryConsumer;
+	private final BiConsumer<NetworkRequestPackage, OperationFuture> retryConsumer;
 	
 	/**
 	 * The tuple send delayer
 	 */
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(NetworkOperationRetryer.class);
+
 	public NetworkOperationRetryer(final BiConsumer<NetworkRequestPackage, OperationFuture> retryConsumer) {
 		this.retryConsumer = retryConsumer;
 	}
 
 	/**
-	 * Regiter an operation for try
+	 * Register an operation for try
 	 * @param packageId
 	 * @param networkPackage
 	 */
@@ -119,7 +118,7 @@ public class NetworkOperationRetryer implements Closeable {
 			};
 			
 			// Wait some time to let the global index change
-			scheduler.schedule(futureTask, 500, TimeUnit.MILLISECONDS);
+			scheduler.schedule(futureTask, 250, TimeUnit.MILLISECONDS);
 			
 			return true;
 		} else {

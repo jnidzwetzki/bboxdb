@@ -22,7 +22,7 @@ order: 1
 - Bugfix: Zookeeper initial population can be done in parallel
 - Bugfix: Network sockets are closed, when a IOException has occurred
 - Bugfix: Package was not routed to the last hop of routing list
-- Bugfix: Ensure distribution group is read when local mappings are requsted
+- Bugfix: Ensure distribution group is read when local mappings are requested
 - Bugfix: Duplicates are removed from the simple iterator result set
 - Bugfix: Fixed connection / complete result state in futures on merge operation
 - Bugfix: Fixed table creation in parallel in InsertTupleHandler
@@ -32,7 +32,7 @@ order: 1
 - Bugfix: Local tuple store configuration is written in tuple store split
 - Bugfix: Deleted tuples are also redistributed
 - Bugfix: Don't include null memtable in getAllTupleStorages to prevent NPEs
-- Bugfix: The routing list is recalculated on package resubmission
+- Bugfix: The routing list is recalculated on package re-submission
 - Bugfix: Track sequence number usage and prevent duplicate use
 - Bugfix: Fixed handling of null tuples in SpatialIndexReader
 

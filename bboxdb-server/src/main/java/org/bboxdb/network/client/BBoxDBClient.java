@@ -607,8 +607,8 @@ public class BBoxDBClient implements BBoxDB {
 	
 		registerPackageCallback(requestPackage, clientOperationFuture);
 		sendPackageToServer(requestPackage, clientOperationFuture);
-		return clientOperationFuture;
 		
+		return clientOperationFuture;
 	}
 
 	/* (non-Javadoc)
