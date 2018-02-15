@@ -158,6 +158,16 @@ public class BBoxDBClient implements BBoxDB {
 	 * The maintenance thread
 	 */
 	protected Thread mainteinanceThread;
+	
+	/**
+	 * The maintenance handler instance
+	 */
+	protected ConnectionFlushThread flushHandler;
+
+	/**
+	 * The maintenance thread
+	 */
+	protected Thread flushThread;
 
 	/**
 	 * The default timeout
@@ -375,6 +385,11 @@ public class BBoxDBClient implements BBoxDB {
 
 		connectionState.dispatchToRunning();
 		logger.debug("Handshaking with {} done", getConnectionName());
+		
+		flushHandler = new ConnectionFlushThread(this);
+		flushThread = new Thread(flushHandler);
+		flushThread.setName("Flush thread for: " + getConnectionName());
+		flushThread.start();
 
 		mainteinanceHandler = new ConnectionMainteinanceThread(this);
 		mainteinanceThread = new Thread(mainteinanceHandler);
