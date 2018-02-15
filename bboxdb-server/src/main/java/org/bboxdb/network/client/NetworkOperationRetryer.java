@@ -112,7 +112,7 @@ public class NetworkOperationRetryer implements Closeable {
 			final OperationFuture future = retryPackageEntity.getFuture();
 			final NetworkRequestPackage networkPackage = retryPackageEntity.getNetworkPackage();
 			
-			logger.debug("Got failed package but retry: {}", errorMessage);
+			logger.debug("Got failed package but retry: {} (id: {})", errorMessage, packageId);
 
 			final Runnable futureTask = () -> {
 				retryConsumer.accept(networkPackage, future);
