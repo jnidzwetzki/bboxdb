@@ -55,7 +55,7 @@ public class HandleBoundingBoxQuery implements QueryHandler {
 		
 		try {
 			if(clientConnectionHandler.getActiveQueries().containsKey(packageSequence)) {
-				logger.error("Query sequence {} is allready known, please close old query first", packageSequence);
+				logger.error("Query sequence {} is already known, please close old query first", packageSequence);
 				return;
 			}
 			
