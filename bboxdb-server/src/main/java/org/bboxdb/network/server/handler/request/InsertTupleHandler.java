@@ -86,7 +86,6 @@ public class InsertTupleHandler implements RequestHandler {
 				PackageRouter.checkLocalSystemNameMatches(localHop);				
 				final List<Long> distributionRegions = localHop.getDistributionRegions();
 
-				// The local insert is executed as soon as the routing is confirmed
 				processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions);
 				
 				final PackageRouter packageRouter = clientConnectionHandler.getPackageRouter();
@@ -95,7 +94,7 @@ public class InsertTupleHandler implements RequestHandler {
 			
 		} catch(RejectedException e) {
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, 
-					ErrorMessages.ERROR_LOCAL_OPERATION_REJECTED_RETRY);
+					ErrorMessages.ERROR_LOCAL_OPERATION_REJECTED_RETRY + " " + e.getMessage());
 			clientConnectionHandler.writeResultPackage(responsePackage);	
 		} catch (Throwable e) {
 			logger.error("Error while inserting tuple", e);
