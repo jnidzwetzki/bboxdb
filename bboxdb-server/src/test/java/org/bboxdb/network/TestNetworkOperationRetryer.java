@@ -23,6 +23,7 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.NetworkOperationRetryer;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.NetworkRequestPackage;
+import org.bboxdb.network.packages.request.ListTablesRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -37,7 +38,7 @@ public class TestNetworkOperationRetryer {
 	/**
 	 * The empty package
 	 */
-	protected final NetworkRequestPackage emptyPackage = null;
+	protected final NetworkRequestPackage emptyPackage = new ListTablesRequest((short) 12);
 	
 	/**
 	 * The empty future
