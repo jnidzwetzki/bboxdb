@@ -1069,20 +1069,6 @@ public class BBoxDBClient implements BBoxDB {
 			networkOperationRetryer.registerOperation(sequenceNumber, 
 				requestPackage, future);
 		}
-		
-		try {
-			synchronized (pendingCalls) {
-				// Ensure that not more then maxInFlightCalls are active
-				while(pendingCalls.size() > maxInFlightCalls) {
-					pendingCalls.wait();
-				}	
-			}
-
-		} catch(InterruptedException e) {
-			logger.warn("Got an exception while waiting for pending requests", e);
-			Thread.currentThread().interrupt();
-			return;
-		}
 
 		if(connectionCapabilities.hasGZipCompression()) {
 			writePackageWithCompression(requestPackage, future);
@@ -1227,9 +1213,23 @@ public class BBoxDBClient implements BBoxDB {
 		synchronized (pendingCalls) {
 			assert (! pendingCalls.containsKey(sequenceNumber)) 
 				: "Old call exists: " + pendingCalls.get(sequenceNumber);
-
+			
 			pendingCalls.put(sequenceNumber, future);
 		}
+		
+		try {
+			synchronized (pendingCalls) {
+				// Ensure that not more then maxInFlightCalls are active
+				while(pendingCalls.size() > maxInFlightCalls) {
+					pendingCalls.wait();
+				}	
+			}
+
+		} catch(InterruptedException e) {
+			logger.warn("Got an exception while waiting for pending requests", e);
+			Thread.currentThread().interrupt();
+		}
+	
 		return sequenceNumber;
 	}
 
