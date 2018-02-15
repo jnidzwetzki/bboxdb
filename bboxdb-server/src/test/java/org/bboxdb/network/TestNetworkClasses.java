@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -127,45 +126,6 @@ public class TestNetworkClasses {
 		bos.flush();
 		bos.close();
 		return bos.toByteArray();
-	}
-	
-	/**
-	 * Ensure that all sequence numbers are distinct
-	 */
-	@Test
-	public void testSequenceNumberGenerator1() {
-		final int NUMBERS = 1000;
-		final HashMap<Short, Short> sequenceNumberMap = new HashMap<Short, Short>();
-		
-		for(int i = 0; i < NUMBERS; i++) {
-			final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-			Assert.assertFalse(sequenceNumberMap.containsKey(sequenceNumber));
-			sequenceNumberMap.put(sequenceNumber, (short) 1);
-		}
-		
-		Assert.assertEquals(sequenceNumberMap.size(), NUMBERS);
-	}
-	
-	/**
-	 * Ensure the generatror is able to create more than 2^16 numbers, even we have
-	 * some overruns 
-	 */
-	@Test
-	public void testSequenceNumberGenerator2() {
-		final HashMap<Short, Short> sequenceNumberMap = new HashMap<Short, Short>();
-
-		for(int i = 0; i < Integer.MAX_VALUE / 100; i++) {
-			final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-			
-			if(! sequenceNumberMap.containsKey(sequenceNumber)) {
-				sequenceNumberMap.put(sequenceNumber, (short) 1);
-			} else {
-				short oldValue = sequenceNumberMap.get(sequenceNumber);
-				sequenceNumberMap.put(sequenceNumber, (short) (oldValue + 1));
-			}
-		}
-		
-		Assert.assertEquals(65536, sequenceNumberMap.size());		
 	}
 	
 	/**

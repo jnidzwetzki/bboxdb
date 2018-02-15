@@ -33,6 +33,11 @@ public class SequenceNumberGenerator {
 	 */
 	protected final Set<Short> usedNumbers = new HashSet<>();
 	
+	/**
+	 * The amount of tried to find an empty sequence number
+	 */
+	private final static int MAX_TRIES = 10000;
+	
 	public SequenceNumberGenerator() {
 		sequenceNumber.set(0);
 	}
@@ -44,10 +49,17 @@ public class SequenceNumberGenerator {
 	 */
 	public synchronized short getNextSequenceNummber() {
 		short nextNumber = (short) sequenceNumber.getAndIncrement();
-		
+		short numberTry = 1;
+				
 		// Check if sequence number is unused
 		while(usedNumbers.contains(nextNumber)) {
+			
+			if(numberTry > MAX_TRIES) {
+				throw new IllegalArgumentException("Unable to get sequence number with tries: " + MAX_TRIES);
+			}
+			
 			nextNumber = (short) sequenceNumber.getAndIncrement();
+			numberTry++;
 		}
 		
 		usedNumbers.add(nextNumber);
