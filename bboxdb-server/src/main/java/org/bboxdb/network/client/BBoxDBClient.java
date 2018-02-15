@@ -1143,7 +1143,9 @@ public class BBoxDBClient implements BBoxDB {
 	 * @param future
 	 * @return
 	 */
-	protected short registerPackageCallback(final NetworkRequestPackage requestPackage, final OperationFuture future) {
+	protected short registerPackageCallback(final NetworkRequestPackage requestPackage, 
+			final OperationFuture future) {
+		
 		final short sequenceNumber = requestPackage.getSequenceNumber();
 		future.setRequestId(0, sequenceNumber);
 

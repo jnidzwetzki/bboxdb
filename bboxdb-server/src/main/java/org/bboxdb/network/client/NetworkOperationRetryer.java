@@ -96,10 +96,9 @@ public class NetworkOperationRetryer {
 			throw new IllegalArgumentException("Package is now known: " + packageId);
 		}
 		
-		
 		final RetryPackageEntity retryPackageEntity = packages.get(packageIdShort);
 		
-		if(retryPackageEntity.getRetryCounter() < Const.OPERATION_RETRY) {
+		if(canPackageRetried(retryPackageEntity)) {
 			retryPackageEntity.increaseRetryCounter();
 			final OperationFuture future = retryPackageEntity.getFuture();
 			final NetworkRequestPackage networkPackage = retryPackageEntity.getNetworkPackage();
@@ -113,6 +112,21 @@ public class NetworkOperationRetryer {
 			packages.remove(packageIdShort);
 			return false;
 		}
+	}
+
+	/**
+	 * Can the package operation be retried on failure?
+	 * 
+	 * @param retryPackageEntity
+	 * @return
+	 */
+	private boolean canPackageRetried(final RetryPackageEntity retryPackageEntity) {
+		
+		if(! retryPackageEntity.getNetworkPackage().canBeRetriedOnFailure()) {
+			return false;
+		}
+		
+		return retryPackageEntity.getRetryCounter() < Const.OPERATION_RETRY;
 	}
 	
 	/**
