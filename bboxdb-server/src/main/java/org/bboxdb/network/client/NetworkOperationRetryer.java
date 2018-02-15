@@ -118,7 +118,8 @@ public class NetworkOperationRetryer implements Closeable {
 			};
 			
 			// Wait some time to let the global index change
-			scheduler.schedule(futureTask, 300, TimeUnit.MILLISECONDS);
+			final int delay = 100 * retryPackageEntity.getRetryCounter();
+			scheduler.schedule(futureTask, delay, TimeUnit.MILLISECONDS);
 			
 			return true;
 		} else {
