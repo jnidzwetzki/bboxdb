@@ -51,22 +51,33 @@ done
 $BBOXDB_HOME/bin/manage_cluster.sh  zookeeper_drop
 $BBOXDB_HOME/bin/manage_cluster.sh  zookeeper_start
 sleep 5
+
+
 $BBOXDB_HOME/bin/manage_cluster.sh  bboxdb_start
 sleep 5
 
-$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup testgroup -replicationfactor 2 -dimensions 2
-#$BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup testgroup -replicationfactor 1 -dimensions 2
-$BBOXDB_HOME/bin/cli.sh -action create_table -table testgroup_table1
-$BBOXDB_HOME/bin/cli.sh -action create_table -table testgroup_table2
-$BBOXDB_HOME/bin/cli.sh -action insert -table testgroup_table1 -key key1a -bbox 1:3,1:3 -value value1
-$BBOXDB_HOME/bin/cli.sh -action insert -table testgroup_table1 -key key2a -bbox 5:8,5:8 -value value2
-$BBOXDB_HOME/bin/cli.sh  -action query -table testgroup_table1 -bbox 0:20:0:20
+if [[ $1 != "nopopulate" ]]; then
+   $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup testgroup -replicationfactor 1 -dimensions 2
+   $BBOXDB_HOME/bin/cli.sh -action create_table -table testgroup_table1
+   $BBOXDB_HOME/bin/cli.sh -action create_table -table testgroup_table2
 
-$BBOXDB_HOME/bin/cli.sh -action insert -table testgroup_table2 -key key1b -bbox 1:2,1:2 -value value1
-$BBOXDB_HOME/bin/cli.sh -action insert -table testgroup_table2 -key key2b -bbox 1:10,1:10 -value value2
-$BBOXDB_HOME/bin/cli.sh  -action query -table testgroup_table2 -bbox 0:20:0:20
+   # Build table 1
+   $BBOXDB_HOME/bin/cli.sh -action insert -table testgroup_table1 -key key1a -bbox 1:3,1:3 -value value1
+   $BBOXDB_HOME/bin/cli.sh -action insert -table testgroup_table1 -key key2a -bbox 5:8,5:8 -value value2
+   $BBOXDB_HOME/bin/cli.sh -action query -table testgroup_table1 -bbox 0:20:0:20
 
+   # Build table 2
+   $BBOXDB_HOME/bin/cli.sh -action insert -table testgroup_table2 -key key1b -bbox 1:2,1:2 -value value1
+   $BBOXDB_HOME/bin/cli.sh -action insert -table testgroup_table2 -key key2b -bbox 1:10,1:10 -value value2
+   $BBOXDB_HOME/bin/cli.sh -action query -table testgroup_table2 -bbox 0:20:0:20
 
-$BBOXDB_HOME/bin/cli.sh  -action join -table testgroup_table1:testgroup_table2 -bbox 0:20:0:20
+   # Join
+   $BBOXDB_HOME/bin/cli.sh -action join -table testgroup_table1:testgroup_table2 -bbox 0:20:0:20
 
+   # Key query and delete
+   $BBOXDB_HOME/bin/cli.sh -action query -table testgroup_table2 -key key1b
+   $BBOXDB_HOME/bin/cli.sh -action delete -table testgroup_table2 -key key1b
+   $BBOXDB_HOME/bin/cli.sh -action query -table testgroup_table2 -key key1b
+   $BBOXDB_HOME/bin/cli.sh -action query -table testgroup_table2 -bbox 0:20:0:20
+fi
 
