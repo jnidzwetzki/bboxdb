@@ -51,6 +51,8 @@ public class TestNetworkOperationRetryer {
 			= new NetworkOperationRetryer(doNothingConsumer);
 		
 		retryer.handleFailure((short) 12, "");
+		
+		retryer.close();
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -60,16 +62,8 @@ public class TestNetworkOperationRetryer {
 
 		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
 		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
-	}
-	
-	@Test
-	public void testPackageDuplicateWithClear() {
-		final NetworkOperationRetryer retryer 
-			= new NetworkOperationRetryer(doNothingConsumer);
-
-		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
-		retryer.clear();
-		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
+		
+		retryer.close();
 	}
 	
 	@Test
@@ -78,6 +72,8 @@ public class TestNetworkOperationRetryer {
 			= new NetworkOperationRetryer(doNothingConsumer);
 		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
 		retryer.handleSuccess((short) 12);
+		
+		retryer.close();
 	}
 
 	@Test
@@ -93,6 +89,8 @@ public class TestNetworkOperationRetryer {
 		final boolean result = retryer.handleFailure((short) 12, "");
 		Assert.assertTrue(result);
 		(Mockito.verify(consumer, Mockito.atLeastOnce())).accept(emptyPackage, emptyFuture);
+		
+		retryer.close();
 	}
 	
 	@Test
@@ -116,5 +114,7 @@ public class TestNetworkOperationRetryer {
 		
 		// Failed, we assume the operation is removed
 		retryer.registerOperation((short) 12, emptyPackage, emptyFuture);
+		
+		retryer.close();
 	}
 }

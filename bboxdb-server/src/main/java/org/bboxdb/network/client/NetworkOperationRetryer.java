@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
+import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -27,7 +28,7 @@ import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NetworkOperationRetryer {
+public class NetworkOperationRetryer implements Closeable {
 	
 	/**
 	 * The Logger
@@ -93,7 +94,7 @@ public class NetworkOperationRetryer {
 		final Short packageIdShort = Short.valueOf(packageId);
 		
 		if(! isPackageIdKnown(packageIdShort)) {
-			throw new IllegalArgumentException("Package is now known: " + packageId);
+			throw new IllegalArgumentException("Package id is not known: " + packageId);
 		}
 		
 		final RetryPackageEntity retryPackageEntity = packages.get(packageIdShort);
@@ -132,7 +133,8 @@ public class NetworkOperationRetryer {
 	/**
 	 * Clear all known packages
 	 */
-	public void clear() {
+	@Override
+	public void close() {
 		packages.clear();
 	}
 	

@@ -506,6 +506,7 @@ public class BBoxDBClient implements BBoxDB {
 		logger.info("Disconnected from server: {}", getConnectionName());
 		connectionState.forceDispatchToTerminated();
 		mainteinanceThread.interrupt();
+		networkOperationRetryer.close();
 	}
 
 	/* (non-Javadoc)
