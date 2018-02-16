@@ -115,7 +115,8 @@ public class KeepAliveHandler implements RequestHandler {
 		for(final TupleStoreName localTupleStoreName : localTables) {
 			try {
 				final TupleStoreManager storageManager = tupleStoreManagerRegistry.getTupleStoreManager(localTupleStoreName);    
-				final List<Tuple> localTuples = storageManager.get(tuple.getKey());
+				final String key = tuple.getKey();
+				final List<Tuple> localTuples = storageManager.get(key);
 
 				if(localTables.isEmpty()) {
 					logger.error("Got empty tuple list during gossip");
@@ -125,7 +126,7 @@ public class KeepAliveHandler implements RequestHandler {
 				final List<Long> localVersions = getSortedVersionList(localTuples);
 				final long gossipTupleVersion = tuple.getVersionTimestamp();
 
-				return checkLocalTupleVersions(localVersions, gossipTupleVersion);
+				return checkLocalTupleVersions(localVersions, gossipTupleVersion, key);
 			} catch (StorageManagerException e) {
 				logger.error("Got exception while reading tuples", e);
 			}
@@ -135,29 +136,38 @@ public class KeepAliveHandler implements RequestHandler {
 	}
 
 	/**
-	 * Check the local tule versions
+	 * Check the local tuple versions
 	 * @param localVersions
 	 * @param gossipTupleVersion
+	 * @param key 
 	 * @return 
 	 */
 	private boolean checkLocalTupleVersions(final List<Long> localVersions, 
-			final long gossipTupleVersion) {
+			final long gossipTupleVersion, final String key) {
 
+		if(localVersions.isEmpty()) {
+			logger.error("Gossip: no local version known for {} / gossip: {}", 
+					key, gossipTupleVersion);
+			
+			return false;
+		}
+		
 		if(gossipTupleVersion > localVersions.get(0)) {
-			logger.error("Gossip: Remote knows a newer version {} / local {}", 
-					gossipTupleVersion, localVersions);
+			logger.error("Gossip: Remote knows a newer version {} / local {} for {}", 
+					gossipTupleVersion, localVersions, key);
 			
 			return false;
 		}
 		
 		if(! localVersions.contains(gossipTupleVersion)) {
-			logger.error("Gossip: Tuple version {} is not contained in list {}", 
-					gossipTupleVersion, localVersions);
+			logger.error("Gossip: Tuple version {} is not contained in list {} for {}", 
+					gossipTupleVersion, localVersions, key);
 
 			return false;
 		}
 		
-		logger.debug("Gossip: Remote version {} / local {}", gossipTupleVersion, localVersions);
+		logger.debug("Gossip: Remote version {} / local {} for key {}", 
+				gossipTupleVersion, localVersions, key);
 		
 		return true;
 	}
