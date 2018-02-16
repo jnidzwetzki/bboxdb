@@ -70,7 +70,8 @@ public class RoutingHeaderHelper {
 
 		if(hops == null || hops.isEmpty()) {
 			if(! allowEmptyHop) {
-				throw new BBoxDBException("Got empty result list when query for write: " + boundingBox);
+				throw new BBoxDBException("Got empty result list when query for write: " 
+						+ boundingBox + " / in table " + table);
 			}
 			
 			return new RoutingHeader((short) 0, new ArrayList<>());
@@ -102,7 +103,7 @@ public class RoutingHeaderHelper {
 			final List<RoutingHop> hops 
 				= RoutingHopHelper.getRoutingHopsForWrite(boundingBox, distributionRegion);
 			
-			if(hops != null && !hops.isEmpty()) {
+			if(hops != null && ! hops.isEmpty()) {
 				return hops;
 			}
 			
