@@ -89,6 +89,7 @@ public class InsertTupleHandler implements RequestHandler {
 				if(PackageRouter.checkLocalSystemNameMatches(localHop)) {
 					processPackageLocally(packageSequence, clientConnectionHandler, insertTupleRequest);
 				} else {
+					logger.debug("Rerouting package {}", packageSequence);
 					forwardRoutedPackage(packageSequence, clientConnectionHandler, insertTupleRequest);
 				}
 			} else {
