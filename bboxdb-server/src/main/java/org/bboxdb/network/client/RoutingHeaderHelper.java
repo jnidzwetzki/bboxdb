@@ -26,6 +26,7 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.Const;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
@@ -65,8 +66,7 @@ public class RoutingHeaderHelper {
 			boundingBox = BoundingBox.EMPTY_BOX;
 		}
 		
-		final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(boundingBox, 
-				distributionRegion);
+		final List<RoutingHop> hops = getLocalHops(boundingBox, distributionRegion);
 
 		if(hops == null || hops.isEmpty()) {
 			if(! allowEmptyHop) {
@@ -87,6 +87,29 @@ public class RoutingHeaderHelper {
 		}
 
 		return new RoutingHeader((short) 0, connectionHop);
+	}
+
+	/**
+	 * @param boundingBox
+	 * @param distributionRegion
+	 * @return
+	 * @throws InterruptedException
+	 */
+	private static List<RoutingHop> getLocalHops(BoundingBox boundingBox, final DistributionRegion distributionRegion)
+			throws InterruptedException {
+		
+		for(int retry = 0; retry < Const.OPERATION_RETRY; retry++) {
+			final List<RoutingHop> hops 
+				= RoutingHopHelper.getRoutingHopsForWrite(boundingBox, distributionRegion);
+			
+			if(hops != null && !hops.isEmpty()) {
+				return hops;
+			}
+			
+			Thread.sleep(100);
+		} 
+		
+		return null;
 	}
 
 	/**
