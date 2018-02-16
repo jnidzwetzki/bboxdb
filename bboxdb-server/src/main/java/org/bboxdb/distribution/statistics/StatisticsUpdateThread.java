@@ -129,8 +129,8 @@ public class StatisticsUpdateThread extends ExceptionSafeThread {
 		
 		final long totalSizeInMb = totalSize / (1024 * 1024);
 		
-		logger.info("Updating region statistics: {}. Size in MB: {} / Tuples: {}", 
-				distributionGroup, totalSizeInMb, totalTuples);
+		logger.info("Updating region statistics: {} / {}. Size in MB: {} / Tuples: {}", 
+				distributionGroup, regionId, totalSizeInMb, totalTuples);
 										
 		adapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
 				totalSizeInMb, totalTuples);
