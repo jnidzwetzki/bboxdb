@@ -17,6 +17,7 @@ order: 1
 - Improvement: Routed packages with empty tuplestore list are not send to server
 - Improvement: All network requests are resubmitted on failure
 - Improvement: Added some delay before failed network requests are resubmitted
+- Improvement: Made Zookeeper configuration simpler
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel
@@ -35,6 +36,7 @@ order: 1
 - Bugfix: The routing list is recalculated on package re-submission
 - Bugfix: Track sequence number usage and prevent duplicate use
 - Bugfix: Fixed handling of null tuples in SpatialIndexReader
+- Bugfix: Fixed detection of the zookeeper client in GUI
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

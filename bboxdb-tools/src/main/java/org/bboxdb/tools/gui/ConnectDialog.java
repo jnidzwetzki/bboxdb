@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,6 +153,7 @@ public class ConnectDialog {
 				
 				final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeeperHosts, cluster);
 				zookeeperClient.init();
+				ZookeeperClientFactory.setDefaultZookeeperClient(zookeeperClient);
 				
 				showMainDialog(zookeeperClient);
 				

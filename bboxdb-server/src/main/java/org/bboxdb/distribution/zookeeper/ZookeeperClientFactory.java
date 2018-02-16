@@ -18,8 +18,6 @@
 package org.bboxdb.distribution.zookeeper;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
@@ -29,54 +27,46 @@ import org.bboxdb.misc.Const;
 
 public class ZookeeperClientFactory {
 	
-	protected final static Map<BBoxDBConfiguration, ZookeeperClient> instances;
+	private static ZookeeperClient client;
 	
 	/**
 	 * The name of the local instance
 	 */
-	protected static BBoxDBInstance localInstanceName;
-	
-	static {
-		instances = new HashMap<>();
-	}
-	
+	private static BBoxDBInstance localInstanceName;
+
 	/**
 	 * Returns a new instance of the zookeeper client 
 	 * @return
 	 */
-	public static ZookeeperClient getZookeeperClient() {
-		final BBoxDBConfiguration configuration = 
-				BBoxDBConfigurationManager.getConfiguration();
+	public synchronized static ZookeeperClient getZookeeperClient() {
 		
-		return getZookeeperClient(configuration);
+		if(client == null) {
+			final BBoxDBConfiguration bboxdbConfiguration = 
+					BBoxDBConfigurationManager.getConfiguration();
+	
+			final Collection<String> zookeepernodes = bboxdbConfiguration.getZookeepernodes();
+			final String clustername = bboxdbConfiguration.getClustername();
+	
+			client = new ZookeeperClient(zookeepernodes, clustername);
+		
+			if(! client.isConnected()) {
+				client.init();
+			}
+		}
+		
+		return client;
 	}
-
+	
 	/**
-	 * Returns a new instance of the zookeeper client (with a specific configuration)
-	 * @param bboxdbConfiguration
-	 * @return
+	 * Set the default zookeeper client
+	 * @param zookeeperClient
 	 */
-	public static ZookeeperClient getZookeeperClient(
-			final BBoxDBConfiguration bboxdbConfiguration) {
-		
-		// Is an instance for the configuration known?
-		if(instances.containsKey(bboxdbConfiguration)) {
-			return instances.get(bboxdbConfiguration);
+	public static synchronized void setDefaultZookeeperClient(final ZookeeperClient zookeeperClient) {
+		if(client != null) {
+			throw new RuntimeException("Unable to set zookeeper client, already set");
 		}
 		
-		final Collection<String> zookeepernodes = bboxdbConfiguration.getZookeepernodes();
-		final String clustername = bboxdbConfiguration.getClustername();
-
-		final ZookeeperClient zookeeperClient = new ZookeeperClient(zookeepernodes, clustername);
-		
-		// Register instance
-		instances.put(bboxdbConfiguration, zookeeperClient);
-		
-		if(! zookeeperClient.isConnected()) {
-			zookeeperClient.init();
-		}
-		
-		return zookeeperClient;
+		client = zookeeperClient;
 	}
 
 	/**
