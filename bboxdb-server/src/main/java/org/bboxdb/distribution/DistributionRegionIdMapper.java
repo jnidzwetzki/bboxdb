@@ -88,13 +88,12 @@ public class DistributionRegionIdMapper {
 			}
 		}
 		
-		if(namprefixes.isEmpty() && logger.isErrorEnabled()) {
-			logger.error("Got an empty result list by query region: {}", region);
+		if(namprefixes.isEmpty() && logger.isDebugEnabled()) {
+			logger.debug("Got an empty result list by query region: {}", region);
 		}
 		
 		return convertRegionIdToTableNames(ssTableName, namprefixes);
 	}
-	
 	
 	/**
 	 * Get all SSTables that are stored local
