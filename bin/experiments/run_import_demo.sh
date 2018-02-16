@@ -30,9 +30,9 @@ fi
 # Load all required functions and variables
 source $BBOXDB_HOME/bin/bootstrap.sh
 
-#datafiles=$(find /export/homes/nidzwetzki/osm-germany -name 'ROAD' | xargs echo | tr ' ' ':')
+datafiles=$(find /export/homes/nidzwetzki/osm-germany -name 'ROAD' | xargs echo | tr ' ' ':')
 
 # Testfiles
-datafiles="/export/homes/nidzwetzki/osm-germany/berlin/osm/ROAD:/export/homes/nidzwetzki/osm-germany/hamburg/osm/ROAD"
+#datafiles="/export/homes/nidzwetzki/osm-germany/berlin/osm/ROAD:/export/homes/nidzwetzki/osm-germany/hamburg/osm/ROAD"
 
 $BBOXDB_HOME/bin/bboxdb_execute.sh org.bboxdb.tools.demo.DataRedistributionLoader $datafiles node1:2181 mycluster
