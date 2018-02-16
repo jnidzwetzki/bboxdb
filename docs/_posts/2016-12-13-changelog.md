@@ -18,6 +18,7 @@ order: 1
 - Improvement: All network requests are resubmitted on failure
 - Improvement: Added some delay before failed network requests are resubmitted
 - Improvement: Made Zookeeper configuration simpler
+- Improvement: Region statistics are now written by a dedicated thread
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel

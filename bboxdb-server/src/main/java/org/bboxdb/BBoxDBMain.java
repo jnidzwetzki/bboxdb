@@ -27,6 +27,7 @@ import org.bboxdb.distribution.TupleStoreFlushZookeeperAdapter;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.distribution.statistics.StatisticsUpdateService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperInstanceRegisterer;
@@ -80,6 +81,10 @@ public class BBoxDBMain {
 		// The recovery service
 		final DistributedRecoveryService recoveryService = new DistributedRecoveryService(storageRegistry);
 		services.add(recoveryService);
+		
+		// The statistics update service
+		final StatisticsUpdateService statisticsService = new StatisticsUpdateService(storageRegistry);
+		services.add(statisticsService);
 		
 		// The JMX service
 		final JMXService jmxService = new JMXService(this, storageRegistry);

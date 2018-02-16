@@ -23,15 +23,12 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.concurrent.ExceptionSafeThread;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
@@ -114,9 +111,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 					logger.debug("Skipping compact for read only sstable manager: {}" , tupleStoreName);
 					continue;
 				}
-				
-				updateRegionStatistics(tupleStoreManager);
-				
+								
 				// Create a copy to ensure, that the list of facades don't change
 				// during the compact run.
 				final List<SSTableFacade> facades = new ArrayList<>();
@@ -182,45 +177,6 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_WRITE) {
 				splitOrMergeRegion(sstableManager);
 			}
-		}
-	}
-
-	/**
-	 * Update the statistics of the region
-	 */
-	private void updateRegionStatistics(final TupleStoreManager sstableManager)
-			throws StorageManagerException, InterruptedException {
-		
-		try {
-			final TupleStoreName ssTableName = sstableManager.getTupleStoreName();
-			
-			final DistributionGroupName distributionGroup = ssTableName.getDistributionGroupObject();
-			final long regionId = ssTableName.getRegionId();
-			
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache
-					.getSpacePartitionerForGroupName(ssTableName.getDistributionGroup());
-			
-			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
-
-			final DistributionRegion regionToSplit = DistributionRegionHelper.getDistributionRegionForNamePrefix(
-					distributionRegion, regionId);
-			
-			final TupleStoreManagerRegistry storageRegistry = storage.getTupleStoreManagerRegistry();
-			
-			final long totalSize = storageRegistry.getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
-			final long totalTuples = storageRegistry.getTuplesInDistributionGroupAndRegionId(distributionGroup, regionId);
-			
-			final long totalSizeInMb = totalSize / (1024 * 1024);
-			
-			logger.info("Updating region statistics: {}. Size in MB: {} / Tuples: {}", 
-					distributionGroup, totalSizeInMb, totalTuples);
-											
-			final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			
-			adapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
-					totalSizeInMb, totalTuples);
-		} catch (ZookeeperException e) {
-			throw new StorageManagerException();
 		}
 	}
 
