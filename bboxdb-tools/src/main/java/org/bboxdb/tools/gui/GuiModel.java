@@ -54,11 +54,6 @@ public class GuiModel implements DistributionRegionChangedCallback {
 	protected String distributionGroup;
 
 	/**
-	 * The replication factor for the distribution group
-	 */
-	protected short replicationFactor;
-
-	/**
 	 * The reference to the gui window
 	 */
 	protected BBoxDBGui bboxdbGui;
@@ -179,30 +174,29 @@ public class GuiModel implements DistributionRegionChangedCallback {
 				final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 						.getInstance().getDistributionGroupConfiguration(distributionGroup);
 				
-				replicationFactor = config.getReplicationFactor();
-
+				spacePartitioner.registerCallback(GuiModel.this);
+				
+				final StringBuilder sb = new StringBuilder();
+				sb.append("Cluster name: " + getClustername());
+				sb.append(", Replication factor: " + config.getReplicationFactor());
+				sb.append(", Dimensions: " + config.getDimensions());
+				
+				bboxdbGui.getStatusLabel().setText(sb.toString());
+	
+				logger.info("Read distribution group {} done", distributionGroup);
+				
+				// Reset cursor
+				SwingUtilities.invokeLater(() -> {
+						updateModel();
+						if(bboxdbGui.getGlassPane() != null) {
+							final Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+							bboxdbGui.getGlassPane().setCursor(defaultCursor);
+							bboxdbGui.getGlassPane().setVisible(false);
+						}
+				});
 			} catch (Exception e) {
 				logger.warn("Got exception", e);
 			}
-
-			spacePartitioner.registerCallback(GuiModel.this);
-			
-			final StringBuilder sb = new StringBuilder();
-			sb.append("Cluster name: " + getClustername());
-			sb.append(", Replication factor: " + replicationFactor);
-			bboxdbGui.getStatusLabel().setText(sb.toString());
-
-			logger.info("Read distribution group {} done", distributionGroup);
-			
-			// Reset cursor
-			SwingUtilities.invokeLater(() -> {
-					updateModel();
-					if(bboxdbGui.getGlassPane() != null) {
-						final Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
-						bboxdbGui.getGlassPane().setCursor(defaultCursor);
-						bboxdbGui.getGlassPane().setVisible(false);
-					}
-			});
 		})).start();
 	}
 
@@ -257,24 +251,6 @@ public class GuiModel implements DistributionRegionChangedCallback {
 	 */
 	public String getClustername() {
 		return zookeeperClient.getClustername();
-	}
-
-	/**
-	 * Get the replication factor
-	 * 
-	 * @return
-	 */
-	public short getReplicationFactor() {
-		return replicationFactor;
-	}
-
-	/**
-	 * Set the replication factor
-	 * 
-	 * @param replicationFactor
-	 */
-	public void setReplicationFactor(final short replicationFactor) {
-		this.replicationFactor = replicationFactor;
 	}
 
 	/**
