@@ -37,6 +37,7 @@ order: 1
 - Bugfix: Track sequence number usage and prevent duplicate use
 - Bugfix: Fixed handling of null tuples in SpatialIndexReader
 - Bugfix: Fixed detection of the zookeeper client in GUI
+- Bugfix: System path /tables are not reported as distribution group
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

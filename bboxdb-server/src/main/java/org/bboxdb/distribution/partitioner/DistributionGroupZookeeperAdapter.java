@@ -669,6 +669,11 @@ public class DistributionGroupZookeeperAdapter {
 				continue;
 			}
 			
+			// Ignore tables
+			if(ZookeeperNodeNames.NAME_TABLES.equals(node)) {
+				continue;
+			}
+			
 			final DistributionGroupName groupName = new DistributionGroupName(node);
 			if(groupName.isValid()) {
 				groups.add(groupName);
