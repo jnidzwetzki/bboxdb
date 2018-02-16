@@ -121,6 +121,14 @@ public class DataRedistributionLoader implements Runnable {
 				
 				loadFile(i);
 			}
+			
+			for(int fileId = 0; fileId < files.length; fileId++) {
+				deleteFile(fileId);
+			}
+			
+			System.out.println("Demo done");
+			System.exit(0);
+			
 		} catch (InterruptedException e) {
 			logger.error("Got exception while running demo class", e);
 		}
