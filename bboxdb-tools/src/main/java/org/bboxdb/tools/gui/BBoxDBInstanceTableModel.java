@@ -97,11 +97,11 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 			}
 			
 			if(columnIndex == 6) {
-				return instance.getNumberOfStorages();
+				return FileSizeHelper.readableFileSize(instance.getMemory());
 			}
 			
 			if(columnIndex == 7) {
-				return FileSizeHelper.readableFileSize(instance.getMemory());
+				return instance.getNumberOfStorages();
 			}
 			
 			if(columnIndex == 8) {
