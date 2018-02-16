@@ -22,7 +22,6 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -278,14 +277,6 @@ public class DistributionRegionComponent {
 			sb.append("<br>");
 		}
 		
-		final String systemsString = distributionRegion.getSystems()
-				.stream()
-				.map(s -> s.toGUIString())
-				.collect(Collectors.joining(", "));
-		
-		sb.append("Systems: ");
-		sb.append(systemsString);
-		
 		appendStatistics(sb);
 		
 		sb.append("</html>");
@@ -304,7 +295,7 @@ public class DistributionRegionComponent {
 			for(final BBoxDBInstance instance : statistics.keySet()) {
 				final Map<String, Long> statisticData = statistics.get(instance);
 				sb.append("System: ");
-				sb.append(instance);
+				sb.append(instance.toGUIString());
 				sb.append(" ");
 				sb.append(statisticData);
 				sb.append("<br>");
