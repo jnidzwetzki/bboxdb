@@ -218,7 +218,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 			
 			adapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
-					totalSize, totalTuples);
+					totalSizeInMb, totalTuples);
 		} catch (ZookeeperException e) {
 			throw new StorageManagerException();
 		}

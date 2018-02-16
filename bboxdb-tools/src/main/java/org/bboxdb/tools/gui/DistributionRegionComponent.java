@@ -27,6 +27,7 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.tools.gui.views.KDTreeJPanel;
@@ -296,9 +297,11 @@ public class DistributionRegionComponent {
 				final Map<String, Long> statisticData = statistics.get(instance);
 				sb.append("System: ");
 				sb.append(instance.toGUIString());
-				sb.append(" ");
-				sb.append(statisticData);
-				sb.append("<br>");
+				sb.append(" Tuples: ");
+				sb.append(statisticData.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES));
+				sb.append(", Size: ");
+				sb.append(statisticData.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE));
+				sb.append(" MB <br>");
 			}
 		} catch (Exception e) {
 			logger.error("Got an exception while reading statistics for distribution group", e);
