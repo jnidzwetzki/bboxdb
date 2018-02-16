@@ -68,10 +68,6 @@ public class DistributionGroupName implements Comparable<DistributionGroupName> 
 		return fullname;
 	}
 
-	public String getGroupname() {
-		return groupname;
-	}
-
 	@Override
 	public String toString() {
 		return fullname;
