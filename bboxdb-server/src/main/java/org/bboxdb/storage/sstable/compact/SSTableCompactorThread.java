@@ -91,8 +91,9 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 
 	/**
 	 * Execute a new compactation
+	 * @throws InterruptedException 
 	 */
-	public synchronized void execute() {
+	public synchronized void execute() throws InterruptedException {
 		
 		final TupleStoreManagerRegistry storageRegistry = storage.getTupleStoreManagerRegistry();
 		final String location = storage.getBasedir().getAbsolutePath();
@@ -102,7 +103,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			logger.debug("Skipping run, tuple stores list is empty");
 			return;
 		}
-		
+				
 		for(final TupleStoreName tupleStoreName: tupleStores) {
 		
 			try {
@@ -114,6 +115,8 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 					continue;
 				}
 				
+				updateRegionStatistics(tupleStoreManager);
+				
 				// Create a copy to ensure, that the list of facades don't change
 				// during the compact run.
 				final List<SSTableFacade> facades = new ArrayList<>();
@@ -121,13 +124,9 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				
 				final MergeTask mergeTask = mergeStragegy.getMergeTask(facades);
 				mergeTupleStores(mergeTask, tupleStoreManager);
-			} catch (StorageManagerException e) {
-				if(! Thread.currentThread().isInterrupted()) {
-					logger.error("Error while merging tables", e);
-				} else {
-					logger.debug("Got exception on interrupted thread", e);
-				}
-			}
+			} catch (StorageManagerException | BBoxDBException e) {
+				logger.error("Error while merging tables", e);	
+			} 
 		}
 	}
 
@@ -136,9 +135,12 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @param sstableManager 
 	 *
 	 * @throws StorageManagerException
+	 * @throws InterruptedException 
+	 * @throws ZookeeperException 
+	 * @throws BBoxDBException 
 	 */
 	protected void mergeTupleStores(final MergeTask mergeTask, final TupleStoreManager sstableManager) 
-			throws StorageManagerException {
+			throws StorageManagerException, BBoxDBException, InterruptedException {
 		
 		if(mergeTask.getTaskType() == MergeTaskType.UNKNOWN) {
 			return;
@@ -178,17 +180,16 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		if(sstableManager.getTupleStoreName().isDistributedTable()) {
 			// Read only = table is in splitting mode
 			if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_WRITE) {
-				testOverflowUnderflow(sstableManager);
+				splitOrMergeRegion(sstableManager);
 			}
 		}
 	}
 
 	/**
-	 * Test and perform a table split or merge if needed
-	 * @param totalWrittenTuples 
-	 * @throws StorageManagerException 
+	 * Update the statistics of the region
 	 */
-	protected void testOverflowUnderflow(final TupleStoreManager sstableManager) throws StorageManagerException {
+	private void updateRegionStatistics(final TupleStoreManager sstableManager)
+			throws StorageManagerException, InterruptedException {
 		
 		try {
 			final TupleStoreName ssTableName = sstableManager.getTupleStoreName();
@@ -204,40 +205,23 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final DistributionRegion regionToSplit = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 					distributionRegion, regionId);
 			
-			updateRegionStatistics(regionToSplit, distributionGroup, regionId, spacePartitioner);
+			final TupleStoreManagerRegistry storageRegistry = storage.getTupleStoreManagerRegistry();
 			
-			splitOrMergeRegion(spacePartitioner, regionToSplit);
-		} catch (ZookeeperException | BBoxDBException e) {
-			throw new StorageManagerException(e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			return;
-		} 
-	}
-
-	/**
-	 * Update the statstics of the region
-	 */
-	private void updateRegionStatistics(final DistributionRegion regionToSplit,
-			final DistributionGroupName distributionGroup, 
-			final long regionId, 
-			final SpacePartitioner spacePartitioner)
-			throws StorageManagerException, InterruptedException, ZookeeperException {
-		
-		final TupleStoreManagerRegistry storageRegistry = storage.getTupleStoreManagerRegistry();
-		
-		final long totalSize = storageRegistry.getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
-		final long totalTuples = storageRegistry.getTuplesInDistributionGroupAndRegionId(distributionGroup, regionId);
-		
-		final long totalSizeInMb = totalSize / (1024 * 1024);
-		
-		logger.info("Test for region split: {}. Size in MB: {} / Tuples: {}", 
-				distributionGroup, totalSizeInMb, totalTuples);
-										
-		final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-		
-		adapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
-				totalSize, totalTuples);
+			final long totalSize = storageRegistry.getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
+			final long totalTuples = storageRegistry.getTuplesInDistributionGroupAndRegionId(distributionGroup, regionId);
+			
+			final long totalSizeInMb = totalSize / (1024 * 1024);
+			
+			logger.info("Updating region statistics: {}. Size in MB: {} / Tuples: {}", 
+					distributionGroup, totalSizeInMb, totalTuples);
+											
+			final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+			
+			adapter.updateRegionStatistics(regionToSplit, ZookeeperClientFactory.getLocalInstanceName(), 
+					totalSize, totalTuples);
+		} catch (ZookeeperException e) {
+			throw new StorageManagerException();
+		}
 	}
 
 	/**
@@ -246,24 +230,42 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @param spacePartitioner
 	 * @param regionToSplit
 	 * @throws BBoxDBException
+	 * @throws ZookeeperException 
+	 * @throws InterruptedException 
 	 */
-	private void splitOrMergeRegion(final SpacePartitioner spacePartitioner,
-			final DistributionRegion regionToSplit) throws BBoxDBException {
+	private void splitOrMergeRegion(final TupleStoreManager sstableManager) 
+			throws BBoxDBException, InterruptedException {
 		
-		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
-		final RegionSplitter regionSplitter = new RegionSplitter(storage.getTupleStoreManagerRegistry());
+		try {
+			final TupleStoreName ssTableName = sstableManager.getTupleStoreName();
+			
+			final long regionId = ssTableName.getRegionId();
+			
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache
+					.getSpacePartitionerForGroupName(ssTableName.getDistributionGroup());
+			
+			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
 
-		if(regionSplitHelper.isRegionOverflow(regionToSplit)) {
-			regionSplitter.splitRegion(regionToSplit, spacePartitioner, 
-					storage.getTupleStoreManagerRegistry());
-		} 
-		
-		// Don't split the root node
-		if(regionToSplit.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
-			if(regionSplitHelper.isRegionUnderflow(regionToSplit.getParent())) {
-				regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, 
-						storage.getTupleStoreManagerRegistry());	
+			final DistributionRegion regionToSplit = DistributionRegionHelper.getDistributionRegionForNamePrefix(
+					distributionRegion, regionId);
+			
+			final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
+			final RegionSplitter regionSplitter = new RegionSplitter(storage.getTupleStoreManagerRegistry());
+
+			if(regionSplitHelper.isRegionOverflow(regionToSplit)) {
+				regionSplitter.splitRegion(regionToSplit, spacePartitioner, 
+						storage.getTupleStoreManagerRegistry());
+			} 
+			
+			// Don't split the root node
+			if(regionToSplit.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
+				if(regionSplitHelper.isRegionUnderflow(regionToSplit.getParent())) {
+					regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, 
+							storage.getTupleStoreManagerRegistry());	
+				}
 			}
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
 		}
 	}
 
