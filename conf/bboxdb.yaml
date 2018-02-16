@@ -13,8 +13,8 @@
 #   - /tmp/bboxdb
 
 # Max entries per memtable 
-# Default: 10000 entries
-# memtableEntriesMax: 10000
+# Default: 50000 entries
+# memtableEntriesMax: 50000
 
 # Max size per memtable in bytes
 # Default: 128 MB

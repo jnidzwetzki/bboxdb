@@ -36,7 +36,7 @@ public class BBoxDBConfiguration {
 	/**
 	 *  Number of entries per memtable
 	 */
-	protected int memtableEntriesMax = 10000;
+	protected int memtableEntriesMax = 50000;
 	
 	/**
 	 * Size of the memtable in bytes
