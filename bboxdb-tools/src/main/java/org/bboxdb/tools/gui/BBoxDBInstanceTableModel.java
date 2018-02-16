@@ -31,7 +31,7 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 	/**
 	 * In screenshot mode, all IPs are replaced with 'XXXX'
 	 */
-	protected final boolean SCREENSHOT_MODE = false;
+	protected final boolean SCREENSHOT_MODE = true;
 
 	/**
 	 * The running bboxdb instances
