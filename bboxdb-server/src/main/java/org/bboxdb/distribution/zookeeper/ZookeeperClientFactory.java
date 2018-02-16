@@ -37,7 +37,7 @@ public class ZookeeperClientFactory {
 	protected static BBoxDBInstance localInstanceName;
 	
 	static {
-		instances = new HashMap<BBoxDBConfiguration, ZookeeperClient>();
+		instances = new HashMap<>();
 	}
 	
 	/**

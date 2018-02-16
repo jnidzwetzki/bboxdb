@@ -72,7 +72,7 @@ public class SpacePartitionerFactory {
 			return spacePartitioner;
 
 		} catch (Exception e) {
-			logger.warn("Unable to instance class: " + distributionGroup, e);
+			logger.warn("Unable to instance space partitioner for group: " + distributionGroup, e);
 			throw new RuntimeException(e);
 		} 
 	}
