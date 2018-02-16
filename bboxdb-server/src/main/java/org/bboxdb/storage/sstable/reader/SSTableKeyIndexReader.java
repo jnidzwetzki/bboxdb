@@ -61,7 +61,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	@Override
 	public void init() {
 		super.init();
-		logger.info("Opened index for relation: {} with {} entries", name.getFullname(), getNumberOfEntries());
+		logger.debug("Opened index for relation: {} with {} entries", name.getFullname(), getNumberOfEntries());
 	}
 
 	/**
