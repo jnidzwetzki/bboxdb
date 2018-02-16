@@ -27,9 +27,12 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.DistributionRegionIdMapper;
 import org.bboxdb.distribution.DistributionRegionIdMapperManager;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.storage.StorageManagerException;
@@ -54,7 +57,7 @@ public class StatisticsUpdateThread extends ExceptionSafeThread {
 	 * The distribution group adapter
 	 */
 	private final DistributionGroupZookeeperAdapter adapter;
-
+	
 	public StatisticsUpdateThread(final TupleStoreManagerRegistry storageRegistry) {
 		this.storageRegistry = storageRegistry;
 		adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
@@ -74,12 +77,34 @@ public class StatisticsUpdateThread extends ExceptionSafeThread {
 	protected void runThread() {
 		try {
 			while(! Thread.currentThread().isInterrupted()) {
+				updateNodeStats();
 				updateRegionStatistics();
 				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
 			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return;
+		}
+	}
+	
+	/**
+	 * Update the local node stats (diskspace, memory)
+	 * @throws ZookeeperException 
+	 */
+	private void updateNodeStats() {
+		try {
+			final BBoxDBInstance instance = ZookeeperClientFactory.getLocalInstanceName();
+
+			logger.debug("Update zookeeper node stats");
+
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+			
+			final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter 
+				= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
+
+			zookeeperBBoxDBInstanceAdapter.updateNodeInfo(instance);
+		} catch (ZookeeperException e) {
+			logger.error("Got exception while updating local node stats", e);
 		}
 	}
 	
