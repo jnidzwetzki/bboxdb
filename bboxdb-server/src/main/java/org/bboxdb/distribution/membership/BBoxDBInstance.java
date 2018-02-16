@@ -176,11 +176,22 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 		return instance.getInetSocketAddress().equals(getInetSocketAddress());
 	}
 
-	public String toGUIString() {
+	/**
+	 * Get the GUI string
+	 * @return
+	 */
+	public String toGUIString(final boolean screenshotMode) {
+		
+		String myIP = ip;
+		
+		if(screenshotMode) {
+			myIP = "XXX.XXX.XXX.XXX";
+		}
+		
 		if(version == UNKOWN_PROPERTY) {
-			return "DistributedInstance [ip=" + ip + ", port=" + port + "]";
+			return "DistributedInstance [ip=" + myIP + ", port=" + port + "]";
 		} else {
-			return "DistributedInstance [ip=" + ip + ", port=" + port + ", version=" + version + "]";
+			return "DistributedInstance [ip=" + myIP + ", port=" + port + ", version=" + version + "]";
 		}
 	}
 

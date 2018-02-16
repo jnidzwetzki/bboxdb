@@ -298,7 +298,7 @@ public class DistributionRegionComponent {
 			for(final BBoxDBInstance instance : statistics.keySet()) {
 				final Map<String, Long> statisticData = statistics.get(instance);
 				sb.append("System: ");
-				sb.append(instance.toGUIString());
+				sb.append(instance.toGUIString(GuiModel.SCREENSHOT_MODE));
 				sb.append(" Tuples: ");
 				sb.append(statisticData.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES));
 				sb.append(", Size: ");
@@ -310,7 +310,7 @@ public class DistributionRegionComponent {
 			for(final BBoxDBInstance instance : systems) {
 				if(! statistics.keySet().contains(instance)) {
 					sb.append("System: ");
-					sb.append(instance.toGUIString());
+					sb.append(instance.toGUIString(GuiModel.SCREENSHOT_MODE));
 					sb.append(" <br>");
 				}
 			}

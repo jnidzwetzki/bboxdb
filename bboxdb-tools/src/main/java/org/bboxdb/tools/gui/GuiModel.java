@@ -44,6 +44,11 @@ import org.slf4j.LoggerFactory;
 public class GuiModel implements DistributionRegionChangedCallback {
 
 	/**
+	 * In screenshot mode, all IPs are replaced with 'XXXX'
+	 */
+	public final static boolean SCREENSHOT_MODE = false;
+
+	/**
 	 * The BBoxDB instances
 	 */
 	protected final List<BBoxDBInstance> bboxdbInstances;

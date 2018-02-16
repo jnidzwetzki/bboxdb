@@ -27,12 +27,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 final class BBoxDBInstanceTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 8593512480994197794L;
-
-	/**
-	 * In screenshot mode, all IPs are replaced with 'XXXX'
-	 */
-	protected final boolean SCREENSHOT_MODE = true;
-
+	
 	/**
 	 * The running bboxdb instances
 	 */
@@ -73,7 +68,7 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 			
 			if(columnIndex == 1) {
 				
-				if(SCREENSHOT_MODE) {
+				if(GuiModel.SCREENSHOT_MODE) {
 					return "XXX.XXX.XXX.XXX";
 				}
 				
