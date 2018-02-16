@@ -818,10 +818,10 @@ public class DistributionGroupZookeeperAdapter {
 		zookeeperClient.createDirectoryStructureRecursive(path);
 		
 		final String sizePath = path + "/" + ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE;
-		zookeeperClient.createPersistentNode(sizePath, Long.toString(size).getBytes());
+		zookeeperClient.replacePersistentNode(sizePath, Long.toString(size).getBytes());
 		
 		final String tuplePath = path + "/" + ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES;
-		zookeeperClient.createPersistentNode(tuplePath, Long.toString(tuple).getBytes());
+		zookeeperClient.replacePersistentNode(tuplePath, Long.toString(tuple).getBytes());
 	}
 	
 	/**

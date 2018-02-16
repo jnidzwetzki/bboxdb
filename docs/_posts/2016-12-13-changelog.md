@@ -36,8 +36,9 @@ order: 1
 - Bugfix: The routing list is recalculated on package re-submission
 - Bugfix: Track sequence number usage and prevent duplicate use
 - Bugfix: Fixed handling of null tuples in SpatialIndexReader
-- Bugfix: Fixed detection of the zookeeper client in GUI
+- Bugfix: Fixed detection of the Zookeeper client in GUI
 - Bugfix: System path /tables are not reported as distribution group
+- Bugfix: Region statistics can now be updated
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation
