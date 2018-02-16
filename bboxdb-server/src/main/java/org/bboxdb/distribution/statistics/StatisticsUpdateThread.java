@@ -32,7 +32,6 @@ import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -72,17 +71,22 @@ public class StatisticsUpdateThread extends ExceptionSafeThread {
 	}
 
 	@Override
-	protected void runThread() throws Exception {
-		while(! Thread.currentThread().isInterrupted()) {
-			updateRegionStatistics();
-			Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+	protected void runThread() {
+		try {
+			while(! Thread.currentThread().isInterrupted()) {
+				updateRegionStatistics();
+				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
 		}
 	}
 	
 	/**
 	 * Update the statistics of the region
 	 */
-	private void updateRegionStatistics() throws StorageManagerException, InterruptedException {
+	private void updateRegionStatistics() {
 		
 		try {
 			final List<DistributionGroupName> allDistributionGroups = adapter.getDistributionGroups();
@@ -92,12 +96,11 @@ public class StatisticsUpdateThread extends ExceptionSafeThread {
 				
 				for(final long id : allIds) {
 					updateRegionStatistics(distributionGroup, id);
-
 				}
 			}
 
-		} catch (ZookeeperException | ZookeeperNotFoundException e) {
-			throw new StorageManagerException(e);
+		} catch (Exception e) {
+			logger.error("Got exception while updating statistics", e);
 		}
 	}
 
