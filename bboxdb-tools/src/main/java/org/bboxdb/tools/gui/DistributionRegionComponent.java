@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.Map;
 
 import org.bboxdb.distribution.DistributionRegion;
@@ -278,7 +279,7 @@ public class DistributionRegionComponent {
 			sb.append("<br>");
 		}
 		
-		appendStatistics(sb);
+		appendStatistics(sb, distributionRegion);
 		
 		sb.append("</html>");
 		return sb.toString();
@@ -287,8 +288,9 @@ public class DistributionRegionComponent {
 	/**
 	 * Append the statistics to the tooltip
 	 * @param sb
+	 * @param distributionRegion 
 	 */
-	private void appendStatistics(final StringBuilder sb) {
+	private void appendStatistics(final StringBuilder sb, final DistributionRegion distributionRegion) {
 		try {
 			final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 			final Map<BBoxDBInstance, Map<String, Long>> statistics = adapter.getRegionStatistics(distributionRegion);
@@ -303,6 +305,16 @@ public class DistributionRegionComponent {
 				sb.append(statisticData.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE));
 				sb.append(" MB <br>");
 			}
+			
+			final Collection<BBoxDBInstance> systems = distributionRegion.getSystems();
+			for(final BBoxDBInstance instance : systems) {
+				if(! statistics.keySet().contains(instance)) {
+					sb.append("System: ");
+					sb.append(instance.toGUIString());
+					sb.append(" <br>");
+				}
+			}
+			
 		} catch (Exception e) {
 			logger.error("Got an exception while reading statistics for distribution group", e);
 		} 
