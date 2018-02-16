@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -69,11 +68,6 @@ public class DataRedistributionLoader implements Runnable {
 	private final TupleBuilder tupleBuilder;
 	
 	/**
-	 * The random generator
-	 */
-	private final Random random;
-	
-	/**
 	 * The amount of pending insert futures
 	 */
 	private final static int MAX_PENDING_FUTURES = 5000;
@@ -89,6 +83,11 @@ public class DataRedistributionLoader implements Runnable {
 	private final static String TABLE = DGROUP + "_osmtable";
 	
 	/**
+	 * The amount of max loaded files
+	 */
+	private final static int MAX_LOADED_FILES = 5;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DataRedistributionLoader.class);
@@ -99,7 +98,6 @@ public class DataRedistributionLoader implements Runnable {
 		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
 		this.files = files.split(":");
 		this.tupleBuilder = new GeoJSONTupleBuilder();
-		this.random = new Random();
 		
 		// Log failed futures
 		pendingFutures.addFailedFutureCallback(
@@ -116,26 +114,12 @@ public class DataRedistributionLoader implements Runnable {
 		initBBoxDB();
 		
 		try {
-			while(true) {
-				
-				if(loadedFiles.size() == 0) {
-					// No files loaded, load one
-					loadFile(1);
-				} else if(loadedFiles.size() == files.length) {
-					// All files loaded, remove one
-					deleteFile(1);
-				} else {
-					final int loadOrDelete = random.nextInt(10);
-					final int fileid = random.nextInt(files.length);
-
-					if(loadOrDelete > 5) {
-						// Load file
-						loadFile(fileid);
-					} else {
-						// Delete file
-						deleteFile(fileid);
-					}
+			for(int i = 0; i < files.length; i++) {
+				if(loadedFiles.size() > MAX_LOADED_FILES) {
+					deleteFile(i - MAX_LOADED_FILES);
 				}
+				
+				loadFile(i);
 			}
 		} catch (InterruptedException e) {
 			logger.error("Got exception while running demo class", e);
