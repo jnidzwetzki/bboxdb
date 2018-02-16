@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.RegionIdMapper;
-import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.DistributionRegionIdMapper;
+import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
@@ -172,7 +172,7 @@ public class RegionSplitter {
 				(distributionGroupName, region.getRegionId());
 
 		// Remove the local mapping, no new data is written to the region
-		final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(distributionGroupName);
+		final DistributionRegionIdMapper mapper = DistributionRegionIdMapperManager.getInstance(distributionGroupName);
 		final boolean addResult = mapper.addMapping(region);
 		
 		assert (addResult == true) : "Unable to add mapping for: " + region;
@@ -254,7 +254,7 @@ public class RegionSplitter {
 					.getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
 	
 			// Remove the local mapping, no new data is written to the region
-			final RegionIdMapper mapper = RegionIdMapperInstanceManager.getInstance(distributionGroupName);
+			final DistributionRegionIdMapper mapper = DistributionRegionIdMapperManager.getInstance(distributionGroupName);
 			final boolean removeResult = mapper.removeMapping(regionId);
 			
 			assert (removeResult == true) : "Unable to remove mapping for: " + region;

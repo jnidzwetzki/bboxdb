@@ -26,30 +26,30 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RegionIdMapperInstanceManager {
+public class DistributionRegionIdMapperManager {
 	
 	/**
 	 * The local mappings for a distribution group
 	 */
-	protected final static Map<DistributionGroupName, RegionIdMapper> instances;
+	protected final static Map<DistributionGroupName, DistributionRegionIdMapper> instances;
 	
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(RegionIdMapperInstanceManager.class);
+	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionIdMapperManager.class);
 
 	
 	static {
-		instances = new HashMap<DistributionGroupName, RegionIdMapper>();
+		instances = new HashMap<DistributionGroupName, DistributionRegionIdMapper>();
 	}
 	
 	/**
 	 * Get the instance 
 	 * @param distributionGroupName
 	 */
-	public static synchronized RegionIdMapper getInstance(final DistributionGroupName distributionGroupName) {
+	public static synchronized DistributionRegionIdMapper getInstance(final DistributionGroupName distributionGroupName) {
 		if(! instances.containsKey(distributionGroupName)) {
-			instances.put(distributionGroupName, new RegionIdMapper());
+			instances.put(distributionGroupName, new DistributionRegionIdMapper());
 			
 			// Read distribution group to generate the local mappings
 			try {

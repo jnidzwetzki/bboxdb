@@ -24,8 +24,8 @@ import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.RegionIdMapper;
-import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.DistributionRegionIdMapper;
+import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -168,7 +168,7 @@ public class InsertTupleHandler implements RequestHandler {
 		try {
 			final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
 			
-			final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
+			final DistributionRegionIdMapper regionIdMapper = DistributionRegionIdMapperManager.getInstance(distributionGroupObject);
 
 			final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
 						requestTable, distributionRegions);

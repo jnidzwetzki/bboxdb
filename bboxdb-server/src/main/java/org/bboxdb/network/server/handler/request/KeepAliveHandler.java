@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bboxdb.distribution.RegionIdMapper;
-import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.DistributionRegionIdMapper;
+import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -108,7 +108,7 @@ public class KeepAliveHandler implements RequestHandler {
 	private boolean checkLocalTuples(final TupleStoreManagerRegistry tupleStoreManagerRegistry,
 			final TupleStoreName tupleStoreName, final Tuple tuple) {
 
-		final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(tupleStoreName.getDistributionGroupObject());
+		final DistributionRegionIdMapper regionIdMapper = DistributionRegionIdMapperManager.getInstance(tupleStoreName.getDistributionGroupObject());
 
 		final Collection<TupleStoreName> localTables = regionIdMapper.getLocalTablesForRegion(tuple.getBoundingBox(), tupleStoreName);
 

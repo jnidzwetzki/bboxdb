@@ -25,8 +25,8 @@ import org.bboxdb.commons.concurrent.ExceptionSafeThread;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
-import org.bboxdb.distribution.RegionIdMapper;
-import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.DistributionRegionIdMapper;
+import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -91,7 +91,7 @@ public class StatisticsUpdateThread extends ExceptionSafeThread {
 		try {
 			final List<DistributionGroupName> allDistributionGroups = adapter.getDistributionGroups();
 			for(final DistributionGroupName distributionGroup : allDistributionGroups) {
-				final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(distributionGroup);
+				final DistributionRegionIdMapper regionIdMapper = DistributionRegionIdMapperManager.getInstance(distributionGroup);
 				final Collection<Long> allIds = regionIdMapper.getRegionIdsForRegion(BoundingBox.EMPTY_BOX);
 				
 				for(final long id : allIds) {

@@ -50,7 +50,7 @@ public class TestRegionIdMapper {
 	 */
 	@Test
 	public void testZeroMapping() {
-		final RegionIdMapper regionIdMapper = new RegionIdMapper();
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
 		
 		Assert.assertEquals(0, regionIdMapper.getLocalTablesForRegion(
 				new BoundingBox(2.5d, 2.5d, 1.5d, 1.5d), DEFAULT_SSTABLE_NAME).size());
@@ -61,7 +61,7 @@ public class TestRegionIdMapper {
 	 */
 	@Test
 	public void testOneMapping() {
-		final RegionIdMapper regionIdMapper = new RegionIdMapper();
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
 		final DistributionRegion region = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
 		region.setRegionId(1);
 		region.setConveringBox(new BoundingBox(1d, 2d, 1d, 2d));
@@ -85,7 +85,7 @@ public class TestRegionIdMapper {
 	 */
 	@Test
 	public void testTwoMapping() {
-		final RegionIdMapper regionIdMapper = new RegionIdMapper();
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
 		
 		final DistributionRegion region1 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
 		region1.setRegionId(1);
@@ -117,7 +117,7 @@ public class TestRegionIdMapper {
 	 */
 	@Test
 	public void testThreeMapping() {
-		final RegionIdMapper regionIdMapper = new RegionIdMapper();
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
 		
 		final DistributionRegion region1 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
 		region1.setRegionId(1);
@@ -143,7 +143,7 @@ public class TestRegionIdMapper {
 	 */
 	@Test
 	public void testGetTableNames1() {
-		final RegionIdMapper regionIdMapper = new RegionIdMapper();
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
 		
 		final DistributionRegion region1 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
 		region1.setRegionId(1);
@@ -174,7 +174,7 @@ public class TestRegionIdMapper {
 	 */
 	@Test
 	public void testGetTableNames2() {
-		final RegionIdMapper regionIdMapper = new RegionIdMapper();
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
 		
 		final DistributionRegion region1 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
 		region1.setRegionId(1);
@@ -205,7 +205,7 @@ public class TestRegionIdMapper {
 	 */
 	@Test
 	public void testGetAll() {
-		final RegionIdMapper regionIdMapper = new RegionIdMapper();
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
 		
 		final DistributionRegion region1 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
 		region1.setRegionId(1);

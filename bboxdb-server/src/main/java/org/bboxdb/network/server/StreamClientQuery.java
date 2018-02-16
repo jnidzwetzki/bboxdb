@@ -27,8 +27,8 @@ import java.util.Map;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.RegionIdMapper;
-import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.DistributionRegionIdMapper;
+import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
@@ -123,7 +123,7 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	private void determineLocalTables(final List<TupleStoreName> requestTables) {
 		for(final TupleStoreName requestTable : requestTables) {
 			final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
-			final RegionIdMapper nameprefixManager = RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
+			final DistributionRegionIdMapper nameprefixManager = DistributionRegionIdMapperManager.getInstance(distributionGroupObject);
 			final List<TupleStoreName> localTablesForTable = nameprefixManager.getAllLocalTables(requestTable);
 			localTablesForTable.sort((c1, c2) -> c1.compareTo(c2));
 			localTables.put(requestTable, localTablesForTable);

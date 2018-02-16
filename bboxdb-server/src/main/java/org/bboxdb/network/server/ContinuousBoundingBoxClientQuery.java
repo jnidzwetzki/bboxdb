@@ -23,8 +23,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
 
-import org.bboxdb.distribution.RegionIdMapper;
-import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.DistributionRegionIdMapper;
+import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
@@ -142,8 +142,8 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 			final TupleStoreManagerRegistry storageRegistry 
 				= clientConnectionHandler.getStorageRegistry();
 			
-			final RegionIdMapper regionIdMapper 
-				= RegionIdMapperInstanceManager.getInstance(requestTable.getDistributionGroupObject());
+			final DistributionRegionIdMapper regionIdMapper 
+				= DistributionRegionIdMapperManager.getInstance(requestTable.getDistributionGroupObject());
 			
 			final Collection<TupleStoreName> localTables 
 				= regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);

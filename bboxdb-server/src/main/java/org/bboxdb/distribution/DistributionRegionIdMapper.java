@@ -28,7 +28,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RegionIdMapper {
+public class DistributionRegionIdMapper {
 
 	/**
 	 * The mappings
@@ -38,7 +38,7 @@ public class RegionIdMapper {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(RegionIdMapper.class);
+	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionIdMapper.class);
 	
 	/**
 	 * Search the region ids that are overlapped by the bounding box

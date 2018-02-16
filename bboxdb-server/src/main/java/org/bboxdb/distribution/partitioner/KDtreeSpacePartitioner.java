@@ -29,8 +29,8 @@ import org.apache.zookeeper.Watcher;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.RegionIdMapper;
-import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.DistributionRegionIdMapper;
+import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
@@ -220,7 +220,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	private void handleRootNodeChanged() {
 		if(rootNode == null) {
 			logger.info("Root element for {} is deleted", distributionGroupName);
-			RegionIdMapperInstanceManager.getInstance(distributionGroupName).clear();
+			DistributionRegionIdMapperManager.getInstance(distributionGroupName).clear();
 			TupleStoreConfigurationCache.getInstance().clear();
 			DistributionGroupConfigurationCache.getInstance().clear();
 		}
@@ -725,7 +725,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		// Remove the mapping from the regionid mapper	
 		final long regionId = region.getRegionId();		
 		logger.info("Remove local mapping for: {} / nameprefix {}", region, regionId);
-		RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName()).removeMapping(regionId);
+		DistributionRegionIdMapperManager.getInstance(region.getDistributionGroupName()).removeMapping(regionId);
 	}
 
 	/**
@@ -756,7 +756,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		// Add the mapping to the nameprefix mapper
 		for(final BBoxDBInstance instance : systems) {
 			if(instance.socketAddressEquals(localInstance)) {
-				final RegionIdMapper regionIdMapper = RegionIdMapperInstanceManager.getInstance(region.getDistributionGroupName());
+				final DistributionRegionIdMapper regionIdMapper = DistributionRegionIdMapperManager.getInstance(region.getDistributionGroupName());
 				regionIdMapper.addMapping(region);
 			}
 		}

@@ -24,8 +24,8 @@ import java.util.List;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.RegionIdMapper;
-import org.bboxdb.distribution.RegionIdMapperInstanceManager;
+import org.bboxdb.distribution.DistributionRegionIdMapper;
+import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
@@ -118,8 +118,8 @@ public class KeyClientQuery implements ClientQuery {
 		try {
 			final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
 
-			final RegionIdMapper nameprefixManager 
-				= RegionIdMapperInstanceManager.getInstance(distributionGroupObject);
+			final DistributionRegionIdMapper nameprefixManager 
+				= DistributionRegionIdMapperManager.getInstance(distributionGroupObject);
 
 			final List<TupleStoreName> localTables = nameprefixManager.getAllLocalTables(requestTable);
 			
