@@ -173,7 +173,7 @@ public class BBoxDBCluster implements BBoxDB {
 					final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(tuple.getBoundingBox(), 
 							distributionRegion);
 					
-					return new RoutingHeader((short) 0, hops);	
+					return new RoutingHeader((short) -1, hops);	
 				} catch (InterruptedException e) {
 					logger.warn("Interrupted while waiting for systems list");
 					Thread.currentThread().interrupt();

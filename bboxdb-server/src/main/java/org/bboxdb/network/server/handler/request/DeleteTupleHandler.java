@@ -74,7 +74,7 @@ public class DeleteTupleHandler implements RequestHandler {
 			} else {
 				final RoutingHop localHop = routingHeader.getRoutingHop();
 				
-				PackageRouter.checkLocalSystemNameMatches(localHop);
+				PackageRouter.checkLocalSystemNameMatchesAndThrowException(localHop);
 				
 				final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
 				

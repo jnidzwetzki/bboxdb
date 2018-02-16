@@ -71,25 +71,28 @@ public class InsertTupleHandler implements RequestHandler {
 		try {			
 			final InsertTupleRequest insertTupleRequest = InsertTupleRequest.decodeTuple(encodedPackage);
 			
-			final Tuple tuple = insertTupleRequest.getTuple();			
-			final TupleStoreName requestTable = insertTupleRequest.getTable();
 			final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
-			final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
-			
+	
 			if(! routingHeader.isRoutedPackage()) {
 				final String errorMessage = "Error while inserting tuple - package is not routed";
 				logger.error(errorMessage);
 				final ErrorResponse responsePackage = new ErrorResponse(packageSequence, errorMessage);
 				clientConnectionHandler.writeResultPackage(responsePackage);
-			} else {
+				return true;
+			} 
+			
+			// Needs to be rerouted?
+			if(routingHeader.getHop() == -1) {
+				routingHeader.dispatchToNextHop();
 				final RoutingHop localHop = routingHeader.getRoutingHop();
-				PackageRouter.checkLocalSystemNameMatches(localHop);				
-				final List<Long> distributionRegions = localHop.getDistributionRegions();
-
-				processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions);
 				
-				final PackageRouter packageRouter = clientConnectionHandler.getPackageRouter();
-				packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest);
+				if(PackageRouter.checkLocalSystemNameMatches(localHop)) {
+					processPackageLocally(packageSequence, clientConnectionHandler, insertTupleRequest);
+				} else {
+					forwardRoutedPackage(packageSequence, clientConnectionHandler, insertTupleRequest);
+				}
+			} else {
+				processPackageLocally(packageSequence, clientConnectionHandler, insertTupleRequest);
 			}
 			
 		} catch(RejectedException e) {
@@ -103,6 +106,49 @@ public class InsertTupleHandler implements RequestHandler {
 		}
 		
 		return true;
+	}
+
+	/**
+	 * @param packageSequence
+	 * @param clientConnectionHandler
+	 * @param insertTupleRequest
+	 * @param routingHeader
+	 * @throws BBoxDBException
+	 * @throws RejectedException
+	 * @throws PackageEncodeException 
+	 */
+	private void processPackageLocally(final short packageSequence,
+			final ClientConnectionHandler clientConnectionHandler, 
+			final InsertTupleRequest insertTupleRequest) 
+			throws BBoxDBException, RejectedException, PackageEncodeException {
+		
+		final Tuple tuple = insertTupleRequest.getTuple();			
+		final TupleStoreName requestTable = insertTupleRequest.getTable();
+		final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
+		
+		final RoutingHeader routingHeader = insertTupleRequest.getRoutingHeader();
+		final RoutingHop localHop = routingHeader.getRoutingHop();
+		
+		PackageRouter.checkLocalSystemNameMatchesAndThrowException(localHop);		
+		
+		final List<Long> distributionRegions = localHop.getDistributionRegions();
+		processInsertPackage(tuple, requestTable, storageRegistry, distributionRegions);
+		forwardRoutedPackage(packageSequence, clientConnectionHandler, insertTupleRequest);
+	}
+
+	/**
+	 * Forward the routed package
+	 * 
+	 * @param packageSequence
+	 * @param clientConnectionHandler
+	 * @param insertTupleRequest
+	 */
+	private void forwardRoutedPackage(final short packageSequence, 
+			final ClientConnectionHandler clientConnectionHandler,
+			final InsertTupleRequest insertTupleRequest) {
+		
+		final PackageRouter packageRouter = clientConnectionHandler.getPackageRouter();
+		packageRouter.performInsertPackageRoutingAsync(packageSequence, insertTupleRequest);
 	}
 
 	/**

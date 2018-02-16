@@ -171,17 +171,34 @@ public class PackageRouter {
 		return operationSuccess;
 	}
 	
-
+	
 	/**
-	 * Ensure that the package is routed to the right system
+	 * Ensure that the package is routed to the correct system
 	 * @param localHop
+	 * @return 
 	 * @throws BBoxDBException
 	 */
-	public static void checkLocalSystemNameMatches(final RoutingHop localHop) throws BBoxDBException {
+	public static boolean checkLocalSystemNameMatches(final RoutingHop localHop) 
+			throws BBoxDBException {
+		
 		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
 		final BBoxDBInstance routingInstanceName = localHop.getDistributedInstance();
 		
-		if(! localInstanceName.socketAddressEquals(routingInstanceName)) {
+		return (localInstanceName.socketAddressEquals(routingInstanceName));
+	}
+
+	/**
+	 * Ensure that the package is routed to the correct system
+	 * @param localHop
+	 * @throws BBoxDBException
+	 */
+	public static void checkLocalSystemNameMatchesAndThrowException(final RoutingHop localHop) 
+			throws BBoxDBException {
+		
+		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
+		final BBoxDBInstance routingInstanceName = localHop.getDistributedInstance();
+		
+		if(! checkLocalSystemNameMatches(localHop)) {
 			throw new BBoxDBException("Routing hop " + routingInstanceName 
 					+ " does not match local host " + localInstanceName);
 		}
