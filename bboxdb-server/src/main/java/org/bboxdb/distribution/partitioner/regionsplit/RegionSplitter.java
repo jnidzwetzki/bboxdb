@@ -30,7 +30,6 @@ import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
@@ -48,30 +47,17 @@ import org.slf4j.LoggerFactory;
 public class RegionSplitter {
 
 	/**
-	 * The zookeeper client
-	 */
-	protected final ZookeeperClient zookeeperClient;
-
-	/**
-	 * The distribution group adapter 
-	 */
-	protected final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
-
-	/**
 	 * The storage reference
 	 */
-	protected final TupleStoreManagerRegistry registry;
+	private final TupleStoreManagerRegistry registry;
 
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitter.class);
+	private final static Logger logger = LoggerFactory.getLogger(RegionSplitter.class);
 	
 	public RegionSplitter(final TupleStoreManagerRegistry registry) {
-		assert (registry != null) : "Unable to init, registry is null";
-		
-		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		this.distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		assert (registry != null) : "Unable to init, registry is null";		
 		this.registry = registry;
 	}
 	
@@ -82,8 +68,7 @@ public class RegionSplitter {
 	 * @param spacePartitioner
 	 * @param diskStorage
 	 */
-	public void splitRegion(final DistributionRegion region, 
-			final SpacePartitioner spacePartitioner, 
+	public void splitRegion(final DistributionRegion region, final SpacePartitioner spacePartitioner, 
 			final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
 		
 		assert(region != null);
@@ -100,8 +85,12 @@ public class RegionSplitter {
 			final boolean setToFullResult = distributionGroupZookeeperAdapter.setToFull(region);
 			
 			if(! setToFullResult) {
-				logger.info("Unable to set state to full for region: {}, stopping split", region.getIdentifier());
-				logger.info("Old state was {}", distributionGroupZookeeperAdapter.getStateForDistributionRegion(region));
+				final DistributionRegionState stateForDistributionRegion 
+					= distributionGroupZookeeperAdapter.getStateForDistributionRegion(region);
+				
+				logger.info("Unable to set state to full for region: {}, stopping split. Old state was {}", 
+						region.getIdentifier(), stateForDistributionRegion);
+				
 				return;
 			}
 			
