@@ -56,7 +56,7 @@ public class SimpleMergeStrategy implements MergeStrategy {
 		if(minorMergeTables.size() > 1) {
 			
 			if(minorMergeTables.size() == sstables.size()) {
-				// All tables are inclued, handle as major compact
+				// All tables are included, handle as major compact
 				mergeTask.setTaskType(MergeTaskType.MAJOR);
 			} else {
 				mergeTask.setTaskType(MergeTaskType.MINOR);
