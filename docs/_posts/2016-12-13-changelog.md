@@ -44,6 +44,7 @@ order: 1
 - Bugfix: Fixed detection of the Zookeeper client in GUI
 - Bugfix: System path /tables are not reported as distribution group
 - Bugfix: Region statistics can now be updated
+- Bugfix: Merge test is only executed if we are responsible for the parent region
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

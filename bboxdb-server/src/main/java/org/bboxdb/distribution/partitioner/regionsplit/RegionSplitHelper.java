@@ -116,6 +116,12 @@ public class RegionSplitHelper {
 			return false;
 		}
 		
+		// We are not responsible to this region
+		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
+		if(! region.getSystems().contains(localInstanceName)) {
+			return false;
+		}
+		
 		try {
 			final double childRegionSize = getTotalRegionSize(region);
 			final long minSize = getRegionMInSizeInMB(region);
