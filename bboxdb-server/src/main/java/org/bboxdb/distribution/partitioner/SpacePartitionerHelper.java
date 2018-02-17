@@ -107,7 +107,7 @@ public class SpacePartitionerHelper {
 		}
 		
 		logger.info("Allocated new ressource to {} with blacklist {}", 
-				allocationSystems, blacklistedSystems);
+				allocationSystems, blacklist);
 
 		spacePartitioner.allocateSystemsToRegion(region, allocationSystems);
 	}
