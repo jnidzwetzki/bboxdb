@@ -59,8 +59,7 @@ public class RegionSplitHelper {
 	 * @return
 	 * @throws BBoxDBException 
 	 */
-	public boolean isRegionOverflow(final DistributionRegion region) 
-			throws BBoxDBException {
+	public boolean isRegionOverflow(final DistributionRegion region) throws BBoxDBException {
 		
 		// Is the data of the parent completely distributed?
 		if(! isParentDataRedistributed(region)) {
@@ -113,8 +112,7 @@ public class RegionSplitHelper {
 	public boolean isRegionUnderflow(final DistributionRegion region) throws BBoxDBException {
 		
 		// This might be the root region
-		if(region == null) {
-			logger.error("isRegionUnderflow on null region called");
+		if(region == null || region == DistributionRegion.ROOT_NODE_ROOT_POINTER) {
 			return false;
 		}
 		

@@ -30,6 +30,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitter;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
@@ -87,7 +88,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	}
 
 	/**
-	 * Execute a new compactation
+	 * Execute a new compaction
 	 * @throws InterruptedException 
 	 */
 	public synchronized void execute() throws InterruptedException {
@@ -102,7 +103,6 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		}
 				
 		for(final TupleStoreName tupleStoreName: tupleStores) {
-		
 			try {
 				logger.debug("Running compact for: {}", tupleStoreName);
 				final TupleStoreManager tupleStoreManager = storageRegistry.getTupleStoreManager(tupleStoreName);
@@ -119,6 +119,8 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				
 				final MergeTask mergeTask = mergeStrategy.getMergeTask(facades);
 				mergeTupleStores(mergeTask, tupleStoreManager);
+				
+				checkForRegionSplit(tupleStoreManager);
 			} catch (StorageManagerException | BBoxDBException e) {
 				logger.error("Error while merging tables", e);	
 			} 
@@ -170,14 +172,29 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				ssTableCompactor.getReadTuples(), ssTableCompactor.getWrittenTuples(), 
 				mergeFactor);
 		
-		registerNewFacadeAndDeleteOldInstances(sstableManager, facades, newTables);
+		registerNewFacadeAndDeleteOldInstances(sstableManager, facades, newTables);		
+	}
+
+	/**
+	 * Does the region needs to be split?
+	 * @param sstableManager
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	private void checkForRegionSplit(final TupleStoreManager sstableManager)
+			throws BBoxDBException, InterruptedException {
 		
-		if(sstableManager.getTupleStoreName().isDistributedTable()) {
-			// Read only = table is in splitting mode
-			if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_WRITE) {
-				splitOrMergeRegion(sstableManager);
-			}
+		// Don't try to split non-distributed tables
+		if(! sstableManager.getTupleStoreName().isDistributedTable()) {
+			return;
 		}
+		
+		// Read only = table is in splitting mode
+		if(sstableManager.getSstableManagerState() != TupleStoreManagerState.READ_WRITE) {
+			return;
+		}
+		
+		splitOrMergeRegion(sstableManager);	
 	}
 
 	/**
@@ -194,7 +211,6 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 		try {
 			final TupleStoreName ssTableName = sstableManager.getTupleStoreName();
-			
 			final long regionId = ssTableName.getRegionId();
 			
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache
@@ -202,8 +218,8 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			
 			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
 
-			final DistributionRegion regionToSplit = DistributionRegionHelper.getDistributionRegionForNamePrefix(
-					distributionRegion, regionId);
+			final DistributionRegion regionToSplit = DistributionRegionHelper
+					.getDistributionRegionForNamePrefix(distributionRegion, regionId);
 			
 			final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
 			final RegionSplitter regionSplitter = new RegionSplitter(storage.getTupleStoreManagerRegistry());
@@ -213,12 +229,9 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 						storage.getTupleStoreManagerRegistry());
 			} 
 			
-			// Don't split the root node
-			if(regionToSplit.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
-				if(regionSplitHelper.isRegionUnderflow(regionToSplit.getParent())) {
-					regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, 
-							storage.getTupleStoreManagerRegistry());	
-				}
+			if(regionSplitHelper.isRegionUnderflow(regionToSplit.getParent())) {
+				regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, 
+						storage.getTupleStoreManagerRegistry());	
 			}
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
@@ -239,14 +252,16 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 		final List<SSTableFacade> newFacedes = new ArrayList<>();
 		
-		// Open new facedes
+		// Open new facades
 		for(final SSTableWriter writer : newTableWriter) {
 			
-			final int sstableKeyCacheEntries = storage.getTupleStoreManagerRegistry().getConfiguration()
-					.getSstableKeyCacheEntries();
+			final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
+			final BBoxDBConfiguration configuration = tupleStoreManagerRegistry.getConfiguration();
+			final int sstableKeyCacheEntries = configuration.getSstableKeyCacheEntries();
 			
 			final SSTableFacade newFacade = new SSTableFacade(writer.getDirectory(), 
 					writer.getName(), writer.getTablenumber(), sstableKeyCacheEntries);
+			
 			newFacedes.add(newFacade);
 		}
 		
@@ -289,7 +304,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		}
 	}
 
-	/***
+	/**
 	 * Write info about the merge run into log
 	 * @param facades
 	 * @param tablenumber
@@ -304,5 +319,4 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		
 		logger.info("Merging (major: {}) {}", majorCompaction, formatedFacades);
 	}
-
 }
