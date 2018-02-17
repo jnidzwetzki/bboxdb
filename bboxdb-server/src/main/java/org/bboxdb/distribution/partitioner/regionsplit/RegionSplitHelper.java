@@ -115,7 +115,7 @@ public class RegionSplitHelper {
 			return false;
 		}
 		
-		final List<DistributionRegion> children = region.getChildren();
+		final List<DistributionRegion> children = region.getAllChildren();
 		final boolean inactiveChilds = children.stream()
 				.anyMatch(c -> c.getState() != DistributionRegionState.ACTIVE);
 		

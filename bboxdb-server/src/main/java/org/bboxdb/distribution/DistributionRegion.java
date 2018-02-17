@@ -19,7 +19,6 @@ package org.bboxdb.distribution;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -160,7 +159,37 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public List<DistributionRegion> getChildren() {
-		return Arrays.asList(getLeftChild(), getRightChild());
+		final List<DistributionRegion> result = new ArrayList<>();
+		
+		if(getLeftChild() != null) {
+			result.add(getLeftChild());
+		}
+		
+		if(getRightChild() != null) {
+			result.add(getRightChild());
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Get all the children of the region
+	 * @return
+	 */
+	public List<DistributionRegion> getAllChildren() {
+	final List<DistributionRegion> result = new ArrayList<>();
+		
+		if(getLeftChild() != null) {
+			result.add(getLeftChild());
+			result.addAll(getLeftChild().getAllChildren());
+		}
+		
+		if(getRightChild() != null) {
+			result.add(getRightChild());
+			result.addAll(getRightChild().getAllChildren());
+		}
+		
+		return result;
 	}
 	
 	/**
