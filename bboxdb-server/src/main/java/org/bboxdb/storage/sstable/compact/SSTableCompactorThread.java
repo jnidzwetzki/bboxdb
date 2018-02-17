@@ -48,12 +48,12 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	/**
 	 * The merge strategy
 	 */
-	protected final MergeStrategy mergeStragegy;
+	protected final MergeStrategy mergeStrategy;
 
 	/**
 	 * The storage
 	 */
-	protected DiskStorage storage;
+	protected final DiskStorage storage;
 	
 	/**
 	 * The logger
@@ -62,7 +62,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 
 	public SSTableCompactorThread(final DiskStorage storage) {
 		this.storage = storage;
-		this.mergeStragegy = new SimpleMergeStrategy();
+		this.mergeStrategy = new SimpleMergeStrategy();
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			
 		while(! Thread.currentThread().isInterrupted()) {
 			try {	
-				Thread.sleep(mergeStragegy.getCompactorDelay());
+				Thread.sleep(mergeStrategy.getCompactorDelay());
 				logger.debug("Executing compact thread");
 				execute(); 
 			} catch (InterruptedException e) {
@@ -117,7 +117,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				final List<SSTableFacade> facades = new ArrayList<>();
 				facades.addAll(tupleStoreManager.getSstableFacades());
 				
-				final MergeTask mergeTask = mergeStragegy.getMergeTask(facades);
+				final MergeTask mergeTask = mergeStrategy.getMergeTask(facades);
 				mergeTupleStores(mergeTask, tupleStoreManager);
 			} catch (StorageManagerException | BBoxDBException e) {
 				logger.error("Error while merging tables", e);	
