@@ -125,15 +125,12 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	public void setVersion(final String version) {
 		this.version = version;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((ip == null) ? 0 : ip.hashCode());
-		result = prime * result + port;
-		result = prime * result + ((state == null) ? 0 : state.hashCode());
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		result = prime * result + ((socketAddress == null) ? 0 : socketAddress.hashCode());
 		return result;
 	}
 
@@ -146,23 +143,14 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 		if (getClass() != obj.getClass())
 			return false;
 		BBoxDBInstance other = (BBoxDBInstance) obj;
-		if (ip == null) {
-			if (other.ip != null)
+		if (socketAddress == null) {
+			if (other.socketAddress != null)
 				return false;
-		} else if (!ip.equals(other.ip))
-			return false;
-		if (port != other.port)
-			return false;
-		if (state != other.state)
-			return false;
-		if (version == null) {
-			if (other.version != null)
-				return false;
-		} else if (!version.equals(other.version))
+		} else if (!socketAddress.equals(other.socketAddress))
 			return false;
 		return true;
 	}
-	
+
 	/**
 	 * Equals based on the socketAddress
 	 * @param instance
