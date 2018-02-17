@@ -21,6 +21,7 @@ order: 1
 - Improvement: Region statistics are now written by a dedicated thread
 - Improvement: Updated screenshots
 - Improvement: Node stats are updated periodically
+- Improvement: A major compact task is executed before data is redistributed
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel

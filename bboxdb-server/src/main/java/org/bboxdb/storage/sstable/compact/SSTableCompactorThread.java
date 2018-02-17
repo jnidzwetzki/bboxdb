@@ -66,13 +66,20 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		this.mergeStrategy = new SimpleMergeStrategy();
 	}
 
+	@Override
+	protected void beginHook() {
+		logger.info("Compact thread has started");
+	}
+	
+	@Override
+	protected void endHook() {
+		logger.info("Compact thread is DONE");
+	}
+	
 	/**
 	 * Execute the compactor thread
 	 */
-	protected void runThread() {
-		
-		logger.info("Compact thread has started");
-			
+	protected void runThread() {			
 		while(! Thread.currentThread().isInterrupted()) {
 			try {	
 				Thread.sleep(mergeStrategy.getCompactorDelay());
@@ -82,9 +89,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				Thread.currentThread().interrupt();
 				break;
 			} 
-		}
-		
-		logger.info("Compact thread is DONE");
+		}		
 	}
 
 	/**
@@ -102,6 +107,19 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			return;
 		}
 				
+		processTupleStores(storageRegistry, tupleStores);
+	}
+
+	/**
+	 * Process the tuple stores
+	 * 
+	 * @param storageRegistry
+	 * @param tupleStores
+	 * @throws InterruptedException
+	 */
+	private void processTupleStores(final TupleStoreManagerRegistry storageRegistry,
+			final List<TupleStoreName> tupleStores) throws InterruptedException {
+		
 		for(final TupleStoreName tupleStoreName: tupleStores) {
 			try {
 				logger.debug("Running compact for: {}", tupleStoreName);
@@ -112,19 +130,28 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 					continue;
 				}
 								
-				// Create a copy to ensure, that the list of facades don't change
-				// during the compact run.
-				final List<SSTableFacade> facades = new ArrayList<>();
-				facades.addAll(tupleStoreManager.getSstableFacades());
-				
+				final List<SSTableFacade> facades = getAllTupleStores(tupleStoreManager);
 				final MergeTask mergeTask = mergeStrategy.getMergeTask(facades);
-				mergeTupleStores(mergeTask, tupleStoreManager);
-				
+				executeCompactTask(mergeTask, tupleStoreManager);
 				checkForRegionSplit(tupleStoreManager);
+				
 			} catch (StorageManagerException | BBoxDBException e) {
 				logger.error("Error while merging tables", e);	
 			} 
 		}
+	}
+
+	/**
+	 * Create a copy to ensure, that the list of facades don't change
+	 * during the compact run.
+	 * 
+	 * @param tupleStoreManager
+	 * @return
+	 */
+	private List<SSTableFacade> getAllTupleStores(final TupleStoreManager tupleStoreManager) {
+		final List<SSTableFacade> facades = new ArrayList<>();
+		facades.addAll(tupleStoreManager.getSstableFacades());
+		return facades;
 	}
 
 	/**
@@ -136,7 +163,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @throws ZookeeperException 
 	 * @throws BBoxDBException 
 	 */
-	protected void mergeTupleStores(final MergeTask mergeTask, final TupleStoreManager sstableManager) 
+	private void executeCompactTask(final MergeTask mergeTask, final TupleStoreManager sstableManager) 
 			throws StorageManagerException, BBoxDBException, InterruptedException {
 		
 		if(mergeTask.getTaskType() == MergeTaskType.UNKNOWN) {
@@ -144,7 +171,6 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		}
 		
 		final List<SSTableFacade> facades = mergeTask.getCompactTables();
-		final boolean majorCompaction = mergeTask.getTaskType() == MergeTaskType.MAJOR;
 	
 		if(facades == null || facades.isEmpty()) {
 			return;
@@ -156,6 +182,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				.collect(Collectors.toList());
 		
 		// Log the compact call
+		final boolean majorCompaction = mergeTask.getTaskType() == MergeTaskType.MAJOR;
 		if(logger.isInfoEnabled()) {
 			writeMergeLog(facades, majorCompaction);
 		}
@@ -225,6 +252,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final RegionSplitter regionSplitter = new RegionSplitter(storage.getTupleStoreManagerRegistry());
 
 			if(regionSplitHelper.isRegionOverflow(regionToSplit)) {
+				forceMajorCompact(sstableManager);
 				regionSplitter.splitRegion(regionToSplit, spacePartitioner, 
 						storage.getTupleStoreManagerRegistry());
 			} 
@@ -233,9 +261,26 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, 
 						storage.getTupleStoreManagerRegistry());	
 			}
-		} catch (ZookeeperException e) {
+		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		}
+	}
+
+	/**
+	 * @param sstableManager
+	 * @throws StorageManagerException
+	 * @throws BBoxDBException
+	 * @throws InterruptedException
+	 */
+	private void forceMajorCompact(final TupleStoreManager sstableManager)
+			throws StorageManagerException, BBoxDBException, InterruptedException {
+		
+		logger.info("Force major compact for {}", sstableManager.getTupleStoreName().getFullname());
+		
+		final MergeTask mergeTask = new MergeTask();
+		mergeTask.setTaskType(MergeTaskType.MAJOR);
+		mergeTask.setCompactTables(getAllTupleStores(sstableManager));
+		executeCompactTask(mergeTask, sstableManager);
 	}
 
 	/**
@@ -246,11 +291,11 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @param tablenumber
 	 * @throws StorageManagerException
 	 */
-	protected void registerNewFacadeAndDeleteOldInstances(final TupleStoreManager sstableManager, 
+	private void registerNewFacadeAndDeleteOldInstances(final TupleStoreManager sstableManager, 
 			final List<SSTableFacade> oldFacades, 
 			final List<SSTableWriter> newTableWriter) throws StorageManagerException {
 		
-		final List<SSTableFacade> newFacedes = new ArrayList<>();
+		final List<SSTableFacade> newFacades = new ArrayList<>();
 		
 		// Open new facades
 		for(final SSTableWriter writer : newTableWriter) {
@@ -262,31 +307,31 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final SSTableFacade newFacade = new SSTableFacade(writer.getDirectory(), 
 					writer.getName(), writer.getTablenumber(), sstableKeyCacheEntries);
 			
-			newFacedes.add(newFacade);
+			newFacades.add(newFacade);
 		}
 		
 		// Manager has switched to read only
 		if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
 			logger.info("Manager is in read only mode, cancel compact run");
-			handleCompactException(newFacedes);
+			handleCompactException(newFacades);
 			return;
 		}
 		
 		try {
-			for(final SSTableFacade facade : newFacedes) {
+			for(final SSTableFacade facade : newFacades) {
 				facade.init();
 			}
 			
 			// Switch facades in registry
-			sstableManager.replaceCompactedSStables(newFacedes, oldFacades);
+			sstableManager.replaceCompactedSStables(newFacades, oldFacades);
 
 			// Schedule facades for deletion
 			oldFacades.forEach(f -> f.deleteOnClose());
 		} catch (BBoxDBException | RejectedException e) {
-			handleCompactException(newFacedes);
+			handleCompactException(newFacades);
 			throw new StorageManagerException(e);
 		} catch (InterruptedException e) {
-			handleCompactException(newFacedes);
+			handleCompactException(newFacades);
 			Thread.currentThread().interrupt();
 			throw new StorageManagerException(e);
 		} 
@@ -296,7 +341,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * Handle exception in compact thread
 	 * @param newFacedes
 	 */
-	protected void handleCompactException(final List<SSTableFacade> newFacedes) {
+	private void handleCompactException(final List<SSTableFacade> newFacedes) {
 		logger.info("Exception, schedule delete for {} compacted tables", newFacedes.size());
 		for(final SSTableFacade facade : newFacedes) {
 			facade.deleteOnClose();
@@ -309,7 +354,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @param facades
 	 * @param tablenumber
 	 */
-	protected void writeMergeLog(final List<SSTableFacade> facades, final boolean majorCompaction) {
+	private void writeMergeLog(final List<SSTableFacade> facades, final boolean majorCompaction) {
 		
 		final String formatedFacades = facades
 				.stream()
