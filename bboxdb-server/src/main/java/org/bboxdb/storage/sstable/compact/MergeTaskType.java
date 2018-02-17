@@ -19,6 +19,6 @@ package org.bboxdb.storage.sstable.compact;
 
 public enum MergeTaskType {
 	MAJOR,
-	MINNOR,
+	MINOR,
 	UNKNOWN;
 }
