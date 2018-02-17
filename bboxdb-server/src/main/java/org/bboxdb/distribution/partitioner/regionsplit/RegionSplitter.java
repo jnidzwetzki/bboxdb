@@ -25,6 +25,7 @@ import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionIdMapper;
 import org.bboxdb.distribution.DistributionRegionIdMapperManager;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
@@ -196,13 +197,19 @@ public class RegionSplitter {
 			final DistributionRegion childRegion) throws StorageManagerException {
 		
 		try {
-			final BoundingBox bbox = childRegion.getConveringBox();
+			final List<BBoxDBInstance> systems = region.getSystems();
+			assert(! systems.isEmpty()) : "Systems can not be empty";
+			
+			final BBoxDBInstance firstSystem = systems.get(0);
 			
 			final BBoxDBClient connection = MembershipConnectionService.getInstance()
-					.getConnectionForInstance(region.getSystems().iterator().next());
+					.getConnectionForInstance(firstSystem);
 			
-			final TupleListFuture result = connection.queryBoundingBox(tupleStoreName.getFullname(),
-					bbox);
+			assert (connection != null) : "Connection can not be null";
+			
+			final BoundingBox bbox = childRegion.getConveringBox();
+			final String fullname = tupleStoreName.getFullname();
+			final TupleListFuture result = connection.queryBoundingBox(fullname, bbox);
 			
 			result.waitForAll();
 			
@@ -216,7 +223,7 @@ public class RegionSplitter {
 			}
 			
 			logger.info("Final statistics for merge ({}): {}", 
-					tupleStoreName.getFullname(),
+					fullname,
 					tupleRedistributor.getStatistics());
 			
 		} catch (InterruptedException e) {

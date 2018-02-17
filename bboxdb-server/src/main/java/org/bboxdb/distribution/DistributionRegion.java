@@ -413,7 +413,7 @@ public class DistributionRegion {
 	 * Get all systems that are responsible for this DistributionRegion
 	 * @return
 	 */
-	public Collection<BBoxDBInstance> getSystems() {
+	public List<BBoxDBInstance> getSystems() {
 		return new ArrayList<BBoxDBInstance>(systems);
 	}
 	
