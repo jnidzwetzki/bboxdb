@@ -119,6 +119,7 @@ public class RegionSplitHelper {
 		// We are not responsible to this region
 		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
 		if(! region.getSystems().contains(localInstanceName)) {
+			logger.info("Not testing for underflow for {} on {}", region, localInstanceName);
 			return false;
 		}
 		
