@@ -254,11 +254,13 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			if(regionSplitHelper.isRegionOverflow(regionToSplit)) {
 				regionSplitter.splitRegion(regionToSplit, spacePartitioner, 
 						storage.getTupleStoreManagerRegistry());
+				return;
 			} 
 			
 			if(regionSplitHelper.isRegionUnderflow(regionToSplit.getParent())) {
 				regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, 
 						storage.getTupleStoreManagerRegistry());	
+				return;
 			}
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
