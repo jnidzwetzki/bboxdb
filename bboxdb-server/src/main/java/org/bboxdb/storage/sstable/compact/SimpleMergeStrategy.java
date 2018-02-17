@@ -37,7 +37,7 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	/**
 	 * The time a big table is excluded from compact tasks
 	 */
-	protected final static long BIG_TABLE_UNTOUCHED_TIME = TimeUnit.HOURS.toMillis(1);
+	protected final static long BIG_TABLE_UNTOUCHED_TIME = TimeUnit.MINUTES.toMillis(1);
 
 	@Override
 	public MergeTask getMergeTask(final List<SSTableFacade> sstables) {
