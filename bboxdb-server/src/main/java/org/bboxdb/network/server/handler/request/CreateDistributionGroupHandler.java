@@ -19,8 +19,10 @@ package org.bboxdb.network.server.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.HashSet;
 
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
@@ -67,7 +69,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			final DistributionRegion region = distributionAdapter.getRootNode();
 			
 			SpacePartitionerHelper.allocateSystemsToRegion(region, distributionAdapter, 
-					distributionGroupZookeeperAdapter);
+					new HashSet<BBoxDBInstance>(), distributionGroupZookeeperAdapter);
 			
 			// Let the data settle down
 			Thread.sleep(5000);

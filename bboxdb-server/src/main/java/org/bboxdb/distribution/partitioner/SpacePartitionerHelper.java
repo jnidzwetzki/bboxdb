@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,7 +63,8 @@ public class SpacePartitionerHelper {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	public static void allocateSystemsToRegion(final DistributionRegion region, 
-			final SpacePartitioner spacePartitioner, final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter) 
+			final SpacePartitioner spacePartitioner, final Collection<BBoxDBInstance> blacklist, 
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter) 
 					throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException {
 		
 		final String distributionGroupName = region.getDistributionGroupName().getFullname();
@@ -86,11 +88,14 @@ public class SpacePartitionerHelper {
 		}
 		
 		// The blacklist, to prevent duplicate allocations
-		final Set<BBoxDBInstance> allocationSystems = new HashSet<BBoxDBInstance>();
+		final Set<BBoxDBInstance> allocationSystems = new HashSet<>();
+		final Set<BBoxDBInstance> blacklistedSystems = new HashSet<>();
+		blacklistedSystems.addAll(blacklist);
 		
 		for(short i = 0; i < replicationFactor; i++) {
-			final BBoxDBInstance instance = resourcePlacementStrategy.getInstancesForNewRessource(availableSystems, allocationSystems);
+			final BBoxDBInstance instance = resourcePlacementStrategy.getInstancesForNewRessource(availableSystems, blacklistedSystems);
 			allocationSystems.add(instance);
+			blacklistedSystems.add(instance);
 		}
 		
 		spacePartitioner.allocateSystemsToRegion(region, allocationSystems);

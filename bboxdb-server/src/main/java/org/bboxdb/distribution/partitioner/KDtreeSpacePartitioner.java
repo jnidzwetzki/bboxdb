@@ -377,7 +377,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 					this, distributionGroupZookeeperAdapter);
 			
 			SpacePartitionerHelper.allocateSystemsToRegion(regionToSplit.getRightChild(), 
-					this, distributionGroupZookeeperAdapter);
+					this, regionToSplit.getLeftChild().getSystems(), distributionGroupZookeeperAdapter);
 			
 			// update state
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
