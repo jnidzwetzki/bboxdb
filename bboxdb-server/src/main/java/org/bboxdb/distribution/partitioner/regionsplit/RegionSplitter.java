@@ -409,7 +409,7 @@ public class RegionSplitter {
 			
 			for(int i = 0; i < totalSotrages; i++) {
 				final ReadOnlyTupleStore storage = aquiredStorages.get(i);
-				logger.info("Spread sstable facade {} number {} of {}", 
+				logger.info("Spread tuple storage {} number {} of {}", 
 						storage.getInternalName(), i, totalSotrages - 1);
 						spreadStorage(tupleRedistributor, storage);
 			}
