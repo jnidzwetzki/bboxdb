@@ -127,6 +127,7 @@ public class DataRedistributionLoader implements Runnable {
 			}
 			
 			System.out.println("Demo done");
+			bboxDBCluster.disconnect();
 			System.exit(0);
 			
 		} catch (InterruptedException e) {
