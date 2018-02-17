@@ -135,8 +135,8 @@ public class RegionSplitHelper {
 			final double childRegionSize = getTotalRegionSize(region);
 			final long minSize = getRegionMInSizeInMB(region);
 			
-			logger.info("Testing for region underflow curent size is {} / min is {}", 
-					childRegionSize, minSize);
+			logger.info("Testing for region underflow curent size is {} / min is {} / children {}", 
+					childRegionSize, minSize, region.getChildren());
 			
 			return (childRegionSize < minSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
