@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
+import org.bboxdb.commons.RejectedException;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegionIdMapper;
 import org.bboxdb.distribution.DistributionRegionIdMapperManager;
@@ -105,6 +106,10 @@ public class DeleteTupleHandler implements RequestHandler {
 			}
 
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
+		} catch(RejectedException e) {
+			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, 
+					ErrorMessages.ERROR_LOCAL_OPERATION_REJECTED_RETRY + " " + e.getMessage());
+			clientConnectionHandler.writeResultPackage(responsePackage);	
 		} catch (Exception e) {
 			logger.warn("Error while delete tuple", e);
 			final ErrorResponse responsePackage = new ErrorResponse(packageSequence, ErrorMessages.ERROR_EXCEPTION);
