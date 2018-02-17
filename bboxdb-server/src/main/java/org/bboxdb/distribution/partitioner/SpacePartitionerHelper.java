@@ -32,8 +32,16 @@ import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SpacePartitionerHelper {
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(SpacePartitionerHelper.class);
+	
 	/**
 	 * Copy the system allocation of one distribution region to another
 	 * @param source
@@ -91,13 +99,16 @@ public class SpacePartitionerHelper {
 		final Set<BBoxDBInstance> allocationSystems = new HashSet<>();
 		final Set<BBoxDBInstance> blacklistedSystems = new HashSet<>();
 		blacklistedSystems.addAll(blacklist);
-		
+				
 		for(short i = 0; i < replicationFactor; i++) {
 			final BBoxDBInstance instance = resourcePlacementStrategy.getInstancesForNewRessource(availableSystems, blacklistedSystems);
 			allocationSystems.add(instance);
 			blacklistedSystems.add(instance);
 		}
 		
+		logger.info("Allocated new ressource to {} with blacklist {}", 
+				allocationSystems, blacklistedSystems);
+
 		spacePartitioner.allocateSystemsToRegion(region, allocationSystems);
 	}
 }
