@@ -22,6 +22,7 @@ order: 1
 - Improvement: Updated screenshots
 - Improvement: Node stats are updated periodically
 - Improvement: On a region split, one region is allocated to another system
+- Improvement: When all tables are included in a minor compact, handle it as major compact
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel

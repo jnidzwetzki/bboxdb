@@ -51,11 +51,17 @@ public class SimpleMergeStrategy implements MergeStrategy {
 			return mergeTask;
 		} 
 		
-		final List<SSTableFacade> minnorMergeTables = generateMinorCompactTask(sstables);
+		final List<SSTableFacade> minorMergeTables = generateMinorCompactTask(sstables);
 		
-		if(minnorMergeTables.size() > 1) {
-			mergeTask.setTaskType(MergeTaskType.MINOR);
-			mergeTask.setCompactTables(minnorMergeTables);
+		if(minorMergeTables.size() > 1) {
+			
+			if(minorMergeTables.size() == sstables.size()) {
+				// All tables are inclued, handle as major compact
+				mergeTask.setTaskType(MergeTaskType.MAJOR);
+			} else {
+				mergeTask.setTaskType(MergeTaskType.MINOR);
+			}
+			mergeTask.setCompactTables(minorMergeTables);
 		}
 
 		return mergeTask;
