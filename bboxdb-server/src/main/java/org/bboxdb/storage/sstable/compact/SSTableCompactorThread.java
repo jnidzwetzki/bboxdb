@@ -252,7 +252,6 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final RegionSplitter regionSplitter = new RegionSplitter(storage.getTupleStoreManagerRegistry());
 
 			if(regionSplitHelper.isRegionOverflow(regionToSplit)) {
-				forceMajorCompact(sstableManager);
 				regionSplitter.splitRegion(regionToSplit, spacePartitioner, 
 						storage.getTupleStoreManagerRegistry());
 			} 
@@ -272,7 +271,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	private void forceMajorCompact(final TupleStoreManager sstableManager)
+	/*private void forceMajorCompact(final TupleStoreManager sstableManager)
 			throws StorageManagerException, BBoxDBException, InterruptedException {
 		
 		logger.info("Force major compact for {}", sstableManager.getTupleStoreName().getFullname());
@@ -281,7 +280,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 		mergeTask.setTaskType(MergeTaskType.MAJOR);
 		mergeTask.setCompactTables(getAllTupleStores(sstableManager));
 		executeCompactTask(mergeTask, sstableManager);
-	}
+	}*/
 
 	/**
 	 * Register a new sstable facade and delete the old ones
