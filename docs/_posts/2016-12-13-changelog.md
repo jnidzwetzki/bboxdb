@@ -45,6 +45,7 @@ order: 1
 - Bugfix: System path /tables are not reported as distribution group
 - Bugfix: Region statistics can now be updated
 - Bugfix: Merge test is only executed if we are responsible for the parent region
+- Bugfix: Old statistics are cleared after region split is done
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

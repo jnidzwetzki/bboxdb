@@ -96,6 +96,7 @@ public class RegionSplitter {
 			
 			spacePartitioner.splitRegion(region, tupleStoreManagerRegistry);
 			redistributeDataSplit(region);
+			distributionGroupZookeeperAdapter.deleteRegionStatistics(region);
 		} catch (Throwable e) {
 			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
 		}

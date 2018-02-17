@@ -876,5 +876,23 @@ public class DistributionGroupZookeeperAdapter {
 		
 		return result;
 	}
+	
+	/**
+	 * Delete the statistics for a given region
+	 * @param region
+	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public void deleteRegionStatistics(final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+				
+		logger.debug("Delete statistics for {}", region.getDistributionGroupName().getFullname());
+				
+		final String statisticsPath = getZookeeperPathForDistributionRegion(region) 
+				+ "/" + ZookeeperNodeNames.NAME_STATISTICS;
+		
+		zookeeperClient.deleteNodesRecursive(statisticsPath);
+	}
 
 }
