@@ -115,7 +115,8 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public void disconnect() {
 		membershipConnectionService.shutdown();
-		zookeeperClient.shutdown();		
+		BBoxDBInstanceManager.getInstance().stopMembershipObserver();
+		zookeeperClient.shutdown();
 	}
 
 	/* (non-Javadoc)
