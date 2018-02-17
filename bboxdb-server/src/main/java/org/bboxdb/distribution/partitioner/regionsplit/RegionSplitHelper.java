@@ -114,12 +114,17 @@ public class RegionSplitHelper {
 		
 		// This might be the root region
 		if(region == null) {
+			logger.error("isRegionUnderflow on null region called");
 			return false;
 		}
 		
 		try {
 			final double childRegionSize = getTotalRegionSize(region);
 			final long minSize = getRegionMInSizeInMB(region);
+			
+			logger.info("Testing for region underflow curent size is {} / min is {}", 
+					childRegionSize, minSize);
+			
 			return (childRegionSize < minSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
