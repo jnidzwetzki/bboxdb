@@ -153,7 +153,12 @@ public class DataRedistributionLoader implements Runnable {
 			// Create new distribution group
 			System.out.println("Create new distribution group");
 			final DistributionGroupConfiguration dgroupConfig 
-				= DistributionGroupConfigurationBuilder.create(2).withReplicationFactor((short) 1).build();
+				= DistributionGroupConfigurationBuilder
+					.create(2)
+					.withReplicationFactor((short) 1)
+					.withMaximumRegionSize(16)
+					.withMaximumRegionSize(8)
+					.build();
 			
 			final EmptyResultFuture dgroupCreateResult = bboxDBCluster.createDistributionGroup(DGROUP, dgroupConfig);
 			dgroupCreateResult.waitForAll();
