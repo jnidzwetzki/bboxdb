@@ -87,4 +87,12 @@ public class Const {
 	 * Log memory statistics periodically
 	 */
 	public final static boolean LOG_MEMORY_STATISTICS = false;
+	
+	/**
+	 * Statistics thread sleep
+	 */
+	//public final static long THREAD_STATISTICS_DELAY = TimeUnit.MINUTES.toMillis(1);
+	public final static long THREAD_STATISTICS_DELAY = TimeUnit.SECONDS.toMillis(15);
+	
+	
 }

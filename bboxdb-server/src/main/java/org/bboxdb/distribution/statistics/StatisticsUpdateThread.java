@@ -19,7 +19,6 @@ package org.bboxdb.distribution.statistics;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeThread;
 import org.bboxdb.distribution.DistributionGroupName;
@@ -35,6 +34,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -79,7 +79,7 @@ public class StatisticsUpdateThread extends ExceptionSafeThread {
 			while(! Thread.currentThread().isInterrupted()) {
 				updateNodeStats();
 				updateRegionStatistics();
-				Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+				Thread.sleep(Const.THREAD_STATISTICS_DELAY);
 			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
