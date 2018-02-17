@@ -19,9 +19,11 @@ package org.bboxdb.distribution;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -153,6 +155,14 @@ public class DistributionRegion {
 		return parent;
 	}
 
+	/**
+	 * Get the children of the region
+	 * @return
+	 */
+	public List<DistributionRegion> getChildren() {
+		return Arrays.asList(getLeftChild(), getRightChild());
+	}
+	
 	/**
 	 * Set the split coordinate
 	 * @param split

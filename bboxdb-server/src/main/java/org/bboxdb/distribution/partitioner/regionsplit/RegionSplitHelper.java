@@ -18,7 +18,6 @@
 package org.bboxdb.distribution.partitioner.regionsplit;
 
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -116,6 +115,15 @@ public class RegionSplitHelper {
 			return false;
 		}
 		
+		final List<DistributionRegion> children = region.getChildren();
+		final boolean inactiveChilds = children.stream()
+				.anyMatch(c -> c.getState() != DistributionRegionState.ACTIVE);
+		
+		if(inactiveChilds) {
+			logger.debug("Not all children ready, skip merge test");
+			return false;
+		}
+		
 		// We are not responsible to this region
 		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
 		if(! region.getSystems().contains(localInstanceName)) {
@@ -142,11 +150,7 @@ public class RegionSplitHelper {
 	 * @return
 	 */
 	public double getTotalRegionSize(final DistributionRegion region) {
-		
-		final List<DistributionRegion> childRegions = Arrays.asList(
-				region.getLeftChild(), region.getRightChild());
-		
-		return childRegions
+		return region.getChildren()
 				.stream()
 				.filter(Objects::nonNull)
 				.mapToDouble(r -> getMaxRegionSizeFromStatistics(r))
