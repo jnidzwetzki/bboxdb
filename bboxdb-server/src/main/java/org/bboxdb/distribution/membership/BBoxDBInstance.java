@@ -126,6 +126,7 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 		this.version = version;
 	}
 	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -147,6 +148,50 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 			if (other.socketAddress != null)
 				return false;
 		} else if (!socketAddress.equals(other.socketAddress))
+			return false;
+		return true;
+	}
+
+	public boolean fullEquals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BBoxDBInstance other = (BBoxDBInstance) obj;
+		if (cpuCores != other.cpuCores)
+			return false;
+		if (freeSpaceLocation == null) {
+			if (other.freeSpaceLocation != null)
+				return false;
+		} else if (!freeSpaceLocation.equals(other.freeSpaceLocation))
+			return false;
+		if (ip == null) {
+			if (other.ip != null)
+				return false;
+		} else if (!ip.equals(other.ip))
+			return false;
+		if (memory != other.memory)
+			return false;
+		if (port != other.port)
+			return false;
+		if (socketAddress == null) {
+			if (other.socketAddress != null)
+				return false;
+		} else if (!socketAddress.equals(other.socketAddress))
+			return false;
+		if (state != other.state)
+			return false;
+		if (totalSpaceLocation == null) {
+			if (other.totalSpaceLocation != null)
+				return false;
+		} else if (!totalSpaceLocation.equals(other.totalSpaceLocation))
+			return false;
+		if (version == null) {
+			if (other.version != null)
+				return false;
+		} else if (!version.equals(other.version))
 			return false;
 		return true;
 	}

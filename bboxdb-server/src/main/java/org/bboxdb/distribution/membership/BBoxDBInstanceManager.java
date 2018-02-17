@@ -164,7 +164,7 @@ public class BBoxDBInstanceManager {
 				sendEvent(DistributedInstanceEvent.ADD, instance);
 			} else {
 				// Changed member?
-				if(! instances.get(inetSocketAddress).equals(instance)) {
+				if(! instances.get(inetSocketAddress).fullEquals(instance)) {
 					instances.put(inetSocketAddress, instance);
 					sendEvent(DistributedInstanceEvent.CHANGED, instance);
 				}
