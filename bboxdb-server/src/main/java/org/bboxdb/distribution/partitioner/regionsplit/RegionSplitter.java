@@ -98,8 +98,10 @@ public class RegionSplitter {
 		}
 		
 		try {
-			redistributeDataSplit(region);
-			distributionGroupZookeeperAdapter.deleteRegionStatistics(region);
+			if(! splitFailed) {
+				redistributeDataSplit(region);
+				distributionGroupZookeeperAdapter.deleteRegionStatistics(region);
+			}
 		} catch (Throwable e) {
 			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
 			splitFailed = true;
