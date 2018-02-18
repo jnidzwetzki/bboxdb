@@ -34,9 +34,9 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +79,7 @@ public class StatisticsUpdateThread extends ExceptionSafeThread {
 			while(! Thread.currentThread().isInterrupted()) {
 				updateNodeStats();
 				updateRegionStatistics();
-				Thread.sleep(Const.THREAD_STATISTICS_DELAY);
+				Thread.sleep(SSTableConst.THREAD_STATISTICS_DELAY);
 			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();

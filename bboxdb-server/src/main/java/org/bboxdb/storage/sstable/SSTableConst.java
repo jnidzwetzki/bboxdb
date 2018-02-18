@@ -104,7 +104,25 @@ public class SSTableConst {
 	/**
 	 * Execution interval for the checkpoint thread
 	 */
-	public final static long CHECKPOINT_THREAD_DELAY = TimeUnit.SECONDS.toMillis(60);
+	// Changed for demo
+	//public final static long CHECKPOINT_THREAD_DELAY = TimeUnit.SECONDS.toMillis(60);
+	public final static long CHECKPOINT_THREAD_DELAY = TimeUnit.SECONDS.toMillis(15);
+
+	/**
+	 * Statistics thread sleep
+	 */
+	// Changed for demo
+	//public final static long THREAD_STATISTICS_DELAY = TimeUnit.MINUTES.toMillis(1);
+	public final static long THREAD_STATISTICS_DELAY = TimeUnit.SECONDS.toMillis(15);
+	
+	/**
+	 * The time a big table is excluded from compact tasks
+	 */
+	// Changed for demo
+	//public final static long COMPACT_BIG_TABLE_UNTOUCHED_TIME = TimeUnit.HOURS.toMillis(1);
+	public final static long COMPACT_BIG_TABLE_UNTOUCHED_TIME = TimeUnit.MINUTES.toMillis(1);
+	
+	
 	
 	/**
 	 * The maximal size for one SSTable. SStables are mapped into memory, the JVM can only

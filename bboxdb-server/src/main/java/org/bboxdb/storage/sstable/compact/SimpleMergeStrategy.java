@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.misc.Const;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 
@@ -78,7 +77,7 @@ public class SimpleMergeStrategy implements MergeStrategy {
 			.stream()
 			.filter(f -> f.getSsTableMetadata().getTuples() >= smallTableThreshold)
 			.map(f -> f.getSsTableReader())
-			.anyMatch(r -> r.getLastModifiedTimestamp() + Const.COMPACT_BIG_TABLE_UNTOUCHED_TIME < now);
+			.anyMatch(r -> r.getLastModifiedTimestamp() + SSTableConst.COMPACT_BIG_TABLE_UNTOUCHED_TIME < now);
 			
 		final List<SSTableFacade> bigCompacts = new ArrayList<>();
 		
