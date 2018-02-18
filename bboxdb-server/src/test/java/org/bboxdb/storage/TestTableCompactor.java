@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.misc.BBoxDBConfigurationManager;
@@ -42,6 +43,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 public class TestTableCompactor {
 	
@@ -233,7 +236,7 @@ public class TestTableCompactor {
 			counter++;
 		}		
 				
-		Assert.assertEquals(2, counter);
+		Assert.assertEquals(1, counter);
 	}	
 	
 	/**
@@ -291,13 +294,12 @@ public class TestTableCompactor {
 		Assert.assertTrue(containsDeletedTuple);
 	}
 	
-	
 	/**
-	 * Test a minor compactation
+	 * Test a major compactation
 	 * @throws StorageManagerException
 	 */
 	@Test
-	public void testCompactationMajor() throws StorageManagerException {
+	public void testCompactationMajor1() throws StorageManagerException {
 		final List<Tuple> tupleList1 = new ArrayList<Tuple>();
 		tupleList1.add(new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes()));
 		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
@@ -320,6 +322,41 @@ public class TestTableCompactor {
 				
 		Assert.assertEquals(1, counter);
 		Assert.assertFalse(containsDeletedTuple);
+	}
+	
+	/**
+	 * Test a major compactation
+	 * @throws StorageManagerException
+	 */
+	@Test
+	public void testCompactationMajor2() throws StorageManagerException {
+		
+		final List<Tuple> tupleList1 = new ArrayList<>();
+
+		final Tuple nonDeletedTuple = new Tuple("KEY", BoundingBox.EMPTY_BOX, "abc".getBytes());
+		tupleList1.add(nonDeletedTuple);
+
+		for(int i = 0; i < 1000; i++) {
+			tupleList1.add(new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, "abc".getBytes()));
+		}
+		
+		final SSTableKeyIndexReader reader1 = addTuplesToFileAndGetReader(tupleList1, 1);
+		
+		final List<Tuple> tupleList2 = new ArrayList<Tuple>();
+		for(int i = 0; i < 1000; i++) {
+			tupleList2.add(new DeletedTuple(Integer.toString(i)));
+		}
+		
+		final SSTableKeyIndexReader reader2 = addTuplesToFileAndGetReader(tupleList2, 2);
+		
+		final SSTableKeyIndexReader ssTableIndexReader = exectuteCompactAndGetReader(
+				reader1, reader2, true);
+		
+		final Iterator<Tuple> iterator = ssTableIndexReader.iterator();
+		List<Tuple> tupes = Lists.newArrayList(iterator);
+		
+		Assert.assertEquals(1, tupes.size());
+		Assert.assertTrue(tupes.contains(nonDeletedTuple));
 	}
 
 	/**

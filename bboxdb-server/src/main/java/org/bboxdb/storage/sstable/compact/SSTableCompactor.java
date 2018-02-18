@@ -124,7 +124,7 @@ public class SSTableCompactor {
 			
 			final SortedIteratorMerger<Tuple> sortedIteratorMerger = new SortedIteratorMerger<>(
 					iterators, 
-					TupleHelper.TUPLE_KEY_AND_VERSION_COMPARATOR, 
+					TupleHelper.TUPLE_KEY_COMPARATOR, 
 					newestKeyResolver);
 						
 			for(final Tuple tuple : sortedIteratorMerger) {

@@ -36,6 +36,14 @@ import com.google.common.io.ByteStreams;
 public class TupleHelper {
 	
 	/**
+	 * Compare the tuples by key
+	 */
+	public final static Comparator<Tuple> TUPLE_KEY_COMPARATOR = 
+			(t1, t2) -> {
+				return t1.getKey().compareTo(t2.getKey());
+			};
+	
+	/**
 	 * Compare the tuples by key and version
 	 */
 	public final static Comparator<Tuple> TUPLE_KEY_AND_VERSION_COMPARATOR = 

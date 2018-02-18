@@ -27,10 +27,8 @@ import java.util.Objects;
 
 /**
  * This class merges a set with sorted iterators and returns a sorted 
- * list of elements. Duplicates are eleminated according the 
+ * list of elements. Duplicates are eliminated according the 
  * duplicateResolver
- * 
- * @author kristofnidzwetzki
  *
  * @param <E>
  */
@@ -43,9 +41,9 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 	protected final Map<Iterator<E>, E> iteratorElementMap;
 	
 	/**
-	 * The element comperator
+	 * The element comparator
 	 */
-	protected Comparator<? super E> elementComperator;
+	protected Comparator<? super E> elementComparator;
 
 	/**
 	 * The duplicate resolver
@@ -58,10 +56,10 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 	protected int readElements = 0;
 
 	public SortedIteratorMerger(final List<Iterator<E>> iteratorList, 
-			final Comparator<? super E> elementComperator,
+			final Comparator<? super E> elementComparator,
 			final DuplicateResolver<E> duplicateResolver) {
 		
-		this.elementComperator = Objects.requireNonNull(elementComperator);
+		this.elementComparator = Objects.requireNonNull(elementComparator);
 		this.duplicateResolver = Objects.requireNonNull(duplicateResolver);
 		Objects.requireNonNull(iteratorList);
 
@@ -128,7 +126,7 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 						.values()
 						.stream()
 						.filter(e -> Objects.nonNull(e))
-						.min(elementComperator)
+						.min(elementComparator)
 						.orElse(null);
 				
 				assert (lowestElement != null);
@@ -162,7 +160,7 @@ public class SortedIteratorMerger<E> implements Iterable<E> {
 					return false;
 				}
 						
-				if(elementComperator.compare(element, lowestElement) == 0) {
+				if(elementComparator.compare(element, lowestElement) == 0) {
 					return true;
 				}
 				
