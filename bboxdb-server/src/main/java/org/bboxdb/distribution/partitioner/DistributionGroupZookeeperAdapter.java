@@ -184,7 +184,6 @@ public class DistributionGroupZookeeperAdapter {
 		return DistributionRegionState.fromString(state);
 	}
 	
-	
 	/**
 	 * Set the given region to full (if possible)
 	 * @param region
@@ -268,7 +267,9 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param state
 	 * @throws ZookeeperException 
 	 */
-	public void setStateForDistributionGroup(final String path, final DistributionRegionState state) throws ZookeeperException  {
+	public void setStateForDistributionGroup(final String path, final DistributionRegionState state) 
+			throws ZookeeperException  {
+		
 		final String statePath = path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE;
 		zookeeperClient.setData(statePath, state.getStringValue());
 	}
@@ -279,7 +280,9 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param state
 	 * @throws ZookeeperException
 	 */
-	public void setStateForDistributionGroup(final DistributionRegion region, final DistributionRegionState state) throws ZookeeperException  {
+	public void setStateForDistributionRegion(final DistributionRegion region, 
+			final DistributionRegionState state) throws ZookeeperException  {
+		
 		final String path = getZookeeperPathForDistributionRegion(region);
 		setStateForDistributionGroup(path, state);
 	}

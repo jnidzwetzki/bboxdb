@@ -74,7 +74,7 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			// Let the data settle down
 			Thread.sleep(5000);
 			
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(region, DistributionRegionState.ACTIVE);
+			distributionGroupZookeeperAdapter.setStateForDistributionRegion(region, DistributionRegionState.ACTIVE);
 			
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {

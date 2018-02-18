@@ -32,6 +32,7 @@ import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.TupleListFuture;
@@ -64,6 +65,7 @@ public class RegionSplitter {
 	
 	/**
 	 * Perform a distribution region split
+	 * 
 	 * @param region
 	 * @param distributionGroupZookeeperAdapter
 	 * @param spacePartitioner
@@ -80,6 +82,62 @@ public class RegionSplitter {
 		
 		logger.info("Performing split for: {}", region.getIdentifier());
 		
+		final boolean setResult = tryToSetToFullSplitting(region, distributionGroupZookeeperAdapter);
+		
+		if(! setResult) {
+			return;
+		}
+		
+		boolean splitFailed = false;
+		
+		try {
+			spacePartitioner.splitRegion(region, tupleStoreManagerRegistry);
+		} catch (Throwable e) {
+			logger.info("Finding split point failed, retry in a few minutes" + region.getIdentifier());
+			splitFailed = true;
+		}
+		
+		try {
+			redistributeDataSplit(region);
+			distributionGroupZookeeperAdapter.deleteRegionStatistics(region);
+		} catch (Throwable e) {
+			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
+			splitFailed = true;
+		}
+
+		if(splitFailed) {
+			resetAreaStateNE(region, distributionGroupZookeeperAdapter);
+		}
+		
+		logger.info("Performing split for: {} is done", region.getIdentifier());
+	}
+
+	/**
+	 * Reset the are state
+	 * @param region
+	 * @param distributionGroupZookeeperAdapter
+	 */
+	private void resetAreaStateNE(final DistributionRegion region,
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter) {
+		
+		try {
+			distributionGroupZookeeperAdapter.setStateForDistributionRegion(region, DistributionRegionState.ACTIVE);
+		} catch (ZookeeperException e) {
+			logger.error("Got exception while resetting area state for to active, "
+					+ "your global index might be inconsistent now "+ region.getIdentifier(), e);
+		}
+	}
+
+	/**
+	 * Try to set the region split state
+	 * 
+	 * @param region
+	 * @param distributionGroupZookeeperAdapter
+	 * @return 
+	 */
+	private boolean tryToSetToFullSplitting(final DistributionRegion region,
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter) {
+		
 		try {
 			// Try to set region state to full. If this fails, another node is already 
 			// splits the region
@@ -92,19 +150,15 @@ public class RegionSplitter {
 				logger.info("Unable to set state to full for region: {}, stopping split. Old state was {}", 
 						region.getIdentifier(), stateForDistributionRegion);
 				
-				return;
+				return false;
 			}
-			
-			spacePartitioner.splitRegion(region, tupleStoreManagerRegistry);
-			redistributeDataSplit(region);
-			distributionGroupZookeeperAdapter.deleteRegionStatistics(region);
 		} catch (Throwable e) {
 			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
+			return false;
 		}
-
-		logger.info("Performing split for: {} is done", region.getIdentifier());
+		
+		return true;
 	}
-	
 	
 	/**
 	 * Merge the given region
@@ -265,7 +319,7 @@ public class RegionSplitter {
 			
 			// Update zookeeer
 			final DistributionGroupZookeeperAdapter zookeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			zookeperAdapter.setStateForDistributionGroup(region, DistributionRegionState.SPLIT);
+			zookeperAdapter.setStateForDistributionRegion(region, DistributionRegionState.SPLIT);
 
 			// Remove local data
 			logger.info("Deleting local data for {}", region.getIdentifier());
