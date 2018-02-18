@@ -116,7 +116,7 @@ public class TupleStoreInstanceManager {
 		
 		assert(newFacedes != null) : "New facades is null";
 		assert(oldFacades != null) : "Old facades is null";
-		assert(! newFacedes.isEmpty()) : "New facades are empty";
+		// New facades can be empty, e.g., a compact task removed all data
 		assert(! oldFacades.isEmpty()) : "Old facades is empty";
 		assert(! newFacedes.contains(null)) : "New Facades contain null element";
 		assert(! oldFacades.contains(null)) : "Old facades contain null element";
