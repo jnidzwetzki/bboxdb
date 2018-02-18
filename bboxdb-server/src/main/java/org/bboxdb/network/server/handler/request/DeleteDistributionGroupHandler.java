@@ -59,18 +59,22 @@ public class DeleteDistributionGroupHandler implements RequestHandler {
 			// Delete in Zookeeper
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 			distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
+			logger.info("Delete Zookeeper part 1 done");
 			
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
 			tupleStoreAdapter.deleteDistributionGroup(distributionGroup);
-			
+			logger.info("Delete Zookeeper part 2 done");
+
 			// Delete local stored data
+			logger.info("Delete distribution group, delete local stored data");
 			final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
 			clientConnectionHandler.getStorageRegistry().deleteAllTablesInDistributionGroup(distributionGroupName);
 			
 			// Clear cached data
 			TupleStoreConfigurationCache.getInstance().clear();
 			
+			logger.info("Delete distribution group - DONE");
 			clientConnectionHandler.writeResultPackage(new SuccessResponse(packageSequence));
 		} catch (Exception e) {
 			logger.warn("Error while delete distribution group", e);
