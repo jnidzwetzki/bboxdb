@@ -54,13 +54,18 @@ public class SSTableExaminer implements Runnable {
 	protected final String examineKey;
 	
 	/**
+	 * The wildcard key
+	 */
+	private final static String WILDCARD_KEY = "*";
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(SSTableExaminer.class);
 
-	
-	
-	public SSTableExaminer(final String baseDirectory, final TupleStoreName relationname, final int tableNumber, final String examineKey) {
+	public SSTableExaminer(final String baseDirectory, final TupleStoreName relationname, 
+			final int tableNumber, final String examineKey) {
+		
 		this.baseDirectory = baseDirectory;
 		this.tableNumber = tableNumber;
 		this.relationname = relationname;
@@ -81,8 +86,11 @@ public class SSTableExaminer implements Runnable {
 			final SSTableKeyIndexReader ssTableIndexReader = sstableFacade.getSsTableKeyIndexReader();
 
 			fullTableScan(ssTableReader);
-			internalScan(ssTableReader);
-			seachViaIndex(ssTableReader, ssTableIndexReader);
+			
+			if(! WILDCARD_KEY.equals(examineKey)) {
+				internalScan(ssTableReader);
+				seachViaIndex(ssTableReader, ssTableIndexReader);
+			}
 			
 			sstableFacade.release();
 			sstableFacade.shutdown();
@@ -119,7 +127,7 @@ public class SSTableExaminer implements Runnable {
 	protected void internalScan(final SSTableReader ssTableReader)
 			throws StorageManagerException {
 		
-		System.out.println("Step2: Scan for tuple with key: " + examineKey);
+		System.out.println("Step 2: Scan for tuple with key: " + examineKey);
 		final Tuple scanTuple = ssTableReader.scanForTuple(examineKey);
 		System.out.println(scanTuple);
 	}
@@ -129,14 +137,14 @@ public class SSTableExaminer implements Runnable {
 	 * @param ssTableReader
 	 * @throws IOException
 	 */
-	protected void fullTableScan(final SSTableReader ssTableReader)
-			throws IOException {
+	protected void fullTableScan(final SSTableReader ssTableReader) throws IOException {
 		
-		System.out.println("Step1: Looping over SSTable and searching for key: " + examineKey);
+		System.out.println("Step 1: Looping over SSTable and searching for key: " + examineKey);
+		
 		while(true) {
 			try {
 				final Tuple tuple = TupleHelper.decodeTuple(ssTableReader.getMemory());
-				if(tuple.getKey().equals(examineKey)) {
+				if(tuple.getKey().equals(examineKey) || WILDCARD_KEY.equals(examineKey)) {
 					System.out.println(tuple);
 				}
 				
