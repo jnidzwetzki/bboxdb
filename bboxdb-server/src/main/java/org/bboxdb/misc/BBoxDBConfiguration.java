@@ -61,7 +61,7 @@ public class BBoxDBConfiguration {
 	/**
 	 * The checkpoint interval
 	 */
-	protected int storageCheckpointInterval = 1800;
+	protected int storageCheckpointInterval = 120;
 	
 	/**
 	 * The port for client requests

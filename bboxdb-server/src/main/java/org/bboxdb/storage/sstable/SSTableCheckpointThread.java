@@ -80,7 +80,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 					return;
 				}
 				
-				createCheckpointIfNedded(storageRegistry, ssTableName);
+				createCheckpointIfNeeded(storageRegistry, ssTableName);
 			}
 			
 			waitForNextRun();
@@ -104,7 +104,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 * @param storageRegistry
 	 * @param ssTableName
 	 */
-	protected void createCheckpointIfNedded(final TupleStoreManagerRegistry storageRegistry, 
+	protected void createCheckpointIfNeeded(final TupleStoreManagerRegistry storageRegistry, 
 			final TupleStoreName ssTableName) {
 		try {
 			final TupleStoreManager ssTableManager = storageRegistry.getTupleStoreManager(ssTableName);
