@@ -261,7 +261,7 @@ public class RegionSplitter {
 			final BBoxDBClient connection = MembershipConnectionService.getInstance()
 					.getConnectionForInstance(firstSystem);
 			
-			assert (connection != null) : "Connection can not be null";
+			assert (connection != null) : "Connection can not be null: " + firstSystem.getStringValue();
 			
 			final BoundingBox bbox = childRegion.getConveringBox();
 			final String fullname = tupleStoreName.getFullname();
