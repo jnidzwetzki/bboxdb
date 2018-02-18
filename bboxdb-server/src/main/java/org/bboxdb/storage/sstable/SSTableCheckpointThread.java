@@ -106,6 +106,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	 */
 	protected void createCheckpointIfNeeded(final TupleStoreManagerRegistry storageRegistry, 
 			final TupleStoreName ssTableName) {
+		
 		try {
 			final TupleStoreManager ssTableManager = storageRegistry.getTupleStoreManager(ssTableName);
 			createCheckpoint(ssTableManager);
@@ -154,6 +155,9 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 				.mapToLong(m -> m.getOldestTupleVersionTimestamp())
 				.anyMatch(checkpointPredicate);
 		
+		logger.info("Checkpoint for {} needed {}", 
+				ssTableManager.getTupleStoreName().getFullname(), checkpointNeeded);
+		
 		return checkpointNeeded;
 	}
 
@@ -164,9 +168,9 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	protected void createCheckpoint(final TupleStoreManager ssTableManager) throws InterruptedException {
 		if(isCheckpointNeeded(ssTableManager)) {
 			final String fullname = ssTableManager.getTupleStoreName().getFullname();
-			logger.debug("Create a checkpoint for: {}", fullname);
+			logger.info("Create a checkpoint for: {}", fullname);
 			ssTableManager.flush();
-			logger.debug("Create checkpoint DONE for: {}", fullname);
+			logger.info("Create checkpoint DONE for: {}", fullname);
 		}
 	}
 	
