@@ -19,11 +19,11 @@ package org.bboxdb.storage.sstable.compact;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.misc.Const;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 
@@ -34,11 +34,6 @@ public class SimpleMergeStrategy implements MergeStrategy {
 	 */
 	protected final static int MAX_MERGE_TABLES_PER_JOB = 10;
 	
-	/**
-	 * The time a big table is excluded from compact tasks
-	 */
-	protected final static long BIG_TABLE_UNTOUCHED_TIME = TimeUnit.MINUTES.toMillis(1);
-
 	@Override
 	public MergeTask getMergeTask(final List<SSTableFacade> sstables) {
 		
@@ -82,7 +77,8 @@ public class SimpleMergeStrategy implements MergeStrategy {
 		final boolean bigCompactNeeded = sstables
 			.stream()
 			.filter(f -> f.getSsTableMetadata().getTuples() >= smallTableThreshold)
-			.anyMatch(f -> f.getSsTableReader().getLastModifiedTimestamp() + BIG_TABLE_UNTOUCHED_TIME < now);
+			.map(f -> f.getSsTableReader())
+			.anyMatch(r -> r.getLastModifiedTimestamp() + Const.COMPACT_BIG_TABLE_UNTOUCHED_TIME < now);
 			
 		final List<SSTableFacade> bigCompacts = new ArrayList<>();
 		
