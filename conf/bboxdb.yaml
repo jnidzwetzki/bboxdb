@@ -70,8 +70,8 @@
 # 0 - Disable the snapshot thread
 # 1-999999 - Value in seconds how long data can stay in memory
 #
-# Default: 1800 seconds
-# storageCheckpointInterval: 1800
+# Default: 120 seconds
+# storageCheckpointInterval: 120
 
 # The amount of cached index entries per SSTable
 # sstableKeyCacheEntries: 1000
