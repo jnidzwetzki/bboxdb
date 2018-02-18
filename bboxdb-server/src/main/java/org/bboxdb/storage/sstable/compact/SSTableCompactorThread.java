@@ -27,6 +27,7 @@ import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.partitioner.regionsplit.RegionMerger;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitter;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -249,17 +250,23 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 					.getDistributionRegionForNamePrefix(distributionRegion, regionId);
 			
 			final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
-			final RegionSplitter regionSplitter = new RegionSplitter(storage.getTupleStoreManagerRegistry());
 
+			final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
+			
 			if(regionSplitHelper.isRegionOverflow(regionToSplit)) {
+				final RegionSplitter regionSplitter = new RegionSplitter(tupleStoreManagerRegistry);
+
 				regionSplitter.splitRegion(regionToSplit, spacePartitioner, 
-						storage.getTupleStoreManagerRegistry());
+						tupleStoreManagerRegistry);
 				return;
 			} 
 			
 			if(regionSplitHelper.isRegionUnderflow(regionToSplit.getParent())) {
-				regionSplitter.mergeRegion(regionToSplit.getParent(), spacePartitioner, 
-						storage.getTupleStoreManagerRegistry());	
+				final RegionMerger regionMerger = new RegionMerger(tupleStoreManagerRegistry);
+
+				regionMerger.mergeRegion(regionToSplit.getParent(), spacePartitioner, 
+						tupleStoreManagerRegistry);	
+				
 				return;
 			}
 		} catch (Exception e) {
