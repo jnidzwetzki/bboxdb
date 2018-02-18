@@ -168,9 +168,9 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	protected void createCheckpoint(final TupleStoreManager ssTableManager) throws InterruptedException {
 		if(isCheckpointNeeded(ssTableManager)) {
 			final String fullname = ssTableManager.getTupleStoreName().getFullname();
-			logger.info("Create a checkpoint for: {}", fullname);
+			logger.debug("Create checkpoint for: {}", fullname);
 			ssTableManager.flush();
-			logger.info("Create checkpoint DONE for: {}", fullname);
+			logger.debug("Create checkpoint DONE for: {}", fullname);
 		}
 	}
 	
