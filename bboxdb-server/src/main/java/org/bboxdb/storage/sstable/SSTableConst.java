@@ -99,7 +99,9 @@ public class SSTableConst {
 	/**
 	 * Execution interval for the compact thread (30 seconds)
 	 */
-	public final static long COMPACT_THREAD_DELAY = TimeUnit.SECONDS.toMillis(30);
+	// Changed for demo
+	//public final static long COMPACT_THREAD_DELAY = TimeUnit.SECONDS.toMillis(30);
+	public final static long COMPACT_THREAD_DELAY = TimeUnit.SECONDS.toMillis(10);
 	
 	/**
 	 * Execution interval for the checkpoint thread
@@ -113,7 +115,7 @@ public class SSTableConst {
 	 */
 	// Changed for demo
 	//public final static long THREAD_STATISTICS_DELAY = TimeUnit.MINUTES.toMillis(1);
-	public final static long THREAD_STATISTICS_DELAY = TimeUnit.SECONDS.toMillis(15);
+	public final static long THREAD_STATISTICS_DELAY = TimeUnit.SECONDS.toMillis(10);
 	
 	/**
 	 * The time a big table is excluded from compact tasks
