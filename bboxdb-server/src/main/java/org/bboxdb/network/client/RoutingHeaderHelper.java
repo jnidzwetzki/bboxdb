@@ -52,7 +52,7 @@ public class RoutingHeaderHelper {
 	 * @throws InterruptedException
 	 */
 	public static RoutingHeader getRoutingHeaderForLocalSystem(final String table, BoundingBox boundingBox, 
-			final boolean allowEmptyHop, final InetSocketAddress serverAddress) 
+			final boolean allowEmptyHop, final InetSocketAddress serverAddress, final boolean write) 
 			throws ZookeeperException, BBoxDBException, InterruptedException {
 
 		final TupleStoreName ssTableName = new TupleStoreName(table);
@@ -66,7 +66,7 @@ public class RoutingHeaderHelper {
 			boundingBox = BoundingBox.EMPTY_BOX;
 		}
 		
-		final List<RoutingHop> hops = getLocalHops(boundingBox, distributionRegion);
+		final List<RoutingHop> hops = getLocalHops(boundingBox, distributionRegion, write);
 
 		if(hops == null || hops.isEmpty()) {
 			if(! allowEmptyHop) {
@@ -96,12 +96,17 @@ public class RoutingHeaderHelper {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	private static List<RoutingHop> getLocalHops(BoundingBox boundingBox, final DistributionRegion distributionRegion)
-			throws InterruptedException {
+	private static List<RoutingHop> getLocalHops(BoundingBox boundingBox, 
+			final DistributionRegion distributionRegion, final boolean write) throws InterruptedException {
 		
 		for(int retry = 0; retry < Const.OPERATION_RETRY; retry++) {
-			final List<RoutingHop> hops 
-				= RoutingHopHelper.getRoutingHopsForWrite(boundingBox, distributionRegion);
+			final List<RoutingHop> hops;
+			
+			if(write) {
+				hops = RoutingHopHelper.getRoutingHopsForWrite(boundingBox, distributionRegion);
+			} else {
+				hops = RoutingHopHelper.getRoutingHopsForRead(boundingBox, distributionRegion);
+			}
 			
 			if(hops != null && ! hops.isEmpty()) {
 				return hops;
@@ -114,17 +119,35 @@ public class RoutingHeaderHelper {
 	}
 
 	/**
-	 * Get local routing header without exception
+	 * Get local routing header without exception - for write
 	 * @param table
 	 * @param boundingBox
 	 * @param allowEmptyHop
 	 * @return
 	 */
-	public static RoutingHeader getRoutingHeaderForLocalSystemNE(final String table, final BoundingBox boundingBox, 
+	public static RoutingHeader getRoutingHeaderForLocalSystemWriteNE(final String table, final BoundingBox boundingBox, 
 			final boolean allowEmptyHop, final InetSocketAddress serverAddress) {
 		
 		try {
-			return getRoutingHeaderForLocalSystem(table, boundingBox, allowEmptyHop, serverAddress);
+			return getRoutingHeaderForLocalSystem(table, boundingBox, allowEmptyHop, serverAddress, true);
+		} catch (ZookeeperException | BBoxDBException | InterruptedException e) {
+			logger.error("Got exception", e);
+			return null;
+		}
+	}
+	
+	/**
+	 * Get local routing header without exception - for read
+	 * @param table
+	 * @param boundingBox
+	 * @param allowEmptyHop
+	 * @return
+	 */
+	public static RoutingHeader getRoutingHeaderForLocalSystemReadNE(final String table, final BoundingBox boundingBox, 
+			final boolean allowEmptyHop, final InetSocketAddress serverAddress) {
+		
+		try {
+			return getRoutingHeaderForLocalSystem(table, boundingBox, allowEmptyHop, serverAddress, false);
 		} catch (ZookeeperException | BBoxDBException | InterruptedException e) {
 			logger.error("Got exception", e);
 			return null;

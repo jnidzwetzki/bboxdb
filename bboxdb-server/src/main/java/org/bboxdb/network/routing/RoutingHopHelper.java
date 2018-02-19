@@ -30,7 +30,7 @@ import org.bboxdb.storage.entity.BoundingBox;
 public class RoutingHopHelper {
 
 	/**
-	 * Get a non empty routing list
+	 * Get a non empty routing list for write
 	 * @param tuple
 	 * @param distributionRegion
 	 * @return
@@ -50,7 +50,37 @@ public class RoutingHopHelper {
 					throw new Exception("Hop collection is empty");
 				}
 
-				return new ArrayList<RoutingHop>(hopCollection);
+				return new ArrayList<>(hopCollection);
+			}
+		};
+		
+		final Retryer<List<RoutingHop>> retryer = new Retryer<>(Const.OPERATION_RETRY, 20, getHops);
+		retryer.execute();
+		return retryer.getResult();
+	}
+	
+	/**
+	 * Get a non empty routing list for read
+	 * @param tuple
+	 * @param distributionRegion
+	 * @return
+	 * @throws InterruptedException
+	 */
+	public static List<RoutingHop> getRoutingHopsForRead(final BoundingBox boundingBox,
+			final DistributionRegion distributionRegion) throws InterruptedException {
+		
+		final Callable<List<RoutingHop>> getHops = new Callable<List<RoutingHop>>() {
+
+			@Override
+			public List<RoutingHop> call() throws Exception {
+				final Collection<RoutingHop> hopCollection 
+					= distributionRegion.getRoutingHopsForRead(boundingBox);
+				
+				if(hopCollection.isEmpty()) {
+					throw new Exception("Hop collection is empty");
+				}
+
+				return new ArrayList<>(hopCollection);
 			}
 		};
 		

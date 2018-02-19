@@ -147,7 +147,7 @@ public class TupleListFuture extends AbstractListFuture<Tuple> {
 		
 		for(final Tuple tuple : allTuples) {
 			final RoutingHeader routingHeader = RoutingHeaderHelper.getRoutingHeaderForLocalSystem(
-					tablename, tuple.getBoundingBox(), true, bboxDBConnection.getServerAddress());
+					tablename, tuple.getBoundingBox(), true, bboxDBConnection.getServerAddress(), true);
 					
 			// System is not responsible for the tuple
 			if(routingHeader.getHopCount() == 0) {
