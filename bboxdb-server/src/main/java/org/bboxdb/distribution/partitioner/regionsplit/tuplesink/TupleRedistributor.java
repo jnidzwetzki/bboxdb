@@ -165,7 +165,7 @@ public class TupleRedistributor {
 	 * @param tuple
 	 * @throws Exception 
 	 */
-	public void redistributeTuple(final Tuple tuple) throws Exception {
+	public void redistributeTuple(final Tuple tuple) throws StorageManagerException {
 		
 		boolean tupleRedistributed = false;
 		

@@ -19,6 +19,7 @@ package org.bboxdb.distribution.partitioner.regionsplit.tuplesink;
 
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 
@@ -34,8 +35,13 @@ public class NetworkTupleSink extends AbstractTupleSink {
 	}
 
 	@Override
-	public void sinkTuple(final Tuple tuple) throws BBoxDBException {
+	public void sinkTuple(final Tuple tuple) throws StorageManagerException {
 		sinkedTuples++;
-		connection.insertTuple(tablename, tuple);
+		
+		try {
+			connection.insertTuple(tablename, tuple);
+		} catch (BBoxDBException e) {
+			throw new StorageManagerException(e);
+		}
 	}
 }

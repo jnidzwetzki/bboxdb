@@ -48,6 +48,7 @@ order: 1
 - Bugfix: Merge test is only executed if we are responsible for the parent region
 - Bugfix: Old statistics are cleared after region split is done
 - Bugfix: Old tuples are deleted in major compaction
+- Bugfix: Merging locally stored data was not supported
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

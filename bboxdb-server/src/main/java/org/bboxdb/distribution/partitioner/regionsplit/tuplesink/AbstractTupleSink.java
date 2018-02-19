@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner.regionsplit.tuplesink;
 
+import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 
@@ -45,5 +46,10 @@ public abstract class AbstractTupleSink {
 		return sinkedTuples;
 	}
 	
-	public abstract void sinkTuple(final Tuple tuple) throws Exception;
+	/**
+	 * Process the given tuple
+	 * @param tuple
+	 * @throws StorageManagerException
+	 */
+	public abstract void sinkTuple(final Tuple tuple) throws StorageManagerException;
 }
