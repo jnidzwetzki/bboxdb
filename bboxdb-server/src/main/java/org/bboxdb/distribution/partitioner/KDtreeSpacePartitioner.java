@@ -749,13 +749,13 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		}
 		
 		final List<DistributionRegion> allChildren = rootNode.getAllChildren();
+		allChildren.add(rootNode);
+		
 		final Set<Long> allExistingMappings = new HashSet<>(regionIdMapper.getAllRegionIds());
 		
 		final List<DistributionRegionState> activeStates = 
 				Arrays.asList(DistributionRegionState.ACTIVE, DistributionRegionState.ACTIVE_FULL);
-		
-		logger.info("All Childrin are: {}", allChildren);
-		
+				
 		for(final DistributionRegion region : allChildren) {
 			
 			logger.info("Processing region {}", region);
