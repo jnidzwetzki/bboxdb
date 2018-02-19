@@ -577,6 +577,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		logger.info("Reading path: {}", path);
 		
+		if(region == null) {
+			logger.warn("Region is null");
+			return;
+		}
+		
 		try {
 			final DistributionRegionState regionState 
 				= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
