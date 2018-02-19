@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.bboxdb.commons.Retryer;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
@@ -209,10 +210,33 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			rootNode = DistributionRegion.createRootElement(distributionGroupName);
 		}
 		
+		rescanCompletetree();
+	}
+
+	/**
+	 * Rescan the complete tree
+	 * @throws ZookeeperException
+	 */
+	private void rescanCompletetree() throws ZookeeperException {
 		final String fullname = distributionGroupName.getFullname();
 		final String path = distributionGroupZookeeperAdapter.getDistributionGroupPath(fullname);
 			
-		readDistributionGroupRecursive(path, rootNode);
+		final Retryer<Boolean> treeRereader = new Retryer<>(10, 100, () -> {
+				readDistributionGroupRecursive(path, rootNode); 
+				return true;
+			}
+		);
+		
+		try {
+			treeRereader.execute();
+			
+			if(! treeRereader.isSuccessfully()) {
+				throw new ZookeeperException("Unable to read tree", treeRereader.getLastException());
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
 	}
 
 	/**
@@ -295,7 +319,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			}
 			
 			readDistributionGroupRecursive(path, nodeToUpdate);
-		} catch (ZookeeperException e) {
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			logger.warn("Got exception while updating node for: " + path, e);
 		}
 	}
@@ -570,10 +594,12 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @param path
 	 * @param region
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	private void readDistributionGroupRecursive(final String path, final DistributionRegion region) throws ZookeeperException {
+	private void readDistributionGroupRecursive(final String path, final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		logger.info("Reading path: {}", path);
 		
@@ -582,27 +608,22 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			return;
 		}
 		
-		try {
-			final DistributionRegionState regionState 
-				= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
-			
-			// Read region id
-			updateIdForRegion(path, region);
+		final DistributionRegionState regionState 
+			= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
+		
+		// Read region id
+		updateIdForRegion(path, region);
 
-			// Handle systems and mappings
-			updateSystemsForRegion(region);
-			
-			// Update split position and read childs
-			updateSplitAndChildsForRegion(path, region);
-			
-			// Handle state updates at the end.
-			// Otherwise, we could set the region to splitted 
-			// and the child regions are not ready
-			region.setState(regionState);
-
-		} catch (ZookeeperNotFoundException e) {
-			refreshWholeTree();
-		}
+		// Handle systems and mappings
+		updateSystemsForRegion(region);
+		
+		// Update split position and read childs
+		updateSplitAndChildsForRegion(path, region);
+		
+		// Handle state updates at the end.
+		// Otherwise, we could set the region to splitted 
+		// and the child regions are not ready
+		region.setState(regionState);
 
 		updateLocalMappings();
 
