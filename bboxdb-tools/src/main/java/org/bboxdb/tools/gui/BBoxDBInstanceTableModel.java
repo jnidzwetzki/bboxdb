@@ -63,7 +63,7 @@ final class BBoxDBInstanceTableModel extends AbstractTableModel {
 			}
 			
 			if(columnIndex == 0) {
-				return rowIndex;
+				return rowIndex + 1;
 			}
 			
 			if(columnIndex == 1) {
