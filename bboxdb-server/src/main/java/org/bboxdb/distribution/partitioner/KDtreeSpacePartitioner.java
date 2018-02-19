@@ -422,8 +422,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	
 	@Override
 	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException {
-		final List<DistributionRegion> childRegions = Arrays.asList(regionToMerge.getLeftChild(), 
-				regionToMerge.getRightChild());
+		final List<DistributionRegion> childRegions = regionToMerge.getChildren();
 		
 		for(final DistributionRegion childRegion : childRegions) {
 			deleteChild(childRegion);
@@ -548,9 +547,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ZookeeperException 
 	 */
 	private void deleteChild(final DistributionRegion region) throws BBoxDBException {
-		if(region.getState() != DistributionRegionState.MERGING) {
-			throw new BBoxDBException("State for region is not merging: " + region);
-		}
+		
+		assert(region.isLeafRegion()) : "Region is not a leaf region: " + region;
 		
 		try {
 			final String zookeeperPath = distributionGroupZookeeperAdapter
