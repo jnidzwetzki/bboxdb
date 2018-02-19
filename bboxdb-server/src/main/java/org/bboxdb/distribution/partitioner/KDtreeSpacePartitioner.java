@@ -735,6 +735,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	private void updateLocalMappings() {
 		
+		logger.info("Update local mappings called");
+		
 		if(rootNode == null || distributionGroupName == null) {
 			logger.info("Root node is {}, distributionGroupNameIs {}", rootNode, distributionGroupName);
 			return;
