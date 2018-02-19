@@ -180,15 +180,8 @@ public class TupleStoreManager implements BBoxDBService {
 		// Flush only when memtable is in RW state, otherwise the memtable flush callbacks
 		// could not be processed
 		if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_WRITE) {
-			try {
-				logger.info("Flushing tables for shutdown");
-				flush();
-				tupleStoreInstances.waitForAllMemtablesFlushed();
-			} catch (InterruptedException e) {
-				logger.debug("Wait for memtable flush interrupted");
-				Thread.currentThread().interrupt();
-				return;
-			}
+			logger.info("Flushing tables for shutdown");
+			flush();
 		} else {
 			logger.info("NOT flushing tables for shutdown");
 		}
