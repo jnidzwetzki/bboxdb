@@ -312,8 +312,13 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 				return;
 			}
 			
-			readDistributionGroupRecursive(path, nodeToUpdate);
-		} catch (ZookeeperException | ZookeeperNotFoundException e) {
+			try {
+				readDistributionGroupRecursive(path, nodeToUpdate);
+			} catch (ZookeeperNotFoundException e) {
+				refreshWholeTree();
+			}
+			
+		} catch (ZookeeperException e) {
 			logger.warn("Got exception while updating node for: " + path, e);
 		}
 	}
