@@ -207,17 +207,19 @@ public class MembershipConnectionService implements BBoxDBService {
 	 */
 	protected void createConnection(final BBoxDBInstance distributedInstance) {
 		
+		final String instanceName = distributedInstance.getStringValue();
+		
 		if(serverConnections.containsKey(distributedInstance.getInetSocketAddress())) {
-			logger.info("We have already a connection to: {}", distributedInstance);
+			logger.info("We have already a connection to: {}", instanceName);
 			return;
 		}
 		
 		if(blacklist.contains(distributedInstance.getInetSocketAddress())) {
-			logger.info("Not creating a connection to the blacklisted system: {}", distributedInstance);
+			logger.info("Not creating a connection to the blacklisted system: {}", instanceName);
 			return;
 		}
 		
-		logger.info("Opening connection to instance: {}", distributedInstance);
+		logger.info("Opening connection to instance: {}", instanceName);
 		
 		final BBoxDBClient client = new BBoxDBClient(distributedInstance.getInetSocketAddress());
 		client.setPagingEnabled(pagingEnabled);
@@ -226,9 +228,9 @@ public class MembershipConnectionService implements BBoxDBService {
 		final boolean result = client.connect();
 		
 		if(! result) {
-			logger.info("Unable to open connection to: {}", distributedInstance);
+			logger.info("Unable to open connection to: {}", instanceName);
 		} else {
-			logger.info("Connection successfully established: {}", distributedInstance);
+			logger.info("Connection successfully established: {}", instanceName);
 			serverConnections.put(distributedInstance.getInetSocketAddress(), client);
 			knownInstances.put(distributedInstance.getInetSocketAddress(), distributedInstance);
 		}
@@ -240,11 +242,13 @@ public class MembershipConnectionService implements BBoxDBService {
 	 */
 	protected synchronized void terminateConnection(final BBoxDBInstance distributedInstance) {
 		
+		final String instanceName = distributedInstance.getStringValue();
+		
 		if(! serverConnections.containsKey(distributedInstance.getInetSocketAddress())) {
 			return;
 		}
 		
-		logger.info("Closing connection to dead instance: {}", distributedInstance);
+		logger.info("Closing connection to dead instance: {}", instanceName);
 		
 		knownInstances.remove(distributedInstance.getInetSocketAddress());
 		final BBoxDBClient client = serverConnections.remove(distributedInstance.getInetSocketAddress());
