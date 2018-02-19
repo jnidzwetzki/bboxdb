@@ -25,6 +25,8 @@ import java.util.List;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class holds references to all known tuple storages (sstables, memtables) for 
@@ -53,6 +55,11 @@ public class TupleStoreInstanceManager {
 	 */
 	protected volatile TupleStoreManagerState sstableManagerState;
 	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(TupleStoreInstanceManager.class);
+
 	
 	public TupleStoreInstanceManager() {		
 		this.sstableFacades = new ArrayList<>();
@@ -186,7 +193,7 @@ public class TupleStoreInstanceManager {
 	 * @return 
 	 */
 	public synchronized List<ReadOnlyTupleStore> getAllInMemoryStorages() {
-		final List<ReadOnlyTupleStore> resultList = new ArrayList<ReadOnlyTupleStore>();
+		final List<ReadOnlyTupleStore> resultList = new ArrayList<>();
 		resultList.add(memtable);
 		resultList.addAll(unflushedMemtables);
 		return resultList;
@@ -199,6 +206,7 @@ public class TupleStoreInstanceManager {
 	 */
 	public synchronized void waitForMemtableFlush(final Memtable memtable) throws InterruptedException {
 		while(unflushedMemtables.contains(memtable)) {
+			logger.info("Unflushed memtables: {}", unflushedMemtables);
 			wait();
 		}
 	}
@@ -210,6 +218,7 @@ public class TupleStoreInstanceManager {
 	 */
 	public synchronized void waitForAllMemtablesFlushed() throws InterruptedException {
 		while(! unflushedMemtables.isEmpty()) {
+			logger.info("Unflushed memtables: {}", unflushedMemtables);
 			wait();
 		}
 	}

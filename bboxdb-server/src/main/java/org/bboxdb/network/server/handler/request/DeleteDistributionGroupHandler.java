@@ -54,17 +54,15 @@ public class DeleteDistributionGroupHandler implements RequestHandler {
 			final DeleteDistributionGroupRequest deletePackage = DeleteDistributionGroupRequest.decodeTuple(encodedPackage);
 			final String distributionGroup = deletePackage.getDistributionGroup();
 			
-			logger.info("Delete distribution group: " + distributionGroup);
+			logger.info("Delete distribution group: {}", distributionGroup);
 			
 			// Delete in Zookeeper
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 			distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
-			logger.info("Delete Zookeeper part 1 done");
 			
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
 			tupleStoreAdapter.deleteDistributionGroup(distributionGroup);
-			logger.info("Delete Zookeeper part 2 done");
 
 			// Delete local stored data
 			logger.info("Delete distribution group, delete local stored data");

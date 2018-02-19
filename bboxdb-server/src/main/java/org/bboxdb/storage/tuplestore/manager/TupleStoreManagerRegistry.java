@@ -327,7 +327,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		logger.info("Shuting down active memtables for distribution group: " + distributionGroupString);
 		
 		// Create a copy of the key set to allow deletions (performed by shutdown) during iteration
-		final Set<TupleStoreName> copyOfInstances = new HashSet<TupleStoreName>(managerInstances.keySet());
+		final Set<TupleStoreName> copyOfInstances = new HashSet<>(managerInstances.keySet());
 		for(final TupleStoreName ssTableName : copyOfInstances) {
 			if(ssTableName.getDistributionGroup().equals(distributionGroupString)) {
 				shutdownSStable(ssTableName);
