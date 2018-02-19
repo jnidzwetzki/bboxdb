@@ -87,7 +87,8 @@ public class RegionSplitter {
 		try {
 			spacePartitioner.splitRegion(region, tupleStoreManagerRegistry);
 		} catch (Throwable e) {
-			logger.info("Finding split point failed, retry in a few minutes" + region.getIdentifier());
+			logger.info("Finding split point failed, retry in a few minutes" 
+					+ region.getIdentifier(), e);
 			splitFailed = true;
 		}
 		
