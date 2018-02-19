@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -479,7 +480,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	public void allocateSystemsToRegion(final DistributionRegion region, final Set<BBoxDBInstance> allocationSystems)
 			throws ZookeeperException {
 		
-		logger.info("Allocating region {} to {}", region.getIdentifier(), allocationSystems);
+		final List<String> systemNames = allocationSystems.stream()
+				.map(s -> s.getStringValue())
+				.collect(Collectors.toList());
+		
+		logger.info("Allocating region {} to {}", region.getIdentifier(), systemNames);
 		
 		// Resource allocation successfully, write data to zookeeper
 		for(final BBoxDBInstance instance : allocationSystems) {
