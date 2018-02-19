@@ -734,11 +734,9 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @param systems
 	 */
 	private void updateLocalMappings() {
-		
-		logger.info("Update local mappings called");
-		
+				
 		if(rootNode == null || distributionGroupName == null) {
-			logger.info("Root node is {}, distributionGroupNameIs {}", rootNode, distributionGroupName);
+			logger.debug("Root node is {}, distributionGroupNameIs {}", rootNode, distributionGroupName);
 			return;
 		}
 		
@@ -755,6 +753,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		final List<DistributionRegionState> activeStates = 
 				Arrays.asList(DistributionRegionState.ACTIVE, DistributionRegionState.ACTIVE_FULL);
+		
+		logger.info("All Childrin are: {}", allChildren);
 		
 		for(final DistributionRegion region : allChildren) {
 			
