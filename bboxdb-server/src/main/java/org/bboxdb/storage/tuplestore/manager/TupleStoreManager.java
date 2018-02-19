@@ -135,7 +135,7 @@ public class TupleStoreManager implements BBoxDBService {
 	@Override
 	public void init() {
 
-		if(! serviceState.isInNewState() && ! serviceState.isInFinishedState()) {
+		if(! serviceState.isInNewState() || ! serviceState.isInFinishedState()) {
 			logger.warn("SSTable manager state is not new init() is called: {}", serviceState.getState());
 			return;
 		}
