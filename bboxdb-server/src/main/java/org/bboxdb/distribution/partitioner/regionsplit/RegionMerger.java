@@ -127,7 +127,7 @@ public class RegionMerger {
 			startFlushToDisk(tupleStoreName);
 
 			final TupleRedistributor tupleRedistributor 
-			= new TupleRedistributor(registry, tupleStoreName);
+				= new TupleRedistributor(registry, tupleStoreName);
 
 			tupleRedistributor.registerRegion(region);
 
@@ -254,6 +254,7 @@ public class RegionMerger {
 	 */
 	private void startFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
 		final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);		
+		ssTableManager.init();
 		ssTableManager.setToReadWrite();
 	}
 }
