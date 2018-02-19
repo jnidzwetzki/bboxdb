@@ -221,7 +221,7 @@ public class RegionMerger {
 			final TupleRedistributor tupleRedistributor, final DistributionRegion childRegion)
 					throws InterruptedException, StorageManagerException {
 
-		final List<BBoxDBInstance> systems = region.getSystems();
+		final List<BBoxDBInstance> systems = childRegion.getSystems();
 		assert(! systems.isEmpty()) : "Systems can not be empty";
 
 		final BBoxDBInstance firstSystem = systems.get(0);
