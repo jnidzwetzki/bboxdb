@@ -136,11 +136,11 @@ public class TupleStoreManager implements BBoxDBService {
 	public void init() {
 
 		if(! (serviceState.isInNewState() || serviceState.isInFinishedState())) {
-			serviceState.reset();
 			logger.warn("SSTable manager state is not new init() is called: {}", serviceState.getState());
 			return;
 		}
-
+		
+		serviceState.reset();
 		serviceState.dipatchToStarting();
 
 		try {
