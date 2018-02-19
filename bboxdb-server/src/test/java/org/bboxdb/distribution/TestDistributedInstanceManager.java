@@ -165,7 +165,7 @@ public class TestDistributedInstanceManager {
 			= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
 	
 		final BBoxDBInstanceManager distributedInstanceManager = BBoxDBInstanceManager.getInstance();
-		Assert.assertTrue(BBoxDBInstanceState.UNKNOWN == distributedInstanceManager.getInstances().get(0).getState());
+		Assert.assertTrue(BBoxDBInstanceState.FAILED == distributedInstanceManager.getInstances().get(0).getState());
 	
 		zookeeperBBoxDBInstanceAdapter.updateStateData(instance, BBoxDBInstanceState.OUTDATED);
 		Thread.sleep(2000);
@@ -202,8 +202,8 @@ public class TestDistributedInstanceManager {
 		Thread.sleep(1000);
 		Assert.assertEquals(2, distributedInstanceManager.getInstances().size());
 
-		Assert.assertTrue(BBoxDBInstanceState.UNKNOWN == distributedInstanceManager.getInstances().get(0).getState());
-		Assert.assertTrue(BBoxDBInstanceState.UNKNOWN == distributedInstanceManager.getInstances().get(1).getState());
+		Assert.assertTrue(BBoxDBInstanceState.FAILED == distributedInstanceManager.getInstances().get(0).getState());
+		Assert.assertTrue(BBoxDBInstanceState.FAILED == distributedInstanceManager.getInstances().get(1).getState());
 
 		// Change instance 1
 		zookeeperBBoxDBInstanceAdapter1.updateStateData(instance1, BBoxDBInstanceState.OUTDATED);
@@ -212,7 +212,7 @@ public class TestDistributedInstanceManager {
 			if(instance.socketAddressEquals(instance1)) {
 				Assert.assertTrue(instance.getState() == BBoxDBInstanceState.OUTDATED);
 			} else {
-				Assert.assertTrue(instance.getState() == BBoxDBInstanceState.UNKNOWN);
+				Assert.assertTrue(instance.getState() == BBoxDBInstanceState.FAILED);
 			}
 		}
 		

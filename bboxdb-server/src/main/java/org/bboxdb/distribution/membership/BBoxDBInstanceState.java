@@ -19,7 +19,7 @@ package org.bboxdb.distribution.membership;
 
 public enum BBoxDBInstanceState {
 	
-	UNKNOWN("unknown"), 
+	FAILED("failed"), 
 	OUTDATED("outdated"), 
 	READY("ready");
 	

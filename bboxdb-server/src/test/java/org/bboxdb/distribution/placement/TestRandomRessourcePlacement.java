@@ -87,9 +87,9 @@ public class TestRandomRessourcePlacement {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
 		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.OUTDATED));
-		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.UNKNOWN));
-		systems.add(new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.UNKNOWN));
-		systems.add(new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.UNKNOWN));
+		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.FAILED));
+		systems.add(new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.FAILED));
+		systems.add(new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.FAILED));
 		
 		resourcePlacementStrategy.getInstancesForNewRessource(systems);
 	}
@@ -103,9 +103,9 @@ public class TestRandomRessourcePlacement {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
 		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.OUTDATED));
-		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.UNKNOWN));
-		systems.add(new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.UNKNOWN));
-		systems.add(new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.UNKNOWN));
+		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.FAILED));
+		systems.add(new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.FAILED));
+		systems.add(new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.FAILED));
 		
 		resourcePlacementStrategy.getInstancesForNewRessource(systems);
 	}
@@ -119,8 +119,8 @@ public class TestRandomRessourcePlacement {
 		final ResourcePlacementStrategy resourcePlacementStrategy = getPlacementStrategy();
 		final List<BBoxDBInstance> systems = new ArrayList<BBoxDBInstance>();
 		systems.add(new BBoxDBInstance("node1:123", "0.1", BBoxDBInstanceState.OUTDATED));
-		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.UNKNOWN));
-		systems.add(new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.UNKNOWN));
+		systems.add(new BBoxDBInstance("node2:123", "0.1", BBoxDBInstanceState.FAILED));
+		systems.add(new BBoxDBInstance("node3:123", "0.1", BBoxDBInstanceState.FAILED));
 		systems.add(new BBoxDBInstance("node4:123", "0.1", BBoxDBInstanceState.READY));
 		
 		for(int i = 0; i < 100; i++) {

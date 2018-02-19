@@ -18,6 +18,7 @@
 package org.bboxdb.distribution.zookeeper;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.membership.BBoxDBInstanceState;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.misc.BBoxDBService;
 import org.slf4j.Logger;
@@ -72,7 +73,15 @@ public class ZookeeperInstanceRegisterer implements BBoxDBService {
 
 	@Override
 	public void shutdown() {
-		// Do nothing
+		try {
+			final ZookeeperBBoxDBInstanceAdapter zookeeperBBoxDBInstanceAdapter 
+				= new ZookeeperBBoxDBInstanceAdapter(zookeeperClient);
+			
+			instance.setState(BBoxDBInstanceState.FAILED);
+			zookeeperBBoxDBInstanceAdapter.updateStateData(instance);
+		} catch (Exception e) {
+			logger.error("Exception while updating instance", e);
+		}
 	}
 
 	@Override

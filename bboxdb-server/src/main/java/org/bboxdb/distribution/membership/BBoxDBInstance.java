@@ -74,7 +74,7 @@ public class BBoxDBInstance implements Comparable<BBoxDBInstance> {
 	/**
 	 * The state of the instance
 	 */
-	protected BBoxDBInstanceState state = BBoxDBInstanceState.UNKNOWN;
+	protected BBoxDBInstanceState state = BBoxDBInstanceState.FAILED;
 
 	public BBoxDBInstance(final String connectionString, final String version, final BBoxDBInstanceState state) {
 		this(connectionString, state);

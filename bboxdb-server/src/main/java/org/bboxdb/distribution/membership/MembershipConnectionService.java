@@ -193,7 +193,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	protected synchronized void createOrTerminateConnetion(final BBoxDBInstance distributedInstance) {
 
 		// Create only connections to readonly or readwrite systems
-		if(distributedInstance.getState() == BBoxDBInstanceState.UNKNOWN) {			
+		if(distributedInstance.getState() == BBoxDBInstanceState.FAILED) {			
 			terminateConnection(distributedInstance);
 		} else {
 			createConnection(distributedInstance);

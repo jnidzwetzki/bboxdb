@@ -145,7 +145,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 			// Ignore exception, instance state is unknown
 		}
 
-		return BBoxDBInstanceState.UNKNOWN;
+		return BBoxDBInstanceState.FAILED;
 	}
 
 	/**
@@ -457,7 +457,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		
 		final String statePath = zookeeperClient.getActiveInstancesPath() + "/" + instance.getStringValue();
 		
-		logger.info("Register instance on: {}", statePath);
+		logger.info("Update instance state on: {}", statePath);
 		zookeeperClient.replaceEphemeralNode(statePath, newState.getZookeeperValue().getBytes());
 	}
 }
