@@ -76,7 +76,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	private String version;
 	
 	/**
-	 * The callbacls
+	 * The callbacks
 	 */
 	private final Set<DistributionRegionChangedCallback> callbacks;
 	
@@ -85,11 +85,6 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	private final Object MUTEX = new Object();
 
-	/**
-	 * The space partitioner configuration
-	 */
-	protected String spacePartitionerConfig;
-	
 	/**
 	 * The logger
 	 */
@@ -110,7 +105,6 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			final ZookeeperClient zookeeperClient, 
 			final DistributionGroupZookeeperAdapter distributionGroupAdapter) throws ZookeeperException {
 				
-		this.spacePartitionerConfig = spacePartitionerConfig;
 		this.distributionGroupName = distributionGroupName;
 		this.zookeeperClient = zookeeperClient;
 		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
@@ -793,9 +787,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 				continue;
 			}
 			
-			if(activeStates.contains(region.getState())) {
-				
-				// Add the mapping to the nameprefix mapper
+			if(activeStates.contains(region.getState())) {				
 				if(! allExistingMappings.contains(region.getRegionId())) {
 					regionIdMapper.addMapping(region);
 				}
