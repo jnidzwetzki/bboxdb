@@ -155,7 +155,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 				.mapToLong(m -> m.getOldestTupleVersionTimestamp())
 				.anyMatch(checkpointPredicate);
 		
-		logger.info("Checkpoint for {} needed {}", 
+		logger.debug("Checkpoint for {} needed {}", 
 				ssTableManager.getTupleStoreName().getFullname(), checkpointNeeded);
 		
 		return checkpointNeeded;
