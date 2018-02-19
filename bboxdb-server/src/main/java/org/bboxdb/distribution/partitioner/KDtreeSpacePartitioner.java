@@ -210,14 +210,14 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			rootNode = DistributionRegion.createRootElement(distributionGroupName);
 		}
 		
-		rescanCompletetree();
+		rescanCompleteTree();
 	}
 
 	/**
 	 * Rescan the complete tree
 	 * @throws ZookeeperException
 	 */
-	private void rescanCompletetree() throws ZookeeperException {
+	private void rescanCompleteTree() throws ZookeeperException {
 		final String fullname = distributionGroupName.getFullname();
 		final String path = distributionGroupZookeeperAdapter.getDistributionGroupPath(fullname);
 			
