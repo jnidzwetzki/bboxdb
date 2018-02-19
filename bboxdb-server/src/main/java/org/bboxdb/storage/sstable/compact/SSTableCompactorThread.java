@@ -249,6 +249,11 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			final DistributionRegion regionToSplit = DistributionRegionHelper
 					.getDistributionRegionForNamePrefix(distributionRegion, regionId);
 			
+			// Region does not exist
+			if(regionToSplit == null) {
+				return;
+			}
+			
 			final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
 
 			final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
