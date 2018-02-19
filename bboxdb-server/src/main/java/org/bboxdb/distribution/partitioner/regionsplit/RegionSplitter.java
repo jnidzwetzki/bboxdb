@@ -175,10 +175,8 @@ public class RegionSplitter {
 	
 			// Remove the local mapping, no new data is written to the region
 			final DistributionRegionIdMapper mapper = DistributionRegionIdMapperManager.getInstance(distributionGroupName);
-			final boolean removeResult = mapper.removeMapping(regionId);
-			
-			assert (removeResult == true) : "Unable to remove mapping for: " + region;
-			
+			mapper.removeMapping(regionId);
+						
 			// Redistribute data
 			for(final TupleStoreName ssTableName : localTables) {
 				// Reject new writes and flush to disk
