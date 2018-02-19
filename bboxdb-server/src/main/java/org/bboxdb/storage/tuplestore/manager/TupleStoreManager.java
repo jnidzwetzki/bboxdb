@@ -38,6 +38,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.misc.Const;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
@@ -157,8 +158,10 @@ public class TupleStoreManager implements BBoxDBService {
 
 			// Set to ready before the threads are started
 			serviceState.dispatchToRunning();
-		} catch (StorageManagerException e) {
-			logger.error("Unable to init the instance: " +  tupleStoreName.getFullname(), e);
+		} catch (Exception e) {
+			if(! Thread.currentThread().isInterrupted()) {
+				logger.error("Unable to init the instance: " +  tupleStoreName.getFullname(), e);
+			}
 			serviceState.dispatchToFailed(e);
 		}
 	}
@@ -190,10 +193,11 @@ public class TupleStoreManager implements BBoxDBService {
 		closeRessources();
 
 		serviceState.dispatchToTerminated();
+		logger.info("Shutdown done");
 	}
 
 	/**
-	 * Close all open Resources
+	 * Close all open ressources
 	 */
 	protected void closeRessources() {
 		setToReadOnly();
@@ -375,9 +379,10 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Scan the database directory for all existing SSTables and
 	 * create reader objects
 	 * @throws StorageManagerException 
+	 * @throws InterruptedException 
 	 * 
 	 */
-	protected void scanForExistingTables() throws StorageManagerException {
+	protected void scanForExistingTables() throws StorageManagerException, InterruptedException {
 		logger.info("Scan for existing SSTables: " + tupleStoreName.getFullname());
 		final String storageDir = storage.getBasedir().getAbsolutePath();
 		final String ssTableDir = SSTableHelper.getSSTableDir(storageDir, tupleStoreName);
@@ -398,8 +403,8 @@ public class TupleStoreManager implements BBoxDBService {
 							configuration.getSstableKeyCacheEntries());
 					facade.init();
 					tupleStoreInstances.addNewDetectedSSTable(facade);
-				} catch(Exception e) {
-					logger.warn("Unable to load file: " + filename, e);
+				} catch(BBoxDBException e) {
+					throw new StorageManagerException(e);
 				}
 			}
 		}

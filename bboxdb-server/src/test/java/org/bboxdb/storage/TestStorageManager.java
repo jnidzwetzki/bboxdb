@@ -91,6 +91,11 @@ public class TestStorageManager {
 		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
 	}
 	
+	@Test(timeout=10000)
+	public void testFlushEmptyTable() {
+		storageManager.flush();
+	}
+	
 	@Test
 	public void testInsertElements1() throws Exception {
 		final Tuple tuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());

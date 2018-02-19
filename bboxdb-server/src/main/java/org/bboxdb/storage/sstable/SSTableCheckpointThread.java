@@ -64,26 +64,32 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 
 		final TupleStoreManagerRegistry storageRegistry = storage.getTupleStoreManagerRegistry();
 
-		while(! Thread.currentThread().isInterrupted()) {
-			
-			if(Const.LOG_MEMORY_STATISTICS) {
-				logMemoryStatistics();
-			}
-			
-			final List<TupleStoreName> allTables = storageRegistry.getTupleStoresForLocation(
-					storage.getBasedir().getAbsolutePath());
-	
-			for(final TupleStoreName ssTableName : allTables) {
-				logger.debug("Executing checkpoint check for: {}", ssTableName);
+		try {
+			while(! Thread.currentThread().isInterrupted()) {
 				
-				if(Thread.currentThread().isInterrupted()) {
-					return;
+				if(Const.LOG_MEMORY_STATISTICS) {
+					logMemoryStatistics();
 				}
 				
-				createCheckpointIfNeeded(storageRegistry, ssTableName);
+				final List<TupleStoreName> allTables = storageRegistry.getTupleStoresForLocation(
+						storage.getBasedir().getAbsolutePath());
+
+				for(final TupleStoreName ssTableName : allTables) {
+					logger.info("Executing checkpoint check for: {}", ssTableName);
+					
+					if(Thread.currentThread().isInterrupted()) {
+						return;
+					}
+					
+					createCheckpointIfNeeded(storageRegistry, ssTableName);
+				}
+				
+				waitForNextRun();
 			}
-			
-			waitForNextRun();
+		} catch (Exception e) {
+			if(! Thread.interrupted()) {
+				logger.error("Got exception while executing thread", e);
+			}
 		}
 	}
 
@@ -114,7 +120,7 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 			logger.debug("Got interrupted exception, stopping checkpoint thread");
 			Thread.currentThread().interrupt();
 		} catch (StorageManagerException e) {
-			logger.error("Got exception while creating checkpoint");
+			logger.error("Got exception while creating checkpoint", e);
 		}
 	}
 	

@@ -196,7 +196,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Shutdown the storage registry
 	 * @throws BBoxDBException 
 	 */
-	public synchronized void shutdown() {
+	public void shutdown() {
 		
 		if(! serviceState.isInRunningState()) {
 			logger.warn("Igonring shutdown, service is in state: {}", serviceState.getState());
@@ -211,10 +211,12 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		logger.info("Shutting down storages");
 		storages.values().forEach(s -> s.shutdown());
 
-		managerInstances.clear();
-		tupleStoreLocations.clear();
-		storages.clear();
-		
+		synchronized (this) {
+			managerInstances.clear();
+			tupleStoreLocations.clear();
+			storages.clear();
+		}
+
 		serviceState.dispatchToTerminated();
 	}
 	

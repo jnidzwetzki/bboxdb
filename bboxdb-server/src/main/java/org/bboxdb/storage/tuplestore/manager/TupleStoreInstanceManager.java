@@ -206,9 +206,11 @@ public class TupleStoreInstanceManager {
 	 */
 	public synchronized void waitForMemtableFlush(final Memtable memtable) throws InterruptedException {
 		while(unflushedMemtables.contains(memtable)) {
-			logger.info("Unflushed memtables: {}", unflushedMemtables);
+			logger.info("Unflushed memtables: {} / {}", unflushedMemtables, memtable.getInternalName());
 			wait();
 		}
+		
+		logger.info("Wait for memtable flush done {}", memtable.getInternalName());
 	}
 	
 	/**
