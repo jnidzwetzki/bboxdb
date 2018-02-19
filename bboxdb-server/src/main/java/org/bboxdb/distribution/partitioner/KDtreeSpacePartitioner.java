@@ -758,14 +758,12 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 				
 		for(final DistributionRegion region : allChildren) {
 			
-			logger.info("Processing region {}", region);
+			logger.debug("Processing region {}", region.getRegionId());
 			
 			if(! region.getSystems().contains(localInstance)) {
 				continue;
 			}
 			
-			logger.info("Processing region LOCAL {}", region);
-
 			if(activeStates.contains(region.getState())) {
 				
 				// Add the mapping to the nameprefix mapper
