@@ -596,7 +596,9 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			refreshWholeTree();
 		}
 
-		fireDataChanged(region);
+		updateLocalMappings();
+
+		fireDataChanged(region);		
 	}
 
 	/**
@@ -710,7 +712,6 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 				= distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region, this);
 			
 			region.setSystems(systemsForDistributionRegion);
-			updateLocalMappings(region, systemsForDistributionRegion);
 		} catch (ZookeeperNotFoundException e) {
 			removeLocalMappings(region);
 		}
@@ -732,32 +733,46 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @param region
 	 * @param systems
 	 */
-	private void updateLocalMappings(final DistributionRegion region, 
-			final Collection<BBoxDBInstance> systems) {
-				
+	private void updateLocalMappings() {
+		
+		if(rootNode == null || distributionGroupName == null) {
+			return;
+		}
+		
 		final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
+		final DistributionRegionIdMapper regionIdMapper = DistributionRegionIdMapperManager.getInstance(distributionGroupName);
 
 		if(localInstance == null) {
 			logger.debug("Local instance name is not set, so no local mapping is possible");
 			return;
 		}
 		
-		if(systems == null) {
-			return;
-		}
+		final List<DistributionRegion> allChildren = rootNode.getAllChildren();
+		final Set<Long> allExistingMappings = new HashSet<>(regionIdMapper.getAllRegionIds());
 		
-		// Don't add local mapping for inactive regions
-		if(        region.getState() == DistributionRegionState.SPLITTING
-				|| region.getState() == DistributionRegionState.SPLIT) {
-			return;
-		}
+		final List<DistributionRegionState> activeStates = 
+				Arrays.asList(DistributionRegionState.ACTIVE, DistributionRegionState.ACTIVE_FULL);
 		
-		// Add the mapping to the nameprefix mapper
-		for(final BBoxDBInstance instance : systems) {
-			if(instance.socketAddressEquals(localInstance)) {
-				final DistributionRegionIdMapper regionIdMapper = DistributionRegionIdMapperManager.getInstance(region.getDistributionGroupName());
-				regionIdMapper.addMapping(region);
+		for(final DistributionRegion region : allChildren) {
+			
+			if(! region.getSystems().contains(localInstance)) {
+				continue;
 			}
+			
+			if(activeStates.contains(region.getState())) {
+				
+				// Add the mapping to the nameprefix mapper
+				if(! allExistingMappings.contains(region.getRegionId())) {
+					regionIdMapper.addMapping(region);
+				}
+				
+				allExistingMappings.remove(region.getRegionId());
+			}	
+		}
+	
+		// Remove all active but not seen mappings
+		for(final long regionId : allExistingMappings) {
+			regionIdMapper.removeMapping(regionId);
 		}
 	}
 }

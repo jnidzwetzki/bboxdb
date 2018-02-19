@@ -19,6 +19,7 @@ package org.bboxdb.distribution;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -43,23 +44,23 @@ public class DistributionRegionIdMapper {
 	/**
 	 * Search the region ids that are overlapped by the bounding box
 	 */
-	public Collection<Long> getRegionIdsForRegion(final BoundingBox region) {
+	public Set<Long> getRegionIdsForRegion(final BoundingBox region) {
 		return regions
 			.stream()
 			.filter(r -> r.getBoundingBox().overlaps(region))
 			.map(r -> r.getRegionId())
-			.collect(Collectors.toList());
+			.collect(Collectors.toSet());
 	}
 	
 	/**
 	 * Get all region ids
 	 * @return
 	 */
-	private Collection<Long> getAllRegionIds() {
+	public Set<Long> getAllRegionIds() {
 		return regions
 			.stream()
 			.map(r -> r.getRegionId())
-			.collect(Collectors.toList());
+			.collect(Collectors.toSet());
 	}
 	
 	/**
