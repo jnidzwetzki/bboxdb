@@ -50,7 +50,7 @@ public class SSTableTupleStore implements TupleStore {
 	/**
 	 * The sstable name
 	 */
-	protected final static TupleStoreName SSTABLE_NAME = new TupleStoreName("2_group1_test");
+	protected final static TupleStoreName SSTABLE_NAME = new TupleStoreName("group1_test");
 
 	/**
 	 * The service state
