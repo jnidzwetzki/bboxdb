@@ -156,7 +156,7 @@ public class RegionMerger {
 		try {
 			final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 
-			if(childRegion.getSystems().contains(localInstance)) {
+			if(! childRegion.getSystems().contains(localInstance)) {
 				mergeDataByLocalRead(region, tupleStoreName, tupleRedistributor, childRegion);
 			} else {
 				mergeDataByNetworkRead(region, tupleStoreName, tupleRedistributor, childRegion);	
