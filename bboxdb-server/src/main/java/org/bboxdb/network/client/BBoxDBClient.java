@@ -590,7 +590,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
 		final Supplier<RoutingHeader> routingHeader = () -> RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
-				table, BoundingBox.EMPTY_BOX, false, serverAddress);
+				table, BoundingBox.EMPTY_BOX, true, serverAddress);
 		
 		return insertTuple(table, new DeletedTuple(key, timestamp), routingHeader);
 	}
