@@ -47,7 +47,6 @@ import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
@@ -224,10 +223,21 @@ public class BBoxDBCluster implements BBoxDB {
 	}
 
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) 
-			throws BBoxDBException {
-		
-		return insertTuple(table, new DeletedTuple(key, timestamp));
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws BBoxDBException {
+		final List<BBoxDBClient> connections = membershipConnectionService.getAllConnections();
+
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			throw new BBoxDBException("deleteTuple called, but connection list is empty");
+		}
+
+		final EmptyResultFuture future = new EmptyResultFuture();
+
+		connections.stream()
+		.map(c -> c.deleteTuple(table, key, timestamp))
+		.filter(Objects::nonNull)
+		.forEach(f -> future.merge(f));
+
+		return future;
 	}
 
 	@Override

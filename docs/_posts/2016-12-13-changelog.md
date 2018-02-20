@@ -25,7 +25,6 @@ order: 1
 - Improvement: When all tables are included in a minor compact, handle it as major compact
 - Improvement: Added full dump option to the SSTable examiner
 - Improvement: Change instance state from 'unknown' to 'failed'
-- Improvement: Deleted tuples are also routed to ensure, all system have processed the tuple
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel

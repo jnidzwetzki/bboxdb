@@ -588,10 +588,11 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#deleteTuple(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws BBoxDBException {
-		final DeletedTuple deletedTuple = new DeletedTuple(key, timestamp);
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
+		final Supplier<RoutingHeader> routingHeader = () -> RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
+				table, BoundingBox.EMPTY_BOX, false, serverAddress);
 		
-		return insertTuple(table, deletedTuple);
+		return insertTuple(table, new DeletedTuple(key, timestamp), routingHeader);
 	}
 
 	/* (non-Javadoc)
