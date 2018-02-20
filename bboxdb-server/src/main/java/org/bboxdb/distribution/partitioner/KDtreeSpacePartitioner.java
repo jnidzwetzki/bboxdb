@@ -284,7 +284,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			// The state of one has changed
 			handleNodeUpdateEvent(event);
 		} else {
-			logger.info("Ingoring event for path: {}" , path);
+			logger.info("Ignoring event for path: {}" , path);
 		}
 	}
 	
