@@ -60,7 +60,7 @@ public class Shutdown {
 		env.put(JMXConnector.CREDENTIALS, credentials);
 
 		// Connect to JMX
-		System.out.println("Connecting to JMX shtutdown service.");
+		System.out.println("Connecting to JMX shutdown service.");
 		final JMXServiceURL url = new JMXServiceURL(
 				"service:jmx:rmi:///jndi/rmi://:" + jmxPort + "/jmxrmi");
 
