@@ -210,7 +210,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		activeQueries = new HashMap<>();
 		
 		// Create a thread pool that blocks after submitting more than MAX_PENDING_REQUESTS
-		threadPool = ExecutorUtil.getBoundThreadPoolExecutor(10, MAX_PENDING_REQUESTS);
+		threadPool = ExecutorUtil.getBoundThreadPoolExecutor(25, MAX_PENDING_REQUESTS);
 
 		// The package router
 		packageRouter = new PackageRouter(threadPool, this);
