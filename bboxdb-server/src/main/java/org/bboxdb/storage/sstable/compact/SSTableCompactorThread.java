@@ -25,6 +25,7 @@ import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.concurrent.ExceptionSafeThread;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
+import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMerger;
@@ -130,7 +131,12 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 					logger.debug("Skipping compact for read only sstable manager: {}" , tupleStoreName);
 					continue;
 				}
-								
+			
+				if(! isParentDataRedistributed(tupleStoreName)) {
+					logger.info("Stipping compact run, because parent data is not redistributed");
+					continue;
+				}
+			
 				final List<SSTableFacade> facades = getAllTupleStores(tupleStoreManager);
 				final MergeTask mergeTask = mergeStrategy.getMergeTask(facades);
 				executeCompactTask(mergeTask, tupleStoreManager);
@@ -139,6 +145,47 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			} catch (StorageManagerException | BBoxDBException e) {
 				logger.error("Error while merging tables", e);	
 			} 
+		}
+	}
+	
+	/**
+	 * Is the parent data redistributed?
+	 * 
+	 * @param tupleStoreName
+	 * @return
+	 * @throws StorageManagerException
+	 * @throws InterruptedException
+	 */
+	private boolean isParentDataRedistributed(final TupleStoreName tupleStoreName) 
+			throws StorageManagerException, InterruptedException {
+		
+		try {
+			if(! tupleStoreName.isDistributedTable()) {
+				return true;
+			}
+			
+			final long regionId = tupleStoreName.getRegionId();
+			
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache
+					.getSpacePartitionerForGroupName(tupleStoreName.getDistributionGroup());
+			
+			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
+
+			final DistributionRegion regionToSplit = DistributionRegionHelper
+					.getDistributionRegionForNamePrefix(distributionRegion, regionId);
+			
+			// Region does not exist
+			if(regionToSplit == null) {
+				logger.error("Unable to get distribution region {} {}", distributionRegion, regionId);
+				return true;
+			}
+			
+			return regionToSplit.getParent().getState() == DistributionRegionState.SPLIT;
+		} catch (ZookeeperException e) {
+			throw new StorageManagerException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw e;
 		}
 	}
 
