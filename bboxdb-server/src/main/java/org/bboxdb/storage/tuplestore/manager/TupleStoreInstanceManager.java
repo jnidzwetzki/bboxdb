@@ -21,11 +21,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
 
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class holds references to all known tuple storages (sstables, memtables) for 
@@ -53,6 +57,12 @@ public class TupleStoreInstanceManager {
 	 * The state (read only / read write) of the manager
 	 */
 	protected volatile TupleStoreManagerState sstableManagerState;
+	
+	/**
+	 * The logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(TupleStoreInstanceManager.class);
+
 	
 	public TupleStoreInstanceManager() {		
 		this.sstableFacades = new ArrayList<>();
@@ -195,20 +205,22 @@ public class TupleStoreInstanceManager {
 	/**
 	 * Wait until the memtable is flushed to disk
 	 * @param memtable
+	 * @param queue 
 	 * @throws InterruptedException 
 	 * @throws StorageManagerException 
 	 */
-	public synchronized void waitForMemtableFlush(final Memtable memtable) 
+	public synchronized void waitForMemtableFlush(final Memtable memtable, 
+			final Queue<MemtableAndTupleStoreManagerPair> queue) 
 			throws InterruptedException, StorageManagerException {
 		
 		while(unflushedMemtables.contains(memtable)) {
 			wait(60000); // Wait max 60 seconds
+			logger.info("Unflushed queue", queue);
 		}
 		
 		if(unflushedMemtables.contains(memtable)) {
 			throw new StorageManagerException("Memtable is still unflused after 60 seconds");
 		}
-		
 	}
 	
 	/**

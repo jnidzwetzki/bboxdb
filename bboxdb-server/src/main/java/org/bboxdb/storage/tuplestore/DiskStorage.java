@@ -20,6 +20,7 @@ package org.bboxdb.storage.tuplestore;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -237,5 +238,13 @@ public class DiskStorage implements BBoxDBService {
 	 */
 	public TupleStoreManagerRegistry getTupleStoreManagerRegistry() {
 		return tupleStoreManagerRegistry;
+	}
+	
+	/**
+	 * Get the memtables to flush
+	 * @return
+	 */
+	public Queue<MemtableAndTupleStoreManagerPair> getMemtablesToFlush() {
+		return memtablesToFlush;
 	}
 }
