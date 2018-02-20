@@ -181,6 +181,11 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				return true;
 			}
 			
+			// The root node parent is allways splitted
+			if(regionToSplit.getParent() == DistributionRegion.ROOT_NODE_ROOT_POINTER) {
+				return true;
+			}
+			
 			return regionToSplit.getParent().getState() == DistributionRegionState.SPLIT;
 		} catch (ZookeeperException e) {
 			throw new StorageManagerException(e);
