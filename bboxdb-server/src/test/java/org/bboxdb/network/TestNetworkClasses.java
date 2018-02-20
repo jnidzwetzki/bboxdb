@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.capabilities.PeerCapabilities;
@@ -40,7 +39,6 @@ import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.request.DeleteTableRequest;
-import org.bboxdb.network.packages.request.DeleteTupleRequest;
 import org.bboxdb.network.packages.request.DisconnectRequest;
 import org.bboxdb.network.packages.request.HelloRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
@@ -71,6 +69,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreConfigurationBuilder;
 import org.bboxdb.storage.entity.TupleStoreName;
+import org.bboxdb.storage.util.TupleHelper;
 import org.bboxdb.storage.util.UpdateAnomalyResolver;
 import org.junit.Assert;
 import org.junit.Test;
@@ -155,6 +154,31 @@ public class TestNetworkClasses {
 		// Check fields
 		Assert.assertEquals(currentSequenceNumber, bb.getShort());
 		Assert.assertEquals(NetworkConst.REQUEST_TYPE_LIST_TABLES, bb.getShort());
+	}
+	
+	/**
+	 * The the encoding and decoding of an insert tuple package
+	 * @throws IOException 
+	 * @throws PackageEncodeException 
+	 */
+	@Test
+	public void encodeAndDecodeDeletedTuple1() throws IOException, PackageEncodeException {
+		final Tuple tuple = new DeletedTuple("key", 12);
+		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
+
+		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED_SUPPLIER, new TupleStoreName("test"), tuple);
+		
+		byte[] encodedVersion = networkPackageToByte(insertPackage);
+		Assert.assertNotNull(encodedVersion);
+
+		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
+		final InsertTupleRequest decodedPackage = InsertTupleRequest.decodeTuple(bb);
+				
+		Assert.assertEquals(insertPackage.getTuple(), decodedPackage.getTuple());
+		Assert.assertEquals(insertPackage.getTable(), decodedPackage.getTable());
+		Assert.assertEquals(insertPackage.getRoutingHeader(), new RoutingHeader(false));
+		Assert.assertEquals(insertPackage, decodedPackage);
+		Assert.assertTrue(TupleHelper.isDeletedTuple(decodedPackage.getTuple()));
 	}
 	
 	/**
@@ -265,31 +289,6 @@ public class TestNetworkClasses {
 		Assert.assertEquals(routingHeader, decodedPackage.getRoutingHeader());
 		Assert.assertFalse(insertPackage.getRoutingHeader().equals(new RoutingHeader(false)));
 		Assert.assertEquals(insertPackage, decodedPackage);
-	}
-	
-	
-	/**
-	 * The the encoding and decoding of an delete tuple package
-	 * @throws IOException 
-	 * @throws PackageEncodeException 
-	 */
-	@Test
-	public void encodeAndDecodeDeleteTuple() throws IOException, PackageEncodeException {
-		final long deletionTime = MicroSecondTimestampProvider.getNewTimestamp();
-		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-
-		final DeleteTupleRequest deletePackage = new DeleteTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED_SUPPLIER, "test", "key", deletionTime);
-		
-		byte[] encodedVersion = networkPackageToByte(deletePackage);
-		Assert.assertNotNull(encodedVersion);
-
-		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
-		final DeleteTupleRequest decodedPackage = DeleteTupleRequest.decodeTuple(bb);
-				
-		Assert.assertEquals(deletePackage.getKey(), decodedPackage.getKey());
-		Assert.assertEquals(deletePackage.getTable(), decodedPackage.getTable());
-		Assert.assertEquals(deletePackage.getTimestamp(), decodedPackage.getTimestamp());
-		Assert.assertEquals(deletePackage, decodedPackage);
 	}
 	
 	/**

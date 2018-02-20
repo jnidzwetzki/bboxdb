@@ -61,7 +61,6 @@ import org.bboxdb.network.server.handler.request.CreateDistributionGroupHandler;
 import org.bboxdb.network.server.handler.request.CreateTableHandler;
 import org.bboxdb.network.server.handler.request.DeleteDistributionGroupHandler;
 import org.bboxdb.network.server.handler.request.DeleteTableHandler;
-import org.bboxdb.network.server.handler.request.DeleteTupleHandler;
 import org.bboxdb.network.server.handler.request.DisconnectHandler;
 import org.bboxdb.network.server.handler.request.HandshakeHandler;
 import org.bboxdb.network.server.handler.request.InsertTupleHandler;
@@ -548,7 +547,6 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_DISCONNECT, new DisconnectHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_CREATE_TABLE, new CreateTableHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_TABLE, new DeleteTableHandler());
-		requestHandlers.put(NetworkConst.REQUEST_TYPE_DELETE_TUPLE, new DeleteTupleHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_LIST_TABLES, new ListTablesHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_INSERT_TUPLE, new InsertTupleHandler());
 		requestHandlers.put(NetworkConst.REQUEST_TYPE_CREATE_DISTRIBUTION_GROUP, new CreateDistributionGroupHandler());

@@ -40,11 +40,6 @@ public class NetworkConst {
 	public static final short REQUEST_TYPE_INSERT_TUPLE = 0x01;
 	
 	/**
-	 * Request type delete tuple
-	 */
-	public static final short REQUEST_TYPE_DELETE_TUPLE = 0x02;
-	
-	/**
 	 * Create a new table
 	 */
 	public static final short REQUEST_TYPE_CREATE_TABLE = 0x03;

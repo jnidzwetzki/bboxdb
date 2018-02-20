@@ -72,7 +72,6 @@ import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;
 import org.bboxdb.network.packages.request.CreateTableRequest;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
 import org.bboxdb.network.packages.request.DeleteTableRequest;
-import org.bboxdb.network.packages.request.DeleteTupleRequest;
 import org.bboxdb.network.packages.request.DisconnectRequest;
 import org.bboxdb.network.packages.request.HelloRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
@@ -89,6 +88,7 @@ import org.bboxdb.network.packages.request.QueryVersionTimeRequest;
 import org.bboxdb.network.packages.response.HelloResponse;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.PagedTransferableEntity;
 import org.bboxdb.storage.entity.Tuple;
@@ -588,27 +588,10 @@ public class BBoxDBClient implements BBoxDB {
 	 * @see org.bboxdb.network.client.BBoxDB#deleteTuple(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
-
-		if(! connectionState.isInRunningState()) {
-			return FutureHelper.getFailedEmptyResultFuture("deleteTuple called, but connection not ready: " + this);
-		}
-
-		final EmptyResultFuture clientOperationFuture = new EmptyResultFuture(1);
-
-		final Supplier<RoutingHeader> routingHeaderSupplier = () 
-				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
-						table, BoundingBox.EMPTY_BOX, true, serverAddress);
-				
-		final short sequenceNumber = getNextSequenceNumber();
+	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) throws BBoxDBException {
+		final DeletedTuple deletedTuple = new DeletedTuple(key, timestamp);
 		
-		final DeleteTupleRequest requestPackage = new DeleteTupleRequest(sequenceNumber, 
-				routingHeaderSupplier, table, key, timestamp);
-	
-		registerPackageCallback(requestPackage, clientOperationFuture);
-		sendPackageToServer(requestPackage, clientOperationFuture);
-		
-		return clientOperationFuture;
+		return insertTuple(table, deletedTuple);
 	}
 
 	/* (non-Javadoc)
