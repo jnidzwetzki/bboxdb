@@ -26,7 +26,7 @@ public class DeletedTuple extends Tuple {
 	}
 	
 	public DeletedTuple(final String key, final long versionTimestamp) {
-		super(key, null, SSTableConst.DELETED_MARKER, versionTimestamp);
+		super(key, BoundingBox.EMPTY_BOX, SSTableConst.DELETED_MARKER, versionTimestamp);
 	}
 
 	@Override
