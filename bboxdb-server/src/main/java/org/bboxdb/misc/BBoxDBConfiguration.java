@@ -71,7 +71,7 @@ public class BBoxDBConfiguration {
 	/**
 	 *  The amount of threads to handle client connections
 	 */
-	protected int networkConnectionThreads = 10;
+	protected int networkConnectionThreads = 25;
 	
 	/**
 	 * The name of the cluster

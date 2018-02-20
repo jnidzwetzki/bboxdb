@@ -85,8 +85,8 @@
 # networkListenPort: 50505
 
 # The number of threads to handle network connections
-# Default: 10
-# networkConnectionThreads: 10
+# Default: 25
+# networkConnectionThreads: 25
 
 ###
 # Distribution
