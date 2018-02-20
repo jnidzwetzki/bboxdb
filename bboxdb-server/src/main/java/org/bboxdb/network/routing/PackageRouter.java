@@ -52,15 +52,9 @@ public class PackageRouter {
 	protected final ClientConnectionHandler clientConnectionHandler;
 	
 	/**
-	 * Amount of retries to route a package 
-	 */
-	public final static short ROUTING_RETRY = 3;
-	
-	/**
 	 * Routing timeout
 	 */
-	protected final int ROUTING_TIMEOUT_IN_SEC = 10;
-	
+	protected final int ROUTING_TIMEOUT_IN_SEC = 2;
 	
 	/**
 	 * The Logger
