@@ -225,6 +225,9 @@ public class TupleStoreManager implements BBoxDBService {
 			logger.info("Got interrupted exception while waiting for memtable flush");
 			Thread.currentThread().interrupt();
 			return false;
+		} catch (StorageManagerException e) {
+			logger.info("Got exception while waiting for memtable flush", e);
+			return false;
 		}
 
 		return true;
