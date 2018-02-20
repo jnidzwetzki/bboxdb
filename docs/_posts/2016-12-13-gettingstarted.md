@@ -219,13 +219,15 @@ $ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_2 -bb
 $ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_3 -bbox 7.5:10,1.5:2.5 -value value_3
 ```
 
-After the data is inserted, we have a data distribution like shown in the following figure. 
+After the data is inserted, we have a data distribution like shown in the following figure:
 
 <p><img src="/bboxdb/images/join_data.jpg" width="400"></p>
 
 The tuple _Tuple A_ intersects with _Tuple 2_ and with _Tuple 3_; tuple _Tuple 2_ is contained in _Tuple B_ completely. Now, the join can be performed with the following command. The join returns the previous three 
 
 ```bash
+$ $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -bbox 0:10:0:8
+
 Executing join query...
 ===============
 Joined bounding box: [4.5:5.5,1.5:2.0]
