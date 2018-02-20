@@ -59,7 +59,7 @@ public class TupleStoreInstanceManager {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(TupleStoreInstanceManager.class);
+	protected final static Logger logger = LoggerFactory.getLogger(TupleStoreInstanceManager.class);
 
 	
 	public TupleStoreInstanceManager() {		
@@ -210,13 +210,13 @@ public class TupleStoreInstanceManager {
 	public synchronized void waitForMemtableFlush(final Memtable memtable) 
 			throws InterruptedException, StorageManagerException {
 		
-		logger.info("Waiting for flush {} / {}", memtable.getInternalName(), unflushedMemtables);
+		//logger.info("Waiting for flush {} / {}", memtable.getInternalName(), unflushedMemtables);
 		
 		while(unflushedMemtables.contains(memtable)) {
 			wait();
 		}
 		
-		logger.info("Waiting for flush {} / {} DONE", memtable.getInternalName(), unflushedMemtables);
+		//logger.info("Waiting for flush {} / {} DONE", memtable.getInternalName(), unflushedMemtables);
 	}
 	
 	/**
