@@ -149,7 +149,11 @@ public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEn
 		
 		for(int i = 0; i < getNumberOfTuples(); i++) {
 			sb.append("Table: " + getTupleStoreName(i) + "\n");
-			sb.append("Tuple: " + getTuple(i).getFormatedString() + "\n");
+			sb.append("Tuple: " + getTuple(i).getFormatedString());
+			
+			if(i + 1 < getNumberOfTuples()) {
+				 sb.append("\n");
+			}
 		}
 		
 		sb.append("===============\n");
