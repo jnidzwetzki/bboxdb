@@ -70,7 +70,7 @@ public class DataRedistributionLoader implements Runnable {
 	/**
 	 * The amount of pending insert futures
 	 */
-	private final static int MAX_PENDING_FUTURES = 5000;
+	private final static int MAX_PENDING_FUTURES = 1000;
 	
 	/**
 	 * The name of the distribution group
