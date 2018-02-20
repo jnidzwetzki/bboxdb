@@ -39,7 +39,7 @@ public class KDTreeJPanel extends JPanel {
 	/**
 	 * The regions
 	 */
-	protected final List<DistributionRegionComponent> regions = new ArrayList<DistributionRegionComponent>();
+	protected final List<DistributionRegionComponent> regions = new ArrayList<>();
 	
 	/**
 	 * The current size of the component
@@ -53,7 +53,7 @@ public class KDTreeJPanel extends JPanel {
 	
 	/**
 	 * The margin for bounding boxes 
-	 * (adds a litte bit empty space around the components)
+	 * (adds a little bit empty space around the components)
 	 */
 	protected static final int PADDING_TOP_BOTTOM = 10;
 
@@ -97,7 +97,7 @@ public class KDTreeJPanel extends JPanel {
 	}
 
 	/**
-	 * Get the minimal bounding bix for this component
+	 * Get the minimal bounding box for this component
 	 * @return
 	 */
 	protected BoundingBox getMinimalBoundingBox() {
