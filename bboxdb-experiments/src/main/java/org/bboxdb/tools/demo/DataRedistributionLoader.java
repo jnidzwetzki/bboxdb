@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -120,6 +121,8 @@ public class DataRedistributionLoader implements Runnable {
 				}
 				
 				loadFile(i);
+				
+				Thread.sleep(TimeUnit.SECONDS.toMillis(30));
 			}
 			
 			for(int fileId = 0; fileId < files.length; fileId++) {
