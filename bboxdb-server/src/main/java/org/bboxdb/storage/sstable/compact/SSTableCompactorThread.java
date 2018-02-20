@@ -314,7 +314,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			if(regionSplitHelper.isRegionOverflow(regionToSplit)) {
 				final RegionSplitter regionSplitter = new RegionSplitter(tupleStoreManagerRegistry);
 
-			//	forceMajorCompact(sstableManager);
+				forceMajorCompact(sstableManager);
 				
 				regionSplitter.splitRegion(regionToSplit, spacePartitioner, 
 						tupleStoreManagerRegistry);
