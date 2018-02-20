@@ -181,7 +181,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				return true;
 			}
 			
-			// The root node parent is allways splitted
+			// The root node parent is always split
 			if(regionToSplit.getParent() == DistributionRegion.ROOT_NODE_ROOT_POINTER) {
 				return true;
 			}
