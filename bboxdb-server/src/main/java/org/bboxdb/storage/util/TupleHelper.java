@@ -221,7 +221,7 @@ public class TupleHelper {
 	 * @return
 	 */
 	public static boolean isDeletedTuple(final Tuple tuple) {
-		if(tuple.getBoundingBox() == null) {
+		if(tuple.getBoundingBox() == BoundingBox.EMPTY_BOX) {
 			if(Arrays.equals(tuple.getDataBytes(), SSTableConst.DELETED_MARKER)) {
 				return true;
 			}
