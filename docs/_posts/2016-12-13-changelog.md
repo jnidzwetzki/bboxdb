@@ -51,6 +51,7 @@ order: 1
 - Bugfix: Old tuples are deleted in major compaction
 - Bugfix: Merging locally stored data was not supported
 - Bugfix: Mapped distribution regions are removed after merge
+- Bugfix: Fixed deadlock between region id mapper and space partitioner cache
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation

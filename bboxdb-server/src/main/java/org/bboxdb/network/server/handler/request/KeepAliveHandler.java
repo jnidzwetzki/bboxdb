@@ -45,6 +45,11 @@ public class KeepAliveHandler implements RequestHandler {
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KeepAliveHandler.class);
+	
+	/**
+	 * The client connection
+	 */
+	private ClientConnectionHandler clientConnectionHandler;
 
 	/**
 	 * Handle the keep alive package. Simply send a success response package back
@@ -54,6 +59,7 @@ public class KeepAliveHandler implements RequestHandler {
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
 
+		this.clientConnectionHandler = clientConnectionHandler;
 		final KeepAliveRequest keepAliveRequst = KeepAliveRequest.decodeTuple(encodedPackage);
 
 		boolean gossipResult = true;
@@ -146,28 +152,28 @@ public class KeepAliveHandler implements RequestHandler {
 			final long gossipTupleVersion, final String key) {
 
 		if(localVersions.isEmpty()) {
-			logger.error("Gossip: no local version known for {} / gossip: {}", 
-					key, gossipTupleVersion);
+			logger.error("Gossip: no local version known for {} / gossip: {} / peer: {}", 
+					key, gossipTupleVersion, clientConnectionHandler.getConnectionName());
 			
 			return false;
 		}
 		
 		if(gossipTupleVersion > localVersions.get(0)) {
-			logger.error("Gossip: Remote knows a newer version {} / local {} for {}", 
-					gossipTupleVersion, localVersions, key);
+			logger.error("Gossip: Remote knows a newer version {} / local {} for {} / peer: {}", 
+					gossipTupleVersion, localVersions, key, clientConnectionHandler.getConnectionName());
 			
 			return false;
 		}
 		
 		if(! localVersions.contains(gossipTupleVersion)) {
-			logger.error("Gossip: Tuple version {} is not contained in list {} for {}", 
-					gossipTupleVersion, localVersions, key);
+			logger.error("Gossip: Tuple version {} is not contained in list {} for {} / peer: {}", 
+					gossipTupleVersion, localVersions, key, clientConnectionHandler.getConnectionName());
 
 			return false;
 		}
 		
-		logger.debug("Gossip: Remote version {} / local {} for key {}", 
-				gossipTupleVersion, localVersions, key);
+		logger.debug("Gossip: Remote version {} / local {} for key {} / peer: {}", 
+				gossipTupleVersion, localVersions, key, clientConnectionHandler.getConnectionName());
 		
 		return true;
 	}
