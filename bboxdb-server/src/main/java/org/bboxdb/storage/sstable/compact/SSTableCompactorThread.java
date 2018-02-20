@@ -133,7 +133,8 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				}
 			
 				if(! isParentDataRedistributed(tupleStoreName)) {
-					logger.info("Stipping compact run, because parent data is not redistributed");
+					logger.info("Skipping compact run, because parent data is not redistributed {}", 
+							tupleStoreName);
 					continue;
 				}
 			
