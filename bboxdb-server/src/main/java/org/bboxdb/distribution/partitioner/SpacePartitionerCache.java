@@ -49,6 +49,10 @@ public class SpacePartitionerCache {
 	public static SpacePartitioner getSpacePartitionerForGroupName(final String groupName) 
 			throws ZookeeperException {
 		
+		// We can not synchronize this method, the space partitioner needs to lock
+		// the DistributionRegionIdMapperManager which can also call this class. This leads
+		// to a deadlock, see commit 202159566873af26b94979db5fc0691f10f567d5
+		
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		
 		if(! groupGroupMap.containsKey(groupName)) {
