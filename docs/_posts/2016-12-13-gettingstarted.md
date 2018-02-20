@@ -204,6 +204,7 @@ Key key3, BoundingBox=[2.0:10.0,2.0:10.0], value=value3, version timestamp=15103
 In this example, a join on two tables is executed. The join operation returns all tuples of two or more tables in the same distribution group who have overlapping bounding boxes. As the first step in this example, a 2-dimensional distribution group is created with the two tables _ mydgroup_table1_ and _mydgroup_table2_. Afterwards, three tuples are inserted in both tables. 
 
 ```bash
+# Prepare distribution group and tables
 $ $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup mydgroup -replicationfactor 1 -dimensions 2
 $ $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table1
 $ $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table2
