@@ -40,12 +40,12 @@ public class SSTableCheckpointThread extends ExceptionSafeThread {
 	/**
 	 * The storage
 	 */
-	protected DiskStorage storage;
+	private DiskStorage storage;
 	
 	/**
 	 * The maximal number of seconds for data to stay in memory
 	 */
-	protected final long maxUncheckpointedMiliseconds;
+	private final long maxUncheckpointedMiliseconds;
 
 	/**
 	 * The logger
