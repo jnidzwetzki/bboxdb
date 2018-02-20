@@ -209,7 +209,7 @@ public class TupleStoreInstanceManager {
 		logger.info("Wait for memtable flush {}", memtable.getInternalName());
 		
 		while(unflushedMemtables.contains(memtable)) {
-			wait();
+			wait(30000); // Wait max 10 seconds
 		}
 		
 		logger.info("Wait for memtable flush done {}", memtable.getInternalName());
