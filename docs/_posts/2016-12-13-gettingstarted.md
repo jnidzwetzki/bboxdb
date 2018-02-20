@@ -201,7 +201,7 @@ Key key3, BoundingBox=[2.0:10.0,2.0:10.0], value=value3, version timestamp=15103
 ```
 
 # Executing a join
-In this example, a join on two tables is executed. All tuples of the tables `mydgroup_table1` and `mydgroup_table2` are reported by the join query. First of all, both tables are created and some tuples are inserted:
+In this example, a join on two tables is executed. The join operation retuns all tuples of two or more tables in the same distribution group who have overlapping bounding boxes. As first step in this example, a 2-dimensional distribution group is created with the two tables _ mydgroup_table1_ and _mydgroup_table2_. Afterwards, three tupes are inserted in both tables. 
 
 ```bash
 $ $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup mydgroup -replicationfactor 1 -dimensions 2
@@ -209,58 +209,55 @@ $ $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table1
 $ $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table2
 
 # Tuples of table1
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key key1 -bbox 1:2,1:2 -value value1
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key key2 -bbox 5:7,5:7 -value value2
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key key3 -bbox 10:12,10:12 -value value3
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_a -bbox 1:8,1:2 -value value_a
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_b -bbox 4:6,0:5 -value value_b
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_c -bbox 8:10,8:10 -value value_c
 
 # Tuples of table2
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key key1 -bbox 1:20,1:20 -value value1
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key key2 -bbox 1:3,1:3 -value value2
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_1 -bbox 1:3,5:6 -value value_1
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_2 -bbox 4.5:5.5,1.5:4.5 -value value_2
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_3 -bbox 7.5:10,1.5:2.5 -value value_3
 ```
 
-After the data is prepared, the join can be executed:
+After the data is inserted, we have a data distribution like shown in the following figure. 
+
+<p><img src="/bboxdb/images/join_data.jpg" width="400"></p>
+
+The tuple _Tuple A_ intersects with _Tuple 2_ and with _Tuple 3_; tuple _Tuple 2_ is contained in _Tuple B_ completely. Now, the join can be performed with the following command. The join returns the previous three 
 
 ```bash
-$ $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -bbox 0:20:0:20
 Executing join query...
 ===============
-Joined bounding box: [1.0:2.0,1.0:2.0]
+Joined bounding box: [4.5:5.5,1.5:2.0]
 
 Table: mydgroup_table1
-Tuple: Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value1, version timestamp=1517232010086000
+Tuple: Key tuple_a, BoundingBox=[1.0:8.0,1.0:2.0], value=value_a, version timestamp=1519115209590000
 
 Table: mydgroup_table2
-Tuple: Key key1, BoundingBox=[1.0:20.0,1.0:20.0], value=value1, version timestamp=1517232044346000
+Tuple: Key tuple_2, BoundingBox=[4.5:5.5,1.5:4.5], value=value_2, version timestamp=1519115217210000
+
 ===============
 
 ===============
-Joined bounding box: [1.0:2.0,1.0:2.0]
+Joined bounding box: [7.5:8.0,1.5:2.0]
 
 Table: mydgroup_table1
-Tuple: Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value1, version timestamp=1517232010086000
+Tuple: Key tuple_a, BoundingBox=[1.0:8.0,1.0:2.0], value=value_a, version timestamp=1519115209590000
 
 Table: mydgroup_table2
-Tuple: Key key2, BoundingBox=[1.0:3.0,1.0:3.0], value=value2, version timestamp=1517232048595000
+Tuple: Key tuple_3, BoundingBox=[7.5:10.0,1.5:2.5], value=value_3, version timestamp=1519115219198000
+
 ===============
 
 ===============
-Joined bounding box: [5.0:7.0,5.0:7.0]
+Joined bounding box: [4.5:5.5,1.5:4.5]
 
 Table: mydgroup_table1
-Tuple: Key key2, BoundingBox=[5.0:7.0,5.0:7.0], value=value2, version timestamp=1517232030282000
+Tuple: Key tuple_b, BoundingBox=[4.0:6.0,0.0:5.0], value=value_b, version timestamp=1519115211570000
 
 Table: mydgroup_table2
-Tuple: Key key1, BoundingBox=[1.0:20.0,1.0:20.0], value=value1, version timestamp=1517232044346000
-===============
+Tuple: Key tuple_2, BoundingBox=[4.5:5.5,1.5:4.5], value=value_2, version timestamp=1519115217210000
 
-===============
-Joined bounding box: [10.0:12.0,10.0:12.0]
-
-Table: mydgroup_table1
-Tuple: Key key3, BoundingBox=[10.0:12.0,10.0:12.0], value=value3, version timestamp=1517232033667000
-
-Table: mydgroup_table2
-Tuple: Key key1, BoundingBox=[1.0:20.0,1.0:20.0], value=value1, version timestamp=1517232044346000
 ===============
 
 Join done
