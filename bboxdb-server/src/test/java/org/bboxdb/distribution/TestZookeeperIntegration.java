@@ -691,6 +691,9 @@ public class TestZookeeperIntegration {
 		final SpacePartitioner freshGroup = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		Assert.assertEquals((float) 20.0, freshGroup.getRootNode().getSplit(), 0.00001);
 		
+		// Wait some time
+		Thread.sleep(1000);
+		
 		// Test cached instance
 		Assert.assertEquals((float) 20.0, cacheGroup.getRootNode().getSplit(), 0.00001);	
 	}

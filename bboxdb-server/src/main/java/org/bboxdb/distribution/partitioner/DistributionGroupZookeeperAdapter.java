@@ -322,10 +322,11 @@ public class DistributionGroupZookeeperAdapter {
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_VERSION, 
 				Long.toString(System.currentTimeMillis()).getBytes());
 		
+		setDistributionGroupConfiguration(distributionGroup, configuration);
+
+		// When the state field is written, the groups is assumed to be ready
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.ACTIVE.getStringValue().getBytes());
-		
-		setDistributionGroupConfiguration(distributionGroup, configuration);
 	}
 
 	/**
