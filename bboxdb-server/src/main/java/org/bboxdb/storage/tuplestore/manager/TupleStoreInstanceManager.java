@@ -21,10 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
 
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
 import org.bboxdb.storage.memtable.Memtable;
 import org.bboxdb.storage.sstable.reader.SSTableFacade;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
@@ -209,18 +207,16 @@ public class TupleStoreInstanceManager {
 	 * @throws InterruptedException 
 	 * @throws StorageManagerException 
 	 */
-	public synchronized void waitForMemtableFlush(final Memtable memtable, 
-			final Queue<MemtableAndTupleStoreManagerPair> queue) 
+	public synchronized void waitForMemtableFlush(final Memtable memtable) 
 			throws InterruptedException, StorageManagerException {
 		
+		logger.info("Waiting for flush {} / {}", memtable.getInternalName(), unflushedMemtables);
+		
 		while(unflushedMemtables.contains(memtable)) {
-			wait(60000); // Wait max 60 seconds
-			logger.info("Unflushed queue", queue);
+			wait();
 		}
 		
-		if(unflushedMemtables.contains(memtable)) {
-			throw new StorageManagerException("Memtable is still unflused after 60 seconds");
-		}
+		logger.info("Waiting for flush {} / {} DONE", memtable.getInternalName(), unflushedMemtables);
 	}
 	
 	/**

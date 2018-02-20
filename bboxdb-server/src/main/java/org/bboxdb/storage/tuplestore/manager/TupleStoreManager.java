@@ -197,7 +197,7 @@ public class TupleStoreManager implements BBoxDBService {
 	}
 
 	/**
-	 * Close all open ressources
+	 * Close all open resources
 	 */
 	protected void closeRessources() {
 		setToReadOnly();
@@ -221,7 +221,7 @@ public class TupleStoreManager implements BBoxDBService {
 
 		try {
 			logger.info("Waiting for flush {}", storage.getMemtablesToFlush());
-			tupleStoreInstances.waitForMemtableFlush(activeMemtable, storage.getMemtablesToFlush());
+			tupleStoreInstances.waitForMemtableFlush(activeMemtable);
 			logger.info("Waiting for flush done");
 		} catch (InterruptedException e) {
 			logger.info("Got interrupted exception while waiting for memtable flush");
@@ -742,9 +742,13 @@ public class TupleStoreManager implements BBoxDBService {
 	public void replaceMemtableWithSSTable(final Memtable memtable, final SSTableFacade sstableFacade) 
 			throws RejectedException {
 
+		logger.info("Replacing memtable {}", memtable.getInternalName());
+		
 		if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_ONLY) {
 			throw new RejectedException("Storage manager is in read only state: " + tupleStoreName);
 		}
+		
+		logger.info("Replacing memtable DONE {}", memtable.getInternalName());
 
 		tupleStoreInstances.replaceMemtableWithSSTable(memtable, sstableFacade);
 	}

@@ -100,6 +100,8 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 			return;
 		}
 
+		logger.info("Processing memtable {}", memtable.getInternalName());
+
 		SSTableFacade facade = null;
 
 		try {			
@@ -122,8 +124,10 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 			
 			memtable.deleteOnClose();
 			memtable.release();
-		}  catch (Exception e) {
+		}  catch (Throwable e) {
 			deleteWrittenFacade(facade);
+
+			logger.error("Exception while flushing memtable", e);
 
 			if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
 				logger.debug("Rejected memtable write:", e);
@@ -137,8 +141,6 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 				return;
 				
 			} 
-			
-			logger.error("Exception while flushing memtable", e);
 		}
 	}
 
