@@ -201,7 +201,7 @@ Key key3, BoundingBox=[2.0:10.0,2.0:10.0], value=value3, version timestamp=15103
 ```
 
 # Executing a join
-In this example, a join on two tables is executed. The join operation retuns all tuples of two or more tables in the same distribution group who have overlapping bounding boxes. As first step in this example, a 2-dimensional distribution group is created with the two tables _ mydgroup_table1_ and _mydgroup_table2_. Afterwards, three tupes are inserted in both tables. 
+In this example, a join on two tables is executed. The join operation returns all tuples of two or more tables in the same distribution group who have overlapping bounding boxes. As the first step in this example, a 2-dimensional distribution group is created with the two tables _ mydgroup_table1_ and _mydgroup_table2_. Afterwards, three tuples are inserted in both tables. 
 
 ```bash
 $ $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup mydgroup -replicationfactor 1 -dimensions 2
@@ -223,7 +223,7 @@ After the data is inserted, we have a data distribution like shown in the follow
 
 <p><img src="/bboxdb/images/join_data.jpg" width="400"></p>
 
-The tuple _Tuple A_ intersects with _Tuple 2_ and with _Tuple 3_; tuple _Tuple 2_ is contained in _Tuple B_ completely. Now, the join can be performed with the following command. The join returns the previous three 
+The tuple _Tuple A_ intersects with _Tuple 2_ and with _Tuple 3_; tuple _Tuple 2_ is contained in _Tuple B_ completely. Now, the join can be performed with the following command. The join returns the previous three tuples, which have intersecting bounding boxes.
 
 ```bash
 $ $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -bbox 0:10:0:8
