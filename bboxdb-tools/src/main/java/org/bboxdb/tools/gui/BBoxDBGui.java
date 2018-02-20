@@ -188,7 +188,7 @@ public class BBoxDBGui {
 		mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightScrollPanel);
 		mainPanel.setOneTouchExpandable(true);
 		mainPanel.setDividerLocation(150);
-		mainPanel.setPreferredSize(new Dimension(800, 600));		
+		mainPanel.setPreferredSize(new Dimension(1100, 600));		
 	}
 
 	protected JScrollPane getRightPanel() {
