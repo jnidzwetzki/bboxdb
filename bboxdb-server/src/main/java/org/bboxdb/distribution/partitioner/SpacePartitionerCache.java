@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class SpacePartitionerCache {
 	protected final static Map<String, SpacePartitioner> groupGroupMap;
 
 	static {
-		groupGroupMap = new HashMap<String, SpacePartitioner>();
+		groupGroupMap = Collections.synchronizedMap(new HashMap<String, SpacePartitioner>());
 	}
 	
 	/**
@@ -45,7 +46,7 @@ public class SpacePartitionerCache {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized SpacePartitioner getSpacePartitionerForGroupName(final String groupName) 
+	public static SpacePartitioner getSpacePartitionerForGroupName(final String groupName) 
 			throws ZookeeperException {
 		
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
@@ -69,7 +70,7 @@ public class SpacePartitionerCache {
 	 * @throws BBoxDBException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized SpacePartitioner getSpaceParitionerForTableName(
+	public static SpacePartitioner getSpaceParitionerForTableName(
 			final TupleStoreName ssTableName) throws ZookeeperException, BBoxDBException {
 		
 		if(! ssTableName.isValid()) {
