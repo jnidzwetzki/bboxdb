@@ -194,7 +194,7 @@ public class InsertTupleHandler implements RequestHandler {
 		} catch (RejectedException e) {
 			throw e;
 		} catch (Throwable e) {
-			logger.error("Got exception while inserting tuple", e);
+			throw new RejectedException(e);
 		} 
 	}
 
