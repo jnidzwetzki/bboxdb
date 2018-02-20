@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -41,11 +40,6 @@ public class DistributionRegion {
 	 * The name of the distribution group
 	 */
 	protected final DistributionGroupName distributionGroupName;
-	
-	/**
-	 * A pointer that points to the total number of levels
-	 */
-	protected final AtomicInteger totalLevel;
 	
 	/**
 	 * The split position
@@ -118,16 +112,11 @@ public class DistributionRegion {
 		// The level for the root node is 0
 		if(parent == ROOT_NODE_ROOT_POINTER) {
 			this.level = 0;
-			this.totalLevel = new AtomicInteger(0);
 		} else {
 			this.level = parent.getLevel() + 1;
-			this.totalLevel = parent.getTotalLevelPointer();
 		}
 		
-		// Update the total amount of levels
-		totalLevel.set(Math.max(totalLevel.get(), level + 1));
-		
-		systems = new ArrayList<BBoxDBInstance>();
+		systems = new ArrayList<>();
 	}
 	
 	/**
@@ -269,17 +258,13 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public int getTotalLevel() {
-		return totalLevel.get();
+		return getRootRegion().getAllChildren()
+				.stream()
+				.mapToInt(d -> d.getLevel())
+				.max()
+				.orElse(1) + 1;
 	}
-	
-	/**
-	 * Get the total level pointer
-	 * @return
-	 */
-	protected AtomicInteger getTotalLevelPointer() {
-		return totalLevel;
-	}
-	
+
 	/**
 	 * Get the dimension of the distribution region
 	 * @return
@@ -303,7 +288,7 @@ public class DistributionRegion {
 
 	@Override
 	public String toString() {
-		return "DistributionRegion [distributionGroupName=" + distributionGroupName + ", totalLevel=" + totalLevel
+		return "DistributionRegion [distributionGroupName=" + distributionGroupName + ", "
 				+ ", split=" + split + ", level=" + level + ", converingBox=" + converingBox + ", state=" + state
 				+ ", systems=" + systems + ", nameprefix=" + regionid + "]";
 	}
