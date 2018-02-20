@@ -238,7 +238,6 @@ Tuple: Key tuple_a, BoundingBox=[1.0:8.0,1.0:2.0], value=value_a, version timest
 
 Table: mydgroup_table2
 Tuple: Key tuple_2, BoundingBox=[4.5:5.5,1.5:4.5], value=value_2, version timestamp=1519115217210000
-
 ===============
 
 ===============
@@ -249,7 +248,6 @@ Tuple: Key tuple_a, BoundingBox=[1.0:8.0,1.0:2.0], value=value_a, version timest
 
 Table: mydgroup_table2
 Tuple: Key tuple_3, BoundingBox=[7.5:10.0,1.5:2.5], value=value_3, version timestamp=1519115219198000
-
 ===============
 
 ===============
@@ -260,7 +258,6 @@ Tuple: Key tuple_b, BoundingBox=[4.0:6.0,0.0:5.0], value=value_b, version timest
 
 Table: mydgroup_table2
 Tuple: Key tuple_2, BoundingBox=[4.5:5.5,1.5:4.5], value=value_2, version timestamp=1519115217210000
-
 ===============
 
 Join done
