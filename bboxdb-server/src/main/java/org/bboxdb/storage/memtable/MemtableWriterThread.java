@@ -115,11 +115,8 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 				facade.init();
 			}
 			
-			sstableManager.replaceMemtableWithSSTable(memtable, facade);
-						
-			logger.info("Running callbacks for {}", memtable.getInternalName());
+			sstableManager.replaceMemtableWithSSTable(memtable, facade);						
 			sendCallbacks(memtable, sstableManager);	
-			logger.info("Running callbacks done");
 
 			memtable.deleteOnClose();
 			memtable.release();
