@@ -373,7 +373,7 @@ public class TestZookeeperIntegration {
 
 		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
 		final double size1 = regionSplitHelper.getMaxRegionSizeFromStatistics(region);
-		Assert.assertEquals(0, size1, DELTA);
+		Assert.assertEquals(Integer.MAX_VALUE, size1, DELTA);
 		
 		final Map<BBoxDBInstance, Map<String, Long>> statistics1 = distributionGroupZookeeperAdapter.getRegionStatistics(region);
 		Assert.assertTrue(statistics1.isEmpty());
