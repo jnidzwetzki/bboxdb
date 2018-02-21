@@ -144,6 +144,15 @@ public class DistributionGroupZookeeperAdapter {
 	}
 
 	/**
+	 * Delete split position
+	 * @param path
+	 * @throws ZookeeperException 
+	 */
+	public void deleteSplitPositionForPath(final String path) throws ZookeeperException {
+		zookeeperClient.deleteNodesRecursive(path + "/" + ZookeeperNodeNames.NAME_SPLIT);
+	}
+	
+	/**
 	 * Test weather the group path is split or not
 	 * @param path
 	 * @return

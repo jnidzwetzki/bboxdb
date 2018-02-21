@@ -434,6 +434,13 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		for(final DistributionRegion childRegion : childRegions) {
 			deleteChild(childRegion);
 		}
+		
+		try {
+			final String zookeeperPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToMerge);
+			distributionGroupZookeeperAdapter.deleteSplitPositionForPath(zookeeperPath);
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
+		}
 	}
 
 	/**
