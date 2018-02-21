@@ -93,12 +93,11 @@ public class RegionSplitHelper {
 				.stream()
 				.mapToDouble(p -> p.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE))
 				.filter(Objects::nonNull)
-				.max()
-				.orElse(0);
+				.max().orElse(Integer.MAX_VALUE);
 			
 		} catch (Exception e) {
 			logger.error("Got an exception while reading statistics", e);
-			return 0;
+			return Integer.MAX_VALUE;
 		} 
 	}
 	
