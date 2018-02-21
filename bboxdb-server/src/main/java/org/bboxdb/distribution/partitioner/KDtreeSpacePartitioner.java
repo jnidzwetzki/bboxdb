@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.bboxdb.commons.Retryer;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
@@ -75,7 +76,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	private String version;
 	
 	/**
-	 * The callbacls
+	 * The callbacks
 	 */
 	private final Set<DistributionRegionChangedCallback> callbacks;
 	
@@ -215,11 +216,34 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			rootNode = DistributionRegion.createRootElement(distributionGroupName);
 		}
 		
+		rescanCompleteTree();
+	}
+	
+	/**
+	 * Rescan the complete tree
+	 * @throws ZookeeperException
+	 */
+	private void rescanCompleteTree() throws ZookeeperException {
 		final String fullname = distributionGroupName.getFullname();
 		final String path = distributionGroupZookeeperAdapter.getDistributionGroupPath(fullname);
 			
-		readDistributionGroupRecursive(path, rootNode);
-	}
+		final Retryer<Boolean> treeRereader = new Retryer<>(10, 100, () -> {
+				readDistributionGroupRecursive(path, rootNode); 
+				return true;
+			}
+		);
+		
+		try {
+			treeRereader.execute();
+			
+			if(! treeRereader.isSuccessfully()) {
+				throw new ZookeeperException("Unable to read tree", treeRereader.getLastException());
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+}
 
 	/**
 	 * Root node has changed, clear local mapppings 
@@ -286,24 +310,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			logger.debug("Ignore systems update event, because root not node is null: {}", distributionGroupName);
 			return;
 		}
-		
-		// Remove state node from path
-		final String path = event.getPath().replace("/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, "");
-		
-		final DistributionRegion nodeToUpdate = distributionGroupZookeeperAdapter.getNodeForPath(rootNode, path);
-		
-		try {
-			final String distributionGroupName = rootNode.getDistributionGroupName().getFullname();
 			
-			if(! distributionGroupZookeeperAdapter.isDistributionGroupRegistered(distributionGroupName)) {
-				logger.info("Distribution group was unregistered, ignore event");
-				return;
-			}
-			
-			readDistributionGroupRecursive(path, nodeToUpdate);
-		} catch (ZookeeperException e) {
-			logger.warn("Got exception while updating node for: " + path, e);
-		}
+		refreshWholeTreeNE();
 	}
 
 	/**
@@ -584,10 +592,12 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @param path
 	 * @param region
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 * @throws InterruptedException 
 	 * @throws KeeperException 
 	 */
-	private void readDistributionGroupRecursive(final String path, final DistributionRegion region) throws ZookeeperException {
+	private void readDistributionGroupRecursive(final String path, final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		logger.info("Reading path: {}", path);
 		
@@ -596,27 +606,23 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			return;
 		}
 		
-		try {
-			final DistributionRegionState regionState 
-				= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
-			
-			// Read region id
-			updateIdForRegion(path, region);
+	
+		final DistributionRegionState regionState 
+			= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
+		
+		// Read region id
+		updateIdForRegion(path, region);
 
-			// Handle systems and mappings
-			updateSystemsForRegion(region);
-			
-			// Update split position and read childs
-			updateSplitAndChildsForRegion(path, region);
-			
-			// Handle state updates at the end.
-			// Otherwise, we could set the region to splitted 
-			// and the child regions are not ready
-			region.setState(regionState);
-
-		} catch (ZookeeperNotFoundException e) {
-			refreshWholeTree();
-		}
+		// Handle systems and mappings
+		updateSystemsForRegion(region);
+		
+		// Update split position and read childs
+		updateSplitAndChildsForRegion(path, region);
+		
+		// Handle state updates at the end.
+		// Otherwise, we could set the region to splitted 
+		// and the child regions are not ready
+		region.setState(regionState);
 
 		updateLocalMappings();
 
@@ -641,12 +647,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		if(! region.hasChilds()) {		
 			region.setSplit(splitFloat); 
-		} else {
-			if(region.getSplit() != splitFloat) {
-				logger.error("Got different split positions: memory {}, zk {} for {}", 
-						region.getSplit(), splitFloat, path);
-			}
-		}
+		} 
 		
 		final String leftPath = path + "/" + ZookeeperNodeNames.NAME_LEFT;
 		if(zookeeperClient.exists(leftPath)) {
@@ -735,19 +736,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			
 			region.setSystems(systemsForDistributionRegion);
 		} catch (ZookeeperNotFoundException e) {
-			removeLocalMappings(region);
+			refreshWholeTreeNE();
 		}
-	}
-	
-	/**
-	 * Remove the local mappings for a given regions
-	 * @param region
-	 */
-	private void removeLocalMappings(final DistributionRegion region) {
-		// Remove the mapping from the regionid mapper	
-		final long regionId = region.getRegionId();		
-		logger.info("Remove local mapping for: {} / nameprefix {}", region, regionId);
-		distributionRegionMapper.removeMapping(regionId);
 	}
 
 	/**
