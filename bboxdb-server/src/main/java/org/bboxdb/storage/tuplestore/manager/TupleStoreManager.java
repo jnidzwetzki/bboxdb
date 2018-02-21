@@ -220,9 +220,7 @@ public class TupleStoreManager implements BBoxDBService {
 		initNewMemtable();
 
 		try {
-			logger.info("Waiting for flush {} / {}", storage.getMemtablesToFlush(), activeMemtable.getInternalName());
 			tupleStoreInstances.waitForMemtableFlush(activeMemtable);
-			logger.info("Waiting for flush done");
 		} catch (InterruptedException e) {
 			logger.info("Got interrupted exception while waiting for memtable flush");
 			Thread.currentThread().interrupt();
@@ -400,7 +398,7 @@ public class TupleStoreManager implements BBoxDBService {
 		for(final File file : entries) {
 			final String filename = file.getName();
 			if(SSTableHelper.isFileNameSSTable(filename)) {
-				logger.info("Found sstable: " + filename);
+				logger.info("Found sstable: {}", filename);
 
 				try {
 					final int sequenceNumber = SSTableHelper.extractSequenceFromFilename(tupleStoreName, filename);
@@ -741,14 +739,10 @@ public class TupleStoreManager implements BBoxDBService {
 	 */
 	public void replaceMemtableWithSSTable(final Memtable memtable, final SSTableFacade sstableFacade) 
 			throws RejectedException {
-
-		logger.info("Replacing memtable {}", memtable.getInternalName());
 		
 		if(tupleStoreInstances.getState() == TupleStoreManagerState.READ_ONLY) {
 			throw new RejectedException("Storage manager is in read only state: " + tupleStoreName);
 		}
-		
-		logger.info("Replacing memtable DONE {}", memtable.getInternalName());
 
 		tupleStoreInstances.replaceMemtableWithSSTable(memtable, sstableFacade);
 	}

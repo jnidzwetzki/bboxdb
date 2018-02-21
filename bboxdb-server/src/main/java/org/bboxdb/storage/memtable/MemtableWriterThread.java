@@ -75,10 +75,8 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	protected void runThread() {
 		while (! Thread.currentThread().isInterrupted()) {
 			try {
-				logger.info("Waiting for take");
 				final MemtableAndTupleStoreManagerPair memtableAndSSTableManager = storage.takeNextUnflushedMemtable();
 				final Memtable memtable = memtableAndSSTableManager.getMemtable();
-				logger.info("Got {}", memtable.getInternalName());
 				final TupleStoreManager sstableManager = memtableAndSSTableManager.getTupleStoreManager();
 				flushMemtableToDisk(memtable, sstableManager);
 			} catch (InterruptedException e) {
@@ -101,8 +99,6 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 			return;
 		}
 
-		logger.info("Processing memtable {}", memtable.getInternalName());
-
 		SSTableFacade facade = null;
 
 		try {			
@@ -121,8 +117,10 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 			
 			sstableManager.replaceMemtableWithSSTable(memtable, facade);
 						
+			logger.info("Running callbacks for {}", memtable.getInternalName());
 			sendCallbacks(memtable, sstableManager);	
-			
+			logger.info("Running callbacks done");
+
 			memtable.deleteOnClose();
 			memtable.release();
 		}  catch (Throwable e) {
