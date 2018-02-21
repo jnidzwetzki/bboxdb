@@ -246,7 +246,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 }
 
 	/**
-	 * Root node has changed, clear local mapppings 
+	 * Root node has changed, clear local mappings 
 	 */
 	private void handleRootNodeChanged() {
 		if(rootNode == null) {
@@ -606,7 +606,6 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			return;
 		}
 		
-	
 		final DistributionRegionState regionState 
 			= distributionGroupZookeeperAdapter.getStateForDistributionRegion(path, this);
 		
@@ -640,9 +639,12 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		if(! distributionGroupZookeeperAdapter.isGroupSplitted(path)) {
+			if(! region.isLeafRegion()) {
+				region.removeChildren();
+			}
 			return;
 		}
-		
+	
 		final double splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
 		
 		if(! region.hasChilds()) {		
@@ -652,16 +654,12 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		final String leftPath = path + "/" + ZookeeperNodeNames.NAME_LEFT;
 		if(zookeeperClient.exists(leftPath)) {
 			readDistributionGroupRecursive(leftPath, region.getLeftChild());
-		} else {
-			region.removeChildren();
 		}
 		
 		final String rightPath = path + "/" + ZookeeperNodeNames.NAME_RIGHT;
 		if(zookeeperClient.exists(rightPath)) {
 			readDistributionGroupRecursive(rightPath, region.getRightChild());
-		} else {
-			region.removeChildren();
-		}
+		} 
 	}
 
 	/**
@@ -736,6 +734,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			
 			region.setSystems(systemsForDistributionRegion);
 		} catch (ZookeeperNotFoundException e) {
+			logger.info("Got ZK not found, rescan tree", e);
 			refreshWholeTreeNE();
 		}
 	}
