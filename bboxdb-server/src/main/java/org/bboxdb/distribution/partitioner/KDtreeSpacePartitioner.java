@@ -432,6 +432,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		final List<DistributionRegion> childRegions = regionToMerge.getChildren();
 		
 		for(final DistributionRegion childRegion : childRegions) {
+			logger.info("Merge done deleting: {}", childRegion.getIdentifier());
 			deleteChild(childRegion);
 		}
 		
