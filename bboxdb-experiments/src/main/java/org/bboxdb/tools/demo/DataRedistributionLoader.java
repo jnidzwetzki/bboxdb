@@ -137,9 +137,11 @@ public class DataRedistributionLoader implements Runnable {
 					deleteFile(random.nextInt(files.length));
 				}
 				
-				loadFile(random.nextInt(files.length));
+				final boolean loaded = loadFile(random.nextInt(files.length));
 				
-				Thread.sleep(TimeUnit.SECONDS.toMillis(30));
+				if(loaded) {
+					Thread.sleep(TimeUnit.SECONDS.toMillis(30));
+				}
 			}
 			
 			// Delete all files before exit
@@ -211,14 +213,15 @@ public class DataRedistributionLoader implements Runnable {
 	/**
 	 * Load the given file
 	 * @param id
+	 * @return 
 	 * @throws InterruptedException 
 	 */
-	private void loadFile(final int fileid) throws InterruptedException {
+	private boolean loadFile(final int fileid) throws InterruptedException {
 		final String filename = files[fileid];
 		
 		if(loadedFiles.contains(filename)) {
 			System.err.println("File " + filename + " is already loaded");
-			return;
+			return false;
 		}
 		
 		System.out.println("Loading content from: " + filename);
@@ -249,6 +252,8 @@ public class DataRedistributionLoader implements Runnable {
 		pendingFutures.waitForCompletion();
 	
 		loadedFiles.add(filename);
+		
+		return true;
 	}
 	
 	/**
