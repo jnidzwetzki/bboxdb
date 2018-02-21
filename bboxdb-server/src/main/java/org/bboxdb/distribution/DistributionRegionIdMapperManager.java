@@ -63,7 +63,7 @@ public class DistributionRegionIdMapperManager {
 		// the DistributionRegionIdMapperManager which can also call this class. This leads
 		// to a deadlock, see commit 202159566873af26b94979db5fc0691f10f567d5
 		synchronized (instances) {	
-			if(instances.containsKey(distributionGroupName)) {
+			if(! instances.containsKey(distributionGroupName)) {
 				instances.put(distributionGroupName, new DistributionRegionIdMapper());
 			}
 		}
