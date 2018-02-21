@@ -163,13 +163,23 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 		final List<BiConsumer<TupleStoreName, Long>> callbacks 
 			= storage.getTupleStoreManagerRegistry().getSSTableFlushCallbacks();
 		
-		for(final BiConsumer<TupleStoreName, Long> callback : callbacks) {
-			try {
-				callback.accept(sstableManager.getTupleStoreName(), timestamp);
-			} catch(Exception e) {
-				logger.error("Got exception while executing callback", e);
+		final Runnable runnable = new Runnable() {
+			
+			@Override
+			public void run() {
+				for(final BiConsumer<TupleStoreName, Long> callback : callbacks) {
+					try {
+						callback.accept(sstableManager.getTupleStoreName(), timestamp);
+					} catch(Exception e) {
+						logger.error("Got exception while executing callback", e);
+					}
+				}
 			}
-		}
+		};
+		
+		final Thread thread = new Thread(runnable);
+		thread.setName("Callback thread");
+		thread.start();
 	}
 
 	/**
