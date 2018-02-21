@@ -89,13 +89,18 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	protected String spacePartitionerConfig;
 	
+	/** 
+	 * The region mapper
+	 */
+	private DistributionRegionIdMapper distributionRegionMapper;
+	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KDtreeSpacePartitioner.class);
 
 	public KDtreeSpacePartitioner() {
-		this.callbacks = new HashSet<>();		
+		this.callbacks = new HashSet<>();
 	}
 	
 	/**
@@ -113,6 +118,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		this.distributionGroupName = distributionGroupName;
 		this.zookeeperClient = zookeeperClient;
 		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
+		this.distributionRegionMapper = DistributionRegionIdMapperManager.getInstance(distributionGroupName);
 		
 		refreshWholeTree();
 	}
@@ -221,7 +227,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	private void handleRootNodeChanged() {
 		if(rootNode == null) {
 			logger.info("Root element for {} is deleted", distributionGroupName);
-			DistributionRegionIdMapperManager.getInstance(distributionGroupName).clear();
+			distributionRegionMapper.clear();
 			TupleStoreConfigurationCache.getInstance().clear();
 			DistributionGroupConfigurationCache.getInstance().clear();
 		}
@@ -733,7 +739,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		// Remove the mapping from the regionid mapper	
 		final long regionId = region.getRegionId();		
 		logger.info("Remove local mapping for: {} / nameprefix {}", region, regionId);
-		DistributionRegionIdMapperManager.getInstance(region.getDistributionGroupName()).removeMapping(regionId);
+		distributionRegionMapper.removeMapping(regionId);
 	}
 
 	/**
@@ -749,7 +755,6 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		}
 		
 		final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
-		final DistributionRegionIdMapper regionIdMapper = DistributionRegionIdMapperManager.getInstance(distributionGroupName);
 
 		if(localInstance == null) {
 			logger.debug("Local instance name is not set, so no local mapping is possible");
@@ -759,7 +764,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		final List<DistributionRegion> allChildren = rootNode.getAllChildren();
 		allChildren.add(rootNode);
 		
-		final Set<Long> allExistingMappings = new HashSet<>(regionIdMapper.getAllRegionIds());
+		final Set<Long> allExistingMappings = new HashSet<>(distributionRegionMapper.getAllRegionIds());
 		
 		final List<DistributionRegionState> activeStates = 
 				Arrays.asList(DistributionRegionState.ACTIVE, DistributionRegionState.ACTIVE_FULL);
@@ -776,7 +781,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 				
 				// Add the mapping to the nameprefix mapper
 				if(! allExistingMappings.contains(region.getRegionId())) {
-					regionIdMapper.addMapping(region);
+					distributionRegionMapper.addMapping(region);
 				}
 				
 				allExistingMappings.remove(region.getRegionId());
@@ -785,7 +790,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	
 		// Remove all active but not seen mappings
 		for(final long regionId : allExistingMappings) {
-			regionIdMapper.removeMapping(regionId);
+			distributionRegionMapper.removeMapping(regionId);
 		}
 	}
 }
