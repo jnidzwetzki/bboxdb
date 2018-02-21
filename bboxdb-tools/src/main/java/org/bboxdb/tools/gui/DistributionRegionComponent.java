@@ -297,7 +297,7 @@ public class DistributionRegionComponent {
 
 			for(final BBoxDBInstance instance : statistics.keySet()) {
 				final Map<String, Long> statisticData = statistics.get(instance);
-				sb.append("System: ");
+				sb.append("Node: ");
 				sb.append(instance.toGUIString(GuiModel.SCREENSHOT_MODE));
 				sb.append(" Tuples: ");
 				sb.append(statisticData.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES));
