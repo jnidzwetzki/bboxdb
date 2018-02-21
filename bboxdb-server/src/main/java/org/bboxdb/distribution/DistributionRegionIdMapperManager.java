@@ -47,23 +47,30 @@ public class DistributionRegionIdMapperManager {
 	 * Get the instance 
 	 * @param distributionGroupName
 	 */
-	public static synchronized DistributionRegionIdMapper getInstance(final DistributionGroupName distributionGroupName) {
-		if(! instances.containsKey(distributionGroupName)) {
-			instances.put(distributionGroupName, new DistributionRegionIdMapper());
-			
-			// Read distribution group to generate the local mappings
-			try {
-				final SpacePartitioner partitioner 
-					= SpacePartitionerCache.getSpacePartitionerForGroupName(
-							distributionGroupName.getFullname());
-				
-				partitioner.getRootNode();
-			} catch (ZookeeperException e) {
-				logger.error("Got an expcetion by reading the space partitioner", e);
+	public static DistributionRegionIdMapper getInstance(final DistributionGroupName distributionGroupName) {
+		
+		// We can not synchronize the complete method, the space partitioner needs to lock
+		// the DistributionRegionIdMapperManager which can also call this class. This leads
+		// to a deadlock, see commit 202159566873af26b94979db5fc0691f10f567d5
+		synchronized (instances) {	
+			if(instances.containsKey(distributionGroupName)) {
+				instances.put(distributionGroupName, new DistributionRegionIdMapper());
 			}
-			
 		}
 		
-		return instances.get(distributionGroupName);
+		// Read distribution group to generate the local mappings
+		try {
+			final SpacePartitioner partitioner 
+				= SpacePartitionerCache.getSpacePartitionerForGroupName(
+						distributionGroupName.getFullname());
+			
+			partitioner.getRootNode();
+		} catch (ZookeeperException e) {
+			logger.error("Got an expcetion by reading the space partitioner", e);
+		}
+		
+		synchronized (instances) {	
+			return instances.get(distributionGroupName);
+		}
 	}
 }

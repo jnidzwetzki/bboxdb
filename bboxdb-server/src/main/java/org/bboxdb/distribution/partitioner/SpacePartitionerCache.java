@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public class SpacePartitionerCache {
 	protected final static Map<String, SpacePartitioner> groupGroupMap;
 
 	static {
-		groupGroupMap = Collections.synchronizedMap(new HashMap<String, SpacePartitioner>());
+		groupGroupMap = new HashMap<String, SpacePartitioner>();
 	}
 	
 	/**
@@ -46,16 +45,12 @@ public class SpacePartitionerCache {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static SpacePartitioner getSpacePartitionerForGroupName(final String groupName) 
+	public static synchronized SpacePartitioner getSpacePartitionerForGroupName(final String groupName) 
 			throws ZookeeperException {
 		
-		// We can not synchronize this method, the space partitioner needs to lock
-		// the DistributionRegionIdMapperManager which can also call this class. This leads
-		// to a deadlock, see commit 202159566873af26b94979db5fc0691f10f567d5
-		
-		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-		
 		if(! groupGroupMap.containsKey(groupName)) {
+			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
 				= new DistributionGroupZookeeperAdapter(zookeeperClient);
 			
