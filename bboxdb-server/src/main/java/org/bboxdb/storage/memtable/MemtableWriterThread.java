@@ -75,8 +75,10 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 	protected void runThread() {
 		while (! Thread.currentThread().isInterrupted()) {
 			try {
+				logger.info("Waiting for take");
 				final MemtableAndTupleStoreManagerPair memtableAndSSTableManager = storage.takeNextUnflushedMemtable();
 				final Memtable memtable = memtableAndSSTableManager.getMemtable();
+				logger.info("Got {}", memtable.getInternalName());
 				final TupleStoreManager sstableManager = memtableAndSSTableManager.getTupleStoreManager();
 				flushMemtableToDisk(memtable, sstableManager);
 			} catch (InterruptedException e) {
