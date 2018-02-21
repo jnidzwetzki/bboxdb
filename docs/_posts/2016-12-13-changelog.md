@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.4.2 (Stable) - TBA
+### Version 0.4.2 (21.02.2018) - TBA
 - New Feature: Added data loader for re-balance demonstration
 - New Feature: Added gossip for eventual consistency
 - New Feature: Added read repair for eventual consistency
@@ -52,6 +52,7 @@ order: 1
 - Bugfix: Merging locally stored data was not supported
 - Bugfix: Mapped distribution regions are removed after merge
 - Bugfix: Fixed deadlock between region id mapper and space partitioner cache
+- Bugfix: Deleted distribution groups are now removed from the KD-Tree in memory version
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation
