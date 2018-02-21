@@ -199,6 +199,7 @@ public class DiskStorage implements BBoxDBService {
 		// The put call can block when more than
 		// MAX_UNFLUSHED_MEMTABLES_PER_TABLE are unflushed.
 		try {
+			logger.info("Schedule for flush {}", memtable.getMemtable().getInternalName());
 			memtablesToFlush.put(memtable);
 			
 			// Update performance counter
