@@ -257,12 +257,12 @@ public class DistributionRegion {
 	 * Get the number of levels in this tree
 	 * @return
 	 */
-	public int getTotalLevel() {
+	public int getTotalLevel() {		
 		return getRootRegion().getAllChildren()
 				.stream()
 				.mapToInt(d -> d.getLevel())
 				.max()
-				.orElse(1) + 1;
+				.orElse(0) + 1;
 	}
 
 	/**
