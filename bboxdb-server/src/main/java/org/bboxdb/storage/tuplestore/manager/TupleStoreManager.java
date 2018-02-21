@@ -220,9 +220,9 @@ public class TupleStoreManager implements BBoxDBService {
 		initNewMemtable();
 
 		try {
-			logger.debug("Waiting for flush {}", storage.getMemtablesToFlush());
+			logger.info("Waiting for flush {} / {}", storage.getMemtablesToFlush(), activeMemtable.getInternalName());
 			tupleStoreInstances.waitForMemtableFlush(activeMemtable);
-			logger.debug("Waiting for flush done");
+			logger.info("Waiting for flush done");
 		} catch (InterruptedException e) {
 			logger.info("Got interrupted exception while waiting for memtable flush");
 			Thread.currentThread().interrupt();
