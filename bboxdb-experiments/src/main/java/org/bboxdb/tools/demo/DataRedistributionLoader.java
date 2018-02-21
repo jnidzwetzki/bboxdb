@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -144,9 +143,7 @@ public class DataRedistributionLoader implements Runnable {
 			}
 			
 			// Delete all files before exit
-			for(final String filename : loadedFiles) {
-				final int fileId = Arrays.asList(files).indexOf(filename);
-				assert(fileId >= 0);
+			for(int fileId = 0; fileId < files.length; fileId++) {
 				deleteFile(fileId);
 			}
 			
