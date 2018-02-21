@@ -21,12 +21,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import org.bboxdb.commons.MathUtil;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
@@ -89,16 +92,30 @@ public class DataRedistributionLoader implements Runnable {
 	private final static int MAX_LOADED_FILES = 5;
 	
 	/**
+	 * The number of files to load
+	 */
+	private final int numberOfFilesToLoad;
+	
+	/**
+	 * The random
+	 */
+	private final Random random;
+	
+	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DataRedistributionLoader.class);
 
-	public DataRedistributionLoader(final String files, final BBoxDBCluster bboxDBCluster) {
+	public DataRedistributionLoader(final String files, final int numberOfFilesToLoad, 
+			final BBoxDBCluster bboxDBCluster) {
+		this.numberOfFilesToLoad = numberOfFilesToLoad;
+		
 		this.bboxDBCluster = bboxDBCluster;
 		this.loadedFiles = new HashSet<>();
 		this.pendingFutures = new FixedSizeFutureStore(MAX_PENDING_FUTURES);
 		this.files = files.split(":");
 		this.tupleBuilder = new GeoJSONTupleBuilder();
+		this.random = new Random();
 		
 		// Log failed futures
 		pendingFutures.addFailedFutureCallback(
@@ -115,17 +132,21 @@ public class DataRedistributionLoader implements Runnable {
 		initBBoxDB();
 		
 		try {
-			for(int i = 0; i < files.length; i++) {
-				if(loadedFiles.size() > MAX_LOADED_FILES) {
-					deleteFile(i - MAX_LOADED_FILES);
+			while(loadedFiles.size() < numberOfFilesToLoad) {
+				
+				while(loadedFiles.size() > MAX_LOADED_FILES) {
+					deleteFile(random.nextInt(files.length));
 				}
 				
-				loadFile(i);
+				loadFile(random.nextInt(files.length));
 				
 				Thread.sleep(TimeUnit.SECONDS.toMillis(30));
 			}
 			
-			for(int fileId = 0; fileId < files.length; fileId++) {
+			// Delete all files before exit
+			for(final String filename : loadedFiles) {
+				final int fileId = Arrays.asList(files).indexOf(filename);
+				assert(fileId >= 0);
 				deleteFile(fileId);
 			}
 			
@@ -293,13 +314,14 @@ public class DataRedistributionLoader implements Runnable {
 	 * @param args
 	 */
 	public static void main(final String[] args) {
-		if(args.length != 3) {
-			System.err.println("Usage: <Class> <File1>:<File2>:<FileN> <ZookeeperEndpoint> <Clustername>");
+		if(args.length != 4) {
+			System.err.println("Usage: <Class> <File1>:<File2>:<FileN> <Number of files to load> "
+					+ "<ZookeeperEndpoint> <Clustername>");
 			System.exit(-1);
 		}
 		
-		final String zookeeperEndpoint = args[1];
-		final String clustername = args[2];
+		final String zookeeperEndpoint = args[2];
+		final String clustername = args[3];
 		
 		final BBoxDBCluster bboxDBCluster = new BBoxDBCluster(zookeeperEndpoint, clustername);
 		bboxDBCluster.connect();
@@ -309,7 +331,12 @@ public class DataRedistributionLoader implements Runnable {
 			System.exit(-1);
 		}
 		
-		final DataRedistributionLoader dataRedistributionLoader = new DataRedistributionLoader(args[0], bboxDBCluster);
+		final int numberOfFilesToLoad = MathUtil.tryParseIntOrExit(args[1], 
+				() -> "Unable to parse: " + args[1]);
+		
+		final DataRedistributionLoader dataRedistributionLoader = new DataRedistributionLoader(args[0], 
+				numberOfFilesToLoad, bboxDBCluster);
+		
 		dataRedistributionLoader.run();
 	}
 }
