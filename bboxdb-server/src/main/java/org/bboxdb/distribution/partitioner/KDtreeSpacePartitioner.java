@@ -118,7 +118,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		this.distributionGroupName = distributionGroupName;
 		this.zookeeperClient = zookeeperClient;
 		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
-		this.distributionRegionMapper = DistributionRegionIdMapperManager.getInstance(distributionGroupName);
+		this.distributionRegionMapper = DistributionRegionIdMapperManager.getInstance(distributionGroupName, false);
 		
 		refreshWholeTree();
 	}

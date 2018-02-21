@@ -48,7 +48,17 @@ public class DistributionRegionIdMapperManager {
 	 * @param distributionGroupName
 	 */
 	public static DistributionRegionIdMapper getInstance(final DistributionGroupName distributionGroupName) {
-		
+		return getInstance(distributionGroupName, true);
+	}
+	
+	/**
+	 * Get the given instance
+	 * @param distributionGroupName
+	 * @param callRegionInit
+	 * @return
+	 */
+	public static DistributionRegionIdMapper getInstance(final DistributionGroupName distributionGroupName,
+			final boolean callRegionInit) {
 		// We can not synchronize the complete method, the space partitioner needs to lock
 		// the DistributionRegionIdMapperManager which can also call this class. This leads
 		// to a deadlock, see commit 202159566873af26b94979db5fc0691f10f567d5
@@ -60,11 +70,13 @@ public class DistributionRegionIdMapperManager {
 		
 		// Read distribution group to generate the local mappings
 		try {
-			final SpacePartitioner partitioner 
-				= SpacePartitionerCache.getSpacePartitionerForGroupName(
-						distributionGroupName.getFullname());
-			
-			partitioner.getRootNode();
+			if(callRegionInit) {
+				final SpacePartitioner partitioner 
+					= SpacePartitionerCache.getSpacePartitionerForGroupName(
+							distributionGroupName.getFullname());
+				
+				partitioner.getRootNode();
+			}
 		} catch (ZookeeperException e) {
 			logger.error("Got an expcetion by reading the space partitioner", e);
 		}
