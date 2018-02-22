@@ -21,6 +21,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.BoundingBox;
@@ -29,17 +32,24 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Stopwatch;
+
 public class DistributionRegionIdMapper {
 
 	/**
 	 * The mappings
 	 */
-	protected final List<RegionTablenameEntry> regions = new CopyOnWriteArrayList<RegionTablenameEntry>();
+	protected final List<RegionTablenameEntry> regions;
 	
 	/**
 	 * The Logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionIdMapper.class);
+	
+	
+	public DistributionRegionIdMapper() {
+		this.regions = new CopyOnWriteArrayList<>();
+	}
 	
 	/**
 	 * Search the region ids that are overlapped by the bounding box
@@ -144,7 +154,11 @@ public class DistributionRegionIdMapper {
 		}
 		
 		logger.info("Add local mapping for: {}", region.getIdentifier());
-		regions.add(new RegionTablenameEntry(converingBox, regionId));
+		
+		synchronized (regions) {
+			regions.add(new RegionTablenameEntry(converingBox, regionId));
+			regions.notifyAll();
+		}
 		
 		return true;
 	}
@@ -154,14 +168,18 @@ public class DistributionRegionIdMapper {
 	 * @return
 	 */
 	public boolean removeMapping(final long regionId) {
-		// Removal is supported by COW array list
-		final boolean removed = regions.removeIf(r -> r.getRegionId() == regionId);
 		
-		if(removed) {
-			logger.info("Mapping for region id {} removed", regionId);
+		synchronized (regions) {
+			final boolean removed = regions.removeIf(r -> r.getRegionId() == regionId);
+			
+			if(removed) {
+				logger.info("Mapping for region id {} removed", regionId);
+			}
+			
+			regions.notifyAll();
+			
+			return removed;
 		}
-		
-		return removed;
 	}
 	
 	/**
@@ -169,7 +187,88 @@ public class DistributionRegionIdMapper {
 	 */
 	public void clear() {
 		logger.info("Clear all local mappings");
-		regions.clear();
+		
+		synchronized (regions) {
+			regions.clear();
+			regions.notifyAll();
+		}
+	}
+	
+	/**
+	 * Wait until mapping appears
+	 * @param regionId
+	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 */
+	public void waitUntilMappingAppears(final long regionId) throws TimeoutException, InterruptedException {
+		waitUntilMappingAppears(regionId, 30, TimeUnit.SECONDS);
+	}
+	
+	/**
+	 * Wait until mapping appears
+	 * @param regionId
+	 * @throws TimeoutException 
+	 * @throws InterruptedException 
+	 */
+	public void waitUntilMappingAppears(final long regionId, final int maxWaitTime, 
+			final TimeUnit timeUnit) throws TimeoutException, InterruptedException {
+		
+		final Predicate<Set<Long>> mappingAppearsPredicate = (l) -> (l.contains(regionId));
+		
+		waitUntilChangeHappens(regionId, maxWaitTime, timeUnit, mappingAppearsPredicate);
+	}
+	
+	/**
+	 * Wait until a mapping disappears
+	 * @param regionId
+	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 */
+	public void waitUntilMappingDisappears(final long regionId) throws TimeoutException, InterruptedException {
+		waitUntilMappingDisappears(regionId, 30, TimeUnit.SECONDS);
+	}
+	
+	/**
+	 * Wait until a mapping disappears
+	 * @param regionId
+	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 */
+	public void waitUntilMappingDisappears(final long regionId, final int maxWaitTime, 
+			final TimeUnit timeUnit) throws TimeoutException, InterruptedException {
+		
+		final Predicate<Set<Long>> mappingAppearsPredicate = (l) -> (! l.contains(regionId));
+		
+		waitUntilChangeHappens(regionId, maxWaitTime, timeUnit, mappingAppearsPredicate);
+	}
+	
+	/**
+	 * Test until a change happes
+	 * @param regionId
+	 * @param maxWaitTime
+	 * @param timeUnit
+	 * @param predicate
+	 * @throws TimeoutException
+	 * @throws InterruptedException
+	 */
+	private void waitUntilChangeHappens(final long regionId, final int maxWaitTime, 
+			final TimeUnit timeUnit, final Predicate<Set<Long>> predicate) 
+					throws TimeoutException, InterruptedException {
+		
+		final Stopwatch stopwatch = Stopwatch.createStarted();
+		final long waitTimeInMilis = timeUnit.toMillis(maxWaitTime);
+
+		synchronized (regions) {
+			while(! predicate.test(getAllRegionIds())) {
+				regions.wait(waitTimeInMilis);
+				
+				final long passedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+				
+				if(passedTime >= waitTimeInMilis) {
+					throw new TimeoutException("Timeout after waiting " + passedTime + " ms");
+				}
+			}
+		}
 	}
 }
 

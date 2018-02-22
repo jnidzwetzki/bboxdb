@@ -19,6 +19,8 @@ package org.bboxdb.distribution;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -224,5 +226,130 @@ public class TestRegionIdMapper {
 
 		final List<TupleStoreName> mappingResult = regionIdMapper.getAllLocalTables(DEFAULT_SSTABLE_NAME);
 		Assert.assertEquals(3, mappingResult.size());
+	}
+	
+	/**
+	 * Wait until mapping appears
+	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 */
+	@Test(timeout=10000)
+	public void testMappingAppears1() throws TimeoutException, InterruptedException {
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
+		
+		final DistributionRegion region3 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region3.setRegionId(3);
+		region3.setConveringBox(new BoundingBox(15d, 18d, 15d, 18d));
+		
+		regionIdMapper.addMapping(region3);
+		
+		regionIdMapper.waitUntilMappingAppears(3);
+	}
+	
+	/**
+	 * Wait until mapping appears
+	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 */
+	@Test(timeout=10000, expected=TimeoutException.class)
+	public void testMappingAppears2() throws TimeoutException, InterruptedException {
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
+		regionIdMapper.waitUntilMappingAppears(3, 5, TimeUnit.SECONDS);
+	}
+	
+	/**
+	 * Wait until mapping appears
+	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 */
+	@Test(timeout=15000)
+	public void testMappingAppears3() throws TimeoutException, InterruptedException {
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
+		
+		final Runnable runable = new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				final DistributionRegion region3 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+				region3.setRegionId(3);
+				region3.setConveringBox(new BoundingBox(15d, 18d, 15d, 18d));
+				
+				regionIdMapper.addMapping(region3);
+			}
+		};
+		
+		final Thread thread = new Thread(runable);
+		thread.start();
+		
+		regionIdMapper.waitUntilMappingAppears(3, 5, TimeUnit.SECONDS);
+	}
+	
+	
+	/**
+	 * Wait until mapping disappears
+	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 */
+	@Test(timeout=10000)
+	public void testMappingDisappears1() throws TimeoutException, InterruptedException {
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
+		regionIdMapper.waitUntilMappingDisappears(3);
+	}
+	
+	/**
+	 * Wait until mapping disappears
+	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 */
+	@Test(timeout=15000, expected=TimeoutException.class)
+	public void testMappingDisappears2() throws TimeoutException, InterruptedException {
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
+		
+		final DistributionRegion region3 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region3.setRegionId(3);
+		region3.setConveringBox(new BoundingBox(15d, 18d, 15d, 18d));
+		regionIdMapper.addMapping(region3);
+
+		regionIdMapper.waitUntilMappingDisappears(3, 5, TimeUnit.SECONDS);
+	}
+	
+	/**
+	 * Wait until mapping disappears
+	 * @throws InterruptedException 
+	 * @throws TimeoutException 
+	 */
+	@Test(timeout=10000)
+	public void testMappingDisappears3() throws TimeoutException, InterruptedException {
+		final DistributionRegionIdMapper regionIdMapper = new DistributionRegionIdMapper();
+		
+		final DistributionRegion region3 = new DistributionRegion(DEFAULT_SSTABLE_NAME.getDistributionGroupObject(), null);
+		region3.setRegionId(3);
+		region3.setConveringBox(new BoundingBox(15d, 18d, 15d, 18d));
+		
+		regionIdMapper.addMapping(region3);
+		
+		final Runnable runable = new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(2000);
+					regionIdMapper.removeMapping(3);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		final Thread thread = new Thread(runable);
+		thread.start();
+		
+		regionIdMapper.waitUntilMappingDisappears(3, 5, TimeUnit.SECONDS);
 	}
 }
