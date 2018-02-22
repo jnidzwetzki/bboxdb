@@ -138,7 +138,7 @@ public class RegionSplitHelper {
 			final long minSize = getRegionMInSizeInMB(region);
 			
 			logger.info("Testing for region underflow curent size is {} / min is {} / children {}", 
-					childRegionSize, minSize, region.getChildren());
+					childRegionSize, minSize, region.getDirectChildren());
 			
 			return (childRegionSize < minSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
@@ -152,7 +152,7 @@ public class RegionSplitHelper {
 	 * @return
 	 */
 	public double getTotalRegionSize(final DistributionRegion region) {
-		return region.getChildren()
+		return region.getDirectChildren()
 				.stream()
 				.filter(Objects::nonNull)
 				.mapToDouble(r -> getMaxRegionSizeFromStatistics(r))

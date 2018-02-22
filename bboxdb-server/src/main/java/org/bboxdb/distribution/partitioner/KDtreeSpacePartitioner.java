@@ -436,7 +436,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	
 	@Override
 	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException {
-		final List<DistributionRegion> childRegions = regionToMerge.getChildren();
+		final List<DistributionRegion> childRegions = regionToMerge.getDirectChildren();
 		
 		for(final DistributionRegion childRegion : childRegions) {
 			logger.info("Merge done deleting: {}", childRegion.getIdentifier());
@@ -757,7 +757,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			return;
 		}
 		
-		final List<DistributionRegion> allChildren = rootNode.getAllRegions();
+		final List<DistributionRegion> allChildren = rootNode.getThisAndChildRegions();
 		
 		final Set<Long> allExistingMappings = new HashSet<>(distributionRegionMapper.getAllRegionIds());
 		

@@ -105,7 +105,7 @@ public class RegionMerger {
 
 		logger.info("Redistributing all data for region (merge): " + region.getIdentifier());
 
-		final List<DistributionRegion> childRegions = region.getChildren();
+		final List<DistributionRegion> childRegions = region.getDirectChildren();
 
 		final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
 

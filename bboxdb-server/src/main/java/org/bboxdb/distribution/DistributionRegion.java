@@ -132,7 +132,7 @@ public class DistributionRegion {
 	 * Get the children of the region
 	 * @return
 	 */
-	public List<DistributionRegion> getChildren() {
+	public List<DistributionRegion> getDirectChildren() {
 		final List<DistributionRegion> result = new ArrayList<>();
 		
 		if(getLeftChild() != null) {
@@ -170,10 +170,10 @@ public class DistributionRegion {
 	 * Get all distribution regions
 	 * @return
 	 */
-	public List<DistributionRegion> getAllRegions() {
+	public List<DistributionRegion> getThisAndChildRegions() {
 		final List<DistributionRegion> result = new ArrayList<>();
-		result.add(getRootRegion());
-		result.addAll(getRootRegion().getAllChildren());
+		result.add(this);
+		result.addAll(getAllChildren());
 		return result;
 	}
 	
