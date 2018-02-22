@@ -47,6 +47,7 @@ public class DistributionRegionHelper {
 			DistributionRegionState.ACTIVE_FULL, 
 			DistributionRegionState.SPLITTING, 
 			DistributionRegionState.MERGING);
+	
 	/**
 	 * System for read operations
 	 */
@@ -106,13 +107,19 @@ public class DistributionRegionHelper {
 	 * @return
 	 */
 	public static Multiset<BBoxDBInstance> getSystemUtilization(final DistributionRegion region) {
-		final CalculateSystemUtilization calculateSystemUtilization = new CalculateSystemUtilization();
+		
+		final Multiset<BBoxDBInstance> utilization = HashMultiset.create();
 		
 		if(region != null) {
-			region.visit(calculateSystemUtilization);
+			region
+				.getThisAndChildRegions()
+				.stream()
+				.map(r -> r.getSystems())
+				.flatMap(s -> s.stream())
+				.forEach(s -> utilization.add(s));
 		}
 		
-		return calculateSystemUtilization.getResult();
+		return utilization;
 	}
 	
 	/**
@@ -136,32 +143,6 @@ public class DistributionRegionHelper {
 	
 }
 
-
-class CalculateSystemUtilization implements DistributionRegionVisitor {
-
-	/**
-	 * The utilization
-	 */
-	protected Multiset<BBoxDBInstance> utilization = HashMultiset.create();
-	
-	@Override
-	public boolean visitRegion(final DistributionRegion distributionRegion) {
-		final Collection<BBoxDBInstance> systems = distributionRegion.getSystems();
-		systems.forEach(i -> utilization.add(i));
-
-		// Visit remaining nodes
-		return true;
-	}
-	
-	/**
-	 * Get the result
-	 * @return
-	 */
-	public Multiset<BBoxDBInstance> getResult() {
-		return utilization;
-	}
-	
-}
 
 class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisitor {
 	
