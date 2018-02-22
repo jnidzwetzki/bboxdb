@@ -17,21 +17,16 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
-import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 
 public class DistributionRegion {
@@ -463,67 +458,6 @@ public class DistributionRegion {
 		this.systems = newSystemsList;
 	}
 	
-	/**
-	 * Get the a list of systems for the bounding box
-	 * @return
-	 */
-	public Collection<RoutingHop> getRoutingHopsForRead(final BoundingBox boundingBox) {
-		final Map<InetSocketAddress, RoutingHop> result = new HashMap<>();
-		
-		getHopsForBoundingBoxRecursive(boundingBox, 
-				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ, 
-				result);
-		
-		return result.values();
-	}
-	
-	/**
-	 * Get the a list of systems for the bounding box
-	 * @return
-	 */
-	public Collection<RoutingHop> getRoutingHopsForWrite(final BoundingBox boundingBox) {
-		final Map<InetSocketAddress, RoutingHop> result = new HashMap<>();
-		
-		getHopsForBoundingBoxRecursive(boundingBox, 
-				DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE, 
-				result);
-		
-		return result.values();
-	}
-	
-	/**
-	 * Add the leaf nodes systems that are covered by the bounding box
-	 * @param boundingBox
-	 * @param systems
-	 */
-	protected void getHopsForBoundingBoxRecursive(final BoundingBox boundingBox, 
-			final Predicate<DistributionRegionState> statePredicate,
-			final Map<InetSocketAddress, RoutingHop> hops) {
-		
-		// This node is not covered. So, child nodes are not covered
-		if(! converingBox.overlaps(boundingBox)) {
-			return;
-		}
-		
-		if(statePredicate.test(state)) {
-			for(final BBoxDBInstance system : systems) {
-				if(! hops.containsKey(system.getInetSocketAddress())) {
-					final RoutingHop routingHop = new RoutingHop(system, new ArrayList<Long>());
-					hops.put(system.getInetSocketAddress(), routingHop);
-				}
-				
-				final RoutingHop routingHop = hops.get(system.getInetSocketAddress());
-				routingHop.addRegion(regionid);
-			}
-			
-		} 
-		
-		if(! isLeafRegion()) {
-			leftChild.getHopsForBoundingBoxRecursive(boundingBox, statePredicate, hops);
-			rightChild.getHopsForBoundingBoxRecursive(boundingBox, statePredicate, hops);
-		}
-	}
-
 	/**
 	 * Get the DistributionRegions for a given bounding box 
 	 * @param boundingBox

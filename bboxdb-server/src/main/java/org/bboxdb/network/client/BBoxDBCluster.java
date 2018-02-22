@@ -171,8 +171,8 @@ public class BBoxDBCluster implements BBoxDB {
 				try {
 					final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 	
-					final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWrite(tuple.getBoundingBox(), 
-							distributionRegion);
+					final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWriteWithRetry(distributionRegion, 
+							tuple.getBoundingBox());
 					
 					return new RoutingHeader((short) -1, hops);	
 				} catch (InterruptedException e) {
@@ -347,7 +347,8 @@ public class BBoxDBCluster implements BBoxDB {
 				= SpacePartitionerCache.getSpaceParitionerForTableName(sstableName);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			final Collection<RoutingHop> hops = distributionRegion.getRoutingHopsForRead(boundingBox);
+			final Collection<RoutingHop> hops 
+				= RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
 
 			if(logger.isDebugEnabled()) {
 				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, hops);
@@ -421,7 +422,9 @@ public class BBoxDBCluster implements BBoxDB {
 				= SpacePartitionerCache.getSpaceParitionerForTableName(sstableName);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			final Collection<RoutingHop> hops = distributionRegion.getRoutingHopsForRead(boundingBox);
+			
+			final Collection<RoutingHop> hops 
+				= RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
 
 			if(logger.isDebugEnabled()) {
 				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, hops);
@@ -501,9 +504,10 @@ public class BBoxDBCluster implements BBoxDB {
 				= SpacePartitionerCache.getSpaceParitionerForTableName(sstableName);
 
 			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			
-			final Collection<RoutingHop> hops = distributionRegion.getRoutingHopsForRead(boundingBox);
-			
+						
+			final Collection<RoutingHop> hops 
+				= RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
+
 			final JoinedTupleListFuture future = new JoinedTupleListFuture();
 
 			hops.stream()

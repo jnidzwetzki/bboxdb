@@ -103,9 +103,9 @@ public class RoutingHeaderHelper {
 			final List<RoutingHop> hops;
 			
 			if(write) {
-				hops = RoutingHopHelper.getRoutingHopsForWrite(boundingBox, distributionRegion);
+				hops = RoutingHopHelper.getRoutingHopsForWriteWithRetry(distributionRegion, boundingBox);
 			} else {
-				hops = RoutingHopHelper.getRoutingHopsForRead(boundingBox, distributionRegion);
+				hops = RoutingHopHelper.getRoutingHopsForReadWithRetry(distributionRegion, boundingBox);
 			}
 			
 			if(hops != null && ! hops.isEmpty()) {

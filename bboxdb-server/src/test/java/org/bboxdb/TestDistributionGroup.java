@@ -30,6 +30,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.network.routing.RoutingHop;
+import org.bboxdb.network.routing.RoutingHopHelper;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
@@ -180,15 +181,21 @@ public class TestDistributionGroup {
 		level0.setState(DistributionRegionState.SPLIT);
 		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
 		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
-				
-		Assert.assertFalse(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(100d, 110d))).contains(SYSTEM_A));
-		Assert.assertTrue(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(0d, 10d))).contains(SYSTEM_A));
 		
-		Assert.assertTrue(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(0d, 10d))).contains(SYSTEM_A));
-		Assert.assertFalse(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(100d, 110d))).contains(SYSTEM_A));
+		final Collection<RoutingHop> routingHopsForRead1 = RoutingHopHelper.getRoutingHopsForRead(level0, new BoundingBox(100d, 110d));
+		Assert.assertEquals(1, routingHopsForRead1.size());
+		Assert.assertFalse(convertHopsToSystems(routingHopsForRead1).contains(SYSTEM_A));
+		Assert.assertTrue(convertHopsToSystems(routingHopsForRead1).contains(SYSTEM_B));
+
+		final Collection<RoutingHop> routingHopsForRead2 = RoutingHopHelper.getRoutingHopsForRead(level0, new BoundingBox(0d, 10d));
+		Assert.assertEquals(1, routingHopsForRead2.size());
+		Assert.assertTrue(convertHopsToSystems(routingHopsForRead2).contains(SYSTEM_A));		
+		Assert.assertFalse(convertHopsToSystems(routingHopsForRead2).contains(SYSTEM_B));
 		
-		Assert.assertTrue(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(0d, 100d))).contains(SYSTEM_A));
-		Assert.assertTrue(convertHopsToSystems(level0.getRoutingHopsForRead(new BoundingBox(0d, 100d))).contains(SYSTEM_B));
+		final Collection<RoutingHop> routingHopsForRead3 = RoutingHopHelper.getRoutingHopsForRead(level0, new BoundingBox(0d, 100d));
+		Assert.assertEquals(2, routingHopsForRead3.size());
+		Assert.assertTrue(convertHopsToSystems(routingHopsForRead3).contains(SYSTEM_A));
+		Assert.assertTrue(convertHopsToSystems(routingHopsForRead3).contains(SYSTEM_B));
 	}
 	
 	/**
@@ -263,10 +270,10 @@ public class TestDistributionGroup {
 		level0.getLeftChild().addSystem(new BBoxDBInstance("node2:123"));
 		level0.getRightChild().addSystem(new BBoxDBInstance("node3:123"));
 		
-		final Collection<RoutingHop> systemsRead = level0.getRoutingHopsForRead(BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsRead = RoutingHopHelper.getRoutingHopsForRead(level0, BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(3, systemsRead.size());
 		
-		final Collection<RoutingHop> systemsWrite = level0.getRoutingHopsForWrite(BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsWrite = RoutingHopHelper.getRoutingHopsForWrite(level0, BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(2, systemsWrite.size());
 	}
 	
@@ -287,10 +294,10 @@ public class TestDistributionGroup {
 		level0.getLeftChild().addSystem(new BBoxDBInstance("node2:123"));
 		level0.getRightChild().addSystem(new BBoxDBInstance("node2:123"));
 		
-		final Collection<RoutingHop> systemsRead = level0.getRoutingHopsForRead(BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsRead = RoutingHopHelper.getRoutingHopsForRead(level0, BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(2, systemsRead.size());
 		
-		final Collection<RoutingHop> systemsWrite = level0.getRoutingHopsForWrite(BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsWrite = RoutingHopHelper.getRoutingHopsForWrite(level0, BoundingBox.EMPTY_BOX);
 		Assert.assertEquals(1, systemsWrite.size());
 	}
 	
