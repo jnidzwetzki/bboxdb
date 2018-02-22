@@ -23,6 +23,8 @@ import java.util.concurrent.TimeoutException;
 
 import org.bboxdb.network.client.BBoxDBClient;
 
+import com.google.common.base.Stopwatch;
+
 public class FutureImplementation<T> {
 	
 	/**
@@ -124,16 +126,15 @@ public class FutureImplementation<T> {
 	 * @throws TimeoutException 
 	 */
 	public T get(final long timeout, final TimeUnit unit) throws InterruptedException, TimeoutException {
-		
-		final long waitBegin = System.currentTimeMillis();
+				
+		final Stopwatch stopwatch = Stopwatch.createStarted();
 		final long waitTimeInMilis = unit.toMillis(timeout);
 
 		synchronized (mutex) {
 			while(! done) {
 				mutex.wait(waitTimeInMilis);
-				final long waitNow = System.currentTimeMillis();
 				
-				final long passedTime = waitNow - waitBegin;
+				final long passedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 				
 				if(passedTime > waitTimeInMilis) {
 					throw new TimeoutException("Unable to receive data in " + passedTime + " ms");
