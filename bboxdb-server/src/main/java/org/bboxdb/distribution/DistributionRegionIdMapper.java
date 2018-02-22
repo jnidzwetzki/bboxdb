@@ -41,9 +41,12 @@ public class DistributionRegionIdMapper {
 	/**
 	 * The mappings
 	 */
-	protected final Map<Long, BoundingBox> regions;
+	private final Map<Long, BoundingBox> regions;
 	
-	protected final Object MUTEX;
+	/**
+	 * The mutex for synchonization
+	 */
+	private final Object MUTEX;
 	
 	/**
 	 * The Logger
