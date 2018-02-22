@@ -35,6 +35,7 @@ import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -51,6 +52,8 @@ public class TestNetworkCommunication {
 	 * The replication factor for the unit tests
 	 */
 	public final static short REPLICATION_FACTOR = 1;
+
+	private static final String DISTRIBUTION_GROUP = "testgroup";
 	
 	@BeforeClass
 	public static void init() throws Exception {
@@ -72,6 +75,31 @@ public class TestNetworkCommunication {
 		
 		// Wait some time for socket re-use
 		Thread.sleep(5000);
+	}
+	
+	/**
+	 * Re-create distribution group for each test
+	 * @throws InterruptedException
+	 */
+	@Before
+	public void before() throws InterruptedException {
+		
+		// Delete distribution group
+		final BBoxDBClient bboxDBClient = connectToServer();
+		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(DISTRIBUTION_GROUP);
+		resultDelete.waitForAll();
+		Assert.assertFalse(resultDelete.isFailed());
+		
+		// Create distribution group
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
+				.withReplicationFactor((short) 1)
+				.build();
+		
+		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(DISTRIBUTION_GROUP, 
+				configuration);
+		
+		resultCreate.waitForAll();
+		Assert.assertFalse(resultCreate.isFailed());
 	}
 	
 	/**
@@ -101,7 +129,7 @@ public class TestNetworkCommunication {
 
 		final BBoxDBClient bboxDBClient = connectToServer();
 		
-		final EmptyResultFuture result = bboxDBClient.deleteTable("testgroup1_relation3");
+		final EmptyResultFuture result = bboxDBClient.deleteTable(DISTRIBUTION_GROUP + "_relation3");
 		
 		result.waitForAll();
 		
@@ -141,11 +169,13 @@ public class TestNetworkCommunication {
 	@Test
 	public void sendDeletePackage2() throws InterruptedException, ExecutionException {
 		System.out.println("=== Running sendDeletePackage2");
+		
+		final String table = DISTRIBUTION_GROUP + "_relation3";
 
 		final BBoxDBClient bboxDBClient = connectToServer();
 		
 		// First call
-		final EmptyResultFuture result1 = bboxDBClient.deleteTable("testgroup1_relation3");
+		final EmptyResultFuture result1 = bboxDBClient.deleteTable(table);
 		result1.waitForAll();
 		Assert.assertTrue(result1.isDone());
 		Assert.assertFalse(result1.isFailed());
@@ -155,7 +185,7 @@ public class TestNetworkCommunication {
 		Thread.sleep(1000);
 		
 		// Second call
-		final EmptyResultFuture result2 = bboxDBClient.deleteTable("testgroup1_relation3");
+		final EmptyResultFuture result2 = bboxDBClient.deleteTable(table);
 		result2.waitForAll();
 		Assert.assertTrue(result2.isDone());
 		Assert.assertFalse(result2.isFailed());
@@ -220,26 +250,9 @@ public class TestNetworkCommunication {
 	@Test
 	public void testPaging() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running testPaging");
-		final String distributionGroup = "testgroup"; 
-		final String table = distributionGroup + "_relation9999";
+		final String table = DISTRIBUTION_GROUP + "_relation9999";
 		
 		final BBoxDBClient bboxDBClient = connectToServer();
-		
-		// Delete distribution group
-		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
-		resultDelete.waitForAll();
-		Assert.assertFalse(resultDelete.isFailed());
-		
-		// Create distribution group
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
-				.withReplicationFactor((short) 1)
-				.build();
-		
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				configuration);
-		
-		resultCreate.waitForAll();
-		Assert.assertFalse(resultCreate.isFailed());
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
@@ -326,26 +339,9 @@ public class TestNetworkCommunication {
 	@Test
 	public void testGetByKey() throws InterruptedException, ExecutionException, BBoxDBException {
 		System.out.println("=== Running testGetByKey");
-		final String distributionGroup = "testgroup"; 
-		final String table = distributionGroup + "_relation12333";
+		final String table = DISTRIBUTION_GROUP + "_relation12333";
 		
 		final BBoxDBClient bboxDBClient = connectToServer();
-		
-		// Delete distribution group
-		final EmptyResultFuture resultDelete = bboxDBClient.deleteDistributionGroup(distributionGroup);
-		resultDelete.waitForAll();
-		Assert.assertFalse(resultDelete.isFailed());
-		
-		// Create distribution group
-		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder.create(2)
-				.withReplicationFactor((short) 1)
-				.build();
-		
-		final EmptyResultFuture resultCreate = bboxDBClient.createDistributionGroup(distributionGroup, 
-				configuration);
-		
-		resultCreate.waitForAll();
-		Assert.assertFalse(resultCreate.isFailed());
 		
 		// Create table
 		final EmptyResultFuture resultCreateTable = bboxDBClient.createTable(table, new TupleStoreConfiguration());
