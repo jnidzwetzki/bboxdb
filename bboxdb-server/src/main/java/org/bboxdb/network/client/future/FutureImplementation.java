@@ -136,7 +136,7 @@ public class FutureImplementation<T> {
 				
 				final long passedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 				
-				if(passedTime > waitTimeInMilis) {
+				if(passedTime >= waitTimeInMilis) {
 					throw new TimeoutException("Unable to receive data in " + passedTime + " ms");
 				}
 			}
