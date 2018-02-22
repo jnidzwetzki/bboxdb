@@ -31,9 +31,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBClient;
-import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -101,12 +99,9 @@ public class RegionMerger {
 	/**
 	 * Redistribute the data in region merge
 	 * @param region
-	 * @throws StorageManagerException 
-	 * @throws BBoxDBException 
-	 * @throws ZookeeperException 
+	 * @throws Exception
 	 */
-	private void redistributeDataMerge(final DistributionRegion region) 
-			throws StorageManagerException, BBoxDBException, ZookeeperException {
+	private void redistributeDataMerge(final DistributionRegion region) throws Exception {
 
 		logger.info("Redistributing all data for region (merge): " + region.getIdentifier());
 
@@ -122,9 +117,9 @@ public class RegionMerger {
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
 		final DistributionRegionIdMapper mapper = spacePartitioner.getDistributionRegionIdMapper();		
 		
-		final boolean addResult = mapper.addMapping(region);
-
-		assert (addResult == true) : "Unable to add mapping for: " + region;
+		// We have set the region to active, wait until we see this status change 
+		// from Zookeeper and the space partitioner add this region as active
+		mapper.waitUntilMappingAppears(region.getRegionId());
 
 		// Redistribute data
 		for(final TupleStoreName tupleStoreName : localTables) {

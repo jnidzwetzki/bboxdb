@@ -178,8 +178,11 @@ public class RegionSplitter {
 			final String fullname = distributionGroupName.getFullname();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
 			final DistributionRegionIdMapper mapper = spacePartitioner.getDistributionRegionIdMapper();
-			mapper.removeMapping(regionId);
-						
+			
+			// We have set the region to splitting, wait until we see this status change 
+			// from Zookeeper and the space partitioner removed this region as active
+			mapper.waitUntilMappingDisappears(regionId);
+			
 			// Redistribute data
 			for(final TupleStoreName ssTableName : localTables) {
 				// Reject new writes and flush to disk
@@ -199,7 +202,7 @@ public class RegionSplitter {
 			Thread.currentThread().interrupt();
 			return;
 		} catch (Exception e) {
-			logger.error("Got exception when deleting local data", e);
+			logger.error("Got exception when redistribute local data", e);
 			return;
 		}
 		
