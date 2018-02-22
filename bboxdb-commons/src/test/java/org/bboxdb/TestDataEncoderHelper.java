@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools;
+package org.bboxdb;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
