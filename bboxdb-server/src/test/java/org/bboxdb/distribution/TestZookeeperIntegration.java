@@ -716,6 +716,39 @@ public class TestZookeeperIntegration {
 			final String unquotedPath = ZookeeperBBoxDBInstanceAdapter.unquotePath(quotedPath);
 			Assert.assertEquals(path, unquotedPath);
 		}
+	}
+	
+	/**
+	 * Test the distribution region level
+	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
+	 * @throws ZookeeperException 
+	 */
+	@Test
+	public void testDistributionRegionLevel() throws InterruptedException, BBoxDBException, ZookeeperException {
 		
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
+		
+		final KDtreeSpacePartitioner kdTreeAdapter 
+			= (KDtreeSpacePartitioner) SpacePartitionerCache.getSpacePartitionerForGroupName(TEST_GROUP);
+		
+		Assert.assertEquals(1, kdTreeAdapter.getRootNode().getTotalLevel());
+		Assert.assertEquals(0, kdTreeAdapter.getRootNode().getLevel());
+
+		try {
+			kdTreeAdapter.splitNode(kdTreeAdapter.getRootNode(), (float) 20.0);
+		} catch (ResourceAllocationException e) {
+			// Ignore in unit test
+		} 
+		
+		Thread.sleep(1000);
+		
+		Assert.assertEquals(2, kdTreeAdapter.getRootNode().getTotalLevel());
+		
+		for(final DistributionRegion region : kdTreeAdapter.getRootNode().getAllChildren()) {
+			Assert.assertEquals(2, region.getTotalLevel());
+			Assert.assertEquals(1, region.getLevel());
+		}
 	}
 }

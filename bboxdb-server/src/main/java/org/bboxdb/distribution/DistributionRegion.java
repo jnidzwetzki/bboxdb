@@ -60,13 +60,7 @@ public class DistributionRegion {
 	 * The parent of this node
 	 */
 	protected final DistributionRegion parent;
-	
-	/**
-	 * The level of the node
-	 * @param distributionGroupName
-	 */
-	protected final int level;
-	
+
 	/**
 	 * The area that is covered
 	 */
@@ -106,17 +100,8 @@ public class DistributionRegion {
 	protected DistributionRegion(final DistributionGroupName name, final DistributionRegion parent) {
 		this.distributionGroupName = name;
 		this.parent = parent;
-
 		this.converingBox = BoundingBox.createFullCoveringDimensionBoundingBox(getDimension());
-		
-		// The level for the root node is 0
-		if(parent == ROOT_NODE_ROOT_POINTER) {
-			this.level = 0;
-		} else {
-			this.level = parent.getLevel() + 1;
-		}
-		
-		systems = new ArrayList<>();
+		this.systems = new ArrayList<>();
 	}
 	
 	/**
@@ -250,7 +235,16 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public int getLevel() {
-		return level;
+		int levelCounter = 0;
+		
+		DistributionRegion parent = this.getParent();
+		
+		while(parent != null) {
+			parent = parent.getParent();
+			levelCounter++;
+		}
+		
+		return levelCounter;
 	}
 	
 	/**
@@ -283,13 +277,13 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public int getSplitDimension() {
-		return level % getDimension();
+		return getLevel() % getDimension();
 	}
 
 	@Override
 	public String toString() {
 		return "DistributionRegion [distributionGroupName=" + distributionGroupName + ", "
-				+ ", split=" + split + ", level=" + level + ", converingBox=" + converingBox + ", state=" + state
+				+ ", split=" + split + ", converingBox=" + converingBox + ", state=" + state
 				+ ", systems=" + systems + ", nameprefix=" + regionid + "]";
 	}
 
