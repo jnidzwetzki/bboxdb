@@ -27,9 +27,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.io.FileUtil;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.experiments.tuplestore.SSTableTupleStore;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.generator.SyntheticDataGenerator;
 

@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.FileLineIndex;
 import org.bboxdb.tools.TupleFileReader;

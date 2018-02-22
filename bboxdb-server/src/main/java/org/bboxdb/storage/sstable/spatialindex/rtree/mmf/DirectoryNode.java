@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.io.DataEncoderHelper;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
-import org.bboxdb.util.DataEncoderHelper;
 
 public class DirectoryNode {
 	

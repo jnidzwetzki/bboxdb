@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.entity;
+package org.bboxdb.commons.math;
 
 public class DoubleInterval implements Comparable<DoubleInterval> {
 	

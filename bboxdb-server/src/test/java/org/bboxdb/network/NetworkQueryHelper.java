@@ -20,12 +20,12 @@ package org.bboxdb.network;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.bboxdb.storage.entity.JoinedTuple;

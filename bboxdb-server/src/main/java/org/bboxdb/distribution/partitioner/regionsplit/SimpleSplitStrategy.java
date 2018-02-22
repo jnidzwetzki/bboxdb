@@ -17,8 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner.regionsplit;
 
+import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.storage.entity.DoubleInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

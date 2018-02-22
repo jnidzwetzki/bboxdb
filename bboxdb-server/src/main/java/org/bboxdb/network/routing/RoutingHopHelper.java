@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.bboxdb.commons.Retryer;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.misc.Const;
-import org.bboxdb.storage.entity.BoundingBox;
 
 public class RoutingHopHelper {
 

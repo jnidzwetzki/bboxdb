@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 

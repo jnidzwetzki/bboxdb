@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -28,7 +29,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.network.client.BBoxDBException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;

@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.concurrent.ExecutorUtil;
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.CellGrid;
 import org.bboxdb.tools.TupleFileReader;
 

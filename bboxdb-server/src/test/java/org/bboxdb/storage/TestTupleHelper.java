@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.DuplicateResolver;
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.duplicateresolver.DoNothingDuplicateResolver;

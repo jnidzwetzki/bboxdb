@@ -27,8 +27,8 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import org.apache.commons.compress.utils.CountingInputStream;
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.io.FileUtil;
-import org.bboxdb.util.DataEncoderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

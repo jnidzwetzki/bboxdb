@@ -23,14 +23,14 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bboxdb.commons.io.DataEncoderHelper;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.util.DataEncoderHelper;
 
 public class KeepAliveRequest extends NetworkRequestPackage {
 	

@@ -25,15 +25,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.bboxdb.commons.io.DataEncoderHelper;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.util.DataEncoderHelper;
 
 public class QueryJoinRequest extends NetworkQueryRequestPackage {
 

@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.commons.io.FileUtil;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;

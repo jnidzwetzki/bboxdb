@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexReader;

@@ -20,6 +20,8 @@ package org.bboxdb.storage.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bboxdb.commons.math.BoundingBox;
+
 public class JoinedTuple implements Comparable<JoinedTuple>, PagedTransferableEntity {
 	
 	/**

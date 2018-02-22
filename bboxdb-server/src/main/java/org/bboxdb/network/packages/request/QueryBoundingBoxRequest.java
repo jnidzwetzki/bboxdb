@@ -22,13 +22,13 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.function.Supplier;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkQueryRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.routing.RoutingHeader;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.TupleStoreName;
 
 public class QueryBoundingBoxRequest extends NetworkQueryRequestPackage {

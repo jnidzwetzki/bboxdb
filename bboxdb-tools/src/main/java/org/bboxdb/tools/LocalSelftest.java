@@ -22,9 +22,9 @@ import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.commons.RejectedException;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;

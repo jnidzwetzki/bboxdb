@@ -20,7 +20,7 @@ package org.bboxdb.storage.queryprocessor.operator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.queryprocessor.predicate.OverlapsBoundingBoxPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.Predicate;

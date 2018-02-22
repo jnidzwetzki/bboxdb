@@ -26,7 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.TupleFileReader;
 import org.bboxdb.tools.converter.tuple.TupleBuilder;

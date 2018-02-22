@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
@@ -35,7 +36,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;

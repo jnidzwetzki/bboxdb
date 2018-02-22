@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.CellGrid;
 import org.junit.Assert;
 import org.junit.Test;

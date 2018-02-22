@@ -20,7 +20,7 @@ package org.bboxdb.storage;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.util.EntityDuplicateTracker;

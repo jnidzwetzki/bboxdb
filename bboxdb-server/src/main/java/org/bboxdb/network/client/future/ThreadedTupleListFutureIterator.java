@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.network.client.future;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 
 public class ThreadedTupleListFutureIterator extends AbstractTheadedListFutureIterator<Tuple> {

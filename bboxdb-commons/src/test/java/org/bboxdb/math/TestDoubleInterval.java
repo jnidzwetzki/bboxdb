@@ -15,10 +15,10 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools;
+package org.bboxdb.math;
 
-import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.DoubleInterval;
+import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.DoubleInterval;
 import org.junit.Assert;
 import org.junit.Test;
 

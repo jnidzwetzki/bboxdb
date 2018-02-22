@@ -20,13 +20,13 @@ package org.bboxdb.storage.sstable.reader;
 import java.io.File;
 import java.io.IOException;
 
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.util.TupleHelper;
-import org.bboxdb.util.DataEncoderHelper;
 
 import io.prometheus.client.Counter;
 

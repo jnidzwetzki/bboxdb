@@ -24,8 +24,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.tools.gui.GuiModel;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;

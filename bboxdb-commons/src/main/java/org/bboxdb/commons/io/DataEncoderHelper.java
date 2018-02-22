@@ -15,14 +15,13 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.util;
+package org.bboxdb.commons.io;
 
 import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-
-import org.bboxdb.misc.Const;
+import java.nio.ByteOrder;
 
 import com.google.common.io.ByteStreams;
 
@@ -48,6 +47,11 @@ public class DataEncoderHelper {
 	 */
 	public final static int SHORT_BYTES = Short.SIZE / Byte.SIZE;
 	
+	/**
+	 * The Byte order for encoded values
+	 */
+	public final static ByteOrder APPLICATION_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
+	
 	/** 
 	 * Convert a array of double values into a byte buffer
 	 * @param longValues
@@ -55,7 +59,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer doubleArrayToByteBuffer(final double doubleValues[]) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(DOUBLE_BYTES * doubleValues.length);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		
 		for(int i = 0; i < doubleValues.length; i++) {
 			byteBuffer.putDouble(doubleValues[i]);
@@ -71,7 +75,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer longArrayToByteBuffer(final long longValues[]) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(LONG_BYTES * longValues.length);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		
 		for(int i = 0; i < longValues.length; i++) {
 			byteBuffer.putLong(longValues[i]);
@@ -88,7 +92,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer doubleToByteBuffer(final double doubleValue) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(DOUBLE_BYTES);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		byteBuffer.putDouble(doubleValue);
 		return byteBuffer;
 	}
@@ -101,7 +105,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer longToByteBuffer(final long longValue) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(LONG_BYTES);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		byteBuffer.putLong(longValue);
 		return byteBuffer;
 	}
@@ -114,7 +118,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer intToByteBuffer(final int intValue) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(INT_BYTES);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		byteBuffer.putInt(intValue);
 		return byteBuffer;		
 	}
@@ -126,7 +130,7 @@ public class DataEncoderHelper {
 	 */
 	public static ByteBuffer shortToByteBuffer(final short shortValue) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(SHORT_BYTES);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		byteBuffer.putShort(shortValue);
 		return byteBuffer;		
 	}
@@ -140,7 +144,7 @@ public class DataEncoderHelper {
 		final int totalValues = buffer.length / LONG_BYTES;
 		long values[] = new long[totalValues];
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		
 		for(int i = 0; i < totalValues; i++) {
 			values[i] = byteBuffer.getLong(i * LONG_BYTES);
@@ -159,7 +163,7 @@ public class DataEncoderHelper {
 		final int totalValues = buffer.length / DOUBLE_BYTES;
 		final double values[] = new double[totalValues];
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		
 		for(int i = 0; i < totalValues; i++) {
 			values[i] = byteBuffer.getDouble(i * DOUBLE_BYTES);
@@ -175,7 +179,7 @@ public class DataEncoderHelper {
 	 */
 	public static double readDoubleFromByte(final byte[] buffer) {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		return byteBuffer.getDouble();
 	}
 	
@@ -186,7 +190,7 @@ public class DataEncoderHelper {
 	 */
 	public static long readLongFromByte(final byte[] buffer) {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		return byteBuffer.getLong();
 	}
 	
@@ -197,7 +201,7 @@ public class DataEncoderHelper {
 	 */
 	public static int readIntFromByte(final byte[] buffer) {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		return byteBuffer.getInt();
 	}
 	
@@ -232,7 +236,7 @@ public class DataEncoderHelper {
 	 */
 	public static short readShortFromByte(final byte[] buffer) {
 		final ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-		byteBuffer.order(Const.APPLICATION_BYTE_ORDER);
+		byteBuffer.order(APPLICATION_BYTE_ORDER);
 		return byteBuffer.getShort();
 	}
 

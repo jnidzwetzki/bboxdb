@@ -27,8 +27,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.tools.gui.DistributionRegionComponent;
 import org.bboxdb.tools.gui.GuiModel;
 

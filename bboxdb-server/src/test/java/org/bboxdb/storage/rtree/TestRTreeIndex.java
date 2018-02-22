@@ -26,8 +26,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.misc.Const;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;

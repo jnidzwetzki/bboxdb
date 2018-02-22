@@ -21,13 +21,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryJoinRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
 import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ErrorMessages;
 import org.bboxdb.network.server.StreamClientQuery;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.queryprocessor.OperatorTreeBuilder;
 import org.bboxdb.storage.queryprocessor.operator.IndexedSpatialJoinOperator;

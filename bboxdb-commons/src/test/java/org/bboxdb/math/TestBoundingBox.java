@@ -15,13 +15,13 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.tools;
+package org.bboxdb.math;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.junit.Assert;
 import org.junit.Test;
 

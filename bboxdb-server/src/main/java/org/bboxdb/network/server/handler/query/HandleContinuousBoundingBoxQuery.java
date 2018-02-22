@@ -20,6 +20,7 @@ package org.bboxdb.network.server.handler.query;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -27,7 +28,6 @@ import org.bboxdb.network.server.ClientConnectionHandler;
 import org.bboxdb.network.server.ClientQuery;
 import org.bboxdb.network.server.ContinuousBoundingBoxClientQuery;
 import org.bboxdb.network.server.ErrorMessages;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

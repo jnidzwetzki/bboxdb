@@ -23,8 +23,8 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.rtree.AbstractRTreeReader;

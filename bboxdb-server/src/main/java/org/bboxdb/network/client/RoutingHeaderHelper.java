@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
@@ -30,7 +31,6 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

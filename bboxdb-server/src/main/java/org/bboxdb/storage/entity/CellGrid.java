@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.rtree.RTreeBuilder;
 

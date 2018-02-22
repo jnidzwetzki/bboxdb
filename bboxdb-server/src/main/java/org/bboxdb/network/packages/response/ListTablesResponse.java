@@ -25,12 +25,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.util.DataEncoderHelper;
 
 public class ListTablesResponse extends NetworkResponsePackage {
 	

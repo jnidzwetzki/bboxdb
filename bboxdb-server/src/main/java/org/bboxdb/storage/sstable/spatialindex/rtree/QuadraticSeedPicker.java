@@ -20,7 +20,7 @@ package org.bboxdb.storage.sstable.spatialindex.rtree;
 import java.util.List;
 
 import org.bboxdb.commons.Pair;
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.BoundingBoxEntity;
 
 public class QuadraticSeedPicker<T extends BoundingBoxEntity> {

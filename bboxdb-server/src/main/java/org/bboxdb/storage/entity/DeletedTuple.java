@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.sstable.SSTableConst;
 
 public class DeletedTuple extends Tuple {

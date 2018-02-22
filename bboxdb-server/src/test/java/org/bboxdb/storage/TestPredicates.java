@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.queryprocessor.predicate.AndPredicate;
 import org.bboxdb.storage.queryprocessor.predicate.NewerAsVersionTimePredicate;

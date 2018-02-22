@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.tuple;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

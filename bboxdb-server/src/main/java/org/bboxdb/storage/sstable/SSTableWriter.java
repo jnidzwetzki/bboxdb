@@ -27,6 +27,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -36,7 +37,6 @@ import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilderFactory;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.util.TupleHelper;
-import org.bboxdb.util.DataEncoderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

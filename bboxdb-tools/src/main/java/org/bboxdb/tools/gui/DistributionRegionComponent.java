@@ -24,13 +24,13 @@ import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.Map;
 
+import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
-import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.tools.gui.views.KDTreeJPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

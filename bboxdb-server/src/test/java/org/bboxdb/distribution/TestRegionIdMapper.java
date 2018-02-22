@@ -20,7 +20,7 @@ package org.bboxdb.distribution;
 import java.util.Collection;
 import java.util.List;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.junit.Assert;

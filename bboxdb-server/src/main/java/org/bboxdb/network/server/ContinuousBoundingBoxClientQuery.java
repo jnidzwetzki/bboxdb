@@ -23,6 +23,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionRegionIdMapper;
 import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -30,7 +31,6 @@ import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
 import org.bboxdb.network.packages.response.PageEndResponse;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.JoinedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;

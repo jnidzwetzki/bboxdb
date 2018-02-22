@@ -27,11 +27,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.routing.RoutingHop;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 
 public class DistributionRegion {

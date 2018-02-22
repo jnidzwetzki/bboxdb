@@ -23,8 +23,8 @@ import java.util.Deque;
 import java.util.List;
 
 import org.bboxdb.commons.Pair;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexBuilder;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 

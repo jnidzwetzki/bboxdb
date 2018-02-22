@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.bboxdb.commons.MicroSecondTimestampProvider;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.util.TupleHelper;
 
 public class Tuple implements Comparable<Tuple>, PagedTransferableEntity {

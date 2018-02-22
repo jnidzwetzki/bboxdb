@@ -15,14 +15,14 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.storage.entity;
+package org.bboxdb.commons.math;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

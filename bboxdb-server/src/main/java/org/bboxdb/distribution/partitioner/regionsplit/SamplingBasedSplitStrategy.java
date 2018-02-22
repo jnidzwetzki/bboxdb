@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.DoubleInterval;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;

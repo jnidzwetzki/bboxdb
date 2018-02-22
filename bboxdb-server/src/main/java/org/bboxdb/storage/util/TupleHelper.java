@@ -25,11 +25,11 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.io.DataEncoderHelper;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.sstable.SSTableConst;
-import org.bboxdb.util.DataEncoderHelper;
 
 import com.google.common.io.ByteStreams;
 

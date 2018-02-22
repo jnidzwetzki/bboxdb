@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
@@ -29,7 +30,6 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.network.routing.RoutingHop;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.junit.Assert;
 import org.junit.Test;

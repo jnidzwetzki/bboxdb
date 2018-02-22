@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkRequestPackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.util.DataEncoderHelper;
 
 public class DeleteDistributionGroupRequest extends NetworkRequestPackage {
 	

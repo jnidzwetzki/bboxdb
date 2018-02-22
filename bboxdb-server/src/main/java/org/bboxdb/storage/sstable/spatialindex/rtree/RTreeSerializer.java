@@ -26,10 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
-import org.bboxdb.util.DataEncoderHelper;
 
 public class RTreeSerializer {
 

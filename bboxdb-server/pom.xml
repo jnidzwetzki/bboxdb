@@ -60,11 +60,6 @@
 			<version>20180130</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>24.0-jre</version>
-		</dependency>
-		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>simpleclient</artifactId>
 			<version>0.2.0</version>

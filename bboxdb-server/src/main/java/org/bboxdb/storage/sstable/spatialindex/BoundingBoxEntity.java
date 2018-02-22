@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.sstable.spatialindex;
 
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 
 public interface BoundingBoxEntity {
 

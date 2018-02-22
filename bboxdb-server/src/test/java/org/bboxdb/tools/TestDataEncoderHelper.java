@@ -23,7 +23,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.junit.Assert;
 import org.junit.Test;
 

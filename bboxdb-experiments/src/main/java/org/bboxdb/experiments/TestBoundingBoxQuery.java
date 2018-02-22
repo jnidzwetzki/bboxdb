@@ -26,13 +26,13 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.RejectedException;
+import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.TupleListFutureStore;
-import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.storage.entity.DoubleInterval;
 
 import com.google.common.base.Stopwatch;
 

@@ -23,8 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.bboxdb.util.DataEncoderHelper;
 
 import com.google.common.io.ByteStreams;
 

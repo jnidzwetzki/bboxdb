@@ -27,13 +27,13 @@ import java.util.Queue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.stream.Collectors;
 
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.io.UnsafeMemoryHelper;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.sstable.spatialindex.SpatialIndexEntry;
 import org.bboxdb.storage.sstable.spatialindex.rtree.AbstractRTreeReader;
-import org.bboxdb.util.DataEncoderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

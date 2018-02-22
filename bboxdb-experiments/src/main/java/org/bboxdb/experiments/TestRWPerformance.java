@@ -27,9 +27,9 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.io.FileUtil;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.experiments.tuplestore.TupleStore;
 import org.bboxdb.experiments.tuplestore.TupleStoreFactory;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.tools.generator.SyntheticDataGenerator;
 

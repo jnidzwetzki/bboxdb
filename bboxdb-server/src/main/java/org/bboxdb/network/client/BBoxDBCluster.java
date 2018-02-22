@@ -26,6 +26,7 @@ import java.util.function.Supplier;
 
 import org.bboxdb.commons.DuplicateResolver;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -46,7 +47,6 @@ import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.network.routing.RoutingHopHelper;
-import org.bboxdb.storage.entity.BoundingBox;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;

@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.bboxdb.commons.MathUtil;
-import org.bboxdb.storage.entity.BoundingBox;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.tools.TupleFileReader;
 
 public class TestKDTreeSplit implements Runnable {

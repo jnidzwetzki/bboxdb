@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.storage.entity.BoundingBox;
-import org.bboxdb.util.DataEncoderHelper;
+import org.bboxdb.commons.io.DataEncoderHelper;
+import org.bboxdb.commons.math.BoundingBox;
 
 public class SpatialIndexEntry implements BoundingBoxEntity {
 
