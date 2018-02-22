@@ -470,25 +470,6 @@ public class DistributionRegion {
 	}
 	
 	/**
-	 * Visit all child nodes of the distribution region
-	 * @param distributionRegionVisitor
-	 */
-	public void visit(final DistributionRegionVisitor distributionRegionVisitor) {
-		final boolean result = distributionRegionVisitor.visitRegion(this);
-		
-		if(result == false) {
-			return;
-		}
-		
-		if(isLeafRegion()) {
-			return;
-		}
-		
-		leftChild.visit(distributionRegionVisitor);
-		rightChild.visit(distributionRegionVisitor);
-	}
-
-	/**
 	 * Get the region id of the node
 	 * @return
 	 */

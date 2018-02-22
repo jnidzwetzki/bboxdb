@@ -20,9 +20,13 @@ package org.bboxdb.distribution;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.bboxdb.commons.Retryer;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -31,8 +35,7 @@ import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.Const;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bboxdb.network.client.BBoxDBException;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
@@ -127,107 +130,81 @@ public class DistributionRegionHelper {
 	 * @param region
 	 * @param distributedInstance
 	 * @return
+	 * @throws BBoxDBException 
 	 */
 	public static List<OutdatedDistributionRegion> getOutdatedRegions(final DistributionRegion region, 
-			final BBoxDBInstance distributedInstance) {
+			final BBoxDBInstance distributedInstance) throws BBoxDBException {
 		
-		final DistributionRegionOutdatedRegionFinder distributionRegionOutdatedRegionFinder 
-			= new DistributionRegionOutdatedRegionFinder(distributedInstance);
+		final List<OutdatedDistributionRegion> result = new ArrayList<>();
 		
-		if(region != null) {
-			region.visit(distributionRegionOutdatedRegionFinder);
+		if(region == null) {
+			return result;
 		}
 		
-		return distributionRegionOutdatedRegionFinder.getResult();
-	}
-	
-}
-
-
-class DistributionRegionOutdatedRegionFinder implements DistributionRegionVisitor {
-	
-	/**
-	 * The instance
-	 */
-	protected final BBoxDBInstance instanceToSearch;
-	
-	/**
-	 * The result of the operation
-	 */
-	protected final List<OutdatedDistributionRegion> result;
-
-	/**
-	 * The zookeeper adapter
-	 */
-	protected final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
-	
-	/**
-	 * The Logger
-	 */
-	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionOutdatedRegionFinder.class);
-
-	public DistributionRegionOutdatedRegionFinder(final BBoxDBInstance instanceToSearch) {
-		this.instanceToSearch = instanceToSearch;
-		this.result = new ArrayList<OutdatedDistributionRegion>();
-		this.distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-	}
- 	
-	@Override
-	public boolean visitRegion(final DistributionRegion distributionRegion) {
+		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+			= ZookeeperClientFactory.getDistributionGroupAdapter();
 		
-		if(! isInstanceContained(distributionRegion)) {
-			return true;
-		}
+		final List<DistributionRegion> regions = region.getThisAndChildRegions().stream()
+			.filter(r -> r.getSystems().contains(distributedInstance))
+			.collect(Collectors.toList());
 		
-		try {
-			BBoxDBInstance newestInstance = null;
-			long newestVersion = Long.MIN_VALUE;
-			
-			for(final BBoxDBInstance instance : distributionRegion.getSystems()) {
-				if(instance.socketAddressEquals(instanceToSearch)) {
-					continue;
+		for(final DistributionRegion regionToInspect : regions) {
+			try {
+				final OutdatedDistributionRegion regionResult 
+					= processRegion(distributedInstance, distributionGroupZookeeperAdapter, regionToInspect);
+				
+				if(regionResult != null) {
+					result.add(regionResult);
 				}
-					
-				final long version 
-					= distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(
-							distributionRegion, instance);
-				
-				if(newestVersion < version) {
-					newestInstance = instance;
-					newestVersion = version;
-				} 
-				
-			}
-			
-			final long localVersion = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(distributionRegion, instanceToSearch);
-
-			if(newestVersion > localVersion) {
-				result.add(new OutdatedDistributionRegion(distributionRegion, newestInstance, localVersion));
-			}
-		} catch (ZookeeperException e) {
-			logger.error("Got exception while check for outdated regions", e);
+			} catch (ZookeeperException e) {
+				throw new BBoxDBException(e);
+			} 
 		}
 		
-		// Visit remaining nodes
-		return true;
+		return result;
 	}
 
 	/**
-	 * Is the local instance contained in the distribution region
-	 * @param distributionRegion
-	 * @return
+	 * Test if there is an outdated region
+	 * 
+	 * @param distributedInstance
+	 * @param result
+	 * @param distributionGroupZookeeperAdapter
+	 * @param regionToInspect
+	 * @return 
+	 * @throws ZookeeperException
+	 * @throws BBoxDBException
 	 */
-	protected boolean isInstanceContained(final DistributionRegion distributionRegion) {
-		return distributionRegion.getSystems()
-			.stream()
-			.anyMatch(s -> s.socketAddressEquals(instanceToSearch));
-	}
-	
-	/**
-	 * Get the result of the operation
-	 * @return
-	 */
-	public List<OutdatedDistributionRegion> getResult() {
-		return result;
+	private static OutdatedDistributionRegion processRegion(final BBoxDBInstance distributedInstance,
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter,
+			final DistributionRegion regionToInspect) throws ZookeeperException, BBoxDBException {
+		
+		final Map<BBoxDBInstance, Long> versions = new HashMap<>();
+		
+		for(final BBoxDBInstance instance : regionToInspect.getSystems()) {
+			final long version 
+				= distributionGroupZookeeperAdapter
+					.getCheckpointForDistributionRegion(regionToInspect, instance);
+			
+			versions.put(instance, version);
+		}
+		
+		if(! versions.containsKey(distributedInstance)) {
+			throw new BBoxDBException("Unable to find local instance for region: " 
+					+ distributedInstance + " / "+ regionToInspect);
+		}
+		
+		final Entry<BBoxDBInstance, Long> newestInstance = versions.entrySet()
+				.stream()
+				.reduce((a, b) -> a.getValue() > b.getValue() ? a : b)
+				.orElse(null);
+		
+		final long localVersion = versions.get(distributedInstance);
+		
+		if(! newestInstance.getKey().equals(distributedInstance)) {
+			return new OutdatedDistributionRegion(regionToInspect, newestInstance.getKey(), localVersion);
+		}
+		
+		return null;
 	}
 }
