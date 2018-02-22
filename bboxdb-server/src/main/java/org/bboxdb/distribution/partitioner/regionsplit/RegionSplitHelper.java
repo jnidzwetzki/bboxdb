@@ -109,12 +109,12 @@ public class RegionSplitHelper {
 	 */
 	public boolean isRegionUnderflow(final DistributionRegion region) throws BBoxDBException {
 		
-		logger.info("Testing for underflow: {}", region.getRegionId());
-		
 		// This might be the root region
 		if(region == null || region == DistributionRegion.ROOT_NODE_ROOT_POINTER) {
 			return false;
 		}
+		
+		logger.info("Testing for underflow: {}", region.getRegionId());
 		
 		final List<DistributionRegion> children = region.getAllChildren();
 		final boolean inactiveChilds = children.stream()
