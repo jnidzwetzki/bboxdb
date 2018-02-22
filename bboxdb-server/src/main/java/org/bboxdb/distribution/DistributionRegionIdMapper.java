@@ -18,9 +18,11 @@
 package org.bboxdb.distribution;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
@@ -39,7 +41,9 @@ public class DistributionRegionIdMapper {
 	/**
 	 * The mappings
 	 */
-	protected final List<RegionTablenameEntry> regions;
+	protected final Map<Long, BoundingBox> regions;
+	
+	protected final Object MUTEX;
 	
 	/**
 	 * The Logger
@@ -48,17 +52,18 @@ public class DistributionRegionIdMapper {
 	
 	
 	public DistributionRegionIdMapper() {
-		this.regions = new CopyOnWriteArrayList<>();
+		this.regions = new ConcurrentHashMap<>();
+		this.MUTEX = new Object();
 	}
 	
 	/**
 	 * Search the region ids that are overlapped by the bounding box
 	 */
 	public Set<Long> getRegionIdsForRegion(final BoundingBox region) {
-		return regions
+		return regions.entrySet()
 			.stream()
-			.filter(r -> r.getBoundingBox().overlaps(region))
-			.map(r -> r.getRegionId())
+			.filter(e -> e.getValue().overlaps(region))
+			.map(e -> e.getKey())
 			.collect(Collectors.toSet());
 	}
 	
@@ -67,10 +72,7 @@ public class DistributionRegionIdMapper {
 	 * @return
 	 */
 	public Set<Long> getAllRegionIds() {
-		return regions
-			.stream()
-			.map(r -> r.getRegionId())
-			.collect(Collectors.toSet());
+		return new HashSet<>(regions.keySet());
 	}
 	
 	/**
@@ -145,19 +147,18 @@ public class DistributionRegionIdMapper {
 				
 		final long regionId = region.getRegionId();
 		final BoundingBox converingBox = region.getConveringBox();	
-		
-		final boolean known = regions.stream().anyMatch(r -> r.getRegionId() == regionId);
-		
-		if(known) {
+				
+		if(regions.containsKey(region.getRegionId())) {
 			logger.debug("Mapping for region {} already exists, ignoring", regionId);
 			return false;
 		}
 		
 		logger.info("Add local mapping for: {}", region.getIdentifier());
 		
-		synchronized (regions) {
-			regions.add(new RegionTablenameEntry(converingBox, regionId));
-			regions.notifyAll();
+			regions.put(regionId, converingBox);
+			
+		synchronized (MUTEX) {
+			MUTEX.notifyAll();
 		}
 		
 		return true;
@@ -169,17 +170,18 @@ public class DistributionRegionIdMapper {
 	 */
 	public boolean removeMapping(final long regionId) {
 		
-		synchronized (regions) {
-			final boolean removed = regions.removeIf(r -> r.getRegionId() == regionId);
-			
-			if(removed) {
-				logger.info("Mapping for region id {} removed", regionId);
-			}
-			
-			regions.notifyAll();
-			
-			return removed;
+		final boolean removed = regions.containsKey(regionId);
+		regions.remove(regionId);
+		
+		if(removed) {
+			logger.info("Mapping for region id {} removed", regionId);
 		}
+		
+		synchronized (MUTEX) {	
+			MUTEX.notifyAll();			
+		}
+		
+		return removed;
 	}
 	
 	/**
@@ -188,9 +190,10 @@ public class DistributionRegionIdMapper {
 	public void clear() {
 		logger.info("Clear all local mappings");
 		
-		synchronized (regions) {
-			regions.clear();
-			regions.notifyAll();
+		regions.clear();
+		
+		synchronized (MUTEX) {
+			MUTEX.notifyAll();
 		}
 	}
 	
@@ -258,9 +261,9 @@ public class DistributionRegionIdMapper {
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		final long waitTimeInMilis = timeUnit.toMillis(maxWaitTime);
 
-		synchronized (regions) {
+		synchronized (MUTEX) {
 			while(! predicate.test(getAllRegionIds())) {
-				regions.wait(waitTimeInMilis);
+				MUTEX.wait(waitTimeInMilis);
 				
 				final long passedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 				
@@ -269,28 +272,5 @@ public class DistributionRegionIdMapper {
 				}
 			}
 		}
-	}
-}
-
-class RegionTablenameEntry {
-	protected final BoundingBox boundingBox;
-	protected final long regionId;
-	
-	public RegionTablenameEntry(final BoundingBox boundingBox, final long regionId) {
-		this.boundingBox = boundingBox;
-		this.regionId = regionId;
-	}
-
-	public BoundingBox getBoundingBox() {
-		return boundingBox;
-	}
-
-	public long getRegionId() {
-		return regionId;
-	}
-	
-	@Override
-	public String toString() {
-		return "RegionTablenameEntry [boundingBox=" + boundingBox + ", regionId=" + regionId + "]";
 	}
 }
