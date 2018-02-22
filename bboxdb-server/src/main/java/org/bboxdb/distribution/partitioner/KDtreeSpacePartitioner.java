@@ -757,8 +757,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			return;
 		}
 		
-		final List<DistributionRegion> allChildren = rootNode.getAllChildren();
-		allChildren.add(rootNode);
+		final List<DistributionRegion> allChildren = rootNode.getAllRegions();
 		
 		final Set<Long> allExistingMappings = new HashSet<>(distributionRegionMapper.getAllRegionIds());
 		

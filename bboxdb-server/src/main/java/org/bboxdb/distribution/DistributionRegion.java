@@ -151,7 +151,7 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public List<DistributionRegion> getAllChildren() {
-	final List<DistributionRegion> result = new ArrayList<>();
+		final List<DistributionRegion> result = new ArrayList<>();
 		
 		if(getLeftChild() != null) {
 			result.add(getLeftChild());
@@ -163,6 +163,17 @@ public class DistributionRegion {
 			result.addAll(getRightChild().getAllChildren());
 		}
 		
+		return result;
+	}
+	
+	/**
+	 * Get all distribution regions
+	 * @return
+	 */
+	public List<DistributionRegion> getAllRegions() {
+		final List<DistributionRegion> result = new ArrayList<>();
+		result.add(getRootRegion());
+		result.addAll(getRootRegion().getAllChildren());
 		return result;
 	}
 	
