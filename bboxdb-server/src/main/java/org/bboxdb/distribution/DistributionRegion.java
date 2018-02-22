@@ -21,11 +21,11 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -530,30 +530,11 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public Set<DistributionRegion> getDistributionRegionsForBoundingBox(final BoundingBox boundingBox) {
-		final Set<DistributionRegion> resultSet = new HashSet<DistributionRegion>();
-		getDistributionRegionsForBoundingBoxRecursive(boundingBox, resultSet);
-		return resultSet;
+		return getThisAndChildRegions().stream()
+			.filter(r -> r.getConveringBox().overlaps(boundingBox))
+			.collect(Collectors.toSet());
 	}
 	
-	/**
-	 * Get the DistributionRegions for a given bounding box recursive 
-	 * @param boundingBox
-	 * @return
-	 */
-	protected void getDistributionRegionsForBoundingBoxRecursive(final BoundingBox boundingBox, final Set<DistributionRegion> resultSet) {
-		// This node is not covered. So, edge nodes are not covered
-		if(! converingBox.overlaps(boundingBox)) {
-			return;
-		}
-		
-		resultSet.add(this);
-		
-		if(! isLeafRegion()) {
-			leftChild.getDistributionRegionsForBoundingBoxRecursive(boundingBox, resultSet);
-			rightChild.getDistributionRegionsForBoundingBoxRecursive(boundingBox, resultSet);
-		}
-	}
-
 	/**
 	 * Visit all child nodes of the distribution region
 	 * @param distributionRegionVisitor
