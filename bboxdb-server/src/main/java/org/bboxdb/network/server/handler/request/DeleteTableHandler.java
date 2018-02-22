@@ -22,8 +22,9 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 
 import org.bboxdb.distribution.DistributionRegionIdMapper;
-import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -59,7 +60,10 @@ public class DeleteTableHandler implements RequestHandler {
 			logger.info("Got delete call for table: " + requestTable);
 			
 			// Send the call to the storage manager
-			final DistributionRegionIdMapper regionIdMapper = DistributionRegionIdMapperManager.getInstance(requestTable.getDistributionGroupObject());
+			final String fullname = requestTable.getDistributionGroup();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+			final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
+			
 			final Collection<TupleStoreName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 			
 			for(final TupleStoreName ssTableName : localTables) {

@@ -24,13 +24,14 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionIdMapper;
-import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.TupleListFuture;
@@ -102,9 +103,10 @@ public class RegionMerger {
 	 * @param region
 	 * @throws StorageManagerException 
 	 * @throws BBoxDBException 
+	 * @throws ZookeeperException 
 	 */
 	private void redistributeDataMerge(final DistributionRegion region) 
-			throws StorageManagerException, BBoxDBException {
+			throws StorageManagerException, BBoxDBException, ZookeeperException {
 
 		logger.info("Redistributing all data for region (merge): " + region.getIdentifier());
 
@@ -116,7 +118,10 @@ public class RegionMerger {
 				(distributionGroupName, region.getRegionId());
 
 		// Add the local mapping, new data is written to the region
-		final DistributionRegionIdMapper mapper = DistributionRegionIdMapperManager.getInstance(distributionGroupName);
+		final String fullname = distributionGroupName.getFullname();
+		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+		final DistributionRegionIdMapper mapper = spacePartitioner.getDistributionRegionIdMapper();		
+		
 		final boolean addResult = mapper.addMapping(region);
 
 		assert (addResult == true) : "Unable to add mapping for: " + region;

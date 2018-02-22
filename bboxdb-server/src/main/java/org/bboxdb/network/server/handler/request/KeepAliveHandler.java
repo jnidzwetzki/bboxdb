@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionRegionIdMapper;
-import org.bboxdb.distribution.DistributionRegionIdMapperManager;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -94,12 +96,16 @@ public class KeepAliveHandler implements RequestHandler {
 		final List<Tuple> tuples = keepAliveRequst.getTuples();
 		final TupleStoreManagerRegistry storageRegistry = clientConnectionHandler.getStorageRegistry();
 
-		for(final Tuple tuple : tuples) {
-			final boolean result = checkLocalTuples(storageRegistry, tupleStoreName, tuple);
+		try {
+			for(final Tuple tuple : tuples) {
+				final boolean result = checkLocalTuples(storageRegistry, tupleStoreName, tuple);
 
-			if(! result) {
-				return false;
+				if(! result) {
+					return false;
+				}
 			}
+		} catch (BBoxDBException e) {
+			logger.error("Got exception while handling gossip", e);
 		}
 
 		return true;
@@ -109,12 +115,15 @@ public class KeepAliveHandler implements RequestHandler {
 	 * @param tupleStoreManagerRegistry
 	 * @param tupleStoreName
 	 * @param tuple
+	 * @throws BBoxDBException 
 	 * @throws StorageManagerException
 	 */
 	private boolean checkLocalTuples(final TupleStoreManagerRegistry tupleStoreManagerRegistry,
-			final TupleStoreName tupleStoreName, final Tuple tuple) {
+			final TupleStoreName tupleStoreName, final Tuple tuple) throws BBoxDBException {
 
-		final DistributionRegionIdMapper regionIdMapper = DistributionRegionIdMapperManager.getInstance(tupleStoreName.getDistributionGroupObject());
+		final String fullname = tupleStoreName.getDistributionGroup();
+		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+		final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
 
 		final Collection<TupleStoreName> localTables = regionIdMapper.getLocalTablesForRegion(tuple.getBoundingBox(), tupleStoreName);
 

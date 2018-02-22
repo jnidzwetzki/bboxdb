@@ -25,7 +25,9 @@ import java.util.function.Consumer;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionRegionIdMapper;
-import org.bboxdb.distribution.DistributionRegionIdMapperManager;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
@@ -129,22 +131,29 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 				}
 			};
 			
-			init();
+			try {
+				init();
+			} catch (BBoxDBException e) {
+				logger.error("Got exception on init", e);
+				queryActive = false;
+			}
 	}
 	
 	/**
 	 * Init the query
 	 * @param tupleStoreManagerRegistry 
+	 * @throws BBoxDBException 
 	 */
-	protected void init() {
+	protected void init() throws BBoxDBException {
 		
 		try {
 			final TupleStoreManagerRegistry storageRegistry 
 				= clientConnectionHandler.getStorageRegistry();
 			
-			final DistributionRegionIdMapper regionIdMapper 
-				= DistributionRegionIdMapperManager.getInstance(requestTable.getDistributionGroupObject());
-			
+			final String fullname = requestTable.getDistributionGroup();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+			final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
+		
 			final Collection<TupleStoreName> localTables 
 				= regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);
 			

@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.5.0 (Stable) - TBA
+- Improvement: Moved region id mapper into the space partitioner to ensure data integrity
 
 ### Version 0.4.2 (Stable) - 21.02.2018
 - New Feature: Added data loader for re-balance demonstration

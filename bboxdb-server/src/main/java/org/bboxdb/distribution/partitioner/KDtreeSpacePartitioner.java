@@ -32,7 +32,6 @@ import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionIdMapper;
-import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
@@ -93,7 +92,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	/** 
 	 * The region mapper
 	 */
-	private DistributionRegionIdMapper distributionRegionMapper;
+	private final DistributionRegionIdMapper distributionRegionMapper;
 	
 	/**
 	 * The logger
@@ -102,6 +101,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 
 	public KDtreeSpacePartitioner() {
 		this.callbacks = new HashSet<>();
+		this.distributionRegionMapper = new DistributionRegionIdMapper();
 	}
 	
 	/**
@@ -119,8 +119,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		this.distributionGroupName = distributionGroupName;
 		this.zookeeperClient = zookeeperClient;
 		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
-		this.distributionRegionMapper = DistributionRegionIdMapperManager.getInstance(distributionGroupName, false);
-		
+
 		refreshWholeTree();
 	}
 	
@@ -789,5 +788,10 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		for(final long regionId : allExistingMappings) {
 			distributionRegionMapper.removeMapping(regionId);
 		}
+	}
+	
+	@Override
+	public DistributionRegionIdMapper getDistributionRegionIdMapper() {
+		return distributionRegionMapper;
 	}
 }

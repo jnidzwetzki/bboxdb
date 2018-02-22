@@ -187,7 +187,7 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 			}
 			
 			return regionToSplit.getParent().getState() == DistributionRegionState.SPLIT;
-		} catch (ZookeeperException e) {
+		} catch (BBoxDBException e) {
 			throw new StorageManagerException(e);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();

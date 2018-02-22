@@ -23,9 +23,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.commons.DuplicateResolver;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegionIdMapper;
-import org.bboxdb.distribution.DistributionRegionIdMapperManager;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
@@ -116,12 +117,11 @@ public class KeyClientQuery implements ClientQuery {
 	 */
 	protected void computeTuples() {
 		try {
-			final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
-
-			final DistributionRegionIdMapper nameprefixManager 
-				= DistributionRegionIdMapperManager.getInstance(distributionGroupObject);
-
-			final List<TupleStoreName> localTables = nameprefixManager.getAllLocalTables(requestTable);
+			final String fullname = requestTable.getDistributionGroup();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+			final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
+		
+			final List<TupleStoreName> localTables = regionIdMapper.getAllLocalTables(requestTable);
 			
 			for(final TupleStoreName tupleStoreName : localTables) {
 				final TupleStoreManager storageManager = clientConnectionHandler
@@ -133,10 +133,10 @@ public class KeyClientQuery implements ClientQuery {
 			}
 
 			removeDuplicates(localTables);
-		} catch (StorageManagerException e) {
+		} catch (BBoxDBException | StorageManagerException e) {
 			logger.error("Got an exception while fetching tuples for key " + key, e);
 			tuplesForKey.clear();
-		}
+		} 
 	}
 
 	/**

@@ -32,6 +32,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.network.client.BBoxDBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,9 +83,10 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 	 * @return
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 */
 	protected Multiset<BBoxDBInstance> calculateSystemUsage() 
-			throws ZookeeperException, ZookeeperNotFoundException {
+			throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 				
 		final DistributionGroupZookeeperAdapter zookeeperAdapter 
 			= ZookeeperClientFactory.getDistributionGroupAdapter();
@@ -130,7 +132,7 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 		try {
 			final Multiset<BBoxDBInstance> systemUsage = calculateSystemUsage();
 			return getSystemWithLowestUsage(availableSystems, systemUsage);
-		} catch (ZookeeperException | ZookeeperNotFoundException e) {
+		} catch (Exception e) {
 			throw new ResourceAllocationException("Got an zookeeper exception while ressource allocation", e);
 		}		
 	}

@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.bboxdb.commons.CloseableHelper;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegionIdMapper;
-import org.bboxdb.distribution.DistributionRegionIdMapperManager;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;
 import org.bboxdb.network.packages.response.MultipleTupleStartResponse;
@@ -121,24 +122,30 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 	 * @param requestTables
 	 */
 	private void determineLocalTables(final List<TupleStoreName> requestTables) {
-		for(final TupleStoreName requestTable : requestTables) {
-			final DistributionGroupName distributionGroupObject = requestTable.getDistributionGroupObject();
-			final DistributionRegionIdMapper nameprefixManager = DistributionRegionIdMapperManager.getInstance(distributionGroupObject);
-			final List<TupleStoreName> localTablesForTable = nameprefixManager.getAllLocalTables(requestTable);
-			localTablesForTable.sort((c1, c2) -> c1.compareTo(c2));
-			localTables.put(requestTable, localTablesForTable);
-		}
-		
-		// Check all tables have the same amount of local tables
-		int elementSize = -1;
-		for(final List<TupleStoreName> elements : localTables.values()) {
-			if(elementSize == -1) {
-				elementSize = elements.size();
+		try {
+			for(final TupleStoreName requestTable : requestTables) {				
+				final String fullname = requestTable.getDistributionGroup();
+				final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+				final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
+			
+				final List<TupleStoreName> localTablesForTable = regionIdMapper.getAllLocalTables(requestTable);
+				localTablesForTable.sort((c1, c2) -> c1.compareTo(c2));
+				localTables.put(requestTable, localTablesForTable);
 			}
 			
-			if(elementSize != elements.size()) {
-				throw new IllegalArgumentException("Got invalid element size: " + elementSize + " / " + elements.size());
+			// Check all tables have the same amount of local tables
+			int elementSize = -1;
+			for(final List<TupleStoreName> elements : localTables.values()) {
+				if(elementSize == -1) {
+					elementSize = elements.size();
+				}
+				
+				if(elementSize != elements.size()) {
+					throw new IllegalArgumentException("Got invalid element size: " + elementSize + " / " + elements.size());
+				}
 			}
+		} catch (BBoxDBException e) {
+			logger.error("Got exception while reading local tables", e);
 		}
 	}
 	

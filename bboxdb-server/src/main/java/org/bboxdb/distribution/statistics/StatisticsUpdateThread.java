@@ -26,7 +26,6 @@ import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.DistributionRegionIdMapper;
-import org.bboxdb.distribution.DistributionRegionIdMapperManager;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
@@ -35,6 +34,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -116,7 +116,10 @@ public class StatisticsUpdateThread extends ExceptionSafeThread {
 		try {
 			final List<DistributionGroupName> allDistributionGroups = adapter.getDistributionGroups();
 			for(final DistributionGroupName distributionGroup : allDistributionGroups) {
-				final DistributionRegionIdMapper regionIdMapper = DistributionRegionIdMapperManager.getInstance(distributionGroup);
+				final String fullname = distributionGroup.getFullname();
+				final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+				final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
+				
 				final Collection<Long> allIds = regionIdMapper.getRegionIdsForRegion(BoundingBox.EMPTY_BOX);
 				
 				for(final long id : allIds) {
@@ -139,7 +142,7 @@ public class StatisticsUpdateThread extends ExceptionSafeThread {
 	 * @throws InterruptedException 
 	 */
 	private void updateRegionStatistics(final DistributionGroupName distributionGroup, final long regionId) 
-			throws ZookeeperException, StorageManagerException, InterruptedException {
+			throws BBoxDBException, ZookeeperException, StorageManagerException, InterruptedException {
 		
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache
 				.getSpacePartitionerForGroupName(distributionGroup.getFullname());

@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.DistributionRegionIdMapper;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -102,5 +103,10 @@ public interface SpacePartitioner {
 	 * @return
 	 */
 	public boolean unregisterCallback(final DistributionRegionChangedCallback callback);
+	
+	/**
+	 * Get the region id mapper
+	 */
+	public DistributionRegionIdMapper getDistributionRegionIdMapper();
 
 }

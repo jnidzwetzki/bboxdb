@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.DistributionRegionIdMapper;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -84,5 +85,11 @@ public class QuadtreeSpacePartitioner implements SpacePartitioner {
 	@Override
 	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException {
 		throw new IllegalArgumentException("Unable to merge region, this is not supported");
+	}
+
+	@Override
+	public DistributionRegionIdMapper getDistributionRegionIdMapper() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

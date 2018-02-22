@@ -42,23 +42,27 @@ public class SpacePartitionerCache {
 	 * Get the distribution region for the given group name
 	 * @param groupName
 	 * @return
+	 * @throws BBoxDBException 
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized SpacePartitioner getSpacePartitionerForGroupName(final String groupName) 
-			throws ZookeeperException {
+	public static synchronized SpacePartitioner getSpacePartitionerForGroupName(final String groupName) throws BBoxDBException  {
 		
-		if(! groupGroupMap.containsKey(groupName)) {
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+		try {
+			if(! groupGroupMap.containsKey(groupName)) {
+				final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
-				= new DistributionGroupZookeeperAdapter(zookeeperClient);
+				final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
+					= new DistributionGroupZookeeperAdapter(zookeeperClient);
+				
+				final SpacePartitioner adapter = distributionGroupZookeeperAdapter.getSpaceparitioner(groupName);
+				groupGroupMap.put(groupName, adapter);
+			}
 			
-			final SpacePartitioner adapter = distributionGroupZookeeperAdapter.getSpaceparitioner(groupName);
-			groupGroupMap.put(groupName, adapter);
+			return groupGroupMap.get(groupName);
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
 		}
-		
-		return groupGroupMap.get(groupName);
 	}
 	
 	/**
