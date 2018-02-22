@@ -48,16 +48,15 @@ for node in $bboxdb_nodes; do
    ssh $node "mkdir -p /tmp/bboxdb/data"; 
 done
 
-$BBOXDB_HOME/bin/manage_cluster.sh  zookeeper_drop
-$BBOXDB_HOME/bin/manage_cluster.sh  zookeeper_start
+$BBOXDB_HOME/bin/manage_cluster.sh zookeeper_drop
+$BBOXDB_HOME/bin/manage_cluster.sh zookeeper_start
 sleep 5
 
-
-$BBOXDB_HOME/bin/manage_cluster.sh  bboxdb_start
+$BBOXDB_HOME/bin/manage_cluster.sh bboxdb_start
 sleep 5
 
 if [[ $1 != "nopopulate" ]]; then
-   $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup mydgroup -replicationfactor 1 -dimensions 2
+   $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup mydgroup -replicationfactor 2 -dimensions 2
    $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table1
    $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table2
 
