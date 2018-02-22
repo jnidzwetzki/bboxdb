@@ -82,18 +82,11 @@ public class DistributionRegionHelper {
 
 			@Override
 			public DistributionRegion call() throws Exception {
-				final DistributionRegionNameprefixFinder distributionRegionNameprefixFinder 
-					= new DistributionRegionNameprefixFinder(searchNameprefix);
-
-				region.visit(distributionRegionNameprefixFinder);
-				
-				final DistributionRegion result = distributionRegionNameprefixFinder.getResult();
-			
-				if(result == null) {
-					throw new Exception("Unable to get distribution region");
-				}
-				
-				return result;
+				return region
+					.getThisAndChildRegions()
+					.stream()
+					.filter(r -> r.getRegionId() == searchNameprefix)
+					.findAny().orElseThrow(() -> new Exception("Unable to get distribution region"));
 			}
 		};
 		
@@ -143,45 +136,6 @@ public class DistributionRegionHelper {
 	
 }
 
-class DistributionRegionNameprefixFinder implements DistributionRegionVisitor {
-
-	/**
-	 * The name prefix to search
-	 */
-	protected long nameprefix;
-	
-	/**
-	 * The result
-	 */
-	protected DistributionRegion result = null;
-	
-	public DistributionRegionNameprefixFinder(final long nameprefix) {
-		this.nameprefix = nameprefix;
-	}
-	
-	@Override
-	public boolean visitRegion(final DistributionRegion distributionRegion) {
-		
-		if(distributionRegion.getRegionId() == nameprefix) {
-			result = distributionRegion;
-		}
-		
-		// Stop search
-		if(result != null) {
-			return false;
-		}
-		
-		return true;
-	}
-	
-	/**
-	 * Get the result
-	 * @return
-	 */
-	public DistributionRegion getResult() {
-		return result;
-	}
-}
 
 class CalculateSystemUtilization implements DistributionRegionVisitor {
 
