@@ -420,7 +420,7 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public String getIdentifier() {
-		return distributionGroupName.getFullname() + " namepefix: " + regionid;
+		return distributionGroupName.getFullname() + "_" + regionid;
 	}
 	
 	/**

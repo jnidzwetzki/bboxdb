@@ -48,7 +48,7 @@ public class RegionSplitHelper {
 			return false;
 		}
 		
-		final double sizeOfRegionInMB = StatisticsHelper.getMaxRegionSizeFromStatistics(region);
+		final double sizeOfRegionInMB = StatisticsHelper.updateStatistics(region);
 
 		if(sizeOfRegionInMB == StatisticsHelper.INVALID_STATISTICS) {
 			return false;

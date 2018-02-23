@@ -65,7 +65,7 @@ public class RegionMergeHelper {
 	public static boolean isRegionUnderflow(final DistributionRegion region) throws BBoxDBException {
 		
 		// This might be the root region
-		if(region == null || region == DistributionRegion.ROOT_NODE_ROOT_POINTER) {
+		if(region == null || region.isRootElement()) {
 			return false;
 		}
 		
@@ -114,7 +114,7 @@ public class RegionMergeHelper {
 		return region.getDirectChildren()
 				.stream()
 				.filter(Objects::nonNull)
-				.mapToDouble(r -> StatisticsHelper.getMaxRegionSizeFromStatistics(r))
+				.mapToDouble(r -> StatisticsHelper.updateStatistics(r))
 				.filter(r -> r != StatisticsHelper.INVALID_STATISTICS)
 				.sum();
 	}

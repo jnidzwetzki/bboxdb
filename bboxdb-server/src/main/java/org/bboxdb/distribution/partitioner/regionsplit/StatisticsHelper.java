@@ -17,8 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner.regionsplit;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -30,25 +32,38 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.EvictingQueue;
+
 public class StatisticsHelper {
 	
 	/**
 	 * The value for invalid statistics
 	 */
 	public final static long INVALID_STATISTICS = 0;
-	
+		
 	/**
 	 * The Logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(StatisticsHelper.class);
+	private final static Logger logger = LoggerFactory.getLogger(StatisticsHelper.class);
 	
 	/**
 	 * The zookeeper adapter
 	 */
 	private final static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 	
+	/**
+	 * The statistics history
+	 */
+	private final static Map<String, Queue<Double>> statisticsHistory;
+	
+	/**
+	 * The statistics length
+	 */
+	public final static int HISTORY_LENGTH = 10;
+	
 	static {
 		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
+		statisticsHistory = new HashMap<>();
 	}
 
 	/**
@@ -58,22 +73,84 @@ public class StatisticsHelper {
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ZookeeperException 
 	 */
-	public static double getMaxRegionSizeFromStatistics(final DistributionRegion region) {
+	public static double updateStatistics(final DistributionRegion region) {
 		
 		try {
 			final Map<BBoxDBInstance, Map<String, Long>> statistics 
 				= distributionGroupZookeeperAdapter.getRegionStatistics(region);
 			
-			return statistics
+			final double regionSize = statistics
 				.values()
 				.stream()
 				.mapToDouble(p -> p.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE))
 				.filter(Objects::nonNull)
 				.max().orElse(INVALID_STATISTICS);
 			
+			final String regionIdentifier = region.getIdentifier();
+			updateStatisticsHistory(regionIdentifier, regionSize);
+			
+			return regionSize;
 		} catch (Exception e) {
 			logger.error("Got an exception while reading statistics", e);
 			return INVALID_STATISTICS;
 		} 
+	}
+
+	/**
+	 * Update the statistics 
+	 * 
+	 * @param region
+	 * @param regionSize
+	 */
+	public static void updateStatisticsHistory(final String regionIdentifier, final double regionSize) {
+		
+		if(! statisticsHistory.containsKey(regionIdentifier)) {
+			statisticsHistory.put(regionIdentifier, EvictingQueue.create(HISTORY_LENGTH));
+		}
+		
+		statisticsHistory.get(regionIdentifier).add(regionSize);
+	}
+	
+	/**
+	 * How often is the value above the statistics
+	 * @param regionIdentifier
+	 * @param value
+	 * @return
+	 */
+	public static long isValueAboveStatistics(final String regionIdentifier, final double value) {	
+		
+		if(! statisticsHistory.containsKey(regionIdentifier)) {
+			return 0;
+		}
+		
+		return statisticsHistory.get(regionIdentifier)
+				.stream()
+				.filter(d -> d > value)
+				.count();
+	}
+	
+	/**
+	 * How often is the value above the statistics
+	 * @param regionIdentifier
+	 * @param value
+	 * @return
+	 */
+	public static long isValueBelowStatistics(final String regionIdentifier, final double value) {	
+		
+		if(! statisticsHistory.containsKey(regionIdentifier)) {
+			return 0;
+		}
+		
+		return statisticsHistory.get(regionIdentifier)
+				.stream()
+				.filter(d -> d < value)
+				.count();
+	}
+	
+	/**
+	 * Delete all old statistics
+	 */
+	public static void clearHistory() {
+		statisticsHistory.clear();
 	}
 }
