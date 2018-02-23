@@ -84,12 +84,13 @@ public class RegionMergeHelper {
 		// We are not responsible to this region
 		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
 		if(! region.getSystems().contains(localInstanceName)) {
-			logger.debug("Not testing for underflow for {} on {}", region.getRegionId(), localInstanceName);
+			logger.info("Not testing for underflow for {} on {}", region.getRegionId(), localInstanceName);
 			return false;
 		}
 		
 		final double childRegionSize = getTotalRegionSize(region);
 		if(childRegionSize == StatisticsHelper.INVALID_STATISTICS) {
+			logger.info("Got invalid statistics for {}", region.getRegionId());
 			return false;
 		}
 		
