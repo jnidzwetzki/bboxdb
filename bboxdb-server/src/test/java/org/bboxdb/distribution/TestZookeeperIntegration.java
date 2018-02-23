@@ -31,7 +31,8 @@ import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
-import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
+import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
+import org.bboxdb.distribution.partitioner.regionsplit.StatisticsHelper;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -371,8 +372,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 
-		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
-		final double size1 = regionSplitHelper.getMaxRegionSizeFromStatistics(region);
+		final double size1 = StatisticsHelper.getMaxRegionSizeFromStatistics(region);
 		Assert.assertEquals(Integer.MAX_VALUE, size1, DELTA);
 		
 		final Map<BBoxDBInstance, Map<String, Long>> statistics1 = distributionGroupZookeeperAdapter.getRegionStatistics(region);
@@ -383,7 +383,7 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(1, statistics2.size());
 		Assert.assertEquals(12, statistics2.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE).longValue());
 		Assert.assertEquals(999, statistics2.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES).longValue());
-		final double size2 = regionSplitHelper.getMaxRegionSizeFromStatistics(region);
+		final double size2 = StatisticsHelper.getMaxRegionSizeFromStatistics(region);
 		Assert.assertEquals(12, size2, DELTA);
 		
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region, system2, 33, 1234);
@@ -393,7 +393,7 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(999, statistics3.get(system1).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES).longValue());
 		Assert.assertEquals(33, statistics3.get(system2).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE).longValue());
 		Assert.assertEquals(1234, statistics3.get(system2).get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES).longValue());
-		final double size3 = regionSplitHelper.getMaxRegionSizeFromStatistics(region);
+		final double size3 = StatisticsHelper.getMaxRegionSizeFromStatistics(region);
 		Assert.assertEquals(33, size3, DELTA);
 	}
 	
@@ -410,8 +410,8 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 
-		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
-		final double totalSize1 = regionSplitHelper.getTotalRegionSize(region);
+		final RegionMergeHelper regionMergeHelper = new RegionMergeHelper();
+		final double totalSize1 = regionMergeHelper.getTotalRegionSize(region);
 		Assert.assertEquals(0, totalSize1, DELTA);
 		
 		region.setSplit(12);
@@ -420,7 +420,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getLeftChild(), system1, 12, 999);
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getRightChild(), system1, 33, 999);
 
-		final double totalSize2 = regionSplitHelper.getTotalRegionSize(region);
+		final double totalSize2 = regionMergeHelper.getTotalRegionSize(region);
 		Assert.assertEquals(45, totalSize2, DELTA);
 	}
 	

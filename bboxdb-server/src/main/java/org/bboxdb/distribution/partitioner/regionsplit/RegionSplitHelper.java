@@ -18,18 +18,10 @@
 package org.bboxdb.distribution.partitioner.regionsplit;
 
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -37,21 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RegionSplitHelper {
-	
-	/**
-	 * The zookeeper adapter
-	 */
-	private final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
-	
+
 	/**
 	 * The Logger
 	 */
 	protected final static Logger logger = LoggerFactory.getLogger(RegionSplitHelper.class);
 	
-	public RegionSplitHelper() {
-		this.distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-	}
-
 	/**
 	 * Needs the region a split?
 	 * @param region
@@ -66,97 +49,13 @@ public class RegionSplitHelper {
 		}
 		
 		try {
-			final double sizeOfRegionInMB = getMaxRegionSizeFromStatistics(region);				
-			final long maxSize = getRegionMaxSizeInMB(region);
+			final double sizeOfRegionInMB = StatisticsHelper.getMaxRegionSizeFromStatistics(region);				
+			final long maxSize = getConfiguredRegionMaxSize(region);
 			
 			return (sizeOfRegionInMB > maxSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		} 
-	}
-
-	/**
-	 * Get the max total size from the statistics map
-	 * @param statistics
-	 * @return
-	 * @throws ZookeeperNotFoundException 
-	 * @throws ZookeeperException 
-	 */
-	public double getMaxRegionSizeFromStatistics(final DistributionRegion region) {
-		
-		try {
-			final Map<BBoxDBInstance, Map<String, Long>> statistics 
-				= distributionGroupZookeeperAdapter.getRegionStatistics(region);
-			
-			return statistics
-				.values()
-				.stream()
-				.mapToDouble(p -> p.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE))
-				.filter(Objects::nonNull)
-				.max().orElse(Integer.MAX_VALUE);
-			
-		} catch (Exception e) {
-			logger.error("Got an exception while reading statistics", e);
-			return Integer.MAX_VALUE;
-		} 
-	}
-	
-	/**
-	 * Needs the region a merge?
-	 * @param region
-	 * @return
-	 * @throws BBoxDBException 
-	 */
-	public boolean isRegionUnderflow(final DistributionRegion region) throws BBoxDBException {
-		
-		// This might be the root region
-		if(region == null || region == DistributionRegion.ROOT_NODE_ROOT_POINTER) {
-			return false;
-		}
-		
-		logger.info("Testing for underflow: {}", region.getRegionId());
-		
-		final List<DistributionRegion> children = region.getAllChildren();
-		final boolean inactiveChilds = children.stream()
-				.anyMatch(c -> c.getState() != DistributionRegionState.ACTIVE);
-		
-		if(inactiveChilds) {
-			logger.info("Not all children ready, skip merge test for {} / {}", 
-					region.getRegionId(), region.getAllChildren());
-			return false;
-		}
-		
-		// We are not responsible to this region
-		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
-		if(! region.getSystems().contains(localInstanceName)) {
-			logger.debug("Not testing for underflow for {} on {}", region.getRegionId(), localInstanceName);
-			return false;
-		}
-		
-		try {
-			final double childRegionSize = getTotalRegionSize(region);
-			final long minSize = getRegionMInSizeInMB(region);
-			
-			logger.info("Testing for region underflow curent size is {} / min is {} / children {}", 
-					childRegionSize, minSize, region.getDirectChildren());
-			
-			return (childRegionSize < minSize);
-		} catch (ZookeeperException | ZookeeperNotFoundException e) {
-			throw new BBoxDBException(e);
-		} 
-	}
-
-	/**
-	 * Get the total size of the child regions
-	 * @param region
-	 * @return
-	 */
-	public double getTotalRegionSize(final DistributionRegion region) {
-		return region.getDirectChildren()
-				.stream()
-				.filter(Objects::nonNull)
-				.mapToDouble(r -> getMaxRegionSizeFromStatistics(r))
-				.sum();
 	}
 	
 	/**
@@ -165,7 +64,9 @@ public class RegionSplitHelper {
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ZookeeperException 
 	 */
-	private long getRegionMaxSizeInMB(final DistributionRegion region) throws ZookeeperException, ZookeeperNotFoundException {
+	private long getConfiguredRegionMaxSize(final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
 		final String fullname = region.getDistributionGroupName().getFullname();
 		
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
@@ -174,30 +75,16 @@ public class RegionSplitHelper {
 		return config.getMaximumRegionSize();
 	}
 	
-	/**
-	 * Get minimal size of a region
-	 * @return
-	 * @throws ZookeeperNotFoundException 
-	 * @throws ZookeeperException 
-	 */
-	private long getRegionMInSizeInMB(final DistributionRegion region) throws ZookeeperException, ZookeeperNotFoundException {
-		final String fullname = region.getDistributionGroupName().getFullname();
-		
-		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
-				.getInstance().getDistributionGroupConfiguration(fullname);
-
-		return config.getMinimumRegionSize();
-	}
 	
 	/**
 	 * Is the data of the region parent completely redistributed, 
 	 * if not, wait with local split
 	 * @return
 	 */
-	protected boolean isParentDataRedistributed(final DistributionRegion region) {
+	private boolean isParentDataRedistributed(final DistributionRegion region) {
 		
 		// Root region
-		if(region.getParent() == DistributionRegion.ROOT_NODE_ROOT_POINTER) {
+		if(region.getParent().isRootElement()) {
 			return true;
 		}
 		

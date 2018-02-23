@@ -28,6 +28,7 @@ import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMerger;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitter;
@@ -321,7 +322,8 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				return;
 			} 
 			
-			if(regionSplitHelper.isRegionUnderflow(regionToSplit.getParent())) {
+			final RegionMergeHelper regionMergeHelper = new RegionMergeHelper();
+			if(regionMergeHelper.isRegionUnderflow(regionToSplit.getParent())) {
 				final RegionMerger regionMerger = new RegionMerger(tupleStoreManagerRegistry);
 
 				regionMerger.mergeRegion(regionToSplit.getParent(), spacePartitioner, 
