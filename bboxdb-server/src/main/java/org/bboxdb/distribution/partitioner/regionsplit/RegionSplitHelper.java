@@ -88,7 +88,7 @@ public class RegionSplitHelper {
 	private boolean isParentDataRedistributed(final DistributionRegion region) {
 		
 		// Root region
-		if(region.getParent().isRootElement()) {
+		if(region.isRootElement()) {
 			return true;
 		}
 		
