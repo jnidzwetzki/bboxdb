@@ -410,8 +410,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 
-		final RegionMergeHelper regionMergeHelper = new RegionMergeHelper();
-		final double totalSize1 = regionMergeHelper.getTotalRegionSize(region);
+		final double totalSize1 = RegionMergeHelper.getTotalRegionSize(region);
 		Assert.assertEquals(0, totalSize1, DELTA);
 		
 		region.setSplit(12);
@@ -420,7 +419,7 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getLeftChild(), system1, 12, 999);
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getRightChild(), system1, 33, 999);
 
-		final double totalSize2 = regionMergeHelper.getTotalRegionSize(region);
+		final double totalSize2 = RegionMergeHelper.getTotalRegionSize(region);
 		Assert.assertEquals(45, totalSize2, DELTA);
 	}
 	

@@ -308,32 +308,64 @@ public class SSTableCompactorThread extends ExceptionSafeThread {
 				return;
 			}
 			
-			final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
-
-			final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
+			testForOverflow(sstableManager, spacePartitioner, regionToSplit); 
+			testForUnderflow(spacePartitioner, regionToSplit);
 			
-			if(regionSplitHelper.isRegionOverflow(regionToSplit) && regionToSplit.isLeafRegion()) {
-				final RegionSplitter regionSplitter = new RegionSplitter(tupleStoreManagerRegistry);
-
-				forceMajorCompact(sstableManager);
-				
-				regionSplitter.splitRegion(regionToSplit, spacePartitioner, 
-						tupleStoreManagerRegistry);
-				return;
-			} 
-			
-			final RegionMergeHelper regionMergeHelper = new RegionMergeHelper();
-			if(regionMergeHelper.isRegionUnderflow(regionToSplit.getParent())) {
-				final RegionMerger regionMerger = new RegionMerger(tupleStoreManagerRegistry);
-
-				regionMerger.mergeRegion(regionToSplit.getParent(), spacePartitioner, 
-						tupleStoreManagerRegistry);	
-				
-				return;
-			}
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		}
+	}
+
+	/**
+	 * Test for region overflow
+	 * 
+	 * @param sstableManager
+	 * @param spacePartitioner
+	 * @param regionToSplit
+	 * @throws BBoxDBException
+	 * @throws StorageManagerException
+	 * @throws InterruptedException
+	 */
+	private void testForOverflow(final TupleStoreManager sstableManager, 
+			final SpacePartitioner spacePartitioner, final DistributionRegion regionToSplit)
+			throws BBoxDBException, StorageManagerException, InterruptedException {
+		
+		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
+		
+		if(! regionSplitHelper.isRegionOverflow(regionToSplit)) {
+			return;
+		}
+		
+		if(! regionToSplit.isLeafRegion()) {
+			return;
+		}
+		
+		final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
+		final RegionSplitter regionSplitter = new RegionSplitter(tupleStoreManagerRegistry);
+
+		forceMajorCompact(sstableManager);
+		
+		regionSplitter.splitRegion(regionToSplit, spacePartitioner, tupleStoreManagerRegistry);
+	}
+
+	/**
+	 * Test for region underflow
+	 * 
+	 * @param spacePartitioner
+	 * @param regionToSplit
+	 * @throws BBoxDBException
+	 */
+	private void testForUnderflow(final SpacePartitioner spacePartitioner, 
+			final DistributionRegion regionToSplit) throws BBoxDBException {
+		
+		if(! RegionMergeHelper.isRegionUnderflow(regionToSplit.getParent())) {
+			return;
+		}
+		
+		final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
+		final RegionMerger regionMerger = new RegionMerger(tupleStoreManagerRegistry);
+
+		regionMerger.mergeRegion(regionToSplit.getParent(), spacePartitioner, tupleStoreManagerRegistry);	
 	}
 
 	/**

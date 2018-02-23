@@ -45,7 +45,7 @@ public class RegionMergeHelper {
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ZookeeperException 
 	 */
-	private long getConfiguredRegionMinSizeInMB(final DistributionRegion region) 
+	private static long getConfiguredRegionMinSizeInMB(final DistributionRegion region) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String fullname = region.getDistributionGroupName().getFullname();
@@ -62,7 +62,7 @@ public class RegionMergeHelper {
 	 * @return
 	 * @throws BBoxDBException 
 	 */
-	public boolean isRegionUnderflow(final DistributionRegion region) throws BBoxDBException {
+	public static boolean isRegionUnderflow(final DistributionRegion region) throws BBoxDBException {
 		
 		// This might be the root region
 		if(region == null || region == DistributionRegion.ROOT_NODE_ROOT_POINTER) {
@@ -106,7 +106,7 @@ public class RegionMergeHelper {
 	 * @param region
 	 * @return
 	 */
-	public double getTotalRegionSize(final DistributionRegion region) {
+	public static double getTotalRegionSize(final DistributionRegion region) {
 		return region.getDirectChildren()
 				.stream()
 				.filter(Objects::nonNull)
