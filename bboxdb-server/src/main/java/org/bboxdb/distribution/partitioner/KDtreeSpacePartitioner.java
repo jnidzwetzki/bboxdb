@@ -766,7 +766,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 				
 		for(final DistributionRegion region : allChildren) {
 			
-			logger.debug("Processing region {}", region.getRegionId());
+			final long regionId = region.getRegionId();
+			logger.debug("Processing region {}", regionId);
 			
 			if(! region.getSystems().contains(localInstance)) {
 				continue;
@@ -775,17 +776,18 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			if(activeStates.contains(region.getState())) {
 				
 				// Add the mapping to the nameprefix mapper
-				if(! allExistingMappings.contains(region.getRegionId())) {
-					distributionRegionMapper.addMapping(region);
+				if(! allExistingMappings.contains(regionId)) {
+					distributionRegionMapper.addMapping(regionId, region.getConveringBox(), 
+							distributionGroupName.getFullname());
 				}
 				
-				allExistingMappings.remove(region.getRegionId());
+				allExistingMappings.remove(regionId);
 			}	
 		}
 	
 		// Remove all active but not seen mappings
 		for(final long regionId : allExistingMappings) {
-			distributionRegionMapper.removeMapping(regionId);
+			distributionRegionMapper.removeMapping(regionId, distributionGroupName.getFullname());
 		}
 	}
 	

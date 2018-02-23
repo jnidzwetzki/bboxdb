@@ -44,7 +44,7 @@ public class DistributionRegionIdMapper {
 	private final Map<Long, BoundingBox> regions;
 	
 	/**
-	 * The mutex for synchonization
+	 * The mutex for synchronization
 	 */
 	private final Object MUTEX;
 	
@@ -146,19 +146,19 @@ public class DistributionRegionIdMapper {
 	 * @param tablename
 	 * @param boundingBox
 	 */
-	public boolean addMapping(final DistributionRegion region) {
+	public boolean addMapping(final long regionId, final BoundingBox boundingBox, 
+			final String distributionGroup) {
 				
-		final long regionId = region.getRegionId();
-		final BoundingBox converingBox = region.getConveringBox();	
-				
-		if(regions.containsKey(region.getRegionId())) {
-			logger.debug("Mapping for region {} already exists, ignoring", regionId);
+		if(regions.containsKey(regionId)) {
+			logger.debug("Mapping for region {} / {} already exists, ignoring", 
+					regionId, distributionGroup);
+			
 			return false;
 		}
 		
-		logger.info("Add local mapping for: {}", region.getIdentifier());
+		logger.info("Add local mapping for: {} / {}", regionId, distributionGroup);
 		
-			regions.put(regionId, converingBox);
+		regions.put(regionId, boundingBox);
 			
 		synchronized (MUTEX) {
 			MUTEX.notifyAll();
@@ -171,13 +171,13 @@ public class DistributionRegionIdMapper {
 	 * Remove a mapping
 	 * @return
 	 */
-	public boolean removeMapping(final long regionId) {
+	public boolean removeMapping(final long regionId, final String distributionGroup) {
 		
 		final boolean removed = regions.containsKey(regionId);
 		regions.remove(regionId);
 		
 		if(removed) {
-			logger.info("Mapping for region id {} removed", regionId);
+			logger.info("Mapping for region id {} / {} removed", regionId, distributionGroup);
 		}
 		
 		synchronized (MUTEX) {	
