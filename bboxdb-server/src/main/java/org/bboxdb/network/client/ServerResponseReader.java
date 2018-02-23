@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ import com.google.common.io.ByteStreams;
  * Read the server response packages
  *
  */
-public class ServerResponseReader extends ExceptionSafeThread {
+public class ServerResponseReader extends ExceptionSafeRunnable {
 	
 	/**
 	 * The BBOXDB Client

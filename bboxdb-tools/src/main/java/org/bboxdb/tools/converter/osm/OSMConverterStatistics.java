@@ -17,11 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.tools.converter.osm;
 
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OSMConverterStatistics extends ExceptionSafeThread {
+public class OSMConverterStatistics extends ExceptionSafeRunnable {
 	
 	/**
 	 * The amount of processed nodes

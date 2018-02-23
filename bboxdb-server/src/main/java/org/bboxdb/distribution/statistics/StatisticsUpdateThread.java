@@ -20,7 +20,7 @@ package org.bboxdb.distribution.statistics;
 import java.util.Collection;
 import java.util.List;
 
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
@@ -41,7 +41,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StatisticsUpdateThread extends ExceptionSafeThread {
+public class StatisticsUpdateThread extends ExceptionSafeRunnable {
 
 	/**
 	 * The Logger

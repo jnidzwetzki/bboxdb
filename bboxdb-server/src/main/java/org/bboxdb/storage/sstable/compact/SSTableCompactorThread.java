@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.RejectedException;
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
@@ -47,7 +47,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableCompactorThread extends ExceptionSafeThread {
+public class SSTableCompactorThread extends ExceptionSafeRunnable {
 	
 	/**
 	 * The merge strategy

@@ -23,7 +23,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.commons.ListHelper;
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -34,7 +34,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConnectionMainteinanceThread extends ExceptionSafeThread {
+public class ConnectionMainteinanceThread extends ExceptionSafeRunnable {
 	
 	/**
 	 * The timestamp when the last data was send (useful for sending keep alive packages)

@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.bboxdb.commons.ServiceState;
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBService;
@@ -139,7 +139,7 @@ public class NetworkConnectionService implements BBoxDBService {
 	 * The connection dispatcher
 	 *
 	 */
-	class ConnectionDispatcher extends ExceptionSafeThread {
+	class ConnectionDispatcher extends ExceptionSafeRunnable {
 
 		/**
 		 * The server socket

@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.LongPredicate;
 
 import org.bboxdb.commons.FileSizeHelper;
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.io.UnsafeMemoryHelper;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.StorageManagerException;
@@ -35,7 +35,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableCheckpointThread extends ExceptionSafeThread {
+public class SSTableCheckpointThread extends ExceptionSafeRunnable {
 
 	/**
 	 * The storage

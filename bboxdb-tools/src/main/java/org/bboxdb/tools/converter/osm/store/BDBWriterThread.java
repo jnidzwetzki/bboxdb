@@ -19,7 +19,7 @@ package org.bboxdb.tools.converter.osm.store;
 
 import java.util.List;
 
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.tools.converter.osm.util.SerializableNode;
 
 import com.sleepycat.je.Database;
@@ -28,7 +28,7 @@ import com.sleepycat.je.Environment;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
-public class BDBWriterThread extends ExceptionSafeThread {
+public class BDBWriterThread extends ExceptionSafeRunnable {
 
 	protected final List<SerializableNode> pendingWriteQueue;
 	protected final Environment environment;

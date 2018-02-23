@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -77,7 +77,7 @@ public class PackageRouter {
 	public void performInsertPackageRoutingAsync(final short packageSequence, 
 			final InsertTupleRequest insertTupleRequest) {
 	
-		final Runnable routeRunable = new ExceptionSafeThread()  {
+		final Runnable routeRunable = new ExceptionSafeRunnable()  {
 
 			@Override
 			protected void runThread() {

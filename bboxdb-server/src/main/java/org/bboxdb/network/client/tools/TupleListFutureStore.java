@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.ServiceState;
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.concurrent.ThreadHelper;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.Tuple;
@@ -170,7 +170,7 @@ public class TupleListFutureStore {
 	}
 }
 
-class RequestWorker extends ExceptionSafeThread {
+class RequestWorker extends ExceptionSafeRunnable {
 	
 	/**
 	 * The queue

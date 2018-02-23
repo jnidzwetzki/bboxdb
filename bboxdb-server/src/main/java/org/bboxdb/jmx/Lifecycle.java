@@ -18,7 +18,7 @@
 package org.bboxdb.jmx;
 
 import org.bboxdb.BBoxDBMain;
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class Lifecycle implements LifecycleMBean {
 	@Override
 	public void shutdown() {
 		
-		final Runnable shutdownRunable = new ExceptionSafeThread() {
+		final Runnable shutdownRunable = new ExceptionSafeRunnable() {
 			
 			@Override
 			protected void runThread() throws Exception {

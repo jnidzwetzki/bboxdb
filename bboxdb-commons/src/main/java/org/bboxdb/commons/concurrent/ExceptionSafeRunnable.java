@@ -20,15 +20,15 @@ package org.bboxdb.commons.concurrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class ExceptionSafeThread implements Runnable {
+public abstract class ExceptionSafeRunnable implements Runnable {
 	
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ExceptionSafeThread.class);
+	private final static Logger logger = LoggerFactory.getLogger(ExceptionSafeRunnable.class);
 
 	/**
-	 * Run method that catches throwables
+	 * Run method that catches all throwables
 	 */
 	@Override
 	public void run() {

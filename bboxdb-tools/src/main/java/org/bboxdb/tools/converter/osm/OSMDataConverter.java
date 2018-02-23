@@ -41,7 +41,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.tools.converter.osm.filter.OSMTagEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.multipoint.OSMBuildingsEntityFilter;
 import org.bboxdb.tools.converter.osm.filter.multipoint.OSMRoadsEntityFilter;
@@ -301,7 +301,7 @@ public class OSMDataConverter {
 	}
 	
 	
-	class Consumer extends ExceptionSafeThread {
+	class Consumer extends ExceptionSafeRunnable {
 		/**
 		 * The consumer thread
 		 */

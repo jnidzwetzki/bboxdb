@@ -20,7 +20,7 @@ package org.bboxdb.network.server.handler.query;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.QueryKeyRequest;
 import org.bboxdb.network.packages.response.ErrorResponse;
@@ -48,7 +48,7 @@ public class HandleKeyQuery implements QueryHandler {
 			final short packageSequence, final ClientConnectionHandler clientConnectionHandler) 
 					throws IOException, PackageEncodeException {
 
-		final Runnable queryRunable = new ExceptionSafeThread() {
+		final Runnable queryRunable = new ExceptionSafeRunnable() {
 
 			@Override
 			public void runThread() throws Exception {

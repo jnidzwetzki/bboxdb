@@ -17,12 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.network.client;
 
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.network.NetworkConst;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConnectionFlushThread extends ExceptionSafeThread {
+public class ConnectionFlushThread extends ExceptionSafeRunnable {
 
 	/**
 	 * The BBOXDB Client

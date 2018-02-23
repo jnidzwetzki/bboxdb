@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 import org.bboxdb.commons.FileSizeHelper;
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableWriter;
@@ -33,7 +33,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MemtableWriterThread extends ExceptionSafeThread {
+public class MemtableWriterThread extends ExceptionSafeRunnable {
 
 	/**
 	 * The basedir

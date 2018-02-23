@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 
 import org.bboxdb.commons.CloseableHelper;
 import org.bboxdb.commons.ServiceState;
-import org.bboxdb.commons.concurrent.ExceptionSafeThread;
+import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.concurrent.ExecutorUtil;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
@@ -77,7 +77,7 @@ import com.google.common.io.ByteStreams;
 
 import io.prometheus.client.Gauge;
 
-public class ClientConnectionHandler extends ExceptionSafeThread {
+public class ClientConnectionHandler extends ExceptionSafeRunnable {
 
 	/**
 	 * The client socket
@@ -586,7 +586,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 			return;
 		}
 		
-		final Runnable queryRunable = new ExceptionSafeThread() {
+		final Runnable queryRunable = new ExceptionSafeRunnable() {
 
 			@Override
 			protected void runThread() throws IOException, PackageEncodeException {
@@ -684,7 +684,7 @@ public class ClientConnectionHandler extends ExceptionSafeThread {
 		return sb.toString();
 	}
 	
-	class ConnectionMaintenanceThread extends ExceptionSafeThread {
+	class ConnectionMaintenanceThread extends ExceptionSafeRunnable {
 		
 		@Override
 		protected void beginHook() {
