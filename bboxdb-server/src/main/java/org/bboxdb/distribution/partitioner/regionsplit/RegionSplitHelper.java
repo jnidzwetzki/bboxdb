@@ -48,10 +48,14 @@ public class RegionSplitHelper {
 			return false;
 		}
 		
-		try {
-			final double sizeOfRegionInMB = StatisticsHelper.getMaxRegionSizeFromStatistics(region);				
+		final double sizeOfRegionInMB = StatisticsHelper.getMaxRegionSizeFromStatistics(region);
+
+		if(sizeOfRegionInMB == StatisticsHelper.INVALID_STATISTICS) {
+			return false;
+		}
+		
+		try {			
 			final long maxSize = getConfiguredRegionMaxSize(region);
-			
 			return (sizeOfRegionInMB > maxSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);

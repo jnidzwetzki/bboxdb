@@ -373,7 +373,7 @@ public class TestZookeeperIntegration {
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 
 		final double size1 = StatisticsHelper.getMaxRegionSizeFromStatistics(region);
-		Assert.assertEquals(Integer.MAX_VALUE, size1, DELTA);
+		Assert.assertEquals(StatisticsHelper.INVALID_STATISTICS, size1, DELTA);
 		
 		final Map<BBoxDBInstance, Map<String, Long>> statistics1 = distributionGroupZookeeperAdapter.getRegionStatistics(region);
 		Assert.assertTrue(statistics1.isEmpty());
@@ -411,7 +411,7 @@ public class TestZookeeperIntegration {
 		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
 
 		final double totalSize1 = RegionMergeHelper.getTotalRegionSize(region);
-		Assert.assertEquals(0, totalSize1, DELTA);
+		Assert.assertEquals(StatisticsHelper.INVALID_STATISTICS, totalSize1, DELTA);
 		
 		region.setSplit(12);
 		Thread.sleep(TimeUnit.SECONDS.toMillis(5));

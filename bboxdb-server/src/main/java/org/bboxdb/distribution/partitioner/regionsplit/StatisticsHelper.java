@@ -35,7 +35,7 @@ public class StatisticsHelper {
 	/**
 	 * The value for invalid statistics
 	 */
-	public final static long INVALID_STATISTICS = -1;
+	public final static long INVALID_STATISTICS = 0;
 	
 	/**
 	 * The Logger
@@ -73,7 +73,7 @@ public class StatisticsHelper {
 			
 		} catch (Exception e) {
 			logger.error("Got an exception while reading statistics", e);
-			return Integer.MAX_VALUE;
+			return INVALID_STATISTICS;
 		} 
 	}
 }

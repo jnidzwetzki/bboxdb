@@ -88,8 +88,12 @@ public class RegionMergeHelper {
 			return false;
 		}
 		
+		final double childRegionSize = getTotalRegionSize(region);
+		if(childRegionSize == StatisticsHelper.INVALID_STATISTICS) {
+			return false;
+		}
+		
 		try {
-			final double childRegionSize = getTotalRegionSize(region);
 			final long minSize = getConfiguredRegionMinSizeInMB(region);
 			
 			logger.info("Testing for region {} underflow curent size is {} / min is {}", 
@@ -111,7 +115,8 @@ public class RegionMergeHelper {
 				.stream()
 				.filter(Objects::nonNull)
 				.mapToDouble(r -> StatisticsHelper.getMaxRegionSizeFromStatistics(r))
-				.max().orElse(-1);
+				.filter(r -> r != StatisticsHelper.INVALID_STATISTICS)
+				.sum();
 	}
 	
 }
