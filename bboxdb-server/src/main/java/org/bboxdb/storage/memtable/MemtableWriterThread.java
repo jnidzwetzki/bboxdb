@@ -123,19 +123,18 @@ public class MemtableWriterThread extends ExceptionSafeThread {
 		}  catch (Throwable e) {
 			deleteWrittenFacade(facade);
 
-			logger.error("Exception while flushing memtable", e);
-
 			if(sstableManager.getSstableManagerState() == TupleStoreManagerState.READ_ONLY) {
 				logger.debug("Rejected memtable write:", e);
 				return;
 			}
+			
+			logger.error("Exception while flushing memtable", e);
 			
 			if (Thread.currentThread().isInterrupted()) {
 				logger.debug("Got Exception while flushing memtable, but thread was interrupted. "
 						+ "Ignoring exception.");
 				Thread.currentThread().interrupt();
 				return;
-				
 			} 
 		}
 	}
