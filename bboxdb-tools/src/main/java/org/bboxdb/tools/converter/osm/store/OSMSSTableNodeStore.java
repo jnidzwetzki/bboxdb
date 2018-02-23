@@ -101,7 +101,7 @@ public class OSMSSTableNodeStore implements OSMNodeStore {
 		final SerializableNode serializableNode = new SerializableNode(node);
 		final byte[] nodeBytes = serializableNode.toByteArray();
 		
-		final Tuple tuple = new Tuple(Long.toString(node.getId()), BoundingBox.EMPTY_BOX, nodeBytes);
+		final Tuple tuple = new Tuple(Long.toString(node.getId()), BoundingBox.FULL_SPACE, nodeBytes);
 		storageManager.put(tuple);
 	}
 

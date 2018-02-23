@@ -28,7 +28,7 @@ public class ThreadedTupleListFutureIterator extends AbstractTheadedListFutureIt
 
 	@Override
 	protected Tuple buildQueueTerminal() {
-		return new Tuple("", BoundingBox.EMPTY_BOX, "".getBytes());
+		return new Tuple("", BoundingBox.FULL_SPACE, "".getBytes());
 	}
 	
 

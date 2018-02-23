@@ -155,7 +155,7 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 				final BoundingBox tupleBoundingBox = tuple.getBoundingBox();
 			
 				// Ignore tuples with an empty box (e.g. deleted tuples)
-				if(tupleBoundingBox == null || tupleBoundingBox.equals(BoundingBox.EMPTY_BOX)) {
+				if(tupleBoundingBox == null || tupleBoundingBox.equals(BoundingBox.FULL_SPACE)) {
 					continue;
 				}
 				

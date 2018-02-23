@@ -131,10 +131,10 @@ public class TestSSTable {
 	 */
 	protected List<Tuple> createTupleList() {
 		final List<Tuple> tupleList = new ArrayList<Tuple>();
-		tupleList.add(new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes()));
-		tupleList.add(new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes()));
-		tupleList.add(new Tuple("3", BoundingBox.EMPTY_BOX, "geh".getBytes()));
-		tupleList.add(new Tuple("4", BoundingBox.EMPTY_BOX, "ijk".getBytes()));
+		tupleList.add(new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes()));
+		tupleList.add(new Tuple("2", BoundingBox.FULL_SPACE, "def".getBytes()));
+		tupleList.add(new Tuple("3", BoundingBox.FULL_SPACE, "geh".getBytes()));
+		tupleList.add(new Tuple("4", BoundingBox.FULL_SPACE, "ijk".getBytes()));
 		tupleList.add(new DeletedTuple("4"));
 		return tupleList;
 	}

@@ -215,7 +215,7 @@ public class TestRTreeIndex {
 	@Test
 	public void testEmptryRTreeBBox() {
 		final RTreeBuilder index = new RTreeBuilder();
-		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(BoundingBox.EMPTY_BOX);
+		final List<? extends SpatialIndexEntry> result = index.getEntriesForRegion(BoundingBox.FULL_SPACE);
 		Assert.assertTrue(result.isEmpty());
 	}
 	

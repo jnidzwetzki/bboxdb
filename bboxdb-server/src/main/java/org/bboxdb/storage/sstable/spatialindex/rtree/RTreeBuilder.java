@@ -111,7 +111,7 @@ public class RTreeBuilder implements SpatialIndexBuilder {
 	@Override
 	public boolean insert(final SpatialIndexEntry entry) {
 
-		if(entry.getBoundingBox() == null || entry.getBoundingBox() == BoundingBox.EMPTY_BOX) {
+		if(entry.getBoundingBox() == null || entry.getBoundingBox() == BoundingBox.FULL_SPACE) {
 			return false;
 		}
 

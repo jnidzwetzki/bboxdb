@@ -120,7 +120,7 @@ public class StatisticsUpdateThread extends ExceptionSafeThread {
 				final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
 				final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
 				
-				final Collection<Long> allIds = regionIdMapper.getRegionIdsForRegion(BoundingBox.EMPTY_BOX);
+				final Collection<Long> allIds = regionIdMapper.getRegionIdsForRegion(BoundingBox.FULL_SPACE);
 				
 				for(final long id : allIds) {
 					updateRegionStatistics(distributionGroup, id);

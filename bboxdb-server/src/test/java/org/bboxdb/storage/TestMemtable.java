@@ -136,7 +136,7 @@ public class TestMemtable {
 		final int MAX_TUPLES = memtable.getMaxEntries() * 10;
 
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, Integer.toString(i).getBytes());
 			memtable.put(createdTuple);
 		}
 	}

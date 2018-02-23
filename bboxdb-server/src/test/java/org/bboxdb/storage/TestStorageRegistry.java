@@ -102,7 +102,7 @@ public class TestStorageRegistry {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
 		}
 		
@@ -141,7 +141,7 @@ public class TestStorageRegistry {
 		final TupleStoreManager storageManager = storageRegistry.getTupleStoreManager(RELATION_NAME);
 		
 		for(int i = 0; i < 50000; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
 		}
 		

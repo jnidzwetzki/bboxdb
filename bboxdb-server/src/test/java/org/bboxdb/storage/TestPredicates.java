@@ -40,8 +40,8 @@ public class TestPredicates {
 	 */
 	@Test
 	public void testNewerAsPredicate1() throws Exception {
-		final Tuple tuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tuple2 = new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes(), 2);
+		final Tuple tuple1 = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tuple2 = new Tuple("2", BoundingBox.FULL_SPACE, "def".getBytes(), 2);
 		
 		final List<Tuple> tupleList = new ArrayList<>();
 		tupleList.add(tuple1);
@@ -63,8 +63,8 @@ public class TestPredicates {
 	 */
 	@Test
 	public void testNewerAsPredicate2() throws Exception {
-		final Tuple tuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes(), 50);
-		final Tuple tuple2 = new Tuple("2", BoundingBox.EMPTY_BOX, "def".getBytes(), 1234);
+		final Tuple tuple1 = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes(), 50);
+		final Tuple tuple2 = new Tuple("2", BoundingBox.FULL_SPACE, "def".getBytes(), 1234);
 
 		final List<Tuple> tupleList = new ArrayList<>();
 		tupleList.add(tuple1);

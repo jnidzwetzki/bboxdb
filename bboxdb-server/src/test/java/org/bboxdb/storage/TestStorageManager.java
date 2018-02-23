@@ -98,15 +98,15 @@ public class TestStorageManager {
 	
 	@Test
 	public void testInsertElements1() throws Exception {
-		final Tuple tuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final Tuple tuple = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes());
 		storageManager.put(tuple);
 		Assert.assertEquals(tuple, storageManager.get("1").get(0));
 	}
 	
 	@Test
 	public void testInsertElements2() throws Exception {
-		final Tuple tuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
-		final Tuple tuple2 = new Tuple("1", BoundingBox.EMPTY_BOX, "def".getBytes());
+		final Tuple tuple1 = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes());
+		final Tuple tuple2 = new Tuple("1", BoundingBox.FULL_SPACE, "def".getBytes());
 
 		storageManager.put(tuple1);
 		storageManager.put(tuple2);
@@ -118,7 +118,7 @@ public class TestStorageManager {
 	public void testInsertAndReadPerson() throws Exception {
 		final PersonEntity person1 = new PersonEntity("Jan", "Jansen", 30);
 		final ObjectSerializer<PersonEntity> serializer = new ObjectSerializer<PersonEntity>();
-		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, serializer.serialize(person1));
+		final Tuple createdTuple = new Tuple("1", BoundingBox.FULL_SPACE, serializer.serialize(person1));
 		
 		storageManager.put(createdTuple);
 		final List<Tuple> readTuples = storageManager.get("1");
@@ -140,7 +140,7 @@ public class TestStorageManager {
 	
 	@Test(expected=NullPointerException.class)
 	public void testStoreNullTuple() throws Exception {
-		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, null); // This should cause an NPE
+		final Tuple createdTuple = new Tuple("1", BoundingBox.FULL_SPACE, null); // This should cause an NPE
 		storageManager.put(createdTuple);
 		Assert.assertTrue(false);
 	}
@@ -152,9 +152,9 @@ public class TestStorageManager {
 		
 		storageManager.registerInsertCallback(callback);
 		
-		final Tuple createdTuple1 = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
-		final Tuple createdTuple2 = new Tuple("2", BoundingBox.EMPTY_BOX, "abc".getBytes());
-		final Tuple createdTuple3 = new Tuple("3", BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final Tuple createdTuple1 = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes());
+		final Tuple createdTuple2 = new Tuple("2", BoundingBox.FULL_SPACE, "abc".getBytes());
+		final Tuple createdTuple3 = new Tuple("3", BoundingBox.FULL_SPACE, "abc".getBytes());
 
 		storageManager.put(createdTuple1);
 		Assert.assertEquals(1, receivedTuples.size());
@@ -173,7 +173,7 @@ public class TestStorageManager {
 	
 	@Test
 	public void testTupleDelete() throws Exception {
-		final Tuple createdTuple = new Tuple("1", BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final Tuple createdTuple = new Tuple("1", BoundingBox.FULL_SPACE, "abc".getBytes());
 		storageManager.put(createdTuple);
 		
 		Assert.assertEquals(createdTuple, storageManager.get("1").get(0));
@@ -188,7 +188,7 @@ public class TestStorageManager {
 		int SPECIAL_TUPLE = MAX_TUPLES / 2;
 		
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
 			
 			if(i == SPECIAL_TUPLE) {
@@ -215,7 +215,7 @@ public class TestStorageManager {
 		Assert.assertTrue(readTuples.isEmpty());
 		
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
 			
 			if(i == DELETE_AFTER) {
@@ -245,7 +245,7 @@ public class TestStorageManager {
 		
 		System.out.println("Inserting tuples...");
 		for(int i = 0; i < MAX_TUPLES; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
 		}
 		
@@ -325,19 +325,19 @@ public class TestStorageManager {
 		storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
 		
-		final Tuple tuple1 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc1".getBytes());
+		final Tuple tuple1 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc1".getBytes());
 		storageManager.put(tuple1);
 		
-		final Tuple tuple2 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc2".getBytes());
+		final Tuple tuple2 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc2".getBytes());
 		storageManager.put(tuple2);
 
-		final Tuple tuple3 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc3".getBytes());
+		final Tuple tuple3 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc3".getBytes());
 		storageManager.put(tuple3);
 
-		final Tuple tuple4 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc4".getBytes());
+		final Tuple tuple4 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc4".getBytes());
 		storageManager.put(tuple4);
 
-		final Tuple tuple5 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc5".getBytes());
+		final Tuple tuple5 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc5".getBytes());
 		storageManager.put(tuple5);
 
 		final List<Tuple> readTuples = storageManager.get("abc");
@@ -373,19 +373,19 @@ public class TestStorageManager {
 		storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
 		
-		final Tuple tuple1 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc1".getBytes());
+		final Tuple tuple1 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc1".getBytes());
 		storageManager.put(tuple1);
 		
-		final Tuple tuple2 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc2".getBytes());
+		final Tuple tuple2 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc2".getBytes());
 		storageManager.put(tuple2);
 
-		final Tuple tuple3 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc3".getBytes());
+		final Tuple tuple3 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc3".getBytes());
 		storageManager.put(tuple3);
 
-		final Tuple tuple4 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc4".getBytes());
+		final Tuple tuple4 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc4".getBytes());
 		storageManager.put(tuple4);
 
-		final Tuple tuple5 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc5".getBytes());
+		final Tuple tuple5 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc5".getBytes());
 		storageManager.put(tuple5);
 
 		final List<Tuple> readTuples = storageManager.get("abc");
@@ -423,19 +423,19 @@ public class TestStorageManager {
 		storageManager = storageRegistry.getTupleStoreManager(TEST_RELATION);
 		Assert.assertTrue(storageManager.getServiceState().isInRunningState());
 		
-		final Tuple tuple1 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc1".getBytes());
+		final Tuple tuple1 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc1".getBytes());
 		storageManager.put(tuple1);
 		
-		final Tuple tuple2 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc2".getBytes());
+		final Tuple tuple2 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc2".getBytes());
 		storageManager.put(tuple2);
 
-		final Tuple tuple3 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc3".getBytes());
+		final Tuple tuple3 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc3".getBytes());
 		storageManager.put(tuple3);
 
-		final Tuple tuple4 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc4".getBytes());
+		final Tuple tuple4 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc4".getBytes());
 		storageManager.put(tuple4);
 
-		final Tuple tuple5 = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc5".getBytes());
+		final Tuple tuple5 = new Tuple("abc", BoundingBox.FULL_SPACE, "abc5".getBytes());
 		storageManager.put(tuple5);
 
 		final List<Tuple> readTuples = storageManager.get("abc");

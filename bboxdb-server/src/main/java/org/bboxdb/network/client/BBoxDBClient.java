@@ -590,7 +590,7 @@ public class BBoxDBClient implements BBoxDB {
 	@Override
 	public EmptyResultFuture deleteTuple(final String table, final String key, final long timestamp) {
 		final Supplier<RoutingHeader> routingHeader = () -> RoutingHeaderHelper.getRoutingHeaderForLocalSystemWriteNE(
-				table, BoundingBox.EMPTY_BOX, true, serverAddress);
+				table, BoundingBox.FULL_SPACE, true, serverAddress);
 		
 		return insertTuple(table, new DeletedTuple(key, timestamp), routingHeader);
 	}
@@ -674,7 +674,7 @@ public class BBoxDBClient implements BBoxDB {
 
 		final Supplier<RoutingHeader> routingHeaderSupplier = () 
 				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-						table, BoundingBox.EMPTY_BOX, true, serverAddress);
+						table, BoundingBox.FULL_SPACE, true, serverAddress);
 		
 		final DuplicateResolver<Tuple> duplicateResolver 
 			= TupleStoreConfigurationCache.getInstance().getDuplicateResolverForTupleStore(table);
@@ -788,7 +788,7 @@ public class BBoxDBClient implements BBoxDB {
 
 		final Supplier<RoutingHeader> routingHeaderSupplier = () 
 				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-						table, BoundingBox.EMPTY_BOX, true, serverAddress);
+						table, BoundingBox.FULL_SPACE, true, serverAddress);
 
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 		final QueryVersionTimeRequest requestPackage = new QueryVersionTimeRequest(getNextSequenceNumber(), 
@@ -816,7 +816,7 @@ public class BBoxDBClient implements BBoxDB {
 	
 		final Supplier<RoutingHeader> routingHeaderSupplier = () 
 				-> RoutingHeaderHelper.getRoutingHeaderForLocalSystemReadNE(
-						table, BoundingBox.EMPTY_BOX, true, serverAddress);
+						table, BoundingBox.FULL_SPACE, true, serverAddress);
 
 		final TupleListFuture clientOperationFuture = new TupleListFuture(1, new DoNothingDuplicateResolver(), table);
 		final QueryInsertTimeRequest requestPackage = new QueryInsertTimeRequest(getNextSequenceNumber(), 

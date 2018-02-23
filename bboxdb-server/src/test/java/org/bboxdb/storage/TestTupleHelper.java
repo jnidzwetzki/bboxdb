@@ -45,8 +45,8 @@ public class TestTupleHelper {
 	 */
 	@Test
 	public void testGetMostRecentTuple() {
-		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
 		
 		Assert.assertEquals(null, TupleHelper.returnMostRecentTuple(null, null));
 		Assert.assertEquals(tupleA, TupleHelper.returnMostRecentTuple(tupleA, null));
@@ -62,12 +62,12 @@ public class TestTupleHelper {
 	 */
 	@Test
 	public void testTupleDuplicateResolverNewest() {
-		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
-		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
-		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
-		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		
 		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
 				tupleD, tupleE, tupleF));
@@ -83,12 +83,12 @@ public class TestTupleHelper {
 	 */
 	@Test
 	public void testTupleDuplicateResolverTTLAndVersion1() {
-		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
-		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
-		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
-		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		
 		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
 				tupleD, tupleE, tupleF));
@@ -110,12 +110,12 @@ public class TestTupleHelper {
 	 */
 	@Test
 	public void testTupleDuplicateResolverTTLAndVersion2() {
-		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
-		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
-		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
-		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		
 		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
 				tupleD, tupleE, tupleF));
@@ -137,12 +137,12 @@ public class TestTupleHelper {
 	 */
 	@Test
 	public void testTupleDuplicateResolverTTL() {
-		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
-		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
-		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
-		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		
 		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
 				tupleD, tupleE, tupleF));
@@ -161,12 +161,12 @@ public class TestTupleHelper {
 	 */
 	@Test
 	public void testTupleDuplicateResolverVersions() {
-		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
-		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
-		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
-		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		
 		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
 				tupleD, tupleE, tupleF));
@@ -185,12 +185,12 @@ public class TestTupleHelper {
 	 */
 	@Test
 	public void testDoNothingTupleDuplicateResolverVersions() {
-		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
-		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
-		final Tuple tupleE = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 3);
-		final Tuple tupleF = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 4);
+		final Tuple tupleE = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 3);
+		final Tuple tupleF = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		
 		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, 
 				tupleD, tupleE, tupleF));
@@ -212,9 +212,9 @@ public class TestTupleHelper {
 	 */
 	@Test
 	public void testTupleKeyComparator1() {
-		final Tuple tupleA = new Tuple("xyz", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleB = new Tuple("ijk", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
-		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
+		final Tuple tupleA = new Tuple("xyz", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("ijk", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
 		
 		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC));
 		
@@ -230,10 +230,10 @@ public class TestTupleHelper {
 	 */
 	@Test
 	public void testTupleKeyComparator2() {
-		final Tuple tupleA = new Tuple("xyz", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleB = new Tuple("ijk", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
-		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 5);
-		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleA = new Tuple("xyz", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleB = new Tuple("ijk", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 5);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
 
 		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, tupleD));
 		
@@ -250,10 +250,10 @@ public class TestTupleHelper {
 	 */
 	@Test
 	public void testTupleKeyComparator3() {
-		final Tuple tupleA = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 4);
-		final Tuple tupleB = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 1);
-		final Tuple tupleC = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 5);
-		final Tuple tupleD = new Tuple("abc", BoundingBox.EMPTY_BOX, "abc".getBytes(), 2);
+		final Tuple tupleA = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 4);
+		final Tuple tupleB = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 1);
+		final Tuple tupleC = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 5);
+		final Tuple tupleD = new Tuple("abc", BoundingBox.FULL_SPACE, "abc".getBytes(), 2);
 
 		final List<Tuple> tupleList = new ArrayList<>(Arrays.asList(tupleA, tupleB, tupleC, tupleD));
 		

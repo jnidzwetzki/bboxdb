@@ -160,19 +160,19 @@ public class TestSSTableMetadataBuilder {
 	@Test
 	public void testSSTableIndexBuilder8() {
 		final SSTableMetadataBuilder ssTableIndexBuilder = new SSTableMetadataBuilder();
-		final Tuple tuple1 = new Tuple("0", BoundingBox.EMPTY_BOX, "".getBytes(), 6);
+		final Tuple tuple1 = new Tuple("0", BoundingBox.FULL_SPACE, "".getBytes(), 6);
 		ssTableIndexBuilder.addTuple(tuple1);
 		Assert.assertEquals(6, ssTableIndexBuilder.getMetaData().getNewestTupleVersionTimestamp());
 		Assert.assertEquals(6, ssTableIndexBuilder.getMetaData().getOldestTupleVersionTimestamp());
 		Assert.assertEquals(tuple1.getReceivedTimestamp(), ssTableIndexBuilder.getMetaData().getNewestTupleInsertedTimstamp());
 
-		final Tuple tuple2 = new Tuple("0", BoundingBox.EMPTY_BOX, "".getBytes(), 7);
+		final Tuple tuple2 = new Tuple("0", BoundingBox.FULL_SPACE, "".getBytes(), 7);
 		ssTableIndexBuilder.addTuple(tuple2);
 		Assert.assertEquals(7, ssTableIndexBuilder.getMetaData().getNewestTupleVersionTimestamp());
 		Assert.assertEquals(6, ssTableIndexBuilder.getMetaData().getOldestTupleVersionTimestamp());
 		Assert.assertEquals(tuple2.getReceivedTimestamp(), ssTableIndexBuilder.getMetaData().getNewestTupleInsertedTimstamp());
 
-		final Tuple tuple3 = new Tuple("0", BoundingBox.EMPTY_BOX, "".getBytes(), 2);
+		final Tuple tuple3 = new Tuple("0", BoundingBox.FULL_SPACE, "".getBytes(), 2);
 		ssTableIndexBuilder.addTuple(tuple3);
 		Assert.assertEquals(7, ssTableIndexBuilder.getMetaData().getNewestTupleVersionTimestamp());
 		Assert.assertEquals(2, ssTableIndexBuilder.getMetaData().getOldestTupleVersionTimestamp());

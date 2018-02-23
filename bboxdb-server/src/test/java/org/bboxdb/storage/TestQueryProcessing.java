@@ -266,8 +266,8 @@ public class TestQueryProcessing {
 		final TupleStoreManager storageManager1 = storageRegistry.getTupleStoreManager(TABLE_1);
 		final TupleStoreManager storageManager2 = storageRegistry.getTupleStoreManager(TABLE_2);
 
-		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.EMPTY_BOX);
-		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.EMPTY_BOX);
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.FULL_SPACE);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.FULL_SPACE);
 		
 		final IndexedSpatialJoinOperator joinQueryProcessor = new IndexedSpatialJoinOperator(operator1, 
 				operator2);
@@ -352,9 +352,9 @@ public class TestQueryProcessing {
 		// Table3
 		storageManager3.put(tuple5);
 		
-		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.EMPTY_BOX);
-		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.EMPTY_BOX);
-		final SpatialIndexReadOperator operator3 = new SpatialIndexReadOperator(storageManager3, BoundingBox.EMPTY_BOX);
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.FULL_SPACE);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.FULL_SPACE);
+		final SpatialIndexReadOperator operator3 = new SpatialIndexReadOperator(storageManager3, BoundingBox.FULL_SPACE);
 
 		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator1, 
 				operator2);
@@ -401,8 +401,8 @@ public class TestQueryProcessing {
 		storageManager2.put(tuple3);
 		storageManager2.put(tuple4);
 		
-		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.EMPTY_BOX);
-		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.EMPTY_BOX);
+		final SpatialIndexReadOperator operator1 = new SpatialIndexReadOperator(storageManager1, BoundingBox.FULL_SPACE);
+		final SpatialIndexReadOperator operator2 = new SpatialIndexReadOperator(storageManager2, BoundingBox.FULL_SPACE);
 
 		final IndexedSpatialJoinOperator joinQueryProcessor1 = new IndexedSpatialJoinOperator(operator1, 
 				operator2);

@@ -54,7 +54,7 @@ public class TestTupleSink {
 	public void testTupleWithoutRegions() throws Exception {
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
-		final Tuple tuple1 = new Tuple("abc", BoundingBox.EMPTY_BOX, "".getBytes());
+		final Tuple tuple1 = new Tuple("abc", BoundingBox.FULL_SPACE, "".getBytes());
 		
 		tupleRedistributor.redistributeTuple(tuple1);
 	}

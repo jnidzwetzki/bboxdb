@@ -116,7 +116,7 @@ public class Polygon implements Serializable {
 	public BoundingBox getBoundingBox() {
 
 		if(pointList.isEmpty()) {
-			return BoundingBox.EMPTY_BOX;
+			return BoundingBox.FULL_SPACE;
 		}
 
 		final OSMPoint firstPoint = pointList.get(0);

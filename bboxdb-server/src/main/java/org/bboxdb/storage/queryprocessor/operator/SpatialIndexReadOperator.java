@@ -40,7 +40,7 @@ public class SpatialIndexReadOperator extends AbstractTablescanOperator {
 	}
 	
 	public SpatialIndexReadOperator(final TupleStoreManager tupleStoreManager) {		
-		this(tupleStoreManager, BoundingBox.EMPTY_BOX);
+		this(tupleStoreManager, BoundingBox.FULL_SPACE);
 	}
 	
 	/**

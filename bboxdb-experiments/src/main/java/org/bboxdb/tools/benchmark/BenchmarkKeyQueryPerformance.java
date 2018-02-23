@@ -88,7 +88,7 @@ public class BenchmarkKeyQueryPerformance extends AbstractBenchmark {
 	
 		// Insert the tuples
 		for(; insertedTuples.get() < tuplesToInsert; insertedTuples.incrementAndGet()) {
-			bboxdbClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), BoundingBox.EMPTY_BOX, "abcdef".getBytes()));
+			bboxdbClient.insertTuple(TABLE, new Tuple(Integer.toString(insertedTuples.get()), BoundingBox.FULL_SPACE, "abcdef".getBytes()));
 		}
 		
 		// Wait for requests to settle

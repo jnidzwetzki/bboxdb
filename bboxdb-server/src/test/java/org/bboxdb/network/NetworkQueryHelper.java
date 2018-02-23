@@ -220,7 +220,7 @@ public class NetworkQueryHelper {
 		Assert.assertTrue(getResult.isDone());
 		
 		System.out.println("Insert tuple");
-		final Tuple tuple = new Tuple(key, BoundingBox.EMPTY_BOX, "abc".getBytes());
+		final Tuple tuple = new Tuple(key, BoundingBox.FULL_SPACE, "abc".getBytes());
 		final EmptyResultFuture insertResult = bboxDBClient.insertTuple(table, tuple);
 		insertResult.waitForAll();
 		Assert.assertFalse(insertResult.isFailed());

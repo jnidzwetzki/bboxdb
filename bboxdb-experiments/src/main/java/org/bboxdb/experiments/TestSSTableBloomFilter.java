@@ -134,7 +134,7 @@ public class TestSSTableBloomFilter implements Runnable {
 		final Stopwatch stopwatch = Stopwatch.createStarted();
 		
 		for(int i = 0; i < TUPLES; i++) {
-			final Tuple tuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, data.getBytes());
+			final Tuple tuple = new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, data.getBytes());
 			tupleStore.writeTuple(tuple);
 		}
 		

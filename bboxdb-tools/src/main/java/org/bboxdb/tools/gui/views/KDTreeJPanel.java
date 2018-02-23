@@ -86,7 +86,7 @@ public class KDTreeJPanel extends JPanel {
 	 */
 	protected BoundingBox drawDistributionRegion(final Graphics2D graphics2d) {
 
-		BoundingBox minBoundingBox = BoundingBox.EMPTY_BOX;
+		BoundingBox minBoundingBox = BoundingBox.FULL_SPACE;
 		
 		for(DistributionRegionComponent component : regions) {
 			final BoundingBox boundingBox = component.drawComponent(graphics2d);
@@ -160,7 +160,7 @@ public class KDTreeJPanel extends JPanel {
 			return;
 		}
 		
-		BoundingBox minBoundingBox = BoundingBox.EMPTY_BOX;
+		BoundingBox minBoundingBox = BoundingBox.FULL_SPACE;
 		
 		for(DistributionRegionComponent component : regions) {
 			minBoundingBox = BoundingBox.getCoveringBox(component.getBoundingBox(), minBoundingBox);
@@ -184,7 +184,7 @@ public class KDTreeJPanel extends JPanel {
 	 */
 	protected void updateComponentSize(final BoundingBox boundingBox) {
 		
-		if(boundingBox == BoundingBox.EMPTY_BOX) {
+		if(boundingBox == BoundingBox.FULL_SPACE) {
 			return;
 		}
 

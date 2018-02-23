@@ -28,7 +28,10 @@ import org.slf4j.LoggerFactory;
 
 public class BoundingBox implements Comparable<BoundingBox> {
 	
-	public final static BoundingBox EMPTY_BOX = new BoundingBox();
+	/**
+	 * This special bounding box covers every space completely
+	 */
+	public final static BoundingBox FULL_SPACE = new BoundingBox();
 	
 	/**
 	 * The boundingBox contains a interval for each dimension
@@ -175,12 +178,12 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		}
 		
 		// The empty bounding box overlaps everything
-		if(this == BoundingBox.EMPTY_BOX) {
+		if(this == BoundingBox.FULL_SPACE) {
 			return true;
 		}
 		
 		// The empty bounding box overlaps everything
-		if(otherBoundingBox == BoundingBox.EMPTY_BOX) {
+		if(otherBoundingBox == BoundingBox.FULL_SPACE) {
 			return true;
 		}
 		
@@ -445,12 +448,12 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		final List<BoundingBox> boundingBoxes = argumentBoundingBoxes
 				.stream()
 				.filter(b -> b != null)
-				.filter(b -> b != EMPTY_BOX)
+				.filter(b -> b != FULL_SPACE)
 				.collect(Collectors.toList());
 		
 		// No argument
 		if(boundingBoxes.isEmpty()) {
-			return BoundingBox.EMPTY_BOX;
+			return BoundingBox.FULL_SPACE;
 		}
 		
 		// Only 1 argument
@@ -497,7 +500,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @return
 	 */
 	public boolean isCovering(final BoundingBox otherBox) {
-		if(this == EMPTY_BOX || otherBox == EMPTY_BOX) {
+		if(this == FULL_SPACE || otherBox == FULL_SPACE) {
 			return true;
 		}
 	
@@ -518,7 +521,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @return
 	 */
 	public double calculateEnlargement(final BoundingBox otherBox) {
-		if(this == EMPTY_BOX || otherBox == EMPTY_BOX) {
+		if(this == FULL_SPACE || otherBox == FULL_SPACE) {
 			return 0;
 		}
 		
@@ -560,7 +563,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	public BoundingBox getIntersection(final BoundingBox otherBox) {
 		
 		if(getDimension() == 0 || otherBox.getDimension() == 0) {
-			return EMPTY_BOX;
+			return FULL_SPACE;
 		}
 		
 		throwExceptionIfDimensionNotMatch(otherBox);
@@ -574,7 +577,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			final DoubleInterval intersection = ourInterval.getIntersection(otherInterval);
 
 			if(intersection == null) {
-				return EMPTY_BOX;
+				return FULL_SPACE;
 			}
 			
 			intervalList.add(intersection);

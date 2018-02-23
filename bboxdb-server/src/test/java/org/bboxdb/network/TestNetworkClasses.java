@@ -188,7 +188,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void encodeAndDecodeInsertTuple1() throws IOException, PackageEncodeException {
-		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED_SUPPLIER, new TupleStoreName("test"), tuple);
@@ -272,7 +272,7 @@ public class TestNetworkClasses {
 	@Test
 	public void encodeAndDecodeInsertTupleWithCustomHeader() throws IOException, PackageEncodeException {
 		final RoutingHeader routingHeader = ROUTING_HEADER_ROUTED;
-		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED_SUPPLIER, new TupleStoreName("test"), tuple);
@@ -777,7 +777,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testDecodePackage() throws IOException, PackageEncodeException {
-		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED_SUPPLIER, new TupleStoreName("test"), tuple);
@@ -797,7 +797,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testGetSequenceNumber() throws IOException, PackageEncodeException {
-		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
 		
 		// Increment to avoid sequenceNumber = 0
 		sequenceNumberGenerator.getNextSequenceNummber();
@@ -821,7 +821,7 @@ public class TestNetworkClasses {
 	 */
 	@Test
 	public void testGetRequestBodyLength() throws IOException, PackageEncodeException {
-		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_UNROUTED_SUPPLIER, new TupleStoreName("test"), tuple);
@@ -938,7 +938,7 @@ public class TestNetworkClasses {
 	@Test
 	public void testSingleTupleResponse() throws PackageEncodeException, IOException {
 		final String tablename = "table1";
-		final Tuple tuple = new Tuple("abc", BoundingBox.EMPTY_BOX, "databytes".getBytes());
+		final Tuple tuple = new Tuple("abc", BoundingBox.FULL_SPACE, "databytes".getBytes());
 		
 		final TupleResponse singleTupleResponse = new TupleResponse((short) 4, tablename, tuple);
 		final byte[] encodedPackage = networkPackageToByte(singleTupleResponse);
@@ -983,7 +983,7 @@ public class TestNetworkClasses {
 	public void testCompression1Request() throws IOException, PackageEncodeException {
 		final RoutingHeader routingHeader = ROUTING_HEADER_ROUTED;
 		
-		final Tuple tuple = new Tuple("key", BoundingBox.EMPTY_BOX, "abc".getBytes(), 12);
+		final Tuple tuple = new Tuple("key", BoundingBox.FULL_SPACE, "abc".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED_SUPPLIER, new TupleStoreName("test"), tuple);
@@ -1022,7 +1022,7 @@ public class TestNetworkClasses {
 	@Test
 	public void testCompression2Request() throws IOException, PackageEncodeException {
 		final RoutingHeader routingHeader = ROUTING_HEADER_ROUTED;
-		final Tuple tuple = new Tuple("abcdefghijklmopqrstuvxyz", BoundingBox.EMPTY_BOX, "abcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyz".getBytes(), 12);
+		final Tuple tuple = new Tuple("abcdefghijklmopqrstuvxyz", BoundingBox.FULL_SPACE, "abcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyzabcdefghijklmopqrstuvxyz".getBytes(), 12);
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 
 		final InsertTupleRequest insertPackage = new InsertTupleRequest(sequenceNumber, ROUTING_HEADER_ROUTED_SUPPLIER, new TupleStoreName("test"), tuple);
@@ -1062,7 +1062,7 @@ public class TestNetworkClasses {
 	@Test
 	public void testCompressionReponse1() throws IOException, PackageEncodeException {
 		final String tablename = "table1";
-		final Tuple tuple = new Tuple("abc", BoundingBox.EMPTY_BOX, "databytes".getBytes());
+		final Tuple tuple = new Tuple("abc", BoundingBox.FULL_SPACE, "databytes".getBytes());
 		
 		final TupleResponse singleTupleResponse = new TupleResponse((short) 4, tablename, tuple);
 		final CompressionEnvelopeResponse compressionEnvelopeResponse = new CompressionEnvelopeResponse(NetworkConst.COMPRESSION_TYPE_GZIP, Arrays.asList(singleTupleResponse));

@@ -33,11 +33,11 @@ public class TestTupleDuplicateRemover {
 	public void testTupleDuplicateRemoverDiffKey() {
 		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		
-		final Tuple tuple1 = new Tuple("key1", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
+		final Tuple tuple1 = new Tuple("key1", BoundingBox.FULL_SPACE, "".getBytes(), 1);
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
 		Assert.assertTrue(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
 
-		final Tuple tuple2 = new Tuple("key2", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
+		final Tuple tuple2 = new Tuple("key2", BoundingBox.FULL_SPACE, "".getBytes(), 1);
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(tuple2));
 		Assert.assertTrue(tupleDuplicateRemover.isElementAlreadySeen(tuple2));
 	}
@@ -46,11 +46,11 @@ public class TestTupleDuplicateRemover {
 	public void testTupleDuplicateRemoverEqualKeyDiffVesion() {
 		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		
-		final Tuple tuple1 = new Tuple("key1", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
+		final Tuple tuple1 = new Tuple("key1", BoundingBox.FULL_SPACE, "".getBytes(), 1);
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
 		Assert.assertTrue(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
 
-		final Tuple tuple2 = new Tuple("key1", BoundingBox.EMPTY_BOX, "".getBytes(), 2);
+		final Tuple tuple2 = new Tuple("key1", BoundingBox.FULL_SPACE, "".getBytes(), 2);
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(tuple2));
 		Assert.assertTrue(tupleDuplicateRemover.isElementAlreadySeen(tuple2));
 	}
@@ -59,11 +59,11 @@ public class TestTupleDuplicateRemover {
 	public void testTupleDuplicateRemoverEqualKeyEqualVesion() {
 		final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		
-		final Tuple tuple1 = new Tuple("key1", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
+		final Tuple tuple1 = new Tuple("key1", BoundingBox.FULL_SPACE, "".getBytes(), 1);
 		Assert.assertFalse(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
 		Assert.assertTrue(tupleDuplicateRemover.isElementAlreadySeen(tuple1));
 
-		final Tuple tuple2 = new Tuple("key1", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
+		final Tuple tuple2 = new Tuple("key1", BoundingBox.FULL_SPACE, "".getBytes(), 1);
 		Assert.assertTrue(tupleDuplicateRemover.isElementAlreadySeen(tuple2));
 		Assert.assertTrue(tupleDuplicateRemover.isElementAlreadySeen(tuple2));
 	}
@@ -72,9 +72,9 @@ public class TestTupleDuplicateRemover {
 	public void testJoinedTuple() {
 	final EntityDuplicateTracker tupleDuplicateRemover = new EntityDuplicateTracker();
 		
-		final Tuple tuple1 = new Tuple("key1", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
-		final Tuple tuple2 = new Tuple("key2", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
-		final Tuple tuple3 = new Tuple("key2", BoundingBox.EMPTY_BOX, "".getBytes(), 1);
+		final Tuple tuple1 = new Tuple("key1", BoundingBox.FULL_SPACE, "".getBytes(), 1);
+		final Tuple tuple2 = new Tuple("key2", BoundingBox.FULL_SPACE, "".getBytes(), 1);
+		final Tuple tuple3 = new Tuple("key2", BoundingBox.FULL_SPACE, "".getBytes(), 1);
 
 		final List<Tuple> tupleList1 = Arrays.asList(tuple1);
 		final List<Tuple> tupleList2 = Arrays.asList(tuple1, tuple2);

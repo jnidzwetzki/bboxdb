@@ -194,8 +194,8 @@ public class TestBoundingBox {
 	@Test
 	public void testOverlapEmptyBoundingBox() {
 		final BoundingBox bb1left = new BoundingBox(0d, 1d, 0d, 1d, 0d, 1d);
-		Assert.assertTrue(bb1left.overlaps(BoundingBox.EMPTY_BOX));
-		Assert.assertTrue(BoundingBox.EMPTY_BOX.overlaps(BoundingBox.EMPTY_BOX));
+		Assert.assertTrue(bb1left.overlaps(BoundingBox.FULL_SPACE));
+		Assert.assertTrue(BoundingBox.FULL_SPACE.overlaps(BoundingBox.FULL_SPACE));
 	}
 	
 	/**
@@ -210,7 +210,7 @@ public class TestBoundingBox {
 		final BoundingBox boundingBox4 = new BoundingBox(-1d, 2d, -1d, 2d, -1d, 2d);
 
 		final BoundingBox boundingBoxResult1 = BoundingBox.getCoveringBox();
-		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBoxResult1);
+		Assert.assertEquals(BoundingBox.FULL_SPACE, boundingBoxResult1);
 		
 		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1));
 		Assert.assertEquals(boundingBox2, BoundingBox.getCoveringBox(boundingBox2));
@@ -240,9 +240,9 @@ public class TestBoundingBox {
 		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1));
 		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1, null));
 		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(null, boundingBox1));
-		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1, BoundingBox.EMPTY_BOX));
-		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(BoundingBox.EMPTY_BOX, boundingBox1, BoundingBox.EMPTY_BOX));
-		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(BoundingBox.EMPTY_BOX, null, boundingBox1, BoundingBox.EMPTY_BOX));
+		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(boundingBox1, BoundingBox.FULL_SPACE));
+		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(BoundingBox.FULL_SPACE, boundingBox1, BoundingBox.FULL_SPACE));
+		Assert.assertEquals(boundingBox1, BoundingBox.getCoveringBox(BoundingBox.FULL_SPACE, null, boundingBox1, BoundingBox.FULL_SPACE));
 	}
 	
 	/**
@@ -280,7 +280,7 @@ public class TestBoundingBox {
 	@Test
 	public void testMergeBoxes0() {
 		final BoundingBox resultBox = BoundingBox.getCoveringBox();
-		Assert.assertEquals(BoundingBox.EMPTY_BOX, resultBox);
+		Assert.assertEquals(BoundingBox.FULL_SPACE, resultBox);
 	}
 	
 	/**
@@ -312,7 +312,7 @@ public class TestBoundingBox {
 	public void testMergeBoxes3() {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 1d);
 		final BoundingBox boundingBox2 = new BoundingBox(1d, 1.1d, 1d, 4d);
-		final BoundingBox resultBox = BoundingBox.getCoveringBox(boundingBox1, boundingBox2, BoundingBox.EMPTY_BOX);
+		final BoundingBox resultBox = BoundingBox.getCoveringBox(boundingBox1, boundingBox2, BoundingBox.FULL_SPACE);
 		Assert.assertArrayEquals(new double[] {1d, 2d, 1d, 4f}, resultBox.toDoubleArray(), EQUALS_DELTA);
 	}
 	
@@ -322,13 +322,13 @@ public class TestBoundingBox {
 	@Test
 	public void testMergeBoxes4() {
 		final BoundingBox resultBox1 = BoundingBox.getCoveringBox();
-		Assert.assertEquals(BoundingBox.EMPTY_BOX, resultBox1);
+		Assert.assertEquals(BoundingBox.FULL_SPACE, resultBox1);
 
-		final BoundingBox resultBox2 = BoundingBox.getCoveringBox(BoundingBox.EMPTY_BOX);
-		Assert.assertEquals(BoundingBox.EMPTY_BOX, resultBox2);
+		final BoundingBox resultBox2 = BoundingBox.getCoveringBox(BoundingBox.FULL_SPACE);
+		Assert.assertEquals(BoundingBox.FULL_SPACE, resultBox2);
 
-		final BoundingBox resultBox3 = BoundingBox.getCoveringBox(BoundingBox.EMPTY_BOX, BoundingBox.EMPTY_BOX);
-		Assert.assertEquals(BoundingBox.EMPTY_BOX, resultBox3);
+		final BoundingBox resultBox3 = BoundingBox.getCoveringBox(BoundingBox.FULL_SPACE, BoundingBox.FULL_SPACE);
+		Assert.assertEquals(BoundingBox.FULL_SPACE, resultBox3);
 	}
 	
 	/**
@@ -420,8 +420,8 @@ public class TestBoundingBox {
 	@Test
 	public void testIntersection1() {
 		final BoundingBox boundingBox = new BoundingBox(1d, 3d, 3d, 7d);
-		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBox.getIntersection(BoundingBox.EMPTY_BOX));
-		Assert.assertEquals(BoundingBox.EMPTY_BOX, BoundingBox.EMPTY_BOX.getIntersection(boundingBox));
+		Assert.assertEquals(BoundingBox.FULL_SPACE, boundingBox.getIntersection(BoundingBox.FULL_SPACE));
+		Assert.assertEquals(BoundingBox.FULL_SPACE, BoundingBox.FULL_SPACE.getIntersection(boundingBox));
 	}
 	
 	/**
@@ -468,8 +468,8 @@ public class TestBoundingBox {
 		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 1d, 5d);	
 		final BoundingBox boundingBox2 = new BoundingBox(6d, 9d, 6d, 9d);	
 		
-		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBox1.getIntersection(boundingBox2));
-		Assert.assertEquals(BoundingBox.EMPTY_BOX, boundingBox2.getIntersection(boundingBox1));
+		Assert.assertEquals(BoundingBox.FULL_SPACE, boundingBox1.getIntersection(boundingBox2));
+		Assert.assertEquals(BoundingBox.FULL_SPACE, boundingBox2.getIntersection(boundingBox1));
 	}
 	
 	/**
@@ -523,7 +523,7 @@ public class TestBoundingBox {
 	@Test
 	public void testIsFullyCovered3() {
 		final BoundingBox boundingBox1 = new BoundingBox(0d, 10d, 0d, 10d);	
-		Assert.assertTrue(boundingBox1.isCovering(BoundingBox.EMPTY_BOX));
+		Assert.assertTrue(boundingBox1.isCovering(BoundingBox.FULL_SPACE));
 	}
 	
 	/**

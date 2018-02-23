@@ -63,7 +63,7 @@ public class RoutingHeaderHelper {
 		final DistributionRegion distributionRegion = spacepartitioner.getRootNode();
 
 		if(boundingBox == null) {
-			boundingBox = BoundingBox.EMPTY_BOX;
+			boundingBox = BoundingBox.FULL_SPACE;
 		}
 		
 		final List<RoutingHop> hops = getLocalHops(boundingBox, distributionRegion, write);

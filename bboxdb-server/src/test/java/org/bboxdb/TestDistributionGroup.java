@@ -270,10 +270,10 @@ public class TestDistributionGroup {
 		level0.getLeftChild().addSystem(new BBoxDBInstance("node2:123"));
 		level0.getRightChild().addSystem(new BBoxDBInstance("node3:123"));
 		
-		final Collection<RoutingHop> systemsRead = RoutingHopHelper.getRoutingHopsForRead(level0, BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsRead = RoutingHopHelper.getRoutingHopsForRead(level0, BoundingBox.FULL_SPACE);
 		Assert.assertEquals(3, systemsRead.size());
 		
-		final Collection<RoutingHop> systemsWrite = RoutingHopHelper.getRoutingHopsForWrite(level0, BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsWrite = RoutingHopHelper.getRoutingHopsForWrite(level0, BoundingBox.FULL_SPACE);
 		Assert.assertEquals(2, systemsWrite.size());
 	}
 	
@@ -294,10 +294,10 @@ public class TestDistributionGroup {
 		level0.getLeftChild().addSystem(new BBoxDBInstance("node2:123"));
 		level0.getRightChild().addSystem(new BBoxDBInstance("node2:123"));
 		
-		final Collection<RoutingHop> systemsRead = RoutingHopHelper.getRoutingHopsForRead(level0, BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsRead = RoutingHopHelper.getRoutingHopsForRead(level0, BoundingBox.FULL_SPACE);
 		Assert.assertEquals(2, systemsRead.size());
 		
-		final Collection<RoutingHop> systemsWrite = RoutingHopHelper.getRoutingHopsForWrite(level0, BoundingBox.EMPTY_BOX);
+		final Collection<RoutingHop> systemsWrite = RoutingHopHelper.getRoutingHopsForWrite(level0, BoundingBox.FULL_SPACE);
 		Assert.assertEquals(1, systemsWrite.size());
 	}
 	
@@ -317,7 +317,7 @@ public class TestDistributionGroup {
 		level0.getLeftChild().addSystem(new BBoxDBInstance("node2:123"));
 		level0.getRightChild().addSystem(new BBoxDBInstance("node2:123"));
 		
-		final Set<DistributionRegion> regions = level0.getDistributionRegionsForBoundingBox(BoundingBox.EMPTY_BOX);
+		final Set<DistributionRegion> regions = level0.getDistributionRegionsForBoundingBox(BoundingBox.FULL_SPACE);
 		Assert.assertEquals(3, regions.size());
 	}
 	

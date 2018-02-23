@@ -94,7 +94,7 @@ public class LocalSelftest {
 
 		logger.info("Inserting tuples...");
 		for(int i = 0; i < TUPLES; i++) {
-			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.EMPTY_BOX, Integer.toString(i).getBytes());
+			final Tuple createdTuple = new Tuple(Integer.toString(i), BoundingBox.FULL_SPACE, Integer.toString(i).getBytes());
 			storageManager.put(createdTuple);
 		}
 		
