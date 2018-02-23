@@ -144,6 +144,22 @@ public class StatisticsHelper {
 	}
 	
 	/**
+	 * Is enough history data available?
+	 * @param regionIdentifier
+	 * @return
+	 */
+	public static boolean isEnoughHistoryDataAvailable(final String regionIdentifier) {
+		synchronized (statisticsHistory) {
+			
+			if(! statisticsHistory.containsKey(regionIdentifier)) {
+				return false;
+			}
+			
+			return statisticsHistory.get(regionIdentifier).size() == HISTORY_LENGTH;
+		}
+	}
+	
+	/**
 	 * Delete all old statistics
 	 */
 	public static void clearHistory() {

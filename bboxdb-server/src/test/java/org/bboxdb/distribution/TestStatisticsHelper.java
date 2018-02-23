@@ -36,6 +36,7 @@ public class TestStatisticsHelper {
 		StatisticsHelper.clearHistory();
 		
 		Assert.assertEquals(0, StatisticsHelper.getAverageStatistics(TABLENAME), DELTA);
+		Assert.assertFalse(StatisticsHelper.isEnoughHistoryDataAvailable(TABLENAME));
 
 		final int historyLength = StatisticsHelper.HISTORY_LENGTH;
 		
@@ -44,11 +45,14 @@ public class TestStatisticsHelper {
 		}
 		
 		Assert.assertEquals(2, StatisticsHelper.getAverageStatistics(TABLENAME), DELTA);
-		
+		Assert.assertTrue(StatisticsHelper.isEnoughHistoryDataAvailable(TABLENAME));
+
 		StatisticsHelper.updateStatisticsHistory(TABLENAME, 11);
 		Assert.assertEquals(4.2, StatisticsHelper.getAverageStatistics(TABLENAME), DELTA);
+		Assert.assertTrue(StatisticsHelper.isEnoughHistoryDataAvailable(TABLENAME));
 
 		StatisticsHelper.clearHistory();
 		Assert.assertEquals(0, StatisticsHelper.getAverageStatistics(TABLENAME), DELTA);
+		Assert.assertFalse(StatisticsHelper.isEnoughHistoryDataAvailable(TABLENAME));
 	}
 }

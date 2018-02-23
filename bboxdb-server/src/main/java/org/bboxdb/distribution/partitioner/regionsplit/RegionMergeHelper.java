@@ -114,6 +114,7 @@ public class RegionMergeHelper {
 		return region.getDirectChildren()
 				.stream()
 				.filter(Objects::nonNull)
+				.filter(r -> StatisticsHelper.isEnoughHistoryDataAvailable(r.getIdentifier()))
 				.mapToDouble(r -> StatisticsHelper.getAndUpdateAverageStatistics(r))
 				.sum();
 	}
