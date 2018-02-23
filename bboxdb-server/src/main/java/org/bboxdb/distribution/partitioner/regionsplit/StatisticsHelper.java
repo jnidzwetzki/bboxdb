@@ -59,7 +59,7 @@ public class StatisticsHelper {
 	/**
 	 * The statistics length
 	 */
-	public final static int HISTORY_LENGTH = 10;
+	public final static int HISTORY_LENGTH = 5;
 	
 	static {
 		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
@@ -104,47 +104,43 @@ public class StatisticsHelper {
 	 */
 	public static void updateStatisticsHistory(final String regionIdentifier, final double regionSize) {
 		
-		if(! statisticsHistory.containsKey(regionIdentifier)) {
-			statisticsHistory.put(regionIdentifier, EvictingQueue.create(HISTORY_LENGTH));
+		synchronized (statisticsHistory) {
+			if(! statisticsHistory.containsKey(regionIdentifier)) {
+				statisticsHistory.put(regionIdentifier, EvictingQueue.create(HISTORY_LENGTH));
+			}
+			
+			statisticsHistory.get(regionIdentifier).add(regionSize);
 		}
-		
-		statisticsHistory.get(regionIdentifier).add(regionSize);
+
 	}
 	
 	/**
-	 * How often is the value above the statistics
+	 * Get the average statistics
+	 * 
 	 * @param regionIdentifier
-	 * @param value
 	 * @return
 	 */
-	public static long isValueAboveStatistics(final String regionIdentifier, final double value) {	
+	public static double getAverageStatistics(final String regionIdentifier) {
 		
-		if(! statisticsHistory.containsKey(regionIdentifier)) {
-			return 0;
+		synchronized (statisticsHistory) {
+			if(! statisticsHistory.containsKey(regionIdentifier)) {
+				return 0;
+			}
+			
+			return statisticsHistory.get(regionIdentifier).stream()
+				.mapToDouble(r -> r)
+				.average().orElse(0);
 		}
-		
-		return statisticsHistory.get(regionIdentifier)
-				.stream()
-				.filter(d -> d > value)
-				.count();
 	}
 	
 	/**
-	 * How often is the value above the statistics
-	 * @param regionIdentifier
-	 * @param value
+	 * Get and update the statistics
+	 * @param region
 	 * @return
 	 */
-	public static long isValueBelowStatistics(final String regionIdentifier, final double value) {	
-		
-		if(! statisticsHistory.containsKey(regionIdentifier)) {
-			return 0;
-		}
-		
-		return statisticsHistory.get(regionIdentifier)
-				.stream()
-				.filter(d -> d < value)
-				.count();
+	public static double getAndUpdateAverageStatistics(final DistributionRegion region) {
+		updateStatistics(region);
+		return getAverageStatistics(region.getIdentifier());
 	}
 	
 	/**

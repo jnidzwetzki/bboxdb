@@ -28,13 +28,14 @@ public class TestStatisticsHelper {
 	 * The tablename used in tests
 	 */
 	private final static String TABLENAME = "abc_123";
+	
+	private final static double DELTA = 0.0001;
 
 	@Test
-	public void testAboveBelowValue() {
+	public void testStatististicsHistory() {
 		StatisticsHelper.clearHistory();
 		
-		Assert.assertEquals(0, StatisticsHelper.isValueAboveStatistics(TABLENAME, 0));
-		Assert.assertEquals(0, StatisticsHelper.isValueBelowStatistics(TABLENAME, 0));
+		Assert.assertEquals(0, StatisticsHelper.getAverageStatistics(TABLENAME), DELTA);
 
 		final int historyLength = StatisticsHelper.HISTORY_LENGTH;
 		
@@ -42,15 +43,12 @@ public class TestStatisticsHelper {
 			StatisticsHelper.updateStatisticsHistory(TABLENAME, i);
 		}
 		
-		Assert.assertEquals(historyLength / 2 - 1, StatisticsHelper.isValueAboveStatistics(TABLENAME, 5));
-		Assert.assertEquals(historyLength / 2, StatisticsHelper.isValueBelowStatistics(TABLENAME, 5));
-
+		Assert.assertEquals(2, StatisticsHelper.getAverageStatistics(TABLENAME), DELTA);
+		
 		StatisticsHelper.updateStatisticsHistory(TABLENAME, 11);
-		Assert.assertEquals(historyLength / 2, StatisticsHelper.isValueAboveStatistics(TABLENAME, 5));
-		Assert.assertEquals(historyLength / 2 - 1, StatisticsHelper.isValueBelowStatistics(TABLENAME, 5));
+		Assert.assertEquals(4.2, StatisticsHelper.getAverageStatistics(TABLENAME), DELTA);
 
 		StatisticsHelper.clearHistory();
-		Assert.assertEquals(0, StatisticsHelper.isValueAboveStatistics(TABLENAME, 0));
-		Assert.assertEquals(0, StatisticsHelper.isValueBelowStatistics(TABLENAME, 0));
+		Assert.assertEquals(0, StatisticsHelper.getAverageStatistics(TABLENAME), DELTA);
 	}
 }
