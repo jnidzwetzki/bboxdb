@@ -111,11 +111,16 @@ public class RegionMergeHelper {
 	 * @return
 	 */
 	public static double getTotalRegionSize(final DistributionRegion region) {
+		
+		// Update statistics
+		region.getDirectChildren().forEach(r -> StatisticsHelper.updateAverageStatistics(r));
+		
+		// Get statistics
 		return region.getDirectChildren()
 				.stream()
 				.filter(Objects::nonNull)
 				.filter(r -> StatisticsHelper.isEnoughHistoryDataAvailable(r.getIdentifier()))
-				.mapToDouble(r -> StatisticsHelper.getAndUpdateAverageStatistics(r))
+				.mapToDouble(r -> StatisticsHelper.getAverageStatistics(r.getIdentifier()))
 				.sum();
 	}
 	

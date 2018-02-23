@@ -127,9 +127,11 @@ public class StatisticsHelper {
 				return 0;
 			}
 			
-			return statisticsHistory.get(regionIdentifier).stream()
+			final double statistics = statisticsHistory.get(regionIdentifier).stream()
 				.mapToDouble(r -> r)
 				.average().orElse(0);
+						
+			return statistics;
 		}
 	}
 	
@@ -138,9 +140,8 @@ public class StatisticsHelper {
 	 * @param region
 	 * @return
 	 */
-	public static double getAndUpdateAverageStatistics(final DistributionRegion region) {
+	public static void updateAverageStatistics(final DistributionRegion region) {
 		updateStatistics(region);
-		return getAverageStatistics(region.getIdentifier());
 	}
 	
 	/**
@@ -155,7 +156,9 @@ public class StatisticsHelper {
 				return false;
 			}
 			
-			return statisticsHistory.get(regionIdentifier).size() == HISTORY_LENGTH;
+			final int historySize = statisticsHistory.get(regionIdentifier).size();
+					
+			return historySize >= HISTORY_LENGTH;
 		}
 	}
 	

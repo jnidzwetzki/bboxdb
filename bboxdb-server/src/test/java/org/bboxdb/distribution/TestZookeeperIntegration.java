@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
@@ -414,11 +413,21 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(StatisticsHelper.INVALID_STATISTICS, totalSize1, DELTA);
 		
 		region.setSplit(12);
-		Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+		region.getLeftChild().setRegionId(1);
+		region.getRightChild().setRegionId(2);
 		
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getLeftChild(), system1, 12, 999);
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getRightChild(), system1, 33, 999);
 
+		StatisticsHelper.clearHistory();
+		final double totalSizeAfterClear = RegionMergeHelper.getTotalRegionSize(region);
+		Assert.assertEquals(0, totalSizeAfterClear, DELTA);
+
+		// Update complete history
+		for(int i = 0; i < StatisticsHelper.HISTORY_LENGTH; i++) {
+			RegionMergeHelper.getTotalRegionSize(region);
+		}
+		
 		final double totalSize2 = RegionMergeHelper.getTotalRegionSize(region);
 		Assert.assertEquals(45, totalSize2, DELTA);
 	}
