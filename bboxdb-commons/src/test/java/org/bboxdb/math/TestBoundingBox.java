@@ -18,10 +18,12 @@
 package org.bboxdb.math;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.commons.math.DoubleInterval;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -552,6 +554,35 @@ public class TestBoundingBox {
 		Assert.assertEquals(99.0, boundingBox1.calculateEnlargement(boundingBox2), EQUALS_DELTA);
 		Assert.assertEquals(99.0, boundingBox1.calculateEnlargement(boundingBox3), EQUALS_DELTA);
 		Assert.assertEquals(125.0, boundingBox2.calculateEnlargement(boundingBox3), EQUALS_DELTA);
+	}
+	
+	/**
+	 * Test the from and to string method
+	 */
+	@Test
+	public void testFromToString1() {
+		final BoundingBox boundingBox1 = BoundingBox.FULL_SPACE;
+		final BoundingBox boundingBox2 = new BoundingBox(0d, 1d);	
+		final BoundingBox boundingBox3 = new BoundingBox(-5d, 5d, -5d, 5d);	
+		final BoundingBox boundingBox4 = new BoundingBox(Arrays.asList(new DoubleInterval(1, 2, false, false)));	
+		final BoundingBox boundingBox5 = new BoundingBox(Arrays.asList(new DoubleInterval(1, 2, false, true)));	
+		final BoundingBox boundingBox6 = new BoundingBox(Arrays.asList(new DoubleInterval(1, 2, true, false)));	
+		final BoundingBox boundingBox7 = new BoundingBox(Arrays.asList(new DoubleInterval(1, 2, true, false), new DoubleInterval(1, 2, false, false)));	
 
+		Assert.assertEquals(boundingBox1, new BoundingBox(boundingBox1.toCompactString()));
+		Assert.assertEquals(boundingBox2, new BoundingBox(boundingBox2.toCompactString()));
+		Assert.assertEquals(boundingBox3, new BoundingBox(boundingBox3.toCompactString()));
+		Assert.assertEquals(boundingBox4, new BoundingBox(boundingBox4.toCompactString()));
+		Assert.assertEquals(boundingBox5, new BoundingBox(boundingBox5.toCompactString()));
+		Assert.assertEquals(boundingBox6, new BoundingBox(boundingBox6.toCompactString()));
+		Assert.assertEquals(boundingBox7, new BoundingBox(boundingBox7.toCompactString()));
+	}
+	
+	/**
+	 * Test the from and to string method
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testFromToString2() {
+		new BoundingBox("sdsfsd");
 	}
 }

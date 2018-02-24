@@ -20,8 +20,10 @@ package org.bboxdb.commons.math;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
+import org.bboxdb.commons.StringUtil;
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +34,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * This special bounding box covers every space completely
 	 */
 	public final static BoundingBox FULL_SPACE = new BoundingBox();
-	
-	/**
-	 * The boundingBox contains a interval for each dimension
-	 */
-	protected final List<DoubleInterval> boundingBox;
-	
+
 	/**
 	 * The return value of an invalid dimension
 	 */
@@ -54,6 +51,11 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	public final static double MAX_VALUE = Float.MAX_VALUE;
 	
 	/**
+	 * The boundingBox contains a interval for each dimension
+	 */
+	private final List<DoubleInterval> boundingBox;
+	
+	/**
 	 * The Logger
 	 */
 	protected static final Logger logger = LoggerFactory.getLogger(BoundingBox.class);
@@ -68,7 +70,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			throw new IllegalArgumentException("Even number of arguments expected");
 		}
 		
-		boundingBox = new ArrayList<DoubleInterval>(args.length / 2);
+		this.boundingBox = new ArrayList<>(args.length / 2);
 				
 		for(int i = 0; i < args.length; i = i + 2) {
 			final DoubleInterval interval = new DoubleInterval(args[i], args[i+1]);
@@ -86,7 +88,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			throw new IllegalArgumentException("Even number of arguments expected");
 		}
 		
-		boundingBox = new ArrayList<DoubleInterval>(values.length / 2);
+		this.boundingBox = new ArrayList<>(values.length / 2);
 		
 		for(int i = 0; i < values.length; i = i + 2) {
 			final DoubleInterval interval = new DoubleInterval(values[i], values[i+1]);
@@ -99,7 +101,40 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param args
 	 */
 	public BoundingBox(final List<DoubleInterval> values) {
-		boundingBox = new ArrayList<>(values);
+		this.boundingBox = new ArrayList<>(values);
+	}
+	
+	/***
+	 * Create a bounding box from a string value
+	 * @param stringValue
+	 */
+	public BoundingBox(final String stringValue) {
+		
+		if(! stringValue.startsWith("[")) {
+			throw new IllegalArgumentException("Bounding box have to start with [");
+		}
+		
+		if(! stringValue.endsWith("]")) {
+			throw new IllegalArgumentException("Bounding box have to end with ]");
+		}
+		
+		this.boundingBox = new ArrayList<>();
+
+		if("[]".equals(stringValue)) {
+		} else {
+			if(StringUtil.countCharOccurrence(stringValue, ',') < 1) {
+				throw new IllegalArgumentException("Bounding box have to contain at least one ','");
+			}
+			
+			// [[-5.0,5.0]:[-5.0,5.0]]
+			final String shortString = stringValue.substring(1, stringValue.length() - 1);
+			final StringTokenizer stringTokenizer = new StringTokenizer(shortString, ":");
+			
+			while(stringTokenizer.hasMoreTokens()) {
+				final String nextToken = stringTokenizer.nextToken();
+				boundingBox.add(new DoubleInterval(nextToken));
+			}
+		}
 	}
 
 	/**
@@ -353,7 +388,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		for(int d = 0; d < getDimension(); d++) {
 			
 			if(d != 0) {
-				sb.append(",");
+				sb.append(":");
 			}
 			
 			sb.append(boundingBox.get(d));
@@ -398,7 +433,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	}
 
 	/**
-	 * Compare to an other boudning box
+	 * Compare to an other bounding box
 	 */
 	@Override
 	public int compareTo(final BoundingBox otherBox) {

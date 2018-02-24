@@ -78,7 +78,7 @@ Query done
 The tuple is loaded from BBoxDB and printed on the console. The Key, the Bounding Box and the GeoJSON data (the value) of the tuple are printed. The area around the Alexanderplatz can be roughly expressed by a square with the following coordinates: 13.410, 52.520 for the lower left corner and 13.415, 52.525 for the upper right corner. The following command can be used, to fetch all trees, which lie inside of the square:
 
 ```bash
-$BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_germanytree -bbox 13.410:52.520,13.415:52.525
+$BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_germanytree -bbox 13.410,52.520:13.415,52.525
 
 [...]
 Key 37587, BoundingBox=[52.4558036:52.4558036,13.4450991:13.4450991], value={"geometry":{"coordinates":[52.4558036,13.4450991],"type":"Point"},"id":3451433771,"type":"Feature","properties":{"natural":"tree","leaf_cycle":"deciduous","leaf_type":"broadleaved"}}, version timestamp=1493788236276020
@@ -134,11 +134,11 @@ $ $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_data -duplicates 
 Now five versions for the key are inserted with the values _value1_, _value2_, _value3_, _value4_ and _value5_:
 
 ```bash
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1:2,1:2 -value value1
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1:2,1:2 -value value2
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1:2,1:2 -value value3
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1:2,1:2 -value value4
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1:2,1:2 -value value5
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value1
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value2
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value3
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value4
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value5
 ```
 
 The key query returns the three most recent versions for the key:
@@ -147,9 +147,9 @@ The key query returns the three most recent versions for the key:
 $ $BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_data -key key1 
 Connecting to BBoxDB cluster... [Established]
 Executing key query..
-Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value3, version timestamp=1509699605215000
-Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value4, version timestamp=1509699607483000
-Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value5, version timestamp=1509699609644000
+Key key1, BoundingBox=[[1.0,2.0]:[1.0,2.0]], value=value3, version timestamp=1509699605215000
+Key key1, BoundingBox=[[1.0,2.0]:[1.0,2.0]], value=value4, version timestamp=1509699607483000
+Key key1, BoundingBox=[[1.0,2.0]:[1.0,2.0]], value=value5, version timestamp=1509699609644000
 Query done
 ```
 
@@ -162,8 +162,8 @@ $ $BBOXDB_HOME/bin/cli.sh -action delete -table mydgroup_data -key key1
 $ $BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_data -key key1 
 Connecting to BBoxDB cluster... [Established]
 Executing key query..
-Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value4, version timestamp=1509699607483000
-Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value5, version timestamp=1509699609644000
+Key key1, BoundingBox=[[1.0,2.0]:[1.0,2.0]], value=value4, version timestamp=1509699607483000
+Key key1, BoundingBox=[[1.0,2.0]:[1.0,2.0]], value=value5, version timestamp=1509699609644000
 Key key1, DELETED, version timestamp=1509703784058000
 Query done
 ```
@@ -172,7 +172,7 @@ Query done
 BBoxDB supports continuous bounding box queries. As soon as the query is executed, all tuples that are inserted within the bounding box are captured by this query. To demonstrate this, the continuous bounding box query is started on one console:
 
 ```bash
-console1> $BBOXDB_HOME/bin/cli.sh -action continuous-query -table mydgroup_data -bbox 0:5,0:5
+console1> $BBOXDB_HOME/bin/cli.sh -action continuous-query -table mydgroup_data -bbox 0,5:0,5
 Connecting to BBoxDB cluster... [Established]
 Executing continuous bounding box query...
 ```
@@ -181,23 +181,23 @@ On another console, a new tuple is inserted in the query bounding box:
 
 ```bash
 # Tuple (bbox completely contained in query)
-console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1:2,1:2 -value value1
+console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key1 -bbox 1,2:1,2 -value value1
 
 # Tuple (bbox not contained in query)
-console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key2 -bbox 10:15,10:15 -value value2
+console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key2 -bbox 10,15:10,15 -value value2
 
 # Tuple (bbox partially contained in query)
-console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key3 -bbox 2:10,2:10 -value value3
+console2> $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_data -key key3 -bbox 2,10:2,10 -value value3
 ```
 
 As soon as the three tuples are inserted, the query reports two tuples:
 
 ```bash
-console1> $BBOXDB_HOME/bin/cli.sh -action continuous-query -table mydgroup_data -bbox 0:5,0:5
+console1> $BBOXDB_HOME/bin/cli.sh -action continuous-query -table mydgroup_data -bbox 0,5:0,5
 Connecting to BBoxDB cluster... [Established]
 Executing continuous bounding box query...
-Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value1, version timestamp=1510325620579000
-Key key3, BoundingBox=[[2.0,10.0],[2.0,10.0]], value=value3, version timestamp=1510325620643000
+Key key1, BoundingBox=[[1.0,2.0]:[1.0,2.0]], value=value1, version timestamp=1510325620579000
+Key key3, BoundingBox=[[2.0,10.0]:[2.0,10.0]], value=value3, version timestamp=1510325620643000
 ```
 
 # Executing a join
@@ -210,14 +210,14 @@ $ $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table1
 $ $BBOXDB_HOME/bin/cli.sh -action create_table -table mydgroup_table2
 
 # Tuples of table1
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_a -bbox 1:8,1:2 -value value_a
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_b -bbox 4:6,0:5 -value value_b
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_c -bbox 8:10,8:10 -value value_c
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_a -bbox 1,8:1,2 -value value_a
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_b -bbox 4,6:0,5 -value value_b
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table1 -key tuple_c -bbox 8,10:8,10 -value value_c
 
 # Tuples of table2
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_1 -bbox 1:3,5:6 -value value_1
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_2 -bbox 4.5:5.5,1.5:4.5 -value value_2
-$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_3 -bbox 7.5:10,1.5:2.5 -value value_3
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_1 -bbox 1,3:5,6 -value value_1
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_2 -bbox 4.5,5.5:1.5,4.5 -value value_2
+$ $BBOXDB_HOME/bin/cli.sh -action insert -table mydgroup_table2 -key tuple_3 -bbox 7.5,10:1.5,2.5 -value value_3
 ```
 
 After the data is inserted, we have a data distribution like shown in the following figure:
@@ -227,11 +227,11 @@ After the data is inserted, we have a data distribution like shown in the follow
 The tuple _Tuple A_ intersects with _Tuple 2_ and with _Tuple 3_; tuple _Tuple 2_ is contained in _Tuple B_ completely. Now, the join can be performed with the following command. The join returns the previous three tuples, which have intersecting bounding boxes.
 
 ```bash
-$ $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -bbox 0:10:0:8
+$ $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -bbox 0,10:0,8
 
 Executing join query...
 ===============
-Joined bounding box: [[4.5,5.5],[1.5,2.0]]
+Joined bounding box: [[4.5,5.5]:[1.5,2.0]]
 
 Table: mydgroup_table1
 Tuple: Key tuple_a, BoundingBox=[[1.0,8.0],[1.0,2.0]], value=value_a, version timestamp=1519501686020000
@@ -241,7 +241,7 @@ Tuple: Key tuple_2, BoundingBox=[[4.5,5.5],[1.5,4.5]], value=value_2, version ti
 ===============
 
 ===============
-Joined bounding box: [[7.5,8.0],[1.5,2.0]]
+Joined bounding box: [[7.5,8.0]:[1.5,2.0]]
 
 Table: mydgroup_table1
 Tuple: Key tuple_a, BoundingBox=[[1.0,8.0],[1.0,2.0]], value=value_a, version timestamp=1519501686020000
@@ -251,7 +251,7 @@ Tuple: Key tuple_3, BoundingBox=[[7.5,10.0],[1.5,2.5]], value=value_3, version t
 ===============
 
 ===============
-Joined bounding box: [[4.5,5.5],[1.5,4.5]]
+Joined bounding box: [[4.5,5.5]:[1.5,4.5]]
 
 Table: mydgroup_table1
 Tuple: Key tuple_b, BoundingBox=[[4.0,6.0],[0.0,5.0]], value=value_b, version timestamp=1519501688309000
