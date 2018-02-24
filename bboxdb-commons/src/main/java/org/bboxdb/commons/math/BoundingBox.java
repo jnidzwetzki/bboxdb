@@ -99,7 +99,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * @param args
 	 */
 	public BoundingBox(final List<DoubleInterval> values) {
-		boundingBox = new ArrayList<DoubleInterval>(values);
+		boundingBox = new ArrayList<>(values);
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			throw new IllegalArgumentException("Unable to create full covering bounding box for dimension: " + dimension);
 		}
 		
-		final List<DoubleInterval> dimensions = new ArrayList<DoubleInterval>();
+		final List<DoubleInterval> dimensions = new ArrayList<>();
 		
 		for(int i = 0; i < dimension; i++) {
 			dimensions.add(new DoubleInterval(MIN_VALUE, MAX_VALUE));
@@ -293,7 +293,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			throw new IllegalArgumentException("Unable to split, point " + splitPosition + " is not covered in dimension " + splitDimension + " " + boundingBox.get(splitDimension));
 		}
 		
-		final List<DoubleInterval> intervals = new ArrayList<DoubleInterval>(boundingBox);
+		final List<DoubleInterval> intervals = new ArrayList<>(boundingBox);
 		final DoubleInterval splitInterval = intervals.get(splitDimension);
 		final DoubleInterval newInterval = splitInterval.splitAndGetLeftPart(splitPosition, splitPositionIncluded);
 		intervals.set(splitDimension, newInterval);
@@ -315,7 +315,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 			throw new IllegalArgumentException("Unable to split, point " + splitDimension + " is not covered in dimension " + splitDimension);
 		}
 		
-		final List<DoubleInterval> intervals = new ArrayList<DoubleInterval>(boundingBox);
+		final List<DoubleInterval> intervals = new ArrayList<>(boundingBox);
 		final DoubleInterval splitInterval = intervals.get(splitDimension);
 		final DoubleInterval newInterval = splitInterval.splitAndGetRightPart(splitPosition, splitPositionIncluded);
 		intervals.set(splitDimension, newInterval);
