@@ -231,36 +231,41 @@ $ $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -b
 
 Executing join query...
 ===============
-Joined bounding box: [4.5:5.5,1.5:2.0]
+Joined bounding box: [[4.5,5.5],[1.5,2.0]]
 
 Table: mydgroup_table1
-Tuple: Key tuple_a, BoundingBox=[1.0:8.0,1.0:2.0], value=value_a, version timestamp=1519115209590000
+Tuple: Key tuple_a, BoundingBox=[[1.0,8.0],[1.0,2.0]], value=value_a, version timestamp=1519501686020000
 
 Table: mydgroup_table2
-Tuple: Key tuple_2, BoundingBox=[4.5:5.5,1.5:4.5], value=value_2, version timestamp=1519115217210000
+Tuple: Key tuple_2, BoundingBox=[[4.5,5.5],[1.5,4.5]], value=value_2, version timestamp=1519501694443000
 ===============
 
 ===============
-Joined bounding box: [7.5:8.0,1.5:2.0]
+Joined bounding box: [[7.5,8.0],[1.5,2.0]]
 
 Table: mydgroup_table1
-Tuple: Key tuple_a, BoundingBox=[1.0:8.0,1.0:2.0], value=value_a, version timestamp=1519115209590000
+Tuple: Key tuple_a, BoundingBox=[[1.0,8.0],[1.0,2.0]], value=value_a, version timestamp=1519501686020000
 
 Table: mydgroup_table2
-Tuple: Key tuple_3, BoundingBox=[7.5:10.0,1.5:2.5], value=value_3, version timestamp=1519115219198000
+Tuple: Key tuple_3, BoundingBox=[[7.5,10.0],[1.5,2.5]], value=value_3, version timestamp=1519501696507000
 ===============
 
 ===============
-Joined bounding box: [4.5:5.5,1.5:4.5]
+Joined bounding box: [[4.5,5.5],[1.5,4.5]]
 
 Table: mydgroup_table1
-Tuple: Key tuple_b, BoundingBox=[4.0:6.0,0.0:5.0], value=value_b, version timestamp=1519115211570000
+Tuple: Key tuple_b, BoundingBox=[[4.0,6.0],[0.0,5.0]], value=value_b, version timestamp=1519501688309000
 
 Table: mydgroup_table2
-Tuple: Key tuple_2, BoundingBox=[4.5:5.5,1.5:4.5], value=value_2, version timestamp=1519115217210000
+Tuple: Key tuple_2, BoundingBox=[[4.5,5.5],[1.5,4.5]], value=value_2, version timestamp=1519501694443000
 ===============
 
 Join done
+Connecting to BBoxDB cluster... [Established]
+Executing key query..
+Key tuple_a, BoundingBox=[[1.0,8.0],[1.0,2.0]], value=value_a, version timestamp=1519501686020000
+
+Query done
 ``` 
 
 # What's Next
