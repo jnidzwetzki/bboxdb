@@ -19,6 +19,7 @@ package org.bboxdb.commons.math;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.StringUtil;
 
 public class DoubleInterval implements Comparable<DoubleInterval> {
 	
@@ -55,13 +56,8 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 		if(! (stringValue.endsWith("]") || stringValue.endsWith(")"))) {
 			throw new IllegalArgumentException("Interval have to end with ) or ]");
 		}
-		
-		final long commas = stringValue
-				.chars()
-				.filter(ch -> ch == ',')
-				.count();
-		
-		if(commas != 1) {
+
+		if(StringUtil.countCharOccurrence(stringValue, ',') != 1) {
 			throw new IllegalArgumentException("Interval have to contain exactly one ','");
 		}
 		

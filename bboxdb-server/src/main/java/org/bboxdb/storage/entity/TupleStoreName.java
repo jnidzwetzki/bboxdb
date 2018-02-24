@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.storage.entity;
 
+import org.bboxdb.commons.StringUtil;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +109,7 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 		}
 		
 		final String[] parts = fullname.split("_");
-		final long terminals = fullname.chars().filter(ch -> ch =='_').count();
+		final long terminals = StringUtil.countCharOccurrence(fullname, '_');
 
 		if(parts.length - 1 != terminals) {
 			logger.warn("Got invalid tablename: " + fullname);
