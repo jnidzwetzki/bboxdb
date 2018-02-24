@@ -121,19 +121,21 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		this.boundingBox = new ArrayList<>();
 
 		if("[]".equals(stringValue)) {
-		} else {
-			if(StringUtil.countCharOccurrence(stringValue, ',') < 1) {
-				throw new IllegalArgumentException("Bounding box have to contain at least one ','");
-			}
-			
-			// [[-5.0,5.0]:[-5.0,5.0]]
-			final String shortString = stringValue.substring(1, stringValue.length() - 1);
-			final StringTokenizer stringTokenizer = new StringTokenizer(shortString, ":");
-			
-			while(stringTokenizer.hasMoreTokens()) {
-				final String nextToken = stringTokenizer.nextToken();
-				boundingBox.add(new DoubleInterval(nextToken));
-			}
+			// Cover complete space bounding box
+			return;
+		} 
+		
+		if(StringUtil.countCharOccurrence(stringValue, ',') < 1) {
+			throw new IllegalArgumentException("Bounding box have to contain at least one ','");
+		}
+		
+		// [[-5.0,5.0]:[-5.0,5.0]]
+		final String shortString = stringValue.substring(1, stringValue.length() - 1);
+		final StringTokenizer stringTokenizer = new StringTokenizer(shortString, ":");
+		
+		while(stringTokenizer.hasMoreTokens()) {
+			final String nextToken = stringTokenizer.nextToken();
+			boundingBox.add(new DoubleInterval(nextToken));
 		}
 	}
 
