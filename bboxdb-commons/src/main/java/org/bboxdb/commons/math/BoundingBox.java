@@ -356,9 +356,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 				sb.append(",");
 			}
 			
-			sb.append(getCoordinateLow(d));
-			sb.append(":");
-			sb.append(getCoordinateHigh(d));
+			sb.append(boundingBox.get(d));
 		}
 		sb.append("]");
 		
@@ -366,7 +364,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	}
 
 	/**
-	 * Convert into a hashcode
+	 * Convert into a hash code
 	 * 
 	 */
 	@Override
