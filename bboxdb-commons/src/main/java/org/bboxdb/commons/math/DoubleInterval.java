@@ -17,6 +17,9 @@
  *******************************************************************************/
 package org.bboxdb.commons.math;
 
+import org.bboxdb.commons.InputParseException;
+import org.bboxdb.commons.MathUtil;
+
 public class DoubleInterval implements Comparable<DoubleInterval> {
 	
 	/**
@@ -42,9 +45,40 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 	public DoubleInterval(final double begin, final double end) {
 		this(begin, end, true, true);
 	}
+	
+	public DoubleInterval(final String stringValue) {
+		
+		if(! (stringValue.startsWith("[") || stringValue.startsWith("("))) {
+			throw new IllegalArgumentException("Interval have to start with ( or [");
+		}
+		
+		if(! (stringValue.endsWith("]") || stringValue.endsWith(")"))) {
+			throw new IllegalArgumentException("Interval have to end with ) or ]");
+		}
+		
+		final long commas = stringValue
+				.chars()
+				.filter(ch -> ch == ',')
+				.count();
+		
+		if(commas != 1) {
+			throw new IllegalArgumentException("Interval have to contain exactly one ','");
+		}
+		
+		this.beginIncluded = stringValue.startsWith("[") ? true : false;
+		this.endIncluded = stringValue.endsWith("]") ? true : false;
+		
+		final String[] beginEnd = stringValue.substring(1, stringValue.length() - 1).split(",");
+		
+		try {
+			this.begin = MathUtil.tryParseDouble(beginEnd[0], () -> "Unable to parse: " + beginEnd[0]);
+			this.end = MathUtil.tryParseDouble(beginEnd[1], () -> "Unable to parse: " + beginEnd[1]);
+		} catch (InputParseException e) {
+			throw new IllegalArgumentException(e);
+		}		
+	}
 
 	public DoubleInterval(final double begin, final double end, final boolean beginIncluded, final boolean endIncluded) {
-		super();
 		
 		if(begin > end) {
 			throw new IllegalArgumentException("Failed to construct an interval with: begin " 
@@ -218,7 +252,7 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 	}
 	
 	/**
-	 * Is the other interval completeply covered by this interval?
+	 * Is the other interval completely covered by this interval?
 	 * @param otherInterval
 	 * @return
 	 */
