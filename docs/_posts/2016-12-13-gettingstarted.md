@@ -147,9 +147,9 @@ The key query returns the three most recent versions for the key:
 $ $BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_data -key key1 
 Connecting to BBoxDB cluster... [Established]
 Executing key query..
-Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value3, version timestamp=1509699605215000
-Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value4, version timestamp=1509699607483000
-Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value5, version timestamp=1509699609644000
+Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value3, version timestamp=1509699605215000
+Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value4, version timestamp=1509699607483000
+Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value5, version timestamp=1509699609644000
 Query done
 ```
 
@@ -162,8 +162,8 @@ $ $BBOXDB_HOME/bin/cli.sh -action delete -table mydgroup_data -key key1
 $ $BBOXDB_HOME/bin/cli.sh -action query -table mydgroup_data -key key1 
 Connecting to BBoxDB cluster... [Established]
 Executing key query..
-Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value4, version timestamp=1509699607483000
-Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value5, version timestamp=1509699609644000
+Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value4, version timestamp=1509699607483000
+Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value5, version timestamp=1509699609644000
 Key key1, DELETED, version timestamp=1509703784058000
 Query done
 ```
@@ -196,8 +196,8 @@ As soon as the three tuples are inserted, the query reports two tuples:
 console1> $BBOXDB_HOME/bin/cli.sh -action continuous-query -table mydgroup_data -bbox 0:5,0:5
 Connecting to BBoxDB cluster... [Established]
 Executing continuous bounding box query...
-Key key1, BoundingBox=[1.0:2.0,1.0:2.0], value=value1, version timestamp=1510325620579000
-Key key3, BoundingBox=[2.0:10.0,2.0:10.0], value=value3, version timestamp=1510325620643000
+Key key1, BoundingBox=[[1.0,2.0],[1.0,2.0]], value=value1, version timestamp=1510325620579000
+Key key3, BoundingBox=[[2.0,10.0],[2.0,10.0]], value=value3, version timestamp=1510325620643000
 ```
 
 # Executing a join
