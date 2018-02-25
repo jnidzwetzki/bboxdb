@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.math;
 
-import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.junit.Assert;
 import org.junit.Test;
@@ -291,7 +290,7 @@ public class TestDoubleInterval {
 	 */
 	@Test
 	public void testMidpoint1() {
-		final DoubleInterval interval1 = new DoubleInterval(BoundingBox.MIN_VALUE, BoundingBox.MAX_VALUE);
+		final DoubleInterval interval1 = new DoubleInterval(DoubleInterval.MIN_VALUE, DoubleInterval.MAX_VALUE);
 		Assert.assertEquals(0, interval1.getMidpoint(), 0.0001f);
 	}
 	

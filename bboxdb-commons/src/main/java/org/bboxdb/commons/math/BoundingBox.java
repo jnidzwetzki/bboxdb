@@ -39,17 +39,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * The return value of an invalid dimension
 	 */
 	public final static int INVALID_DIMENSION = -1;
-	
-	/**
-	 * The min value
-	 */
-	public final static double MIN_VALUE = -Float.MAX_VALUE;
-	
-	/**
-	 * The max value
-	 */
-	public final static double MAX_VALUE = Float.MAX_VALUE;
-	
+
 	/**
 	 * The boundingBox contains a interval for each dimension
 	 */
@@ -196,7 +186,7 @@ public class BoundingBox implements Comparable<BoundingBox> {
 		final List<DoubleInterval> dimensions = new ArrayList<>();
 		
 		for(int i = 0; i < dimension; i++) {
-			dimensions.add(new DoubleInterval(MIN_VALUE, MAX_VALUE));
+			dimensions.add(new DoubleInterval(DoubleInterval.MIN_VALUE, DoubleInterval.MAX_VALUE));
 		}
 		
 		return new BoundingBox(dimensions);

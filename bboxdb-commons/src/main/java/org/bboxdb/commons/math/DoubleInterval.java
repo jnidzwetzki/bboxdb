@@ -43,6 +43,17 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 	 */
 	protected final boolean endIncluded;
 	
+	/**
+	 * The min value
+	 */
+	public final static double MIN_VALUE = -Float.MAX_VALUE;
+	
+	/**
+	 * The max value
+	 */
+	public final static double MAX_VALUE = Float.MAX_VALUE;
+	
+	
 	public DoubleInterval(final double begin, final double end) {
 		this(begin, end, true, true);
 	}
@@ -369,7 +380,7 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 			sb.append("(");
 		}
 		
-		if(begin == BoundingBox.MIN_VALUE) {
+		if(begin == MIN_VALUE) {
 			sb.append("min");
 		} else {
 			sb.append(begin);
@@ -377,7 +388,7 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 		
 		sb.append(",");
 		
-		if(end == BoundingBox.MAX_VALUE) {
+		if(end == MAX_VALUE) {
 			sb.append("max");
 		} else {
 			sb.append(end);
