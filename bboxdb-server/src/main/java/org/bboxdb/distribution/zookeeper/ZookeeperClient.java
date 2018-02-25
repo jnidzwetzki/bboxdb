@@ -176,7 +176,16 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 
 		zookeeper = null;
 	}
-
+	
+	/**
+	 * Get the children and register without creating a watch
+	 */
+	public List<String> getChildren(final String path)
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		return getChildren(path, null);
+	}
+	
 	/**
 	 * Get the children and register a watch
 	 * 
