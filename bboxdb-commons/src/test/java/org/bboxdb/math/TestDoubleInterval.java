@@ -50,11 +50,15 @@ public class TestDoubleInterval {
 		final DoubleInterval doubleInterval2 = new DoubleInterval(-1, 2, true, false);
 		final DoubleInterval doubleInterval3 = new DoubleInterval(-1.2, 2.3, false, true);
 		final DoubleInterval doubleInterval4 = new DoubleInterval(-100, 200, true, true);
+		final DoubleInterval doubleInterval5 = new DoubleInterval(DoubleInterval.MIN_VALUE, DoubleInterval.MAX_VALUE, true, true);
+		final DoubleInterval doubleInterval6 = new DoubleInterval(DoubleInterval.MIN_VALUE, DoubleInterval.MAX_VALUE, false, false);
 
 		Assert.assertEquals(doubleInterval1, new DoubleInterval(doubleInterval1.toString()));
 		Assert.assertEquals(doubleInterval2, new DoubleInterval(doubleInterval2.toString()));
 		Assert.assertEquals(doubleInterval3, new DoubleInterval(doubleInterval3.toString()));
 		Assert.assertEquals(doubleInterval4, new DoubleInterval(doubleInterval4.toString()));
+		Assert.assertEquals(doubleInterval5, new DoubleInterval(doubleInterval5.toString()));
+		Assert.assertEquals(doubleInterval6, new DoubleInterval(doubleInterval6.toString()));
 	}
 	
 	/**
@@ -95,6 +99,22 @@ public class TestDoubleInterval {
 	@Test(expected=IllegalArgumentException.class)
 	public void testToAndFromString6() {
 		new DoubleInterval("[4,abc]");
+	}
+	
+	/**
+	 * Test the from and to string method
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testToAndFromString7() {
+		new DoubleInterval("[4,abc");
+	}
+	
+	/**
+	 * Test the from and to string method
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testToAndFromString8() {
+		new DoubleInterval("4,abc)");
 	}
 	
 	/**

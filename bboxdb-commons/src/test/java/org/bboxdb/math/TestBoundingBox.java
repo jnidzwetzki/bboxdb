@@ -568,7 +568,8 @@ public class TestBoundingBox {
 		final BoundingBox boundingBox5 = new BoundingBox(Arrays.asList(new DoubleInterval(1, 2, false, true)));	
 		final BoundingBox boundingBox6 = new BoundingBox(Arrays.asList(new DoubleInterval(1, 2, true, false)));	
 		final BoundingBox boundingBox7 = new BoundingBox(Arrays.asList(new DoubleInterval(1, 2, true, false), new DoubleInterval(1, 2, false, false)));	
-
+		final BoundingBox boundingBox8 = BoundingBox.createFullCoveringDimensionBoundingBox(3);
+		
 		Assert.assertEquals(boundingBox1, new BoundingBox(boundingBox1.toCompactString()));
 		Assert.assertEquals(boundingBox2, new BoundingBox(boundingBox2.toCompactString()));
 		Assert.assertEquals(boundingBox3, new BoundingBox(boundingBox3.toCompactString()));
@@ -576,6 +577,7 @@ public class TestBoundingBox {
 		Assert.assertEquals(boundingBox5, new BoundingBox(boundingBox5.toCompactString()));
 		Assert.assertEquals(boundingBox6, new BoundingBox(boundingBox6.toCompactString()));
 		Assert.assertEquals(boundingBox7, new BoundingBox(boundingBox7.toCompactString()));
+		Assert.assertEquals(boundingBox8, new BoundingBox(boundingBox8.toCompactString()));
 	}
 	
 	/**

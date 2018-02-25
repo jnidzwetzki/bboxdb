@@ -78,8 +78,17 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 		final String[] beginEnd = stringValue.substring(1, stringValue.length() - 1).split(",");
 		
 		try {
-			this.begin = MathUtil.tryParseDouble(beginEnd[0], () -> "Unable to parse: " + beginEnd[0]);
-			this.end = MathUtil.tryParseDouble(beginEnd[1], () -> "Unable to parse: " + beginEnd[1]);
+			if("min".equals(beginEnd[0])) {
+				this.begin = MIN_VALUE;
+			} else {
+				this.begin = MathUtil.tryParseDouble(beginEnd[0], () -> "Unable to parse: " + beginEnd[0]);
+			}
+			
+			if("max".equals(beginEnd[1])) {
+				this.end = MAX_VALUE;
+			} else {
+				this.end = MathUtil.tryParseDouble(beginEnd[1], () -> "Unable to parse: " + beginEnd[1]);
+			}
 		} catch (InputParseException e) {
 			throw new IllegalArgumentException(e);
 		}		
