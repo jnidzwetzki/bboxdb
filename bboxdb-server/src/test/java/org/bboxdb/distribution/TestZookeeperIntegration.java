@@ -206,7 +206,8 @@ public class TestZookeeperIntegration {
 		System.out.println("---> Get space partitioner - DONE");
 		final DistributionRegion distributionGroup = spacePartitioner.getRootNode();
 		System.out.println("---> Get root node - DONE");
-
+		Assert.assertEquals(0, distributionGroup.getRegionId());
+		
 		Assert.assertEquals(TEST_GROUP, distributionGroup.getDistributionGroupName().getFullname());
 		
 		final DistributionRegionState stateForDistributionRegion1 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup);
@@ -228,6 +229,9 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(10.0, newDistributionGroup.getSplit(), DELTA);
 		final DistributionRegionState stateForDistributionRegion3 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(newDistributionGroup);
 		Assert.assertEquals(DistributionRegionState.SPLITTING, stateForDistributionRegion3);
+		
+		Assert.assertEquals(1, distributionGroup.getDirectChildren().get(0).getRegionId());
+		Assert.assertEquals(2, distributionGroup.getDirectChildren().get(1).getRegionId());
 		
 		// Delete childs
 		System.out.println("---> Calling prepare merge");
