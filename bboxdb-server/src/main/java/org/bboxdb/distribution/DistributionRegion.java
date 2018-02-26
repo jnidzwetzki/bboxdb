@@ -86,6 +86,10 @@ public class DistributionRegion {
 	public DistributionRegion(final DistributionGroupName name, final DistributionRegion parent,
 			final BoundingBox boundingBox) {
 		
+		if(! name.isValid()) {
+			throw new IllegalArgumentException("Invalid distribution goup specified");
+		}
+		
 		this.distributionGroupName = name;
 		this.converingBox = boundingBox;
 		this.parent = parent;
