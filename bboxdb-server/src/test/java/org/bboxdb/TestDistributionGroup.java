@@ -80,19 +80,19 @@ public class TestDistributionGroup {
 		distributionRegion.setSplit(0);
 		Assert.assertTrue(distributionRegion.isLeafRegion());
 		
-		distributionRegion.getRightChild().setState(DistributionRegionState.ACTIVE);
-		distributionRegion.getLeftChild().setState(DistributionRegionState.ACTIVE);
+		distributionRegion.getDirectChildren().get(1).setState(DistributionRegionState.ACTIVE);
+		distributionRegion.getDirectChildren().get(0).setState(DistributionRegionState.ACTIVE);
 
 		Assert.assertFalse(distributionRegion.isLeafRegion());
 
-		Assert.assertEquals(distributionRegion, distributionRegion.getLeftChild().getRootRegion());
-		Assert.assertEquals(distributionRegion, distributionRegion.getRightChild().getRootRegion());
+		Assert.assertEquals(distributionRegion, distributionRegion.getDirectChildren().get(0).getRootRegion());
+		Assert.assertEquals(distributionRegion, distributionRegion.getDirectChildren().get(1).getRootRegion());
 		
-		Assert.assertEquals(distributionRegion.getDimension(), distributionRegion.getLeftChild().getDimension());
-		Assert.assertEquals(distributionRegion.getDimension(), distributionRegion.getRightChild().getDimension());
+		Assert.assertEquals(distributionRegion.getDimension(), distributionRegion.getDirectChildren().get(0).getDimension());
+		Assert.assertEquals(distributionRegion.getDimension(), distributionRegion.getDirectChildren().get(1).getDimension());
 		
-		Assert.assertEquals(1, distributionRegion.getLeftChild().getLevel());
-		Assert.assertEquals(1, distributionRegion.getRightChild().getLevel());
+		Assert.assertEquals(1, distributionRegion.getDirectChildren().get(0).getLevel());
+		Assert.assertEquals(1, distributionRegion.getDirectChildren().get(1).getLevel());
 		
 		Assert.assertEquals(2, distributionRegion.getTotalLevel());
 	}
@@ -104,13 +104,13 @@ public class TestDistributionGroup {
 	public void testSplitDimension1() {
 		final DistributionRegion level0 = createDistributionGroup(2);
 		level0.setSplit(50);
-		final DistributionRegion level1 = level0.getLeftChild();
+		final DistributionRegion level1 = level0.getDirectChildren().get(0);
 		level1.setSplit(40);
-		final DistributionRegion level2 = level1.getLeftChild();
+		final DistributionRegion level2 = level1.getDirectChildren().get(0);
 		level2.setSplit(-30);
-		final DistributionRegion level3 = level2.getLeftChild();
+		final DistributionRegion level3 = level2.getDirectChildren().get(0);
 		level3.setSplit(30);
-		final DistributionRegion level4 = level3.getLeftChild();
+		final DistributionRegion level4 = level3.getDirectChildren().get(0);
 
 		Assert.assertEquals(0, level0.getSplitDimension());
 		Assert.assertEquals(1, level1.getSplitDimension());
@@ -126,13 +126,13 @@ public class TestDistributionGroup {
 	public void testSplitDimension2() {
 		final DistributionRegion level0 = createDistributionGroup(3);
 		level0.setSplit(50);
-		final DistributionRegion level1 = level0.getLeftChild();
+		final DistributionRegion level1 = level0.getDirectChildren().get(0);
 		level1.setSplit(40);
-		final DistributionRegion level2 = level1.getLeftChild();
+		final DistributionRegion level2 = level1.getDirectChildren().get(0);
 		level2.setSplit(30);
-		final DistributionRegion level3 = level2.getLeftChild();
+		final DistributionRegion level3 = level2.getDirectChildren().get(0);
 		level3.setSplit(30);
-		final DistributionRegion level4 = level3.getLeftChild();
+		final DistributionRegion level4 = level3.getDirectChildren().get(0);
 
 		Assert.assertEquals(0, level0.getSplitDimension());
 		Assert.assertEquals(1, level1.getSplitDimension());
@@ -153,15 +153,13 @@ public class TestDistributionGroup {
 	@Test
 	public void testLeftOrRightChild() {
 		final DistributionRegion level0 = createDistributionGroup(2);
-		Assert.assertFalse(level0.isLeftChild());
-		Assert.assertFalse(level0.isRightChild());
+		Assert.assertEquals(0, level0.getChildNumber());
+		Assert.assertEquals(0, level0.getChildNumber());
 		
 		level0.setSplit(50);
 				
-		Assert.assertTrue(level0.getLeftChild().isLeftChild());
-		Assert.assertTrue(level0.getRightChild().isRightChild());
-		Assert.assertFalse(level0.getRightChild().isLeftChild());
-		Assert.assertFalse(level0.getLeftChild().isRightChild());
+		Assert.assertEquals(0, level0.getDirectChildren().get(0).getChildNumber());
+		Assert.assertEquals(1, level0.getDirectChildren().get(1).getChildNumber());
 	}
 
 	/**
@@ -175,12 +173,12 @@ public class TestDistributionGroup {
 		final DistributionRegion level0 = createDistributionGroup(1);
 		level0.setSplit(50);
 
-		level0.getLeftChild().addSystem(SYSTEM_A);
-		level0.getRightChild().addSystem(SYSTEM_B);
+		level0.getDirectChildren().get(0).addSystem(SYSTEM_A);
+		level0.getDirectChildren().get(1).addSystem(SYSTEM_B);
 		
 		level0.setState(DistributionRegionState.SPLIT);
-		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
-		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
+		level0.getDirectChildren().get(0).setState(DistributionRegionState.ACTIVE);
+		level0.getDirectChildren().get(1).setState(DistributionRegionState.ACTIVE);
 		
 		final Collection<RoutingHop> routingHopsForRead1 = RoutingHopHelper.getRoutingHopsForRead(level0, new BoundingBox(100d, 110d));
 		Assert.assertEquals(1, routingHopsForRead1.size());
@@ -219,35 +217,35 @@ public class TestDistributionGroup {
 		final DistributionRegion level0 = DistributionRegion.createRootElement(distributionGroupName);
 		level0.setRegionId(1);
 		level0.setSplit(50);
-		level0.getLeftChild().setRegionId(2);
-		level0.getRightChild().setRegionId(3);
+		level0.getDirectChildren().get(0).setRegionId(2);
+		level0.getDirectChildren().get(1).setRegionId(3);
 		level0.makeChildsActive();
 		
-		final DistributionRegion level1 = level0.getLeftChild();
+		final DistributionRegion level1 = level0.getDirectChildren().get(0);
 		level1.setSplit(40);
-		level1.getLeftChild().setRegionId(4);
-		level1.getRightChild().setRegionId(5);
+		level1.getDirectChildren().get(0).setRegionId(4);
+		level1.getDirectChildren().get(1).setRegionId(5);
 		level1.makeChildsActive();
 		
-		final DistributionRegion level2 = level1.getLeftChild();
+		final DistributionRegion level2 = level1.getDirectChildren().get(0);
 		level2.setSplit(30);
-		level2.getLeftChild().setRegionId(6);
-		level2.getRightChild().setRegionId(7);
+		level2.getDirectChildren().get(0).setRegionId(6);
+		level2.getDirectChildren().get(1).setRegionId(7);
 		level2.makeChildsActive();
 		
-		final DistributionRegion level3 = level2.getLeftChild();
+		final DistributionRegion level3 = level2.getDirectChildren().get(0);
 		level3.setSplit(35);
-		level3.getLeftChild().setRegionId(8);
-		level3.getRightChild().setRegionId(9);
+		level3.getDirectChildren().get(0).setRegionId(8);
+		level3.getDirectChildren().get(1).setRegionId(9);
 		level3.makeChildsActive();
 
 		Assert.assertTrue(DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 4711) == null);
 		
 		Assert.assertEquals(level0, DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 1));
-		Assert.assertEquals(level1.getLeftChild(), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 4));
-		Assert.assertEquals(level1.getRightChild(), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 5));
-		Assert.assertEquals(level3.getLeftChild(), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 8));
-		Assert.assertEquals(level3.getRightChild(), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 9));
+		Assert.assertEquals(level1.getDirectChildren().get(0), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 4));
+		Assert.assertEquals(level1.getDirectChildren().get(1), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 5));
+		Assert.assertEquals(level3.getDirectChildren().get(0), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 8));
+		Assert.assertEquals(level3.getDirectChildren().get(1), DistributionRegionHelper.getDistributionRegionForNamePrefix(level0, 9));
 		
 		Assert.assertEquals(null, DistributionRegionHelper.getDistributionRegionForNamePrefix(level3, 1));
 	}
@@ -260,15 +258,15 @@ public class TestDistributionGroup {
 	public void testGetSystemsForDistributionGroup1() {
 		final DistributionRegion level0 = createDistributionGroup(2);
 		level0.setSplit(50);
-		level0.getLeftChild().setRegionId(2);
-		level0.getRightChild().setRegionId(3);
+		level0.getDirectChildren().get(0).setRegionId(2);
+		level0.getDirectChildren().get(1).setRegionId(3);
 		
 		level0.setState(DistributionRegionState.SPLITTING);
 		level0.makeChildsActive();
 		
 		level0.addSystem(new BBoxDBInstance("node1:123"));
-		level0.getLeftChild().addSystem(new BBoxDBInstance("node2:123"));
-		level0.getRightChild().addSystem(new BBoxDBInstance("node3:123"));
+		level0.getDirectChildren().get(0).addSystem(new BBoxDBInstance("node2:123"));
+		level0.getDirectChildren().get(1).addSystem(new BBoxDBInstance("node3:123"));
 		
 		final Collection<RoutingHop> systemsRead = RoutingHopHelper.getRoutingHopsForRead(level0, BoundingBox.FULL_SPACE);
 		Assert.assertEquals(3, systemsRead.size());
@@ -284,15 +282,15 @@ public class TestDistributionGroup {
 	public void testGetSystemsForDistributionGroup2() {
 		final DistributionRegion level0 = createDistributionGroup(2);
 		level0.setSplit(50);
-		level0.getLeftChild().setRegionId(2);
-		level0.getRightChild().setRegionId(3);
+		level0.getDirectChildren().get(0).setRegionId(2);
+		level0.getDirectChildren().get(1).setRegionId(3);
 		
 		level0.setState(DistributionRegionState.SPLITTING);
 		level0.makeChildsActive();
 		
 		level0.addSystem(new BBoxDBInstance("node1:123"));
-		level0.getLeftChild().addSystem(new BBoxDBInstance("node2:123"));
-		level0.getRightChild().addSystem(new BBoxDBInstance("node2:123"));
+		level0.getDirectChildren().get(0).addSystem(new BBoxDBInstance("node2:123"));
+		level0.getDirectChildren().get(1).addSystem(new BBoxDBInstance("node2:123"));
 		
 		final Collection<RoutingHop> systemsRead = RoutingHopHelper.getRoutingHopsForRead(level0, BoundingBox.FULL_SPACE);
 		Assert.assertEquals(2, systemsRead.size());
@@ -308,14 +306,14 @@ public class TestDistributionGroup {
 	public void testGetDistributionGroupsForDistributionGroup() {
 		final DistributionRegion level0 = createDistributionGroup(2);
 		level0.setSplit(50);
-		level0.getLeftChild().setRegionId(2);
-		level0.getLeftChild().setState(DistributionRegionState.ACTIVE);
-		level0.getRightChild().setRegionId(3);
-		level0.getRightChild().setState(DistributionRegionState.ACTIVE);
+		level0.getDirectChildren().get(0).setRegionId(2);
+		level0.getDirectChildren().get(0).setState(DistributionRegionState.ACTIVE);
+		level0.getDirectChildren().get(1).setRegionId(3);
+		level0.getDirectChildren().get(1).setState(DistributionRegionState.ACTIVE);
 
 		level0.addSystem(new BBoxDBInstance("node1:123"));
-		level0.getLeftChild().addSystem(new BBoxDBInstance("node2:123"));
-		level0.getRightChild().addSystem(new BBoxDBInstance("node2:123"));
+		level0.getDirectChildren().get(0).addSystem(new BBoxDBInstance("node2:123"));
+		level0.getDirectChildren().get(1).addSystem(new BBoxDBInstance("node2:123"));
 		
 		final Set<DistributionRegion> regions = level0.getDistributionRegionsForBoundingBox(BoundingBox.FULL_SPACE);
 		Assert.assertEquals(3, regions.size());
@@ -339,28 +337,28 @@ public class TestDistributionGroup {
 		level0.setSplit(50);
 		level0.makeChildsActive();
 		
-		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(1.0d, 1.0d, 1.0d, 1.0d)));
-		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(1.0d, 10.0d, 1.0d, 10.0d)));
-		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(1.0d, 50.0d, 1.0d, 10.0d)));
+		Assert.assertTrue(level0.getDirectChildren().get(0).getConveringBox().overlaps(new BoundingBox(1.0d, 1.0d, 1.0d, 1.0d)));
+		Assert.assertTrue(level0.getDirectChildren().get(0).getConveringBox().overlaps(new BoundingBox(1.0d, 10.0d, 1.0d, 10.0d)));
+		Assert.assertTrue(level0.getDirectChildren().get(0).getConveringBox().overlaps(new BoundingBox(1.0d, 50.0d, 1.0d, 10.0d)));
 
-		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(50.0d, 50.0d, 1.0d, 1.0d)));
-		Assert.assertTrue(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(50.0d, 51.0d, 1.0d, 10.0d)));
-		Assert.assertFalse(level0.getLeftChild().getConveringBox().overlaps(new BoundingBox(50.1d, 51.0d, 1.0d, 10.0d)));
+		Assert.assertTrue(level0.getDirectChildren().get(0).getConveringBox().overlaps(new BoundingBox(50.0d, 50.0d, 1.0d, 1.0d)));
+		Assert.assertTrue(level0.getDirectChildren().get(0).getConveringBox().overlaps(new BoundingBox(50.0d, 51.0d, 1.0d, 10.0d)));
+		Assert.assertFalse(level0.getDirectChildren().get(0).getConveringBox().overlaps(new BoundingBox(50.1d, 51.0d, 1.0d, 10.0d)));
 
-		Assert.assertTrue(level0.getRightChild().getConveringBox().overlaps(new BoundingBox(50.1d, 50.1d, 1.0d, 1.0d)));
-		Assert.assertTrue(level0.getRightChild().getConveringBox().overlaps(new BoundingBox(50.1d, 51.0d, 1.0d, 10.0d)));
-		Assert.assertTrue(level0.getRightChild().getConveringBox().overlaps(new BoundingBox(50d, 51.0d, 1.0d, 10.0d)));
+		Assert.assertTrue(level0.getDirectChildren().get(1).getConveringBox().overlaps(new BoundingBox(50.1d, 50.1d, 1.0d, 1.0d)));
+		Assert.assertTrue(level0.getDirectChildren().get(1).getConveringBox().overlaps(new BoundingBox(50.1d, 51.0d, 1.0d, 10.0d)));
+		Assert.assertTrue(level0.getDirectChildren().get(1).getConveringBox().overlaps(new BoundingBox(50d, 51.0d, 1.0d, 10.0d)));
 		
-		level0.getLeftChild().setSplit(10);
-		level0.getLeftChild().makeChildsActive();
-		level0.getRightChild().setSplit(10);
-		level0.getRightChild().makeChildsActive();
+		level0.getDirectChildren().get(0).setSplit(10);
+		level0.getDirectChildren().get(0).makeChildsActive();
+		level0.getDirectChildren().get(1).setSplit(10);
+		level0.getDirectChildren().get(1).makeChildsActive();
 		
 		// 2D Regions
-		final DistributionRegion ll = level0.getLeftChild().getLeftChild();
-		final DistributionRegion ul = level0.getLeftChild().getRightChild();
-		final DistributionRegion lr = level0.getRightChild().getLeftChild();
-		final DistributionRegion ur = level0.getRightChild().getRightChild();
+		final DistributionRegion ll = level0.getDirectChildren().get(0).getDirectChildren().get(0);
+		final DistributionRegion ul = level0.getDirectChildren().get(0).getDirectChildren().get(1);
+		final DistributionRegion lr = level0.getDirectChildren().get(1).getDirectChildren().get(0);
+		final DistributionRegion ur = level0.getDirectChildren().get(1).getDirectChildren().get(1);
 		
 		Assert.assertTrue(ll.getConveringBox().overlaps(new BoundingBox(1d, 1d, 1d, 1d)));
 		Assert.assertTrue(ll.getConveringBox().overlaps(new BoundingBox(50d, 52d, 1d, 1d)));

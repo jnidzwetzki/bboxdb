@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.commons.InputParseException;
@@ -384,13 +385,8 @@ public class DistributionGroupZookeeperAdapter {
 		DistributionRegion tmpRegion = distributionRegion;
 		
 		if(tmpRegion != null) {
-			while(tmpRegion.getParent() != DistributionRegion.ROOT_NODE_ROOT_POINTER) {
-				if(tmpRegion.isLeftChild()) {
-					sb.insert(0, "/" + ZookeeperNodeNames.NAME_LEFT);
-				} else {
-					sb.insert(0, "/" + ZookeeperNodeNames.NAME_RIGHT);
-				}
-				
+			while(! tmpRegion.isRootElement()) {
+				sb.insert(0, "/" + ZookeeperNodeNames.NAME_CHILDREN + tmpRegion.getChildNumber());	
 				tmpRegion = tmpRegion.getParent();
 			}
 		}
@@ -420,27 +416,23 @@ public class DistributionGroupZookeeperAdapter {
 		sb.delete(0, distributionGroupPath.length());
 		
 		DistributionRegion resultElement = distributionRegion;
+		final StringTokenizer tokenizer = new StringTokenizer(sb.toString(), "/");
 		
-		while(sb.length() > 0) {
-			// Remove '/'
-			if(sb.length() > 0) {
-				sb.delete(0, 1);
-			}
+		while(tokenizer.hasMoreTokens()) {
 			
 			// Element is removed
 			if(resultElement == null) {
 				return null;
 			}
-
-			if(sb.indexOf(ZookeeperNodeNames.NAME_LEFT) == 0) {
-				resultElement = resultElement.getLeftChild();
-				sb.delete(0, ZookeeperNodeNames.NAME_LEFT.length());
-			} else if(sb.indexOf(ZookeeperNodeNames.NAME_RIGHT) == 0) {
-				resultElement = resultElement.getRightChild();
-				sb.delete(0, ZookeeperNodeNames.NAME_RIGHT.length());
-			} else {
+			
+			final String token = tokenizer.nextToken();
+			if(! token.startsWith(ZookeeperNodeNames.NAME_CHILDREN)) {
 				throw new IllegalArgumentException("Unable to decode " + sb);
 			}
+			
+			final String split[] = token.split("-");
+			final int childNumber = Integer.parseInt(split[1]);
+			resultElement = resultElement.getDirectChildren().get(childNumber);
 		}
 		
 		return resultElement;

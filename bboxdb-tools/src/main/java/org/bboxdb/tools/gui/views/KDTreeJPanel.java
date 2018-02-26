@@ -117,8 +117,9 @@ public class KDTreeJPanel extends JPanel {
 		final DistributionRegionComponent distributionRegionComponent = new DistributionRegionComponent(distributionRegion, this);
 		regions.add(distributionRegionComponent);
 				
-		createDistribtionRegionComponents(distributionRegion.getLeftChild());
-		createDistribtionRegionComponents(distributionRegion.getRightChild());
+		for(final DistributionRegion region : distributionRegion.getDirectChildren()) {
+			createDistribtionRegionComponents(region);
+		}
 	}
 	
 	@Override

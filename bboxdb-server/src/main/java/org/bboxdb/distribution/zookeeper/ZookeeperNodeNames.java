@@ -27,13 +27,8 @@ public class ZookeeperNodeNames {
 	/**
 	 * Name of the left tree node
 	 */
-	public final static String NAME_LEFT = "left";
-	
-	/**
-	 * Name of the right tree node
-	 */
-	public final static String NAME_RIGHT = "right";
-	
+	public final static String NAME_CHILDREN = "child-";
+
 	/**
 	 * Name of the split node
 	 */

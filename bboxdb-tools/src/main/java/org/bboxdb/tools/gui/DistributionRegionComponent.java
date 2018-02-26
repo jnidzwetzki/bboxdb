@@ -102,9 +102,9 @@ public class DistributionRegionComponent {
 		
 		DistributionRegion level = distributionRegion;
 		
-		while(level.getParent() != null) {
+		while(! level.isRootElement()) {
 			
-			if(level.isLeftChild()) {
+			if(level.getParent().getAllChildren().get(0) == level) {
 				offset = offset - calculateLevelXOffset(level.getLevel());
 			} else {
 				offset = offset + calculateLevelXOffset(level.getLevel());
@@ -254,7 +254,7 @@ public class DistributionRegionComponent {
 		int lineEndX = xOffset + (WIDTH / 2);
 		int lineEndY = yOffset - LEVEL_DISTANCE + HEIGHT;
 		
-		if(distributionRegion.isLeftChild()) {
+		if(distributionRegion.getParent().getAllChildren().get(0) == distributionRegion) {
 			lineEndX = lineEndX + calculateLevelXOffset(distributionRegion.getLevel());
 		} else {
 			lineEndX = lineEndX - calculateLevelXOffset(distributionRegion.getLevel());

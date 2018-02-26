@@ -279,8 +279,8 @@ public class TestZookeeperIntegration {
 		
 		// Check region ids
 		Assert.assertEquals(0, distributionGroup2.getRegionId());
-		Assert.assertEquals(1, distributionGroup2.getLeftChild().getRegionId());
-		Assert.assertEquals(2, distributionGroup2.getRightChild().getRegionId());
+		Assert.assertEquals(1, distributionGroup2.getDirectChildren().get(0).getRegionId());
+		Assert.assertEquals(2, distributionGroup2.getDirectChildren().get(1).getRegionId());
 	}
 	
 	/**
@@ -293,13 +293,19 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testDistributionRegionSplitWithZookeeperPropergate2() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
+		
+		System.out.println("== Deleting old distribution group");
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		
+		System.out.println("== Creating new distribution group");
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 
 		
+		System.out.println("== Build KD adapter 1");
 		final KDtreeSpacePartitioner adapter1 
 			= (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion distributionGroup1 = adapter1.getRootNode();
 		
+		System.out.println("== Build KD adapter 2");
 		final KDtreeSpacePartitioner adapter2 
 			= (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion distributionGroup2 = adapter2.getRootNode();
@@ -313,7 +319,7 @@ public class TestZookeeperIntegration {
 			// Ignore in unit test
 		}
 		
-		final DistributionRegion leftChild = distributionGroup1.getLeftChild();
+		final DistributionRegion leftChild = distributionGroup1.getDirectChildren().get(0);
 		Assert.assertEquals(1, leftChild.getLevel());
 		Assert.assertEquals(1, leftChild.getSplitDimension());
 		
@@ -328,7 +334,7 @@ public class TestZookeeperIntegration {
 
 		// Read update from the second object
 		Assert.assertEquals(10.0, distributionGroup2.getSplit(), DELTA);
-		Assert.assertEquals(50.0, distributionGroup2.getLeftChild().getSplit(), DELTA);
+		Assert.assertEquals(50.0, distributionGroup2.getDirectChildren().get(0).getSplit(), DELTA);
 	}
 	
 	/**
@@ -413,11 +419,11 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(StatisticsHelper.INVALID_STATISTICS, totalSize1, DELTA);
 		
 		region.setSplit(12);
-		region.getLeftChild().setRegionId(1);
-		region.getRightChild().setRegionId(2);
+		region.getDirectChildren().get(0).setRegionId(1);
+		region.getDirectChildren().get(1).setRegionId(2);
 		
-		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getLeftChild(), system1, 12, 999);
-		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getRightChild(), system1, 33, 999);
+		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getDirectChildren().get(0), system1, 12, 999);
+		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getDirectChildren().get(1), system1, 33, 999);
 
 		StatisticsHelper.clearHistory();
 		final double totalSizeAfterClear = RegionMergeHelper.getTotalRegionSize(region);
@@ -495,20 +501,20 @@ public class TestZookeeperIntegration {
 			// Ignore in unit test
 		}
 		
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getLeftChild(), systemName1);
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getLeftChild(), systemName2);
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getRightChild(), systemName1);
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getRightChild(), systemName2);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getDirectChildren().get(0), systemName1);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getDirectChildren().get(0), systemName2);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getDirectChildren().get(1), systemName1);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getDirectChildren().get(1), systemName2);
 		
-		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getLeftChild(), systemName1, 1);
-		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getLeftChild(), systemName2, 2);
-		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getRightChild(), systemName1, 3);
-		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getRightChild(), systemName2, 4);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getDirectChildren().get(0), systemName1, 1);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getDirectChildren().get(0), systemName2, 2);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getDirectChildren().get(1), systemName1, 3);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getDirectChildren().get(1), systemName2, 4);
 
-		final long checkpoint1 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getLeftChild(), systemName1);
-		final long checkpoint2 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getLeftChild(), systemName2);
-		final long checkpoint3 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getRightChild(), systemName1);
-		final long checkpoint4 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getRightChild(), systemName2);
+		final long checkpoint1 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getDirectChildren().get(0), systemName1);
+		final long checkpoint2 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getDirectChildren().get(0), systemName2);
+		final long checkpoint3 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getDirectChildren().get(1), systemName1);
+		final long checkpoint4 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getDirectChildren().get(1), systemName2);
 
 		Assert.assertEquals(1, checkpoint1);
 		Assert.assertEquals(2, checkpoint2);
@@ -574,8 +580,11 @@ public class TestZookeeperIntegration {
 			// Ignore systems exception
 		}
 		
-		final DistributionRegion leftChild = region.getLeftChild();
-		final DistributionRegion rightChild = region.getRightChild();
+		// Let the created node settle
+		Thread.sleep(1000);
+		
+		final DistributionRegion leftChild = region.getDirectChildren().get(0);
+		final DistributionRegion rightChild = region.getDirectChildren().get(1);
 
 		// No systems can be assigned, so the nodes remain in CREATING state
 		Assert.assertEquals(DistributionRegionState.CREATING, leftChild.getState());
@@ -603,37 +612,35 @@ public class TestZookeeperIntegration {
 		level0.makeChildsActive();
 
 		// Level 1
-		final DistributionRegion level1l = level0.getLeftChild();
+		final DistributionRegion level1l = level0.getDirectChildren().get(0);
 		level1l.setSplit(40);
 		level1l.makeChildsActive();
 		
-		final DistributionRegion level1r = level0.getRightChild();
+		final DistributionRegion level1r = level0.getDirectChildren().get(1);
 		level1r.setSplit(50);
 		level1r.makeChildsActive();
 
 		// Level 2
-		final DistributionRegion level2ll = level1l.getLeftChild();
+		final DistributionRegion level2ll = level1l.getDirectChildren().get(0);
 		level2ll.setSplit(30);
 		level2ll.makeChildsActive();
 
-		final DistributionRegion level2rl = level1r.getLeftChild();
+		final DistributionRegion level2rl = level1r.getDirectChildren().get(0);
 		level2rl.setSplit(60);
 		level2rl.makeChildsActive();
 
-		final DistributionRegion level2lr = level1l.getRightChild();
+		final DistributionRegion level2lr = level1l.getDirectChildren().get(1);
 		level2lr.setSplit(30);
 		level2lr.makeChildsActive();
 
-		final DistributionRegion level2rr = level1r.getRightChild();
+		final DistributionRegion level2rr = level1r.getDirectChildren().get(1);
 		level2rr.setSplit(60);
 		level2rr.makeChildsActive();
 
-
 		// Level 3
-		final DistributionRegion level3lll = level2ll.getLeftChild();
+		final DistributionRegion level3lll = level2ll.getDirectChildren().get(0);
 		level3lll.setSplit(35);
 		level3lll.makeChildsActive();
-
 
 		final DistributionGroupZookeeperAdapter zookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
 		

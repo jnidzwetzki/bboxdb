@@ -816,8 +816,9 @@ public class CLI implements Runnable, AutoCloseable {
 				distributionRegion.getRegionId(), bboxString,
 				distributionRegion.getState(), systemsString);
 		
-		printDistributionRegionRecursive(distributionRegion.getLeftChild());
-		printDistributionRegionRecursive(distributionRegion.getRightChild());
+		for(final DistributionRegion region : distributionRegion.getDirectChildren()) {
+			printDistributionRegionRecursive(region);
+		}
 	}
 	
 	/**

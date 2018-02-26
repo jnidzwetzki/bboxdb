@@ -34,47 +34,42 @@ public class DistributionRegion {
 	/**
 	 * The name of the distribution group
 	 */
-	protected final DistributionGroupName distributionGroupName;
+	private final DistributionGroupName distributionGroupName;
 	
 	/**
 	 * The split position
 	 */
-	protected double split = Double.MIN_VALUE;
+	private double split = Double.MIN_VALUE;
 	
 	/**
 	 * The left child
 	 */
-	protected DistributionRegion leftChild = null;
-	
-	/**
-	 * The right child
-	 */
-	protected DistributionRegion rightChild = null;
-	
+	private final List<DistributionRegion> children;
+		
 	/**
 	 * The parent of this node
 	 */
-	protected final DistributionRegion parent;
+	private final DistributionRegion parent;
 
 	/**
 	 * The area that is covered
 	 */
-	protected BoundingBox converingBox;
+	private BoundingBox converingBox;
 	
 	/**
 	 * The state of the region
 	 */
-	protected DistributionRegionState state = DistributionRegionState.UNKNOWN;
+	private DistributionRegionState state = DistributionRegionState.UNKNOWN;
 	
 	/**
 	 * The systems
 	 */
-	protected Collection<BBoxDBInstance> systems;
+	private Collection<BBoxDBInstance> systems;
 	
 	/**
 	 * The id of the region
 	 */
-	protected volatile long regionid = INVALID_REGION_ID;
+	private volatile long regionid = INVALID_REGION_ID;
 
 	/**
 	 * The invalid value for the region id
@@ -97,22 +92,7 @@ public class DistributionRegion {
 		this.parent = parent;
 		this.converingBox = BoundingBox.createFullCoveringDimensionBoundingBox(getDimension());
 		this.systems = new ArrayList<>();
-	}
-	
-	/**
-	 * Get the left child
-	 * @return
-	 */
-	public DistributionRegion getLeftChild() {
-		return leftChild;
-	}
-
-	/**
-	 * Get the right child
-	 * @return
-	 */
-	public DistributionRegion getRightChild() {
-		return rightChild;
+		this.children = new ArrayList<>();
 	}
 
 	/**
@@ -128,17 +108,7 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public List<DistributionRegion> getDirectChildren() {
-		final List<DistributionRegion> result = new ArrayList<>();
-		
-		if(getLeftChild() != null) {
-			result.add(getLeftChild());
-		}
-		
-		if(getRightChild() != null) {
-			result.add(getRightChild());
-		}
-		
-		return result;
+		return new ArrayList<>(children);
 	}
 	
 	/**
@@ -148,14 +118,9 @@ public class DistributionRegion {
 	public List<DistributionRegion> getAllChildren() {
 		final List<DistributionRegion> result = new ArrayList<>();
 		
-		if(getLeftChild() != null) {
-			result.add(getLeftChild());
-			result.addAll(getLeftChild().getAllChildren());
-		}
-		
-		if(getRightChild() != null) {
-			result.add(getRightChild());
-			result.addAll(getRightChild().getAllChildren());
+		for(final DistributionRegion child : children) {
+			result.add(child);
+			result.addAll(child.getAllChildren());
 		}
 		
 		return result;
@@ -183,24 +148,27 @@ public class DistributionRegion {
 			throw new IllegalArgumentException("Split called, but left or right node are not empty");
 		}
 		
-		leftChild = new DistributionRegion(distributionGroupName, this);
-		rightChild = new DistributionRegion(distributionGroupName, this);
+		final DistributionRegion leftChild = new DistributionRegion(distributionGroupName, this);
+		final DistributionRegion rightChild = new DistributionRegion(distributionGroupName, this);
 
 		// Calculate the covering bounding boxes
 		leftChild.setConveringBox(converingBox.splitAndGetLeft(split, getSplitDimension(), true));
 		rightChild.setConveringBox(converingBox.splitAndGetRight(split, getSplitDimension(), false));
+		
+		
+		assert (children.isEmpty()) : "Children list is not empty";
+		
+		children.add(leftChild);
+		children.add(rightChild);
 	}
 	
 	/**
 	 * Set the childs to state active
 	 */
 	public void makeChildsActive() {
-		if(leftChild == null || rightChild == null) {
-			return;
+		for(final DistributionRegion child : children) {
+			child.setState(DistributionRegionState.ACTIVE);
 		}
-		
-		leftChild.setState(DistributionRegionState.ACTIVE);
-		rightChild.setState(DistributionRegionState.ACTIVE);
 	}
 
 	/**
@@ -208,8 +176,7 @@ public class DistributionRegion {
 	 */
 	public void merge() {
 		split = Double.MIN_VALUE;
-		leftChild = null;
-		rightChild = null;
+		children.clear();
 	}
 	
 	/**
@@ -271,7 +238,8 @@ public class DistributionRegion {
 	 */
 	public int getDimension() {
 		try {
-			final DistributionGroupConfiguration config = DistributionGroupConfigurationCache.getInstance().getDistributionGroupConfiguration(distributionGroupName);
+			final DistributionGroupConfigurationCache instance = DistributionGroupConfigurationCache.getInstance();
+			final DistributionGroupConfiguration config = instance.getDistributionGroupConfiguration(distributionGroupName);
 			return config.getDimensions();
 		} catch (ZookeeperNotFoundException e) {
 			throw new RuntimeException(e);
@@ -313,19 +281,14 @@ public class DistributionRegion {
 	 */
 	public boolean isLeafRegion() {
 		
-		if(leftChild == null 
-				|| leftChild.getState() == DistributionRegionState.CREATING
-				|| leftChild.getState() == DistributionRegionState.UNKNOWN) {
-			return true;
+		for(final DistributionRegion child : children) {
+			if(child.getState() != DistributionRegionState.CREATING 
+					&& child.getState() != DistributionRegionState.UNKNOWN) {
+				return false;
+			}
 		}
 		
-		if(rightChild == null 
-				|| rightChild.getState() == DistributionRegionState.CREATING
-				|| rightChild.getState() == DistributionRegionState.UNKNOWN) {
-			return true;
-		}
-		
-		return false;
+		return true;
 	}
 	
 	/**
@@ -333,15 +296,14 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public boolean hasChilds() {
-		return (leftChild != null && rightChild != null);
+		return ! children.isEmpty();
 	}
 	
 	/**
 	 * Remove the children
 	 */
 	public void removeChildren() {
-		leftChild = null;
-		rightChild = null;
+		children.clear();
 	}
 	
 	/**
@@ -349,14 +311,8 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public boolean isChildNodesInCreatingState() {
-		
-		if(leftChild != null && leftChild.getState() == DistributionRegionState.CREATING) {
-			if(rightChild != null && rightChild.getState() == DistributionRegionState.CREATING) {
-				return true;
-			}
-		}
-		
-		return false;
+		return children.stream()
+			.anyMatch(r -> r.getState() == DistributionRegionState.CREATING);
 	}
 	
 	/**
@@ -370,25 +326,24 @@ public class DistributionRegion {
 	 * Is this the left child of the parent
 	 * @return
 	 */
-	public boolean isLeftChild() {
+	public int getChildNumber() {
+		
 		// This is the root element
 		if(isRootElement()) {
-			return false;
+			return 0;
 		}
 		
-		return (parent.getLeftChild() == this);
-	}
-	
-	/**
-	 * Is this the right child of the parent
-	 * @return
-	 */
-	public boolean isRightChild() {
-		if(isRootElement()) {
-			return false;
+		int childNumber = 0;
+		
+		for(final DistributionRegion region : getParent().getDirectChildren()) {
+			if(region == this) {
+				return childNumber;
+			}
+			
+			childNumber++;
 		}
 		
-		return (parent.getRightChild() == this);
+		throw new RuntimeException("Unable to find child number for: " + this);
 	}
 
 	/**

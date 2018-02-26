@@ -125,13 +125,9 @@ public class KDOSMPainter implements Painter<JXMapViewer> {
 		drawLine(graphicsContext, br, ur, map);
 		drawLine(graphicsContext, ur, ul, map);
 		drawLine(graphicsContext, ul, bl, map);
-	
-		if(distributionRegion.getLeftChild() != null) {
-			drawBoundingBox(graphicsContext, map, distributionRegion.getLeftChild());
-		}
 		
-		if(distributionRegion.getRightChild() != null) {
-			drawBoundingBox(graphicsContext, map, distributionRegion.getRightChild());
+		for(final DistributionRegion region : distributionRegion.getDirectChildren()) {
+			drawBoundingBox(graphicsContext, map, region);
 		}
 	}
 

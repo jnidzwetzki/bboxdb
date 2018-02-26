@@ -371,25 +371,23 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		try {
 			logger.debug("Write split at pos {} into zookeeper", splitPosition);
-			final String zookeeperPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
+			final String parentPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
 			
-			final String leftPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_LEFT;
-			createNewChild(leftPath);
-			
-			final String rightPath = zookeeperPath + "/" + ZookeeperNodeNames.NAME_RIGHT;
-			createNewChild(rightPath);
+			// Only one system executes the split, therefore we can determine the child ids
+			final String leftPath = createNewChild(parentPath, 0);
+			final String rightPath = createNewChild(parentPath, 1);
 			
 			// Write split position
-			distributionGroupZookeeperAdapter.setSplitPositionForPath(zookeeperPath, splitPosition);
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, DistributionRegionState.SPLITTING);
+			distributionGroupZookeeperAdapter.setSplitPositionForPath(parentPath, splitPosition);
+			distributionGroupZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);
 			
-			waitUntilChildIsCreated(regionToSplit);
+			waitUntilChildrenAreCreated(regionToSplit);
 	
 			// Allocate systems (the data of the left node is stored locally)
-			SpacePartitionerHelper.copySystemsToRegion(regionToSplit, regionToSplit.getLeftChild(), 
+			SpacePartitionerHelper.copySystemsToRegion(regionToSplit, regionToSplit.getDirectChildren().get(0), 
 					this, distributionGroupZookeeperAdapter);
 			
-			SpacePartitionerHelper.allocateSystemsToRegion(regionToSplit.getRightChild(), 
+			SpacePartitionerHelper.allocateSystemsToRegion(regionToSplit.getDirectChildren().get(1), 
 					this, regionToSplit.getSystems(), distributionGroupZookeeperAdapter);
 			
 			// update state
@@ -418,8 +416,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, 
 					DistributionRegionState.ACTIVE);
 
-			final List<DistributionRegion> childRegions = Arrays.asList(regionToMerge.getLeftChild(), 
-					regionToMerge.getRightChild());
+			final List<DistributionRegion> childRegions = regionToMerge.getDirectChildren();
 			
 			for(final DistributionRegion childRegion : childRegions) {
 				final String zookeeperPathChild = distributionGroupZookeeperAdapter
@@ -455,7 +452,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * Wait for zookeeper split callback
 	 * @param regionToSplit
 	 */
-	private void waitUntilChildIsCreated(final DistributionRegion regionToSplit) {
+	private void waitUntilChildrenAreCreated(final DistributionRegion regionToSplit) {
 		
 		// Wait for zookeeper callback
 		synchronized (MUTEX) {
@@ -524,46 +521,47 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			return false;
 		}
 		
-		if(region.getLeftChild() == null) {
+		if(region.getDirectChildren().size() != 2) {
 			return false;
 		}
 		
-		if(region.getRightChild() == null) {
-			return false;
-		}
+		final boolean unreadyChild = region.getDirectChildren().stream()
+			.anyMatch(r -> r.getState() != DistributionRegionState.ACTIVE);
 		
-		if(region.getLeftChild().getState() != DistributionRegionState.ACTIVE) {
-			return false;
-		}
-		
-		if(region.getRightChild().getState() != DistributionRegionState.ACTIVE) {
-			return false;
-		}
-		
-		return true;
+		return ! unreadyChild;
 	}
 	
 	/**
 	 * Create a new child
+	 * @param childNumber 
 	 * @param path
+	 * @return 
 	 * @throws ZookeeperException
 	 */
-	private void createNewChild(final String path) throws ZookeeperException {
-		logger.debug("Creating: {}", path);
+	private String createNewChild(final String parentPath, final int childNumber) throws ZookeeperException {
 
-		zookeeperClient.createPersistentNode(path, "".getBytes());
+		final String childPath = parentPath + "/" + ZookeeperNodeNames.NAME_CHILDREN + childNumber;
+		logger.info("Creating: {}", childPath);
+		
+		if(zookeeperClient.exists(childPath)) {
+			throw new ZookeeperException("Child already exists: " + childPath);
+		}
+
+		zookeeperClient.createPersistentNode(childPath, "".getBytes());
 		
 		final String distributionGroupName = rootNode.getDistributionGroupName().getFullname();
 		final int namePrefix = distributionGroupZookeeperAdapter.getNextTableIdForDistributionGroup(distributionGroupName);
 		
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
+		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
 				Integer.toString(namePrefix).getBytes());
 		
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
+		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 				"".getBytes());
 		
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
+		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.CREATING.getStringValue().getBytes());
+		
+		return childPath;
 	}
 	
 	/**
@@ -650,15 +648,23 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			region.setSplit(splitFloat); 
 		} 
 		
-		final String leftPath = path + "/" + ZookeeperNodeNames.NAME_LEFT;
-		if(zookeeperClient.exists(leftPath)) {
-			readDistributionGroupRecursive(leftPath, region.getLeftChild());
-		}
+		final List<String> children = zookeeperClient.getChildren(path);
+		children.sort((c1, c2) -> c1.compareTo(c2));
+		int childrenCounter = 0;
 		
-		final String rightPath = path + "/" + ZookeeperNodeNames.NAME_RIGHT;
-		if(zookeeperClient.exists(rightPath)) {
-			readDistributionGroupRecursive(rightPath, region.getRightChild());
-		} 
+		for(final String child : children) {
+			if(! child.startsWith(ZookeeperNodeNames.NAME_CHILDREN)) {
+				continue;
+			}
+			
+			final String childPath = path + "/" + child;
+			logger.info("Reading {}", childPath);
+			
+			if(zookeeperClient.exists(childPath)) {
+				readDistributionGroupRecursive(childPath, region.getDirectChildren().get(childrenCounter));
+				childrenCounter++;
+			}
+		}
 	}
 
 	/**

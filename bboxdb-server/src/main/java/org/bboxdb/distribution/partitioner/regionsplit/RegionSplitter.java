@@ -244,19 +244,12 @@ public class RegionSplitter {
 	 * @param region
 	 */
 	protected void assertChildIsReady(final DistributionRegion region) {
+		assert (! region.isLeafRegion()) : "Region has no children";
 		
-		final DistributionRegion leftChild = region.getLeftChild();
-		final DistributionRegion rightChild = region.getRightChild();
-		
-		assert (! region.isLeafRegion()) : "Region " + region.getIdentifier() 
-			+ " is a leaf region. Left child: " + leftChild + " right child: " 
-			+ rightChild;
-		
-		assert (! leftChild.getSystems().isEmpty()) : "Region " +  leftChild.getIdentifier() 
-			+ " state " +  leftChild.getState() + " systems " + leftChild.getSystems();
-		
-		assert (! rightChild.getSystems().isEmpty()) : "Region " +  rightChild.getIdentifier() 
-		+ " state " +  rightChild.getState() + " systems " + rightChild.getSystems();
+		for(final DistributionRegion child : region.getDirectChildren()) {
+			assert (! child.getSystems().isEmpty()) : "Region " +  child.getIdentifier() 
+			+ " state " +  child.getState() + " systems " + child.getSystems();
+		}
 	}
 
 	/**
@@ -292,7 +285,7 @@ public class RegionSplitter {
 	}
 
 	/**
-	 * Get a new instance of the tuple redistributor
+	 * Get a new instance of the tuple re-distributor
 	 * @param region
 	 * @param ssTableName
 	 * @return
@@ -301,12 +294,11 @@ public class RegionSplitter {
 	protected TupleRedistributor getTupleRedistributor(final DistributionRegion region, final TupleStoreName ssTableName)
 			throws StorageManagerException {
 		
-		final DistributionRegion leftRegion = region.getLeftChild();
-		final DistributionRegion rightRegion = region.getRightChild();
-		
 		final TupleRedistributor tupleRedistributor = new TupleRedistributor(registry, ssTableName);
-		tupleRedistributor.registerRegion(leftRegion);
-		tupleRedistributor.registerRegion(rightRegion);
+		
+		for(final DistributionRegion childRegion : region.getDirectChildren()) {
+			tupleRedistributor.registerRegion(childRegion);
+		}
 		
 		return tupleRedistributor;
 	}
