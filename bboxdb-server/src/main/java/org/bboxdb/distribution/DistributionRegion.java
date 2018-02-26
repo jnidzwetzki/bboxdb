@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
-import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
-import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 
 public class DistributionRegion {
 
@@ -35,12 +33,7 @@ public class DistributionRegion {
 	 * The name of the distribution group
 	 */
 	private final DistributionGroupName distributionGroupName;
-	
-	/**
-	 * The split position
-	 */
-	private double split = Double.MIN_VALUE;
-	
+
 	/**
 	 * The left child
 	 */
@@ -54,7 +47,7 @@ public class DistributionRegion {
 	/**
 	 * The area that is covered
 	 */
-	private BoundingBox converingBox;
+	private final BoundingBox converingBox;
 	
 	/**
 	 * The state of the region
@@ -81,16 +74,21 @@ public class DistributionRegion {
 	 */
 	public final static DistributionRegion ROOT_NODE_ROOT_POINTER = null;
 
+	public DistributionRegion(final DistributionGroupName name, final int dimensions) {
+		this(name, ROOT_NODE_ROOT_POINTER, BoundingBox.createFullCoveringDimensionBoundingBox(dimensions));
+	}
+	
 	/**
-	 * Protected constructor, the factory method and the set split methods should
-	 * be used to create a tree
 	 * @param name
+	 * @param boundingBox 
 	 * @param level
 	 */
-	protected DistributionRegion(final DistributionGroupName name, final DistributionRegion parent) {
+	public DistributionRegion(final DistributionGroupName name, final DistributionRegion parent,
+			final BoundingBox boundingBox) {
+		
 		this.distributionGroupName = name;
+		this.converingBox = boundingBox;
 		this.parent = parent;
-		this.converingBox = BoundingBox.createFullCoveringDimensionBoundingBox(getDimension());
 		this.systems = new ArrayList<>();
 		this.children = new ArrayList<>();
 	}
@@ -138,31 +136,6 @@ public class DistributionRegion {
 	}
 	
 	/**
-	 * Set the split coordinate
-	 * @param split
-	 */
-	public void setSplit(final double split) {
-		this.split = split;
-		
-		if(hasChilds()) {
-			throw new IllegalArgumentException("Split called, but left or right node are not empty");
-		}
-		
-		final DistributionRegion leftChild = new DistributionRegion(distributionGroupName, this);
-		final DistributionRegion rightChild = new DistributionRegion(distributionGroupName, this);
-
-		// Calculate the covering bounding boxes
-		leftChild.setConveringBox(converingBox.splitAndGetLeft(split, getSplitDimension(), true));
-		rightChild.setConveringBox(converingBox.splitAndGetRight(split, getSplitDimension(), false));
-		
-		
-		assert (children.isEmpty()) : "Children list is not empty";
-		
-		children.add(leftChild);
-		children.add(rightChild);
-	}
-	
-	/**
 	 * Set the childs to state active
 	 */
 	public void makeChildsActive() {
@@ -175,16 +148,7 @@ public class DistributionRegion {
 	 * Merge the distribution group
 	 */
 	public void merge() {
-		split = Double.MIN_VALUE;
 		children.clear();
-	}
-	
-	/**
-	 * Get the split coordinate
-	 * @return
-	 */
-	public double getSplit() {
-		return split;
 	}
 	
 	/**
@@ -232,32 +196,10 @@ public class DistributionRegion {
 				.orElse(0) + 1;
 	}
 
-	/**
-	 * Get the dimension of the distribution region
-	 * @return
-	 */
-	public int getDimension() {
-		try {
-			final DistributionGroupConfigurationCache instance = DistributionGroupConfigurationCache.getInstance();
-			final DistributionGroupConfiguration config = instance.getDistributionGroupConfiguration(distributionGroupName);
-			return config.getDimensions();
-		} catch (ZookeeperNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	/**
-	 * Returns the dimension of the split
-	 * @return
-	 */
-	public int getSplitDimension() {
-		return getLevel() % getDimension();
-	}
-
 	@Override
 	public String toString() {
 		return "DistributionRegion [distributionGroupName=" + distributionGroupName + ", "
-				+ ", split=" + split + ", converingBox=" + converingBox + ", state=" + state
+				+ ", converingBox=" + converingBox + ", state=" + state
 				+ ", systems=" + systems + ", nameprefix=" + regionid + "]";
 	}
 
@@ -289,6 +231,18 @@ public class DistributionRegion {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Add a new child
+	 * @param newChild
+	 */
+	public void addChildren(final DistributionRegion newChild) {
+		if(newChild.getParent() != this) {
+			throw new IllegalArgumentException("Parent of child " + newChild + " is not this " + this);
+		}
+		
+		children.add(newChild);
 	}
 	
 	/**
@@ -354,14 +308,6 @@ public class DistributionRegion {
 		return converingBox;
 	}
 
-	/**
-	 * Set the covering bounding box
-	 * @param converingBox
-	 */
-	public void setConveringBox(final BoundingBox converingBox) {
-		this.converingBox = converingBox;
-	}
-	
 	/**
 	 * Returns get the distribution group name
 	 * @return
@@ -439,18 +385,5 @@ public class DistributionRegion {
 	public void setRegionId(final int regionid) {
 		this.regionid = regionid;
 	}
-	
-	/**
-	 * Create a new root element
-	 * @param distributionGroup
-	 * @return
-	 */
-	public static DistributionRegion createRootElement(final DistributionGroupName distributionGroupName) {
-		final DistributionRegion rootElement = new DistributionRegion(distributionGroupName, 
-				ROOT_NODE_ROOT_POINTER);
-		
-		return rootElement;
-	}
-
 }
 

@@ -33,12 +33,12 @@ public class SimpleSplitStrategy implements SplitpointStrategy {
 	 * Perform a split of the given distribution region
 	 */
 	@Override
-	public double getSplitPoint(final DistributionRegion region) {
+	public double getSplitPoint(final int splitDimension, 
+			final DistributionRegion region) {
 				
 		logger.info("Performing split of region: {}", region);
 		
 		// Split region
-		final int splitDimension = region.getSplitDimension();
 		final DoubleInterval interval = region.getConveringBox().getIntervalForDimension(splitDimension);
 		
 		logger.info("Split at dimension:" + splitDimension + " interval: " + interval);

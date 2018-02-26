@@ -51,10 +51,9 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	}
 
 	@Override
-	public double getSplitPoint(final DistributionRegion region) throws StorageManagerException {
-		
-		final int splitDimension = region.getSplitDimension();
-	
+	public double getSplitPoint(final int splitDimension, final DistributionRegion region) 
+			throws StorageManagerException {
+			
 		final List<TupleStoreName> tables = tupleStoreManagerRegistry
 				.getAllTablesForDistributionGroupAndRegionId
 				(region.getDistributionGroupName(), region.getRegionId());

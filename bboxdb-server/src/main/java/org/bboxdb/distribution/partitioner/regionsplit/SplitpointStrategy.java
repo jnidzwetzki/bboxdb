@@ -28,6 +28,7 @@ public interface SplitpointStrategy {
 	 * @return
 	 * @throws StorageManagerException 
 	 */
-	public double getSplitPoint(final DistributionRegion regionToSplit) throws StorageManagerException;
+	public double getSplitPoint(final int splitDimension, 
+			final DistributionRegion regionToSplit) throws StorageManagerException;
 
 }

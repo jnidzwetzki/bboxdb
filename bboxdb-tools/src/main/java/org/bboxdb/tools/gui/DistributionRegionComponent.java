@@ -183,7 +183,7 @@ public class DistributionRegionComponent {
 		if(distributionRegion.isLeafRegion()) {
 			writeStringCentered(g, "-", 0.9);
 		} else {
-			String nodeText = Double.toString(distributionRegion.getSplit());
+			String nodeText = distributionRegion.getConveringBox().toCompactString();
 			writeStringCentered(g, nodeText, 0.9);
 		}
 		

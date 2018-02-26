@@ -28,6 +28,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.commons.Retryer;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
@@ -43,6 +44,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -212,7 +214,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 
 		if(rootNode == null) {
 			logger.info("Create new root element for {}", distributionGroupName);
-			rootNode = DistributionRegion.createRootElement(distributionGroupName);
+			rootNode = new DistributionRegion(distributionGroupName, getDimension());
 		}
 		
 		rescanCompleteTree();
@@ -350,8 +352,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			final TupleStoreManagerRegistry tupleStoreManagerRegistry) throws BBoxDBException {
 		
 		try {
-			final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(tupleStoreManagerRegistry);
-			final double splitPosition = splitpointStrategy.getSplitPoint(regionToSplit);
+			final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(
+					tupleStoreManagerRegistry);
+			
+			final int splitDimension = getSplitDimension(regionToSplit);
+			final double splitPosition = splitpointStrategy.getSplitPoint(splitDimension, regionToSplit);
 			
 			splitNode(regionToSplit, splitPosition);
 		} catch (Exception e) {
@@ -517,10 +522,6 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	private boolean isSplitForNodeComplete(final DistributionRegion region) {
 		
-		if(region.getSplit() == Float.MIN_VALUE) {
-			return false;
-		}
-		
 		if(region.getDirectChildren().size() != 2) {
 			return false;
 		}
@@ -554,6 +555,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
 				Integer.toString(namePrefix).getBytes());
+		
+		logger.info("Set {} to {}", childPath, namePrefix);
 		
 		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 				"".getBytes());
@@ -626,6 +629,49 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	}
 
 	/**
+	 * Set the split coordinate
+	 * @param region 
+	 * @param split
+	 */
+	private void setSplit(final DistributionRegion region, final double split) {
+		// Calculate the covering bounding boxes
+		final BoundingBox parentBox = region.getConveringBox();
+		final BoundingBox leftBoundingBox = parentBox.splitAndGetLeft(split, getSplitDimension(region), true);
+		final BoundingBox rightBoundingBox = parentBox.splitAndGetRight(split, getSplitDimension(region), false);
+		
+		final DistributionRegion leftChild = new DistributionRegion(distributionGroupName, region, leftBoundingBox);
+		final DistributionRegion rightChild = new DistributionRegion(distributionGroupName, region, rightBoundingBox);
+
+		assert (region.getDirectChildren().isEmpty()) : "Children list is not empty";
+		
+		region.addChildren(leftChild);
+		region.addChildren(rightChild);
+	}
+	
+	/**
+	 * Get the dimension of the distribution region
+	 * @return
+	 */
+	public int getDimension() {
+		try {
+			final DistributionGroupConfigurationCache instance = DistributionGroupConfigurationCache.getInstance();
+			final DistributionGroupConfiguration config = instance.getDistributionGroupConfiguration(distributionGroupName);
+			return config.getDimensions();
+		} catch (ZookeeperNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * Returns the dimension of the split
+	 * @return
+	 */
+	public int getSplitDimension(final DistributionRegion distributionRegion) {
+		return distributionRegion.getLevel() % getDimension();
+	}
+
+	
+	/**
 	 * Read split position and read childs
 	 * @param path
 	 * @param region
@@ -645,12 +691,10 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		final double splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
 		
 		if(! region.hasChilds()) {		
-			region.setSplit(splitFloat); 
+			setSplit(region, splitFloat); 
 		} 
 		
 		final List<String> children = zookeeperClient.getChildren(path);
-		children.sort((c1, c2) -> c1.compareTo(c2));
-		int childrenCounter = 0;
 		
 		for(final String child : children) {
 			if(! child.startsWith(ZookeeperNodeNames.NAME_CHILDREN)) {
@@ -661,8 +705,14 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			logger.info("Reading {}", childPath);
 			
 			if(zookeeperClient.exists(childPath)) {
-				readDistributionGroupRecursive(childPath, region.getDirectChildren().get(childrenCounter));
-				childrenCounter++;
+				final String[] split = child.split("-");
+				final int childNumber = Integer.parseInt(split[1]);
+				
+				if(region.getDirectChildren().size() < childNumber) {
+					logger.error("Child {} does not exist at the moment", childPath);
+				}
+				
+				readDistributionGroupRecursive(childPath, region.getDirectChildren().get(childNumber));
 			}
 		}
 	}
@@ -681,8 +731,10 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		if(region.getRegionId() != DistributionRegion.INVALID_REGION_ID) {
 			assert (region.getRegionId() == regionId) 
-				: "Replacing region id " + region.getRegionId() + " with " + regionId;
+				: "Replacing region id " + region.getRegionId() + " with " + regionId + " on " + path;
 		}
+		
+		logger.info("Reading {} from {}", regionId, path);
 		
 		region.setRegionId(regionId);
 	}

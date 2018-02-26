@@ -68,7 +68,7 @@ public class TestTupleSink {
 		final DistributionGroupName distributionGroupName = new DistributionGroupName(DREGION);
 		
 		final DistributionRegion distributionRegion = new DistributionRegion(
-				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER);
+				distributionGroupName, 3);
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
@@ -95,8 +95,8 @@ public class TestTupleSink {
 		final DistributionGroupName distributionGroupName = new DistributionGroupName(DREGION);
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
-				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER);
-		distributionRegion1.setConveringBox(new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0));
+				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
+				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0));
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
@@ -124,12 +124,12 @@ public class TestTupleSink {
 		final DistributionGroupName distributionGroupName = new DistributionGroupName(DREGION);
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
-				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER);
-		distributionRegion1.setConveringBox(new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0));
+				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
+				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0));
 
 		final DistributionRegion distributionRegion2 = new DistributionRegion(
-				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER);
-		distributionRegion2.setConveringBox(new BoundingBox(5.0, 6.0, 5.0, 6.0, 5.0, 6.0));
+				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
+				new BoundingBox(5.0, 6.0, 5.0, 6.0, 5.0, 6.0));
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		

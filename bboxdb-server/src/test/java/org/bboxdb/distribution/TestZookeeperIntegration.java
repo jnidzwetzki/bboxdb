@@ -220,13 +220,16 @@ public class TestZookeeperIntegration {
 		}
 		
 		Thread.sleep(5000);
-		Assert.assertEquals(10.0, distributionGroup.getSplit(), DELTA);
+		final DistributionRegion firstChild = distributionGroup.getDirectChildren().get(0);
+		Assert.assertEquals(10.0, firstChild.getConveringBox().getCoordinateHigh(0), DELTA);		
 		final DistributionRegionState stateForDistributionRegion2 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup);
 		Assert.assertEquals(DistributionRegionState.SPLITTING, stateForDistributionRegion2);
 
 		// Reread group from zookeeper
 		final DistributionRegion newDistributionGroup = spacePartitioner.getRootNode();
-		Assert.assertEquals(10.0, newDistributionGroup.getSplit(), DELTA);
+		final DistributionRegion firstChildNew = newDistributionGroup.getDirectChildren().get(0);
+		Assert.assertEquals(10.0, firstChildNew.getConveringBox().getCoordinateHigh(0), DELTA);
+
 		final DistributionRegionState stateForDistributionRegion3 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(newDistributionGroup);
 		Assert.assertEquals(DistributionRegionState.SPLITTING, stateForDistributionRegion3);
 		
@@ -279,8 +282,9 @@ public class TestZookeeperIntegration {
 		Thread.sleep(5000);
 
 		// Read update from the second object
-		Assert.assertEquals(10.0, distributionGroup2.getSplit(), DELTA);
-		
+		final DistributionRegion firstChild = distributionGroup2.getDirectChildren().get(0);
+		Assert.assertEquals(10.0, firstChild.getConveringBox().getCoordinateHigh(0), DELTA);
+				
 		// Check region ids
 		Assert.assertEquals(0, distributionGroup2.getRegionId());
 		Assert.assertEquals(1, distributionGroup2.getDirectChildren().get(0).getRegionId());
@@ -325,7 +329,7 @@ public class TestZookeeperIntegration {
 		
 		final DistributionRegion leftChild = distributionGroup1.getDirectChildren().get(0);
 		Assert.assertEquals(1, leftChild.getLevel());
-		Assert.assertEquals(1, leftChild.getSplitDimension());
+		Assert.assertEquals(1, adapter2.getSplitDimension(leftChild));
 		
 		try {
 			adapter1.splitNode(leftChild, 50);
@@ -337,8 +341,11 @@ public class TestZookeeperIntegration {
 		Thread.sleep(2000);
 
 		// Read update from the second object
-		Assert.assertEquals(10.0, distributionGroup2.getSplit(), DELTA);
-		Assert.assertEquals(50.0, distributionGroup2.getDirectChildren().get(0).getSplit(), DELTA);
+		final DistributionRegion firstChild = distributionGroup2.getDirectChildren().get(0);
+		Assert.assertEquals(10.0, firstChild.getConveringBox().getCoordinateHigh(0), DELTA);
+		
+		final DistributionRegion secondChild = firstChild.getDirectChildren().get(0);
+		Assert.assertEquals(50.0, secondChild.getConveringBox().getCoordinateHigh(1), DELTA);
 	}
 	
 	/**
@@ -410,19 +417,26 @@ public class TestZookeeperIntegration {
 	 * Test the statistics of child regions
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
+	 * @throws BBoxDBException 
 	 */
 	@Test
-	public void testStatistics2() throws ZookeeperException, InterruptedException {
+	public void testStatistics2() throws ZookeeperException, InterruptedException, BBoxDBException {
 		final BBoxDBInstance system1 = new BBoxDBInstance("192.168.1.10:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
-		final DistributionRegion region = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP).getRootNode();
+		KDtreeSpacePartitioner spaceparitioner = (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		final DistributionRegion region = spaceparitioner.getRootNode();
 
 		final double totalSize1 = RegionMergeHelper.getTotalRegionSize(region);
 		Assert.assertEquals(StatisticsHelper.INVALID_STATISTICS, totalSize1, DELTA);
 		
-		region.setSplit(12);
+		try {
+			spaceparitioner.splitNode(region, 12);
+		} catch (ResourceAllocationException e) {
+			e.printStackTrace();
+		}
+		
 		region.getDirectChildren().get(0).setRegionId(1);
 		region.getDirectChildren().get(1).setRegionId(2);
 		
@@ -602,48 +616,81 @@ public class TestZookeeperIntegration {
 	/**
 	 * Test the path decoding and encoding
 	 * @throws ZookeeperException 
+	 * @throws BBoxDBException 
 	 */
 	@Test
-	public void testPathDecodeAndEncode() throws ZookeeperException {
+	public void testPathDecodeAndEncode() throws ZookeeperException, BBoxDBException {
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 
 		
-		final DistributionGroupName distributionGroupName = new DistributionGroupName(TEST_GROUP);
-		final DistributionRegion level0 = DistributionRegion.createRootElement(distributionGroupName);
-		level0.setRegionId(1);
-		level0.setSplit(50);
+		final KDtreeSpacePartitioner spaceparitioner = (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		final DistributionRegion level0 = spaceparitioner.getRootNode();
+		
+		try {
+			spaceparitioner.splitNode(level0, 50);
+		} catch (ResourceAllocationException e) {
+			// Ingore in unit test
+		}
 		level0.makeChildsActive();
 
 		// Level 1
 		final DistributionRegion level1l = level0.getDirectChildren().get(0);
-		level1l.setSplit(40);
+		try {
+			spaceparitioner.splitNode(level1l, 40);
+		} catch (ResourceAllocationException e) {
+			// Ingore in unit test
+		}
 		level1l.makeChildsActive();
 		
 		final DistributionRegion level1r = level0.getDirectChildren().get(1);
-		level1r.setSplit(50);
+		try {
+			spaceparitioner.splitNode(level1r, 50);
+		} catch (ResourceAllocationException e) {
+			// Ingore in unit test
+		}
 		level1r.makeChildsActive();
 
 		// Level 2
 		final DistributionRegion level2ll = level1l.getDirectChildren().get(0);
-		level2ll.setSplit(30);
+		try {
+			spaceparitioner.splitNode(level2ll, 30);
+		} catch (ResourceAllocationException e) {
+			// Ingore in unit test
+		}
 		level2ll.makeChildsActive();
 
 		final DistributionRegion level2rl = level1r.getDirectChildren().get(0);
-		level2rl.setSplit(60);
+		try {
+			spaceparitioner.splitNode(level2rl, 60);
+		} catch (ResourceAllocationException e) {
+			// Ingore in unit test
+		}
 		level2rl.makeChildsActive();
 
 		final DistributionRegion level2lr = level1l.getDirectChildren().get(1);
-		level2lr.setSplit(30);
+		try {
+			spaceparitioner.splitNode(level2lr, 30);
+		} catch (ResourceAllocationException e) {
+			// Ingore in unit test
+		}
 		level2lr.makeChildsActive();
 
 		final DistributionRegion level2rr = level1r.getDirectChildren().get(1);
-		level2rr.setSplit(60);
+		try {
+			spaceparitioner.splitNode(level2rr, 60);
+		} catch (ResourceAllocationException e) {
+			// Ingore in unit test
+		}
 		level2rr.makeChildsActive();
-
+		
 		// Level 3
 		final DistributionRegion level3lll = level2ll.getDirectChildren().get(0);
-		level3lll.setSplit(35);
+		try {
+			spaceparitioner.splitNode(level3lll, 35);
+		} catch (ResourceAllocationException e) {
+			// Ingore in unit test
+		}
 		level3lll.makeChildsActive();
 
 		final DistributionGroupZookeeperAdapter zookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
@@ -708,13 +755,15 @@ public class TestZookeeperIntegration {
 
 		// Test fresh copy
 		final SpacePartitioner freshGroup = distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
-		Assert.assertEquals((float) 20.0, freshGroup.getRootNode().getSplit(), 0.00001);
+		final DistributionRegion firstChildFresh = freshGroup.getRootNode().getDirectChildren().get(0);
+		Assert.assertEquals(20.0, firstChildFresh.getConveringBox().getCoordinateHigh(0), DELTA);
 		
 		// Wait some time
 		Thread.sleep(1000);
 		
 		// Test cached instance
-		Assert.assertEquals((float) 20.0, cacheGroup.getRootNode().getSplit(), 0.00001);	
+		final DistributionRegion firstChildCache = cacheGroup.getRootNode().getDirectChildren().get(0);
+		Assert.assertEquals(20.0, firstChildCache.getConveringBox().getCoordinateHigh(0), DELTA);	
 	}
 	
 	/**
