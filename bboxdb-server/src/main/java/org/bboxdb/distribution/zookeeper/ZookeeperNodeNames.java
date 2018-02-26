@@ -30,9 +30,9 @@ public class ZookeeperNodeNames {
 	public final static String NAME_CHILDREN = "child-";
 
 	/**
-	 * Name of the split node
+	 * Name of the bounding box node
 	 */
-	public final static String NAME_SPLIT = "split";
+	public final static String NAME_BOUNDINGBOX = "bbox";
 	
 	/**
 	 * Name of the name prefix node

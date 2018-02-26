@@ -379,11 +379,17 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			final String parentPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
 			
 			// Only one system executes the split, therefore we can determine the child ids
-			final String leftPath = createNewChild(parentPath, 0);
-			final String rightPath = createNewChild(parentPath, 1);
 			
-			// Write split position
-			distributionGroupZookeeperAdapter.setSplitPositionForPath(parentPath, splitPosition);
+			// Calculate the covering bounding boxes
+			final BoundingBox parentBox = regionToSplit.getConveringBox();
+			final int splitDimension = getSplitDimension(regionToSplit);
+			final BoundingBox leftBoundingBox = parentBox.splitAndGetLeft(splitPosition, splitDimension, true);
+			final BoundingBox rightBoundingBox = parentBox.splitAndGetRight(splitPosition, splitDimension, false);
+			
+			final String leftPath = createNewChild(parentPath, 0, leftBoundingBox);
+			final String rightPath = createNewChild(parentPath, 1, rightBoundingBox);
+			
+			// Update state
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);
 			
 			waitUntilChildrenAreCreated(regionToSplit);
@@ -443,13 +449,6 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		for(final DistributionRegion childRegion : childRegions) {
 			logger.info("Merge done deleting: {}", childRegion.getIdentifier());
 			deleteChild(childRegion);
-		}
-		
-		try {
-			final String zookeeperPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToMerge);
-			distributionGroupZookeeperAdapter.deleteSplitPositionForPath(zookeeperPath);
-		} catch (ZookeeperException e) {
-			throw new BBoxDBException(e);
 		}
 	}
 
@@ -535,11 +534,13 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	/**
 	 * Create a new child
 	 * @param childNumber 
+	 * @param leftBoundingBox 
 	 * @param path
 	 * @return 
 	 * @throws ZookeeperException
 	 */
-	private String createNewChild(final String parentPath, final int childNumber) throws ZookeeperException {
+	private String createNewChild(final String parentPath, final int childNumber, 
+			final BoundingBox boundingBox) throws ZookeeperException {
 
 		final String childPath = parentPath + "/" + ZookeeperNodeNames.NAME_CHILDREN + childNumber;
 		logger.info("Creating: {}", childPath);
@@ -561,9 +562,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 				"".getBytes());
 		
+		distributionGroupZookeeperAdapter.setBoundingBoxForPath(childPath, boundingBox);
+		
 		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.CREATING.getStringValue().getBytes());
-		
+			
 		return childPath;
 	}
 	
@@ -629,16 +632,21 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	}
 
 	/**
-	 * Set the split coordinate
+	 * Add the children
+	 * @param path 
 	 * @param region 
 	 * @param split
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
 	 */
-	private void setSplit(final DistributionRegion region, final double split) {
-		// Calculate the covering bounding boxes
-		final BoundingBox parentBox = region.getConveringBox();
-		final BoundingBox leftBoundingBox = parentBox.splitAndGetLeft(split, getSplitDimension(region), true);
-		final BoundingBox rightBoundingBox = parentBox.splitAndGetRight(split, getSplitDimension(region), false);
+	private void addChildren(final String path, final DistributionRegion region) throws ZookeeperException, ZookeeperNotFoundException {
 		
+		final String leftPath = path + "/" + ZookeeperNodeNames.NAME_CHILDREN + "0";
+		final BoundingBox leftBoundingBox = distributionGroupZookeeperAdapter.getBoundingBoxForPath(leftPath);
+		
+		final String rightPath = path + "/" + ZookeeperNodeNames.NAME_CHILDREN + "1";
+		final BoundingBox rightBoundingBox = distributionGroupZookeeperAdapter.getBoundingBoxForPath(rightPath);
+
 		final DistributionRegion leftChild = new DistributionRegion(distributionGroupName, region, leftBoundingBox);
 		final DistributionRegion rightChild = new DistributionRegion(distributionGroupName, region, rightBoundingBox);
 
@@ -681,17 +689,15 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	private void updateSplitAndChildsForRegion(final String path, final DistributionRegion region) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		if(! distributionGroupZookeeperAdapter.isGroupSplitted(path)) {
+		if(! distributionGroupZookeeperAdapter.hasRegionChildren(path)) {
 			if(! region.isLeafRegion()) {
 				region.removeChildren();
 			}
 			return;
 		}
-	
-		final double splitFloat = distributionGroupZookeeperAdapter.getSplitPositionForPath(path);
-		
+			
 		if(! region.hasChilds()) {		
-			setSplit(region, splitFloat); 
+			addChildren(path, region); 
 		} 
 		
 		final List<String> children = zookeeperClient.getChildren(path);

@@ -30,6 +30,7 @@ import java.util.StringTokenizer;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -119,16 +120,16 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException 
 	 */
-	protected double getSplitPositionForPath(final String path) throws ZookeeperException, ZookeeperNotFoundException  {
+	public BoundingBox getBoundingBoxForPath(final String path) throws ZookeeperException, ZookeeperNotFoundException  {
 		
-		final String splitPathName = path + "/" + ZookeeperNodeNames.NAME_SPLIT;
-		String splitString = null;
+		final String splitPathName = path + "/" + ZookeeperNodeNames.NAME_BOUNDINGBOX;
+		String boundingBoxString = null;
 		
 		try {			
-			splitString = zookeeperClient.readPathAndReturnString(splitPathName, false, null);
-			return Double.parseDouble(splitString);
+			boundingBoxString = zookeeperClient.readPathAndReturnString(splitPathName, false, null);
+			return new BoundingBox(boundingBoxString);
 		} catch (NumberFormatException e) {
-			throw new ZookeeperException("Unable to parse split pos '" + splitString + "' for " + splitPathName);
+			throw new ZookeeperException("Unable to parse bounding box '" + boundingBoxString + "' for " + splitPathName);
 		}		
 	}
 	
@@ -138,38 +139,28 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param position
 	 * @throws ZookeeperException 
 	 */
-	public void setSplitPositionForPath(final String path, final double position) throws ZookeeperException {
-		final String splitPosString = Double.toString(position);
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SPLIT, 
-				splitPosString.getBytes());
-	}
-
-	/**
-	 * Delete split position
-	 * @param path
-	 * @throws ZookeeperException 
-	 */
-	public void deleteSplitPositionForPath(final String path) throws ZookeeperException {
-		zookeeperClient.deleteNodesRecursive(path + "/" + ZookeeperNodeNames.NAME_SPLIT);
+	public void setBoundingBoxForPath(final String path, final BoundingBox boundingBox) throws ZookeeperException {
+		final String boundingBoxString = boundingBox.toCompactString();
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_BOUNDINGBOX, 
+				boundingBoxString.getBytes());
 	}
 	
 	/**
-	 * Test weather the group path is split or not
+	 * Test weather the region has children or not
 	 * @param path
 	 * @return
 	 * @throws ZookeeperException 
+	 * @throws ZookeeperNotFoundException 
 	 */
-	protected boolean isGroupSplitted(final String path) throws ZookeeperException {
+	public boolean hasRegionChildren(final String path) 
+			throws ZookeeperException, ZookeeperNotFoundException {
 
-		final String splitPathName = path + "/" + ZookeeperNodeNames.NAME_SPLIT;
+		final List<String> children = zookeeperClient.getChildren(path);
 		
-		if(! zookeeperClient.exists(splitPathName)) {
-			return false;
-		} else {
-			return true;
-		}
+		return children.stream().anyMatch(c -> c.startsWith(ZookeeperNodeNames.NAME_CHILDREN));
 	}
 	
+
 	/**
 	 * Get the state for a given path - version without a watcher
 	 * @throws ZookeeperException 
