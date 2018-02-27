@@ -226,7 +226,7 @@ After the data is inserted, we have a data distribution like shown in the follow
 
 The tuple _Tuple A_ intersects with _Tuple 2_ and with _Tuple 3_; tuple _Tuple 2_ is contained in _Tuple B_ completely. Now, the join can be performed with the following command. The join returns the previous three tuples, which have intersecting bounding boxes.
 
-__Notice__: Please note that the grid in the image is used only to show where the tuples are located in the space. The grid does not indicate how the space is divided into distribution regions; this is done by the space partitioner dynamically.
+__Notice__: Please note that the grid in the image is used only to show where the tuples are located in space. The grid does not indicate how the space is divided into distribution regions; this is done by the space partitioner dynamically.
 
 ```bash
 $ $BBOXDB_HOME/bin/cli.sh -action join -table mydgroup_table1:mydgroup_table2 -bbox 0,10:0,8
