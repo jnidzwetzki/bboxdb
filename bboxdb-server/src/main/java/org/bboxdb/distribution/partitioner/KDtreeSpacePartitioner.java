@@ -466,7 +466,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		// Wait for zookeeper callback
 		synchronized (MUTEX) {
 			while(regionToSplit.getDirectChildren().size() != 2) {
-				logger.info("Wait for zookeeper callback for split for: {} / {}", 
+				logger.debug("Wait for zookeeper callback for split for: {} / {}", 
 						regionToSplit, regionToSplit.getDirectChildren());
 				try {
 					MUTEX.wait();
