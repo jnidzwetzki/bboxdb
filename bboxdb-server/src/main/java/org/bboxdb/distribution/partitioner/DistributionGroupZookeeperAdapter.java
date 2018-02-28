@@ -129,7 +129,7 @@ public class DistributionGroupZookeeperAdapter {
 		String boundingBoxString = null;
 		
 		try {			
-			boundingBoxString = zookeeperClient.readPathAndReturnString(splitPathName, false, null);
+			boundingBoxString = zookeeperClient.readPathAndReturnString(splitPathName);
 			return new BoundingBox(boundingBoxString);
 		} catch (NumberFormatException e) {
 			throw new ZookeeperException("Unable to parse bounding box '" + boundingBoxString + "' for " + splitPathName);
@@ -142,7 +142,9 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param position
 	 * @throws ZookeeperException 
 	 */
-	public void setBoundingBoxForPath(final String path, final BoundingBox boundingBox) throws ZookeeperException {
+	public void setBoundingBoxForPath(final String path, final BoundingBox boundingBox) 
+			throws ZookeeperException {
+		
 		final String boundingBoxString = boundingBox.toCompactString();
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_BOUNDINGBOX, 
 				boundingBoxString.getBytes());
@@ -182,7 +184,7 @@ public class DistributionGroupZookeeperAdapter {
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String result = zookeeperClient.readPathAndReturnString(
-				path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION, false, watcher);
+				path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION, watcher);
 		
 		return DataEncoderHelper.readLongFromByte(result.getBytes());
 	}
@@ -223,7 +225,7 @@ public class DistributionGroupZookeeperAdapter {
 			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String statePath = path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE;
-		final String state = zookeeperClient.readPathAndReturnString(statePath, false, callback);
+		final String state = zookeeperClient.readPathAndReturnString(statePath, callback);
 		return DistributionRegionState.fromString(state);
 	}
 	
@@ -747,7 +749,7 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
 		final String fullPath = path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_VERSION;
-		return zookeeperClient.readPathAndReturnString(fullPath, false, callback);	 
+		return zookeeperClient.readPathAndReturnString(fullPath, callback);	 
 	}
 	
 	/**
@@ -763,7 +765,7 @@ public class DistributionGroupZookeeperAdapter {
 		String namePrefix = null;
 		
 		try {
-			namePrefix = zookeeperClient.readPathAndReturnString(namePrefixPath, false, null);
+			namePrefix = zookeeperClient.readPathAndReturnString(namePrefixPath);
 			return Integer.parseInt(namePrefix);
 		} catch (NumberFormatException e) {
 			throw new ZookeeperException("Unable to parse name prefix '" + namePrefix + "' for " + namePrefixPath);
@@ -784,16 +786,16 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
 		final String placementConfigPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_CONFIG;
-		final String placementConfig = zookeeperClient.readPathAndReturnString(placementConfigPath, false, null);
+		final String placementConfig = zookeeperClient.readPathAndReturnString(placementConfigPath);
 	
 		final String placementPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_STRATEGY;
-		final String placementStrategy = zookeeperClient.readPathAndReturnString(placementPath, false, null);
+		final String placementStrategy = zookeeperClient.readPathAndReturnString(placementPath);
 
 		final String spacePartitionerConfigPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER_CONFIG;
-		final String spacePartitionerConfig = zookeeperClient.readPathAndReturnString(spacePartitionerConfigPath, false, null);
+		final String spacePartitionerConfig = zookeeperClient.readPathAndReturnString(spacePartitionerConfigPath);
 	
 		final String spacePartitionerPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER;
-		final String spacePartitoner = zookeeperClient.readPathAndReturnString(spacePartitionerPath, false, null);
+		final String spacePartitoner = zookeeperClient.readPathAndReturnString(spacePartitionerPath);
 		
 		final String replicationFactorPath = path + "/" + ZookeeperNodeNames.NAME_REPLICATION;
 		final String replicationFactorString = zookeeperClient.getData(replicationFactorPath);

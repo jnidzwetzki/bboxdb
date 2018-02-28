@@ -120,12 +120,12 @@ public class TestZookeeperIntegration {
 		
 		final boolean result1 = zookeeperClient.testAndReplaceValue(path, "value1", "value2");
 		Assert.assertTrue(result1);
-		Assert.assertEquals("value2", zookeeperClient.readPathAndReturnString(path, true, null));
+		Assert.assertEquals("value2", zookeeperClient.readPathAndReturnString(path));
 		
 		// Set new value with wrong old value => value should not change
 		final boolean result2 = zookeeperClient.testAndReplaceValue(path, "abc", "value3");
 		Assert.assertFalse(result2);
-		Assert.assertEquals("value2", zookeeperClient.readPathAndReturnString(path, true, null));
+		Assert.assertEquals("value2", zookeeperClient.readPathAndReturnString(path));
 		
 		zookeeperClient.deleteNodesRecursive(path);
 		Assert.assertFalse(zookeeperClient.exists(path));

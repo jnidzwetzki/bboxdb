@@ -135,7 +135,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		final String statePath = nodesPath + "/" + member;
 
 		try {
-			final String state = zookeeperClient.readPathAndReturnString(statePath, true, this);
+			final String state = zookeeperClient.readPathAndReturnString(statePath, this);
 			if (BBoxDBInstanceState.OUTDATED.getZookeeperValue().equals(state)) {
 				return BBoxDBInstanceState.OUTDATED;
 			} else if (BBoxDBInstanceState.READY.getZookeeperValue().equals(state)) {
@@ -159,7 +159,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		final String versionPath = getInstancesVersionPath(instance);
 
 		try {
-			return zookeeperClient.readPathAndReturnString(versionPath, true, null);
+			return zookeeperClient.readPathAndReturnString(versionPath, null);
 		} catch (ZookeeperException e) {
 			logger.error("Unable to read version for: {}", versionPath);
 		}
@@ -179,7 +179,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		String versionString = null;
 		
 		try {
-			versionString = zookeeperClient.readPathAndReturnString(versionPath, true, null);
+			versionString = zookeeperClient.readPathAndReturnString(versionPath);
 			return Integer.parseInt(versionString);
 		} catch (ZookeeperException e) {
 			logger.error("Unable to read cpu cores for: {}", versionPath);
@@ -202,7 +202,7 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 		String memoryString = null;
 
 		try {
-			memoryString = zookeeperClient.readPathAndReturnString(memoryPath, true, null);
+			memoryString = zookeeperClient.readPathAndReturnString(memoryPath);
 			return Long.parseLong(memoryString);
 		} catch (ZookeeperException e) {
 			logger.error("Unable to read memory for: {}", memoryPath);
@@ -231,8 +231,8 @@ public class ZookeeperBBoxDBInstanceAdapter implements Watcher {
 			final String totalDiskspacePath = getInstancesDiskspaceTotalPath(instance, unquotedPath);
 			final String freeDiskspacePath = getInstancesDiskspaceFreePath(instance, unquotedPath);
 			
-			final String totalDiskspaceString = zookeeperClient.readPathAndReturnString(totalDiskspacePath, true, null);
-			final String freeDiskspaceString = zookeeperClient.readPathAndReturnString(freeDiskspacePath, true, null);
+			final String totalDiskspaceString = zookeeperClient.readPathAndReturnString(totalDiskspacePath);
+			final String freeDiskspaceString = zookeeperClient.readPathAndReturnString(freeDiskspacePath);
 			
 			final Long totalDiskspace = Longs.tryParse(totalDiskspaceString);
 			final Long freeDiskspace = Longs.tryParse(freeDiskspaceString);

@@ -413,7 +413,8 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 	 */
 	public String readPathAndReturnString(final String pathName) 
 			throws ZookeeperException, ZookeeperNotFoundException {
-		return readPathAndReturnString(pathName, false, null);
+		
+		return readPathAndReturnString(pathName, null);
 	}
 	
 	/**
@@ -424,20 +425,12 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 */
-	public String readPathAndReturnString(final String pathName, final boolean retry, final Watcher watcher)
+	public String readPathAndReturnString(final String pathName, final Watcher watcher)
 			throws ZookeeperException, ZookeeperNotFoundException {
 
 		try {
 			if (zookeeper.exists(pathName, false) == null) {
-				if (retry != true) {
 					throw new ZookeeperNotFoundException("The path does not exist: " + pathName);
-				} else {
-					Thread.sleep(500);
-
-					if (zookeeper.exists(pathName, false) == null) {
-						throw new ZookeeperNotFoundException("The path does not exist: " + pathName);
-					}
-				}
 			}
 
 			final byte[] bytes = zookeeper.getData(pathName, watcher, null);
