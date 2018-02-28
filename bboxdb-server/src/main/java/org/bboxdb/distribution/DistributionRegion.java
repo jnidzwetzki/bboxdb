@@ -262,16 +262,7 @@ public class DistributionRegion {
 	public void removeChildren() {
 		children.clear();
 	}
-	
-	/**
-	 * Child nodes are in creation?
-	 * @return
-	 */
-	public boolean isChildNodesInCreatingState() {
-		return children.stream()
-			.anyMatch(r -> r.getState() == DistributionRegionState.CREATING);
-	}
-	
+
 	/**
 	 * Is this the root element?
 	 */
