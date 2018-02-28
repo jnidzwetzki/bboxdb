@@ -24,7 +24,6 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -140,9 +139,13 @@ public class DataRedistributionLoader implements Runnable {
 				final boolean loaded = loadFile(random.nextInt(files.length));
 				
 				if(loaded) {
-					Thread.sleep(TimeUnit.SECONDS.toMillis(30));
+					System.out.print("Please press enter to load next file: ");
+					System.in.read();
 				}
 			}
+			
+			System.out.print("Please press enter to delete data: ");
+			System.in.read();
 			
 			// Delete all files before exit
 			for(int fileId = 0; fileId < files.length; fileId++) {
@@ -153,7 +156,7 @@ public class DataRedistributionLoader implements Runnable {
 			bboxDBCluster.disconnect();
 			System.exit(0);
 			
-		} catch (InterruptedException e) {
+		} catch (InterruptedException | IOException e) {
 			logger.error("Got exception while running demo class", e);
 		}
 	}
@@ -180,7 +183,7 @@ public class DataRedistributionLoader implements Runnable {
 					.create(2)
 					.withReplicationFactor((short) 1)
 					.withMaximumRegionSize(16)
-					.withMinimumRegionSize(8)
+					.withMinimumRegionSize(4)
 					.build();
 			
 			final EmptyResultFuture dgroupCreateResult = bboxDBCluster.createDistributionGroup(DGROUP, dgroupConfig);
@@ -253,6 +256,8 @@ public class DataRedistributionLoader implements Runnable {
 	
 		loadedFiles.add(filename);
 		
+		System.out.println("Loaded content from: " + filename);
+
 		return true;
 	}
 	
