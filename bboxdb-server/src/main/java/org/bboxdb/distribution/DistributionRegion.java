@@ -351,15 +351,13 @@ public class DistributionRegion {
 	public void setSystems(final Collection<BBoxDBInstance> newSystems) {
 		
 		if(newSystems == null || newSystems.isEmpty()) {
-			this.systems.clear();
-			return;
+			systems.clear();
 		}
 		
-		final ArrayList<BBoxDBInstance> newSystemsList 
-			= new ArrayList<BBoxDBInstance>(newSystems.size());
-		
+		final ArrayList<BBoxDBInstance> newSystemsList = new ArrayList<>(newSystems.size());
 		newSystemsList.addAll(newSystems);
 		
+		// Replace systems atomically
 		this.systems = newSystemsList;
 	}
 	
