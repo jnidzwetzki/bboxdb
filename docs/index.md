@@ -7,7 +7,7 @@ title: "Documentation of the BBoxDB"
 
 # Documentation
 
-Welcome to the documentation of BBoxDB. BBoxDB is a research project to evaluate a novel storage architecture for multi-dimensional big data. BBoxDB is designed as a distributed system; new nodes can be added to process larger amounts of data.
+Welcome to the documentation of BBoxDB. BBoxDB is a research project to evaluate a novel storage architecture for multi-dimensional big data. BBoxDB is designed as a scalable distributed system; new nodes can be added to process larger amounts of data.
 
 In contrast to traditional key-value stores, BBoxDB is optimized to handle multi-dimensional data. Stored data is placed into an n-dimensional space and parts of the space are handled by different nodes. SSTables (string sorted tables) are used as data storage. [Apache Zookeeper](https://zookeeper.apache.org/) is used to coordinate the whole system. The system can be accessed, using a [network protocol](/bboxdb/dev/network.html). Some special features like continuous queries or a history for tuples are also supported.
 
