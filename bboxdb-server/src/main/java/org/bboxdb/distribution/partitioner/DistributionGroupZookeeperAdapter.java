@@ -85,6 +85,7 @@ public class DistributionGroupZookeeperAdapter {
 		// Element 0: id-
 		// Element 1: The number of the node
 		final String[] splittedName = nodename.split(ZookeeperNodeNames.SEQUENCE_QUEUE_PREFIX);
+		
 		try {
 			return Integer.parseInt(splittedName[1]);
 		} catch(NumberFormatException e) {
@@ -157,10 +158,10 @@ public class DistributionGroupZookeeperAdapter {
 
 		final List<String> children = zookeeperClient.getChildren(path);
 		
-		return children.stream().anyMatch(c -> c.startsWith(ZookeeperNodeNames.NAME_CHILDREN));
+		return children.stream()
+				.anyMatch(c -> c.startsWith(ZookeeperNodeNames.NAME_CHILDREN));
 	}
 	
-
 	/**
 	 * Get the state for a given path - version without a watcher
 	 * @throws ZookeeperException 
@@ -494,7 +495,10 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException
 	 * @throws InterruptedException 
 	 */
-	public void setCheckpointForDistributionRegion(final DistributionRegion region, final BBoxDBInstance system, final long checkpoint) throws ZookeeperException, InterruptedException {
+	public void setCheckpointForDistributionRegion(final DistributionRegion region, 
+			final BBoxDBInstance system, final long checkpoint) 
+					throws ZookeeperException, InterruptedException {
+		
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
@@ -518,7 +522,9 @@ public class DistributionGroupZookeeperAdapter {
 	 * @return 
 	 * @throws ZookeeperException
 	 */
-	public long getCheckpointForDistributionRegion(final DistributionRegion region, final BBoxDBInstance system) throws ZookeeperException {
+	public long getCheckpointForDistributionRegion(final DistributionRegion region, 
+			final BBoxDBInstance system) throws ZookeeperException {
+		
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
@@ -550,13 +556,15 @@ public class DistributionGroupZookeeperAdapter {
 	 * @return 
 	 * @throws ZookeeperException 
 	 */
-	public boolean deleteSystemFromDistributionRegion(final DistributionRegion region, final BBoxDBInstance system) throws ZookeeperException {
+	public boolean deleteSystemFromDistributionRegion(final DistributionRegion region, 
+			final BBoxDBInstance system) throws ZookeeperException {
 		
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to delete system with value null");
 		}
 
-		final String path = getZookeeperPathForDistributionRegion(region) + "/" + ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
+		final String path = getZookeeperPathForDistributionRegion(region) + "/" 
+				+ ZookeeperNodeNames.NAME_SYSTEMS + "/" + system.getStringValue();
 		
 		if(! zookeeperClient.exists(path)) {
 			return false;
@@ -748,7 +756,8 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final String replicationFactorPath = path + "/" + ZookeeperNodeNames.NAME_REPLICATION;
 		final String replicationFactorString = zookeeperClient.getData(replicationFactorPath);
-		final short replicationFactor = (short) MathUtil.tryParseInt(replicationFactorString, () -> "Unable to parse: " + replicationFactorString);
+		final short replicationFactor = (short) MathUtil.tryParseInt(replicationFactorString, 
+				() -> "Unable to parse: " + replicationFactorString);
 		
 		final String dimensionsPath = path + "/" + ZookeeperNodeNames.NAME_DIMENSIONS;
 		final String dimensionsString = zookeeperClient.getData(dimensionsPath);
