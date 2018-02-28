@@ -18,7 +18,6 @@
 package org.bboxdb.distribution;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +52,7 @@ public class DistributionRegion {
 	/**
 	 * The state of the region
 	 */
-	private DistributionRegionState state = DistributionRegionState.UNKNOWN;
+	private DistributionRegionState state = DistributionRegionState.CREATING;
 	
 	/**
 	 * The systems
@@ -228,11 +227,8 @@ public class DistributionRegion {
 	 */
 	public boolean isLeafRegion() {
 		
-		final List<DistributionRegionState> nonActiveStates = Arrays.asList(
-				DistributionRegionState.CREATING, DistributionRegionState.UNKNOWN);
-		
 		for(final DistributionRegion child : children) {
-			if(! nonActiveStates.contains(child.getState())) {
+			if(child.getState() != DistributionRegionState.CREATING) {
 				return false;
 			}
 		}

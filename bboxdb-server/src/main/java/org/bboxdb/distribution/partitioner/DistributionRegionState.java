@@ -20,7 +20,6 @@ package org.bboxdb.distribution.partitioner;
 
 public enum DistributionRegionState {
 	
-	UNKNOWN("unknown"),
 	CREATING("creating"),
 	ACTIVE("active"),
 	ACTIVE_FULL("active-full"),
