@@ -8,6 +8,7 @@ order: 1
 
 ### Version 0.5.0 (Stable) - TBA
 - Improvement: Moved region id mapper into the space partitioner to ensure data integrity
+- Improvement: Integrated codeclimate.com
 - Bugfix: Wait before data is merged / distributed until we see the region change in zookeeper (closes #75)
 - Bugfix: The average region is size is used in merges to prevent merges directly after split (closes #76)
 - Bugfix: The JMX space partitioner call has become useless after region merging was introduced, dropped support 
