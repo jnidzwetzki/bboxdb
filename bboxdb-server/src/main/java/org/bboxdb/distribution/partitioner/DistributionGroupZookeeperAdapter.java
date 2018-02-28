@@ -172,6 +172,22 @@ public class DistributionGroupZookeeperAdapter {
 	}
 	
 	/**
+	 * Get the version of the node mutation
+	 * @param path
+	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	public long getNodeMutationVersion(final String path, final Watcher watcher) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final String result = zookeeperClient.readPathAndReturnString(
+				path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION, false, watcher);
+		
+		return DataEncoderHelper.readLongFromByte(result.getBytes());
+	}
+	
+	/**
 	 * Test weather the region has children or not
 	 * @param path
 	 * @return
