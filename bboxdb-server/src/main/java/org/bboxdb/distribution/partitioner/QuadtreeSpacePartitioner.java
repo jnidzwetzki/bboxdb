@@ -71,8 +71,13 @@ public class QuadtreeSpacePartitioner implements SpacePartitioner {
 	}
 
 	@Override
-	public boolean isMergingSupported() {
-		return false;
+	public boolean isMergingSupported(final DistributionRegion distributionRegion) {
+		return ! distributionRegion.isLeafRegion();
+	}
+	
+	@Override
+	public boolean isSplittingSupported(final DistributionRegion distributionRegion) {
+		return distributionRegion.isLeafRegion();
 	}
 
 	@Override

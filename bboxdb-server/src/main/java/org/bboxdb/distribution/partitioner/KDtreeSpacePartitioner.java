@@ -412,8 +412,13 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	}
 	
 	@Override
-	public boolean isMergingSupported() {
-		return true;
+	public boolean isMergingSupported(final DistributionRegion distributionRegion) {
+		return ! distributionRegion.isLeafRegion();
+	}
+	
+	@Override
+	public boolean isSplittingSupported(final DistributionRegion distributionRegion) {
+		return distributionRegion.isLeafRegion();
 	}
 
 	@Override

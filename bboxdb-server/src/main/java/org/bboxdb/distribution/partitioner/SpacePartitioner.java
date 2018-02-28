@@ -88,7 +88,14 @@ public interface SpacePartitioner {
 	 * Is the merging of regions supported?
 	 * @return
 	 */
-	public boolean isMergingSupported();
+	public boolean isMergingSupported(final DistributionRegion distributionRegion);
+	
+	/**
+	 * Is the splitting of the region supported?
+	 * @param distributionRegion
+	 * @return
+	 */
+	public boolean isSplittingSupported(final DistributionRegion distributionRegion);
 	
 	/**
 	 * Register a changed callback
