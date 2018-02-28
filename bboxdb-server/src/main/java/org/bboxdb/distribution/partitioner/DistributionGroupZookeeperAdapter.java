@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +31,7 @@ import java.util.StringTokenizer;
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
+import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.DistributionRegion;
@@ -144,6 +146,29 @@ public class DistributionGroupZookeeperAdapter {
 		final String boundingBoxString = boundingBox.toCompactString();
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_BOUNDINGBOX, 
 				boundingBoxString.getBytes());
+	}
+	
+	/**
+	 * Update the version for the node
+	 * @param path
+	 * @param position
+	 * @throws ZookeeperException 
+	 */
+	public void markNodeMutationAsComplete(final String path) throws ZookeeperException {
+		final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(System.currentTimeMillis());
+		
+		zookeeperClient.replacePersistentNode(path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION, 
+				versionBytes.array());
+	}
+	
+	/**
+	 * Is the node completely created?
+	 * @param path
+	 * @return
+	 * @throws ZookeeperException 
+	 */
+	public boolean isNodeCompletelyCreated(final String path) throws ZookeeperException {
+		return zookeeperClient.exists(path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION);
 	}
 	
 	/**

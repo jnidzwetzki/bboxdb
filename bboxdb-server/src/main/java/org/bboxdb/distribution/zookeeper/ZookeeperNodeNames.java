@@ -83,6 +83,11 @@ public class ZookeeperNodeNames {
 	 * Name of the state node
 	 */
 	public final static String NAME_SYSTEMS_STATE = "state";
+	
+	/**
+	 * Name of the version node
+	 */
+	public final static String NAME_NODE_VERSION= "node-version";
 
 	/**
 	 * Name of the space partitioner node

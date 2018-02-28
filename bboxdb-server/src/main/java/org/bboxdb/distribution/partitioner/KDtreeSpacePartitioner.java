@@ -571,6 +571,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.CREATING.getStringValue().getBytes());
+		
+		distributionGroupZookeeperAdapter.markNodeMutationAsComplete(childPath);
 			
 		return childPath;
 	}
