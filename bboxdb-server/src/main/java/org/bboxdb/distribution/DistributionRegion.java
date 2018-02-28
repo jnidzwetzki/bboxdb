@@ -63,12 +63,7 @@ public class DistributionRegion {
 	/**
 	 * The id of the region
 	 */
-	private volatile long regionid = INVALID_REGION_ID;
-
-	/**
-	 * The invalid value for the region id
-	 */
-	public final static int INVALID_REGION_ID = -1;
+	private final long regionid;
 	
 	/**
 	 * The root pointer of the root element of the tree
@@ -76,7 +71,11 @@ public class DistributionRegion {
 	public final static DistributionRegion ROOT_NODE_ROOT_POINTER = null;
 
 	public DistributionRegion(final DistributionGroupName name, final int dimensions) {
-		this(name, ROOT_NODE_ROOT_POINTER, BoundingBox.createFullCoveringDimensionBoundingBox(dimensions));
+		this(
+			name, 
+			ROOT_NODE_ROOT_POINTER, 
+			BoundingBox.createFullCoveringDimensionBoundingBox(dimensions),
+			0);
 	}
 	
 	/**
@@ -85,7 +84,7 @@ public class DistributionRegion {
 	 * @param level
 	 */
 	public DistributionRegion(final DistributionGroupName name, final DistributionRegion parent,
-			final BoundingBox boundingBox) {
+			final BoundingBox boundingBox, final long regionid) {
 		
 		if(! name.isValid()) {
 			throw new IllegalArgumentException("Invalid distribution goup specified");
@@ -94,6 +93,7 @@ public class DistributionRegion {
 		this.distributionGroupName = name;
 		this.converingBox = boundingBox;
 		this.parent = parent;
+		this.regionid = regionid;
 		this.systems = new ArrayList<>();
 		this.children = new ArrayList<>();
 	}
@@ -381,14 +381,6 @@ public class DistributionRegion {
 	 */
 	public long getRegionId() {
 		return regionid;
-	}
-
-	/**
-	 * Set a new region id
-	 * @param regionid
-	 */
-	public void setRegionId(final int regionid) {
-		this.regionid = regionid;
 	}
 }
 

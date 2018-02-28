@@ -639,21 +639,34 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ZookeeperException 
 	 */
-	private void addChildren(final String path, final DistributionRegion region) throws ZookeeperException, ZookeeperNotFoundException {
+	private void addChildren(final String path, final DistributionRegion parentRegion) throws ZookeeperException, ZookeeperNotFoundException {
 		
+		assert (parentRegion.getDirectChildren().isEmpty()) : "Children list is not empty";
+
 		final String leftPath = path + "/" + ZookeeperNodeNames.NAME_CHILDREN + "0";
-		final BoundingBox leftBoundingBox = distributionGroupZookeeperAdapter.getBoundingBoxForPath(leftPath);
-		
+		final DistributionRegion leftChild = readChild(leftPath, parentRegion);
+		parentRegion.addChildren(leftChild);
+
 		final String rightPath = path + "/" + ZookeeperNodeNames.NAME_CHILDREN + "1";
-		final BoundingBox rightBoundingBox = distributionGroupZookeeperAdapter.getBoundingBoxForPath(rightPath);
-
-		final DistributionRegion leftChild = new DistributionRegion(distributionGroupName, region, leftBoundingBox);
-		final DistributionRegion rightChild = new DistributionRegion(distributionGroupName, region, rightBoundingBox);
-
-		assert (region.getDirectChildren().isEmpty()) : "Children list is not empty";
+		final DistributionRegion rightChild = readChild(rightPath, parentRegion);
+		parentRegion.addChildren(rightChild);
+	}
+	
+	/**
+	 * Read the child from the path
+	 * @param childPath
+	 * @param parentRegion
+	 * @return
+	 * @throws ZookeeperNotFoundException 
+	 * @throws ZookeeperException 
+	 */
+	private DistributionRegion readChild(final String childPath, final DistributionRegion parentRegion) 
+			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		region.addChildren(leftChild);
-		region.addChildren(rightChild);
+		final BoundingBox boundingBox = distributionGroupZookeeperAdapter.getBoundingBoxForPath(childPath);
+		final long regionId = distributionGroupZookeeperAdapter.getRegionIdForPath(childPath);
+		
+		return new DistributionRegion(distributionGroupName, parentRegion, boundingBox, regionId);		
 	}
 	
 	/**
@@ -735,14 +748,10 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		final int regionId = distributionGroupZookeeperAdapter.getRegionIdForPath(path);
 		
-		if(region.getRegionId() != DistributionRegion.INVALID_REGION_ID) {
-			assert (region.getRegionId() == regionId) 
-				: "Replacing region id " + region.getRegionId() + " with " + regionId + " on " + path;
-		}
+		assert (region.getRegionId() == regionId) 
+			: "Replacing region id " + region.getRegionId() + " with " + regionId + " on " + path;
 		
-		logger.info("Reading {} from {}", regionId, path);
-		
-		region.setRegionId(regionId);
+		logger.info("Reading {} from {}", regionId, path);		
 	}
 
 	/**

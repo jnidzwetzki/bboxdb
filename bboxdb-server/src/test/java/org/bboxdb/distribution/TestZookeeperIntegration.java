@@ -437,8 +437,7 @@ public class TestZookeeperIntegration {
 			e.printStackTrace();
 		}
 		
-		region.getDirectChildren().get(0).setRegionId(1);
-		region.getDirectChildren().get(1).setRegionId(2);
+		Thread.sleep(1000);
 		
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getDirectChildren().get(0), system1, 12, 999);
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getDirectChildren().get(1), system1, 33, 999);

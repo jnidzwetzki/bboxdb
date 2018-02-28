@@ -96,7 +96,7 @@ public class TestTupleSink {
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
 				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
-				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0));
+				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), 1);
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
@@ -125,11 +125,11 @@ public class TestTupleSink {
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
 				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
-				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0));
+				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), 1);
 
 		final DistributionRegion distributionRegion2 = new DistributionRegion(
 				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
-				new BoundingBox(5.0, 6.0, 5.0, 6.0, 5.0, 6.0));
+				new BoundingBox(5.0, 6.0, 5.0, 6.0, 5.0, 6.0), 1);
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
