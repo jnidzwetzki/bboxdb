@@ -256,6 +256,8 @@ public class DataRedistributionLoader implements Runnable {
 	
 		loadedFiles.add(filename);
 		
+		System.out.println("Loaded content from: " + filename);
+
 		return true;
 	}
 	
