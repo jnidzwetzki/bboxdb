@@ -159,8 +159,9 @@ public class DistributionGroupZookeeperAdapter {
 	public void markNodeMutationAsComplete(final String path) throws ZookeeperException {
 		final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(System.currentTimeMillis());
 		
-		zookeeperClient.replacePersistentNode(path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION, 
-				versionBytes.array());
+		final String nodePath = path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION;
+		
+		zookeeperClient.replacePersistentNode(nodePath, versionBytes.array());
 	}
 	
 	/**

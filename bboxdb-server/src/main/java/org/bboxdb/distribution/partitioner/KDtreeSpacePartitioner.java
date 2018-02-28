@@ -568,11 +568,9 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 				"".getBytes());
 		
 		distributionGroupZookeeperAdapter.setBoundingBoxForPath(childPath, boundingBox);
-		
+				
 		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.CREATING.getStringValue().getBytes());
-		
-		distributionGroupZookeeperAdapter.markNodeMutationAsComplete(childPath);
 			
 		return childPath;
 	}

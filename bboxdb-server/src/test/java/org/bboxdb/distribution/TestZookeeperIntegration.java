@@ -629,7 +629,7 @@ public class TestZookeeperIntegration {
 		try {
 			spaceparitioner.splitNode(level0, 50);
 		} catch (ResourceAllocationException e) {
-			// Ingore in unit test
+			// Ignore in unit test
 		}
 		level0.makeChildsActive();
 
@@ -638,7 +638,7 @@ public class TestZookeeperIntegration {
 		try {
 			spaceparitioner.splitNode(level1l, 40);
 		} catch (ResourceAllocationException e) {
-			// Ingore in unit test
+			// Ignore in unit test
 		}
 		level1l.makeChildsActive();
 		
@@ -646,7 +646,7 @@ public class TestZookeeperIntegration {
 		try {
 			spaceparitioner.splitNode(level1r, 50);
 		} catch (ResourceAllocationException e) {
-			// Ingore in unit test
+			// Ignore in unit test
 		}
 		level1r.makeChildsActive();
 
@@ -655,7 +655,7 @@ public class TestZookeeperIntegration {
 		try {
 			spaceparitioner.splitNode(level2ll, 30);
 		} catch (ResourceAllocationException e) {
-			// Ingore in unit test
+			// Ignore in unit test
 		}
 		level2ll.makeChildsActive();
 
@@ -663,7 +663,7 @@ public class TestZookeeperIntegration {
 		try {
 			spaceparitioner.splitNode(level2rl, 60);
 		} catch (ResourceAllocationException e) {
-			// Ingore in unit test
+			// Ignore in unit test
 		}
 		level2rl.makeChildsActive();
 
@@ -671,7 +671,7 @@ public class TestZookeeperIntegration {
 		try {
 			spaceparitioner.splitNode(level2lr, 30);
 		} catch (ResourceAllocationException e) {
-			// Ingore in unit test
+			// Ignore in unit test
 		}
 		level2lr.makeChildsActive();
 
@@ -679,7 +679,7 @@ public class TestZookeeperIntegration {
 		try {
 			spaceparitioner.splitNode(level2rr, 60);
 		} catch (ResourceAllocationException e) {
-			// Ingore in unit test
+			// Ignore in unit test
 		}
 		level2rr.makeChildsActive();
 		
@@ -688,7 +688,7 @@ public class TestZookeeperIntegration {
 		try {
 			spaceparitioner.splitNode(level3lll, 35);
 		} catch (ResourceAllocationException e) {
-			// Ingore in unit test
+			// Ignore in unit test
 		}
 		level3lll.makeChildsActive();
 
