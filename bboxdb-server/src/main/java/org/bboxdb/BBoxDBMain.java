@@ -87,7 +87,7 @@ public class BBoxDBMain {
 		services.add(statisticsService);
 		
 		// The JMX service
-		final JMXService jmxService = new JMXService(this, storageRegistry);
+		final JMXService jmxService = new JMXService(this);
 		services.add(jmxService);
 		
 		// The performance counter service

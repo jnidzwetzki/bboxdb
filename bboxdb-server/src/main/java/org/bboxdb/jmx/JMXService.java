@@ -24,7 +24,6 @@ import javax.management.ObjectName;
 
 import org.bboxdb.BBoxDBMain;
 import org.bboxdb.misc.BBoxDBService;
-import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,40 +35,24 @@ public class JMXService implements BBoxDBService {
 	public static final String MBEAN_LIFECYCLE = "org.bboxdb:type=LifecycleManager";
 
 	/**
-	 * The name of the space partitoner mbean
-	 */
-	public static final String MBEAN_SPACEPARTITIONER = "org.bboxdb:type=SpacePartitionerService";
-
-	/**
 	 * The instance of the application
 	 */
 	private final BBoxDBMain bBoxDBMain;
-	
-	/**
-	 * The storeage registry
-	 */
-	private final TupleStoreManagerRegistry storageRegistry;
 
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(JMXService.class);
 
-	public JMXService(final BBoxDBMain bboxDBMain, TupleStoreManagerRegistry storageRegistry) {
+	public JMXService(final BBoxDBMain bboxDBMain) {
 		this.bBoxDBMain = bboxDBMain;
-		this.storageRegistry = storageRegistry;
 	}
 
 	@Override
 	public void init() {
-		
 		// Register lifecycle mbean
 		final LifecycleMBean monitor = new Lifecycle(bBoxDBMain);
 		registerBean(monitor, MBEAN_LIFECYCLE);
-		
-		// Register space partitioner service mbean
-		final SpacePartitionerServiceMBean spacePartitionerService = new SpacePartitionerService(storageRegistry);
-		registerBean(spacePartitionerService, MBEAN_SPACEPARTITIONER);
 	}
 
 	/**
