@@ -183,10 +183,10 @@ public class DistributionGroupZookeeperAdapter {
 	public long getNodeMutationVersion(final String path, final Watcher watcher) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final String result = zookeeperClient.readPathAndReturnString(
+		final byte[] result = zookeeperClient.readPathAndReturnBytes(
 				path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION, watcher);
 		
-		return DataEncoderHelper.readLongFromByte(result.getBytes());
+		return DataEncoderHelper.readLongFromByte(result);
 	}
 	
 	/**

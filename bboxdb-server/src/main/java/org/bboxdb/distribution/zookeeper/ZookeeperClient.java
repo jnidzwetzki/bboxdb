@@ -421,11 +421,27 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 	 * Read the given path and returns a string result
 	 * 
 	 * @param pathName
+	 * @param watcher
 	 * @return
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 */
-	public String readPathAndReturnString(final String pathName, final Watcher watcher)
+	public String readPathAndReturnString(final String pathName, final Watcher watcher) 
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final byte[] bytes = readPathAndReturnBytes(pathName, watcher);
+		return new String(bytes);
+	}
+
+	/**
+	 * Read the given path and returns a byte array result
+	 * 
+	 * @param pathName
+	 * @return
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 */
+	public byte[] readPathAndReturnBytes(final String pathName, final Watcher watcher)
 			throws ZookeeperException, ZookeeperNotFoundException {
 
 		try {
@@ -433,8 +449,7 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 					throw new ZookeeperNotFoundException("The path does not exist: " + pathName);
 			}
 
-			final byte[] bytes = zookeeper.getData(pathName, watcher, null);
-			return new String(bytes);
+			return zookeeper.getData(pathName, watcher, null);
 		} catch (KeeperException e) {
 
 			// Was node deleted between exists and getData call?
