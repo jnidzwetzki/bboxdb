@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
-import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegion;
 
 public interface DistributionRegionChangedCallback {
 	

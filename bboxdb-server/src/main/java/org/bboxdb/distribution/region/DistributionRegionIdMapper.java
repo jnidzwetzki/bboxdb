@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution;
+package org.bboxdb.distribution.region;
 
 import java.util.Collection;
 import java.util.HashSet;

@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
-import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
+import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;

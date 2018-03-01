@@ -19,12 +19,12 @@ package org.bboxdb.jmx;
 
 import javax.management.MBeanException;
 
-import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitter;
+import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;

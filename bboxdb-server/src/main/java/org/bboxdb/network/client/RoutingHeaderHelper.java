@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.routing.RoutingHeader;

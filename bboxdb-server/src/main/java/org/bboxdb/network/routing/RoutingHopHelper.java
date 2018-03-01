@@ -28,10 +28,10 @@ import java.util.function.Predicate;
 
 import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionHelper;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.misc.Const;
 
 public class RoutingHopHelper {

@@ -23,9 +23,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bboxdb.distribution.DistributionRegionIdMapper;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.KeepAliveRequest;

@@ -23,9 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
+import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;

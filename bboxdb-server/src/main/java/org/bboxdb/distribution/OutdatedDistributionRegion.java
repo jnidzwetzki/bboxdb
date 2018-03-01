@@ -18,6 +18,7 @@
 package org.bboxdb.distribution;
 
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.region.DistributionRegion;
 
 public class OutdatedDistributionRegion {
 	

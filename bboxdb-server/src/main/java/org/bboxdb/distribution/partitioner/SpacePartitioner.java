@@ -20,10 +20,10 @@ package org.bboxdb.distribution.partitioner;
 import java.util.Set;
 
 import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionIdMapper;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
+import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;

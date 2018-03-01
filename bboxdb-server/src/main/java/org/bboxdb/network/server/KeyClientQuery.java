@@ -23,9 +23,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bboxdb.commons.DuplicateResolver;
-import org.bboxdb.distribution.DistributionRegionIdMapper;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.response.MultipleTupleEndResponse;

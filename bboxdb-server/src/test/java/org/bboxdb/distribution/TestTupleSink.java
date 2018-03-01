@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.AbstractTupleSink;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
+import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;

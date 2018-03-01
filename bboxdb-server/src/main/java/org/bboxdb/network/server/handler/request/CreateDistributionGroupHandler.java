@@ -21,13 +21,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 
-import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.SpacePartitionerHelper;
+import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.CreateDistributionGroupRequest;

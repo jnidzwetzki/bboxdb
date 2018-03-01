@@ -19,8 +19,8 @@ package org.bboxdb.distribution.partitioner.regionsplit;
 
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
-import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;

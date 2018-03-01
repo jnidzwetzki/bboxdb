@@ -28,6 +28,8 @@ import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;

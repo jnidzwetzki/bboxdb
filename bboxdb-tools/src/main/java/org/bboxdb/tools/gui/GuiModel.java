@@ -27,13 +27,13 @@ import javax.swing.SwingUtilities;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.DistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.DistributedInstanceEvent;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionChangedCallback;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;

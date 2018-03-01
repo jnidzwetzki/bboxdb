@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 
-import org.bboxdb.distribution.DistributionRegionIdMapper;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;

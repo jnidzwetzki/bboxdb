@@ -19,7 +19,7 @@ package org.bboxdb;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.junit.Assert;

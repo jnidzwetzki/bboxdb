@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution;
+package org.bboxdb.distribution.region;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 
@@ -86,7 +87,7 @@ public class DistributionRegion {
 			final BoundingBox boundingBox, final long regionid) {
 		
 		if(! name.isValid()) {
-			throw new IllegalArgumentException("Invalid distribution goup specified");
+			throw new IllegalArgumentException("Invalid distribution group specified");
 		}
 		
 		this.distributionGroupName = name;

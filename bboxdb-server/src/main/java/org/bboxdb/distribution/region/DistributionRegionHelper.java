@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution;
+package org.bboxdb.distribution.region;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +29,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.Retryer;
+import org.bboxdb.distribution.OutdatedDistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;

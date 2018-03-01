@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.junit.Assert;

@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner.regionsplit;
 
-import org.bboxdb.distribution.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.storage.StorageManagerException;
 
 public interface SplitpointStrategy {

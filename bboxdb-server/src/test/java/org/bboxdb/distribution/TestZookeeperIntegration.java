@@ -33,6 +33,7 @@ import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
 import org.bboxdb.distribution.partitioner.regionsplit.StatisticsHelper;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
+import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;

@@ -21,13 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.DistributionRegion;
-import org.bboxdb.distribution.DistributionRegionIdMapper;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistributor;
+import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
