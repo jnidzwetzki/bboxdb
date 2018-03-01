@@ -117,16 +117,7 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 		}
 		
 		if(parts.length != 2 && parts.length != 3) {
-			logger.warn("Got invalid tablename: " + fullname);
-			
-			/*
-			// Print full stack trace
-			final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-			for(final StackTraceElement stackTraceElement : stackTrace) {
-				logger.warn(stackTraceElement.toString());
-			}
-			*/
-			
+			logger.warn("Got invalid tablename: " + fullname);	
 			return false;
 		}
 		
