@@ -15,27 +15,19 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.commons;
+package org.bboxdb;
 
-public class StacktraceHelper {
+import org.bboxdb.commons.StacktraceHelper;
+import org.junit.Assert;
+import org.junit.Test;
+
+
+public class TestStacktraceHelper {
 	
-	/**
-	 * Print the full stack trace
-	 */
-	public static String getFormatedStacktrace() {
-		final StringBuilder sb = new StringBuilder();
-		
-		sb.append("=======================\n");
-		
-		final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-		
-		for(final StackTraceElement stackTraceElement : stackTrace) {
-			sb.append(stackTraceElement.toString());
-			sb.append("\n");
-		}
-		
-		sb.append("=======================\n");
-
-		return sb.toString();
+	@Test
+	public void getStacktrace() {
+		final String stacktrace = StacktraceHelper.getFormatedStacktrace();
+		Assert.assertTrue(stacktrace.length() > 100);
 	}
+
 }
