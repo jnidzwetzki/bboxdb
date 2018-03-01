@@ -112,12 +112,12 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 		final long terminals = StringUtil.countCharOccurrence(fullname, '_');
 
 		if(parts.length - 1 != terminals) {
-			logger.warn("Got invalid tablename: " + fullname);
+			logger.warn("Got invalid tablename: {}", fullname);
 			return false;
 		}
 		
 		if(parts.length != 2 && parts.length != 3) {
-			logger.warn("Got invalid tablename: " + fullname);	
+			logger.warn("Got invalid tablename: {}", fullname);	
 			return false;
 		}
 		
@@ -125,7 +125,7 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 		tablename = parts[1];
 		
 		if(group.length() == 0 || tablename.length() == 0) {
-			logger.warn("Got invalid tablename: " + fullname);
+			logger.warn("Got invalid tablename: {}", fullname);
 			return false;
 		}
 				
@@ -133,14 +133,14 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 			final String regionIdString = parts[2];
 
 			if(regionIdString.length() == 0) {
-				logger.warn("Got invalid tablename: " + fullname);
+				logger.warn("Got invalid tablename: {}", fullname);
 				return false;
 			}
 			
 			try {
 				regionid = Short.parseShort(regionIdString);
 			} catch(NumberFormatException e) {
-				logger.warn("Invalid tablenumber: " + regionIdString);
+				logger.warn("Invalid tablenumber: {}", regionIdString);
 				return false;
 			}			
 		} else {
