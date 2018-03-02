@@ -51,6 +51,11 @@ public class TupleStoreFlushZookeeperAdapter implements BiConsumer<TupleStoreNam
 
 			final DistributionRegion distributionGroupRoot = spacepartitioner.getRootNode();
 			
+			if(distributionGroupRoot == null) {
+				logger.error("Root for {} is null, not executing callback", ssTableName);
+				return;
+			}
+			
 			final DistributionRegion distributionRegion = DistributionRegionHelper.getDistributionRegionForNamePrefix(distributionGroupRoot, ssTableName.getRegionId());
 		
 			logger.debug("Updating checkpoint for: {} to {}", ssTableName.getFullname(), flushTimestamp);
