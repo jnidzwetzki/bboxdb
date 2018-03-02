@@ -22,11 +22,11 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import org.bboxdb.PersonEntity;
 import org.bboxdb.commons.MicroSecondTimestampProvider;
 import org.bboxdb.commons.ObjectSerializer;
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.entity.PersonEntity;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
