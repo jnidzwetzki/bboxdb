@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.entity;
+package org.bboxdb.commons.entity;
 
 import java.io.Serializable;
 

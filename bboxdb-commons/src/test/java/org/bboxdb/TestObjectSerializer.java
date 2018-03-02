@@ -20,7 +20,7 @@ package org.bboxdb;
 import java.io.IOException;
 
 import org.bboxdb.commons.ObjectSerializer;
-import org.bboxdb.entity.PersonEntity;
+import org.bboxdb.commons.entity.PersonEntity;
 import org.junit.Assert;
 import org.junit.Test;
 
