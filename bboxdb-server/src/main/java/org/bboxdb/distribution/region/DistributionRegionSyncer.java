@@ -168,6 +168,7 @@ public class DistributionRegionSyncer implements Watcher {
 			updateNode(nodePath, region);
 			versions.put(region, remoteVersion);
 			notifyCallbacks(region);
+			updateLocalMappings();
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			logger.error("Got exception while handling zookeeper callback");
 		} catch (InterruptedException e) {
@@ -297,7 +298,7 @@ public class DistributionRegionSyncer implements Watcher {
 	 * @param region
 	 * @param systems
 	 */
-	public void updateLocalMappings() {
+	private void updateLocalMappings() {
 				
 		if(rootNode == null || distributionGroupName == null) {
 			logger.debug("Root node is {}, distributionGroupNameIs {}", rootNode, distributionGroupName);
