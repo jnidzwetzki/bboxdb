@@ -41,7 +41,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,11 +71,6 @@ public class TestZookeeperIntegration {
 	public static void before() {
 		zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-	}
-	
-	@AfterClass
-	public static void after() {
-		zookeeperClient.shutdown();
 	}
 
 	/**
