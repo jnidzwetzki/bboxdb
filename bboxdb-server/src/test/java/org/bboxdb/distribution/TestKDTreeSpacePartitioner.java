@@ -17,9 +17,11 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -52,11 +54,17 @@ public class TestKDTreeSpacePartitioner {
 		
 		final KDtreeSpacePartitioner spacepartitionier = (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
 		final DistributionRegion oldRootNode = spacepartitionier.getRootNode();
+		final DistributionRegionIdMapper mapper = spacepartitionier.getDistributionRegionIdMapper();
+		
+		Assert.assertEquals(0, mapper.getAllRegionIds().size());
+		mapper.addMapping(3, BoundingBox.FULL_SPACE, TEST_GROUP);
+		Assert.assertEquals(1, mapper.getAllRegionIds().size());
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 
 		final DistributionRegion newRootNode = spacepartitionier.getRootNode();
 		Assert.assertFalse(oldRootNode == newRootNode);
+		Assert.assertEquals(0, mapper.getAllRegionIds().size());
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 

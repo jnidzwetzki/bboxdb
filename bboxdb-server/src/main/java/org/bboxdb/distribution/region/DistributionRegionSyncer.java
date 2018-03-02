@@ -53,7 +53,6 @@ public class DistributionRegionSyncer implements Watcher {
 	 * The root node of the K-D-Tree
 	 */
 	private DistributionRegion rootNode;
-	
 	/** 
 	 * The region mapper
 	 */
@@ -85,13 +84,15 @@ public class DistributionRegionSyncer implements Watcher {
 	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionSyncer.class);
 
 	public DistributionRegionSyncer(final DistributionGroupName distributionGroupName, 
-			final DistributionGroupZookeeperAdapter distributionGroupAdapter) {
+			final DistributionGroupZookeeperAdapter distributionGroupAdapter, 
+			final DistributionRegionIdMapper distributionRegionMapper, 
+			final Set<DistributionRegionChangedCallback> callbacks) {
 		
 		this.distributionGroupName = distributionGroupName;
 		this.distributionGroupAdapter = distributionGroupAdapter;
 		this.versions = new HashMap<>();
-		this.distributionRegionMapper = new DistributionRegionIdMapper();
-		this.callbacks = new HashSet<>();
+		this.distributionRegionMapper = distributionRegionMapper;
+		this.callbacks = callbacks;
 		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 	}
 	

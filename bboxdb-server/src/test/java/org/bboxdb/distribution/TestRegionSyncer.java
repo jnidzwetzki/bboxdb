@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.commons.math.BoundingBox;
@@ -25,6 +27,7 @@ import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionChangedCallback;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -198,6 +201,10 @@ public class TestRegionSyncer {
 	 * Build a new syncer
 	 */
 	private DistributionRegionSyncer buildSyncer() {
-		return new DistributionRegionSyncer(GROUP, distributionGroupAdapter);
+		final Set<DistributionRegionChangedCallback> callbacks = new HashSet<>();
+		final DistributionRegionIdMapper distributionRegionIdMapper = new DistributionRegionIdMapper();
+		
+		return new DistributionRegionSyncer(GROUP, distributionGroupAdapter, 
+				distributionRegionIdMapper, callbacks);
 	}
 }

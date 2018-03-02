@@ -19,6 +19,7 @@ package org.bboxdb.distribution.partitioner;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 import org.apache.zookeeper.WatchedEvent;
@@ -74,10 +75,25 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	private DistributionRegionSyncer distributionRegionSyncer;
 	
 	/**
+	 * The region mapper
+	 */
+	private final DistributionRegionIdMapper distributionRegionIdMapper;
+	
+	/**
+	 * The callbacks
+	 */
+	private final Set<DistributionRegionChangedCallback> callbacks;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KDtreeSpacePartitioner.class);
 
+	public KDtreeSpacePartitioner() {
+		this.callbacks = new CopyOnWriteArraySet<>();
+		this.distributionRegionIdMapper = new DistributionRegionIdMapper();
+	}
+	
 	/**
 	 * Reread and handle the dgroup version
 	 * @param distributionGroupName
@@ -143,9 +159,10 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			
 			TupleStoreConfigurationCache.getInstance().clear();
 			DistributionGroupConfigurationCache.getInstance().clear();
+			distributionRegionIdMapper.clear();
 			
 			this.distributionRegionSyncer = new DistributionRegionSyncer(distributionGroupName, 
-					distributionGroupZookeeperAdapter);
+					distributionGroupZookeeperAdapter, distributionRegionIdMapper, callbacks);
 			
 			logger.info("Root element for {} is deleted", distributionGroupName);
 			
@@ -332,7 +349,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			}
 		};
 		
-		distributionRegionSyncer.registerCallback(callback);
+		registerCallback(callback);
 		
 		// Wait for zookeeper callback
 		synchronized (MUTEX) {
@@ -348,7 +365,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			}
 		}
 		
-		distributionRegionSyncer.unregisterCallback(callback);
+		unregisterCallback(callback);
 	}
 	
 	/**
@@ -365,7 +382,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			}
 		};
 		
-		distributionRegionSyncer.registerCallback(callback);
+		registerCallback(callback);
 		
 		// Wait for zookeeper callback
 		synchronized (MUTEX) {
@@ -380,7 +397,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			}
 		}
 		
-		distributionRegionSyncer.unregisterCallback(callback);
+		unregisterCallback(callback);
 	}
 
 	/**
@@ -452,11 +469,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	@Override
 	public boolean registerCallback(final DistributionRegionChangedCallback callback) {
-		if(distributionRegionSyncer == null) {
-			return false;
-		}
-		
-		return distributionRegionSyncer.registerCallback(callback);
+		return callbacks.add(callback);
 	}
 	
 	/**
@@ -466,14 +479,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	@Override
 	public boolean unregisterCallback(final DistributionRegionChangedCallback callback) {
-		if(distributionRegionSyncer == null) {
-			return false;
-		}
-		
-		return distributionRegionSyncer.unregisterCallback(callback);
+		return callbacks.remove(callback);
 	}
-
-
 	
 	@Override
 	public DistributionRegionIdMapper getDistributionRegionIdMapper() {
