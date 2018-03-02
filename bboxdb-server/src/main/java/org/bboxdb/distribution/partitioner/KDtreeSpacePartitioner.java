@@ -185,6 +185,10 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		if(distributionRegionSyncer == null) {
 			testGroupRecreatedNE();
 		}
+		
+		if(distributionRegionSyncer == null) {
+			return null;
+		}
 
 		return distributionRegionSyncer.getRootNode();
 	}
