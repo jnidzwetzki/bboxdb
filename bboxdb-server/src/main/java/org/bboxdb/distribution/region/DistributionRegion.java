@@ -20,7 +20,9 @@ package org.bboxdb.distribution.region;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.BoundingBox;
@@ -38,7 +40,7 @@ public class DistributionRegion {
 	/**
 	 * The left child
 	 */
-	private final List<DistributionRegion> children;
+	private final Map<Long, DistributionRegion> children;
 		
 	/**
 	 * The parent of this node
@@ -70,12 +72,8 @@ public class DistributionRegion {
 	 */
 	public final static DistributionRegion ROOT_NODE_ROOT_POINTER = null;
 
-	public DistributionRegion(final DistributionGroupName name, final int dimensions) {
-		this(
-			name, 
-			ROOT_NODE_ROOT_POINTER, 
-			BoundingBox.createFullCoveringDimensionBoundingBox(dimensions),
-			0);
+	public DistributionRegion(final DistributionGroupName name, final BoundingBox boundingBox) {
+		this(name, ROOT_NODE_ROOT_POINTER, boundingBox, 0);
 	}
 	
 	/**
@@ -95,7 +93,7 @@ public class DistributionRegion {
 		this.parent = parent;
 		this.regionid = regionid;
 		this.systems = new ArrayList<>();
-		this.children = new ArrayList<>();
+		this.children = new ConcurrentHashMap<>();
 	}
 
 	/**
@@ -111,7 +109,7 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public List<DistributionRegion> getDirectChildren() {
-		return new ArrayList<>(children);
+		return new ArrayList<>(children.values());
 	}
 	
 	/**
@@ -121,7 +119,7 @@ public class DistributionRegion {
 	public List<DistributionRegion> getAllChildren() {
 		final List<DistributionRegion> result = new ArrayList<>();
 		
-		for(final DistributionRegion child : children) {
+		for(final DistributionRegion child : children.values()) {
 			result.add(child);
 			result.addAll(child.getAllChildren());
 		}
@@ -144,7 +142,7 @@ public class DistributionRegion {
 	 * Set the childs to state active
 	 */
 	public void makeChildsActive() {
-		for(final DistributionRegion child : children) {
+		for(final DistributionRegion child : children.values()) {
 			child.setState(DistributionRegionState.ACTIVE);
 		}
 	}
@@ -228,7 +226,7 @@ public class DistributionRegion {
 	 */
 	public boolean isLeafRegion() {
 		
-		for(final DistributionRegion child : children) {
+		for(final DistributionRegion child : children.values()) {
 			if(child.getState() != DistributionRegionState.CREATING) {
 				return false;
 			}
@@ -241,12 +239,34 @@ public class DistributionRegion {
 	 * Add a new child
 	 * @param newChild
 	 */
-	public void addChildren(final DistributionRegion newChild) {
+	public void addChildren(final long childNumber, final DistributionRegion newChild) {
+		
 		if(newChild.getParent() != this) {
 			throw new IllegalArgumentException("Parent of child " + newChild + " is not this " + this);
 		}
 		
-		children.add(newChild);
+		if(children.containsKey(childNumber)) {
+			throw new IllegalArgumentException("Child with id " + childNumber + " already exists");
+		}
+		
+		children.put(childNumber, newChild);
+	}
+	
+	/**
+	 * Get the child with the given number
+	 * @param childNumber
+	 * @return
+	 */
+	public DistributionRegion getChildNumber(final long childNumber) {
+		return children.get(childNumber);
+	}
+	
+	/**
+	 * Get all known children numbers
+	 * @return
+	 */
+	public List<Long> getAllChildrenNumbers() {
+		return new ArrayList<>(children.keySet());
 	}
 	
 	/**
@@ -260,8 +280,16 @@ public class DistributionRegion {
 	/**
 	 * Remove the children
 	 */
-	public void removeChildren() {
+	public void removeAllChildren() {
 		children.clear();
+	}
+	
+	/**
+	 * Remove the children
+	 * @return 
+	 */
+	public DistributionRegion removeChildren(final long childrenNumber) {
+		return children.remove(childrenNumber);
 	}
 
 	/**
@@ -275,24 +303,19 @@ public class DistributionRegion {
 	 * Is this the left child of the parent
 	 * @return
 	 */
-	public int getChildNumber() {
+	public long getChildNumberOfParent() {
 		
 		// This is the root element
 		if(isRootElement()) {
 			return 0;
 		}
 		
-		int childNumber = 0;
-		
-		for(final DistributionRegion region : getParent().getDirectChildren()) {
-			if(region == this) {
-				return childNumber;
-			}
-			
-			childNumber++;
-		}
-		
-		throw new RuntimeException("Unable to find child number for: " + this);
+		return getParent().children.entrySet()
+			.stream()
+			.filter(e -> e.getValue() == this)
+			.map(e -> e.getKey())
+			.findAny()
+			.orElseThrow(() -> new RuntimeException("Unable to find child number for: " + this));
 	}
 
 	/**

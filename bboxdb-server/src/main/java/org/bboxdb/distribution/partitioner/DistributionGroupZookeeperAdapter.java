@@ -40,6 +40,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,7 +148,7 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final String boundingBoxString = boundingBox.toCompactString();
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_BOUNDINGBOX, 
-				boundingBoxString.getBytes());
+				boundingBoxString.getBytes());		
 	}
 	
 	/**
@@ -160,6 +161,8 @@ public class DistributionGroupZookeeperAdapter {
 		final ByteBuffer versionBytes = DataEncoderHelper.longToByteBuffer(System.currentTimeMillis());
 		
 		final String nodePath = path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION;
+		
+		logger.info("Mark mutation as complete {}", path);
 		
 		zookeeperClient.replacePersistentNode(nodePath, versionBytes.array());
 	}
@@ -184,26 +187,12 @@ public class DistributionGroupZookeeperAdapter {
 	public long getNodeMutationVersion(final String path, final Watcher watcher) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
+		logger.info("Reading mutation from path {}", path);
+		
 		final byte[] result = zookeeperClient.readPathAndReturnBytes(
 				path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION, watcher);
 		
 		return DataEncoderHelper.readLongFromByte(result);
-	}
-	
-	/**
-	 * Test weather the region has children or not
-	 * @param path
-	 * @return
-	 * @throws ZookeeperException 
-	 * @throws ZookeeperNotFoundException 
-	 */
-	public boolean hasRegionChildren(final String path) 
-			throws ZookeeperException, ZookeeperNotFoundException {
-
-		final List<String> children = zookeeperClient.getChildren(path);
-		
-		return children.stream()
-				.anyMatch(c -> c.startsWith(ZookeeperNodeNames.NAME_CHILDREN));
 	}
 	
 	/**
@@ -251,9 +240,13 @@ public class DistributionGroupZookeeperAdapter {
 			return false;
 		}
 		
-		return zookeeperClient.testAndReplaceValue(zookeeperPath, 
+		final boolean result = zookeeperClient.testAndReplaceValue(zookeeperPath, 
 				DistributionRegionState.ACTIVE.getStringValue(), 
 				DistributionRegionState.ACTIVE_FULL.getStringValue());
+		
+		markNodeMutationAsComplete(zookeeperPath);
+		
+		return result;
 	}
 	
 	/**
@@ -277,9 +270,13 @@ public class DistributionGroupZookeeperAdapter {
 			return false;
 		}
 		
-		return zookeeperClient.testAndReplaceValue(zookeeperPath, 
+		final boolean result = zookeeperClient.testAndReplaceValue(zookeeperPath, 
 				DistributionRegionState.SPLIT.getStringValue(), 
 				DistributionRegionState.SPLIT_MERGING.getStringValue());
+		
+		markNodeMutationAsComplete(zookeeperPath);
+
+		return result;
 	}
 	
 	/**
@@ -318,6 +315,8 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final String statePath = path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE;
 		zookeeperClient.setData(statePath, state.getStringValue());
+		
+		markNodeMutationAsComplete(path);
 	}
 	
 	/**
@@ -331,6 +330,8 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final String path = getZookeeperPathForDistributionRegion(region);
 		setStateForDistributionGroup(path, state);
+		
+		markNodeMutationAsComplete(path);
 	}
 	
 	/**
@@ -364,16 +365,82 @@ public class DistributionGroupZookeeperAdapter {
 		
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 				"".getBytes());
-
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_VERSION, 
-				Long.toString(System.currentTimeMillis()).getBytes());
 		
 		setDistributionGroupConfiguration(distributionGroup, configuration);
+		
+		setBoundingBoxForPath(path, BoundingBox.createFullCoveringDimensionBoundingBox(configuration.getDimensions()));
 
-		// When the state field is written, the groups is assumed to be ready
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
-				DistributionRegionState.ACTIVE.getStringValue().getBytes());
+				DistributionRegionState.ACTIVE.getStringValue().getBytes());		
+		
+		// When the version field is written, the groups is assumed to be ready
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_DGROUP_VERSION, 
+				Long.toString(System.currentTimeMillis()).getBytes());
+		
+		markNodeMutationAsComplete(path);
 	}
+	
+	/**
+	 * Create a new child
+	 * @param childNumber 
+	 * @param leftBoundingBox 
+	 * @param path
+	 * @return 
+	 * @throws ZookeeperException
+	 */
+	public String createNewChild(final String parentPath, final int childNumber, 
+			final BoundingBox boundingBox, final String distributionGroupName) throws ZookeeperException {
+
+		final String childPath = parentPath + "/" + ZookeeperNodeNames.NAME_CHILDREN + childNumber;
+		logger.info("Creating: {}", childPath);
+		
+		if(zookeeperClient.exists(childPath)) {
+			throw new ZookeeperException("Child already exists: " + childPath);
+		}
+
+		zookeeperClient.createPersistentNode(childPath, "".getBytes());
+		
+		final int namePrefix = getNextTableIdForDistributionGroup(distributionGroupName);
+		
+		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
+				Integer.toString(namePrefix).getBytes());
+		
+		logger.info("Set {} to {}", childPath, namePrefix);
+		
+		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
+				"".getBytes());
+		
+		setBoundingBoxForPath(childPath, boundingBox);
+				
+		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
+				DistributionRegionState.CREATING.getStringValue().getBytes());
+			
+		markNodeMutationAsComplete(childPath);
+		markNodeMutationAsComplete(parentPath);
+
+		return childPath;
+	}
+	
+	/**
+	 * Delete the given child
+	 * @param region
+	 * @throws BBoxDBException 
+	 * @throws ZookeeperException 
+	 */
+	public void deleteChild(final DistributionRegion region) throws ZookeeperException {
+		
+		assert(region.isLeafRegion()) : "Region is not a leaf region: " + region;
+		
+		final String zookeeperPath = getZookeeperPathForDistributionRegion(region);
+		
+		zookeeperClient.deleteNodesRecursive(zookeeperPath);
+		
+		if(! region.isRootElement()) {
+			final String parentPath = getZookeeperPathForDistributionRegion(region.getParent());
+			markNodeMutationAsComplete(parentPath);
+		}
+	}
+
 
 	/**
 	 * @param distributionGroup
@@ -413,8 +480,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param distributionRegion
 	 * @return
 	 */
-	public String getZookeeperPathForDistributionRegion(
-			final DistributionRegion distributionRegion) {
+	public String getZookeeperPathForDistributionRegion(final DistributionRegion distributionRegion) {
 		
 		final StringBuilder sb = new StringBuilder();
 		
@@ -422,7 +488,7 @@ public class DistributionGroupZookeeperAdapter {
 		
 		if(tmpRegion != null) {
 			while(! tmpRegion.isRootElement()) {
-				sb.insert(0, "/" + ZookeeperNodeNames.NAME_CHILDREN + tmpRegion.getChildNumber());	
+				sb.insert(0, "/" + ZookeeperNodeNames.NAME_CHILDREN + tmpRegion.getChildNumberOfParent());	
 				tmpRegion = tmpRegion.getParent();
 			}
 		}
@@ -487,8 +553,8 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public Collection<BBoxDBInstance> getSystemsForDistributionRegion(final DistributionRegion region, 
-			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
+	public Collection<BBoxDBInstance> getSystemsForDistributionRegion(final DistributionRegion region) 
+			throws ZookeeperException, ZookeeperNotFoundException {
 	
 		final Set<BBoxDBInstance> result = new HashSet<BBoxDBInstance>();
 		
@@ -500,7 +566,7 @@ public class DistributionGroupZookeeperAdapter {
 			return null;
 		}
 		
-		final List<String> childs = zookeeperClient.getChildren(path, callback);
+		final List<String> childs = zookeeperClient.getChildren(path, null);
 		
 		if(childs != null && !childs.isEmpty()) {
 			for(final String childName : childs) {
@@ -524,12 +590,15 @@ public class DistributionGroupZookeeperAdapter {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
 	
-		final String path = getZookeeperPathForDistributionRegion(region) 
-				+ "/" + ZookeeperNodeNames.NAME_SYSTEMS;
+		final String basePath = getZookeeperPathForDistributionRegion(region);
+		final String systemsPath = basePath + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
+		final String instancePath = systemsPath + "/" + system.getStringValue();
+
+		logger.debug("Register system under systems node: {}", systemsPath);
 		
-		logger.debug("Register system under systems node: {}", path);
+		zookeeperClient.createPersistentNode(instancePath, "".getBytes());
 		
-		zookeeperClient.createPersistentNode(path + "/" + system.getStringValue(), "".getBytes());
+		markNodeMutationAsComplete(basePath);
 	}
 	
 	/**
@@ -661,13 +730,6 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final String path = getDistributionGroupPath(distributionGroup);			
 		zookeeperClient.deleteNodesRecursive(path);
-		
-		// Wait for event settling
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
 	}
 	
 	/**
@@ -749,7 +811,7 @@ public class DistributionGroupZookeeperAdapter {
 			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
-		final String fullPath = path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_VERSION;
+		final String fullPath = path + "/" + ZookeeperNodeNames.NAME_DGROUP_VERSION;
 		return zookeeperClient.readPathAndReturnString(fullPath, callback);	 
 	}
 	

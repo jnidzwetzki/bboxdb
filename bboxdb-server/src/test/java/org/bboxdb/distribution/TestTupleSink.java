@@ -69,7 +69,7 @@ public class TestTupleSink {
 		final DistributionGroupName distributionGroupName = new DistributionGroupName(DREGION);
 		
 		final DistributionRegion distributionRegion = new DistributionRegion(
-				distributionGroupName, 3);
+				distributionGroupName, BoundingBox.createFullCoveringDimensionBoundingBox(3));
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		

@@ -77,7 +77,7 @@ public class ZookeeperNodeNames {
 	/**
 	 * Name of the version node
 	 */
-	public final static String NAME_SYSTEMS_VERSION = "version";
+	public final static String NAME_DGROUP_VERSION = "version";
 	
 	/**
 	 * Name of the state node
