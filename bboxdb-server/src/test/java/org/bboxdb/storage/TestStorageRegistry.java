@@ -59,7 +59,7 @@ public class TestStorageRegistry {
 		storageRegistry.init();
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		final DistributionGroupZookeeperAdapter adapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
-		adapter.createDistributionGroup(RELATION_NAME.getDistributionGroup(), new DistributionGroupConfiguration());
+		adapter.createDistributionGroup(RELATION_NAME.getDistributionGroup(), new DistributionGroupConfiguration(2));
 	}
 	
 	@AfterClass
