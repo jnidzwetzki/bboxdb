@@ -36,7 +36,8 @@ public class TestCloseableHelper {
 		
 		CloseableHelper.closeWithoutException(autoCloseable);
 		(Mockito.verify(autoCloseable, Mockito.times(1))).close();
-		
+		CloseableHelper.closeWithoutException(null);
+
 		CloseableHelper.closeWithoutException(autoCloseable, consumer);
 		(Mockito.verify(autoCloseable, Mockito.times(2))).close();
 		(Mockito.verify(consumer, Mockito.times(0))).accept(ioException);
@@ -56,7 +57,8 @@ public class TestCloseableHelper {
 		
 		CloseableHelper.closeWithoutException(coseable);
 		(Mockito.verify(coseable, Mockito.times(1))).close();
-		
+		CloseableHelper.closeWithoutException(null);
+
 		CloseableHelper.closeWithoutException(coseable, consumer);
 		(Mockito.verify(coseable, Mockito.times(2))).close();
 		(Mockito.verify(consumer, Mockito.times(0))).accept(ioException);
