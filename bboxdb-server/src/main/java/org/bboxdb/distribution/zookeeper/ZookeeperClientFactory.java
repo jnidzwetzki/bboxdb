@@ -48,10 +48,10 @@ public class ZookeeperClientFactory {
 			final String clustername = bboxdbConfiguration.getClustername();
 	
 			client = new ZookeeperClient(zookeepernodes, clustername);
+		}
 		
-			if(! client.isConnected()) {
-				client.init();
-			}
+		if(! client.isConnected()) {
+			client.init();
 		}
 		
 		return client;
