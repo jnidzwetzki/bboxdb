@@ -112,17 +112,40 @@ public class DistributionRegionSyncer implements Watcher {
 			}
 			
 			if(event.getType() == EventType.NodeDeleted) {
-				logger.debug("Ignoring deleted event on {}, this will be handled by parent update",
-						event.getPath());
+				processNodeDeletedEvent(event);
 				return;
 			}
 			
 			logger.info("Handling event: {}", event);
-			
 			processNodeUpdateEvent(event);
 		} catch (Throwable e) {
 			logger.error("Got uncatched throwable during event handling", e);
 		}	
+	}
+
+	/**
+	 * Process the node deleted event. This is needed because when the whole
+	 * tree is deleted, the parent nodes are not marked as mutated.
+	 * 
+	 * @param event
+	 */
+	private void processNodeDeletedEvent(WatchedEvent event) {
+		final String eventPath = event.getPath();
+		final String nodePath = eventPath.replace("/" + ZookeeperNodeNames.NAME_NODE_VERSION, "");
+		
+		final DistributionRegion region = distributionGroupAdapter.getNodeForPath(rootNode, nodePath);
+		
+		if(region != null) {
+			if(region.isRootElement()) {
+				notifyCallbacks(DistributionRegionEvent.REMOVED, region);
+			} else {
+				final DistributionRegion parentRegion = region.getParent();
+				final long regionNumber = region.getChildNumberOfParent();
+				region.removeChildren(regionNumber);
+				notifyCallbacks(DistributionRegionEvent.REMOVED, region);
+				notifyCallbacks(DistributionRegionEvent.CHANGED, parentRegion);
+			}
+		}
 	}
 
 	/**

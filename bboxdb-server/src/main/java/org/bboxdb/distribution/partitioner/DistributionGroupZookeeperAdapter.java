@@ -535,7 +535,7 @@ public class DistributionGroupZookeeperAdapter {
 			final String split[] = token.split("-");
 			final int childNumber = Integer.parseInt(split[1]);
 			
-			if(resultElement.getDirectChildren().size() < childNumber) {
+			if(resultElement.getDirectChildren().size() <= childNumber) {
 				return null;
 			}
 			

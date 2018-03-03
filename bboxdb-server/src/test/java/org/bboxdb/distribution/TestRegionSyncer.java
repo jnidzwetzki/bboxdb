@@ -201,6 +201,31 @@ public class TestRegionSyncer {
 	}
 	
 	@Test(timeout=10000)
+	public void testEventOnDelete() throws InterruptedException, ZookeeperException {
+		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
+		final DistributionRegion root = distributionRegionSyncer.getRootNode();
+		createSplittedRoot(distributionRegionSyncer, root);
+
+		// Tree children will be removed
+		final CountDownLatch removedLatch = new CountDownLatch(3);
+		
+		final DistributionRegionCallback removedCallback = (e, r) -> { 
+			if(e == DistributionRegionEvent.REMOVED) { 
+				removedLatch.countDown(); 
+			}
+		};
+		
+		distributionRegionSyncer.registerCallback(removedCallback);
+
+		distributionGroupAdapter.deleteDistributionGroup(GROUP.getFullname());
+
+		System.out.println("=== testEventOnDelete: Wait for removed latch");
+		removedLatch.await();
+		
+		distributionRegionSyncer.unregisterCallback(removedCallback);
+	}
+	
+	@Test(timeout=10000)
 	public void testMerge() throws ZookeeperException, InterruptedException {
 		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
 		final DistributionRegion root = distributionRegionSyncer.getRootNode();
