@@ -70,7 +70,7 @@ public class DistributionRegionSyncer implements Watcher {
 	/**
 	 * The callbacks
 	 */
-	private final Set<DistributionRegionChangedCallback> callbacks;
+	private final Set<DistributionRegionCallback> callbacks;
 
 	/**
 	 * The zookeeper client
@@ -85,7 +85,7 @@ public class DistributionRegionSyncer implements Watcher {
 	public DistributionRegionSyncer(final DistributionGroupName distributionGroupName, 
 			final DistributionGroupZookeeperAdapter distributionGroupAdapter, 
 			final DistributionRegionIdMapper distributionRegionMapper, 
-			final Set<DistributionRegionChangedCallback> callbacks) {
+			final Set<DistributionRegionCallback> callbacks) {
 		
 		this.distributionGroupName = distributionGroupName;
 		this.distributionGroupAdapter = distributionGroupAdapter;
@@ -385,7 +385,7 @@ public class DistributionRegionSyncer implements Watcher {
 	 * @param callback
 	 * @return
 	 */
-	public boolean registerCallback(final DistributionRegionChangedCallback callback) {
+	public boolean registerCallback(final DistributionRegionCallback callback) {
 		return callbacks.add(callback);
 	}
 	
@@ -394,7 +394,7 @@ public class DistributionRegionSyncer implements Watcher {
 	 * @param callback
 	 * @return 
 	 */
-	public boolean unregisterCallback(final DistributionRegionChangedCallback callback) {
+	public boolean unregisterCallback(final DistributionRegionCallback callback) {
 		return callbacks.remove(callback);
 	}
 	

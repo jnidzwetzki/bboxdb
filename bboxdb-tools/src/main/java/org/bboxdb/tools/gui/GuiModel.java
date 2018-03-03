@@ -33,7 +33,7 @@ import org.bboxdb.distribution.membership.DistributedInstanceEvent;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.region.DistributionRegionChangedCallback;
+import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -41,7 +41,7 @@ import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GuiModel implements DistributionRegionChangedCallback {
+public class GuiModel implements DistributionRegionCallback {
 
 	/**
 	 * In screenshot mode, all IPs are replaced with 'XXXX'

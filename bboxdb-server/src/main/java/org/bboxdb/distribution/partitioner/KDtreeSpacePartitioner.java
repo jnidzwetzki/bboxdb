@@ -33,7 +33,7 @@ import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrateg
 import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.region.DistributionRegionChangedCallback;
+import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -83,7 +83,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	/**
 	 * The callbacks
 	 */
-	private final Set<DistributionRegionChangedCallback> callbacks;
+	private final Set<DistributionRegionCallback> callbacks;
 	
 	/**
 	 * The logger
@@ -348,7 +348,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 
 		final Object MUTEX = new Object();
 		
-		final DistributionRegionChangedCallback callback = (r) -> {
+		final DistributionRegionCallback callback = (r) -> {
 			synchronized (MUTEX) {
 				MUTEX.notifyAll();
 			}
@@ -381,7 +381,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		final Object MUTEX = new Object();
 		
-		final DistributionRegionChangedCallback callback = (r) -> {
+		final DistributionRegionCallback callback = (r) -> {
 			synchronized (MUTEX) {
 				MUTEX.notifyAll();
 			}
@@ -473,7 +473,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @return
 	 */
 	@Override
-	public boolean registerCallback(final DistributionRegionChangedCallback callback) {
+	public boolean registerCallback(final DistributionRegionCallback callback) {
 		return callbacks.add(callback);
 	}
 	
@@ -483,7 +483,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @return 
 	 */
 	@Override
-	public boolean unregisterCallback(final DistributionRegionChangedCallback callback) {
+	public boolean unregisterCallback(final DistributionRegionCallback callback) {
 		return callbacks.remove(callback);
 	}
 	

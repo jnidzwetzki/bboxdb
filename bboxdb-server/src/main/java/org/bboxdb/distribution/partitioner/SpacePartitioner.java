@@ -23,7 +23,7 @@ import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.region.DistributionRegionChangedCallback;
+import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -103,14 +103,14 @@ public interface SpacePartitioner {
 	 * @param callback
 	 * @return
 	 */
-	public boolean registerCallback(final DistributionRegionChangedCallback callback);
+	public boolean registerCallback(final DistributionRegionCallback callback);
 	
 	/**
 	 * Remove a changed callback
 	 * @param callback
 	 * @return
 	 */
-	public boolean unregisterCallback(final DistributionRegionChangedCallback callback);
+	public boolean unregisterCallback(final DistributionRegionCallback callback);
 	
 	/**
 	 * Get the region id mapper

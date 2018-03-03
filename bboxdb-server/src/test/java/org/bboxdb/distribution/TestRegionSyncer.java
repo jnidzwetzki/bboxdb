@@ -26,7 +26,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.region.DistributionRegionChangedCallback;
+import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -78,7 +78,7 @@ public class TestRegionSyncer {
 		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
 		final DistributionRegion root = distributionRegionSyncer.getRootNode();
 		
-		final DistributionRegionChangedCallback callback = (r) -> { if(r.equals(root)) { latch.countDown(); }};
+		final DistributionRegionCallback callback = (r) -> { if(r.equals(root)) { latch.countDown(); }};
 		distributionRegionSyncer.registerCallback(callback);
 		
 		final BBoxDBInstance newInstance = new BBoxDBInstance("localhost:8443");
@@ -106,7 +106,7 @@ public class TestRegionSyncer {
 		final CountDownLatch latchLevel1 = new CountDownLatch(1);
 		final String level1ChildPath = distributionGroupAdapter.getZookeeperPathForDistributionRegion(level1Child);
 
-		final DistributionRegionChangedCallback level1Callback = (r) -> { if(root.getAllChildren().size() == 3) { latchLevel1.countDown(); }};
+		final DistributionRegionCallback level1Callback = (r) -> { if(root.getAllChildren().size() == 3) { latchLevel1.countDown(); }};
 		
 		distributionRegionSyncer.registerCallback(level1Callback);
 		distributionGroupAdapter.createNewChild(level1ChildPath, 0, leftBoundingBoxChild, fullname);
@@ -132,7 +132,7 @@ public class TestRegionSyncer {
 		final String fullname = GROUP.getFullname();
 		
 		final CountDownLatch latchLevel0 = new CountDownLatch(1);
-		final DistributionRegionChangedCallback level0Callback = (r) -> { if(root.getDirectChildren().size() == 2) { latchLevel0.countDown(); }};
+		final DistributionRegionCallback level0Callback = (r) -> { if(root.getDirectChildren().size() == 2) { latchLevel0.countDown(); }};
 
 		distributionRegionSyncer.registerCallback(level0Callback);
 		distributionGroupAdapter.createNewChild(regionPath, 0, leftBoundingBox, fullname);
@@ -154,7 +154,7 @@ public class TestRegionSyncer {
 		Assert.assertEquals(DistributionRegionState.ACTIVE, root.getState());
 		
 		final CountDownLatch latch = new CountDownLatch(1);
-		final DistributionRegionChangedCallback callback = (r) -> { if(r.getState() == DistributionRegionState.ACTIVE_FULL) { latch.countDown(); }};
+		final DistributionRegionCallback callback = (r) -> { if(r.getState() == DistributionRegionState.ACTIVE_FULL) { latch.countDown(); }};
 		distributionRegionSyncer.registerCallback(callback);
 		
 		distributionGroupAdapter.setStateForDistributionRegion(root, DistributionRegionState.ACTIVE_FULL);
@@ -176,7 +176,7 @@ public class TestRegionSyncer {
 		System.out.println("=== Delete child 1");
 		final CountDownLatch deleteLatch1 = new CountDownLatch(1);
 		
-		final DistributionRegionChangedCallback callback1 = (r) -> { if(r.getAllChildren().size() == 1) { deleteLatch1.countDown(); }};
+		final DistributionRegionCallback callback1 = (r) -> { if(r.getAllChildren().size() == 1) { deleteLatch1.countDown(); }};
 		distributionRegionSyncer.registerCallback(callback1);
 		distributionGroupAdapter.deleteChild(root.getChildNumber(1));
 		deleteLatch1.await();
@@ -188,7 +188,7 @@ public class TestRegionSyncer {
 		System.out.println("=== Delete child 2");
 		final CountDownLatch deleteLatch2 = new CountDownLatch(1);
 		
-		final DistributionRegionChangedCallback callback2 = (r) -> { if(r.getAllChildren().size() == 0) { deleteLatch2.countDown(); }};
+		final DistributionRegionCallback callback2 = (r) -> { if(r.getAllChildren().size() == 0) { deleteLatch2.countDown(); }};
 		distributionRegionSyncer.registerCallback(callback2);
 		distributionGroupAdapter.deleteChild(root.getChildNumber(0));
 		deleteLatch2.await();
@@ -201,7 +201,7 @@ public class TestRegionSyncer {
 	 * Build a new syncer
 	 */
 	private DistributionRegionSyncer buildSyncer() {
-		final Set<DistributionRegionChangedCallback> callbacks = new HashSet<>();
+		final Set<DistributionRegionCallback> callbacks = new HashSet<>();
 		final DistributionRegionIdMapper distributionRegionIdMapper = new DistributionRegionIdMapper();
 		
 		return new DistributionRegionSyncer(GROUP, distributionGroupAdapter, 

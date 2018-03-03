@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.region;
 
-public interface DistributionRegionChangedCallback {
+public interface DistributionRegionCallback {
 	
 	/**
 	 * Notify about a region change
