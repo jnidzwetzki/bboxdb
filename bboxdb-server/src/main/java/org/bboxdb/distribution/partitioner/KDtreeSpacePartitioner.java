@@ -37,6 +37,7 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
+import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
@@ -347,7 +348,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	private void waitUntilChildrenAreCreated(final DistributionRegion regionToSplit) {
 		final Predicate<DistributionRegion> predicate = (r) -> r.getDirectChildren().size() == 2;
-		waitForPredicate(predicate, regionToSplit);		
+		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);		
 	}
 	
 	/**
@@ -356,42 +357,9 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	private void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit) {
 		final Predicate<DistributionRegion> predicate = (r) -> isSplitForNodeComplete(r);
-		waitForPredicate(predicate, regionToSplit);
+		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);
 	}
 	
-	/**
-	 * Wait for predicate
-	 * @param predicate
-	 * @param region
-	 */
-	private void waitForPredicate(final Predicate<DistributionRegion> predicate, 
-			final DistributionRegion region) {
-		final Object MUTEX = new Object();
-		
-		final DistributionRegionCallback callback = (e, r) -> {
-			synchronized (MUTEX) {
-				MUTEX.notifyAll();
-			}
-		};
-		
-		registerCallback(callback);
-		
-		// Wait for zookeeper callback
-		synchronized (MUTEX) {
-			while(! predicate.test(region)) {
-				logger.debug("Wait for zookeeper callback for predicate for: {}", region);
-				try {
-					MUTEX.wait();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					logger.warn("Unable to wait for predicate for: {}", region);
-				}
-			}
-		}
-		
-		unregisterCallback(callback);
-	}
-
 	/**
 	 * Allocate the given list of systems to a region
 	 * @param region
