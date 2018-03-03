@@ -52,13 +52,12 @@ $BBOXDB_HOME/bin/manage_cluster.sh zookeeper_drop
 $BBOXDB_HOME/bin/manage_cluster.sh zookeeper_start
 sleep 5
 
-$BBOXDB_HOME/bin/manage_cluster.sh bboxdb_start
-sleep 5
-
-
 if [[ $1 == "nostart" ]]; then
    exit
 fi
+
+$BBOXDB_HOME/bin/manage_cluster.sh bboxdb_start
+sleep 5
 
 if [[ $1 != "nopopulate" ]]; then
    $BBOXDB_HOME/bin/cli.sh -action create_dgroup -dgroup mydgroup -replicationfactor 2 -dimensions 2
