@@ -236,7 +236,12 @@ public class TestRegionSyncer {
 		System.out.println("=== Delete child 1");
 		final CountDownLatch deleteLatch1 = new CountDownLatch(1);
 		
-		final DistributionRegionCallback callback1 = (e, r) -> { if(r.getAllChildren().size() == 1) { deleteLatch1.countDown(); }};
+		final DistributionRegionCallback callback1 = (e, r) -> { 
+			if(root.getAllChildren().size() == 1) { 
+				deleteLatch1.countDown(); 
+			}
+		};
+		
 		distributionRegionSyncer.registerCallback(callback1);
 		distributionGroupAdapter.deleteChild(root.getChildNumber(1));
 		deleteLatch1.await();
@@ -248,7 +253,12 @@ public class TestRegionSyncer {
 		System.out.println("=== Delete child 2");
 		final CountDownLatch deleteLatch2 = new CountDownLatch(1);
 		
-		final DistributionRegionCallback callback2 = (e, r) -> { if(r.getAllChildren().size() == 0) { deleteLatch2.countDown(); }};
+		final DistributionRegionCallback callback2 = (e, r) -> { 
+			if(root.getAllChildren().size() == 0) { 
+				deleteLatch2.countDown(); 
+			}
+		};
+		
 		distributionRegionSyncer.registerCallback(callback2);
 		distributionGroupAdapter.deleteChild(root.getChildNumber(0));
 		deleteLatch2.await();
