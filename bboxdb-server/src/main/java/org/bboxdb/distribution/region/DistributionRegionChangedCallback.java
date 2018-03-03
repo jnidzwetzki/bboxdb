@@ -15,9 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution.partitioner;
-
-import org.bboxdb.distribution.region.DistributionRegion;
+package org.bboxdb.distribution.region;
 
 public interface DistributionRegionChangedCallback {
 	
