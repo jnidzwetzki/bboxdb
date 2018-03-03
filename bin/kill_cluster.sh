@@ -56,7 +56,7 @@ $BBOXDB_HOME/bin/manage_cluster.sh bboxdb_start
 sleep 5
 
 
-if [[ $1 != "nostart" ]]; then
+if [[ $1 == "nostart" ]]; then
    exit
 fi
 
