@@ -17,8 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.CountDownLatch;
 
 import org.bboxdb.commons.math.BoundingBox;
@@ -27,6 +27,7 @@ import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
+import org.bboxdb.distribution.region.DistributionRegionEvent;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -72,13 +73,13 @@ public class TestRegionSyncer {
 	}
 	
 	@Test(timeout=10000)
-	public void waitForSystemsCallback1() throws ZookeeperException, InterruptedException {
+	public void waitForSystemsCallback() throws ZookeeperException, InterruptedException {
 		final CountDownLatch latch = new CountDownLatch(1);
 		
 		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
 		final DistributionRegion root = distributionRegionSyncer.getRootNode();
 		
-		final DistributionRegionCallback callback = (r) -> { if(r.equals(root)) { latch.countDown(); }};
+		final DistributionRegionCallback callback = (e, r) -> { if(r.equals(root)) { latch.countDown(); }};
 		distributionRegionSyncer.registerCallback(callback);
 		
 		final BBoxDBInstance newInstance = new BBoxDBInstance("localhost:8443");
@@ -91,7 +92,7 @@ public class TestRegionSyncer {
 	}
 	
 	@Test(timeout=10000)
-	public void testSplit1() throws ZookeeperException, InterruptedException {
+	public void testSplit() throws ZookeeperException, InterruptedException {
 		
 		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
 		final DistributionRegion root = distributionRegionSyncer.getRootNode();
@@ -106,7 +107,7 @@ public class TestRegionSyncer {
 		final CountDownLatch latchLevel1 = new CountDownLatch(1);
 		final String level1ChildPath = distributionGroupAdapter.getZookeeperPathForDistributionRegion(level1Child);
 
-		final DistributionRegionCallback level1Callback = (r) -> { if(root.getAllChildren().size() == 3) { latchLevel1.countDown(); }};
+		final DistributionRegionCallback level1Callback = (e, r) -> { if(root.getAllChildren().size() == 3) { latchLevel1.countDown(); }};
 		
 		distributionRegionSyncer.registerCallback(level1Callback);
 		distributionGroupAdapter.createNewChild(level1ChildPath, 0, leftBoundingBoxChild, fullname);
@@ -121,31 +122,6 @@ public class TestRegionSyncer {
 		Assert.assertEquals(2, root.getChildNumber(0).getChildNumber(0).getLevel());
 	}
 
-	private String createSplittedRoot(final DistributionRegionSyncer distributionRegionSyncer,
-			final DistributionRegion root) throws ZookeeperException, InterruptedException {
-		
-		final BoundingBox leftBoundingBox = root.getConveringBox().splitAndGetLeft(0, 0, true);
-		final BoundingBox rightBoundingBox = root.getConveringBox().splitAndGetRight(0, 0, true);
-		
-		final String regionPath = distributionGroupAdapter.getZookeeperPathForDistributionRegion(root);
-
-		final String fullname = GROUP.getFullname();
-		
-		final CountDownLatch latchLevel0 = new CountDownLatch(1);
-		final DistributionRegionCallback level0Callback = (r) -> { if(root.getDirectChildren().size() == 2) { latchLevel0.countDown(); }};
-
-		distributionRegionSyncer.registerCallback(level0Callback);
-		distributionGroupAdapter.createNewChild(regionPath, 0, leftBoundingBox, fullname);
-		distributionGroupAdapter.createNewChild(regionPath, 1, rightBoundingBox, fullname);
-		latchLevel0.await();
-		distributionRegionSyncer.unregisterCallback(level0Callback);
-		
-		Assert.assertEquals(2, root.getDirectChildren().size());
-		Assert.assertTrue(root.getChildNumber(0) != null);
-		Assert.assertTrue(root.getChildNumber(1) != null);
-		return fullname;
-	}
-
 	@Test(timeout=10000)
 	public void testChangeState() throws InterruptedException, ZookeeperException {
 		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
@@ -154,7 +130,7 @@ public class TestRegionSyncer {
 		Assert.assertEquals(DistributionRegionState.ACTIVE, root.getState());
 		
 		final CountDownLatch latch = new CountDownLatch(1);
-		final DistributionRegionCallback callback = (r) -> { if(r.getState() == DistributionRegionState.ACTIVE_FULL) { latch.countDown(); }};
+		final DistributionRegionCallback callback = (e, r) -> { if(r.getState() == DistributionRegionState.ACTIVE_FULL) { latch.countDown(); }};
 		distributionRegionSyncer.registerCallback(callback);
 		
 		distributionGroupAdapter.setStateForDistributionRegion(root, DistributionRegionState.ACTIVE_FULL);
@@ -163,6 +139,65 @@ public class TestRegionSyncer {
 		distributionRegionSyncer.unregisterCallback(callback);
 		
 		Assert.assertEquals(DistributionRegionState.ACTIVE_FULL, root.getState());
+	}
+	
+	@Test(timeout=10000)
+	public void testEventTypes() throws InterruptedException, ZookeeperException {
+		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
+		final DistributionRegion root = distributionRegionSyncer.getRootNode();
+		
+		// Root node is changed on add and remove children
+		final CountDownLatch changedLatch = new CountDownLatch(2);
+		
+		final DistributionRegionCallback rootNodeChangedCallback = (e, r) -> { 
+			if(e == DistributionRegionEvent.CHANGED && r.equals(root)) { 
+				changedLatch.countDown(); 
+			}
+		};
+		
+		distributionRegionSyncer.registerCallback(rootNodeChangedCallback);
+
+		// Two new children will be added
+		final CountDownLatch addedLatch = new CountDownLatch(2);
+
+		final DistributionRegionCallback adddedCallback = (e, r) -> { 
+			if(e == DistributionRegionEvent.ADDED && ! r.equals(root)) { 
+				addedLatch.countDown(); 
+			}
+		};
+		
+		distributionRegionSyncer.registerCallback(adddedCallback);
+
+		// Two children will be removed
+		final CountDownLatch removedLatch = new CountDownLatch(2);
+
+		final DistributionRegionCallback removedCallback = (e, r) -> { 
+			if(e == DistributionRegionEvent.REMOVED && ! r.equals(root)) { 
+				removedLatch.countDown(); 
+			}
+		};
+		
+		distributionRegionSyncer.registerCallback(removedCallback);
+		
+		// Mutate tree
+		createSplittedRoot(distributionRegionSyncer, root);
+
+		// Wait
+		System.out.println("=== Wait for added latch");
+		addedLatch.await();
+		
+		distributionGroupAdapter.deleteChild(root.getChildNumber(0));
+		distributionGroupAdapter.deleteChild(root.getChildNumber(1));
+
+		System.out.println("=== Wait for removed latch");
+		removedLatch.await();
+		
+		System.out.println("=== Wait for changed latch");
+		changedLatch.await();
+		
+		distributionRegionSyncer.unregisterCallback(rootNodeChangedCallback);
+		distributionRegionSyncer.unregisterCallback(adddedCallback);
+		distributionRegionSyncer.unregisterCallback(removedCallback);
 	}
 	
 	@Test(timeout=10000)
@@ -176,7 +211,7 @@ public class TestRegionSyncer {
 		System.out.println("=== Delete child 1");
 		final CountDownLatch deleteLatch1 = new CountDownLatch(1);
 		
-		final DistributionRegionCallback callback1 = (r) -> { if(r.getAllChildren().size() == 1) { deleteLatch1.countDown(); }};
+		final DistributionRegionCallback callback1 = (e, r) -> { if(r.getAllChildren().size() == 1) { deleteLatch1.countDown(); }};
 		distributionRegionSyncer.registerCallback(callback1);
 		distributionGroupAdapter.deleteChild(root.getChildNumber(1));
 		deleteLatch1.await();
@@ -188,7 +223,7 @@ public class TestRegionSyncer {
 		System.out.println("=== Delete child 2");
 		final CountDownLatch deleteLatch2 = new CountDownLatch(1);
 		
-		final DistributionRegionCallback callback2 = (r) -> { if(r.getAllChildren().size() == 0) { deleteLatch2.countDown(); }};
+		final DistributionRegionCallback callback2 = (e, r) -> { if(r.getAllChildren().size() == 0) { deleteLatch2.countDown(); }};
 		distributionRegionSyncer.registerCallback(callback2);
 		distributionGroupAdapter.deleteChild(root.getChildNumber(0));
 		deleteLatch2.await();
@@ -201,10 +236,43 @@ public class TestRegionSyncer {
 	 * Build a new syncer
 	 */
 	private DistributionRegionSyncer buildSyncer() {
-		final Set<DistributionRegionCallback> callbacks = new HashSet<>();
+		final Set<DistributionRegionCallback> callbacks = new CopyOnWriteArraySet<>();
 		final DistributionRegionIdMapper distributionRegionIdMapper = new DistributionRegionIdMapper();
 		
 		return new DistributionRegionSyncer(GROUP, distributionGroupAdapter, 
 				distributionRegionIdMapper, callbacks);
+	}
+	
+	/**
+	 * Create a splitted root
+	 * @param distributionRegionSyncer
+	 * @param root
+	 * @return
+	 * @throws ZookeeperException
+	 * @throws InterruptedException
+	 */
+	private String createSplittedRoot(final DistributionRegionSyncer distributionRegionSyncer,
+			final DistributionRegion root) throws ZookeeperException, InterruptedException {
+		
+		final BoundingBox leftBoundingBox = root.getConveringBox().splitAndGetLeft(0, 0, true);
+		final BoundingBox rightBoundingBox = root.getConveringBox().splitAndGetRight(0, 0, true);
+		
+		final String regionPath = distributionGroupAdapter.getZookeeperPathForDistributionRegion(root);
+
+		final String fullname = GROUP.getFullname();
+		
+		final CountDownLatch latchLevel0 = new CountDownLatch(1);
+		final DistributionRegionCallback level0Callback = (e, r) -> { if(root.getDirectChildren().size() == 2) { latchLevel0.countDown(); }};
+
+		distributionRegionSyncer.registerCallback(level0Callback);
+		distributionGroupAdapter.createNewChild(regionPath, 0, leftBoundingBox, fullname);
+		distributionGroupAdapter.createNewChild(regionPath, 1, rightBoundingBox, fullname);
+		latchLevel0.await();
+		distributionRegionSyncer.unregisterCallback(level0Callback);
+		
+		Assert.assertEquals(2, root.getDirectChildren().size());
+		Assert.assertTrue(root.getChildNumber(0) != null);
+		Assert.assertTrue(root.getChildNumber(1) != null);
+		return fullname;
 	}
 }

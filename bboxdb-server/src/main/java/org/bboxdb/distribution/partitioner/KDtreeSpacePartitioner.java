@@ -348,7 +348,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 
 		final Object MUTEX = new Object();
 		
-		final DistributionRegionCallback callback = (r) -> {
+		final DistributionRegionCallback callback = (e, r) -> {
 			synchronized (MUTEX) {
 				MUTEX.notifyAll();
 			}
@@ -381,7 +381,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		final Object MUTEX = new Object();
 		
-		final DistributionRegionCallback callback = (r) -> {
+		final DistributionRegionCallback callback = (e, r) -> {
 			synchronized (MUTEX) {
 				MUTEX.notifyAll();
 			}

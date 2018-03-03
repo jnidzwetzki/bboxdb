@@ -166,7 +166,7 @@ public class DistributionRegionSyncer implements Watcher {
 			
 			updateNode(nodePath, region);
 			versions.put(region, remoteVersion);
-			notifyCallbacks(region);
+			notifyCallbacks(DistributionRegionEvent.CHANGED, region);
 			updateLocalMappings();
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			logger.error("Got exception while handling zookeeper callback");
@@ -259,13 +259,25 @@ public class DistributionRegionSyncer implements Watcher {
 				final DistributionRegion newChild = readChild(childPath, region);
 				region.addChildren(childNumber, newChild);
 				updateNodeIfNeeded(childPath, newChild);
+				notifyCallbacks(DistributionRegionEvent.ADDED, newChild);
 			}
 		}
 		
+		deleteRemovedChildren(region, registeredChildren);
+	}
+
+	/**
+	 * Delete the not found children
+	 * @param region
+	 * @param notFoundChildren
+	 */
+	private void deleteRemovedChildren(final DistributionRegion region, final List<Long> notFoundChildren) {
+		
 		// Process all in-memory children which are not registered in zookeeper
-		if(registeredChildren.isEmpty() == false) {
-			logger.info("Removing not existing children {}", registeredChildren);
-			registeredChildren.forEach((number) -> region.removeChildren(number)); 
+		for(final long regionNumber : notFoundChildren) {
+			logger.info("Removing not existing children {}", regionNumber);
+			final DistributionRegion removedRegion = region.removeChildren(regionNumber);
+			notifyCallbacks(DistributionRegionEvent.REMOVED, removedRegion);
 		}
 	}
 	
@@ -287,7 +299,6 @@ public class DistributionRegionSyncer implements Watcher {
 		final DistributionRegion region = new DistributionRegion(distributionGroupName, parentRegion, boundingBox, regionId);		
 	
 		versions.put(region, remoteVersion);
-		notifyCallbacks(region);
 		
 		return region;
 	}
@@ -402,7 +413,12 @@ public class DistributionRegionSyncer implements Watcher {
 	 * Notify the callbacks
 	 * @param region
 	 */
-	private void notifyCallbacks(final DistributionRegion region) {
-		callbacks.forEach(c -> c.regionChanged(region));
+	private void notifyCallbacks(final DistributionRegionEvent event, final DistributionRegion region) {
+		
+		if(region == null) {
+			return;
+		}
+		
+		callbacks.forEach(c -> c.regionChanged(event, region));
 	}
 }

@@ -34,6 +34,7 @@ import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
+import org.bboxdb.distribution.region.DistributionRegionEvent;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -218,7 +219,9 @@ public class GuiModel implements DistributionRegionCallback {
 	 * One of the regions was changed
 	 */
 	@Override
-	public void regionChanged(DistributionRegion distributionRegion) {
+	public void regionChanged(final DistributionRegionEvent event, 
+			final DistributionRegion distributionRegion) {
+		
 		updateModel();
 	}
 

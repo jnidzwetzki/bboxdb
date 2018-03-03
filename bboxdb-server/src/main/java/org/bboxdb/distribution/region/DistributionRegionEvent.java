@@ -17,12 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.distribution.region;
 
-public interface DistributionRegionCallback {
-	
-	/**
-	 * Notify about a region change
-	 * @param distributionRegion
-	 */
-	public void regionChanged(final DistributionRegionEvent event, 
-			final DistributionRegion distributionRegion);
+public enum DistributionRegionEvent {
+	ADDED,
+	CHANGED,
+	REMOVED;
 }
