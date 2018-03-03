@@ -35,7 +35,7 @@ public class SpacePartitionerCache {
 	protected final static Map<String, SpacePartitioner> groupGroupMap;
 
 	static {
-		groupGroupMap = new HashMap<String, SpacePartitioner>();
+		groupGroupMap = new HashMap<>();
 	}
 	
 	/**
