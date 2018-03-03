@@ -136,7 +136,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			final String zookeeperVersion 
 				= distributionGroupZookeeperAdapter.getVersionForDistributionGroup(fullname, this);
 			
-			System.out.println("===> Reading version and register watcher");
+			logger.debug("Reading version and register watcher for {}", fullname);
 			
 			if(version == null || ! version.equals(zookeeperVersion)) {
 				logger.info("Our tree version is {}, zookeeper version is {}", version, zookeeperVersion);
