@@ -25,7 +25,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
-import org.bboxdb.storage.entity.TupleStoreName;
 
 public class SpacePartitionerCache {
 	
@@ -63,23 +62,5 @@ public class SpacePartitionerCache {
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
 		}
-	}
-	
-	/**
-	 * Get the distribution region for the given table name
-	 * @param groupName
-	 * @return
-	 * @throws ZookeeperException 
-	 * @throws BBoxDBException 
-	 * @throws ZookeeperNotFoundException 
-	 */
-	public static SpacePartitioner getSpaceParitionerForTableName(
-			final TupleStoreName ssTableName) throws ZookeeperException, BBoxDBException {
-		
-		if(! ssTableName.isValid()) {
-			throw new BBoxDBException("Invalid tablename: " + ssTableName);
-		}
-
-		return getSpacePartitionerForGroupName(ssTableName.getDistributionGroup());
 	}
 }

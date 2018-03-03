@@ -46,8 +46,8 @@ public class TupleStoreFlushZookeeperAdapter implements BiConsumer<TupleStoreNam
 		final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
 	
 		try {			
-			final SpacePartitioner spacepartitioner = SpacePartitionerCache.getSpaceParitionerForTableName(
-					ssTableName);
+			final SpacePartitioner spacepartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(
+					ssTableName.getDistributionGroup());
 
 			final DistributionRegion distributionGroupRoot = spacepartitioner.getRootNode();
 			

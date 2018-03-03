@@ -57,8 +57,8 @@ public class RoutingHeaderHelper {
 
 		final TupleStoreName ssTableName = new TupleStoreName(table);
 
-		final SpacePartitioner spacepartitioner = SpacePartitionerCache.getSpaceParitionerForTableName(
-				ssTableName);
+		final SpacePartitioner spacepartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(
+				ssTableName.getDistributionGroup());
 
 		final DistributionRegion distributionRegion = spacepartitioner.getRootNode();
 

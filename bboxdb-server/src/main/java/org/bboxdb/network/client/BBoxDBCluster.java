@@ -38,7 +38,6 @@ import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureHelper;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
@@ -161,59 +160,55 @@ public class BBoxDBCluster implements BBoxDB {
 	@Override
 	public EmptyResultFuture insertTuple(final String table, final Tuple tuple) throws BBoxDBException {
 
-		try {
-			final TupleStoreName ssTableName = new TupleStoreName(table);
+		final TupleStoreName ssTableName = new TupleStoreName(table);
 
-			final SpacePartitioner distributionAdapter 
-				= SpacePartitionerCache.getSpaceParitionerForTableName(ssTableName);
+		final SpacePartitioner distributionAdapter 
+			= SpacePartitionerCache.getSpacePartitionerForGroupName(ssTableName.getDistributionGroup());
 
-			final Supplier<RoutingHeader> routingHeaderSupplier = () -> {
-				try {
-					final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-	
-					final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWriteWithRetry(distributionRegion, 
-							tuple.getBoundingBox());
-					
-					return new RoutingHeader((short) -1, hops);	
-				} catch (InterruptedException e) {
-					logger.warn("Interrupted while waiting for systems list");
-					Thread.currentThread().interrupt();
-				}
+		final Supplier<RoutingHeader> routingHeaderSupplier = () -> {
+			try {
+				final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+
+				final List<RoutingHop> hops = RoutingHopHelper.getRoutingHopsForWriteWithRetry(distributionRegion, 
+						tuple.getBoundingBox());
 				
-				return null;
-			};
-
-			// Calculate routing list to determine start system
-			final RoutingHeader routingHeader = routingHeaderSupplier.get();
-			
-			if(routingHeader == null) {
-				throw new BBoxDBException("Routing header is null");
+				return new RoutingHeader((short) -1, hops);	
+			} catch (InterruptedException e) {
+				logger.warn("Interrupted while waiting for systems list");
+				Thread.currentThread().interrupt();
 			}
 			
-			final List<RoutingHop> hops = routingHeader.getRoutingList();
-			
-			if(hops.isEmpty()) {
-				final String errorMessage = "Insert tuple called, but hop list for bounding box is empty: " 
-						+ tuple.getBoundingBox(); 
-				logger.error(errorMessage);
-				return FutureHelper.getFailedEmptyResultFuture(errorMessage);
-			}
+			return null;
+		};
 
-			// Determine the first system, it will route the request to the remaining systems
-			final BBoxDBInstance system = hops.iterator().next().getDistributedInstance();
-			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
+		// Calculate routing list to determine start system
+		final RoutingHeader routingHeader = routingHeaderSupplier.get();
+		
+		if(routingHeader == null) {
+			throw new BBoxDBException("Routing header is null");
+		}
+		
+		final List<RoutingHop> hops = routingHeader.getRoutingList();
+		
+		if(hops.isEmpty()) {
+			final String errorMessage = "Insert tuple called, but hop list for bounding box is empty: " 
+					+ tuple.getBoundingBox(); 
+			logger.error(errorMessage);
+			return FutureHelper.getFailedEmptyResultFuture(errorMessage);
+		}
 
-			if(connection == null) {
-				final String errorMessage = "Unable to insert tuple, no connection to system: " 
-						+ system; 
-				logger.error(errorMessage);
-				return FutureHelper.getFailedEmptyResultFuture(errorMessage);
-			}
+		// Determine the first system, it will route the request to the remaining systems
+		final BBoxDBInstance system = hops.iterator().next().getDistributedInstance();
+		final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(system);
 
-			return connection.insertTuple(table, tuple, routingHeaderSupplier);
-		} catch (ZookeeperException e) {
-			throw new BBoxDBException(e);
-		} 
+		if(connection == null) {
+			final String errorMessage = "Unable to insert tuple, no connection to system: " 
+					+ system; 
+			logger.error(errorMessage);
+			return FutureHelper.getFailedEmptyResultFuture(errorMessage);
+		}
+
+		return connection.insertTuple(table, tuple, routingHeaderSupplier);
 	}
 
 	@Override
@@ -340,30 +335,26 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver(), table);
 
-		try {
-			final TupleStoreName sstableName = new TupleStoreName(table);
+	
+		final TupleStoreName sstableName = new TupleStoreName(table);
 
-			final SpacePartitioner distributionAdapter 
-				= SpacePartitionerCache.getSpaceParitionerForTableName(sstableName);
+		final SpacePartitioner distributionAdapter 
+			= SpacePartitionerCache.getSpacePartitionerForGroupName(sstableName.getDistributionGroup());
 
-			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			final Collection<RoutingHop> hops 
-				= RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
+		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+		final Collection<RoutingHop> hops 
+			= RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
 
-			if(logger.isDebugEnabled()) {
-				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, hops);
-			}
-
-			hops.stream()
-				.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
-				.map(c -> c.queryBoundingBox(table, boundingBox))
-				.filter(Objects::nonNull)
-				.forEach(f -> future.merge(f));
-
-		} catch (ZookeeperException e) {
-			e.printStackTrace();
+		if(logger.isDebugEnabled()) {
+			logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, hops);
 		}
 
+		hops.stream()
+			.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
+			.map(c -> c.queryBoundingBox(table, boundingBox))
+			.filter(Objects::nonNull)
+			.forEach(f -> future.merge(f));
+	
 		return future;
 	}
 
@@ -376,34 +367,31 @@ public class BBoxDBCluster implements BBoxDB {
 	public TupleListFuture queryBoundingBoxContinuous(final String table, final BoundingBox boundingBox) 
 			throws BBoxDBException {
 
-		try {
-			if(membershipConnectionService.getNumberOfConnections() == 0) {
-				throw new BBoxDBException("queryBoundingBox called, but connection list is empty");
-			}
+	
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			throw new BBoxDBException("queryBoundingBox called, but connection list is empty");
+		}
 
-			final TupleStoreName sstableName = new TupleStoreName(table);
+		final TupleStoreName sstableName = new TupleStoreName(table);
 
-			final SpacePartitioner distributionAdapter 
-				= SpacePartitionerCache.getSpaceParitionerForTableName(sstableName);
+		final SpacePartitioner distributionAdapter 
+			= SpacePartitionerCache.getSpacePartitionerForGroupName(sstableName.getDistributionGroup());
 
-			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			final Set<DistributionRegion> regions 
+		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+		final Set<DistributionRegion> regions 
 			= distributionRegion.getDistributionRegionsForBoundingBox(boundingBox);
 
-			if(regions.size() != 1) {
-				throw new BBoxDBException("The bounding box belongs to more than one distribution region, "
-						+ "this is not supported in continuous queries");
-			}
-
-			final DistributionRegion region = regions.iterator().next();
-
-			final BBoxDBInstance firstSystem = region.getSystems().iterator().next();
-			final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(firstSystem);
-
-			return connection.queryBoundingBoxContinuous(table, boundingBox);
-		} catch (ZookeeperException e) {
-			throw new BBoxDBException(e);
+		if(regions.size() != 1) {
+			throw new BBoxDBException("The bounding box belongs to more than one distribution region, "
+					+ "this is not supported in continuous queries");
 		}
+
+		final DistributionRegion region = regions.iterator().next();
+
+		final BBoxDBInstance firstSystem = region.getSystems().iterator().next();
+		final BBoxDBClient connection = membershipConnectionService.getConnectionForInstance(firstSystem);
+
+		return connection.queryBoundingBoxContinuous(table, boundingBox);
 	}
 
 	@Override
@@ -416,29 +404,25 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final TupleListFuture future = new TupleListFuture(new DoNothingDuplicateResolver(), table);
 
-		try {
-			final TupleStoreName sstableName = new TupleStoreName(table);
-			final SpacePartitioner distributionAdapter 
-				= SpacePartitionerCache.getSpaceParitionerForTableName(sstableName);
 
-			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-			
-			final Collection<RoutingHop> hops 
-				= RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
+		final TupleStoreName sstableName = new TupleStoreName(table);
+		final SpacePartitioner distributionAdapter 
+			= SpacePartitionerCache.getSpacePartitionerForGroupName(sstableName.getDistributionGroup());
 
-			if(logger.isDebugEnabled()) {
-				logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, hops);
-			}
+		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+		
+		final Collection<RoutingHop> hops 
+			= RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
 
-			hops.stream()
+		if(logger.isDebugEnabled()) {
+			logger.debug("Query by for bounding box {} in table {} on systems {}", boundingBox, table, hops);
+		}
+
+		hops.stream()
 			.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
 			.map(c -> c.queryBoundingBoxAndTime(table, boundingBox, timestamp))
 			.filter(Objects::nonNull)
 			.forEach(f -> future.merge(f));
-
-		} catch (ZookeeperException e) {
-			e.printStackTrace();
-		}
 
 		return future;
 	}
@@ -490,36 +474,33 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	@Override
 	public JoinedTupleListFuture queryJoin(final List<String> tableNames, final BoundingBox boundingBox) throws BBoxDBException {
-		try {
-			if(membershipConnectionService.getNumberOfConnections() == 0) {
-				throw new BBoxDBException("queryJoin called, but connection list is empty");
-			}
 
-			if(logger.isDebugEnabled()) {
-				logger.debug("Query by for join {} on tables {}", boundingBox, tableNames);
-			}
-
-			final TupleStoreName sstableName = new TupleStoreName(tableNames.get(0));
-			final SpacePartitioner distributionAdapter 
-				= SpacePartitionerCache.getSpaceParitionerForTableName(sstableName);
-
-			final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
-						
-			final Collection<RoutingHop> hops 
-				= RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
-
-			final JoinedTupleListFuture future = new JoinedTupleListFuture();
-
-			hops.stream()
-				.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
-				.map(c -> c.queryJoin(tableNames, boundingBox))
-				.filter(Objects::nonNull)
-				.forEach(f -> future.merge(f));
-
-			return future;
-		} catch (ZookeeperException e) {
-			throw new BBoxDBException(e);
+		if(membershipConnectionService.getNumberOfConnections() == 0) {
+			throw new BBoxDBException("queryJoin called, but connection list is empty");
 		}
+
+		if(logger.isDebugEnabled()) {
+			logger.debug("Query by for join {} on tables {}", boundingBox, tableNames);
+		}
+
+		final TupleStoreName sstableName = new TupleStoreName(tableNames.get(0));
+		final SpacePartitioner distributionAdapter 
+			= SpacePartitionerCache.getSpacePartitionerForGroupName(sstableName.getDistributionGroup());
+
+		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
+					
+		final Collection<RoutingHop> hops 
+			= RoutingHopHelper.getRoutingHopsForRead(distributionRegion, boundingBox);
+
+		final JoinedTupleListFuture future = new JoinedTupleListFuture();
+
+		hops.stream()
+			.map(s -> membershipConnectionService.getConnectionForInstance(s.getDistributedInstance()))
+			.map(c -> c.queryJoin(tableNames, boundingBox))
+			.filter(Objects::nonNull)
+			.forEach(f -> future.merge(f));
+
+		return future;
 	}
 
 	@Override
