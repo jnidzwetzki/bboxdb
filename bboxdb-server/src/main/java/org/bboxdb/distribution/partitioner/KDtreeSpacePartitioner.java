@@ -20,6 +20,7 @@ package org.bboxdb.distribution.partitioner;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.zookeeper.WatchedEvent;
@@ -345,32 +346,8 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @param regionToSplit
 	 */
 	private void waitUntilChildrenAreCreated(final DistributionRegion regionToSplit) {
-
-		final Object MUTEX = new Object();
-		
-		final DistributionRegionCallback callback = (e, r) -> {
-			synchronized (MUTEX) {
-				MUTEX.notifyAll();
-			}
-		};
-		
-		registerCallback(callback);
-		
-		// Wait for zookeeper callback
-		synchronized (MUTEX) {
-			while(regionToSplit.getDirectChildren().size() != 2) {
-				logger.debug("Wait for zookeeper callback for split for: {} / {}", 
-						regionToSplit, regionToSplit.getDirectChildren());
-				try {
-					MUTEX.wait();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					logger.warn("Unable to wait for split for); {}", regionToSplit);
-				}
-			}
-		}
-		
-		unregisterCallback(callback);
+		final Predicate<DistributionRegion> predicate = (r) -> r.getDirectChildren().size() == 2;
+		waitForPredicate(predicate, regionToSplit);		
 	}
 	
 	/**
@@ -378,7 +355,17 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * @param regionToSplit
 	 */
 	private void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit) {
-		
+		final Predicate<DistributionRegion> predicate = (r) -> isSplitForNodeComplete(r);
+		waitForPredicate(predicate, regionToSplit);
+	}
+	
+	/**
+	 * Wait for predicate
+	 * @param predicate
+	 * @param region
+	 */
+	private void waitForPredicate(final Predicate<DistributionRegion> predicate, 
+			final DistributionRegion region) {
 		final Object MUTEX = new Object();
 		
 		final DistributionRegionCallback callback = (e, r) -> {
@@ -391,13 +378,13 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		
 		// Wait for zookeeper callback
 		synchronized (MUTEX) {
-			while(! isSplitForNodeComplete(regionToSplit)) {
-				logger.debug("Wait for zookeeper callback for split for: {}", regionToSplit);
+			while(! predicate.test(region)) {
+				logger.debug("Wait for zookeeper callback for predicate for: {}", region);
 				try {
 					MUTEX.wait();
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
-					logger.warn("Unable to wait for split for: {}", regionToSplit);
+					logger.warn("Unable to wait for predicate for: {}", region);
 				}
 			}
 		}
