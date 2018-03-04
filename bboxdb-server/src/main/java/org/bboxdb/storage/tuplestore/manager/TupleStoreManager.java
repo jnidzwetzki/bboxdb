@@ -358,17 +358,20 @@ public class TupleStoreManager implements BBoxDBService {
 	 * @throws IOException 
 	 */
 	protected void writeDistributionGroupMetaData() throws ZookeeperException, 
-	ZookeeperNotFoundException, IOException {
+		ZookeeperNotFoundException, IOException {
 
 		if(! tupleStoreName.isDistributedTable()) {	
 			return;
 		}
 
-		logger.debug("Write meta data for distribution group: ", tupleStoreName.getDistributionGroup());
+		final String groupName = tupleStoreName.getDistributionGroup();
+		logger.debug("Write meta data for distribution group: ", groupName);
 
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		final DistributionGroupZookeeperAdapter dAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
-		final long version = dAdapter.getNodeMutationVersion(tupleStoreName.getDistributionGroup(), null);
+		
+		final String path = dAdapter.getDistributionGroupPath(groupName);
+		final long version = dAdapter.getNodeMutationVersion(path, null);
 
 		DistributionGroupMetadata distributionGroupMetadata = new DistributionGroupMetadata();
 		distributionGroupMetadata.setVersion(version);

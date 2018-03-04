@@ -150,8 +150,11 @@ public class DistributedRecoveryService implements BBoxDBService {
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
 				= new DistributionGroupZookeeperAdapter(zookeeperClient);
 			
+			final String path = distributionGroupZookeeperAdapter
+					.getDistributionGroupPath(distributionGroupName.getFullname());
+			
 			final long remoteVersion = distributionGroupZookeeperAdapter
-					.getNodeMutationVersion(distributionGroupName.getFullname(), null);
+					.getNodeMutationVersion(path, null);
 			
 			final long localVersion = metaData.getVersion();
 			
