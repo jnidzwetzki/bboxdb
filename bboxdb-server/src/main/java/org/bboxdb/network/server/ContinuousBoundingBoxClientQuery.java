@@ -151,8 +151,11 @@ public class ContinuousBoundingBoxClientQuery implements ClientQuery {
 				= clientConnectionHandler.getStorageRegistry();
 			
 			final String fullname = requestTable.getDistributionGroup();
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
-			final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
+					.getSpacePartitionerForGroupName(fullname);
+			
+			final DistributionRegionIdMapper regionIdMapper = spacePartitioner
+					.getDistributionRegionIdMapper();
 		
 			final Collection<TupleStoreName> localTables 
 				= regionIdMapper.getLocalTablesForRegion(boundingBox, requestTable);

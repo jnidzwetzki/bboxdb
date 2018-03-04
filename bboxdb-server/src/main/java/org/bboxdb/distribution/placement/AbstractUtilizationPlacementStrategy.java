@@ -98,8 +98,8 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 	    
 		// Calculate usage for each distribution group
 		for(final DistributionGroupName groupName : distributionGroups) {
-			final SpacePartitioner spacepartitioner 
-				= SpacePartitionerCache.getSpacePartitionerForGroupName(groupName.getFullname());
+			final SpacePartitioner spacepartitioner = SpacePartitionerCache
+				.getInstance().getSpacePartitionerForGroupName(groupName.getFullname());
 			
 			final DistributionRegion region = spacepartitioner.getRootNode();
 			final Multiset<BBoxDBInstance> regionSystemUsage 

@@ -117,7 +117,10 @@ public class StatisticsUpdateThread extends ExceptionSafeRunnable {
 			final List<DistributionGroupName> allDistributionGroups = adapter.getDistributionGroups();
 			for(final DistributionGroupName distributionGroup : allDistributionGroups) {
 				final String fullname = distributionGroup.getFullname();
-				final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+				
+				final SpacePartitioner spacePartitioner = SpacePartitionerCache
+						.getInstance().getSpacePartitionerForGroupName(fullname);
+				
 				final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
 				
 				final Collection<Long> allIds = regionIdMapper.getRegionIdsForRegion(BoundingBox.FULL_SPACE);
@@ -144,8 +147,9 @@ public class StatisticsUpdateThread extends ExceptionSafeRunnable {
 	private void updateRegionStatistics(final DistributionGroupName distributionGroup, final long regionId) 
 			throws BBoxDBException, ZookeeperException, StorageManagerException, InterruptedException {
 		
-		final SpacePartitioner spacePartitioner = SpacePartitionerCache
-				.getSpacePartitionerForGroupName(distributionGroup.getFullname());
+		final String fullname = distributionGroup.getFullname();
+		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
+				.getSpacePartitionerForGroupName(fullname);
 		
 		final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
 

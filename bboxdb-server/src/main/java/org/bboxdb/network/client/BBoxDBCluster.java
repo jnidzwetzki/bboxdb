@@ -162,8 +162,9 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final TupleStoreName ssTableName = new TupleStoreName(table);
 
-		final SpacePartitioner distributionAdapter 
-			= SpacePartitionerCache.getSpacePartitionerForGroupName(ssTableName.getDistributionGroup());
+		final String distributionGroup = ssTableName.getDistributionGroup();
+		final SpacePartitioner distributionAdapter = SpacePartitionerCache
+				.getInstance().getSpacePartitionerForGroupName(distributionGroup);
 
 		final Supplier<RoutingHeader> routingHeaderSupplier = () -> {
 			try {
@@ -338,8 +339,9 @@ public class BBoxDBCluster implements BBoxDB {
 	
 		final TupleStoreName sstableName = new TupleStoreName(table);
 
-		final SpacePartitioner distributionAdapter 
-			= SpacePartitionerCache.getSpacePartitionerForGroupName(sstableName.getDistributionGroup());
+		final String distributionGroup = sstableName.getDistributionGroup();
+		final SpacePartitioner distributionAdapter
+			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroup);
 
 		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 		final Collection<RoutingHop> hops 
@@ -374,8 +376,9 @@ public class BBoxDBCluster implements BBoxDB {
 
 		final TupleStoreName sstableName = new TupleStoreName(table);
 
+		final String distributionGroup = sstableName.getDistributionGroup();
 		final SpacePartitioner distributionAdapter 
-			= SpacePartitionerCache.getSpacePartitionerForGroupName(sstableName.getDistributionGroup());
+			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroup);
 
 		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 		final Set<DistributionRegion> regions 
@@ -406,8 +409,9 @@ public class BBoxDBCluster implements BBoxDB {
 
 
 		final TupleStoreName sstableName = new TupleStoreName(table);
+		final String distributionGroup = sstableName.getDistributionGroup();
 		final SpacePartitioner distributionAdapter 
-			= SpacePartitionerCache.getSpacePartitionerForGroupName(sstableName.getDistributionGroup());
+			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroup);
 
 		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 		
@@ -484,8 +488,9 @@ public class BBoxDBCluster implements BBoxDB {
 		}
 
 		final TupleStoreName sstableName = new TupleStoreName(tableNames.get(0));
+		final String distributionGroup = sstableName.getDistributionGroup();
 		final SpacePartitioner distributionAdapter 
-			= SpacePartitionerCache.getSpacePartitionerForGroupName(sstableName.getDistributionGroup());
+			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroup);
 
 		final DistributionRegion distributionRegion = distributionAdapter.getRootNode();
 					

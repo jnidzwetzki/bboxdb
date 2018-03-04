@@ -60,7 +60,7 @@ public class SpacePartitionerService implements SpacePartitionerServiceMBean {
 		
 		try {
 			final RegionSplitter regionSplitter = new RegionSplitter(storageRegistry);
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(distributionGroup);
 			
 			final DistributionRegion region = spacePartitioner.getRootNode();

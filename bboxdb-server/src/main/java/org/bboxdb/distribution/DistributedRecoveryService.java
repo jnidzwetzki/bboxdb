@@ -119,8 +119,9 @@ public class DistributedRecoveryService implements BBoxDBService {
 				checkGroupVersion(storage, distributionGroupName, zookeeperClient);
 			}
 					
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(
-					distributionGroupName.getFullname());
+			final String fullname = distributionGroupName.getFullname();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache
+					.getInstance().getSpacePartitionerForGroupName(fullname);
 			
 			final DistributionRegion distributionGroup = spacePartitioner.getRootNode();
 		

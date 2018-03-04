@@ -724,7 +724,9 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final KDtreeSpacePartitioner cacheGroup 
-			= (KDtreeSpacePartitioner) SpacePartitionerCache.getSpacePartitionerForGroupName(TEST_GROUP);
+			= (KDtreeSpacePartitioner) SpacePartitionerCache.getInstance()
+			.getSpacePartitionerForGroupName(TEST_GROUP);
+		
 		Assert.assertTrue(cacheGroup.getRootNode().isLeafRegion());
 
 		System.out.println("---> Delete");
@@ -802,8 +804,8 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
-		final KDtreeSpacePartitioner kdTreeAdapter 
-			= (KDtreeSpacePartitioner) SpacePartitionerCache.getSpacePartitionerForGroupName(TEST_GROUP);
+		final KDtreeSpacePartitioner kdTreeAdapter = (KDtreeSpacePartitioner) SpacePartitionerCache
+				.getInstance().getSpacePartitionerForGroupName(TEST_GROUP);
 		
 		Assert.assertEquals(1, kdTreeAdapter.getRootNode().getTotalLevel());
 		Assert.assertEquals(0, kdTreeAdapter.getRootNode().getLevel());

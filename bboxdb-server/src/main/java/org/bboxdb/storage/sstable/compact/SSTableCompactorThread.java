@@ -168,8 +168,9 @@ public class SSTableCompactorThread extends ExceptionSafeRunnable {
 			
 			final long regionId = tupleStoreName.getRegionId();
 			
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache
-					.getSpacePartitionerForGroupName(tupleStoreName.getDistributionGroup());
+			final String distributionGroup = tupleStoreName.getDistributionGroup();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
+					.getSpacePartitionerForGroupName(distributionGroup);
 			
 			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
 
@@ -295,8 +296,9 @@ public class SSTableCompactorThread extends ExceptionSafeRunnable {
 			final TupleStoreName ssTableName = sstableManager.getTupleStoreName();
 			final long regionId = ssTableName.getRegionId();
 			
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache
-					.getSpacePartitionerForGroupName(ssTableName.getDistributionGroup());
+			final String distributionGroup = ssTableName.getDistributionGroup();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
+					.getSpacePartitionerForGroupName(distributionGroup);
 			
 			final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
 

@@ -114,7 +114,9 @@ public class RegionMerger {
 
 		// Add the local mapping, new data is written to the region
 		final String fullname = distributionGroupName.getFullname();
-		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+		final SpacePartitioner spacePartitioner = SpacePartitionerCache
+				.getInstance().getSpacePartitionerForGroupName(fullname);
+		
 		final DistributionRegionIdMapper mapper = spacePartitioner.getDistributionRegionIdMapper();		
 		
 		// We have set the region to active, wait until we see this status change 

@@ -122,7 +122,9 @@ public class KeepAliveHandler implements RequestHandler {
 			final TupleStoreName tupleStoreName, final Tuple tuple) throws BBoxDBException {
 
 		final String fullname = tupleStoreName.getDistributionGroup();
-		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
+				.getSpacePartitionerForGroupName(fullname);
+		
 		final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
 
 		final Collection<TupleStoreName> localTables = regionIdMapper.getLocalTablesForRegion(tuple.getBoundingBox(), tupleStoreName);

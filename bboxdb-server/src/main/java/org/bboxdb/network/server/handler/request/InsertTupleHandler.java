@@ -168,8 +168,11 @@ public class InsertTupleHandler implements RequestHandler {
 		try {
 			
 			final String fullname = requestTable.getDistributionGroup();
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
-			final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache
+					.getInstance().getSpacePartitionerForGroupName(fullname);
+			
+			final DistributionRegionIdMapper regionIdMapper = spacePartitioner
+					.getDistributionRegionIdMapper();
 
 			final Collection<TupleStoreName> localTables = regionIdMapper.convertRegionIdToTableNames(
 						requestTable, distributionRegions);

@@ -175,7 +175,8 @@ public class GuiModel implements DistributionRegionCallback {
 			}
 
 			try {
-				spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(distributionGroup);
+				spacePartitioner = SpacePartitionerCache.getInstance()
+						.getSpacePartitionerForGroupName(distributionGroup);
 				
 				final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 						.getInstance().getDistributionGroupConfiguration(distributionGroup);

@@ -767,7 +767,7 @@ public class CLI implements Runnable, AutoCloseable {
 		System.out.println("Show distribution group: " + distributionGroup);
 		
 		try {
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(distributionGroup);
 			
 			final DistributionGroupConfiguration config = DistributionGroupConfigurationCache

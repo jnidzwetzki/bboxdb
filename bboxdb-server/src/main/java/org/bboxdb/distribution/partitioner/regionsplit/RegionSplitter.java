@@ -176,7 +176,9 @@ public class RegionSplitter {
 	
 			// Remove the local mapping, no new data is written to the region
 			final String fullname = distributionGroupName.getFullname();
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache
+					.getInstance().getSpacePartitionerForGroupName(fullname);
+			
 			final DistributionRegionIdMapper mapper = spacePartitioner.getDistributionRegionIdMapper();
 			
 			// We have set the region to splitting, wait until we see this status change 

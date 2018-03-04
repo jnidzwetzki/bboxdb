@@ -63,8 +63,8 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			distributionGroupZookeeperAdapter.createDistributionGroup(distributionGroup, 
 					createPackage.getDistributionGroupConfiguration());
 			
-			final SpacePartitioner distributionAdapter = SpacePartitionerCache.getSpacePartitionerForGroupName(
-					distributionGroup);
+			final SpacePartitioner distributionAdapter = SpacePartitionerCache.getInstance()
+					.getSpacePartitionerForGroupName(distributionGroup);
 
 			final DistributionRegion region = distributionAdapter.getRootNode();
 			

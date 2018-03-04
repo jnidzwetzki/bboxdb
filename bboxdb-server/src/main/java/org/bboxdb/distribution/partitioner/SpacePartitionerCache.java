@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -30,27 +32,46 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
 
-public class SpacePartitionerCache {
+public class SpacePartitionerCache implements Watcher {
 	
 	/**
 	 * Mapping between the string group and the group object
 	 */
-	protected final static Map<String, SpacePartitioner> groupGroupMap;
+	private final Map<String, SpacePartitioner> spacePartitioner;
+	
+	/**
+	 * The versions
+	 */
+	private final Map<String, Long> partitionerVersions;
 	
 	/**
 	 * The region mapper
 	 */
-	private final static Map<String, DistributionRegionIdMapper> distributionRegionIdMapper;
+	private final Map<String, DistributionRegionIdMapper> distributionRegionIdMapper;
 	
 	/**
 	 * The callbacks
 	 */
-	private final static Map<String, Set<DistributionRegionCallback>> callbacks;
+	private final Map<String, Set<DistributionRegionCallback>> callbacks;
+	
+	/**
+	 * The instance
+	 */
+	private static SpacePartitionerCache instance;
 
-	static {
-		groupGroupMap = new HashMap<>();
+	private SpacePartitionerCache() {
+		spacePartitioner = new HashMap<>();
 		distributionRegionIdMapper = new HashMap<>();
+		partitionerVersions = new HashMap<>();
 		callbacks = new HashMap<>();
+	}
+	
+	public synchronized static SpacePartitionerCache getInstance() {
+		 if(instance == null) {
+			 instance = new SpacePartitionerCache();
+		 }
+		 
+		 return instance;
 	}
 	
 	/**
@@ -61,10 +82,10 @@ public class SpacePartitionerCache {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public static synchronized SpacePartitioner getSpacePartitionerForGroupName(final String groupName) throws BBoxDBException  {
+	public synchronized SpacePartitioner getSpacePartitionerForGroupName(final String groupName) throws BBoxDBException  {
 		
 		try {
-			if(! groupGroupMap.containsKey(groupName)) {
+			if(! spacePartitioner.containsKey(groupName)) {
 				final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 				
 				// Create callback list
@@ -81,12 +102,21 @@ public class SpacePartitionerCache {
 				final SpacePartitioner adapter = distributionGroupZookeeperAdapter.getSpaceparitioner(groupName, 
 						callback, mapper);
 				
-				groupGroupMap.put(groupName, adapter);
+				spacePartitioner.put(groupName, adapter);
 			}
 			
-			return groupGroupMap.get(groupName);
+			return spacePartitioner.get(groupName);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		}
+	}
+
+	/**
+	 * Process changed on the registered distribution regions
+	 */
+	@Override
+	public void process(final WatchedEvent event) {
+	
+		
 	}
 }

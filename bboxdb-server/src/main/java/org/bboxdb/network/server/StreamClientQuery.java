@@ -125,7 +125,10 @@ public class StreamClientQuery implements Closeable, ClientQuery {
 		try {
 			for(final TupleStoreName requestTable : requestTables) {				
 				final String fullname = requestTable.getDistributionGroup();
-				final SpacePartitioner spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(fullname);
+				
+				final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
+						.getSpacePartitionerForGroupName(fullname);
+				
 				final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
 			
 				final List<TupleStoreName> localTablesForTable = regionIdMapper.getAllLocalTables(requestTable);
