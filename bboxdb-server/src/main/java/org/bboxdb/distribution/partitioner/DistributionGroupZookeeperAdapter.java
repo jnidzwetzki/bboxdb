@@ -783,7 +783,7 @@ public class DistributionGroupZookeeperAdapter {
 	public List<DistributionGroupName> getDistributionGroups(final Watcher watcher) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final List<DistributionGroupName> groups = new ArrayList<DistributionGroupName>();
+		final List<DistributionGroupName> groups = new ArrayList<>();
 		final String clusterPath = zookeeperClient.getClusterPath();
 		final List<String> nodes = zookeeperClient.getChildren(clusterPath, watcher);
 		
@@ -807,7 +807,7 @@ public class DistributionGroupZookeeperAdapter {
 			if(groupName.isValid()) {
 				groups.add(groupName);
 			} else {
-				logger.debug("Got invalid distribution group name from zookeeper: {}", groupName);
+				logger.error("Got invalid distribution group name from zookeeper: {}", groupName);
 			}
 		}
 		

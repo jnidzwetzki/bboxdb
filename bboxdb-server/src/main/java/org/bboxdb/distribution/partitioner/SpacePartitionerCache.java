@@ -18,19 +18,23 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SpacePartitionerCache implements Watcher {
 	
@@ -55,15 +59,28 @@ public class SpacePartitionerCache implements Watcher {
 	private final Map<String, Set<DistributionRegionCallback>> callbacks;
 	
 	/**
+	 * The zookeeper adapter
+	 */
+	private final DistributionGroupZookeeperAdapter distributionGroupAdapter;
+
+	/**
 	 * The instance
 	 */
 	private static SpacePartitionerCache instance;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(SpacePartitionerCache.class);
+
+
 
 	private SpacePartitionerCache() {
-		spacePartitioner = new HashMap<>();
-		distributionRegionIdMapper = new HashMap<>();
-		partitionerVersions = new HashMap<>();
-		callbacks = new HashMap<>();
+		this.spacePartitioner = new HashMap<>();
+		this.distributionRegionIdMapper = new HashMap<>();
+		this.partitionerVersions = new HashMap<>();
+		this.callbacks = new HashMap<>();
+		this.distributionGroupAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 	}
 	
 	public synchronized static SpacePartitionerCache getInstance() {
@@ -82,11 +99,23 @@ public class SpacePartitionerCache implements Watcher {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public synchronized SpacePartitioner getSpacePartitionerForGroupName(final String groupName) throws BBoxDBException  {
+	public synchronized SpacePartitioner getSpacePartitionerForGroupName(final String groupName) 
+			throws BBoxDBException  {
 		
 		try {
 			if(! spacePartitioner.containsKey(groupName)) {
-				final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+				
+				final List<DistributionGroupName> knownGroups = distributionGroupAdapter
+						.getDistributionGroups(this);
+				
+				final DistributionGroupName distributionGroupName = new DistributionGroupName(groupName);
+				
+				if(! knownGroups.contains(distributionGroupName)) {
+					throw new BBoxDBException("Distribution group " + groupName + " is not known");
+				}
+				
+				final String path = distributionGroupAdapter.getDistributionGroupPath(groupName);
+				final long version = distributionGroupAdapter.getNodeMutationVersion(path, this);
 				
 				// Create callback list
 				final Set<DistributionRegionCallback> callback = new CopyOnWriteArraySet<>();
@@ -95,13 +124,11 @@ public class SpacePartitionerCache implements Watcher {
 				// Create region id mapper
 				final DistributionRegionIdMapper mapper = new DistributionRegionIdMapper();
 				distributionRegionIdMapper.put(groupName, mapper);
-
-				final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
-					= new DistributionGroupZookeeperAdapter(zookeeperClient);
 				
-				final SpacePartitioner adapter = distributionGroupZookeeperAdapter.getSpaceparitioner(groupName, 
+				final SpacePartitioner adapter = distributionGroupAdapter.getSpaceparitioner(groupName, 
 						callback, mapper);
 				
+				partitionerVersions.put(groupName, version);
 				spacePartitioner.put(groupName, adapter);
 			}
 			
@@ -116,7 +143,32 @@ public class SpacePartitionerCache implements Watcher {
 	 */
 	@Override
 	public void process(final WatchedEvent event) {
-	
+		// Ignore events like connected and disconnected
+		if(event == null || event.getPath() == null) {
+			return;
+		}
 		
+		final String path = event.getPath();
+
+		// Amount of distribution groups have changed
+		if(path.endsWith(ZookeeperNodeNames.NAME_NODE_VERSION)) {
+			logger.info("===> Got event {}", event);
+			rescanGroups();
+		} else {
+			logger.info("===> Ignoring event for path: {}" , path);
+		}
+		
+	}
+	
+	/**
+	 * Rescan for newly created distribution groups
+	 */
+	private void rescanGroups() {
+		
+	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException("Unable to clone a singleton");
 	}
 }
