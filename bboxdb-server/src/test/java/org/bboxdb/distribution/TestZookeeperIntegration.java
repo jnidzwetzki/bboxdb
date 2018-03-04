@@ -407,9 +407,10 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
 	 * @throws BBoxDBException 
+	 * @throws ZookeeperNotFoundException 
 	 */
 	@Test
-	public void testStatistics2() throws ZookeeperException, InterruptedException, BBoxDBException {
+	public void testStatistics2() throws ZookeeperException, InterruptedException, BBoxDBException, ZookeeperNotFoundException {
 		final BBoxDBInstance system1 = new BBoxDBInstance("192.168.1.10:5050");
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
@@ -448,9 +449,10 @@ public class TestZookeeperIntegration {
 	 * Test the set and get checkpoint methods
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
+	 * @throws ZookeeperNotFoundException 
 	 */
 	@Test
-	public void testSystemCheckpoint1() throws ZookeeperException, InterruptedException {
+	public void testSystemCheckpoint1() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		final BBoxDBInstance systemName1 = new BBoxDBInstance("192.168.1.10:5050");
 		final BBoxDBInstance systemName2 = new BBoxDBInstance("192.168.1.20:5050");
 
@@ -532,9 +534,10 @@ public class TestZookeeperIntegration {
 	 * Test the systems field
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
+	 * @throws ZookeeperNotFoundException 
 	 */
 	@Test
-	public void testSystems() throws ZookeeperException, InterruptedException {
+	public void testSystems() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		final BBoxDBInstance systemName = new BBoxDBInstance("192.168.1.10:5050");
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
@@ -553,9 +556,10 @@ public class TestZookeeperIntegration {
 	 * Test the generation of the nameprefix
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
+	 * @throws ZookeeperNotFoundException 
 	 */
 	@Test
-	public void testNameprefix1() throws ZookeeperException, InterruptedException {
+	public void testNameprefix1() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
@@ -605,9 +609,10 @@ public class TestZookeeperIntegration {
 	 * Test the path decoding and encoding
 	 * @throws ZookeeperException 
 	 * @throws BBoxDBException 
+	 * @throws ZookeeperNotFoundException 
 	 */
 	@Test
-	public void testPathDecodeAndEncode() throws ZookeeperException, BBoxDBException {
+	public void testPathDecodeAndEncode() throws ZookeeperException, BBoxDBException, ZookeeperNotFoundException {
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 
@@ -758,8 +763,9 @@ public class TestZookeeperIntegration {
 	 * Get a new space partitioner instance
 	 * @return
 	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException 
 	 */
-	private SpacePartitioner getSpacePartitioner() throws ZookeeperException {
+	private SpacePartitioner getSpacePartitioner() throws ZookeeperException, ZookeeperNotFoundException {
 		return distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
 				new HashSet<>(), new DistributionRegionIdMapper());
 	}

@@ -27,16 +27,34 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 
 public class SpacePartitionerContext {
 	
+	/**
+	 * The space partitioner configuration
+	 */
 	private String spacePartitionerConfig;
 	
+	/**
+	 * The distribution group name
+	 */
 	private DistributionGroupName distributionGroupName;
 	
+	/**
+	 * The zookeeper client
+	 */
 	private ZookeeperClient zookeeperClient;
 	
+	/**
+	 * The adapter
+	 */
 	private DistributionGroupZookeeperAdapter distributionGroupAdapter;
 	
+	/**
+	 * The callbacks
+	 */
 	private Set<DistributionRegionCallback> callback;
 	
+	/**
+	 * The mapper
+	 */
 	private DistributionRegionIdMapper mapper;
 
 	public SpacePartitionerContext(final String spacePartitionerConfig, final DistributionGroupName distributionGroupName,
@@ -67,11 +85,11 @@ public class SpacePartitionerContext {
 		return distributionGroupAdapter;
 	}
 
-	public Set<DistributionRegionCallback> getCallback() {
+	public Set<DistributionRegionCallback> getCallbacks() {
 		return callback;
 	}
 
-	public DistributionRegionIdMapper getMapper() {
+	public DistributionRegionIdMapper getDistributionRegionMapper() {
 		return mapper;
 	}
 }

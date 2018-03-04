@@ -18,7 +18,6 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -67,24 +66,14 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	private long memoryVersion;
 
 	/**
-	 * The space partitioner configuration
-	 */
-	protected String spacePartitionerConfig;
-	
-	/**
 	 * The distribution region syncer
 	 */
 	private DistributionRegionSyncer distributionRegionSyncer;
 	
 	/**
-	 * The region mapper
+	 * The space partitioner context
 	 */
-	private DistributionRegionIdMapper distributionRegionIdMapper;
-	
-	/**
-	 * The callbacks
-	 */
-	private Set<DistributionRegionCallback> callbacks;
+	private SpacePartitionerContext spacePartitionerContext;
 	
 	/**
 	 * The logger
@@ -97,13 +86,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	@Override
 	public void init(final SpacePartitionerContext spacePartitionerContext) throws ZookeeperException {
-				
-		this.spacePartitionerConfig = Objects.requireNonNull(spacePartitionerContext.getSpacePartitionerConfig());
-		this.distributionGroupName = Objects.requireNonNull(spacePartitionerContext.getDistributionGroupName());
-		this.distributionGroupZookeeperAdapter = Objects.requireNonNull(spacePartitionerContext.getDistributionGroupAdapter());
-		this.callbacks = Objects.requireNonNull(spacePartitionerContext.getCallback());
-		this.distributionRegionIdMapper = Objects.requireNonNull(spacePartitionerContext.getMapper());
-
+		this.memoryVersion = 0;
+		this.distributionGroupZookeeperAdapter = spacePartitionerContext.getDistributionGroupAdapter();
+		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
+		this.spacePartitionerContext = spacePartitionerContext;
+		
 		testGroupRecreated();
 	}
 	
@@ -156,10 +143,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 			
 			TupleStoreConfigurationCache.getInstance().clear();
 			DistributionGroupConfigurationCache.getInstance().clear();
-			distributionRegionIdMapper.clear();
+			spacePartitionerContext.getDistributionRegionMapper().clear();
 			
 			this.distributionRegionSyncer = new DistributionRegionSyncer(distributionGroupName, 
-					distributionGroupZookeeperAdapter, distributionRegionIdMapper, callbacks);
+					distributionGroupZookeeperAdapter, spacePartitionerContext.getDistributionRegionMapper(), 
+					spacePartitionerContext.getCallbacks());
 			
 			logger.info("Root element for {} is deleted", distributionGroupName);
 			
@@ -423,7 +411,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	@Override
 	public boolean registerCallback(final DistributionRegionCallback callback) {
-		return callbacks.add(callback);
+		return spacePartitionerContext.getCallbacks().add(callback);
 	}
 	
 	/**
@@ -433,7 +421,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	@Override
 	public boolean unregisterCallback(final DistributionRegionCallback callback) {
-		return callbacks.remove(callback);
+		return spacePartitionerContext.getCallbacks().remove(callback);
 	}
 	
 	@Override

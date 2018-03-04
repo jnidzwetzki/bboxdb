@@ -85,7 +85,7 @@ public class SpacePartitionerCache {
 			}
 			
 			return groupGroupMap.get(groupName);
-		} catch (ZookeeperException e) {
+		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		}
 	}

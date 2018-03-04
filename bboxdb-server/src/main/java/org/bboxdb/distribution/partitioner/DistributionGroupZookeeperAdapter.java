@@ -33,12 +33,14 @@ import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -59,8 +61,7 @@ public class DistributionGroupZookeeperAdapter {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DistributionGroupZookeeperAdapter.class);
 
-
-	public DistributionGroupZookeeperAdapter(ZookeeperClient zookeeperClient) {
+	public DistributionGroupZookeeperAdapter(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
 	}
 	
@@ -109,7 +110,7 @@ public class DistributionGroupZookeeperAdapter {
 	 */
 	public SpacePartitioner getSpaceparitioner(final String distributionGroup, 
 			final Set<DistributionRegionCallback> callback, final DistributionRegionIdMapper mapper) 
-			throws ZookeeperException {
+			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
 
@@ -118,8 +119,18 @@ public class DistributionGroupZookeeperAdapter {
 			throw new ZookeeperException(exceptionMessage);
 		}
 		
-		return SpacePartitionerFactory.getSpacePartitionerForDistributionGroup(zookeeperClient, 
-				this, distributionGroup, callback, mapper);
+		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
+				.getInstance().getDistributionGroupConfiguration(distributionGroup);
+		
+		final SpacePartitionerContext spacePartitionerContext = new SpacePartitionerContext(
+				config.getSpacePartitionerConfig(), 
+				new DistributionGroupName(distributionGroup), 
+				zookeeperClient, 
+				ZookeeperClientFactory.getDistributionGroupAdapter(), 
+				callback, 
+				mapper);
+		
+		return SpacePartitionerFactory.getSpacePartitionerForDistributionGroup(spacePartitionerContext);
 	}
 	
 	/**

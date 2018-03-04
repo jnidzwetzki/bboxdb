@@ -17,13 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
-import java.util.Set;
-
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.region.DistributionRegionCallback;
-import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -38,18 +33,17 @@ public class SpacePartitionerFactory {
 	private final static Logger logger = LoggerFactory.getLogger(SpacePartitionerFactory.class);
 
 	/**
-	 * Return the space partitioner for the distriburion group
+	 * Return the space partitioner for the distribution group
 	 * @param mapper 
 	 * @param callback 
 	 * @throws ZookeeperNotFoundException 
 	 */
 	public static SpacePartitioner getSpacePartitionerForDistributionGroup(
-			final ZookeeperClient zookeeperClient,
-			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
-			final String distributionGroup, final Set<DistributionRegionCallback> callback, 
-			final DistributionRegionIdMapper mapper) throws ZookeeperException {
+			final SpacePartitionerContext spacePartitionerContext) throws ZookeeperException {
 
 		try {
+			final DistributionGroupName distributionGroup = spacePartitionerContext.getDistributionGroupName();
+			
 			final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 					.getInstance().getDistributionGroupConfiguration(distributionGroup);
 
@@ -68,24 +62,15 @@ public class SpacePartitionerFactory {
 				throw new ClassNotFoundException(spacePartitionerString + " is not a instance of SpacePartitioner");
 			}
 
-			final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
-
 			final SpacePartitioner spacePartitioner = (SpacePartitioner) factoryObject;   
-			
-			final SpacePartitionerContext spacePartitionerContext = new SpacePartitionerContext(
-					config.getSpacePartitionerConfig(), 
-					distributionGroupName, 
-					zookeeperClient, 
-					distributionGroupAdapter, 
-					callback, 
-					mapper);
 			
 			spacePartitioner.init(spacePartitionerContext);
 
 			return spacePartitioner;
 
 		} catch (Exception e) {
-			logger.warn("Unable to instance space partitioner for group: " + distributionGroup, e);
+			logger.warn("Unable to instance space partitioner for group: " 
+					+ spacePartitionerContext.getDistributionGroupName(), e);
 			throw new RuntimeException(e);
 		} 
 	}

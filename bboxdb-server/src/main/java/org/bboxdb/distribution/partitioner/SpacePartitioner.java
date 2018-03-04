@@ -33,10 +33,10 @@ public interface SpacePartitioner {
 	
 	/**
 	 * All dependencies are set, init the partitioner
-	 * @param spacePartitionerContext TODO
+	 * @param spacePartitionerContext
 	 * @throws ZookeeperException
 	 */
-	public void init(SpacePartitionerContext spacePartitionerContext) throws ZookeeperException;
+	public void init(final SpacePartitionerContext spacePartitionerContext) throws ZookeeperException;
 
 	/**
 	 * Get the root node
