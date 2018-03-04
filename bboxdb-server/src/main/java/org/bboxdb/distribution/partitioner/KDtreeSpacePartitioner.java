@@ -65,7 +65,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	/**
 	 * The version of the distribution group
 	 */
-	private String version;
+	private long memoryVersion;
 
 	/**
 	 * The space partitioner configuration
@@ -135,21 +135,21 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		try {
 			final String fullname = distributionGroupName.getFullname();
 			
-			final String zookeeperVersion 
-				= distributionGroupZookeeperAdapter.getVersionForDistributionGroup(fullname, this);
-			
+			final long zookeeperVersion 
+				= distributionGroupZookeeperAdapter.getNodeMutationVersion(fullname, this);
+						
 			logger.debug("Reading version and register watcher for {}", fullname);
 			
-			if(version == null || ! version.equals(zookeeperVersion)) {
-				logger.info("Our tree version is {}, zookeeper version is {}", version, zookeeperVersion);
-				version = zookeeperVersion;
+			if(memoryVersion < zookeeperVersion) {
+				logger.info("Our tree version is {}, zookeeper version is {}", memoryVersion, zookeeperVersion);
+				memoryVersion = zookeeperVersion;
 				distributionRegionSyncer = null;
 				handleGroupRecreated();
 			} 
 			
 		} catch (ZookeeperNotFoundException e) {
 			logger.info("Version for {} not found, deleting in memory version", distributionGroupName);
-			version = null;
+			memoryVersion = 0;
 			distributionRegionSyncer = null;
 		}
 	}
@@ -207,7 +207,7 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		final String path = event.getPath();
 
 		// Amount of distribution groups have changed
-		if(path.endsWith(ZookeeperNodeNames.NAME_DGROUP_VERSION)) {
+		if(path.endsWith(ZookeeperNodeNames.NAME_NODE_VERSION)) {
 			logger.info("===> Got event {}", event);
 			testGroupRecreatedNE();
 		} else {

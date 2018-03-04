@@ -368,7 +368,7 @@ public class TupleStoreManager implements BBoxDBService {
 
 		final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		final DistributionGroupZookeeperAdapter dAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
-		final String version = dAdapter.getVersionForDistributionGroup(tupleStoreName.getDistributionGroup(), null);
+		final long version = dAdapter.getNodeMutationVersion(tupleStoreName.getDistributionGroup(), null);
 
 		DistributionGroupMetadata distributionGroupMetadata = new DistributionGroupMetadata();
 		distributionGroupMetadata.setVersion(version);

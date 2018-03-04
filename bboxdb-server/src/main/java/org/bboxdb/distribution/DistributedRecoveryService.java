@@ -150,12 +150,12 @@ public class DistributedRecoveryService implements BBoxDBService {
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
 				= new DistributionGroupZookeeperAdapter(zookeeperClient);
 			
-			final String remoteVersion = distributionGroupZookeeperAdapter
-					.getVersionForDistributionGroup(distributionGroupName.getFullname(), null);
+			final long remoteVersion = distributionGroupZookeeperAdapter
+					.getNodeMutationVersion(distributionGroupName.getFullname(), null);
 			
-			final String localVersion = metaData.getVersion();
+			final long localVersion = metaData.getVersion();
 			
-			if(! remoteVersion.equals(localVersion)) {
+			if(remoteVersion != localVersion) {
 				logger.error("Local version {} of dgroup {} does not match remtote version {}", localVersion, distributionGroupName, remoteVersion);
 				System.exit(-1);
 			}

@@ -80,14 +80,9 @@ public class ZookeeperNodeNames {
 	public final static String NAME_STATISTICS_TOTAL_SIZE = "total_size";
 	
 	/**
-	 * Name of the version node
+	 * Name of the region state node
 	 */
-	public final static String NAME_DGROUP_VERSION = "version";
-	
-	/**
-	 * Name of the state node
-	 */
-	public final static String NAME_SYSTEMS_STATE = "state";
+	public final static String NAME_REGION_STATE = "state";
 	
 	/**
 	 * Name of the version node

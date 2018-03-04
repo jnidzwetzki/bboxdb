@@ -214,7 +214,7 @@ public class DistributionGroupZookeeperAdapter {
 	public DistributionRegionState getStateForDistributionRegion(final String path, 
 			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final String statePath = path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE;
+		final String statePath = path + "/" + ZookeeperNodeNames.NAME_REGION_STATE;
 		final String state = zookeeperClient.readPathAndReturnString(statePath, callback);
 		return DistributionRegionState.fromString(state);
 	}
@@ -313,7 +313,7 @@ public class DistributionGroupZookeeperAdapter {
 	public void setStateForDistributionGroup(final String path, final DistributionRegionState state) 
 			throws ZookeeperException  {
 		
-		final String statePath = path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE;
+		final String statePath = path + "/" + ZookeeperNodeNames.NAME_REGION_STATE;
 		zookeeperClient.setData(statePath, state.getStringValue());
 		
 		markNodeMutationAsComplete(path);
@@ -342,7 +342,7 @@ public class DistributionGroupZookeeperAdapter {
 	protected String getZookeeperPathForDistributionRegionState(final DistributionRegion region) {
 		
 		return getZookeeperPathForDistributionRegion(region) 
-				+ "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE;
+				+ "/" + ZookeeperNodeNames.NAME_REGION_STATE;
 	}
 
 	/**
@@ -354,7 +354,7 @@ public class DistributionGroupZookeeperAdapter {
 	public void createDistributionGroup(final String distributionGroup, 
 			final DistributionGroupConfiguration configuration) throws ZookeeperException {
 		
-		final String path = getDistributionGroupPath(distributionGroup);
+		final String groupPath = getDistributionGroupPath(distributionGroup);
 		final String rootPath = getDistributionGroupRootElementPath(distributionGroup);
 		
 		zookeeperClient.createDirectoryStructureRecursive(rootPath);
@@ -371,14 +371,11 @@ public class DistributionGroupZookeeperAdapter {
 		
 		setBoundingBoxForPath(rootPath, BoundingBox.createFullCoveringDimensionBoundingBox(configuration.getDimensions()));
 
-		zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
+		zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
 				DistributionRegionState.ACTIVE.getStringValue().getBytes());		
 		
-		// When the version field is written, the groups is assumed to be ready
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_DGROUP_VERSION, 
-				Long.toString(System.currentTimeMillis()).getBytes());
-		
 		markNodeMutationAsComplete(rootPath);
+		markNodeMutationAsComplete(groupPath);
 	}
 	
 	/**
@@ -413,7 +410,7 @@ public class DistributionGroupZookeeperAdapter {
 		
 		setBoundingBoxForPath(childPath, boundingBox);
 				
-		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
+		zookeeperClient.createPersistentNode(childPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
 				DistributionRegionState.CREATING.getStringValue().getBytes());
 			
 		markNodeMutationAsComplete(childPath);
@@ -752,11 +749,7 @@ public class DistributionGroupZookeeperAdapter {
 	public boolean isDistributionGroupRegistered(final String distributionGroup) throws ZookeeperException {
 		final String path = getDistributionGroupPath(distributionGroup);
 
-		if(! zookeeperClient.exists(path)) {
-			return false;
-		}
-		
-		return true;
+		return isNodeCompletelyCreated(path);
 	}
 	
 	/**
@@ -809,21 +802,6 @@ public class DistributionGroupZookeeperAdapter {
 		}
 		
 		return groups;
-	}
-	
-	/**
-	 * Get the version number of the distribution group
-	 * @param distributionGroup
-	 * @return
-	 * @throws ZookeeperException
-	 * @throws ZookeeperNotFoundException 
-	 */
-	public String getVersionForDistributionGroup(final String distributionGroup, 
-			final Watcher callback) throws ZookeeperException, ZookeeperNotFoundException {
-		
-		final String path = getDistributionGroupPath(distributionGroup);
-		final String fullPath = path + "/" + ZookeeperNodeNames.NAME_DGROUP_VERSION;
-		return zookeeperClient.readPathAndReturnString(fullPath, callback);	 
 	}
 	
 	/**
