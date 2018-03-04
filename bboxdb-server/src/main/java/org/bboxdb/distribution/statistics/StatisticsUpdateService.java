@@ -17,8 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.distribution.statistics;
 
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.BBoxDBService;
-import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 
 public class StatisticsUpdateService implements BBoxDBService {

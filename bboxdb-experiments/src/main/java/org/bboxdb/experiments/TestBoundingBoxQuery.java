@@ -28,9 +28,9 @@ import java.util.concurrent.TimeUnit;
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.commons.math.DoubleInterval;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.tools.TupleListFutureStore;
 

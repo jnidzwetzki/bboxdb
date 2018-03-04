@@ -35,8 +35,8 @@ import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
-import org.bboxdb.network.client.BBoxDBException;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;

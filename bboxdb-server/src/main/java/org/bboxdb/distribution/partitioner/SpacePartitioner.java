@@ -26,7 +26,7 @@ import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
-import org.bboxdb.network.client.BBoxDBException;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 
 public interface SpacePartitioner {

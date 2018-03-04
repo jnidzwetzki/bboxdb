@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.network.client;
+package org.bboxdb.misc;
 
 public class BBoxDBException extends Exception {
 

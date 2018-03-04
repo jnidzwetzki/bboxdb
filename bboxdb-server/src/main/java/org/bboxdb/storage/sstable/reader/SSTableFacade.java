@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.BBoxDBService;
-import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.BloomFilterBuilder;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;

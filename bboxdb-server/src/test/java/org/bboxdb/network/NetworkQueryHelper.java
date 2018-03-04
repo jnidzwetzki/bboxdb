@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDB;
-import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;

@@ -21,8 +21,8 @@ import java.io.IOException;
 
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.BBoxDBService;
-import org.bboxdb.network.client.BBoxDBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

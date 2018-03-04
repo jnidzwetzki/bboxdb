@@ -25,7 +25,7 @@ import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
-import org.bboxdb.network.client.BBoxDBException;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;

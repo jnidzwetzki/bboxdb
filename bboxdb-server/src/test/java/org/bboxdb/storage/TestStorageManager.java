@@ -27,7 +27,7 @@ import org.bboxdb.commons.ObjectSerializer;
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.entity.PersonEntity;
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.network.client.BBoxDBException;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DeletedTuple;
 import org.bboxdb.storage.entity.Tuple;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;

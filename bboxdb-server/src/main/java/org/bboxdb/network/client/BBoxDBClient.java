@@ -43,6 +43,7 @@ import org.bboxdb.commons.NetworkInterfaceHelper;
 import org.bboxdb.commons.ServiceState;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkConst;
 import org.bboxdb.network.NetworkPackageDecoder;

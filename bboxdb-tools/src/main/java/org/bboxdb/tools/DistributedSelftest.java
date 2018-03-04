@@ -23,8 +23,8 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBCluster;
-import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
