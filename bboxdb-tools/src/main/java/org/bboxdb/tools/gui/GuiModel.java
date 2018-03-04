@@ -32,6 +32,7 @@ import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.DistributedInstanceEvent;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionEvent;
@@ -174,8 +175,7 @@ public class GuiModel implements DistributionRegionCallback {
 			}
 
 			try {
-				spacePartitioner = distributionGroupZookeeperAdapter
-						.getSpaceparitioner(distributionGroup);
+				spacePartitioner = SpacePartitionerCache.getSpacePartitionerForGroupName(distributionGroup);
 				
 				final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 						.getInstance().getDistributionGroupConfiguration(distributionGroup);

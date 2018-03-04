@@ -36,12 +36,9 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
-import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.network.client.BBoxDB;
@@ -770,12 +767,8 @@ public class CLI implements Runnable, AutoCloseable {
 		System.out.println("Show distribution group: " + distributionGroup);
 		
 		try {
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
-				= new DistributionGroupZookeeperAdapter(zookeeperClient);
-			
-			final SpacePartitioner spacePartitioner = distributionGroupZookeeperAdapter
-					.getSpaceparitioner(distributionGroup);
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache
+					.getSpacePartitionerForGroupName(distributionGroup);
 			
 			final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 					.getInstance().getDistributionGroupConfiguration(distributionGroup);
@@ -786,7 +779,7 @@ public class CLI implements Runnable, AutoCloseable {
 			
 			printDistributionRegionRecursive(spacePartitioner.getRootNode());
 
-		} catch (ZookeeperException | ZookeeperNotFoundException e) {
+		} catch (BBoxDBException | ZookeeperNotFoundException e) {
 			System.err.println("Got an exception during reading distribution group:" + e);
 			System.exit(-1);
 		}
