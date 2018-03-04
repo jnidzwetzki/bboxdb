@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.util.Objects;
 import java.util.Set;
 
 import org.bboxdb.distribution.DistributionGroupName;
@@ -42,12 +43,12 @@ public class SpacePartitionerContext {
 			final ZookeeperClient zookeeperClient, final DistributionGroupZookeeperAdapter distributionGroupAdapter,
 			final Set<DistributionRegionCallback> callback, final DistributionRegionIdMapper mapper) {
 		
-		this.spacePartitionerConfig = spacePartitionerConfig;
-		this.distributionGroupName = distributionGroupName;
-		this.zookeeperClient = zookeeperClient;
-		this.distributionGroupAdapter = distributionGroupAdapter;
-		this.callback = callback;
-		this.mapper = mapper;
+		this.spacePartitionerConfig = Objects.requireNonNull(spacePartitionerConfig);
+		this.distributionGroupName = Objects.requireNonNull(distributionGroupName);
+		this.zookeeperClient = Objects.requireNonNull(zookeeperClient);
+		this.distributionGroupAdapter = Objects.requireNonNull(distributionGroupAdapter);
+		this.callback = Objects.requireNonNull(callback);
+		this.mapper =Objects.requireNonNull(mapper);
 	}
 
 	public String getSpacePartitionerConfig() {
