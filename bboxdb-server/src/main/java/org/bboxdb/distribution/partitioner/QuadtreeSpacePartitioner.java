@@ -32,14 +32,6 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 public class QuadtreeSpacePartitioner implements SpacePartitioner {
 
 	@Override
-	public void init(String spacePartitionerConfig, DistributionGroupName distributionGroupName,
-			ZookeeperClient zookeeperClient, DistributionGroupZookeeperAdapter distributionGroupAdapter) 
-					throws ZookeeperException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public DistributionRegion getRootNode() {
 		// TODO Auto-generated method stub
 		return null;
@@ -97,5 +89,13 @@ public class QuadtreeSpacePartitioner implements SpacePartitioner {
 	public DistributionRegionIdMapper getDistributionRegionIdMapper() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void init(String spacePartitionerConfig, DistributionGroupName distributionGroupName,
+			ZookeeperClient zookeeperClient, DistributionGroupZookeeperAdapter distributionGroupAdapter,
+			Set<DistributionRegionCallback> callback, DistributionRegionIdMapper mapper) throws ZookeeperException {
+		// TODO Auto-generated method stub
+		
 	}
 }

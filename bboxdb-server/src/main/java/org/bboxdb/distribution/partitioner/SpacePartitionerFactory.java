@@ -17,8 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.util.Set;
+
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
+import org.bboxdb.distribution.region.DistributionRegionCallback;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -35,13 +39,15 @@ public class SpacePartitionerFactory {
 
 	/**
 	 * Return the space partitioner for the distriburion group
+	 * @param mapper 
+	 * @param callback 
 	 * @throws ZookeeperNotFoundException 
 	 */
 	public static SpacePartitioner getSpacePartitionerForDistributionGroup(
 			final ZookeeperClient zookeeperClient,
 			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
-			final String distributionGroup) throws ZookeeperException {
-
+			final String distributionGroup, final Set<DistributionRegionCallback> callback, 
+			final DistributionRegionIdMapper mapper) throws ZookeeperException {
 
 		try {
 			final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
@@ -67,7 +73,7 @@ public class SpacePartitionerFactory {
 			final SpacePartitioner spacePartitioner = (SpacePartitioner) factoryObject;   
 			
 			spacePartitioner.init(config.getSpacePartitionerConfig(), distributionGroupName, 
-					zookeeperClient, distributionGroupAdapter);
+					zookeeperClient, distributionGroupAdapter, callback, mapper);
 
 			return spacePartitioner;
 

@@ -36,6 +36,8 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.distribution.region.DistributionRegionCallback;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
@@ -98,12 +100,15 @@ public class DistributionGroupZookeeperAdapter {
 	}
 	
 	/**
-	 * Read the structure of a distribution group
+	 * Get the space partitioner of a distribution group
+	 * @param mapper 
+	 * @param callback 
 	 * @return
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public SpacePartitioner getSpaceparitioner(final String distributionGroup) 
+	public SpacePartitioner getSpaceparitioner(final String distributionGroup, 
+			final Set<DistributionRegionCallback> callback, final DistributionRegionIdMapper mapper) 
 			throws ZookeeperException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
@@ -114,7 +119,7 @@ public class DistributionGroupZookeeperAdapter {
 		}
 		
 		return SpacePartitionerFactory.getSpacePartitionerForDistributionGroup(zookeeperClient, 
-				this, distributionGroup);
+				this, distributionGroup, callback, mapper);
 	}
 	
 	/**
@@ -730,12 +735,6 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 */
 	public void deleteDistributionGroup(final String distributionGroup) throws ZookeeperException {
-		
-		// Does the path not exist? We are done!
-		if(! isDistributionGroupRegistered(distributionGroup)) {
-			return;
-		}
-		
 		final String path = getDistributionGroupPath(distributionGroup);			
 		zookeeperClient.deleteNodesRecursive(path);
 	}

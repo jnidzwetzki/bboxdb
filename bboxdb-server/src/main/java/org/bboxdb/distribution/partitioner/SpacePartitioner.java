@@ -36,12 +36,16 @@ public interface SpacePartitioner {
 	/**
 	 * All dependencies are set, init the partitioner
 	 * @param spacePartitionerConfig 
+	 * @param mapper 
+	 * @param callback 
 	 * @throws ZookeeperException
 	 */
 	public void init(final String spacePartitionerConfig, 
 			final DistributionGroupName distributionGroupName, 
 			final ZookeeperClient zookeeperClient, 
-			final DistributionGroupZookeeperAdapter distributionGroupAdapter) throws ZookeeperException;
+			final DistributionGroupZookeeperAdapter distributionGroupAdapter, 
+			final Set<DistributionRegionCallback> callback, 
+			final DistributionRegionIdMapper mapper) throws ZookeeperException;
 
 	/**
 	 * Get the root node

@@ -18,8 +18,8 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -80,23 +80,18 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	/**
 	 * The region mapper
 	 */
-	private final DistributionRegionIdMapper distributionRegionIdMapper;
+	private DistributionRegionIdMapper distributionRegionIdMapper;
 	
 	/**
 	 * The callbacks
 	 */
-	private final Set<DistributionRegionCallback> callbacks;
+	private Set<DistributionRegionCallback> callbacks;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KDtreeSpacePartitioner.class);
 
-	public KDtreeSpacePartitioner() {
-		this.callbacks = new CopyOnWriteArraySet<>();
-		this.distributionRegionIdMapper = new DistributionRegionIdMapper();
-	}
-	
 	/**
 	 * Reread and handle the dgroup version
 	 * @param distributionGroupName
@@ -106,11 +101,15 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	public void init(final String spacePartitionerConfig, 
 			final DistributionGroupName distributionGroupName, 
 			final ZookeeperClient zookeeperClient, 
-			final DistributionGroupZookeeperAdapter distributionGroupAdapter) throws ZookeeperException {
+			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
+			final Set<DistributionRegionCallback> callback, 
+			final DistributionRegionIdMapper mapper) throws ZookeeperException {
 				
-		this.spacePartitionerConfig = spacePartitionerConfig;
-		this.distributionGroupName = distributionGroupName;
-		this.distributionGroupZookeeperAdapter = distributionGroupAdapter;
+		this.spacePartitionerConfig = Objects.requireNonNull(spacePartitionerConfig);
+		this.distributionGroupName = Objects.requireNonNull(distributionGroupName);
+		this.distributionGroupZookeeperAdapter = Objects.requireNonNull(distributionGroupAdapter);
+		this.callbacks = Objects.requireNonNull(callback);
+		this.distributionRegionIdMapper = Objects.requireNonNull(mapper);
 
 		testGroupRecreated();
 	}

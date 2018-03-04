@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.distribution;
 
+import java.util.HashSet;
+
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.KDtreeSpacePartitioner;
@@ -52,7 +54,10 @@ public class TestKDTreeSpacePartitioner {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 
 		
-		final KDtreeSpacePartitioner spacepartitionier = (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+		final KDtreeSpacePartitioner spacepartitionier = (KDtreeSpacePartitioner) 
+				distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
+						new HashSet<>(), new DistributionRegionIdMapper());
+		
 		final DistributionRegion oldRootNode = spacepartitionier.getRootNode();
 		final DistributionRegionIdMapper mapper = spacepartitionier.getDistributionRegionIdMapper();
 		
@@ -80,7 +85,10 @@ public class TestKDTreeSpacePartitioner {
 			distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 			distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(i)); 
 			
-			final KDtreeSpacePartitioner spacepartitionier = (KDtreeSpacePartitioner) distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP);
+			final KDtreeSpacePartitioner spacepartitionier = (KDtreeSpacePartitioner) 
+					distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
+							new HashSet<>(), new DistributionRegionIdMapper());
+			
 			final DistributionRegion rootNode = spacepartitionier.getRootNode();
 			
 			Assert.assertEquals(i, rootNode.getConveringBox().getDimension());

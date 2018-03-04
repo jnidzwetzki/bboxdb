@@ -19,7 +19,11 @@ package org.bboxdb.distribution.partitioner;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.bboxdb.distribution.region.DistributionRegionCallback;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -32,9 +36,21 @@ public class SpacePartitionerCache {
 	 * Mapping between the string group and the group object
 	 */
 	protected final static Map<String, SpacePartitioner> groupGroupMap;
+	
+	/**
+	 * The region mapper
+	 */
+	private final static Map<String, DistributionRegionIdMapper> distributionRegionIdMapper;
+	
+	/**
+	 * The callbacks
+	 */
+	private final static Map<String, Set<DistributionRegionCallback>> callbacks;
 
 	static {
 		groupGroupMap = new HashMap<>();
+		distributionRegionIdMapper = new HashMap<>();
+		callbacks = new HashMap<>();
 	}
 	
 	/**
@@ -50,11 +66,21 @@ public class SpacePartitionerCache {
 		try {
 			if(! groupGroupMap.containsKey(groupName)) {
 				final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
+				
+				// Create callback list
+				final Set<DistributionRegionCallback> callback = new CopyOnWriteArraySet<>();
+				callbacks.put(groupName, callback);
+				
+				// Create region id mapper
+				final DistributionRegionIdMapper mapper = new DistributionRegionIdMapper();
+				distributionRegionIdMapper.put(groupName, mapper);
 
 				final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
 					= new DistributionGroupZookeeperAdapter(zookeeperClient);
 				
-				final SpacePartitioner adapter = distributionGroupZookeeperAdapter.getSpaceparitioner(groupName);
+				final SpacePartitioner adapter = distributionGroupZookeeperAdapter.getSpaceparitioner(groupName, 
+						callback, mapper);
+				
 				groupGroupMap.put(groupName, adapter);
 			}
 			
