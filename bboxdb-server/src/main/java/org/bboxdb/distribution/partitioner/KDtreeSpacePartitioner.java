@@ -135,8 +135,10 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		try {
 			final String fullname = distributionGroupName.getFullname();
 			
+			final String path = distributionGroupZookeeperAdapter.getDistributionGroupPath(fullname);
+			
 			final long zookeeperVersion 
-				= distributionGroupZookeeperAdapter.getNodeMutationVersion(fullname, this);
+				= distributionGroupZookeeperAdapter.getNodeMutationVersion(path, this);
 						
 			logger.debug("Reading version and register watcher for {}", fullname);
 			
