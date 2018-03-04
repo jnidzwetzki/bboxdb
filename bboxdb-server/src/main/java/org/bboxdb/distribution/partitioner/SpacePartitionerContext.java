@@ -1,0 +1,76 @@
+/*******************************************************************************
+ *
+ *    Copyright (C) 2015-2018 the BBoxDB project
+ *  
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License. 
+ *    
+ *******************************************************************************/
+package org.bboxdb.distribution.partitioner;
+
+import java.util.Set;
+
+import org.bboxdb.distribution.DistributionGroupName;
+import org.bboxdb.distribution.region.DistributionRegionCallback;
+import org.bboxdb.distribution.region.DistributionRegionIdMapper;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+
+public class SpacePartitionerContext {
+	
+	private String spacePartitionerConfig;
+	
+	private DistributionGroupName distributionGroupName;
+	
+	private ZookeeperClient zookeeperClient;
+	
+	private DistributionGroupZookeeperAdapter distributionGroupAdapter;
+	
+	private Set<DistributionRegionCallback> callback;
+	
+	private DistributionRegionIdMapper mapper;
+
+	public SpacePartitionerContext(final String spacePartitionerConfig, final DistributionGroupName distributionGroupName,
+			final ZookeeperClient zookeeperClient, final DistributionGroupZookeeperAdapter distributionGroupAdapter,
+			final Set<DistributionRegionCallback> callback, final DistributionRegionIdMapper mapper) {
+		
+		this.spacePartitionerConfig = spacePartitionerConfig;
+		this.distributionGroupName = distributionGroupName;
+		this.zookeeperClient = zookeeperClient;
+		this.distributionGroupAdapter = distributionGroupAdapter;
+		this.callback = callback;
+		this.mapper = mapper;
+	}
+
+	public String getSpacePartitionerConfig() {
+		return spacePartitionerConfig;
+	}
+
+	public DistributionGroupName getDistributionGroupName() {
+		return distributionGroupName;
+	}
+
+	public ZookeeperClient getZookeeperClient() {
+		return zookeeperClient;
+	}
+
+	public DistributionGroupZookeeperAdapter getDistributionGroupAdapter() {
+		return distributionGroupAdapter;
+	}
+
+	public Set<DistributionRegionCallback> getCallback() {
+		return callback;
+	}
+
+	public DistributionRegionIdMapper getMapper() {
+		return mapper;
+	}
+}

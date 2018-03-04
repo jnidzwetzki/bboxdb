@@ -19,13 +19,11 @@ package org.bboxdb.distribution.partitioner;
 
 import java.util.Set;
 
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.network.client.BBoxDBException;
@@ -35,17 +33,10 @@ public interface SpacePartitioner {
 	
 	/**
 	 * All dependencies are set, init the partitioner
-	 * @param spacePartitionerConfig 
-	 * @param mapper 
-	 * @param callback 
+	 * @param spacePartitionerContext TODO
 	 * @throws ZookeeperException
 	 */
-	public void init(final String spacePartitionerConfig, 
-			final DistributionGroupName distributionGroupName, 
-			final ZookeeperClient zookeeperClient, 
-			final DistributionGroupZookeeperAdapter distributionGroupAdapter, 
-			final Set<DistributionRegionCallback> callback, 
-			final DistributionRegionIdMapper mapper) throws ZookeeperException;
+	public void init(SpacePartitionerContext spacePartitionerContext) throws ZookeeperException;
 
 	/**
 	 * Get the root node

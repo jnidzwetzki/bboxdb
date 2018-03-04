@@ -38,7 +38,6 @@ import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -94,22 +93,16 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 
 	/**
 	 * Reread and handle the dgroup version
-	 * @param distributionGroupName
 	 * @throws ZookeeperException
 	 */
 	@Override
-	public void init(final String spacePartitionerConfig, 
-			final DistributionGroupName distributionGroupName, 
-			final ZookeeperClient zookeeperClient, 
-			final DistributionGroupZookeeperAdapter distributionGroupAdapter,
-			final Set<DistributionRegionCallback> callback, 
-			final DistributionRegionIdMapper mapper) throws ZookeeperException {
+	public void init(final SpacePartitionerContext spacePartitionerContext) throws ZookeeperException {
 				
-		this.spacePartitionerConfig = Objects.requireNonNull(spacePartitionerConfig);
-		this.distributionGroupName = Objects.requireNonNull(distributionGroupName);
-		this.distributionGroupZookeeperAdapter = Objects.requireNonNull(distributionGroupAdapter);
-		this.callbacks = Objects.requireNonNull(callback);
-		this.distributionRegionIdMapper = Objects.requireNonNull(mapper);
+		this.spacePartitionerConfig = Objects.requireNonNull(spacePartitionerContext.getSpacePartitionerConfig());
+		this.distributionGroupName = Objects.requireNonNull(spacePartitionerContext.getDistributionGroupName());
+		this.distributionGroupZookeeperAdapter = Objects.requireNonNull(spacePartitionerContext.getDistributionGroupAdapter());
+		this.callbacks = Objects.requireNonNull(spacePartitionerContext.getCallback());
+		this.distributionRegionIdMapper = Objects.requireNonNull(spacePartitionerContext.getMapper());
 
 		testGroupRecreated();
 	}

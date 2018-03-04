@@ -19,12 +19,10 @@ package org.bboxdb.distribution.partitioner;
 
 import java.util.Set;
 
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.network.client.BBoxDBException;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
@@ -92,9 +90,7 @@ public class QuadtreeSpacePartitioner implements SpacePartitioner {
 	}
 
 	@Override
-	public void init(String spacePartitionerConfig, DistributionGroupName distributionGroupName,
-			ZookeeperClient zookeeperClient, DistributionGroupZookeeperAdapter distributionGroupAdapter,
-			Set<DistributionRegionCallback> callback, DistributionRegionIdMapper mapper) throws ZookeeperException {
+	public void init(SpacePartitionerContext spacePartitionerContext) throws ZookeeperException {
 		// TODO Auto-generated method stub
 		
 	}

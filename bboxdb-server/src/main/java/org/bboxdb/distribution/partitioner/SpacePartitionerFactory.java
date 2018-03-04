@@ -72,8 +72,15 @@ public class SpacePartitionerFactory {
 
 			final SpacePartitioner spacePartitioner = (SpacePartitioner) factoryObject;   
 			
-			spacePartitioner.init(config.getSpacePartitionerConfig(), distributionGroupName, 
-					zookeeperClient, distributionGroupAdapter, callback, mapper);
+			final SpacePartitionerContext spacePartitionerContext = new SpacePartitionerContext(
+					config.getSpacePartitionerConfig(), 
+					distributionGroupName, 
+					zookeeperClient, 
+					distributionGroupAdapter, 
+					callback, 
+					mapper);
+			
+			spacePartitioner.init(spacePartitionerContext);
 
 			return spacePartitioner;
 
