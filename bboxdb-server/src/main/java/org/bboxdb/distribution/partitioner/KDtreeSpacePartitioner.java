@@ -424,12 +424,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 		return spacePartitionerContext.getCallbacks().remove(callback);
 	}
 	
+	/** 
+	 * Get the region id mapper
+	 */
 	@Override
 	public DistributionRegionIdMapper getDistributionRegionIdMapper() {
-		if(distributionRegionSyncer != null) {
-			return distributionRegionSyncer.getDistributionRegionMapper();
-		}
-		
-		return null;
+		return spacePartitionerContext.getDistributionRegionMapper();
 	}
 }
