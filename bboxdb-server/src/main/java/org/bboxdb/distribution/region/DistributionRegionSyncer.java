@@ -385,7 +385,8 @@ public class DistributionRegionSyncer implements Watcher {
 		
 		// Reload root node
 		if(rootNode == null) {
-			final String path = distributionGroupAdapter.getDistributionGroupPath(distributionGroupName.toString());
+			final String groupNameString = distributionGroupName.toString();
+			final String path = distributionGroupAdapter.getDistributionGroupRootElementPath(groupNameString);
 			
 			try {
 				if(distributionGroupAdapter.isNodeCompletelyCreated(path)) {

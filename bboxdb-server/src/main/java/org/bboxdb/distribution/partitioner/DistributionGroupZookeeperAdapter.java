@@ -355,29 +355,30 @@ public class DistributionGroupZookeeperAdapter {
 			final DistributionGroupConfiguration configuration) throws ZookeeperException {
 		
 		final String path = getDistributionGroupPath(distributionGroup);
+		final String rootPath = getDistributionGroupRootElementPath(distributionGroup);
 		
-		zookeeperClient.createPersistentNode(path, "".getBytes());
+		zookeeperClient.createDirectoryStructureRecursive(rootPath);
 		
 		final int nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
 					
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
+		zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
 				Integer.toString(nameprefix).getBytes());
 		
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
+		zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
 				"".getBytes());
 		
 		setDistributionGroupConfiguration(distributionGroup, configuration);
 		
-		setBoundingBoxForPath(path, BoundingBox.createFullCoveringDimensionBoundingBox(configuration.getDimensions()));
+		setBoundingBoxForPath(rootPath, BoundingBox.createFullCoveringDimensionBoundingBox(configuration.getDimensions()));
 
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
+		zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS_STATE, 
 				DistributionRegionState.ACTIVE.getStringValue().getBytes());		
 		
 		// When the version field is written, the groups is assumed to be ready
 		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_DGROUP_VERSION, 
 				Long.toString(System.currentTimeMillis()).getBytes());
 		
-		markNodeMutationAsComplete(path);
+		markNodeMutationAsComplete(rootPath);
 	}
 	
 	/**
@@ -494,7 +495,7 @@ public class DistributionGroupZookeeperAdapter {
 		}
 		
 		final String name = distributionRegion.getDistributionGroupName().getFullname();
-		sb.insert(0, getDistributionGroupPath(name));
+		sb.insert(0, getDistributionGroupRootElementPath(name));
 		return sb.toString();
 	}
 	
@@ -508,7 +509,7 @@ public class DistributionGroupZookeeperAdapter {
 			final String path) {
 		
 		final String name = distributionRegion.getDistributionGroupName().getFullname();
-		final String distributionGroupPath = getDistributionGroupPath(name);
+		final String distributionGroupPath = getDistributionGroupRootElementPath(name);
 		
 		if(! path.startsWith(distributionGroupPath)) {
 			throw new IllegalArgumentException("Path " + path + " does not start with " + distributionGroupPath);
@@ -707,6 +708,16 @@ public class DistributionGroupZookeeperAdapter {
 	public String getDistributionGroupPath(final String distributionGroup) {
 		return zookeeperClient.getClusterPath() + "/" + distributionGroup;
 	}
+	
+	/**
+	 * Get the path of the root element of th group
+	 * @param distributionGroup
+	 * @return
+	 */
+	public String getDistributionGroupRootElementPath(final String distributionGroup) {
+		return getDistributionGroupPath(distributionGroup) + "/" + ZookeeperNodeNames.NAME_ROOT_NODE;
+	}
+	
 	
 	/**
 	 * Return the path for the cluster

@@ -35,6 +35,11 @@ public class ZookeeperNodeNames {
 	public final static String NAME_BOUNDINGBOX = "bbox";
 	
 	/**
+	 * Name of the root node
+	 */
+	public final static String NAME_ROOT_NODE = "root";
+	
+	/**
 	 * Name of the name prefix node
 	 */
 	public final static String NAME_NAMEPREFIX = "nameprefix";
@@ -87,7 +92,7 @@ public class ZookeeperNodeNames {
 	/**
 	 * Name of the version node
 	 */
-	public final static String NAME_NODE_VERSION= "node-version";
+	public final static String NAME_NODE_VERSION = "node-version";
 
 	/**
 	 * Name of the space partitioner node
