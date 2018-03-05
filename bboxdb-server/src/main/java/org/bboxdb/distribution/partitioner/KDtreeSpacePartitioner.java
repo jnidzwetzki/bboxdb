@@ -115,17 +115,17 @@ public class KDtreeSpacePartitioner implements SpacePartitioner {
 	/**
 	 * Get the root node
 	 * @return
+	 * @throws BBoxDBException 
 	 */
 	@Override
-	public DistributionRegion getRootNode() {
+	public DistributionRegion getRootNode() throws BBoxDBException {
 	
 		if(distributionRegionSyncer == null) {
 			return null;
 		}
 		
 		if(! active) {
-			logger.error("Get root node on a non active space partitoner called");
-			return null;
+			throw new BBoxDBException("Get root node on a non active space partitoner called");
 		}
 
 		return distributionRegionSyncer.getRootNode();

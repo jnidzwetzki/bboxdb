@@ -178,6 +178,8 @@ public class BBoxDBCluster implements BBoxDB {
 			} catch (InterruptedException e) {
 				logger.warn("Interrupted while waiting for systems list");
 				Thread.currentThread().interrupt();
+			} catch (BBoxDBException e) {
+				logger.error("Unable to get read systems", e);
 			}
 			
 			return null;

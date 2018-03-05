@@ -41,8 +41,9 @@ public interface SpacePartitioner {
 	/**
 	 * Get the root node
 	 * @return
+	 * @throws BBoxDBException 
 	 */
-	public DistributionRegion getRootNode();
+	public DistributionRegion getRootNode() throws BBoxDBException;
 	
 	/**
 	 * Allocate systems to a new region

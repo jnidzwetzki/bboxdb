@@ -341,9 +341,10 @@ public class TestZookeeperIntegration {
 	 * Test the system register and unregister methods
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 */
 	@Test
-	public void testSystemRegisterAndUnregister() throws ZookeeperException, ZookeeperNotFoundException {
+	public void testSystemRegisterAndUnregister() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 		final BBoxDBInstance systemName = new BBoxDBInstance("192.168.1.10:5050");
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
@@ -367,9 +368,10 @@ public class TestZookeeperIntegration {
 	 * Test the statistics for a given region
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 */
 	@Test
-	public void testStatistics1() throws ZookeeperException, ZookeeperNotFoundException {
+	public void testStatistics1() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 		final BBoxDBInstance system1 = new BBoxDBInstance("192.168.1.10:5050");
 		final BBoxDBInstance system2 = new BBoxDBInstance("192.168.1.11:5050");
 
@@ -450,9 +452,10 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 */
 	@Test
-	public void testSystemCheckpoint1() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
+	public void testSystemCheckpoint1() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		final BBoxDBInstance systemName1 = new BBoxDBInstance("192.168.1.10:5050");
 		final BBoxDBInstance systemName2 = new BBoxDBInstance("192.168.1.20:5050");
 
@@ -535,9 +538,10 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException 
 	 * @throws InterruptedException 
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 */
 	@Test
-	public void testSystems() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
+	public void testSystems() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		final BBoxDBInstance systemName = new BBoxDBInstance("192.168.1.10:5050");
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
@@ -557,9 +561,10 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException
 	 * @throws InterruptedException
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 */
 	@Test
-	public void testNameprefix1() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
+	public void testNameprefix1() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
@@ -757,8 +762,14 @@ public class TestZookeeperIntegration {
 		Thread.sleep(1000);
 		
 		// Test cached instance
-		final DistributionRegion firstChildCache = cacheGroup.getRootNode().getDirectChildren().get(0);
-		Assert.assertEquals(20.0, firstChildCache.getConveringBox().getCoordinateHigh(0), DELTA);	
+		try {
+			cacheGroup.getRootNode().getDirectChildren().get(0);
+			
+			// This should not happen
+			Assert.assertFalse(true);
+		} catch (BBoxDBException e) {
+			// Unable to get root on a space partitoner after shutdown
+		}
 	}
 
 	/**

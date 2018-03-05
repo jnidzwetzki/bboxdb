@@ -26,6 +26,7 @@ import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -50,7 +51,7 @@ public class TestKDTreeSpacePartitioner {
 	}
 
 	@Test
-	public void testDimensionsOfRootNode() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException {
+	public void testDimensionsOfRootNode() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
 		
 		for(int i = 1; i < 2 ; i++) {
 			distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
