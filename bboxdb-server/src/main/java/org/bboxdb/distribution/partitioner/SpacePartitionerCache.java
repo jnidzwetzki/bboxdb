@@ -18,6 +18,7 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -166,7 +167,10 @@ public class SpacePartitionerCache implements Watcher {
 	 */
 	private void testGroupRecreated() throws ZookeeperException {
 		
-		for(final String groupname : spacePartitioner.keySet()) {
+		// Private copy to allow modifications
+		final Set<String> knownPartitioner = new HashSet<>(spacePartitioner.keySet());
+		
+		for(final String groupname : knownPartitioner) {
 
 			try {
 				final String path = distributionGroupAdapter.getDistributionGroupPath(groupname);
