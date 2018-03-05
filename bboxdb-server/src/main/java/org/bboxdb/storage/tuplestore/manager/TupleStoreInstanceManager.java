@@ -54,7 +54,7 @@ public class TupleStoreInstanceManager {
 	/**
 	 * The state (read only / read write) of the manager
 	 */
-	private TupleStoreManagerState sstableManagerState;
+	private volatile TupleStoreManagerState sstableManagerState;
 	
 	/**
 	 * The logger
