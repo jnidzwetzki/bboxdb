@@ -299,7 +299,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	}
 	
 	/**
-	 * Create the given table if not already exists (thread safe / guarded by synchonized)
+	 * Create the given table if not already exists (thread safe / guarded by synchronized)
 	 * @param tupleStoreName
 	 * @param tupleStoreConfiguration
 	 * @return
