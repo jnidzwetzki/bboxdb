@@ -224,7 +224,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Get the lowest utilized data storage location
 	 * @return
 	 */
-	public String getLowestUtilizedDataLocation() {
+	public String getLocationLowestUtilizedDataLocation() {
 
 		final Multiset<String> usage = HashMultiset.create();
 		
@@ -282,7 +282,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 			throw new StorageManagerException("Table already exist");
 		}
 		
-		final String location = getLowestUtilizedDataLocation();
+		final String location = getLocationLowestUtilizedDataLocation();
 		tupleStoreLocations.put(tupleStoreName, location);
 		
 		final DiskStorage storage = storages.get(location);
@@ -397,7 +397,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	}
 	
 	/**
-	 * Is the given tupe store known?
+	 * Is the given tuple store known?
 	 * @param table
 	 * @return
 	 */
