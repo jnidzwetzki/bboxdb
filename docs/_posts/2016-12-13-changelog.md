@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.5.0 (Stable) - TBA
+- New Feature: Implemented non mergeable distribution groups (closes #81)
 - Improvement: Moved region id mapper into the space partitioner to ensure data integrity
 - Improvement: Integrated codeclimate.com
 - Improvement: Reimplemented KD-Tree space partitioner (closes #74)

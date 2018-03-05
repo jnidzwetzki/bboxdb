@@ -836,4 +836,27 @@ public class TestZookeeperIntegration {
 			Assert.assertEquals(1, region.getLevel());
 		}
 	}
+	
+	/**
+	 * Test merging supported
+	 * @throws ZookeeperException 
+	 * @throws BBoxDBException 
+	 */
+	@Test
+	public void testMergingSupported() throws ZookeeperException, BBoxDBException {
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
+		
+		final SpacePartitioner spacePartitioner = SpacePartitionerCache
+				.getInstance().getSpacePartitionerForGroupName(TEST_GROUP);
+				
+		final DistributionRegion rootNode = spacePartitioner.getRootNode();
+		Assert.assertTrue(distributionGroupZookeeperAdapter.isMergingSupported(rootNode));
+		
+		distributionGroupZookeeperAdapter.setMergingSupported(rootNode, false);
+		Assert.assertFalse(distributionGroupZookeeperAdapter.isMergingSupported(rootNode));
+
+		distributionGroupZookeeperAdapter.setMergingSupported(rootNode, true);
+		Assert.assertTrue(distributionGroupZookeeperAdapter.isMergingSupported(rootNode));
+	}
 }

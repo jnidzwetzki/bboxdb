@@ -70,6 +70,11 @@ public class ZookeeperNodeNames {
 	public final static String NAME_STATISTICS = "statistics";
 	
 	/**
+	 * Name of the merging supported node
+	 */
+	public final static String NAME_MERGING_SUPPORTED = "merging";
+	
+	/**
 	 * Name of the statistics total tuple node
 	 */
 	public final static String NAME_STATISTICS_TOTAL_TUPLES = "total_tuples";

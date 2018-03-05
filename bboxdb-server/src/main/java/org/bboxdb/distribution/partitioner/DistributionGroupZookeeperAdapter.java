@@ -395,6 +395,51 @@ public class DistributionGroupZookeeperAdapter {
 	}
 	
 	/**
+	 * Set the merging supported flag
+	 * @param region
+	 * @param suppported
+	 * @throws ZookeeperException 
+	 */
+	public void setMergingSupported(final DistributionRegion region, final boolean suppported)
+			throws ZookeeperException {
+		
+		final String pathMerge = getMergePath(region);
+		final String value = Boolean.toString(suppported);
+		
+		zookeeperClient.replacePersistentNode(pathMerge, value.getBytes());
+	}
+
+	/**
+	 * Get the merge path
+	 * @param region
+	 * @return
+	 */
+	private String getMergePath(final DistributionRegion region) {
+		final String path = getZookeeperPathForDistributionRegion(region);
+		return path + "/" + ZookeeperNodeNames.NAME_MERGING_SUPPORTED;
+	}
+	
+	/**
+	 * Is merging of the region supported?
+	 * @param region
+	 * @return
+	 * @throws ZookeeperException
+	 */
+	public boolean isMergingSupported(final DistributionRegion region) throws BBoxDBException {
+		final String pathMerge = getMergePath(region);
+		
+		try {
+			final String value = zookeeperClient.readPathAndReturnString(pathMerge);
+			return Boolean.parseBoolean(value);
+		} catch (ZookeeperNotFoundException e) {
+			// Not configured default: true
+			return true;
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
+		}
+	}
+	
+	/**
 	 * Create a new child
 	 * @param childNumber 
 	 * @param leftBoundingBox 
