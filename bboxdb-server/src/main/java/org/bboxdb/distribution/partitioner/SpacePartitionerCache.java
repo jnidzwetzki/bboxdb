@@ -101,7 +101,7 @@ public class SpacePartitionerCache implements Watcher {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	public synchronized SpacePartitioner getSpacePartitionerForGroupName(final String groupName) 
-			throws BBoxDBException  {
+			throws BBoxDBException {
 		
 		try {
 			if(! spacePartitioner.containsKey(groupName)) {		
@@ -109,15 +109,19 @@ public class SpacePartitionerCache implements Watcher {
 				final long version = distributionGroupAdapter.getNodeMutationVersion(path, this);
 				
 				// Create callback list
-				final Set<DistributionRegionCallback> callback = new CopyOnWriteArraySet<>();
-				callbacks.put(groupName, callback);
+				if(! callbacks.containsKey(groupName)) {
+					final Set<DistributionRegionCallback> callback = new CopyOnWriteArraySet<>();
+					callbacks.put(groupName, callback);
+				}
 				
 				// Create region id mapper
-				final DistributionRegionIdMapper mapper = new DistributionRegionIdMapper();
-				distributionRegionIdMapper.put(groupName, mapper);
+				if(! distributionRegionIdMapper.containsKey(groupName)) {
+					final DistributionRegionIdMapper mapper = new DistributionRegionIdMapper();
+					distributionRegionIdMapper.put(groupName, mapper);
+				}
 				
 				final SpacePartitioner adapter = distributionGroupAdapter.getSpaceparitioner(groupName, 
-						callback, mapper);
+						callbacks.get(groupName), distributionRegionIdMapper.get(groupName));
 				
 				partitionerVersions.put(groupName, version);
 				spacePartitioner.put(groupName, adapter);
