@@ -39,22 +39,22 @@ public class TupleStoreInstanceManager {
 	/**
 	 * The active memtable
 	 */
-	protected Memtable memtable;
+	private Memtable memtable;
 	
 	/**
 	 * The unflushed memtables
 	 */
-	protected final List<Memtable> unflushedMemtables;
+	private final List<Memtable> unflushedMemtables;
 	
 	/**
 	 * The reader for existing SSTables
 	 */
-	protected final List<SSTableFacade> sstableFacades;
+	private final List<SSTableFacade> sstableFacades;
 	
 	/**
 	 * The state (read only / read write) of the manager
 	 */
-	protected volatile TupleStoreManagerState sstableManagerState;
+	private TupleStoreManagerState sstableManagerState;
 	
 	/**
 	 * The logger
