@@ -83,6 +83,9 @@ public class TupleStoreZookeeperObserver {
 						.getSpacePartitionerForGroupName(distributionGroup);
 				
 				spacePartitioner.registerCallback(callback);
+				
+				knownRegions.add(tableEntity);
+				
 			} catch (BBoxDBException e) {
 				logger.error("Unable to register callback", e);
 			}
