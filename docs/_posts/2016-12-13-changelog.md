@@ -12,6 +12,7 @@ order: 1
 - Improvement: Reimplemented KD-Tree space partitioner (closes #74)
 - Improvement: Extracted distribution region Zookeeper synchronization into extra class
 - Improvement: Moved root element of the distribution group into a childnode
+- Improvement: Space partitioner callbacks are not dropped when space partitioner is recreated
 - Bugfix: Wait before data is merged / distributed until we see the region change in zookeeper (closes #75)
 - Bugfix: The average region is size is used in merges to prevent merges directly after split (closes #76)
 - Bugfix: The JMX space partitioner call has become useless after region merging was introduced, dropped support 
