@@ -26,10 +26,13 @@ import java.awt.geom.Point2D;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.tools.gui.GuiModel;
 import org.jxmapviewer.JXMapViewer;
 import org.jxmapviewer.painter.Painter;
 import org.jxmapviewer.viewer.GeoPosition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KDOSMPainter implements Painter<JXMapViewer> {
 	
@@ -62,6 +65,11 @@ public class KDOSMPainter implements Painter<JXMapViewer> {
 	 * The gui model
 	 */
 	protected GuiModel guiModel;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(KDOSMPainter.class);
 
 	public KDOSMPainter(final GuiModel guiModel) {
 		this.guiModel = guiModel;
@@ -91,20 +99,24 @@ public class KDOSMPainter implements Painter<JXMapViewer> {
 	 */
 	protected void drawKDTree(final Graphics2D graphicsContext, final JXMapViewer map) {
 
-		// No distribution group is selected
-		if(guiModel.getTreeAdapter() == null || guiModel.getTreeAdapter().getRootNode() == null) {
-			return;
-		}
-		
-		final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
-		final BoundingBox bbox = distributionRegion.getConveringBox();
+		try {
+			// No distribution group is selected
+			if(guiModel.getTreeAdapter() == null || guiModel.getTreeAdapter().getRootNode() == null) {
+				return;
+			}
+			
+			final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
+			final BoundingBox bbox = distributionRegion.getConveringBox();
 
-		if(bbox.getDimension() != 2) {
-			System.err.println("Unable to print dimensions: " + bbox.getDimension());
-			return;
+			if(bbox.getDimension() != 2) {
+				System.err.println("Unable to print dimensions: " + bbox.getDimension());
+				return;
+			}
+			
+			drawBoundingBox(graphicsContext, map, distributionRegion);
+		} catch (BBoxDBException e) {
+			logger.error("Got an exception", e);
 		}
-		
-		drawBoundingBox(graphicsContext, map, distributionRegion);
 	}
 
 	/**

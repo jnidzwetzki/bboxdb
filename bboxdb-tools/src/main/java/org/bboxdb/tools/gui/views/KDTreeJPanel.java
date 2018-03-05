@@ -29,8 +29,11 @@ import javax.swing.JPanel;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.tools.gui.DistributionRegionComponent;
 import org.bboxdb.tools.gui.GuiModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KDTreeJPanel extends JPanel {
 	
@@ -71,6 +74,12 @@ public class KDTreeJPanel extends JPanel {
 	 * The y-position of the root-node
 	 */
 	protected final int rootPosY;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(KDTreeJPanel.class);
+
 
 	public KDTreeJPanel(final GuiModel guiModel) {
 		this.guiModel = guiModel;
@@ -137,19 +146,23 @@ public class KDTreeJPanel extends JPanel {
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		
 
-		final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
-		
-		regions.clear();
-		
-		// Fake position to calculate the real width
-		rootPosX = 100000;
-		createDistribtionRegionComponents(distributionRegion);
-		
-		calculateRootNodeXPos();
-		
-		final BoundingBox drawBox = drawDistributionRegion(graphics2D);
-	
-		updateComponentSize(drawBox);
+		try {
+			final DistributionRegion distributionRegion = guiModel.getTreeAdapter().getRootNode();
+			
+			regions.clear();
+			
+			// Fake position to calculate the real width
+			rootPosX = 100000;
+			createDistribtionRegionComponents(distributionRegion);
+			
+			calculateRootNodeXPos();
+			
+			final BoundingBox drawBox = drawDistributionRegion(graphics2D);
+
+			updateComponentSize(drawBox);
+		} catch (BBoxDBException e) {
+			logger.error("Got an exception", e);
+		}
 	}
 
 	/**
