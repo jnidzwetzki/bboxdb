@@ -54,32 +54,37 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	/**
 	 * The used storage configuration
 	 */
-	protected final BBoxDBConfiguration configuration;
+	private final BBoxDBConfiguration configuration;
 	
 	/**
 	 * The list of the storage directories
 	 */
-	protected final Map<String, DiskStorage> storages;
+	private final Map<String, DiskStorage> storages;
 	
 	/**
 	 * A map that contains the storage directory for the sstable
 	 */
-	protected final Map<TupleStoreName, String> tupleStoreLocations;
+	private final Map<TupleStoreName, String> tupleStoreLocations;
 	
 	/**
 	 * A map with all created storage instances
 	 */
-	protected final Map<TupleStoreName, TupleStoreManager> managerInstances;
+	private final Map<TupleStoreName, TupleStoreManager> managerInstances;
 	
 	/**
 	 * The flush callbacks
 	 */
-	protected final List<BiConsumer<TupleStoreName, Long>> flushCallbacks;
+	private final List<BiConsumer<TupleStoreName, Long>> flushCallbacks;
 
 	/**
 	 * The service state
 	 */
-	protected final ServiceState serviceState;
+	private final ServiceState serviceState;
+	
+	/**
+	 * The zookeeper observer
+	 */
+	private final TupleStoreZookeeperObserver zookeeperObserver;
 	
 	/**
 	 * The logger
@@ -93,6 +98,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		this.storages = new HashMap<>();
 		this.flushCallbacks = new ArrayList<>();
 		this.serviceState = new ServiceState();
+		this.zookeeperObserver = new TupleStoreZookeeperObserver(this);
 	}
 	
 	/**
@@ -138,30 +144,32 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * 
 	 * @return
 	 */
-	public synchronized TupleStoreManager getTupleStoreManager(final TupleStoreName table) 
+	public synchronized TupleStoreManager getTupleStoreManager(final TupleStoreName tupleStoreName) 
 			throws StorageManagerException {
 		
-		if(! table.isValid()) {
-			throw new StorageManagerException("Invalid tablename: " + table);
+		if(! tupleStoreName.isValid()) {
+			throw new StorageManagerException("Invalid tablename: " + tupleStoreName);
 		}
+		
+		zookeeperObserver.registerTable(tupleStoreName);
 
 		// Instance is known
-		if(managerInstances.containsKey(table)) {
-			return managerInstances.get(table);
+		if(managerInstances.containsKey(tupleStoreName)) {
+			return managerInstances.get(tupleStoreName);
 		}
 
 		// Find a new storage directory for the sstable manager
-		if(! tupleStoreLocations.containsKey(table)) {
+		if(! tupleStoreLocations.containsKey(tupleStoreName)) {
 			throw new StorageManagerException("Unknown location for table " 
-					+ table.getFullname() + " does the table exist?");
+					+ tupleStoreName.getFullname() + " does the table exist?");
 		}
 		
-		final String location = tupleStoreLocations.get(table);
+		final String location = tupleStoreLocations.get(tupleStoreName);
 		final DiskStorage storage = storages.get(location);
-		final TupleStoreManager sstableManager = new TupleStoreManager(storage, table, configuration);
+		final TupleStoreManager sstableManager = new TupleStoreManager(storage, tupleStoreName, configuration);
 
 		sstableManager.init();
-		managerInstances.put(table, sstableManager);
+		managerInstances.put(tupleStoreName, sstableManager);
 		
 		return sstableManager;
 	}
@@ -309,6 +317,8 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	public synchronized TupleStoreManager createTableIfNotExist(final TupleStoreName tupleStoreName, 
 			final TupleStoreConfiguration tupleStoreConfiguration) throws StorageManagerException {
 		
+		zookeeperObserver.registerTable(tupleStoreName);
+		
 		if(tupleStoreLocations.containsKey(tupleStoreName)) {
 			return getTupleStoreManager(tupleStoreName);
 		}
@@ -362,7 +372,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * Delete all data of a distribution region
 	 * @throws StorageManagerException 
 	 */
-	public synchronized void deleteDataOfDisributionRegion(final String distributionGroup, 
+	public synchronized void deleteDataOfDistributionRegion(final String distributionGroup, 
 			final long region) throws StorageManagerException {
 		
 		logger.info("Deleting all data for: {} / {}", distributionGroup, region);

@@ -18,6 +18,7 @@ order: 1
 - Bugfix: The average region is size is used in merges to prevent merges directly after split (closes #76)
 - Bugfix: The JMX space partitioner call has become useless after region merging was introduced, dropped support 
 - Bugfix: Recreated distribution groups can use another space partitioner (closes #82)
+- Bugfix: Local tables are removed after merge / split (closes #77)
 
 ### Version 0.4.2 (Stable) - 21.02.2018
 - New Feature: Added data loader for re-balance demonstration
