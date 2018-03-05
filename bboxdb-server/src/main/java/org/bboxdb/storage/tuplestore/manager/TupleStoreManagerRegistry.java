@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.ServiceState;
@@ -328,21 +329,10 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 		// Memtabes
 		logger.info("Shuting down active memtables for distribution group: {}", distributionGroupString);
 		
-		// Create a copy of the key set to allow deletions (performed by shutdown) during iteration
-		final Set<TupleStoreName> copyOfInstances = new HashSet<>(managerInstances.keySet());
-		for(final TupleStoreName ssTableName : copyOfInstances) {
-			if(ssTableName.getDistributionGroup().equals(distributionGroupString)) {
-				shutdownSStable(ssTableName);
-			}
-		}
+		final Predicate<TupleStoreName> deleteTablePredicate = (t) 
+				-> (t.getDistributionGroup().equals(distributionGroupString));
 		
-		// Storage on disk
-		final List<TupleStoreName> allTables = getAllTables();
-		for(final TupleStoreName ssTableName : allTables) {
-			if(ssTableName.getDistributionGroup().equals(distributionGroupString)) {
-				deleteTable(ssTableName);
-			}
-		}
+		shutdownAndDeleteTablesForPredicate(deleteTablePredicate);
 		
 		// Delete the group dir
 		for(final String directory : storages.keySet()) {
@@ -364,6 +354,46 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 			if(groupDir.exists()) {
 				logger.debug("Deleting {}", groupDir);
 				groupDir.delete();
+			}
+		}
+	}
+	
+	/**
+	 * Delete all data of a distribution region
+	 * @throws StorageManagerException 
+	 */
+	public synchronized void deleteDataOfDisributionRegion(final String distributionGroup, 
+			final long region) throws StorageManagerException {
+		
+		logger.info("Deleting all data for: {} / {}", distributionGroup, region);
+		
+		final Predicate<TupleStoreName> deleteTablePredicate = (t) 
+				-> (t.getDistributionGroup().equals(distributionGroup)) && (t.getRegionId() == region);
+		
+		shutdownAndDeleteTablesForPredicate(deleteTablePredicate);
+	}
+
+	/**
+	 * Shutdown and delete data for the given predicate
+	 * @param deleteTablePredicate
+	 * @throws StorageManagerException
+	 */
+	private void shutdownAndDeleteTablesForPredicate(final Predicate<TupleStoreName> deleteTablePredicate)
+			throws StorageManagerException {
+		
+		// Create a copy of the key set to allow deletions (performed by shutdown) during iteration
+		final Set<TupleStoreName> copyOfInstances = new HashSet<>(managerInstances.keySet());
+		for(final TupleStoreName tupleStoreName : copyOfInstances) {
+			if(deleteTablePredicate.test(tupleStoreName)) {
+				shutdownSStable(tupleStoreName);
+			}
+		}
+		
+		// Storage on disk
+		final List<TupleStoreName> allTables = getAllTables();
+		for(final TupleStoreName tupleStoreName : allTables) {
+			if(deleteTablePredicate.test(tupleStoreName)) {
+				deleteTable(tupleStoreName);
 			}
 		}
 	}
