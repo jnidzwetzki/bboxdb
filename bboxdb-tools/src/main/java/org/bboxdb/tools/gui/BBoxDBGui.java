@@ -96,7 +96,7 @@ public class BBoxDBGui {
 	/**
 	 * The view mode
 	 */
-	protected ViewMode viewMode = ViewMode.KD_TREE_MODE;
+	protected ViewMode viewMode = ViewMode.TREE_MODE;
 
 	/**
 	 * The Logger
@@ -194,7 +194,7 @@ public class BBoxDBGui {
 	protected JScrollPane getRightPanel() {
 		View view = null;
 			
-		if(viewMode == ViewMode.KD_TREE_MODE) {
+		if(viewMode == ViewMode.TREE_MODE) {
 			view = new KDTreeView(guiModel);
 		} else {
 			view = new KDTreeOSMView(guiModel);
@@ -233,7 +233,7 @@ public class BBoxDBGui {
 		leftList.addListSelectionListener(e -> {
 			if (! e.getValueIsAdjusting()) {
 				guiModel.setDistributionGroup(leftList.getSelectedValue());
-				viewMode = ViewMode.KD_TREE_MODE;
+				viewMode = ViewMode.TREE_MODE;
 				updateMainPanel();
 			}
 		});
@@ -294,17 +294,17 @@ public class BBoxDBGui {
 		final JMenu view = new JMenu("View");
 		menuBar.add(view);
 
-		final JMenuItem viewKDTree = new JMenuItem("KD Tree view");
+		final JMenuItem viewKDTree = new JMenuItem("Tree view");
 		view.add(viewKDTree);
 		viewKDTree.addActionListener((e) -> {
-			viewMode = ViewMode.KD_TREE_MODE;
+			viewMode = ViewMode.TREE_MODE;
 			updateMainPanel();
 		});
 		
-		final JMenuItem viewKDTreeOsm = new JMenuItem("KD Tree OSM view");
+		final JMenuItem viewKDTreeOsm = new JMenuItem("Open Street Map view");
 		view.add(viewKDTreeOsm);
 		viewKDTreeOsm.addActionListener((e) -> {
-			viewMode = ViewMode.KD_TREE_OSM_MODE;
+			viewMode = ViewMode.OSM_MODE;
 			updateMainPanel();
 		});
 	}
