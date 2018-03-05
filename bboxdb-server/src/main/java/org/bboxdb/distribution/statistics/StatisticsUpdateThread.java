@@ -38,6 +38,7 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,8 +157,11 @@ public class StatisticsUpdateThread extends ExceptionSafeRunnable {
 		final DistributionRegion regionToSplit = DistributionRegionHelper.getDistributionRegionForNamePrefix(
 				distributionRegion, regionId);
 				
-		final long totalSize = storageRegistry.getSizeOfDistributionGroupAndRegionId(distributionGroup, regionId);
-		final long totalTuples = storageRegistry.getTuplesInDistributionGroupAndRegionId(distributionGroup, regionId);
+		final long totalSize = TupleStoreUtil.getSizeOfDistributionGroupAndRegionId(storageRegistry, 
+				distributionGroup, regionId);
+		
+		final long totalTuples = TupleStoreUtil.getTuplesInDistributionGroupAndRegionId(storageRegistry, 
+				distributionGroup, regionId);
 		
 		final long totalSizeInMb = totalSize / (1024 * 1024);
 		

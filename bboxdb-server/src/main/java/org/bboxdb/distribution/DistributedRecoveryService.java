@@ -45,6 +45,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.DiskStorage;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,8 +185,8 @@ public class DistributedRecoveryService implements BBoxDBService {
 			
 			final long regionId = outdatedDistributionRegion.getDistributedRegion().getRegionId();
 			
-			final List<TupleStoreName> allTables = storageRegistry
-					.getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
+			final List<TupleStoreName> allTables = TupleStoreUtil.
+					getAllTablesForDistributionGroupAndRegionId(storageRegistry, distributionGroupName, regionId);
 			
 			for(final TupleStoreName ssTableName : allTables) {
 				try {

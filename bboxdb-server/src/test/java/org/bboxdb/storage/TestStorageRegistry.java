@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -36,6 +37,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -152,8 +154,10 @@ public class TestStorageRegistry {
 		System.out.println(tablesBeforeDelete);
 		Assert.assertTrue(tablesBeforeDelete.contains(RELATION_NAME));
 		
-		final long size1 = storageRegistry.getSizeOfDistributionGroupAndRegionId(
-						RELATION_NAME.getDistributionGroupObject(), 2);
+		final DistributionGroupName distributionGroupObject = RELATION_NAME.getDistributionGroupObject();
+		
+		final long size1 = TupleStoreUtil.getSizeOfDistributionGroupAndRegionId(
+				storageRegistry, distributionGroupObject, 2);
 		
 		Assert.assertTrue(size1 > 0);
 		
@@ -163,8 +167,8 @@ public class TestStorageRegistry {
 		System.out.println(tablesAfterDelete);
 		Assert.assertFalse(tablesAfterDelete.contains(RELATION_NAME));
 		
-		final long size2 = storageRegistry.getSizeOfDistributionGroupAndRegionId(
-						RELATION_NAME.getDistributionGroupObject(), 2);
+		final long size2 = TupleStoreUtil.getSizeOfDistributionGroupAndRegionId(
+				storageRegistry, distributionGroupObject, 2);
 		
 		Assert.assertTrue(size2 == 0);
 	}

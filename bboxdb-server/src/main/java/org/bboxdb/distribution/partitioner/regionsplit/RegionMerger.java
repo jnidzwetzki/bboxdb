@@ -39,6 +39,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,8 +110,8 @@ public class RegionMerger {
 
 		final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
 
-		final List<TupleStoreName> localTables = registry.getAllTablesForDistributionGroupAndRegionId
-				(distributionGroupName, region.getRegionId());
+		final List<TupleStoreName> localTables = TupleStoreUtil.getAllTablesForDistributionGroupAndRegionId
+				(registry, distributionGroupName, region.getRegionId());
 
 		// Add the local mapping, new data is written to the region
 		final String fullname = distributionGroupName.getFullname();

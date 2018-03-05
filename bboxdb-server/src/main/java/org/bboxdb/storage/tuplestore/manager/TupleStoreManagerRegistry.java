@@ -413,70 +413,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	public List<TupleStoreName> getAllTables() {
 		return new ArrayList<>(tupleStoreLocations.keySet());
 	}
-	
-	/**
-	 * Get all tables for the given distribution group and region id
-	 * @param distributionGroupName 
-	 * @param regionId
-	 * @return
-	 */
-	public List<TupleStoreName> getAllTablesForDistributionGroupAndRegionId
-		(final DistributionGroupName distributionGroupName, final long regionId) {
-		
-		final List<TupleStoreName> groupTables = getAllTablesForDistributionGroup(distributionGroupName);
-		
-		return groupTables
-			.stream()
-			.filter(s -> s.getRegionId() == regionId)
-			.collect(Collectors.toList());
-	}
-	
-	/**
-	 * Get the size of all sstables in the distribution group and region id
-	 * @param distributionGroupName
-	 * @param regionId
-	 * @return
-	 * @throws StorageManagerException
-	 */
-	public long getSizeOfDistributionGroupAndRegionId
-		(final DistributionGroupName distributionGroupName, final long regionId) 
-				throws StorageManagerException {
-		
-		final List<TupleStoreName> tables 
-			= getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
-		
-		long totalSize = 0;
-		
-		for(TupleStoreName ssTableName : tables) {
-			totalSize = totalSize + getTupleStoreManager(ssTableName).getSize();
-		}
-		
-		return totalSize;
-	}
-	
-	/**
-	 * Get the amount of tuples  in the distribution group and region id
-	 * @param distributionGroupName
-	 * @param regionId
-	 * @return
-	 * @throws StorageManagerException
-	 */
-	public long getTuplesInDistributionGroupAndRegionId
-		(final DistributionGroupName distributionGroupName, final long regionId) 
-				throws StorageManagerException {
-		
-		final List<TupleStoreName> tables 
-			= getAllTablesForDistributionGroupAndRegionId(distributionGroupName, regionId);
-		
-		long tuples = 0;
-		
-		for(TupleStoreName ssTableName : tables) {
-			tuples = tuples + getTupleStoreManager(ssTableName).getNumberOfTuples();
-		}
-		
-		return tuples;
-	}
-	
+
 	/**
 	 * Get all tables for a given distribution group
 	 * @return

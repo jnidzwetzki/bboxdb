@@ -30,6 +30,7 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
+import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,9 +55,9 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	public double getSplitPoint(final int splitDimension, final DistributionRegion region) 
 			throws StorageManagerException {
 			
-		final List<TupleStoreName> tables = tupleStoreManagerRegistry
+		final List<TupleStoreName> tables = TupleStoreUtil
 				.getAllTablesForDistributionGroupAndRegionId
-				(region.getDistributionGroupName(), region.getRegionId());
+				(tupleStoreManagerRegistry, region.getDistributionGroupName(), region.getRegionId());
 	
 		return caclculateSplitPoint(region.getConveringBox(), splitDimension, tables);
 	}
