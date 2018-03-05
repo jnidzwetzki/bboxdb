@@ -369,7 +369,9 @@ public class KDtreeSpacePartitioner implements SpacePartitioner {
 
 	@Override
 	public void shutdown() {
-		// TODO Auto-generated method stub
+		logger.info("Shutdown space partitioner for instance {}", 
+				spacePartitionerContext.getDistributionGroupName());
 		
+		this.active = false;
 	}
 }
