@@ -187,6 +187,7 @@ public class GuiModel implements DistributionRegionCallback {
 				sb.append("Cluster name: " + getClustername());
 				sb.append(", Replication factor: " + config.getReplicationFactor());
 				sb.append(", Dimensions: " + config.getDimensions());
+				sb.append(", Space partitioner: " + config.getSpacePartitioner());
 				
 				bboxdbGui.getStatusLabel().setText(sb.toString());
 	
