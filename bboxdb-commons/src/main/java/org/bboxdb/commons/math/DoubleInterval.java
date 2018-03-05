@@ -381,6 +381,14 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 
 	@Override
 	public String toString() {
+		return getRoundedString(0);
+	}
+
+	/**
+	 * Get the rounded string value
+	 * @return
+	 */
+	public String getRoundedString(final int precision) {
 		final StringBuffer sb = new StringBuffer();
 		
 		if(beginIncluded) {
@@ -392,7 +400,7 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 		if(begin == MIN_VALUE) {
 			sb.append("min");
 		} else {
-			sb.append(begin);
+			sb.append(getRoundedValue(begin, precision));	
 		}
 		
 		sb.append(",");
@@ -400,7 +408,7 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 		if(end == MAX_VALUE) {
 			sb.append("max");
 		} else {
-			sb.append(end);
+			sb.append(getRoundedValue(end, precision));	
 		}
 				
 		if(endIncluded) {
@@ -410,6 +418,20 @@ public class DoubleInterval implements Comparable<DoubleInterval> {
 		}
 		
 		return sb.toString();
+	}
+	
+	/**
+	 * Get the rounded value
+	 * @param value
+	 * @param precision
+	 * @return
+	 */
+	private double getRoundedValue(final double value, final int precision) {
+		if(precision == 0) {
+			return value;
+		}
+		
+		return MathUtil.round(value, precision);
 	}
 	
 	@Override

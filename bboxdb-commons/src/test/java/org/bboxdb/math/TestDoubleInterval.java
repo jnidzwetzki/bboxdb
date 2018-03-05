@@ -458,4 +458,24 @@ public class TestDoubleInterval {
 		Assert.assertTrue(floatInterval1.isCovering(floatInterval4));
 	}
 	
+	/**
+	 * Test the rounded string method
+	 */
+	@Test
+	public void testRoundedString() {
+		final DoubleInterval doubleInterval1 = new DoubleInterval(0.4543534d, 0.9423444d, true, true);
+		final String toStringValue1 = doubleInterval1.toString();
+		final String roundedValue1 = doubleInterval1.getRoundedString(4);
+		
+		System.out.println(toStringValue1 + " / " + roundedValue1);
+		Assert.assertTrue(toStringValue1.length() > roundedValue1.length());
+		
+		final DoubleInterval doubleInterval2 = new DoubleInterval(1.2d, 4.2d, true, true);
+		final String toStringValue2 = doubleInterval2.toString();
+		final String roundedValue2 = doubleInterval2.getRoundedString(4);
+		
+		System.out.println(toStringValue2 + " / " + roundedValue2);
+		Assert.assertTrue(toStringValue2.length() >= roundedValue2.length());
+	}
+	
 }
