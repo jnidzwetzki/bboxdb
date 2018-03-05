@@ -112,7 +112,7 @@ public class ConnectDialog {
 		builder.setDefaultDialogBorder();
 		
 		final CellConstraints cc = new CellConstraints();
-		builder.addSeparator("Connection", cc.xyw(1,  1, 3));
+		builder.addSeparator("Cluster contact point", cc.xyw(1,  1, 3));
 		builder.addLabel("Zookeeper Hosts", cc.xy (1,  3));
 		builder.add(hosts, cc.xy(3, 3));
 		builder.addLabel("Clustername", cc.xy (1,  5));
