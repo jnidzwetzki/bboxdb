@@ -50,37 +50,37 @@ public class DistributionRegionComponent {
 	/**
 	 * The height of the box
 	 */
-	public final static int HEIGHT = 50;
+	public final int HEIGHT;
 	
 	/**
 	 * The width of the box
 	 */
-	public final static int WIDTH = 90;
+	public final static int WIDTH = 120;
 	
 	/**
 	 * The distribution region to paint
 	 */
-	protected final DistributionRegion distributionRegion;
+	private final DistributionRegion distributionRegion;
 
 	/**
 	 * The x offset
 	 */
-	protected int xOffset;
+	private int xOffset;
 
 	/**
 	 * The y offset
 	 */
-	protected int yOffset;
+	private int yOffset;
 	
 	/**
 	 * The panel
 	 */
-	protected final KDTreeJPanel panel;
+	private final KDTreeJPanel panel;
 	
 	/**
 	 * The logger
 	 */
-	protected final static Logger logger = LoggerFactory.getLogger(ConnectDialog.class);
+	private final static Logger logger = LoggerFactory.getLogger(ConnectDialog.class);
 	
 
 	public DistributionRegionComponent(final DistributionRegion distributionRegion, 
@@ -91,13 +91,15 @@ public class DistributionRegionComponent {
 
 		this.xOffset = calculateXOffset();
 		this.yOffset = calculateYOffset();
+		
+		this.HEIGHT = 40 + (distributionRegion.getConveringBox().getDimension() * 15);
 	}
 	
 	/**
 	 * Calculate the x offset of the component
 	 * @return
 	 */
-	protected int calculateXOffset() {
+	private int calculateXOffset() {
 		int offset = panel.getRootPosX();
 		
 		DistributionRegion level = distributionRegion;
@@ -121,7 +123,7 @@ public class DistributionRegionComponent {
 	 * @param level
 	 * @return
 	 */
-	protected int calculateLevelXOffset(final int level) {
+	private int calculateLevelXOffset(final int level) {
 		
 		final int offsetLastLevel = (LEFT_RIGHT_OFFSET + WIDTH) / 2;
 		
@@ -134,7 +136,7 @@ public class DistributionRegionComponent {
 	 * Calculate the Y offset
 	 * @return
 	 */
-	protected int calculateYOffset() {
+	private int calculateYOffset() {
 		return (distributionRegion.getLevel() * LEVEL_DISTANCE) + panel.getRootPosY();
 	}
 	
@@ -171,20 +173,23 @@ public class DistributionRegionComponent {
 		g.setColor(oldColor);
 		g.drawRect(xOffset, yOffset, WIDTH, HEIGHT);
 
+		final BoundingBox converingBox = distributionRegion.getConveringBox();
+
+		final double offset = (double) 0.9 / (double) (2.0 + converingBox.getDimension());
+		
 		// Write the region id
 		final String regionId = "Region: " + Long.toString(distributionRegion.getRegionId());
-		writeStringCentered(g, regionId, 0.3);
+		writeStringCentered(g, regionId, 1 * offset);
 		
 		// Write the state
 		final String nodeState = distributionRegion.getState().getStringValue();
-		writeStringCentered(g, nodeState, 0.6);
+		writeStringCentered(g, nodeState, 2 * offset);
 		
-		// Write the split position
-		if(distributionRegion.isLeafRegion()) {
-			writeStringCentered(g, "-", 0.9);
-		} else {
-			String nodeText = distributionRegion.getConveringBox().toCompactString();
-			writeStringCentered(g, nodeText, 0.9);
+		// Write the bounding box
+		for(int i = 0; i < converingBox.getDimension(); i++) {
+			final DoubleInterval floatInterval = converingBox.getIntervalForDimension(i);
+			final String text = "D" + i + ": " + floatInterval.getRoundedString(4);
+			writeStringCentered(g, text, (3+i) * offset);
 		}
 		
 		// Draw the line to the parent node
@@ -207,13 +212,25 @@ public class DistributionRegionComponent {
 	/**
 	 * Write the given string centered
 	 * @param g
-	 * @param nodeState
+	 * @param stringValue
 	 * @param pos
+	 * @return 
 	 */
-	protected void writeStringCentered(final Graphics2D g, final String nodeState, final double pos) {
-		final Rectangle2D boundsState = g.getFontMetrics().getStringBounds(nodeState, g);
-		int stringWidthStage = (int) boundsState.getWidth();
-		g.drawString(nodeState, xOffset + (WIDTH / 2) - (stringWidthStage / 2), yOffset + (int) (HEIGHT * pos));
+	private void writeStringCentered(final Graphics2D g, final String stringValue, final double pos) {
+		final int stringWidth = calculateStringWidth(g, stringValue);
+		final int centerValue = xOffset + (WIDTH / 2) - (stringWidth / 2);
+		g.drawString(stringValue, centerValue, yOffset + (int) (HEIGHT * pos));
+	}
+
+	/**
+	 * Calculate the string width
+	 * @param g
+	 * @param stringValue
+	 * @return
+	 */
+	private int calculateStringWidth(final Graphics2D g, final String stringValue) {
+		final Rectangle2D boundsState = g.getFontMetrics().getStringBounds(stringValue, g);
+		return (int) boundsState.getWidth();
 	}
 
 	/**
@@ -221,7 +238,7 @@ public class DistributionRegionComponent {
 	 * @param distributionRegion
 	 * @return
 	 */
-	protected Color getColorForRegion(final DistributionRegion distributionRegion) {
+	private Color getColorForRegion(final DistributionRegion distributionRegion) {
 		switch (distributionRegion.getState()) {
 		case ACTIVE:
 		case ACTIVE_FULL:
@@ -244,7 +261,7 @@ public class DistributionRegionComponent {
 	 * @param xOffset
 	 * @param yOffset
 	 */
-	protected void drawParentNodeLine(final Graphics2D g) {
+	private void drawParentNodeLine(final Graphics2D g) {
 		
 		// The root element don't have a parent
 		if(distributionRegion.getParent() == null) {
@@ -267,30 +284,9 @@ public class DistributionRegionComponent {
 	 * Get the tooltip text
 	 * @return
 	 */
-	public String getToolTipText() {
-		
-		final BoundingBox boundingBox = distributionRegion.getConveringBox();
+	public String getToolTipText() {		
 		final StringBuilder sb = new StringBuilder("<html>");
-		
-		for(int i = 0; i < boundingBox.getDimension(); i++) {
-			final DoubleInterval floatInterval = boundingBox.getIntervalForDimension(i);
-			sb.append("Dimension: " + i + " ");
-			sb.append(floatInterval.toString());
-			sb.append("<br>");
-		}
-		
-		appendStatistics(sb, distributionRegion);
-		
-		sb.append("</html>");
-		return sb.toString();
-	}
-
-	/**
-	 * Append the statistics to the tooltip
-	 * @param sb
-	 * @param distributionRegion 
-	 */
-	private void appendStatistics(final StringBuilder sb, final DistributionRegion distributionRegion) {
+	
 		try {
 			final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 			final Map<BBoxDBInstance, Map<String, Long>> statistics = adapter.getRegionStatistics(distributionRegion);
@@ -306,6 +302,14 @@ public class DistributionRegionComponent {
 				sb.append(" MB <br>");
 			}
 			
+			final BoundingBox boundingBox = distributionRegion.getConveringBox();
+			for(int i = 0; i < boundingBox.getDimension(); i++) {
+				final DoubleInterval floatInterval = boundingBox.getIntervalForDimension(i);
+				sb.append("Dimension: " + i + " ");
+				sb.append(floatInterval.toString());
+				sb.append("<br>");
+			}
+			
 			final Collection<BBoxDBInstance> systems = distributionRegion.getSystems();
 			for(final BBoxDBInstance instance : systems) {
 				if(! statistics.keySet().contains(instance)) {
@@ -318,6 +322,9 @@ public class DistributionRegionComponent {
 		} catch (Exception e) {
 			logger.error("Got an exception while reading statistics for distribution group", e);
 		} 
+		
+		sb.append("</html>");
+		return sb.toString();
 	}
 
 	/**
