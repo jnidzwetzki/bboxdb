@@ -18,14 +18,14 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
-import org.bboxdb.distribution.DistributionGroupName;
+import org.bboxdb.distribution.DistributionGroupConfigurationCache;
+import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -103,17 +103,7 @@ public class SpacePartitionerCache implements Watcher {
 			throws BBoxDBException  {
 		
 		try {
-			if(! spacePartitioner.containsKey(groupName)) {
-				
-				final List<DistributionGroupName> knownGroups = distributionGroupAdapter
-						.getDistributionGroups(this);
-				
-				final DistributionGroupName distributionGroupName = new DistributionGroupName(groupName);
-				
-				if(! knownGroups.contains(distributionGroupName)) {
-					throw new BBoxDBException("Distribution group " + groupName + " is not known");
-				}
-				
+			if(! spacePartitioner.containsKey(groupName)) {		
 				final String path = distributionGroupAdapter.getDistributionGroupPath(groupName);
 				final long version = distributionGroupAdapter.getNodeMutationVersion(path, this);
 				
@@ -152,20 +142,76 @@ public class SpacePartitionerCache implements Watcher {
 
 		// Amount of distribution groups have changed
 		if(path.endsWith(ZookeeperNodeNames.NAME_NODE_VERSION)) {
-			logger.info("===> Got event {}", event);
-			rescanGroups();
+			logger.debug("===> Got event {}", event);
+			testGroupRecreatedNE();
 		} else {
-			logger.info("===> Ignoring event for path: {}" , path);
+			logger.debug("===> Ignoring event for path: {}" , path);
 		}
-		
 	}
 	
 	/**
 	 * Rescan for newly created distribution groups
 	 */
-	private void rescanGroups() {
-		
+	private void testGroupRecreatedNE() {
+		try {
+			testGroupRecreated();
+		} catch (Throwable e) {
+			logger.error("Got zookeeper exception", e);
+		}
 	}
+	
+	/**
+	 * Refresh the whole tree
+	 * @throws ZookeeperException 
+	 */
+	private void testGroupRecreated() throws ZookeeperException {
+		
+		for(final String groupname : spacePartitioner.keySet()) {
+
+			try {
+				final String path = distributionGroupAdapter.getDistributionGroupPath(groupname);
+				
+				final long zookeeperVersion 
+					= distributionGroupAdapter.getNodeMutationVersion(path, this);
+				
+				final long memoryVersion = partitionerVersions.getOrDefault(groupname, 0l);
+				
+				if(memoryVersion < zookeeperVersion) {
+					logger.info("Our space partitioner version is {}, zookeeper version is {}", 
+							memoryVersion, zookeeperVersion);
+					
+					resetSpacePartitioner(groupname);
+					getSpacePartitionerForGroupName(groupname);
+				} 
+			} catch (ZookeeperNotFoundException e) {
+				logger.info("Version for {} not found, deleting in memory version", groupname);
+				resetSpacePartitioner(groupname);
+			} catch (BBoxDBException | ZookeeperException e) {
+				logger.error("Got exception while reading dgroup", e);
+			}
+		}			
+	}
+
+	/**
+	 * Reset the space partitioner
+	 * 
+	 * @param groupname
+	 */
+	private void resetSpacePartitioner(final String groupname) {
+		
+		final SpacePartitioner deletedSpacePartitioner = spacePartitioner.remove(groupname);
+		
+		if(deletedSpacePartitioner != null) {
+			deletedSpacePartitioner.shutdown();
+		}
+		
+		partitionerVersions.remove(groupname);
+		
+		TupleStoreConfigurationCache.getInstance().clear();
+		DistributionGroupConfigurationCache.getInstance().clear();
+		distributionRegionIdMapper.get(groupname).clear();
+	}
+
 
 	@Override
 	protected Object clone() throws CloneNotSupportedException {

@@ -22,8 +22,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
@@ -38,7 +36,6 @@ import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -48,7 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
-public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
+public class KDtreeSpacePartitioner implements SpacePartitioner {
 
 	/**
 	 * The distribution group adapter
@@ -59,11 +56,6 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 * The name of the distribution group
 	 */
 	private DistributionGroupName distributionGroupName;
-	
-	/**
-	 * The version of the distribution group
-	 */
-	private long memoryVersion;
 
 	/**
 	 * The distribution region syncer
@@ -76,6 +68,11 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	private SpacePartitionerContext spacePartitionerContext;
 	
 	/**
+	 * Is the space partitoner active?
+	 */
+	private volatile boolean active;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KDtreeSpacePartitioner.class);
@@ -86,78 +83,33 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	@Override
 	public void init(final SpacePartitionerContext spacePartitionerContext) throws ZookeeperException {
-		this.memoryVersion = 0;
 		this.distributionGroupZookeeperAdapter = spacePartitionerContext.getDistributionGroupAdapter();
 		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
 		this.spacePartitionerContext = spacePartitionerContext;
+		this.active = true;
 		
-		testGroupRecreated();
+		handleGroupCreated();
 	}
 	
-	/**
-	 * Reread and handle the dgroup version
-	 */
-	private void testGroupRecreatedNE() {
-		try {
-			testGroupRecreated();
-		} catch (ZookeeperException e) {
-			logger.error("Got zookeeper exception", e);
-		}
-	}
 	
-	/**
-	 * Refresh the whole tree
-	 * @throws ZookeeperException 
-	 */
-	private void testGroupRecreated() throws ZookeeperException {
-				
-		try {
-			final String fullname = distributionGroupName.getFullname();
-			
-			final String path = distributionGroupZookeeperAdapter.getDistributionGroupPath(fullname);
-			
-			final long zookeeperVersion 
-				= distributionGroupZookeeperAdapter.getNodeMutationVersion(path, this);
-						
-			logger.debug("Reading version and register watcher for {}", fullname);
-			
-			if(memoryVersion < zookeeperVersion) {
-				logger.info("Our tree version is {}, zookeeper version is {}", memoryVersion, zookeeperVersion);
-				memoryVersion = zookeeperVersion;
-				distributionRegionSyncer = null;
-				handleGroupRecreated();
-			} 
-			
-		} catch (ZookeeperNotFoundException e) {
-			logger.info("Version for {} not found, deleting in memory version", distributionGroupName);
-			memoryVersion = 0;
-			distributionRegionSyncer = null;
-		}
-	}
-
 	/**
 	 * Distribution region has recreated, clear local mappings 
 	 */
-	private void handleGroupRecreated() {		
-		if(distributionRegionSyncer == null) {
-			
-			TupleStoreConfigurationCache.getInstance().clear();
-			DistributionGroupConfigurationCache.getInstance().clear();
-			spacePartitionerContext.getDistributionRegionMapper().clear();
-			
-			this.distributionRegionSyncer = new DistributionRegionSyncer(distributionGroupName, 
-					distributionGroupZookeeperAdapter, spacePartitionerContext.getDistributionRegionMapper(), 
-					spacePartitionerContext.getCallbacks());
-			
-			logger.info("Root element for {} is deleted", distributionGroupName);
-			
-			if(distributionRegionSyncer != null) {
-				distributionRegionSyncer.getDistributionRegionMapper().clear();
-			}
-	
-			// Rescan tree
-			distributionRegionSyncer.getRootNode();
+	private void handleGroupCreated() {		
+		TupleStoreConfigurationCache.getInstance().clear();
+		DistributionGroupConfigurationCache.getInstance().clear();
+		spacePartitionerContext.getDistributionRegionMapper().clear();
+		
+		this.distributionRegionSyncer = new DistributionRegionSyncer(spacePartitionerContext);
+		
+		logger.info("Root element for {} is deleted", distributionGroupName);
+		
+		if(distributionRegionSyncer != null) {
+			distributionRegionSyncer.getDistributionRegionMapper().clear();
 		}
+
+		// Rescan tree
+		distributionRegionSyncer.getRootNode();
 	}
 	
 	/**
@@ -166,35 +118,17 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	 */
 	@Override
 	public DistributionRegion getRootNode() {
-		
+	
 		if(distributionRegionSyncer == null) {
-			testGroupRecreatedNE();
+			return null;
 		}
 		
-		if(distributionRegionSyncer == null) {
+		if(! active) {
+			logger.error("Get root node on a non active space partitoner called");
 			return null;
 		}
 
 		return distributionRegionSyncer.getRootNode();
-	}
-
-	@Override
-	public void process(final WatchedEvent event) {
-		
-		// Ignore events like connected and disconnected
-		if(event == null || event.getPath() == null) {
-			return;
-		}
-		
-		final String path = event.getPath();
-
-		// Amount of distribution groups have changed
-		if(path.endsWith(ZookeeperNodeNames.NAME_NODE_VERSION)) {
-			logger.info("===> Got event {}", event);
-			testGroupRecreatedNE();
-		} else {
-			logger.info("===> Ignoring event for path: {}" , path);
-		}
 	}
 
 	/**
@@ -430,5 +364,12 @@ public class KDtreeSpacePartitioner implements Watcher, SpacePartitioner {
 	@Override
 	public DistributionRegionIdMapper getDistributionRegionIdMapper() {
 		return spacePartitionerContext.getDistributionRegionMapper();
+	}
+
+
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+		
 	}
 }

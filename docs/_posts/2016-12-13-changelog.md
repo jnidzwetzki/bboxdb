@@ -15,6 +15,7 @@ order: 1
 - Bugfix: Wait before data is merged / distributed until we see the region change in zookeeper (closes #75)
 - Bugfix: The average region is size is used in merges to prevent merges directly after split (closes #76)
 - Bugfix: The JMX space partitioner call has become useless after region merging was introduced, dropped support 
+- Bugfix: Recreated distribution groups can use another space partitioner (closes #82)
 
 ### Version 0.4.2 (Stable) - 21.02.2018
 - New Feature: Added data loader for re-balance demonstration

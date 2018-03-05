@@ -94,4 +94,10 @@ public class QuadtreeSpacePartitioner implements SpacePartitioner {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+		
+	}
 }

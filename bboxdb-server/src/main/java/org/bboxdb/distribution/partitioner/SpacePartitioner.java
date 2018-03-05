@@ -111,5 +111,10 @@ public interface SpacePartitioner {
 	 * Get the region id mapper
 	 */
 	public DistributionRegionIdMapper getDistributionRegionIdMapper();
+	
+	/**
+	 * Shutdown the space partitioner
+	 */
+	public void shutdown();
 
 }

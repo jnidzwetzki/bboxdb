@@ -25,6 +25,7 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.distribution.partitioner.SpacePartitionerContext;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionEvent;
@@ -274,8 +275,11 @@ public class TestRegionSyncer {
 		final Set<DistributionRegionCallback> callbacks = new CopyOnWriteArraySet<>();
 		final DistributionRegionIdMapper distributionRegionIdMapper = new DistributionRegionIdMapper();
 		
-		return new DistributionRegionSyncer(GROUP, distributionGroupAdapter, 
-				distributionRegionIdMapper, callbacks);
+		final SpacePartitionerContext spacePartitionerContext = new SpacePartitionerContext(
+				"", GROUP, ZookeeperClientFactory.getZookeeperClient(), 
+				distributionGroupAdapter, callbacks, distributionRegionIdMapper);
+		
+		return new DistributionRegionSyncer(spacePartitionerContext);
 	}
 	
 	/**

@@ -33,6 +33,7 @@ import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.distribution.partitioner.SpacePartitionerContext;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -82,17 +83,14 @@ public class DistributionRegionSyncer implements Watcher {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(DistributionRegionSyncer.class);
 
-	public DistributionRegionSyncer(final DistributionGroupName distributionGroupName, 
-			final DistributionGroupZookeeperAdapter distributionGroupAdapter, 
-			final DistributionRegionIdMapper distributionRegionMapper, 
-			final Set<DistributionRegionCallback> callbacks) {
+	public DistributionRegionSyncer(final SpacePartitionerContext spacePartitionerContext) {
 		
-		this.distributionGroupName = distributionGroupName;
-		this.distributionGroupAdapter = distributionGroupAdapter;
+		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
+		this.distributionGroupAdapter = spacePartitionerContext.getDistributionGroupAdapter();
+		this.distributionRegionMapper = spacePartitionerContext.getDistributionRegionMapper();
+		this.callbacks = spacePartitionerContext.getCallbacks();
+		this.zookeeperClient = spacePartitionerContext.getZookeeperClient();
 		this.versions = new HashMap<>();
-		this.distributionRegionMapper = distributionRegionMapper;
-		this.callbacks = callbacks;
-		this.zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 	}
 	
 	/**
