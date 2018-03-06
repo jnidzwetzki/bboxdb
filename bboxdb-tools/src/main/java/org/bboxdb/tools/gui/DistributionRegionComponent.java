@@ -28,9 +28,12 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
+import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.tools.gui.views.TreeJPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -288,19 +291,7 @@ public class DistributionRegionComponent {
 		final StringBuilder sb = new StringBuilder("<html>");
 	
 		try {
-			final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			final Map<BBoxDBInstance, Map<String, Long>> statistics = adapter.getRegionStatistics(distributionRegion);
-
-			for(final BBoxDBInstance instance : statistics.keySet()) {
-				final Map<String, Long> statisticData = statistics.get(instance);
-				sb.append("Node: ");
-				sb.append(instance.toGUIString(GuiModel.SCREENSHOT_MODE));
-				sb.append(" Tuples: ");
-				sb.append(statisticData.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES));
-				sb.append(", Size: ");
-				sb.append(statisticData.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE));
-				sb.append(" MB <br>");
-			}
+			final Map<BBoxDBInstance, Map<String, Long>> statistics = addStatisticsToTooltip(sb);
 			
 			final BoundingBox boundingBox = distributionRegion.getConveringBox();
 			for(int i = 0; i < boundingBox.getDimension(); i++) {
@@ -319,12 +310,50 @@ public class DistributionRegionComponent {
 				}
 			}
 			
+			final boolean mergeableByZookeeper 
+				= RegionMergeHelper.isMergingByZookeeperAllowed(distributionRegion);
+			
+			final boolean mergeableBySpacePartitioner
+				= RegionMergeHelper.isMergingBySpacePartitionerAllowed(distributionRegion);
+			
+			sb.append("Merge supported by configuration <i>" + mergeableByZookeeper 
+					+ "</i>, by space partitioner <i>" + mergeableBySpacePartitioner + "</i><br>");
+			
 		} catch (Exception e) {
 			logger.error("Got an exception while reading statistics for distribution group", e);
 		} 
 		
 		sb.append("</html>");
 		return sb.toString();
+	}
+
+	/**
+	 * Add the statistics to the tooltip
+	 * @param sb
+	 * @return
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 */
+	private Map<BBoxDBInstance, Map<String, Long>> addStatisticsToTooltip(final StringBuilder sb)
+			throws ZookeeperException, ZookeeperNotFoundException {
+		
+		final DistributionGroupZookeeperAdapter adapter 
+			= ZookeeperClientFactory.getDistributionGroupAdapter();
+		final Map<BBoxDBInstance, Map<String, Long>> statistics 
+			= adapter.getRegionStatistics(distributionRegion);
+
+		for(final BBoxDBInstance instance : statistics.keySet()) {
+			final Map<String, Long> statisticData = statistics.get(instance);
+			sb.append("Node: ");
+			sb.append(instance.toGUIString(GuiModel.SCREENSHOT_MODE));
+			sb.append(" Tuples: ");
+			sb.append(statisticData.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_TUPLES));
+			sb.append(", Size: ");
+			sb.append(statisticData.get(ZookeeperNodeNames.NAME_STATISTICS_TOTAL_SIZE));
+			sb.append(" MB <br>");
+		}
+		
+		return statistics;
 	}
 
 	/**
