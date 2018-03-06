@@ -159,6 +159,11 @@ public class DistributionRegionSyncer implements Watcher {
 		
 		final DistributionRegion region = distributionGroupAdapter.getNodeForPath(rootNode, nodePath);
 		
+		if(region == null) {
+			logger.debug("Got null region when reading path {}, waiting for node deletion", nodePath);
+			return;
+		}
+		
 		updateNodeIfNeeded(nodePath, region);
 	}
 
