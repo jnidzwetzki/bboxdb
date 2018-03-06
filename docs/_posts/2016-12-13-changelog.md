@@ -6,7 +6,7 @@ date: 2016-12-12 22:46:12
 order: 1
 ---
 
-### Version 0.5.0 (Stable) - TBA
+### Version 0.5.0 - TBA
 - New Feature: Implemented non-mergeable distribution regions (closes #81)
 - Improvement: Moved region id mapper into the space partitioner to ensure data integrity
 - Improvement: Integrated codeclimate.com
@@ -22,7 +22,7 @@ order: 1
 - Bugfix: Recreated distribution groups can use another space partitioner (closes #82)
 - Bugfix: Local tables are removed after merge/split (closes #77)
 
-### Version 0.4.2 (Stable) - 21.02.2018
+### Version 0.4.2 - 21.02.2018
 - New Feature: Added data loader for re-balance demonstration
 - New Feature: Added gossip for eventual consistency
 - New Feature: Added read repair for eventual consistency
@@ -70,7 +70,7 @@ order: 1
 - Bugfix: Fixed deadlock between region id mapper and space partitioner cache
 - Bugfix: Deleted distribution groups are now removed from the KD-Tree in-memory version
 
-### Version 0.4.1 (Stable) - 02.02.2018
+### Version 0.4.1 - 02.02.2018
 - New Feature: Implemented the spatial join operation
 - New Feature: Added Joinable Tuple to the network protocol
 - Improvement: Re-implemented server-side query processor
@@ -84,7 +84,7 @@ order: 1
 - Bugfix: Fixed forced connection shutdown timeout
 - Bugfix: Ensure that the microsecond timestamp provider does not return duplicate timestamps
 
-### Version 0.4.0 (Stable) - 21.01.2018
+### Version 0.4.0 - 21.01.2018
 - New Feature: Size in byte and tuples are stored in Zookeeper
 - New Feature: Added distribution region merge feature
 - Improvement: Introduced the generic space partitioner interface
@@ -95,12 +95,12 @@ order: 1
 - Improvement: Changed distribution region id from int to long
 - Improvement: Added JMX call to redistribute regions
 
-### Version 0.3.7 (Stable) - 14.12.2017
+### Version 0.3.7 - 14.12.2017
 - New Feature: Distribution regions now have a minimal size
 - Improvement: Added usage counter to Zookeeper connection to prevent shutdown during event handler runs
 - Improvement: Modularize maven project
 
-### Version 0.3.6 (Stable) - 20.11.2017
+### Version 0.3.6 - 20.11.2017
 - New Feature: Added continuous bounding box query
 - New Feature: Added performance counter / instrumentation (implemented with Prometheus) 
 - Improvement: Made memory statistics logging configurable via const
@@ -115,14 +115,14 @@ order: 1
 - Bugfix: Fixed a bug in the string to boolean converter
 - Bugfix: Fixed the service callback unregister method
 
-### Version 0.3.5 (Stable) - 06.11.2017
+### Version 0.3.5 - 06.11.2017
 - New Feature: Made project compatible with sonatype.org hosting
 - New Feature: This project is now available in the 'Maven Central Repository'
 - New Feature: Added an example how to work with duplicate keys and the tuple history
 - New Feature: Added client software section in the documentation
 - Improvement: Updated dependencies (SnakeYAML, osmosis, org.json, Mockito)
 
-### Version 0.3.4 (Stable) - 03.11.2017
+### Version 0.3.4 - 03.11.2017
 - New Feature: Added an experiment to determine the bloom filter efficiency
 - New Feature: Tuple Storages now have a configuration
 - New Feature: Implemented duplicate key tuple stores
@@ -135,7 +135,7 @@ order: 1
 - Improvement: Shortened BBox output in CLI
 - Bugfix: The CLI don't unregister the local node in Zookeeper
 
-### Version 0.3.3 (Stable) - 07.09.2017
+### Version 0.3.3 - 07.09.2017
 - New Feature: Added routing header to delete and query packages
 - New Feature: Introduced the key index cache
 - New Feature: Added the create table call
@@ -148,7 +148,7 @@ order: 1
 - Bugfix: Fixed a race condition in the tuple list store
 - Bugfix: Fixed a bug in the query type field location
 
-### Version 0.3.2 (Stable) - 10.08.2017
+### Version 0.3.2 - 10.08.2017
 - New Feature: The CLI shows all discovered BBoxDB instances
 - New Feature: Introduced client based insert tuple routing
 - New Feature: Write Hardware info (CPU cores, memory, disk space) to Zookeeper
@@ -160,7 +160,7 @@ order: 1
 - Improvement: Implement insert operation retry on error
 - Bugfix: Fixed wait for pending calls method in client code
 
-### Version 0.3.1 (Stable) - 29.06.2017
+### Version 0.3.1 - 29.06.2017
 - Improvement: A fixed amount of memtable flush threads is used per storage
 - Improvement: Only one checkpoint thread per storage
 - Improvement: Only one compact thread per storage 
@@ -188,7 +188,7 @@ order: 1
 - Bugfix: Don't compress tuples twice
 - Bugfix: Removed race condition in server socket handler
 
-### Version 0.3.0 (Stable) - 17.06.2017
+### Version 0.3.0 - 17.06.2017
 - New Feature: Added the TestFixedGrid experiment
 - New Feature: Added a tuple read/write experiment
 - New Feature: Added the bounding box query experiment
@@ -217,7 +217,7 @@ order: 1
 - Bugfix: Introduced the memtable flush mode. After the flush thread is stopped, all data can stay in memory
 - Bugfix: Loopback IPs (e.g. 127.0.0.1) are now filtered, when the local instancename is determined
 
-### Version 0.2.6 (Stable) - 23.05.2017
+### Version 0.2.6 - 23.05.2017
 - New Feature: Created the project mailing list
 - Improvement: Removed unused server read only mode
 - Improvement: Send client queries immediately to server
@@ -227,7 +227,7 @@ order: 1
 - Improvement: Renamed WeightBasedSplitStrategy to SamplingBasedSplitStrategy
 - Improvement: Improved the SamplingBasedSplitStrategy by taking also object ends in consideration
 
-### Version 0.2.5 (Stable) - 07.05.2017
+### Version 0.2.5 - 07.05.2017
 - New Feature: Implemented the new insert time tuple query
 - New Feature: Introduced the BBoxDB CLI
 - New Feature: Added importer for GeoJSON, NYC Yellow taxi and TPCH-Lineitem formated data
@@ -254,7 +254,7 @@ order: 1
 - Bugfix: Fixed bugs found by Coverity scan
 - Bugfix: Process zookeeper events completely before the connection is closed
 
-### Version 0.2.4 (Stable) - 23.04.2017
+### Version 0.2.4 - 23.04.2017
 - New Feature: Support multiple storage locations
 - New Feature: Added maven packaging
 - New Feature: Added a received timestamp to tuples
@@ -273,7 +273,7 @@ order: 1
 - Bugfix: Removed warning caused by rm on first bboxdb_update call
 - Bugfix: Removed unused jsvc_* variables from bash scripts
 
-### Version 0.2.3 (Stable) - 09.04.2017
+### Version 0.2.3 - 09.04.2017
 - New Feature: Futures now store the completion time 
 - New Feature: Introduced the tuple deletion without timestamp method in API
 - New Feature: Changed the format of the compressed envelopes to support multi-package compression
@@ -291,7 +291,7 @@ order: 1
 - Improvement: Default data location is now /tmp/bboxdb
 - Bugfix: Removed the unused 'root directory' from config file
 
-### Version 0.2.2 (Stable) - 23.03.2017
+### Version 0.2.2 - 23.03.2017
 - New Feature: Added start option for remote debuging
 - New Feature: Added OSM viewer for K-D Trees
 - New Feature: Added sampling size experiment 
@@ -307,7 +307,7 @@ order: 1
 - Bugfix: Region mapping is removed after region split
 - Bugfix: Region mapping is not created for inactive regions
 
-### Version 0.2.1 (Stable) - 31.01.2017
+### Version 0.2.1 - 31.01.2017
 - New Feature: Using Coverity scan and codecov.io to improve source code quality
 - New Feature: OSM Data is now stored as GeoJSON, instead of a java serialized byte stream
 - New Feature: Introduced the R-Tree spatial indexer
@@ -327,7 +327,7 @@ order: 1
 - Bugfix: Removed the non working BoxSearch spatial index
 - Bugfix: The weight based split strategy was analyzing all local regions of a distribution group
 
-### Version 0.2.0 (Stable) - 11.01.2017
+### Version 0.2.0 - 11.01.2017
 - Improvement: New logo
 - Improvement: Shortened socket close exception
 - Improvement: Write statistical data about flushed memtables
@@ -447,7 +447,7 @@ order: 1
 - Bugfix: Fixed some slf4j logging issues
 - Bugfix: Result set was containing outdated tuples
 
-### Version 0.1.2 (Alpha) - 14.09.2016
+### Version 0.1.2 - 14.09.2016
 - Implemented the recovery service
 - Unified the structure of request and response packages
 - Introduced connection capabilities and connection handshaking
@@ -455,7 +455,7 @@ order: 1
 - Improved network package decoding
 - Introduced the WeightBasedSplitStrategy
 
-### Version 0.1.1 (Alpha) - 26.08.2016
+### Version 0.1.1 - 26.08.2016
 - Introduced replication strategies
 - Handle pending futures in benchmarks correctly and limit the number of pending requests
 - Implemented roads in OSM Benchmark
@@ -463,7 +463,7 @@ order: 1
 - Implemented checkpoints
 - Store node states in zookeeper
 
-### Version 0.1.0 (Alpha) - 07.08.2016
+### Version 0.1.0 - 07.08.2016
 - Fixed some crashes in the network handler
 - Added first version of the OSM data import benchmark
 - Added routing header to network packages 
@@ -473,7 +473,7 @@ order: 1
 - Changed the structure of the list tables response package
 - Spread existing data on region split
 
-### Version 0.0.9 (Alpha) - 14.07.2016
+### Version 0.0.9 - 14.07.2016
 - Added compactification statistics
 - Introduced a simple split strategy
 - Store the version number of the instances in zookeeper
@@ -482,7 +482,7 @@ order: 1
 - Added state field to distribution groups
 - Implemented membership connection service
 
-### Version 0.0.8 (Alpha) - 22.06.2016
+### Version 0.0.8 - 22.06.2016
 - Store Distribution Region assignment in zookeeper
 - Improved exception handling and prevent half written sstables
 - Introduced the multi-server client "ScalephantCluster"
@@ -491,7 +491,7 @@ order: 1
 - The name prefix of the distribution regions is now stored in zookeeper
 - Introduced a simple resource allocation strategy
 
-### Version 0.0.7 (Alpha) - 05.06.2016
+### Version 0.0.7 - 05.06.2016
 - Improved bounding box implementation
 - Improved distribution group GUI handling
 - Added create and delete distribution group network packages
@@ -501,7 +501,7 @@ order: 1
 - Added zookeeper to Travis CI environment
 - Added zookeeper integration tests
 
-### Version 0.0.6 (Alpha) - 13.05.2016
+### Version 0.0.6 - 13.05.2016
 - Added timestamp queries
 - Implemented the table transfer network package
 - Changed the requestid of the network protocol to int, to handle more parallel requests
@@ -510,7 +510,7 @@ order: 1
 - Added a basic GUI
 - The zookeeper database can be now deleted with the cluster management script
 
-### Version 0.0.5 (Alpha) - 24.03.2016
+### Version 0.0.5 - 24.03.2016
 - Added basic benchmarks
 - Added a logo
 - Improved compaction strategy
@@ -521,7 +521,7 @@ order: 1
 - Added a cluster management script
 - Integrated zookeeper
 
-### Version 0.0.4 (Alpha) - 03.03.2016
+### Version 0.0.4 - 03.03.2016
 - Added one client example 
 - Added configuration file (scalephant.yaml)
 - Added support for multiple tuple result queries
@@ -529,13 +529,13 @@ order: 1
 - Implemented a naming scheme for tables
 - Added a start and stop script for Linux (using Apache jsvc)
 
-### Version 0.0.3 (Alpha) - 16.02.2016
+### Version 0.0.3 - 16.02.2016
 - Implemented a network client
 - First network protocol specification (see doc/network.md)
 - Implemented a server service
 - Integrated Travis CI
 
-### Version 0.0.2 (Alpha) - 26.01.2016
+### Version 0.0.2 - 26.01.2016
 - Implemented a SSTable/SSTableIndex examiner for debugging
 - Introduced a simple compactification strategy
 - Introduced SSTable indices  
@@ -546,5 +546,5 @@ order: 1
 - Added MultiThreadling support in the SSTableManager
 - Switched the reader from File IO to Memory Mapped IO
 
-### Version 0.0.1 (Alpha) - 20.11.2015
+### Version 0.0.1 - 20.11.2015
 - Initial release
