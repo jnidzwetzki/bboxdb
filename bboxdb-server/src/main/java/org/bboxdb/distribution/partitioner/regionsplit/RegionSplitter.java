@@ -18,8 +18,10 @@
 package org.bboxdb.distribution.partitioner.regionsplit;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
@@ -86,7 +88,9 @@ public class RegionSplitter {
 		boolean splitFailed = false;
 		
 		try {
-			spacePartitioner.splitRegion(region, tupleStoreManagerRegistry);
+			final Collection<BoundingBox> samples 
+				= SamplingHelper.getSamplesForRegion(region, tupleStoreManagerRegistry);
+			spacePartitioner.splitRegion(region, samples);
 		} catch (Throwable e) {
 			logger.info("Finding split point failed, retry in a few minutes" 
 					+ region.getIdentifier(), e);

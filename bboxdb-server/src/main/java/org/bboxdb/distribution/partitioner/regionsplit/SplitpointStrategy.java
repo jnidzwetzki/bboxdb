@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner.regionsplit;
 
-import org.bboxdb.distribution.region.DistributionRegion;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.storage.StorageManagerException;
 
 public interface SplitpointStrategy {
@@ -29,6 +29,6 @@ public interface SplitpointStrategy {
 	 * @throws StorageManagerException 
 	 */
 	public double getSplitPoint(final int splitDimension, 
-			final DistributionRegion regionToSplit) throws StorageManagerException;
+			final BoundingBox coveringBox) throws StorageManagerException;
 
 }

@@ -18,63 +18,30 @@
 package org.bboxdb.distribution.partitioner.regionsplit;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.commons.math.DoubleInterval;
-import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.storage.StorageManagerException;
-import org.bboxdb.storage.entity.Tuple;
-import org.bboxdb.storage.entity.TupleStoreName;
-import org.bboxdb.storage.tuplestore.ReadOnlyTupleStore;
-import org.bboxdb.storage.tuplestore.manager.TupleStoreManager;
-import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
-import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SamplingBasedSplitStrategy implements SplitpointStrategy {
-	
-	/**
-	 * The disk storage
-	 */
-	private TupleStoreManagerRegistry tupleStoreManagerRegistry;
 
 	/**
-	 * The logger
+	 * The samples
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SamplingBasedSplitStrategy.class);
+	private Collection<BoundingBox> samples;
 
-
-	public SamplingBasedSplitStrategy(final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
-		this.tupleStoreManagerRegistry = tupleStoreManagerRegistry;
+	public SamplingBasedSplitStrategy(final Collection<BoundingBox> samples) {
+		this.samples = samples;
 	}
 
 	@Override
-	public double getSplitPoint(final int splitDimension, final DistributionRegion region) 
+	public double getSplitPoint(final int splitDimension, final BoundingBox coveringBox) 
 			throws StorageManagerException {
-			
-		final List<TupleStoreName> tables = TupleStoreUtil
-				.getAllTablesForDistributionGroupAndRegionId
-				(tupleStoreManagerRegistry, region.getDistributionGroupName(), region.getRegionId());
-	
-		return caclculateSplitPoint(region.getConveringBox(), splitDimension, tables);
-	}
-
-	/**
-	 * Calculate the split point
-	 * @param boundingBox
-	 * @param splitDimension
-	 * @param tables
-	 * @return
-	 * @throws StorageManagerException
-	 */
-	protected double caclculateSplitPoint(final BoundingBox boundingBox, final int splitDimension,
-			final List<TupleStoreName> tables) throws StorageManagerException {
 		
-		// Get the samples
-		final List<Double> pointSamples = getPointSamples(boundingBox, splitDimension, tables);
+		final List<Double> pointSamples = preprocessSamples(splitDimension, coveringBox);
 		
 		if(pointSamples.isEmpty()) {
 			throw new StorageManagerException("Unable to determine split point, samples list is empty");
@@ -92,90 +59,30 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 	}
 
 	/**
-	 * Get the begin and end point samples
-	 * 
-	 * @param boundingBox
+	 * Preprocess the samples
 	 * @param splitDimension
-	 * @param tables
-	 * @return 
-	 * @throws StorageManagerException
+	 * @param coveringBox
+	 * @return
 	 */
-	protected List<Double> getPointSamples(final BoundingBox boundingBox, final int splitDimension,
-			final List<TupleStoreName> tables) throws StorageManagerException {
+	private List<Double> preprocessSamples(final int splitDimension, final BoundingBox coveringBox) {
 		
-		final List<Double> allPointSamples = new ArrayList<>();
-		
-		for(final TupleStoreName ssTableName : tables) {
-			logger.info("Create split samples for table: {} ", ssTableName.getFullname());
-			
-			final TupleStoreManager sstableManager = tupleStoreManagerRegistry
-					.getTupleStoreManager(ssTableName);
-			
-			final List<ReadOnlyTupleStore> tupleStores = sstableManager.getAllTupleStorages();
-			
-			final List<Double> pointSamples 
-				= processTupleStores(tupleStores, splitDimension, boundingBox);
-			
-			allPointSamples.addAll(pointSamples);
-			
-			logger.info("Create split samples for table: {} DONE. Got {} samples.", 
-					ssTableName.getFullname(), pointSamples.size());
-		}
-				
-		return allPointSamples;
-	}
-
-	/**
-	 * Process the facades for the table and create samples
-	 * @param storages
-	 * @param splitDimension 
-	 * @param boundingBox 
-	 * @param floatIntervals 
-	 * @return 
-	 * @throws StorageManagerException 
-	 */
-	protected List<Double> processTupleStores(final List<ReadOnlyTupleStore> storages, 
-			final int splitDimension, final BoundingBox boundingBox) throws StorageManagerException {
-		
-		final int samplesPerStorage = 100;
 		final List<Double> pointSamples = new ArrayList<>();
 		
-		logger.debug("Fetching {} samples per storage", samplesPerStorage);
-		
-		for(final ReadOnlyTupleStore storage : storages) {
-			if(! storage.acquire() ) {
-				continue;
+		for(final BoundingBox sampleBox : samples) {
+			// Add the begin and end pos to the lists, if the begin / end is in the 
+			// covering box
+			final DoubleInterval tupleInterval = sampleBox.getIntervalForDimension(splitDimension);
+			final DoubleInterval groupInterval = coveringBox.getIntervalForDimension(splitDimension);
+			
+			if(tupleInterval.getBegin() > groupInterval.getBegin()) {
+				pointSamples.add(tupleInterval.getBegin());
 			}
 			
-			final long numberOfTuples = storage.getNumberOfTuples();
-			final int sampleOffset = Math.max(10, (int) (numberOfTuples / samplesPerStorage));
-			
-			for (long position = 0; position < numberOfTuples; position = position + sampleOffset) {
-				final Tuple tuple = storage.getTupleAtPosition(position);							
-				final BoundingBox tupleBoundingBox = tuple.getBoundingBox();
-			
-				// Ignore tuples with an empty box (e.g. deleted tuples)
-				if(tupleBoundingBox == null || tupleBoundingBox.equals(BoundingBox.FULL_SPACE)) {
-					continue;
-				}
-				
-				// Add the begin and end pos to the lists, if the begin / end is in the 
-				// covering box
-				final DoubleInterval tupleInterval = tupleBoundingBox.getIntervalForDimension(splitDimension);
-				final DoubleInterval groupInterval = boundingBox.getIntervalForDimension(splitDimension);
-				
-				if(tupleInterval.getBegin() > groupInterval.getBegin()) {
-					pointSamples.add(tupleInterval.getBegin());
-				}
-				
-				if(tupleInterval.getEnd() < groupInterval.getEnd()) {
-					pointSamples.add(tupleInterval.getEnd());
-				}
+			if(tupleInterval.getEnd() < groupInterval.getEnd()) {
+				pointSamples.add(tupleInterval.getEnd());
 			}
-	
-			storage.release();
 		}
-		
 		return pointSamples;
 	}
+
 }

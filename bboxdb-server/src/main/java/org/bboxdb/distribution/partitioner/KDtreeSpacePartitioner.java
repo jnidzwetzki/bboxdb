@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -39,7 +40,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
-import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,14 +141,14 @@ public class KDtreeSpacePartitioner implements SpacePartitioner {
 	 */
 	@Override
 	public void splitRegion(final DistributionRegion regionToSplit, 
-			final TupleStoreManagerRegistry tupleStoreManagerRegistry) throws BBoxDBException {
+			final Collection<BoundingBox> samples) throws BBoxDBException {
 		
 		try {
-			final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(
-					tupleStoreManagerRegistry);
+			final SplitpointStrategy splitpointStrategy = new SamplingBasedSplitStrategy(samples);
 			
 			final int splitDimension = getSplitDimension(regionToSplit);
-			final double splitPosition = splitpointStrategy.getSplitPoint(splitDimension, regionToSplit);
+			final BoundingBox regionBox = regionToSplit.getConveringBox();
+			final double splitPosition = splitpointStrategy.getSplitPoint(splitDimension, regionBox);
 			
 			splitNode(regionToSplit, splitPosition);
 		} catch (Exception e) {

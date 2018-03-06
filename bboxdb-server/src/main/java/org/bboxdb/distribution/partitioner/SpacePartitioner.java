@@ -17,8 +17,10 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.util.Collection;
 import java.util.Set;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
@@ -27,7 +29,6 @@ import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 
 public interface SpacePartitioner {
 	
@@ -65,7 +66,7 @@ public interface SpacePartitioner {
 	 * @throws BBoxDBException 
 	 */
 	public void splitRegion(final DistributionRegion regionToSplit, 
-			final TupleStoreManagerRegistry tupleStoreManagerRegistry) throws BBoxDBException;
+			final Collection<BoundingBox> samples) throws BBoxDBException;
 	
 	/**
 	 * Merge the given region
