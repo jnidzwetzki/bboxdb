@@ -42,6 +42,8 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class DistributionRegionSyncer implements Watcher {
 	
 	/**
@@ -313,14 +315,16 @@ public class DistributionRegionSyncer implements Watcher {
 	private DistributionRegion readChild(final String childPath, final DistributionRegion parentRegion) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final long remoteVersion = distributionGroupAdapter.getNodeMutationVersion(childPath, this);
 		final BoundingBox boundingBox = distributionGroupAdapter.getBoundingBoxForPath(childPath);
 		final long regionId = distributionGroupAdapter.getRegionIdForPath(childPath);
 		
 		final DistributionRegion region = new DistributionRegion(distributionGroupName, parentRegion, boundingBox, regionId);		
 	
-		versions.put(region, remoteVersion);
-		
+		final DistributionRegionState regionState 
+			= distributionGroupAdapter.getStateForDistributionRegion(childPath, this);
+
+		region.setState(regionState);
+			
 		return region;
 	}
 	
@@ -442,5 +446,14 @@ public class DistributionRegionSyncer implements Watcher {
 		}
 		
 		callbacks.forEach(c -> c.regionChanged(event, region));
+	}
+	
+	/**
+	 * Clear in memory data
+	 */
+	@VisibleForTesting
+	public void clear() {
+		rootNode = null;
+		versions.clear();
 	}
 }

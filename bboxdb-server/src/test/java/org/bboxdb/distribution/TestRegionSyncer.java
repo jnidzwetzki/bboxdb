@@ -116,11 +116,28 @@ public class TestRegionSyncer {
 		distributionRegionSyncer.unregisterCallback(level1Callback);
 		
 		Assert.assertTrue(root.getChildNumber(0).getChildNumber(0) != null);
+		Assert.assertEquals(0, root.getRegionId());
+		Assert.assertEquals(1, root.getChildNumber(0).getRegionId());
+		Assert.assertEquals(3, root.getChildNumber(0).getChildNumber(0).getRegionId());
 		Assert.assertEquals(3, root.getAllChildren().size());
 		
 		Assert.assertEquals(0, root.getLevel());
 		Assert.assertEquals(1, level1Child.getLevel());
 		Assert.assertEquals(2, root.getChildNumber(0).getChildNumber(0).getLevel());
+		
+		// Reread data from zookeeper
+		System.out.println("== clear in memory data");
+		distributionRegionSyncer.clear();
+		final DistributionRegion root2 = distributionRegionSyncer.getRootNode();
+		
+		Assert.assertTrue(root2.getChildNumber(0).getChildNumber(0) != null);
+		Assert.assertEquals(0, root2.getRegionId());
+		Assert.assertEquals(1, root2.getChildNumber(0).getRegionId());
+		Assert.assertEquals(3, root2.getChildNumber(0).getChildNumber(0).getRegionId());
+		Assert.assertEquals(3, root2.getAllChildren().size());
+		
+		Assert.assertEquals(0, root2.getLevel());
+		Assert.assertEquals(2, root2.getChildNumber(0).getChildNumber(0).getLevel());
 	}
 
 	@Test(timeout=10000)
@@ -162,6 +179,15 @@ public class TestRegionSyncer {
 		Assert.assertEquals(2, root.getDirectChildren().size());
 		Assert.assertEquals(DistributionRegionState.MERGING, root.getChildNumber(0).getState());
 		Assert.assertEquals(DistributionRegionState.MERGING, root.getChildNumber(1).getState());
+		
+		// Reread state from zookeeper
+		System.out.println("== clear in memory data");
+		distributionRegionSyncer.clear();
+		final DistributionRegion root2 = distributionRegionSyncer.getRootNode();
+
+		Assert.assertEquals(2, root2.getDirectChildren().size());
+		Assert.assertEquals(DistributionRegionState.MERGING, root2.getChildNumber(0).getState());
+		Assert.assertEquals(DistributionRegionState.MERGING, root2.getChildNumber(1).getState());
 	}
 	
 	@Test(timeout=10000)
