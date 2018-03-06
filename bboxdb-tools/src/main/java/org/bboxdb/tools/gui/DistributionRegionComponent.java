@@ -18,6 +18,7 @@
 package org.bboxdb.tools.gui;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
@@ -59,7 +60,7 @@ public class DistributionRegionComponent {
 	/**
 	 * The width of the box
 	 */
-	public final static int WIDTH = 120;
+	public final static int WIDTH = 110;
 	
 	/**
 	 * The distribution region to paint
@@ -192,7 +193,7 @@ public class DistributionRegionComponent {
 		// Write the bounding box
 		for(int i = 0; i < converingBox.getDimension(); i++) {
 			final DoubleInterval floatInterval = converingBox.getIntervalForDimension(i);
-			final String text = "D" + i + ": " + floatInterval.getRoundedString(4);
+			final String text = "D" + i + ": " + floatInterval.getRoundedString(3);
 			writeStringCentered(g, text, (3+i) * offset);
 		}
 		
@@ -223,6 +224,8 @@ public class DistributionRegionComponent {
 	private void writeStringCentered(final Graphics2D g, final String stringValue, final double pos) {
 		final int stringWidth = calculateStringWidth(g, stringValue);
 		final int centerValue = xOffset + (WIDTH / 2) - (stringWidth / 2);
+		final Font font = g.getFont();
+		g.setFont(new Font(font.getFontName(), font.getStyle(), 10)); 
 		g.drawString(stringValue, centerValue, yOffset + (int) (HEIGHT * pos));
 	}
 
