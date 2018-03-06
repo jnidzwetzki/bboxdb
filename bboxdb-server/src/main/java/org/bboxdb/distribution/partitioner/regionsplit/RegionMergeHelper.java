@@ -18,6 +18,7 @@
 package org.bboxdb.distribution.partitioner.regionsplit;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
@@ -101,7 +102,14 @@ public class RegionMergeHelper {
 			final long minSize = getConfiguredRegionMinSizeInMB(region);
 			
 			logger.info("Testing for region {} underflow curent size is {} / min is {}", 
-					region.getRegionId(), childRegionSize, minSize);
+				region.getRegionId(), childRegionSize, minSize);
+			
+			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter  = ZookeeperClientFactory.getDistributionGroupAdapter();
+			for(final DistributionRegion childRegion : region.getDirectChildren()) {
+				final double average = StatisticsHelper.getAverageStatistics(childRegion.getIdentifier());
+				final Map<BBoxDBInstance, Map<String, Long>> real = distributionGroupZookeeperAdapter.getRegionStatistics(childRegion);
+				logger.info("Region {} / Statistics {} {}", region.getIdentifier(), average, real);
+			}
 			
 			return (childRegionSize < minSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
