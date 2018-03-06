@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
+import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -210,39 +211,36 @@ public class DistributionRegionSyncer implements Watcher {
 		
 		logger.info("updateNode called with node {}", nodePath);
 		
-		boolean updateSuccessfully = true;
+		final Watcher callbackWatcher = this;
 		
-		do {
-			updateSuccessfully = true;
-			
-			try {
-				final Collection<BBoxDBInstance> systemsForDistributionRegion 
-					= distributionGroupAdapter.getSystemsForDistributionRegion(region);
-	
-				region.setSystems(systemsForDistributionRegion);
-				
-				final int regionId = distributionGroupAdapter.getRegionIdForPath(nodePath);
-				
-				if(region.getRegionId() != regionId) {
-					throw new RuntimeException("Replacing region id " + region.getRegionId() 
-						+ " with " + regionId + " on " + nodePath);
-				}
-				
-				final DistributionRegionState regionState 
-					= distributionGroupAdapter.getStateForDistributionRegion(nodePath, this);
-			
-				region.setState(regionState);
-			
-				updateChildrenForRegion(nodePath, region);
-				
-			} catch (ZookeeperException | ZookeeperNotFoundException e) {
-				logger.info("Got error while rereading tree, retry", e);
-				Thread.sleep(100);
-				updateSuccessfully = false;
-			} 
-	
-		} while(updateSuccessfully == false);
+		final Retryer<Boolean> retryer = new Retryer<>(10, 100, () -> {
+			final Collection<BBoxDBInstance> systemsForDistributionRegion 
+				= distributionGroupAdapter.getSystemsForDistributionRegion(region);
 
+			region.setSystems(systemsForDistributionRegion);
+			
+			final int regionId = distributionGroupAdapter.getRegionIdForPath(nodePath);
+			
+			if(region.getRegionId() != regionId) {
+				throw new RuntimeException("Replacing region id " + region.getRegionId() 
+					+ " with " + regionId + " on " + nodePath);
+			}
+			
+			final DistributionRegionState regionState 
+				= distributionGroupAdapter.getStateForDistributionRegion(nodePath, callbackWatcher);
+		
+			region.setState(regionState);
+		
+			updateChildrenForRegion(nodePath, region);
+			
+			return true;
+		});
+		
+		retryer.execute();
+		
+		if(! retryer.isSuccessfully()) {
+			logger.error("Got error while rereading tree", retryer.getLastException());
+		}
 	}
 	
 	/**
