@@ -120,7 +120,7 @@ public class TupleStoreAdapter {
 	private String getTablePath(final TupleStoreName tupleStoreName) {
 		final String distributionGroup = tupleStoreName.getDistributionGroup();
 		return distributionGroupAdapter.getDistributionGroupPath(distributionGroup) 
-				+ "/" + ZookeeperNodeNames.NAME_TABLES + "/" + tupleStoreName.getFullname();
+				+ "/" + ZookeeperNodeNames.NAME_TABLES + "/" + tupleStoreName.getFullnameWithoutPrefix();
 	}
 	
 	/**
