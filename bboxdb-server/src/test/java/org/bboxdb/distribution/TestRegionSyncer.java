@@ -166,8 +166,13 @@ public class TestRegionSyncer {
 		
 		createSplittedRoot(distributionRegionSyncer, root);
 				
-		final CountDownLatch latch = new CountDownLatch(2);
-		final DistributionRegionCallback callback = (e, r) -> { if(r.getState() == DistributionRegionState.MERGING) { latch.countDown(); }};
+		final CountDownLatch latch = new CountDownLatch(1);
+		final DistributionRegionCallback callback = (e, r) -> { 
+			if(r == root.getChildNumber(1) && r.getState() == DistributionRegionState.MERGING) { 
+				latch.countDown();
+			}
+		};
+		
 		distributionRegionSyncer.registerCallback(callback);
 		
 		distributionGroupAdapter.setStateForDistributionRegion(root.getChildNumber(0), DistributionRegionState.MERGING);
