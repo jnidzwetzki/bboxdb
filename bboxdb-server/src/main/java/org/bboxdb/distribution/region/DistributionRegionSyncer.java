@@ -319,11 +319,6 @@ public class DistributionRegionSyncer implements Watcher {
 		final long regionId = distributionGroupAdapter.getRegionIdForPath(childPath);
 		
 		final DistributionRegion region = new DistributionRegion(distributionGroupName, parentRegion, boundingBox, regionId);		
-	
-		final DistributionRegionState regionState 
-			= distributionGroupAdapter.getStateForDistributionRegion(childPath, this);
-
-		region.setState(regionState);
 			
 		return region;
 	}
