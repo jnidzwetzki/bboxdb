@@ -225,14 +225,7 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public boolean isLeafRegion() {
-		
-		for(final DistributionRegion child : children.values()) {
-			if(child.getState() != DistributionRegionState.CREATING) {
-				return false;
-			}
-		}
-		
-		return true;
+		return getDirectChildren().isEmpty();
 	}
 	
 	/**
