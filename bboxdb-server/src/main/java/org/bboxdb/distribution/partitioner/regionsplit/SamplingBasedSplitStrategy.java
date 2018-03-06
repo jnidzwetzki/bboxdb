@@ -25,16 +25,24 @@ import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.storage.StorageManagerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 
 	/**
 	 * The samples
 	 */
-	private Collection<BoundingBox> samples;
+	private final Collection<BoundingBox> samples;
+	
+	/**
+	 * The Logger
+	 */
+	private final static Logger logger = LoggerFactory.getLogger(SamplingBasedSplitStrategy.class);
 
 	public SamplingBasedSplitStrategy(final Collection<BoundingBox> samples) {
 		this.samples = samples;
+		assert (! samples.isEmpty()) : "Samples list is emoty";
 	}
 
 	@Override
@@ -82,6 +90,10 @@ public class SamplingBasedSplitStrategy implements SplitpointStrategy {
 				pointSamples.add(tupleInterval.getEnd());
 			}
 		}
+		
+		logger.info("Samples list has a size of {}, usable elements {}", 
+				samples.size(), pointSamples.size());
+		
 		return pointSamples;
 	}
 

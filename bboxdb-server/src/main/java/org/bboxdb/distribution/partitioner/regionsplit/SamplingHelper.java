@@ -99,7 +99,7 @@ public class SamplingHelper {
 	 * @return 
 	 * @throws StorageManagerException 
 	 */
-	private static  List<BoundingBox> processTupleStores(final List<ReadOnlyTupleStore> storages) 
+	private static List<BoundingBox> processTupleStores(final List<ReadOnlyTupleStore> storages) 
 			throws StorageManagerException {
 		
 		final int samplesPerStorage = 100;
@@ -123,6 +123,8 @@ public class SamplingHelper {
 				if(tupleBoundingBox == null || tupleBoundingBox.equals(BoundingBox.FULL_SPACE)) {
 					continue;
 				}
+				
+				samples.add(tupleBoundingBox);
 			}
 	
 			storage.release();
