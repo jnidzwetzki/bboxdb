@@ -124,7 +124,7 @@ public class TestRegionSyncer {
 	}
 
 	@Test(timeout=10000)
-	public void testChangeState() throws InterruptedException, ZookeeperException {
+	public void testChangeState1() throws InterruptedException, ZookeeperException {
 		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
 		final DistributionRegion root = distributionRegionSyncer.getRootNode();
 		
@@ -140,6 +140,28 @@ public class TestRegionSyncer {
 		distributionRegionSyncer.unregisterCallback(callback);
 		
 		Assert.assertEquals(DistributionRegionState.ACTIVE_FULL, root.getState());
+	}
+	
+	@Test(timeout=10000)
+	public void testChangeState2() throws InterruptedException, ZookeeperException {
+		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
+		final DistributionRegion root = distributionRegionSyncer.getRootNode();
+		
+		createSplittedRoot(distributionRegionSyncer, root);
+				
+		final CountDownLatch latch = new CountDownLatch(2);
+		final DistributionRegionCallback callback = (e, r) -> { if(r.getState() == DistributionRegionState.MERGING) { latch.countDown(); }};
+		distributionRegionSyncer.registerCallback(callback);
+		
+		distributionGroupAdapter.setStateForDistributionRegion(root.getChildNumber(0), DistributionRegionState.MERGING);
+		distributionGroupAdapter.setStateForDistributionRegion(root.getChildNumber(1), DistributionRegionState.MERGING);
+
+		latch.await();
+		distributionRegionSyncer.unregisterCallback(callback);
+		
+		Assert.assertEquals(2, root.getDirectChildren().size());
+		Assert.assertEquals(DistributionRegionState.MERGING, root.getChildNumber(0).getState());
+		Assert.assertEquals(DistributionRegionState.MERGING, root.getChildNumber(1).getState());
 	}
 	
 	@Test(timeout=10000)
