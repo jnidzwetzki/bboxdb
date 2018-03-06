@@ -521,7 +521,7 @@ public class DistributionGroupZookeeperAdapter {
 				Short.toString(configuration.getReplicationFactor()).getBytes());
 		
 		setRegionSizeForDistributionGroup(distributionGroup, configuration.getMaximumRegionSize(), 
-				configuration.getMaximumRegionSize());
+				configuration.getMinimumRegionSize());
 		
 		// Placement
 		final String placementPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_STRATEGY;
@@ -878,7 +878,7 @@ public class DistributionGroupZookeeperAdapter {
 	}
 	
 	/**
-	 * Get the distribution group confoiguration
+	 * Get the distribution group configuration
 	 * @param distributionGroup
 	 * @return
 	 * @throws ZookeeperException

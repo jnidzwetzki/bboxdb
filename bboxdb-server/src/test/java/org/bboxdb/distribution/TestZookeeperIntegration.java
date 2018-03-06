@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.bboxdb.commons.InputParseException;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
@@ -858,5 +859,31 @@ public class TestZookeeperIntegration {
 
 		distributionGroupZookeeperAdapter.setMergingSupported(rootNode, true);
 		Assert.assertTrue(distributionGroupZookeeperAdapter.isMergingSupported(rootNode));
+	}
+	
+	/**
+	 * Test the reading and the writing of the distribution group configuration
+	 * @throws ZookeeperException 
+	 * @throws InputParseException 
+	 * @throws ZookeeperNotFoundException 
+	 */
+	@Test
+	public void testDistributionGroupConfiguration() throws ZookeeperException, ZookeeperNotFoundException, InputParseException {
+		final DistributionGroupConfiguration configuration = new DistributionGroupConfiguration(45);
+		configuration.setMaximumRegionSize(342);
+		configuration.setMinimumRegionSize(53454);
+		configuration.setPlacementStrategy("abc");
+		configuration.setPlacementStrategyConfig("def");
+		configuration.setReplicationFactor((short) 99);
+		configuration.setSpacePartitioner("fgh");
+		configuration.setSpacePartitionerConfig("xyz");
+		
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
+		
+		final DistributionGroupConfiguration readConfiguration 
+			= distributionGroupZookeeperAdapter.getDistributionGroupConfiguration(TEST_GROUP);
+		
+		Assert.assertEquals(configuration, readConfiguration);
 	}
 }
