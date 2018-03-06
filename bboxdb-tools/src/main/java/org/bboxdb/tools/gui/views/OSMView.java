@@ -31,7 +31,7 @@ import org.jxmapviewer.viewer.DefaultTileFactory;
 import org.jxmapviewer.viewer.GeoPosition;
 import org.jxmapviewer.viewer.TileFactoryInfo;
 
-public class KDTreeOSMView implements View {
+public class OSMView implements View {
 
 	/**
 	 * The gui model
@@ -43,7 +43,7 @@ public class KDTreeOSMView implements View {
 	 */
 	protected JXMapViewer mapViewer;
 
-	public KDTreeOSMView(final GuiModel guiModel) {
+	public OSMView(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 	}
 	
@@ -152,7 +152,7 @@ public class KDTreeOSMView implements View {
 		showHagen();
 		
 		// The KD Tree painter
-		final KDOSMPainter kdosmPainter = new KDOSMPainter(guiModel);
+		final OSMOverlayPainter kdosmPainter = new OSMOverlayPainter(guiModel);
 		mapViewer.setOverlayPainter(kdosmPainter);
 			
 		return mapViewer;

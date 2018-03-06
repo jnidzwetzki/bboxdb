@@ -34,7 +34,7 @@ import org.jxmapviewer.viewer.GeoPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KDOSMPainter implements Painter<JXMapViewer> {
+public class OSMOverlayPainter implements Painter<JXMapViewer> {
 	
 	/**
 	 * Max latitude
@@ -69,9 +69,9 @@ public class KDOSMPainter implements Painter<JXMapViewer> {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(KDOSMPainter.class);
+	private final static Logger logger = LoggerFactory.getLogger(OSMOverlayPainter.class);
 
-	public KDOSMPainter(final GuiModel guiModel) {
+	public OSMOverlayPainter(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 	}
 

@@ -35,7 +35,7 @@ import org.bboxdb.tools.gui.GuiModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KDTreeJPanel extends JPanel {
+public class TreeJPanel extends JPanel {
 	
 	private static final long serialVersionUID = -248493308846818192L;
 	
@@ -78,10 +78,10 @@ public class KDTreeJPanel extends JPanel {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(KDTreeJPanel.class);
+	private final static Logger logger = LoggerFactory.getLogger(TreeJPanel.class);
 
 
-	public KDTreeJPanel(final GuiModel guiModel) {
+	public TreeJPanel(final GuiModel guiModel) {
 		this.guiModel = guiModel;
 		this.rootPosX = 1000;
 		this.rootPosY = 30;

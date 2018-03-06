@@ -44,8 +44,8 @@ import javax.swing.border.BevelBorder;
 
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.tools.gui.views.KDTreeOSMView;
-import org.bboxdb.tools.gui.views.KDTreeView;
+import org.bboxdb.tools.gui.views.OSMView;
+import org.bboxdb.tools.gui.views.TreeView;
 import org.bboxdb.tools.gui.views.View;
 import org.bboxdb.tools.gui.views.ViewMode;
 import org.slf4j.Logger;
@@ -195,9 +195,9 @@ public class BBoxDBGui {
 		View view = null;
 			
 		if(viewMode == ViewMode.TREE_MODE) {
-			view = new KDTreeView(guiModel);
+			view = new TreeView(guiModel);
 		} else {
-			view = new KDTreeOSMView(guiModel);
+			view = new OSMView(guiModel);
 		}
 
 		final JPanel rightPanel = view.getJPanel();

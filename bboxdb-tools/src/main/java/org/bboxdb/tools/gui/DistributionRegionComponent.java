@@ -31,7 +31,7 @@ import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
-import org.bboxdb.tools.gui.views.KDTreeJPanel;
+import org.bboxdb.tools.gui.views.TreeJPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +75,7 @@ public class DistributionRegionComponent {
 	/**
 	 * The panel
 	 */
-	private final KDTreeJPanel panel;
+	private final TreeJPanel panel;
 	
 	/**
 	 * The logger
@@ -84,7 +84,7 @@ public class DistributionRegionComponent {
 	
 
 	public DistributionRegionComponent(final DistributionRegion distributionRegion, 
-			final KDTreeJPanel distributionGroupJPanel) {
+			final TreeJPanel distributionGroupJPanel) {
 		
 		this.distributionRegion = distributionRegion;
 		this.panel = distributionGroupJPanel;
