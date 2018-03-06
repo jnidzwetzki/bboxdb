@@ -359,6 +359,7 @@ public class DistributionRegion {
 		
 		if(newSystems == null || newSystems.isEmpty()) {
 			systems.clear();
+			return;
 		}
 		
 		final ArrayList<BBoxDBInstance> newSystemsList = new ArrayList<>(newSystems.size());
