@@ -7,20 +7,20 @@ order: 1
 ---
 
 ### Version 0.5.0 (Stable) - TBA
-- New Feature: Implemented non mergeable distribution regions (closes #81)
+- New Feature: Implemented non-mergeable distribution regions (closes #81)
 - Improvement: Moved region id mapper into the space partitioner to ensure data integrity
 - Improvement: Integrated codeclimate.com
 - Improvement: Reimplemented KD-Tree space partitioner (closes #74)
-- Improvement: Extracted distribution region Zookeeper synchronization into extra class
-- Improvement: Moved root element of the distribution group into a childnode
+- Improvement: Extracted distribution region Zookeeper synchronization into an extra class
+- Improvement: Moved root element of the distribution group into a child node
 - Improvement: Space partitioner callbacks are not dropped when space partitioner is recreated
 - Improvement: Moved table config into regular distribution group space
 - Improvement: Show merge status in GUI
 - Bugfix: Wait before data is merged / distributed until we see the region change in zookeeper (closes #75)
-- Bugfix: The average region is size is used in merges to prevent merges directly after split (closes #76)
+- Bugfix: The average region is size is used in merges to prevent merges directly after a split (closes #76)
 - Bugfix: The JMX space partitioner call has become useless after region merging was introduced, dropped support 
 - Bugfix: Recreated distribution groups can use another space partitioner (closes #82)
-- Bugfix: Local tables are removed after merge / split (closes #77)
+- Bugfix: Local tables are removed after merge/split (closes #77)
 
 ### Version 0.4.2 (Stable) - 21.02.2018
 - New Feature: Added data loader for re-balance demonstration
@@ -30,7 +30,7 @@ order: 1
 - Improvement: Rewrote shutdown code 
 - Improvement: If the server is still running 60 seconds after a shutdown, it is killed
 - Improvement: Check for enough split points on sampling
-- Improvement: Routed packages with empty tuplestore list are not send to server
+- Improvement: Routed packages with empty tuplestore list are not sent to the server
 - Improvement: All network requests are resubmitted on failure
 - Improvement: Added some delay before failed network requests are resubmitted
 - Improvement: Made Zookeeper configuration simpler
@@ -44,7 +44,7 @@ order: 1
 - Bugfix: Fixed dimensions / distribution group name in OSM SSTable converter
 - Bugfix: Prevent waiting on already closed network connections
 - Bugfix: Zookeeper initial population can be done in parallel
-- Bugfix: Network sockets are closed, when a IOException has occurred
+- Bugfix: Network sockets are closed, when an IOException has occurred
 - Bugfix: Package was not routed to the last hop of routing list
 - Bugfix: Ensure distribution group is read when local mappings are requested
 - Bugfix: Duplicates are removed from the simple iterator result set
@@ -68,16 +68,16 @@ order: 1
 - Bugfix: Merging locally stored data was not supported
 - Bugfix: Mapped distribution regions are removed after merge
 - Bugfix: Fixed deadlock between region id mapper and space partitioner cache
-- Bugfix: Deleted distribution groups are now removed from the KD-Tree in memory version
+- Bugfix: Deleted distribution groups are now removed from the KD-Tree in-memory version
 
 ### Version 0.4.1 (Stable) - 02.02.2018
 - New Feature: Implemented the spatial join operation
 - New Feature: Added Joinable Tuple to the network protocol
-- Improvement: Re-implemented server side query processor
-- Improvement: Updated prometheus dependency
+- Improvement: Re-implemented server-side query processor
+- Improvement: Updated Prometheus dependency
 - Improvement: Changed the naming of the distribution groups/tables to dgroup_table
 - Improvement: Introduced the distribution group config cache
-- Bugfix: Don't include non overlapping tuple versions in the bounding box query
+- Bugfix: Don't include non-overlapping tuple versions in the bounding box query
 - Bugfix: Fixed NPE in closeable helper
 - Bugfix: Fixed a bug in the interval overlapping calculation
 - Bugfix: Handle zookeeper connect failed
@@ -92,7 +92,7 @@ order: 1
 - Improvement: Clean up dependencies of the modules
 - Improvement: Moved experiments to a new subproject
 - Improvement: Size and tuples per distribution region are shown in the GUI
-- Improvement: Changed distribution region id form int to long
+- Improvement: Changed distribution region id from int to long
 - Improvement: Added JMX call to redistribute regions
 
 ### Version 0.3.7 (Stable) - 14.12.2017
@@ -102,7 +102,7 @@ order: 1
 
 ### Version 0.3.6 (Stable) - 20.11.2017
 - New Feature: Added continuous bounding box query
-- New Feature: Added performance counter / instrumentation (implemented with prometheus) 
+- New Feature: Added performance counter / instrumentation (implemented with Prometheus) 
 - Improvement: Made memory statistics logging configurable via const
 - Improvement: Added insert callback to TupleStore
 - Improvement: The spatial index now contains the tuple byte positions
@@ -119,11 +119,11 @@ order: 1
 - New Feature: Made project compatible with sonatype.org hosting
 - New Feature: This project is now available in the 'Maven Central Repository'
 - New Feature: Added an example how to work with duplicate keys and the tuple history
-- New Feature: Added client software section in documentation
+- New Feature: Added client software section in the documentation
 - Improvement: Updated dependencies (SnakeYAML, osmosis, org.json, Mockito)
 
 ### Version 0.3.4 (Stable) - 03.11.2017
-- New Feature: Added a experiment to determine the bloom filter efficiency
+- New Feature: Added an experiment to determine the bloom filter efficiency
 - New Feature: Tuple Storages now have a configuration
 - New Feature: Implemented duplicate key tuple stores
 - New Feature: Implemented TTL tuple stores
@@ -144,16 +144,16 @@ order: 1
 - Improvement: Switched from Guava 22 to 23
 - Improvement: Added create and delete table call to CLI
 - Improvement: Added the SSTable key cache experiment
-- Improvement: Removed split strategy from configuration file and made it space partitioned depended
+- Improvement: Removed split strategy from a configuration file and made it space partitioned depended
 - Bugfix: Fixed a race condition in the tuple list store
 - Bugfix: Fixed a bug in the query type field location
 
 ### Version 0.3.2 (Stable) - 10.08.2017
 - New Feature: The CLI shows all discovered BBoxDB instances
 - New Feature: Introduced client based insert tuple routing
-- New Feature: Write Hardware info (cpu cores, memory, diskspace) to Zookeeper
-- New Feature: Added cpu core, storages, free diskspace and memory placement strategies
-- New Feature: Region size, placement strategy and space partitioner are specified per distribution group
+- New Feature: Write Hardware info (CPU cores, memory, disk space) to Zookeeper
+- New Feature: Added CPU core, storages, free disk space and memory placement strategies
+- New Feature: Region size, placement strategy, and space partitioner are specified per distribution group
 - New Feature: Introduced placement strategy and space partitioner configuration
 - New Feature: Added the TupleListFutureStore
 - Improvement: Added importer for TPC-H order datasets
@@ -174,23 +174,23 @@ order: 1
 - Improvement: The R-Tree index is now calculated non-recursive to safe call stack memory
 - Improvement: The R-Tree index now is based on tuple positions instead of keys
 - Improvement: Made the Spatial index reader configurable
-- Improvement: Check for 64 bit environment on start
-- Improvement: Limit the amount of parallel queries per client
+- Improvement: Check for 64-bit environment on start
+- Improvement: Limit the number of parallel queries per client
 - Improvement: Client flush queue on next page request
 - Improvement: Introduced the maximal unflushed package queue size
 - Bugfix: Prevent duplicate distribution of in-memory data
-- Bugfix: Handle non empty systems list in tuple insert as error
+- Bugfix: Handle non-empty systems list in tuple insert as error
 - Bugfix: Reread systems list on insert tuple, when no systems are detected for BBox
 - Bugfix: Fixed handling of meta data when multiple storage locations are used
 - Bugfix: Tuples were inserted twice in the spatial index
 - Bugfix: Fixed ConcurrentModificationException in StorageRegistry:getAllTablesForDistributionGroup
-- Bugfix: Fixed forever waiting checkpoint threads, when a SSTable is switched to readonly
+- Bugfix: Fixed forever waiting checkpoint threads, when an SSTable is switched to read-only
 - Bugfix: Don't compress tuples twice
 - Bugfix: Removed race condition in server socket handler
 
 ### Version 0.3.0 (Stable) - 17.06.2017
 - New Feature: Added the TestFixedGrid experiment
-- New Feature: Added a tuple read / write experiment
+- New Feature: Added a tuple read/write experiment
 - New Feature: Added the bounding box query experiment
 - New Feature: Merge SSTables based on a SortedIteratorMerger
 - Improvement: Added a fixed cell data structure
@@ -200,7 +200,7 @@ order: 1
 - Improvement: Memtables are flushed completely on shutdown()
 - Improvement: Improved state handling of the SSTable manager
 - Improvement: Added flush() method to SSTable manager
-- Improvement: Improved ressource clean up in SSTable manager
+- Improvement: Improved resource clean up in SSTable manager
 - Improvement: Introduced the last modified timestamp for sstables
 - Improvement: Big compacts are only executed every hour
 - Improvement: Small table threshold is now set to 5*memtable size
