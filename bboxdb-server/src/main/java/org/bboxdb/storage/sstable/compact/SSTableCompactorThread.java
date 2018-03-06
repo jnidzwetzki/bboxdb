@@ -271,12 +271,7 @@ public class SSTableCompactorThread extends ExceptionSafeRunnable {
 		if(! sstableManager.getTupleStoreName().isDistributedTable()) {
 			return;
 		}
-		
-		// Read only = table is in splitting mode
-		if(sstableManager.getSstableManagerState() != TupleStoreManagerState.READ_WRITE) {
-			return;
-		}
-		
+
 		splitOrMergeRegion(sstableManager);	
 	}
 
