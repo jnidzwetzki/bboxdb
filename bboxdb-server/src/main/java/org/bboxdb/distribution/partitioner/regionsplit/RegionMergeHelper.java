@@ -134,28 +134,52 @@ public class RegionMergeHelper {
 	 * @return
 	 */
 	public static boolean isMergingSupported(final DistributionRegion region) {
+
+		if(! isMergingByZookeeperAllowed(region)) {
+			logger.debug("Merging for region {} is not supported (Zookeeper)", region);
+			return false;
+		}
+
+		if(! isMergingBySpacePartitionerAllowed(region)) {
+			logger.debug("Merging for region {} is not supported (Space partitioner", region);
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Is the merging by the space partitoner allowed?
+	 * @param region
+	 * @return
+	 */
+	public static boolean isMergingBySpacePartitionerAllowed(final DistributionRegion region) {
+		try {
+			final String distributionGroupName = region.getDistributionGroupName().getFullname();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
+
+			return spacePartitioner.isMergingSupported(region);
+		} catch (BBoxDBException e) {
+			logger.error("Got exception while testing for merge", e);
+			return false;
+		}
+	}
+
+	/**
+	 * Is the merging by zookeeper allowed?
+	 * @param region
+	 * @throws BBoxDBException
+	 */
+	public static boolean isMergingByZookeeperAllowed(final DistributionRegion region) {
 		try {
 			final DistributionGroupZookeeperAdapter groupZookeeperAdapter 
 				= ZookeeperClientFactory.getDistributionGroupAdapter();
 			
-			if(! groupZookeeperAdapter.isMergingSupported(region)) {
-				logger.debug("Merging for region {} is not supported (Zookeeper)", region);
-				return false;
-			}
-			
-			final String distributionGroupName = region.getDistributionGroupName().getFullname();
-			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
-
-			if(! spacePartitioner.isMergingSupported(region)) {
-				logger.debug("Merging for region {} is not supported (Space partitioner", region);
-				return false;
-			}
-			
-			return true;
+			return groupZookeeperAdapter.isMergingSupported(region);
 		} catch (BBoxDBException e) {
-			logger.error("Got an exception while testing for merge", e);
+			logger.error("Got exception while testing for merge", e);
 			return false;
-		}
+		}	
 	}
 	
 }
