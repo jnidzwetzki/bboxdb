@@ -141,7 +141,7 @@ public class RegionMergeHelper {
 		}
 
 		if(! isMergingBySpacePartitionerAllowed(region)) {
-			logger.debug("Merging for region {} is not supported (Space partitioner", region);
+			logger.debug("Merging for region {} is not supported (Space partitioner)", region);
 			return false;
 		}
 		
