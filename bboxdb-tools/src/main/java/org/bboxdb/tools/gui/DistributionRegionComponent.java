@@ -29,6 +29,7 @@ import org.bboxdb.commons.math.DoubleInterval;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.regionsplit.RegionMergeHelper;
+import org.bboxdb.distribution.partitioner.regionsplit.RegionSplitHelper;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -319,6 +320,9 @@ public class DistributionRegionComponent {
 			sb.append("Merge supported by configuration <i>" + mergeableByZookeeper 
 					+ "</i>, by space partitioner <i>" + mergeableBySpacePartitioner + "</i><br>");
 			
+			final boolean isSplitSupported = RegionSplitHelper.isSplittingSupported(distributionRegion);
+			
+			sb.append("Split supported by space partitioner <i>" + isSplitSupported + "</i><br>");
 		} catch (Exception e) {
 			logger.error("Got an exception while reading statistics for distribution group", e);
 		} 
