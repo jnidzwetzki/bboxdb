@@ -20,6 +20,8 @@ package org.bboxdb.distribution.partitioner.regionsplit;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
@@ -93,5 +95,22 @@ public class RegionSplitHelper {
 		}
 		
 		return region.getParent().getState() == DistributionRegionState.SPLIT;
+	}
+
+	/**
+	 * Is the splitting of the region supported?
+	 * @param regionToSplit
+	 * @return
+	 */
+	public static boolean isSplittingSupported(final DistributionRegion region) {
+		try {
+			final String distributionGroupName = region.getDistributionGroupName().getFullname();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
+
+			return spacePartitioner.isSplittingSupported(region);
+		} catch (BBoxDBException e) {
+			logger.error("Got exception while testing for merge", e);
+			return false;
+		}
 	}
 }
