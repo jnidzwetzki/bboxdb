@@ -22,7 +22,10 @@ import java.util.Objects;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
+import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.distribution.partitioner.SpacePartitioner;
+import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -123,6 +126,36 @@ public class RegionMergeHelper {
 				.filter(r -> StatisticsHelper.isEnoughHistoryDataAvailable(r.getIdentifier()))
 				.mapToDouble(r -> StatisticsHelper.getAverageStatistics(r.getIdentifier()))
 				.sum();
+	}
+	
+	/**
+	 * Is the merging of the region supported?
+	 * @param region
+	 * @return
+	 */
+	public static boolean isMergingSupported(final DistributionRegion region) {
+		try {
+			final DistributionGroupZookeeperAdapter groupZookeeperAdapter 
+				= ZookeeperClientFactory.getDistributionGroupAdapter();
+			
+			if(! groupZookeeperAdapter.isMergingSupported(region)) {
+				logger.debug("Merging for region {} is not supported (Zookeeper)", region);
+				return false;
+			}
+			
+			final String distributionGroupName = region.getDistributionGroupName().getFullname();
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
+
+			if(! spacePartitioner.isMergingSupported(region)) {
+				logger.debug("Merging for region {} is not supported (Space partitioner", region);
+				return false;
+			}
+			
+			return true;
+		} catch (BBoxDBException e) {
+			logger.error("Got an exception while testing for merge", e);
+			return false;
+		}
 	}
 	
 }

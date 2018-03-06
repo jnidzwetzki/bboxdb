@@ -360,24 +360,26 @@ public class SSTableCompactorThread extends ExceptionSafeRunnable {
 	 * @throws BBoxDBException
 	 */
 	private void testForUnderflow(final SpacePartitioner spacePartitioner, 
-			final DistributionRegion regionToMerge) throws BBoxDBException {
+			final DistributionRegion regionToTest) throws BBoxDBException {
 		
-		final DistributionGroupZookeeperAdapter groupZookeeperAdapter 
-			= ZookeeperClientFactory.getDistributionGroupAdapter();
-		
-		if(! groupZookeeperAdapter.isMergingSupported(regionToMerge)) {
-			logger.debug("Merging for region {} is not supported", regionToMerge.toString());
+		if(regionToTest.isRootElement()) {
 			return;
 		}
 		
-		if(! RegionMergeHelper.isRegionUnderflow(regionToMerge.getParent())) {
+		final DistributionRegion regionToMerge = regionToTest.getParent();
+		
+		if(! RegionMergeHelper.isMergingSupported(regionToMerge)) {
+			return;
+		}
+		
+		if(! RegionMergeHelper.isRegionUnderflow(regionToMerge)) {
 			return;
 		}
 		
 		final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
 		final RegionMerger regionMerger = new RegionMerger(tupleStoreManagerRegistry);
 
-		regionMerger.mergeRegion(regionToMerge.getParent(), spacePartitioner, tupleStoreManagerRegistry);	
+		regionMerger.mergeRegion(regionToMerge, spacePartitioner, tupleStoreManagerRegistry);	
 	}
 
 	/**
