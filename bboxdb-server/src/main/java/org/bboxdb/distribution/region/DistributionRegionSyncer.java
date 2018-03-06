@@ -136,17 +136,27 @@ public class DistributionRegionSyncer implements Watcher {
 		
 		final DistributionRegion region = distributionGroupAdapter.getNodeForPath(rootNode, nodePath);
 		
-		if(region != null) {
-			if(region.isRootElement()) {
-				notifyCallbacks(DistributionRegionEvent.REMOVED, region);
-			} else {
-				final DistributionRegion parentRegion = region.getParent();
-				final long regionNumber = region.getChildNumberOfParent();
-				region.removeChildren(regionNumber);
-				notifyCallbacks(DistributionRegionEvent.REMOVED, region);
-				notifyCallbacks(DistributionRegionEvent.CHANGED, parentRegion);
-			}
+		if(region == null) {
+			return;
 		}
+		
+		if(region.isRootElement()) {
+			notifyCallbacks(DistributionRegionEvent.REMOVED, region);
+		} else {
+			removeChild(region);
+		}
+	}
+
+	/**
+	 * Check for deleted children
+	 * @param region
+	 */
+	private void removeChild(final DistributionRegion region) {
+		final DistributionRegion parentRegion = region.getParent();
+		final long regionNumber = region.getChildNumberOfParent();
+		region.removeChildren(regionNumber);
+		notifyCallbacks(DistributionRegionEvent.REMOVED, region);
+		notifyCallbacks(DistributionRegionEvent.CHANGED, parentRegion);
 	}
 
 	/**
@@ -215,28 +225,34 @@ public class DistributionRegionSyncer implements Watcher {
 			throws InterruptedException {
 		
 		logger.info("updateNode called with node {}", nodePath);
-		
+				
 		final Watcher callbackWatcher = this;
 		
 		final Retryer<Boolean> retryer = new Retryer<>(10, 100, () -> {
-			final Collection<BBoxDBInstance> systemsForDistributionRegion 
-				= distributionGroupAdapter.getSystemsForDistributionRegion(region);
-
-			region.setSystems(systemsForDistributionRegion);
+			try {
+				final Collection<BBoxDBInstance> systemsForDistributionRegion 
+					= distributionGroupAdapter.getSystemsForDistributionRegion(region);
+	
+				region.setSystems(systemsForDistributionRegion);
+				
+				final int regionId = distributionGroupAdapter.getRegionIdForPath(nodePath);
+				
+				if(region.getRegionId() != regionId) {
+					throw new RuntimeException("Replacing region id " + region.getRegionId() 
+						+ " with " + regionId + " on " + nodePath);
+				}
+				
+				final DistributionRegionState regionState 
+					= distributionGroupAdapter.getStateForDistributionRegion(nodePath, callbackWatcher);
 			
-			final int regionId = distributionGroupAdapter.getRegionIdForPath(nodePath);
+				region.setState(regionState);
 			
-			if(region.getRegionId() != regionId) {
-				throw new RuntimeException("Replacing region id " + region.getRegionId() 
-					+ " with " + regionId + " on " + nodePath);
+				updateChildrenForRegion(nodePath, region);
+				
+			} catch(ZookeeperNotFoundException e) {
+				// Node is deleted, let the deletion callback remove the node
+				logger.info("Skippping node update for path {}, node is deleted", nodePath);
 			}
-			
-			final DistributionRegionState regionState 
-				= distributionGroupAdapter.getStateForDistributionRegion(nodePath, callbackWatcher);
-		
-			region.setState(regionState);
-		
-			updateChildrenForRegion(nodePath, region);
 			
 			return true;
 		});
