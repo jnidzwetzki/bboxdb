@@ -178,7 +178,7 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final String nodePath = path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION;
 		
-		logger.info("Mark mutation as complete {}", path);
+		logger.debug("Mark mutation as complete {}", path);
 		
 		zookeeperClient.replacePersistentNode(nodePath, versionBytes.array());
 	}
@@ -203,7 +203,7 @@ public class DistributionGroupZookeeperAdapter {
 	public long getNodeMutationVersion(final String path, final Watcher watcher) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		logger.info("Reading mutation from path {}", path);
+		logger.debug("Reading mutation from path {}", path);
 		
 		final byte[] result = zookeeperClient.readPathAndReturnBytes(
 				path + "/" + ZookeeperNodeNames.NAME_NODE_VERSION, watcher);
