@@ -41,7 +41,7 @@ public class RegionSplitHelper {
 	 * @return
 	 * @throws BBoxDBException 
 	 */
-	public boolean isRegionOverflow(final DistributionRegion region) throws BBoxDBException {
+	public static boolean isRegionOverflow(final DistributionRegion region) throws BBoxDBException {
 		
 		// Is the data of the parent completely distributed?
 		if(! isParentDataRedistributed(region)) {
@@ -68,7 +68,7 @@ public class RegionSplitHelper {
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ZookeeperException 
 	 */
-	private long getConfiguredRegionMaxSize(final DistributionRegion region) 
+	private static long getConfiguredRegionMaxSize(final DistributionRegion region) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final String fullname = region.getDistributionGroupName().getFullname();
@@ -85,7 +85,7 @@ public class RegionSplitHelper {
 	 * if not, wait with local split
 	 * @return
 	 */
-	private boolean isParentDataRedistributed(final DistributionRegion region) {
+	private static boolean isParentDataRedistributed(final DistributionRegion region) {
 		
 		// Root region
 		if(region.isRootElement()) {

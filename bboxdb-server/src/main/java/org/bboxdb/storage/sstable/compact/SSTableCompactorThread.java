@@ -331,10 +331,8 @@ public class SSTableCompactorThread extends ExceptionSafeRunnable {
 	private void testForOverflow(final TupleStoreManager sstableManager, 
 			final SpacePartitioner spacePartitioner, final DistributionRegion regionToSplit)
 			throws BBoxDBException, StorageManagerException, InterruptedException {
-		
-		final RegionSplitHelper regionSplitHelper = new RegionSplitHelper();
-		
-		if(! regionSplitHelper.isRegionOverflow(regionToSplit)) {
+				
+		if(! RegionSplitHelper.isRegionOverflow(regionToSplit)) {
 			return;
 		}
 		
