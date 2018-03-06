@@ -329,6 +329,8 @@ public class DistributionGroupZookeeperAdapter {
 	public void setStateForDistributionGroup(final String path, final DistributionRegionState state) 
 			throws ZookeeperException  {
 		
+		logger.info("Set state {} for path {}", state, path);
+		
 		final String statePath = path + "/" + ZookeeperNodeNames.NAME_REGION_STATE;
 		zookeeperClient.setData(statePath, state.getStringValue());
 		
