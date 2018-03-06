@@ -327,17 +327,6 @@ public class ZookeeperClient implements BBoxDBService, AcquirableRessource {
 	}
 
 	/**
-	 * Get the path for the systems
-	 * 
-	 * @param clustername
-	 * @return
-	 */
-	public String getTablesPath() {
-		return getClusterPath() + "/" + ZookeeperNodeNames.NAME_TABLES;
-	}
-
-	
-	/**
 	 * Get the path of the zookeeper nodes
 	 */
 	public String getActiveInstancesPath() {

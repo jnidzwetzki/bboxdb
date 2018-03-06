@@ -23,8 +23,6 @@ import java.nio.ByteBuffer;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
-import org.bboxdb.distribution.zookeeper.TupleStoreAdapter;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
 import org.bboxdb.network.packages.request.DeleteDistributionGroupRequest;
@@ -59,10 +57,6 @@ public class DeleteDistributionGroupHandler implements RequestHandler {
 			// Delete in Zookeeper
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 			distributionGroupZookeeperAdapter.deleteDistributionGroup(distributionGroup);
-			
-			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
-			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);
-			tupleStoreAdapter.deleteDistributionGroup(distributionGroup);
 
 			// Delete local stored data
 			logger.info("Delete distribution group, delete local stored data");

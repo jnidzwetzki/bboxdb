@@ -17,14 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.distribution.zookeeper;
 
+import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.storage.entity.TupleStoreConfiguration;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.util.UpdateAnomalyResolver;
 
 public class TupleStoreAdapter {
-
-	protected final ZookeeperClient zookeeperClient;
-
+	
 	/**
 	 * The spatial index writer
 	 */
@@ -55,11 +54,19 @@ public class TupleStoreAdapter {
 	 */
 	public static final String ZOOKEEPER_DUPLICATES_TTL = "duplicate_ttl";
 
-	protected final String tablePath;
+	/**
+	 * The zookeeper client
+	 */
+	private final ZookeeperClient zookeeperClient;
 	
+	/**
+	 * The distribution group adapter
+	 */
+	private final DistributionGroupZookeeperAdapter distributionGroupAdapter;
+
 	public TupleStoreAdapter(final ZookeeperClient zookeeperClient) {
 		this.zookeeperClient = zookeeperClient;
-		tablePath = zookeeperClient.getTablesPath();
+		this.distributionGroupAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
 	}
 	
 	/**
@@ -70,9 +77,10 @@ public class TupleStoreAdapter {
 	 */
 	public void writeTuplestoreConfiguration(final TupleStoreName tupleStoreName, 
 			final TupleStoreConfiguration tupleStoreConfiguration) throws ZookeeperException {
-				
-		zookeeperClient.createDirectoryStructureRecursive(tablePath + "/" + tupleStoreName.getDistributionGroup()
-			+ "/" + tupleStoreName.getFullname());
+		
+		final String tablePath = getTablePath(tupleStoreName);
+
+		zookeeperClient.createDirectoryStructureRecursive(tablePath);
 		
 		final String spatialIndexReader = tupleStoreConfiguration.getSpatialIndexReader();
 		zookeeperClient.createPersistentNode(getIndexReaderPath(tupleStoreName), 
@@ -100,6 +108,19 @@ public class TupleStoreAdapter {
 		final String versionsString = Integer.toString(versions);
 		zookeeperClient.createPersistentNode(getDuplicateVersionsPath(tupleStoreName), 
 				versionsString.getBytes());
+		
+		distributionGroupAdapter.markNodeMutationAsComplete(tablePath);
+	}
+
+	/**
+	 * Get the table path
+	 * @param tupleStoreName
+	 * @return
+	 */
+	private String getTablePath(final TupleStoreName tupleStoreName) {
+		final String distributionGroup = tupleStoreName.getDistributionGroup();
+		return distributionGroupAdapter.getDistributionGroupPath(distributionGroup) 
+				+ "/" + ZookeeperNodeNames.NAME_TABLES + "/" + tupleStoreName.getFullname();
 	}
 	
 	/**
@@ -152,8 +173,8 @@ public class TupleStoreAdapter {
 	 * @throws ZookeeperException
 	 */
 	public boolean isTableKnown(final TupleStoreName tupleStoreName) throws ZookeeperException {
-		return zookeeperClient.exists(tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullname());
+		final String tablePath = getTablePath(tupleStoreName);
+		return zookeeperClient.exists(tablePath);
 	}
 	
 	/**
@@ -162,29 +183,18 @@ public class TupleStoreAdapter {
 	 * @throws ZookeeperException 
 	 */
 	public void deleteTable(final TupleStoreName tupleStoreName) throws ZookeeperException {
-		zookeeperClient.deleteNodesRecursive(tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullname());
+		final String tablePath = getTablePath(tupleStoreName);
+		zookeeperClient.deleteNodesRecursive(tablePath);
 	}
-	
-	/**
-	 * Delete all tables in distribution group
-	 * @param distributionGroupName
-	 * @throws ZookeeperException 
-	 */
-	public void deleteDistributionGroup(final String distributionGroupName) 
-			throws ZookeeperException {
-		
-		zookeeperClient.deleteNodesRecursive(tablePath + "/" + distributionGroupName);
-	}
-	
+
 	/**
 	 * The duplicate versions path
 	 * @param tupleStoreName
 	 * @return
 	 */
-	protected String getDuplicateVersionsPath(final TupleStoreName tupleStoreName) {
-		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_DUPLICATES_VERSIONS;
+	private String getDuplicateVersionsPath(final TupleStoreName tupleStoreName) {
+		final String tablePath = getTablePath(tupleStoreName);
+		return tablePath + "/" + ZOOKEEPER_DUPLICATES_VERSIONS;
 	}
 
 	/**
@@ -192,9 +202,9 @@ public class TupleStoreAdapter {
 	 * @param tupleStoreName
 	 * @return
 	 */
-	protected String getDuplicatesTTLPath(final TupleStoreName tupleStoreName) {
-		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_DUPLICATES_TTL;
+	private String getDuplicatesTTLPath(final TupleStoreName tupleStoreName) {
+		final String tablePath = getTablePath(tupleStoreName);
+		return tablePath + "/" + ZOOKEEPER_DUPLICATES_TTL;
 	}
 
 	/**
@@ -202,9 +212,9 @@ public class TupleStoreAdapter {
 	 * @param tupleStoreName
 	 * @return
 	 */
-	protected String getDuplicatesAllowedPath(final TupleStoreName tupleStoreName) {
-		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_DUPLICATES_ALLOWED;
+	private String getDuplicatesAllowedPath(final TupleStoreName tupleStoreName) {
+		final String tablePath = getTablePath(tupleStoreName);
+		return tablePath + "/" + ZOOKEEPER_DUPLICATES_ALLOWED;
 	}
 
 	/**
@@ -212,9 +222,9 @@ public class TupleStoreAdapter {
 	 * @param tupleStoreName
 	 * @return
 	 */
-	protected String getUpdateResolverPath(final TupleStoreName tupleStoreName) {
-		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_UPDATE_ANOMALY_RESOLVER;
+	private String getUpdateResolverPath(final TupleStoreName tupleStoreName) {
+		final String tablePath = getTablePath(tupleStoreName);
+		return tablePath + "/" + ZOOKEEPER_UPDATE_ANOMALY_RESOLVER;
 	}
 
 	/**
@@ -222,9 +232,9 @@ public class TupleStoreAdapter {
 	 * @param tupleStoreName
 	 * @return
 	 */
-	protected String getIndexWriterPath(final TupleStoreName tupleStoreName) {
-		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_SPATIAL_INDEX_WRITER;
+	private String getIndexWriterPath(final TupleStoreName tupleStoreName) {
+		final String tablePath = getTablePath(tupleStoreName);
+		return tablePath + "/" + ZOOKEEPER_SPATIAL_INDEX_WRITER;
 	}
 
 	/**
@@ -232,9 +242,8 @@ public class TupleStoreAdapter {
 	 * @param tupleStoreName
 	 * @return
 	 */
-	protected String getIndexReaderPath(final TupleStoreName tupleStoreName) {
-		return tablePath + "/" + tupleStoreName.getDistributionGroup() 
-			+ "/" + tupleStoreName.getFullnameWithoutPrefix() + "/" + ZOOKEEPER_SPATIAL_INDEX_READER;
+	private String getIndexReaderPath(final TupleStoreName tupleStoreName) {
+		final String tablePath = getTablePath(tupleStoreName);
+		return tablePath + "/" + ZOOKEEPER_SPATIAL_INDEX_READER;
 	}
-
 }

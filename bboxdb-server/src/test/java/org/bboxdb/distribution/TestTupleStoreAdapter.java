@@ -159,12 +159,5 @@ public class TestTupleStoreAdapter {
 
 		Assert.assertTrue(tupleStoreAdapter.isTableKnown(tupleStoreName1));
 		Assert.assertTrue(tupleStoreAdapter.isTableKnown(tupleStoreName2));
-		
-		// Delete the whole distribution group
-		tupleStoreAdapter.deleteDistributionGroup("dg");
-		
-		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName1));
-		Assert.assertFalse(tupleStoreAdapter.isTableKnown(tupleStoreName2));
-
 	}
 }
