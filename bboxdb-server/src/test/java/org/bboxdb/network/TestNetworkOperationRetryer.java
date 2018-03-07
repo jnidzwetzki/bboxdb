@@ -22,7 +22,7 @@ import java.util.function.BiConsumer;
 import org.bboxdb.network.client.NetworkOperationRetryer;
 import org.bboxdb.network.client.future.OperationFuture;
 import org.bboxdb.network.packages.NetworkRequestPackage;
-import org.bboxdb.network.packages.request.KeepAliveRequest;
+import org.bboxdb.network.packages.request.DeleteTableRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -37,7 +37,7 @@ public class TestNetworkOperationRetryer {
 	/**
 	 * The empty package
 	 */
-	protected final NetworkRequestPackage emptyPackage = new KeepAliveRequest((short) 12);
+	protected final NetworkRequestPackage emptyPackage = new DeleteTableRequest((short) 12, "abc_def");
 	
 	/**
 	 * The empty future

@@ -145,7 +145,7 @@ public class TestNetworkClasses {
 
 		final byte[] encodedPackage = bos.toByteArray();
 		
-		Assert.assertEquals(18, encodedPackage.length);
+		Assert.assertEquals(26, encodedPackage.length);
 		
 		final ByteBuffer bb = ByteBuffer.wrap(encodedPackage);
 		bb.order(Const.APPLICATION_BYTE_ORDER);
