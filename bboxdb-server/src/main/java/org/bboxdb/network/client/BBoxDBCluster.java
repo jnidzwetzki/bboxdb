@@ -38,7 +38,6 @@ import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureHelper;
@@ -91,8 +90,6 @@ public class BBoxDBCluster implements BBoxDB {
 	 */
 	public BBoxDBCluster(final Collection<String> zookeeperNodes, final String clustername) {
 		zookeeperClient = new ZookeeperClient(zookeeperNodes, clustername);
-		zookeeperClient.init();
-		ZookeeperClientFactory.setDefaultZookeeperClient(zookeeperClient);
 		resourcePlacementStrategy = new RandomResourcePlacementStrategy();
 		membershipConnectionService = MembershipConnectionService.getInstance();
 	}
@@ -109,6 +106,7 @@ public class BBoxDBCluster implements BBoxDB {
 
 	@Override
 	public boolean connect() {
+		zookeeperClient.init();
 		BBoxDBInstanceManager.getInstance().startMembershipObserver(zookeeperClient);
 		membershipConnectionService.init();
 		return zookeeperClient.isConnected();
@@ -121,6 +119,14 @@ public class BBoxDBCluster implements BBoxDB {
 		zookeeperClient.shutdown();
 	}
 
+	/**
+	 * Get the used zookeeper client
+	 * @return
+	 */
+	public ZookeeperClient getZookeeperClient() {
+		return zookeeperClient;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.bboxdb.network.client.BBoxDB#createTable(java.lang.String)
 	 */
