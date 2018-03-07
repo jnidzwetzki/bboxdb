@@ -60,23 +60,23 @@ public class BBoxDBCluster implements BBoxDB {
 	/**
 	 * The Zookeeper connection
 	 */
-	protected final ZookeeperClient zookeeperClient;
+	private final ZookeeperClient zookeeperClient;
 
 	/**
 	 * The number of in flight requests
 	 * @return
 	 */
-	protected volatile short maxInFlightCalls = MAX_IN_FLIGHT_CALLS;
+	private volatile short maxInFlightCalls = MAX_IN_FLIGHT_CALLS;
 
 	/**
 	 * The resource placement strategy
 	 */
-	protected final ResourcePlacementStrategy resourcePlacementStrategy;
+	private final ResourcePlacementStrategy resourcePlacementStrategy;
 
 	/**
 	 * The membership connection service
 	 */
-	protected final MembershipConnectionService membershipConnectionService;
+	private final MembershipConnectionService membershipConnectionService;
 
 	/**
 	 * The Logger
@@ -285,7 +285,7 @@ public class BBoxDBCluster implements BBoxDB {
 	 * @return
 	 * @throws ResourceAllocationException 
 	 */
-	protected BBoxDBClient getSystemForNewRessources() throws ResourceAllocationException {
+	private BBoxDBClient getSystemForNewRessources() throws ResourceAllocationException {
 		final List<BBoxDBInstance> serverConnections = membershipConnectionService.getAllInstances();
 
 		if(serverConnections == null) {
