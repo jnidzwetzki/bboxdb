@@ -49,7 +49,7 @@ public class MemoryMappedFiles {
 	/**
 	 * Print the JVM memory statistics
 	 */
-	protected static void printMemoryStatistics() {
+	private static void printMemoryStatistics() {
 		final long maxMemory = Runtime.getRuntime().maxMemory();
 		
 		System.out.println("Maximum memory (bytes): " 
@@ -68,7 +68,7 @@ public class MemoryMappedFiles {
 	 * @param args
 	 * @throws Exception
 	 */
-	protected static void printMappedStatistics() throws Exception {
+	private static void printMappedStatistics() throws Exception {
 
 		System.out.format("Number of mmaps %d number of mmap memory %d\n", 
 				UnsafeMemoryHelper.getMappedSegments(),

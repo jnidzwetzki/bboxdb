@@ -74,7 +74,7 @@ public class TupleStoreLocator {
 	 * @param distributionGroupName
 	 * @return
 	 */
-	protected static Map<TupleStoreName, String> handleDistributionGroupEntry(final String storageDirectory,
+	private static Map<TupleStoreName, String> handleDistributionGroupEntry(final String storageDirectory,
 			final File fileEntry, final DistributionGroupName distributionGroupName) {
 		
 		final Map<TupleStoreName, String> sstableLocations = new HashMap<>();

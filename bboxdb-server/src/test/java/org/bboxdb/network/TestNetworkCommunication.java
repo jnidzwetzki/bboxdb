@@ -46,7 +46,7 @@ public class TestNetworkCommunication {
 	/**
 	 * The instance of the software
 	 */
-	protected static BBoxDBMain bboxDBMain;
+	private static BBoxDBMain bboxDBMain;
 	
 	/**
 	 * The replication factor for the unit tests

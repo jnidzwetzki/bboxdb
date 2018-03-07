@@ -79,7 +79,7 @@ public class SyntheticDataGenerator implements Runnable {
 	/**
 	 * The list with used random chars
 	 */
-	protected static char[] symbols;
+	private static char[] symbols;
 
 	/**
 	 * The parsed command line
@@ -114,7 +114,7 @@ public class SyntheticDataGenerator implements Runnable {
 	 * 
 	 * @return
 	 */
-	protected static Options buildOptions() {
+	private static Options buildOptions() {
 		final Options options = new Options();
 
 		// Help
@@ -172,7 +172,7 @@ public class SyntheticDataGenerator implements Runnable {
 	 * 
 	 * @param options
 	 */
-	protected static void printHelpAndExit() {
+	private static void printHelpAndExit() {
 
 		final Options options = buildOptions();
 
@@ -312,7 +312,7 @@ public class SyntheticDataGenerator implements Runnable {
 	 * 
 	 * @param requiredArgs
 	 */
-	protected static void checkRequiredArgs(final List<String> requiredArgs, final CommandLine line) {
+	private static void checkRequiredArgs(final List<String> requiredArgs, final CommandLine line) {
 
 		for (final String arg : requiredArgs) {
 			if (!line.hasOption(arg)) {

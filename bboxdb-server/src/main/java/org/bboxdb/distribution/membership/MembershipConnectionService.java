@@ -74,7 +74,7 @@ public class MembershipConnectionService implements BBoxDBService {
 	/**
 	 * The singleton instance
 	 */
-	protected static MembershipConnectionService instance = null;
+	private static MembershipConnectionService instance = null;
 	
 	/**
 	 * The Logger

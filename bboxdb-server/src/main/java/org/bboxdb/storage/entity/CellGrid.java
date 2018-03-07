@@ -174,7 +174,7 @@ public class CellGrid {
 	 * @param cells
 	 * @return 
 	 */
-	protected static Set<BoundingBox> convertListsToBoxes(final List<List<DoubleInterval>> cells) {
+	private static Set<BoundingBox> convertListsToBoxes(final List<List<DoubleInterval>> cells) {
 		final Set<BoundingBox> allBoxes = new HashSet<>();
 		final List<List<DoubleInterval>> intervallProduct = Lists.cartesianProduct(cells);
 		

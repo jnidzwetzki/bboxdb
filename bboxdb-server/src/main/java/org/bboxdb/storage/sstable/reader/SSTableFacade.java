@@ -103,7 +103,7 @@ public class SSTableFacade implements BBoxDBService, ReadOnlyTupleStore {
 	/**
 	 * The Logger
 	 */
-	protected static final Logger logger = LoggerFactory.getLogger(SSTableFacade.class);
+	private static final Logger logger = LoggerFactory.getLogger(SSTableFacade.class);
 	
 
 	public SSTableFacade(final String directory, final TupleStoreName tablename, final int tablenumber, 

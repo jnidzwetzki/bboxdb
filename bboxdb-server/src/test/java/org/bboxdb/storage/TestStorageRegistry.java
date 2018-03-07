@@ -48,12 +48,12 @@ public class TestStorageRegistry {
 	/**
 	 * The name of the test relation
 	 */
-	protected static final TupleStoreName RELATION_NAME = new TupleStoreName("grouptest5_table100_2");
+	private static final TupleStoreName RELATION_NAME = new TupleStoreName("grouptest5_table100_2");
 
 	/**
 	 * The storage registry
 	 */
-	protected static TupleStoreManagerRegistry storageRegistry;
+	private static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException, BBoxDBException, ZookeeperException {

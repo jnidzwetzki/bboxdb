@@ -41,7 +41,7 @@ import com.google.common.collect.Iterators;
 
 public class TestMemtable {
 	
-	protected static Memtable memtable;
+	private static Memtable memtable;
 	
 	@Before
 	public void before() {

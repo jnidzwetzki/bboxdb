@@ -38,7 +38,7 @@ public class TupleStoreConfigurationCache {
 	/**
 	 * The instance
 	 */
-	protected static TupleStoreConfigurationCache instance;
+	private static TupleStoreConfigurationCache instance;
 	
 	/**
 	 * The cache

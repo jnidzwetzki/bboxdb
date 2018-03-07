@@ -65,7 +65,7 @@ public class BBoxDBInstanceManager {
 	/**
 	 * The instance
 	 */
-	protected static BBoxDBInstanceManager instance;
+	private static BBoxDBInstanceManager instance;
 		
 	/**
 	 * The logger

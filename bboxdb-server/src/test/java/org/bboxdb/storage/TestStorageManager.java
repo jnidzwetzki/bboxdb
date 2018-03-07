@@ -61,7 +61,7 @@ public class TestStorageManager {
 	/**
 	 * The storage registry
 	 */
-	protected static TupleStoreManagerRegistry storageRegistry;
+	private static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException, BBoxDBException {

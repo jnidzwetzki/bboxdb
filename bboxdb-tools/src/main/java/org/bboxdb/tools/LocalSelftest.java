@@ -90,7 +90,7 @@ public class LocalSelftest {
 	 * @throws InterruptedException
 	 * @throws RejectedException 
 	 */
-	protected static void testInsertDelete(final TupleStoreManager storageManager) throws StorageManagerException, InterruptedException, RejectedException {
+	private static void testInsertDelete(final TupleStoreManager storageManager) throws StorageManagerException, InterruptedException, RejectedException {
 
 		logger.info("Inserting tuples...");
 		for(int i = 0; i < TUPLES; i++) {

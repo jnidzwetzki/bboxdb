@@ -484,7 +484,7 @@ public class TupleStoreManager implements BBoxDBService {
 	 * Delete the file if it belongs to BBoxDB
 	 * @param file
 	 */
-	protected static void deleteFileIfKnown(final File file) {
+	private static void deleteFileIfKnown(final File file) {
 
 		final String filename = file.getName();
 

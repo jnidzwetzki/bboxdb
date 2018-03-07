@@ -58,12 +58,12 @@ public class TreeJPanel extends JPanel {
 	 * The margin for bounding boxes 
 	 * (adds a little bit empty space around the components)
 	 */
-	protected static final int PADDING_TOP_BOTTOM = 10;
+	private static final int PADDING_TOP_BOTTOM = 10;
 
 	/**
 	 * The padding on the left and right side
 	 */
-	protected static final int PADDING_LEFT_RIGHT = 40;
+	private static final int PADDING_LEFT_RIGHT = 40;
 	
 	/**
 	 * The x-position of the root-node

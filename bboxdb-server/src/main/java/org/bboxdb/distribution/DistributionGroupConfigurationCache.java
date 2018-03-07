@@ -35,7 +35,7 @@ public class DistributionGroupConfigurationCache {
 	/**
 	 * The instance
 	 */
-	protected static DistributionGroupConfigurationCache instance;
+	private static DistributionGroupConfigurationCache instance;
 	
 	/**
 	 * The cache

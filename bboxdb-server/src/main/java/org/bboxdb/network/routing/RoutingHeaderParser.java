@@ -89,7 +89,7 @@ public class RoutingHeaderParser {
 	 * @return
 	 * @throws IOException
 	 */
-	protected static RoutingHeader decodeRoutedPackage(final InputStream inputStream) throws IOException {
+	private static RoutingHeader decodeRoutedPackage(final InputStream inputStream) throws IOException {
 		
 		// Hop
 		final byte[] hopBuffer = new byte[2];
@@ -117,7 +117,7 @@ public class RoutingHeaderParser {
 	 * @return
 	 * @throws IOException
 	 */
-	protected static RoutingHeader decodeDirectPackage(final InputStream inputStream) throws IOException {
+	private static RoutingHeader decodeDirectPackage(final InputStream inputStream) throws IOException {
 		// Skip 5 unused bytes
 		ByteStreams.skipFully(inputStream, 5);
 		return new RoutingHeader(false);

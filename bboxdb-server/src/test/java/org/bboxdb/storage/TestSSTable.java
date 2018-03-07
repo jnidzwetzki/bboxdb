@@ -41,7 +41,7 @@ public class TestSSTable {
 	/**
 	 * The directory for the output
 	 */
-	protected static final String STORAGE_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getStorageDirectories().get(0);
+	private static final String STORAGE_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getStorageDirectories().get(0);
 	
 	/**
 	 * The name of the test relation

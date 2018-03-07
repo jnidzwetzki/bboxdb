@@ -39,7 +39,7 @@ public class Main {
 	/**
 	 * Try to set the new Nimbus L&F
 	 */
-	protected static void setLookAndFeel() {
+	private static void setLookAndFeel() {
 		try {
 		    for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		        if ("Nimbus".equals(info.getName())) {

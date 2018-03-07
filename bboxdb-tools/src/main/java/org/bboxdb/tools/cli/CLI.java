@@ -897,7 +897,7 @@ public class CLI implements Runnable, AutoCloseable {
 	 * @param options
 	 * @param line
 	 */
-	protected static void checkParameter(final Options options, final CommandLine line) {
+	private static void checkParameter(final Options options, final CommandLine line) {
 		
 		if(line.hasOption(CLIParameter.HELP)) {
 			printHelpAndExit();
@@ -913,7 +913,7 @@ public class CLI implements Runnable, AutoCloseable {
 	 * Build the command line options
 	 * @return
 	 */
-	protected static Options buildOptions() {
+	private static Options buildOptions() {
 		final Options options = new Options();
 		
 		// Help
@@ -1111,7 +1111,7 @@ public class CLI implements Runnable, AutoCloseable {
 	 * Print help and exit the program
 	 * @param options 
 	 */
-	protected static void printHelpAndExit() {
+	private static void printHelpAndExit() {
 		
 		final Options options = buildOptions();
 		

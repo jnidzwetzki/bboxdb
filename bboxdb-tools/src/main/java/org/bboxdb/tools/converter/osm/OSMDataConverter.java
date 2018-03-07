@@ -123,22 +123,22 @@ public class OSMDataConverter {
 		/**
 		 * The name of the SSTable backend
 		 */
-		protected static final String SSTABLE = "sstable";
+		private static final String SSTABLE = "sstable";
 	
 		/**
 		 * The name of the BDB backend
 		 */
-		protected static final String BDB = "bdb";
+		private static final String BDB = "bdb";
 	
 		/**
 		 * The name of the JDBC backend
 		 */
-		protected static final String JDBC = "jdbc";
+		private static final String JDBC = "jdbc";
 		
 		/**
 		 * All known backends
 		 */
-		protected static final List<String> ALL_BACKENDS 
+		private static final List<String> ALL_BACKENDS 
 			= Arrays.asList(JDBC, BDB, SSTABLE);
 	}
 	
@@ -146,27 +146,27 @@ public class OSMDataConverter {
 		/**
 		 * The name of the output parameter
 		 */
-		protected static final String OUTPUT = "output";
+		private static final String OUTPUT = "output";
 	
 		/**
 		 * The name of the workfolder
 		 */
-		protected static final String WORKFOLDER = "workfolder";
+		private static final String WORKFOLDER = "workfolder";
 	
 		/**
 		 * The name of the backend
 		 */
-		protected static final String BACKEND = "backend";
+		private static final String BACKEND = "backend";
 	
 		/**
 		 * The name of the input
 		 */
-		protected static final String INPUT = "input";
+		private static final String INPUT = "input";
 		
 		/**
 		 * The name of the help parameter
 		 */
-		protected static final String HELP = "help";
+		private static final String HELP = "help";
 	}
 	
 	/**
@@ -457,7 +457,7 @@ public class OSMDataConverter {
 	 * @param options
 	 * @param line
 	 */
-	protected static void checkParameter(final Options options, final CommandLine line) {
+	private static void checkParameter(final Options options, final CommandLine line) {
 		if( line.hasOption(Parameter.HELP)) {
 			printHelpAndExit(options);
 		}
@@ -477,7 +477,7 @@ public class OSMDataConverter {
 	 * Build the command line options
 	 * @return
 	 */
-	protected static Options buildOptions() {
+	private static Options buildOptions() {
 		final Options options = new Options();
 		
 		// Help
@@ -526,7 +526,7 @@ public class OSMDataConverter {
 	 * Print help and exit the program
 	 * @param options 
 	 */
-	protected static void printHelpAndExit(final Options options) {
+	private static void printHelpAndExit(final Options options) {
 		
 		final String header = "OpenStreetMap data converter\n\n";
 	

@@ -175,7 +175,7 @@ public class FileLineIndex implements AutoCloseable {
 	 * @param node
 	 * @return
 	 */
-	protected static DatabaseEntry buildDatabaseEntry(final long id) {
+	private static DatabaseEntry buildDatabaseEntry(final long id) {
 		final ByteBuffer keyByteBuffer = DataEncoderHelper.longToByteBuffer(id);
 		return new DatabaseEntry(keyByteBuffer.array());
 	}

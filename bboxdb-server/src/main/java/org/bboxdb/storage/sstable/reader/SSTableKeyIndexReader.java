@@ -51,7 +51,7 @@ public class SSTableKeyIndexReader extends AbstractTableReader implements Iterab
 	/**
 	 * The Logger
 	 */
-	protected static final Logger logger = LoggerFactory.getLogger(SSTableKeyIndexReader.class);
+	private static final Logger logger = LoggerFactory.getLogger(SSTableKeyIndexReader.class);
 
 	public SSTableKeyIndexReader(final SSTableReader sstableReader) throws StorageManagerException {
 		super(sstableReader.getDirectory(), sstableReader.getName(), sstableReader.getTablebumber());

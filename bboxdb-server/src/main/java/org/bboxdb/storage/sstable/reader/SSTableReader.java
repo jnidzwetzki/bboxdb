@@ -27,6 +27,8 @@ import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableConst;
 import org.bboxdb.storage.sstable.SSTableHelper;
 import org.bboxdb.storage.util.TupleHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.prometheus.client.Counter;
 
@@ -52,6 +54,12 @@ public class SSTableReader extends AbstractTableReader {
 	protected final static Counter readTuplesBytes = Counter.build()
 			.name("bboxdb_read_tuple_bytes")
 			.help("Total read tuple bytes").register();
+	
+	/**
+	 * The Logger
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(SSTableReader.class);
+	
 
 	public SSTableReader(final String directory, final TupleStoreName tablename, final int tablenumer) throws StorageManagerException {
 		super(directory, tablename, tablenumer);

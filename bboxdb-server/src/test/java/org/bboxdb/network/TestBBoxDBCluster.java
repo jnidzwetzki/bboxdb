@@ -35,7 +35,7 @@ public class TestBBoxDBCluster {
 	/**
 	 * The instance of the software
 	 */
-	protected static BBoxDBMain bboxDBMain;
+	private static BBoxDBMain bboxDBMain;
 	
 	@BeforeClass
 	public static void init() throws Exception {

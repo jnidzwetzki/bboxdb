@@ -68,7 +68,7 @@ public class DistributionGroupMetadataHelper {
 	 * @param distributionGroupName
 	 * @return
 	 */
-	protected static String getFilename(final String basedir, 
+	private static String getFilename(final String basedir, 
 			final DistributionGroupName distributionGroupName) {
 		
 		return SSTableHelper.getDistributionGroupMedatadaFile(basedir, 

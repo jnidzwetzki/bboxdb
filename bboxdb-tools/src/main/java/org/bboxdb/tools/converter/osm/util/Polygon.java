@@ -33,32 +33,32 @@ public class Polygon implements Serializable {
 	/**
 	 * The JSON constant for ID
 	 */
-	protected static final String JSON_ID = "id";
+	private static final String JSON_ID = "id";
 	
 	/**
 	 * The JSON constant for type
 	 */
-	protected static final String JSON_TYPE = "type";
+	private static final String JSON_TYPE = "type";
 	
 	/**
 	 * The JSON constant for properties
 	 */
-	protected static final String JSON_PROPERTIES = "properties";
+	private static final String JSON_PROPERTIES = "properties";
 	
 	/**
 	 * The JSON constant for geometry
 	 */
-	protected static final String JSON_GEOMETRY = "geometry";
+	private static final String JSON_GEOMETRY = "geometry";
 	
 	/**
 	 * The JSON constant for coordinates
 	 */
-	protected static final String JSON_COORDINATES = "coordinates";
+	private static final String JSON_COORDINATES = "coordinates";
 	
 	/**
 	 * The JSON constant for Feature
 	 */
-	protected static final String JSON_FEATURE = "Feature";
+	private static final String JSON_FEATURE = "Feature";
 
 	/**
 	 * 

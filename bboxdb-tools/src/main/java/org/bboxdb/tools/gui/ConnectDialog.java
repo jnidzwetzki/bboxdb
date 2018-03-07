@@ -42,12 +42,12 @@ public class ConnectDialog {
 	/**
 	 * The default name of the cluster
 	 */
-	protected static final String DEFAULT_CLUSTER = "mycluster";
+	private static final String DEFAULT_CLUSTER = "mycluster";
 	
 	/**
 	 * The default name of the nodes
 	 */
-	protected static final String DEFAULT_NODE = "node1";
+	private static final String DEFAULT_NODE = "node1";
 
 	/**
 	 * The hosts field

@@ -21,14 +21,11 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestDistributionGroup {
-
-	protected static ZookeeperClient zookeeperClient;
 
 	/**
 	 * Create an illegal distribution group

@@ -25,20 +25,13 @@ import org.bboxdb.misc.Const;
 import org.bboxdb.network.NetworkPackageDecoder;
 import org.bboxdb.network.packages.NetworkResponsePackage;
 import org.bboxdb.network.packages.PackageEncodeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractBodyResponse extends NetworkResponsePackage {
 
 	/**
 	 * The result body
 	 */
-	protected final String body;
-	
-	/**
-	 * The Logger
-	 */
-	protected static final Logger logger = LoggerFactory.getLogger(AbstractBodyResponse.class);
+	private final String body;
 
 	public AbstractBodyResponse(final short sequenceNumber, final String body) {
 		super(sequenceNumber);

@@ -32,7 +32,7 @@ public class UnsafeMemoryHelper {
 	/**
 	 * THe name of the memory mapped mbean
 	 */
-	protected static final String MBEAN_NAME = "java.nio:type=BufferPool,name=mapped";
+	private static final String MBEAN_NAME = "java.nio:type=BufferPool,name=mapped";
 	
 	/**
 	 * Is the direct memory unmapper available? (Oracle JVM specific)

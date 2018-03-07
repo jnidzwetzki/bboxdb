@@ -72,7 +72,7 @@ public abstract class AbstractTableReader implements BBoxDBService {
 	/**
 	 * The Logger
 	 */
-	protected static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractTableReader.class);
 	
 	public AbstractTableReader(final String directory, final TupleStoreName name, final int tablenumer) throws StorageManagerException {
 		this.name = name;

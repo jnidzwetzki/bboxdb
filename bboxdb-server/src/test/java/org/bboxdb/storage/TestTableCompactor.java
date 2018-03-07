@@ -56,7 +56,7 @@ public class TestTableCompactor {
 	/**
 	 * The storage directory
 	 */
-	protected static final String STORAGE_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getStorageDirectories().get(0);
+	private static final String STORAGE_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getStorageDirectories().get(0);
 
 	/**
 	 * The max number of expected tuples in the sstable
@@ -66,7 +66,7 @@ public class TestTableCompactor {
 	/**
 	 * The storage registry
 	 */
-	protected static TupleStoreManagerRegistry storageRegistry;
+	private static TupleStoreManagerRegistry storageRegistry;
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException, BBoxDBException {

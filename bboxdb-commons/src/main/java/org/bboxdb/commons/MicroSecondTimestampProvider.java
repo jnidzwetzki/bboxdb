@@ -22,12 +22,12 @@ public class MicroSecondTimestampProvider {
 	/**
 	 * The last currentTimeMillis
 	 */
-	protected static long lastTimestampMillis = -1;
+	private static long lastTimestampMillis = -1;
 	
 	/**
 	 * The counter for this millisecond
 	 */
-	protected static int counter = 0;
+	private static int counter = 0;
 	
 	/**
 	 * Get a faked micro seconds timestamp. Millisecond collisions are avoided

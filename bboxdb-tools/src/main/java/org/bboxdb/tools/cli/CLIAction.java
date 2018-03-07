@@ -25,67 +25,67 @@ public class CLIAction {
 	/**
 	 * The name of the import action
 	 */
-	protected static final String IMPORT = "import";
+	public static final String IMPORT = "import";
 	
 	/**
 	 * The name of the query action
 	 */
-	protected static final String QUERY = "query";
+	public static final String QUERY = "query";
 	
 	/**
 	 * The name of the join action
 	 */
-	protected static final String JOIN = "join";
+	public static final String JOIN = "join";
 		
 	/**
 	 * The name of the query action
 	 */
-	protected static final String CONTINUOUS_QUERY = "continuous-query";
+	public static final String CONTINUOUS_QUERY = "continuous-query";
 	
 	/**
 	 * The name of the insert action
 	 */
-	protected static final String INSERT = "insert";
+	public static final String INSERT = "insert";
 	
 	/**
 	 * The name of the delete action
 	 */
-	protected static final String DELETE = "delete";
+	public static final String DELETE = "delete";
 	
 	/**
 	 * The name of the create distribution group action
 	 */
-	protected static final String CREATE_DGROUP = "create_dgroup";
+	public static final String CREATE_DGROUP = "create_dgroup";
 	
 	/**
 	 * The name of the delete distribution group action
 	 */
-	protected static final String DELETE_DGROUP = "delete_dgroup";
+	public static final String DELETE_DGROUP = "delete_dgroup";
 	
 	/**
 	 * Create a new table
 	 */
-	protected static final String CREATE_TABLE = "create_table";
+	public static final String CREATE_TABLE = "create_table";
 	
 	/**
 	 * Delete a table
 	 */
-	protected static final String DELETE_TABLE = "delete_table";
+	public static final String DELETE_TABLE = "delete_table";
 	
 	/**
 	 * The name of the show distribution group action
 	 */
-	protected static final String SHOW_DGROUP = "show_dgroup";
+	public static final String SHOW_DGROUP = "show_dgroup";
 	
 	/**
 	 * The name of the show instances action
 	 */
-	protected static final String SHOW_INSTANCES = "show_instances";
+	public static final String SHOW_INSTANCES = "show_instances";
 	
 	/**
 	 * All known actions
 	 */
-	protected static List<String> ALL_ACTIONS 
+	public static List<String> ALL_ACTIONS 
 		= Arrays.asList(IMPORT, QUERY, JOIN, DELETE, INSERT, CREATE_DGROUP, DELETE_DGROUP, 
 				SHOW_DGROUP, SHOW_INSTANCES, CREATE_TABLE, DELETE_TABLE);
 

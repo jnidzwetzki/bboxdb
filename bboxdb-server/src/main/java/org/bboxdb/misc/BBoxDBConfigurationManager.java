@@ -30,7 +30,7 @@ public class BBoxDBConfigurationManager {
 	/**
 	 * The configuration of the software
 	 */
-	protected static BBoxDBConfiguration configuration;
+	private static BBoxDBConfiguration configuration;
 	
 	/**
 	 * The Logger

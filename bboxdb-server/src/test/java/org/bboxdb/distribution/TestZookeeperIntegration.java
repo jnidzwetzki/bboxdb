@@ -53,12 +53,12 @@ public class TestZookeeperIntegration {
 	/**
 	 * The zookeeper client
 	 */
-	protected static ZookeeperClient zookeeperClient;
+	private static ZookeeperClient zookeeperClient;
 	
 	/**
 	 * The distribution group adapter
 	 */
-	protected static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	private static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 	
 	/**
 	 * The compare delta
@@ -68,7 +68,7 @@ public class TestZookeeperIntegration {
 	/**
 	 * The name of the test region
 	 */
-	protected static final String TEST_GROUP = "abc";
+	private static final String TEST_GROUP = "abc";
 	
 	@BeforeClass
 	public static void before() {

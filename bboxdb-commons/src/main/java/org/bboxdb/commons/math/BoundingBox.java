@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 
 import org.bboxdb.commons.StringUtil;
 import org.bboxdb.commons.io.DataEncoderHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BoundingBox implements Comparable<BoundingBox> {
 	
@@ -44,11 +42,6 @@ public class BoundingBox implements Comparable<BoundingBox> {
 	 * The boundingBox contains a interval for each dimension
 	 */
 	private final List<DoubleInterval> boundingBox;
-	
-	/**
-	 * The Logger
-	 */
-	protected static final Logger logger = LoggerFactory.getLogger(BoundingBox.class);
 	
 	/**
 	 * Create from Double

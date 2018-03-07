@@ -42,7 +42,7 @@ public class TestDistributionGroupMedadata {
 	/**
 	 * The storage directory
 	 */
-	protected static final String STORAGE_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getStorageDirectories().get(0);
+	private static final String STORAGE_DIRECTORY = BBoxDBConfigurationManager.getConfiguration().getStorageDirectories().get(0);
 
 	/**
 	 * The Logger

@@ -413,7 +413,7 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @param distributionGroupString
 	 * @param directory
 	 */
-	protected static void deleteMedatadaOfDistributionGroup(final String distributionGroupString,
+	private static void deleteMedatadaOfDistributionGroup(final String distributionGroupString,
 			final String directory) {
 		
 		final String medatadaFileName = SSTableHelper.getDistributionGroupMedatadaFile(directory, 
