@@ -56,17 +56,4 @@ public class FutureHelper {
 		future.fireCompleteEvent();
 		return future;
 	}
-	
-	/**
-	 * Create a failed SSTableNameListFuture
-	 * @return
-	 */
-	public static SSTableNameListFuture getFailedSStableNameFuture(final String errorMessage) {
-		final SSTableNameListFuture clientOperationFuture = new SSTableNameListFuture(1);
-		clientOperationFuture.setMessage(0, errorMessage);
-		clientOperationFuture.setFailedState();
-		clientOperationFuture.fireCompleteEvent(); 
-		return clientOperationFuture;
-	}
-
 }

@@ -23,7 +23,6 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
-import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.Tuple;
@@ -89,12 +88,6 @@ public interface BBoxDB {
 	 * @throws BBoxDBException
 	 */
 	public EmptyResultFuture deleteTuple(String table, String key) throws BBoxDBException;
-	
-	/**
-	 * List the existing tables
-	 * @return
-	 */
-	public SSTableNameListFuture listTables() throws BBoxDBException;
 
 	/**
 	 * Create a new distribution group

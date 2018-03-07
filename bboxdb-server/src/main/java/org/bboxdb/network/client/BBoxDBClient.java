@@ -53,13 +53,11 @@ import org.bboxdb.network.client.future.FutureHelper;
 import org.bboxdb.network.client.future.HelloFuture;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
 import org.bboxdb.network.client.future.OperationFuture;
-import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.client.response.CompressionHandler;
 import org.bboxdb.network.client.response.ErrorHandler;
 import org.bboxdb.network.client.response.HelloHandler;
 import org.bboxdb.network.client.response.JoinedTupleHandler;
-import org.bboxdb.network.client.response.ListTablesHandler;
 import org.bboxdb.network.client.response.MultipleTupleEndHandler;
 import org.bboxdb.network.client.response.MultipleTupleStartHandler;
 import org.bboxdb.network.client.response.PageEndHandler;
@@ -78,7 +76,6 @@ import org.bboxdb.network.packages.request.DisconnectRequest;
 import org.bboxdb.network.packages.request.HelloRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
-import org.bboxdb.network.packages.request.ListTablesRequest;
 import org.bboxdb.network.packages.request.NextPageRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
@@ -276,7 +273,6 @@ public class BBoxDBClient implements BBoxDB {
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_HELLO, new HelloHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_SUCCESS, new SuccessHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_ERROR, new ErrorHandler());
-		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_LIST_TABLES, new ListTablesHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_TUPLE, new TupleHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_START, new MultipleTupleStartHandler());
 		serverResponseHandler.put(NetworkConst.RESPONSE_TYPE_MULTIPLE_TUPLE_END, new MultipleTupleEndHandler());
@@ -603,23 +599,6 @@ public class BBoxDBClient implements BBoxDB {
 	public EmptyResultFuture deleteTuple(final String table, final String key) throws BBoxDBException {
 		final long timestamp = MicroSecondTimestampProvider.getNewTimestamp();
 		return deleteTuple(table, key, timestamp);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.bboxdb.network.client.BBoxDB#listTables()
-	 */
-	@Override
-	public SSTableNameListFuture listTables() {
-
-		if(! connectionState.isInRunningState()) {
-			return FutureHelper.getFailedSStableNameFuture("listTables called, but connection not ready: " + this);
-		}
-
-		final SSTableNameListFuture clientOperationFuture = new SSTableNameListFuture(1);
-		final ListTablesRequest requestPackage = new ListTablesRequest(getNextSequenceNumber());
-		registerPackageCallback(requestPackage, clientOperationFuture);
-		sendPackageToServer(requestPackage, clientOperationFuture);
-		return clientOperationFuture;
 	}
 
 	/* (non-Javadoc)

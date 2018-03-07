@@ -19,6 +19,7 @@ order: 1
 - Improvement: Show merge and split capability in GUI
 - Improvement: Removed sample generation from SpacePartitioner
 - Improvement: Updated dependencies (mockito 2.11 -> 2.15, jxmapviewer 2.2 -> 2.4, prometheus 0.2 -> 0.3)
+- Improvement: Removed depricated list tables network call
 - Bugfix: Wait before data is merged / distributed until we see the region change in zookeeper (closes #75)
 - Bugfix: The average region is size is used in merges to prevent merges directly after a split (closes #76)
 - Bugfix: The JMX space partitioner call has become useless after region merging was introduced, dropped support 

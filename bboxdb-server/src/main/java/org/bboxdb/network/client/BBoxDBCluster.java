@@ -42,7 +42,6 @@ import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.future.EmptyResultFuture;
 import org.bboxdb.network.client.future.FutureHelper;
 import org.bboxdb.network.client.future.JoinedTupleListFuture;
-import org.bboxdb.network.client.future.SSTableNameListFuture;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.network.routing.RoutingHeader;
 import org.bboxdb.network.routing.RoutingHop;
@@ -245,20 +244,6 @@ public class BBoxDBCluster implements BBoxDB {
 		.forEach(f -> future.merge(f));
 
 		return future;
-	}
-
-	@Override
-	public SSTableNameListFuture listTables() {
-		try {
-			final BBoxDBClient bboxDBClient = getSystemForNewRessources();
-			return bboxDBClient.listTables();
-		} catch (ResourceAllocationException e) {
-			logger.warn("listTables called, but no ressoures are available", e);
-			final SSTableNameListFuture future = new SSTableNameListFuture(1);
-			future.setFailedState();
-			future.fireCompleteEvent();
-			return future;
-		}
 	}
 
 	@Override

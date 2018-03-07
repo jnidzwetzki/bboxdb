@@ -44,7 +44,6 @@ import org.bboxdb.network.packages.request.DisconnectRequest;
 import org.bboxdb.network.packages.request.HelloRequest;
 import org.bboxdb.network.packages.request.InsertTupleRequest;
 import org.bboxdb.network.packages.request.KeepAliveRequest;
-import org.bboxdb.network.packages.request.ListTablesRequest;
 import org.bboxdb.network.packages.request.NextPageRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxContinuousRequest;
 import org.bboxdb.network.packages.request.QueryBoundingBoxRequest;
@@ -137,7 +136,7 @@ public class TestNetworkClasses {
 		final short currentSequenceNumber = sequenceNumberGenerator.getSequeneNumberWithoutIncrement();
 		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
 		
-		final ListTablesRequest listTablesRequest = new ListTablesRequest(sequenceNumber);
+		final KeepAliveRequest listTablesRequest = new KeepAliveRequest(sequenceNumber);
 		
 		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		listTablesRequest.writeToOutputStream(bos);
@@ -153,7 +152,7 @@ public class TestNetworkClasses {
 		
 		// Check fields
 		Assert.assertEquals(currentSequenceNumber, bb.getShort());
-		Assert.assertEquals(NetworkConst.REQUEST_TYPE_LIST_TABLES, bb.getShort());
+		Assert.assertEquals(NetworkConst.REQUEST_TYPE_KEEP_ALIVE, bb.getShort());
 	}
 	
 	/**
@@ -632,26 +631,6 @@ public class TestNetworkClasses {
 		Assert.assertEquals(queryRequest.isPagingEnabled(), decodedPackage.isPagingEnabled());
 		Assert.assertEquals(queryRequest.getTuplesPerPage(), decodedPackage.getTuplesPerPage());
 		Assert.assertEquals(NetworkConst.REQUEST_QUERY_JOIN, NetworkPackageDecoder.getQueryTypeFromRequest(bb));
-	}
-	
-	/**
-	 * The the encoding and decoding of a list tables package
-	 * @throws IOException 
-	 * @throws PackageEncodeException 
-	 */
-	@Test
-	public void encodeAndDecodeListTable() throws IOException, PackageEncodeException {
-		final short sequenceNumber = sequenceNumberGenerator.getNextSequenceNummber();
-
-		final ListTablesRequest listPackage = new ListTablesRequest(sequenceNumber);
-		
-		byte[] encodedVersion = networkPackageToByte(listPackage);
-		Assert.assertNotNull(encodedVersion);
-
-		final ByteBuffer bb = NetworkPackageDecoder.encapsulateBytes(encodedVersion);
-		final ListTablesRequest decodedPackage = ListTablesRequest.decodeTuple(bb);
-				
-		Assert.assertEquals(listPackage, decodedPackage);
 	}
 	
 	/**
