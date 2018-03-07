@@ -31,6 +31,7 @@ import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistribu
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.network.client.BBoxDBClient;
 import org.bboxdb.network.client.future.TupleListFuture;
 import org.bboxdb.storage.StorageManagerException;
@@ -94,6 +95,21 @@ public class RegionMerger {
 
 		} catch (Throwable e) {
 			logger.warn("Got uncought exception during merge: " + region.getIdentifier(), e);
+			handleMergeFailed(region, spacePartitioner);
+		}
+	}
+
+	/**
+	 * Handle failed merge
+	 * @param region
+	 * @param spacePartitioner
+	 * @throws BBoxDBException
+	 */
+	private void handleMergeFailed(final DistributionRegion region, final SpacePartitioner spacePartitioner) {
+		try {
+			spacePartitioner.mergeFailed(region);
+		} catch (BBoxDBException e) {
+			logger.error("Unable to handle merge failed on: " + region.getIdentifier(), e);
 		}
 	}
 

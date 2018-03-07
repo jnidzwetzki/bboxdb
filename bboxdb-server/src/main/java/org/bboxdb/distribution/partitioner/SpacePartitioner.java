@@ -77,6 +77,13 @@ public interface SpacePartitioner {
 	public void splitComplete(final DistributionRegion regionToSplit) throws BBoxDBException;
 	
 	/**
+	 * A split is failed
+	 * @param regionToSplit
+	 * @throws BBoxDBException
+	 */
+	public void splitFailed(final DistributionRegion regionToSplit) throws BBoxDBException;
+	
+	/**
 	 * Merge the given region
 	 * @param regionToMerge
 	 * @throws BBoxDBException
@@ -89,6 +96,15 @@ public interface SpacePartitioner {
 	 * @throws BBoxDBException
 	 */
 	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException;
+	
+
+	/**
+	 * Merging of the region is done 
+	 * @param regionToMerge
+	 * @throws BBoxDBException
+	 */
+	public void mergeFailed(final DistributionRegion regionToMerge) throws BBoxDBException;
+	
 	
 	/**
 	 * Is the merging of regions supported?

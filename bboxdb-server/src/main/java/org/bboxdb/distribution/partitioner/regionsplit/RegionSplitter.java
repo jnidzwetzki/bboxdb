@@ -31,7 +31,6 @@ import org.bboxdb.distribution.partitioner.regionsplit.tuplesink.TupleRedistribu
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
-import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.Tuple;
@@ -109,26 +108,15 @@ public class RegionSplitter {
 		}
 
 		if(splitFailed) {
-			resetAreaStateNE(region, distributionGroupZookeeperAdapter);
+			try {
+				spacePartitioner.splitFailed(region);
+			} catch (BBoxDBException e) {
+				logger.error("Got exception while resetting area state for to active, "
+						+ "your global index might be inconsistent now "+ region.getIdentifier(), e);
+			}
 		}
 		
 		logger.info("Performing split for: {} is done", region.getIdentifier());
-	}
-
-	/**
-	 * Reset the are state
-	 * @param region
-	 * @param distributionGroupZookeeperAdapter
-	 */
-	private void resetAreaStateNE(final DistributionRegion region,
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter) {
-		
-		try {
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(region, DistributionRegionState.ACTIVE);
-		} catch (ZookeeperException e) {
-			logger.error("Got exception while resetting area state for to active, "
-					+ "your global index might be inconsistent now "+ region.getIdentifier(), e);
-		}
 	}
 
 	/**

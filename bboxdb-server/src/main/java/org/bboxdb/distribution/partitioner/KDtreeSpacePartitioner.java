@@ -388,4 +388,32 @@ public class KDtreeSpacePartitioner implements SpacePartitioner {
 		
 		this.active = false;
 	}
+
+
+	@Override
+	public void splitFailed(final DistributionRegion region) throws BBoxDBException {
+		try {
+			distributionGroupZookeeperAdapter.setStateForDistributionRegion(region, 
+					DistributionRegionState.ACTIVE);
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
+		}
+	}
+
+
+	@Override
+	public void mergeFailed(final DistributionRegion regionToMerge) throws BBoxDBException {
+		try {
+			distributionGroupZookeeperAdapter.setStateForDistributionRegion(regionToMerge, 
+					DistributionRegionState.ACTIVE);
+			
+			for(final DistributionRegion childRegion : regionToMerge.getDirectChildren()) {
+				distributionGroupZookeeperAdapter.setStateForDistributionRegion(childRegion, 
+						DistributionRegionState.ACTIVE);
+				
+			}
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
+		}
+	}
 }
