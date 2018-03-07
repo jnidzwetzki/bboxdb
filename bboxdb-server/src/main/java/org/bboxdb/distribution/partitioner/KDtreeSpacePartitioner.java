@@ -89,14 +89,6 @@ public class KDtreeSpacePartitioner implements SpacePartitioner {
 		this.spacePartitionerContext = spacePartitionerContext;
 		this.active = true;
 		
-		handleGroupCreated();
-	}
-	
-	
-	/**
-	 * Distribution region has recreated, clear local mappings 
-	 */
-	private void handleGroupCreated() {		
 		TupleStoreConfigurationCache.getInstance().clear();
 		DistributionGroupConfigurationCache.getInstance().clear();
 		spacePartitionerContext.getDistributionRegionMapper().clear();
