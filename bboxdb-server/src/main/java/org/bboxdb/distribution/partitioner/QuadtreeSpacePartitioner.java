@@ -49,6 +49,12 @@ public class QuadtreeSpacePartitioner implements SpacePartitioner {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public void splitComplete(DistributionRegion regionToSplit) throws BBoxDBException {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
 	public boolean registerCallback(DistributionRegionCallback callback) {

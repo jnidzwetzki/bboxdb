@@ -101,6 +101,7 @@ public class RegionSplitter {
 			if(! splitFailed) {
 				redistributeDataSplit(region);
 				distributionGroupZookeeperAdapter.deleteRegionStatistics(region);
+				spacePartitioner.splitComplete(region);
 			}
 		} catch (Throwable e) {
 			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
@@ -196,10 +197,6 @@ public class RegionSplitter {
 				stopFlushToDisk(ssTableName);
 				distributeData(ssTableName, region);	
 			}
-			
-			// Update zookeeer
-			final DistributionGroupZookeeperAdapter zookeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
-			zookeperAdapter.setStateForDistributionRegion(region, DistributionRegionState.SPLIT);
 
 			// Remove local data
 			logger.info("Deleting local data for {}", region.getIdentifier());

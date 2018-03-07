@@ -68,6 +68,14 @@ public interface SpacePartitioner {
 	public void splitRegion(final DistributionRegion regionToSplit, 
 			final Collection<BoundingBox> samples) throws BBoxDBException;
 	
+	
+	/**
+	 * A split is complete
+	 * @param regionToSplit
+	 * @throws BBoxDBException
+	 */
+	public void splitComplete(final DistributionRegion regionToSplit) throws BBoxDBException;
+	
 	/**
 	 * Merge the given region
 	 * @param regionToMerge

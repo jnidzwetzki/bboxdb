@@ -106,6 +106,7 @@ public class CreateBasePartitioning implements Runnable {
 				
 				logger.info("Splitting region {}", regionToSplit.getRegionId());
 				spacePartitioner.splitRegion(regionToSplit, samples);
+				spacePartitioner.splitComplete(regionToSplit);
 			}
 			
 			// Prevent merging of nodes
