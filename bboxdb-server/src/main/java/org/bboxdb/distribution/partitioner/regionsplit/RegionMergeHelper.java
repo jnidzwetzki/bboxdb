@@ -67,10 +67,7 @@ public class RegionMergeHelper {
 	 */
 	public static boolean isRegionUnderflow(final DistributionRegion region) throws BBoxDBException {
 		
-		// This might be the root region
-		if(region == null || region.isRootElement()) {
-			return false;
-		}
+		assert(region != null) : "Region can not be null";
 		
 		logger.info("Testing for underflow: {}", region.getRegionId());
 		

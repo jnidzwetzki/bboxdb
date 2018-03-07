@@ -142,7 +142,7 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 				final List<SSTableFacade> facades = getAllTupleStores(tupleStoreManager);
 				final MergeTask mergeTask = mergeStrategy.getMergeTask(facades);
 				executeCompactTask(mergeTask, tupleStoreManager);
-				checkForRegionSplit(tupleStoreManager);
+				checkForRegionSplitOrMerge(tupleStoreManager);
 				
 			} catch (StorageManagerException | BBoxDBException e) {
 				logger.error("Error while merging tables", e);	
@@ -266,7 +266,7 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	 * @throws BBoxDBException
 	 * @throws InterruptedException
 	 */
-	private void checkForRegionSplit(final TupleStoreManager sstableManager)
+	private void checkForRegionSplitOrMerge(final TupleStoreManager sstableManager)
 			throws BBoxDBException, InterruptedException {
 		
 		// Don't try to split non-distributed tables
@@ -274,21 +274,6 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 			return;
 		}
 
-		splitOrMergeRegion(sstableManager);	
-	}
-
-	/**
-	 * Split or merge the given region
-	 * @param totalSizeInMb
-	 * @param spacePartitioner
-	 * @param regionToSplit
-	 * @throws BBoxDBException
-	 * @throws ZookeeperException 
-	 * @throws InterruptedException 
-	 */
-	private void splitOrMergeRegion(final TupleStoreManager sstableManager) 
-			throws BBoxDBException, InterruptedException {
-		
 		try {
 			final TupleStoreName ssTableName = sstableManager.getTupleStoreName();
 			final long regionId = ssTableName.getRegionId();
@@ -355,6 +340,7 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	private void testForUnderflow(final SpacePartitioner spacePartitioner, 
 			final DistributionRegion regionToTest) throws BBoxDBException {
 		
+		// The root region has not a parent, so skip the test
 		if(regionToTest.isRootElement()) {
 			return;
 		}
