@@ -49,15 +49,14 @@ public class SpacePartitionerHelper {
 	 * @throws ZookeeperException 
 	 */
 	public static void copySystemsToRegion(final DistributionRegion source, 
-			final DistributionRegion destination, final SpacePartitioner spacePartitioner,
-			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter) 
+			final DistributionRegion destination, final DistributionGroupZookeeperAdapter adapter) 
 					throws ZookeeperException {
 		
 		assert (destination.getSystems().isEmpty()) 
 			: "Systems are not empty: " + destination.getSystems();
 		
 		for(final BBoxDBInstance system : source.getSystems()) {
-			distributionGroupZookeeperAdapter.addSystemToDistributionRegion(destination, system);
+			adapter.addSystemToDistributionRegion(destination, system);
 		}
 	}
 	
@@ -71,7 +70,7 @@ public class SpacePartitionerHelper {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	public static void allocateSystemsToRegion(final DistributionRegion region, 
-			final SpacePartitioner spacePartitioner, final Collection<BBoxDBInstance> blacklist, 
+			final Collection<BBoxDBInstance> blacklist, 
 			final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter) 
 					throws ZookeeperException, ResourceAllocationException, ZookeeperNotFoundException {
 		
@@ -109,6 +108,6 @@ public class SpacePartitionerHelper {
 		logger.info("Allocated new ressource to {} with blacklist {}", 
 				allocationSystems, blacklist);
 
-		spacePartitioner.allocateSystemsToRegion(region, allocationSystems);
+		distributionGroupZookeeperAdapter.allocateSystemsToRegion(region, allocationSystems);
 	}
 }

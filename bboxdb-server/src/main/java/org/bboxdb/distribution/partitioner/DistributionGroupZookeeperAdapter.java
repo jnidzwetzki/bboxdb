@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import org.apache.zookeeper.Watcher;
 import org.bboxdb.commons.InputParseException;
@@ -1052,5 +1053,27 @@ public class DistributionGroupZookeeperAdapter {
 		
 		zookeeperClient.deleteNodesRecursive(statisticsPath);
 	}
+	
+	/**
+	 * Allocate the given list of systems to a region
+	 * @param region
+	 * @param allocationSystems
+	 * @throws ZookeeperException
+	 */
+	public void allocateSystemsToRegion(final DistributionRegion region, final Set<BBoxDBInstance> allocationSystems)
+			throws ZookeeperException {
+		
+		final List<String> systemNames = allocationSystems.stream()
+				.map(s -> s.getStringValue())
+				.collect(Collectors.toList());
+		
+		logger.info("Allocating region {} to {}", region.getIdentifier(), systemNames);
+		
+		// Resource allocation successfully, write data to zookeeper
+		for(final BBoxDBInstance instance : allocationSystems) {
+			addSystemToDistributionRegion(region, instance);
+		}
+	}
+	
 
 }

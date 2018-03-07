@@ -63,12 +63,12 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 			distributionGroupZookeeperAdapter.createDistributionGroup(distributionGroup, 
 					createPackage.getDistributionGroupConfiguration());
 			
-			final SpacePartitioner distributionAdapter = SpacePartitionerCache.getInstance()
+			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
 					.getSpacePartitionerForGroupName(distributionGroup);
 
-			final DistributionRegion region = distributionAdapter.getRootNode();
+			final DistributionRegion region = spacePartitioner.getRootNode();
 			
-			SpacePartitionerHelper.allocateSystemsToRegion(region, distributionAdapter, 
+			SpacePartitionerHelper.allocateSystemsToRegion(region,
 					new HashSet<BBoxDBInstance>(), distributionGroupZookeeperAdapter);
 			
 			// Let the data settle down

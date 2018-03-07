@@ -19,15 +19,12 @@ package org.bboxdb.distribution.partitioner;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
-import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
@@ -198,11 +195,11 @@ public class KDtreeSpacePartitioner implements SpacePartitioner {
 			waitUntilChildrenAreCreated(regionToSplit);
 	
 			// Allocate systems (the data of the left node is stored locally)
-			SpacePartitionerHelper.copySystemsToRegion(regionToSplit, regionToSplit.getDirectChildren().get(0), 
-					this, distributionGroupZookeeperAdapter);
+			SpacePartitionerHelper.copySystemsToRegion(regionToSplit, 
+					regionToSplit.getDirectChildren().get(0), distributionGroupZookeeperAdapter);
 			
 			SpacePartitionerHelper.allocateSystemsToRegion(regionToSplit.getDirectChildren().get(1), 
-					this, regionToSplit.getSystems(), distributionGroupZookeeperAdapter);
+					regionToSplit.getSystems(), distributionGroupZookeeperAdapter);
 			
 			// update state
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
@@ -280,28 +277,6 @@ public class KDtreeSpacePartitioner implements SpacePartitioner {
 	private void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit) {
 		final Predicate<DistributionRegion> predicate = (r) -> isSplitForNodeComplete(r);
 		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);
-	}
-	
-	/**
-	 * Allocate the given list of systems to a region
-	 * @param region
-	 * @param allocationSystems
-	 * @throws ZookeeperException
-	 */
-	@Override
-	public void allocateSystemsToRegion(final DistributionRegion region, final Set<BBoxDBInstance> allocationSystems)
-			throws ZookeeperException {
-		
-		final List<String> systemNames = allocationSystems.stream()
-				.map(s -> s.getStringValue())
-				.collect(Collectors.toList());
-		
-		logger.info("Allocating region {} to {}", region.getIdentifier(), systemNames);
-		
-		// Resource allocation successfully, write data to zookeeper
-		for(final BBoxDBInstance instance : allocationSystems) {
-			distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, instance);
-		}
 	}
 	
 	/**
