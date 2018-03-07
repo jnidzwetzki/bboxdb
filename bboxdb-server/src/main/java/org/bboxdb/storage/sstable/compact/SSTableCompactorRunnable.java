@@ -163,7 +163,9 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 		
 		try {
 			if(! tupleStoreName.isDistributedTable()) {
-				return true;
+				logger.error("Tuple store {} is not a distributed table, untable to split", 
+						tupleStoreName);
+				return false;
 			}
 			
 			final long regionId = tupleStoreName.getRegionId();
@@ -180,11 +182,11 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 			// Region does not exist
 			if(regionToSplit == null) {
 				logger.error("Unable to get distribution region {} {}", distributionRegion, regionId);
-				return true;
+				return false;
 			}
 			
 			// The root node parent is always split
-			if(regionToSplit.getParent() == DistributionRegion.ROOT_NODE_ROOT_POINTER) {
+			if(regionToSplit.isRootElement()) {
 				return true;
 			}
 			
