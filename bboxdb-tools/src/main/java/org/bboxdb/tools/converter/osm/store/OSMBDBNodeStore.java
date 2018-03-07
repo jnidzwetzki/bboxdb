@@ -124,7 +124,7 @@ public class OSMBDBNodeStore implements OSMNodeStore {
 		*/	
 			initNewBDBEnvironment(folder, envConfig);
 
-			final BDBWriterThread bdbWriter = new BDBWriterThread(pendingWriteQueues.get(i), 
+			final BDBWriterRunnable bdbWriter = new BDBWriterRunnable(pendingWriteQueues.get(i), 
 					environments.get(i), databases.get(i));
 			
 			threadPool.submit(bdbWriter);

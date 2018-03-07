@@ -150,7 +150,7 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * The maintenance handler instance
 	 */
-	protected ConnectionMainteinanceThread mainteinanceHandler;
+	protected ConnectionMainteinanceRunnable mainteinanceHandler;
 
 	/**
 	 * The maintenance thread
@@ -160,7 +160,7 @@ public class BBoxDBClient implements BBoxDB {
 	/**
 	 * The maintenance handler instance
 	 */
-	protected ConnectionFlushThread flushHandler;
+	protected ConnectionFlushRunnable flushHandler;
 
 	/**
 	 * The maintenance thread
@@ -383,12 +383,12 @@ public class BBoxDBClient implements BBoxDB {
 		connectionState.dispatchToRunning();
 		logger.debug("Handshaking with {} done", getConnectionName());
 		
-		flushHandler = new ConnectionFlushThread(this);
+		flushHandler = new ConnectionFlushRunnable(this);
 		flushThread = new Thread(flushHandler);
 		flushThread.setName("Flush thread for: " + getConnectionName());
 		flushThread.start();
 
-		mainteinanceHandler = new ConnectionMainteinanceThread(this);
+		mainteinanceHandler = new ConnectionMainteinanceRunnable(this);
 		mainteinanceThread = new Thread(mainteinanceHandler);
 		mainteinanceThread.setName("Connection mainteinace thread for: " + getConnectionName());
 		mainteinanceThread.start();

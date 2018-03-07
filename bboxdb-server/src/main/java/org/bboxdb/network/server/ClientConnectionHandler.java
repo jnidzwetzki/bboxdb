@@ -147,7 +147,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 	/**
 	 * The connection maintenance thread
 	 */
-	protected ConnectionMaintenanceThread maintenanceThread;
+	protected ConnectionMaintenanceRunnable maintenanceThread;
 	
 	/**
 	 * The storage reference
@@ -217,7 +217,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		// The pending packages for compression 
 		pendingCompressionPackages = new ArrayList<>();
 
-		maintenanceThread = new ConnectionMaintenanceThread();
+		maintenanceThread = new ConnectionMaintenanceRunnable();
 		final Thread thread = new Thread(maintenanceThread);
 		thread.start();
 
@@ -682,7 +682,7 @@ public class ClientConnectionHandler extends ExceptionSafeRunnable {
 		return sb.toString();
 	}
 	
-	class ConnectionMaintenanceThread extends ExceptionSafeRunnable {
+	class ConnectionMaintenanceRunnable extends ExceptionSafeRunnable {
 		
 		@Override
 		protected void beginHook() {

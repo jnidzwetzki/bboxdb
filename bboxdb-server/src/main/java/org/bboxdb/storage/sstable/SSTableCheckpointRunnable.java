@@ -35,7 +35,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableCheckpointThread extends ExceptionSafeRunnable {
+public class SSTableCheckpointRunnable extends ExceptionSafeRunnable {
 
 	/**
 	 * The storage
@@ -50,9 +50,9 @@ public class SSTableCheckpointThread extends ExceptionSafeRunnable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableCheckpointThread.class);
+	private final static Logger logger = LoggerFactory.getLogger(SSTableCheckpointRunnable.class);
 
-	public SSTableCheckpointThread(final DiskStorage storage, final int maxUncheckpointedSeconds) {
+	public SSTableCheckpointRunnable(final DiskStorage storage, final int maxUncheckpointedSeconds) {
 		this.storage = storage;
 		this.maxUncheckpointedMiliseconds = TimeUnit.SECONDS.toMillis(maxUncheckpointedSeconds);
 	}

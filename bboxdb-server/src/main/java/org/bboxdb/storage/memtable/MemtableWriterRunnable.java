@@ -33,7 +33,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MemtableWriterThread extends ExceptionSafeRunnable {
+public class MemtableWriterRunnable extends ExceptionSafeRunnable {
 
 	/**
 	 * The basedir
@@ -48,12 +48,12 @@ public class MemtableWriterThread extends ExceptionSafeRunnable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(MemtableWriterThread.class);
+	private final static Logger logger = LoggerFactory.getLogger(MemtableWriterRunnable.class);
 
 	/**
 	 * @param ssTableManager
 	 */
-	public MemtableWriterThread(final DiskStorage storage, final File basedir) {
+	public MemtableWriterRunnable(final DiskStorage storage, final File basedir) {
 		this.storage = storage;
 		this.basedir = basedir;	
 	}

@@ -36,7 +36,7 @@ public class StatisticsUpdateService implements BBoxDBService {
 
 	@Override
 	public void init() throws InterruptedException, BBoxDBException {
-		final StatisticsUpdateThread runable = new StatisticsUpdateThread(storageRegistry);
+		final StatisticsUpdateRunnable runable = new StatisticsUpdateRunnable(storageRegistry);
 		statisticsUpdateThread = new Thread(runable);
 		statisticsUpdateThread.setName("Statistics update thread");
 		statisticsUpdateThread.start();

@@ -29,10 +29,10 @@ import org.bboxdb.commons.concurrent.ThreadHelper;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBService;
 import org.bboxdb.storage.entity.MemtableAndTupleStoreManagerPair;
-import org.bboxdb.storage.memtable.MemtableWriterThread;
-import org.bboxdb.storage.sstable.SSTableCheckpointThread;
+import org.bboxdb.storage.memtable.MemtableWriterRunnable;
+import org.bboxdb.storage.sstable.SSTableCheckpointRunnable;
 import org.bboxdb.storage.sstable.SSTableConst;
-import org.bboxdb.storage.sstable.compact.SSTableCompactorThread;
+import org.bboxdb.storage.sstable.compact.SSTableCompactorRunnable;
 import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,7 +133,7 @@ public class DiskStorage implements BBoxDBService {
 		for(int i = 0; i < flushThreadsPerStorage; i++) {
 			final String threadname = i + ". Memtable write thread for storage: " + basedir;
 			
-			final MemtableWriterThread memtableWriterThread = new MemtableWriterThread(
+			final MemtableWriterRunnable memtableWriterThread = new MemtableWriterRunnable(
 					this, basedir);
 			
 			final Thread thread = new Thread(memtableWriterThread);
@@ -147,7 +147,7 @@ public class DiskStorage implements BBoxDBService {
 	 * Start the compact thread if needed
 	 */
 	protected void startCompactThread() {
-		final SSTableCompactorThread sstableCompactor = new SSTableCompactorThread(this);
+		final SSTableCompactorRunnable sstableCompactor = new SSTableCompactorRunnable(this);
 		final Thread compactThread = new Thread(sstableCompactor);
 		compactThread.setName("Compact thread for: " + basedir);
 		compactThread.start();
@@ -161,7 +161,7 @@ public class DiskStorage implements BBoxDBService {
 		final BBoxDBConfiguration configuration = tupleStoreManagerRegistry.getConfiguration();
 		if(configuration.getStorageCheckpointInterval() > 0) {
 			final int maxUncheckpointedSeconds = configuration.getStorageCheckpointInterval();
-			final SSTableCheckpointThread ssTableCheckpointThread = new SSTableCheckpointThread(this, maxUncheckpointedSeconds);
+			final SSTableCheckpointRunnable ssTableCheckpointThread = new SSTableCheckpointRunnable(this, maxUncheckpointedSeconds);
 			final Thread checkpointThread = new Thread(ssTableCheckpointThread);
 			checkpointThread.setName("Checkpoint thread for: " + basedir);
 			checkpointThread.start();

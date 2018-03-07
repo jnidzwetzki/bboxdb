@@ -42,12 +42,12 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StatisticsUpdateThread extends ExceptionSafeRunnable {
+public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(StatisticsUpdateThread.class);
+	private final static Logger logger = LoggerFactory.getLogger(StatisticsUpdateRunnable.class);
 	
 	/**
 	 * The storage registry
@@ -59,7 +59,7 @@ public class StatisticsUpdateThread extends ExceptionSafeRunnable {
 	 */
 	private final DistributionGroupZookeeperAdapter adapter;
 	
-	public StatisticsUpdateThread(final TupleStoreManagerRegistry storageRegistry) {
+	public StatisticsUpdateRunnable(final TupleStoreManagerRegistry storageRegistry) {
 		this.storageRegistry = storageRegistry;
 		adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 	}

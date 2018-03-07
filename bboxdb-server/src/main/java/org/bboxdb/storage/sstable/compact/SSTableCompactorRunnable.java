@@ -47,7 +47,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SSTableCompactorThread extends ExceptionSafeRunnable {
+public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	
 	/**
 	 * The merge strategy
@@ -62,9 +62,9 @@ public class SSTableCompactorThread extends ExceptionSafeRunnable {
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactorThread.class);
+	private final static Logger logger = LoggerFactory.getLogger(SSTableCompactorRunnable.class);
 
-	public SSTableCompactorThread(final DiskStorage storage) {
+	public SSTableCompactorRunnable(final DiskStorage storage) {
 		this.storage = storage;
 		this.mergeStrategy = new SimpleMergeStrategy();
 	}

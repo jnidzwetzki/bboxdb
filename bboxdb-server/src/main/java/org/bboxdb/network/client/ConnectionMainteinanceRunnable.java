@@ -35,7 +35,7 @@ import org.bboxdb.storage.tuplestore.manager.TupleStoreManagerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConnectionMainteinanceThread extends ExceptionSafeRunnable {
+public class ConnectionMainteinanceRunnable extends ExceptionSafeRunnable {
 	
 	/**
 	 * The timestamp when the last data was send (useful for sending keep alive packages)
@@ -68,7 +68,7 @@ public class ConnectionMainteinanceThread extends ExceptionSafeRunnable {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(ServerResponseReader.class);
 	
-	public ConnectionMainteinanceThread(final BBoxDBClient bboxDBClient) {
+	public ConnectionMainteinanceRunnable(final BBoxDBClient bboxDBClient) {
 		this.bboxDBClient = bboxDBClient;
 	}
 

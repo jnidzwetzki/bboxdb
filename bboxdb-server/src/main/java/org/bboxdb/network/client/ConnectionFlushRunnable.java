@@ -22,7 +22,7 @@ import org.bboxdb.network.NetworkConst;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConnectionFlushThread extends ExceptionSafeRunnable {
+public class ConnectionFlushRunnable extends ExceptionSafeRunnable {
 
 	/**
 	 * The BBOXDB Client
@@ -32,9 +32,9 @@ public class ConnectionFlushThread extends ExceptionSafeRunnable {
 	/**
 	 * The Logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(ConnectionFlushThread.class);
+	private final static Logger logger = LoggerFactory.getLogger(ConnectionFlushRunnable.class);
 	
-	public ConnectionFlushThread(final BBoxDBClient bboxDBClient) {
+	public ConnectionFlushRunnable(final BBoxDBClient bboxDBClient) {
 		this.bboxDBClient = bboxDBClient;
 	}
 

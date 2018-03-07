@@ -28,13 +28,13 @@ import com.sleepycat.je.Environment;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
-public class BDBWriterThread extends ExceptionSafeRunnable {
+public class BDBWriterRunnable extends ExceptionSafeRunnable {
 
 	protected final List<SerializableNode> pendingWriteQueue;
 	protected final Environment environment;
 	protected final Database database;
 	
-	public BDBWriterThread(final List<SerializableNode> pendingWriteQueue, 
+	public BDBWriterRunnable(final List<SerializableNode> pendingWriteQueue, 
 			final Environment environment, final Database database) {
 		
 		this.pendingWriteQueue = pendingWriteQueue;
