@@ -112,7 +112,7 @@ order: 1
 - Improvement: Improved client connection error handling
 - Bugfix: Paging results can now contain equal keys
 - Bugfix: Improved exception handling on network header encoding
-- Bugfix: Fixed some bugs found by coverty scan
+- Bugfix: Fixed some bugs found by coverity scan
 - Bugfix: Prevent duplicate MBean register exception
 - Bugfix: Fixed a bug in the string to boolean converter
 - Bugfix: Fixed the service callback unregister method
@@ -214,7 +214,7 @@ order: 1
 - Bugfix: Prevent the creation of tuples with 'null' data
 - Bugfix: Fixed a bug in the bounding box calculation of the GeoJSON parser
 - Bugfix: Fixed a bug in the query complete handler, finished queries were sent to the server
-- Bugfix: Fixed some resource leaks found by coverty scan
+- Bugfix: Fixed some resource leaks found by coverity scan
 - Bugfix: Fixed a race condition when a busy table should be redistributed
 - Bugfix: Introduced the memtable flush mode. After the flush thread is stopped, all data can stay in memory
 - Bugfix: Loopback IPs (e.g. 127.0.0.1) are now filtered, when the local instancename is determined
