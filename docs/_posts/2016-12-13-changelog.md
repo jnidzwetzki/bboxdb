@@ -7,6 +7,7 @@ order: 1
 ---
 
 ### Version 0.5.0 - TBA
+- New Feature: Added initial partitioning helper program (closes #78)
 - New Feature: Implemented non-mergeable distribution regions (closes #81)
 - Improvement: Moved region id mapper into the space partitioner to ensure data integrity
 - Improvement: Integrated codeclimate.com
