@@ -1,0 +1,38 @@
+\documentclass[tikz, border=10pt]{standalone}
+\usepackage[latin1]{inputenc}
+\usepackage[german]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx,float,wrapfig}
+\usepackage{graphicx}
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{shadows}
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes}
+\usetikzlibrary{shadows}
+\usetikzlibrary{3d}
+\usetikzlibrary{arrows}
+\usetikzlibrary{decorations.pathreplacing}
+
+\begin{document}
+\begin{tikzpicture}[scale=0.95,  every node/.style={transform shape, anchor=west}]
+%\node[align=left] at (-2.5, 4.5) {};
+\node[align=left] at (-1, 4.5) {customerid=\texttt{1234},\\ firstname=\texttt{John},\\ lastname=\texttt{Doe}};
+\draw[->, >=latex, black!20!white, line width=10pt] (3, 4.5) to node[black, anchor=center]{Key} (5, 4.5) ;
+\node[align=left] at (6, 4.5) {\texttt{1234}};
+
+\draw[->, >=latex] (0, 1) to node[black, above, rotate=90]{Latitude} (0, 3); 
+\draw[->, >=latex] (0, 1) to node[black, below]{Longitude} (2, 1); 
+\draw[solid](0.6, 1.1) -- (0.6, 1.6) -- (1.0, 2) -- (1.0, 2.5) -- (1.5, 2.5);
+\draw[solid](0.5, 1.1) -- (0.5, 1.65) -- (0.9, 2.05) --(0.9, 2.6) -- (1.5, 2.6);
+
+\draw[->, >=latex, black!20!white, line width=10pt] (3, 2) to node[black, anchor=center]{Key} (5, 2); 
+\node[align=left] at (6, 2) {\textbf{\huge ?}};
+\end{tikzpicture}
+
+\end{document}
+
