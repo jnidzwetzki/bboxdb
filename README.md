@@ -36,7 +36,7 @@ BBoxDB in contrast extension of the simple key-value data model. Each value is s
 
 Hyperrectangle queries (range queries) can be efficiently handled by BBoxDB. This type of query is backed by a two-level index structure. Besides, BBoxDB can store tables with the same dimensions co-partitioned, this means that the data of the same regions in space are stored on the same nodes. Equi- and spatial-joins can be processed efficiently locally on co-partitioned data. No data shuffling is needed during query processing.
 
-BBoxDB is implemented as a distributed and highly available system. It supports the _available_ and _partiotion tollerance_ aspects of the [CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem). [SSTables](https://research.google.com/archive/bigtable.html) (string sorted tables) are used as data storage. [Apache Zookeeper](https://zookeeper.apache.org/) is used to coordinate the whole system. The system can be accessed, using a [network protocol](http://jnidzwetzki.github.io/bboxdb/bboxdb/dev/network.html). Some special features like continuous queries or a history for tuples are also supported.
+BBoxDB is implemented as a distributed and highly available system. It supports the _available_ and _partiotion tollerance_ aspects of the [CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem). [SSTables](https://research.google.com/archive/bigtable.html) (string sorted tables) are used as data storage. [Apache Zookeeper](https://zookeeper.apache.org/) is used to coordinate the whole system. Some special features like continuous queries or a history for tuples are also supported.
 
 
 ## Documentation 
