@@ -18,7 +18,6 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.Collection;
-import java.util.function.Predicate;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
@@ -26,7 +25,6 @@ import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrateg
 import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
@@ -102,7 +100,7 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			// Update state
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);
 			
-			waitUntilChildrenAreCreated(regionToSplit);
+			waitUntilChildrenAreCreated(regionToSplit, 2);
 	
 			// Allocate systems (the data of the left node is stored locally)
 			SpacePartitionerHelper.copySystemsToRegion(regionToSplit, 
@@ -115,7 +113,7 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(rightPath, DistributionRegionState.ACTIVE);	
 	
-			waitForSplitZookeeperCallback(regionToSplit);
+			waitForSplitZookeeperCallback(regionToSplit, 2);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		} 
@@ -131,42 +129,6 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 		return distributionRegion.isLeafRegion();
 	}
 
-
-	/**
-	 * Wait for zookeeper split callback
-	 * @param regionToSplit
-	 */
-	private void waitUntilChildrenAreCreated(final DistributionRegion regionToSplit) {
-		final Predicate<DistributionRegion> predicate = (r) -> r.getDirectChildren().size() == 2;
-		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);		
-	}
-	
-	/**
-	 * Wait for zookeeper split callback
-	 * @param regionToSplit
-	 */
-	private void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit) {
-		final Predicate<DistributionRegion> predicate = (r) -> isSplitForNodeComplete(r);
-		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);
-	}
-	
-	/**
-	 * Is the split for the given node complete?
-	 * @param region
-	 * @return
-	 */
-	private boolean isSplitForNodeComplete(final DistributionRegion region) {
-		
-		if(region.getDirectChildren().size() != 2) {
-			return false;
-		}
-		
-		final boolean unreadyChild = region.getDirectChildren().stream()
-			.anyMatch(r -> r.getState() != DistributionRegionState.ACTIVE);
-		
-		return ! unreadyChild;
-	}
-	
 	/**
 	 * Get the dimension of the distribution region
 	 * @return

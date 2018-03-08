@@ -18,6 +18,7 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
@@ -27,6 +28,7 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
+import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -236,5 +238,43 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		} 
+	}
+
+	/**
+	 * Wait for zookeeper split callback
+	 * @param regionToSplit
+	 */
+	protected void waitUntilChildrenAreCreated(final DistributionRegion regionToSplit, final int noOfChildren) {
+		
+		final Predicate<DistributionRegion> predicate = (r) -> r.getDirectChildren().size() == noOfChildren;
+		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);		
+	}
+
+	/**
+	 * Wait for zookeeper split callback
+	 * @param regionToSplit
+	 */
+	protected void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit, final int noOfChildren) {
+		
+		final Predicate<DistributionRegion> predicate = (r) -> isSplitForNodeComplete(r, noOfChildren);
+		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);
+	}
+
+	/**
+	 * Is the split for the given node complete?
+	 * @param region
+	 * @param noOfChildren 
+	 * @return
+	 */
+	protected boolean isSplitForNodeComplete(final DistributionRegion region, final int noOfChildren) {
+		
+		if(region.getDirectChildren().size() != noOfChildren) {
+			return false;
+		}
+		
+		final boolean unreadyChild = region.getDirectChildren().stream()
+			.anyMatch(r -> r.getState() != DistributionRegionState.ACTIVE);
+		
+		return ! unreadyChild;
 	}
 }
