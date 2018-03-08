@@ -18,7 +18,7 @@ BBoxDB is a highly available distributed storage manager, designed to handle mul
 
 ## What is the difference to traditional key-value-stores?
 
-NoSQL databases and especially [key-value stores](https://en.wikipedia.org/wiki/Key-value_database) are very popular these days. They have a simple data model and can be easily implemented as a distributed system to handle big data. Techniques like _Hash-_ or _range-partitioning_ are used to spread the data across a cluster of nodes. Each node stores only a small part of the whole dataset. 
+[NoSQL databases](https://en.wikipedia.org/wiki/NoSQL) and especially [key-value stores](https://en.wikipedia.org/wiki/Key-value_database) are very popular these days. They have a simple data model and can be easily implemented as a distributed system to handle big data. Techniques like _Hash-_ or _range-partitioning_ are used to spread the data across a cluster of nodes. Each node stores only a small part of the whole dataset. 
 
 Key-value-stores are using the key to retrieve the data. When the key is known, the data can be accessed easily. When the key for a value is not known, a complete scan of the data must be carried out. Each value has to be loaded and checked if this is the searched value. This is a very expensive operation that should be avoided in any case. 
 
@@ -26,9 +26,9 @@ Using the key to locate the data works well with one-dimensional data, but it be
 
 <img src="docs/images/key_example.jpg" width="400">
 
-_Example with one-dimensional data._ When you store the record of a customer and using the customer id as the key, you can later retrieve the record efficiently. 
+_Example with one-dimensional data:_ When you store the record of a customer and using the customer id as the key, you can later retrieve the record efficiently. 
 
-_Example with two-dimensional data._ When you store the geographical information about a road, which key should you choose for the road? You can use the name of the road (e.g., _road 66_). However, this type of key does not help you later to retrieve the road.
+_Example with two-dimensional data:_ When you store the geographical information about a road, which key should you choose for the road? You can use the name of the road (e.g., _road 66_). However, this type of key does not help you later to retrieve the road.
 
 If you want to retrieve all roads which are located in a certain area in space(hyperrectangle query), which key should you use? It is almost impossible to find a suitable key that allows locating multi-dimensional data efficiently. Therefore, often an expensive full data scan is required to retrieve the data.
 
