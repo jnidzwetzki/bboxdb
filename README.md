@@ -16,6 +16,29 @@ BBoxDB is a highly available distributed storage manager, designed to handle mul
   </a> <a href="https://repo1.maven.org/maven2/org/bboxdb/"><img alt="Maven Central Version" src="https://maven-badges.herokuapp.com/maven-central/org.bboxdb/bboxdb-server/badge.svg" />
   </a> <a href="https://codeclimate.com/github/jnidzwetzki/bboxdb/maintainability"><img src="https://api.codeclimate.com/v1/badges/0b8b98bde4ec65bfb5b7/maintainability" /></a>
 
+## What is the difference to traditional key-value-stores?
+
+NoSQL databases and especially [key-value stores](https://en.wikipedia.org/wiki/Key-value_database) are very popular these days. They have a simple data model and can be easily implemented as a distributed system to handle big data. Techniques like _Hash-_ or _range-partitioning_ are used to spread the data across a cluster of nodes. Each node stores only a small part of the whole dataset. 
+
+Key-value-stores are using the key to retrieve the data. When the key is known, the data can be accessed easily. When the key for a value is not known, a complete scan of the data must be carried out. Each value has to be loaded and checked if this is the searched value. This is a very expensive operation that should be avoided in any case. 
+
+Using the key to locate the data works well with one-dimensional data, but it becomes problematic when multi-dimensional data has to be stored. Its hard to find a proper key for a multi-dimensional value. 
+
+<img src="docs/images/key_example.jpg" width="400">
+
+_Example with one-dimensional data._ When you store the record of a customer and using the customer id as the key, you can later retrieve the record efficiently. 
+
+_Example with two-dimensional data._ When you store the geographical information about a road, which key should you choose for the road? You can use the name of the road (e.g., _road 66_). However, this type of key does not help you later to retrieve the road.
+
+If you want to retrieve all roads which are located in a certain area in space(hyperrectangle query), which key should you use? It is almost impossible to find a suitable key that allows locating multi-dimensional data efficiently. Therefore, often an expensive full data scan is required to retrieve the data.
+
+BBoxDB in contrast extension of the simple key-value data model. Each value is stored together with a key and a bounding box. This is the reason why BBoxDB is called a _key-bounding-box-value store_. The bounding box describes the location of the data in an n-dimensional space. A space partitioner (a [KD-Tree](https://en.wikipedia.org/wiki/K-d_tree), a [Quad-Tree](https://en.wikipedia.org/wiki/Quadtree) or a [Grid](https://en.wikipedia.org/wiki/Grid_file)) is responsible to partition the whole space into partitions (_distribution regions_) and assign these regions to nodes in the cluster. Depending on the used space partitioner, the regions are split and merged dynamically (_scale up_ and _scale down_), according to the amount of stored data. Point data and data which an extent (regions) of any dimension are supported by BBoxDB.
+
+Hyperrectangle queries (range queries) can be efficiently handled by BBoxDB. This type of query is backed by a two-level index structure. Besides, BBoxDB can store tables with the same dimensions co-partitioned, this means that the data of the same regions in space are stored on the same nodes. Equi- and spatial-joins can be processed efficiently locally on co-partitioned data. No data shuffling is needed during query processing.
+
+BBoxDB is implemented as a distributed and highly available system. It supports _available_ and _partiotion tollerance_ of the [CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem). [SSTables](https://research.google.com/archive/bigtable.html) (string sorted tables) are used as data storage. [Apache Zookeeper](https://zookeeper.apache.org/) is used to coordinate the whole system. The system can be accessed, using a [network protocol](http://jnidzwetzki.github.io/bboxdb/bboxdb/dev/network.html). Some special features like continuous queries or a history for tuples are also supported.
+
+
 ## Documentation 
 The documentation of the project is located at [http://jnidzwetzki.github.io/bboxdb/](http://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
 
@@ -23,7 +46,7 @@ The documentation of the project is located at [http://jnidzwetzki.github.io/bbo
 See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/started.html) chapter in the documentation. We also recommend to read the examples located in the [bboxdb-examples/src/main/java](bboxdb-examples/src/main/java/) directory.
 
 ## Screenshots
-BBoxDB ships with a GUI that allows to observe the global-index structure. Below you find two screenshots of the GUI. The figures show how the space is partitioned. If the Bounding boxes of the stored data are using [WGS 84](https://de.wikipedia.org/wiki/World_Geodetic_System_1984) coordinates, a overlay over a map is also supported. 
+BBoxDB ships with a GUI that allows to observe the global index structure. Below you find two screenshots of the GUI. The figures show how the space is partitioned. If the Bounding boxes of the stored data are using [WGS 84](https://de.wikipedia.org/wiki/World_Geodetic_System_1984) coordinates, a overlay over a map is also supported. 
 
 <p><img src="docs/images/bboxdb_gui1.jpg" width="400"> <img src="docs/images/bboxdb_gui2.jpg" width="400"><br>
 (The screenshot contains content from <a href="https://www.openstreetmap.org/">OpenSteetMap</a> - CC-BY-SA 2.0)
