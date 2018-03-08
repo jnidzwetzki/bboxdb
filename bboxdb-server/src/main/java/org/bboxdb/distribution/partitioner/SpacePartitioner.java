@@ -27,6 +27,7 @@ import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 
 public interface SpacePartitioner {
 	
@@ -35,7 +36,14 @@ public interface SpacePartitioner {
 	 * @param spacePartitionerContext
 	 * @throws ZookeeperException
 	 */
-	public void init(final SpacePartitionerContext spacePartitionerContext) throws ZookeeperException;
+	public void init(final SpacePartitionerContext spacePartitionerContext) throws BBoxDBException;
+	
+	/**
+	 * Create the root node
+	 * @param configuration 
+	 * @throws BBoxDBException 
+	 */
+	public void createRootNode(final DistributionGroupConfiguration configuration) throws BBoxDBException;
 
 	/**
 	 * Get the root node

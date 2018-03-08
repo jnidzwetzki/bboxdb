@@ -33,6 +33,7 @@ import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class TestRegionSyncer {
 	private final DistributionGroupZookeeperAdapter distributionGroupAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 	
 	@Before
-	public void before() throws ZookeeperException {
+	public void before() throws ZookeeperException, BBoxDBException {
 		distributionGroupAdapter.deleteDistributionGroup(GROUP.getFullname());
 		distributionGroupAdapter.createDistributionGroup(GROUP.getFullname(), 
 				new DistributionGroupConfiguration(2));

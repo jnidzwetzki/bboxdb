@@ -369,32 +369,43 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param distributionGroup
 	 * @param replicationFactor
 	 * @throws ZookeeperException 
+	 * @throws BBoxDBException 
 	 */
 	public void createDistributionGroup(final String distributionGroup, 
-			final DistributionGroupConfiguration configuration) throws ZookeeperException {
+			final DistributionGroupConfiguration configuration) 
+					throws ZookeeperException, BBoxDBException {
 		
-		final String groupPath = getDistributionGroupPath(distributionGroup);
-		final String rootPath = getDistributionGroupRootElementPath(distributionGroup);
+		final String path = getDistributionGroupPath(distributionGroup);
 		
-		zookeeperClient.createDirectoryStructureRecursive(rootPath);
+		zookeeperClient.createDirectoryStructureRecursive(path);
 		
-		final int nameprefix = getNextTableIdForDistributionGroup(distributionGroup);
-					
-		zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
-				Integer.toString(nameprefix).getBytes());
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_DIMENSIONS, 
+				Integer.toString(configuration.getDimensions()).getBytes());
 		
-		zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
-				"".getBytes());
+		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_REPLICATION, 
+				Short.toString(configuration.getReplicationFactor()).getBytes());
 		
-		setDistributionGroupConfiguration(distributionGroup, configuration);
+		setRegionSizeForDistributionGroup(distributionGroup, configuration.getMaximumRegionSize(), 
+				configuration.getMinimumRegionSize());
 		
-		setBoundingBoxForPath(rootPath, BoundingBox.createFullCoveringDimensionBoundingBox(configuration.getDimensions()));
-
-		zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
-				DistributionRegionState.ACTIVE.getStringValue().getBytes());		
+		// Placement
+		final String placementPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_STRATEGY;
+		zookeeperClient.replacePersistentNode(placementPath, configuration.getPlacementStrategy().getBytes());
+		final String placementConfigPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_CONFIG;
+		zookeeperClient.replacePersistentNode(placementConfigPath, configuration.getPlacementStrategyConfig().getBytes());
 		
-		markNodeMutationAsComplete(rootPath);
-		markNodeMutationAsComplete(groupPath);
+		// Space partitioner
+		final String spacePartitionerPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER;
+		zookeeperClient.replacePersistentNode(spacePartitionerPath, configuration.getSpacePartitioner().getBytes());
+		final String spacePartitionerConfigPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER_CONFIG;
+		zookeeperClient.replacePersistentNode(spacePartitionerConfigPath, configuration.getSpacePartitionerConfig().getBytes());
+			
+		markNodeMutationAsComplete(path);
+		
+		final SpacePartitioner spacePartitioner 
+			= SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroup);
+		
+		spacePartitioner.createRootNode(configuration);
 	}
 	
 	/**
@@ -501,40 +512,6 @@ public class DistributionGroupZookeeperAdapter {
 			final String parentPath = getZookeeperPathForDistributionRegion(region.getParent());
 			markNodeMutationAsComplete(parentPath);
 		}
-	}
-
-
-	/**
-	 * @param distributionGroup
-	 * @param configuration
-	 * @param path
-	 * @throws ZookeeperException
-	 */
-	private void setDistributionGroupConfiguration(final String distributionGroup,
-			final DistributionGroupConfiguration configuration) throws ZookeeperException {
-		
-		final String path = getDistributionGroupPath(distributionGroup);
-		
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_DIMENSIONS, 
-				Integer.toString(configuration.getDimensions()).getBytes());
-		
-		zookeeperClient.createPersistentNode(path + "/" + ZookeeperNodeNames.NAME_REPLICATION, 
-				Short.toString(configuration.getReplicationFactor()).getBytes());
-		
-		setRegionSizeForDistributionGroup(distributionGroup, configuration.getMaximumRegionSize(), 
-				configuration.getMinimumRegionSize());
-		
-		// Placement
-		final String placementPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_STRATEGY;
-		zookeeperClient.replacePersistentNode(placementPath, configuration.getPlacementStrategy().getBytes());
-		final String placementConfigPath = path + "/" + ZookeeperNodeNames.NAME_PLACEMENT_CONFIG;
-		zookeeperClient.replacePersistentNode(placementConfigPath, configuration.getPlacementStrategyConfig().getBytes());
-		
-		// Space partitioner
-		final String spacePartitionerPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER;
-		zookeeperClient.replacePersistentNode(spacePartitionerPath, configuration.getSpacePartitioner().getBytes());
-		final String spacePartitionerConfigPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER_CONFIG;
-		zookeeperClient.replacePersistentNode(spacePartitionerConfigPath, configuration.getSpacePartitionerConfig().getBytes());
 	}
 	
 	/**

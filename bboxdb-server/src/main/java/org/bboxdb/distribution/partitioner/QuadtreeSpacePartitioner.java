@@ -21,7 +21,6 @@ import java.util.Collection;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.misc.BBoxDBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

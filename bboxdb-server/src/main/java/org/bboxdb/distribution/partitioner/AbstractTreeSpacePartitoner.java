@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
@@ -24,8 +25,11 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
+import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +39,11 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 	 * The distribution group adapter
 	 */
 	protected DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
+	
+	/**
+	 * The zookeper client
+	 */
+	protected ZookeeperClient zookeeperClient;
 	
 	/**
 	 * The name of the distribution group
@@ -63,7 +72,8 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 
 	
 	@Override
-	public void init(final SpacePartitionerContext spacePartitionerContext) throws ZookeeperException {
+	public void init(final SpacePartitionerContext spacePartitionerContext) {
+		this.zookeeperClient = spacePartitionerContext.getZookeeperClient();
 		this.distributionGroupZookeeperAdapter = spacePartitionerContext.getDistributionGroupAdapter();
 		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
 		this.spacePartitionerContext = spacePartitionerContext;
@@ -72,25 +82,50 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 		TupleStoreConfigurationCache.getInstance().clear();
 		DistributionGroupConfigurationCache.getInstance().clear();
 		spacePartitionerContext.getDistributionRegionMapper().clear();
-		
-		this.distributionRegionSyncer = new DistributionRegionSyncer(spacePartitionerContext);
-		
-		logger.info("Root element for {} is deleted", distributionGroupName);
-		
-		if(distributionRegionSyncer != null) {
-			distributionRegionSyncer.getDistributionRegionMapper().clear();
-		}
+	}
+	
+	@Override
+	public void createRootNode(final DistributionGroupConfiguration configuration) throws BBoxDBException {
+		try {
+			final String distributionGroup 
+				= spacePartitionerContext.getDistributionGroupName().getFullname();
+			
+			final String rootPath = 
+					distributionGroupZookeeperAdapter.getDistributionGroupRootElementPath(distributionGroup);
+			
+			zookeeperClient.createDirectoryStructureRecursive(rootPath);
+			
+			final int nameprefix = distributionGroupZookeeperAdapter
+					.getNextTableIdForDistributionGroup(distributionGroup);
+						
+			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
+					Integer.toString(nameprefix).getBytes());
+			
+			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
+					"".getBytes());
+					
+			distributionGroupZookeeperAdapter.setBoundingBoxForPath(rootPath, 
+					BoundingBox.createFullCoveringDimensionBoundingBox(configuration.getDimensions()));
 
-		// Rescan tree
-		distributionRegionSyncer.getRootNode();
+			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
+					DistributionRegionState.ACTIVE.getStringValue().getBytes());		
+			
+			distributionGroupZookeeperAdapter.markNodeMutationAsComplete(rootPath);
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
+		}
 	}
 	
 	@Override
 	public DistributionRegion getRootNode() throws BBoxDBException {
 
-		if(distributionRegionSyncer == null) {
-			return null;
+		synchronized (this) {
+			if(distributionRegionSyncer == null) {
+				this.distributionRegionSyncer = new DistributionRegionSyncer(spacePartitionerContext);
+				spacePartitionerContext.getDistributionRegionMapper().clear();
+			}
 		}
+
 		
 		if(! active) {
 			throw new BBoxDBException("Get root node on a non active space partitoner called");

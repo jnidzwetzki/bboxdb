@@ -122,9 +122,10 @@ public class TestZookeeperIntegration {
 	 * Test the creation and the deletion of a distribution group
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 */
 	@Test
-	public void testDistributionGroupCreateDelete() throws ZookeeperException, ZookeeperNotFoundException {
+	public void testDistributionGroupCreateDelete() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 		
 		// Create new group
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
@@ -160,9 +161,10 @@ public class TestZookeeperIntegration {
 	 * Test the replication factor of a distribution group
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 */
 	@Test
-	public void testDistributionGroupReplicationFactor() throws ZookeeperException, ZookeeperNotFoundException {
+	public void testDistributionGroupReplicationFactor() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 		DistributionGroupConfigurationCache.getInstance().clear();
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
@@ -866,9 +868,10 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException 
 	 * @throws InputParseException 
 	 * @throws ZookeeperNotFoundException 
+	 * @throws BBoxDBException 
 	 */
 	@Test
-	public void testDistributionGroupConfiguration() throws ZookeeperException, ZookeeperNotFoundException, InputParseException {
+	public void testDistributionGroupConfiguration() throws ZookeeperException, ZookeeperNotFoundException, InputParseException, BBoxDBException {
 		final DistributionGroupConfiguration configuration = new DistributionGroupConfiguration(45);
 		configuration.setMaximumRegionSize(342);
 		configuration.setMinimumRegionSize(53454);
