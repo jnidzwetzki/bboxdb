@@ -28,6 +28,7 @@ import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.misc.BBoxDBException;
@@ -223,5 +224,17 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
 		}
+	}
+	
+	@Override
+	public void splitComplete(DistributionRegion regionToSplit) throws BBoxDBException {
+		
+		try {
+			final DistributionGroupZookeeperAdapter zookeperAdapter 
+				= ZookeeperClientFactory.getDistributionGroupAdapter();
+			zookeperAdapter.setStateForDistributionRegion(regionToSplit, DistributionRegionState.SPLIT);
+		} catch (Exception e) {
+			throw new BBoxDBException(e);
+		} 
 	}
 }

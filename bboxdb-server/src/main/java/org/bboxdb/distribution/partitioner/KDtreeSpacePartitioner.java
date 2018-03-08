@@ -27,7 +27,6 @@ import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
-import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
@@ -65,19 +64,6 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			final double splitPosition = splitpointStrategy.getSplitPoint(splitDimension, regionBox);
 			
 			splitNode(regionToSplit, splitPosition);
-		} catch (Exception e) {
-			throw new BBoxDBException(e);
-		} 
-	}
-	
-	@Override
-	public void splitComplete(DistributionRegion regionToSplit) throws BBoxDBException {
-		
-		try {
-			// Update zookeeer
-			final DistributionGroupZookeeperAdapter zookeperAdapter 
-				= ZookeeperClientFactory.getDistributionGroupAdapter();
-			zookeperAdapter.setStateForDistributionRegion(regionToSplit, DistributionRegionState.SPLIT);
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		} 
