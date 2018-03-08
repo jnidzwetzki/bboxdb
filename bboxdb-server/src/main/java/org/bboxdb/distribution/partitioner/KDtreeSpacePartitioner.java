@@ -18,7 +18,6 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Predicate;
 
 import org.bboxdb.commons.math.BoundingBox;
@@ -146,45 +145,6 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 		return distributionRegion.isLeafRegion();
 	}
 
-	@Override
-	public void prepareMerge(final DistributionRegion regionToMerge) throws BBoxDBException {
-		
-		try {
-			logger.debug("Merging region: {}", regionToMerge);
-			final String zookeeperPath = distributionGroupZookeeperAdapter
-					.getZookeeperPathForDistributionRegion(regionToMerge);
-			
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, 
-					DistributionRegionState.ACTIVE);
-
-			final List<DistributionRegion> childRegions = regionToMerge.getDirectChildren();
-			
-			for(final DistributionRegion childRegion : childRegions) {
-				final String zookeeperPathChild = distributionGroupZookeeperAdapter
-						.getZookeeperPathForDistributionRegion(childRegion);
-				
-				distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPathChild, 
-					DistributionRegionState.MERGING);
-			}
-			
-		} catch (ZookeeperException e) {
-			throw new BBoxDBException(e);
-		}
-	}
-	
-	@Override
-	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException {
-		try {
-			final List<DistributionRegion> childRegions = regionToMerge.getDirectChildren();
-			
-			for(final DistributionRegion childRegion : childRegions) {
-				logger.info("Merge done deleting: {}", childRegion.getIdentifier());
-				distributionGroupZookeeperAdapter.deleteChild(childRegion);
-			}
-		} catch (ZookeeperException e) {
-			throw new BBoxDBException(e);
-		}
-	}
 
 	/**
 	 * Wait for zookeeper split callback
@@ -242,31 +202,5 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 	@VisibleForTesting
 	public int getSplitDimension(final DistributionRegion distributionRegion) {
 		return distributionRegion.getLevel() % getDimension();
-	}
-
-	@Override
-	public void splitFailed(final DistributionRegion region) throws BBoxDBException {
-		try {
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(region, 
-					DistributionRegionState.ACTIVE);
-		} catch (ZookeeperException e) {
-			throw new BBoxDBException(e);
-		}
-	}
-
-	@Override
-	public void mergeFailed(final DistributionRegion regionToMerge) throws BBoxDBException {
-		try {
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(regionToMerge, 
-					DistributionRegionState.ACTIVE);
-			
-			for(final DistributionRegion childRegion : regionToMerge.getDirectChildren()) {
-				distributionGroupZookeeperAdapter.setStateForDistributionRegion(childRegion, 
-						DistributionRegionState.ACTIVE);
-				
-			}
-		} catch (ZookeeperException e) {
-			throw new BBoxDBException(e);
-		}
 	}
 }

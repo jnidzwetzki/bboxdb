@@ -58,28 +58,4 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 	}
 
 	
-	@Override
-	public void splitFailed(final DistributionRegion regionToSplit) throws BBoxDBException {
-		// TODO Auto-generated method stub
-		
-	}
-	
-
-	@Override
-	public void prepareMerge(final DistributionRegion regionToMerge) throws BBoxDBException {
-		// TODO Auto-generated method stub
-
-	}
-	
-	@Override
-	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException {
-		// TODO Auto-generated method stub
-
-	}
-	
-	@Override
-	public void mergeFailed(final DistributionRegion regionToMerge) throws BBoxDBException {
-		// TODO Auto-generated method stub
-		
-	}
 }
