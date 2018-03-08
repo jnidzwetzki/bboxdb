@@ -16,11 +16,6 @@ BBoxDB is a highly available distributed storage manager, designed to handle mul
   </a> <a href="https://repo1.maven.org/maven2/org/bboxdb/"><img alt="Maven Central Version" src="https://maven-badges.herokuapp.com/maven-central/org.bboxdb/bboxdb-server/badge.svg" />
   </a> <a href="https://codeclimate.com/github/jnidzwetzki/bboxdb/maintainability"><img src="https://api.codeclimate.com/v1/badges/0b8b98bde4ec65bfb5b7/maintainability" /></a>
 
-## What is the difference to traditional key-value-stores?
-Key-value-stores are using the key to retrieve the data. This works well with one-dimensional data but it becomes problematic, when multi-dimensional data has to be stored. Its hard to find a proper key for a multi-dimensional value. For example, when you store the geographical information about a road, which key should you choose for the road? 
-
-BBoxDB in contrast extension of the simple key-value data model. Each value is stored together with a key and a bounding box. The bounding box describes the location of the data in an n-dimensional space. Hyperrectangle queries (range queries) can be efficiently handled by BBoxDB. This type of query is backed by a two-level index structure. In addition, BBoxDB can store tables with the same dimensions co-partitioned, this means that the data of the same regions in space are stored on the same nodes. Equi- and spatial-joins can be processed efficiently locally on co-partitoned data. No data shuffeling is needed during query processing.
-
 ## Documentation 
 The documentation of the project is located at [http://jnidzwetzki.github.io/bboxdb/](http://jnidzwetzki.github.io/bboxdb/). The documentation also contains the [changelog](http://jnidzwetzki.github.io/bboxdb/dev/changelog.html) of the project.
 
@@ -28,6 +23,8 @@ The documentation of the project is located at [http://jnidzwetzki.github.io/bbo
 See the [getting started](http://jnidzwetzki.github.io/bboxdb/doc/started.html) chapter in the documentation. We also recommend to read the examples located in the [bboxdb-examples/src/main/java](bboxdb-examples/src/main/java/) directory.
 
 ## Screenshots
+BBoxDB ships with a GUI that allows to observe the global-index structure. Below you find two screenshots of the GUI. The figures show how the space is partitioned. If the Bounding boxes of the stored data are using [WGS 84](https://de.wikipedia.org/wiki/World_Geodetic_System_1984) coordinates, a overlay over a map is also supported. 
+
 <p><img src="docs/images/bboxdb_gui1.jpg" width="400"> <img src="docs/images/bboxdb_gui2.jpg" width="400"><br>
 (The screenshot contains content from <a href="https://www.openstreetmap.org/">OpenSteetMap</a> - CC-BY-SA 2.0)
 </p>
