@@ -20,7 +20,7 @@ BBoxDB is a highly available distributed storage manager, designed to handle mul
 
 [NoSQL databases](https://en.wikipedia.org/wiki/NoSQL) and especially [key-value stores](https://en.wikipedia.org/wiki/Key-value_database) are very popular these days. They have a simple data model and can be easily implemented as a distributed system to handle big data. Techniques like _Hash-_ or _range-partitioning_ are used to spread the data across a cluster of nodes. Each node stores only a small part of the whole dataset. 
 
-Key-value-stores are using the key to retrieve the data. When the key is known, the data can be accessed easily. When the key for a value is not known, a complete scan of the data must be carried out. Each value has to be loaded and checked if this is the searched value. This is a very expensive operation that should be avoided in any case. 
+Key-value stores are using the key to retrieve the data. When the key is known, the data can be accessed easily. When the key for a value is not known, a complete scan of the data must be carried out. Each value has to be loaded and checked if this is the searched value. This is a very expensive operation that should be avoided in any case. 
 
 Using the key to locate the data works well with one-dimensional data, but it becomes problematic when multi-dimensional data has to be stored. Its hard to find a proper key for a multi-dimensional value. 
 
@@ -36,7 +36,7 @@ BBoxDB in contrast extension of the simple key-value data model. Each value is s
 
 Hyperrectangle queries (range queries) can be efficiently handled by BBoxDB. This type of query is backed by a two-level index structure. Besides, BBoxDB can store tables with the same dimensions co-partitioned, this means that the data of the same regions in space are stored on the same nodes. Equi- and spatial-joins can be processed efficiently locally on co-partitioned data. No data shuffling is needed during query processing.
 
-BBoxDB is implemented as a distributed and highly available system. It supports _available_ and _partiotion tollerance_ of the [CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem). [SSTables](https://research.google.com/archive/bigtable.html) (string sorted tables) are used as data storage. [Apache Zookeeper](https://zookeeper.apache.org/) is used to coordinate the whole system. The system can be accessed, using a [network protocol](http://jnidzwetzki.github.io/bboxdb/bboxdb/dev/network.html). Some special features like continuous queries or a history for tuples are also supported.
+BBoxDB is implemented as a distributed and highly available system. It supports the _available_ and _partiotion tollerance_ aspects of the [CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem). [SSTables](https://research.google.com/archive/bigtable.html) (string sorted tables) are used as data storage. [Apache Zookeeper](https://zookeeper.apache.org/) is used to coordinate the whole system. The system can be accessed, using a [network protocol](http://jnidzwetzki.github.io/bboxdb/bboxdb/dev/network.html). Some special features like continuous queries or a history for tuples are also supported.
 
 
 ## Documentation 
