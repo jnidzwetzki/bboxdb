@@ -43,6 +43,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
+import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -71,7 +72,7 @@ public class TestZookeeperIntegration {
 	private static final String TEST_GROUP = "abc";
 	
 	@BeforeClass
-	public static void before() {
+	public static void beforeClass() {
 		zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 	}
@@ -878,7 +879,7 @@ public class TestZookeeperIntegration {
 		configuration.setPlacementStrategy("abc");
 		configuration.setPlacementStrategyConfig("def");
 		configuration.setReplicationFactor((short) 99);
-		configuration.setSpacePartitioner("fgh");
+		configuration.setSpacePartitioner(Const.DEFAULT_SPACE_PARTITIONER);
 		configuration.setSpacePartitionerConfig("xyz");
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
