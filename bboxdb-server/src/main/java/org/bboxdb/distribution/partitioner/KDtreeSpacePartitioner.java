@@ -23,15 +23,10 @@ import java.util.function.Predicate;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
-import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.partitioner.regionsplit.SamplingBasedSplitStrategy;
 import org.bboxdb.distribution.partitioner.regionsplit.SplitpointStrategy;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.region.DistributionRegionCallback;
-import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
@@ -43,83 +38,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 
-public class KDtreeSpacePartitioner implements SpacePartitioner {
+public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 
-	/**
-	 * The distribution group adapter
-	 */
-	private DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
-	
-	/**
-	 * The name of the distribution group
-	 */
-	private DistributionGroupName distributionGroupName;
-
-	/**
-	 * The distribution region syncer
-	 */
-	private DistributionRegionSyncer distributionRegionSyncer;
-	
-	/**
-	 * The space partitioner context
-	 */
-	private SpacePartitionerContext spacePartitionerContext;
-	
-	/**
-	 * Is the space partitoner active?
-	 */
-	private volatile boolean active;
 	
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(KDtreeSpacePartitioner.class);
-
-	/**
-	 * Reread and handle the dgroup version
-	 * @throws ZookeeperException
-	 */
-	@Override
-	public void init(final SpacePartitionerContext spacePartitionerContext) throws ZookeeperException {
-		this.distributionGroupZookeeperAdapter = spacePartitionerContext.getDistributionGroupAdapter();
-		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
-		this.spacePartitionerContext = spacePartitionerContext;
-		this.active = true;
-		
-		TupleStoreConfigurationCache.getInstance().clear();
-		DistributionGroupConfigurationCache.getInstance().clear();
-		spacePartitionerContext.getDistributionRegionMapper().clear();
-		
-		this.distributionRegionSyncer = new DistributionRegionSyncer(spacePartitionerContext);
-		
-		logger.info("Root element for {} is deleted", distributionGroupName);
-		
-		if(distributionRegionSyncer != null) {
-			distributionRegionSyncer.getDistributionRegionMapper().clear();
-		}
-
-		// Rescan tree
-		distributionRegionSyncer.getRootNode();
-	}
-	
-	/**
-	 * Get the root node
-	 * @return
-	 * @throws BBoxDBException 
-	 */
-	@Override
-	public DistributionRegion getRootNode() throws BBoxDBException {
-	
-		if(distributionRegionSyncer == null) {
-			return null;
-		}
-		
-		if(! active) {
-			throw new BBoxDBException("Get root node on a non active space partitoner called");
-		}
-
-		return distributionRegionSyncer.getRootNode();
-	}
 
 	/**
 	 * Split the node at the given position
@@ -319,44 +244,6 @@ public class KDtreeSpacePartitioner implements SpacePartitioner {
 		return distributionRegion.getLevel() % getDimension();
 	}
 
-	/**
-	 * Register a new callback
-	 * @param callback
-	 * @return
-	 */
-	@Override
-	public boolean registerCallback(final DistributionRegionCallback callback) {
-		return spacePartitionerContext.getCallbacks().add(callback);
-	}
-	
-	/**
-	 * Unregister a callback
-	 * @param callback
-	 * @return 
-	 */
-	@Override
-	public boolean unregisterCallback(final DistributionRegionCallback callback) {
-		return spacePartitionerContext.getCallbacks().remove(callback);
-	}
-	
-	/** 
-	 * Get the region id mapper
-	 */
-	@Override
-	public DistributionRegionIdMapper getDistributionRegionIdMapper() {
-		return spacePartitionerContext.getDistributionRegionMapper();
-	}
-
-
-	@Override
-	public void shutdown() {
-		logger.info("Shutdown space partitioner for instance {}", 
-				spacePartitionerContext.getDistributionGroupName());
-		
-		this.active = false;
-	}
-
-
 	@Override
 	public void splitFailed(final DistributionRegion region) throws BBoxDBException {
 		try {
@@ -366,7 +253,6 @@ public class KDtreeSpacePartitioner implements SpacePartitioner {
 			throw new BBoxDBException(e);
 		}
 	}
-
 
 	@Override
 	public void mergeFailed(final DistributionRegion regionToMerge) throws BBoxDBException {
