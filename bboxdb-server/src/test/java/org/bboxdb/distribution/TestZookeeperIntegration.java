@@ -524,7 +524,7 @@ public class TestZookeeperIntegration {
 		final String path2 = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region2);
 
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path1, systemName1);
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path2, systemName2);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path1, systemName2);
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path2, systemName1);
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path2, systemName2);
 		
