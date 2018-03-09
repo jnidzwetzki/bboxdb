@@ -17,9 +17,12 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.util.List;
+
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
+import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
@@ -151,21 +154,37 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	protected void allocateSystems(final DistributionRegion regionToSplit, final int numberOfChilden)
 			throws ZookeeperException, ZookeeperNotFoundException, ResourceAllocationException {
 
-		// Allocate systems (the data of the left node is stored locally)
+		// The first child is stored on the same systems as the parent
 		SpacePartitionerHelper.copySystemsToRegion(regionToSplit, 
 				regionToSplit.getDirectChildren().get(0), distributionGroupZookeeperAdapter);
 
+		final List<BBoxDBInstance> blacklistSystems = regionToSplit.getSystems();
+
+		// For the remaining node, a new resource allocation is performed
 		for(int i = 1; i < numberOfChilden; i++) {
 			final DistributionRegion region = regionToSplit.getDirectChildren().get(i);
+			makeResourceAllocation(region, blacklistSystems);
+		}
+	}
 
-			try {				
-				SpacePartitionerHelper.allocateSystemsToRegion(region, 
-						regionToSplit.getSystems(), distributionGroupZookeeperAdapter);
-
-			} catch (ResourceAllocationException e) {
-				if(! ignoreResouceAllocationException) {
-					throw e;
-				}
+	/**
+	 * Make a resource allocation
+	 * @param region
+	 * @param blacklistSystems
+	 * @throws ZookeeperException
+	 * @throws ZookeeperNotFoundException
+	 * @throws ResourceAllocationException
+	 */
+	protected void makeResourceAllocation(final DistributionRegion region, 
+			final List<BBoxDBInstance> blacklistSystems) throws ZookeeperException, 
+			ZookeeperNotFoundException, ResourceAllocationException {
+		
+		try {				
+			SpacePartitionerHelper.allocateSystemsToRegion(region, blacklistSystems, 
+					distributionGroupZookeeperAdapter);
+		} catch (ResourceAllocationException e) {
+			if(! ignoreResouceAllocationException) {
+				throw e;
 			}
 		}
 	}
