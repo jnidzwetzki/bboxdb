@@ -82,7 +82,7 @@ public class TestFixedgridSpacePartitioner {
 		Assert.assertEquals(new BoundingBox(0.0, 5.0, 0.0, 6.0), box);
 	}
 	
-	@Test
+	/*@Test
 	public void createGridCells() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 		final FixedgridSpacePartitioner spacePartitioner = getSpacePartitioner();
 		final DistributionRegion rootElement = spacePartitioner.getRootNode();
@@ -93,7 +93,7 @@ public class TestFixedgridSpacePartitioner {
 				DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE);
 		
 		Assert.assertEquals(120, regions.size());
-	}
+	}*/
 	
 	@Test(expected=BBoxDBException.class)
 	public void testInvalidConfiguration1() throws ZookeeperException, BBoxDBException {
