@@ -24,6 +24,7 @@ import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
@@ -33,10 +34,13 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
 
 public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 
@@ -71,6 +75,11 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 	protected volatile boolean active;
 	
 	/**
+	 * Ignore the resource allocation exception (e.g. for testing in a stand alone environment)
+	 */
+	private boolean ignoreResouceAllocationException;
+	
+	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(AbstractTreeSpacePartitoner.class);
@@ -83,6 +92,7 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
 		this.spacePartitionerContext = spacePartitionerContext;
 		this.active = true;
+		this.ignoreResouceAllocationException = false;
 		
 		TupleStoreConfigurationCache.getInstance().clear();
 		DistributionGroupConfigurationCache.getInstance().clear();
@@ -244,7 +254,8 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 	 * Wait for zookeeper split callback
 	 * @param regionToSplit
 	 */
-	protected void waitUntilChildrenAreCreated(final DistributionRegion regionToSplit, final int noOfChildren) {
+	protected void waitUntilChildrenAreCreated(final DistributionRegion regionToSplit, 
+			final int noOfChildren) {
 		
 		final Predicate<DistributionRegion> predicate = (r) -> r.getDirectChildren().size() == noOfChildren;
 		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);		
@@ -254,7 +265,8 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 	 * Wait for zookeeper split callback
 	 * @param regionToSplit
 	 */
-	protected void waitForSplitZookeeperCallback(final DistributionRegion regionToSplit, final int noOfChildren) {
+	protected void waitForSplitCompleteZookeeperCallback(final DistributionRegion regionToSplit, 
+			final int noOfChildren) {
 		
 		final Predicate<DistributionRegion> predicate = (r) -> isSplitForNodeComplete(r, noOfChildren);
 		DistributionRegionSyncerHelper.waitForPredicate(predicate, regionToSplit, distributionRegionSyncer);
@@ -277,4 +289,63 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 		
 		return ! unreadyChild;
 	}
+	
+	/**
+	 * Allocate systems to the children
+	 * @param regionToSplit
+	 * @param numberOfChilden
+	 * @throws ZookeeperException
+	 * @throws ResourceAllocationException
+	 * @throws ZookeeperNotFoundException
+	 */
+	protected void allocateSystems(final DistributionRegion regionToSplit, final int numberOfChilden)
+			throws ZookeeperException, ZookeeperNotFoundException, ResourceAllocationException {
+		
+		// Allocate systems (the data of the left node is stored locally)
+		SpacePartitionerHelper.copySystemsToRegion(regionToSplit, 
+				regionToSplit.getDirectChildren().get(0), distributionGroupZookeeperAdapter);
+		
+		for(int i = 1; i < numberOfChilden; i++) {
+			final DistributionRegion region = regionToSplit.getDirectChildren().get(i);
+
+			try {				
+				SpacePartitionerHelper.allocateSystemsToRegion(region, 
+						regionToSplit.getSystems(), distributionGroupZookeeperAdapter);
+				
+			} catch (ResourceAllocationException e) {
+				if(! ignoreResouceAllocationException) {
+					throw e;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Ignore the resource allocation exception
+	 * @param ignoreResouceAllocationException
+	 */
+	@VisibleForTesting
+	public void setIgnoreResouceAllocationException(final boolean ignoreResouceAllocationException) {
+		this.ignoreResouceAllocationException = ignoreResouceAllocationException;
+	}
+	
+	/**
+	 * Set children to active and wait
+	 * @param numberOfChilden2 
+	 */
+	protected void setToActiveAndWait(final DistributionRegion regionToSplit, final int numberOfChilden) 
+			throws ZookeeperException {
+		
+		// update state
+		for (final DistributionRegion region : regionToSplit.getAllChildren()) {
+			final String childPath 
+				= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
+
+			distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, 
+					DistributionRegionState.ACTIVE);
+		}
+		
+		waitForSplitCompleteZookeeperCallback(regionToSplit, numberOfChilden);
+	}
+
 }

@@ -79,9 +79,8 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 		
 		try {
 			logger.debug("Write split at pos {} into zookeeper", splitPosition);
-			final String parentPath = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
-			
-			// Only one system executes the split, therefore we can determine the child ids
+			final String parentPath 
+				= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(regionToSplit);
 			
 			// Calculate the covering bounding boxes
 			final BoundingBox parentBox = regionToSplit.getConveringBox();
@@ -91,29 +90,16 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			
 			final String fullname = distributionGroupName.getFullname();
 			
-			final String leftPath = distributionGroupZookeeperAdapter.createNewChild(parentPath, 0, 
-					leftBoundingBox, fullname);
-			
-			final String rightPath = distributionGroupZookeeperAdapter.createNewChild(parentPath, 1, 
-					rightBoundingBox, fullname);
+			// Only one system executes the split, therefore we can determine the child ids
+			distributionGroupZookeeperAdapter.createNewChild(parentPath, 0, leftBoundingBox, fullname);
+			distributionGroupZookeeperAdapter.createNewChild(parentPath, 1, rightBoundingBox, fullname);
 			
 			// Update state
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);
 			
 			waitUntilChildrenAreCreated(regionToSplit, 2);
-	
-			// Allocate systems (the data of the left node is stored locally)
-			SpacePartitionerHelper.copySystemsToRegion(regionToSplit, 
-					regionToSplit.getDirectChildren().get(0), distributionGroupZookeeperAdapter);
-			
-			SpacePartitionerHelper.allocateSystemsToRegion(regionToSplit.getDirectChildren().get(1), 
-					regionToSplit.getSystems(), distributionGroupZookeeperAdapter);
-			
-			// update state
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(leftPath, DistributionRegionState.ACTIVE);
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(rightPath, DistributionRegionState.ACTIVE);	
-	
-			waitForSplitZookeeperCallback(regionToSplit, 2);
+			allocateSystems(regionToSplit, 2);
+			setToActiveAndWait(regionToSplit, 2);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		} 
