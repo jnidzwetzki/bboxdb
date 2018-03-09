@@ -15,7 +15,7 @@
  *    limitations under the License. 
  *    
  *******************************************************************************/
-package org.bboxdb.distribution;
+package org.bboxdb.distribution.partition;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
