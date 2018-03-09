@@ -21,16 +21,9 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.DistributionGroupConfigurationCache;
-import org.bboxdb.distribution.DistributionGroupName;
-import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
-import org.bboxdb.distribution.region.DistributionRegionCallback;
-import org.bboxdb.distribution.region.DistributionRegionIdMapper;
-import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
-import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
@@ -40,64 +33,13 @@ import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.VisibleForTesting;
+public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartitioner {
 
-public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
-
-	/**
-	 * The distribution group adapter
-	 */
-	protected DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
-	
-	/**
-	 * The zookeper client
-	 */
-	protected ZookeeperClient zookeeperClient;
-	
-	/**
-	 * The name of the distribution group
-	 */
-	protected DistributionGroupName distributionGroupName;
-
-	/**
-	 * The distribution region syncer
-	 */
-	protected DistributionRegionSyncer distributionRegionSyncer;
-	
-	/**
-	 * The space partitioner context
-	 */
-	protected SpacePartitionerContext spacePartitionerContext;
-	
-	/**
-	 * Is the space partitoner active?
-	 */
-	protected volatile boolean active;
-	
-	/**
-	 * Ignore the resource allocation exception (e.g. for testing in a stand alone environment)
-	 */
-	private boolean ignoreResouceAllocationException;
-	
 	/**
 	 * The logger
 	 */
-	private final static Logger logger = LoggerFactory.getLogger(AbstractTreeSpacePartitoner.class);
+	final static Logger logger = LoggerFactory.getLogger(AbstractTreeSpacePartitoner.class);
 
-	
-	@Override
-	public void init(final SpacePartitionerContext spacePartitionerContext) {
-		this.zookeeperClient = spacePartitionerContext.getZookeeperClient();
-		this.distributionGroupZookeeperAdapter = spacePartitionerContext.getDistributionGroupAdapter();
-		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
-		this.spacePartitionerContext = spacePartitionerContext;
-		this.active = true;
-		this.ignoreResouceAllocationException = false;
-		
-		TupleStoreConfigurationCache.getInstance().clear();
-		DistributionGroupConfigurationCache.getInstance().clear();
-		spacePartitionerContext.getDistributionRegionMapper().clear();
-	}
 	
 	@Override
 	public void createRootNode(final DistributionGroupConfiguration configuration) throws BBoxDBException {
@@ -129,47 +71,6 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
 		}
-	}
-	
-	@Override
-	public DistributionRegion getRootNode() throws BBoxDBException {
-
-		synchronized (this) {
-			if(distributionRegionSyncer == null) {
-				this.distributionRegionSyncer = new DistributionRegionSyncer(spacePartitionerContext);
-				spacePartitionerContext.getDistributionRegionMapper().clear();
-			}
-		}
-
-		
-		if(! active) {
-			throw new BBoxDBException("Get root node on a non active space partitoner called");
-		}
-
-		return distributionRegionSyncer.getRootNode();
-	}
-
-	@Override
-	public boolean registerCallback(final DistributionRegionCallback callback) {
-		return spacePartitionerContext.getCallbacks().add(callback);
-	}
-
-	@Override
-	public boolean unregisterCallback(final DistributionRegionCallback callback) {
-		return spacePartitionerContext.getCallbacks().remove(callback);
-	}
-	
-	@Override
-	public void shutdown() {
-		logger.info("Shutdown space partitioner for instance {}", 
-				spacePartitionerContext.getDistributionGroupName());
-		
-		this.active = false;
-	}
-	
-	@Override
-	public DistributionRegionIdMapper getDistributionRegionIdMapper() {
-		return spacePartitionerContext.getDistributionRegionMapper();
 	}
 	
 	@Override
@@ -318,15 +219,6 @@ public abstract class AbstractTreeSpacePartitoner implements SpacePartitioner {
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Ignore the resource allocation exception
-	 * @param ignoreResouceAllocationException
-	 */
-	@VisibleForTesting
-	public void setIgnoreResouceAllocationException(final boolean ignoreResouceAllocationException) {
-		this.ignoreResouceAllocationException = ignoreResouceAllocationException;
 	}
 	
 	/**
