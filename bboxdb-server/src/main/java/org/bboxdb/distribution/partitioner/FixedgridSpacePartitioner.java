@@ -154,7 +154,8 @@ public class FixedgridSpacePartitioner extends AbstractSpacePartitioner {
 					childNumber, nodeBox, fullname);
 			
 			if(dimension == 0) {	
-				makeResourceAllocation(childPath, distributionGroupName.getFullname(), new ArrayList<BBoxDBInstance>());
+				SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName.getFullname(), 
+						new ArrayList<BBoxDBInstance>(), distributionGroupZookeeperAdapter);
 				distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.ACTIVE);
 			} else {
 				distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.SPLIT);

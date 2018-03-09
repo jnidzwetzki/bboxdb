@@ -157,9 +157,7 @@ public class TestFixedgridSpacePartitioner {
 		final FixedgridSpacePartitioner spacepartitionier = (FixedgridSpacePartitioner) 
 				distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
 						new HashSet<>(), new DistributionRegionIdMapper());
-		
-		spacepartitionier.setIgnoreResouceAllocationException(true);
-		
+				
 		return spacepartitionier;
 	}
 }

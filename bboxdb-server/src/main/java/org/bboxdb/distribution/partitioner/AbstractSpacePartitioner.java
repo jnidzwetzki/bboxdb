@@ -35,8 +35,6 @@ import org.bboxdb.misc.BBoxDBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.VisibleForTesting;
-
 public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 
 	/**
@@ -70,11 +68,6 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	protected volatile boolean active;
 	
 	/**
-	 * Ignore the resource allocation exception (e.g. for testing in a stand alone environment)
-	 */
-	protected boolean ignoreResouceAllocationException;
-
-	/**
 	 * The logger
 	 */
 	final static Logger logger = LoggerFactory.getLogger(AbstractSpacePartitioner.class);
@@ -86,7 +79,6 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 		this.distributionGroupName = spacePartitionerContext.getDistributionGroupName();
 		this.spacePartitionerContext = spacePartitionerContext;
 		this.active = true;
-		this.ignoreResouceAllocationException = false;
 		
 		TupleStoreConfigurationCache.getInstance().clear();
 		DistributionGroupConfigurationCache.getInstance().clear();
@@ -135,15 +127,6 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	}
 
 	/**
-	 * Ignore the resource allocation exception
-	 * @param ignoreResouceAllocationException
-	 */
-	@VisibleForTesting
-	public void setIgnoreResouceAllocationException(final boolean ignoreResouceAllocationException) {
-		this.ignoreResouceAllocationException = ignoreResouceAllocationException;
-	}
-
-	/**
 	 * Allocate systems to the children
 	 * @param regionToSplit
 	 * @param numberOfChilden
@@ -169,31 +152,11 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 			
 			final String fullname = region.getDistributionGroupName().getFullname();
 			
-			makeResourceAllocation(path, fullname, blacklistSystems);
+			SpacePartitionerHelper.allocateSystemsToRegion(path, fullname, 
+					blacklistSystems, distributionGroupZookeeperAdapter);
 		}
 	}
 
-	/**
-	 * Make a resource allocation
-	 * @param region
-	 * @param blacklistSystems
-	 * @throws ZookeeperException
-	 * @throws ZookeeperNotFoundException
-	 * @throws ResourceAllocationException
-	 */
-	protected void makeResourceAllocation(final String regionPath, 
-			final String distributionGroupName,
-			final List<BBoxDBInstance> blacklistSystems) throws ZookeeperException, 
-			ZookeeperNotFoundException, ResourceAllocationException {
-		
-		try {
-			SpacePartitionerHelper.allocateSystemsToRegion(regionPath, distributionGroupName, 
-					blacklistSystems, distributionGroupZookeeperAdapter);
-		} catch (ResourceAllocationException e) {
-			if(! ignoreResouceAllocationException) {
-				throw e;
-			}
-		}
-	}
+
 
 }

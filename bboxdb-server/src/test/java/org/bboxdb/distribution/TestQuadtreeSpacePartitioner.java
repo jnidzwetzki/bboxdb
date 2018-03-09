@@ -57,6 +57,7 @@ public class TestQuadtreeSpacePartitioner {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withSpacePartitioner("org.bboxdb.distribution.partitioner.QuadtreeSpacePartitioner", "")
+				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
@@ -102,9 +103,7 @@ public class TestQuadtreeSpacePartitioner {
 		final QuadtreeSpacePartitioner spacepartitionier = (QuadtreeSpacePartitioner) 
 				distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 
 						new HashSet<>(), new DistributionRegionIdMapper());
-		
-		spacepartitionier.setIgnoreResouceAllocationException(true);
-		
+				
 		return spacepartitionier;
 	}
 	
