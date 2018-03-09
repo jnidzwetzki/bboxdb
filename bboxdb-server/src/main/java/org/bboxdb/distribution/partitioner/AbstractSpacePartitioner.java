@@ -20,11 +20,14 @@ package org.bboxdb.distribution.partitioner;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.region.DistributionRegionSyncer;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
+import org.bboxdb.distribution.zookeeper.ZookeeperException;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,5 +139,35 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	public void setIgnoreResouceAllocationException(final boolean ignoreResouceAllocationException) {
 		this.ignoreResouceAllocationException = ignoreResouceAllocationException;
 	}
+
+	/**
+	 * Allocate systems to the children
+	 * @param regionToSplit
+	 * @param numberOfChilden
+	 * @throws ZookeeperException
+	 * @throws ResourceAllocationException
+	 * @throws ZookeeperNotFoundException
+	 */
+	protected void allocateSystems(final DistributionRegion regionToSplit, final int numberOfChilden)
+			throws ZookeeperException, ZookeeperNotFoundException, ResourceAllocationException {
+				
+				// Allocate systems (the data of the left node is stored locally)
+				SpacePartitionerHelper.copySystemsToRegion(regionToSplit, 
+						regionToSplit.getDirectChildren().get(0), distributionGroupZookeeperAdapter);
+				
+				for(int i = 1; i < numberOfChilden; i++) {
+					final DistributionRegion region = regionToSplit.getDirectChildren().get(i);
+			
+					try {				
+						SpacePartitionerHelper.allocateSystemsToRegion(region, 
+								regionToSplit.getSystems(), distributionGroupZookeeperAdapter);
+						
+					} catch (ResourceAllocationException e) {
+						if(! ignoreResouceAllocationException) {
+							throw e;
+						}
+					}
+				}
+			}
 
 }

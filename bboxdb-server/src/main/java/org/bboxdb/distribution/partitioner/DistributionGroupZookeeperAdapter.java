@@ -122,7 +122,7 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 				.getInstance().getDistributionGroupConfiguration(distributionGroup);
-		
+				
 		final SpacePartitionerContext spacePartitionerContext = new SpacePartitionerContext(
 				config.getSpacePartitionerConfig(), 
 				new DistributionGroupName(distributionGroup), 
@@ -399,7 +399,7 @@ public class DistributionGroupZookeeperAdapter {
 		zookeeperClient.replacePersistentNode(spacePartitionerPath, configuration.getSpacePartitioner().getBytes());
 		final String spacePartitionerConfigPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER_CONFIG;
 		zookeeperClient.replacePersistentNode(spacePartitionerConfigPath, configuration.getSpacePartitionerConfig().getBytes());
-			
+					
 		markNodeMutationAsComplete(path);
 		
 		final SpacePartitioner spacePartitioner 
@@ -876,7 +876,7 @@ public class DistributionGroupZookeeperAdapter {
 
 		final String spacePartitionerConfigPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER_CONFIG;
 		final String spacePartitionerConfig = zookeeperClient.readPathAndReturnString(spacePartitionerConfigPath);
-	
+			
 		final String spacePartitionerPath = path + "/" + ZookeeperNodeNames.NAME_SPACEPARTITIONER;
 		final String spacePartitoner = zookeeperClient.readPathAndReturnString(spacePartitionerPath);
 		

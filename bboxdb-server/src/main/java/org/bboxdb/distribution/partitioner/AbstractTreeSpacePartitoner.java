@@ -21,13 +21,11 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
-import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
@@ -189,36 +187,6 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 			.anyMatch(r -> r.getState() != DistributionRegionState.ACTIVE);
 		
 		return ! unreadyChild;
-	}
-	
-	/**
-	 * Allocate systems to the children
-	 * @param regionToSplit
-	 * @param numberOfChilden
-	 * @throws ZookeeperException
-	 * @throws ResourceAllocationException
-	 * @throws ZookeeperNotFoundException
-	 */
-	protected void allocateSystems(final DistributionRegion regionToSplit, final int numberOfChilden)
-			throws ZookeeperException, ZookeeperNotFoundException, ResourceAllocationException {
-		
-		// Allocate systems (the data of the left node is stored locally)
-		SpacePartitionerHelper.copySystemsToRegion(regionToSplit, 
-				regionToSplit.getDirectChildren().get(0), distributionGroupZookeeperAdapter);
-		
-		for(int i = 1; i < numberOfChilden; i++) {
-			final DistributionRegion region = regionToSplit.getDirectChildren().get(i);
-
-			try {				
-				SpacePartitionerHelper.allocateSystemsToRegion(region, 
-						regionToSplit.getSystems(), distributionGroupZookeeperAdapter);
-				
-			} catch (ResourceAllocationException e) {
-				if(! ignoreResouceAllocationException) {
-					throw e;
-				}
-			}
-		}
 	}
 	
 	/**
