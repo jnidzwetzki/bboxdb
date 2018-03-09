@@ -52,7 +52,7 @@ public class TestFixedgridSpacePartitioner {
 	private static DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter;
 	
 	@BeforeClass
-	public static void beforeClass() {
+	public static void beforeClass() throws ZookeeperException {
 		distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 	}
 	
@@ -64,6 +64,7 @@ public class TestFixedgridSpacePartitioner {
 		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
 				.create(2)
 				.withSpacePartitioner("org.bboxdb.distribution.partitioner.FixedgridSpacePartitioner", config)
+				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
