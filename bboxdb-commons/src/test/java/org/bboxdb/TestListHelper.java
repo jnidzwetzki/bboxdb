@@ -121,5 +121,14 @@ public class TestListHelper {
 		final List<List<String>> result = ListHelper.getCombinations(list1, list2);
 		Assert.assertEquals(8, result.size());
 		Assert.assertEquals(3, result.get(0).size());
+		
+		Assert.assertTrue(result.contains(Arrays.asList("a", "b", "c")));
+		Assert.assertTrue(result.contains(Arrays.asList("a", "b", "3")));
+		Assert.assertTrue(result.contains(Arrays.asList("a", "2", "c")));
+		Assert.assertTrue(result.contains(Arrays.asList("a", "2", "3")));
+		Assert.assertTrue(result.contains(Arrays.asList("1", "b", "c")));
+		Assert.assertTrue(result.contains(Arrays.asList("1", "b", "3")));
+		Assert.assertTrue(result.contains(Arrays.asList("1", "2", "c")));
+		Assert.assertTrue(result.contains(Arrays.asList("1", "2", "3")));
 	}
 }
