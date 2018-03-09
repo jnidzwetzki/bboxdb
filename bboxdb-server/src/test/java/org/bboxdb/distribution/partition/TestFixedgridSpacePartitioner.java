@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partition;
 
-import java.util.Collection;
 import java.util.HashSet;
 
 import org.bboxdb.commons.math.BoundingBox;
@@ -31,7 +30,6 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
-import org.bboxdb.network.routing.RoutingHop;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.junit.Assert;
@@ -82,18 +80,20 @@ public class TestFixedgridSpacePartitioner {
 		Assert.assertEquals(new BoundingBox(0.0, 5.0, 0.0, 6.0), box);
 	}
 	
-	/*@Test
+	@Test
 	public void createGridCells() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
 		final FixedgridSpacePartitioner spacePartitioner = getSpacePartitioner();
 		final DistributionRegion rootElement = spacePartitioner.getRootNode();
 
-		final Collection<RoutingHop> regions = DistributionRegionHelper.getRegionsForPredicateAndBox(
-				rootElement,
-				BoundingBox.FULL_SPACE, 
-				DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE);
-		
-		Assert.assertEquals(120, regions.size());
-	}*/
+		final long regions = rootElement
+				.getThisAndChildRegions()
+				.stream()
+				.map(r -> r.getState())
+				.filter(DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE)
+				.count();
+				
+		Assert.assertEquals(120, regions);
+	}
 	
 	@Test(expected=BBoxDBException.class)
 	public void testInvalidConfiguration1() throws ZookeeperException, BBoxDBException {
