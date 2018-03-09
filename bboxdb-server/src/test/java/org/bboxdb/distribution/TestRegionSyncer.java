@@ -85,7 +85,8 @@ public class TestRegionSyncer {
 		distributionRegionSyncer.registerCallback(callback);
 		
 		final BBoxDBInstance newInstance = new BBoxDBInstance("localhost:8443");
-		distributionGroupAdapter.addSystemToDistributionRegion(root, newInstance);
+		final String path = distributionGroupAdapter.getZookeeperPathForDistributionRegion(root);
+		distributionGroupAdapter.addSystemToDistributionRegion(path, newInstance);
 		
 		latch.await();
 		distributionRegionSyncer.unregisterCallback(callback);

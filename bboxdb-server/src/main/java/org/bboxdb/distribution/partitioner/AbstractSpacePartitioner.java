@@ -163,7 +163,13 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 		// For the remaining node, a new resource allocation is performed
 		for(int i = 1; i < numberOfChilden; i++) {
 			final DistributionRegion region = regionToSplit.getDirectChildren().get(i);
-			makeResourceAllocation(region, blacklistSystems);
+			
+			final String path 
+				= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
+			
+			final String fullname = region.getDistributionGroupName().getFullname();
+			
+			makeResourceAllocation(path, fullname, blacklistSystems);
 		}
 	}
 
@@ -175,13 +181,14 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	 * @throws ZookeeperNotFoundException
 	 * @throws ResourceAllocationException
 	 */
-	protected void makeResourceAllocation(final DistributionRegion region, 
+	protected void makeResourceAllocation(final String regionPath, 
+			final String distributionGroupName,
 			final List<BBoxDBInstance> blacklistSystems) throws ZookeeperException, 
 			ZookeeperNotFoundException, ResourceAllocationException {
 		
-		try {				
-			SpacePartitionerHelper.allocateSystemsToRegion(region, blacklistSystems, 
-					distributionGroupZookeeperAdapter);
+		try {
+			SpacePartitionerHelper.allocateSystemsToRegion(regionPath, distributionGroupName, 
+					blacklistSystems, distributionGroupZookeeperAdapter);
 		} catch (ResourceAllocationException e) {
 			if(! ignoreResouceAllocationException) {
 				throw e;

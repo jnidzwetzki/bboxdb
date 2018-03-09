@@ -66,8 +66,9 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 					.getSpacePartitionerForGroupName(distributionGroup);
 
 			final DistributionRegion region = spacePartitioner.getRootNode();
+			final String path = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
 			
-			SpacePartitionerHelper.allocateSystemsToRegion(region,
+			SpacePartitionerHelper.allocateSystemsToRegion(path, distributionGroup,
 					new HashSet<>(), distributionGroupZookeeperAdapter);
 			
 			distributionGroupZookeeperAdapter.setStateForDistributionRegion(region, DistributionRegionState.ACTIVE);

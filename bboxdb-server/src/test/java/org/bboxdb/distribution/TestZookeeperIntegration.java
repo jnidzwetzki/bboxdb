@@ -358,7 +358,8 @@ public class TestZookeeperIntegration {
 		Assert.assertEquals(0, systems1.size());
 		
 		// Add a system
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName);
+		final String path = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path, systemName);
 		final Collection<BBoxDBInstance> systems2 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region);
 		Assert.assertEquals(1, systems2.size());
 		Assert.assertTrue(systems2.contains(systemName));
@@ -467,9 +468,10 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final DistributionRegion region = getSpacePartitioner().getRootNode();
+		final String path = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
 
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName1);
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName2);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path, systemName1);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path, systemName2);
 
 		final long checkpoint1 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region, systemName1);
 		Assert.assertEquals(-1, checkpoint1);
@@ -516,20 +518,25 @@ public class TestZookeeperIntegration {
 			// Ignore in unit test
 		}
 		
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getDirectChildren().get(0), systemName1);
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getDirectChildren().get(0), systemName2);
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getDirectChildren().get(1), systemName1);
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region.getDirectChildren().get(1), systemName2);
-		
-		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getDirectChildren().get(0), systemName1, 1);
-		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getDirectChildren().get(0), systemName2, 2);
-		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getDirectChildren().get(1), systemName1, 3);
-		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region.getDirectChildren().get(1), systemName2, 4);
+		final DistributionRegion region1 = region.getDirectChildren().get(0);
+		final String path1 = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region1);
+		final DistributionRegion region2 = region.getDirectChildren().get(1);
+		final String path2 = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region2);
 
-		final long checkpoint1 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getDirectChildren().get(0), systemName1);
-		final long checkpoint2 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getDirectChildren().get(0), systemName2);
-		final long checkpoint3 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getDirectChildren().get(1), systemName1);
-		final long checkpoint4 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region.getDirectChildren().get(1), systemName2);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path1, systemName1);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path2, systemName2);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path2, systemName1);
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path2, systemName2);
+		
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region1, systemName1, 1);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region1, systemName2, 2);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region2, systemName1, 3);
+		distributionGroupZookeeperAdapter.setCheckpointForDistributionRegion(region2, systemName2, 4);
+
+		final long checkpoint1 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region1, systemName1);
+		final long checkpoint2 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region1, systemName2);
+		final long checkpoint3 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region2, systemName1);
+		final long checkpoint4 = distributionGroupZookeeperAdapter.getCheckpointForDistributionRegion(region2, systemName2);
 
 		Assert.assertEquals(1, checkpoint1);
 		Assert.assertEquals(2, checkpoint2);
@@ -551,7 +558,9 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
 		
 		final DistributionRegion region = getSpacePartitioner().getRootNode();
-		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(region, systemName);
+		final String path = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
+
+		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path, systemName);
 		
 		// Sleep 2 seconds to wait for the update
 		Thread.sleep(2000);

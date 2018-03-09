@@ -622,22 +622,21 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param system
 	 * @throws ZookeeperException 
 	 */
-	public void addSystemToDistributionRegion(final DistributionRegion region, 
+	public void addSystemToDistributionRegion(final String regionPath, 
 			final BBoxDBInstance system) throws ZookeeperException {
 		
 		if(system == null) {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
 	
-		final String basePath = getZookeeperPathForDistributionRegion(region);
-		final String systemsPath = basePath + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
+		final String systemsPath = regionPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS;
 		final String instancePath = systemsPath + "/" + system.getStringValue();
 
 		logger.debug("Register system under systems node: {}", systemsPath);
 		
 		zookeeperClient.createPersistentNode(instancePath, "".getBytes());
 		
-		markNodeMutationAsComplete(basePath);
+		markNodeMutationAsComplete(regionPath);
 	}
 	
 	/**
@@ -1037,18 +1036,18 @@ public class DistributionGroupZookeeperAdapter {
 	 * @param allocationSystems
 	 * @throws ZookeeperException
 	 */
-	public void allocateSystemsToRegion(final DistributionRegion region, final Set<BBoxDBInstance> allocationSystems)
+	public void allocateSystemsToRegion(final String regionPath, final Set<BBoxDBInstance> allocationSystems)
 			throws ZookeeperException {
 		
 		final List<String> systemNames = allocationSystems.stream()
 				.map(s -> s.getStringValue())
 				.collect(Collectors.toList());
 		
-		logger.info("Allocating region {} to {}", region.getIdentifier(), systemNames);
+		logger.info("Allocating region {} to {}", regionPath, systemNames);
 		
 		// Resource allocation successfully, write data to zookeeper
 		for(final BBoxDBInstance instance : allocationSystems) {
-			addSystemToDistributionRegion(region, instance);
+			addSystemToDistributionRegion(regionPath, instance);
 		}
 	}
 	
