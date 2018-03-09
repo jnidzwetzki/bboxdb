@@ -17,19 +17,13 @@
  *******************************************************************************/
 package org.bboxdb.network.routing;
 
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.function.Predicate;
 
 import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.membership.BBoxDBInstance;
-import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionHelper;
 import org.bboxdb.misc.Const;
@@ -104,7 +98,7 @@ public class RoutingHopHelper {
 	public static Collection<RoutingHop> getRoutingHopsForRead(final DistributionRegion rootRegion, 
 			final BoundingBox boundingBox) {
 		
-		return getHopsForBoundingBoxRecursive(rootRegion, boundingBox, 
+		return DistributionRegionHelper.getRegionsForPredicateAndBox(rootRegion, boundingBox, 
 				DistributionRegionHelper.PREDICATE_REGIONS_FOR_READ);
 	}
 	
@@ -115,47 +109,8 @@ public class RoutingHopHelper {
 	public static Collection<RoutingHop> getRoutingHopsForWrite(final DistributionRegion rootRegion, 
 			final BoundingBox boundingBox) {
 		
-		return getHopsForBoundingBoxRecursive(rootRegion, boundingBox, 
+		return DistributionRegionHelper.getRegionsForPredicateAndBox(rootRegion, boundingBox, 
 				DistributionRegionHelper.PREDICATE_REGIONS_FOR_WRITE);		
-	}
-	
-	/**
-	 * Add the leaf nodes systems that are covered by the bounding box
-	 * @param rootRegion 
-	 * @param boundingBox
-	 * @param systems
-	 * @return 
-	 */
-	private static Collection<RoutingHop> getHopsForBoundingBoxRecursive(
-			final DistributionRegion rootRegion, final BoundingBox boundingBox, 
-			final Predicate<DistributionRegionState> statePredicate) {
-	
-		final Map<InetSocketAddress, RoutingHop> hops = new HashMap<>();
-		
-		final List<DistributionRegion> regions = rootRegion.getThisAndChildRegions();
-		
-		for(final DistributionRegion region : regions) {
-			
-			if(! boundingBox.overlaps(region.getConveringBox())) {
-				continue;
-			}
-			
-			if(! statePredicate.test(region.getState())) {
-				continue;
-			}
-			
-			for(final BBoxDBInstance system : region.getSystems()) {
-				if(! hops.containsKey(system.getInetSocketAddress())) {
-					final RoutingHop routingHop = new RoutingHop(system, new ArrayList<Long>());
-					hops.put(system.getInetSocketAddress(), routingHop);
-				}
-				
-				final RoutingHop routingHop = hops.get(system.getInetSocketAddress());
-				routingHop.addRegion(region.getRegionId());
-			}
-		}
-		
-		return hops.values();
 	}
 
 }

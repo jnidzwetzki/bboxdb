@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.region;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,6 +30,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.Retryer;
+import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.OutdatedDistributionRegion;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
@@ -37,6 +39,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
+import org.bboxdb.network.routing.RoutingHop;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
@@ -70,6 +73,45 @@ public class DistributionRegionHelper {
 	public static Predicate<DistributionRegionState> PREDICATE_REGIONS_FOR_WRITE 
 		= (s) -> (STATES_WRITE.contains(s));
 	
+	/**
+	 * Add the leaf nodes systems that are covered by the bounding box
+	 * @param rootRegion 
+	 * @param boundingBox
+	 * @param systems
+	 * @return 
+	 */
+	public static Collection<RoutingHop> getRegionsForPredicateAndBox(
+			final DistributionRegion rootRegion, final BoundingBox boundingBox, 
+			final Predicate<DistributionRegionState> statePredicate) {
+	
+		final Map<InetSocketAddress, RoutingHop> hops = new HashMap<>();
+		
+		final List<DistributionRegion> regions = rootRegion.getThisAndChildRegions();
+		
+		for(final DistributionRegion region : regions) {
+			
+			if(! boundingBox.overlaps(region.getConveringBox())) {
+				continue;
+			}
+			
+			if(! statePredicate.test(region.getState())) {
+				continue;
+			}
+			
+			for(final BBoxDBInstance system : region.getSystems()) {
+				if(! hops.containsKey(system.getInetSocketAddress())) {
+					final RoutingHop routingHop = new RoutingHop(system, new ArrayList<Long>());
+					hops.put(system.getInetSocketAddress(), routingHop);
+				}
+				
+				final RoutingHop routingHop = hops.get(system.getInetSocketAddress());
+				routingHop.addRegion(region.getRegionId());
+			}
+		}
+		
+		return hops.values();
+	}
+		
 	/**
 	 * Find the region for the given name prefix
 	 * @param searchNameprefix
