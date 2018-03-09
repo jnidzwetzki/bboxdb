@@ -150,24 +150,24 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	 */
 	protected void allocateSystems(final DistributionRegion regionToSplit, final int numberOfChilden)
 			throws ZookeeperException, ZookeeperNotFoundException, ResourceAllocationException {
-				
-				// Allocate systems (the data of the left node is stored locally)
-				SpacePartitionerHelper.copySystemsToRegion(regionToSplit, 
-						regionToSplit.getDirectChildren().get(0), distributionGroupZookeeperAdapter);
-				
-				for(int i = 1; i < numberOfChilden; i++) {
-					final DistributionRegion region = regionToSplit.getDirectChildren().get(i);
-			
-					try {				
-						SpacePartitionerHelper.allocateSystemsToRegion(region, 
-								regionToSplit.getSystems(), distributionGroupZookeeperAdapter);
-						
-					} catch (ResourceAllocationException e) {
-						if(! ignoreResouceAllocationException) {
-							throw e;
-						}
-					}
+
+		// Allocate systems (the data of the left node is stored locally)
+		SpacePartitionerHelper.copySystemsToRegion(regionToSplit, 
+				regionToSplit.getDirectChildren().get(0), distributionGroupZookeeperAdapter);
+
+		for(int i = 1; i < numberOfChilden; i++) {
+			final DistributionRegion region = regionToSplit.getDirectChildren().get(i);
+
+			try {				
+				SpacePartitionerHelper.allocateSystemsToRegion(region, 
+						regionToSplit.getSystems(), distributionGroupZookeeperAdapter);
+
+			} catch (ResourceAllocationException e) {
+				if(! ignoreResouceAllocationException) {
+					throw e;
 				}
 			}
+		}
+	}
 
 }
