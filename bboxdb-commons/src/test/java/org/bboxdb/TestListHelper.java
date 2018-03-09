@@ -57,4 +57,69 @@ public class TestListHelper {
 		Assert.assertEquals(list.size(), counterMap.size());
 		Assert.assertEquals(0, counterMap.values().stream().filter(e -> e == 0).count());
 	}
+	
+	/**
+	 * Get all combinations
+	 */
+	@Test
+	public void testCombinations1() {
+		final List<String> list1 = new ArrayList<>();
+		final List<String> list2 = new ArrayList<>();
+
+		final List<List<String>> result = ListHelper.getCombinations(list1, list2);
+		Assert.assertEquals(1, result.size());
+		Assert.assertEquals(0, result.get(0).size());
+	}
+	
+	/**
+	 * Get all combinations
+	 */
+	@Test(expected=IllegalArgumentException.class)
+	public void testCombinations2() {
+		final List<String> list1 = new ArrayList<>();
+		final List<String> list2 = Arrays.asList("abc");
+
+		ListHelper.getCombinations(list1, list2);
+	}
+	
+	/**
+	 * Get all combinations
+	 */
+	@Test
+	public void testCombinations3() {
+		final List<String> list1 = Arrays.asList("a");
+		final List<String> list2 = Arrays.asList("1");
+
+		final List<List<String>> result = ListHelper.getCombinations(list1, list2);
+		Assert.assertEquals(2, result.size());
+		Assert.assertEquals(1, result.get(0).size());
+		Assert.assertTrue(result.get(0).contains("a"));
+		Assert.assertTrue(result.get(1).contains("1"));
+	}
+	
+	/**
+	 * Get all combinations
+	 */
+	@Test
+	public void testCombinations4() {
+		final List<String> list1 = Arrays.asList("a", "b");
+		final List<String> list2 = Arrays.asList("1", "2");
+
+		final List<List<String>> result = ListHelper.getCombinations(list1, list2);
+		Assert.assertEquals(4, result.size());
+		Assert.assertEquals(2, result.get(0).size());
+	}
+	
+	/**
+	 * Get all combinations
+	 */
+	@Test
+	public void testCombinations5() {
+		final List<String> list1 = Arrays.asList("a", "b", "c");
+		final List<String> list2 = Arrays.asList("1", "2", "3");
+
+		final List<List<String>> result = ListHelper.getCombinations(list1, list2);
+		Assert.assertEquals(8, result.size());
+		Assert.assertEquals(3, result.get(0).size());
+	}
 }

@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.bboxdb.commons;
 
+import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 
@@ -40,5 +42,46 @@ public class ListHelper {
 		
 		final int pos = random.nextInt(list.size());
 		return list.get(pos);
+	}
+	
+	/**
+	 * Get all combinations
+	 * 
+	 * List1: a, b, c
+	 * List2: 1, 2, 3
+	 * 
+	 * Result: abc, ab3, a2c, a23, 1bc, 1b3, 12c, 123
+	 * @param list1
+	 * @param list2
+	 * @return
+	 */
+	public static <T> List<List<T>> getCombinations(final List<T> list1, final List<T> list2) {
+		
+		if(list1.size() != list2.size()) {
+			throw new IllegalArgumentException("Lists do not have the same size");
+		}
+		
+		final List<List<T>> result = new ArrayList<>();
+		
+		final long combinations = (long) Math.pow(2, list1.size());
+				
+		// Count up to all possible combinations and create a bit field
+		for(long combination = 0; combination < combinations; combination++) {
+			final BitSet bitSet = BitSet.valueOf(new long[] {combination});
+		
+			final List<T> oneResult = new ArrayList<>();
+			
+			// Choose input lists according to the bit field
+			for(int pos = 0; pos < list1.size(); pos++) {
+				if(bitSet.get(pos) == false) {
+					oneResult.add(list1.get(pos));
+				} else {
+					oneResult.add(list2.get(pos));
+				}
+			}
+			result.add(oneResult);
+		}
+		
+		return result;
 	}
 }
