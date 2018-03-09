@@ -35,7 +35,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestQuadTreeSpacePartitioner {
+public class TestQuadtreeSpacePartitioner {
 	
 	/**
 	 * The name of the test region
@@ -93,7 +93,7 @@ public class TestQuadTreeSpacePartitioner {
 	}
 	
 	/**
-	 * Get the space partitoner
+	 * Get the space partitioner
 	 * @return
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException

@@ -32,7 +32,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestKDTreeSpacePartitioner {
+public class TestKDtreeSpacePartitioner {
 	
 	/**
 	 * The name of the test region
