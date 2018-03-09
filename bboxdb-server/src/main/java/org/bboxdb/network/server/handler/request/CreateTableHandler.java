@@ -52,7 +52,7 @@ public class CreateTableHandler implements RequestHandler {
 		try {			
 			final CreateTableRequest createPackage = CreateTableRequest.decodeTuple(encodedPackage);
 			final TupleStoreName requestTable = createPackage.getTable();
-			logger.info("Got create call for table: " + requestTable);
+			logger.info("Got create call for table: {}", requestTable);
 			
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final TupleStoreAdapter tupleStoreAdapter = new TupleStoreAdapter(zookeeperClient);

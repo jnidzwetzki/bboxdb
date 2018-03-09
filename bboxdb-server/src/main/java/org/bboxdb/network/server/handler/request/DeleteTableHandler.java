@@ -57,7 +57,7 @@ public class DeleteTableHandler implements RequestHandler {
 		try {			
 			final DeleteTableRequest deletePackage = DeleteTableRequest.decodeTuple(encodedPackage);
 			final TupleStoreName requestTable = deletePackage.getTable();
-			logger.info("Got delete call for table: " + requestTable);
+			logger.info("Got delete call for table: {}", requestTable);
 			
 			// Send the call to the storage manager
 			final String fullname = requestTable.getDistributionGroup();
