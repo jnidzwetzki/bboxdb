@@ -22,6 +22,7 @@ import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -74,6 +75,30 @@ public class TestDistributionGroup {
 		final DistributionRegion level0 = new DistributionRegion(new DistributionGroupName(name), 
 				BoundingBox.createFullCoveringDimensionBoundingBox(dimensions));
 		return level0;
+	}
+	
+	/**
+	 * Test the distribution group config
+	 */
+	@Test
+	public void testDistributionGroupConfiguration() {
+		final DistributionGroupConfiguration config = DistributionGroupConfigurationBuilder
+				.create(45)
+				.withMaximumRegionSize(342)
+				.withMinimumRegionSize(53454)
+				.withPlacementStrategy("place1", "place2")
+				.withSpacePartitioner("abc", "456")
+				.withReplicationFactor((short) 99)
+				.build();
+		
+		Assert.assertEquals(45, config.getDimensions());
+		Assert.assertEquals(342, config.getMaximumRegionSize());
+		Assert.assertEquals(53454, config.getMinimumRegionSize());
+		Assert.assertEquals("place1", config.getPlacementStrategy());
+		Assert.assertEquals("place2", config.getPlacementStrategyConfig());
+		Assert.assertEquals("abc", config.getSpacePartitioner());
+		Assert.assertEquals("456", config.getSpacePartitionerConfig());
+		Assert.assertEquals((short) 99, config.getReplicationFactor());
 	}
 	
 }

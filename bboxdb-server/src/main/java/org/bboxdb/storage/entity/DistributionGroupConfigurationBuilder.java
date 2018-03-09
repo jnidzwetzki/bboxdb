@@ -92,7 +92,7 @@ public class DistributionGroupConfigurationBuilder {
 			final String config) {
 		
 		distributionGroupConfiguration.setSpacePartitioner(spacePartitioner);
-		distributionGroupConfiguration.setPlacementStrategyConfig(config);
+		distributionGroupConfiguration.setSpacePartitionerConfig(config);
 		return this;
 	}
 	
