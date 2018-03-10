@@ -68,19 +68,21 @@ public class RegionMerger {
 	 * @param spacePartitioner
 	 * @param diskStorage
 	 */
-	public void mergeRegion(final List<DistributionRegion> source, 
-			final DistributionRegion destination, final SpacePartitioner spacePartitioner,
+	public void mergeRegion(final List<DistributionRegion> source, final SpacePartitioner spacePartitioner, 
 			final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
 
-		assert(destination != null);
 		assert(! source.isEmpty());
-
-		final String identifier = destination.getIdentifier();
-		logger.info("Performing merge for: {}", identifier);
+		
+		logger.info("Performing merge for: {}", source.get(0).getIdentifier());
 
 		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 
+		DistributionRegion destination = null;
+		
 		try {
+			destination = spacePartitioner.getDestinationForMerge(source);
+			final String identifier = destination.getIdentifier();
+			
 			// Try to set region state to merging. If this fails, another node is already 
 			// merges the region
 			final boolean setToMergeResult = distributionGroupZookeeperAdapter.setToSplitMerging(destination);
@@ -91,12 +93,12 @@ public class RegionMerger {
 				return;
 			}
 
-			spacePartitioner.prepareMerge(source, destination);
+			destination = spacePartitioner.prepareMerge(source, destination);
 			redistributeDataMerge(source, destination);
 			spacePartitioner.mergeComplete(source, destination);
 
 		} catch (Throwable e) {
-			logger.warn("Got uncought exception during merge: " + identifier, e);
+			logger.warn("Got uncought exception during merge: " + source.get(0).getIdentifier(), e);
 			handleMergeFailed(source, destination, spacePartitioner);
 		}
 	}

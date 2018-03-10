@@ -77,6 +77,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	@Override
 	public void splitFailed(final DistributionRegion sourceRegion, 
 			final List<DistributionRegion> destination) throws BBoxDBException {
+		
 		try {
 			distributionGroupZookeeperAdapter.setStateForDistributionRegion(sourceRegion, 
 					DistributionRegionState.ACTIVE);
@@ -94,8 +95,9 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	@Override
 	public void mergeFailed(final List<DistributionRegion> source, 
 			final DistributionRegion destination) throws BBoxDBException {
+		
 		try {
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(destination, 
+			distributionGroupZookeeperAdapter.setStateForDistributionRegion(source.get(0).getParent(), 
 					DistributionRegionState.SPLIT);
 			
 			for(final DistributionRegion childRegion : source) {
@@ -116,35 +118,19 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 				logger.info("Merge done deleting: {}", childRegion.getIdentifier());
 				distributionGroupZookeeperAdapter.deleteChild(childRegion);
 			}
+			
+			distributionGroupZookeeperAdapter.setStateForDistributionRegion(destination, 
+					DistributionRegionState.ACTIVE);
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
 		}
 	}
 	
 	@Override
-	public void prepareMerge(final List<DistributionRegion> source, 
-			final DistributionRegion destination) throws BBoxDBException {
+	public DistributionRegion getDestinationForMerge(List<DistributionRegion> source) 
+			throws BBoxDBException {
 		
-		try {
-			logger.debug("Merging region: {}", destination.getIdentifier());
-			
-			final String zookeeperPath = distributionGroupZookeeperAdapter
-					.getZookeeperPathForDistributionRegion(destination);
-			
-			distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, 
-					DistributionRegionState.ACTIVE);
-			
-			for(final DistributionRegion childRegion : source) {
-				final String zookeeperPathChild = distributionGroupZookeeperAdapter
-						.getZookeeperPathForDistributionRegion(childRegion);
-				
-				distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPathChild, 
-					DistributionRegionState.MERGING);
-			}
-			
-		} catch (ZookeeperException e) {
-			throw new BBoxDBException(e);
-		}
+		return source.get(0).getParent();
 	}
 	
 	@Override

@@ -11,6 +11,7 @@ order: 1
 - New Feature: Implemented non-mergeable distribution regions (closes #81)
 - New Feature: Added the quad tree space partitioner (closes #52)
 - New Feature: Added the fixed grid space partitioner (closes #53)
+- New Feature: Added the dynamic grid space partitioner (closes #72)
 - Improvement: Moved region id mapper into the space partitioner to ensure data integrity
 - Improvement: Integrated codeclimate.com
 - Improvement: Reimplemented KD-Tree space partitioner (closes #74)

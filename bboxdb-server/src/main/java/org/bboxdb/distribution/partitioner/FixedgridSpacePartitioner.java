@@ -140,13 +140,6 @@ public class FixedgridSpacePartitioner extends AbstractGridSpacePartitioner {
 	}
 
 	@Override
-	public void prepareMerge(final List<DistributionRegion> source, final DistributionRegion destination) 
-			throws BBoxDBException {
-		
-		throw new BBoxDBException("Unsupported operation");	
-	}
-
-	@Override
 	public void mergeComplete(final List<DistributionRegion> source, final DistributionRegion destination) 
 			throws BBoxDBException {
 		
@@ -158,5 +151,34 @@ public class FixedgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			throws BBoxDBException {
 		
 		throw new BBoxDBException("Unsupported operation");		
+	}
+
+	@Override
+	public DistributionRegion getDestinationForMerge(final List<DistributionRegion> source) 
+			throws BBoxDBException {
+		
+		throw new BBoxDBException("Unsupported operation");	
+	}
+
+	@Override
+	public DistributionRegion prepareMerge(final List<DistributionRegion> source, 
+			final DistributionRegion destination) throws BBoxDBException {
+		
+		throw new BBoxDBException("Unsupported operation");	
+	}
+	
+	/**
+	 * Check the config parameter
+	 */
+	protected void checkConfigParameter(final DistributionGroupConfiguration configuration, 
+			final String[] splitConfig) throws BBoxDBException {
+		
+		final int dimensions = configuration.getDimensions();
+		final int dimensionSizes = splitConfig.length - 1;
+		
+		if(dimensionSizes != dimensions) {
+			throw new BBoxDBException("Got invalid configuration (invlid amount of grid sizes " 
+					+ dimensions + " / " + dimensionSizes + ")");
+		}
 	}
 }

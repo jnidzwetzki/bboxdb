@@ -28,7 +28,6 @@ import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategy;
 import org.bboxdb.distribution.placement.ResourcePlacementStrategyFactory;
-import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -48,16 +47,15 @@ public class SpacePartitionerHelper {
 	 * @param destination
 	 * @throws ZookeeperException 
 	 */
-	public static void copySystemsToRegion(final DistributionRegion source, 
-			final DistributionRegion destination, final DistributionGroupZookeeperAdapter adapter) 
+	public static void copySystemsToRegion(final List<BBoxDBInstance> systems, 
+			final String destinationPath, final DistributionGroupZookeeperAdapter adapter) 
 					throws ZookeeperException {
 		
-		assert (destination.getSystems().isEmpty()) 
-			: "Systems are not empty: " + destination.getSystems();
+		assert (systems.isEmpty()) 
+			: "Systems are not empty: " + systems;
 		
-		for(final BBoxDBInstance system : source.getSystems()) {
-			final String path = adapter.getZookeeperPathForDistributionRegion(destination);
-			adapter.addSystemToDistributionRegion(path, system);
+		for(final BBoxDBInstance system : systems) {
+			adapter.addSystemToDistributionRegion(destinationPath, system);
 		}
 	}
 	

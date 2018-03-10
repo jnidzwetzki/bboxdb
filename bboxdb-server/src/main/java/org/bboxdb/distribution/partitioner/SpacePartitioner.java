@@ -91,11 +91,17 @@ public interface SpacePartitioner {
 			final List<DistributionRegion> destination) throws BBoxDBException;
 	
 	/**
+	 * Get the destination region for the merge
+	 */
+	public DistributionRegion getDestinationForMerge(final List<DistributionRegion> source) 
+			throws BBoxDBException;
+	
+	/**
 	 * Merge the given region
 	 * @param regionToMerge
 	 * @throws BBoxDBException
 	 */
-	public void prepareMerge(final List<DistributionRegion> source, 
+	public DistributionRegion prepareMerge(final List<DistributionRegion> source, 
 			final DistributionRegion destination) throws BBoxDBException;
 	
 	/**

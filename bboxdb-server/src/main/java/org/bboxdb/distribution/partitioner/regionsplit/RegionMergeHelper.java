@@ -20,6 +20,7 @@ package org.bboxdb.distribution.partitioner.regionsplit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
@@ -49,11 +50,9 @@ public class RegionMergeHelper {
 	 * @throws ZookeeperNotFoundException 
 	 * @throws ZookeeperException 
 	 */
-	private static long getConfiguredRegionMinSizeInMB(final DistributionRegion region) 
+	private static long getConfiguredRegionMinSizeInMB(final String fullname) 
 			throws ZookeeperException, ZookeeperNotFoundException {
-		
-		final String fullname = region.getDistributionGroupName().getFullname();
-		
+				
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 				.getInstance().getDistributionGroupConfiguration(fullname);
 
@@ -66,46 +65,62 @@ public class RegionMergeHelper {
 	 * @return
 	 * @throws BBoxDBException 
 	 */
-	public static boolean isRegionUnderflow(final DistributionRegion destination, 
-			final List<DistributionRegion> source) throws BBoxDBException {
+	public static boolean isRegionUnderflow(final List<DistributionRegion> sources) throws BBoxDBException {
 		
-		assert(destination != null) : "Destination region can not be null";
-		assert(source.isEmpty()) : "Sources can not be empty";
+		assert(sources.isEmpty()) : "Sources can not be empty";
 
-		logger.info("Testing for underflow: {}", destination.getRegionId());
+		final List<String> sourceIds = getRegionIdsFromRegionList(sources);
 		
-		final boolean inactiveChilds = source.stream()
+		logger.info("Testing for underflow: {}", sourceIds);
+		
+		final boolean inactiveChilds = sources.stream()
 				.anyMatch(c -> c.getState() != DistributionRegionState.ACTIVE);
 		
 		if(inactiveChilds) {
-			logger.info("Not all children ready, skip merge test for {} / {}", 
-					destination.getRegionId(), source);
+			logger.info("Not all children ready, skip merge test for {}", sourceIds);
 			return false;
 		}
 		
 		// We are not responsible to this region
 		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
-		if(! destination.getSystems().contains(localInstanceName)) {
-			logger.info("Not testing for underflow for {} on {}", destination.getRegionId(), localInstanceName);
+		
+		final boolean localSystemContained = sources
+				.stream()
+				.anyMatch(r -> r.getSystems().contains(localInstanceName));
+		
+		if(! localSystemContained) {
+			logger.info("Not testing for underflow for {} on {}", sourceIds, localInstanceName);
 			return false;
 		}
 		
-		final double childRegionSize = getTotalRegionSize(source);
+		final double childRegionSize = getTotalRegionSize(sources);
 		if(childRegionSize == StatisticsHelper.INVALID_STATISTICS) {
-			logger.info("Got invalid statistics for {}", source);
+			logger.info("Got invalid statistics for {}", sourceIds);
 			return false;
 		}
 		
 		try {
-			final long minSize = getConfiguredRegionMinSizeInMB(destination);
+			final String fullname = sources.get(0).getDistributionGroupName().getFullname();
+			final long minSize = getConfiguredRegionMinSizeInMB(fullname);
 			
 			logger.info("Testing for region {} underflow curent size is {} / min is {}", 
-				destination.getRegionId(), childRegionSize, minSize);
+				sourceIds, childRegionSize, minSize);
 			
 			return (childRegionSize < minSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		} 
+	}
+
+	/**
+	 * Get a list with the region ids
+	 * @param sources
+	 * @return
+	 */
+	private static List<String> getRegionIdsFromRegionList(final List<DistributionRegion> sources) {
+		return sources.stream()
+				.map(s -> s.getIdentifier())
+				.collect(Collectors.toList());
 	}
 
 	/**

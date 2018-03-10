@@ -138,8 +138,13 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 			throws ZookeeperException, ZookeeperNotFoundException, ResourceAllocationException {
 
 		// The first child is stored on the same systems as the parent
-		SpacePartitionerHelper.copySystemsToRegion(regionToSplit, 
-				regionToSplit.getDirectChildren().get(0), distributionGroupZookeeperAdapter);
+		final DistributionRegion firstRegion = regionToSplit.getDirectChildren().get(0);
+		
+		final String firstRegionPath 
+			= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(firstRegion);
+		
+		SpacePartitionerHelper.copySystemsToRegion(regionToSplit.getSystems(), 
+				firstRegionPath, distributionGroupZookeeperAdapter);
 
 		final List<BBoxDBInstance> blacklistSystems = regionToSplit.getSystems();
 
@@ -157,6 +162,46 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 		}
 	}
 
-
+	@Override
+	public DistributionRegion prepareMerge(final List<DistributionRegion> source, 
+			final DistributionRegion destination) throws BBoxDBException {
+		
+		try {			
+			logger.debug("Merging region: {}", destination.getIdentifier());
+			
+			distributionGroupZookeeperAdapter.setStateForDistributionRegion(destination, 
+					DistributionRegionState.REDISTRIBUTION_ACTIVE);
+			
+			for(final DistributionRegion childRegion : source) {
+				final String zookeeperPathChild = distributionGroupZookeeperAdapter
+						.getZookeeperPathForDistributionRegion(childRegion);
+				
+				distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPathChild, 
+					DistributionRegionState.MERGING);
+			}
+			
+			return destination;
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
+		}
+	}
+	
+	@Override
+	public void splitFailed(final DistributionRegion sourceRegion, final List<DistributionRegion> destination)
+			throws BBoxDBException {
+		
+		try {
+			distributionGroupZookeeperAdapter.setStateForDistributionRegion(sourceRegion, 
+					DistributionRegionState.ACTIVE);
+			
+			for(final DistributionRegion childRegion : destination) {
+				logger.info("Deleting child after failed split: {}", childRegion.getIdentifier());
+				distributionGroupZookeeperAdapter.deleteChild(childRegion);
+			}
+			
+		} catch (ZookeeperException e) {
+			throw new BBoxDBException(e);
+		}
+	}
 
 }

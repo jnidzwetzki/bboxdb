@@ -332,22 +332,22 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	 * @throws BBoxDBException
 	 */
 	private void testForUnderflow(final SpacePartitioner spacePartitioner, 
-			final DistributionRegion destination) throws BBoxDBException {
+			final DistributionRegion oneSourceNode) throws BBoxDBException {
 		
 		// The root region has not a parent, so skip the test
-		if(destination.isRootElement()) {
+		if(oneSourceNode.isRootElement()) {
 			return;
 		}
 		
-		final List<List<DistributionRegion>> candidates = spacePartitioner.getMergeCandidates(destination);
+		final List<List<DistributionRegion>> candidates = spacePartitioner.getMergeCandidates(oneSourceNode);
 	
 		for(List<DistributionRegion> sources : candidates) {
 			
-			if(RegionMergeHelper.isRegionUnderflow(destination, sources)) {
+			if(RegionMergeHelper.isRegionUnderflow(sources)) {
 				final TupleStoreManagerRegistry tupleStoreManagerRegistry = storage.getTupleStoreManagerRegistry();
 				final RegionMerger regionMerger = new RegionMerger(tupleStoreManagerRegistry);
 	
-				regionMerger.mergeRegion(sources, destination, spacePartitioner, tupleStoreManagerRegistry);	
+				regionMerger.mergeRegion(sources, spacePartitioner, tupleStoreManagerRegistry);	
 				return;
 			}	
 		}

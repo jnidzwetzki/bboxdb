@@ -36,13 +36,7 @@ public abstract class AbstractGridSpacePartitioner extends AbstractSpacePartitio
 		
 		final String[] splitConfig = spConfig.split(";");
 		
-		final int dimensions = configuration.getDimensions();
-		final int dimensionSizes = splitConfig.length -1;
-		
-		if(dimensionSizes != dimensions) {
-			throw new BBoxDBException("Got invalid configuration (invlid amount of grid sizes " 
-					+ dimensions + " / " + dimensionSizes + ")");
-		}
+		checkConfigParameter(configuration, splitConfig);
 		
 		try {
 			final String distributionGroup 
@@ -76,7 +70,24 @@ public abstract class AbstractGridSpacePartitioner extends AbstractSpacePartitio
 			throw new BBoxDBException(e);
 		}
 	}
+
+	/**
+	 * Check the config prameter
+	 * @param configuration
+	 * @param splitConfig
+	 * @throws BBoxDBException
+	 */
+	protected abstract void checkConfigParameter(final DistributionGroupConfiguration configuration, 
+			final String[] splitConfig) throws BBoxDBException;
 	
+	/**
+	 * Create the grid cells
+	 * @param splitConfig
+	 * @param configuration
+	 * @param rootPath
+	 * @param rootBox
+	 * @throws Exception
+	 */
 	protected abstract void createCells(final String[] splitConfig, 
 			final DistributionGroupConfiguration configuration, 
 			final String rootPath, final BoundingBox rootBox) throws Exception;
