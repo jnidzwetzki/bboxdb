@@ -54,7 +54,16 @@ public interface SpacePartitioner {
 	public DistributionRegion getRootNode() throws BBoxDBException;
 	
 	/**
-	 * Split the region and return the newly crated child regions
+	 * Is the splitting of the region supported?
+	 * 
+	 * @param distributionRegion
+	 * @return
+	 */
+	public boolean isSplittingSupported(final DistributionRegion distributionRegion);
+	
+	
+	/**
+	 * Split the region and return the newly created child regions
 	 * 
 	 * @param regionToSplit
 	 * @param splitPosition
@@ -102,22 +111,13 @@ public interface SpacePartitioner {
 	 */
 	public void mergeFailed(final DistributionRegion regionToMerge) throws BBoxDBException;
 	
-	
 	/**
 	 * The the candidates for the region merging
 	 * 
 	 * @return
 	 */
 	public List<List<DistributionRegion>> getMergingCandidates(final DistributionRegion distributionRegion);
-	
-	/**
-	 * Is the splitting of the region supported?
-	 * 
-	 * @param distributionRegion
-	 * @return
-	 */
-	public boolean isSplittingSupported(final DistributionRegion distributionRegion);
-	
+
 	/**
 	 * Register a changed callback
 	 * @param callback
