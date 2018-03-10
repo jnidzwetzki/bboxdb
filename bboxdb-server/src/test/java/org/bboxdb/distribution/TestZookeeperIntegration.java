@@ -743,7 +743,7 @@ public class TestZookeeperIntegration {
 		final DistributionGroupConfiguration configuration = new DistributionGroupConfiguration(45);
 		configuration.setMaximumRegionSize(342);
 		configuration.setMinimumRegionSize(53454);
-		configuration.setPlacementStrategy(Const.DEFAULT_PLACEMENT_STRATEGY);
+		configuration.setPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy");
 		configuration.setPlacementStrategyConfig("def");
 		configuration.setReplicationFactor((short) 99);
 		configuration.setSpacePartitioner(Const.DEFAULT_SPACE_PARTITIONER);
