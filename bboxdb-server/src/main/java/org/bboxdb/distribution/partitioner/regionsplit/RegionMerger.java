@@ -79,8 +79,8 @@ public class RegionMerger {
 		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 
 		try {
-			// Try to set region state to full. If this fails, another node is already 
-			// splits the region
+			// Try to set region state to merging. If this fails, another node is already 
+			// merges the region
 			final boolean setToMergeResult = distributionGroupZookeeperAdapter.setToSplitMerging(region);
 
 			if(! setToMergeResult) {
