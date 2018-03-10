@@ -45,6 +45,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.misc.Const;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -630,80 +631,55 @@ public class TestZookeeperIntegration {
 	 * @throws ZookeeperException 
 	 * @throws BBoxDBException 
 	 * @throws ZookeeperNotFoundException 
+	 * @throws ResourceAllocationException 
 	 */
 	@Test
-	public void testPathDecodeAndEncode() throws ZookeeperException, BBoxDBException, ZookeeperNotFoundException {
+	public void testPathDecodeAndEncode() throws ZookeeperException, BBoxDBException, 
+		ZookeeperNotFoundException, ResourceAllocationException {
 
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
+				.create(2)
+				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.build();
+		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
 		
 		final KDtreeSpacePartitioner spacepartitionier = (KDtreeSpacePartitioner) getSpacePartitioner();
 		final DistributionRegion level0 = spacepartitionier.getRootNode();
 		
-		try {
-			spacepartitionier.splitNode(level0, 50);
-		} catch (ResourceAllocationException e) {
-			// Ignore in unit test
-		}
+		spacepartitionier.splitNode(level0, 50);	
 		level0.makeChildsActive();
 
 		// Level 1
 		final DistributionRegion level1l = level0.getDirectChildren().get(0);
-		try {
-			spacepartitionier.splitNode(level1l, 40);
-		} catch (ResourceAllocationException e) {
-			// Ignore in unit test
-		}
+		spacepartitionier.splitNode(level1l, 40);
 		level1l.makeChildsActive();
 		
 		final DistributionRegion level1r = level0.getDirectChildren().get(1);
-		try {
-			spacepartitionier.splitNode(level1r, 50);
-		} catch (ResourceAllocationException e) {
-			// Ignore in unit test
-		}
+		spacepartitionier.splitNode(level1r, 50);	
 		level1r.makeChildsActive();
 
 		// Level 2
 		final DistributionRegion level2ll = level1l.getDirectChildren().get(0);
-		try {
-			spacepartitionier.splitNode(level2ll, 30);
-		} catch (ResourceAllocationException e) {
-			// Ignore in unit test
-		}
+		spacepartitionier.splitNode(level2ll, 30);	
 		level2ll.makeChildsActive();
 
 		final DistributionRegion level2rl = level1r.getDirectChildren().get(0);
-		try {
-			spacepartitionier.splitNode(level2rl, 60);
-		} catch (ResourceAllocationException e) {
-			// Ignore in unit test
-		}
+		spacepartitionier.splitNode(level2rl, 60);
 		level2rl.makeChildsActive();
 
 		final DistributionRegion level2lr = level1l.getDirectChildren().get(1);
-		try {
-			spacepartitionier.splitNode(level2lr, 30);
-		} catch (ResourceAllocationException e) {
-			// Ignore in unit test
-		}
+		spacepartitionier.splitNode(level2lr, 30);
 		level2lr.makeChildsActive();
 
 		final DistributionRegion level2rr = level1r.getDirectChildren().get(1);
-		try {
-			spacepartitionier.splitNode(level2rr, 60);
-		} catch (ResourceAllocationException e) {
-			// Ignore in unit test
-		}
+		spacepartitionier.splitNode(level2rr, 60);
 		level2rr.makeChildsActive();
 		
 		// Level 3
 		final DistributionRegion level3lll = level2ll.getDirectChildren().get(0);
-		try {
-			spacepartitionier.splitNode(level3lll, 35);
-		} catch (ResourceAllocationException e) {
-			// Ignore in unit test
-		}
+		spacepartitionier.splitNode(level3lll, 35);
 		level3lll.makeChildsActive();
 
 		final DistributionGroupZookeeperAdapter zookeeperAdapter = new DistributionGroupZookeeperAdapter(zookeeperClient);
