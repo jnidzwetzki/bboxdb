@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner.regionsplit;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -151,21 +152,30 @@ public class RegionMergeHelper {
 		
 		return true;
 	}
-	
+
 	/**
-	 * Is the merging by the space partitoner allowed?
+	 * Is the merging by the space partitioner allowed
 	 * @param region
 	 * @return
 	 */
 	public static boolean isMergingBySpacePartitionerAllowed(final DistributionRegion region) {
+		return getMergingCandidates(region).isEmpty() == false;
+	}
+	
+	/**
+	 * Is the merging by the space partitioner allowed?
+	 * @param region
+	 * @return
+	 */
+	public static List<List<DistributionRegion>> getMergingCandidates(final DistributionRegion region) {
 		try {
 			final String distributionGroupName = region.getDistributionGroupName().getFullname();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
 
-			return spacePartitioner.isMergingSupported(region);
+			return spacePartitioner.getMergingCandidates(region);
 		} catch (BBoxDBException e) {
 			logger.error("Got exception while testing for merge", e);
-			return false;
+			return new ArrayList<>();
 		}
 	}
 

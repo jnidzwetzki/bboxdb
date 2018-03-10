@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.bboxdb.distribution.partitioner;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -206,6 +207,32 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 		}
 		
 		waitForSplitCompleteZookeeperCallback(regionToSplit, numberOfChilden);
+	}
+	
+
+	@Override
+	public List<List<DistributionRegion>> getMergingCandidates(final DistributionRegion distributionRegion) {
+		
+		final List<List<DistributionRegion>> result = new ArrayList<>();
+		
+		if(distributionRegion.getState() != DistributionRegionState.SPLIT) {
+			return result;
+		}
+		
+		final List<DistributionRegion> allChildren = distributionRegion.getAllChildren();
+		final List<DistributionRegion> directChildren = distributionRegion.getDirectChildren();
+		
+		// Do we have only direct children?
+		if(allChildren.size() == directChildren.size()) {
+			result.add(directChildren);
+		}
+		
+		return result;
+	}
+	
+	@Override
+	public boolean isSplittingSupported(final DistributionRegion distributionRegion) {
+		return distributionRegion.isLeafRegion();
 	}
 
 }

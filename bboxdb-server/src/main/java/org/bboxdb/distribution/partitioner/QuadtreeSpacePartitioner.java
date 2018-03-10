@@ -40,17 +40,6 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(QuadtreeSpacePartitioner.class);
 
-
-	@Override
-	public boolean isMergingSupported(final DistributionRegion distributionRegion) {
-		return ! distributionRegion.isLeafRegion();
-	}
-	
-	@Override
-	public boolean isSplittingSupported(final DistributionRegion distributionRegion) {
-		return distributionRegion.isLeafRegion();
-	}
-
 	@Override
 	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit, 
 			final Collection<BoundingBox> samples) throws BBoxDBException {

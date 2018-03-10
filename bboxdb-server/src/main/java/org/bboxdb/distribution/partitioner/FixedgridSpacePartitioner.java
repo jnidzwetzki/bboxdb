@@ -200,8 +200,10 @@ public class FixedgridSpacePartitioner extends AbstractSpacePartitioner {
 	}
 
 	@Override
-	public boolean isMergingSupported(final DistributionRegion distributionRegion) {
-		return false;
+	public List<List<DistributionRegion>> getMergingCandidates(final DistributionRegion distributionRegion) {
+		
+		// Merging is not supported
+		return new ArrayList<>();
 	}
 
 	@Override

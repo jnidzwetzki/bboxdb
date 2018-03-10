@@ -108,16 +108,6 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 		} 
 	}
 	
-	@Override
-	public boolean isMergingSupported(final DistributionRegion distributionRegion) {
-		return ! distributionRegion.isLeafRegion();
-	}
-	
-	@Override
-	public boolean isSplittingSupported(final DistributionRegion distributionRegion) {
-		return distributionRegion.isLeafRegion();
-	}
-
 	/**
 	 * Get the dimension of the distribution region
 	 * @return

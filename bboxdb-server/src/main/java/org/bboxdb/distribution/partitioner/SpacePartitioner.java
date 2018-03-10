@@ -104,13 +104,15 @@ public interface SpacePartitioner {
 	
 	
 	/**
-	 * Is the merging of regions supported?
+	 * The the candidates for the region merging
+	 * 
 	 * @return
 	 */
-	public boolean isMergingSupported(final DistributionRegion distributionRegion);
+	public List<List<DistributionRegion>> getMergingCandidates(final DistributionRegion distributionRegion);
 	
 	/**
 	 * Is the splitting of the region supported?
+	 * 
 	 * @param distributionRegion
 	 * @return
 	 */
