@@ -198,6 +198,13 @@ public class DistributionRegion {
 				.max()
 				.orElse(0) + 1;
 	}
+	
+	/**
+	 * Get the highest child number
+	 */
+	public long getHighestChildNumber() {
+		return children.keySet().stream().mapToLong(l -> l).max().orElse(0);
+	}
 
 	@Override
 	public String toString() {

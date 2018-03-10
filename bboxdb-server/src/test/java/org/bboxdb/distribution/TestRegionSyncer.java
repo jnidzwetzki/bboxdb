@@ -80,7 +80,8 @@ public class TestRegionSyncer {
 		
 		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
 		final DistributionRegion root = distributionRegionSyncer.getRootNode();
-		
+		Assert.assertEquals(0, root.getHighestChildNumber());
+
 		final DistributionRegionCallback callback = (e, r) -> { if(r.equals(root)) { latch.countDown(); }};
 		distributionRegionSyncer.registerCallback(callback);
 		
