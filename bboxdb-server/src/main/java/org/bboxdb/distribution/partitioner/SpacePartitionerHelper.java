@@ -51,8 +51,7 @@ public class SpacePartitionerHelper {
 			final String destinationPath, final DistributionGroupZookeeperAdapter adapter) 
 					throws ZookeeperException {
 		
-		assert (systems.isEmpty()) 
-			: "Systems are not empty: " + systems;
+		assert (! systems.isEmpty()) : "Systems are empty: " + systems;
 		
 		for(final BBoxDBInstance system : systems) {
 			adapter.addSystemToDistributionRegion(destinationPath, system);
