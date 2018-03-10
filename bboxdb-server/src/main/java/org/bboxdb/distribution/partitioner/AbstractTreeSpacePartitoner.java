@@ -18,15 +18,18 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
 
 import org.bboxdb.commons.math.BoundingBox;
+import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionSyncerHelper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
+import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
@@ -67,9 +70,12 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 
 			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
 					DistributionRegionState.ACTIVE.getStringValue().getBytes());		
+						
+			SpacePartitionerHelper.allocateSystemsToRegion(rootPath, distributionGroup,
+					new HashSet<>(), distributionGroupZookeeperAdapter);
 			
 			distributionGroupZookeeperAdapter.markNodeMutationAsComplete(rootPath);
-		} catch (ZookeeperException e) {
+		} catch (ZookeeperException | ResourceAllocationException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		}
 	}

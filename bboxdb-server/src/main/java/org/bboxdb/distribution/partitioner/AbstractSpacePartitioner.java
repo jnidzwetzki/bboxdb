@@ -142,7 +142,7 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 		
 		final String firstRegionPath 
 			= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(firstRegion);
-		
+				
 		SpacePartitionerHelper.copySystemsToRegion(regionToSplit.getSystems(), 
 				firstRegionPath, distributionGroupZookeeperAdapter);
 

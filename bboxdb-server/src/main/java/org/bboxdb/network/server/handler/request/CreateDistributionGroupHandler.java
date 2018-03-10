@@ -19,13 +19,11 @@ package org.bboxdb.network.server.handler.request;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.HashSet;
 
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
 import org.bboxdb.distribution.partitioner.SpacePartitionerCache;
-import org.bboxdb.distribution.partitioner.SpacePartitionerHelper;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.network.packages.PackageEncodeException;
@@ -66,10 +64,6 @@ public class CreateDistributionGroupHandler implements RequestHandler {
 					.getSpacePartitionerForGroupName(distributionGroup);
 
 			final DistributionRegion region = spacePartitioner.getRootNode();
-			final String path = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
-			
-			SpacePartitionerHelper.allocateSystemsToRegion(path, distributionGroup,
-					new HashSet<>(), distributionGroupZookeeperAdapter);
 			
 			distributionGroupZookeeperAdapter.setStateForDistributionRegion(region, DistributionRegionState.ACTIVE);
 			
