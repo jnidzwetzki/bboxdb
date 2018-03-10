@@ -18,6 +18,7 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
@@ -53,7 +54,8 @@ public interface SpacePartitioner {
 	public DistributionRegion getRootNode() throws BBoxDBException;
 	
 	/**
-	 * Split the node on the given position
+	 * Split the region and return the newly crated child regions
+	 * 
 	 * @param regionToSplit
 	 * @param splitPosition
 	 * @throws ZookeeperException
@@ -61,7 +63,7 @@ public interface SpacePartitioner {
 	 * @throws ZookeeperNotFoundException
 	 * @throws BBoxDBException 
 	 */
-	public void splitRegion(final DistributionRegion regionToSplit, 
+	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit, 
 			final Collection<BoundingBox> samples) throws BBoxDBException;
 	
 	/**

@@ -71,7 +71,6 @@ public class RegionSplitter {
 			final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
 		
 		assert(region != null);
-		assert(region.isLeafRegion()) : "Unable to perform split on: " + region;
 		
 		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
 			= ZookeeperClientFactory.getDistributionGroupAdapter();
@@ -89,34 +88,41 @@ public class RegionSplitter {
 		try {
 			final Collection<BoundingBox> samples 
 				= SamplingHelper.getSamplesForRegion(region, tupleStoreManagerRegistry);
-			spacePartitioner.splitRegion(region, samples);
+			
+			final List<DistributionRegion> destination = spacePartitioner.splitRegion(region, samples);
+	
+			redistributeDataSplit(region, destination);
+			distributionGroupZookeeperAdapter.deleteRegionStatistics(region);
+			spacePartitioner.splitComplete(region);
 		} catch (Throwable e) {
-			logger.info("Finding split point failed, retry in a few minutes" 
-					+ region.getIdentifier(), e);
-			splitFailed = true;
-		}
-		
-		try {
-			if(! splitFailed) {
-				redistributeDataSplit(region);
-				distributionGroupZookeeperAdapter.deleteRegionStatistics(region);
-				spacePartitioner.splitComplete(region);
-			}
-		} catch (Throwable e) {
-			logger.warn("Got uncought exception during split: " + region.getIdentifier(), e);
+			logger.warn("Got exception during split, retry in a few minutes: " + region.getIdentifier(), e);
 			splitFailed = true;
 		}
 
-		if(splitFailed) {
-			try {
-				spacePartitioner.splitFailed(region);
-			} catch (BBoxDBException e) {
-				logger.error("Got exception while resetting area state for to active, "
-						+ "your global index might be inconsistent now "+ region.getIdentifier(), e);
-			}
-		}
+		handleSplitFailed(region, spacePartitioner, splitFailed);
 		
 		logger.info("Performing split for: {} is done", region.getIdentifier());
+	}
+
+	/**
+	 * Handle a failed split 
+	 * @param region
+	 * @param spacePartitioner
+	 * @param splitFailed
+	 */
+	private void handleSplitFailed(final DistributionRegion region, final SpacePartitioner spacePartitioner,
+			final boolean splitFailed) {
+		
+		if(! splitFailed) {
+			return;
+		}
+		
+		try {
+			spacePartitioner.splitFailed(region);
+		} catch (BBoxDBException e) {
+			logger.error("Got exception while resetting area state for to active, "
+					+ "your global index might be inconsistent now "+ region.getIdentifier(), e);
+		}
 	}
 
 	/**
@@ -156,14 +162,15 @@ public class RegionSplitter {
 	 * Redistribute data after region split
 	 * @param region
 	 */
-	protected void redistributeDataSplit(final DistributionRegion region) {
+	private void redistributeDataSplit(final DistributionRegion source, 
+			final List<DistributionRegion> destination) {
+		
+		final long regionId = source.getRegionId();
+		
 		try {
-			logger.info("Redistributing all data for region: " + region.getIdentifier());
-			
-			assertChildIsReady(region);
-			
-			final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
-			final long regionId = region.getRegionId();
+			logger.info("Redistributing all data for region: {}", regionId);
+						
+			final DistributionGroupName distributionGroupName = source.getDistributionGroupName();
 			
 			final List<TupleStoreName> localTables = TupleStoreUtil
 					.getAllTablesForDistributionGroupAndRegionId(registry, distributionGroupName, regionId);
@@ -183,11 +190,11 @@ public class RegionSplitter {
 			for(final TupleStoreName ssTableName : localTables) {
 				// Reject new writes and flush to disk
 				stopFlushToDisk(ssTableName);
-				distributeData(ssTableName, region);	
+				distributeData(ssTableName, source, destination);	
 			}
 
 			// Remove local data
-			logger.info("Deleting local data for {}", region.getIdentifier());
+			logger.info("Deleting local data for {}", regionId);
 			deleteLocalData(localTables);
 		} catch (InterruptedException e) {
 			logger.warn("Thread was interrupted");
@@ -198,7 +205,7 @@ public class RegionSplitter {
 			return;
 		}
 		
-		logger.info("Redistributing data for region: {} DONE", region.getIdentifier());
+		logger.info("Redistributing data for region: {} DONE", regionId);
 	}
 
 	/**
@@ -208,7 +215,7 @@ public class RegionSplitter {
 	 * @throws Exception
 	 * @throws InterruptedException
 	 */
-	protected void deleteLocalData(final List<TupleStoreName> localTables)
+	private void deleteLocalData(final List<TupleStoreName> localTables)
 			throws StorageManagerException, Exception, InterruptedException {
 		
 		for(final TupleStoreName ssTableName : localTables) {
@@ -232,25 +239,14 @@ public class RegionSplitter {
 	}
 
 	/**
-	 * Assert child is ready
-	 * @param region
-	 */
-	protected void assertChildIsReady(final DistributionRegion region) {
-		assert (! region.isLeafRegion()) : "Region has no children";
-		
-		for(final DistributionRegion child : region.getDirectChildren()) {
-			assert (! child.getSystems().isEmpty()) : "Region " +  child.getIdentifier() 
-			+ " state " +  child.getState() + " systems " + child.getSystems();
-		}
-	}
-
-	/**
 	 * Redistribute the given sstable
 	 * @param ssTableName
-	 * @param region 
+	 * @param source 
+	 * @param destination 
 	 * @throws StorageManagerException 
 	 */
-	protected void distributeData(final TupleStoreName ssTableName, final DistributionRegion region) 
+	private void distributeData(final TupleStoreName ssTableName, final DistributionRegion source,
+			final List<DistributionRegion> destination) 
 			throws BBoxDBException, StorageManagerException {
 		
 		logger.info("Redistributing table {}", ssTableName.getFullname());
@@ -258,7 +254,7 @@ public class RegionSplitter {
 		final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);
 		
 		// Spread data
-		final TupleRedistributor tupleRedistributor = getTupleRedistributor(region, ssTableName);
+		final TupleRedistributor tupleRedistributor = getTupleRedistributor(source, destination, ssTableName);
 		spreadTupleStores(ssTableManager, tupleRedistributor);			
 		
 		logger.info("Redistributing table {} is DONE", ssTableName.getFullname());
@@ -269,7 +265,7 @@ public class RegionSplitter {
 	 * @param ssTableName
 	 * @throws StorageManagerException
 	 */
-	protected void stopFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
+	private void stopFlushToDisk(final TupleStoreName ssTableName) throws StorageManagerException {
 		final TupleStoreManager ssTableManager = registry.getTupleStoreManager(ssTableName);
 		
 		// Stop flush thread, so new data remains in memory
@@ -279,16 +275,18 @@ public class RegionSplitter {
 	/**
 	 * Get a new instance of the tuple re-distributor
 	 * @param region
+	 * @param destination 
 	 * @param ssTableName
 	 * @return
 	 * @throws StorageManagerException
 	 */
-	protected TupleRedistributor getTupleRedistributor(final DistributionRegion region, final TupleStoreName ssTableName)
+	private TupleRedistributor getTupleRedistributor(final DistributionRegion region, 
+			final List<DistributionRegion> destination, final TupleStoreName ssTableName)
 			throws StorageManagerException {
 		
 		final TupleRedistributor tupleRedistributor = new TupleRedistributor(registry, ssTableName);
 		
-		for(final DistributionRegion childRegion : region.getDirectChildren()) {
+		for(final DistributionRegion childRegion : destination) {
 			tupleRedistributor.registerRegion(childRegion);
 		}
 		
@@ -304,7 +302,7 @@ public class RegionSplitter {
 	 * @param onlyInMemoryData 
 	 * @throws StorageManagerException 
 	 */
-	protected void spreadTupleStores(final TupleStoreManager ssTableManager, 
+	private void spreadTupleStores(final TupleStoreManager ssTableManager, 
 			final TupleRedistributor tupleRedistributor) throws BBoxDBException {
 		
 		final List<ReadOnlyTupleStore> storages = new ArrayList<>();
@@ -341,7 +339,7 @@ public class RegionSplitter {
 	 * @return
 	 * @throws Exception 
 	 */
-	protected void spreadStorage(final TupleRedistributor tupleRedistributor,
+	private void spreadStorage(final TupleRedistributor tupleRedistributor,
 			final ReadOnlyTupleStore storage) throws Exception {
 		
 		for(final Tuple tuple : storage) {

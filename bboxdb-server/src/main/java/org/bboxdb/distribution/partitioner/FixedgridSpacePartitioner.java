@@ -19,6 +19,7 @@ package org.bboxdb.distribution.partitioner;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.bboxdb.commons.InputParseException;
 import org.bboxdb.commons.MathUtil;
@@ -167,42 +168,44 @@ public class FixedgridSpacePartitioner extends AbstractSpacePartitioner {
 	}
 
 	@Override
-	public void splitRegion(DistributionRegion regionToSplit, Collection<BoundingBox> samples) throws BBoxDBException {
+	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit, 
+			final Collection<BoundingBox> samples) throws BBoxDBException {
+		
 		throw new BBoxDBException("Unsupported operation");
 	}
 
 	@Override
-	public void splitComplete(DistributionRegion regionToSplit) throws BBoxDBException {
+	public void splitComplete(final DistributionRegion regionToSplit) throws BBoxDBException {
 		throw new BBoxDBException("Unsupported operation");	
 	}
 
 	@Override
-	public void splitFailed(DistributionRegion regionToSplit) throws BBoxDBException {
+	public void splitFailed(final DistributionRegion regionToSplit) throws BBoxDBException {
 		throw new BBoxDBException("Unsupported operation");
 	}
 
 	@Override
-	public void prepareMerge(DistributionRegion regionToMerge) throws BBoxDBException {
+	public void prepareMerge(final DistributionRegion regionToMerge) throws BBoxDBException {
 		throw new BBoxDBException("Unsupported operation");
 	}
 
 	@Override
-	public void mergeComplete(DistributionRegion regionToMerge) throws BBoxDBException {
+	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException {
 		throw new BBoxDBException("Unsupported operation");
 	}
 
 	@Override
-	public void mergeFailed(DistributionRegion regionToMerge) throws BBoxDBException {
+	public void mergeFailed(final DistributionRegion regionToMerge) throws BBoxDBException {
 		throw new BBoxDBException("Unsupported operation");	
 	}
 
 	@Override
-	public boolean isMergingSupported(DistributionRegion distributionRegion) {
+	public boolean isMergingSupported(final DistributionRegion distributionRegion) {
 		return false;
 	}
 
 	@Override
-	public boolean isSplittingSupported(DistributionRegion distributionRegion) {
+	public boolean isSplittingSupported(final DistributionRegion distributionRegion) {
 		return false;
 	}
 	

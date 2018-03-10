@@ -52,7 +52,7 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 	}
 
 	@Override
-	public void splitRegion(final DistributionRegion regionToSplit, 
+	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit, 
 			final Collection<BoundingBox> samples) throws BBoxDBException {
 		
 		try {
@@ -80,6 +80,8 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			waitUntilChildrenAreCreated(regionToSplit, numberOfChilden);
 			allocateSystems(regionToSplit, numberOfChilden);
 			setToActiveAndWait(regionToSplit, numberOfChilden);
+			
+			return regionToSplit.getDirectChildren();
 		} catch (ZookeeperException | ZookeeperNotFoundException | ResourceAllocationException e) {
 			throw new BBoxDBException(e);
 		} 

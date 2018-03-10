@@ -18,6 +18,7 @@
 package org.bboxdb.distribution.partitioner;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
@@ -51,7 +52,7 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	@Override
-	public void splitRegion(final DistributionRegion regionToSplit, 
+	public List<DistributionRegion> splitRegion(final DistributionRegion regionToSplit, 
 			final Collection<BoundingBox> samples) throws BBoxDBException {
 		
 		try {
@@ -62,6 +63,8 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			final double splitPosition = splitpointStrategy.getSplitPoint(splitDimension, regionBox);
 			
 			splitNode(regionToSplit, splitPosition);
+			
+			return regionToSplit.getDirectChildren();
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		} 
