@@ -190,7 +190,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 		}
 		
 		final boolean unreadyChild = region.getDirectChildren().stream()
-			.anyMatch(r -> r.getState() != DistributionRegionState.ACTIVE);
+			.anyMatch(r -> r.getState() != DistributionRegionState.REDISTRIBUTION_ACTIVE);
 		
 		return ! unreadyChild;
 	}
