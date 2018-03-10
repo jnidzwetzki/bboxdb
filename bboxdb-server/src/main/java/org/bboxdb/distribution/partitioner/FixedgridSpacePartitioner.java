@@ -28,73 +28,18 @@ import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
-import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FixedgridSpacePartitioner extends AbstractSpacePartitioner {
+public class FixedgridSpacePartitioner extends AbstractGridSpacePartitioner {
 
 	/**
 	 * The logger
 	 */
 	private final static Logger logger = LoggerFactory.getLogger(FixedgridSpacePartitioner.class);
-
-	
-	@Override
-	public void createRootNode(final DistributionGroupConfiguration configuration) throws BBoxDBException {
-				
-		// [[0.0,5.0]:[0.0,5.0]];0.5;0.5
-		final String spConfig = spacePartitionerContext.getSpacePartitionerConfig();
-		
-		if(spConfig.isEmpty()) {
-			throw new BBoxDBException("Got empty space partitioner config");
-		}
-		
-		final String[] splitConfig = spConfig.split(";");
-		
-		final int dimensions = configuration.getDimensions();
-		final int dimensionSizes = splitConfig.length -1;
-		
-		if(dimensionSizes != dimensions) {
-			throw new BBoxDBException("Got invalid configuration (invlid amount of grid sizes " 
-					+ dimensions + " / " + dimensionSizes + ")");
-		}
-		
-		try {
-			final String distributionGroup 
-				= spacePartitionerContext.getDistributionGroupName().getFullname();
-			
-			final String rootPath = 
-					distributionGroupZookeeperAdapter.getDistributionGroupRootElementPath(distributionGroup);
-			
-			zookeeperClient.createDirectoryStructureRecursive(rootPath);
-			
-			final int nameprefix = distributionGroupZookeeperAdapter
-					.getNextTableIdForDistributionGroup(distributionGroup);
-						
-			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_NAMEPREFIX, 
-					Integer.toString(nameprefix).getBytes());
-			
-			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_SYSTEMS, 
-					"".getBytes());
-					
-			final BoundingBox rootBox = new BoundingBox(splitConfig[0]);
-			distributionGroupZookeeperAdapter.setBoundingBoxForPath(rootPath, rootBox);
-			
-			// Create grid
-			createGrid(splitConfig, configuration, rootPath, rootBox);
-
-			zookeeperClient.createPersistentNode(rootPath + "/" + ZookeeperNodeNames.NAME_REGION_STATE, 
-					DistributionRegionState.SPLIT.getStringValue().getBytes());		
-			
-			distributionGroupZookeeperAdapter.markNodeMutationAsComplete(rootPath);
-		} catch (Exception e) {
-			throw new BBoxDBException(e);
-		}
-	}
 
 	/**
 	 * Create the cell grid
@@ -102,14 +47,10 @@ public class FixedgridSpacePartitioner extends AbstractSpacePartitioner {
 	 * @param configuration 
 	 * @param rootPath 
 	 * @param rootBox 
-	 * @throws InputParseException 
-	 * @throws ZookeeperException 
-	 * @throws ResourceAllocationException 
-	 * @throws ZookeeperNotFoundException 
+	 * @throws Exception
 	 */
-	private void createGrid(final String[] splitConfig, final DistributionGroupConfiguration configuration, 
-			final String rootPath, final BoundingBox rootBox) throws ZookeeperException, 
-				InputParseException, ZookeeperNotFoundException, ResourceAllocationException {
+	protected void createCells(final String[] splitConfig, final DistributionGroupConfiguration configuration, 
+			final String rootPath, final BoundingBox rootBox) throws Exception {
 				
 		createGridInDimension(splitConfig, rootPath, rootBox, configuration.getDimensions() - 1);	
 	}
