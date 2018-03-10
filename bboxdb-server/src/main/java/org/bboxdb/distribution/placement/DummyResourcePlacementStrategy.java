@@ -44,7 +44,7 @@ public class DummyResourcePlacementStrategy extends ResourcePlacementStrategy {
 	public BBoxDBInstance getInstancesForNewRessource(final List<BBoxDBInstance> systems, 
 			final Collection<BBoxDBInstance> blacklist) throws ResourceAllocationException {
 		
-		logger.info("Executing new dummy allocation to {}", DUMMY_INSTANCE);
+		logger.info("Executing new dummy allocation to {}", DUMMY_INSTANCE.getStringValue());
 		
 		return DUMMY_INSTANCE;
 	}
