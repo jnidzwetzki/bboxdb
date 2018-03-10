@@ -66,47 +66,41 @@ public class RegionMergeHelper {
 	 * @return
 	 * @throws BBoxDBException 
 	 */
-	public static boolean isRegionUnderflow(final DistributionRegion region) throws BBoxDBException {
+	public static boolean isRegionUnderflow(final DistributionRegion destination, 
+			final List<DistributionRegion> source) throws BBoxDBException {
 		
-		assert(region != null) : "Region can not be null";
+		assert(destination != null) : "Destination region can not be null";
+		assert(source.isEmpty()) : "Sources can not be empty";
+
+		logger.info("Testing for underflow: {}", destination.getRegionId());
 		
-		logger.info("Testing for underflow: {}", region.getRegionId());
-		
-		final List<DistributionRegion> children = region.getAllChildren();
-		final boolean inactiveChilds = children.stream()
+		final boolean inactiveChilds = source.stream()
 				.anyMatch(c -> c.getState() != DistributionRegionState.ACTIVE);
 		
 		if(inactiveChilds) {
 			logger.info("Not all children ready, skip merge test for {} / {}", 
-					region.getRegionId(), region.getAllChildren());
+					destination.getRegionId(), source);
 			return false;
 		}
 		
 		// We are not responsible to this region
 		final BBoxDBInstance localInstanceName = ZookeeperClientFactory.getLocalInstanceName();
-		if(! region.getSystems().contains(localInstanceName)) {
-			logger.info("Not testing for underflow for {} on {}", region.getRegionId(), localInstanceName);
+		if(! destination.getSystems().contains(localInstanceName)) {
+			logger.info("Not testing for underflow for {} on {}", destination.getRegionId(), localInstanceName);
 			return false;
 		}
 		
-		final double childRegionSize = getTotalRegionSize(region);
+		final double childRegionSize = getTotalRegionSize(source);
 		if(childRegionSize == StatisticsHelper.INVALID_STATISTICS) {
-			logger.info("Got invalid statistics for {}", region.getRegionId());
+			logger.info("Got invalid statistics for {}", source);
 			return false;
 		}
 		
 		try {
-			final long minSize = getConfiguredRegionMinSizeInMB(region);
+			final long minSize = getConfiguredRegionMinSizeInMB(destination);
 			
 			logger.info("Testing for region {} underflow curent size is {} / min is {}", 
-				region.getRegionId(), childRegionSize, minSize);
-			
-			/*final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter  = ZookeeperClientFactory.getDistributionGroupAdapter();
-			for(final DistributionRegion childRegion : region.getDirectChildren()) {
-				final double average = StatisticsHelper.getAverageStatistics(childRegion.getIdentifier());
-				final Map<BBoxDBInstance, Map<String, Long>> real = distributionGroupZookeeperAdapter.getRegionStatistics(childRegion);
-				logger.info("Region {} / Statistics {} {}", region.getIdentifier(), average, real);
-			}*/
+				destination.getRegionId(), childRegionSize, minSize);
 			
 			return (childRegionSize < minSize);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
@@ -119,13 +113,13 @@ public class RegionMergeHelper {
 	 * @param region
 	 * @return
 	 */
-	public static double getTotalRegionSize(final DistributionRegion region) {
+	public static double getTotalRegionSize(final List<DistributionRegion> sources) {
 		
 		// Update statistics
-		region.getDirectChildren().forEach(r -> StatisticsHelper.updateAverageStatistics(r));
+		sources.forEach(r -> StatisticsHelper.updateAverageStatistics(r));
 		
 		// Get statistics
-		return region.getDirectChildren()
+		return sources
 				.stream()
 				.filter(Objects::nonNull)
 				.filter(r -> StatisticsHelper.isEnoughHistoryDataAvailable(r.getIdentifier()))
@@ -172,7 +166,7 @@ public class RegionMergeHelper {
 			final String distributionGroupName = region.getDistributionGroupName().getFullname();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
 
-			return spacePartitioner.getMergingCandidates(region);
+			return spacePartitioner.getMergeCandidates(region);
 		} catch (BBoxDBException e) {
 			logger.error("Got exception while testing for merge", e);
 			return new ArrayList<>();

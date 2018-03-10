@@ -59,8 +59,7 @@ public interface SpacePartitioner {
 	 * @param distributionRegion
 	 * @return
 	 */
-	public boolean isSplittingSupported(final DistributionRegion distributionRegion);
-	
+	public boolean isSplitable(final DistributionRegion distributionRegion);
 	
 	/**
 	 * Split the region and return the newly created child regions
@@ -80,28 +79,32 @@ public interface SpacePartitioner {
 	 * @param regionToSplit
 	 * @throws BBoxDBException
 	 */
-	public void splitComplete(final DistributionRegion regionToSplit) throws BBoxDBException;
+	public void splitComplete(final DistributionRegion sourceRegion, 
+			final List<DistributionRegion> destination) throws BBoxDBException;
 	
 	/**
 	 * A split is failed
 	 * @param regionToSplit
 	 * @throws BBoxDBException
 	 */
-	public void splitFailed(final DistributionRegion regionToSplit) throws BBoxDBException;
+	public void splitFailed(final DistributionRegion sourceRegion, 
+			final List<DistributionRegion> destination) throws BBoxDBException;
 	
 	/**
 	 * Merge the given region
 	 * @param regionToMerge
 	 * @throws BBoxDBException
 	 */
-	public void prepareMerge(final DistributionRegion regionToMerge) throws BBoxDBException;
+	public void prepareMerge(final List<DistributionRegion> source, 
+			final DistributionRegion destination) throws BBoxDBException;
 	
 	/**
 	 * Merging of the region is done 
 	 * @param regionToMerge
 	 * @throws BBoxDBException
 	 */
-	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException;
+	public void mergeComplete(final List<DistributionRegion> source, 
+			final DistributionRegion destination) throws BBoxDBException;
 	
 
 	/**
@@ -109,14 +112,15 @@ public interface SpacePartitioner {
 	 * @param regionToMerge
 	 * @throws BBoxDBException
 	 */
-	public void mergeFailed(final DistributionRegion regionToMerge) throws BBoxDBException;
+	public void mergeFailed(final List<DistributionRegion> source, 
+			final DistributionRegion destination) throws BBoxDBException;
 	
 	/**
 	 * The the candidates for the region merging
 	 * 
 	 * @return
 	 */
-	public List<List<DistributionRegion>> getMergingCandidates(final DistributionRegion distributionRegion);
+	public List<List<DistributionRegion>> getMergeCandidates(final DistributionRegion distributionRegion);
 
 	/**
 	 * Register a changed callback

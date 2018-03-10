@@ -107,7 +107,7 @@ public class RegionSplitHelper {
 			final String distributionGroupName = region.getDistributionGroupName().getFullname();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
 
-			return spacePartitioner.isSplittingSupported(region);
+			return spacePartitioner.isSplitable(region);
 		} catch (BBoxDBException e) {
 			logger.error("Got exception while testing for merge", e);
 			return false;

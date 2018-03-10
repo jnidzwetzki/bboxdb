@@ -229,13 +229,15 @@ public class TestZookeeperIntegration {
 		
 		// Delete childs
 		System.out.println("---> Calling prepare merge");
-		spacePartitioner.prepareMerge(spacePartitioner.getRootNode());
+		spacePartitioner.prepareMerge(spacePartitioner.getRootNode().getDirectChildren(), 
+				spacePartitioner.getRootNode());
 		
 		// Sleep some seconds to wait for the update
 		Thread.sleep(5000);
 		
 		System.out.println("---> Calling merge complete");
-		spacePartitioner.mergeComplete(spacePartitioner.getRootNode());
+		spacePartitioner.mergeComplete(spacePartitioner.getRootNode().getDirectChildren(), 
+				spacePartitioner.getRootNode());
 		final DistributionRegion newDistributionGroup2 = spacePartitioner.getRootNode();
 		final DistributionRegionState stateForDistributionRegion4 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(newDistributionGroup2);
 		Assert.assertEquals(DistributionRegionState.ACTIVE, stateForDistributionRegion4);
@@ -425,7 +427,7 @@ public class TestZookeeperIntegration {
 		KDtreeSpacePartitioner spaceparitioner = (KDtreeSpacePartitioner) getSpacePartitioner();
 		final DistributionRegion region = spaceparitioner.getRootNode();
 
-		final double totalSize1 = RegionMergeHelper.getTotalRegionSize(region);
+		final double totalSize1 = RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
 		Assert.assertEquals(StatisticsHelper.INVALID_STATISTICS, totalSize1, DELTA);
 		
 		try {
@@ -440,15 +442,15 @@ public class TestZookeeperIntegration {
 		distributionGroupZookeeperAdapter.updateRegionStatistics(region.getDirectChildren().get(1), system1, 33, 999);
 
 		StatisticsHelper.clearHistory();
-		final double totalSizeAfterClear = RegionMergeHelper.getTotalRegionSize(region);
+		final double totalSizeAfterClear = RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
 		Assert.assertEquals(0, totalSizeAfterClear, DELTA);
 
 		// Update complete history
 		for(int i = 0; i < StatisticsHelper.HISTORY_LENGTH; i++) {
-			RegionMergeHelper.getTotalRegionSize(region);
+			RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
 		}
 		
-		final double totalSize2 = RegionMergeHelper.getTotalRegionSize(region);
+		final double totalSize2 = RegionMergeHelper.getTotalRegionSize(region.getDirectChildren());
 		Assert.assertEquals(45, totalSize2, DELTA);
 	}
 	

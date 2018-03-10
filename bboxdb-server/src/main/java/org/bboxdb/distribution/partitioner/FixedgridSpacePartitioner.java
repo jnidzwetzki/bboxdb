@@ -175,40 +175,47 @@ public class FixedgridSpacePartitioner extends AbstractSpacePartitioner {
 	}
 
 	@Override
-	public void splitComplete(final DistributionRegion regionToSplit) throws BBoxDBException {
-		throw new BBoxDBException("Unsupported operation");	
-	}
-
-	@Override
-	public void splitFailed(final DistributionRegion regionToSplit) throws BBoxDBException {
-		throw new BBoxDBException("Unsupported operation");
-	}
-
-	@Override
-	public void prepareMerge(final DistributionRegion regionToMerge) throws BBoxDBException {
-		throw new BBoxDBException("Unsupported operation");
-	}
-
-	@Override
-	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException {
-		throw new BBoxDBException("Unsupported operation");
-	}
-
-	@Override
-	public void mergeFailed(final DistributionRegion regionToMerge) throws BBoxDBException {
-		throw new BBoxDBException("Unsupported operation");	
-	}
-
-	@Override
-	public List<List<DistributionRegion>> getMergingCandidates(final DistributionRegion distributionRegion) {
+	public List<List<DistributionRegion>> getMergeCandidates(final DistributionRegion distributionRegion) {
 		
 		// Merging is not supported
 		return new ArrayList<>();
 	}
 
 	@Override
-	public boolean isSplittingSupported(final DistributionRegion distributionRegion) {
+	public boolean isSplitable(final DistributionRegion distributionRegion) {
 		return false;
 	}
-	
+
+	@Override
+	public void splitComplete(final DistributionRegion sourceRegion, final List<DistributionRegion> destination)
+			throws BBoxDBException {
+		throw new BBoxDBException("Unsupported operation");			
+	}
+
+	@Override
+	public void splitFailed(final DistributionRegion sourceRegion, final List<DistributionRegion> destination)
+			throws BBoxDBException {
+		throw new BBoxDBException("Unsupported operation");			
+	}
+
+	@Override
+	public void prepareMerge(final List<DistributionRegion> source, final DistributionRegion destination) 
+			throws BBoxDBException {
+		
+		throw new BBoxDBException("Unsupported operation");	
+	}
+
+	@Override
+	public void mergeComplete(final List<DistributionRegion> source, final DistributionRegion destination) 
+			throws BBoxDBException {
+		
+		throw new BBoxDBException("Unsupported operation");			
+	}
+
+	@Override
+	public void mergeFailed(final List<DistributionRegion> source, final DistributionRegion destination) 
+			throws BBoxDBException {
+		
+		throw new BBoxDBException("Unsupported operation");		
+	}
 }

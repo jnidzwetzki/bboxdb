@@ -68,46 +68,51 @@ public class RegionMerger {
 	 * @param spacePartitioner
 	 * @param diskStorage
 	 */
-	public void mergeRegion(final DistributionRegion region, final SpacePartitioner spacePartitioner,
+	public void mergeRegion(final List<DistributionRegion> source, 
+			final DistributionRegion destination, final SpacePartitioner spacePartitioner,
 			final TupleStoreManagerRegistry tupleStoreManagerRegistry) {
 
-		assert(region != null);
-		assert(! region.isLeafRegion()) : "Unable to perform merge on: " + region + " is leaf";
+		assert(destination != null);
+		assert(! source.isEmpty());
 
-		logger.info("Performing merge for: {}", region.getIdentifier());
+		final String identifier = destination.getIdentifier();
+		logger.info("Performing merge for: {}", identifier);
 
 		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 
 		try {
 			// Try to set region state to merging. If this fails, another node is already 
 			// merges the region
-			final boolean setToMergeResult = distributionGroupZookeeperAdapter.setToSplitMerging(region);
+			final boolean setToMergeResult = distributionGroupZookeeperAdapter.setToSplitMerging(destination);
 
 			if(! setToMergeResult) {
-				logger.info("Unable to set state to split merge for region: {}, stopping merge", region.getIdentifier());
-				logger.info("Old state was {}", distributionGroupZookeeperAdapter.getStateForDistributionRegion(region));
+				logger.info("Unable to set state to split merge for region: {}, stopping merge", identifier);
+				logger.info("Old state was {}", distributionGroupZookeeperAdapter.getStateForDistributionRegion(destination));
 				return;
 			}
 
-			spacePartitioner.prepareMerge(region);
-			redistributeDataMerge(region);
-			spacePartitioner.mergeComplete(region);
+			spacePartitioner.prepareMerge(source, destination);
+			redistributeDataMerge(source, destination);
+			spacePartitioner.mergeComplete(source, destination);
 
 		} catch (Throwable e) {
-			logger.warn("Got uncought exception during merge: " + region.getIdentifier(), e);
-			handleMergeFailed(region, spacePartitioner);
+			logger.warn("Got uncought exception during merge: " + identifier, e);
+			handleMergeFailed(source, destination, spacePartitioner);
 		}
 	}
 
 	/**
 	 * Handle failed merge
+	 * @param source 
 	 * @param region
 	 * @param spacePartitioner
 	 * @throws BBoxDBException
 	 */
-	private void handleMergeFailed(final DistributionRegion region, final SpacePartitioner spacePartitioner) {
+	private void handleMergeFailed(List<DistributionRegion> source, final DistributionRegion region, 
+			final SpacePartitioner spacePartitioner) {
+		
 		try {
-			spacePartitioner.mergeFailed(region);
+			spacePartitioner.mergeFailed(source, region);
 		} catch (BBoxDBException e) {
 			logger.error("Unable to handle merge failed on: " + region.getIdentifier(), e);
 		}
@@ -115,19 +120,19 @@ public class RegionMerger {
 
 	/**
 	 * Redistribute the data in region merge
-	 * @param region
+	 * @param source 
+	 * @param destination
 	 * @throws Exception
 	 */
-	private void redistributeDataMerge(final DistributionRegion region) throws Exception {
+	private void redistributeDataMerge(final List<DistributionRegion> source, 
+			final DistributionRegion destination) throws Exception {
 
-		logger.info("Redistributing all data for region (merge): " + region.getIdentifier());
+		logger.info("Redistributing all data for region (merge): " + destination.getIdentifier());
 
-		final List<DistributionRegion> childRegions = region.getDirectChildren();
-
-		final DistributionGroupName distributionGroupName = region.getDistributionGroupName();
+		final DistributionGroupName distributionGroupName = destination.getDistributionGroupName();
 
 		final List<TupleStoreName> localTables = TupleStoreUtil.getAllTablesForDistributionGroupAndRegionId
-				(registry, distributionGroupName, region.getRegionId());
+				(registry, distributionGroupName, destination.getRegionId());
 
 		// Add the local mapping, new data is written to the region
 		final String fullname = distributionGroupName.getFullname();
@@ -138,7 +143,7 @@ public class RegionMerger {
 		
 		// We have set the region to active, wait until we see this status change 
 		// from Zookeeper and the space partitioner add this region as active
-		mapper.waitUntilMappingAppears(region.getRegionId());
+		mapper.waitUntilMappingAppears(destination.getRegionId());
 
 		// Redistribute data
 		for(final TupleStoreName tupleStoreName : localTables) {
@@ -148,10 +153,10 @@ public class RegionMerger {
 			final TupleRedistributor tupleRedistributor 
 				= new TupleRedistributor(registry, tupleStoreName);
 
-			tupleRedistributor.registerRegion(region);
+			tupleRedistributor.registerRegion(destination);
 
-			for(final DistributionRegion childRegion : childRegions) {
-				mergeDataFromChildRegion(region, tupleStoreName, tupleRedistributor, childRegion);					
+			for(final DistributionRegion childRegion : source) {
+				mergeDataFromChildRegion(destination, tupleStoreName, tupleRedistributor, childRegion);					
 			}
 
 			logger.info("Final statistics for merge ({}): {}", 

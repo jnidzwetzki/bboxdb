@@ -84,22 +84,24 @@ public class RegionSplitter {
 		}
 		
 		boolean splitFailed = false;
+		final List<DistributionRegion> destination = new ArrayList<>();
 		
 		try {
 			final Collection<BoundingBox> samples 
 				= SamplingHelper.getSamplesForRegion(region, tupleStoreManagerRegistry);
 			
-			final List<DistributionRegion> destination = spacePartitioner.splitRegion(region, samples);
+			final List<DistributionRegion> splitRegions = spacePartitioner.splitRegion(region, samples);
+			destination.addAll(splitRegions);
 	
 			redistributeDataSplit(region, destination);
 			distributionGroupZookeeperAdapter.deleteRegionStatistics(region);
-			spacePartitioner.splitComplete(region);
+			spacePartitioner.splitComplete(region, destination);
 		} catch (Throwable e) {
 			logger.warn("Got exception during split, retry in a few minutes: " + region.getIdentifier(), e);
 			splitFailed = true;
 		}
 
-		handleSplitFailed(region, spacePartitioner, splitFailed);
+		handleSplitFailed(region, spacePartitioner, splitFailed, destination);
 		
 		logger.info("Performing split for: {} is done", region.getIdentifier());
 	}
@@ -109,16 +111,17 @@ public class RegionSplitter {
 	 * @param region
 	 * @param spacePartitioner
 	 * @param splitFailed
+	 * @param destination 
 	 */
 	private void handleSplitFailed(final DistributionRegion region, final SpacePartitioner spacePartitioner,
-			final boolean splitFailed) {
+			final boolean splitFailed, final List<DistributionRegion> destination) {
 		
 		if(! splitFailed) {
 			return;
 		}
 		
 		try {
-			spacePartitioner.splitFailed(region);
+			spacePartitioner.splitFailed(region, destination);
 		} catch (BBoxDBException e) {
 			logger.error("Got exception while resetting area state for to active, "
 					+ "your global index might be inconsistent now "+ region.getIdentifier(), e);

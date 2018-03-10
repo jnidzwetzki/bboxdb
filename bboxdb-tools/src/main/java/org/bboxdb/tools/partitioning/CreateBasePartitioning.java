@@ -105,8 +105,10 @@ public class CreateBasePartitioning implements Runnable {
 				final DistributionRegion regionToSplit = ListHelper.getElementRandom(activeRegions);
 				
 				logger.info("Splitting region {}", regionToSplit.getRegionId());
-				spacePartitioner.splitRegion(regionToSplit, samples);
-				spacePartitioner.splitComplete(regionToSplit);
+				final List<DistributionRegion> destination 
+					= spacePartitioner.splitRegion(regionToSplit, samples);
+				
+				spacePartitioner.splitComplete(regionToSplit, destination);
 			}
 			
 			// Prevent merging of nodes

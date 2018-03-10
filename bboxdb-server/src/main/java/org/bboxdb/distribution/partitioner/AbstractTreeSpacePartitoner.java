@@ -73,22 +73,30 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	}
 	
 	@Override
-	public void splitFailed(final DistributionRegion region) throws BBoxDBException {
+	public void splitFailed(final DistributionRegion sourceRegion, 
+			final List<DistributionRegion> destination) throws BBoxDBException {
 		try {
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(region, 
+			distributionGroupZookeeperAdapter.setStateForDistributionRegion(sourceRegion, 
 					DistributionRegionState.ACTIVE);
+			
+			for(final DistributionRegion childRegion : destination) {
+				logger.info("Deleting child after failed split: {}", childRegion.getIdentifier());
+				distributionGroupZookeeperAdapter.deleteChild(childRegion);
+			}
+			
 		} catch (ZookeeperException e) {
 			throw new BBoxDBException(e);
 		}
 	}
 
 	@Override
-	public void mergeFailed(final DistributionRegion regionToMerge) throws BBoxDBException {
+	public void mergeFailed(final List<DistributionRegion> source, 
+			final DistributionRegion destination) throws BBoxDBException {
 		try {
-			distributionGroupZookeeperAdapter.setStateForDistributionRegion(regionToMerge, 
-					DistributionRegionState.ACTIVE);
+			distributionGroupZookeeperAdapter.setStateForDistributionRegion(destination, 
+					DistributionRegionState.SPLIT);
 			
-			for(final DistributionRegion childRegion : regionToMerge.getDirectChildren()) {
+			for(final DistributionRegion childRegion : source) {
 				distributionGroupZookeeperAdapter.setStateForDistributionRegion(childRegion, 
 						DistributionRegionState.ACTIVE);
 				
@@ -99,11 +107,10 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	}
 	
 	@Override
-	public void mergeComplete(final DistributionRegion regionToMerge) throws BBoxDBException {
-		try {
-			final List<DistributionRegion> childRegions = regionToMerge.getDirectChildren();
-			
-			for(final DistributionRegion childRegion : childRegions) {
+	public void mergeComplete(final List<DistributionRegion> source, 
+			final DistributionRegion destination) throws BBoxDBException {
+		try {			
+			for(final DistributionRegion childRegion : source) {
 				logger.info("Merge done deleting: {}", childRegion.getIdentifier());
 				distributionGroupZookeeperAdapter.deleteChild(childRegion);
 			}
@@ -113,19 +120,19 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	}
 	
 	@Override
-	public void prepareMerge(final DistributionRegion regionToMerge) throws BBoxDBException {
+	public void prepareMerge(final List<DistributionRegion> source, 
+			final DistributionRegion destination) throws BBoxDBException {
 		
 		try {
-			logger.debug("Merging region: {}", regionToMerge);
+			logger.debug("Merging region: {}", destination.getIdentifier());
+			
 			final String zookeeperPath = distributionGroupZookeeperAdapter
-					.getZookeeperPathForDistributionRegion(regionToMerge);
+					.getZookeeperPathForDistributionRegion(destination);
 			
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(zookeeperPath, 
 					DistributionRegionState.ACTIVE);
-
-			final List<DistributionRegion> childRegions = regionToMerge.getDirectChildren();
 			
-			for(final DistributionRegion childRegion : childRegions) {
+			for(final DistributionRegion childRegion : source) {
 				final String zookeeperPathChild = distributionGroupZookeeperAdapter
 						.getZookeeperPathForDistributionRegion(childRegion);
 				
@@ -139,15 +146,16 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	}
 	
 	@Override
-	public void splitComplete(DistributionRegion regionToSplit) throws BBoxDBException {
+	public void splitComplete(final DistributionRegion sourceRegion, 
+			final List<DistributionRegion> destination) throws BBoxDBException {
 		
 		try {
 			final DistributionGroupZookeeperAdapter zookeperAdapter 
 				= ZookeeperClientFactory.getDistributionGroupAdapter();
-			zookeperAdapter.setStateForDistributionRegion(regionToSplit, DistributionRegionState.SPLIT);
+			zookeperAdapter.setStateForDistributionRegion(sourceRegion, DistributionRegionState.SPLIT);
 			
 			// Children are ready
-			for(final DistributionRegion childRegion : regionToSplit.getDirectChildren()) {
+			for(final DistributionRegion childRegion : destination) {
 				zookeperAdapter.setStateForDistributionRegion(childRegion, DistributionRegionState.ACTIVE);
 			}
 		} catch (Exception e) {
@@ -216,7 +224,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	
 
 	@Override
-	public List<List<DistributionRegion>> getMergingCandidates(final DistributionRegion distributionRegion) {
+	public List<List<DistributionRegion>> getMergeCandidates(final DistributionRegion distributionRegion) {
 		
 		final List<List<DistributionRegion>> result = new ArrayList<>();
 		
@@ -236,7 +244,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	}
 	
 	@Override
-	public boolean isSplittingSupported(final DistributionRegion distributionRegion) {
+	public boolean isSplitable(final DistributionRegion distributionRegion) {
 		return distributionRegion.isLeafRegion();
 	}
 
