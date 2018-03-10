@@ -25,6 +25,7 @@ import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -49,8 +50,14 @@ public class TestSpacePartitionerCache {
 
 	@Test
 	public void testRootNodeRefresh() throws Exception {
+		
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
+				.create(2)
+				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.build();
+		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
 		
 		final KDtreeSpacePartitioner oldSpacepartitionier = (KDtreeSpacePartitioner) 
 				SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP);
@@ -63,7 +70,7 @@ public class TestSpacePartitionerCache {
 		Assert.assertEquals(1, mapper.getAllRegionIds().size());
 		
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
 		
 		final KDtreeSpacePartitioner newSpacepartitionier1 = (KDtreeSpacePartitioner) 
 				SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(TEST_GROUP);
@@ -73,7 +80,7 @@ public class TestSpacePartitionerCache {
 		Assert.assertEquals(0, mapper.getAllRegionIds().size());
 
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(2)); 
+		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
 		Thread.sleep(1000);
 		
 		final KDtreeSpacePartitioner newSpacepartitionier2 = (KDtreeSpacePartitioner) 

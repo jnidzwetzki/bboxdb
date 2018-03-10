@@ -28,6 +28,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,10 +53,16 @@ public class TestKDtreeSpacePartitioner {
 
 	@Test
 	public void testDimensionsOfRootNode() throws ZookeeperException, InterruptedException, ZookeeperNotFoundException, BBoxDBException {
-		
+	
 		for(int i = 1; i < 2 ; i++) {
+			
+			final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
+					.create(i)
+					.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+					.build();
+			
 			distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-			distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(i)); 
+			distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, configuration); 
 			
 			final KDtreeSpacePartitioner spacepartitionier = (KDtreeSpacePartitioner) 
 					distributionGroupZookeeperAdapter.getSpaceparitioner(TEST_GROUP, 

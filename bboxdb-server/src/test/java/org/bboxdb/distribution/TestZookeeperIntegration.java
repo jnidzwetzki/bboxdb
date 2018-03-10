@@ -323,18 +323,18 @@ public class TestZookeeperIntegration {
 		
 		final DistributionRegion region = getSpacePartitioner().getRootNode();
 		final Collection<BBoxDBInstance> systems1 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region);
-		Assert.assertEquals(0, systems1.size());
+		Assert.assertEquals(1, systems1.size());
 		
 		// Add a system
 		final String path = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path, systemName);
 		final Collection<BBoxDBInstance> systems2 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region);
-		Assert.assertEquals(1, systems2.size());
+		Assert.assertEquals(2, systems2.size());
 		Assert.assertTrue(systems2.contains(systemName));
 		
 		distributionGroupZookeeperAdapter.deleteSystemFromDistributionRegion(region, systemName);
 		final Collection<BBoxDBInstance> systems3 = distributionGroupZookeeperAdapter.getSystemsForDistributionRegion(region);
-		Assert.assertEquals(0, systems3.size());
+		Assert.assertEquals(1, systems3.size());
 	}
 	
 	/**
@@ -500,13 +500,14 @@ public class TestZookeeperIntegration {
 		
 		final DistributionRegion region = getSpacePartitioner().getRootNode();
 		final String path = distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
+		Assert.assertEquals(1, region.getSystems().size());
 
 		distributionGroupZookeeperAdapter.addSystemToDistributionRegion(path, systemName);
 		
 		// Sleep 2 seconds to wait for the update
 		Thread.sleep(2000);
 
-		Assert.assertEquals(1, region.getSystems().size());
+		Assert.assertEquals(2, region.getSystems().size());
 		Assert.assertTrue(region.getSystems().contains(systemName));
 	}
 
@@ -742,7 +743,7 @@ public class TestZookeeperIntegration {
 		final DistributionGroupConfiguration configuration = new DistributionGroupConfiguration(45);
 		configuration.setMaximumRegionSize(342);
 		configuration.setMinimumRegionSize(53454);
-		configuration.setPlacementStrategy("abc");
+		configuration.setPlacementStrategy(Const.DEFAULT_PLACEMENT_STRATEGY);
 		configuration.setPlacementStrategyConfig("def");
 		configuration.setReplicationFactor((short) 99);
 		configuration.setSpacePartitioner(Const.DEFAULT_SPACE_PARTITIONER);

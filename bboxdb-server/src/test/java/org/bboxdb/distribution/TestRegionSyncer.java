@@ -35,6 +35,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,9 +55,15 @@ public class TestRegionSyncer {
 	
 	@Before
 	public void before() throws ZookeeperException, BBoxDBException {
+		
+		final DistributionGroupConfiguration configuration = DistributionGroupConfigurationBuilder
+				.create(2)
+				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
+				.build();
+		
 		distributionGroupAdapter.deleteDistributionGroup(GROUP.getFullname());
 		distributionGroupAdapter.createDistributionGroup(GROUP.getFullname(), 
-				new DistributionGroupConfiguration(2));
+				configuration);
 	}
 	
 	@Test
