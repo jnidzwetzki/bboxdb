@@ -184,29 +184,30 @@ public class TestZookeeperIntegration {
 	 * Test the split of a distribution region
 	 * @throws Exception
 	 */
-	@Test
+	@Test(timeout=60000)
 	public void testDistributionRegionSplitAndMerge() throws Exception {
 		
 		// Split and update
 		System.out.println("---> Get space partitioner");
-		final KDtreeSpacePartitioner spacePartitioner = (KDtreeSpacePartitioner) 
-				getSpacePartitioner();
+		final KDtreeSpacePartitioner spacePartitioner = (KDtreeSpacePartitioner) getSpacePartitioner();
+		
 		System.out.println("---> Get space partitioner - DONE");
-		final DistributionRegion distributionGroup = spacePartitioner.getRootNode();
+		final DistributionRegion rootNode = spacePartitioner.getRootNode();
 		System.out.println("---> Get root node - DONE");
-		Assert.assertEquals(0, distributionGroup.getRegionId());
+		Assert.assertEquals(0, rootNode.getRegionId());
 		
-		Assert.assertEquals(TEST_GROUP, distributionGroup.getDistributionGroupName().getFullname());
+		Assert.assertEquals(TEST_GROUP, rootNode.getDistributionGroupName().getFullname());
 		
-		final DistributionRegionState stateForDistributionRegion1 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup);
+		final DistributionRegionState stateForDistributionRegion1 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(rootNode);
 		Assert.assertEquals(DistributionRegionState.ACTIVE, stateForDistributionRegion1);
 		System.out.println("--> Set split for node");
-		spacePartitioner.splitNode(distributionGroup, 10);
+		spacePartitioner.splitNode(rootNode, 10);
 	
-		Thread.sleep(5000);
-		final DistributionRegion firstChild = distributionGroup.getDirectChildren().get(0);
+		spacePartitioner.waitForSplitCompleteZookeeperCallback(rootNode, 2);
+
+		final DistributionRegion firstChild = rootNode.getDirectChildren().get(0);
 		Assert.assertEquals(10.0, firstChild.getConveringBox().getCoordinateHigh(0), DELTA);		
-		final DistributionRegionState stateForDistributionRegion2 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(distributionGroup);
+		final DistributionRegionState stateForDistributionRegion2 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(rootNode);
 		Assert.assertEquals(DistributionRegionState.SPLITTING, stateForDistributionRegion2);
 
 		// Reread group from zookeeper
@@ -217,16 +218,13 @@ public class TestZookeeperIntegration {
 		final DistributionRegionState stateForDistributionRegion3 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(newDistributionGroup);
 		Assert.assertEquals(DistributionRegionState.SPLITTING, stateForDistributionRegion3);
 		
-		Assert.assertEquals(1, distributionGroup.getDirectChildren().get(0).getRegionId());
-		Assert.assertEquals(2, distributionGroup.getDirectChildren().get(1).getRegionId());
+		Assert.assertEquals(1, rootNode.getDirectChildren().get(0).getRegionId());
+		Assert.assertEquals(2, rootNode.getDirectChildren().get(1).getRegionId());
 		
-		// Delete childs
+		// Delete children
 		System.out.println("---> Calling prepare merge");
 		spacePartitioner.prepareMerge(spacePartitioner.getRootNode().getDirectChildren(), 
 				spacePartitioner.getRootNode());
-		
-		// Sleep some seconds to wait for the update
-		Thread.sleep(5000);
 		
 		System.out.println("---> Calling merge complete");
 		spacePartitioner.mergeComplete(spacePartitioner.getRootNode().getDirectChildren(), 

@@ -32,6 +32,8 @@ import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartitioner {
 
 	/**
@@ -178,7 +180,8 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	 * Wait for zookeeper split callback
 	 * @param regionToSplit
 	 */
-	protected void waitForSplitCompleteZookeeperCallback(final DistributionRegion regionToSplit, 
+	@VisibleForTesting
+	public void waitForSplitCompleteZookeeperCallback(final DistributionRegion regionToSplit, 
 			final int noOfChildren) {
 		
 		final Predicate<DistributionRegion> predicate = (r) -> isSplitForNodeComplete(r, noOfChildren);
