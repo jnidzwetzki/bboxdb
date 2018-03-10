@@ -628,16 +628,9 @@ public class TestZookeeperIntegration {
 		
 		Assert.assertTrue(cacheGroup.getRootNode().isLeafRegion());
 
-		System.out.println("---> Delete");
-		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		System.out.println("---> Create");
-
-		distributionGroupZookeeperAdapter.createDistributionGroup(TEST_GROUP, new DistributionGroupConfiguration(1)); 
-		
 		System.out.println("---> Split");
 
-		final KDtreeSpacePartitioner kdTreeAdapter 
-			= (KDtreeSpacePartitioner) getSpacePartitioner();
+		final KDtreeSpacePartitioner kdTreeAdapter = (KDtreeSpacePartitioner) getSpacePartitioner();
 		
 		kdTreeAdapter.splitNode(kdTreeAdapter.getRootNode(), (float) 20.0);
 				
@@ -648,8 +641,7 @@ public class TestZookeeperIntegration {
 		final DistributionRegion firstChildFresh = freshGroup.getRootNode().getDirectChildren().get(0);
 		Assert.assertEquals(20.0, firstChildFresh.getConveringBox().getCoordinateHigh(0), DELTA);
 		
-		// Wait some time
-		Thread.sleep(1000);
+		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
 		
 		// Test cached instance
 		try {
@@ -658,7 +650,7 @@ public class TestZookeeperIntegration {
 			// This should not happen
 			Assert.assertFalse(true);
 		} catch (BBoxDBException e) {
-			// Unable to get root on a space partitoner after shutdown
+			// Unable to get root on a space partitioner after shutdown
 		}
 	}
 
