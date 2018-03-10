@@ -249,6 +249,7 @@ public class DistributionRegionComponent {
 		switch (distributionRegion.getState()) {
 		case ACTIVE:
 		case ACTIVE_FULL:
+		case REDISTRIBUTION_ACTIVE:
 			return Color.GREEN;
 			
 		case SPLIT:
