@@ -145,6 +145,11 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 			final DistributionGroupZookeeperAdapter zookeperAdapter 
 				= ZookeeperClientFactory.getDistributionGroupAdapter();
 			zookeperAdapter.setStateForDistributionRegion(regionToSplit, DistributionRegionState.SPLIT);
+			
+			// Children are ready
+			for(final DistributionRegion childRegion : regionToSplit.getDirectChildren()) {
+				zookeperAdapter.setStateForDistributionRegion(childRegion, DistributionRegionState.ACTIVE);
+			}
 		} catch (Exception e) {
 			throw new BBoxDBException(e);
 		} 
@@ -194,7 +199,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	 * Set children to active and wait
 	 * @param numberOfChilden2 
 	 */
-	protected void setToActiveAndWait(final DistributionRegion regionToSplit, final int numberOfChilden) 
+	protected void setStateToRedistributionActiveAndWait(final DistributionRegion regionToSplit, final int numberOfChilden) 
 			throws ZookeeperException {
 		
 		// update state
@@ -203,7 +208,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 				= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
 
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, 
-					DistributionRegionState.ACTIVE);
+					DistributionRegionState.REDISTRIBUTION_ACTIVE);
 		}
 		
 		waitForSplitCompleteZookeeperCallback(regionToSplit, numberOfChilden);

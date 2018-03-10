@@ -102,7 +102,7 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			
 			waitUntilChildrenAreCreated(regionToSplit, 2);
 			allocateSystems(regionToSplit, 2);
-			setToActiveAndWait(regionToSplit, 2);
+			setStateToRedistributionActiveAndWait(regionToSplit, 2);
 		} catch (ZookeeperException | ZookeeperNotFoundException e) {
 			throw new BBoxDBException(e);
 		} 

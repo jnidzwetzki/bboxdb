@@ -133,9 +133,8 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 					continue;
 				}
 			
-				if(! isParentDataRedistributed(tupleStoreName)) {
-					logger.info("Skipping compact run, because parent data is not redistributed {}", 
-							tupleStoreName);
+				if(! isRegionActive(tupleStoreName)) {
+					logger.info("Skipping compact run, because region is not active {}", tupleStoreName);
 					continue;
 				}
 			
@@ -151,14 +150,14 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 	}
 	
 	/**
-	 * Is the parent data redistributed?
+	 * Is the region active? Prevents compact runs when the data is currently redistributing
 	 * 
 	 * @param tupleStoreName
 	 * @return
 	 * @throws StorageManagerException
 	 * @throws InterruptedException
 	 */
-	private boolean isParentDataRedistributed(final TupleStoreName tupleStoreName) 
+	private boolean isRegionActive(final TupleStoreName tupleStoreName) 
 			throws StorageManagerException, InterruptedException {
 		
 		try {
@@ -184,13 +183,8 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 				logger.error("Unable to get distribution region {} {}", distributionRegion, regionId);
 				return false;
 			}
-			
-			// The root node parent is always split
-			if(regionToSplit.isRootElement()) {
-				return true;
-			}
-			
-			return regionToSplit.getParent().getState() == DistributionRegionState.SPLIT;
+		
+			return regionToSplit.getParent().getState() == DistributionRegionState.ACTIVE;
 		} catch (BBoxDBException e) {
 			throw new StorageManagerException(e);
 		} catch (InterruptedException e) {

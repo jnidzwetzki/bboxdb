@@ -26,6 +26,7 @@ public enum DistributionRegionState {
 	SPLITTING("splitting"),
 	SPLIT("split"),
 	SPLIT_MERGING("split-merging"),
+	REDISTRIBUTION_ACTIVE("redistribution-active"),
 	MERGING("merging");
 
 	/**

@@ -53,6 +53,7 @@ public class DistributionRegionHelper {
 			DistributionRegionState.ACTIVE, 
 			DistributionRegionState.ACTIVE_FULL, 
 			DistributionRegionState.SPLITTING, 
+			DistributionRegionState.REDISTRIBUTION_ACTIVE,
 			DistributionRegionState.MERGING);
 	
 	/**
@@ -66,7 +67,8 @@ public class DistributionRegionHelper {
 	 */
 	private	final static Collection<DistributionRegionState> STATES_WRITE = Arrays.asList(
 				DistributionRegionState.ACTIVE, 
-				DistributionRegionState.ACTIVE_FULL);
+				DistributionRegionState.ACTIVE_FULL,
+				DistributionRegionState.REDISTRIBUTION_ACTIVE);
 	/**
 	 * Systems for write operations
 	 */

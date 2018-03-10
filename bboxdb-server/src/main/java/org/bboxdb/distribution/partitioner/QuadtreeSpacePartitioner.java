@@ -68,7 +68,7 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			
 			waitUntilChildrenAreCreated(regionToSplit, numberOfChilden);
 			allocateSystems(regionToSplit, numberOfChilden);
-			setToActiveAndWait(regionToSplit, numberOfChilden);
+			setStateToRedistributionActiveAndWait(regionToSplit, numberOfChilden);
 			
 			return regionToSplit.getDirectChildren();
 		} catch (ZookeeperException | ZookeeperNotFoundException | ResourceAllocationException e) {
