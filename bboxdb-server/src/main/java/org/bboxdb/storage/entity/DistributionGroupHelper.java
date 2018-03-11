@@ -28,6 +28,6 @@ public class DistributionGroupHelper {
 	 * @return
 	 */
 	public static boolean validateDistributionGroupName(final String distributionGroupName) {
-		return StringUtil.countCharOccurrence(distributionGroupName, '_') == 1;
+		return StringUtil.countCharOccurrence(distributionGroupName, '_') == 0;
 	}
 }
