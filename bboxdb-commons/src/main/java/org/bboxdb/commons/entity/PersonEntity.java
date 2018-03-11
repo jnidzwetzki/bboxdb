@@ -37,30 +37,6 @@ public class PersonEntity implements Serializable {
 		this.age = age;
 	}
 
-	public String getFirstname() {
-		return firstname;
-	}
-
-	public void setFirstname(final String firstname) {
-		this.firstname = firstname;
-	}
-
-	public String getLastname() {
-		return lastname;
-	}
-
-	public void setLastname(final String lastname) {
-		this.lastname = lastname;
-	}
-
-	public int getAge() {
-		return age;
-	}
-
-	public void setAge(final int age) {
-		this.age = age;
-	}
-
 	@Override
 	public String toString() {
 		return "PersonEntity [firstname=" + firstname + ", lastname="
