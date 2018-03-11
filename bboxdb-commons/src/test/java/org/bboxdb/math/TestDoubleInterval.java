@@ -478,4 +478,15 @@ public class TestDoubleInterval {
 		Assert.assertTrue(toStringValue2.length() >= roundedValue2.length());
 	}
 	
+	/**
+	 * Test the compare to method
+	 */
+	@Test
+	public void testCompareTo() {
+		final DoubleInterval floatInterval1 = new DoubleInterval(1, 2, true, true);
+		final DoubleInterval floatInterval2 = new DoubleInterval(3, 4, false, false);
+		Assert.assertTrue(floatInterval1.compareTo(floatInterval1) == 0);
+		Assert.assertTrue(floatInterval1.compareTo(floatInterval2) < 0);
+		Assert.assertTrue(floatInterval2.compareTo(floatInterval1) > 0);
+	}
 }
