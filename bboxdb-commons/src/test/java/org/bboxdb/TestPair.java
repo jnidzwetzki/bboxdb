@@ -38,6 +38,7 @@ public class TestPair {
 		Assert.assertEquals(string2, pair1.getElement2());
 		Assert.assertTrue(pair1.toString().length() > 10);
 		Assert.assertEquals(pair1, pair2);
+		Assert.assertEquals(pair1.hashCode(), pair2.hashCode());
 
 		pair1.setElement1("123");
 		pair2.setElement2("abc");

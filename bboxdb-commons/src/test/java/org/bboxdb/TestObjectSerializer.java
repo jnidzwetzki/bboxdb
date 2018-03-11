@@ -37,7 +37,10 @@ public class TestObjectSerializer {
 	public void testSerializer2() throws ClassNotFoundException, IOException {
 		final PersonEntity test = new PersonEntity("Jan", "Jensen", 30);
 		ObjectSerializer<PersonEntity> serializer = new ObjectSerializer<PersonEntity>();
-		Assert.assertEquals(test, serializer.deserialize(serializer.serialize(test)));
+		final PersonEntity deserialize = serializer.deserialize(serializer.serialize(test));
+		Assert.assertEquals(test, deserialize);
+		Assert.assertTrue(test.toString().length() > 10);
+		Assert.assertEquals(test.hashCode(), deserialize.hashCode());
 	}
 	
 }
