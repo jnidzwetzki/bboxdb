@@ -587,4 +587,47 @@ public class TestBoundingBox {
 	public void testFromToString2() {
 		new BoundingBox("sdsfsd");
 	}
+	
+	/**
+	 * Test the to string method
+	 */
+	@Test
+	public void testToString() {
+		final BoundingBox boundingBox = new BoundingBox(Arrays.asList(new DoubleInterval(1, 2, true, false)));	
+		Assert.assertTrue(boundingBox.toString().length() > 10);
+		boundingBox.hashCode();
+	}
+	
+	/**
+	 * Test the compare to method
+	 */
+	@Test
+	public void testCompareTo() {
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 3d, 4d);
+		final BoundingBox boundingBox2 = new BoundingBox(1d, 2d);
+		
+		Assert.assertEquals(0, boundingBox1.compareTo(boundingBox1));
+		Assert.assertTrue(boundingBox1.compareTo(boundingBox2) > 0);
+		Assert.assertTrue(boundingBox2.compareTo(boundingBox1) < 0);
+	}
+	
+	/**
+	 * Test the size
+	 */
+	@Test
+	public void testSize() {
+		final BoundingBox boundingBox = new BoundingBox(Arrays.asList(new DoubleInterval(1, 2, true, false)));	
+		Assert.assertTrue(boundingBox.getSize() > 0);
+	}
+	
+	/**
+	 * Test from and to byte array
+	 */
+	@Test
+	public void testFromAndToByteArray() {
+		final BoundingBox boundingBox1 = new BoundingBox(1d, 2d, 3d, 4d);
+		final byte[] bytes = boundingBox1.toByteArray();
+		final BoundingBox boundingBox2 = BoundingBox.fromByteArray(bytes);
+		Assert.assertEquals(boundingBox1, boundingBox2);
+	}
 }
