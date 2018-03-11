@@ -24,24 +24,12 @@ public class BBoxDBException extends Exception {
 	 */
 	private static final long serialVersionUID = 5173204916779805788L;
 
-	public BBoxDBException() {
-
-	}
-
 	public BBoxDBException(final String message) {
 		super(message);
 	}
 
 	public BBoxDBException(final Throwable cause) {
 		super(cause);
-	}
-
-	public BBoxDBException(final String message, final Throwable cause) {
-		super(message, cause);
-	}
-
-	public BBoxDBException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
 }
