@@ -44,6 +44,20 @@ public class TestThreadHelper {
 	}
 	
 	@Test(timeout=20000)
+	public void testThreadInterruptable2() {
+		final Thread thread = getNonInterruptibleThread();	
+		final List<Thread> threads = new ArrayList<>();
+		threads.add(thread);
+		
+		// This call need a test with timeout, because otherwise
+		// we will interrupt the regular testcase thread
+		Thread.currentThread().interrupt();
+		
+		final boolean result = ThreadHelper.stopThreads(threads);
+		Assert.assertFalse(result);
+	}
+	
+	@Test(timeout=20000)
 	public void testThreadNonInterruptable() {
 		final Thread thread = getNonInterruptibleThread();	
 		final List<Thread> threads = new ArrayList<>();
