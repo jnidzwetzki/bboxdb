@@ -183,6 +183,10 @@ public class SSTableCompactorRunnable extends ExceptionSafeRunnable {
 				logger.error("Unable to get distribution region {} {}", distributionRegion, regionId);
 				return false;
 			}
+			
+			if(regionToSplit.isRootElement()) {
+				return true;
+			}
 		
 			return regionToSplit.getParent().getState() == DistributionRegionState.ACTIVE;
 		} catch (BBoxDBException e) {
