@@ -377,7 +377,7 @@ public class TupleStoreManager implements BBoxDBService {
 		distributionGroupMetadata.setVersion(version);
 
 		DistributionGroupMetadataHelper.writeMedatadataForGroup(storage.getBasedir().getAbsolutePath(), 
-				tupleStoreName.getDistributionGroupObject(), 
+				tupleStoreName.getDistributionGroup(), 
 				distributionGroupMetadata);
 	}
 

@@ -30,7 +30,6 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.bboxdb.commons.Retryer;
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
@@ -64,7 +63,7 @@ public class DistributionRegionSyncer implements Watcher {
 	/**
 	 * The distribution group name
 	 */
-	private DistributionGroupName distributionGroupName;
+	private String distributionGroupName;
 	
 	/**
 	 * The distribution group adapter
@@ -367,9 +366,7 @@ public class DistributionRegionSyncer implements Watcher {
 		
 		final List<DistributionRegionState> activeStates = 
 				Arrays.asList(DistributionRegionState.ACTIVE, DistributionRegionState.ACTIVE_FULL);
-				
-		final String fullname = distributionGroupName.getFullname();
-		
+						
 		for(final DistributionRegion region : allChildren) {
 			final long regionId = region.getRegionId();
 			logger.debug("Processing region {}", regionId);
@@ -382,7 +379,7 @@ public class DistributionRegionSyncer implements Watcher {
 				
 				// Add the mapping to the nameprefix mapper
 				if(! allExistingMappings.contains(regionId)) {
-					distributionRegionMapper.addMapping(regionId, region.getConveringBox(), fullname);
+					distributionRegionMapper.addMapping(regionId, region.getConveringBox(), distributionGroupName);
 				}
 				
 				allExistingMappings.remove(regionId);
@@ -390,7 +387,7 @@ public class DistributionRegionSyncer implements Watcher {
 		}
 	
 		// Remove all active but not seen mappings
-		allExistingMappings.forEach(m -> distributionRegionMapper.removeMapping(m, fullname));
+		allExistingMappings.forEach(m -> distributionRegionMapper.removeMapping(m, distributionGroupName));
 	}
 	
 	/**

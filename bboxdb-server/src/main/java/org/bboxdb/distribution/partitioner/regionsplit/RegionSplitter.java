@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
@@ -173,15 +172,14 @@ public class RegionSplitter {
 		try {
 			logger.info("Redistributing all data for region: {}", regionId);
 						
-			final DistributionGroupName distributionGroupName = source.getDistributionGroupName();
+			final String distributionGroupName = source.getDistributionGroupName();
 			
 			final List<TupleStoreName> localTables = TupleStoreUtil
 					.getAllTablesForDistributionGroupAndRegionId(registry, distributionGroupName, regionId);
 	
 			// Remove the local mapping, no new data is written to the region
-			final String fullname = distributionGroupName.getFullname();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache
-					.getInstance().getSpacePartitionerForGroupName(fullname);
+					.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
 			
 			final DistributionRegionIdMapper mapper = spacePartitioner.getDistributionRegionIdMapper();
 			

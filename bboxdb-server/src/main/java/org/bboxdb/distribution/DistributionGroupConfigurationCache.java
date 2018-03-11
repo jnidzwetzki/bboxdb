@@ -78,18 +78,6 @@ public class DistributionGroupConfigurationCache {
 	 * @throws ZookeeperNotFoundException 
 	 */
 	public synchronized DistributionGroupConfiguration getDistributionGroupConfiguration(
-			final DistributionGroupName distributionGroupName) throws ZookeeperNotFoundException {
-		
-		return getDistributionGroupConfiguration(distributionGroupName.getFullname());
-	}
-	
-	/**
-	 * Get the distribution group configuration
-	 * @param distributionGroupName
-	 * @return
-	 * @throws ZookeeperNotFoundException 
-	 */
-	public synchronized DistributionGroupConfiguration getDistributionGroupConfiguration(
 			final String distributionGroupName) throws ZookeeperNotFoundException {
 		
 		if(! cache.containsKey(distributionGroupName)) {

@@ -20,7 +20,6 @@ package org.bboxdb.distribution.partitioner;
 import java.util.Objects;
 import java.util.Set;
 
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
 import org.bboxdb.distribution.region.DistributionRegionIdMapper;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
@@ -35,7 +34,7 @@ public class SpacePartitionerContext {
 	/**
 	 * The distribution group name
 	 */
-	private DistributionGroupName distributionGroupName;
+	private String distributionGroupName;
 	
 	/**
 	 * The zookeeper client
@@ -57,7 +56,7 @@ public class SpacePartitionerContext {
 	 */
 	private DistributionRegionIdMapper mapper;
 
-	public SpacePartitionerContext(final String spacePartitionerConfig, final DistributionGroupName distributionGroupName,
+	public SpacePartitionerContext(final String spacePartitionerConfig, final String distributionGroupName,
 			final ZookeeperClient zookeeperClient, final DistributionGroupZookeeperAdapter distributionGroupAdapter,
 			final Set<DistributionRegionCallback> callback, final DistributionRegionIdMapper mapper) {
 		
@@ -73,7 +72,7 @@ public class SpacePartitionerContext {
 		return spacePartitionerConfig;
 	}
 
-	public DistributionGroupName getDistributionGroupName() {
+	public String getDistributionGroupName() {
 		return distributionGroupName;
 	}
 

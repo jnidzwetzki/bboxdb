@@ -26,7 +26,6 @@ import java.util.function.BiConsumer;
 import javax.swing.SwingUtilities;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.BBoxDBInstanceManager;
 import org.bboxdb.distribution.membership.DistributedInstanceEvent;
@@ -294,7 +293,7 @@ public class GuiModel implements DistributionRegionCallback {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 */
-	public List<DistributionGroupName> getDistributionGroups()
+	public List<String> getDistributionGroups()
 			throws ZookeeperException, ZookeeperNotFoundException {
 		return distributionGroupZookeeperAdapter.getDistributionGroups();
 	}

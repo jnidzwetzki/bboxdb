@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
@@ -91,15 +90,15 @@ public abstract class AbstractUtilizationPlacementStrategy extends ResourcePlace
 		final DistributionGroupZookeeperAdapter zookeeperAdapter 
 			= ZookeeperClientFactory.getDistributionGroupAdapter();
 		
-		final List<DistributionGroupName> distributionGroups = zookeeperAdapter.getDistributionGroups();
+		final List<String> distributionGroups = zookeeperAdapter.getDistributionGroups();
 		
 		// The overall usage
 	    final ImmutableMultiset.Builder<BBoxDBInstance> builder = ImmutableMultiset.builder();
 	    
 		// Calculate usage for each distribution group
-		for(final DistributionGroupName groupName : distributionGroups) {
+		for(final String groupName : distributionGroups) {
 			final SpacePartitioner spacepartitioner = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(groupName.getFullname());
+				.getInstance().getSpacePartitionerForGroupName(groupName);
 			
 			final DistributionRegion region = spacepartitioner.getRootNode();
 			final Multiset<BBoxDBInstance> regionSystemUsage 

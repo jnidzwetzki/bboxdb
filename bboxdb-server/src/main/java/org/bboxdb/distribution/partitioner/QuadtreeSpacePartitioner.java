@@ -56,11 +56,9 @@ public class QuadtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			
 			final int numberOfChilden = childBoxes.size();
 	
-			final String fullname = distributionGroupName.getFullname();
-
 			for(int i = 0; i < numberOfChilden; i++) {
 				final BoundingBox childBox = childBoxes.get(i);
-				distributionGroupZookeeperAdapter.createNewChild(parentPath, i, childBox, fullname);
+				distributionGroupZookeeperAdapter.createNewChild(parentPath, i, childBox, distributionGroupName);
 			}
 			
 			// Update state

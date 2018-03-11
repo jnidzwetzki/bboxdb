@@ -45,7 +45,7 @@ public class DistributionGroupMetadataHelper {
 	 * @throws IOException 
 	 */
 	public static void writeMedatadataForGroup(final String basedir, 
-			final DistributionGroupName distributionGroupName, 
+			final String distributionGroupName, 
 			final DistributionGroupMetadata distributionGroupMetadata) throws IOException {
 		
 	    final Map<String, Object> data = new HashMap<>();
@@ -68,11 +68,8 @@ public class DistributionGroupMetadataHelper {
 	 * @param distributionGroupName
 	 * @return
 	 */
-	private static String getFilename(final String basedir, 
-			final DistributionGroupName distributionGroupName) {
-		
-		return SSTableHelper.getDistributionGroupMedatadaFile(basedir, 
-				distributionGroupName.getFullname());
+	private static String getFilename(final String basedir, final String distributionGroupName) {
+		return SSTableHelper.getDistributionGroupMedatadaFile(basedir, distributionGroupName);
 	}
 
 	/**
@@ -80,8 +77,8 @@ public class DistributionGroupMetadataHelper {
 	 * @param distributionGroupName
 	 * @return
 	 */
-	public static DistributionGroupMetadata getMedatadaForGroup
-		(final String basedir, final DistributionGroupName distributionGroupName) {
+	public static DistributionGroupMetadata getMedatadaForGroup(final String basedir, 
+			final String distributionGroupName) {
 		
 		final Yaml yaml = new Yaml(); 
 	    final String filename = getFilename(basedir, distributionGroupName);

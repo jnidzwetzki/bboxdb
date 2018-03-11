@@ -96,10 +96,10 @@ public class DistributedRecoveryService implements BBoxDBService {
 		final DistributionGroupZookeeperAdapter distributionGroupZookeeperAdapter 
 			= ZookeeperClientFactory.getDistributionGroupAdapter();
 		
-		final List<DistributionGroupName> distributionGroups 
+		final List<String> distributionGroups 
 			= distributionGroupZookeeperAdapter.getDistributionGroups();
 		
-		for(final DistributionGroupName distributionGroupName : distributionGroups) {
+		for(final String distributionGroupName : distributionGroups) {
 			logger.info("Recovery: running recovery for distribution group: {}", distributionGroupName);
 			runRecoveryForDistributionGroup(distributionGroupName);
 			logger.info("Recovery: recovery for distribution group done: {}", distributionGroupName);
@@ -111,7 +111,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 	 * @param distributionGroupName
 	 * @throws ZookeeperException 
 	 */
-	protected void runRecoveryForDistributionGroup(final DistributionGroupName distributionGroupName) {
+	protected void runRecoveryForDistributionGroup(final String distributionGroupName) {
 		try {
 			final ZookeeperClient zookeeperClient = ZookeeperClientFactory.getZookeeperClient();
 			final BBoxDBInstance localInstance = ZookeeperClientFactory.getLocalInstanceName();
@@ -120,9 +120,8 @@ public class DistributedRecoveryService implements BBoxDBService {
 				checkGroupVersion(storage, distributionGroupName, zookeeperClient);
 			}
 					
-			final String fullname = distributionGroupName.getFullname();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache
-					.getInstance().getSpacePartitionerForGroupName(fullname);
+					.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
 			
 			final DistributionRegion distributionGroup = spacePartitioner.getRootNode();
 		
@@ -136,7 +135,13 @@ public class DistributedRecoveryService implements BBoxDBService {
 		
 	}
 
-	protected void checkGroupVersion(final DiskStorage storage, final DistributionGroupName distributionGroupName,
+	/**
+	 * Check the group version
+	 * @param storage
+	 * @param distributionGroupName
+	 * @param zookeeperClient
+	 */
+	protected void checkGroupVersion(final DiskStorage storage, final String distributionGroupName,
 			final ZookeeperClient zookeeperClient) {
 		
 		try {
@@ -145,7 +150,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 			
 			if(metaData == null) {
 				logger.debug("Metadata for storage {} and group {} is null, skipping check", 
-						storage.getBasedir(), distributionGroupName.getFullname());
+						storage.getBasedir(), distributionGroupName);
 				return;
 			}
 			
@@ -153,7 +158,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 				= new DistributionGroupZookeeperAdapter(zookeeperClient);
 			
 			final String path = distributionGroupZookeeperAdapter
-					.getDistributionGroupPath(distributionGroupName.getFullname());
+					.getDistributionGroupPath(distributionGroupName);
 			
 			final long remoteVersion = distributionGroupZookeeperAdapter
 					.getNodeMutationVersion(path, null);
@@ -175,7 +180,7 @@ public class DistributedRecoveryService implements BBoxDBService {
 	 * @param distributionGroupName
 	 * @param outdatedRegions
 	 */
-	protected void handleOutdatedRegions(final DistributionGroupName distributionGroupName, 
+	protected void handleOutdatedRegions(final String distributionGroupName, 
 			final List<OutdatedDistributionRegion> outdatedRegions) {
 		
 		for(final OutdatedDistributionRegion outdatedDistributionRegion : outdatedRegions) {

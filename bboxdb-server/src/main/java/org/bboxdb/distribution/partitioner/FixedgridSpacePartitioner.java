@@ -72,7 +72,7 @@ public class FixedgridSpacePartitioner extends AbstractGridSpacePartitioner {
 		
 		logger.info("Processing dimension {}", dimension);
 
-		final String fullname = distributionGroupName.getFullname();
+		final String fullname = distributionGroupName;
 		final String stepIntervalString = splitConfig[dimension + 1];
 		final double stepInterval 
 			= MathUtil.tryParseDouble(stepIntervalString, () -> "Unable to parse" + stepIntervalString);
@@ -96,7 +96,7 @@ public class FixedgridSpacePartitioner extends AbstractGridSpacePartitioner {
 					childNumber, nodeBox, fullname);
 			
 			if(dimension == 0) {	
-				SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName.getFullname(), 
+				SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName, 
 						new ArrayList<BBoxDBInstance>(), distributionGroupZookeeperAdapter);
 				distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.ACTIVE);
 			} else {

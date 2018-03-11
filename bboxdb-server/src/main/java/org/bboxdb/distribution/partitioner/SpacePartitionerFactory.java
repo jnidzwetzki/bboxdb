@@ -18,7 +18,6 @@
 package org.bboxdb.distribution.partitioner;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.zookeeper.ZookeeperException;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
@@ -42,7 +41,7 @@ public class SpacePartitionerFactory {
 			final SpacePartitionerContext spacePartitionerContext) throws ZookeeperException {
 
 		try {
-			final DistributionGroupName distributionGroup = spacePartitionerContext.getDistributionGroupName();
+			final String distributionGroup = spacePartitionerContext.getDistributionGroupName();
 			
 			final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 					.getInstance().getDistributionGroupConfiguration(distributionGroup);

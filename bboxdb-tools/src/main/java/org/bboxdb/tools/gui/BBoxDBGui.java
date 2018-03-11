@@ -42,7 +42,6 @@ import javax.swing.RootPaneContainer;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.tools.gui.views.OSMView;
 import org.bboxdb.tools.gui.views.TreeView;
@@ -246,7 +245,7 @@ public class BBoxDBGui {
 	 * @param listModel
 	 */
 	protected void refreshDistributionGroups(final DefaultListModel<String> listModel) {
-		final List<DistributionGroupName> distributionGroups = new ArrayList<DistributionGroupName>();
+		final List<String> distributionGroups = new ArrayList<>();
 
 		try {
 			distributionGroups.addAll(guiModel.getDistributionGroups());
@@ -257,8 +256,8 @@ public class BBoxDBGui {
 		Collections.sort(distributionGroups);
 		listModel.clear();
 		
-		for(final DistributionGroupName distributionGroupName : distributionGroups) {
-			listModel.addElement(distributionGroupName.getFullname());
+		for(final String distributionGroupName : distributionGroups) {
+			listModel.addElement(distributionGroupName);
 		}
 		
 		if(statusLabel != null) {

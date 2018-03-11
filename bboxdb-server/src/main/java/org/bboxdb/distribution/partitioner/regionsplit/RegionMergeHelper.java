@@ -100,7 +100,7 @@ public class RegionMergeHelper {
 		}
 		
 		try {
-			final String fullname = sources.get(0).getDistributionGroupName().getFullname();
+			final String fullname = sources.get(0).getDistributionGroupName();
 			final long minSize = getConfiguredRegionMinSizeInMB(fullname);
 			
 			logger.info("Testing for region {} underflow curent size is {} / min is {}", 
@@ -178,7 +178,7 @@ public class RegionMergeHelper {
 	 */
 	public static List<List<DistributionRegion>> getMergingCandidates(final DistributionRegion region) {
 		try {
-			final String distributionGroupName = region.getDistributionGroupName().getFullname();
+			final String distributionGroupName = region.getDistributionGroupName();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
 
 			return spacePartitioner.getMergeCandidates(region);

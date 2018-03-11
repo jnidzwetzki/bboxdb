@@ -35,7 +35,6 @@ import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.io.DataEncoderHelper;
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.distribution.region.DistributionRegionCallback;
@@ -47,6 +46,7 @@ import org.bboxdb.distribution.zookeeper.ZookeeperNodeNames;
 import org.bboxdb.distribution.zookeeper.ZookeeperNotFoundException;
 import org.bboxdb.misc.BBoxDBException;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
+import org.bboxdb.storage.entity.DistributionGroupHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,7 +125,7 @@ public class DistributionGroupZookeeperAdapter {
 				
 		final SpacePartitionerContext spacePartitionerContext = new SpacePartitionerContext(
 				config.getSpacePartitionerConfig(), 
-				new DistributionGroupName(distributionGroup), 
+				distributionGroup, 
 				zookeeperClient, 
 				ZookeeperClientFactory.getDistributionGroupAdapter(), 
 				callback, 
@@ -532,7 +532,7 @@ public class DistributionGroupZookeeperAdapter {
 			}
 		}
 		
-		final String name = distributionRegion.getDistributionGroupName().getFullname();
+		final String name = distributionRegion.getDistributionGroupName();
 		sb.insert(0, getDistributionGroupRootElementPath(name));
 		return sb.toString();
 	}
@@ -546,7 +546,7 @@ public class DistributionGroupZookeeperAdapter {
 	public DistributionRegion getNodeForPath(final DistributionRegion distributionRegion, 
 			final String path) {
 		
-		final String name = distributionRegion.getDistributionGroupName().getFullname();
+		final String name = distributionRegion.getDistributionGroupName();
 		final String distributionGroupPath = getDistributionGroupRootElementPath(name);
 		
 		if(! path.startsWith(distributionGroupPath)) {
@@ -792,7 +792,7 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public List<DistributionGroupName> getDistributionGroups() 
+	public List<String> getDistributionGroups() 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		return getDistributionGroups(null);
@@ -804,10 +804,10 @@ public class DistributionGroupZookeeperAdapter {
 	 * @throws ZookeeperException 
 	 * @throws ZookeeperNotFoundException 
 	 */
-	public List<DistributionGroupName> getDistributionGroups(final Watcher watcher) 
+	public List<String> getDistributionGroups(final Watcher watcher) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final List<DistributionGroupName> groups = new ArrayList<>();
+		final List<String> groups = new ArrayList<>();
 		final String clusterPath = zookeeperClient.getClusterPath();
 		final List<String> nodes = zookeeperClient.getChildren(clusterPath, watcher);
 		
@@ -815,16 +815,14 @@ public class DistributionGroupZookeeperAdapter {
 			return groups;
 		}
 		
-		for(final String node : nodes) {
+		for(final String groupName : nodes) {
 			
 			// Ignore systems
-			if(ZookeeperNodeNames.NAME_SYSTEMS.equals(node)) {
+			if(ZookeeperNodeNames.NAME_SYSTEMS.equals(groupName)) {
 				continue;
 			}
 			
-			final DistributionGroupName groupName = new DistributionGroupName(node);
-			
-			if(groupName.isValid()) {
+			if(DistributionGroupHelper.validateDistributionGroupName(groupName)) {
 				groups.add(groupName);
 			} else {
 				logger.error("Got invalid distribution group name from zookeeper: {}", groupName);
@@ -945,7 +943,7 @@ public class DistributionGroupZookeeperAdapter {
 			throw new IllegalArgumentException("Unable to add system with value null");
 		}
 		
-		logger.debug("Update region statistics for {} / {}", region.getDistributionGroupName().getFullname(), system);
+		logger.debug("Update region statistics for {} / {}", region.getDistributionGroupName(), system);
 	
 		final String path = getZookeeperPathForDistributionRegion(region) 
 				+ "/" + ZookeeperNodeNames.NAME_STATISTICS + "/" + system.getStringValue();
@@ -971,7 +969,7 @@ public class DistributionGroupZookeeperAdapter {
 		
 		final  Map<BBoxDBInstance, Map<String, Long>> result = new HashMap<>();
 		
-		logger.debug("Get statistics for {}", region.getDistributionGroupName().getFullname());
+		logger.debug("Get statistics for {}", region.getDistributionGroupName());
 				
 		final String statisticsPath = getZookeeperPathForDistributionRegion(region) 
 				+ "/" + ZookeeperNodeNames.NAME_STATISTICS;
@@ -1022,7 +1020,7 @@ public class DistributionGroupZookeeperAdapter {
 	public void deleteRegionStatistics(final DistributionRegion region) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 				
-		logger.debug("Delete statistics for {}", region.getDistributionGroupName().getFullname());
+		logger.debug("Delete statistics for {}", region.getDistributionGroupName());
 				
 		final String statisticsPath = getZookeeperPathForDistributionRegion(region) 
 				+ "/" + ZookeeperNodeNames.NAME_STATISTICS;

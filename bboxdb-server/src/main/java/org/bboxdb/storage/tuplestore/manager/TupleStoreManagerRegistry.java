@@ -32,7 +32,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.ServiceState;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.misc.BBoxDBConfiguration;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.misc.BBoxDBException;
@@ -332,26 +331,24 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @throws StorageManagerException 
 	 */
 	public synchronized void deleteAllTablesInDistributionGroup(
-			final DistributionGroupName distributionGroupName) throws StorageManagerException {
-		
-		final String distributionGroupString = distributionGroupName.getFullname();
-		
+			final String distributionGroupName) throws StorageManagerException {
+				
 		// Memtabes
-		logger.info("Shuting down active memtables for distribution group: {}", distributionGroupString);
+		logger.info("Shuting down active memtables for distribution group: {}", distributionGroupName);
 		
 		final Predicate<TupleStoreName> deleteTablePredicate = (t) 
-				-> (t.getDistributionGroup().equals(distributionGroupString));
+				-> (t.getDistributionGroup().equals(distributionGroupName));
 		
 		shutdownAndDeleteTablesForPredicate(deleteTablePredicate);
 		
 		// Delete the group dir
 		for(final String directory : storages.keySet()) {
 			logger.info("Deleting all local stored data for distribution group {} in path {} ",
-					distributionGroupString, directory);
+					distributionGroupName, directory);
 			
-			deleteMedatadaOfDistributionGroup(distributionGroupString, directory);
+			deleteMedatadaOfDistributionGroup(distributionGroupName, directory);
 	
-			final String groupDirName = SSTableHelper.getDistributionGroupDir(directory, distributionGroupString);
+			final String groupDirName = SSTableHelper.getDistributionGroupDir(directory, distributionGroupName);
 			final File groupDir = new File(groupDirName);
 			final String[] childs = groupDir.list();
 			
@@ -459,11 +456,11 @@ public class TupleStoreManagerRegistry implements BBoxDBService {
 	 * @return
 	 */
 	public synchronized List<TupleStoreName> getAllTablesForDistributionGroup
-		(final DistributionGroupName distributionGroupName) {
+		(final String distributionGroupName) {
 		
 		return tupleStoreLocations.keySet()
 			.stream()
-			.filter(s -> s.getDistributionGroupObject().equals(distributionGroupName))
+			.filter(s -> s.getDistributionGroup().equals(distributionGroupName))
 			.collect(Collectors.toList());
 	}
 

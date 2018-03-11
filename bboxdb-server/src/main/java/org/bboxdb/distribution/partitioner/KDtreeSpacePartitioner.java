@@ -90,12 +90,10 @@ public class KDtreeSpacePartitioner extends AbstractTreeSpacePartitoner {
 			final int splitDimension = getSplitDimension(regionToSplit);
 			final BoundingBox leftBoundingBox = parentBox.splitAndGetLeft(splitPosition, splitDimension, true);
 			final BoundingBox rightBoundingBox = parentBox.splitAndGetRight(splitPosition, splitDimension, false);
-			
-			final String fullname = distributionGroupName.getFullname();
-			
+						
 			// Only one system executes the split, therefore we can determine the child ids
-			distributionGroupZookeeperAdapter.createNewChild(parentPath, 0, leftBoundingBox, fullname);
-			distributionGroupZookeeperAdapter.createNewChild(parentPath, 1, rightBoundingBox, fullname);
+			distributionGroupZookeeperAdapter.createNewChild(parentPath, 0, leftBoundingBox, distributionGroupName);
+			distributionGroupZookeeperAdapter.createNewChild(parentPath, 1, rightBoundingBox, distributionGroupName);
 			
 			// Update state
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(parentPath, DistributionRegionState.SPLITTING);

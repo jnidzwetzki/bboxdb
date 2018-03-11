@@ -18,7 +18,6 @@
 package org.bboxdb.storage.entity;
 
 import org.bboxdb.commons.StringUtil;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,14 +183,6 @@ public class TupleStoreName implements Comparable<TupleStoreName> {
 	 */
 	public String getFullnameWithoutPrefix() {
 		return getDistributionGroup() + "_" + tablename;
-	}
-	
-	/**
-	 * Get the distribution group as object
-	 * @return
-	 */
-	public DistributionGroupName getDistributionGroupObject() {
-		return new DistributionGroupName(getDistributionGroup());
 	}
 	
 	/**

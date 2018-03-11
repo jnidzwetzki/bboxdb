@@ -105,7 +105,7 @@ public class TupleStoreZookeeperObserver {
 	private void handleCallback(final DistributionRegionEntity entityToObserver, 
 			final DistributionRegionEvent event, final DistributionRegion eventEntity) {
 		
-		final String groupName = eventEntity.getDistributionGroupName().getFullname();
+		final String groupName = eventEntity.getDistributionGroupName();
 		final DistributionRegionEntity callbackEntity = new DistributionRegionEntity(groupName, eventEntity.getRegionId());
 		
 		try {

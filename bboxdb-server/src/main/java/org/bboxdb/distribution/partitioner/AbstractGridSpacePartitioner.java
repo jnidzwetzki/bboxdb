@@ -40,7 +40,7 @@ public abstract class AbstractGridSpacePartitioner extends AbstractSpacePartitio
 		
 		try {
 			final String distributionGroup 
-				= spacePartitionerContext.getDistributionGroupName().getFullname();
+				= spacePartitionerContext.getDistributionGroupName();
 			
 			final String rootPath = 
 					distributionGroupZookeeperAdapter.getDistributionGroupRootElementPath(distributionGroup);

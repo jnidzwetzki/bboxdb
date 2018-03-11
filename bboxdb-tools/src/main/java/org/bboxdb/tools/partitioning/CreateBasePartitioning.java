@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import org.bboxdb.commons.ListHelper;
 import org.bboxdb.commons.MathUtil;
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
 import org.bboxdb.distribution.partitioner.SpacePartitioner;
@@ -53,9 +52,9 @@ public class CreateBasePartitioning implements Runnable {
 	private final String format;
 	
 	/**
-	 * The distributin group
+	 * The distribution group
 	 */
-	private final DistributionGroupName distributionGroup;
+	private final String distributionGroup;
 
 	/**
 	 * The number of partitons
@@ -68,7 +67,7 @@ public class CreateBasePartitioning implements Runnable {
 	private final static Logger logger = LoggerFactory.getLogger(CreateBasePartitioning.class);
 
 	public CreateBasePartitioning(final String filename, final String format, 
-			final DistributionGroupName distributionGroup, final int partitions) {
+			final String distributionGroup, final int partitions) {
 		
 		this.filename = filename;
 		this.format = format;
@@ -92,7 +91,7 @@ public class CreateBasePartitioning implements Runnable {
 			tupleFile.processFile();
 		
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
-					.getSpacePartitionerForGroupName(distributionGroup.getFullname());
+					.getSpacePartitionerForGroupName(distributionGroup);
 			
 			final DistributionGroupZookeeperAdapter adapter 
 				= ZookeeperClientFactory.getDistributionGroupAdapter();
@@ -146,7 +145,7 @@ public class CreateBasePartitioning implements Runnable {
 		
 		final String filename = args[0];
 		final String format = args[1];
-		final DistributionGroupName distributionGroup = new DistributionGroupName(args[2]);
+		final String distributionGroup = args[2];
 		final int partitions = MathUtil.tryParseInt(args[3], () -> "Unable to parse: " + args[3]);
 		final String zookeeperEndpoint = args[4];
 		final String clustername = args[5];
@@ -177,29 +176,29 @@ public class CreateBasePartitioning implements Runnable {
 	 * @throws ZookeeperException
 	 * @throws ZookeeperNotFoundException
 	 */
-	private static void doesGroupExist(final DistributionGroupName distributionGroup)
+	private static void doesGroupExist(final String distributionGroup)
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
 		final DistributionGroupZookeeperAdapter adapter = ZookeeperClientFactory.getDistributionGroupAdapter();
 		
-		final List<DistributionGroupName> knownGroups = adapter.getDistributionGroups();
+		final List<String> knownGroups = adapter.getDistributionGroups();
 		
 		if(! knownGroups.contains(distributionGroup)) {
-			System.err.format("Distribution group %s does not exist\n", distributionGroup.getFullname());
+			System.err.format("Distribution group %s does not exist\n", distributionGroup);
 			System.exit(-1);
 		}
 	}
 
 	/**
-	 * Is the region already partiitoned?
+	 * Is the region already partitioned?
 	 * @param distributionGroup
 	 * @throws BBoxDBException
 	 */
-	private static void checkForExistingPartitioning(final DistributionGroupName distributionGroup)
+	private static void checkForExistingPartitioning(final String distributionGroup)
 			throws BBoxDBException {
 		
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
-				.getSpacePartitionerForGroupName(distributionGroup.getFullname());
+				.getSpacePartitionerForGroupName(distributionGroup);
 		
 		if(spacePartitioner.getRootNode().getThisAndChildRegions().size() != 1) {
 			System.err.println("Region is already splitted unable to use this for inital splitting");

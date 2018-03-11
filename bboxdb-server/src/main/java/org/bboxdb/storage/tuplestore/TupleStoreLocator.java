@@ -21,8 +21,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.storage.StorageManagerException;
+import org.bboxdb.storage.entity.DistributionGroupHelper;
 import org.bboxdb.storage.entity.TupleStoreName;
 import org.bboxdb.storage.sstable.SSTableHelper;
 
@@ -54,12 +54,12 @@ public class TupleStoreLocator {
 	        }
 	        
         	final String distributionGroup = fileEntry.getName();
-        	final DistributionGroupName distributionGroupName = new DistributionGroupName(distributionGroup);
         	
-        	assert(distributionGroupName.isValid()) : "Invalid name: " + distributionGroup;
+        	assert(DistributionGroupHelper.validateDistributionGroupName(distributionGroup)) 
+        		: "Invalid name: " + distributionGroup;
         	
         	final Map<TupleStoreName, String> tablesInDir 
-        		= handleDistributionGroupEntry(storageDirectory, fileEntry, distributionGroupName);
+        		= handleDistributionGroupEntry(storageDirectory, fileEntry, distributionGroup);
         	
         	sstableLocations.putAll(tablesInDir);
 	    }
@@ -75,7 +75,7 @@ public class TupleStoreLocator {
 	 * @return
 	 */
 	private static Map<TupleStoreName, String> handleDistributionGroupEntry(final String storageDirectory,
-			final File fileEntry, final DistributionGroupName distributionGroupName) {
+			final File fileEntry, final String distributionGroupName) {
 		
 		final Map<TupleStoreName, String> sstableLocations = new HashMap<>();
 		
@@ -83,7 +83,7 @@ public class TupleStoreLocator {
 		for (final File tableEntry : fileEntry.listFiles()) {
 		    if (tableEntry.isDirectory()) {
 		    	final String tablename = tableEntry.getName();
-		    	final String fullname = distributionGroupName.getFullname() + "_" + tablename;
+		    	final String fullname = distributionGroupName + "_" + tablename;
 		    	final TupleStoreName sstableName = new TupleStoreName(fullname);
 				sstableLocations.put(sstableName, storageDirectory);
 		    }

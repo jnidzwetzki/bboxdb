@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.bboxdb.distribution.DistributionGroupMetadataHelper;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.misc.BBoxDBConfigurationManager;
 import org.bboxdb.storage.entity.DistributionGroupMetadata;
 import org.bboxdb.storage.sstable.SSTableHelper;
@@ -37,7 +36,7 @@ public class TestDistributionGroupMedadata {
 	/**
 	 * The distribution group name for the tests
 	 */
-	protected final static DistributionGroupName DGROUP_NAME = new DistributionGroupName("testgroup");
+	protected final static String DGROUP_NAME = "testgroup";
 	
 	/**
 	 * The storage directory
@@ -55,7 +54,7 @@ public class TestDistributionGroupMedadata {
 	 */
 	@BeforeClass
 	public static void beforeClass() {
-	    final String dirName = SSTableHelper.getDistributionGroupDir(STORAGE_DIRECTORY, DGROUP_NAME.getFullname());
+	    final String dirName = SSTableHelper.getDistributionGroupDir(STORAGE_DIRECTORY, DGROUP_NAME);
 
 	    logger.info("Create: {}", dirName);
 	    
@@ -68,7 +67,7 @@ public class TestDistributionGroupMedadata {
 	 */
 	@AfterClass
 	public static void afterClass() {	    
-	    final String dirName = SSTableHelper.getDistributionGroupDir(STORAGE_DIRECTORY, DGROUP_NAME.getFullname());
+	    final String dirName = SSTableHelper.getDistributionGroupDir(STORAGE_DIRECTORY, DGROUP_NAME);
 	 
 	    logger.info("Remove: {}", dirName);
 

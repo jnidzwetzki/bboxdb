@@ -49,7 +49,7 @@ public abstract class AbstractTreeSpacePartitoner extends AbstractSpacePartition
 	public void createRootNode(final DistributionGroupConfiguration configuration) throws BBoxDBException {
 		try {
 			final String distributionGroup 
-				= spacePartitionerContext.getDistributionGroupName().getFullname();
+				= spacePartitionerContext.getDistributionGroupName();
 			
 			final String rootPath = 
 					distributionGroupZookeeperAdapter.getDistributionGroupRootElementPath(distributionGroup);

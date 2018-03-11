@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
 import org.bboxdb.distribution.zookeeper.ZookeeperClient;
 import org.bboxdb.distribution.zookeeper.ZookeeperClientFactory;
@@ -161,11 +160,9 @@ public class TestStorageRegistry {
 		final List<TupleStoreName> tablesBeforeDelete = storageRegistry.getAllTables();
 		System.out.println(tablesBeforeDelete);
 		Assert.assertTrue(tablesBeforeDelete.contains(RELATION_NAME));
-		
-		final DistributionGroupName distributionGroupObject = RELATION_NAME.getDistributionGroupObject();
-		
+				
 		final long size1 = TupleStoreUtil.getSizeOfDistributionGroupAndRegionId(
-				storageRegistry, distributionGroupObject, 2);
+				storageRegistry, RELATION_NAME.getDistributionGroup(), 2);
 		
 		Assert.assertTrue(size1 > 0);
 		
@@ -176,7 +173,7 @@ public class TestStorageRegistry {
 		Assert.assertFalse(tablesAfterDelete.contains(RELATION_NAME));
 		
 		final long size2 = TupleStoreUtil.getSizeOfDistributionGroupAndRegionId(
-				storageRegistry, distributionGroupObject, 2);
+				storageRegistry, RELATION_NAME.getDistributionGroup(), 2);
 		
 		Assert.assertTrue(size2 == 0);
 	}

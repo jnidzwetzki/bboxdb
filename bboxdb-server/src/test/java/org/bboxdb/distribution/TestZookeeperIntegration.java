@@ -140,29 +140,15 @@ public class TestZookeeperIntegration {
 	 */
 	@Test
 	public void testDistributionGroupCreateDelete() throws ZookeeperException, ZookeeperNotFoundException, BBoxDBException {
-		final List<DistributionGroupName> groups = distributionGroupZookeeperAdapter.getDistributionGroups();
+		final List<String> groups = distributionGroupZookeeperAdapter.getDistributionGroups();
 		System.out.println(groups);
-		boolean found = false;
-		for(final DistributionGroupName group : groups) {
-			if(group.getFullname().equals(TEST_GROUP)) {
-				found = true;
-			}
-		}
-		
-		Assert.assertTrue(found);
+		Assert.assertTrue(groups.contains(TEST_GROUP));
 		Assert.assertTrue(distributionGroupZookeeperAdapter.isDistributionGroupRegistered(TEST_GROUP));
 		
 		// Delete group
 		distributionGroupZookeeperAdapter.deleteDistributionGroup(TEST_GROUP);
-		final List<DistributionGroupName> groups2 = distributionGroupZookeeperAdapter.getDistributionGroups();
-		found = false;
-		for(final DistributionGroupName group : groups2) {
-			if(group.getFullname().equals(TEST_GROUP)) {
-				found = true;
-			}
-		}
-		
-		Assert.assertFalse(found);
+		final List<String> groups2 = distributionGroupZookeeperAdapter.getDistributionGroups();
+		Assert.assertFalse(groups2.contains(TEST_GROUP));
 		Assert.assertFalse(distributionGroupZookeeperAdapter.isDistributionGroupRegistered(TEST_GROUP));
 	}
 	
@@ -196,7 +182,7 @@ public class TestZookeeperIntegration {
 		System.out.println("---> Get root node - DONE");
 		Assert.assertEquals(0, rootNode.getRegionId());
 		
-		Assert.assertEquals(TEST_GROUP, rootNode.getDistributionGroupName().getFullname());
+		Assert.assertEquals(TEST_GROUP, rootNode.getDistributionGroupName());
 		
 		final DistributionRegionState stateForDistributionRegion1 = distributionGroupZookeeperAdapter.getStateForDistributionRegion(rootNode);
 		Assert.assertEquals(DistributionRegionState.ACTIVE, stateForDistributionRegion1);

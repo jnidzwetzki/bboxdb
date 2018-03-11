@@ -20,7 +20,6 @@ package org.bboxdb.storage.tuplestore.manager;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.storage.StorageManagerException;
 import org.bboxdb.storage.entity.TupleStoreName;
 
@@ -33,7 +32,7 @@ public class TupleStoreUtil {
 	 * @return
 	 */
 	public static List<TupleStoreName> getAllTablesForDistributionGroupAndRegionId(
-			final TupleStoreManagerRegistry registry, final DistributionGroupName distributionGroupName, 
+			final TupleStoreManagerRegistry registry, final String distributionGroupName, 
 			final long regionId) {
 		
 		final List<TupleStoreName> groupTables = registry.getAllTablesForDistributionGroup(
@@ -54,7 +53,7 @@ public class TupleStoreUtil {
 	 * @throws StorageManagerException
 	 */
 	public static long getSizeOfDistributionGroupAndRegionId(final TupleStoreManagerRegistry registry, 
-			final DistributionGroupName distributionGroupName, final long regionId) 
+			final String distributionGroupName, final long regionId) 
 				throws StorageManagerException {
 		
 		final List<TupleStoreName> tables 
@@ -77,7 +76,7 @@ public class TupleStoreUtil {
 	 * @throws StorageManagerException
 	 */
 	public static long getTuplesInDistributionGroupAndRegionId(final TupleStoreManagerRegistry registry, 
-			final DistributionGroupName distributionGroupName, final long regionId) 
+			final String distributionGroupName, final long regionId) 
 				throws StorageManagerException {
 		
 		final List<TupleStoreName> tables 

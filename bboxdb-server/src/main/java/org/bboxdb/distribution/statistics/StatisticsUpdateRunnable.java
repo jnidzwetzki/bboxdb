@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.ZookeeperBBoxDBInstanceAdapter;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
@@ -115,12 +114,11 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 	private void updateRegionStatistics() {
 		
 		try {
-			final List<DistributionGroupName> allDistributionGroups = adapter.getDistributionGroups();
-			for(final DistributionGroupName distributionGroup : allDistributionGroups) {
-				final String fullname = distributionGroup.getFullname();
+			final List<String> allDistributionGroups = adapter.getDistributionGroups();
+			for(final String distributionGroup : allDistributionGroups) {
 				
 				final SpacePartitioner spacePartitioner = SpacePartitionerCache
-						.getInstance().getSpacePartitionerForGroupName(fullname);
+						.getInstance().getSpacePartitionerForGroupName(distributionGroup);
 				
 				final DistributionRegionIdMapper regionIdMapper = spacePartitioner.getDistributionRegionIdMapper();
 				
@@ -145,12 +143,11 @@ public class StatisticsUpdateRunnable extends ExceptionSafeRunnable {
 	 * @throws StorageManagerException 
 	 * @throws InterruptedException 
 	 */
-	private void updateRegionStatistics(final DistributionGroupName distributionGroup, final long regionId) 
+	private void updateRegionStatistics(final String distributionGroup, final long regionId) 
 			throws BBoxDBException, ZookeeperException, StorageManagerException, InterruptedException {
 		
-		final String fullname = distributionGroup.getFullname();
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance()
-				.getSpacePartitionerForGroupName(fullname);
+				.getSpacePartitionerForGroupName(distributionGroup);
 		
 		final DistributionRegion distributionRegion = spacePartitioner.getRootNode();
 

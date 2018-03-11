@@ -26,16 +26,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.partitioner.DistributionRegionState;
+import org.bboxdb.storage.entity.DistributionGroupHelper;
 
 public class DistributionRegion {
 
 	/**
 	 * The name of the distribution group
 	 */
-	private final DistributionGroupName distributionGroupName;
+	private final String distributionGroupName;
 
 	/**
 	 * The left child
@@ -72,7 +72,7 @@ public class DistributionRegion {
 	 */
 	public final static DistributionRegion ROOT_NODE_ROOT_POINTER = null;
 
-	public DistributionRegion(final DistributionGroupName name, final BoundingBox boundingBox) {
+	public DistributionRegion(final String name, final BoundingBox boundingBox) {
 		this(name, ROOT_NODE_ROOT_POINTER, boundingBox, 0);
 	}
 	
@@ -81,10 +81,10 @@ public class DistributionRegion {
 	 * @param boundingBox 
 	 * @param level
 	 */
-	public DistributionRegion(final DistributionGroupName name, final DistributionRegion parent,
+	public DistributionRegion(final String name, final DistributionRegion parent,
 			final BoundingBox boundingBox, final long regionid) {
 		
-		if(! name.isValid()) {
+		if(! DistributionGroupHelper.validateDistributionGroupName(name)) {
 			throw new IllegalArgumentException("Invalid distribution group specified");
 		}
 		
@@ -330,7 +330,7 @@ public class DistributionRegion {
 	 * Returns get the distribution group name
 	 * @return
 	 */
-	public DistributionGroupName getDistributionGroupName() {
+	public String getDistributionGroupName() {
 		return distributionGroupName;
 	}
 	
@@ -339,7 +339,7 @@ public class DistributionRegion {
 	 * @return
 	 */
 	public String getIdentifier() {
-		return distributionGroupName.getFullname() + "_" + regionid;
+		return distributionGroupName + "_" + regionid;
 	}
 	
 	/**

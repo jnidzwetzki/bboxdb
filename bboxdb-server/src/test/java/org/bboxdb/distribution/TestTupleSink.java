@@ -66,10 +66,9 @@ public class TestTupleSink {
 	 */
 	@Test(expected=StorageManagerException.class)
 	public void testRegisterRegionDuplicate() throws StorageManagerException {
-		final DistributionGroupName distributionGroupName = new DistributionGroupName(DREGION);
 		
 		final DistributionRegion distributionRegion = new DistributionRegion(
-				distributionGroupName, BoundingBox.createFullCoveringDimensionBoundingBox(3));
+				DREGION, BoundingBox.createFullCoveringDimensionBoundingBox(3));
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
 		
@@ -93,10 +92,9 @@ public class TestTupleSink {
 	 */
 	@Test
 	public void testTupleRedistribution1() throws Exception {
-		final DistributionGroupName distributionGroupName = new DistributionGroupName(DREGION);
 		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
-				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
+				DREGION, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
 				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), 1);
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();
@@ -121,15 +119,13 @@ public class TestTupleSink {
 	 * @throws Exception 
 	 */
 	@Test
-	public void testTupleRedistribution2() throws Exception {
-		final DistributionGroupName distributionGroupName = new DistributionGroupName(DREGION);
-		
+	public void testTupleRedistribution2() throws Exception {		
 		final DistributionRegion distributionRegion1 = new DistributionRegion(
-				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
+				DREGION, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
 				new BoundingBox(0.0, 1.0, 0.0, 1.0, 0.0, 1.0), 1);
 
 		final DistributionRegion distributionRegion2 = new DistributionRegion(
-				distributionGroupName, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
+				DREGION, DistributionRegion.ROOT_NODE_ROOT_POINTER, 
 				new BoundingBox(5.0, 6.0, 5.0, 6.0, 5.0, 6.0), 1);
 
 		final TupleRedistributor tupleRedistributor = createTupleRedistributor();

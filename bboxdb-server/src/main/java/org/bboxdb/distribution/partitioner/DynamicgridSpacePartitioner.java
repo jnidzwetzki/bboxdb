@@ -88,7 +88,7 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			final BoundingBox leftBoundingBox = parentBox.splitAndGetLeft(splitPosition, 0, true);
 			final BoundingBox rightBoundingBox = parentBox.splitAndGetRight(splitPosition, 0, false);
 			
-			final String fullname = distributionGroupName.getFullname();
+			final String fullname = distributionGroupName;
 			
 			// Only one system executes the split, therefore we can determine the child ids
 			final int oldNumberOfhildren = parent.getDirectChildren().size();
@@ -158,9 +158,9 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			final int childNumber = (int) parent.getHighestChildNumber();
 			
 			final String childPath = distributionGroupZookeeperAdapter.createNewChild(parentPath, 
-					childNumber, bbox, distributionGroupName.getFullname());
+					childNumber, bbox, distributionGroupName);
 			
-			SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName.getFullname(), 
+			SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName, 
 					new ArrayList<>(), distributionGroupZookeeperAdapter);
 			
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.ACTIVE);
@@ -266,14 +266,12 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 					throws ZookeeperException, InputParseException, ZookeeperNotFoundException, ResourceAllocationException {
 		
 		logger.info("Processing dimension {}", dimension);
-		
-		final String fullname = distributionGroupName.getFullname();
-		
+				
 		if(dimension == 0) {	
 			final String childPath = distributionGroupZookeeperAdapter.createNewChild(parentPath, 
-					0, box, fullname);
+					0, box, distributionGroupName);
 			
-			SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName.getFullname(), 
+			SpacePartitionerHelper.allocateSystemsToRegion(childPath, distributionGroupName, 
 					new ArrayList<BBoxDBInstance>(), distributionGroupZookeeperAdapter);
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.ACTIVE);
 			
@@ -301,7 +299,7 @@ public class DynamicgridSpacePartitioner extends AbstractGridSpacePartitioner {
 			}
 						
 			final String childPath = distributionGroupZookeeperAdapter.createNewChild(parentPath, 
-					childNumber, nodeBox, fullname);
+					childNumber, nodeBox, distributionGroupName);
 			
 			distributionGroupZookeeperAdapter.setStateForDistributionGroup(childPath, DistributionRegionState.SPLIT);
 			createGridInDimension(splitConfig, childPath, nodeBox, dimension - 1);

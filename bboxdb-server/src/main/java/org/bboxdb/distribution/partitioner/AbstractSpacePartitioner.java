@@ -20,7 +20,6 @@ package org.bboxdb.distribution.partitioner;
 import java.util.List;
 
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.TupleStoreConfigurationCache;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.placement.ResourceAllocationException;
@@ -50,7 +49,7 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 	/**
 	 * The name of the distribution group
 	 */
-	protected DistributionGroupName distributionGroupName;
+	protected String distributionGroupName;
 	
 	/**
 	 * The distribution region syncer
@@ -155,7 +154,7 @@ public abstract class AbstractSpacePartitioner implements SpacePartitioner{
 			final String path 
 				= distributionGroupZookeeperAdapter.getZookeeperPathForDistributionRegion(region);
 			
-			final String fullname = region.getDistributionGroupName().getFullname();
+			final String fullname = region.getDistributionGroupName();
 			
 			SpacePartitionerHelper.allocateSystemsToRegion(path, fullname, 
 					blacklistSystems, distributionGroupZookeeperAdapter);

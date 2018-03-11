@@ -46,7 +46,7 @@ public class TestRegionSyncer {
 	/**
 	 * The test group
 	 */
-	private final static DistributionGroupName GROUP = new DistributionGroupName("synctestgroup");
+	private final static String GROUP = "synctestgroup";
 	
 	/**
 	 * The adapter
@@ -61,14 +61,13 @@ public class TestRegionSyncer {
 				.withPlacementStrategy("org.bboxdb.distribution.placement.DummyResourcePlacementStrategy", "")
 				.build();
 		
-		distributionGroupAdapter.deleteDistributionGroup(GROUP.getFullname());
-		distributionGroupAdapter.createDistributionGroup(GROUP.getFullname(), 
-				configuration);
+		distributionGroupAdapter.deleteDistributionGroup(GROUP);
+		distributionGroupAdapter.createDistributionGroup(GROUP, configuration);
 	}
 	
 	@Test
 	public void getNonExistingRoot() throws ZookeeperException {
-		distributionGroupAdapter.deleteDistributionGroup(GROUP.getFullname());
+		distributionGroupAdapter.deleteDistributionGroup(GROUP);
 		final DistributionRegionSyncer distributionRegionSyncer = buildSyncer();
 		final DistributionRegion root = distributionRegionSyncer.getRootNode();
 		Assert.assertEquals(null, root);
@@ -281,7 +280,7 @@ public class TestRegionSyncer {
 		
 		distributionRegionSyncer.registerCallback(removedCallback);
 
-		distributionGroupAdapter.deleteDistributionGroup(GROUP.getFullname());
+		distributionGroupAdapter.deleteDistributionGroup(GROUP);
 
 		System.out.println("=== testEventOnDelete: Wait for removed latch");
 		removedLatch.await();
@@ -360,21 +359,20 @@ public class TestRegionSyncer {
 		final BoundingBox rightBoundingBox = root.getConveringBox().splitAndGetRight(0, 0, true);
 		
 		final String regionPath = distributionGroupAdapter.getZookeeperPathForDistributionRegion(root);
-
-		final String fullname = GROUP.getFullname();
 		
 		final CountDownLatch latchLevel0 = new CountDownLatch(1);
 		final DistributionRegionCallback level0Callback = (e, r) -> { if(root.getDirectChildren().size() == 2) { latchLevel0.countDown(); }};
 
 		distributionRegionSyncer.registerCallback(level0Callback);
-		distributionGroupAdapter.createNewChild(regionPath, 0, leftBoundingBox, fullname);
-		distributionGroupAdapter.createNewChild(regionPath, 1, rightBoundingBox, fullname);
+		distributionGroupAdapter.createNewChild(regionPath, 0, leftBoundingBox, GROUP);
+		distributionGroupAdapter.createNewChild(regionPath, 1, rightBoundingBox, GROUP);
 		latchLevel0.await();
 		distributionRegionSyncer.unregisterCallback(level0Callback);
 		
 		Assert.assertEquals(2, root.getDirectChildren().size());
 		Assert.assertTrue(root.getChildNumber(0) != null);
 		Assert.assertTrue(root.getChildNumber(1) != null);
-		return fullname;
+		
+		return GROUP;
 	}
 }

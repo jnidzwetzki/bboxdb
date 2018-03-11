@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bboxdb.commons.math.BoundingBox;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.membership.BBoxDBInstance;
 import org.bboxdb.distribution.membership.MembershipConnectionService;
 import org.bboxdb.distribution.partitioner.DistributionGroupZookeeperAdapter;
@@ -131,15 +130,14 @@ public class RegionMerger {
 
 		logger.info("Redistributing all data for region (merge): " + destination.getIdentifier());
 
-		final DistributionGroupName distributionGroupName = destination.getDistributionGroupName();
+		final String distributionGroupName = destination.getDistributionGroupName();
 
 		final List<TupleStoreName> localTables = TupleStoreUtil.getAllTablesForDistributionGroupAndRegionId
 				(registry, distributionGroupName, destination.getRegionId());
 
 		// Add the local mapping, new data is written to the region
-		final String fullname = distributionGroupName.getFullname();
 		final SpacePartitioner spacePartitioner = SpacePartitionerCache
-				.getInstance().getSpacePartitionerForGroupName(fullname);
+				.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
 		
 		final DistributionRegionIdMapper mapper = spacePartitioner.getDistributionRegionIdMapper();		
 		

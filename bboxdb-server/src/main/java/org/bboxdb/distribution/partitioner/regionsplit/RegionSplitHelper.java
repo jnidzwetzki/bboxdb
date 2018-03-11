@@ -73,7 +73,7 @@ public class RegionSplitHelper {
 	private static long getConfiguredRegionMaxSize(final DistributionRegion region) 
 			throws ZookeeperException, ZookeeperNotFoundException {
 		
-		final String fullname = region.getDistributionGroupName().getFullname();
+		final String fullname = region.getDistributionGroupName();
 		
 		final DistributionGroupConfiguration config = DistributionGroupConfigurationCache
 				.getInstance().getDistributionGroupConfiguration(fullname);
@@ -104,7 +104,7 @@ public class RegionSplitHelper {
 	 */
 	public static boolean isSplittingSupported(final DistributionRegion region) {
 		try {
-			final String distributionGroupName = region.getDistributionGroupName().getFullname();
+			final String distributionGroupName = region.getDistributionGroupName();
 			final SpacePartitioner spacePartitioner = SpacePartitionerCache.getInstance().getSpacePartitionerForGroupName(distributionGroupName);
 
 			return spacePartitioner.isSplitable(region);

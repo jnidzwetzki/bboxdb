@@ -19,7 +19,6 @@ package org.bboxdb;
 
 import org.bboxdb.commons.math.BoundingBox;
 import org.bboxdb.distribution.DistributionGroupConfigurationCache;
-import org.bboxdb.distribution.DistributionGroupName;
 import org.bboxdb.distribution.region.DistributionRegion;
 import org.bboxdb.storage.entity.DistributionGroupConfiguration;
 import org.bboxdb.storage.entity.DistributionGroupConfigurationBuilder;
@@ -35,7 +34,7 @@ public class TestDistributionGroup {
 	public void createInvalidDistributionGroup1() {
 		@SuppressWarnings("unused")
 		final DistributionRegion distributionRegion = new DistributionRegion(
-				new DistributionGroupName("foo__"), BoundingBox.createFullCoveringDimensionBoundingBox(1));
+				"foo__", BoundingBox.createFullCoveringDimensionBoundingBox(1));
 	}
 	
 	/**
@@ -45,7 +44,7 @@ public class TestDistributionGroup {
 	public void createInvalidDistributionGroup2() {
 		@SuppressWarnings("unused")
 		final DistributionRegion distributionRegion = new DistributionRegion(
-				new DistributionGroupName("12_foo_bar"), BoundingBox.createFullCoveringDimensionBoundingBox(1));
+				"12_foo_bar", BoundingBox.createFullCoveringDimensionBoundingBox(1));
 	}
 	
 	/**
@@ -72,7 +71,7 @@ public class TestDistributionGroup {
 		config.setDimensions(dimensions);
 		DistributionGroupConfigurationCache.getInstance().addNewConfiguration(name, config);
 		
-		final DistributionRegion level0 = new DistributionRegion(new DistributionGroupName(name), 
+		final DistributionRegion level0 = new DistributionRegion(name, 
 				BoundingBox.createFullCoveringDimensionBoundingBox(dimensions));
 		return level0;
 	}
