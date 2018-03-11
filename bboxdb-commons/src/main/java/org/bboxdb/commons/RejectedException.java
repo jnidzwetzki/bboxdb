@@ -24,24 +24,12 @@ public class RejectedException extends Exception {
 	 */
 	private static final long serialVersionUID = 1472757701389969476L;
 
-	public RejectedException() {
-	}
-
 	public RejectedException(final String message) {
 		super(message);
 	}
 
 	public RejectedException(final Throwable cause) {
 		super(cause);
-	}
-
-	public RejectedException(final String message, final Throwable cause) {
-		super(message, cause);
-	}
-
-	public RejectedException(final String message, final Throwable cause, 
-			final boolean enableSuppression, final boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
 }

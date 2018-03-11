@@ -2,6 +2,7 @@ package org.bboxdb;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.bboxdb.commons.RejectedException;
 import org.bboxdb.commons.concurrent.ExceptionSafeRunnable;
 import org.junit.Assert;
 import org.junit.Test;
@@ -126,7 +127,7 @@ public class TestExceptionSafeRunnable {
 		final ExceptionSafeRunnable runnable = new ExceptionSafeRunnable() {
 			@Override
 			protected void runThread() throws Exception {
-				throw new Exception("Exception");
+				throw new RejectedException("Exception");
 			}
 		};
 		
